@@ -216,12 +216,11 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     @Override
     public Cursor query(DatabaseWrapper wrapper) {
         // Query the sql here
-        Cursor cursor = null;
-        String query = getQuery();
+        Cursor cursor;
         if (whereBase.getQueryBuilderBase() instanceof Select) {
-            cursor = wrapper.rawQuery(query, null);
+            cursor = wrapper.rawQuery(getQuery(), null);
         } else {
-            wrapper.execSQL(query);
+            cursor = super.query(wrapper);
         }
 
         return cursor;
