@@ -70,8 +70,8 @@ public class ModelSaver<TModel> {
         modelAdapter.saveForeignKeys(model, wrapper);
         modelAdapter.bindToContentValues(contentValues, model);
         boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
-                modelAdapter.getPrimaryConditionClause(model).getQuery(), null,
-                ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
+            modelAdapter.getPrimaryConditionClause(model).getQuery(), null,
+            ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE);
         }
@@ -118,8 +118,8 @@ public class ModelSaver<TModel> {
         modelAdapter.deleteForeignKeys(model, wrapper);
 
         boolean successful = SQLite.delete(modelAdapter.getModelClass())
-                .where(modelAdapter.getPrimaryConditionClause(model))
-                .executeUpdateDelete(wrapper) != 0;
+            .where(modelAdapter.getPrimaryConditionClause(model))
+            .executeUpdateDelete(wrapper) != 0;
         if (successful) {
             SqlUtils.notifyModelChanged(model, modelAdapter, BaseModel.Action.DELETE);
         }
@@ -134,5 +134,6 @@ public class ModelSaver<TModel> {
     public ModelAdapter<TModel> getModelAdapter() {
         return modelAdapter;
     }
+
 }
 

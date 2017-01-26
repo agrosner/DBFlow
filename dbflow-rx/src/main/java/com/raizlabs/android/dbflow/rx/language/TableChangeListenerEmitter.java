@@ -43,7 +43,7 @@ public class TableChangeListenerEmitter<TModel> implements Action1<Emitter<Model
             this.modelQueriableEmitter = modelQueriableEmitter;
 
 
-            From<TModel> from = null;
+                From<TModel> from = null;
             if (modelQueriable instanceof From) {
                 from = (From<TModel>) modelQueriable;
             } else if (modelQueriable instanceof Where

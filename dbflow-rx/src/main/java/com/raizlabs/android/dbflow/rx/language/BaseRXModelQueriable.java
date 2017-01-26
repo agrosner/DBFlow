@@ -18,10 +18,10 @@ import rx.Single;
 import static rx.Single.fromCallable;
 
 /**
- * Description:
+ * Description: Represents {@link BaseModelQueriable} in RX form.
  */
-
-public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T> implements RXModelQueriable<T> {
+public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
+    implements RXModelQueriable<T> {
 
     public BaseRXModelQueriable(Class<T> table) {
         super(table);
