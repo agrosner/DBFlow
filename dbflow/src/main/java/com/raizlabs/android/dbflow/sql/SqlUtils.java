@@ -1,8 +1,10 @@
 package com.raizlabs.android.dbflow.sql;
 
 import android.content.ContentValues;
+import android.database.ContentObserver;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -28,33 +30,48 @@ public class SqlUtils {
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     /**
-     * Notifies the {@link android.database.ContentObserver} that the model has changed.
+     * Notifies the {@link ContentObserver} that the model has changed.
      *
-     * @param action The {@link Action} enum
-     * @param table  The table of the model
+     * @param action        The {@link Action} enum
+     * @param table         The table of the model
+     * @param sqlConditions The list of conditions that represent what changed.
      */
     public static void notifyModelChanged(Class<?> table, Action action,
                                           Iterable<SQLCondition> sqlConditions) {
         FlowManager.getContext().getContentResolver().notifyChange(
-                getNotificationUri(table, action, sqlConditions), null, true);
+            getNotificationUri(table, action, sqlConditions), null, true);
     }
 
     /**
      * Performs necessary logic to notify of {@link Model}g changes.
      *
-     * @param <ModelClass>   The original model class.
-     * @param <TableClass>   The class of the adapter that we use the model from.
-     * @param <AdapterClass> The class of the adapter, which is a {@link ModelAdapter}
-     * @param modelAdapter   The actual {@link ModelAdapter} associated with the {@link ModelClass}/
-     * @param action         The {@link Action} that occured.
+     * @param <TModel>     The original model class.
+     * @param modelAdapter The actual {@link ModelAdapter} associated with the {@link TModel}/
+     * @param action       The {@link Action} that occured.
      */
     @SuppressWarnings("unchecked")
-    public static <ModelClass> void notifyModelChanged(ModelClass model,
-                                                       ModelAdapter<ModelClass> modelAdapter,
-                                                       Action action) {
+    public static <TModel> void notifyModelChanged(TModel model,
+                                                   ModelAdapter<TModel> modelAdapter,
+                                                   Action action) {
         if (FlowContentObserver.shouldNotify()) {
-            notifyModelChanged(modelAdapter.getModelClass(), action,
-                    modelAdapter.getPrimaryConditionClause(model).getConditions());
+            FlowManager.getContext().getContentResolver()
+                .notifyChange(getNotificationUri(modelAdapter.getModelClass(), action,
+                    modelAdapter.getPrimaryConditionClause(model).getConditions()), null, true);
+        }
+    }
+
+    /**
+     * Notifies listeners of table-level changes from the SQLite-wrapper language.
+     *
+     * @param table
+     * @param action
+     * @param <TModel>
+     */
+    public static <TModel> void notifyTableChanged(Class<TModel> table,
+                                                   Action action) {
+        if (FlowContentObserver.shouldNotify()) {
+            FlowManager.getContext().getContentResolver()
+                .notifyChange(getNotificationUri(table, action, (SQLCondition[]) null), null, true);
         }
     }
 
@@ -68,7 +85,7 @@ public class SqlUtils {
      */
     public static Uri getNotificationUri(Class<?> modelClass, Action action, Iterable<SQLCondition> conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
-                .authority(FlowManager.getTableName(modelClass));
+            .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
@@ -89,9 +106,10 @@ public class SqlUtils {
      * @param conditions The set of key-value {@link SQLCondition} to construct into a uri.
      * @return The {@link Uri}.
      */
-    public static Uri getNotificationUri(Class<?> modelClass, Action action, SQLCondition[] conditions) {
+    public static Uri getNotificationUri(Class<?> modelClass, Action action,
+                                         @Nullable SQLCondition[] conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
-                .authority(FlowManager.getTableName(modelClass));
+            .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
@@ -137,25 +155,23 @@ public class SqlUtils {
     /**
      * Drops an active TRIGGER by specifying the onTable and triggerName
      *
-     * @param mOnTable     The table that this trigger runs on
-     * @param triggerName  The name of the trigger
-     * @param <ModelClass> The class that implements {@link Model}
+     * @param mOnTable    The table that this trigger runs on
+     * @param triggerName The name of the trigger
      */
     public static void dropTrigger(Class<?> mOnTable, String triggerName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
-                .append(triggerName);
+            .append(triggerName);
         FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
     }
 
     /**
      * Drops an active INDEX by specifying the onTable and indexName
      *
-     * @param indexName    The name of the index.
-     * @param <ModelClass> The class that implements {@link Model}
+     * @param indexName The name of the index.
      */
     public static void dropIndex(DatabaseWrapper databaseWrapper, String indexName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
-                .append(QueryBuilder.quoteIfNeeded(indexName));
+            .append(QueryBuilder.quoteIfNeeded(indexName));
         databaseWrapper.execSQL(queryBuilder.getQuery());
     }
 
@@ -175,7 +191,7 @@ public class SqlUtils {
         for (Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
             conditionGroup.and(Condition.column(new NameAlias.Builder(key).build())
-                    .is(contentValues.get(key)));
+                .is(contentValues.get(key)));
         }
     }
 

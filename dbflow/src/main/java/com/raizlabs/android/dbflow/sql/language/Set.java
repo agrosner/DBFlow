@@ -8,6 +8,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
@@ -16,7 +17,7 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
  */
 public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TModel>,
-        Queriable, Transformable<TModel> {
+    Queriable, Transformable<TModel> {
 
     private ConditionGroup conditionGroup;
 
@@ -129,9 +130,9 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder =
-                new QueryBuilder(update.getQuery())
-                        .append("SET ")
-                        .append(conditionGroup.getQuery()).appendSpace();
+            new QueryBuilder(update.getQuery())
+                .append("SET ")
+                .append(conditionGroup.getQuery()).appendSpace();
         return queryBuilder.getQuery();
     }
 
@@ -141,12 +142,12 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
      */
     public Transaction.Builder async() {
         return FlowManager.getDatabaseForTable(getTable())
-                .beginTransactionAsync(new ITransaction() {
-                    @Override
-                    public void execute(DatabaseWrapper databaseWrapper) {
-                        Set.this.executeUpdateDelete(databaseWrapper);
-                    }
-                });
+            .beginTransactionAsync(new ITransaction() {
+                @Override
+                public void execute(DatabaseWrapper databaseWrapper) {
+                    Set.this.executeUpdateDelete(databaseWrapper);
+                }
+            });
     }
 
     @Override
@@ -154,4 +155,8 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
         return update;
     }
 
+    @Override
+    public BaseModel.Action getPrimaryAction() {
+        return BaseModel.Action.UPDATE;
+    }
 }

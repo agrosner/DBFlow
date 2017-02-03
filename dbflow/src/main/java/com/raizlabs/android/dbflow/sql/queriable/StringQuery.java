@@ -5,6 +5,7 @@ import android.database.Cursor;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
@@ -55,4 +56,8 @@ public class StringQuery<TModel> extends BaseModelQueriable<TModel> implements Q
         return this;
     }
 
+    @Override
+    public BaseModel.Action getPrimaryAction() {
+        return BaseModel.Action.CHANGE; // we don't explicitly know the change, but something changed.
+    }
 }

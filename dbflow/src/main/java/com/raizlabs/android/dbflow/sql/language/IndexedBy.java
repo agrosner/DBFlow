@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 
 /**
  * Description: The INDEXED BY part of a SELECT/UPDATE/DELETE
@@ -82,8 +83,12 @@ public class IndexedBy<TModel> implements WhereBase<TModel>, Transformable<TMode
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder(whereBase.getQuery())
-                .append("INDEXED BY ").append(QueryBuilder.quoteIfNeeded(indexProperty.getIndexName())).appendSpace();
+            .append("INDEXED BY ").append(QueryBuilder.quoteIfNeeded(indexProperty.getIndexName())).appendSpace();
         return queryBuilder.getQuery();
     }
 
+    @Override
+    public BaseModel.Action getPrimaryAction() {
+        return whereBase.getPrimaryAction();
+    }
 }
