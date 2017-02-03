@@ -364,7 +364,9 @@ public class FlowCursorList<TModel> implements
 
         public Builder<TModel> modelCache(ModelCache<TModel, ?> modelCache) {
             this.modelCache = modelCache;
-            cacheModels(true);
+            if (modelCache != null) {
+                cacheModels(true);
+            }
             return this;
         }
 
