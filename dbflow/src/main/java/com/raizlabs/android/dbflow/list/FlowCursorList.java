@@ -356,7 +356,9 @@ public class FlowCursorList<TModel> implements
 
         public Builder<TModel> cacheSize(int cacheSize) {
             this.cacheSize = cacheSize;
-            cacheModels(true);
+            if (cacheSize > 0) {
+                cacheModels(true);
+            }
             return this;
         }
 
