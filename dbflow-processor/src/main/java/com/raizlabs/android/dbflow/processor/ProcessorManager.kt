@@ -43,7 +43,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     private val uniqueDatabases = Lists.newArrayList<TypeName>()
     private val modelToDatabaseMap = Maps.newHashMap<TypeName, TypeName>()
-    val typeConverters = Maps.newHashMap<TypeName, TypeConverterDefinition>()
+    val typeConverters = Maps.newLinkedHashMap<TypeName, TypeConverterDefinition>()
     private val migrations = Maps.newHashMap<TypeName, MutableMap<Int, MutableList<MigrationDefinition>>>()
 
     private val databaseDefinitionMap = Maps.newHashMap<TypeName, DatabaseObjectHolder>()
@@ -144,7 +144,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     }
 
     fun getTypeConverters(): Set<TypeConverterDefinition> {
-        return Sets.newHashSet(typeConverters.values)
+        return Sets.newLinkedHashSet(typeConverters.values)
     }
 
     fun getTableDefinitions(databaseName: TypeName): Set<TableDefinition> {
