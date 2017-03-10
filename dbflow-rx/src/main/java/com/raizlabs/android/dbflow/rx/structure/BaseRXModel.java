@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
+import rx.Completable;
 import rx.Single;
 
 /**
@@ -26,11 +27,11 @@ public class BaseRXModel {
         return getRXModelAdapter().save(this, databaseWrapper);
     }
 
-    public Single<Void> load() {
+    public Completable load() {
         return getRXModelAdapter().load(this);
     }
 
-    public Single<Void> load(DatabaseWrapper databaseWrapper) {
+    public Completable load(DatabaseWrapper databaseWrapper) {
         return getRXModelAdapter().load(this, databaseWrapper);
     }
 
@@ -46,7 +47,7 @@ public class BaseRXModel {
         return getRXModelAdapter().update(this);
     }
 
-    public Single<Void> update(DatabaseWrapper databaseWrapper) {
+    public Completable update(DatabaseWrapper databaseWrapper) {
         return getRXModelAdapter().update(this, databaseWrapper);
     }
 
@@ -54,7 +55,7 @@ public class BaseRXModel {
         return getRXModelAdapter().insert(this);
     }
 
-    public Single<Void> insert(DatabaseWrapper databaseWrapper) {
+    public Single<Long> insert(DatabaseWrapper databaseWrapper) {
         return getRXModelAdapter().insert(this, databaseWrapper);
     }
 

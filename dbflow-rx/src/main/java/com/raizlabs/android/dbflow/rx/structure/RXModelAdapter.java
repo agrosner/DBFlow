@@ -7,9 +7,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
+import rx.Completable;
 import rx.Single;
-
-import static rx.Single.fromCallable;
 
 /**
  * Description: Wraps most {@link ModelAdapter} modification operations into RX-style constructs.
@@ -36,7 +35,7 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
     }
 
     public Single<Boolean> save(final T model) {
-        return fromCallable(new Callable<Boolean>() {
+        return Single.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 return modelAdapter.save(model);
@@ -45,7 +44,7 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
     }
 
     public Single<Boolean> save(final T model, final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Boolean>() {
+        return Single.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 return modelAdapter.save(model, databaseWrapper);
@@ -53,8 +52,8 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
         });
     }
 
-    public Single<Void> saveAll(final Collection<T> models) {
-        return fromCallable(new Callable<Void>() {
+    public Completable saveAll(final Collection<T> models) {
+        return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 modelAdapter.saveAll(models);
@@ -63,8 +62,8 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
         });
     }
 
-    public Single<Void> saveAll(final Collection<T> models, final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Void>() {
+    public Completable saveAll(final Collection<T> models, final DatabaseWrapper databaseWrapper) {
+        return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 modelAdapter.saveAll(models, databaseWrapper);
@@ -74,7 +73,7 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
     }
 
     public Single<Long> insert(final T model) {
-        return fromCallable(new Callable<Long>() {
+        return Single.fromCallable(new Callable<Long>() {
             @Override
             public Long call() throws Exception {
                 return modelAdapter.insert(model);
@@ -83,7 +82,7 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
     }
 
     public Single<Long> insert(final T model, final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Long>() {
+        return Single.fromCallable(new Callable<Long>() {
             @Override
             public Long call() throws Exception {
                 return modelAdapter.insert(model, databaseWrapper);
@@ -91,8 +90,8 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
         });
     }
 
-    public Single<Void> insertAll(final Collection<T> models) {
-        return fromCallable(new Callable<Void>() {
+    public Completable insertAll(final Collection<T> models) {
+        return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 modelAdapter.insertAll(models);
@@ -101,9 +100,9 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
         });
     }
 
-    public Single<Void> insertAll(final Collection<T> models,
+    public Completable insertAll(final Collection<T> models,
                                   final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Void>() {
+        return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 modelAdapter.insertAll(models, databaseWrapper);
@@ -113,7 +112,7 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
     }
 
     public Single<Boolean> update(final T model) {
-        return fromCallable(new Callable<Boolean>() {
+        return Single.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 return modelAdapter.update(model);
@@ -121,8 +120,8 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
         });
     }
 
-    public Single<Boolean> update(final T model, final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Boolean>() {
+    public Completable update(final T model, final DatabaseWrapper databaseWrapper) {
+        return Completable.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 return modelAdapter.update(model, databaseWrapper);
@@ -130,8 +129,8 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
         });
     }
 
-    public Single<Void> updateAll(final Collection<T> models) {
-        return fromCallable(new Callable<Void>() {
+    public Completable updateAll(final Collection<T> models) {
+        return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 modelAdapter.updateAll(models);
@@ -140,8 +139,8 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
         });
     }
 
-    public Single<Void> updateAll(final Collection<T> models, final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Void>() {
+    public Completable updateAll(final Collection<T> models, final DatabaseWrapper databaseWrapper) {
+        return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 modelAdapter.updateAll(models, databaseWrapper);
@@ -151,7 +150,7 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
     }
 
     public Single<Boolean> delete(final T model) {
-        return fromCallable(new Callable<Boolean>() {
+        return Single.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 return modelAdapter.delete(model);
@@ -160,7 +159,7 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
     }
 
     public Single<Boolean> delete(final T model, final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Boolean>() {
+        return Single.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 return modelAdapter.delete(model, databaseWrapper);
@@ -168,8 +167,8 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
         });
     }
 
-    public Single<Void> deleteAll(final Collection<T> models) {
-        return fromCallable(new Callable<Void>() {
+    public Completable deleteAll(final Collection<T> models) {
+        return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 modelAdapter.deleteAll(models);
@@ -178,9 +177,8 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
         });
     }
 
-    public Single<Void> deleteAll(final Collection<T> models,
-                                  final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Void>() {
+    public Completable deleteAll(final Collection<T> models, final DatabaseWrapper databaseWrapper) {
+        return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 modelAdapter.deleteAll(models, databaseWrapper);

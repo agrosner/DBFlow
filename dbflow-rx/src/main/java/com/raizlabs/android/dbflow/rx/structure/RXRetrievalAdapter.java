@@ -7,9 +7,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.concurrent.Callable;
 
+import rx.Completable;
 import rx.Single;
-
-import static rx.Single.fromCallable;
 
 /**
  * Description: Mirrors the {@link RetrievalAdapter} with subset of exposed methods, mostly for
@@ -35,8 +34,8 @@ public class RXRetrievalAdapter<TModel> {
         this(FlowManager.getInstanceAdapter(table));
     }
 
-    public Single<Void> load(final TModel model) {
-        return fromCallable(new Callable<Void>() {
+    public Completable load(final TModel model) {
+        return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 retrievalAdapter.load(model);
@@ -45,8 +44,8 @@ public class RXRetrievalAdapter<TModel> {
         });
     }
 
-    public Single<Void> load(final TModel model, final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Void>() {
+    public Completable load(final TModel model, final DatabaseWrapper databaseWrapper) {
+        return Completable.fromCallable(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 retrievalAdapter.load(model, databaseWrapper);
@@ -60,7 +59,7 @@ public class RXRetrievalAdapter<TModel> {
      * @return True if it exists as a row in the corresponding database table
      */
     public Single<Boolean> exists(final TModel model) {
-        return fromCallable(new Callable<Boolean>() {
+        return Single.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 return retrievalAdapter.exists(model);
@@ -69,7 +68,7 @@ public class RXRetrievalAdapter<TModel> {
     }
 
     public Single<Boolean> exists(final TModel model, final DatabaseWrapper wrapper) {
-        return fromCallable(new Callable<Boolean>() {
+        return Single.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 return retrievalAdapter.exists(model, wrapper);
