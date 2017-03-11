@@ -57,6 +57,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
         queryBase = querybase;
     }
 
+    @NonNull
     @Override
     public From<TModel> as(String alias) {
         tableAlias = getTableAlias()
@@ -66,6 +67,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
         return this;
     }
 
+    @NonNull
     @Override
     public <TJoin> Join<TJoin, TModel> join(Class<TJoin> table, @NonNull Join.JoinType joinType) {
         Join<TJoin, TModel> join = new Join<>(this, table, joinType);
@@ -73,6 +75,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
         return join;
     }
 
+    @NonNull
     @Override
     public <TJoin> Join<TJoin, TModel>
     join(ModelQueriable<TJoin> modelQueriable, @NonNull Join.JoinType joinType) {
@@ -81,41 +84,49 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
         return join;
     }
 
+    @NonNull
     @Override
     public <TJoin> Join<TJoin, TModel> crossJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.CROSS);
     }
 
+    @NonNull
     @Override
     public <TJoin> Join<TJoin, TModel> crossJoin(ModelQueriable<TJoin> modelQueriable) {
         return join(modelQueriable, Join.JoinType.CROSS);
     }
 
+    @NonNull
     @Override
     public <TJoin> Join<TJoin, TModel> innerJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.INNER);
     }
 
+    @NonNull
     @Override
     public <TJoin> Join<TJoin, TModel> innerJoin(ModelQueriable<TJoin> modelQueriable) {
         return join(modelQueriable, Join.JoinType.INNER);
     }
 
+    @NonNull
     @Override
     public <TJoin> Join<TJoin, TModel> leftOuterJoin(Class<TJoin> table) {
         return join(table, Join.JoinType.LEFT_OUTER);
     }
 
+    @NonNull
     @Override
     public <TJoin> Join<TJoin, TModel> leftOuterJoin(ModelQueriable<TJoin> modelQueriable) {
         return join(modelQueriable, Join.JoinType.LEFT_OUTER);
     }
 
+    @NonNull
     @Override
     public Where<TModel> where() {
         return new Where<>(this);
     }
 
+    @NonNull
     @Override
     public Where<TModel> where(SQLCondition... conditions) {
         return where().andAll(conditions);
@@ -151,6 +162,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
         return where().executeUpdateDelete(databaseWrapper);
     }
 
+    @NonNull
     @Override
     public IndexedBy<TModel> indexedBy(IndexProperty<TModel> indexProperty) {
         return new IndexedBy<>(indexProperty, this);

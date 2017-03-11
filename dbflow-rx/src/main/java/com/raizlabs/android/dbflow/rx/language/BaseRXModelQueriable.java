@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.rx.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
@@ -34,11 +36,13 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
         return getInnerModelQueriable();
     }
 
+    @NonNull
     @Override
     public Observable<T> queryStreamResults() {
         return Observable.create(new CursorResultSubscriber<>(this));
     }
 
+    @NonNull
     @Override
     public Single<CursorResult<T>> queryResults() {
         return fromCallable(new Callable<CursorResult<T>>() {
@@ -49,6 +53,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
         });
     }
 
+    @NonNull
     @Override
     public Single<List<T>> queryList() {
         return fromCallable(new Callable<List<T>>() {
@@ -59,6 +64,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
         });
     }
 
+    @NonNull
     @Override
     public Single<List<T>> queryList(final DatabaseWrapper wrapper) {
         return fromCallable(new Callable<List<T>>() {
@@ -69,6 +75,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
         });
     }
 
+    @NonNull
     @Override
     public Single<T> querySingle() {
         return fromCallable(new Callable<T>() {
@@ -79,6 +86,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
         });
     }
 
+    @NonNull
     @Override
     public Single<T> querySingle(final DatabaseWrapper wrapper) {
         return fromCallable(new Callable<T>() {
@@ -89,11 +97,13 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
         });
     }
 
+    @NonNull
     @Override
     public Class<T> getTable() {
         return getInnerModelQueriable().getTable();
     }
 
+    @NonNull
     @Override
     public Single<FlowCursorList<T>> cursorList() {
         return fromCallable(new Callable<FlowCursorList<T>>() {
@@ -104,6 +114,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
         });
     }
 
+    @NonNull
     @Override
     public Single<FlowQueryList<T>> flowQueryList() {
         return fromCallable(new Callable<FlowQueryList<T>>() {
@@ -114,6 +125,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
         });
     }
 
+    @NonNull
     @Override
     public <TQueryModel> Single<List<TQueryModel>> queryCustomList(
             final Class<TQueryModel> tQueryModelClass) {
@@ -125,6 +137,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
         });
     }
 
+    @NonNull
     @Override
     public <TQueryModel> Single<TQueryModel> queryCustomSingle(
             final Class<TQueryModel> tQueryModelClass) {
@@ -136,12 +149,14 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
         });
     }
 
+    @NonNull
     @Override
     public RXModelQueriable<T> disableCaching() {
         getInnerModelQueriable().disableCaching();
         return this;
     }
 
+    @NonNull
     @Override
     public Observable<ModelQueriable<T>> observeOnTableChanges() {
         return Observable.create(new TableChangeListenerEmitter<>(getInnerModelQueriable()),

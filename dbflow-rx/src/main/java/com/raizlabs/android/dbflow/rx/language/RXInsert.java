@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.rx.language;
 
 import android.content.ContentValues;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
@@ -15,10 +16,6 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import java.util.List;
 
 import rx.Single;
-
-/**
- * Description:
- */
 
 public class RXInsert<T> extends BaseRXQueriable<T> implements IInsert<T> {
 
@@ -124,11 +121,13 @@ public class RXInsert<T> extends BaseRXQueriable<T> implements IInsert<T> {
         return this;
     }
 
+    @NonNull
     @Override
     public Single<Long> executeUpdateDelete(DatabaseWrapper databaseWrapper) {
         throw new IllegalStateException("Cannot call executeUpdateDelete() from an Insert");
     }
 
+    @NonNull
     @Override
     public Single<Long> executeUpdateDelete() {
         throw new IllegalStateException("Cannot call executeUpdateDelete() from an Insert");

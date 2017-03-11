@@ -13,9 +13,6 @@ import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 
 import java.util.List;
 
-/**
- * Description:
- */
 public class RXWhere<T> extends BaseRXModelQueriable<T> implements IWhere<T> {
 
     private final Where<T> innerWhere;
@@ -30,30 +27,35 @@ public class RXWhere<T> extends BaseRXModelQueriable<T> implements IWhere<T> {
         return innerWhere;
     }
 
+    @NonNull
     @Override
     public RXWhere<T> and(SQLCondition condition) {
         innerWhere.and(condition);
         return this;
     }
 
+    @NonNull
     @Override
     public RXWhere<T> or(SQLCondition condition) {
         innerWhere.or(condition);
         return this;
     }
 
+    @NonNull
     @Override
     public RXWhere<T> andAll(List<SQLCondition> conditions) {
         innerWhere.andAll(conditions);
         return this;
     }
 
+    @NonNull
     @Override
     public RXWhere<T> andAll(SQLCondition... conditions) {
         innerWhere.andAll(conditions);
         return this;
     }
 
+    @NonNull
     @Override
     public RXWhere<T> exists(@NonNull IWhere where) {
         innerWhere.exists(where);

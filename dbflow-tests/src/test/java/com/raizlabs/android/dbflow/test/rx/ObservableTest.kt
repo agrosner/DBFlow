@@ -24,9 +24,9 @@ class ObservableTest : FlowTestCase() {
         var count = 0
 
         RXSQLite.select()
-            .from(TestModel1::class.java)
-            .queryStreamResults()
-            .toBlocking().subscribe {
+                .from(TestModel1::class.java)
+                .queryStreamResults()
+                .toBlocking().subscribe {
             count++
             assert(it != null)
         }
@@ -40,11 +40,11 @@ class ObservableTest : FlowTestCase() {
         var count = 0
 
         RXSQLite.select()
-            .from(TestModel1::class.java)
-            .observeOnTableChanges()
-            .subscribe {
-                count++
-            }
+                .from(TestModel1::class.java)
+                .observeOnTableChanges()
+                .subscribe {
+                    count++
+                }
 
         val model = TestModel1().apply { name = "1" }
         model.insert()
@@ -60,15 +60,15 @@ class ObservableTest : FlowTestCase() {
         var count = 0
 
         RXSQLite.select()
-            .from(TestModel1::class.java)
-            .observeOnTableChanges()
-            .subscribe {
-                count++
-            }
+                .from(TestModel1::class.java)
+                .observeOnTableChanges()
+                .subscribe {
+                    count++
+                }
 
         RXSQLite.insert(TestModel1::class.java)
-            .columnValues(TestModel1_Table.name.eq("Test"))
-            .executeInsert().toBlocking().value()
+                .columnValues(TestModel1_Table.name.eq("Test"))
+                .executeInsert().toBlocking().value()
 
         assertEquals(3, count)
     }

@@ -8,10 +8,6 @@ import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 
-/**
- * Description:
- */
-
 public class RXJoin<TModel, TFromModel> implements IJoin<TModel, TFromModel> {
 
     private final Join<TModel, TFromModel> innerJoin;

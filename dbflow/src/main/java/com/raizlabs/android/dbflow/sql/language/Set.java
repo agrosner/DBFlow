@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.content.ContentValues;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
@@ -36,18 +37,21 @@ public class Set<TModel> extends BaseQueriable<TModel> implements ISet<TModel> {
      * @param conditions The varg of conditions
      * @return This instance.
      */
+    @NonNull
     @Override
     public Set<TModel> conditions(SQLCondition... conditions) {
         conditionGroup.andAll(conditions);
         return this;
     }
 
+    @NonNull
     @Override
     public Set<TModel> conditionValues(ContentValues contentValues) {
         SqlUtils.addContentValues(contentValues, conditionGroup);
         return this;
     }
 
+    @NonNull
     @Override
     public Where<TModel> where(SQLCondition... conditions) {
         return new Where<>(this, conditions);

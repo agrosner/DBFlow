@@ -19,10 +19,6 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.List;
 
-/**
- * Description:
- */
-
 public class RXFrom<T> extends BaseRXModelQueriable<T> implements IFrom<T> {
 
     private final From<T> innerFrom;
@@ -42,6 +38,7 @@ public class RXFrom<T> extends BaseRXModelQueriable<T> implements IFrom<T> {
         return innerFrom.getQuery();
     }
 
+    @NonNull
     @Override
     public Class<T> getTable() {
         return innerFrom.getTable();
@@ -97,62 +94,74 @@ public class RXFrom<T> extends BaseRXModelQueriable<T> implements IFrom<T> {
         return where().orderByAll(orderBies);
     }
 
+    @NonNull
     @Override
     public <TJoin> RXJoin<TJoin, T> join(Class<TJoin> table, @NonNull Join.JoinType joinType) {
         return new RXJoin<>(this, table, joinType);
     }
 
+    @NonNull
     @Override
     public <TJoin> RXJoin<TJoin, T> join(ModelQueriable<TJoin> modelQueriable, @NonNull Join.JoinType joinType) {
         return new RXJoin<>(this, joinType, modelQueriable);
     }
 
+    @NonNull
     @Override
     public <TJoin> RXJoin<TJoin, T> crossJoin(Class<TJoin> table) {
         return new RXJoin<>(this, table, Join.JoinType.CROSS);
     }
 
+    @NonNull
     @Override
     public <TJoin> RXJoin<TJoin, T> crossJoin(ModelQueriable<TJoin> modelQueriable) {
         return new RXJoin<>(this, Join.JoinType.CROSS, modelQueriable);
     }
 
+    @NonNull
     @Override
     public <TJoin> RXJoin<TJoin, T> innerJoin(Class<TJoin> table) {
         return new RXJoin<>(this, table, Join.JoinType.INNER);
     }
 
+    @NonNull
     @Override
     public <TJoin> RXJoin<TJoin, T> innerJoin(ModelQueriable<TJoin> modelQueriable) {
         return new RXJoin<>(this, Join.JoinType.INNER, modelQueriable);
     }
 
+    @NonNull
     @Override
     public RXFrom<T> as(String alias) {
         innerFrom.as(alias);
         return this;
     }
 
+    @NonNull
     @Override
     public <TJoin> RXJoin<TJoin, T> leftOuterJoin(Class<TJoin> table) {
         return new RXJoin<>(this, table, Join.JoinType.LEFT_OUTER);
     }
 
+    @NonNull
     @Override
     public <TJoin> RXJoin<TJoin, T> leftOuterJoin(ModelQueriable<TJoin> modelQueriable) {
         return new RXJoin<>(this, Join.JoinType.LEFT_OUTER, modelQueriable);
     }
 
+    @NonNull
     @Override
     public RXWhere<T> where() {
         return new RXWhere<>(this);
     }
 
+    @NonNull
     @Override
     public RXWhere<T> where(SQLCondition... conditions) {
         return where().andAll(conditions);
     }
 
+    @NonNull
     @Override
     public IndexedBy<T> indexedBy(IndexProperty<T> indexProperty) {
         // TODO: RX

@@ -1,4 +1,4 @@
-include ':dbflow',
+include ':dbflow', ':dbflow-rx-kotlinextensions',
         ':dbflow-processor',
         ':dbflow-core',
         ':dbflow-sqlcipher',

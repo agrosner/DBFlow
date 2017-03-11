@@ -3,9 +3,6 @@ package com.raizlabs.android.dbflow.rx.language;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.IDelete;
 
-/**
- * Description: Represents a {@link Delete} in RX format.
- */
 public class RXDelete implements IDelete {
 
     private final Delete innerDelete;

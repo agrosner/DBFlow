@@ -12,13 +12,18 @@ import java.util.List;
 
 public interface IWhere<TModel> extends Transformable<TModel>, Query {
 
+    @NonNull
     IWhere<TModel> and(SQLCondition condition);
 
+    @NonNull
     IWhere<TModel> or(SQLCondition condition);
 
+    @NonNull
     IWhere<TModel> andAll(List<SQLCondition> conditions);
 
+    @NonNull
     IWhere<TModel> andAll(SQLCondition... conditions);
 
+    @NonNull
     IWhere<TModel> exists(@NonNull IWhere where);
 }

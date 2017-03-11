@@ -1,10 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.content.ContentValues;
-
-/**
- * Description:
- */
+import android.support.annotation.NonNull;
 
 public interface ISet<T> extends WhereBase<T>, Transformable<T> {
 
@@ -14,6 +11,7 @@ public interface ISet<T> extends WhereBase<T>, Transformable<T> {
      * @param conditions The varg of conditions
      * @return This instance.
      */
+    @NonNull
     ISet<T> conditions(SQLCondition... conditions);
 
     /**
@@ -22,6 +20,7 @@ public interface ISet<T> extends WhereBase<T>, Transformable<T> {
      * @param contentValues The set of values to append.
      * @return This instance.
      */
+    @NonNull
     ISet<T> conditionValues(ContentValues contentValues);
 
     /**
@@ -30,5 +29,6 @@ public interface ISet<T> extends WhereBase<T>, Transformable<T> {
      * @param conditions The conditions to fill the WHERE with.
      * @return The where piece of this query.
      */
+    @NonNull
     IWhere<T> where(SQLCondition... conditions);
 }

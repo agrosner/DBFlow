@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.rx.language;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -28,7 +29,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
 
     protected abstract Queriable getInnerQueriable();
 
-    @Nullable
+    @NonNull
     @Override
     public Single<Cursor> query() {
         return fromCallable(new Callable<Cursor>() {
@@ -39,7 +40,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
-    @Nullable
+    @NonNull
     @Override
     public Single<Cursor> query(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<Cursor>() {
@@ -50,6 +51,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
+    @NonNull
     @Override
     public Single<DatabaseStatement> compileStatement() {
         return fromCallable(new Callable<DatabaseStatement>() {
@@ -60,6 +62,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
+    @NonNull
     @Override
     public Single<DatabaseStatement> compileStatement(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<DatabaseStatement>() {
@@ -70,6 +73,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
+    @NonNull
     @Override
     public Single<Long> count() {
         return fromCallable(new Callable<Long>() {
@@ -80,6 +84,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
+    @NonNull
     @Override
     public Single<Long> count(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<Long>() {
@@ -90,6 +95,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
+    @NonNull
     @Override
     public Single<Long> executeInsert() {
         return fromCallable(new Callable<Long>() {
@@ -100,6 +106,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
+    @NonNull
     @Override
     public Single<Long> executeInsert(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<Long>() {
@@ -110,6 +117,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
+    @NonNull
     @Override
     public Single<Long> executeUpdateDelete(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<Long>() {
@@ -120,6 +128,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
+    @NonNull
     @Override
     public Single<Long> executeUpdateDelete() {
         return fromCallable(new Callable<Long>() {
@@ -130,6 +139,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
+    @NonNull
     @Override
     public Single<Boolean> hasData() {
         return fromCallable(new Callable<Boolean>() {
@@ -140,6 +150,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
+    @NonNull
     @Override
     public Single<Boolean> hasData(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<Boolean>() {
@@ -150,6 +161,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
+    @NonNull
     @Override
     public Single<Void> execute() {
         return fromCallable(new Callable<Void>() {
@@ -161,6 +173,7 @@ public abstract class BaseRXQueriable<T> implements RXQueriable {
         });
     }
 
+    @NonNull
     @Override
     public Single<Void> execute(final DatabaseWrapper databaseWrapper) {
         return fromCallable(new Callable<Void>() {

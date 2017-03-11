@@ -63,6 +63,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     /**
      * Joins the {@link SQLCondition} by the prefix of "AND" (unless its the first condition).
      */
+    @NonNull
     @Override
     public Where<TModel> and(SQLCondition condition) {
         conditionGroup.and(condition);
@@ -72,6 +73,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     /**
      * Joins the {@link SQLCondition} by the prefix of "OR" (unless its the first condition).
      */
+    @NonNull
     @Override
     public Where<TModel> or(SQLCondition condition) {
         conditionGroup.or(condition);
@@ -81,6 +83,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     /**
      * Joins all of the {@link SQLCondition} by the prefix of "AND" (unless its the first condition).
      */
+    @NonNull
     @Override
     public Where<TModel> andAll(List<SQLCondition> conditions) {
         conditionGroup.andAll(conditions);
@@ -90,6 +93,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     /**
      * Joins all of the {@link SQLCondition} by the prefix of "AND" (unless its the first condition).
      */
+    @NonNull
     @Override
     public Where<TModel> andAll(SQLCondition... conditions) {
         conditionGroup.andAll(conditions);
@@ -172,6 +176,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
      * @param where The query to use in the EXISTS clause. Such as SELECT * FROM `MyTable` WHERE ... etc.
      * @return This where with an EXISTS clause.
      */
+    @NonNull
     @Override
     public Where<TModel> exists(@NonNull IWhere where) {
         conditionGroup.and(new ExistenceCondition()
@@ -229,6 +234,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
      *
      * @return All of the entries in the DB converted into {@link TModel}
      */
+    @NonNull
     @Override
     public List<TModel> queryList() {
         checkSelect("query");

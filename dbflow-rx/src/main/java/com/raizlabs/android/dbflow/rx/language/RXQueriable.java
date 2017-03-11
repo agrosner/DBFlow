@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.rx.language;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -21,7 +22,7 @@ public interface RXQueriable {
     /**
      * @return An {@link Single} from the DB based on this query
      */
-    @Nullable
+    @NonNull
     Single<Cursor> query();
 
     /**
@@ -30,24 +31,27 @@ public interface RXQueriable {
      * @param databaseWrapper The wrapper to pass in.
      * @return An {@link Single} from the DB based on this query
      */
-    @Nullable
+    @NonNull
     Single<Cursor> query(DatabaseWrapper databaseWrapper);
 
 
     /**
      * @return An {@link Single} of {@link DatabaseStatement} from this query.
      */
+    @NonNull
     Single<DatabaseStatement> compileStatement();
 
     /**
      * @param databaseWrapper The wrapper to use.
      * @return An {@link Single} of {@link DatabaseStatement} from this query with database specified.
      */
+    @NonNull
     Single<DatabaseStatement> compileStatement(DatabaseWrapper databaseWrapper);
 
     /**
      * @return the count of the results of the query.
      */
+    @NonNull
     Single<Long> count();
 
     /**
@@ -55,35 +59,41 @@ public interface RXQueriable {
      *
      * @return the count of the results of the query.
      */
+    @NonNull
     Single<Long> count(DatabaseWrapper databaseWrapper);
 
     /**
      * @return This may return the number of rows affected from a {@link Insert}  statement.
      * If not, returns {@link Model#INVALID_ROW_ID}
      */
+    @NonNull
     Single<Long> executeInsert();
 
     /**
      * @return This may return the number of rows affected from a {@link Insert}  statement.
      * If not, returns {@link Model#INVALID_ROW_ID}
      */
+    @NonNull
     Single<Long> executeInsert(DatabaseWrapper databaseWrapper);
 
     /**
      * @return This may return the number of rows affected from a {@link Set} or {@link Delete} statement.
      * If not, returns {@link Model#INVALID_ROW_ID}
      */
+    @NonNull
     Single<Long> executeUpdateDelete(DatabaseWrapper databaseWrapper);
 
     /**
      * @return This may return the number of rows affected from a {@link Set} or {@link Delete} statement.
      * If not, returns {@link Model#INVALID_ROW_ID}
      */
+    @NonNull
     Single<Long> executeUpdateDelete();
 
     /**
      * @return True if this query has data. It will run a {@link #count()} greater than 0.
      */
+    @NonNull
     Single<Boolean> hasData();
 
     /**
@@ -91,17 +101,20 @@ public interface RXQueriable {
      *
      * @return True if this query has data. It will run a {@link #count()} greater than 0.
      */
+    @NonNull
     Single<Boolean> hasData(DatabaseWrapper databaseWrapper);
 
     /**
      * Will not return a result, rather simply will execute a SQL statement. Use this for non-SELECT statements or when
      * you're not interested in the result.
      */
+    @NonNull
     Single<Void> execute();
 
     /**
      * Will not return a result, rather simply will execute a SQL statement. Use this for non-SELECT statements or when
      * you're not interested in the result.
      */
+    @NonNull
     Single<Void> execute(DatabaseWrapper databaseWrapper);
 }

@@ -1,12 +1,10 @@
 package com.raizlabs.android.dbflow.rx.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.language.ISelect;
 import com.raizlabs.android.dbflow.sql.language.Select;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
-
-/**
- * Description:
- */
 
 public class RXSelect implements ISelect {
 
@@ -16,12 +14,14 @@ public class RXSelect implements ISelect {
         innerSelect = new Select(properties);
     }
 
+    @NonNull
     @Override
     public ISelect distinct() {
         innerSelect.distinct();
         return this;
     }
 
+    @NonNull
     @Override
     public <TModel> RXFrom<TModel> from(Class<TModel> table) {
         return new RXFrom<>(this, table);
