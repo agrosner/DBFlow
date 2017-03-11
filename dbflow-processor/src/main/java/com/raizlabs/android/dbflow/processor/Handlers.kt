@@ -186,7 +186,7 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
 abstract class BaseContainerHandler<AnnotationClass : Annotation> : Handler {
 
     override fun handle(processorManager: ProcessorManager, roundEnvironment: RoundEnvironment) {
-        val annotatedElements = Sets.newHashSet(roundEnvironment.getElementsAnnotatedWith(annotationClass))
+        val annotatedElements = Sets.newLinkedHashSet(roundEnvironment.getElementsAnnotatedWith(annotationClass))
         processElements(processorManager, annotatedElements)
         if (annotatedElements.size > 0) {
             annotatedElements.forEach { onProcessElement(processorManager, it) }
