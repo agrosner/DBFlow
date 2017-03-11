@@ -30,7 +30,7 @@ public class Set<TModel> extends BaseQueriable<TModel> implements ISet<TModel> {
         conditionGroup.setAllCommaSeparated(true);
     }
 
-    /**
+    /**`
      * Specifies a varg of conditions to append to this SET
      *
      * @param conditions The varg of conditions

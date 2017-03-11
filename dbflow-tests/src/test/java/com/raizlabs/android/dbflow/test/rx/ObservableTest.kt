@@ -15,7 +15,7 @@ class ObservableTest : FlowTestCase() {
     @Test
     fun testCanObserve() {
 
-        (0..10).forEach {
+        (0..9).forEach {
             TestModel1().apply {
                 name = it.toString()
             }.save()

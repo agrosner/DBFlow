@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.annotation.Collate;
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -446,7 +447,13 @@ public class Condition extends BaseCondition implements ITypeConditional {
     @Override
     public String convertObjectToString(Object object, boolean appendInnerParenthesis) {
         if (typeConverter != null) {
-            Object converted = convertToDB ? typeConverter.getDBValue(object) : object;
+            Object converted = object;
+            try {
+                converted = convertToDB ? typeConverter.getDBValue(object) : object;
+            } catch (ClassCastException c) {
+                // if object type is not valid converted type, just use type as is here.
+                FlowLog.log(FlowLog.Level.W, c);
+            }
             return BaseCondition.convertValueToString(converted, appendInnerParenthesis, false);
         } else {
             return super.convertObjectToString(object, appendInnerParenthesis);

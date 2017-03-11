@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.rx.structure;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
@@ -16,12 +15,12 @@ import rx.Single;
  */
 public class RXRetrievalAdapter<TModel> {
 
-    public static <T> RXRetrievalAdapter<T> from(ModelAdapter<T> modelAdapter) {
-        return new RXRetrievalAdapter<T>(modelAdapter);
+    public static <T> RXRetrievalAdapter<T> from(RetrievalAdapter<T> modelAdapter) {
+        return new RXRetrievalAdapter<>(modelAdapter);
     }
 
     public static <T> RXRetrievalAdapter<T> from(Class<T> table) {
-        return new RXRetrievalAdapter<T>(table);
+        return new RXRetrievalAdapter<>(table);
     }
 
     private final RetrievalAdapter<TModel> retrievalAdapter;

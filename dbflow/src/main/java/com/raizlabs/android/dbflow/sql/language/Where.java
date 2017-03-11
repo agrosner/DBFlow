@@ -210,7 +210,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     public Cursor query(DatabaseWrapper wrapper) {
         // Query the sql here
         Cursor cursor;
-        if (whereBase.getQueryBuilderBase() instanceof Select) {
+        if (whereBase.getQueryBuilderBase() instanceof ISelect) {
             cursor = wrapper.rawQuery(getQuery(), null);
         } else {
             cursor = super.query(wrapper);
@@ -240,8 +240,8 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     }
 
     protected void checkSelect(String methodName) {
-        if (!(whereBase.getQueryBuilderBase() instanceof Select)) {
-            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a Select");
+        if (!(whereBase.getQueryBuilderBase() instanceof ISelect)) {
+            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a ISelect");
         }
     }
 

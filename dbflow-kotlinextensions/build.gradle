@@ -38,7 +38,7 @@ dependencies {
     compile project("${dbflow_project_prefix}dbflow")
 }
 buildscript {
-    ext.kotlin_version = '1.0.5-2'
+    ext.kotlin_version = '1.1.0'
     repositories {
         mavenCentral()
     }
