@@ -16,7 +16,14 @@ class Person() : BaseModel() {
 }
 ```
 
-Also `data` classes are supported, but they (for now) _must_ define `Model` implementation:
+Also `data` classes are supported. Starting from Kotlin 1.1 they can be extended from BaseModel:
+
+```kotlin
+@Table(database = KotlinTestDatabase::class)
+data class Car(@PrimaryKey var id: Int = 0, @Column var name: String? = null) : BaseModel()
+```
+
+For Kotlin below 1.1 version they _must_ define `Model` implementation:
 
 ```kotlin
 @Table(database = KotlinTestDatabase::class)
@@ -33,8 +40,6 @@ data class Car(@PrimaryKey var id: Int = 0, @Column var name: String? = null) : 
     override fun exists() = modelAdapter<Car>().exists(this)
 }
 ```
-
-Once we can use `default` methods on an interface in `Kotlin` `data` classes, this boilerplate will go away.
 
 ## Extensions
 
