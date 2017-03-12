@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.sql.language;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory;
@@ -15,7 +16,7 @@ import java.util.List;
 /**
  * Description: Specifies a SQLite JOIN statement
  */
-public class Join<TModel, TFromModel> implements IJoin<TModel, TFromModel> {
+public class Join<TModel, TFromModel> implements Query {
 
     /**
      * The specific type of JOIN that is used.
@@ -101,12 +102,12 @@ public class Join<TModel, TFromModel> implements IJoin<TModel, TFromModel> {
      * @param alias The name to give it
      * @return This instance
      */
-    @Override
+    @NonNull
     public Join<TModel, TFromModel> as(String alias) {
         this.alias = this.alias
-            .newBuilder()
-            .as(alias)
-            .build();
+                .newBuilder()
+                .as(alias)
+                .build();
         return this;
     }
 
@@ -115,7 +116,7 @@ public class Join<TModel, TFromModel> implements IJoin<TModel, TFromModel> {
      *
      * @return The FROM that this JOIN came from.
      */
-    @Override
+    @NonNull
     public From<TFromModel> natural() {
         isNatural = true;
         return from;
@@ -127,7 +128,7 @@ public class Join<TModel, TFromModel> implements IJoin<TModel, TFromModel> {
      * @param onConditions The conditions it is on
      * @return The FROM that this JOIN came from
      */
-    @Override
+    @NonNull
     public From<TFromModel> on(SQLCondition... onConditions) {
         onGroup = new ConditionGroup();
         onGroup.andAll(onConditions);
@@ -140,7 +141,7 @@ public class Join<TModel, TFromModel> implements IJoin<TModel, TFromModel> {
      * @param columns THe columns to use
      * @return The FROM that this JOIN came from
      */
-    @Override
+    @NonNull
     public From<TFromModel> using(IProperty... columns) {
         Collections.addAll(using, columns);
         return from;
@@ -157,19 +158,19 @@ public class Join<TModel, TFromModel> implements IJoin<TModel, TFromModel> {
         queryBuilder.append(type.name().replace("_", " ")).appendSpace();
 
         queryBuilder.append("JOIN")
-            .appendSpace()
-            .append(alias.getFullQuery())
-            .appendSpace();
+                .appendSpace()
+                .append(alias.getFullQuery())
+                .appendSpace();
 
         if (onGroup != null) {
             queryBuilder.append("ON")
-                .appendSpace()
-                .append(onGroup.getQuery())
-                .appendSpace();
+                    .appendSpace()
+                    .append(onGroup.getQuery())
+                    .appendSpace();
         } else if (!using.isEmpty()) {
             queryBuilder.append("USING (")
-                .appendArray(using)
-                .append(")").appendSpace();
+                    .appendArray(using)
+                    .append(")").appendSpace();
         }
         return queryBuilder.getQuery();
     }

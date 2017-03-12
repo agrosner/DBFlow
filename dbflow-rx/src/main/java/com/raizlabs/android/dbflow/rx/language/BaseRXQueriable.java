@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.rx.language;
 
 import android.database.Cursor;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
@@ -19,15 +18,19 @@ import static rx.Single.fromCallable;
 /**
  * Description: Represents {@link BaseQueriable} with RX constructs.
  */
-public abstract class BaseRXQueriable<T> implements RXQueriable {
+public class BaseRXQueriable<T> implements RXQueriable {
 
     private final Class<T> table;
+    private final Queriable queriable;
 
-    public BaseRXQueriable(Class<T> table) {
+    BaseRXQueriable(Class<T> table, Queriable queriable) {
         this.table = table;
+        this.queriable = queriable;
     }
 
-    protected abstract Queriable getInnerQueriable();
+    private Queriable getInnerQueriable() {
+        return queriable;
+    }
 
     @NonNull
     @Override

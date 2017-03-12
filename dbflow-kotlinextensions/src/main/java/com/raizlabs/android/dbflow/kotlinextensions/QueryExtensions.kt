@@ -101,17 +101,17 @@ infix inline fun <T : Any> AsyncModel<T>.save(crossinline listener: (T) -> Unit)
 
 // Transformable methods
 
-infix fun <T : Any> Transformable<T>.groupBy(nameAlias: NameAlias): IWhere<T> = groupBy(nameAlias)
+infix fun <T : Any> Transformable<T>.groupBy(nameAlias: NameAlias): Where<T> = groupBy(nameAlias)
 
-infix fun <T : Any> Transformable<T>.groupBy(property: IProperty<*>): IWhere<T> = groupBy(property)
+infix fun <T : Any> Transformable<T>.groupBy(property: IProperty<*>): Where<T> = groupBy(property)
 
-infix fun <T : Any> Transformable<T>.orderBy(orderBy: OrderBy): IWhere<T> = orderBy(orderBy)
+infix fun <T : Any> Transformable<T>.orderBy(orderBy: OrderBy): Where<T> = orderBy(orderBy)
 
-infix fun <T : Any> Transformable<T>.limit(limit: Int): IWhere<T> = limit(limit)
+infix fun <T : Any> Transformable<T>.limit(limit: Int): Where<T> = limit(limit)
 
-infix fun <T : Any> Transformable<T>.offset(offset: Int): IWhere<T> = offset(offset)
+infix fun <T : Any> Transformable<T>.offset(offset: Int): Where<T> = offset(offset)
 
-infix fun <T : Any> Transformable<T>.having(sqlCondition: SQLCondition): IWhere<T> = having(sqlCondition)
+infix fun <T : Any> Transformable<T>.having(sqlCondition: SQLCondition): Where<T> = having(sqlCondition)
 
 // join
 

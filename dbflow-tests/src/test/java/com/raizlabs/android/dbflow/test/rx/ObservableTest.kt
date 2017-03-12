@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.test.rx
 
-import com.raizlabs.android.dbflow.rx.language.RXSQLite
+import com.raizlabs.android.dbflow.kotlinextensions.select
+import com.raizlabs.android.dbflow.rx.kotlinextensions.rx
+import com.raizlabs.android.dbflow.sql.language.SQLite.insert
 import com.raizlabs.android.dbflow.test.FlowTestCase
 import com.raizlabs.android.dbflow.test.structure.TestModel1
 import com.raizlabs.android.dbflow.test.structure.TestModel1_Table
@@ -23,8 +25,8 @@ class ObservableTest : FlowTestCase() {
 
         var count = 0
 
-        RXSQLite.select()
-                .from(TestModel1::class.java)
+        select.from(TestModel1::class.java)
+                .rx()
                 .queryStreamResults()
                 .toBlocking().subscribe {
             count++
@@ -39,8 +41,8 @@ class ObservableTest : FlowTestCase() {
 
         var count = 0
 
-        RXSQLite.select()
-                .from(TestModel1::class.java)
+        select.from(TestModel1::class.java)
+                .rx()
                 .observeOnTableChanges()
                 .subscribe {
                     count++
@@ -59,15 +61,16 @@ class ObservableTest : FlowTestCase() {
 
         var count = 0
 
-        RXSQLite.select()
-                .from(TestModel1::class.java)
+        select.from(TestModel1::class.java)
+                .rx()
                 .observeOnTableChanges()
                 .subscribe {
                     count++
                 }
 
-        RXSQLite.insert(TestModel1::class.java)
+        insert(TestModel1::class.java)
                 .columnValues(TestModel1_Table.name.eq("Test"))
+                .rx<TestModel1>()
                 .executeInsert().toBlocking().value()
 
         assertEquals(3, count)

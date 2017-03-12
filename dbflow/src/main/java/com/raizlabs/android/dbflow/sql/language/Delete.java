@@ -1,11 +1,14 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
+import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
 /**
  * Description: Constructs the beginning of a SQL DELETE query
  */
-public class Delete implements IDelete {
+public class Delete implements Query {
 
     /**
      * Deletes the specified table
@@ -37,7 +40,7 @@ public class Delete implements IDelete {
      * @param <TModel> The table class
      * @return
      */
-    @Override
+    @NonNull
     public <TModel> From<TModel> from(Class<TModel> table) {
         return new From<>(this, table);
     }

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.content.ContentValues;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -19,7 +20,7 @@ import java.util.Map;
 /**
  * Description: The SQLite INSERT command
  */
-public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TModel> {
+public class Insert<TModel> extends BaseQueriable<TModel> {
 
 
     /**
@@ -37,7 +38,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      */
     private ConflictAction conflictAction = ConflictAction.NONE;
 
-    private IFrom<?> selectFrom;
+    private From<?> selectFrom;
 
     /**
      * Constructs a new INSERT command
@@ -54,7 +55,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      *
      * @param columns The columns to use
      */
-    @Override
+    @NonNull
     public Insert<TModel> columns(String... columns) {
         this.columns = new IProperty[columns.length];
         ModelAdapter<TModel> modelClassModelAdapter = FlowManager.getModelAdapter(getTable());
@@ -65,7 +66,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
         return this;
     }
 
-    @Override
+    @NonNull
     public Insert<TModel> columns(IProperty... properties) {
         this.columns = new IProperty[properties.length];
         for (int i = 0; i < properties.length; i++) {
@@ -74,7 +75,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
         return this;
     }
 
-    @Override
+    @NonNull
     public Insert<TModel> columns(List<IProperty> properties) {
         if (properties != null) {
             this.columns = new IProperty[properties.size()];
@@ -88,7 +89,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
     /**
      * @return Appends a list of columns to this INSERT statement from the associated {@link TModel}.
      */
-    @Override
+    @NonNull
     public Insert<TModel> asColumns() {
         columns(FlowManager.getModelAdapter(getTable()).getAllColumnProperties());
         return this;
@@ -100,7 +101,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      *
      * @param values The non type-converted values
      */
-    @Override
+    @NonNull
     public Insert<TModel> values(Object... values) {
         if (this.valuesList == null) {
             this.valuesList = new ArrayList<>();
@@ -114,7 +115,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      *
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      */
-    @Override
+    @NonNull
     public Insert<TModel> columnValues(SQLCondition... conditions) {
 
         String[] columns = new String[conditions.length];
@@ -134,7 +135,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      *
      * @param conditionGroup The ConditionGroup to use
      */
-    @Override
+    @NonNull
     public Insert<TModel> columnValues(ConditionGroup conditionGroup) {
 
         int size = conditionGroup.size();
@@ -150,7 +151,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
         return columns(columns).values(values);
     }
 
-    @Override
+    @NonNull
     public Insert<TModel> columnValues(ContentValues contentValues) {
         java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
         int count = 0;
@@ -171,8 +172,8 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      *
      * @param selectFrom The from that is continuation of {@link Select}.
      */
-    @Override
-    public Insert<TModel> select(IFrom<?> selectFrom) {
+    @NonNull
+    public Insert<TModel> select(From<?> selectFrom) {
         this.selectFrom = selectFrom;
         return this;
     }
@@ -184,7 +185,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      * @param action The conflict action to use
      * @return
      */
-    @Override
+    @NonNull
     public Insert<TModel> or(ConflictAction action) {
         conflictAction = action;
         return this;
@@ -195,7 +196,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      *
      * @return
      */
-    @Override
+    @NonNull
     public Insert<TModel> orReplace() {
         return or(ConflictAction.REPLACE);
     }
@@ -205,7 +206,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      *
      * @return
      */
-    @Override
+    @NonNull
     public Insert<TModel> orRollback() {
         return or(ConflictAction.ROLLBACK);
     }
@@ -216,7 +217,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      *
      * @return
      */
-    @Override
+    @NonNull
     public Insert<TModel> orAbort() {
         return or(ConflictAction.ABORT);
     }
@@ -227,7 +228,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      *
      * @return
      */
-    @Override
+    @NonNull
     public Insert<TModel> orFail() {
         return or(ConflictAction.FAIL);
     }
@@ -237,7 +238,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      *
      * @return
      */
-    @Override
+    @NonNull
     public Insert<TModel> orIgnore() {
         return or(ConflictAction.IGNORE);
     }
@@ -258,12 +259,12 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
      */
     public Transaction.Builder async() {
         return FlowManager.getDatabaseForTable(getTable())
-            .beginTransactionAsync(new ITransaction() {
-                @Override
-                public void execute(DatabaseWrapper databaseWrapper) {
-                    Insert.this.execute(databaseWrapper);
-                }
-            });
+                .beginTransactionAsync(new ITransaction() {
+                    @Override
+                    public void execute(DatabaseWrapper databaseWrapper) {
+                        Insert.this.execute(databaseWrapper);
+                    }
+                });
     }
 
     @Override
@@ -273,13 +274,13 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
             queryBuilder.append("OR").appendSpaceSeparated(conflictAction);
         }
         queryBuilder.append("INTO")
-            .appendSpace()
-            .appendTableName(getTable());
+                .appendSpace()
+                .appendTableName(getTable());
 
         if (columns != null) {
             queryBuilder.append("(")
-                .appendArray((Object[]) columns)
-                .append(")");
+                    .appendArray((Object[]) columns)
+                    .append(")");
         }
 
         // append FROM, which overrides values
@@ -288,12 +289,12 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements IInsert<TMo
         } else {
             if (valuesList == null || valuesList.size() < 1) {
                 throw new IllegalStateException("The insert of " + FlowManager.getTableName(getTable()) + " should have" +
-                    "at least one value specified for the insert");
+                        "at least one value specified for the insert");
             } else if (columns != null) {
                 for (Object[] values : valuesList) {
                     if (values.length != columns.length) {
                         throw new IllegalStateException("The Insert of " + FlowManager.getTableName(getTable()) + " when specifying" +
-                            "columns needs to have the same amount of values and columns");
+                                "columns needs to have the same amount of values and columns");
                     }
                 }
             }
