@@ -15,7 +15,6 @@ import java.util.concurrent.Callable;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-import io.reactivex.Observable;
 import io.reactivex.Single;
 
 import static io.reactivex.Single.fromCallable;
@@ -40,7 +39,7 @@ public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
     @NonNull
     @Override
     public Flowable<T> queryStreamResults() {
-        return new CursorResultSubscriber<>(this);
+        return new CursorResultFlowable<>(this);
     }
 
     @NonNull

@@ -29,4 +29,5 @@ class RXModelQueriableTest : FlowTestCase() {
 
         assertEquals(3, count)
     }
+
 }
