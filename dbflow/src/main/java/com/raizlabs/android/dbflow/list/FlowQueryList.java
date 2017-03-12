@@ -23,10 +23,7 @@ import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTr
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -38,7 +35,7 @@ import java.util.ListIterator;
  * on the underlying table.
  */
 public class FlowQueryList<TModel> extends FlowContentObserver
-        implements List<TModel>, Closeable, IFlowCursorIterator<TModel> {
+        implements List<TModel>, IFlowCursorIterator<TModel> {
 
     private static final Handler REFRESH_HANDLER = new Handler(Looper.myLooper());
 
@@ -327,7 +324,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     }
 
     @Override
-    public int getCount() {
+    public long getCount() {
         return internalCursorList.getCount();
     }
 
@@ -371,8 +368,13 @@ public class FlowQueryList<TModel> extends FlowContentObserver
      */
     @NonNull
     @Override
-    public Iterator<TModel> iterator() {
+    public FlowCursorIterator<TModel> iterator() {
         return new FlowCursorIterator<>(this);
+    }
+
+    @Override
+    public FlowCursorIterator<TModel> iterator(int startingLocation, int limit) {
+        return new FlowCursorIterator<>(this, startingLocation, limit);
     }
 
     @Override
@@ -550,7 +552,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
 
     @Override
     public int size() {
-        return internalCursorList.getCount();
+        return (int) internalCursorList.getCount();
     }
 
     @NonNull
@@ -575,7 +577,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         internalCursorList.close();
     }
 

@@ -8,28 +8,40 @@ import java.util.ListIterator;
 /**
  * Description: Provides iteration capabilities to a {@link FlowCursorList}.
  */
-public class FlowCursorIterator<TModel> implements ListIterator<TModel> {
+public class FlowCursorIterator<TModel> implements ListIterator<TModel>, AutoCloseable {
 
     private final IFlowCursorIterator<TModel> cursorList;
-    private int reverseIndex;
-    private int startingCount;
+    private long reverseIndex;
+    private long startingCount;
+    private long count;
 
     public FlowCursorIterator(IFlowCursorIterator<TModel> cursorList) {
-        this(cursorList, 0);
+        this(cursorList, 0, cursorList.getCount());
     }
 
     public FlowCursorIterator(IFlowCursorIterator<TModel> cursorList, int startingLocation) {
+        this(cursorList, startingLocation, cursorList.getCount());
+    }
+
+    public FlowCursorIterator(IFlowCursorIterator<TModel> cursorList, int startingLocation,
+                              long count) {
         this.cursorList = cursorList;
+        this.count = count;
         Cursor cursor = cursorList.cursor();
         if (cursor != null) {
             cursor.moveToPosition(startingLocation - 1);
-            reverseIndex = startingCount = cursor.getCount();
+            reverseIndex = startingCount = count;
             reverseIndex -= startingLocation;
 
             if (reverseIndex < 0) {
                 reverseIndex = 0;
             }
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        cursorList.close();
     }
 
     @Override
@@ -46,33 +58,33 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel> {
     @Override
     public boolean hasPrevious() {
         checkSizes();
-        return reverseIndex < cursorList.getCount();
+        return reverseIndex < count;
     }
 
     @Override
     public TModel next() {
         checkSizes();
-        TModel item = cursorList.getItem(cursorList.getCount() - reverseIndex);
+        TModel item = cursorList.getItem(count - reverseIndex);
         reverseIndex--;
         return item;
     }
 
     @Override
     public int nextIndex() {
-        return reverseIndex + 1;
+        return (int) (reverseIndex + 1);
     }
 
     @Override
     public TModel previous() {
         checkSizes();
-        TModel item = cursorList.getItem(cursorList.getCount() - reverseIndex);
+        TModel item = cursorList.getItem(count - reverseIndex);
         reverseIndex++;
         return item;
     }
 
     @Override
     public int previousIndex() {
-        return reverseIndex;
+        return (int) reverseIndex;
     }
 
     @Override

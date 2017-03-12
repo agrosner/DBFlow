@@ -16,6 +16,7 @@ public class SingleKeyCacheableListModelLoader<TModel> extends CacheableListMode
         super(tModelClass);
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     @Override
     public List<TModel> convertToData(@NonNull Cursor cursor, @Nullable List<TModel> data) {

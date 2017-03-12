@@ -14,17 +14,15 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
 
-import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 /**
  * Description: A non-modifiable, cursor-backed list that you can use in {@link ListView} or other data sources.
  */
 public class FlowCursorList<TModel> implements
-        Iterable<TModel>, Closeable, IFlowCursorIterator<TModel> {
+        Iterable<TModel>, IFlowCursorIterator<TModel> {
 
     /**
      * Interface for callbacks when cursor gets refreshed.
@@ -86,7 +84,6 @@ public class FlowCursorList<TModel> implements
                 modelCache = ModelLruCache.newInstance(0);
             }
         }
-        //noinspection unchecked
         instanceAdapter = FlowManager.getInstanceAdapter(builder.modelClass);
 
         setCacheModels(cacheModels);
@@ -101,8 +98,13 @@ public class FlowCursorList<TModel> implements
     }
 
     @Override
-    public Iterator<TModel> iterator() {
+    public FlowCursorIterator<TModel> iterator() {
         return new FlowCursorIterator<>(this);
+    }
+
+    @Override
+    public FlowCursorIterator<TModel> iterator(int startingLocation, int limit) {
+        return new FlowCursorIterator<>(this, startingLocation, limit);
     }
 
     /**
@@ -249,7 +251,7 @@ public class FlowCursorList<TModel> implements
      * @return the count of the rows in the {@link android.database.Cursor} backed by this list.
      */
     @Override
-    public int getCount() {
+    public long getCount() {
         throwIfCursorClosed();
         warnEmptyCursor();
         return cursor != null ? cursor.getCount() : 0;

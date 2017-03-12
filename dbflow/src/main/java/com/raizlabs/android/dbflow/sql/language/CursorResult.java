@@ -5,10 +5,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.list.FlowCursorIterator;
+import com.raizlabs.android.dbflow.list.IFlowCursorIterator;
 import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 
-import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
  * Description: A class that contains a {@link Cursor} and handy methods for retrieving data from it.
  * You must close this object post use via {@link #close()}.
  */
-public class CursorResult<TModel> implements Closeable {
+public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
 
     private final InstanceAdapter<TModel> retrievalAdapter;
 
@@ -120,12 +121,33 @@ public class CursorResult<TModel> implements Closeable {
         }
     }
 
-    public long count() {
+    @Override
+    public TModel getItem(long position) {
+        TModel model = null;
+        if (cursor != null && cursor.moveToPosition((int) position)) {
+            model = retrievalAdapter.getSingleModelLoader().convertToData(cursor, null, false);
+        }
+        return model;
+    }
+
+    @Override
+    public FlowCursorIterator<TModel> iterator() {
+        return new FlowCursorIterator<>(this);
+    }
+
+    @Override
+    public FlowCursorIterator<TModel> iterator(int startingLocation, int limit) {
+        return new FlowCursorIterator<>(this, startingLocation, limit);
+    }
+
+    @Override
+    public long getCount() {
         return cursor == null ? 0 : cursor.getCount();
     }
 
+    @Override
     @Nullable
-    public Cursor getCursor() {
+    public Cursor cursor() {
         return cursor;
     }
 

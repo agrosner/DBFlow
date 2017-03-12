@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.sql.language;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteStatement;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -16,7 +17,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 /**
  * Description: Base implementation of something that can be queried from the database.
  */
-public abstract class BaseQueriable<TModel> implements Queriable {
+public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
 
 
     private final Class<TModel> table;
@@ -28,6 +29,7 @@ public abstract class BaseQueriable<TModel> implements Queriable {
     /**
      * @return The table associated with this INSERT
      */
+    @NonNull
     public Class<TModel> getTable() {
         return table;
     }

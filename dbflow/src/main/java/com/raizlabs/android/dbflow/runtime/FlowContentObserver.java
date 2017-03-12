@@ -154,7 +154,7 @@ public class FlowContentObserver extends ContentObserver {
                     for (Uri uri : tableUris) {
                         for (OnTableChangedListener onTableChangedListener : onTableChangedListeners) {
                             onTableChangedListener.onTableChanged(registeredTables.get(uri.getAuthority()),
-                                    Action.valueOf(uri.getFragment()));
+                                Action.valueOf(uri.getFragment()));
                         }
                     }
                     tableUris.clear();
@@ -216,6 +216,10 @@ public class FlowContentObserver extends ContentObserver {
         registeredTables.clear();
     }
 
+    public boolean isSubscribed() {
+        return !registeredTables.isEmpty();
+    }
+
     @Override
     public void onChange(boolean selfChange) {
         for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
@@ -249,7 +253,7 @@ public class FlowContentObserver extends ContentObserver {
                 param = Uri.decode(uri.getQueryParameter(key));
                 columnName = Uri.decode(key);
                 columnsChanged[index] = Condition.column(new NameAlias.Builder(columnName).build())
-                        .eq(param);
+                    .eq(param);
                 index++;
             }
         }

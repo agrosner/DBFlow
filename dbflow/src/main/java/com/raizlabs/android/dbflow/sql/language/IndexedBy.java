@@ -6,6 +6,8 @@ import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
+import java.util.List;
+
 /**
  * Description: The INDEXED BY part of a SELECT/UPDATE/DELETE
  */
@@ -21,7 +23,7 @@ public class IndexedBy<TModel> implements WhereBase<TModel>, Transformable<TMode
      * @param indexProperty The index property generated.
      * @param whereBase     The base piece of this query
      */
-    IndexedBy(IndexProperty<TModel> indexProperty, WhereBase<TModel> whereBase) {
+    public IndexedBy(IndexProperty<TModel> indexProperty, WhereBase<TModel> whereBase) {
         this.indexProperty = indexProperty;
         this.whereBase = whereBase;
     }
@@ -48,6 +50,11 @@ public class IndexedBy<TModel> implements WhereBase<TModel>, Transformable<TMode
     @Override
     public Where<TModel> orderBy(IProperty property, boolean ascending) {
         return where().orderBy(property, ascending);
+    }
+
+    @Override
+    public Where<TModel> orderByAll(List<OrderBy> orderBies) {
+        return where().orderByAll(orderBies);
     }
 
     @Override

@@ -15,6 +15,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
+import com.raizlabs.android.dbflow.structure.RetrievalAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.HashSet;
@@ -296,7 +297,7 @@ public class FlowManager {
      * it checks both the {@link ModelViewAdapter} and {@link QueryModelAdapter}.
      */
     @SuppressWarnings("unchecked")
-    public static InstanceAdapter getInstanceAdapter(Class<?> modelClass) {
+    public static <TModel> InstanceAdapter<TModel> getInstanceAdapter(Class<TModel> modelClass) {
         InstanceAdapter internalAdapter = getModelAdapter(modelClass);
         if (internalAdapter == null) {
             internalAdapter = FlowManager.getModelViewAdapter(modelClass);
@@ -307,6 +308,25 @@ public class FlowManager {
 
         return internalAdapter;
     }
+
+    /**
+     * @param modelClass The class that implements {@link Model} to find an adapter for.
+     * @return The adapter associated with the class. If its not a {@link ModelAdapter},
+     * it checks both the {@link ModelViewAdapter} and {@link QueryModelAdapter}.
+     */
+    @SuppressWarnings("unchecked")
+    public static <TModel> RetrievalAdapter<TModel> getRetrievalAdapter(Class<TModel> modelClass) {
+        RetrievalAdapter<TModel> retrievalAdapter = getModelAdapter(modelClass);
+        if (retrievalAdapter == null) {
+            retrievalAdapter = FlowManager.getModelViewAdapter(modelClass);
+            if (retrievalAdapter == null) {
+                retrievalAdapter = FlowManager.getQueryModelAdapter(modelClass);
+            }
+        }
+
+        return retrievalAdapter;
+    }
+
 
     /**
      * @param modelClass The class of the table
