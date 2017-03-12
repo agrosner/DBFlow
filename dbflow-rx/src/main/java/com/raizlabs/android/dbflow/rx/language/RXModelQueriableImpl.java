@@ -21,12 +21,12 @@ import static rx.Single.fromCallable;
 /**
  * Description: Represents {@link BaseModelQueriable} in RX form.
  */
-public class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
+public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
         implements RXModelQueriable<T> {
 
     private final ModelQueriable<T> modelQueriable;
 
-    BaseRXModelQueriable(ModelQueriable<T> modelQueriable) {
+    RXModelQueriableImpl(ModelQueriable<T> modelQueriable) {
         super(modelQueriable.getTable(), modelQueriable);
         this.modelQueriable = modelQueriable;
     }

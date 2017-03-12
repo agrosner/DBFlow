@@ -38,21 +38,18 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
      * @return This instance.
      */
     @NonNull
-
     public Set<TModel> conditions(SQLCondition... conditions) {
         conditionGroup.andAll(conditions);
         return this;
     }
 
     @NonNull
-
     public Set<TModel> conditionValues(ContentValues contentValues) {
         SqlUtils.addContentValues(contentValues, conditionGroup);
         return this;
     }
 
     @NonNull
-
     public Where<TModel> where(SQLCondition... conditions) {
         return new Where<>(this, conditions);
     }

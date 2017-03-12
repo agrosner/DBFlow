@@ -18,12 +18,12 @@ import static rx.Single.fromCallable;
 /**
  * Description: Represents {@link BaseQueriable} with RX constructs.
  */
-public class BaseRXQueriable<T> implements RXQueriable {
+public class RXQueriableImpl<T> implements RXQueriable {
 
     private final Class<T> table;
     private final Queriable queriable;
 
-    BaseRXQueriable(Class<T> table, Queriable queriable) {
+    RXQueriableImpl(Class<T> table, Queriable queriable) {
         this.table = table;
         this.queriable = queriable;
     }
