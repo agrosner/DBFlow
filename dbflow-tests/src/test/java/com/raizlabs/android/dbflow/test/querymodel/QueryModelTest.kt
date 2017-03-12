@@ -40,7 +40,7 @@ class QueryModelTest : FlowTestCase() {
                 SalaryModel_Table.name.`as`("newName"))
                 .from(SalaryModel::class.java).where().limit(1).groupBy(SalaryModel_Table.department)
 
-        val testQueryModel = selectQuery.queryCustomSingle(TestQueryModel::class.java)
+        val testQueryModel = selectQuery.queryCustomSingle(TestQueryModel::class.java)!!
 
         assertTrue(testQueryModel.average_salary > 0)
 

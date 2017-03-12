@@ -6,6 +6,7 @@ Currently it supports
     2. Single + `List` model `save()`, `insert()`, `update()`, and `delete()`.
     3. Streaming a set of results from a query
     4. Observing on table changes for specific `ModelQueriable` and providing ability to query from that set repeatedly as needed.
+    5. Kotlin extension methods in a separate artifact.
 
 ## Getting Started
 
@@ -14,6 +15,7 @@ Add the separate package to your project:
 
 dependencies {
   compile "com.github.Raizlabs.DBFlow:dbflow-rx:${dbflow_version}"
+  compile "com.github.Raizlabs.DBFlow:dbflow-rx-kotlinextensions:${dbflow_version}"
 }
 
 ```
@@ -78,5 +80,36 @@ RXSQLite.select()
    .subscribe { model ->
 
    }
+
+```
+
+## Kotlin Support
+
+Most of the support mirrors [kotlin support](/usage2/KotlinSupport.md) with a few
+minor changes. The similar support provides RX versions of almost all the same extension methods/properties.
+
+Extension properties/methods include:
+  1. `RXModelQueriable.streamResults`  - stream results one at time to a `Subscription`
+  2.  `list`, `result`,`streamResults`, `cursorResult`,`statement`, `hasData`, `cursor`, and `count` all provide a method lambda that is called within a `Subscription`.
+
+```kotlin
+
+select from MyTable:class
+  where (MyTable.name `is` "Good")
+  list { list -> //
+
+  }
+
+```
+
+which is the same as:
+
+```kotlin
+
+select from MyTable:class
+  where (MyTable.name `is` "Good")
+  list.subscribe { list ->
+
+  }
 
 ```

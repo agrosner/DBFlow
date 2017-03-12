@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
  * Description: A file containing extensions for adding query syntactic sugar.
  */
 
-val select: Select
+inline val select: Select
     get() = SQLite.select()
 
 inline fun <reified T : Any> Select.from() = from(T::class.java)
@@ -50,54 +50,54 @@ infix fun <T : Any> Case<T>.end(columnName: String) = end(columnName)
 
 // queriable extensions
 
-val Queriable.count
+inline val Queriable.count
     get() = count()
 
-val Queriable.cursor
+inline val Queriable.cursor
     get() = query()
 
-val Queriable.hasData
+inline val Queriable.hasData
     get() = hasData()
 
-val Queriable.statement
+inline val Queriable.statement
     get() = compileStatement()
 
-val <T : Any> ModelQueriable<T>.list
+inline val <T : Any> ModelQueriable<T>.list
     get() = queryList()
 
-val <T : Any> ModelQueriable<T>.result
+inline val <T : Any> ModelQueriable<T>.result
     get() = querySingle()
 
-val <T : Any> ModelQueriable<T>.cursorResult
+inline val <T : Any> ModelQueriable<T>.cursorResult
     get() = queryResults()
 
 // async extensions
 
-val <T : Any> ModelQueriable<T>.async
+inline val <T : Any> ModelQueriable<T>.async
     get() = async()
 
-infix fun <T : Any> AsyncQuery<T>.list(callback: (QueryTransaction<*>, MutableList<T>?) -> Unit)
+infix inline fun <T : Any> AsyncQuery<T>.list(crossinline callback: (QueryTransaction<*>, MutableList<T>?) -> Unit)
         = queryListResultCallback { queryTransaction, mutableList -> callback(queryTransaction, mutableList) }
         .execute()
 
-infix fun <T : Any> AsyncQuery<T>.result(callback: (QueryTransaction<*>, T?) -> Unit)
+infix inline fun <T : Any> AsyncQuery<T>.result(crossinline callback: (QueryTransaction<*>, T?) -> Unit)
         = querySingleResultCallback { queryTransaction, model -> callback(queryTransaction, model) }
         .execute()
 
-infix fun <T : Any> AsyncQuery<T>.cursorResult(callback: (QueryTransaction<*>, CursorResult<T>) -> Unit)
+infix inline fun <T : Any> AsyncQuery<T>.cursorResult(crossinline callback: (QueryTransaction<*>, CursorResult<T>) -> Unit)
         = queryResultCallback { queryTransaction, cursorResult -> callback(queryTransaction, cursorResult) }
         .execute()
 
-val BaseModel.async: AsyncModel<BaseModel>
+inline val BaseModel.async: AsyncModel<BaseModel>
     get() = async()
 
-infix fun <T : Any> AsyncModel<T>.insert(listener: (T) -> Unit) = withListener { listener(it) }.insert()
+infix inline fun <T : Any> AsyncModel<T>.insert(crossinline listener: (T) -> Unit) = withListener { listener(it) }.insert()
 
-infix fun <T : Any> AsyncModel<T>.update(listener: (T) -> Unit) = withListener { listener(it) }.update()
+infix inline fun <T : Any> AsyncModel<T>.update(crossinline listener: (T) -> Unit) = withListener { listener(it) }.update()
 
-infix fun <T : Any> AsyncModel<T>.delete(listener: (T) -> Unit) = withListener { listener(it) }.delete()
+infix inline fun <T : Any> AsyncModel<T>.delete(crossinline listener: (T) -> Unit) = withListener { listener(it) }.delete()
 
-infix fun <T : Any> AsyncModel<T>.save(listener: (T) -> Unit) = withListener { listener(it) }.save()
+infix inline fun <T : Any> AsyncModel<T>.save(crossinline listener: (T) -> Unit) = withListener { listener(it) }.save()
 
 // Transformable methods
 

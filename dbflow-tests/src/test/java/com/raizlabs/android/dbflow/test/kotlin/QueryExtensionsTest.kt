@@ -56,6 +56,7 @@ class QueryExtensionsTest : FlowTestCase() {
     fun test_deleteBuilders() {
         val query = (delete(TestModel1::class)
                 where (name eq "test"))
+
     }
 
     @Test

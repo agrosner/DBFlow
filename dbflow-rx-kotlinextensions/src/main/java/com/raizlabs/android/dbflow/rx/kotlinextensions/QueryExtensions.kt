@@ -2,7 +2,10 @@ package com.raizlabs.android.dbflow.rx.kotlinextensions
 
 import android.database.Cursor
 import com.raizlabs.android.dbflow.rx.language.*
-import com.raizlabs.android.dbflow.sql.language.*
+import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable
+import com.raizlabs.android.dbflow.sql.language.CursorResult
+import com.raizlabs.android.dbflow.sql.language.Join
+import com.raizlabs.android.dbflow.sql.language.SQLCondition
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import kotlin.reflect.KClass
@@ -28,32 +31,37 @@ infix fun <T : Any> RXWhere<T>.or(sqlCondition: SQLCondition) = and(sqlCondition
 
 // queriable extensions
 
-val RXQueriable.count
+inline val RXQueriable.count
     get() = count()
 
-val RXQueriable.cursor
+inline val RXQueriable.cursor
     get() = query()
 
-val RXQueriable.hasData
+inline val RXQueriable.hasData
     get() = hasData()
 
-val RXQueriable.statement
+inline val RXQueriable.statement
     get() = compileStatement()
 
-val <T : Any> RXModelQueriable<T>.list
+inline val <T : Any> RXModelQueriable<T>.list
     get() = queryList()
 
-val <T : Any> RXModelQueriable<T>.result
+inline val <T : Any> RXModelQueriable<T>.result
     get() = querySingle()
 
-val <T : Any> RXModelQueriable<T>.cursorResult
+inline val <T : Any> RXModelQueriable<T>.cursorResult
     get() = queryResults()
+
+inline val <T : Any> RXModelQueriable<T>.streamResults
+    get() = queryStreamResults()
 
 // async extensions
 
 infix inline fun <T : Any> RXModelQueriable<T>.list(crossinline func: (MutableList<T>) -> Unit) = list.subscribe({ func(it) })
 
 infix inline fun <T : Any> RXModelQueriable<T>.result(crossinline func: (T?) -> Unit) = result.subscribe({ func(it) })
+
+infix inline fun <T : Any> RXModelQueriable<T>.streamResults(crossinline func: (T?) -> Unit) = streamResults.subscribe({ func(it) })
 
 infix inline fun <T : Any> RXModelQueriable<T>.cursorResult(crossinline func: (CursorResult<T>) -> Unit) = cursorResult.subscribe({ func(it) })
 
@@ -84,10 +92,9 @@ infix fun <T : Any> RXUpdate<T>.set(sqlCondition: SQLCondition) = set(sqlConditi
 
 // delete
 
-inline fun <reified T : Any> delete(): RXFrom<T> = RXSQLite.delete(T::class.java)
+inline fun <reified T : Any> delete() = RXSQLite.delete(T::class.java)
 
-inline fun <reified T : Any> delete(deleteClause: RXFrom<T>.() -> BaseModelQueriable<T>)
-        = deleteClause(RXSQLite.delete(T::class.java))
+inline fun <reified T : Any> delete(deleteClause: RXFrom<T>.() -> BaseModelQueriable<T>) = deleteClause(RXSQLite.delete(T::class.java))
 
 // insert methods
 
@@ -103,7 +110,7 @@ infix fun <T : Any> RXInsert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) =
 
 infix fun <T : Any> RXInsert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().into(*into)
 
-infix fun <T : Any> RXInsert<T>.select(from: RXFrom<*>): RXInsert<T> = select(from)
+infix fun <T : Any> RXInsert<T>.select(from: RXFrom<*>) = select(from)
 
 fun into(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> = pairs
 
