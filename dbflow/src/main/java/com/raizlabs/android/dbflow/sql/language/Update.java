@@ -4,12 +4,13 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
 /**
  * Description: The SQLite UPDATE query. Will update rows in the DB.
  */
-public class Update<TModel> implements IUpdate<TModel> {
+public class Update<TModel> implements Query {
 
     /**
      * The conflict action to resolve updates.
@@ -28,7 +29,6 @@ public class Update<TModel> implements IUpdate<TModel> {
     }
 
     @NonNull
-    @Override
     public Update<TModel> conflictAction(ConflictAction conflictAction) {
         this.conflictAction = conflictAction;
         return this;
@@ -39,7 +39,6 @@ public class Update<TModel> implements IUpdate<TModel> {
      * @see ConflictAction#ROLLBACK
      */
     @NonNull
-    @Override
     public Update<TModel> orRollback() {
         return conflictAction(ConflictAction.ROLLBACK);
     }
@@ -49,7 +48,6 @@ public class Update<TModel> implements IUpdate<TModel> {
      * @see ConflictAction#ABORT
      */
     @NonNull
-    @Override
     public Update<TModel> orAbort() {
         return conflictAction(ConflictAction.ABORT);
     }
@@ -59,7 +57,6 @@ public class Update<TModel> implements IUpdate<TModel> {
      * @see ConflictAction#REPLACE
      */
     @NonNull
-    @Override
     public Update<TModel> orReplace() {
         return conflictAction(ConflictAction.REPLACE);
     }
@@ -69,7 +66,6 @@ public class Update<TModel> implements IUpdate<TModel> {
      * @see ConflictAction#FAIL
      */
     @NonNull
-    @Override
     public Update<TModel> orFail() {
         return conflictAction(ConflictAction.FAIL);
     }
@@ -79,7 +75,6 @@ public class Update<TModel> implements IUpdate<TModel> {
      * @see ConflictAction#IGNORE
      */
     @NonNull
-    @Override
     public Update<TModel> orIgnore() {
         return conflictAction(ConflictAction.IGNORE);
     }
@@ -91,7 +86,6 @@ public class Update<TModel> implements IUpdate<TModel> {
      * @return A SET query piece of this statement
      */
     @NonNull
-    @Override
     public Set<TModel> set(SQLCondition... conditions) {
         return new Set<>(this, table).conditions(conditions);
     }

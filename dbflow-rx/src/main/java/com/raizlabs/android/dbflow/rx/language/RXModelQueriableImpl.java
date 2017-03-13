@@ -7,7 +7,6 @@ import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.CursorResult;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
-import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
@@ -22,18 +21,18 @@ import static rx.Single.fromCallable;
 /**
  * Description: Represents {@link BaseModelQueriable} in RX form.
  */
-public abstract class BaseRXModelQueriable<T> extends BaseRXQueriable<T>
+public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
         implements RXModelQueriable<T> {
 
-    public BaseRXModelQueriable(Class<T> table) {
-        super(table);
+    private final ModelQueriable<T> modelQueriable;
+
+    RXModelQueriableImpl(ModelQueriable<T> modelQueriable) {
+        super(modelQueriable.getTable(), modelQueriable);
+        this.modelQueriable = modelQueriable;
     }
 
-    protected abstract BaseModelQueriable<T> getInnerModelQueriable();
-
-    @Override
-    protected Queriable getInnerQueriable() {
-        return getInnerModelQueriable();
+    private ModelQueriable<T> getInnerModelQueriable() {
+        return modelQueriable;
     }
 
     @NonNull

@@ -51,6 +51,7 @@ public class CursorResultFlowable<T> extends Flowable<T> {
         private final long count;
         private final AtomicLong emitted;
         private final AtomicLong requested;
+        private Disposable disposable;
 
         CursorResultObserver(Subscriber<? super T> subscriber, long count) {
             this.subscriber = subscriber;
@@ -60,8 +61,8 @@ public class CursorResultFlowable<T> extends Flowable<T> {
         }
 
         @Override
-        public void onSubscribe(Disposable d) {
-
+        public void onSubscribe(Disposable disposable) {
+            this.disposable = disposable;
         }
 
         @Override
@@ -72,17 +73,19 @@ public class CursorResultFlowable<T> extends Flowable<T> {
             while (count > 0) {
                 FlowCursorIterator<T> iterator = ts.iterator(starting, (int) count);
                 try {
-                    long i = 0;
-                    while (iterator.hasNext() && i++ < count) {
-                        subscriber.onNext(iterator.next());
+                    while (!disposable.isDisposed()) {
+                        long i = 0;
+                        while (iterator.hasNext() && i++ < count) {
+                            subscriber.onNext(iterator.next());
+                        }
+                        emitted.addAndGet(i);
+                        // no more items
+                        if (i < count) {
+                            subscriber.onComplete();
+                            break;
+                        }
+                        count = requested.addAndGet(-count);
                     }
-                    emitted.addAndGet(i);
-                    // no more items
-                    if (i < count) {
-                        subscriber.onComplete();
-                        break;
-                    }
-                    count = requested.addAndGet(-count);
                 } catch (Exception e) {
                     FlowLog.logError(e);
                     subscriber.onError(e);

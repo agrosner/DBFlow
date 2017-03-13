@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
+import com.raizlabs.android.dbflow.sql.language.Join.JoinType;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
@@ -20,12 +21,13 @@ import java.util.List;
 /**
  * Description: The SQL FROM query wrapper that must have a {@link Query} base.
  */
-public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TModel>,
-    ModelQueriable<TModel> {
+public class From<TModel> extends BaseModelQueriable<TModel> implements WhereBase<TModel>,
+        ModelQueriable<TModel> {
 
     /**
      * The base such as {@link Delete}, {@link Select} and more!
      */
+    @NonNull
     private Query queryBase;
 
     /**
@@ -37,6 +39,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
     /**
      * Enables the SQL JOIN statement
      */
+    @NonNull
     private final List<Join> joins = new ArrayList<>();
 
     private NameAlias getTableAlias() {
@@ -52,82 +55,129 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
      * @param querybase The base query we append this query to
      * @param table     The table this corresponds to
      */
-    public From(Query querybase, Class<TModel> table) {
+    public From(@NonNull Query querybase, @NonNull Class<TModel> table) {
         super(table);
         queryBase = querybase;
     }
 
+    /**
+     * Set an alias to the table name of this {@link IFrom}.
+     */
     @NonNull
-    @Override
     public From<TModel> as(String alias) {
         tableAlias = getTableAlias()
-            .newBuilder()
-            .as(alias)
-            .build();
+                .newBuilder()
+                .as(alias)
+                .build();
         return this;
     }
 
+    /**
+     * Adds a join on a specific table for this query
+     *
+     * @param table    The table this corresponds to
+     * @param joinType The type of join to use
+     */
     @NonNull
-    @Override
-    public <TJoin> Join<TJoin, TModel> join(Class<TJoin> table, @NonNull Join.JoinType joinType) {
+    public <TJoin> Join<TJoin, TModel> join(Class<TJoin> table, @NonNull JoinType joinType) {
         Join<TJoin, TModel> join = new Join<>(this, table, joinType);
         joins.add(join);
         return join;
     }
 
+    /**
+     * Adds a join on a specific table for this query.
+     *
+     * @param modelQueriable A query we construct the {@link Join} from.
+     * @param joinType       The type of join to use.
+     */
     @NonNull
-    @Override
     public <TJoin> Join<TJoin, TModel>
-    join(ModelQueriable<TJoin> modelQueriable, @NonNull Join.JoinType joinType) {
+    join(ModelQueriable<TJoin> modelQueriable, @NonNull JoinType joinType) {
         Join<TJoin, TModel> join = new Join<>(this, joinType, modelQueriable);
         joins.add(join);
         return join;
     }
 
+    /**
+     * Adds a {@link JoinType#CROSS} join on a specific table for this query.
+     *
+     * @param table   The table to join on.
+     * @param <TJoin> The class of the join table.
+     */
     @NonNull
-    @Override
     public <TJoin> Join<TJoin, TModel> crossJoin(Class<TJoin> table) {
-        return join(table, Join.JoinType.CROSS);
+        return join(table, JoinType.CROSS);
     }
 
+    /**
+     * Adds a {@link JoinType#CROSS} join on a specific table for this query.
+     *
+     * @param modelQueriable The query to join on.
+     * @param <TJoin>        The class of the join table.
+     */
     @NonNull
-    @Override
     public <TJoin> Join<TJoin, TModel> crossJoin(ModelQueriable<TJoin> modelQueriable) {
-        return join(modelQueriable, Join.JoinType.CROSS);
+        return join(modelQueriable, JoinType.CROSS);
     }
 
+    /**
+     * Adds a {@link JoinType#INNER} join on a specific table for this query.
+     *
+     * @param table   The table to join on.
+     * @param <TJoin> The class of the join table.
+     */
     @NonNull
-    @Override
     public <TJoin> Join<TJoin, TModel> innerJoin(Class<TJoin> table) {
-        return join(table, Join.JoinType.INNER);
+        return join(table, JoinType.INNER);
     }
 
+    /**
+     * Adds a {@link JoinType#INNER} join on a specific table for this query.
+     *
+     * @param modelQueriable The query to join on.
+     * @param <TJoin>        The class of the join table.
+     */
     @NonNull
-    @Override
     public <TJoin> Join<TJoin, TModel> innerJoin(ModelQueriable<TJoin> modelQueriable) {
-        return join(modelQueriable, Join.JoinType.INNER);
+        return join(modelQueriable, JoinType.INNER);
     }
 
+    /**
+     * Adds a {@link JoinType#LEFT_OUTER} join on a specific table for this query.
+     *
+     * @param table   The table to join on.
+     * @param <TJoin> The class of the join table.
+     */
     @NonNull
-    @Override
     public <TJoin> Join<TJoin, TModel> leftOuterJoin(Class<TJoin> table) {
-        return join(table, Join.JoinType.LEFT_OUTER);
+        return join(table, JoinType.LEFT_OUTER);
     }
 
+    /**
+     * Adds a {@link JoinType#LEFT_OUTER} join on a specific table for this query.
+     *
+     * @param modelQueriable The query to join on.
+     * @param <TJoin>        The class of the join table.
+     */
     @NonNull
-    @Override
     public <TJoin> Join<TJoin, TModel> leftOuterJoin(ModelQueriable<TJoin> modelQueriable) {
-        return join(modelQueriable, Join.JoinType.LEFT_OUTER);
+        return join(modelQueriable, JoinType.LEFT_OUTER);
     }
 
+    /**
+     * @return an empty {@link Where} statement
+     */
     @NonNull
-    @Override
     public Where<TModel> where() {
         return new Where<>(this);
     }
 
+    /**
+     * @param conditions The array of conditions that define this WHERE statement
+     * @return A {@link Where} statement with the specified array of {@link Condition}.
+     */
     @NonNull
-    @Override
     public Where<TModel> where(SQLCondition... conditions) {
         return where().andAll(conditions);
     }
@@ -162,8 +212,12 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
         return where().executeUpdateDelete(databaseWrapper);
     }
 
+    /**
+     * Begins an INDEXED BY piece of this query with the specified name.
+     *
+     * @param indexProperty The index property generated.
+     */
     @NonNull
-    @Override
     public IndexedBy<TModel> indexedBy(IndexProperty<TModel> indexProperty) {
         return new IndexedBy<>(indexProperty, this);
     }
@@ -176,7 +230,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder()
-            .append(queryBase.getQuery());
+                .append(queryBase.getQuery());
         if (!(queryBase instanceof Update)) {
             queryBuilder.append("FROM ");
         }
@@ -203,47 +257,47 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
         return queryBase;
     }
 
-    @Override
+    @NonNull
     public Where<TModel> groupBy(NameAlias... nameAliases) {
         return where().groupBy(nameAliases);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> groupBy(IProperty... properties) {
         return where().groupBy(properties);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
         return where().orderBy(nameAlias, ascending);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> orderBy(IProperty property, boolean ascending) {
         return where().orderBy(property, ascending);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> orderBy(OrderBy orderBy) {
         return where().orderBy(orderBy);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> limit(int count) {
         return where().limit(count);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> offset(int offset) {
         return where().offset(offset);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> having(SQLCondition... conditions) {
         return where().having(conditions);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> orderByAll(List<OrderBy> orderBies) {
         return where().orderByAll(orderBies);
     }
@@ -252,6 +306,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements IFrom<TM
      * @return A list of {@link Class} that represents tables represented in this query. For every
      * {@link Join} on another table, this adds another {@link Class}.
      */
+    @NonNull
     public java.util.Set<Class<?>> getAssociatedTables() {
         java.util.Set<Class<?>> tables = new LinkedHashSet<>();
         tables.add(getTable());

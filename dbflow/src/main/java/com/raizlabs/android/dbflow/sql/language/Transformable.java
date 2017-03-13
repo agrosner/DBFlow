@@ -10,21 +10,21 @@ import java.util.List;
  */
 public interface Transformable<T> {
 
-    IWhere<T> groupBy(NameAlias... nameAliases);
+    Where<T> groupBy(NameAlias... nameAliases);
 
-    IWhere<T> groupBy(IProperty... properties);
+    Where<T> groupBy(IProperty... properties);
 
-    IWhere<T> orderBy(NameAlias nameAlias, boolean ascending);
+    Where<T> orderBy(NameAlias nameAlias, boolean ascending);
 
-    IWhere<T> orderBy(IProperty property, boolean ascending);
+    Where<T> orderBy(IProperty property, boolean ascending);
 
-    IWhere<T> orderBy(OrderBy orderBy);
+    Where<T> orderBy(OrderBy orderBy);
 
-    IWhere<T> limit(int count);
+    Where<T> limit(int count);
 
-    IWhere<T> offset(int offset);
+    Where<T> offset(int offset);
 
-    IWhere<T> having(SQLCondition... conditions);
+    Where<T> having(SQLCondition... conditions);
 
-    IWhere<T> orderByAll(List<OrderBy> orderBies);
+    Where<T> orderByAll(List<OrderBy> orderBies);
 }

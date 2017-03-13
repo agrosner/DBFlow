@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Description: Used to specify the SET part of an {@link com.raizlabs.android.dbflow.sql.language.Update} query.
  */
-public class Set<TModel> extends BaseQueriable<TModel> implements ISet<TModel> {
+public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TModel> {
 
     private ConditionGroup conditionGroup;
 
@@ -38,66 +38,63 @@ public class Set<TModel> extends BaseQueriable<TModel> implements ISet<TModel> {
      * @return This instance.
      */
     @NonNull
-    @Override
     public Set<TModel> conditions(SQLCondition... conditions) {
         conditionGroup.andAll(conditions);
         return this;
     }
 
     @NonNull
-    @Override
     public Set<TModel> conditionValues(ContentValues contentValues) {
         SqlUtils.addContentValues(contentValues, conditionGroup);
         return this;
     }
 
     @NonNull
-    @Override
     public Where<TModel> where(SQLCondition... conditions) {
         return new Where<>(this, conditions);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> groupBy(NameAlias... nameAliases) {
         return where().groupBy(nameAliases);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> groupBy(IProperty... properties) {
         return where().groupBy(properties);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
         return where().orderBy(nameAlias, ascending);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> orderBy(IProperty property, boolean ascending) {
         return where().orderBy(property, ascending);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> orderBy(OrderBy orderBy) {
         return where().orderBy(orderBy);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> orderByAll(List<OrderBy> orderBies) {
         return where().orderByAll(orderBies);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> limit(int count) {
         return where().limit(count);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> offset(int offset) {
         return where().offset(offset);
     }
 
-    @Override
+    @NonNull
     public Where<TModel> having(SQLCondition... conditions) {
         return where().having(conditions);
     }
@@ -130,9 +127,9 @@ public class Set<TModel> extends BaseQueriable<TModel> implements ISet<TModel> {
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder =
-            new QueryBuilder(update.getQuery())
-                .append("SET ")
-                .append(conditionGroup.getQuery()).appendSpace();
+                new QueryBuilder(update.getQuery())
+                        .append("SET ")
+                        .append(conditionGroup.getQuery()).appendSpace();
         return queryBuilder.getQuery();
     }
 
@@ -142,12 +139,12 @@ public class Set<TModel> extends BaseQueriable<TModel> implements ISet<TModel> {
      */
     public Transaction.Builder async() {
         return FlowManager.getDatabaseForTable(getTable())
-            .beginTransactionAsync(new ITransaction() {
-                @Override
-                public void execute(DatabaseWrapper databaseWrapper) {
-                    Set.this.executeUpdateDelete(databaseWrapper);
-                }
-            });
+                .beginTransactionAsync(new ITransaction() {
+                    @Override
+                    public void execute(DatabaseWrapper databaseWrapper) {
+                        Set.this.executeUpdateDelete(databaseWrapper);
+                    }
+                });
     }
 
     @Override

@@ -18,15 +18,20 @@ import static io.reactivex.Single.fromCallable;
 /**
  * Description: Represents {@link BaseQueriable} with RX constructs.
  */
-public abstract class BaseRXQueriable<T> implements RXQueriable {
+public class RXQueriableImpl<T> implements RXQueriable {
 
     private final Class<T> table;
+    private final Queriable queriable;
 
-    public BaseRXQueriable(Class<T> table) {
+    public RXQueriableImpl(Class<T> table, Queriable queriable) {
         this.table = table;
+        this.queriable = queriable;
     }
 
-    protected abstract Queriable getInnerQueriable();
+    @NonNull
+    private Queriable getInnerQueriable() {
+        return queriable;
+    }
 
     @NonNull
     @Override

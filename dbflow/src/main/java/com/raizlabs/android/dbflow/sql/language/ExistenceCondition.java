@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
  */
 public class ExistenceCondition implements SQLCondition {
 
-    private IWhere innerWhere;
+    private Where innerWhere;
 
     @Override
     public void appendConditionToQuery(QueryBuilder queryBuilder) {
@@ -47,7 +47,7 @@ public class ExistenceCondition implements SQLCondition {
         return innerWhere;
     }
 
-    public ExistenceCondition where(@NonNull IWhere where) {
+    public ExistenceCondition where(@NonNull Where where) {
         this.innerWhere = where;
         return this;
     }

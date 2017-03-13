@@ -49,6 +49,8 @@ dependencies {
     testCompile project("${dbflow_project_prefix}dbflow-sqlcipher")
     testCompile project("${dbflow_project_prefix}dbflow-kotlinextensions")
     testCompile project("${dbflow_project_prefix}dbflow-rx")
+    testCompile project("${dbflow_project_prefix}dbflow-rx-kotlinextensions")
+
     testCompile project("${dbflow_project_prefix}dbflow-rx2")
     testCompile 'junit:junit:4.12'
     testCompile "org.robolectric:robolectric:3.1.4"
