@@ -67,6 +67,12 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
     // RXJava 1 Kotlin Extensions Support
     compile "com.github.Raizlabs.DBFlow:dbflow-rx-kotlinextensions:${dbflow_version}"
 
+    // RXJava 2 support
+    compile "com.github.Raizlabs.DBFlow:dbflow-rx2:${dbflow_version}"
+
+    // RXJava 2 Kotlin Extensions Support
+    compile "com.github.Raizlabs.DBFlow:dbflow-rx2-kotlinextensions:${dbflow_version}"
+
   }
 
 // if you're building with Kotlin
