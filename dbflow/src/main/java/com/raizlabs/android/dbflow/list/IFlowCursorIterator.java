@@ -33,7 +33,7 @@ public interface IFlowCursorIterator<TModel> extends Closeable {
     /**
      * @return Can iterate the {@link Cursor}. Specifies a starting location + count limit of results.
      */
-    FlowCursorIterator<TModel> iterator(int startingLocation, int limit);
+    FlowCursorIterator<TModel> iterator(int startingLocation, long limit);
 
     @Override
     void close() throws IOException;

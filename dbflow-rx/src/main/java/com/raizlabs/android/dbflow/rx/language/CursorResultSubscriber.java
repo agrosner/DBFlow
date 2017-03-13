@@ -46,76 +46,53 @@ public class CursorResultSubscriber<T> implements Observable.OnSubscribe<T> {
 
         @Override
         public void request(final long n) {
-            if (n == Long.MAX_VALUE && requested.compareAndSet(0, Long.MAX_VALUE)) {
+            if (n == Long.MAX_VALUE && requested.compareAndSet(0, Long.MAX_VALUE)
+                || n > 0 && BackpressureUtils.getAndAddRequest(requested, n) == 0) {
                 // emitting all elements
-                modelQueriable.queryResults().subscribe(new Action1<CursorResult<T>>() {
-                    @Override
-                    public void call(CursorResult<T> ts) {
-                        FlowCursorIterator<T> iterator = ts.iterator();
+                modelQueriable.queryResults().subscribe(new CursorResultAction(n));
+            }
+        }
+
+        private class CursorResultAction implements Action1<CursorResult<T>> {
+
+            private final long limit;
+
+            private CursorResultAction(long limit) {
+                this.limit = limit;
+            }
+
+            @Override
+            public void call(CursorResult<T> ts) {
+                final int starting = limit == Long.MAX_VALUE && requested.compareAndSet(0, Long.MAX_VALUE)
+                    ? 0 : emitted.intValue();
+                long limit = this.limit + starting;
+
+                while (limit > 0) {
+                    FlowCursorIterator<T> iterator = ts.iterator(starting, limit);
+                    try {
+                        long i = 0;
+                        while (!subscriber.isUnsubscribed() && iterator.hasNext() && i++ < limit) {
+                            subscriber.onNext(iterator.next());
+                        }
+                        emitted.addAndGet(i);
+                        // no more items
+                        if (!subscriber.isUnsubscribed() && i < limit) {
+                            subscriber.onCompleted();
+                            break;
+                        }
+                        limit = requested.addAndGet(-limit);
+                    } catch (Exception e) {
+                        FlowLog.logError(e);
+                        subscriber.onError(e);
+                    } finally {
                         try {
-                            while (!subscriber.isUnsubscribed()) {
-                                if (iterator.hasNext()) {
-                                    subscriber.onNext(iterator.next());
-                                    emitted.incrementAndGet();
-                                } else {
-                                    subscriber.onCompleted();
-                                    break;
-                                }
-                            }
+                            iterator.close();
                         } catch (Exception e) {
                             FlowLog.logError(e);
                             subscriber.onError(e);
-                        } finally {
-                            try {
-                                iterator.close();
-                            } catch (Exception e) {
-                                FlowLog.logError(e);
-                                subscriber.onError(e);
-                            }
                         }
                     }
-                });
-
-            } else if (n > 0 && BackpressureUtils.getAndAddRequest(requested, n) == 0) {
-                // emitting with limit/offset
-
-                modelQueriable.queryResults().subscribe(new Action1<CursorResult<T>>() {
-                    @Override
-                    public void call(CursorResult<T> tCursorResult) {
-                        long count = n;
-                        while (count > 0) {
-                            FlowCursorIterator<T> iterator =
-                                tCursorResult.iterator(emitted.intValue(), (int) n);
-                            try {
-                                long i = 0;
-                                while (!subscriber.isUnsubscribed() && iterator.hasNext()) {
-                                    if (i++ < count) {
-                                        subscriber.onNext(iterator.next());
-                                    } else {
-                                        break;
-                                    }
-                                }
-                                emitted.addAndGet(i);
-                                // no more items
-                                if (!subscriber.isUnsubscribed() && i < count) {
-                                    subscriber.onCompleted();
-                                    break;
-                                }
-                                count = requested.addAndGet(-count);
-                            } catch (Exception e) {
-                                FlowLog.logError(e);
-                                subscriber.onError(e);
-                            } finally {
-                                try {
-                                    iterator.close();
-                                } catch (Exception e) {
-                                    FlowLog.logError(e);
-                                    subscriber.onError(e);
-                                }
-                            }
-                        }
-                    }
-                });
+                }
             }
         }
     }
