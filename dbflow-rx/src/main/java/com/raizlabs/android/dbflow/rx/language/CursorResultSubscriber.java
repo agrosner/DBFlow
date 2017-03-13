@@ -63,8 +63,8 @@ public class CursorResultSubscriber<T> implements Observable.OnSubscribe<T> {
 
             @Override
             public void call(CursorResult<T> ts) {
-                final int starting = limit == Long.MAX_VALUE
-                    && requested.compareAndSet(0, Long.MAX_VALUE) ? 0 : emitted.intValue();
+                final int starting = limit == Long.MAX_VALUE && requested.compareAndSet(0, Long.MAX_VALUE)
+                    ? 0 : emitted.intValue();
                 long limit = this.limit + starting;
 
                 while (limit > 0) {
