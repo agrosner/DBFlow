@@ -45,4 +45,21 @@ class CursorResultFlowableTest : FlowTestCase() {
         val nextCaptor = argumentCaptor<TestModel1>()
         verify(subscriberMock, times(10)).onNext(nextCaptor.capture())
     }
+
+    @Test
+    fun testIteratePieces() {
+        val subscriberMock = mock<Subscriber<TestModel1>>()
+        val disposableMock = mock<Disposable>()
+        val cursorResult = CursorResultFlowable.CursorResultObserver<TestModel1>(subscriberMock, 5)
+        cursorResult.onSubscribe(disposableMock)
+
+        cursorResult.onSuccess((select from TestModel1::class).cursorResult)
+
+
+        val nextCaptor = argumentCaptor<TestModel1>()
+        verify(subscriberMock, times(5)).onNext(nextCaptor.capture())
+
+        cursorResult.onSuccess((select from TestModel1::class).cursorResult)
+        verify(subscriberMock, times(10)).onNext(nextCaptor.capture())
+    }
 }

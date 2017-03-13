@@ -63,9 +63,10 @@ public class CursorResultSubscriber<T> implements Observable.OnSubscribe<T> {
 
             @Override
             public void call(CursorResult<T> ts) {
-                long limit = this.limit;
                 final int starting = limit == Long.MAX_VALUE
                     && requested.compareAndSet(0, Long.MAX_VALUE) ? 0 : emitted.intValue();
+                long limit = this.limit + starting;
+
                 while (limit > 0) {
                     FlowCursorIterator<T> iterator = ts.iterator(starting, limit);
                     try {

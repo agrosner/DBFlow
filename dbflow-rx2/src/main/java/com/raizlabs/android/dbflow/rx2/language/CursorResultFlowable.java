@@ -69,9 +69,10 @@ public class CursorResultFlowable<T> extends Flowable<T> {
 
         @Override
         public void onSuccess(CursorResult<T> ts) {
-            long limit = this.count;
-            int starting = limit == Long.MAX_VALUE && requested.compareAndSet(0, Long.MAX_VALUE)
+            int starting = this.count == Long.MAX_VALUE && requested.compareAndSet(0, Long.MAX_VALUE)
                 ? 0 : emitted.intValue();
+            long limit = this.count + starting;
+
             while (limit > 0) {
                 FlowCursorIterator<T> iterator = ts.iterator(starting, limit);
                 try {

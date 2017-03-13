@@ -35,7 +35,8 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel>, AutoClo
             }
 
             cursor.moveToPosition(startingLocation - 1);
-            reverseIndex = startingCount = this.count;
+            startingCount = cursorList.getCount();
+            reverseIndex = this.count;
             reverseIndex -= startingLocation;
 
             if (reverseIndex < 0) {
