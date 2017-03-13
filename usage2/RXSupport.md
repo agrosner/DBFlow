@@ -1,12 +1,13 @@
 # RXJava Support
 
-RXJava support in DBFlow is an _incubating_ feature and likely to change over time.
+RXJava support in DBFlow is an _incubating_ feature and likely to change over time. We support both RX1 and RX2 and have made the extensions + DBFlow compatibility almost identical - save for the changes and where it makes sense in each version.
+
 Currently it supports
   1. `Insert`, `Update`, `Delete`, `Set`, `Join`, and all wrapper query mechanisms by wrapping them in `rx()`
   2. Single + `List` model `save()`, `insert()`, `update()`, and `delete()`.
   3. Streaming a set of results from a query
   4. Observing on table changes for specific `ModelQueriable` and providing ability to query from that set repeatedly as needed.
-  5. Kotlin extension methods in a separate artifact.
+  5. Kotlin extension methods in a separate artifact that enhance the conversion.
 
 ## Getting Started
 
@@ -33,29 +34,31 @@ dependencies {
 Using the classes is as easy as wrapping all SQL wrapper calls with `RXSQLite.rx()` (Kotlin we supply extension method):
 
 Before:
-```kotlin
+```java
 
-val list = SQLite.select()
+List<MyTable> list = SQLite.select()
   .from(MyTable.class)
-  .queryList()
+  .queryList();
 
 ```
 
 After:
 
-```kotlin
+```java
 
-RXSQLite.rx(select().from(MyTable.class))
-  .list { list ->
+RXSQLite.rx(
+  SQLite.select().from(MyTable.class))
+  .queryList()
+  .subscribe((list) -> {
 
-  }
+  });
 
 ```
 
-or with Kotlin extension method:
+or with Kotlin + extension methods:
 ```kotlin
 
-  select.from(MyTable.class)
+  select.from(MyTable::class.java)
   .rx()
   .list { list ->
 
@@ -73,16 +76,17 @@ class Person(@PrimaryKey var id: Int = 0, @Column var name: String? = "") : Base
 ```
 
 Operations are as easy as:
-```kotlin
+```java
 
-Person(5, "Andrew Grosner").insert()
-  .subscribe { rowId ->
+new Person(5, "Andrew Grosner")
+  .insert()
+  .subscribe((rowId) -> {
 
-  }
+  });
 
 ```
 
-or with Kotlin-extensions:
+or with Kotlin+extensions:
 ```kotlin
 
 Person(5, "Andrew Grosner")
@@ -97,14 +101,15 @@ Person(5, "Andrew Grosner")
 We can use RX to stream the result set, one at a time from the `ModelQueriable` using
 the method `queryStreamResults()`:
 
-```kotlin
+```java
 
-RXSQLite.wrap(select().from(TestModel1::class.java))
-   .rx()
+RXSQLite.rx(
+    SQLite.select()
+    .from(TestModel1.class))
    .queryStreamResults()
-   .subscribe { model ->
+   .subscribe((model) -> {
 
-   }
+   });
 
 ```
 
