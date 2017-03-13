@@ -47,7 +47,7 @@ public class BaseRXModel {
         return getRXModelAdapter().update(this);
     }
 
-    public Completable update(DatabaseWrapper databaseWrapper) {
+    public Single<Boolean> update(DatabaseWrapper databaseWrapper) {
         return getRXModelAdapter().update(this, databaseWrapper);
     }
 

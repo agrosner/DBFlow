@@ -1,4 +1,4 @@
-# RXJava 1 Support
+# RXJava Support
 
 RXJava support in DBFlow is an _incubating_ feature and likely to change over time.
 Currently it supports
@@ -14,10 +14,17 @@ Add the separate packages to your project:
 ```groovy
 
 dependencies {
+  // RXJava1
   compile "com.github.Raizlabs.DBFlow:dbflow-rx:${dbflow_version}"
 
   // optional, for use with Kotlin as a nice companion.
   compile "com.github.Raizlabs.DBFlow:dbflow-rx-kotlinextensions:${dbflow_version}"
+
+  // RXJava2
+  compile "com.github.Raizlabs.DBFlow:dbflow-rx2:${dbflow_version}"
+
+  // optional, for use with Kotlin as a nice companion.
+  compile "com.github.Raizlabs.DBFlow:dbflow-rx2-kotlinextensions:${dbflow_version}"
 }
 
 ```

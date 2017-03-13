@@ -122,8 +122,8 @@ public class RXModelAdapter<T> extends RXRetrievalAdapter<T> {
         });
     }
 
-    public Completable update(final T model, final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Boolean>() {
+    public Single<Boolean> update(final T model, final DatabaseWrapper databaseWrapper) {
+        return Single.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 return modelAdapter.update(model, databaseWrapper);
