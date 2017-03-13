@@ -2,19 +2,21 @@
 
 RXJava support in DBFlow is an _incubating_ feature and likely to change over time.
 Currently it supports
-    1. `Insert`, `Update`, `Delete`, `Set`, `Join`, and all wrapper query mechanisms by wrapping them in `rx()`
-    2. Single + `List` model `save()`, `insert()`, `update()`, and `delete()`.
-    3. Streaming a set of results from a query
-    4. Observing on table changes for specific `ModelQueriable` and providing ability to query from that set repeatedly as needed.
-    5. Kotlin extension methods in a separate artifact.
+  1. `Insert`, `Update`, `Delete`, `Set`, `Join`, and all wrapper query mechanisms by wrapping them in `rx()`
+  2. Single + `List` model `save()`, `insert()`, `update()`, and `delete()`.
+  3. Streaming a set of results from a query
+  4. Observing on table changes for specific `ModelQueriable` and providing ability to query from that set repeatedly as needed.
+  5. Kotlin extension methods in a separate artifact.
 
 ## Getting Started
 
-Add the separate package to your project:
+Add the separate packages to your project:
 ```groovy
 
 dependencies {
   compile "com.github.Raizlabs.DBFlow:dbflow-rx:${dbflow_version}"
+
+  // optional, for use with Kotlin as a nice companion.
   compile "com.github.Raizlabs.DBFlow:dbflow-rx-kotlinextensions:${dbflow_version}"
 }
 
@@ -68,6 +70,16 @@ Operations are as easy as:
 
 Person(5, "Andrew Grosner").insert()
   .subscribe { rowId ->
+
+  }
+
+```
+
+or with Kotlin-extensions:
+```kotlin
+
+Person(5, "Andrew Grosner")
+  .insert { rowId ->
 
   }
 
