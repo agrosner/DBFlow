@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.rx2.language;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.list.FlowCursorIterator;
@@ -35,7 +36,7 @@ public class CursorResultFlowable<T> extends Flowable<T> {
         subscriber.onSubscribe(new Subscription() {
             @Override
             public void request(final long n) {
-                modelQueriable.queryResults().subscribe(new CursorResultObserver(subscriber, n));
+                modelQueriable.queryResults().subscribe(new CursorResultObserver<>(subscriber, n));
             }
 
             @Override
@@ -45,7 +46,8 @@ public class CursorResultFlowable<T> extends Flowable<T> {
         });
     }
 
-    private class CursorResultObserver implements SingleObserver<CursorResult<T>> {
+    @VisibleForTesting
+    static class CursorResultObserver<T> implements SingleObserver<CursorResult<T>> {
 
         private final Subscriber<? super T> subscriber;
         private final long count;
@@ -67,25 +69,23 @@ public class CursorResultFlowable<T> extends Flowable<T> {
 
         @Override
         public void onSuccess(CursorResult<T> ts) {
-            long count = this.count;
-            int starting = count == Long.MAX_VALUE && requested.compareAndSet(0, Long.MAX_VALUE)
-                    ? 0 : emitted.intValue();
-            while (count > 0) {
-                FlowCursorIterator<T> iterator = ts.iterator(starting, (int) count);
+            long limit = this.count;
+            int starting = limit == Long.MAX_VALUE && requested.compareAndSet(0, Long.MAX_VALUE)
+                ? 0 : emitted.intValue();
+            while (limit > 0) {
+                FlowCursorIterator<T> iterator = ts.iterator(starting, limit);
                 try {
-                    while (!disposable.isDisposed()) {
-                        long i = 0;
-                        while (iterator.hasNext() && i++ < count) {
-                            subscriber.onNext(iterator.next());
-                        }
-                        emitted.addAndGet(i);
-                        // no more items
-                        if (i < count) {
-                            subscriber.onComplete();
-                            break;
-                        }
-                        count = requested.addAndGet(-count);
+                    long i = 0;
+                    while (!disposable.isDisposed() && iterator.hasNext() && i++ < limit) {
+                        subscriber.onNext(iterator.next());
                     }
+                    emitted.addAndGet(i);
+                    // no more items
+                    if (!disposable.isDisposed() && i < limit) {
+                        subscriber.onComplete();
+                        break;
+                    }
+                    limit = requested.addAndGet(-limit);
                 } catch (Exception e) {
                     FlowLog.logError(e);
                     subscriber.onError(e);
