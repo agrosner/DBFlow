@@ -42,6 +42,9 @@ inline val <T : Any> RXModelQueriable<T>.cursorResult
 inline val <T : Any> RXModelQueriable<T>.streamResults
     get() = queryStreamResults()
 
+inline val <T : Any> RXModelQueriable<T>.tableChanges
+    get() = observeOnTableChanges()
+
 // model extensions
 
 fun BaseRXModel.save(databaseWrapper: DatabaseWrapper, func: (Boolean) -> Unit): Subscription = save(databaseWrapper).subscribe { func(it) }
@@ -62,18 +65,20 @@ infix inline fun BaseRXModel.delete(crossinline func: (Boolean) -> Unit): Subscr
 
 // async extensions
 
-infix inline fun <T : Any> RXModelQueriable<T>.list(crossinline func: (MutableList<T>) -> Unit) = list.subscribe { func(it) }
+infix inline fun <T : Any> RXModelQueriable<T>.list(crossinline func: (MutableList<T>) -> Unit): Subscription = list.subscribe { func(it) }
 
-infix inline fun <T : Any> RXModelQueriable<T>.result(crossinline func: (T?) -> Unit) = result.subscribe { func(it) }
+infix inline fun <T : Any> RXModelQueriable<T>.result(crossinline func: (T?) -> Unit): Subscription = result.subscribe { func(it) }
 
-infix inline fun <T : Any> RXModelQueriable<T>.streamResults(crossinline func: (T?) -> Unit) = streamResults.subscribe { func(it) }
+infix inline fun <T : Any> RXModelQueriable<T>.streamResults(crossinline func: (T?) -> Unit): Subscription = streamResults.subscribe { func(it) }
 
-infix inline fun <T : Any> RXModelQueriable<T>.cursorResult(crossinline func: (CursorResult<T>) -> Unit) = cursorResult.subscribe { func(it) }
+infix inline fun <T : Any> RXModelQueriable<T>.cursorResult(crossinline func: (CursorResult<T>) -> Unit): Subscription = cursorResult.subscribe { func(it) }
 
-infix inline fun RXQueriable.statement(crossinline func: (DatabaseStatement) -> Unit) = statement.subscribe { func(it) }
+infix inline fun <T : Any> RXModelQueriable<T>.tableChanges(crossinline func: (ModelQueriable<T>) -> Unit): Subscription = tableChanges.subscribe { func(it) }
 
-infix inline fun RXQueriable.hasData(crossinline func: (Boolean) -> Unit) = hasData.subscribe { func(it) }
+infix inline fun RXQueriable.statement(crossinline func: (DatabaseStatement) -> Unit): Subscription = statement.subscribe { func(it) }
 
-infix inline fun RXQueriable.cursor(crossinline func: (Cursor) -> Unit) = cursor.subscribe { func(it) }
+infix inline fun RXQueriable.hasData(crossinline func: (Boolean) -> Unit): Subscription = hasData.subscribe { func(it) }
 
-infix inline fun RXQueriable.count(crossinline func: (Long) -> Unit) = count.subscribe { func(it) }
+infix inline fun RXQueriable.cursor(crossinline func: (Cursor) -> Unit): Subscription = cursor.subscribe { func(it) }
+
+infix inline fun RXQueriable.count(crossinline func: (Long) -> Unit): Subscription = count.subscribe { func(it) }
