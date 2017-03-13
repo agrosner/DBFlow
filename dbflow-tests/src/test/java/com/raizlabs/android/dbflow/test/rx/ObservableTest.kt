@@ -54,6 +54,7 @@ class ObservableTest : FlowTestCase() {
         model.delete()
 
         assertEquals(3, count)
+
     }
 
     @Test

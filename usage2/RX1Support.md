@@ -2,7 +2,7 @@
 
 RXJava support in DBFlow is an _incubating_ feature and likely to change over time.
 Currently it supports
-    1. `Insert`, `Update`, `Delete`, `Set`, `Join`, and all wrapper query mechanisms.
+    1. `Insert`, `Update`, `Delete`, `Set`, `Join`, and all wrapper query mechanisms by wrapping them in `rx()`
     2. Single + `List` model `save()`, `insert()`, `update()`, and `delete()`.
     3. Streaming a set of results from a query
     4. Observing on table changes for specific `ModelQueriable` and providing ability to query from that set repeatedly as needed.
@@ -21,7 +21,7 @@ dependencies {
 ```
 
 ## Wrapper Language
-Using the classes is as easy as replacing all SQL wrapper calls from to `SQLite` with `RXSQLite`:
+Using the classes is as easy as wrapping all SQL wrapper calls with `RXSQLite.rx()` (Kotlin we supply extension method):
 
 Before:
 ```kotlin
@@ -36,17 +36,23 @@ After:
 
 ```kotlin
 
-RXSQLite.select()
-  .from(MyTable.class)
-  .queryList()
-  .subscribe { list ->
+RXSQLite.rx(select().from(MyTable.class))
+  .list { list ->
 
   }
 
 ```
 
-Essentially we restructured and partially reimplemented the front-end API for queries
-with RX replacements.
+or with Kotlin extension method:
+```kotlin
+
+  select.from(MyTable.class)
+  .rx()
+  .list { list ->
+
+  }
+
+```
 
 ## Model operations
 To make the transition as smoothest as possible, we've provided a `BaseRXModel` which replaces `BaseModel` for convenience in the RX space.
@@ -74,8 +80,8 @@ the method `queryStreamResults()`:
 
 ```kotlin
 
-RXSQLite.select()
-   .from(TestModel1::class.java)
+RXSQLite.wrap(select().from(TestModel1::class.java))
+   .rx()
    .queryStreamResults()
    .subscribe { model ->
 
@@ -86,15 +92,16 @@ RXSQLite.select()
 ## Kotlin Support
 
 Most of the support mirrors [kotlin support](/usage2/KotlinSupport.md) with a few
-minor changes. The similar support provides RX versions of almost all the same extension methods/properties.
+minor changes.
 
 Extension properties/methods include:
-  1. `RXModelQueriable.streamResults`  - stream results one at time to a `Subscription`
-  2.  `list`, `result`,`streamResults`, `cursorResult`,`statement`, `hasData`, `cursor`, and `count` all provide a method lambda that is called within a `Subscription`.
+  1. `rx()` extension method making it super easy to integrate RX.
+  2. `RXModelQueriable.streamResults`  - stream results one at time to a `Subscription`
+  3.  `list`, `result`,`streamResults`, `cursorResult`,`statement`, `hasData`, `cursor`, and `count` all provide a method lambda that is called within a `Subscription`.
 
 ```kotlin
 
-select from MyTable:class
+select from MyTable::class
   where (MyTable.name `is` "Good")
   list { list -> //
 
@@ -102,14 +109,38 @@ select from MyTable:class
 
 ```
 
-which is the same as:
+which is the same with RX as:
 
 ```kotlin
 
-select from MyTable:class
-  where (MyTable.name `is` "Good")
-  list.subscribe { list ->
+(select.from(MyTable::class.java)
+  .where(MyTable.name `is` "Good"))
+  .rx()
+  .list { list ->
 
   }
+
+```
+
+
+Or if we want to get pretty with `BaseRXModel` + extensions:
+
+```kotlin
+
+Person("Somebody").save { success ->
+  // do something
+}
+
+Person("Somebody").update { success ->
+  // do something
+}
+
+Person("Somebody").insert { rowId ->
+  // do something
+}
+
+Person("Somebody").delete { success ->
+  // do something
+}
 
 ```
