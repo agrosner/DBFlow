@@ -3,25 +3,13 @@ package com.raizlabs.android.dbflow.processor
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
-import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition
-import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
-import com.raizlabs.android.dbflow.processor.definition.DatabaseHolderDefinition
-import com.raizlabs.android.dbflow.processor.definition.DatabaseObjectHolder
-import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition
-import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition
-import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition
-import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition
-import com.raizlabs.android.dbflow.processor.definition.TableDefinition
-import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition
-import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
+import com.raizlabs.android.dbflow.processor.definition.*
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import java.io.IOException
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.Collections
+import java.util.*
 import javax.annotation.processing.FilerException
 import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
@@ -56,8 +44,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun addHandlers(vararg containerHandlers: BaseContainerHandler<*>) {
         containerHandlers
-                .filterNot { handlers.contains(it) }
-                .forEach { handlers.add(it) }
+            .filterNot { handlers.contains(it) }
+            .forEach { handlers.add(it) }
     }
 
     val messager: Messager = processingEnvironment.messager
@@ -97,7 +85,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     fun addQueryModelDefinition(queryModelDefinition: QueryModelDefinition) {
         queryModelDefinition.elementClassName?.let {
             getOrPutDatabase(queryModelDefinition.databaseTypeName)?.
-                    queryModelDefinitionMap?.put(it, queryModelDefinition)
+                queryModelDefinitionMap?.put(it, queryModelDefinition)
         }
     }
 
@@ -108,7 +96,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
             holderDefinition?.tableNameMap?.let {
                 if (holderDefinition.tableNameMap.containsKey(tableDefinition.tableName)) {
                     logError("Found duplicate table %1s for database %1s", tableDefinition.tableName,
-                            holderDefinition.databaseDefinition?.databaseName)
+                        holderDefinition.databaseDefinition?.databaseName)
                 } else tableDefinition.tableName?.let {
                     holderDefinition.tableNameMap.put(it, tableDefinition)
                 }
@@ -139,7 +127,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     fun addModelViewDefinition(modelViewDefinition: ModelViewDefinition) {
         modelViewDefinition.elementClassName?.let {
             getOrPutDatabase(modelViewDefinition.databaseName)?.
-                    modelViewDefinitionMap?.put(it, modelViewDefinition)
+                modelViewDefinitionMap?.put(it, modelViewDefinition)
         }
     }
 
@@ -211,14 +199,14 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         val contentProviderDefinition = providerMap[tableEndpointDefinition.contentProviderName]
         if (contentProviderDefinition == null) {
             logError("Content Provider %1s was not found for the @TableEndpoint %1s",
-                    tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName)
+                tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName)
         } else {
             contentProviderDefinition.endpointDefinitions.add(tableEndpointDefinition)
         }
     }
 
     fun logError(callingClass: KClass<*>?, error: String?, vararg args: Any?) {
-        messager.printMessage(Diagnostic.Kind.ERROR, String.format("*==========*$callingClass :" + error?.trim { it <= ' ' } + "*==========*", *args))
+        messager.printMessage(Diagnostic.Kind.ERROR, String.format("*==========*${callingClass ?: ""} :" + error?.trim() + "*==========*", *args))
         var stackTraceElements = Thread.currentThread().stackTrace
         if (stackTraceElements.size > 8) {
             stackTraceElements = Arrays.copyOf(stackTraceElements, 8)
@@ -256,8 +244,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
                 if (databaseHolderDefinition.databaseDefinition == null) {
                     manager.logError("Found null db with: ${databaseHolderDefinition.tableNameMap.values.size} tables," +
-                            " ${databaseHolderDefinition.modelViewDefinitionMap.values.size} modelviews. " +
-                            "Attempt to rebuild project should fix this intermittant issue.")
+                        " ${databaseHolderDefinition.modelViewDefinitionMap.values.size} modelviews. " +
+                        "Attempt to rebuild project should fix this intermittant issue.")
                     manager.logError("Found tables: " + databaseHolderDefinition.tableNameMap.values)
                     continue
                 }
@@ -292,7 +280,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                 if (roundEnvironment.processingOver()) {
                     databaseHolderDefinition.databaseDefinition?.let {
                         JavaFile.builder(it.packageName, it.typeSpec).build()
-                                .writeTo(processorManager.processingEnvironment.filer)
+                            .writeTo(processorManager.processingEnvironment.filer)
                     }
                 }
 
@@ -336,8 +324,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         if (roundEnvironment.processingOver()) {
             try {
                 JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                        DatabaseHolderDefinition(processorManager).typeSpec).build()
-                        .writeTo(processorManager.processingEnvironment.filer)
+                    DatabaseHolderDefinition(processorManager).typeSpec).build()
+                    .writeTo(processorManager.processingEnvironment.filer)
             } catch (e: IOException) {
                 logError(e.message)
             }
