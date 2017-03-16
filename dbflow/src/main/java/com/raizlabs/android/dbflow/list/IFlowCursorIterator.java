@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.list;
 
 import android.database.Cursor;
+import android.support.annotation.Nullable;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -18,6 +19,7 @@ public interface IFlowCursorIterator<TModel> extends Closeable {
     /**
      * @param position The position within the {@link Cursor} to retrieve and convert into a {@link TModel}
      */
+    @Nullable
     TModel getItem(long position);
 
     /**

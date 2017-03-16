@@ -20,7 +20,7 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel>, AutoClo
     }
 
     public FlowCursorIterator(IFlowCursorIterator<TModel> cursorList, int startingLocation) {
-        this(cursorList, startingLocation, cursorList.getCount());
+        this(cursorList, startingLocation, cursorList.getCount() - startingLocation);
     }
 
     public FlowCursorIterator(IFlowCursorIterator<TModel> cursorList, int startingLocation,
@@ -30,8 +30,8 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel>, AutoClo
         Cursor cursor = cursorList.cursor();
         if (cursor != null) {
             // request larger than actual count.
-            if (this.count > cursor.getCount()) {
-                this.count = cursor.getCount();
+            if (this.count > cursor.getCount() - startingLocation) {
+                this.count = cursor.getCount() - startingLocation;
             }
 
             cursor.moveToPosition(startingLocation - 1);

@@ -121,6 +121,7 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
         }
     }
 
+    @Nullable
     @Override
     public TModel getItem(long position) {
         TModel model = null;

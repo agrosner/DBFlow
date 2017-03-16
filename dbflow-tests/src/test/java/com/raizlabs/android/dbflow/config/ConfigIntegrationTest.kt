@@ -1,34 +1,24 @@
 package com.raizlabs.android.dbflow.config
 
-import android.os.Build
-import com.raizlabs.android.dbflow.config.*
+import com.nhaarman.mockito_kotlin.mock
+import com.raizlabs.android.dbflow.BaseUnitTest
+import com.raizlabs.android.dbflow.SimpleModel
+import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader
 import com.raizlabs.android.dbflow.sql.saveable.ModelSaver
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.OpenHelper
-import com.raizlabs.android.dbflow.BuildConfig
-import com.raizlabs.android.dbflow.ShadowContentResolver2
-import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.customhelper.CustomOpenHelper
-import com.raizlabs.android.dbflow.structure.TestModel1
-import org.junit.Assert.*
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransactionQueue
+import junit.framework.Assert.*
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
-import org.robolectric.annotation.Config
 
 /**
- * Description: Tests to ensure DBFlow is set up properly.
+ * Description:
  */
-@RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(Build.VERSION_CODES.LOLLIPOP),
-    shadows = arrayOf(ShadowContentResolver2::class))
-class ConfigIntegrationTest {
+class ConfigIntegrationTest : BaseUnitTest() {
 
     private lateinit var builder: FlowConfig.Builder
 
@@ -36,7 +26,7 @@ class ConfigIntegrationTest {
     fun setup() {
         FlowManager.reset()
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
-        builder = FlowConfig.Builder(RuntimeEnvironment.application)
+        builder = FlowConfig.Builder(context)
     }
 
 
@@ -56,16 +46,7 @@ class ConfigIntegrationTest {
     @Test
     fun test_databaseConfig() {
 
-        val helperListener = object : DatabaseHelperListener {
-            override fun onOpen(database: DatabaseWrapper) {
-            }
-
-            override fun onCreate(database: DatabaseWrapper) {
-            }
-
-            override fun onUpgrade(database: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
-            }
-        }
+        val helperListener = mock<DatabaseHelperListener>()
 
         val openHelperCreator = CustomOpenHelperCreator()
         val managerCreator = CustomTransactionManagerCreator()
@@ -100,13 +81,13 @@ class ConfigIntegrationTest {
     @Test
     fun test_tableConfig() {
 
-        val customListModelLoader = ListModelLoader(TestModel1::class.java)
-        val singleModelLoader = SingleModelLoader(TestModel1::class.java)
-        val modelSaver = ModelSaver<TestModel1>()
+        val customListModelLoader = ListModelLoader(SimpleModel::class.java)
+        val singleModelLoader = SingleModelLoader(SimpleModel::class.java)
+        val modelSaver = ModelSaver<SimpleModel>()
 
         FlowManager.init(builder
             .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
-                .addTableConfig(TableConfig.Builder(TestModel1::class.java)
+                .addTableConfig(TableConfig.Builder(SimpleModel::class.java)
                     .singleModelLoader(singleModelLoader)
                     .listModelLoader(customListModelLoader)
                     .modelAdapterModelSaver(modelSaver)
@@ -121,13 +102,13 @@ class ConfigIntegrationTest {
         assertNotNull(databaseConfig)
 
 
-        val config = databaseConfig.tableConfigMap()[TestModel1::class.java] as TableConfig
+        val config = databaseConfig.tableConfigMap()[SimpleModel::class.java] as TableConfig
         assertNotNull(config)
 
         assertEquals(config.listModelLoader(), customListModelLoader)
         assertEquals(config.singleModelLoader(), singleModelLoader)
 
-        val modelAdapter = FlowManager.getModelAdapter(TestModel1::class.java)
+        val modelAdapter = FlowManager.getModelAdapter(SimpleModel::class.java)
         assertEquals(modelAdapter.listModelLoader, customListModelLoader)
         assertEquals(modelAdapter.singleModelLoader, singleModelLoader)
         assertEquals(modelAdapter.modelSaver, modelSaver)
@@ -145,12 +126,14 @@ class ConfigIntegrationTest {
 
     private class CustomOpenHelperCreator : DatabaseConfig.OpenHelperCreator {
 
-        lateinit var customOpenHelper: CustomOpenHelper
-            private set
+        val customOpenHelper = mock<OpenHelper>()
 
         override fun createHelper(databaseDefinition: DatabaseDefinition, helperListener: DatabaseHelperListener): OpenHelper {
-            customOpenHelper = CustomOpenHelper(databaseDefinition, helperListener)
             return customOpenHelper
         }
     }
 }
+
+class TestTransactionManager(databaseDefinition: DatabaseDefinition)
+    : BaseTransactionManager(mock<ITransactionQueue>(), databaseDefinition)
+
