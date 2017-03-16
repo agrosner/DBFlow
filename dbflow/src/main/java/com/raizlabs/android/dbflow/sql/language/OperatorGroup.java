@@ -9,9 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Allows combining of {@link SQLCondition} into one condition.
+ * Allows combining of {@link SQLOperator} into one condition.
  */
-public class OperatorGroup extends BaseCondition implements Query, Iterable<SQLCondition> {
+public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOperator> {
 
     /**
      * @return Starts an arbitrary clause of conditions to use.
@@ -23,19 +23,19 @@ public class OperatorGroup extends BaseCondition implements Query, Iterable<SQLC
     /**
      * @return Starts an arbitrary clause of conditions to use with first param as condition.
      */
-    public static OperatorGroup clause(SQLCondition condition) {
+    public static OperatorGroup clause(SQLOperator condition) {
         return new OperatorGroup().and(condition);
     }
 
     /**
-     * @return Starts an arbitrary clause of conditions to use, that when included in other {@link SQLCondition},
+     * @return Starts an arbitrary clause of conditions to use, that when included in other {@link SQLOperator},
      * does not append parenthesis to group it.
      */
     public static OperatorGroup nonGroupingClause() {
         return new OperatorGroup().setUseParenthesis(false);
     }
 
-    private final List<SQLCondition> conditionsList = new ArrayList<>();
+    private final List<SQLOperator> conditionsList = new ArrayList<>();
 
     private QueryBuilder query;
     private boolean isChanged;
@@ -67,7 +67,7 @@ public class OperatorGroup extends BaseCondition implements Query, Iterable<SQLC
     }
 
     /**
-     * Sets whether we use paranthesis when grouping this within other {@link SQLCondition}. The default
+     * Sets whether we use paranthesis when grouping this within other {@link SQLOperator}. The default
      * is true, but if no conditions exist there are no paranthesis anyways.
      *
      * @param useParenthesis true if we use them, false if not.
@@ -79,90 +79,90 @@ public class OperatorGroup extends BaseCondition implements Query, Iterable<SQLC
     }
 
     /**
-     * Appends the {@link SQLCondition} with an {@link Operation#OR}
+     * Appends the {@link SQLOperator} with an {@link Operation#OR}
      *
-     * @param sqlCondition The condition to append.
+     * @param sqlOperator The condition to append.
      * @return This instance.
      */
-    public OperatorGroup or(SQLCondition sqlCondition) {
-        return operator(Operation.OR, sqlCondition);
+    public OperatorGroup or(SQLOperator sqlOperator) {
+        return operator(Operation.OR, sqlOperator);
     }
 
     /**
-     * Appends the {@link SQLCondition} with an {@link Operation#AND}
+     * Appends the {@link SQLOperator} with an {@link Operation#AND}
      *
-     * @param sqlCondition The condition to append.
+     * @param sqlOperator The condition to append.
      * @return This instance.
      */
-    public OperatorGroup and(SQLCondition sqlCondition) {
-        return operator(Operation.AND, sqlCondition);
+    public OperatorGroup and(SQLOperator sqlOperator) {
+        return operator(Operation.AND, sqlOperator);
     }
 
     /**
      * Applies the {@link Operation#AND} to all of the passed
-     * {@link SQLCondition}.
+     * {@link SQLOperator}.
      *
-     * @param sqlConditions
+     * @param sqlOperators
      * @return
      */
-    public OperatorGroup andAll(SQLCondition... sqlConditions) {
-        for (SQLCondition sqlCondition : sqlConditions) {
-            and(sqlCondition);
+    public OperatorGroup andAll(SQLOperator... sqlOperators) {
+        for (SQLOperator sqlOperator : sqlOperators) {
+            and(sqlOperator);
         }
         return this;
     }
 
     /**
      * Applies the {@link Operation#AND} to all of the passed
-     * {@link SQLCondition}.
+     * {@link SQLOperator}.
      *
-     * @param sqlConditions
+     * @param sqlOperators
      * @return
      */
-    public OperatorGroup andAll(List<SQLCondition> sqlConditions) {
-        for (SQLCondition sqlCondition : sqlConditions) {
-            and(sqlCondition);
+    public OperatorGroup andAll(List<SQLOperator> sqlOperators) {
+        for (SQLOperator sqlOperator : sqlOperators) {
+            and(sqlOperator);
         }
         return this;
     }
 
     /**
      * Applies the {@link Operation#AND} to all of the passed
-     * {@link SQLCondition}.
+     * {@link SQLOperator}.
      *
-     * @param sqlConditions
+     * @param sqlOperators
      * @return
      */
-    public OperatorGroup orAll(SQLCondition... sqlConditions) {
-        for (SQLCondition sqlCondition : sqlConditions) {
-            or(sqlCondition);
+    public OperatorGroup orAll(SQLOperator... sqlOperators) {
+        for (SQLOperator sqlOperator : sqlOperators) {
+            or(sqlOperator);
         }
         return this;
     }
 
     /**
      * Applies the {@link Operation#AND} to all of the passed
-     * {@link SQLCondition}.
+     * {@link SQLOperator}.
      *
-     * @param sqlConditions
+     * @param sqlOperators
      * @return
      */
-    public OperatorGroup orAll(List<SQLCondition> sqlConditions) {
-        for (SQLCondition sqlCondition : sqlConditions) {
-            or(sqlCondition);
+    public OperatorGroup orAll(List<SQLOperator> sqlOperators) {
+        for (SQLOperator sqlOperator : sqlOperators) {
+            or(sqlOperator);
         }
         return this;
     }
 
     /**
-     * Appends the {@link SQLCondition} with the specified operator string.
+     * Appends the {@link SQLOperator} with the specified operator string.
      *
-     * @param sqlCondition The condition to append.
+     * @param sqlOperator The condition to append.
      * @return This instance.
      */
-    private OperatorGroup operator(String operator, SQLCondition sqlCondition) {
+    private OperatorGroup operator(String operator, SQLOperator sqlOperator) {
         setPreviousSeparator(operator);
-        conditionsList.add(sqlCondition);
+        conditionsList.add(sqlOperator);
         isChanged = true;
         return this;
     }
@@ -174,7 +174,7 @@ public class OperatorGroup extends BaseCondition implements Query, Iterable<SQLC
             queryBuilder.append("(");
         }
         for (int i = 0; i < conditionListSize; i++) {
-            SQLCondition condition = conditionsList.get(i);
+            SQLOperator condition = conditionsList.get(i);
             condition.appendConditionToQuery(queryBuilder);
             if (condition.hasSeparator() && i < conditionListSize - 1) {
                 queryBuilder.appendSpaceSeparated(condition.separator());
@@ -214,12 +214,12 @@ public class OperatorGroup extends BaseCondition implements Query, Iterable<SQLC
         return conditionsList.size();
     }
 
-    public List<SQLCondition> getConditions() {
+    public List<SQLOperator> getConditions() {
         return conditionsList;
     }
 
     @Override
-    public Iterator<SQLCondition> iterator() {
+    public Iterator<SQLOperator> iterator() {
         return conditionsList.iterator();
     }
 
@@ -229,7 +229,7 @@ public class OperatorGroup extends BaseCondition implements Query, Iterable<SQLC
         int count = 0;
         int size = conditionsList.size();
         for (int i = 0; i < size; i++) {
-            SQLCondition condition = conditionsList.get(i);
+            SQLOperator condition = conditionsList.get(i);
             if (condition != null) {
                 condition.appendConditionToQuery(query);
                 if (count < size - 1) {

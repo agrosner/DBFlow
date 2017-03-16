@@ -50,7 +50,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      *
      * @param whereBase The FROM or SET statement chunk
      */
-    public Where(WhereBase<TModel> whereBase, SQLCondition... conditions) {
+    public Where(WhereBase<TModel> whereBase, SQLOperator... conditions) {
         super(whereBase.getTable());
         this.whereBase = whereBase;
         operatorGroup = new OperatorGroup();
@@ -60,37 +60,37 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     }
 
     /**
-     * Joins the {@link SQLCondition} by the prefix of "AND" (unless its the first condition).
+     * Joins the {@link SQLOperator} by the prefix of "AND" (unless its the first condition).
      */
     @NonNull
-    public Where<TModel> and(SQLCondition condition) {
+    public Where<TModel> and(SQLOperator condition) {
         operatorGroup.and(condition);
         return this;
     }
 
     /**
-     * Joins the {@link SQLCondition} by the prefix of "OR" (unless its the first condition).
+     * Joins the {@link SQLOperator} by the prefix of "OR" (unless its the first condition).
      */
     @NonNull
-    public Where<TModel> or(SQLCondition condition) {
+    public Where<TModel> or(SQLOperator condition) {
         operatorGroup.or(condition);
         return this;
     }
 
     /**
-     * Joins all of the {@link SQLCondition} by the prefix of "AND" (unless its the first condition).
+     * Joins all of the {@link SQLOperator} by the prefix of "AND" (unless its the first condition).
      */
     @NonNull
-    public Where<TModel> andAll(List<SQLCondition> conditions) {
+    public Where<TModel> andAll(List<SQLOperator> conditions) {
         operatorGroup.andAll(conditions);
         return this;
     }
 
     /**
-     * Joins all of the {@link SQLCondition} by the prefix of "AND" (unless its the first condition).
+     * Joins all of the {@link SQLOperator} by the prefix of "AND" (unless its the first condition).
      */
     @NonNull
-    public Where<TModel> andAll(SQLCondition... conditions) {
+    public Where<TModel> andAll(SQLOperator... conditions) {
         operatorGroup.andAll(conditions);
         return this;
     }
@@ -112,11 +112,11 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     /**
      * Defines a SQL HAVING statement without the HAVING.
      *
-     * @param conditions The array of {@link SQLCondition}
+     * @param conditions The array of {@link SQLOperator}
      * @return
      */
     @NonNull
-    public Where<TModel> having(SQLCondition... conditions) {
+    public Where<TModel> having(SQLOperator... conditions) {
         havingGroup.andAll(conditions);
         return this;
     }
@@ -173,7 +173,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      */
     @NonNull
     public Where<TModel> exists(@NonNull Where where) {
-        operatorGroup.and(new ExistenceCondition()
+        operatorGroup.and(new ExistenceOperator()
                 .where(where));
         return this;
     }

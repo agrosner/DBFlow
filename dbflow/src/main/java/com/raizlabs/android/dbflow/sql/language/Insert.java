@@ -116,13 +116,13 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      */
     @NonNull
-    public Insert<TModel> columnValues(SQLCondition... conditions) {
+    public Insert<TModel> columnValues(SQLOperator... conditions) {
 
         String[] columns = new String[conditions.length];
         Object[] values = new Object[conditions.length];
 
         for (int i = 0; i < conditions.length; i++) {
-            SQLCondition condition = conditions[i];
+            SQLOperator condition = conditions[i];
             columns[i] = condition.columnName();
             values[i] = condition.value();
         }
@@ -143,7 +143,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
         Object[] values = new Object[size];
 
         for (int i = 0; i < size; i++) {
-            SQLCondition condition = operatorGroup.getConditions().get(i);
+            SQLOperator condition = operatorGroup.getConditions().get(i);
             columns[i] = condition.columnName();
             values[i] = condition.value();
         }
@@ -304,7 +304,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
                 if (i > 0) {
                     queryBuilder.append(",(");
                 }
-                queryBuilder.append(BaseCondition.joinArguments(",", valuesList.get(i))).append(")");
+                queryBuilder.append(BaseOperator.joinArguments(",", valuesList.get(i))).append(")");
             }
         }
 

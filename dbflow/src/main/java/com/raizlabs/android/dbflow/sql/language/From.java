@@ -178,7 +178,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements WhereBas
      * @return A {@link Where} statement with the specified array of {@link Operator}.
      */
     @NonNull
-    public Where<TModel> where(SQLCondition... conditions) {
+    public Where<TModel> where(SQLOperator... conditions) {
         return where().andAll(conditions);
     }
 
@@ -293,7 +293,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements WhereBas
     }
 
     @NonNull
-    public Where<TModel> having(SQLCondition... conditions) {
+    public Where<TModel> having(SQLOperator... conditions) {
         return where().having(conditions);
     }
 

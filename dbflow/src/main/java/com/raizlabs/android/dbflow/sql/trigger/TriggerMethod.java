@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.sql.trigger;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.language.SQLCondition;
+import com.raizlabs.android.dbflow.sql.language.SQLOperator;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 
 /**
@@ -24,7 +24,7 @@ public class TriggerMethod<TModel> implements Query {
      */
     Class<TModel> onTable;
     boolean forEachRow = false;
-    private SQLCondition whenCondition;
+    private SQLOperator whenCondition;
 
     TriggerMethod(Trigger trigger, String methodName, Class<TModel> onTable, IProperty... properties) {
         this.trigger = trigger;
@@ -49,7 +49,7 @@ public class TriggerMethod<TModel> implements Query {
      * @param condition The condition for the trigger
      * @return
      */
-    public TriggerMethod<TModel> when(SQLCondition condition) {
+    public TriggerMethod<TModel> when(SQLOperator condition) {
         whenCondition = condition;
         return this;
     }

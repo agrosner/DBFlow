@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.language.Operator;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.sql.language.SQLCondition;
+import com.raizlabs.android.dbflow.sql.language.SQLOperator;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -75,10 +75,10 @@ public class FlowContentObserver extends ContentObserver {
          *                         and up.
          * @param action           The action on the model. for versions prior to {@link VERSION_CODES#JELLY_BEAN} ,
          *                         the {@link Action#CHANGE} will always be called for any action.
-         * @param primaryKeyValues The array of primary {@link SQLCondition} of what changed. Call {@link SQLCondition#columnName()}
-         *                         and {@link SQLCondition#value()} to get each information.
+         * @param primaryKeyValues The array of primary {@link SQLOperator} of what changed. Call {@link SQLOperator#columnName()}
+         *                         and {@link SQLOperator#value()} to get each information.
          */
-        void onModelStateChanged(@Nullable Class<?> table, Action action, @NonNull SQLCondition[] primaryKeyValues);
+        void onModelStateChanged(@Nullable Class<?> table, Action action, @NonNull SQLOperator[] primaryKeyValues);
     }
 
     /**
@@ -223,7 +223,7 @@ public class FlowContentObserver extends ContentObserver {
     @Override
     public void onChange(boolean selfChange) {
         for (OnModelStateChangedListener modelChangeListener : modelChangeListeners) {
-            modelChangeListener.onModelStateChanged(null, Action.CHANGE, new SQLCondition[0]);
+            modelChangeListener.onModelStateChanged(null, Action.CHANGE, new SQLOperator[0]);
         }
 
         for (OnTableChangedListener onTableChangedListener : onTableChangedListeners) {
@@ -246,7 +246,7 @@ public class FlowContentObserver extends ContentObserver {
         String param;
 
         Set<String> queryNames = uri.getQueryParameterNames();
-        SQLCondition[] columnsChanged = new SQLCondition[queryNames.size()];
+        SQLOperator[] columnsChanged = new SQLOperator[queryNames.size()];
         if (!queryNames.isEmpty()) {
             int index = 0;
             for (String key : queryNames) {

@@ -129,7 +129,7 @@ public class Join<TModel, TFromModel> implements Query {
      * @return The FROM that this JOIN came from
      */
     @NonNull
-    public From<TFromModel> on(SQLCondition... onConditions) {
+    public From<TFromModel> on(SQLOperator... onConditions) {
         onGroup = new OperatorGroup();
         onGroup.andAll(onConditions);
         return from;

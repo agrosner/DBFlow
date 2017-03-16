@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 /**
  * Description: Basic interface for all of the Operator classes.
  */
-public interface SQLCondition {
+public interface SQLOperator {
 
     /**
      * Appends itself to the {@link QueryBuilder}
@@ -34,7 +34,7 @@ public interface SQLCondition {
      * @param separator The string AND, OR, or something else.
      * @return This instance.
      */
-    SQLCondition separator(String separator);
+    SQLOperator separator(String separator);
 
     /**
      * @return true if it has a separator, false if not.

@@ -103,13 +103,13 @@ public class SQLite {
      * @return A new {@link CaseCondition}.
      */
     @NonNull
-    public static <TReturn> CaseCondition<TReturn> caseWhen(@NonNull SQLCondition condition) {
+    public static <TReturn> CaseCondition<TReturn> caseWhen(@NonNull SQLOperator condition) {
         return new Case<TReturn>().when(condition);
     }
 
     /**
      * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
-     * case statement will evaluate all of its {@link SQLCondition}.
+     * case statement will evaluate all of its {@link SQLOperator}.
      *
      * @param caseColumn The value
      */
@@ -120,7 +120,7 @@ public class SQLite {
 
     /**
      * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
-     * case statement will evaluate all of its {@link SQLCondition}.
+     * case statement will evaluate all of its {@link SQLOperator}.
      *
      * @param caseColumn The value
      */

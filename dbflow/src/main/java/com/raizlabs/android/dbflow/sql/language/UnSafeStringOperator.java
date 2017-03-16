@@ -7,12 +7,12 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
  * Description: This class will use a String to describe its condition.
  * Not recommended for normal queries, but can be used as a fall-back.
  */
-public class UnSafeStringCondition implements SQLCondition {
+public class UnSafeStringOperator implements SQLOperator {
 
     private final String conditionString;
     private String separator = "";
 
-    public UnSafeStringCondition(String selection, String[] selectionArgs) {
+    public UnSafeStringOperator(String selection, String[] selectionArgs) {
         String newSelection = selection;
         // replace question marks in order
         if (newSelection != null) {
@@ -39,7 +39,7 @@ public class UnSafeStringCondition implements SQLCondition {
     }
 
     @Override
-    public SQLCondition separator(String separator) {
+    public SQLOperator separator(String separator) {
         this.separator = separator;
         return this;
     }

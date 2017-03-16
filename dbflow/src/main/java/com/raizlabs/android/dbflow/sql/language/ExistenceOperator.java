@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 /**
  * Description: The condition that represents EXISTS in a SQL statement.
  */
-public class ExistenceCondition implements SQLCondition {
+public class ExistenceOperator implements SQLOperator {
 
     private Where innerWhere;
 
@@ -18,18 +18,18 @@ public class ExistenceCondition implements SQLCondition {
 
     @Override
     public String columnName() {
-        throw new RuntimeException("Method not valid for ExistenceCondition");
+        throw new RuntimeException("Method not valid for ExistenceOperator");
     }
 
     @Override
     public String separator() {
-        throw new RuntimeException("Method not valid for ExistenceCondition");
+        throw new RuntimeException("Method not valid for ExistenceOperator");
     }
 
     @Override
-    public SQLCondition separator(String separator) {
+    public SQLOperator separator(String separator) {
         // not used.
-        throw new RuntimeException("Method not valid for ExistenceCondition");
+        throw new RuntimeException("Method not valid for ExistenceOperator");
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ExistenceCondition implements SQLCondition {
         return innerWhere;
     }
 
-    public ExistenceCondition where(@NonNull Where where) {
+    public ExistenceOperator where(@NonNull Where where) {
         this.innerWhere = where;
         return this;
     }

@@ -38,7 +38,7 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
      * @return This instance.
      */
     @NonNull
-    public Set<TModel> conditions(SQLCondition... conditions) {
+    public Set<TModel> conditions(SQLOperator... conditions) {
         operatorGroup.andAll(conditions);
         return this;
     }
@@ -50,7 +50,7 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
     }
 
     @NonNull
-    public Where<TModel> where(SQLCondition... conditions) {
+    public Where<TModel> where(SQLOperator... conditions) {
         return new Where<>(this, conditions);
     }
 
@@ -95,7 +95,7 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
     }
 
     @NonNull
-    public Where<TModel> having(SQLCondition... conditions) {
+    public Where<TModel> having(SQLOperator... conditions) {
         return where().having(conditions);
     }
 

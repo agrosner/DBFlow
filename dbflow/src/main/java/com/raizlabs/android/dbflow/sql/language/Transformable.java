@@ -24,7 +24,7 @@ public interface Transformable<T> {
 
     Where<T> offset(int offset);
 
-    Where<T> having(SQLCondition... conditions);
+    Where<T> having(SQLOperator... conditions);
 
     Where<T> orderByAll(List<OrderBy> orderBies);
 }

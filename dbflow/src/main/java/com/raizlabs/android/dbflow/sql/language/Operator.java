@@ -18,14 +18,14 @@ import java.util.List;
  * This class is mostly reserved for internal use at this point. Using this class directly should be avoided
  * and use the generated {@link Property} instead.
  */
-public class Operator<T> extends BaseCondition implements IOperator<T> {
+public class Operator<T> extends BaseOperator implements IOperator<T> {
 
 
     private TypeConverter typeConverter;
     private boolean convertToDB;
 
     public static String convertValueToString(Object value) {
-        return BaseCondition.convertValueToString(value, false);
+        return BaseOperator.convertValueToString(value, false);
     }
 
     public static <T> Operator<T> column(NameAlias column) {
@@ -467,7 +467,7 @@ public class Operator<T> extends BaseCondition implements IOperator<T> {
                 // if object type is not valid converted type, just use type as is here.
                 FlowLog.log(FlowLog.Level.W, c);
             }
-            return BaseCondition.convertValueToString(converted, appendInnerParenthesis, false);
+            return BaseOperator.convertValueToString(converted, appendInnerParenthesis, false);
         } else {
             return super.convertObjectToString(object, appendInnerParenthesis);
         }
@@ -607,7 +607,7 @@ public class Operator<T> extends BaseCondition implements IOperator<T> {
     /**
      * The SQL BETWEEN operator that contains two values instead of the normal 1.
      */
-    public static class Between<T> extends BaseCondition implements Query {
+    public static class Between<T> extends BaseOperator implements Query {
 
         private T secondValue;
 
@@ -655,7 +655,7 @@ public class Operator<T> extends BaseCondition implements IOperator<T> {
      * The SQL IN and NOT IN operator that specifies a list of values to SELECT rows from.
      * EX: SELECT * FROM myTable WHERE columnName IN ('column1','column2','etc')
      */
-    public static class In<T> extends BaseCondition implements Query {
+    public static class In<T> extends BaseOperator implements Query {
 
         private List<T> inArguments = new ArrayList<>();
 

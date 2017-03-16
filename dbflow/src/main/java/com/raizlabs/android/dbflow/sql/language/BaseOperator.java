@@ -10,9 +10,9 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 
 /**
- * Description: Base class for all kinds of {@link SQLCondition}
+ * Description: Base class for all kinds of {@link SQLOperator}
  */
-public abstract class BaseCondition implements SQLCondition {
+public abstract class BaseOperator implements SQLOperator {
 
     public static String convertValueToString(Object value, boolean appendInnerQueryParenthesis) {
         return convertValueToString(value, appendInnerQueryParenthesis, true);
@@ -30,7 +30,7 @@ public abstract class BaseCondition implements SQLCondition {
      * <p>
      * If the value is a {@link NameAlias}, we return the {@link NameAlias#getQuery()}
      * <p>
-     * If the value is a {@link SQLCondition}, we {@link SQLCondition#appendConditionToQuery(QueryBuilder)}.
+     * If the value is a {@link SQLOperator}, we {@link SQLOperator#appendConditionToQuery(QueryBuilder)}.
      * <p>
      * If the value is a {@link Query}, we simply call {@link Query#getQuery()}.
      * <p>
@@ -64,9 +64,9 @@ public abstract class BaseCondition implements SQLCondition {
                     stringVal = String.format("(%1s)", ((BaseModelQueriable) value).getQuery().trim());
                 } else if (value instanceof NameAlias) {
                     stringVal = ((NameAlias) value).getQuery();
-                } else if (value instanceof SQLCondition) {
+                } else if (value instanceof SQLOperator) {
                     QueryBuilder queryBuilder = new QueryBuilder();
-                    ((SQLCondition) value).appendConditionToQuery(queryBuilder);
+                    ((SQLOperator) value).appendConditionToQuery(queryBuilder);
                     stringVal = queryBuilder.toString();
                 } else if (value instanceof Query) {
                     stringVal = ((Query) value).getQuery();
@@ -100,7 +100,7 @@ public abstract class BaseCondition implements SQLCondition {
      * @return A joined string
      */
     public static String joinArguments(CharSequence delimiter, Iterable tokens,
-                                       BaseCondition condition) {
+                                       BaseOperator condition) {
         StringBuilder sb = new StringBuilder();
         boolean firstTime = true;
         for (Object token : tokens) {
@@ -188,7 +188,7 @@ public abstract class BaseCondition implements SQLCondition {
      */
     protected boolean isValueSet;
 
-    BaseCondition(NameAlias nameAlias) {
+    BaseOperator(NameAlias nameAlias) {
         this.nameAlias = nameAlias;
     }
 
@@ -209,7 +209,7 @@ public abstract class BaseCondition implements SQLCondition {
     }
 
     @Override
-    public SQLCondition separator(String separator) {
+    public SQLOperator separator(String separator) {
         this.separator = separator;
         return this;
     }

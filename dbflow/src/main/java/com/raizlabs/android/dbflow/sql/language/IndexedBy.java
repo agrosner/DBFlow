@@ -28,7 +28,7 @@ public class IndexedBy<TModel> implements WhereBase<TModel>, Transformable<TMode
         this.whereBase = whereBase;
     }
 
-    public Where<TModel> where(SQLCondition... conditions) {
+    public Where<TModel> where(SQLOperator... conditions) {
         return new Where<>(this, conditions);
     }
 
@@ -73,7 +73,7 @@ public class IndexedBy<TModel> implements WhereBase<TModel>, Transformable<TMode
     }
 
     @Override
-    public Where<TModel> having(SQLCondition... conditions) {
+    public Where<TModel> having(SQLOperator... conditions) {
         return where().having(conditions);
     }
 

@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.language.Operator;
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.sql.language.SQLCondition;
+import com.raizlabs.android.dbflow.sql.language.SQLOperator;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -37,7 +37,7 @@ public class SqlUtils {
      * @param sqlConditions The list of conditions that represent what changed.
      */
     public static void notifyModelChanged(Class<?> table, Action action,
-                                          Iterable<SQLCondition> sqlConditions) {
+                                          Iterable<SQLOperator> sqlConditions) {
         FlowManager.getContext().getContentResolver().notifyChange(
             getNotificationUri(table, action, sqlConditions), null, true);
     }
@@ -71,26 +71,26 @@ public class SqlUtils {
                                                    Action action) {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.getContext().getContentResolver()
-                .notifyChange(getNotificationUri(table, action, (SQLCondition[]) null), null, true);
+                .notifyChange(getNotificationUri(table, action, (SQLOperator[]) null), null, true);
         }
     }
 
     /**
-     * Constructs a {@link Uri} from a set of {@link SQLCondition} for specific table.
+     * Constructs a {@link Uri} from a set of {@link SQLOperator} for specific table.
      *
      * @param modelClass The class of table,
      * @param action     The action to use.
-     * @param conditions The set of key-value {@link SQLCondition} to construct into a uri.
+     * @param conditions The set of key-value {@link SQLOperator} to construct into a uri.
      * @return The {@link Uri}.
      */
-    public static Uri getNotificationUri(Class<?> modelClass, Action action, Iterable<SQLCondition> conditions) {
+    public static Uri getNotificationUri(Class<?> modelClass, Action action, Iterable<SQLOperator> conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
             .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
         if (conditions != null) {
-            for (SQLCondition condition : conditions) {
+            for (SQLOperator condition : conditions) {
                 uriBuilder.appendQueryParameter(Uri.encode(condition.columnName()), Uri.encode(String.valueOf(condition.value())));
             }
         }
@@ -99,22 +99,22 @@ public class SqlUtils {
 
 
     /**
-     * Constructs a {@link Uri} from a set of {@link SQLCondition} for specific table.
+     * Constructs a {@link Uri} from a set of {@link SQLOperator} for specific table.
      *
      * @param modelClass The class of table,
      * @param action     The action to use.
-     * @param conditions The set of key-value {@link SQLCondition} to construct into a uri.
+     * @param conditions The set of key-value {@link SQLOperator} to construct into a uri.
      * @return The {@link Uri}.
      */
     public static Uri getNotificationUri(Class<?> modelClass, Action action,
-                                         @Nullable SQLCondition[] conditions) {
+                                         @Nullable SQLOperator[] conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
             .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
         if (conditions != null && conditions.length > 0) {
-            for (SQLCondition condition : conditions) {
+            for (SQLOperator condition : conditions) {
                 if (condition != null) {
                     uriBuilder.appendQueryParameter(Uri.encode(condition.columnName()), Uri.encode(String.valueOf(condition.value())));
                 }
@@ -139,7 +139,7 @@ public class SqlUtils {
         if (StringUtils.isNotNullOrEmpty(notifyKey)) {
             operator = Operator.column(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
         }
-        return getNotificationUri(modelClass, action, new SQLCondition[]{operator});
+        return getNotificationUri(modelClass, action, new SQLOperator[]{operator});
     }
 
     /**

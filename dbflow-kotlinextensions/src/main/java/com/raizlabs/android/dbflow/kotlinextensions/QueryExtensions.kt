@@ -26,15 +26,15 @@ infix fun <T : Any> Select.from(modelClass: KClass<T>) = from(modelClass.java)
 
 infix fun <T : Any> From<T>.whereExists(where: Where<T>) = where().exists(where)
 
-infix fun <T : Any> From<T>.where(sqlCondition: SQLCondition) = where(sqlCondition)
+infix fun <T : Any> From<T>.where(sqlOperator: SQLOperator) = where(sqlOperator)
 
-infix fun <T : Any> Set<T>.where(sqlCondition: SQLCondition) = where(sqlCondition)
+infix fun <T : Any> Set<T>.where(sqlOperator: SQLOperator) = where(sqlOperator)
 
-infix fun <T : Any> Where<T>.and(sqlCondition: SQLCondition) = and(sqlCondition)
+infix fun <T : Any> Where<T>.and(sqlOperator: SQLOperator) = and(sqlOperator)
 
-infix fun <T : Any> Where<T>.or(sqlCondition: SQLCondition) = and(sqlCondition)
+infix fun <T : Any> Where<T>.or(sqlOperator: SQLOperator) = and(sqlOperator)
 
-infix fun <T : Any> Case<T>.`when`(sqlCondition: SQLCondition) = `when`(sqlCondition)
+infix fun <T : Any> Case<T>.`when`(sqlOperator: SQLOperator) = `when`(sqlOperator)
 
 infix fun <T : Any> Case<T>.`when`(property: IProperty<*>) = `when`(property)
 
@@ -111,7 +111,7 @@ infix fun <T : Any> Transformable<T>.limit(limit: Int): Where<T> = limit(limit)
 
 infix fun <T : Any> Transformable<T>.offset(offset: Int): Where<T> = offset(offset)
 
-infix fun <T : Any> Transformable<T>.having(sqlCondition: SQLCondition): Where<T> = having(sqlCondition)
+infix fun <T : Any> Transformable<T>.having(sqlOperator: SQLOperator): Where<T> = having(sqlOperator)
 
 // join
 
@@ -121,13 +121,13 @@ infix fun <T : Any, V : Any> From<V>.crossJoin(joinTable: KClass<T>): Join<T, V>
 
 infix fun <T : Any, V : Any> From<V>.leftOuterJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.LEFT_OUTER)
 
-infix fun <T : Any, V : Any> Join<T, V>.on(sqlCondition: SQLCondition): From<V> = on(sqlCondition)
+infix fun <T : Any, V : Any> Join<T, V>.on(sqlOperator: SQLOperator): From<V> = on(sqlOperator)
 
 // update methods
 
 fun <T : Any> update(modelClass: KClass<T>): Update<T> = SQLite.update(modelClass.java)
 
-infix fun <T : Any> Update<T>.set(sqlCondition: SQLCondition) = set(sqlCondition)
+infix fun <T : Any> Update<T>.set(sqlOperator: SQLOperator) = set(sqlOperator)
 
 // delete
 
@@ -178,13 +178,13 @@ fun <T : Any> select(init: Select.() -> BaseModelQueriable<T>) = init(SQLite.sel
 
 inline fun <reified T : Any> Select.from(fromClause: From<T>.() -> Where<T>) = fromClause(from(T::class.java))
 
-inline fun <T : Any> From<T>.where(sqlConditionClause: () -> SQLCondition) = where(sqlConditionClause())
+inline fun <T : Any> From<T>.where(sqlOperatorClause: () -> SQLOperator) = where(sqlOperatorClause())
 
-inline fun <T : Any> Set<T>.where(sqlConditionClause: () -> SQLCondition) = where(sqlConditionClause())
+inline fun <T : Any> Set<T>.where(sqlOperatorClause: () -> SQLOperator) = where(sqlOperatorClause())
 
-inline fun <T : Any> Where<T>.and(sqlConditionClause: () -> SQLCondition) = and(sqlConditionClause())
+inline fun <T : Any> Where<T>.and(sqlOperatorClause: () -> SQLOperator) = and(sqlOperatorClause())
 
-inline fun <T : Any> Where<T>.or(sqlConditionClause: () -> SQLCondition) = or(sqlConditionClause())
+inline fun <T : Any> Where<T>.or(sqlOperatorClause: () -> SQLOperator) = or(sqlOperatorClause())
 
 inline fun <T : Any, reified TJoin : Any> From<T>.join(joinType: Join.JoinType,
                                                        function: Join<TJoin, T>.() -> Unit): Where<T> {
@@ -194,7 +194,7 @@ inline fun <T : Any, reified TJoin : Any> From<T>.join(joinType: Join.JoinType,
 
 inline fun <reified T : Any> insert(insertMethod: Insert<T>.() -> Unit) = SQLite.insert(T::class.java).apply { insertMethod(this) }
 
-inline infix fun <T : Any, TJoin : Any> Join<TJoin, T>.on(conditionFunction: () -> Array<out SQLCondition>) = on(*conditionFunction())
+inline infix fun <T : Any, TJoin : Any> Join<TJoin, T>.on(operatorFunction: () -> Array<out SQLOperator>) = on(*operatorFunction())
 
 inline fun <reified T : Any> update(setMethod: Update<T>.() -> BaseModelQueriable<T>) = setMethod(SQLite.update(T::class.java))
 
