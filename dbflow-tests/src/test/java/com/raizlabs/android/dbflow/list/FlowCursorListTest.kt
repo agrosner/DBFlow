@@ -1,5 +1,8 @@
 package com.raizlabs.android.dbflow.list
 
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.times
+import com.nhaarman.mockito_kotlin.verify
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.SimpleModel
 import com.raizlabs.android.dbflow.kotlinextensions.*
@@ -62,8 +65,12 @@ class FlowCursorListTest : BaseUnitTest() {
 
         val list = (select from SimpleModel::class).cursorList()
         assertEquals(10, list.count)
-        assertEquals(list[0], list[0])
+        val firsItem = list[0]
+        assertEquals(firsItem, firsItem)
         assertEquals(list[2], list[2])
+
+        list.clearCache()
+        assertNotEquals(firsItem, list[0])
     }
 
     @Test
@@ -76,8 +83,31 @@ class FlowCursorListTest : BaseUnitTest() {
         val all = list.all
         assertEquals(list.count, all.size.toLong())
         all.indices.forEach {
-            assertEquals(all[it], list[it])g
+            assertEquals(all[it], list[it])
         }
+    }
+
+    @Test
+    fun validateCursorChange() {
+        (0..9).forEach {
+            SimpleModel("$it").save()
+        }
+
+        val list = (select from SimpleModel::class).cursorList()
+
+        val listener = mock<FlowCursorList.OnCursorRefreshListener<SimpleModel>>()
+        list.addOnCursorRefreshListener(listener)
+        assertEquals(10, list.count)
+        SimpleModel("10").save()
+        list.refresh()
+        assertEquals(11, list.count)
+
+        verify(listener).onCursorRefreshed(list)
+
+        list.removeOnCursorRefreshListener(listener)
+
+        list.refresh()
+        verify(listener, times(1)).onCursorRefreshed(list)
     }
 }
 

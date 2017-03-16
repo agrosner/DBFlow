@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow
 
+import com.raizlabs.android.dbflow.config.DatabaseConfig
 import com.raizlabs.android.dbflow.config.FlowConfig
 import com.raizlabs.android.dbflow.config.FlowManager
 import org.junit.rules.TestRule
@@ -14,7 +15,10 @@ class DBFlowTestRule : TestRule {
 
             @Throws(Throwable::class)
             override fun evaluate() {
-                FlowManager.init(FlowConfig.Builder(RuntimeEnvironment.application).build())
+                FlowManager.init(FlowConfig.Builder(RuntimeEnvironment.application)
+                    .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+                        .transactionManagerCreator(::ImmediateTransactionManager)
+                        .build()).build())
                 try {
                     base.evaluate()
                 } finally {

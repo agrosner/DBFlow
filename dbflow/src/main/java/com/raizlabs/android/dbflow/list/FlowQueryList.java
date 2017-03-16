@@ -92,7 +92,8 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     @Override
     public void registerForContentChanges(Context context, Class<?> table) {
         throw new RuntimeException(
-            "This method is not to be used in the FlowQueryList. call registerForContentChanges(Context) instead");
+            "This method is not to be used in the FlowQueryList. We should only ever receive" +
+                " notifications for one class here. Call registerForContentChanges(Context) instead");
     }
 
     @Override

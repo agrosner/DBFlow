@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -259,28 +259,28 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      */
     public Transaction.Builder async() {
         return FlowManager.getDatabaseForTable(getTable())
-                .beginTransactionAsync(new ITransaction() {
-                    @Override
-                    public void execute(DatabaseWrapper databaseWrapper) {
-                        Insert.this.execute(databaseWrapper);
-                    }
-                });
+            .beginTransactionAsync(new ITransaction() {
+                @Override
+                public void execute(DatabaseWrapper databaseWrapper) {
+                    Insert.this.execute(databaseWrapper);
+                }
+            });
     }
 
     @Override
     public String getQuery() {
-        ValueQueryBuilder queryBuilder = new ValueQueryBuilder("INSERT ");
+        QueryBuilder queryBuilder = new QueryBuilder("INSERT ");
         if (conflictAction != null && !conflictAction.equals(ConflictAction.NONE)) {
             queryBuilder.append("OR").appendSpaceSeparated(conflictAction);
         }
         queryBuilder.append("INTO")
-                .appendSpace()
-                .appendTableName(getTable());
+            .appendSpace()
+            .append(FlowManager.getTableName(getTable()));
 
         if (columns != null) {
             queryBuilder.append("(")
-                    .appendArray((Object[]) columns)
-                    .append(")");
+                .appendArray((Object[]) columns)
+                .append(")");
         }
 
         // append FROM, which overrides values
@@ -289,12 +289,12 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
         } else {
             if (valuesList == null || valuesList.size() < 1) {
                 throw new IllegalStateException("The insert of " + FlowManager.getTableName(getTable()) + " should have" +
-                        "at least one value specified for the insert");
+                    "at least one value specified for the insert");
             } else if (columns != null) {
                 for (Object[] values : valuesList) {
                     if (values.length != columns.length) {
                         throw new IllegalStateException("The Insert of " + FlowManager.getTableName(getTable()) + " when specifying" +
-                                "columns needs to have the same amount of values and columns");
+                            "columns needs to have the same amount of values and columns");
                     }
                 }
             }
@@ -304,7 +304,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
                 if (i > 0) {
                     queryBuilder.append(",(");
                 }
-                queryBuilder.appendModelArray(valuesList.get(i)).append(")");
+                queryBuilder.append(BaseCondition.joinArguments(",", valuesList.get(i))).append(")");
             }
         }
 
