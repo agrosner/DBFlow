@@ -11,8 +11,8 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.sql.saveable.ListModelSaver;
 import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter;
@@ -418,7 +418,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @param columnName The column name of the property.
      * @return The property from the corresponding Table class.
      */
-    public abstract BaseProperty getProperty(String columnName);
+    public abstract Property getProperty(String columnName);
 
     /**
      * @return An array of column properties, in order of declaration.

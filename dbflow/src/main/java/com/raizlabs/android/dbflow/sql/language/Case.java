@@ -96,8 +96,8 @@ public class Case<TReturn> implements Query {
     /**
      * @return The case complete as a condition.
      */
-    public Condition endAsCondition() {
-        return Condition.column(end().getNameAlias());
+    public Operator endAsCondition() {
+        return Operator.column(end().getNameAlias());
     }
 
     boolean isEfficientCase() {

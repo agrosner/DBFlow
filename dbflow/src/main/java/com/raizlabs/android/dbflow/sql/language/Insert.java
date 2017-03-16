@@ -111,7 +111,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
     }
 
     /**
-     * Uses the {@link Condition} pairs to fill this insert query.
+     * Uses the {@link Operator} pairs to fill this insert query.
      *
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      */
@@ -131,19 +131,19 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
     }
 
     /**
-     * Uses the {@link Condition} pairs to fill this insert query.
+     * Uses the {@link Operator} pairs to fill this insert query.
      *
-     * @param conditionGroup The ConditionGroup to use
+     * @param operatorGroup The OperatorGroup to use
      */
     @NonNull
-    public Insert<TModel> columnValues(ConditionGroup conditionGroup) {
+    public Insert<TModel> columnValues(OperatorGroup operatorGroup) {
 
-        int size = conditionGroup.size();
+        int size = operatorGroup.size();
         String[] columns = new String[size];
         Object[] values = new Object[size];
 
         for (int i = 0; i < size; i++) {
-            SQLCondition condition = conditionGroup.getConditions().get(i);
+            SQLCondition condition = operatorGroup.getConditions().get(i);
             columns[i] = condition.columnName();
             values[i] = condition.value();
         }

@@ -9,8 +9,8 @@ import android.support.annotation.Nullable;
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
-import com.raizlabs.android.dbflow.sql.language.Condition;
-import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.Operator;
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.SQLCondition;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
@@ -135,11 +135,11 @@ public class SqlUtils {
 
     public static Uri getNotificationUri(Class<?> modelClass, Action action,
                                          String notifyKey, Object notifyValue) {
-        Condition condition = null;
+        Operator operator = null;
         if (StringUtils.isNotNullOrEmpty(notifyKey)) {
-            condition = Condition.column(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
+            operator = Operator.column(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
         }
-        return getNotificationUri(modelClass, action, new SQLCondition[]{condition});
+        return getNotificationUri(modelClass, action, new SQLCondition[]{operator});
     }
 
     /**
@@ -180,17 +180,17 @@ public class SqlUtils {
     }
 
     /**
-     * Adds {@link ContentValues} to the specified {@link ConditionGroup}.
+     * Adds {@link ContentValues} to the specified {@link OperatorGroup}.
      *
      * @param contentValues  The content values to convert.
-     * @param conditionGroup The group to put them into as {@link Condition}.
+     * @param operatorGroup The group to put them into as {@link Operator}.
      */
-    public static void addContentValues(@NonNull ContentValues contentValues, @NonNull ConditionGroup conditionGroup) {
+    public static void addContentValues(@NonNull ContentValues contentValues, @NonNull OperatorGroup operatorGroup) {
         java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
 
         for (Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
-            conditionGroup.and(Condition.column(new NameAlias.Builder(key).build())
+            operatorGroup.and(Operator.column(new NameAlias.Builder(key).build())
                 .is(contentValues.get(key)));
         }
     }

@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.language.Condition.Operation;
+import com.raizlabs.android.dbflow.sql.language.Operator.Operation;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,28 +11,28 @@ import java.util.List;
 /**
  * Allows combining of {@link SQLCondition} into one condition.
  */
-public class ConditionGroup extends BaseCondition implements Query, Iterable<SQLCondition> {
+public class OperatorGroup extends BaseCondition implements Query, Iterable<SQLCondition> {
 
     /**
      * @return Starts an arbitrary clause of conditions to use.
      */
-    public static ConditionGroup clause() {
-        return new ConditionGroup();
+    public static OperatorGroup clause() {
+        return new OperatorGroup();
     }
 
     /**
      * @return Starts an arbitrary clause of conditions to use with first param as condition.
      */
-    public static ConditionGroup clause(SQLCondition condition) {
-        return new ConditionGroup().and(condition);
+    public static OperatorGroup clause(SQLCondition condition) {
+        return new OperatorGroup().and(condition);
     }
 
     /**
      * @return Starts an arbitrary clause of conditions to use, that when included in other {@link SQLCondition},
      * does not append parenthesis to group it.
      */
-    public static ConditionGroup nonGroupingClause() {
-        return new ConditionGroup().setUseParenthesis(false);
+    public static OperatorGroup nonGroupingClause() {
+        return new OperatorGroup().setUseParenthesis(false);
     }
 
     private final List<SQLCondition> conditionsList = new ArrayList<>();
@@ -42,14 +42,14 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
     private boolean allCommaSeparated;
     private boolean useParenthesis = true;
 
-    protected ConditionGroup(NameAlias columnName) {
+    protected OperatorGroup(NameAlias columnName) {
         super(columnName);
 
         // default is AND
         separator = Operation.AND;
     }
 
-    protected ConditionGroup() {
+    protected OperatorGroup() {
         this(null);
     }
 
@@ -60,7 +60,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
      * @param allCommaSeparated All become comma separated.
      * @return This instance.
      */
-    public ConditionGroup setAllCommaSeparated(boolean allCommaSeparated) {
+    public OperatorGroup setAllCommaSeparated(boolean allCommaSeparated) {
         this.allCommaSeparated = allCommaSeparated;
         isChanged = true;
         return this;
@@ -72,7 +72,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
      *
      * @param useParenthesis true if we use them, false if not.
      */
-    public ConditionGroup setUseParenthesis(boolean useParenthesis) {
+    public OperatorGroup setUseParenthesis(boolean useParenthesis) {
         this.useParenthesis = useParenthesis;
         isChanged = true;
         return this;
@@ -84,7 +84,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
      * @param sqlCondition The condition to append.
      * @return This instance.
      */
-    public ConditionGroup or(SQLCondition sqlCondition) {
+    public OperatorGroup or(SQLCondition sqlCondition) {
         return operator(Operation.OR, sqlCondition);
     }
 
@@ -94,7 +94,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
      * @param sqlCondition The condition to append.
      * @return This instance.
      */
-    public ConditionGroup and(SQLCondition sqlCondition) {
+    public OperatorGroup and(SQLCondition sqlCondition) {
         return operator(Operation.AND, sqlCondition);
     }
 
@@ -105,7 +105,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
      * @param sqlConditions
      * @return
      */
-    public ConditionGroup andAll(SQLCondition... sqlConditions) {
+    public OperatorGroup andAll(SQLCondition... sqlConditions) {
         for (SQLCondition sqlCondition : sqlConditions) {
             and(sqlCondition);
         }
@@ -119,7 +119,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
      * @param sqlConditions
      * @return
      */
-    public ConditionGroup andAll(List<SQLCondition> sqlConditions) {
+    public OperatorGroup andAll(List<SQLCondition> sqlConditions) {
         for (SQLCondition sqlCondition : sqlConditions) {
             and(sqlCondition);
         }
@@ -133,7 +133,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
      * @param sqlConditions
      * @return
      */
-    public ConditionGroup orAll(SQLCondition... sqlConditions) {
+    public OperatorGroup orAll(SQLCondition... sqlConditions) {
         for (SQLCondition sqlCondition : sqlConditions) {
             or(sqlCondition);
         }
@@ -147,7 +147,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
      * @param sqlConditions
      * @return
      */
-    public ConditionGroup orAll(List<SQLCondition> sqlConditions) {
+    public OperatorGroup orAll(List<SQLCondition> sqlConditions) {
         for (SQLCondition sqlCondition : sqlConditions) {
             or(sqlCondition);
         }
@@ -160,7 +160,7 @@ public class ConditionGroup extends BaseCondition implements Query, Iterable<SQL
      * @param sqlCondition The condition to append.
      * @return This instance.
      */
-    private ConditionGroup operator(String operator, SQLCondition sqlCondition) {
+    private OperatorGroup operator(String operator, SQLCondition sqlCondition) {
         setPreviousSeparator(operator);
         conditionsList.add(sqlCondition);
         isChanged = true;

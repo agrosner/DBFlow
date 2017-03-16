@@ -80,7 +80,7 @@ public abstract class BaseCondition implements SQLCondition {
                     stringVal = "X" + DatabaseUtils.sqlEscapeString(SqlUtils.byteArrayToHexString(bytes));
                 } else {
                     stringVal = String.valueOf(value);
-                    if (!stringVal.equals(Condition.Operation.EMPTY_PARAM)) {
+                    if (!stringVal.equals(Operator.Operation.EMPTY_PARAM)) {
                         stringVal = DatabaseUtils.sqlEscapeString(stringVal);
                     }
                 }
@@ -174,7 +174,7 @@ public abstract class BaseCondition implements SQLCondition {
     protected NameAlias nameAlias;
 
     /**
-     * A custom SQL statement after the value of the Condition
+     * A custom SQL statement after the value of the Operator
      */
     protected String postArg;
 

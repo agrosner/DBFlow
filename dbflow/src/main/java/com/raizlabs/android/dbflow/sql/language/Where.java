@@ -30,7 +30,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     /**
      * Helps to build the where statement easily
      */
-    private ConditionGroup conditionGroup;
+    private OperatorGroup operatorGroup;
 
     private final List<NameAlias> groupByList = new ArrayList<>();
 
@@ -39,7 +39,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     /**
      * The SQL HAVING statement
      */
-    private ConditionGroup havingGroup;
+    private OperatorGroup havingGroup;
 
     private int limit = VALUE_UNSET;
     private int offset = VALUE_UNSET;
@@ -53,10 +53,10 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     public Where(WhereBase<TModel> whereBase, SQLCondition... conditions) {
         super(whereBase.getTable());
         this.whereBase = whereBase;
-        conditionGroup = new ConditionGroup();
-        havingGroup = new ConditionGroup();
+        operatorGroup = new OperatorGroup();
+        havingGroup = new OperatorGroup();
 
-        conditionGroup.andAll(conditions);
+        operatorGroup.andAll(conditions);
     }
 
     /**
@@ -64,7 +64,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      */
     @NonNull
     public Where<TModel> and(SQLCondition condition) {
-        conditionGroup.and(condition);
+        operatorGroup.and(condition);
         return this;
     }
 
@@ -73,7 +73,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      */
     @NonNull
     public Where<TModel> or(SQLCondition condition) {
-        conditionGroup.or(condition);
+        operatorGroup.or(condition);
         return this;
     }
 
@@ -82,7 +82,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      */
     @NonNull
     public Where<TModel> andAll(List<SQLCondition> conditions) {
-        conditionGroup.andAll(conditions);
+        operatorGroup.andAll(conditions);
         return this;
     }
 
@@ -91,7 +91,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      */
     @NonNull
     public Where<TModel> andAll(SQLCondition... conditions) {
-        conditionGroup.andAll(conditions);
+        operatorGroup.andAll(conditions);
         return this;
     }
 
@@ -173,7 +173,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      */
     @NonNull
     public Where<TModel> exists(@NonNull Where where) {
-        conditionGroup.and(new ExistenceCondition()
+        operatorGroup.and(new ExistenceCondition()
                 .where(where));
         return this;
     }
@@ -187,7 +187,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     public String getQuery() {
         String fromQuery = whereBase.getQuery().trim();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
-                .appendQualifier("WHERE", conditionGroup.getQuery())
+                .appendQualifier("WHERE", operatorGroup.getQuery())
                 .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
                 .appendQualifier("HAVING", havingGroup.getQuery())
                 .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));

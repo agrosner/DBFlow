@@ -164,12 +164,12 @@ public class Method extends Property {
 
     @Override
     public Method plus(IProperty property) {
-        return append(property, Condition.Operation.PLUS);
+        return append(property, Operator.Operation.PLUS);
     }
 
     @Override
     public Method minus(IProperty property) {
-        return append(property, Condition.Operation.MINUS);
+        return append(property, Operator.Operation.MINUS);
     }
 
     /**

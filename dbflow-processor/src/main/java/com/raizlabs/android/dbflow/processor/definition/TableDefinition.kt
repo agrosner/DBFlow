@@ -350,7 +350,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             .addAnnotation(Override::class.java)
             .addParameter(ClassName.get(String::class.java), paramColumnName)
             .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .returns(ClassNames.BASE_PROPERTY)
+            .returns(ClassNames.PROPERTY)
 
         getPropertyForNameMethod.addStatement("\$L = \$T.quoteIfNeeded(\$L)", paramColumnName,
             ClassName.get(QueryBuilder::class.java), paramColumnName)

@@ -175,7 +175,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements WhereBas
 
     /**
      * @param conditions The array of conditions that define this WHERE statement
-     * @return A {@link Where} statement with the specified array of {@link Condition}.
+     * @return A {@link Where} statement with the specified array of {@link Operator}.
      */
     @NonNull
     public Where<TModel> where(SQLCondition... conditions) {

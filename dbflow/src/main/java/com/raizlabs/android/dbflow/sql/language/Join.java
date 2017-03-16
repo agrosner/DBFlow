@@ -69,7 +69,7 @@ public class Join<TModel, TFromModel> implements Query {
     /**
      * The ON conditions
      */
-    private ConditionGroup onGroup;
+    private OperatorGroup onGroup;
 
     /**
      * What columns to use.
@@ -130,7 +130,7 @@ public class Join<TModel, TFromModel> implements Query {
      */
     @NonNull
     public From<TFromModel> on(SQLCondition... onConditions) {
-        onGroup = new ConditionGroup();
+        onGroup = new OperatorGroup();
         onGroup.andAll(onConditions);
         return from;
     }

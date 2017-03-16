@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.sql.language;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
 /**
- * Description: Basic interface for all of the Condition classes.
+ * Description: Basic interface for all of the Operator classes.
  */
 public interface SQLCondition {
 
@@ -22,7 +22,7 @@ public interface SQLCondition {
     String columnName();
 
     /**
-     * The separator for this condition when paired with a {@link ConditionGroup}
+     * The separator for this condition when paired with a {@link OperatorGroup}
      *
      * @return The separator, an AND, OR, or other kinds.
      */

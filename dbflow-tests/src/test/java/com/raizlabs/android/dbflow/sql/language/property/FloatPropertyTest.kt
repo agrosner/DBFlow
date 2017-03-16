@@ -10,14 +10,11 @@ class FloatPropertyTest : BaseUnitTest() {
 
     @Test
     fun testOperators() {
-        val prop = FloatProperty(SimpleModel::class.java, "Prop")
+        val prop = Property<Float>(SimpleModel::class.java, "Prop")
         assertEquals("`Prop`=5.0", prop.`is`(5f).query.trim())
         assertEquals("`Prop`=5.0", prop.eq(5f).query.trim())
         assertEquals("`Prop`!=5.0", prop.notEq(5f).query.trim())
         assertEquals("`Prop`!=5.0", prop.isNot(5f).query.trim())
-        assertEquals("`Prop` LIKE '5.0'", prop.like(5f).query.trim())
-        assertEquals("`Prop` NOT LIKE '5.0'", prop.notLike(5f).query.trim())
-        assertEquals("`Prop` GLOB '5.0'", prop.glob(5f).query.trim())
         assertEquals("`Prop`>5.0", prop.greaterThan(5f).query.trim())
         assertEquals("`Prop`>=5.0", prop.greaterThanOrEq(5f).query.trim())
         assertEquals("`Prop`<5.0", prop.lessThan(5f).query.trim())
@@ -30,10 +27,10 @@ class FloatPropertyTest : BaseUnitTest() {
 
     @Test
     fun testAlias() {
-        val prop = FloatProperty(SimpleModel::class.java, "Prop", "Alias")
+        val prop = Property<Float>(SimpleModel::class.java, "Prop", "Alias")
         assertEquals("`Prop` AS `Alias`", prop.toString().trim())
 
-        val prop2 = FloatProperty(SimpleModel::class.java,
+        val prop2 = Property<Float>(SimpleModel::class.java,
             NameAlias.builder("Prop")
                 .shouldAddIdentifierToName(false)
                 .`as`("Alias")

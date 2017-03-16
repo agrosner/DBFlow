@@ -14,11 +14,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Description: The class that contains a column name, operator, and value.
+ * Description: The class that contains a column name, Operator<T>, and value.
  * This class is mostly reserved for internal use at this point. Using this class directly should be avoided
  * and use the generated {@link Property} instead.
  */
-public class Condition extends BaseCondition implements ITypeConditional {
+public class Operator<T> extends BaseCondition implements IOperator<T> {
 
 
     private TypeConverter typeConverter;
@@ -28,12 +28,12 @@ public class Condition extends BaseCondition implements ITypeConditional {
         return BaseCondition.convertValueToString(value, false);
     }
 
-    public static Condition column(NameAlias column) {
-        return new Condition(column);
+    public static <T> Operator<T> column(NameAlias column) {
+        return new Operator<>(column);
     }
 
-    public static Condition column(NameAlias alias, TypeConverter typeConverter, boolean convertToDB) {
-        return new Condition(alias, typeConverter, convertToDB);
+    public static <T> Operator<T> column(NameAlias alias, TypeConverter typeConverter, boolean convertToDB) {
+        return new Operator<>(alias, typeConverter, convertToDB);
     }
 
     /**
@@ -41,14 +41,21 @@ public class Condition extends BaseCondition implements ITypeConditional {
      *
      * @param nameAlias The name of the column in the DB
      */
-    Condition(NameAlias nameAlias) {
+    Operator(NameAlias nameAlias) {
         super(nameAlias);
     }
 
-    Condition(NameAlias alias, TypeConverter typeConverter, boolean convertToDB) {
+    Operator(NameAlias alias, TypeConverter typeConverter, boolean convertToDB) {
         super(alias);
         this.typeConverter = typeConverter;
         this.convertToDB = convertToDB;
+    }
+
+    Operator(Operator operator) {
+        super(operator.nameAlias);
+        this.typeConverter = operator.typeConverter;
+        this.convertToDB = operator.convertToDB;
+        this.value = operator.value;
     }
 
     @Override
@@ -67,24 +74,24 @@ public class Condition extends BaseCondition implements ITypeConditional {
     }
 
     @Override
-    public Condition is(Object value) {
+    public Operator<T> is(T value) {
         operation = Operation.EQUALS;
         return value(value);
     }
 
     @Override
-    public Condition eq(Object value) {
+    public Operator<T> eq(T value) {
         return is(value);
     }
 
     @Override
-    public Condition isNot(Object value) {
+    public Operator<T> isNot(T value) {
         operation = Operation.NOT_EQUALS;
         return value(value);
     }
 
     @Override
-    public Condition notEq(Object value) {
+    public Operator<T> notEq(T value) {
         return isNot(value);
     }
 
@@ -99,7 +106,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
      * @return This condition
      */
     @Override
-    public Condition like(String value) {
+    public Operator<T> like(String value) {
         operation = String.format(" %1s ", Operation.LIKE);
         return value(value);
     }
@@ -115,7 +122,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
      * @return This condition
      */
     @Override
-    public Condition notLike(String value) {
+    public Operator<T> notLike(String value) {
         operation = String.format(" %1s ", Operation.NOT_LIKE);
         return value(value);
     }
@@ -131,7 +138,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
      * @return This condition
      */
     @Override
-    public Condition glob(String value) {
+    public Operator<T> glob(String value) {
         operation = String.format(" %1s ", Operation.GLOB);
         return value(value);
     }
@@ -142,32 +149,32 @@ public class Condition extends BaseCondition implements ITypeConditional {
      * @param value The value of the column in the DB
      * @return This condition
      */
-    public Condition value(Object value) {
+    public Operator<T> value(Object value) {
         this.value = value;
         isValueSet = true;
         return this;
     }
 
     @Override
-    public Condition greaterThan(Object value) {
+    public Operator<T> greaterThan(Object value) {
         operation = Operation.GREATER_THAN;
         return value(value);
     }
 
     @Override
-    public Condition greaterThanOrEq(Object value) {
+    public Operator<T> greaterThanOrEq(Object value) {
         operation = Operation.GREATER_THAN_OR_EQUALS;
         return value(value);
     }
 
     @Override
-    public Condition lessThan(Object value) {
+    public Operator<T> lessThan(Object value) {
         operation = Operation.LESS_THAN;
         return value(value);
     }
 
     @Override
-    public Condition lessThanOrEq(Object value) {
+    public Operator<T> lessThanOrEq(Object value) {
         operation = Operation.LESS_THAN_OR_EQUALS;
         return value(value);
     }
@@ -178,7 +185,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
      * @param operation The SQLite operator
      * @return This condition
      */
-    public Condition operation(String operation) {
+    public Operator<T> operation(String operation) {
         this.operation = operation;
         return this;
     }
@@ -189,7 +196,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
      * @param collation The SQLite collate function
      * @return This condition.
      */
-    public Condition collate(String collation) {
+    public Operator<T> collate(String collation) {
         postArg = "COLLATE " + collation;
         return this;
     }
@@ -200,7 +207,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
      * @param collation The SQLite collate function
      * @return This condition.
      */
-    public Condition collate(Collate collation) {
+    public Operator<T> collate(Collate collation) {
         if (collation.equals(Collate.NONE)) {
             postArg = null;
         } else {
@@ -212,167 +219,170 @@ public class Condition extends BaseCondition implements ITypeConditional {
 
     /**
      * Appends an optional SQL string to the end of this condition
-     *
-     * @param postfix
-     * @return
      */
-    public Condition postfix(String postfix) {
+    public Operator<T> postfix(String postfix) {
         postArg = postfix;
         return this;
     }
 
     @Override
-    public Condition isNull() {
+    public Operator<T> isNull() {
         operation = String.format(" %1s ", Operation.IS_NULL);
         return this;
     }
 
     @Override
-    public Condition isNotNull() {
+    public Operator<T> isNotNull() {
         operation = String.format(" %1s ", Operation.IS_NOT_NULL);
         return this;
     }
 
     /**
-     * Optional separator when chaining this Condition within a {@link ConditionGroup}
+     * Optional separator when chaining this Operator within a {@link OperatorGroup}
      *
      * @param separator The separator to use
      * @return This instance
      */
     @Override
-    public Condition separator(String separator) {
+    public Operator<T> separator(String separator) {
         this.separator = separator;
         return this;
     }
 
     @Override
-    public Condition is(IConditional conditional) {
-        return is((Object) conditional);
+    public Operator is(IConditional conditional) {
+        return assignValueOp(conditional, Operation.EQUALS);
     }
 
     @Override
-    public Condition eq(IConditional conditional) {
-        return eq((Object) conditional);
+    public Operator eq(IConditional conditional) {
+        return assignValueOp(conditional, Operation.EQUALS);
     }
 
     @Override
-    public Condition isNot(IConditional conditional) {
-        return isNot((Object) conditional);
+    public Operator isNot(IConditional conditional) {
+        return assignValueOp(conditional, Operation.NOT_EQUALS);
     }
 
     @Override
-    public Condition notEq(IConditional conditional) {
-        return notEq((Object) conditional);
+    public Operator notEq(IConditional conditional) {
+        return assignValueOp(conditional, Operation.NOT_EQUALS);
     }
 
     @Override
-    public Condition like(IConditional conditional) {
+    public Operator<T> like(IConditional conditional) {
         return like(conditional.getQuery());
     }
 
     @Override
-    public Condition glob(IConditional conditional) {
+    public Operator<T> glob(IConditional conditional) {
         return glob(conditional.getQuery());
     }
 
     @Override
-    public Condition greaterThan(IConditional conditional) {
+    public Operator<T> greaterThan(IConditional conditional) {
         return greaterThan((Object) conditional);
     }
 
     @Override
-    public Condition greaterThanOrEq(IConditional conditional) {
+    public Operator<T> greaterThanOrEq(IConditional conditional) {
         return greaterThanOrEq((Object) conditional);
     }
 
     @Override
-    public Condition lessThan(IConditional conditional) {
+    public Operator<T> lessThan(IConditional conditional) {
         return lessThan((Object) conditional);
     }
 
     @Override
-    public Condition lessThanOrEq(IConditional conditional) {
+    public Operator<T> lessThanOrEq(IConditional conditional) {
         return lessThanOrEq((Object) conditional);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Between between(IConditional conditional) {
-        return between((Object) conditional);
+        return new Between(this, conditional);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public In in(IConditional firstConditional, IConditional... conditionals) {
-        return in(firstConditional, (Object[]) conditionals);
+        return new In(this, firstConditional, true, conditionals);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public In notIn(IConditional firstConditional, IConditional... conditionals) {
-        return notIn(firstConditional, (Object[]) conditionals);
+        return new In(this, firstConditional, false, conditionals);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public In notIn(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable[] baseModelQueriables) {
-        return notIn(firstBaseModelQueriable, (Object[]) baseModelQueriables);
+        return new In(this, firstBaseModelQueriable, false, baseModelQueriables);
     }
 
     @Override
-    public Condition is(BaseModelQueriable baseModelQueriable) {
-        return is((Object) baseModelQueriable);
+    public Operator is(BaseModelQueriable baseModelQueriable) {
+        return assignValueOp(baseModelQueriable, Operation.EQUALS);
     }
 
     @Override
-    public Condition eq(BaseModelQueriable baseModelQueriable) {
-        return eq((Object) baseModelQueriable);
+    public Operator eq(BaseModelQueriable baseModelQueriable) {
+        return assignValueOp(baseModelQueriable, Operation.EQUALS);
     }
 
     @Override
-    public Condition isNot(BaseModelQueriable baseModelQueriable) {
-        return isNot((Object) baseModelQueriable);
+    public Operator isNot(BaseModelQueriable baseModelQueriable) {
+        return assignValueOp(baseModelQueriable, Operation.NOT_EQUALS);
     }
 
     @Override
-    public Condition notEq(BaseModelQueriable baseModelQueriable) {
-        return notEq((Object) baseModelQueriable);
+    public Operator notEq(BaseModelQueriable baseModelQueriable) {
+        return assignValueOp(baseModelQueriable, Operation.NOT_EQUALS);
     }
 
     @Override
-    public Condition like(BaseModelQueriable baseModelQueriable) {
+    public Operator<T> like(BaseModelQueriable baseModelQueriable) {
         return like(baseModelQueriable.getQuery());
     }
 
     @Override
-    public Condition glob(BaseModelQueriable baseModelQueriable) {
+    public Operator<T> glob(BaseModelQueriable baseModelQueriable) {
         return glob(baseModelQueriable.getQuery());
     }
 
     @Override
-    public Condition greaterThan(BaseModelQueriable baseModelQueriable) {
+    public Operator<T> greaterThan(BaseModelQueriable baseModelQueriable) {
         return greaterThan((Object) baseModelQueriable);
     }
 
     @Override
-    public Condition greaterThanOrEq(BaseModelQueriable baseModelQueriable) {
+    public Operator<T> greaterThanOrEq(BaseModelQueriable baseModelQueriable) {
         return greaterThanOrEq((Object) baseModelQueriable);
     }
 
     @Override
-    public Condition lessThan(BaseModelQueriable baseModelQueriable) {
+    public Operator<T> lessThan(BaseModelQueriable baseModelQueriable) {
         return lessThan((Object) baseModelQueriable);
     }
 
     @Override
-    public Condition lessThanOrEq(BaseModelQueriable baseModelQueriable) {
+    public Operator<T> lessThanOrEq(BaseModelQueriable baseModelQueriable) {
         return lessThanOrEq((Object) baseModelQueriable);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Between between(BaseModelQueriable baseModelQueriable) {
-        return between((Object) baseModelQueriable);
+        return new Between(this, baseModelQueriable);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables) {
-        return in(firstBaseModelQueriable, (Object[]) baseModelQueriables);
+        return new In(this, firstBaseModelQueriable, true, (Object[]) baseModelQueriables);
     }
 
     @Override
@@ -384,7 +394,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Condition concatenate(Object value) {
+    public Operator<T> concatenate(Object value) {
         operation = new QueryBuilder(Operation.EQUALS).append(columnName()).toString();
 
         TypeConverter typeConverter = this.typeConverter;
@@ -394,7 +404,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
         if (typeConverter != null && convertToDB) {
             value = typeConverter.getDBValue(value);
         }
-        if (value instanceof String || value instanceof ITypeConditional
+        if (value instanceof String || value instanceof IOperator
             || value instanceof Character) {
             operation = String.format("%1s %1s ", operation, Operation.CONCATENATE);
         } else if (value instanceof Number) {
@@ -409,7 +419,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
     }
 
     @Override
-    public Condition concatenate(IConditional conditional) {
+    public Operator<T> concatenate(IConditional conditional) {
         return concatenate((Object) conditional);
     }
 
@@ -419,30 +429,31 @@ public class Condition extends BaseCondition implements ITypeConditional {
      * @param value The value of the first argument of the BETWEEN clause
      * @return Between operator
      */
-    public Between between(Object value) {
-        return new Between(this, value);
+    @Override
+    public Between<T> between(T value) {
+        return new Between<>(this, value);
+    }
+
+    @SafeVarargs
+    @Override
+    public final In<T> in(T firstArgument, T... arguments) {
+        return new In<>(this, firstArgument, true, arguments);
+    }
+
+    @SafeVarargs
+    @Override
+    public final In<T> notIn(T firstArgument, T... arguments) {
+        return new In<>(this, firstArgument, false, arguments);
     }
 
     @Override
-    public In in(Object firstArgument, Object... arguments) {
-        return new In(this, firstArgument, true, arguments);
+    public In<T> in(Collection<T> values) {
+        return new In<>(this, values, true);
     }
 
     @Override
-    public In notIn(Object firstArgument, Object... arguments) {
-        return new In(this, firstArgument, false, arguments);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public In in(Collection values) {
-        return new In(this, values, true);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public In notIn(Collection values) {
-        return new In(this, values, false);
+    public In<T> notIn(Collection<T> values) {
+        return new In<>(this, values, false);
     }
 
     @SuppressWarnings("unchecked")
@@ -460,6 +471,11 @@ public class Condition extends BaseCondition implements ITypeConditional {
         } else {
             return super.convertObjectToString(object, appendInnerParenthesis);
         }
+    }
+
+    private Operator<T> assignValueOp(Object value, String operation) {
+        this.operation = operation;
+        return value(value);
     }
 
     /**
@@ -565,13 +581,13 @@ public class Condition extends BaseCondition implements ITypeConditional {
 
         /**
          * Special operation that specify if the column is not null for a specified row. Use of this as
-         * an operator will ignore the value of the {@link Condition} for it.
+         * an operator will ignore the value of the {@link Operator} for it.
          */
         public static final String IS_NOT_NULL = "IS NOT NULL";
 
         /**
          * Special operation that specify if the column is null for a specified row. Use of this as
-         * an operator will ignore the value of the {@link Condition} for it.
+         * an operator will ignore the value of the {@link Operator} for it.
          */
         public static final String IS_NULL = "IS NULL";
 
@@ -591,30 +607,30 @@ public class Condition extends BaseCondition implements ITypeConditional {
     /**
      * The SQL BETWEEN operator that contains two values instead of the normal 1.
      */
-    public static class Between extends BaseCondition implements Query {
+    public static class Between<T> extends BaseCondition implements Query {
 
-        private Object secondValue;
+        private T secondValue;
 
         /**
          * Creates a new instance
          *
-         * @param condition
-         * @param value     The value of the first argument of the BETWEEN clause
+         * @param operator
+         * @param value    The value of the first argument of the BETWEEN clause
          */
-        private Between(Condition condition, Object value) {
-            super(condition.nameAlias);
+        private Between(Operator<T> operator, T value) {
+            super(operator.nameAlias);
             this.operation = String.format(" %1s ", Operation.BETWEEN);
             this.value = value;
             isValueSet = true;
-            this.postArg = condition.postArgument();
+            this.postArg = operator.postArgument();
         }
 
-        public Between and(Object secondValue) {
+        public Between<T> and(T secondValue) {
             this.secondValue = secondValue;
             return this;
         }
 
-        public Object secondValue() {
+        public T secondValue() {
             return secondValue;
         }
 
@@ -639,27 +655,28 @@ public class Condition extends BaseCondition implements ITypeConditional {
      * The SQL IN and NOT IN operator that specifies a list of values to SELECT rows from.
      * EX: SELECT * FROM myTable WHERE columnName IN ('column1','column2','etc')
      */
-    public static class In extends BaseCondition implements Query {
+    public static class In<T> extends BaseCondition implements Query {
 
-        private List<Object> inArguments = new ArrayList<>();
+        private List<T> inArguments = new ArrayList<>();
 
         /**
          * Creates a new instance
          *
-         * @param condition     The condition object to pass in. We only use the column name here.
+         * @param operator      The operator object to pass in. We only use the column name here.
          * @param firstArgument The first value in the IN query as one is required.
-         * @param isIn          if this is an {@link Condition.Operation#IN}
-         *                      statement or a {@link Condition.Operation#NOT_IN}
+         * @param isIn          if this is an {@link Operator.Operation#IN}
+         *                      statement or a {@link Operator.Operation#NOT_IN}
          */
-        private In(Condition condition, Object firstArgument, boolean isIn, Object... arguments) {
-            super(condition.columnAlias());
+        @SafeVarargs
+        private In(Operator<T> operator, T firstArgument, boolean isIn, T... arguments) {
+            super(operator.columnAlias());
             inArguments.add(firstArgument);
             Collections.addAll(inArguments, arguments);
             operation = String.format(" %1s ", isIn ? Operation.IN : Operation.NOT_IN);
         }
 
-        private In(Condition condition, Collection<Object> args, boolean isIn) {
-            super(condition.columnAlias());
+        private In(Operator<T> operator, Collection<T> args, boolean isIn) {
+            super(operator.columnAlias());
             inArguments.addAll(args);
             operation = String.format(" %1s ", isIn ? Operation.IN : Operation.NOT_IN);
         }
@@ -668,10 +685,10 @@ public class Condition extends BaseCondition implements ITypeConditional {
          * Appends another value to this In statement
          *
          * @param argument The non-type converted value of the object. The value will be converted
-         *                 in a {@link ConditionGroup}.
+         *                 in a {@link OperatorGroup}.
          * @return
          */
-        public In and(Object argument) {
+        public In<T> and(T argument) {
             inArguments.add(argument);
             return this;
         }
@@ -679,7 +696,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                .append("(").append(ConditionGroup.joinArguments(",", inArguments, this)).append(")");
+                .append("(").append(OperatorGroup.joinArguments(",", inArguments, this)).append(")");
         }
 
         @Override

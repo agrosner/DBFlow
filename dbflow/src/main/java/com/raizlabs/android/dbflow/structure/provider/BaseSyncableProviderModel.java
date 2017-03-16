@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.structure.provider;
 import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 /**
@@ -41,9 +41,9 @@ public abstract class BaseSyncableProviderModel
 
     @Override
     @SuppressWarnings("unchecked")
-    public void load(ConditionGroup whereConditionGroup,
+    public void load(OperatorGroup whereOperatorGroup,
                      String orderBy, String... columns) {
-        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), whereConditionGroup, orderBy, columns);
+        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), whereOperatorGroup, orderBy, columns);
         if (cursor != null && cursor.moveToFirst()) {
             getModelAdapter().loadFromCursor(cursor, this);
             cursor.close();

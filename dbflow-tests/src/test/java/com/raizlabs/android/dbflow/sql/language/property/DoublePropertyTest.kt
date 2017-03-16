@@ -10,14 +10,11 @@ class DoublePropertyTest : BaseUnitTest() {
 
     @Test
     fun testOperators() {
-        val prop = DoubleProperty(SimpleModel::class.java, "Prop")
+        val prop = Property<Double>(SimpleModel::class.java, "Prop")
         assertEquals("`Prop`=5.0", prop.`is`(5.0).query.trim())
         assertEquals("`Prop`=5.0", prop.eq(5.0).query.trim())
         assertEquals("`Prop`!=5.0", prop.notEq(5.0).query.trim())
         assertEquals("`Prop`!=5.0", prop.isNot(5.0).query.trim())
-        assertEquals("`Prop` LIKE '5.0'", prop.like(5.0).query.trim())
-        assertEquals("`Prop` NOT LIKE '5.0'", prop.notLike(5.0).query.trim())
-        assertEquals("`Prop` GLOB '5.0'", prop.glob(5.0).query.trim())
         assertEquals("`Prop`>5.0", prop.greaterThan(5.0).query.trim())
         assertEquals("`Prop`>=5.0", prop.greaterThanOrEq(5.0).query.trim())
         assertEquals("`Prop`<5.0", prop.lessThan(5.0).query.trim())
@@ -30,10 +27,10 @@ class DoublePropertyTest : BaseUnitTest() {
 
     @Test
     fun testAlias() {
-        val prop = DoubleProperty(SimpleModel::class.java, "Prop", "Alias")
+        val prop = Property<Char>(SimpleModel::class.java, "Prop", "Alias")
         assertEquals("`Prop` AS `Alias`", prop.toString().trim())
 
-        val prop2 = DoubleProperty(SimpleModel::class.java,
+        val prop2 = Property<Char>(SimpleModel::class.java,
             NameAlias.builder("Prop")
                 .shouldAddIdentifierToName(false)
                 .`as`("Alias")

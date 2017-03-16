@@ -20,15 +20,15 @@ import java.util.List;
  */
 public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TModel> {
 
-    private ConditionGroup conditionGroup;
+    private OperatorGroup operatorGroup;
 
     private Query update;
 
     public Set(Query update, Class<TModel> table) {
         super(table);
         this.update = update;
-        conditionGroup = new ConditionGroup();
-        conditionGroup.setAllCommaSeparated(true);
+        operatorGroup = new OperatorGroup();
+        operatorGroup.setAllCommaSeparated(true);
     }
 
     /**
@@ -39,13 +39,13 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
      */
     @NonNull
     public Set<TModel> conditions(SQLCondition... conditions) {
-        conditionGroup.andAll(conditions);
+        operatorGroup.andAll(conditions);
         return this;
     }
 
     @NonNull
     public Set<TModel> conditionValues(ContentValues contentValues) {
-        SqlUtils.addContentValues(contentValues, conditionGroup);
+        SqlUtils.addContentValues(contentValues, operatorGroup);
         return this;
     }
 
@@ -129,7 +129,7 @@ public class Set<TModel> extends BaseQueriable<TModel> implements WhereBase<TMod
         QueryBuilder queryBuilder =
                 new QueryBuilder(update.getQuery())
                         .append("SET ")
-                        .append(conditionGroup.getQuery()).appendSpace();
+                        .append(operatorGroup.getQuery()).appendSpace();
         return queryBuilder.getQuery();
     }
 
