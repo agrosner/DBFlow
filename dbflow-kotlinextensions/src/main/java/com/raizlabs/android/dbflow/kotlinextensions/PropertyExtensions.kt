@@ -28,7 +28,7 @@ val Short.property
 val Byte.property
     get() = from(this)
 
-val <T : Any> T.property
+val <T : Any> T?.property
     get() = from(this)
 
 val <T : Any> ModelQueriable<T>.property
