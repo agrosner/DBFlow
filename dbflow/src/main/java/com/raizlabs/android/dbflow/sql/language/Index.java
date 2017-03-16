@@ -19,6 +19,8 @@ import java.util.List;
 public class Index<TModel> implements Query {
 
     private final String indexName;
+
+    @NonNull
     private Class<TModel> table;
     private List<NameAlias> columns;
     private boolean isUnique = false;

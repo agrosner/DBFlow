@@ -1,17 +1,16 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty;
 import com.raizlabs.android.dbflow.structure.BaseModel;
-
-import java.util.List;
 
 /**
  * Description: The INDEXED BY part of a SELECT/UPDATE/DELETE
  */
-public class IndexedBy<TModel> implements WhereBase<TModel>, Transformable<TModel> {
+public class IndexedBy<TModel> extends BaseTransformable<TModel> {
 
     private final IndexProperty<TModel> indexProperty;
 
@@ -24,64 +23,12 @@ public class IndexedBy<TModel> implements WhereBase<TModel>, Transformable<TMode
      * @param whereBase     The base piece of this query
      */
     public IndexedBy(IndexProperty<TModel> indexProperty, WhereBase<TModel> whereBase) {
+        super(whereBase.getTable());
         this.indexProperty = indexProperty;
         this.whereBase = whereBase;
     }
 
-    public Where<TModel> where(SQLOperator... conditions) {
-        return new Where<>(this, conditions);
-    }
-
-    @Override
-    public Where<TModel> groupBy(NameAlias... nameAliases) {
-        return where().groupBy(nameAliases);
-    }
-
-    @Override
-    public Where<TModel> groupBy(IProperty... properties) {
-        return where().groupBy(properties);
-    }
-
-    @Override
-    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
-        return where().orderBy(nameAlias, ascending);
-    }
-
-    @Override
-    public Where<TModel> orderBy(IProperty property, boolean ascending) {
-        return where().orderBy(property, ascending);
-    }
-
-    @Override
-    public Where<TModel> orderByAll(List<OrderBy> orderBies) {
-        return where().orderByAll(orderBies);
-    }
-
-    @Override
-    public Where<TModel> orderBy(OrderBy orderBy) {
-        return where().orderBy(orderBy);
-    }
-
-    @Override
-    public Where<TModel> limit(int count) {
-        return where().limit(count);
-    }
-
-    @Override
-    public Where<TModel> offset(int offset) {
-        return where().offset(offset);
-    }
-
-    @Override
-    public Where<TModel> having(SQLOperator... conditions) {
-        return where().having(conditions);
-    }
-
-    @Override
-    public Class<TModel> getTable() {
-        return whereBase.getTable();
-    }
-
+    @NonNull
     @Override
     public Query getQueryBuilderBase() {
         return whereBase.getQueryBuilderBase();

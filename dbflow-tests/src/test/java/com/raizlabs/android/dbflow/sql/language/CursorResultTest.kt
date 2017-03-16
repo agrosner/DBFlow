@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language
 
+import android.database.StaleDataException
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.SimpleCustomModel
 import com.raizlabs.android.dbflow.SimpleModel
@@ -31,8 +32,11 @@ class CursorResultTest : BaseUnitTest() {
         var exception = false
         try {
             result.toListClose()
-        } catch (i: IllegalStateException) {
-            exception = true
+        } catch (i: Exception) {
+            when (i) {
+                is IllegalStateException, is StaleDataException -> exception = true
+                else -> throw i
+            }
         }
         assertTrue(exception)
     }
@@ -50,8 +54,11 @@ class CursorResultTest : BaseUnitTest() {
         var exception = false
         try {
             result.toCustomListClose<SimpleCustomModel>()
-        } catch (i: IllegalStateException) {
-            exception = true
+        } catch (i: Exception) {
+            when (i) {
+                is IllegalStateException, is StaleDataException -> exception = true
+                else -> throw i
+            }
         }
         assertTrue(exception)
     }
@@ -69,8 +76,11 @@ class CursorResultTest : BaseUnitTest() {
         var exception = false
         try {
             result.toModelClose()
-        } catch (i: IllegalStateException) {
-            exception = true
+        } catch (i: Exception) {
+            when (i) {
+                is IllegalStateException, is StaleDataException -> exception = true
+                else -> throw i
+            }
         }
         assertTrue(exception)
     }
@@ -88,8 +98,11 @@ class CursorResultTest : BaseUnitTest() {
         var exception = false
         try {
             result.toCustomModelClose<SimpleCustomModel>()
-        } catch (i: IllegalStateException) {
-            exception = true
+        } catch (i: Exception) {
+            when (i) {
+                is IllegalStateException, is StaleDataException -> exception = true
+                else -> throw i
+            }
         }
         assertTrue(exception)
     }

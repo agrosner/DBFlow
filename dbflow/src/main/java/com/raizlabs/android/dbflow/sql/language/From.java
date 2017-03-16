@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.sql.language;
 
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -8,11 +7,9 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Join.JoinType;
-import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.BaseModel;
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -21,8 +18,7 @@ import java.util.List;
 /**
  * Description: The SQL FROM query wrapper that must have a {@link Query} base.
  */
-public class From<TModel> extends BaseModelQueriable<TModel> implements WhereBase<TModel>,
-        ModelQueriable<TModel> {
+public class From<TModel> extends BaseTransformable<TModel> {
 
     /**
      * The base such as {@link Delete}, {@link Select} and more!
@@ -61,14 +57,14 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements WhereBas
     }
 
     /**
-     * Set an alias to the table name of this {@link IFrom}.
+     * Set an alias to the table name of this {@link From}.
      */
     @NonNull
     public From<TModel> as(String alias) {
         tableAlias = getTableAlias()
-                .newBuilder()
-                .as(alias)
-                .build();
+            .newBuilder()
+            .as(alias)
+            .build();
         return this;
     }
 
@@ -166,53 +162,6 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements WhereBas
     }
 
     /**
-     * @return an empty {@link Where} statement
-     */
-    @NonNull
-    public Where<TModel> where() {
-        return new Where<>(this);
-    }
-
-    /**
-     * @param conditions The array of conditions that define this WHERE statement
-     * @return A {@link Where} statement with the specified array of {@link Operator}.
-     */
-    @NonNull
-    public Where<TModel> where(SQLOperator... conditions) {
-        return where().andAll(conditions);
-    }
-
-    @Override
-    public Cursor query() {
-        return where().query();
-    }
-
-    @Override
-    public Cursor query(DatabaseWrapper databaseWrapper) {
-        return where().query(databaseWrapper);
-    }
-
-    /**
-     * Executes a SQL statement that retrieves the count of results in the DB.
-     *
-     * @return The number of rows this query returns
-     */
-    @Override
-    public long count() {
-        return where().count();
-    }
-
-    @Override
-    public long count(DatabaseWrapper databaseWrapper) {
-        return where().count(databaseWrapper);
-    }
-
-    @Override
-    public long executeUpdateDelete(DatabaseWrapper databaseWrapper) {
-        return where().executeUpdateDelete(databaseWrapper);
-    }
-
-    /**
      * Begins an INDEXED BY piece of this query with the specified name.
      *
      * @param indexProperty The index property generated.
@@ -230,7 +179,7 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements WhereBas
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder()
-                .append(queryBase.getQuery());
+            .append(queryBase.getQuery());
         if (!(queryBase instanceof Update)) {
             queryBuilder.append("FROM ");
         }
@@ -252,54 +201,10 @@ public class From<TModel> extends BaseModelQueriable<TModel> implements WhereBas
     /**
      * @return The base query, usually a {@link Delete}, {@link Select}, or {@link Update}
      */
+    @NonNull
     @Override
     public Query getQueryBuilderBase() {
         return queryBase;
-    }
-
-    @NonNull
-    public Where<TModel> groupBy(NameAlias... nameAliases) {
-        return where().groupBy(nameAliases);
-    }
-
-    @NonNull
-    public Where<TModel> groupBy(IProperty... properties) {
-        return where().groupBy(properties);
-    }
-
-    @NonNull
-    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
-        return where().orderBy(nameAlias, ascending);
-    }
-
-    @NonNull
-    public Where<TModel> orderBy(IProperty property, boolean ascending) {
-        return where().orderBy(property, ascending);
-    }
-
-    @NonNull
-    public Where<TModel> orderBy(OrderBy orderBy) {
-        return where().orderBy(orderBy);
-    }
-
-    @NonNull
-    public Where<TModel> limit(int count) {
-        return where().limit(count);
-    }
-
-    @NonNull
-    public Where<TModel> offset(int offset) {
-        return where().offset(offset);
-    }
-
-    @NonNull
-    public Where<TModel> having(SQLOperator... conditions) {
-        return where().having(conditions);
-    }
-
-    @NonNull
-    public Where<TModel> orderByAll(List<OrderBy> orderBies) {
-        return where().orderByAll(orderBies);
     }
 
     /**

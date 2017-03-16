@@ -13,3 +13,6 @@ class SimpleModel(@PrimaryKey var name: String? = "")
 
 @QueryModel(database = TestDatabase::class)
 class SimpleCustomModel(@Column var name: String? = "")
+
+@Table(database = TestDatabase::class)
+class TwoColumnModel(@PrimaryKey var name: String? = "", @Column var id: Int = 0)

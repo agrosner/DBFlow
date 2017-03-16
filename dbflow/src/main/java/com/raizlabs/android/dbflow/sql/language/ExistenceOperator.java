@@ -2,12 +2,13 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
 /**
  * Description: The condition that represents EXISTS in a SQL statement.
  */
-public class ExistenceOperator implements SQLOperator {
+public class ExistenceOperator implements SQLOperator, Query {
 
     private Where innerWhere;
 
@@ -50,5 +51,12 @@ public class ExistenceOperator implements SQLOperator {
     public ExistenceOperator where(@NonNull Where where) {
         this.innerWhere = where;
         return this;
+    }
+
+    @Override
+    public String getQuery() {
+        QueryBuilder queryBuilder = new QueryBuilder();
+        appendConditionToQuery(queryBuilder);
+        return queryBuilder.getQuery();
     }
 }

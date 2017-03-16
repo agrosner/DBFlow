@@ -28,6 +28,8 @@ infix fun <T : Any> From<T>.whereExists(where: Where<T>) = where().exists(where)
 
 infix fun <T : Any> From<T>.where(sqlOperator: SQLOperator) = where(sqlOperator)
 
+infix fun <T : Any> From<T>.`as`(alias: String) = `as`(alias)
+
 infix fun <T : Any> Set<T>.where(sqlOperator: SQLOperator) = where(sqlOperator)
 
 infix fun <T : Any> Where<T>.and(sqlOperator: SQLOperator) = and(sqlOperator)
