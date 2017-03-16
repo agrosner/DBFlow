@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow
 
+import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
+import com.raizlabs.android.dbflow.annotation.QueryModel
 import com.raizlabs.android.dbflow.annotation.Table
 
 /**
@@ -8,3 +10,6 @@ import com.raizlabs.android.dbflow.annotation.Table
  */
 @Table(database = TestDatabase::class)
 class SimpleModel(@PrimaryKey var name: String? = "")
+
+@QueryModel(database = TestDatabase::class)
+class SimpleCustomModel(@Column var name: String? = "")

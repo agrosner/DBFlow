@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorIterator;
 import com.raizlabs.android.dbflow.list.IFlowCursorIterator;
-import com.raizlabs.android.dbflow.structure.BaseQueryModel;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 
 import java.util.ArrayList;
@@ -57,16 +56,18 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      */
     @NonNull
     public List<TModel> toListClose() {
-        return cursor != null
+        final List<TModel> list = cursor != null
             ? retrievalAdapter.getListModelLoader().load(cursor)
             : new ArrayList<TModel>();
+        close();
+        return list;
     }
 
     /**
      * @return A {@link List} of items from this object. You must call {@link #close()} when finished.
      */
     @NonNull
-    public <TCustom extends BaseQueryModel> List<TCustom> toCustomList(Class<TCustom> customClass) {
+    public <TCustom> List<TCustom> toCustomList(Class<TCustom> customClass) {
         return cursor != null ? FlowManager.getQueryModelAdapter(customClass)
             .getListModelLoader().convertToData(cursor, null) : new ArrayList<TCustom>();
     }
@@ -75,9 +76,11 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      * @return Converts the {@link Cursor} to a {@link List} of {@link TModel} and then closes it.
      */
     @NonNull
-    public <TCustom extends BaseQueryModel> List<TCustom> toCustomListClose(Class<TCustom> customClass) {
-        return cursor != null ? FlowManager.getQueryModelAdapter(customClass)
+    public <TCustom> List<TCustom> toCustomListClose(Class<TCustom> customClass) {
+        final List<TCustom> customList = cursor != null ? FlowManager.getQueryModelAdapter(customClass)
             .getListModelLoader().load(cursor) : new ArrayList<TCustom>();
+        close();
+        return customList;
     }
 
     /**
@@ -93,7 +96,29 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      */
     @Nullable
     public TModel toModelClose() {
-        return cursor != null ? retrievalAdapter.getSingleModelLoader().load(cursor) : null;
+        final TModel model = cursor != null ? retrievalAdapter.getSingleModelLoader().load(cursor) : null;
+        close();
+        return model;
+    }
+
+    /**
+     * @return The first {@link TModel} of items from the contained {@link Cursor}. You must call {@link #close()} when finished.
+     */
+    @Nullable
+    public <TCustom> TCustom toCustomModel(Class<TCustom> customClass) {
+        return cursor != null ? FlowManager.getQueryModelAdapter(customClass)
+            .getSingleModelLoader().convertToData(cursor, null) : null;
+    }
+
+    /**
+     * @return Converts the {@link Cursor} to a {@link TModel} and then closes it.
+     */
+    @Nullable
+    public <TCustom> TCustom toCustomModelClose(Class<TCustom> customClass) {
+        final TCustom customList = cursor != null ? FlowManager.getQueryModelAdapter(customClass)
+            .getSingleModelLoader().load(cursor) : null;
+        close();
+        return customList;
     }
 
     @Nullable

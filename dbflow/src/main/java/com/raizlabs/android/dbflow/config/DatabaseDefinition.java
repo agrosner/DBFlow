@@ -70,7 +70,7 @@ public abstract class DatabaseDefinition {
     @SuppressWarnings("unchecked")
     public DatabaseDefinition() {
         databaseConfig = FlowManager.getConfig()
-                .databaseConfigMap().get(getAssociatedDatabaseClassFile());
+            .databaseConfigMap().get(getAssociatedDatabaseClassFile());
 
 
         if (databaseConfig != null) {
@@ -131,7 +131,8 @@ public abstract class DatabaseDefinition {
      * @param table The model that exists in this database.
      * @return The ModelAdapter for the table.
      */
-    public ModelAdapter getModelAdapterForTable(Class<?> table) {
+    @SuppressWarnings("unchecked")
+    public <T> ModelAdapter<T> getModelAdapterForTable(Class<T> table) {
         return modelAdapters.get(table);
     }
 
@@ -155,7 +156,8 @@ public abstract class DatabaseDefinition {
      * @param table the VIEW class to retrieve the ModelViewAdapter from.
      * @return the associated {@link ModelViewAdapter} for the specified table.
      */
-    public ModelViewAdapter getModelViewAdapterForTable(Class<?> table) {
+    @SuppressWarnings("unchecked")
+    public <T> ModelViewAdapter<T> getModelViewAdapterForTable(Class<T> table) {
         return modelViewAdapterMap.get(table);
     }
 
@@ -178,7 +180,8 @@ public abstract class DatabaseDefinition {
      * @param queryModel The {@link QueryModel} class
      * @return The adapter that corresponds to the specified class.
      */
-    public QueryModelAdapter getQueryModelAdapterForQueryClass(Class<?> queryModel) {
+    @SuppressWarnings("unchecked")
+    public <T> QueryModelAdapter<T> getQueryModelAdapterForQueryClass(Class<T> queryModel) {
         return queryModelAdapterMap.get(queryModel);
     }
 
@@ -192,7 +195,7 @@ public abstract class DatabaseDefinition {
     public synchronized OpenHelper getHelper() {
         if (openHelper == null) {
             DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
-                    .get(getAssociatedDatabaseClassFile());
+                .get(getAssociatedDatabaseClassFile());
             if (config == null || config.helperCreator() == null) {
                 openHelper = new FlowSQLiteOpenHelper(this, helperListener);
             } else {
@@ -232,7 +235,7 @@ public abstract class DatabaseDefinition {
      */
     public String getDatabaseFileName() {
         return getDatabaseName() + (StringUtils.isNotNullOrEmpty(getDatabaseExtensionName()) ?
-                "." + getDatabaseExtensionName() : "");
+            "." + getDatabaseExtensionName() : "");
     }
 
     /**

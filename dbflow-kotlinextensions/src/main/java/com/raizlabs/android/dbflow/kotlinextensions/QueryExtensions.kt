@@ -75,6 +75,15 @@ inline val <T : Any> ModelQueriable<T>.result
 inline val <T : Any> ModelQueriable<T>.cursorResult
     get() = queryResults()
 
+// cursor result extensions
+inline fun <reified T : Any> CursorResult<*>.toCustomList() = toCustomList(T::class.java)
+
+inline fun <reified T : Any> CursorResult<*>.toCustomListClose() = toCustomListClose(T::class.java)
+
+inline fun <reified T : Any> CursorResult<*>.toCustomModel() = toCustomModel(T::class.java)
+
+inline fun <reified T : Any> CursorResult<*>.toCustomModelClose() = toCustomModelClose(T::class.java)
+
 // async extensions
 
 inline val <T : Any> ModelQueriable<T>.async
