@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
+import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 
@@ -393,13 +394,14 @@ public class Condition extends BaseCondition implements ITypeConditional {
         if (typeConverter != null && convertToDB) {
             value = typeConverter.getDBValue(value);
         }
-        if (value instanceof String || value instanceof ITypeConditional) {
+        if (value instanceof String || value instanceof ITypeConditional
+            || value instanceof Character) {
             operation = String.format("%1s %1s ", operation, Operation.CONCATENATE);
         } else if (value instanceof Number) {
             operation = String.format("%1s %1s ", operation, Operation.PLUS);
         } else {
             throw new IllegalArgumentException(
-                    String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
+                String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
         }
         this.value = value;
         isValueSet = true;
@@ -589,7 +591,7 @@ public class Condition extends BaseCondition implements ITypeConditional {
     /**
      * The SQL BETWEEN operator that contains two values instead of the normal 1.
      */
-    public static class Between extends BaseCondition {
+    public static class Between extends BaseCondition implements Query {
 
         private Object secondValue;
 
@@ -619,19 +621,25 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                    .append(convertObjectToString(value(), true))
-                    .appendSpaceSeparated(Operation.AND)
-                    .append(convertObjectToString(secondValue(), true))
-                    .appendSpace().appendOptional(postArgument());
+                .append(convertObjectToString(value(), true))
+                .appendSpaceSeparated(Operation.AND)
+                .append(convertObjectToString(secondValue(), true))
+                .appendSpace().appendOptional(postArgument());
         }
 
+        @Override
+        public String getQuery() {
+            QueryBuilder builder = new QueryBuilder();
+            appendConditionToQuery(builder);
+            return builder.getQuery();
+        }
     }
 
     /**
      * The SQL IN and NOT IN operator that specifies a list of values to SELECT rows from.
      * EX: SELECT * FROM myTable WHERE columnName IN ('column1','column2','etc')
      */
-    public static class In extends BaseCondition {
+    public static class In extends BaseCondition implements Query {
 
         private List<Object> inArguments = new ArrayList<>();
 
@@ -671,7 +679,14 @@ public class Condition extends BaseCondition implements ITypeConditional {
         @Override
         public void appendConditionToQuery(QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                    .append("(").append(ConditionGroup.joinArguments(",", inArguments, this)).append(")");
+                .append("(").append(ConditionGroup.joinArguments(",", inArguments, this)).append(")");
+        }
+
+        @Override
+        public String getQuery() {
+            QueryBuilder builder = new QueryBuilder();
+            appendConditionToQuery(builder);
+            return builder.getQuery();
         }
     }
 
