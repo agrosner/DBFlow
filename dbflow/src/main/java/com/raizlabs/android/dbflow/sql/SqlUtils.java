@@ -137,7 +137,7 @@ public class SqlUtils {
                                          String notifyKey, Object notifyValue) {
         Operator operator = null;
         if (StringUtils.isNotNullOrEmpty(notifyKey)) {
-            operator = Operator.column(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
+            operator = Operator.op(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
         }
         return getNotificationUri(modelClass, action, new SQLOperator[]{operator});
     }
@@ -190,7 +190,7 @@ public class SqlUtils {
 
         for (Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
-            operatorGroup.and(Operator.column(new NameAlias.Builder(key).build())
+            operatorGroup.and(Operator.op(new NameAlias.Builder(key).build())
                 .is(contentValues.get(key)));
         }
     }

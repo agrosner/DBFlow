@@ -48,6 +48,10 @@ infix fun <T : Any> Case<T>.`else`(value: T?) = _else(value)
 
 infix fun <T : Any> Case<T>.end(columnName: String) = end(columnName)
 
+fun <T : Any> case(caseColumn: IProperty<*>? = null) = SQLite._case<T>(caseColumn)
+
+fun <T : Any> caseWhen(operator: SQLOperator) = SQLite.caseWhen<T>(operator)
+
 // queriable extensions
 
 inline val Queriable.count
@@ -77,16 +81,16 @@ inline val <T : Any> ModelQueriable<T>.async
     get() = async()
 
 infix inline fun <T : Any> AsyncQuery<T>.list(crossinline callback: (QueryTransaction<*>, MutableList<T>?) -> Unit)
-        = queryListResultCallback { queryTransaction, mutableList -> callback(queryTransaction, mutableList) }
-        .execute()
+    = queryListResultCallback { queryTransaction, mutableList -> callback(queryTransaction, mutableList) }
+    .execute()
 
 infix inline fun <T : Any> AsyncQuery<T>.result(crossinline callback: (QueryTransaction<*>, T?) -> Unit)
-        = querySingleResultCallback { queryTransaction, model -> callback(queryTransaction, model) }
-        .execute()
+    = querySingleResultCallback { queryTransaction, model -> callback(queryTransaction, model) }
+    .execute()
 
 infix inline fun <T : Any> AsyncQuery<T>.cursorResult(crossinline callback: (QueryTransaction<*>, CursorResult<T>) -> Unit)
-        = queryResultCallback { queryTransaction, cursorResult -> callback(queryTransaction, cursorResult) }
-        .execute()
+    = queryResultCallback { queryTransaction, cursorResult -> callback(queryTransaction, cursorResult) }
+    .execute()
 
 inline val BaseModel.async: AsyncModel<BaseModel>
     get() = async()
@@ -134,7 +138,7 @@ infix fun <T : Any> Update<T>.set(sqlOperator: SQLOperator) = set(sqlOperator)
 inline fun <reified T : Any> delete() = SQLite.delete(T::class.java)
 
 inline fun <reified T : Any> delete(deleteClause: From<T>.() -> BaseModelQueriable<T>)
-        = deleteClause(SQLite.delete(T::class.java))
+    = deleteClause(SQLite.delete(T::class.java))
 
 // insert methods
 

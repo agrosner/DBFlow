@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.Operator;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
-import static com.raizlabs.android.dbflow.sql.language.Operator.column;
+import static com.raizlabs.android.dbflow.sql.language.Operator.op;
 
 /**
  * Description: Provides convenience methods for {@link TypeConverter} when constructing queries.
@@ -48,7 +48,7 @@ public class TypeConvertedProperty<T, V> extends Property<V> {
 
     @Override
     protected Operator<V> getCondition() {
-        return column(getNameAlias(), getter.getTypeConverter(table), convertToDB);
+        return op(getNameAlias(), getter.getTypeConverter(table), convertToDB);
     }
 
     /**

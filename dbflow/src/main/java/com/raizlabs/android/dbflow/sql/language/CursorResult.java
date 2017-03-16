@@ -47,13 +47,9 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      */
     @NonNull
     public List<TModel> toList() {
-        if (cursor != null) {
-            List<TModel> modelList = retrievalAdapter.getListModelLoader()
-                    .convertToData(cursor, null);
-            return modelList != null ? modelList : new ArrayList<TModel>();
-        } else {
-            return new ArrayList<>();
-        }
+        return cursor != null
+            ? retrievalAdapter.getListModelLoader().convertToData(cursor, null)
+            : new ArrayList<TModel>();
     }
 
     /**
@@ -61,12 +57,9 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      */
     @NonNull
     public List<TModel> toListClose() {
-        if (cursor != null) {
-            List<TModel> load = retrievalAdapter.getListModelLoader().load(cursor);
-            return load != null ? load : new ArrayList<TModel>();
-        } else {
-            return new ArrayList<>();
-        }
+        return cursor != null
+            ? retrievalAdapter.getListModelLoader().load(cursor)
+            : new ArrayList<TModel>();
     }
 
     /**
@@ -74,13 +67,8 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      */
     @NonNull
     public <TCustom extends BaseQueryModel> List<TCustom> toCustomList(Class<TCustom> customClass) {
-        if (cursor != null) {
-            List<TCustom> customList = FlowManager.getQueryModelAdapter(customClass)
-                    .getListModelLoader().convertToData(cursor, null);
-            return customList != null ? customList : new ArrayList<TCustom>();
-        } else {
-            return new ArrayList<>();
-        }
+        return cursor != null ? FlowManager.getQueryModelAdapter(customClass)
+            .getListModelLoader().convertToData(cursor, null) : new ArrayList<TCustom>();
     }
 
     /**
@@ -88,13 +76,8 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      */
     @NonNull
     public <TCustom extends BaseQueryModel> List<TCustom> toCustomListClose(Class<TCustom> customClass) {
-        if (cursor != null) {
-            List<TCustom> customList = FlowManager.getQueryModelAdapter(customClass)
-                    .getListModelLoader().load(cursor);
-            return customList != null ? customList : new ArrayList<TCustom>();
-        } else {
-            return new ArrayList<>();
-        }
+        return cursor != null ? FlowManager.getQueryModelAdapter(customClass)
+            .getListModelLoader().load(cursor) : new ArrayList<TCustom>();
     }
 
     /**
@@ -102,11 +85,7 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      */
     @Nullable
     public TModel toModel() {
-        if (cursor != null) {
-            return retrievalAdapter.getSingleModelLoader().convertToData(cursor, null);
-        } else {
-            return null;
-        }
+        return cursor != null ? retrievalAdapter.getSingleModelLoader().convertToData(cursor, null) : null;
     }
 
     /**
@@ -114,11 +93,7 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      */
     @Nullable
     public TModel toModelClose() {
-        if (cursor != null) {
-            return retrievalAdapter.getSingleModelLoader().load(cursor);
-        } else {
-            return null;
-        }
+        return cursor != null ? retrievalAdapter.getSingleModelLoader().load(cursor) : null;
     }
 
     @Nullable

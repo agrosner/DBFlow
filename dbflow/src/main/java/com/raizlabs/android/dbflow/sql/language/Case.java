@@ -31,13 +31,15 @@ public class Case<TReturn> implements Query {
 
     Case(IProperty caseColumn) {
         this.caseColumn = caseColumn;
-        efficientCase = true;
+        if (caseColumn != null) {
+            efficientCase = true;
+        }
     }
 
     public CaseCondition<TReturn> when(SQLOperator sqlOperator) {
         if (efficientCase) {
             throw new IllegalStateException("When using the efficient CASE method," +
-                    "you must pass in value only, not condition.");
+                "you must pass in value only, not condition.");
         }
         CaseCondition<TReturn> caseCondition = new CaseCondition<>(this, sqlOperator);
         caseConditions.add(caseCondition);
@@ -47,7 +49,7 @@ public class Case<TReturn> implements Query {
     public CaseCondition<TReturn> when(TReturn whenValue) {
         if (!efficientCase) {
             throw new IllegalStateException("When not using the efficient CASE method, " +
-                    "you must pass in the SQLConditions as a parameter");
+                "you must pass in the SQLConditions as a parameter");
         }
         CaseCondition<TReturn> caseCondition = new CaseCondition<>(this, whenValue);
         caseConditions.add(caseCondition);
@@ -57,7 +59,7 @@ public class Case<TReturn> implements Query {
     public CaseCondition<TReturn> when(IProperty property) {
         if (!efficientCase) {
             throw new IllegalStateException("When not using the efficient CASE method, " +
-                    "you must pass in the SQLOperator as a parameter");
+                "you must pass in the SQLOperator as a parameter");
         }
         CaseCondition<TReturn> caseCondition = new CaseCondition<>(this, property);
         caseConditions.add(caseCondition);
@@ -83,7 +85,7 @@ public class Case<TReturn> implements Query {
             this.columnName = QueryBuilder.quoteIfNeeded(columnName);
         }
         return new Property<>(null, NameAlias.rawBuilder(getQuery())
-                .build());
+            .build());
     }
 
     /**
@@ -94,10 +96,10 @@ public class Case<TReturn> implements Query {
     }
 
     /**
-     * @return The case complete as a condition.
+     * @return The case complete as an operator.
      */
-    public Operator endAsCondition() {
-        return Operator.column(end().getNameAlias());
+    public Operator endAsOperator() {
+        return Operator.op(end().getNameAlias());
     }
 
     boolean isEfficientCase() {
@@ -111,7 +113,7 @@ public class Case<TReturn> implements Query {
             queryBuilder.append(" " + BaseOperator.convertValueToString(caseColumn, false));
         }
 
-        queryBuilder.append(QueryBuilder.join(" ", caseConditions));
+        queryBuilder.append(QueryBuilder.join("", caseConditions));
 
         if (elseSpecified) {
             queryBuilder.append(" ELSE ").append(BaseOperator.convertValueToString(elseValue, false));

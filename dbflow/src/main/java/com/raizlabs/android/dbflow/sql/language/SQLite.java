@@ -99,12 +99,12 @@ public class SQLite {
     /**
      * Starts a CASE statement.
      *
-     * @param condition The condition to check for in the WHEN.
+     * @param operator The condition to check for in the WHEN.
      * @return A new {@link CaseCondition}.
      */
     @NonNull
-    public static <TReturn> CaseCondition<TReturn> caseWhen(@NonNull SQLOperator condition) {
-        return new Case<TReturn>().when(condition);
+    public static <TReturn> CaseCondition<TReturn> caseWhen(@NonNull SQLOperator operator) {
+        return new Case<TReturn>().when(operator);
     }
 
     /**

@@ -78,7 +78,7 @@ public class Index<TModel> implements Query {
     /**
      * Appends a column to this index list.
      *
-     * @param property The name of the column. If already exists, this column will not be added
+     * @param property The name of the column. If already exists, this op will not be added
      * @return This instance.
      */
     public Index<TModel> and(IProperty property) {
@@ -91,7 +91,7 @@ public class Index<TModel> implements Query {
     /**
      * Appends a column to this index list.
      *
-     * @param columnName The name of the column. If already exists, this column will not be added
+     * @param columnName The name of the column. If already exists, this op will not be added
      * @return This instance.
      */
     public Index<TModel> and(NameAlias columnName) {

@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.sql.language.Operator;
 
 import java.util.Collection;
 
-import static com.raizlabs.android.dbflow.sql.language.Operator.column;
+import static com.raizlabs.android.dbflow.sql.language.Operator.op;
 
 /**
  * Description: The main, immutable property class that gets generated from a table definition.
@@ -386,6 +386,6 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
     }
 
     protected Operator<T> getCondition() {
-        return column(getNameAlias());
+        return op(getNameAlias());
     }
 }

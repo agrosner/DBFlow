@@ -28,11 +28,11 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
         return BaseOperator.convertValueToString(value, false);
     }
 
-    public static <T> Operator<T> column(NameAlias column) {
+    public static <T> Operator<T> op(NameAlias column) {
         return new Operator<>(column);
     }
 
-    public static <T> Operator<T> column(NameAlias alias, TypeConverter typeConverter, boolean convertToDB) {
+    public static <T> Operator<T> op(NameAlias alias, TypeConverter typeConverter, boolean convertToDB) {
         return new Operator<>(alias, typeConverter, convertToDB);
     }
 
