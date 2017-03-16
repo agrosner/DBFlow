@@ -54,6 +54,8 @@ fun <T : Any> case(caseColumn: IProperty<*>? = null) = SQLite._case<T>(caseColum
 
 fun <T : Any> caseWhen(operator: SQLOperator) = SQLite.caseWhen<T>(operator)
 
+inline fun <reified T : Any> insert() = Insert(T::class.java)
+
 // queriable extensions
 
 inline val Queriable.count

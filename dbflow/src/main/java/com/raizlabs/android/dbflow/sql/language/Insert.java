@@ -10,8 +10,6 @@ import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
-import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,14 +74,8 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
     }
 
     @NonNull
-    public Insert<TModel> columns(List<IProperty> properties) {
-        if (properties != null) {
-            this.columns = new IProperty[properties.size()];
-            for (int i = 0; i < properties.size(); i++) {
-                columns[i] = properties.get(i);
-            }
-        }
-        return this;
+    public Insert<TModel> columns(@NonNull List<IProperty> properties) {
+        return columns(properties.toArray(new IProperty[properties.size()]));
     }
 
     /**
@@ -253,20 +245,6 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
         throw new IllegalStateException("Cannot call executeUpdateDelete() from an Insert");
     }
 
-    /**
-     * @return A {@link Transaction.Builder} handle to begin an async transaction.
-     * A simple helper method.
-     */
-    public Transaction.Builder async() {
-        return FlowManager.getDatabaseForTable(getTable())
-            .beginTransactionAsync(new ITransaction() {
-                @Override
-                public void execute(DatabaseWrapper databaseWrapper) {
-                    Insert.this.execute(databaseWrapper);
-                }
-            });
-    }
-
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder("INSERT ");
@@ -304,7 +282,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
                 if (i > 0) {
                     queryBuilder.append(",(");
                 }
-                queryBuilder.append(BaseOperator.joinArguments(",", valuesList.get(i))).append(")");
+                queryBuilder.append(BaseOperator.joinArguments(", ", valuesList.get(i))).append(")");
             }
         }
 

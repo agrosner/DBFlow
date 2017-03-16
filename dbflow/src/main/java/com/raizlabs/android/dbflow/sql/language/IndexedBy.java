@@ -37,7 +37,7 @@ public class IndexedBy<TModel> extends BaseTransformable<TModel> {
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder(whereBase.getQuery())
-            .append("INDEXED BY ").append(QueryBuilder.quoteIfNeeded(indexProperty.getIndexName())).appendSpace();
+            .append(" INDEXED BY ").append(QueryBuilder.quoteIfNeeded(indexProperty.getIndexName())).appendSpace();
         return queryBuilder.getQuery();
     }
 
