@@ -50,6 +50,8 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     var databaseExtensionName = ""
 
+    var databaseFileName = ""
+
     init {
         packageName = ClassNames.FLOW_MANAGER_PACKAGE
 
@@ -232,6 +234,14 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                     .addStatement("return \$S", databaseExtensionName)
                     .returns(String::class.java)
                     .build())
+        }
+
+        if (databaseFileName.isNullOrBlank().not()) {
+            typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseFileName")
+                .addAnnotation(Override::class.java).addModifiers(DatabaseHandler.METHOD_MODIFIERS)
+                .addStatement("return " + databaseFileName)
+                .returns(String::class.java)
+                .build())
         }
     }
 
