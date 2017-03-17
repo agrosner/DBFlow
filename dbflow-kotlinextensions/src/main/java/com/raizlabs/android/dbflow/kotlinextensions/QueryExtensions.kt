@@ -56,6 +56,10 @@ fun <T : Any> caseWhen(operator: SQLOperator) = SQLite.caseWhen<T>(operator)
 
 inline fun <reified T : Any> insert() = Insert(T::class.java)
 
+inline fun <reified T : Any> indexOn(indexName: String, vararg property: IProperty<*>) = Index<T>(indexName).on(T::class.java, *property)
+
+inline fun <reified T : Any> indexOn(indexName: String, firstNameAlias: NameAlias, vararg arrayOfNameAlias: NameAlias) = Index<T>(indexName).on(T::class.java, firstNameAlias, *arrayOfNameAlias)
+
 // queriable extensions
 
 inline val Queriable.count

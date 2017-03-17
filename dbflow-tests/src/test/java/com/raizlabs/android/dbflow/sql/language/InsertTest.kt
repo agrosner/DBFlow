@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language
 
+import android.content.ContentValues
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.SimpleModel
 import com.raizlabs.android.dbflow.TwoColumnModel
@@ -8,6 +9,7 @@ import com.raizlabs.android.dbflow.TwoColumnModel_Table.name
 import com.raizlabs.android.dbflow.kotlinextensions.from
 import com.raizlabs.android.dbflow.kotlinextensions.insert
 import com.raizlabs.android.dbflow.kotlinextensions.select
+import com.raizlabs.android.dbflow.kotlinextensions.set
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -60,5 +62,13 @@ class InsertTest : BaseUnitTest() {
                 id.eq(0)).query.trim())
         assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
             insert<TwoColumnModel>().columnValues(OperatorGroup.clause().andAll(name.eq("name"), id.eq(0))).query.trim())
+
+        val contentValues = ContentValues()
+        contentValues["name"] = "name"
+        contentValues["id"] = 0.toInt()
+
+        assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
+            insert<TwoColumnModel>().columnValues(contentValues).query.trim())
+
     }
 }

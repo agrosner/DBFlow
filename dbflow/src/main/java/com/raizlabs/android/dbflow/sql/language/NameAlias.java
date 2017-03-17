@@ -40,8 +40,16 @@ public class NameAlias implements Query {
      */
     public static Builder rawBuilder(String name) {
         return new Builder(name)
-                .shouldStripIdentifier(false)
-                .shouldAddIdentifierToName(false);
+            .shouldStripIdentifier(false)
+            .shouldAddIdentifierToName(false);
+    }
+
+    public static NameAlias of(String name) {
+        return NameAlias.builder(name).build();
+    }
+
+    public static NameAlias of(String name, String aliasName) {
+        return NameAlias.builder(name).as(aliasName).build();
     }
 
     private final String name;
@@ -81,7 +89,7 @@ public class NameAlias implements Query {
      */
     public String name() {
         return (StringUtils.isNotNullOrEmpty(name) && shouldAddIdentifierToQuery) ?
-                QueryBuilder.quoteIfNeeded(name) : name;
+            QueryBuilder.quoteIfNeeded(name) : name;
     }
 
     /**
@@ -96,7 +104,7 @@ public class NameAlias implements Query {
      */
     public String aliasName() {
         return (StringUtils.isNotNullOrEmpty(aliasName) && shouldAddIdentifierToAliasName) ?
-                QueryBuilder.quoteIfNeeded(aliasName) : aliasName;
+            QueryBuilder.quoteIfNeeded(aliasName) : aliasName;
     }
 
     /**
@@ -192,13 +200,13 @@ public class NameAlias implements Query {
      */
     public Builder newBuilder() {
         return new Builder(name)
-                .keyword(keyword)
-                .as(aliasName)
-                .shouldStripAliasName(shouldStripAliasName)
-                .shouldStripIdentifier(shouldStripIdentifier)
-                .shouldAddIdentifierToName(shouldAddIdentifierToQuery)
-                .shouldAddIdentifierToAliasName(shouldAddIdentifierToAliasName)
-                .withTable(tableName);
+            .keyword(keyword)
+            .as(aliasName)
+            .shouldStripAliasName(shouldStripAliasName)
+            .shouldStripIdentifier(shouldStripIdentifier)
+            .shouldAddIdentifierToName(shouldAddIdentifierToQuery)
+            .shouldAddIdentifierToAliasName(shouldAddIdentifierToAliasName)
+            .withTable(tableName);
     }
 
 

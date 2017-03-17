@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.kotlinextensions
 
+import android.content.ContentValues
 import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.structure.BaseQueryModel
@@ -56,9 +57,9 @@ inline fun <reified T : Any> Collection<T>.processInTransaction(crossinline proc
 inline fun <reified T : Any> Collection<T>.processInTransactionAsync(crossinline processFunction: (T, DatabaseWrapper) -> Unit) {
     val wrapper = database<T>()
     wrapper.beginTransactionAsync(
-            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<T> { it, wrapper ->
-                processFunction(it, wrapper)
-            }).addAll(this).build()
+        ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<T> { it, wrapper ->
+            processFunction(it, wrapper)
+        }).addAll(this).build()
     ).execute()
 }
 
@@ -71,10 +72,10 @@ inline fun <reified T : Any> Collection<T>.processInTransactionAsync(crossinline
                                                                      error: Transaction.Error? = null) {
     val wrapper = database<T>()
     wrapper.beginTransactionAsync(
-            ProcessModelTransaction.Builder(
-                    ProcessModelTransaction.ProcessModel<T> { it, wrapper -> processFunction(it, wrapper) })
-                    .addAll(this).build())
-            .success(success).error(error).execute()
+        ProcessModelTransaction.Builder(
+            ProcessModelTransaction.ProcessModel<T> { it, wrapper -> processFunction(it, wrapper) })
+            .addAll(this).build())
+        .success(success).error(error).execute()
 }
 
 /**
@@ -87,9 +88,9 @@ inline fun <reified T : Any> Collection<T>.processInTransactionAsync(crossinline
                                                                      error: Transaction.Error? = null) {
     val wrapper = database<T>()
     wrapper.beginTransactionAsync(
-            ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<T> { it, wrapper ->
-                processFunction(it, wrapper)
-            }).addAll(this).processListener(processListener).build()
+        ProcessModelTransaction.Builder(ProcessModelTransaction.ProcessModel<T> { it, wrapper ->
+            processFunction(it, wrapper)
+        }).addAll(this).processListener(processListener).build()
     ).success(success).error(error).execute()
 }
 
@@ -99,3 +100,24 @@ inline fun <reified T : Any> Collection<T>.processInTransactionAsync(crossinline
 fun DatabaseWrapper.executeUpdateDelete(rawQuery: String) {
     compileStatement(rawQuery).executeUpdateDelete()
 }
+
+operator fun ContentValues.set(key: String, value: String?) = put(key, value)
+
+operator fun ContentValues.set(key: String, value: Byte?) = put(key, value)
+
+operator fun ContentValues.set(key: String, value: Short?) = put(key, value)
+
+operator fun ContentValues.set(key: String, value: Int?) = put(key, value)
+
+operator fun ContentValues.set(key: String, value: Long?) = put(key, value)
+
+operator fun ContentValues.set(key: String, value: Float?) = put(key, value)
+
+operator fun ContentValues.set(key: String, value: Double?) = put(key, value)
+
+operator fun ContentValues.set(key: String, value: Boolean?) = put(key, value)
+
+operator fun ContentValues.set(key: String, value: ByteArray?) = put(key, value)
+
+
+
