@@ -50,6 +50,12 @@ public interface IConditional extends Query {
     Operator like(BaseModelQueriable baseModelQueriable);
 
     @NonNull
+    Operator notLike(IConditional conditional);
+
+    @NonNull
+    Operator notLike(BaseModelQueriable baseModelQueriable);
+
+    @NonNull
     Operator glob(IConditional conditional);
 
     @NonNull
@@ -105,21 +111,6 @@ public interface IConditional extends Query {
 
     @NonNull
     Operator.In notIn(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables);
-
-    @NonNull
-    Operator plus(IConditional value);
-
-    @NonNull
-    Operator minus(IConditional value);
-
-    @NonNull
-    Operator div(IConditional value);
-
-    @NonNull
-    Operator times(IConditional value);
-
-    @NonNull
-    Operator rem(IConditional value);
 
     @NonNull
     Operator plus(BaseModelQueriable value);

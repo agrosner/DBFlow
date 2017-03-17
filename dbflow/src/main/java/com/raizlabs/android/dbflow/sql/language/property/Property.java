@@ -225,6 +225,18 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
 
     @NonNull
     @Override
+    public Operator notLike(IConditional conditional) {
+        return getCondition().notLike(conditional);
+    }
+
+    @NonNull
+    @Override
+    public Operator notLike(BaseModelQueriable baseModelQueriable) {
+        return getCondition().notLike(baseModelQueriable);
+    }
+
+    @NonNull
+    @Override
     public Operator glob(BaseModelQueriable baseModelQueriable) {
         return getCondition().glob(baseModelQueriable);
     }
@@ -275,36 +287,6 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
     @Override
     public Operator concatenate(IConditional conditional) {
         return getCondition().concatenate(conditional);
-    }
-
-    @NonNull
-    @Override
-    public Operator plus(IConditional value) {
-        return getCondition().plus(value);
-    }
-
-    @NonNull
-    @Override
-    public Operator minus(IConditional value) {
-        return getCondition().minus(value);
-    }
-
-    @NonNull
-    @Override
-    public Operator div(IConditional value) {
-        return getCondition().div(value);
-    }
-
-    @NonNull
-    @Override
-    public Operator times(IConditional value) {
-        return getCondition().times(value);
-    }
-
-    @NonNull
-    @Override
-    public Operator rem(IConditional value) {
-        return getCondition().rem(value);
     }
 
     @NonNull

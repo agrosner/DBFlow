@@ -1,10 +1,13 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Operator.Operation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -16,15 +19,17 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
     /**
      * @return Starts an arbitrary clause of conditions to use.
      */
+    @NonNull
     public static OperatorGroup clause() {
         return new OperatorGroup();
     }
 
     /**
-     * @return Starts an arbitrary clause of conditions to use with first param as condition.
+     * @return Starts an arbitrary clause of conditions to use with first param as conditions separated by AND.
      */
-    public static OperatorGroup clause(SQLOperator condition) {
-        return new OperatorGroup().and(condition);
+    @NonNull
+    public static OperatorGroup clause(SQLOperator... condition) {
+        return new OperatorGroup().andAll(condition);
     }
 
     /**
@@ -35,6 +40,14 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
         return new OperatorGroup().setUseParenthesis(false);
     }
 
+    /**
+     * @return Starts an arbitrary clause of conditions (without parenthesis) to use with first param as conditions separated by AND.
+     */
+    public static OperatorGroup nonGroupingClause(SQLOperator... condition) {
+        return new OperatorGroup().setUseParenthesis(false).andAll(condition);
+    }
+
+    @NonNull
     private final List<SQLOperator> conditionsList = new ArrayList<>();
 
     private QueryBuilder query;
@@ -60,6 +73,7 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
      * @param allCommaSeparated All become comma separated.
      * @return This instance.
      */
+    @NonNull
     public OperatorGroup setAllCommaSeparated(boolean allCommaSeparated) {
         this.allCommaSeparated = allCommaSeparated;
         isChanged = true;
@@ -72,6 +86,7 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
      *
      * @param useParenthesis true if we use them, false if not.
      */
+    @NonNull
     public OperatorGroup setUseParenthesis(boolean useParenthesis) {
         this.useParenthesis = useParenthesis;
         isChanged = true;
@@ -84,16 +99,15 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
      * @param sqlOperator The condition to append.
      * @return This instance.
      */
+    @NonNull
     public OperatorGroup or(SQLOperator sqlOperator) {
         return operator(Operation.OR, sqlOperator);
     }
 
     /**
      * Appends the {@link SQLOperator} with an {@link Operation#AND}
-     *
-     * @param sqlOperator The condition to append.
-     * @return This instance.
      */
+    @NonNull
     public OperatorGroup and(SQLOperator sqlOperator) {
         return operator(Operation.AND, sqlOperator);
     }
@@ -101,10 +115,8 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
     /**
      * Applies the {@link Operation#AND} to all of the passed
      * {@link SQLOperator}.
-     *
-     * @param sqlOperators
-     * @return
      */
+    @NonNull
     public OperatorGroup andAll(SQLOperator... sqlOperators) {
         for (SQLOperator sqlOperator : sqlOperators) {
             and(sqlOperator);
@@ -115,11 +127,9 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
     /**
      * Applies the {@link Operation#AND} to all of the passed
      * {@link SQLOperator}.
-     *
-     * @param sqlOperators
-     * @return
      */
-    public OperatorGroup andAll(List<SQLOperator> sqlOperators) {
+    @NonNull
+    public OperatorGroup andAll(Collection<SQLOperator> sqlOperators) {
         for (SQLOperator sqlOperator : sqlOperators) {
             and(sqlOperator);
         }
@@ -129,10 +139,8 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
     /**
      * Applies the {@link Operation#AND} to all of the passed
      * {@link SQLOperator}.
-     *
-     * @param sqlOperators
-     * @return
      */
+    @NonNull
     public OperatorGroup orAll(SQLOperator... sqlOperators) {
         for (SQLOperator sqlOperator : sqlOperators) {
             or(sqlOperator);
@@ -143,11 +151,9 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
     /**
      * Applies the {@link Operation#AND} to all of the passed
      * {@link SQLOperator}.
-     *
-     * @param sqlOperators
-     * @return
      */
-    public OperatorGroup orAll(List<SQLOperator> sqlOperators) {
+    @NonNull
+    public OperatorGroup orAll(Collection<SQLOperator> sqlOperators) {
         for (SQLOperator sqlOperator : sqlOperators) {
             or(sqlOperator);
         }
@@ -156,10 +162,8 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
 
     /**
      * Appends the {@link SQLOperator} with the specified operator string.
-     *
-     * @param sqlOperator The condition to append.
-     * @return This instance.
      */
+    @NonNull
     private OperatorGroup operator(String operator, SQLOperator sqlOperator) {
         setPreviousSeparator(operator);
         conditionsList.add(sqlOperator);
@@ -176,8 +180,10 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
         for (int i = 0; i < conditionListSize; i++) {
             SQLOperator condition = conditionsList.get(i);
             condition.appendConditionToQuery(queryBuilder);
-            if (condition.hasSeparator() && i < conditionListSize - 1) {
+            if (!allCommaSeparated && condition.hasSeparator() && i < conditionListSize - 1) {
                 queryBuilder.appendSpaceSeparated(condition.separator());
+            } else if (i < conditionListSize - 1) {
+                queryBuilder.append(", ");
             }
         }
         if (useParenthesis && conditionListSize > 0) {
@@ -214,6 +220,7 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
         return conditionsList.size();
     }
 
+    @NonNull
     public List<SQLOperator> getConditions() {
         return conditionsList;
     }
@@ -225,24 +232,7 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
 
     private QueryBuilder getQuerySafe() {
         QueryBuilder query = new QueryBuilder();
-
-        int count = 0;
-        int size = conditionsList.size();
-        for (int i = 0; i < size; i++) {
-            SQLOperator condition = conditionsList.get(i);
-            if (condition != null) {
-                condition.appendConditionToQuery(query);
-                if (count < size - 1) {
-                    if (!allCommaSeparated) {
-                        query.appendSpace().append(condition.hasSeparator() ? condition.separator() : separator);
-                    } else {
-                        query.append(",");
-                    }
-                    query.appendSpace();
-                }
-            }
-            count++;
-        }
+        appendConditionToQuery(query);
         return query;
     }
 }

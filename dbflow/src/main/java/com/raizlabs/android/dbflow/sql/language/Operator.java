@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.config.FlowLog;
@@ -408,13 +409,25 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
     @NonNull
     @Override
     public Operator<T> like(BaseModelQueriable baseModelQueriable) {
-        return like(baseModelQueriable.getQuery());
+        return assignValueOp(baseModelQueriable, Operation.LIKE);
+    }
+
+    @NonNull
+    @Override
+    public Operator notLike(IConditional conditional) {
+        return assignValueOp(conditional, Operation.NOT_LIKE);
+    }
+
+    @NonNull
+    @Override
+    public Operator notLike(BaseModelQueriable baseModelQueriable) {
+        return assignValueOp(baseModelQueriable, Operation.NOT_LIKE);
     }
 
     @NonNull
     @Override
     public Operator<T> glob(BaseModelQueriable baseModelQueriable) {
-        return glob(baseModelQueriable.getQuery());
+        return assignValueOp(baseModelQueriable, Operation.GLOB);
     }
 
     @NonNull
@@ -442,31 +455,26 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
     }
 
     @NonNull
-    @Override
     public Operator plus(IConditional value) {
         return assignValueOp(value, Operation.PLUS);
     }
 
     @NonNull
-    @Override
     public Operator minus(IConditional value) {
         return assignValueOp(value, Operation.MINUS);
     }
 
     @NonNull
-    @Override
     public Operator div(IConditional value) {
         return assignValueOp(value, Operation.DIVISION);
     }
 
     @NonNull
-    @Override
     public Operator times(IConditional value) {
         return assignValueOp(value, Operation.MULTIPLY);
     }
 
     @NonNull
-    @Override
     public Operator rem(IConditional value) {
         return assignValueOp(value, Operation.MOD);
     }
@@ -746,6 +754,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      */
     public static class Between<T> extends BaseOperator implements Query {
 
+        @Nullable
         private T secondValue;
 
         /**
@@ -762,11 +771,13 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
             this.postArg = operator.postArgument();
         }
 
-        public Between<T> and(T secondValue) {
+        @NonNull
+        public Between<T> and(@Nullable T secondValue) {
             this.secondValue = secondValue;
             return this;
         }
 
+        @Nullable
         public T secondValue() {
             return secondValue;
         }
@@ -825,7 +836,8 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
          *                 in a {@link OperatorGroup}.
          * @return
          */
-        public In<T> and(T argument) {
+        @NonNull
+        public In<T> and(@Nullable T argument) {
             inArguments.add(argument);
             return this;
         }
