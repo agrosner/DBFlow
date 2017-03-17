@@ -164,12 +164,22 @@ public class Method extends Property {
 
     @Override
     public Method plus(IProperty property) {
-        return append(property, Operator.Operation.PLUS);
+        return append(property, " " + Operator.Operation.PLUS);
     }
 
     @Override
     public Method minus(IProperty property) {
-        return append(property, Operator.Operation.MINUS);
+        return append(property, " " + Operator.Operation.MINUS);
+    }
+
+    @Override
+    public Property div(IProperty iProperty) {
+        return super.div(iProperty);
+    }
+
+    @Override
+    public Property times(IProperty iProperty) {
+        return super.times(iProperty);
     }
 
     /**
@@ -213,14 +223,14 @@ public class Method extends Property {
             for (int i = 0; i < propertyList.size(); i++) {
                 IProperty property = propertyList.get(i);
                 if (i > 0) {
-                    query += " " + operationsList.get(i) + " ";
+                    query += operationsList.get(i) + " ";
                 }
                 query += property.toString();
 
             }
             query += ")";
             nameAlias = NameAlias.rawBuilder(query)
-                    .build();
+                .build();
         }
         return nameAlias;
     }
@@ -243,11 +253,11 @@ public class Method extends Property {
         public IProperty as(SQLiteType sqLiteType) {
             //noinspection unchecked
             IProperty newProperty = new Property(property.getTable(),
-                    property.getNameAlias()
-                            .newBuilder()
-                            .shouldAddIdentifierToAliasName(false)
-                            .as(sqLiteType.name())
-                            .build());
+                property.getNameAlias()
+                    .newBuilder()
+                    .shouldAddIdentifierToAliasName(false)
+                    .as(sqLiteType.name())
+                    .build());
             return new Method("CAST", newProperty);
         }
     }

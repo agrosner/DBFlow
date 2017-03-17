@@ -8,6 +8,13 @@ import org.junit.Test
 class JoinTest : BaseUnitTest() {
 
     @Test
+    fun validateAliasJoin() {
+        assertEquals("SELECT * FROM `SimpleModel` INNER JOIN `TwoColumnModel` AS `Name` ON `TwoColumnModel`.`name`=`name`",
+            ((select from SimpleModel::class innerJoin
+                TwoColumnModel::class).`as`("Name") on TwoColumnModel_Table.name.withTable().eq(SimpleModel_Table.name)).query.trim())
+    }
+
+    @Test
     fun testInnerJoin() {
         val join = select from SimpleModel::class innerJoin
             TwoColumnModel::class on TwoColumnModel_Table.name.withTable().eq(SimpleModel_Table.name)

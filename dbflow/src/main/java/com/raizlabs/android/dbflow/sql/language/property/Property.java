@@ -258,19 +258,19 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
     }
 
     @Override
-    public Property<T> dividedBy(IProperty iProperty) {
+    public Property<T> div(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Operator.Operation.DIVISION,
             nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
-    public Property<T> multipliedBy(IProperty iProperty) {
+    public Property<T> times(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Operator.Operation.MULTIPLY,
             nameAlias.fullName(), iProperty.toString()));
     }
 
     @Override
-    public Property<T> mod(IProperty iProperty) {
+    public Property<T> rem(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Operator.Operation.MOD,
             nameAlias.fullName(), iProperty.toString()));
     }

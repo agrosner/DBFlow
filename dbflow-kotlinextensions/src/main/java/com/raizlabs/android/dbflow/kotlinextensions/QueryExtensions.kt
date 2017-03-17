@@ -148,7 +148,6 @@ infix fun <T : Any, V : Any> Join<T, V>.on(sqlOperator: SQLOperator): From<V> = 
 
 infix fun <T : Any, V : Any> Join<T, V>.using(property: IProperty<*>): From<V> = using(property)
 
-
 // update methods
 
 fun <T : Any> update(modelClass: KClass<T>): Update<T> = SQLite.update(modelClass.java)
