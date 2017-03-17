@@ -161,6 +161,29 @@ public class From<TModel> extends BaseTransformable<TModel> {
         return join(modelQueriable, JoinType.LEFT_OUTER);
     }
 
+
+    /**
+     * Adds a {@link JoinType#NATURAL} join on a specific table for this query.
+     *
+     * @param table   The table to join on.
+     * @param <TJoin> The class of the join table.
+     */
+    @NonNull
+    public <TJoin> Join<TJoin, TModel> naturalJoin(Class<TJoin> table) {
+        return join(table, JoinType.NATURAL);
+    }
+
+    /**
+     * Adds a {@link JoinType#NATURAL} join on a specific table for this query.
+     *
+     * @param modelQueriable The query to join on.
+     * @param <TJoin>        The class of the join table.
+     */
+    @NonNull
+    public <TJoin> Join<TJoin, TModel> naturalJoin(ModelQueriable<TJoin> modelQueriable) {
+        return join(modelQueriable, JoinType.NATURAL);
+    }
+
     /**
      * Begins an INDEXED BY piece of this query with the specified name.
      *
@@ -187,8 +210,10 @@ public class From<TModel> extends BaseTransformable<TModel> {
         queryBuilder.append(getTableAlias());
 
         if (queryBase instanceof Select) {
-            for (Join join : joins) {
+            if (!joins.isEmpty()) {
                 queryBuilder.appendSpace();
+            }
+            for (Join join : joins) {
                 queryBuilder.append(join.getQuery());
             }
         } else {

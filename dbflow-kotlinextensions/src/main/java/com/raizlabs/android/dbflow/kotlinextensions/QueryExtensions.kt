@@ -142,7 +142,12 @@ infix fun <T : Any, V : Any> From<V>.crossJoin(joinTable: KClass<T>): Join<T, V>
 
 infix fun <T : Any, V : Any> From<V>.leftOuterJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.LEFT_OUTER)
 
+infix fun <T : Any, V : Any> From<V>.naturalJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.NATURAL)
+
 infix fun <T : Any, V : Any> Join<T, V>.on(sqlOperator: SQLOperator): From<V> = on(sqlOperator)
+
+infix fun <T : Any, V : Any> Join<T, V>.using(property: IProperty<*>): From<V> = using(property)
+
 
 // update methods
 

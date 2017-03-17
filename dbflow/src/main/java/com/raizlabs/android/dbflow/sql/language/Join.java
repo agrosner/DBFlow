@@ -48,6 +48,12 @@ public class Join<TModel, TFromModel> implements Query {
          * care must be taken to only use them when appropriate.
          */
         CROSS,
+
+        /**
+         * a join that performs the same task as an INNER or LEFT JOIN, in which the ON or USING
+         * clause refers to all columns that the tables to be joined have in common.
+         */
+        NATURAL
     }
 
     private final Class<TModel> table;
@@ -76,11 +82,6 @@ public class Join<TModel, TFromModel> implements Query {
      */
     private List<IProperty> using = new ArrayList<>();
 
-    /**
-     * If it is a natural JOIN.
-     */
-    private boolean isNatural = false;
-
     public Join(From<TFromModel> from, Class<TModel> table, @NonNull JoinType joinType) {
         this.from = from;
         this.table = table;
@@ -105,21 +106,10 @@ public class Join<TModel, TFromModel> implements Query {
     @NonNull
     public Join<TModel, TFromModel> as(String alias) {
         this.alias = this.alias
-                .newBuilder()
-                .as(alias)
-                .build();
+            .newBuilder()
+            .as(alias)
+            .build();
         return this;
-    }
-
-    /**
-     * Specifies that this JOIN is a natural JOIN
-     *
-     * @return The FROM that this JOIN came from.
-     */
-    @NonNull
-    public From<TFromModel> natural() {
-        isNatural = true;
-        return from;
     }
 
     /**
@@ -130,6 +120,7 @@ public class Join<TModel, TFromModel> implements Query {
      */
     @NonNull
     public From<TFromModel> on(SQLOperator... onConditions) {
+        checkNatural();
         onGroup = new OperatorGroup();
         onGroup.andAll(onConditions);
         return from;
@@ -143,39 +134,54 @@ public class Join<TModel, TFromModel> implements Query {
      */
     @NonNull
     public From<TFromModel> using(IProperty... columns) {
+        checkNatural();
         Collections.addAll(using, columns);
         return from;
     }
 
+    /**
+     * @return End this {@link Join}. Used for {@link Join.JoinType#NATURAL}
+     */
+    public From<TFromModel> end() {
+        return from;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder();
 
-        if (isNatural) {
-            queryBuilder.append("NATURAL ");
-        }
-
         queryBuilder.append(type.name().replace("_", " ")).appendSpace();
 
         queryBuilder.append("JOIN")
-                .appendSpace()
-                .append(alias.getFullQuery())
-                .appendSpace();
+            .appendSpace()
+            .append(alias.getFullQuery())
+            .appendSpace();
 
-        if (onGroup != null) {
-            queryBuilder.append("ON")
+        // natural joins do no have on or using clauses.
+        if (!JoinType.NATURAL.equals(type)) {
+            if (onGroup != null) {
+                queryBuilder.append("ON")
                     .appendSpace()
                     .append(onGroup.getQuery())
                     .appendSpace();
-        } else if (!using.isEmpty()) {
-            queryBuilder.append("USING (")
-                    .appendArray(using)
+            } else if (!using.isEmpty()) {
+                queryBuilder.append("USING (")
+                    .appendList(using)
                     .append(")").appendSpace();
+            }
         }
         return queryBuilder.getQuery();
     }
 
     public Class<TModel> getTable() {
         return table;
+    }
+
+    private void checkNatural() {
+        if (JoinType.NATURAL.equals(type)) {
+            throw new IllegalArgumentException("Cannot specify a clause for this join if its NATURAL." +
+                " Specifying a clause would have no effect. Call end() to continue the query.");
+        }
     }
 }
