@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.Query;
 
 import java.util.Collection;
@@ -15,6 +17,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @param value The {@link T} that we express equality to.
      * @return A {@link Operator} that represents equality between this and the parameter.
      */
+    @NonNull
     Operator<T> is(T value);
 
     /**
@@ -24,6 +27,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @return A {@link Operator} that represents equality between this and the parameter.
      * @see #is(T)
      */
+    @NonNull
     Operator<T> eq(T value);
 
     /**
@@ -33,6 +37,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @param value The value to concatenate.
      * @return A {@link Operator<T>} that represents concatenation.
      */
+    @NonNull
     Operator<T> concatenate(T value);
 
     /**
@@ -41,6 +46,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @param value The {@link T} that we express inequality to.
      * @return A {@link Operator<T>} that represents inequality between this and the parameter.
      */
+    @NonNull
     Operator<T> isNot(T value);
 
     /**
@@ -50,6 +56,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @return A {@link Operator<T>} that represents inequality between this and the parameter.
      * @see #notEq(T)
      */
+    @NonNull
     Operator<T> notEq(T value);
 
     /**
@@ -58,6 +65,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @param value The {@link T} that this {@link IOperator} is greater than.
      * @return A {@link Operator<T>} that represents greater than between this and the parameter.
      */
+    @NonNull
     Operator<T> greaterThan(T value);
 
     /**
@@ -66,6 +74,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @param value The {@link T} that this {@link IOperator} is greater than or equal to.
      * @return A {@link Operator<T>} that represents greater than or equal between this and the parameter.
      */
+    @NonNull
     Operator<T> greaterThanOrEq(T value);
 
 
@@ -75,6 +84,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @param value The {@link T} that this {@link IOperator} is less than.
      * @return A {@link Operator<T>} that represents less than between this and the parameter.
      */
+    @NonNull
     Operator<T> lessThan(T value);
 
 
@@ -84,8 +94,10 @@ public interface IOperator<T> extends Query, IConditional {
      * @param value The {@link T} that this {@link IOperator} is less than or equal to.
      * @return A {@link Operator<T>} that represents less than or equal to between this and the parameter.
      */
+    @NonNull
     Operator<T> lessThanOrEq(T value);
 
+    @NonNull
     Operator.Between<T> between(T value);
 
     /**
@@ -96,6 +108,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @param values     The rest of the values to pass optionally.
      * @return A new {@link Operator<T>.In} built from this {@link IOperator}.
      */
+    @NonNull
     @SuppressWarnings("unchecked")
     Operator.In<T> in(T firstValue, T... values);
 
@@ -107,6 +120,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @param values     The rest of the values to pass optionally.
      * @return A new {@link Operator<T>.In} (not) built from this {@link IOperator}.
      */
+    @NonNull
     @SuppressWarnings("unchecked")
     Operator.In<T> notIn(T firstValue, T... values);
 
@@ -117,6 +131,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @param values The rest of the values to pass optionally.
      * @return A new {@link Operator<T>.In} built from this {@link IOperator}.
      */
+    @NonNull
     Operator.In<T> in(Collection<T> values);
 
     /**
@@ -126,7 +141,46 @@ public interface IOperator<T> extends Query, IConditional {
      * @param values The rest of the values to pass optionally.
      * @return A new {@link Operator<T>.In} (not) built from this {@link IOperator}.
      */
+    @NonNull
     Operator.In<T> notIn(Collection<T> values);
 
+    /**
+     * Adds another value and returns the operator. i.e p1 + p2
+     *
+     * @param value the value to add.
+     */
+    @NonNull
+    Operator<T> plus(T value);
 
+    /**
+     * Subtracts another value and returns the operator. i.e p1 - p2
+     *
+     * @param value the value to subtract.
+     */
+    @NonNull
+    Operator<T> minus(T value);
+
+    /**
+     * Divides another value and returns as the operator. i.e p1 / p2
+     *
+     * @param value the value to divide.
+     * @return A new instance.
+     */
+    @NonNull
+    Operator<T> div(T value);
+
+    /**
+     * Multiplies another value and returns as the operator. i.e p1 * p2
+     *
+     * @param value the value to multiply.
+     */
+    Operator<T> times(T value);
+
+    /**
+     * Modulous another value and returns as the operator. i.e p1 % p2
+     *
+     * @param value the value to calculate remainder of.
+     */
+    @NonNull
+    Operator<T> rem(T value);
 }

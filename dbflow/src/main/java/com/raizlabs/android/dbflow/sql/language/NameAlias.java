@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -16,6 +18,7 @@ public class NameAlias implements Query {
      * @param names     The names to join.
      * @return The new namealias object.
      */
+    @NonNull
     public static NameAlias joinNames(String operation, String... names) {
         if (names.length == 0) {
             return null;
@@ -30,6 +33,7 @@ public class NameAlias implements Query {
         return rawBuilder(newName).build();
     }
 
+    @NonNull
     public static Builder builder(String name) {
         return new Builder(name);
     }
@@ -38,16 +42,19 @@ public class NameAlias implements Query {
      * @param name The raw name of this alias.
      * @return A new instance without adding identifier `` to any part of the query.
      */
+    @NonNull
     public static Builder rawBuilder(String name) {
         return new Builder(name)
             .shouldStripIdentifier(false)
             .shouldAddIdentifierToName(false);
     }
 
+    @NonNull
     public static NameAlias of(String name) {
         return NameAlias.builder(name).build();
     }
 
+    @NonNull
     public static NameAlias of(String name, String aliasName) {
         return NameAlias.builder(name).as(aliasName).build();
     }

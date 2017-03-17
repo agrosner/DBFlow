@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -73,23 +75,27 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
         }
     }
 
+    @NonNull
     @Override
     public Operator<T> is(T value) {
         operation = Operation.EQUALS;
         return value(value);
     }
 
+    @NonNull
     @Override
     public Operator<T> eq(T value) {
         return is(value);
     }
 
+    @NonNull
     @Override
     public Operator<T> isNot(T value) {
         operation = Operation.NOT_EQUALS;
         return value(value);
     }
 
+    @NonNull
     @Override
     public Operator<T> notEq(T value) {
         return isNot(value);
@@ -105,6 +111,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      *              The _ represents a single number or character.
      * @return This condition
      */
+    @NonNull
     @Override
     public Operator<T> like(String value) {
         operation = String.format(" %1s ", Operation.LIKE);
@@ -121,6 +128,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      *              The _ represents a single number or character.
      * @return This condition
      */
+    @NonNull
     @Override
     public Operator<T> notLike(String value) {
         operation = String.format(" %1s ", Operation.NOT_LIKE);
@@ -137,6 +145,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      *              The ? represents a single number or character
      * @return This condition
      */
+    @NonNull
     @Override
     public Operator<T> glob(String value) {
         operation = String.format(" %1s ", Operation.GLOB);
@@ -155,28 +164,61 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
         return this;
     }
 
+    @NonNull
     @Override
-    public Operator<T> greaterThan(Object value) {
+    public Operator<T> greaterThan(T value) {
         operation = Operation.GREATER_THAN;
         return value(value);
     }
 
+    @NonNull
     @Override
-    public Operator<T> greaterThanOrEq(Object value) {
+    public Operator<T> greaterThanOrEq(T value) {
         operation = Operation.GREATER_THAN_OR_EQUALS;
         return value(value);
     }
 
+    @NonNull
     @Override
-    public Operator<T> lessThan(Object value) {
+    public Operator<T> lessThan(T value) {
         operation = Operation.LESS_THAN;
         return value(value);
     }
 
+    @NonNull
     @Override
-    public Operator<T> lessThanOrEq(Object value) {
+    public Operator<T> lessThanOrEq(T value) {
         operation = Operation.LESS_THAN_OR_EQUALS;
         return value(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator<T> plus(T value) {
+        return assignValueOp(value, Operation.PLUS);
+    }
+
+    @NonNull
+    @Override
+    public Operator<T> minus(T value) {
+        return assignValueOp(value, Operation.MINUS);
+    }
+
+    @NonNull
+    @Override
+    public Operator<T> div(T value) {
+        return assignValueOp(value, Operation.DIVISION);
+    }
+
+    @Override
+    public Operator<T> times(T value) {
+        return assignValueOp(value, Operation.MULTIPLY);
+    }
+
+    @NonNull
+    @Override
+    public Operator<T> rem(T value) {
+        return assignValueOp(value, Operation.MOD);
     }
 
     /**
@@ -225,12 +267,14 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
         return this;
     }
 
+    @NonNull
     @Override
     public Operator<T> isNull() {
         operation = String.format(" %1s ", Operation.IS_NULL);
         return this;
     }
 
+    @NonNull
     @Override
     public Operator<T> isNotNull() {
         operation = String.format(" %1s ", Operation.IS_NOT_NULL);
@@ -249,136 +293,222 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
         return this;
     }
 
+    @NonNull
     @Override
     public Operator is(IConditional conditional) {
         return assignValueOp(conditional, Operation.EQUALS);
     }
 
+    @NonNull
     @Override
     public Operator eq(IConditional conditional) {
         return assignValueOp(conditional, Operation.EQUALS);
     }
 
+    @NonNull
     @Override
     public Operator isNot(IConditional conditional) {
         return assignValueOp(conditional, Operation.NOT_EQUALS);
     }
 
+    @NonNull
     @Override
     public Operator notEq(IConditional conditional) {
         return assignValueOp(conditional, Operation.NOT_EQUALS);
     }
 
+    @NonNull
     @Override
     public Operator<T> like(IConditional conditional) {
         return like(conditional.getQuery());
     }
 
+    @NonNull
     @Override
     public Operator<T> glob(IConditional conditional) {
         return glob(conditional.getQuery());
     }
 
+    @NonNull
     @Override
     public Operator<T> greaterThan(IConditional conditional) {
-        return greaterThan((Object) conditional);
+        return assignValueOp(conditional, Operation.GREATER_THAN);
     }
 
+    @NonNull
     @Override
     public Operator<T> greaterThanOrEq(IConditional conditional) {
-        return greaterThanOrEq((Object) conditional);
+        return assignValueOp(conditional, Operation.GREATER_THAN_OR_EQUALS);
     }
 
+    @NonNull
     @Override
     public Operator<T> lessThan(IConditional conditional) {
-        return lessThan((Object) conditional);
+        return assignValueOp(conditional, Operation.LESS_THAN);
     }
 
+    @NonNull
     @Override
     public Operator<T> lessThanOrEq(IConditional conditional) {
-        return lessThanOrEq((Object) conditional);
+        return assignValueOp(conditional, Operation.LESS_THAN_OR_EQUALS);
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     @Override
     public Between between(IConditional conditional) {
         return new Between(this, conditional);
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     @Override
     public In in(IConditional firstConditional, IConditional... conditionals) {
         return new In(this, firstConditional, true, conditionals);
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     @Override
     public In notIn(IConditional firstConditional, IConditional... conditionals) {
         return new In(this, firstConditional, false, conditionals);
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     @Override
     public In notIn(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable[] baseModelQueriables) {
         return new In(this, firstBaseModelQueriable, false, baseModelQueriables);
     }
 
+    @NonNull
     @Override
     public Operator is(BaseModelQueriable baseModelQueriable) {
         return assignValueOp(baseModelQueriable, Operation.EQUALS);
     }
 
+    @NonNull
     @Override
     public Operator eq(BaseModelQueriable baseModelQueriable) {
         return assignValueOp(baseModelQueriable, Operation.EQUALS);
     }
 
+    @NonNull
     @Override
     public Operator isNot(BaseModelQueriable baseModelQueriable) {
         return assignValueOp(baseModelQueriable, Operation.NOT_EQUALS);
     }
 
+    @NonNull
     @Override
     public Operator notEq(BaseModelQueriable baseModelQueriable) {
         return assignValueOp(baseModelQueriable, Operation.NOT_EQUALS);
     }
 
+    @NonNull
     @Override
     public Operator<T> like(BaseModelQueriable baseModelQueriable) {
         return like(baseModelQueriable.getQuery());
     }
 
+    @NonNull
     @Override
     public Operator<T> glob(BaseModelQueriable baseModelQueriable) {
         return glob(baseModelQueriable.getQuery());
     }
 
+    @NonNull
     @Override
     public Operator<T> greaterThan(BaseModelQueriable baseModelQueriable) {
-        return greaterThan((Object) baseModelQueriable);
+        return assignValueOp(baseModelQueriable, Operation.GREATER_THAN);
     }
 
+    @NonNull
     @Override
     public Operator<T> greaterThanOrEq(BaseModelQueriable baseModelQueriable) {
-        return greaterThanOrEq((Object) baseModelQueriable);
+        return assignValueOp(baseModelQueriable, Operation.GREATER_THAN_OR_EQUALS);
     }
 
+    @NonNull
     @Override
     public Operator<T> lessThan(BaseModelQueriable baseModelQueriable) {
-        return lessThan((Object) baseModelQueriable);
+        return assignValueOp(baseModelQueriable, Operation.LESS_THAN);
     }
 
+    @NonNull
     @Override
     public Operator<T> lessThanOrEq(BaseModelQueriable baseModelQueriable) {
-        return lessThanOrEq((Object) baseModelQueriable);
+        return assignValueOp(baseModelQueriable, Operation.LESS_THAN_OR_EQUALS);
     }
 
+    @NonNull
+    @Override
+    public Operator plus(IConditional value) {
+        return assignValueOp(value, Operation.PLUS);
+    }
+
+    @NonNull
+    @Override
+    public Operator minus(IConditional value) {
+        return assignValueOp(value, Operation.MINUS);
+    }
+
+    @NonNull
+    @Override
+    public Operator div(IConditional value) {
+        return assignValueOp(value, Operation.DIVISION);
+    }
+
+    @NonNull
+    @Override
+    public Operator times(IConditional value) {
+        return assignValueOp(value, Operation.MULTIPLY);
+    }
+
+    @NonNull
+    @Override
+    public Operator rem(IConditional value) {
+        return assignValueOp(value, Operation.MOD);
+    }
+
+    @NonNull
+    @Override
+    public Operator plus(BaseModelQueriable value) {
+        return assignValueOp(value, Operation.PLUS);
+    }
+
+    @NonNull
+    @Override
+    public Operator minus(BaseModelQueriable value) {
+        return assignValueOp(value, Operation.MINUS);
+    }
+
+    @NonNull
+    @Override
+    public Operator div(BaseModelQueriable value) {
+        return assignValueOp(value, Operation.DIVISION);
+    }
+
+    @NonNull
+    @Override
+    public Operator times(BaseModelQueriable value) {
+        return assignValueOp(value, Operation.MULTIPLY);
+    }
+
+    @NonNull
+    @Override
+    public Operator rem(BaseModelQueriable value) {
+        return assignValueOp(value, Operation.MOD);
+    }
+
+    @NonNull
     @SuppressWarnings("unchecked")
     @Override
     public Between between(BaseModelQueriable baseModelQueriable) {
         return new Between(this, baseModelQueriable);
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     @Override
     public In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables) {
@@ -392,6 +522,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
         return queryBuilder.getQuery();
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     @Override
     public Operator<T> concatenate(Object value) {
@@ -418,6 +549,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
         return this;
     }
 
+    @NonNull
     @Override
     public Operator<T> concatenate(IConditional conditional) {
         return concatenate((Object) conditional);
@@ -429,28 +561,33 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      * @param value The value of the first argument of the BETWEEN clause
      * @return Between operator
      */
+    @NonNull
     @Override
     public Between<T> between(T value) {
         return new Between<>(this, value);
     }
 
+    @NonNull
     @SafeVarargs
     @Override
     public final In<T> in(T firstArgument, T... arguments) {
         return new In<>(this, firstArgument, true, arguments);
     }
 
+    @NonNull
     @SafeVarargs
     @Override
     public final In<T> notIn(T firstArgument, T... arguments) {
         return new In<>(this, firstArgument, false, arguments);
     }
 
+    @NonNull
     @Override
     public In<T> in(Collection<T> values) {
         return new In<>(this, values, true);
     }
 
+    @NonNull
     @Override
     public In<T> notIn(Collection<T> values) {
         return new In<>(this, values, false);

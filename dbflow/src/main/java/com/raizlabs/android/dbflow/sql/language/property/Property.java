@@ -85,164 +85,256 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
         return getNameAlias().toString();
     }
 
+    @NonNull
     @Override
     public Operator is(IConditional conditional) {
         return getCondition().is(conditional);
     }
 
+    @NonNull
     @Override
     public Operator eq(IConditional conditional) {
         return getCondition().eq(conditional);
     }
 
+    @NonNull
     @Override
     public Operator isNot(IConditional conditional) {
         return getCondition().isNot(conditional);
     }
 
+    @NonNull
     @Override
     public Operator notEq(IConditional conditional) {
         return getCondition().notEq(conditional);
     }
 
+    @NonNull
     @Override
     public Operator like(IConditional conditional) {
         return getCondition().like(conditional);
     }
 
+    @NonNull
     @Override
     public Operator glob(IConditional conditional) {
         return getCondition().glob(conditional);
     }
 
+    @NonNull
     @Override
     public Operator<T> like(String value) {
         return getCondition().like(value);
     }
 
+    @NonNull
     @Override
     public Operator<T> notLike(String value) {
         return getCondition().notLike(value);
     }
 
+    @NonNull
     @Override
     public Operator<T> glob(String value) {
         return getCondition().glob(value);
     }
 
+    @NonNull
     @Override
     public Operator greaterThan(IConditional conditional) {
         return getCondition().greaterThan(conditional);
     }
 
+    @NonNull
     @Override
     public Operator greaterThanOrEq(IConditional conditional) {
         return getCondition().greaterThanOrEq(conditional);
     }
 
+    @NonNull
     @Override
     public Operator lessThan(IConditional conditional) {
         return getCondition().lessThan(conditional);
     }
 
+    @NonNull
     @Override
     public Operator lessThanOrEq(IConditional conditional) {
         return getCondition().lessThanOrEq(conditional);
     }
 
+    @NonNull
     @Override
     public Operator.Between between(IConditional conditional) {
         return getCondition().between(conditional);
     }
 
+    @NonNull
     @Override
     public Operator.In in(IConditional firstConditional, IConditional... conditionals) {
         return getCondition().in(firstConditional, conditionals);
     }
 
+    @NonNull
     @Override
     public Operator.In notIn(IConditional firstConditional, IConditional... conditionals) {
         return getCondition().notIn(firstConditional, conditionals);
     }
 
+    @NonNull
     @Override
     public Operator is(BaseModelQueriable baseModelQueriable) {
         return getCondition().is(baseModelQueriable);
     }
 
+    @NonNull
     @Override
     public Operator isNull() {
         return getCondition().isNull();
     }
 
+    @NonNull
     @Override
     public Operator eq(BaseModelQueriable baseModelQueriable) {
         return getCondition().eq(baseModelQueriable);
     }
 
+    @NonNull
     @Override
     public Operator isNot(BaseModelQueriable baseModelQueriable) {
         return getCondition().isNot(baseModelQueriable);
     }
 
+    @NonNull
     @Override
     public Operator isNotNull() {
         return getCondition().isNotNull();
     }
 
+    @NonNull
     @Override
     public Operator notEq(BaseModelQueriable baseModelQueriable) {
         return getCondition().notEq(baseModelQueriable);
     }
 
+    @NonNull
     @Override
     public Operator like(BaseModelQueriable baseModelQueriable) {
         return getCondition().like(baseModelQueriable);
     }
 
+    @NonNull
     @Override
     public Operator glob(BaseModelQueriable baseModelQueriable) {
         return getCondition().glob(baseModelQueriable);
     }
 
+    @NonNull
     @Override
     public Operator greaterThan(BaseModelQueriable baseModelQueriable) {
         return getCondition().greaterThan(baseModelQueriable);
     }
 
+    @NonNull
     @Override
     public Operator greaterThanOrEq(BaseModelQueriable baseModelQueriable) {
         return getCondition().greaterThanOrEq(baseModelQueriable);
     }
 
+    @NonNull
     @Override
     public Operator lessThan(BaseModelQueriable baseModelQueriable) {
         return getCondition().lessThan(baseModelQueriable);
     }
 
+    @NonNull
     @Override
     public Operator lessThanOrEq(BaseModelQueriable baseModelQueriable) {
         return getCondition().lessThanOrEq(baseModelQueriable);
     }
 
+    @NonNull
     @Override
     public Operator.Between between(BaseModelQueriable baseModelQueriable) {
         return getCondition().between(baseModelQueriable);
     }
 
+    @NonNull
     @Override
     public Operator.In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables) {
         return getCondition().in(firstBaseModelQueriable, baseModelQueriables);
     }
 
+    @NonNull
     @Override
     public Operator.In notIn(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables) {
         return getCondition().notIn(firstBaseModelQueriable, baseModelQueriables);
     }
 
+    @NonNull
     @Override
     public Operator concatenate(IConditional conditional) {
         return getCondition().concatenate(conditional);
+    }
+
+    @NonNull
+    @Override
+    public Operator plus(IConditional value) {
+        return getCondition().plus(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator minus(IConditional value) {
+        return getCondition().minus(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator div(IConditional value) {
+        return getCondition().div(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator times(IConditional value) {
+        return getCondition().times(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator rem(IConditional value) {
+        return getCondition().rem(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator plus(BaseModelQueriable value) {
+        return getCondition().plus(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator minus(BaseModelQueriable value) {
+        return getCondition().minus(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator div(BaseModelQueriable value) {
+        return getCondition().div(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator times(BaseModelQueriable value) {
+        return getCondition().times(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator rem(BaseModelQueriable value) {
+        return getCondition().rem(value);
     }
 
     @NonNull
@@ -316,78 +408,120 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
             .build());
     }
 
+    @NonNull
     @Override
     public Operator<T> is(T value) {
         return getCondition().is(value);
     }
 
+    @NonNull
     @Override
     public Operator<T> eq(T value) {
         return getCondition().eq(value);
     }
 
+    @NonNull
     @Override
     public Operator<T> isNot(T value) {
         return getCondition().isNot(value);
     }
 
+    @NonNull
     @Override
     public Operator<T> notEq(T value) {
         return getCondition().notEq(value);
     }
 
+    @NonNull
     @Override
     public Operator<T> greaterThan(T value) {
         return getCondition().greaterThan(value);
     }
 
+    @NonNull
     @Override
     public Operator<T> greaterThanOrEq(T value) {
         return getCondition().greaterThanOrEq(value);
     }
 
+    @NonNull
     @Override
     public Operator<T> lessThan(T value) {
         return getCondition().lessThan(value);
     }
 
+    @NonNull
     @Override
     public Operator<T> lessThanOrEq(T value) {
         return getCondition().lessThanOrEq(value);
     }
 
+    @NonNull
     @Override
     public Operator.Between<T> between(T value) {
         return getCondition().between(value);
     }
 
+    @NonNull
     @SuppressWarnings({"ConfusingArgumentToVarargsMethod", "unchecked"})
     @Override
     public Operator.In<T> in(T firstValue, T... values) {
         return getCondition().in(firstValue, values);
     }
 
+    @NonNull
     @SuppressWarnings({"ConfusingArgumentToVarargsMethod", "unchecked"})
     @Override
     public Operator.In<T> notIn(T firstValue, T... values) {
         return getCondition().notIn(firstValue, values);
     }
 
+    @NonNull
     @Override
     public Operator.In<T> in(Collection<T> values) {
         return getCondition().in(values);
     }
 
+    @NonNull
     @Override
     public Operator.In<T> notIn(Collection<T> values) {
         return getCondition().notIn(values);
     }
 
+    @NonNull
     @Override
     public Operator<T> concatenate(T value) {
         return getCondition().concatenate(value);
     }
 
+    @NonNull
+    @Override
+    public Operator<T> plus(T value) {
+        return getCondition().plus(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator<T> minus(T value) {
+        return getCondition().minus(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator<T> div(T value) {
+        return getCondition().div(value);
+    }
+
+    @Override
+    public Operator<T> times(T value) {
+        return getCondition().times(value);
+    }
+
+    @NonNull
+    @Override
+    public Operator<T> rem(T value) {
+        return getCondition().rem(value);
+    }
 
     /**
      * @return helper method to construct it in a {@link #distinct()} call.

@@ -56,5 +56,9 @@ class MethodTest : BaseUnitTest() {
         assertEquals("AVG(`name` + `id`)", (avg(name) + id).query)
         assertEquals("AVG(`name` - `id`)", avg(name - id).query)
         assertEquals("AVG(`name` - `id`)", (avg(name) - id).query)
+        assertEquals("AVG(`name` / `id`)", avg(name / id).query)
+        assertEquals("AVG(`name` * `id`)", (avg(name) * id).query)
+        assertEquals("AVG(`name` % `id`)", avg(name % id).query)
+        assertEquals("AVG(`name` % `id`)", (avg(name) % id).query)
     }
 }
