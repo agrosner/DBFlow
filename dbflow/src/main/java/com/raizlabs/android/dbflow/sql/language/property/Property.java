@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.IConditional;
@@ -51,11 +53,13 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
         this(table, NameAlias.builder(columnName).as(aliasName).build());
     }
 
+    @NonNull
     @Override
     public Property<T> withTable() {
         return withTable(new NameAlias.Builder(FlowManager.getTableName(table)).build());
     }
 
+    @NonNull
     @Override
     public NameAlias getNameAlias() {
         return nameAlias;
@@ -66,6 +70,7 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
         return getNameAlias().getQuery();
     }
 
+    @NonNull
     @Override
     public String getCursorKey() {
         return getNameAlias().getQuery();
@@ -240,23 +245,27 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
         return getCondition().concatenate(conditional);
     }
 
+    @NonNull
     @Override
     public Class<?> getTable() {
         return table;
     }
 
+    @NonNull
     @Override
     public Property<T> plus(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Operator.Operation.PLUS,
             nameAlias.fullName(), iProperty.toString()));
     }
 
+    @NonNull
     @Override
     public Property<T> minus(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Operator.Operation.MINUS,
             nameAlias.fullName(), iProperty.toString()));
     }
 
+    @NonNull
     @Override
     public Property<T> div(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Operator.Operation.DIVISION,
@@ -269,18 +278,21 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
             nameAlias.fullName(), iProperty.toString()));
     }
 
+    @NonNull
     @Override
     public Property<T> rem(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Operator.Operation.MOD,
             nameAlias.fullName(), iProperty.toString()));
     }
 
+    @NonNull
     @Override
     public Property<T> concatenate(IProperty iProperty) {
         return new Property<>(table, NameAlias.joinNames(Operator.Operation.CONCATENATE,
             nameAlias.fullName(), iProperty.toString()));
     }
 
+    @NonNull
     @Override
     public Property<T> as(String aliasName) {
         return new Property<>(table, getNameAlias()
@@ -289,11 +301,13 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
             .build());
     }
 
+    @NonNull
     @Override
     public Property<T> distinct() {
         return new Property<>(table, getDistinctAliasName());
     }
 
+    @NonNull
     @Override
     public Property<T> withTable(NameAlias tableNameAlias) {
         return new Property<>(table, getNameAlias()

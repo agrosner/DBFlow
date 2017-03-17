@@ -162,24 +162,33 @@ public class Method extends Property {
         }
     }
 
+    @NonNull
     @Override
     public Method plus(IProperty property) {
         return append(property, " " + Operator.Operation.PLUS);
     }
 
+    @NonNull
     @Override
     public Method minus(IProperty property) {
         return append(property, " " + Operator.Operation.MINUS);
     }
 
+    @NonNull
     @Override
-    public Property div(IProperty iProperty) {
-        return super.div(iProperty);
+    public Property div(IProperty property) {
+        return append(property, " " + Operator.Operation.DIVISION);
     }
 
     @Override
-    public Property times(IProperty iProperty) {
-        return super.times(iProperty);
+    public Property times(IProperty property) {
+        return append(property, " " + Operator.Operation.MULTIPLY);
+    }
+
+    @NonNull
+    @Override
+    public Property rem(IProperty property) {
+        return append(property, " " + Operator.Operation.MOD);
     }
 
     /**
@@ -211,6 +220,7 @@ public class Method extends Property {
         return propertyList;
     }
 
+    @NonNull
     @Override
     public NameAlias getNameAlias() {
         if (nameAlias == null) {
