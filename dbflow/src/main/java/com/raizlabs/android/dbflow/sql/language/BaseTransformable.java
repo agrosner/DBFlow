@@ -23,6 +23,7 @@ public abstract class BaseTransformable<TModel> extends BaseModelQueriable<TMode
         super(table);
     }
 
+    @NonNull
     public Where<TModel> where(SQLOperator... conditions) {
         return new Where<>(this, conditions);
     }
@@ -109,5 +110,25 @@ public abstract class BaseTransformable<TModel> extends BaseModelQueriable<TMode
     @Override
     public Where<TModel> having(SQLOperator... conditions) {
         return where().having(conditions);
+    }
+
+    @NonNull
+    @Override
+    public List<TModel> queryList() {
+        checkSelect("query");
+        return super.queryList();
+    }
+
+    @Override
+    public TModel querySingle() {
+        checkSelect("query");
+        limit(1);
+        return super.querySingle();
+    }
+
+    private void checkSelect(String methodName) {
+        if (!(getQueryBuilderBase() instanceof Select)) {
+            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a Select");
+        }
     }
 }

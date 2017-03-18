@@ -35,7 +35,7 @@ infix fun <T : Any> Set<T>.where(sqlOperator: SQLOperator) = where(sqlOperator)
 
 infix fun <T : Any> Where<T>.and(sqlOperator: SQLOperator) = and(sqlOperator)
 
-infix fun <T : Any> Where<T>.or(sqlOperator: SQLOperator) = and(sqlOperator)
+infix fun <T : Any> Where<T>.or(sqlOperator: SQLOperator) = or(sqlOperator)
 
 infix fun <T : Any> Case<T>.`when`(sqlOperator: SQLOperator) = `when`(sqlOperator)
 
@@ -98,7 +98,7 @@ inline fun <reified T : Any> CursorResult<*>.toCustomModelClose() = toCustomMode
 inline val <T : Any> ModelQueriable<T>.async
     get() = async()
 
-infix inline fun <T : Any> AsyncQuery<T>.list(crossinline callback: (QueryTransaction<*>, MutableList<T>?) -> Unit)
+infix inline fun <T : Any> AsyncQuery<T>.list(crossinline callback: (QueryTransaction<*>, MutableList<T>) -> Unit)
         = queryListResultCallback { queryTransaction, mutableList -> callback(queryTransaction, mutableList) }
         .execute()
 

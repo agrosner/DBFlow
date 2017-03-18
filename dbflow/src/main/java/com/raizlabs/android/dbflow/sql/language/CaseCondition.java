@@ -39,11 +39,13 @@ public class CaseCondition<TReturn> implements Query {
     /**
      * THEN part of this query, the value that gets set on column if condition is true.
      */
+    @NonNull
     public Case<TReturn> then(TReturn value) {
         thenValue = value;
         return caze;
     }
 
+    @NonNull
     public Case<TReturn> then(IProperty value) {
         thenProperty = value;
         // in case values are null in some sense.
@@ -60,8 +62,8 @@ public class CaseCondition<TReturn> implements Query {
             sqlOperator.appendConditionToQuery(queryBuilder);
         }
         queryBuilder.append(" THEN ")
-                .append(convertValueToString(isThenPropertySet ?
-                        thenProperty : thenValue, false));
+            .append(convertValueToString(isThenPropertySet ?
+                thenProperty : thenValue, false));
         return queryBuilder.getQuery();
     }
 

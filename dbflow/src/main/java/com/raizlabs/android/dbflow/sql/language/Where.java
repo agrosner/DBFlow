@@ -18,7 +18,8 @@ import java.util.List;
 /**
  * Description: Defines the SQL WHERE statement of the query.
  */
-public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQueriable<TModel> {
+public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQueriable<TModel>,
+    Transformable<TModel> {
 
     private static final int VALUE_UNSET = -1;
 
@@ -174,7 +175,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     @NonNull
     public Where<TModel> exists(@NonNull Where where) {
         operatorGroup.and(new ExistenceOperator()
-                .where(where));
+            .where(where));
         return this;
     }
 
@@ -187,10 +188,10 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     public String getQuery() {
         String fromQuery = whereBase.getQuery().trim();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
-                .appendQualifier("WHERE", operatorGroup.getQuery())
-                .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
-                .appendQualifier("HAVING", havingGroup.getQuery())
-                .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
+            .appendQualifier("WHERE", operatorGroup.getQuery())
+            .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
+            .appendQualifier("HAVING", havingGroup.getQuery())
+            .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
 
         if (limit > VALUE_UNSET) {
             queryBuilder.appendQualifier("LIMIT", String.valueOf(limit));
@@ -235,16 +236,6 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
         return super.queryList();
     }
 
-    public WhereBase<TModel> getWhereBase() {
-        return whereBase;
-    }
-
-    protected void checkSelect(String methodName) {
-        if (!(whereBase.getQueryBuilderBase() instanceof Select)) {
-            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a ISelect");
-        }
-    }
-
     /**
      * Queries and returns only the first {@link TModel} result from the DB. Will enforce a limit of 1 item
      * returned from the database.
@@ -257,5 +248,16 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
         limit(1);
         return super.querySingle();
     }
+
+    public WhereBase<TModel> getWhereBase() {
+        return whereBase;
+    }
+
+    private void checkSelect(String methodName) {
+        if (!(whereBase.getQueryBuilderBase() instanceof Select)) {
+            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a ISelect");
+        }
+    }
+
 
 }

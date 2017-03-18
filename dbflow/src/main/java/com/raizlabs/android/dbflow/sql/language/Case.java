@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.Query;
@@ -36,6 +37,7 @@ public class Case<TReturn> implements Query {
         }
     }
 
+    @NonNull
     public CaseCondition<TReturn> when(SQLOperator sqlOperator) {
         if (efficientCase) {
             throw new IllegalStateException("When using the efficient CASE method," +
@@ -46,6 +48,7 @@ public class Case<TReturn> implements Query {
         return caseCondition;
     }
 
+    @NonNull
     public CaseCondition<TReturn> when(TReturn whenValue) {
         if (!efficientCase) {
             throw new IllegalStateException("When not using the efficient CASE method, " +
@@ -56,6 +59,7 @@ public class Case<TReturn> implements Query {
         return caseCondition;
     }
 
+    @NonNull
     public CaseCondition<TReturn> when(IProperty property) {
         if (!efficientCase) {
             throw new IllegalStateException("When not using the efficient CASE method, " +
@@ -69,6 +73,7 @@ public class Case<TReturn> implements Query {
     /**
      * Default case here. If not specified, value will be NULL.
      */
+    @NonNull
     public Case<TReturn> _else(TReturn elseValue) {
         this.elseValue = elseValue;
         elseSpecified = true; // ensure its set especially if null specified.
@@ -79,6 +84,7 @@ public class Case<TReturn> implements Query {
      * @param columnName The name of the case that we return in a column.
      * @return The case completed as a property.
      */
+    @NonNull
     public Property<Case<TReturn>> end(@Nullable String columnName) {
         endSpecified = true;
         if (columnName != null) {
@@ -91,6 +97,7 @@ public class Case<TReturn> implements Query {
     /**
      * @return The case completed as a property.
      */
+    @NonNull
     public Property<Case<TReturn>> end() {
         return end(null);
     }
@@ -98,6 +105,7 @@ public class Case<TReturn> implements Query {
     /**
      * @return The case complete as an operator.
      */
+    @NonNull
     public Operator endAsOperator() {
         return Operator.op(end().getNameAlias());
     }

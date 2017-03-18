@@ -2,10 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.getkeepsafe.dexcount'
 
-repositories {
-    mavenCentral()
-}
-
 android {
 
     useLibrary 'org.apache.http.legacy'
@@ -69,16 +65,6 @@ android.applicationVariants.all { variant ->
         into "${buildDir}/intermediates/classes/test/${variant.buildType.name}/assets"
     }
     project.getTasksByName("generate${variant.name.capitalize()}Resources", false)[0].dependsOn(taskName)
-}
-
-buildscript {
-    ext.kotlin_version = '1.1.0'
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
 }
 
 kapt {

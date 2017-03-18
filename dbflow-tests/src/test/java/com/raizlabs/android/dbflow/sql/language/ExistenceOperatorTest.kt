@@ -14,7 +14,7 @@ class ExistenceOperatorTest : BaseUnitTest() {
 
     @Test
     fun validateQuery() {
-        assertEquals("EXISTS (SELECT * FROM `SimpleModel` WHERE `name`='name' )", ExistenceOperator()
-            .where(select from SimpleModel::class where SimpleModel_Table.name.eq("name")).query.trim())
+        assertEquals("EXISTS (SELECT * FROM `SimpleModel` WHERE `name`='name')", ExistenceOperator()
+                .where(select from SimpleModel::class where SimpleModel_Table.name.eq("name")).query.trim())
     }
 }

@@ -14,7 +14,7 @@ public class ExistenceOperator implements SQLOperator, Query {
 
     @Override
     public void appendConditionToQuery(QueryBuilder queryBuilder) {
-        queryBuilder.appendQualifier("EXISTS", "(" + innerWhere.getQuery() + ")");
+        queryBuilder.appendQualifier("EXISTS", "(" + innerWhere.getQuery().trim() + ")");
     }
 
     @Override
