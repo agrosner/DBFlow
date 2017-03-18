@@ -20,8 +20,7 @@ public class Set<TModel> extends BaseTransformable<TModel> implements WhereBase<
     public Set(Query update, Class<TModel> table) {
         super(table);
         this.update = update;
-        operatorGroup = new OperatorGroup();
-        operatorGroup.setAllCommaSeparated(true);
+        operatorGroup = OperatorGroup.nonGroupingClause().setAllCommaSeparated(true);
     }
 
     /**

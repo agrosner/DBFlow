@@ -121,7 +121,7 @@ public class Join<TModel, TFromModel> implements Query {
     @NonNull
     public From<TFromModel> on(SQLOperator... onConditions) {
         checkNatural();
-        onGroup = new OperatorGroup();
+        onGroup = OperatorGroup.nonGroupingClause();
         onGroup.andAll(onConditions);
         return from;
     }

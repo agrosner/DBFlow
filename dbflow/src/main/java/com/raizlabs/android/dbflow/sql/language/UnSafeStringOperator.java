@@ -1,13 +1,14 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import com.raizlabs.android.dbflow.StringUtils;
+import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
 /**
  * Description: This class will use a String to describe its condition.
  * Not recommended for normal queries, but can be used as a fall-back.
  */
-public class UnSafeStringOperator implements SQLOperator {
+public class UnSafeStringOperator implements SQLOperator, Query {
 
     private final String conditionString;
     private String separator = "";
@@ -57,5 +58,12 @@ public class UnSafeStringOperator implements SQLOperator {
     @Override
     public Object value() {
         return "";
+    }
+
+    @Override
+    public String getQuery() {
+        QueryBuilder queryBuilder = new QueryBuilder();
+        appendConditionToQuery(queryBuilder);
+        return queryBuilder.getQuery();
     }
 }

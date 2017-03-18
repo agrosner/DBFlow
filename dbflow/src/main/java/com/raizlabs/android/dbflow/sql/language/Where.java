@@ -53,8 +53,8 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     public Where(WhereBase<TModel> whereBase, SQLOperator... conditions) {
         super(whereBase.getTable());
         this.whereBase = whereBase;
-        operatorGroup = new OperatorGroup();
-        havingGroup = new OperatorGroup();
+        operatorGroup = OperatorGroup.nonGroupingClause();
+        havingGroup = OperatorGroup.nonGroupingClause();
 
         operatorGroup.andAll(conditions);
     }
