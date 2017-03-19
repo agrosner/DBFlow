@@ -1,4 +1,6 @@
-package com.raizlabs.android.dbflow.sql.trigger;
+package com.raizlabs.android.dbflow.sql.language;
+
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -40,6 +42,7 @@ public class Trigger implements Query {
      * @param triggerName The name of the trigger to use.
      * @return A new trigger.
      */
+    @NonNull
     public static Trigger create(String triggerName) {
         return new Trigger(triggerName);
     }
@@ -57,6 +60,7 @@ public class Trigger implements Query {
     /**
      * Sets the trigger as temporary.
      */
+    @NonNull
     public Trigger temporary() {
         this.temporary = true;
         return this;
@@ -65,6 +69,7 @@ public class Trigger implements Query {
     /**
      * Specifies AFTER eventName
      */
+    @NonNull
     public Trigger after() {
         beforeOrAfter = AFTER;
         return this;
@@ -73,6 +78,7 @@ public class Trigger implements Query {
     /**
      * Specifies BEFORE eventName
      */
+    @NonNull
     public Trigger before() {
         beforeOrAfter = BEFORE;
         return this;
@@ -81,6 +87,7 @@ public class Trigger implements Query {
     /**
      * Specifies INSTEAD OF eventName
      */
+    @NonNull
     public Trigger insteadOf() {
         beforeOrAfter = INSTEAD_OF;
         return this;
@@ -91,7 +98,8 @@ public class Trigger implements Query {
      *
      * @param onTable The table ON
      */
-    public <TModel> TriggerMethod<TModel> delete(Class<TModel> onTable) {
+    @NonNull
+    public <TModel> TriggerMethod<TModel> deleteOn(Class<TModel> onTable) {
         return new TriggerMethod<>(this, TriggerMethod.DELETE, onTable);
     }
 
@@ -100,7 +108,8 @@ public class Trigger implements Query {
      *
      * @param onTable The table ON
      */
-    public <TModel> TriggerMethod<TModel> insert(Class<TModel> onTable) {
+    @NonNull
+    public <TModel> TriggerMethod<TModel> insertOn(Class<TModel> onTable) {
         return new TriggerMethod<>(this, TriggerMethod.INSERT, onTable);
     }
 
@@ -111,7 +120,8 @@ public class Trigger implements Query {
      * @param properties if empty, will not execute an OF command. If you specify columns,
      *                   the UPDATE OF column1, column2,... will be used.
      */
-    public <TModel> TriggerMethod<TModel> update(Class<TModel> onTable, IProperty... properties) {
+    @NonNull
+    public <TModel> TriggerMethod<TModel> updateOn(Class<TModel> onTable, IProperty... properties) {
         return new TriggerMethod<>(this, TriggerMethod.UPDATE, onTable, properties);
     }
 
@@ -130,7 +140,7 @@ public class Trigger implements Query {
         }
         queryBuilder.append("TRIGGER IF NOT EXISTS ")
             .appendQuotedIfNeeded(triggerName).appendSpace()
-            .appendOptional(" " + beforeOrAfter + " ");
+            .appendOptional(beforeOrAfter + " ");
 
         return queryBuilder.getQuery();
     }

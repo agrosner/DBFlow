@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.BaseModel;
@@ -12,13 +13,15 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Description: The SQLite INSERT command
  */
-public class Insert<TModel> extends BaseQueriable<TModel> {
+public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
 
 
     /**
@@ -29,7 +32,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
     /**
      * The values to specify in this query
      */
-    private List<Object[]> valuesList;
+    private List<Collection<Object>> valuesList;
 
     /**
      * The conflict algorithm to use to resolve inserts.
@@ -95,6 +98,21 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      */
     @NonNull
     public Insert<TModel> values(Object... values) {
+        if (this.valuesList == null) {
+            this.valuesList = new ArrayList<>();
+        }
+        this.valuesList.add(Arrays.asList(values));
+        return this;
+    }
+
+    /**
+     * The required values to specify. It must be non-empty and match the length of the columns when
+     * a set of columns are specified.
+     *
+     * @param values The non type-converted values
+     */
+    @NonNull
+    public Insert<TModel> values(Collection<Object> values) {
         if (this.valuesList == null) {
             this.valuesList = new ArrayList<>();
         }
@@ -269,8 +287,8 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
                 throw new IllegalStateException("The insert of " + FlowManager.getTableName(getTable()) + " should have" +
                     "at least one value specified for the insert");
             } else if (columns != null) {
-                for (Object[] values : valuesList) {
-                    if (values.length != columns.length) {
+                for (Collection<Object> values : valuesList) {
+                    if (values.size() != columns.length) {
                         throw new IllegalStateException("The Insert of " + FlowManager.getTableName(getTable()) + " when specifying" +
                             "columns needs to have the same amount of values and columns");
                     }

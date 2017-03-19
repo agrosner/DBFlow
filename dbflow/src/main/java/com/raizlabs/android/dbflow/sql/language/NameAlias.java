@@ -59,6 +59,11 @@ public class NameAlias implements Query {
         return NameAlias.builder(name).as(aliasName).build();
     }
 
+    @NonNull
+    public static NameAlias ofTable(String tableName, String name) {
+        return NameAlias.builder(name).withTable(tableName).build();
+    }
+
     private final String name;
     private final String aliasName;
     private final String tableName;

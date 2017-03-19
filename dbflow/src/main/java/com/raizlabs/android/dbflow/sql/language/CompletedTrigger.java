@@ -1,10 +1,15 @@
-package com.raizlabs.android.dbflow.sql.trigger;
+package com.raizlabs.android.dbflow.sql.language;
+
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Description: The last piece of a TRIGGER statement, this class contains the BEGIN...END and the logic in between.
@@ -19,19 +24,28 @@ public class CompletedTrigger<TModel> implements Query {
     /**
      * The query to run between the BEGIN and END of this statement
      */
-    private Query triggerLogicQuery;
+    private final List<Query> triggerLogicQuery = new ArrayList<>();
 
     CompletedTrigger(TriggerMethod<TModel> triggerMethod, Query triggerLogicQuery) {
         this.triggerMethod = triggerMethod;
-        this.triggerLogicQuery = triggerLogicQuery;
+        this.triggerLogicQuery.add(triggerLogicQuery);
+    }
+
+    /**
+     * Appends the nextStatement to this query as another line to be executed by trigger.
+     */
+    @NonNull
+    public CompletedTrigger<TModel> and(Query nextStatement) {
+        this.triggerLogicQuery.add(nextStatement);
+        return this;
     }
 
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder(triggerMethod.getQuery());
         queryBuilder.append("\nBEGIN")
-                .append("\n").append(triggerLogicQuery.getQuery()).append(";")
-                .append("\nEND");
+            .append("\n").append(QueryBuilder.join(";\n", triggerLogicQuery)).append(";")
+            .append("\nEND");
         return queryBuilder.getQuery();
     }
 

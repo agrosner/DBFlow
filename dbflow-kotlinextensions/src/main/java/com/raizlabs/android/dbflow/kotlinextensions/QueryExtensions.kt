@@ -168,30 +168,39 @@ inline fun <reified T : Any> delete(deleteClause: From<T>.() -> BaseModelQueriab
 
 fun <T : Any> insert(modelClass: KClass<T>) = SQLite.insert(modelClass.java)
 
-infix fun <T : Any> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().into(*into)
+infix fun <T : Any> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().columnValues(*into)
 
-infix fun <T : Any> Insert<T>.orRollback(into: Array<out Pair<IProperty<*>, *>>) = orRollback().into(*into)
+infix fun <T : Any> Insert<T>.orRollback(into: Array<out Pair<IProperty<*>, *>>) = orRollback().columnValues(*into)
 
-infix fun <T : Any> Insert<T>.orAbort(into: Array<out Pair<IProperty<*>, *>>) = orAbort().into(*into)
+infix fun <T : Any> Insert<T>.orAbort(into: Array<out Pair<IProperty<*>, *>>) = orAbort().columnValues(*into)
 
-infix fun <T : Any> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) = orFail().into(*into)
+infix fun <T : Any> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) = orFail().columnValues(*into)
 
-infix fun <T : Any> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().into(*into)
+infix fun <T : Any> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().columnValues(*into)
 
 infix fun <T : Any> Insert<T>.select(from: From<*>): Insert<T> = select(from)
 
-fun into(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> = pairs
+fun columnValues(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> = pairs
 
-fun <T> Insert<T>.into(vararg pairs: Pair<IProperty<*>, *>): Insert<T> {
+fun <T> Insert<T>.columnValues(vararg pairs: Pair<IProperty<*>, *>): Insert<T> {
     val columns: MutableList<IProperty<*>> = java.util.ArrayList()
     val values = java.util.ArrayList<Any?>()
     pairs.forEach {
         columns.add(it.first)
         values.add(it.second)
     }
-    this.columns(columns).values(values.toArray())
+    this.columns(columns).values(values)
     return this
 }
+
+// Trigger
+fun createTrigger(name: String) = Trigger.create(name)
+
+infix fun <T : Any> Trigger.deleteOn(kClass: KClass<T>) = deleteOn(kClass.java)
+
+infix fun <T : Any> Trigger.insertOn(kClass: KClass<T>) = insertOn(kClass.java)
+
+infix fun <T : Any> Trigger.updateOn(kClass: KClass<T>) = updateOn(kClass.java)
 
 
 // DSL
