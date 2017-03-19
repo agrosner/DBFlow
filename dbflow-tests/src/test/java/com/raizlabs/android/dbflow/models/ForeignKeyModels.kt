@@ -14,8 +14,9 @@ class Blog(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: 
  * Parent used as foreign key reference.
  */
 @Table(database = TestDatabase::class)
-class Author(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var firstName: String = "",
-             @Column var lastName: String = "")
+class Author(@PrimaryKey(autoincrement = true) var id: Int = 0,
+             @Column(name = "first_name") var firstName: String = "",
+             @Column(name = "last_name") var lastName: String = "")
 
 /**
  * Class has example of single foreign key with [ForeignKeyReference] specified
