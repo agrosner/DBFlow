@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -37,6 +39,7 @@ public class TriggerMethod<TModel> implements Query {
         }
     }
 
+    @NonNull
     public TriggerMethod<TModel> forEachRow() {
         forEachRow = true;
         return this;
@@ -48,6 +51,7 @@ public class TriggerMethod<TModel> implements Query {
      * @param condition The condition for the trigger
      * @return
      */
+    @NonNull
     public TriggerMethod<TModel> when(SQLOperator condition) {
         whenCondition = condition;
         return this;
@@ -55,12 +59,13 @@ public class TriggerMethod<TModel> implements Query {
 
     /**
      * Specify the logic that gets executed for this trigger. Supported statements include:
-     * {@link com.raizlabs.android.dbflow.sql.language.Update}, INSERT, {@link com.raizlabs.android.dbflow.sql.language.Delete},
-     * and {@link com.raizlabs.android.dbflow.sql.language.Select}
+     * {@link Update}, INSERT, {@link Delete},
+     * and {@link Select}
      *
      * @param triggerLogicQuery The query to run for the BEGIN..END of the trigger
      * @return This trigger
      */
+    @NonNull
     public CompletedTrigger<TModel> begin(Query triggerLogicQuery) {
         return new CompletedTrigger<>(this, triggerLogicQuery);
     }
@@ -68,11 +73,11 @@ public class TriggerMethod<TModel> implements Query {
     @Override
     public String getQuery() {
         QueryBuilder queryBuilder
-                = new QueryBuilder(trigger.getQuery())
-                .append(methodName);
+            = new QueryBuilder(trigger.getQuery())
+            .append(methodName);
         if (properties != null && properties.length > 0) {
             queryBuilder.appendSpaceSeparated("OF")
-                    .appendArray((Object[]) properties);
+                .appendArray((Object[]) properties);
         }
         queryBuilder.appendSpaceSeparated("ON").append(FlowManager.getTableName(onTable));
 

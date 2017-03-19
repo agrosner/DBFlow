@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.kotlinextensions
 
 import com.raizlabs.android.dbflow.annotation.Collate
+import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.language.*
 import com.raizlabs.android.dbflow.sql.language.Set
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
@@ -202,6 +203,9 @@ infix fun <T : Any> Trigger.insertOn(kClass: KClass<T>) = insertOn(kClass.java)
 
 infix fun <T : Any> Trigger.updateOn(kClass: KClass<T>) = updateOn(kClass.java)
 
+infix fun <T : Any> TriggerMethod<T>.begin(triggerStatement: Query) = begin(triggerStatement)
+
+infix fun <T : Any> CompletedTrigger<T>.and(nextStatement: Query) = and(nextStatement)
 
 // DSL
 
