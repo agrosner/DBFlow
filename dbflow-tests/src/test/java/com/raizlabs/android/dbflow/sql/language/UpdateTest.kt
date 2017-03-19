@@ -1,8 +1,8 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.SimpleModel
-import com.raizlabs.android.dbflow.SimpleModel_Table.name
+import com.raizlabs.android.dbflow.models.SimpleModel
+import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.assertEquals
 import com.raizlabs.android.dbflow.kotlinextensions.eq
 import com.raizlabs.android.dbflow.kotlinextensions.set

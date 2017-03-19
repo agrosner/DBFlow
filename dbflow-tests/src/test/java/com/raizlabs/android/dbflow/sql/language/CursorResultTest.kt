@@ -2,8 +2,8 @@ package com.raizlabs.android.dbflow.sql.language
 
 import android.database.StaleDataException
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.SimpleCustomModel
-import com.raizlabs.android.dbflow.SimpleModel
+import com.raizlabs.android.dbflow.models.SimpleCustomModel
+import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.kotlinextensions.*
 import org.junit.Assert.*
 import org.junit.Before

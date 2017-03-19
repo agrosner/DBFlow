@@ -4,7 +4,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.SimpleModel
+import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.kotlinextensions.*
 import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache
 import org.junit.Assert.*

@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
-import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
@@ -105,12 +104,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             var propParam: TypeName? = null
             val colClassName = it.columnClassName
             colClassName?.let {
-                if (it.isPrimitive && it != TypeName.BOOLEAN) {
-                    propParam = ClassName.get(ClassNames.PROPERTY_PACKAGE,
-                            it.toString().capitalizeFirstLetter() + "Property")
-                } else {
-                    propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, it.box())
-                }
+                propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, it.box())
             }
             if (it.columnName.isNullOrEmpty()) {
                 manager.logError("Found empty reference name at ${it.foreignColumnName}" +

@@ -2,10 +2,10 @@ package com.raizlabs.android.dbflow.sql.language
 
 import android.content.ContentValues
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.SimpleModel
-import com.raizlabs.android.dbflow.TwoColumnModel
-import com.raizlabs.android.dbflow.TwoColumnModel_Table.id
-import com.raizlabs.android.dbflow.TwoColumnModel_Table.name
+import com.raizlabs.android.dbflow.models.SimpleModel
+import com.raizlabs.android.dbflow.models.TwoColumnModel
+import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
+import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.name
 import com.raizlabs.android.dbflow.kotlinextensions.from
 import com.raizlabs.android.dbflow.kotlinextensions.insert
 import com.raizlabs.android.dbflow.kotlinextensions.select

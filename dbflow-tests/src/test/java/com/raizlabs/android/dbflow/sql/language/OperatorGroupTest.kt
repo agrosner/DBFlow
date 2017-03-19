@@ -1,8 +1,8 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.TwoColumnModel_Table.id
-import com.raizlabs.android.dbflow.TwoColumnModel_Table.name
+import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
+import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.name
 import com.raizlabs.android.dbflow.assertEquals
 import com.raizlabs.android.dbflow.kotlinextensions.and
 import com.raizlabs.android.dbflow.kotlinextensions.andAll

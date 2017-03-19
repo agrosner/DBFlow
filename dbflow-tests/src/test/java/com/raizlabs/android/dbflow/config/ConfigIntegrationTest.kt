@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.config
 
 import com.nhaarman.mockito_kotlin.mock
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.SimpleModel
+import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader

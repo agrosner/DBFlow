@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language.property
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.SimpleModel
+import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.sql.language.NameAlias
 import org.junit.Assert
 import org.junit.Test
