@@ -10,3 +10,5 @@ fun <T : Any> T.insert(databaseWrapper: DatabaseWrapper = FlowManager.getWritabl
 fun <T : Any> T.update(databaseWrapper: DatabaseWrapper = FlowManager.getWritableDatabaseForTable(javaClass)) = FlowManager.getModelAdapter(javaClass).update(this, databaseWrapper)
 
 fun <T : Any> T.delete(databaseWrapper: DatabaseWrapper = FlowManager.getWritableDatabaseForTable(javaClass)) = FlowManager.getModelAdapter(javaClass).delete(this, databaseWrapper)
+
+fun <T : Any> T.exists(databaseWrapper: DatabaseWrapper = FlowManager.getWritableDatabaseForTable(javaClass)) = FlowManager.getModelAdapter(javaClass).exists(this, databaseWrapper)
