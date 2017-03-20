@@ -73,7 +73,7 @@ class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
         }
     }
 
-    override fun getElementClassName(element: Element): ClassName? {
+    override fun getElementClassName(element: Element?): ClassName? {
         return null
     }
 }

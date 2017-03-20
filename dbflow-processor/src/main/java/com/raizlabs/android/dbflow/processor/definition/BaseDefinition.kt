@@ -34,7 +34,7 @@ abstract class BaseDefinition : TypeDefinition {
     constructor(element: ExecutableElement, processorManager: ProcessorManager) {
         this.manager = processorManager
         this.element = element
-        packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString()?: ""
+        packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString() ?: ""
         elementName = element.simpleName.toString()
 
         try {
@@ -55,7 +55,7 @@ abstract class BaseDefinition : TypeDefinition {
     constructor(element: Element, processorManager: ProcessorManager) {
         this.manager = processorManager
         this.element = element
-        packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString()?: ""
+        packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString() ?: ""
         try {
             val typeMirror: TypeMirror
             if (element is ExecutableElement) {
@@ -89,12 +89,12 @@ abstract class BaseDefinition : TypeDefinition {
         elementClassName = ClassName.get(typeElement)
         elementTypeName = TypeName.get(element.asType())
         elementName = element.simpleName.toString()
-        packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString()?: ""
+        packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString() ?: ""
     }
 
-    protected open fun getElementClassName(element: Element): ClassName? {
+    protected open fun getElementClassName(element: Element?): ClassName? {
         try {
-            return ElementUtility.getClassName(element.asType().toString(), manager)
+            return ElementUtility.getClassName(element?.asType().toString(), manager)
         } catch (e: Exception) {
             return null
         }

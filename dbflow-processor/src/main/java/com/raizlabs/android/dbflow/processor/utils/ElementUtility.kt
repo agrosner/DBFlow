@@ -55,7 +55,7 @@ object ElementUtility {
             ClassName.get(typeElement)
         } else {
             val names = elementClassname.split(".")
-            if (names.size > 0) {
+            if (names.isNotEmpty()) {
                 // attempt to take last part as class name
                 val className = names[names.size - 1]
                 ClassName.get(elementClassname.replace("." + className, ""), className)

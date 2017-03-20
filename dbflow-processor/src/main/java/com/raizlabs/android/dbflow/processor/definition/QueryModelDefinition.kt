@@ -3,14 +3,11 @@ package com.raizlabs.android.dbflow.processor.definition
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.QueryModel
 import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.ColumnValidator
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
-import com.raizlabs.android.dbflow.processor.definition.CustomTypeConverterPropertyMethod
-import com.raizlabs.android.dbflow.processor.definition.LoadFromCursorMethod
-import com.raizlabs.android.dbflow.processor.definition.MethodDefinition
-import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.utils.ElementUtility
-import com.raizlabs.android.dbflow.processor.ColumnValidator
+import com.raizlabs.android.dbflow.processor.utils.*
 import com.squareup.javapoet.*
 import java.util.*
 import javax.lang.model.element.Element
@@ -22,7 +19,7 @@ import javax.lang.model.type.MirroredTypeException
  * Description:
  */
 class QueryModelDefinition(typeElement: Element, processorManager: ProcessorManager)
-: BaseTableDefinition(typeElement, processorManager) {
+    : BaseTableDefinition(typeElement, processorManager) {
 
     var databaseTypeName: TypeName? = null
 
@@ -88,18 +85,14 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
 
         typeBuilder.addMethod(MethodSpec.constructorBuilder().addParameter(ClassNames.DATABASE_HOLDER, "holder").addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition").addCode(constructorCode.build()).addModifiers(Modifier.PUBLIC).build())
 
-        for (method in methods) {
-            val methodSpec = method.methodSpec
-            if (methodSpec != null) {
-                typeBuilder.addMethod(methodSpec)
+        methods.mapNotNull { it.methodSpec }
+                .forEach { typeBuilder.addMethod(it) }
+
+        typeBuilder.apply {
+            overrideMethod("newInstance" returns elementClassName modifiers publicFinal) {
+                addStatement("return new \$T()", elementClassName)
             }
         }
-
-        typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .returns(elementClassName)
-                .addStatement("return new \$T()", elementClassName).build())
     }
 
     override fun createColumnDefinitions(typeElement: TypeElement) {

@@ -9,13 +9,14 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
+import com.raizlabs.android.dbflow.processor.utils.toTypeElement
+import com.raizlabs.android.dbflow.processor.utils.toTypeErasedElement
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
 
 /**
@@ -64,25 +65,24 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             referencedTableClassName = ProcessorUtils.fromTypeMirror(mte.typeMirror, manager)
         }
 
-        val erasedElement: TypeElement? = manager.elements.getTypeElement(
-                manager.typeUtils.erasure(element.asType()).toString())
+        val erasedElement = element.toTypeErasedElement()
 
         // hopefully intentionally left blank
         if (referencedTableClassName == TypeName.OBJECT) {
             if (elementTypeName is ParameterizedTypeName) {
                 val args = (elementTypeName as ParameterizedTypeName).typeArguments
                 if (args.size > 0) {
-                    referencedTableClassName = ClassName.get(manager.elements.getTypeElement(args[0].toString()))
+                    referencedTableClassName = ClassName.get(args[0].toTypeElement(manager))
                 }
             } else {
                 if (referencedTableClassName == null || referencedTableClassName == ClassName.OBJECT) {
-                    referencedTableClassName = ClassName.get(manager.elements.getTypeElement(elementTypeName.toString()))
+                    referencedTableClassName = ClassName.get(elementTypeName.toTypeElement())
                 }
             }
         }
 
         if (referencedTableClassName == null) {
-            manager.logError("Referenced was null for %1s within %1s", element, elementTypeName)
+            manager.logError("Referenced was null for $element within $elementTypeName")
         }
 
         extendsBaseModel = ProcessorUtils.isSubclass(manager.processingEnvironment,

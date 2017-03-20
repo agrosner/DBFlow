@@ -6,9 +6,7 @@ import com.raizlabs.android.dbflow.annotation.*
 import com.raizlabs.android.dbflow.processor.*
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
-import com.raizlabs.android.dbflow.processor.utils.ElementUtility
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils
-import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
+import com.raizlabs.android.dbflow.processor.utils.*
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
 import java.util.*
@@ -394,17 +392,15 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             autoIncrement?.let {
                 InternalAdapterHelper.writeUpdateAutoIncrement(typeBuilder, elementClassName, autoIncrement)
 
-                typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingId")
-                        .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                        .addParameter(elementClassName, ModelUtils.variable)
-                        .addCode(autoIncrement.getSimpleAccessString())
-                        .returns(ClassName.get(Number::class.java)).build())
-
-                typeBuilder.addMethod(MethodSpec.methodBuilder("getAutoIncrementingColumnName")
-                        .addAnnotation(Override::class.java)
-                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                        .addStatement("return \$S", QueryBuilder.stripQuotes(autoIncrement.columnName))
-                        .returns(ClassName.get(String::class.java)).build())
+                typeBuilder.apply {
+                    overrideMethod("getAutoIncrementingId" returns Number::class modifiers publicFinal) {
+                        addParameter(elementClassName, ModelUtils.variable)
+                        addCode(autoIncrement.getSimpleAccessString())
+                    }
+                    overrideMethod("getAutoIncrementingColumnName" returns String::class modifiers publicFinal) {
+                        addStatement("return \$S", QueryBuilder.stripQuotes(autoIncrement.columnName))
+                    }
+                }
             }
         }
 
@@ -416,12 +412,13 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 it.appendSaveMethod(code)
             }
 
-            typeBuilder.addMethod(MethodSpec.methodBuilder("saveForeignKeys")
-                    .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(elementClassName, ModelUtils.variable)
-                    .addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
-                    .addCode(code.build())
-                    .build())
+            typeBuilder.apply {
+                overrideMethod("saveForeignKeys" returns TypeName.VOID modifiers publicFinal) {
+                    addParameter(elementClassName, ModelUtils.variable)
+                    addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
+                    addCode(code.build())
+                }
+            }
         }
 
         val deleteForeignKeyFields = columnDefinitions.filter { (it is ForeignKeyColumnDefinition) && it.deleteForeignKeyModel }

@@ -532,7 +532,7 @@ class ContentUriDefinition(typeElement: Element, processorManager: ProcessorMana
         }
     }
 
-    override fun getElementClassName(element: Element): ClassName? {
+    override fun getElementClassName(element: Element?): ClassName? {
         return null
     }
 }

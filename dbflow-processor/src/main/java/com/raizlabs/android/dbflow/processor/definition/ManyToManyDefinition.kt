@@ -6,12 +6,8 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
-import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.raizlabs.android.dbflow.processor.utils.lower
+import com.raizlabs.android.dbflow.processor.utils.*
 import com.squareup.javapoet.AnnotationSpec
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
@@ -68,7 +64,7 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
             manager.logError("DatabaseDefinition was null for : " + elementName)
         } else {
             if (generatedTableClassName.isNullOrEmpty()) {
-                val referencedOutput = getElementClassName(manager.elements.getTypeElement(referencedTable.toString()))
+                val referencedOutput = getElementClassName(referencedTable.toTypeElement(manager))
                 setOutputClassName(databaseDefinition.classSeparator + referencedOutput?.simpleName())
             } else {
                 setOutputClassNameFull(generatedTableClassName)
@@ -84,13 +80,15 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
         val selfDefinition = manager.getTableDefinition(databaseTypeName, elementTypeName)
 
         if (generateAutoIncrement) {
-            typeBuilder.addField(FieldSpec.builder(TypeName.LONG, "_id")
-                    .addAnnotation(AnnotationSpec.builder(PrimaryKey::class.java)
-                            .addMember("autoincrement", "true").build()).build())
-            typeBuilder.addMethod(MethodSpec.methodBuilder("getId")
-                    .returns(TypeName.LONG)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return \$L", "_id").build())
+            typeBuilder.apply {
+                field(TypeName.LONG name "_id") {
+                    annotation(PrimaryKey::class, "autoincrement", "true")
+                }
+
+                method("getId" returns TypeName.LONG modifiers listOf(Modifier.PUBLIC, Modifier.FINAL)) {
+                    addStatement("return \$L", "_id")
+                }
+            }
         }
 
         referencedDefinition?.let { appendColumnDefinitions(typeBuilder, it, 0, referencedColumnName) }
@@ -111,19 +109,22 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
             fieldName = optionalName
         }
 
-        val fieldBuilder = FieldSpec.builder(referencedDefinition.elementClassName, fieldName)
-                .addAnnotation(AnnotationSpec.builder(ForeignKey::class.java)
-                        .addMember("saveForeignKeyModel", saveForeignKeyModels.toString()).build())
-        if (!generateAutoIncrement) {
-            fieldBuilder.addAnnotation(AnnotationSpec.builder(PrimaryKey::class.java).build())
+        typeBuilder.apply {
+            field(referencedDefinition.elementClassName name fieldName) {
+                if (!generateAutoIncrement) {
+                    annotation(PrimaryKey::class)
+                }
+                annotation(ForeignKey::class, "saveForeignKeyModel", saveForeignKeyModels.toString())
+            }
+            method("get${fieldName.capitalizeFirstLetter()}" returns
+                    referencedDefinition.elementClassName modifiers publicFinal) {
+                addStatement("return \$L", fieldName)
+            }
+            method("set${fieldName.capitalizeFirstLetter()}" returns
+                    TypeName.VOID modifiers publicFinal) {
+                addParameter(referencedDefinition.elementClassName, "param")
+                addStatement("\$L = param", fieldName)
+            }
         }
-        typeBuilder.addField(fieldBuilder.build()).build()
-        typeBuilder.addMethod(MethodSpec.methodBuilder("get" + fieldName.capitalizeFirstLetter())
-                .returns(referencedDefinition.elementClassName)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL).addStatement("return \$L", fieldName).build())
-        typeBuilder.addMethod(MethodSpec.methodBuilder("set" + fieldName.capitalizeFirstLetter())
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(referencedDefinition.elementClassName, "param")
-                .addStatement("\$L = param", fieldName).build())
     }
 }
