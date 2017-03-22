@@ -445,8 +445,8 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
                                 }
                             }
                         appendDefault(this)
-                        addStatement("return type")
                     }
+                    addStatement("return type")
                 }
             }
         }
