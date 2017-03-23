@@ -18,7 +18,7 @@ _Major Changes In this release_
 
 7. We generate ~45% less code than 3.0. Combined the `_Table` + `_Adapter` into the singular `_Table` class, which contains both `Property` + all of the regular `ModelAdapter` methods. To ease the transition to 4.0, it is named `_Table` but extends `ModelAdapter`. So most use cases / interactions will not break.
 
-8. `Condition` are now `Operator`, this includes `SQLCondtion`, `ConditionGroup`. `Operator` are now typed and safer to use.
+8. `Condition` are now `Operator`, this includes `SQLCondition` -> `SQLOperator`, `ConditionGroup` -> `OperatorGroup`. `Operator` are now typed and safer to use.
 
 9. All primitive `Property` classes have been removed. We already boxed the values internally anyways so removing them cut down on method count and maintenance.
 
