@@ -5,7 +5,6 @@ import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.annotation.provider.Notify;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
@@ -97,7 +96,7 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
 
     @Override
     public long executeInsert() {
-        return executeUpdateDelete(FlowManager.getWritableDatabaseForTable(table));
+        return executeInsert(FlowManager.getWritableDatabaseForTable(table));
     }
 
     @Override

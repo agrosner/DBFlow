@@ -28,7 +28,7 @@ public class DirectModelNotifier implements ModelNotifier {
         return notifier;
     }
 
-    private interface ModelChangedListener<T> {
+    public interface ModelChangedListener<T> {
 
         void onModelChanged(T model, BaseModel.Action action);
 

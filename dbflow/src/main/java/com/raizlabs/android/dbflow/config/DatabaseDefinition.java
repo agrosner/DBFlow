@@ -218,7 +218,7 @@ public abstract class DatabaseDefinition {
         if (modelNotifier == null) {
             DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
                 .get(getAssociatedDatabaseClassFile());
-            if (config == null || config.helperCreator() == null) {
+            if (config == null || config.modelNotifier() == null) {
                 modelNotifier = new ContentResolverNotifier();
             } else {
                 modelNotifier = config.modelNotifier();
