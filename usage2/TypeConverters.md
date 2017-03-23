@@ -8,7 +8,9 @@ When building out `Model` classes, you may wish to provide a different type of `
   5. `Date`/`java.sql.Date`
   6. Bools
   7. `Model` as `@ForeignKey`
-  8. `ForeignKeyContainer` as `@ForeignKey`
+  8. `Calendar`
+  9. `BigDecimal`
+  10. `UUID`
 
 `TypeConverter` do _not_ support:
   1. Any Parameterized fields.

@@ -126,9 +126,28 @@ var query = (select
 
 ```
 
-### Database Extensions
+### Query Extensions
 
-The more interesting part is the extensions here.
+We can easily create nested `Operator` into `OperatorGroup` also fairly easily, also
+other, random extensions:
+```kotlin
+
+select from SomeTable::class where (name.eq("name") and id.eq(0))
+
+"name".op<String>() collate NOCASE
+
+"name".nameAlias
+
+"name".nameAlias `as` "My Name"
+
+// query sugar
+
+select from SomeTable::class where (name eq "name") or (id eq 0)
+
+```
+
+
+### Database Extensions
 
 #### Process Models Asynchronously
 
