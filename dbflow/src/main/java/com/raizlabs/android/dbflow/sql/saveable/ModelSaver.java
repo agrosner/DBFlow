@@ -7,7 +7,6 @@ import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
@@ -115,16 +114,28 @@ public class ModelSaver<TModel> {
 
     @SuppressWarnings("unchecked")
     public synchronized boolean delete(@NonNull TModel model, @NonNull DatabaseWrapper wrapper) {
+        DatabaseStatement deleteStatement = modelAdapter.getDeleteStatement(model, wrapper);
+        boolean success = false;
+        try {
+            success = delete(model, deleteStatement, wrapper);
+        } finally {
+            // since we generate an insert every time, we can safely close the statement here.
+            deleteStatement.close();
+        }
+        return success;
+    }
+
+    @SuppressWarnings("unchecked")
+    public synchronized boolean delete(@NonNull TModel model, @NonNull DatabaseStatement databaseStatement,
+                                       @NonNull DatabaseWrapper wrapper) {
         modelAdapter.deleteForeignKeys(model, wrapper);
 
-        boolean successful = SQLite.delete(modelAdapter.getModelClass())
-            .where(modelAdapter.getPrimaryConditionClause(model))
-            .executeUpdateDelete(wrapper) != 0;
-        if (successful) {
+        boolean success = databaseStatement.executeUpdateDelete() != 0;
+        if (success) {
             NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.DELETE);
         }
         modelAdapter.updateAutoIncrement(model, 0);
-        return successful;
+        return success;
     }
 
     protected DatabaseWrapper getWritableDatabase() {

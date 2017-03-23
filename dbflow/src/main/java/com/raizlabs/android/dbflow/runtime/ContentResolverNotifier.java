@@ -25,15 +25,6 @@ public class ContentResolverNotifier implements ModelNotifier {
     }
 
     @Override
-    public <T> void notifyModelChanged(@NonNull Class<T> table, @NonNull BaseModel.Action action,
-                                       @Nullable Iterable<SQLOperator> conditions) {
-        if (FlowContentObserver.shouldNotify()) {
-            FlowManager.getContext().getContentResolver().notifyChange(
-                SqlUtils.getNotificationUri(table, action, conditions), null, true);
-        }
-    }
-
-    @Override
     public <T> void notifyTableChanged(@NonNull Class<T> table, @NonNull BaseModel.Action action) {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.getContext().getContentResolver()

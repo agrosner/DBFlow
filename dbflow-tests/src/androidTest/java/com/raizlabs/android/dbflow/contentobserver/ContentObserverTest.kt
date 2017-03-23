@@ -3,6 +3,8 @@ package com.raizlabs.android.dbflow.contentobserver
 import android.net.Uri
 import com.raizlabs.android.dbflow.DemoApp
 import com.raizlabs.android.dbflow.config.FlowManager
+import com.raizlabs.android.dbflow.contentobserver.User_Table.id
+import com.raizlabs.android.dbflow.contentobserver.User_Table.name
 import com.raizlabs.android.dbflow.kotlinextensions.delete
 import com.raizlabs.android.dbflow.kotlinextensions.insert
 import com.raizlabs.android.dbflow.kotlinextensions.save
@@ -14,146 +16,89 @@ import com.raizlabs.android.dbflow.sql.language.SQLOperator
 import com.raizlabs.android.dbflow.structure.BaseModel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
-import java.util.concurrent.Callable
 import java.util.concurrent.CountDownLatch
 
 class ContentObserverTest {
 
+    private lateinit var user: User
+
+    @Before
+    fun setupUser() {
+        Delete.table(User::class.java)
+        user = User(5, "Something", 55)
+    }
+
     @Test
     fun testSpecificUris() {
-
-        val model = User(5, "Something", 55)
         val conditionGroup = FlowManager.getModelAdapter(User::class.java)
-            .getPrimaryConditionClause(model)
+            .getPrimaryConditionClause(user)
         val uri = SqlUtils.getNotificationUri(User::class.java, BaseModel.Action.DELETE,
             conditionGroup.conditions.toTypedArray())
 
         assertEquals(uri.authority, FlowManager.getTableName(User::class.java))
         assertEquals(uri.fragment, BaseModel.Action.DELETE.name)
-        assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.id.query))), "5")
-        assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.name.query))), "Something")
+        assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(id.query))), "5")
+        assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(name.query))), "Something")
     }
 
     @Test
-    fun testSpecificUrlNotifications() {
+    fun testSpecificUrlInsert() {
+        assertProperConditions(BaseModel.Action.INSERT, { it.insert() })
+    }
 
-        Delete.table(User::class.java)
+    @Test
+    fun testSpecificUrlUpdate() {
+        user.save()
+        assertProperConditions(BaseModel.Action.UPDATE, { it.apply { age = 56 }.update() })
 
-        val countDownLatch = CountDownLatch(1)
+    }
 
+    @Test
+    fun testSpecificUrlSave() {
+        // insert on SAVE
+        assertProperConditions(BaseModel.Action.INSERT, { it.apply { age = 57 }.save() })
+    }
+
+    @Test
+    fun testSpecificUrlDelete() {
+        user.save()
+        assertProperConditions(BaseModel.Action.DELETE, { it.delete() })
+    }
+
+    private fun assertProperConditions(action: BaseModel.Action, userFunc: (User) -> Unit) {
         val contentObserver = FlowContentObserver()
+        val countDownLatch = CountDownLatch(1)
         val mockOnModelStateChangedListener = MockOnModelStateChangedListener(countDownLatch)
         contentObserver.addModelChangeListener(mockOnModelStateChangedListener)
         contentObserver.registerForContentChanges(DemoApp.context, User::class.java)
-        val model = User(3, "Something", 55)
-        model.insert()
+
+        userFunc(user)
         countDownLatch.await()
 
-        // inserting
-        assertTrue(mockOnModelStateChangedListener.conditions[0].size == 2)
-        val conditions1 = mockOnModelStateChangedListener.conditions[0]
-        assertEquals(conditions1[0].columnName(), User_Table.name.query)
-        assertEquals(conditions1[1].columnName(), User_Table.id.query)
-        assertEquals(conditions1[0].value(), "Something")
-        assertEquals(conditions1[1].value(), "3")
+        val ops = mockOnModelStateChangedListener.operators!!
+        assertTrue(ops.size == 2)
+        assertEquals(ops[0].columnName(), id.query)
+        assertEquals(ops[1].columnName(), name.query)
+        assertEquals(ops[1].value(), "Something")
+        assertEquals(ops[0].value(), "5")
+        assertEquals(action, mockOnModelStateChangedListener.action)
 
-        model.age = 56
-        model.update()
-        countDownLatch.await()
-
-        // updating
-        assertTrue(mockOnModelStateChangedListener.conditions[1].size == 2)
-        val conditions2 = mockOnModelStateChangedListener.conditions[1]
-        assertEquals(conditions2[0].columnName(), User_Table.name.query)
-        assertEquals(conditions2[1].columnName(), User_Table.id.query)
-        assertEquals(conditions2[0].value(), "Something")
-        assertEquals(conditions2[1].value(), "3")
-
-        model.age = 57
-        model.save()
-        countDownLatch.await()
-
-        // save
-        assertTrue(mockOnModelStateChangedListener.conditions[2].size == 2)
-        val conditions3 = mockOnModelStateChangedListener.conditions[2]
-        assertEquals(conditions3[0].columnName(), User_Table.name.query)
-        assertEquals(conditions3[1].columnName(), User_Table.id.query)
-        assertEquals(conditions3[0].value(), "Something")
-        assertEquals(conditions3[1].value(), "3")
-
-
-        model.delete()
-        countDownLatch.await()
-
-        // delete
-        assertTrue(mockOnModelStateChangedListener.conditions[3].size == 2)
-        val conditions4 = mockOnModelStateChangedListener.conditions[3]
-        assertEquals(conditions4[0].columnName(), User_Table.name.query)
-        assertEquals(conditions4[1].columnName(), User_Table.id.query)
-        assertEquals(conditions4[0].value(), "Something")
-        assertEquals(conditions4[1].value(), "3")
-
+        contentObserver.removeModelChangeListener(mockOnModelStateChangedListener)
+        contentObserver.unregisterForContentChanges(DemoApp.context)
     }
 
     class MockOnModelStateChangedListener(val countDownLatch: CountDownLatch) : FlowContentObserver.OnModelStateChangedListener {
 
-        val methodCalled = arrayOf(false, false, false, false)
-        val methodCalls: Array<Callable<Boolean>?> = arrayOfNulls(4)
-        val conditions: Array<Array<SQLOperator>> = arrayOf()
+        var action: BaseModel.Action? = null
+        var operators: Array<SQLOperator>? = null
 
-        init {
-            for (i in methodCalls.indices) {
-                val finalI = i
-                methodCalls[i] = Callable { methodCalled[finalI] }
-            }
-        }
 
         override fun onModelStateChanged(table: Class<*>?, action: BaseModel.Action,
                                          primaryKeyValues: Array<SQLOperator>) {
-            when (action) {
-                BaseModel.Action.CHANGE -> methodCalls.indices.forEach { i ->
-                    try {
-                        methodCalled[i] = true
-                        conditions[i] = primaryKeyValues
-                        methodCalls[i]!!.call()
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
-                BaseModel.Action.SAVE -> try {
-                    conditions[2] = primaryKeyValues
-                    methodCalled[2] = true
-                    methodCalls[2]!!.call()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
-                BaseModel.Action.DELETE -> try {
-                    conditions[3] = primaryKeyValues
-                    methodCalled[3] = true
-                    methodCalls[3]!!.call()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
-                BaseModel.Action.INSERT -> try {
-                    conditions[0] = primaryKeyValues
-                    methodCalled[0] = true
-                    methodCalls[0]!!.call()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
-                BaseModel.Action.UPDATE -> try {
-                    conditions[1] = primaryKeyValues
-                    methodCalled[1] = true
-                    methodCalls[1]!!.call()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-
-            }
+            this.action = action
+            operators = primaryKeyValues
             countDownLatch.countDown()
         }
     }

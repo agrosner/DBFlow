@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.runtime;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.raizlabs.android.dbflow.config.DatabaseConfig;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
@@ -12,7 +13,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Description: Directly notifies about model changes.
+ * Description: Directly notifies about model changes. Users should use {@link #get()} to use the shared
+ * instance in {@link DatabaseConfig.Builder}
  */
 @SuppressWarnings("unchecked")
 public class DirectModelNotifier implements ModelNotifier {
@@ -54,7 +56,7 @@ public class DirectModelNotifier implements ModelNotifier {
         if (listeners != null) {
             for (ModelChangedListener listener : listeners) {
                 if (listener != null) {
-                    listener.onModelChanged(table, action);
+                    listener.onTableChanged(table, action);
                 }
             }
         }

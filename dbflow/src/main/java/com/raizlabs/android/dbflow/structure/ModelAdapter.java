@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.sql.saveable.ListModelSaver;
@@ -72,6 +73,12 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     public DatabaseStatement getInsertStatement(DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getInsertStatementQuery());
     }
+
+    public DatabaseStatement getDeleteStatement(TModel model, DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(SQLite.delete().from(getModelClass())
+            .where(getPrimaryConditionClause(model)).getQuery());
+    }
+
 
     /**
      * @return The precompiled full statement for this table model adapter

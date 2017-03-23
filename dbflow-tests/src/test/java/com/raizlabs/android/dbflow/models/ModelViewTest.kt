@@ -8,7 +8,7 @@ class ModelViewTest : BaseUnitTest() {
 
     @Test
     fun validateModelViewQuery() {
-        assertEquals("SELECT `id` as `authorId`, `first_name` ||' ' || `last_name` as `authorName` from `Author`",
-                AuthorView.query)
+        assertEquals("SELECT `id` as `authorId`,`first_name` || ' ' || `last_name` AS `authorName` FROM `Author`",
+            AuthorView.query)
     }
 }
