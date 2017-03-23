@@ -7,6 +7,8 @@ import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
+import com.raizlabs.android.dbflow.runtime.ContentResolverNotifier;
+import com.raizlabs.android.dbflow.runtime.ModelNotifier;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -66,6 +68,8 @@ public abstract class DatabaseDefinition {
     private BaseTransactionManager transactionManager;
 
     private DatabaseConfig databaseConfig;
+
+    private ModelNotifier modelNotifier;
 
     @SuppressWarnings("unchecked")
     public DatabaseDefinition() {
@@ -208,6 +212,19 @@ public abstract class DatabaseDefinition {
 
     public DatabaseWrapper getWritableDatabase() {
         return getHelper().getDatabase();
+    }
+
+    public ModelNotifier getModelNotifier() {
+        if (modelNotifier == null) {
+            DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
+                .get(getAssociatedDatabaseClassFile());
+            if (config == null || config.helperCreator() == null) {
+                modelNotifier = new ContentResolverNotifier();
+            } else {
+                modelNotifier = config.modelNotifier();
+            }
+        }
+        return modelNotifier;
     }
 
     public Transaction.Builder beginTransactionAsync(ITransaction transaction) {
