@@ -8,10 +8,10 @@ import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
+import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
+import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.Operator;
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
-import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.SQLOperator;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -32,47 +32,37 @@ public class SqlUtils {
     /**
      * Notifies the {@link ContentObserver} that the model has changed.
      *
-     * @param action        The {@link Action} enum
-     * @param table         The table of the model
-     * @param sqlConditions The list of conditions that represent what changed.
+     * @see NotifyDistributor
      */
-    public static void notifyModelChanged(Class<?> table, Action action,
-                                          Iterable<SQLOperator> sqlConditions) {
-        FlowManager.getContext().getContentResolver().notifyChange(
-            getNotificationUri(table, action, sqlConditions), null, true);
+    @Deprecated
+    public static void notifyModelChanged(@NonNull Class<?> table,
+                                          @NonNull Action action,
+                                          @Nullable Iterable<SQLOperator> sqlConditions) {
+        NotifyDistributor.get().notifyModelChanged(table, action, sqlConditions);
     }
 
     /**
-     * Performs necessary logic to notify of {@link Model}g changes.
+     * Performs necessary logic to notify of {@link Model} changes.
      *
-     * @param <TModel>     The original model class.
-     * @param modelAdapter The actual {@link ModelAdapter} associated with the {@link TModel}/
-     * @param action       The {@link Action} that occured.
+     * @see NotifyDistributor
      */
     @SuppressWarnings("unchecked")
-    public static <TModel> void notifyModelChanged(TModel model,
-                                                   ModelAdapter<TModel> modelAdapter,
-                                                   Action action) {
-        if (FlowContentObserver.shouldNotify()) {
-            FlowManager.getContext().getContentResolver()
-                .notifyChange(getNotificationUri(modelAdapter.getModelClass(), action,
-                    modelAdapter.getPrimaryConditionClause(model).getConditions()), null, true);
-        }
+    @Deprecated
+    public static <TModel> void notifyModelChanged(@Nullable TModel model,
+                                                   @NonNull ModelAdapter<TModel> modelAdapter,
+                                                   @NonNull Action action) {
+        NotifyDistributor.get().notifyModelChanged(model, modelAdapter, action);
     }
 
     /**
      * Notifies listeners of table-level changes from the SQLite-wrapper language.
      *
-     * @param table
-     * @param action
-     * @param <TModel>
+     * @see NotifyDistributor
      */
-    public static <TModel> void notifyTableChanged(Class<TModel> table,
-                                                   Action action) {
-        if (FlowContentObserver.shouldNotify()) {
-            FlowManager.getContext().getContentResolver()
-                .notifyChange(getNotificationUri(table, action, (SQLOperator[]) null), null, true);
-        }
+    @Deprecated
+    public static <TModel> void notifyTableChanged(@NonNull Class<TModel> table,
+                                                   @NonNull Action action) {
+        NotifyDistributor.get().notifyTableChanged(table, action);
     }
 
     /**
@@ -182,7 +172,7 @@ public class SqlUtils {
     /**
      * Adds {@link ContentValues} to the specified {@link OperatorGroup}.
      *
-     * @param contentValues  The content values to convert.
+     * @param contentValues The content values to convert.
      * @param operatorGroup The group to put them into as {@link Operator}.
      */
     public static void addContentValues(@NonNull ContentValues contentValues, @NonNull OperatorGroup operatorGroup) {

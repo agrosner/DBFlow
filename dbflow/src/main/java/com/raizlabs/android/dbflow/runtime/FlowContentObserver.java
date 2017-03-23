@@ -11,10 +11,11 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.raizlabs.android.dbflow.config.DatabaseConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
-import com.raizlabs.android.dbflow.sql.language.Operator;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.sql.language.Operator;
 import com.raizlabs.android.dbflow.sql.language.SQLOperator;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.Model;
@@ -30,9 +31,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Description: Listens for {@link Model} changes. Register for specific
  * tables with {@link #addModelChangeListener(FlowContentObserver.OnModelStateChangedListener)}.
  * Provides ability to register and deregister listeners for when data is inserted, deleted, updated, and saved if the device is
- * above {@link VERSION_CODES#JELLY_BEAN}. If below it will only provide one callback.
+ * above {@link VERSION_CODES#JELLY_BEAN}. If below it will only provide one callback. This is to be paired
+ * with the {@link ContentResolverNotifier} specified in the {@link DatabaseConfig} by default.
  */
-public class FlowContentObserver extends ContentObserver {
+public class FlowContentObserver extends ContentObserver implements ModelObserver {
 
     private static final AtomicInteger REGISTERED_COUNT = new AtomicInteger(0);
     private static boolean forceNotify = false;
@@ -189,6 +191,11 @@ public class FlowContentObserver extends ContentObserver {
         onTableChangedListeners.remove(onTableChangedListener);
     }
 
+    @Override
+    public <T> void registerForModelChanges(Class<T> table) {
+        registerForContentChanges(FlowManager.getContext(), table);
+    }
+
     /**
      * Registers the observer for model change events for specific class.
      */
@@ -205,6 +212,17 @@ public class FlowContentObserver extends ContentObserver {
         if (!registeredTables.containsValue(table)) {
             registeredTables.put(FlowManager.getTableName(table), table);
         }
+    }
+
+    /**
+     * Unregisters this content observer from model changes. The table in this case is IGNORED and
+     * cancels all tables.
+     *
+     * @param table IGNORED
+     */
+    @Override
+    public <T> void unregisterForModelChanges(Class<T> table) {
+        unregisterForContentChanges(FlowManager.getContext());
     }
 
     /**

@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
+import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
@@ -111,7 +112,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
 
         // only notify for affected.
         if (affected > 0) {
-            SqlUtils.notifyTableChanged(getTable(), getPrimaryAction());
+            NotifyDistributor.get().notifyTableChanged(getTable(), getPrimaryAction());
         }
         return affected;
     }

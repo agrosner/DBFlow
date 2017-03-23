@@ -43,10 +43,9 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     /**
      * Holds the table cursor
      */
-    private FlowCursorList<TModel> internalCursorList;
-
-    private Transaction.Success successCallback;
-    private Transaction.Error errorCallback;
+    private final FlowCursorList<TModel> internalCursorList;
+    private final Transaction.Success successCallback;
+    private final Transaction.Error errorCallback;
 
     /**
      * If true, we will make all modifications on the {@link DefaultTransactionQueue}, else
