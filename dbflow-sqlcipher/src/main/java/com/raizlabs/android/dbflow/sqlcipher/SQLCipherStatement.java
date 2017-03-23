@@ -1,4 +1,4 @@
-package com.raizlabs.dbflow.android.sqlcipher;
+package com.raizlabs.android.dbflow.sqlcipher;
 
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 

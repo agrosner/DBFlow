@@ -129,9 +129,6 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
     val primaryColumnDefinitions: List<ColumnDefinition>
         get() = ArrayList()
 
-    override val propertyClassName: ClassName
-        get() = outputClassName
-
     companion object {
 
         private val DBFLOW_QUERY_MODEL_TAG = "QueryTable"

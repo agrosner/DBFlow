@@ -4,10 +4,6 @@ apply plugin: 'kotlin-android'
 project.ext.artifactId = bt_name
 
 
-repositories {
-    mavenCentral()
-}
-
 android {
     compileSdkVersion Integer.valueOf(dbflow_target_sdk)
     buildToolsVersion dbflow_build_tools_version
@@ -36,15 +32,6 @@ dependencies {
 
     compile project("${dbflow_project_prefix}dbflow-core")
     compile project("${dbflow_project_prefix}dbflow")
-}
-buildscript {
-    ext.kotlin_version = '1.1.0'
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
 }
 
 apply from: '../kotlin-artifacts.gradle'

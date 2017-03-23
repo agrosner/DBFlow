@@ -134,9 +134,6 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     override val primaryColumnDefinitions: List<ColumnDefinition>
         get() = columnDefinitions
 
-    override val propertyClassName: ClassName
-        get() = outputClassName
-
     override val extendsClass: TypeName?
         get() = ParameterizedTypeName.get(ClassNames.MODEL_VIEW_ADAPTER, elementClassName)
 

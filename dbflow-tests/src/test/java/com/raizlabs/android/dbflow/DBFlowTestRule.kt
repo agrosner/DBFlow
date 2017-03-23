@@ -29,9 +29,6 @@ class DBFlowTestRule : TestRule {
     }
 
     companion object {
-
-        fun create(): DBFlowTestRule {
-            return DBFlowTestRule()
-        }
+        fun create() = DBFlowTestRule()
     }
 }

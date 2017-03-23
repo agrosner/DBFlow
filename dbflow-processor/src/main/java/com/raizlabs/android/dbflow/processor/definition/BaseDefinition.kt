@@ -22,7 +22,7 @@ abstract class BaseDefinition : TypeDefinition {
 
     var elementClassName: ClassName? = null
     var elementTypeName: TypeName? = null
-    lateinit var outputClassName: ClassName
+    var outputClassName: ClassName? = null
     var erasedTypeName: TypeName? = null
 
     var element: Element
@@ -124,9 +124,9 @@ abstract class BaseDefinition : TypeDefinition {
 
     override val typeSpec: TypeSpec
         get() {
-            val typeBuilder = TypeSpec.classBuilder(outputClassName.simpleName())
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addSuperinterfaces(Arrays.asList(*implementsClasses))
+            val typeBuilder = TypeSpec.classBuilder(outputClassName?.simpleName())
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addSuperinterfaces(Arrays.asList(*implementsClasses))
             val extendsClass = extendsClass
             if (extendsClass != null) {
                 typeBuilder.superclass(extendsClass)

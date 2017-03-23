@@ -335,9 +335,6 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             _primaryColumnDefinitions
         }
 
-    override val propertyClassName: ClassName
-        get() = outputClassName
-
     override val extendsClass: TypeName?
         get() = ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName)
 

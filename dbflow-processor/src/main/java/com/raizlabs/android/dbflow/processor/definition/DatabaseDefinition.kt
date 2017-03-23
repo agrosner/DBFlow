@@ -45,7 +45,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
         val database = element.getAnnotation(Database::class.java)
         if (database != null) {
             databaseName = database.name
-            databaseExtensionName = database.databaseExtension;
+            databaseExtensionName = database.databaseExtension
             if (databaseName.isNullOrEmpty()) {
                 databaseName = element.simpleName.toString()
             }
