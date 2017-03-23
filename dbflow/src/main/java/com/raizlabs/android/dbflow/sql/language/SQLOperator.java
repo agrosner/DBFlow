@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
 /**
@@ -34,6 +36,7 @@ public interface SQLOperator {
      * @param separator The string AND, OR, or something else.
      * @return This instance.
      */
+    @NonNull
     SQLOperator separator(String separator);
 
     /**

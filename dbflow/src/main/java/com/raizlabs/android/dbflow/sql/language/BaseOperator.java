@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.DatabaseUtils;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
@@ -208,6 +209,7 @@ public abstract class BaseOperator implements SQLOperator {
         return nameAlias.getQuery();
     }
 
+    @NonNull
     @Override
     public SQLOperator separator(String separator) {
         this.separator = separator;

@@ -31,10 +31,12 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
         return BaseOperator.convertValueToString(value, false);
     }
 
+    @NonNull
     public static <T> Operator<T> op(NameAlias column) {
         return new Operator<>(column);
     }
 
+    @NonNull
     public static <T> Operator<T> op(NameAlias alias, TypeConverter typeConverter, boolean convertToDB) {
         return new Operator<>(alias, typeConverter, convertToDB);
     }
@@ -228,6 +230,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      * @param operation The SQLite operator
      * @return This condition
      */
+    @NonNull
     public Operator<T> operation(String operation) {
         this.operation = operation;
         return this;
@@ -239,6 +242,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      * @param collation The SQLite collate function
      * @return This condition.
      */
+    @NonNull
     public Operator<T> collate(String collation) {
         postArg = "COLLATE " + collation;
         return this;
@@ -250,6 +254,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      * @param collation The SQLite collate function
      * @return This condition.
      */
+    @NonNull
     public Operator<T> collate(Collate collation) {
         if (collation.equals(Collate.NONE)) {
             postArg = null;
@@ -263,6 +268,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
     /**
      * Appends an optional SQL string to the end of this condition
      */
+    @NonNull
     public Operator<T> postfix(String postfix) {
         postArg = postfix;
         return this;
@@ -288,6 +294,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      * @param separator The separator to use
      * @return This instance
      */
+    @NonNull
     @Override
     public Operator<T> separator(String separator) {
         this.separator = separator;

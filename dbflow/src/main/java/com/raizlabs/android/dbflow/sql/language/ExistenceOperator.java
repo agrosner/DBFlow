@@ -27,6 +27,7 @@ public class ExistenceOperator implements SQLOperator, Query {
         throw new RuntimeException("Method not valid for ExistenceOperator");
     }
 
+    @NonNull
     @Override
     public SQLOperator separator(String separator) {
         // not used.

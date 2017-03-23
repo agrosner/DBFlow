@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -39,6 +41,7 @@ public class UnSafeStringOperator implements SQLOperator, Query {
         return separator;
     }
 
+    @NonNull
     @Override
     public SQLOperator separator(String separator) {
         this.separator = separator;
