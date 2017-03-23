@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * above {@link VERSION_CODES#JELLY_BEAN}. If below it will only provide one callback. This is to be paired
  * with the {@link ContentResolverNotifier} specified in the {@link DatabaseConfig} by default.
  */
-public class FlowContentObserver extends ContentObserver implements ModelObserver {
+public class FlowContentObserver extends ContentObserver {
 
     private static final AtomicInteger REGISTERED_COUNT = new AtomicInteger(0);
     private static boolean forceNotify = false;
@@ -191,11 +191,6 @@ public class FlowContentObserver extends ContentObserver implements ModelObserve
         onTableChangedListeners.remove(onTableChangedListener);
     }
 
-    @Override
-    public <T> void registerForModelChanges(Class<T> table) {
-        registerForContentChanges(FlowManager.getContext(), table);
-    }
-
     /**
      * Registers the observer for model change events for specific class.
      */
@@ -212,17 +207,6 @@ public class FlowContentObserver extends ContentObserver implements ModelObserve
         if (!registeredTables.containsValue(table)) {
             registeredTables.put(FlowManager.getTableName(table), table);
         }
-    }
-
-    /**
-     * Unregisters this content observer from model changes. The table in this case is IGNORED and
-     * cancels all tables.
-     *
-     * @param table IGNORED
-     */
-    @Override
-    public <T> void unregisterForModelChanges(Class<T> table) {
-        unregisterForContentChanges(FlowManager.getContext());
     }
 
     /**

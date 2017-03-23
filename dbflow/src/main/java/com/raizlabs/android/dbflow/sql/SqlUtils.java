@@ -31,14 +31,12 @@ public class SqlUtils {
 
     /**
      * Notifies the {@link ContentObserver} that the model has changed.
-     *
-     * @see NotifyDistributor
      */
     @Deprecated
-    public static void notifyModelChanged(@NonNull Class<?> table,
-                                          @NonNull Action action,
-                                          @Nullable Iterable<SQLOperator> sqlConditions) {
-        NotifyDistributor.get().notifyModelChanged(table, action, sqlConditions);
+    public static void notifyModelChanged(Class<?> table, Action action,
+                                          Iterable<SQLOperator> sqlConditions) {
+        FlowManager.getContext().getContentResolver().notifyChange(
+            getNotificationUri(table, action, sqlConditions), null, true);
     }
 
     /**

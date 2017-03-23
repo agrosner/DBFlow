@@ -30,14 +30,6 @@ public class NotifyDistributor implements ModelNotifier {
             .getModelNotifier().notifyModelChanged(model, modelAdapter, action);
     }
 
-    @Override
-    public <T> void notifyModelChanged(@NonNull Class<T> table,
-                                       @NonNull BaseModel.Action action,
-                                       @Nullable Iterable<SQLOperator> conditions) {
-        FlowManager.getDatabaseForTable(table)
-            .getModelNotifier().notifyModelChanged(table, action, conditions);
-    }
-
     /**
      * Notifies listeners of table-level changes from the SQLite-wrapper language.
      */
