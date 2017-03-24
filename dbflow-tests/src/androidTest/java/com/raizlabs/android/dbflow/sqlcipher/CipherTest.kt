@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.sqlcipher
 
+import com.raizlabs.android.dbflow.BaseInstrumentedUnitTest
 import com.raizlabs.android.dbflow.kotlinextensions.from
 import com.raizlabs.android.dbflow.kotlinextensions.result
 import com.raizlabs.android.dbflow.kotlinextensions.select
@@ -11,7 +12,7 @@ import org.junit.Test
 /**
  * Description: Ensures we can use SQLCipher
  */
-class CipherTest {
+class CipherTest : BaseInstrumentedUnitTest() {
 
     @Test
     fun testCipherModel() {

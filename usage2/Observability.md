@@ -1,13 +1,38 @@
 # Observability
 
-DBFlow provides a simple way to observe changes on content and respond to those changes via the `FlowContentObserver`.
+DBFlow provides a flexible way to observe changes on models and tables in this library.
 
-The `FlowContentObserver` enables you to watch a specific table or (down to a specific `Model`) for CUDS (Create/Insert, Update, Delete, or Save) operations.
+By default, DBFlow utilizes the [`ContentResolver`](https://developer.android.com/reference/android/content/ContentResolver.html)
+to send changes through the android system. We then can utilize [`ContentObserver`](http://developer.android.com/reference/android/database/ContentObserver.html) to listen for these changes via the `FlowContentObserver`.
 
-Using the [`ContentObserver`](http://developer.android.com/reference/android/database/ContentObserver.html) subclass `FlowContentObserver`, we can easily listen for changes.
+Also, DBFlow also supports direct [model notification](/usage2/Observability.md) via a custom `ModelNotifier`.
 
 
-## Register the Observer
+
+## FlowContentObserver
+
+The content observer converts each model passed to it into `Uri` format that describes the `Action`, primary keys, and table of the class that changed.
+
+A model:
+```kotlin
+
+@Table(database = AppDatabase.class)
+class User(@PrimaryKey var id: Int = 0, @Column var name: String = "")
+
+```
+
+with data:
+```kotlin
+
+User(55, "Andrew Grosner").delete()
+
+```
+
+converts to:
+
+```
+dbflow://%60User%60?%2560id%2560=55#DELETE
+```
 
 ```java
 

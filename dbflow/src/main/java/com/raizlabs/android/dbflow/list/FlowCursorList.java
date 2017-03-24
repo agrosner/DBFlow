@@ -124,7 +124,7 @@ public class FlowCursorList<TModel> implements
      * Sets this list to cache models. If set to false, it will immediately clear the cache for you.
      *
      * @param cacheModels true, will cache models. If false, any and future caching is cleared.
-     * @deprecated use {@link Builder#cacheModels(boolean)}, {@link Builder#cacheSize(int)}
+     * @deprecated use {@link Builder#cacheModels(boolean)}, {@link Builder#modelCache()}
      */
     void setCacheModels(boolean cacheModels) {
         this.cacheModels = cacheModels;

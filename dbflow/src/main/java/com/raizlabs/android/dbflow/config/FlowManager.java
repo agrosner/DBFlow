@@ -32,13 +32,20 @@ import java.util.Set;
 public class FlowManager {
 
     private static class GlobalDatabaseHolder extends DatabaseHolder {
+
+        private boolean initialized = false;
+
         public void add(DatabaseHolder holder) {
             databaseDefinitionMap.putAll(holder.databaseDefinitionMap);
             databaseNameMap.putAll(holder.databaseNameMap);
             typeConverters.putAll(holder.typeConverters);
             databaseClassLookupMap.putAll(holder.databaseClassLookupMap);
+            initialized = true;
         }
 
+        public boolean isInitialized() {
+            return initialized;
+        }
     }
 
     static FlowConfig config;
@@ -86,10 +93,6 @@ public class FlowManager {
      */
     public static Class<?> getTableClassForName(String databaseName, String tableName) {
         DatabaseDefinition databaseDefinition = getDatabase(databaseName);
-        if (databaseDefinition == null) {
-            throw new IllegalArgumentException(String.format("The specified database %1s was not found. " +
-                "Did you forget to add the @Database?", databaseName));
-        }
         Class<?> modelClass = databaseDefinition.getModelClassForName(tableName);
         if (modelClass == null) {
             throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
@@ -105,6 +108,7 @@ public class FlowManager {
      */
     @NonNull
     public static DatabaseDefinition getDatabaseForTable(Class<?> table) {
+        checkDatabaseHolder();
         DatabaseDefinition databaseDefinition = globalDatabaseHolder.getDatabaseForTable(table);
         if (databaseDefinition == null) {
             throw new InvalidDBConfiguration("Model object: " + table.getName() +
@@ -115,6 +119,7 @@ public class FlowManager {
 
     @NonNull
     public static DatabaseDefinition getDatabase(Class<?> databaseClass) {
+        checkDatabaseHolder();
         DatabaseDefinition databaseDefinition = globalDatabaseHolder.getDatabase(databaseClass);
         if (databaseDefinition == null) {
             throw new InvalidDBConfiguration("Database: " + databaseClass.getName() + " is not a registered Database. " +
@@ -134,6 +139,7 @@ public class FlowManager {
      */
     @NonNull
     public static DatabaseDefinition getDatabase(String databaseName) {
+        checkDatabaseHolder();
         DatabaseDefinition database = globalDatabaseHolder.getDatabase(databaseName);
 
         if (database != null) {
@@ -277,6 +283,7 @@ public class FlowManager {
      * how the custom datatype is handled going into and out of the DB.
      */
     public static TypeConverter getTypeConverterForClass(Class<?> objectClass) {
+        checkDatabaseHolder();
         return globalDatabaseHolder.getTypeConverterForClass(objectClass);
     }
 
@@ -434,6 +441,13 @@ public class FlowManager {
     private static void throwCannotFindAdapter(String type, Class<?> clazz) {
         throw new IllegalArgumentException("Cannot find " + type + " for " + clazz + ". Ensure " +
             "the class is annotated with proper annotation.");
+    }
+
+    private static void checkDatabaseHolder() {
+        if (!globalDatabaseHolder.isInitialized()) {
+            throw new IllegalStateException("The global database holder is not initialized. Ensure you call " +
+                "FlowManager.init() before accessing the database.");
+        }
     }
 
     // endregion

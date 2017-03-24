@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.contentobserver
 
 import android.net.Uri
+import com.raizlabs.android.dbflow.BaseInstrumentedUnitTest
 import com.raizlabs.android.dbflow.DemoApp
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.contentobserver.User_Table.id
@@ -20,7 +21,7 @@ import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
-class ContentObserverTest {
+class ContentObserverTest : BaseInstrumentedUnitTest() {
 
     private lateinit var user: User
 
