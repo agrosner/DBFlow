@@ -37,6 +37,15 @@ public class DirectModelNotifier implements ModelNotifier {
 
     private final Map<Class<?>, Set<ModelChangedListener>> modelChangedListenerMap = new LinkedHashMap<>();
 
+    /**
+     * Private constructor. Use shared {@link #get()} to ensure singular instance.
+     */
+    private DirectModelNotifier() {
+        if (notifier != null) {
+            throw new IllegalStateException("Cannot instantiate more than one DirectNotifier. Use DirectNotifier.get()");
+        }
+    }
+
     @Override
     public <T> void notifyModelChanged(@Nullable T model, @NonNull ModelAdapter<T> adapter,
                                        @NonNull BaseModel.Action action) {

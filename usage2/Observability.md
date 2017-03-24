@@ -34,11 +34,13 @@ converts to:
 dbflow://%60User%60?%2560id%2560=55#DELETE
 ```
 
+Then after we register a `FlowContentObserver`:
+
 ```java
 
 FlowContentObserver observer = new FlowContentObserver();
 
-observer.registerForContentChanges(context, MyModelClass.class);
+observer.registerForContentChanges(context, User.class);
 
 // do something here
 // unregister when done
@@ -46,23 +48,15 @@ observer.unregisterForContentChanges(context);
 
 ```
 
-**Note**: registering the observer uses a count that will only notify if the count of registered observers > 0.
+## Model Changes
 
-To force notifications call `FlowContentObserver.setShouldForceNotify(true)`.
-
-To reset count, call:
-`FlowContentObserver.clearRegisteredObserverCount()`
-
-
-## Register For Model Changes
-
-From our observer from last section, we now need to register a listener on this observer to get the `Model` change events we want.
+It will now receive the `Uri` for that table. Once we have that, we can register for model changes on that content:
 
 ```java
 
 observer.addModelChangeListener(new OnModelStateChangedListener() {
   @Override
-  public void onModelStateChanged(@Nullable Class<? extends Model> table, BaseModel.Action action, @NonNull SQLCondition[] primaryKeyValues) {
+  public void onModelStateChanged(@Nullable Class<? extends Model> table, BaseModel.Action action, @NonNull SQLOperator[] primaryKeyValues) {
     // do something here
   }
 });
@@ -75,18 +69,20 @@ The method will return the `Action` which is one of:
   3. `UPDATE`
   4. `DELETE`
 
-The `SQLCondition[]` passed back specify the primary column and value pairs that were changed for the model.
+The `SQLOperator[]` passed back specify the primary column and value pairs that were changed for the model.
+
+If we want to get less granular and just get notifications when generally a table changes, read on.
 
 ## Register for Table Changes
 
-Table change events are similar to `OnModelStateChangedListener`, except that they only specify the table and action taken. When performed in a batch transaction as we read in next section, this can cut down on the number of callbacks to be one callabck per transaction.
+Table change events are similar to `OnModelStateChangedListener`, except that they only specify the table and action taken. These get called for any action on a table, including granular model changes. We recommend batching those events together, which we describe in the next section.
 
 ```java
 
 addOnTableChangedListener(new OnTableChangedListener() {
     @Override
     public void onTableChanged(@Nullable Class<? extends Model> tableChanged, BaseModel.Action action) {
-        // perform an action. May get called more than once! Use batch transactions to combine them.
+        // perform an action. May get called many times! Use batch transactions to combine them.
     }
 });
 
@@ -105,7 +101,9 @@ FlowContentObserver observer = new FlowContentObserver();
 observer.beginTransaction();
 
 // save, modify models here
-employee.save();
+for(User user: users) {
+  users.save();
+}
 
 observer.endTransactionAndNotify(); // callback batched
 
@@ -115,3 +113,44 @@ Batch interactions will store up all unique `Uri` for each action (these include
 all those `Uri` are called in the `onChange()` method from the `FlowContentObserver` as expected.
 
 If we are using `OnTableChangedListener` callbacks, then by default we will receive one callback per `Action` per table.  If we wish to only receive a single callback, set `setNotifyAllUris(false)`, which will make the `Uri` all only specify `CHANGE`.
+
+# Direct Changes
+
+DBFlow also supports direct observability on model changes rather than convert those models into `Uri` and have to decipher what has changed.
+
+To set up direct changes we override the default `ModelNotifier`:
+
+```java
+
+FlowManager.init(FlowConfig.Builder(context)
+            .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase.class)
+                .modelNotifier(DirectModelNotifier.get())
+                .build()).build());
+
+```
+
+We must use the shared instance of the `DirectModelNotifier` since if we do not, your listeners will not receive callbacks.
+
+Next register for changes on the `DirectModelNotifier`:
+```java
+
+DirectModelNotifier.get().registerForModelChanges(User.class, new ModelChangedListener<User>() {
+            @Override
+            public void onModelChanged(User model, BaseModel.Action action) {
+                // react to model changes
+            }
+
+            @Override
+            public void onTableChanged(Class<User> table, BaseModel.Action action) {
+              // react to table changes.
+            }
+        };)
+
+```
+
+Then unregister your model change listener when you don't need it anymore (to prevent memory leaks):
+
+```java
+DirectModelNotifier.get().unregisterForModelChanges(Userr.class, modelChangedListener);
+
+```
