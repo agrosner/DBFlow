@@ -32,7 +32,7 @@ public class DirectModelNotifier implements ModelNotifier {
 
         void onModelChanged(T model, BaseModel.Action action);
 
-        void onTableChanged(Class<T> table, BaseModel.Action action);
+        void onTableChanged(BaseModel.Action action);
     }
 
     private final Map<Class<?>, Set<ModelChangedListener>> modelChangedListenerMap = new LinkedHashMap<>();
@@ -65,7 +65,7 @@ public class DirectModelNotifier implements ModelNotifier {
         if (listeners != null) {
             for (ModelChangedListener listener : listeners) {
                 if (listener != null) {
-                    listener.onTableChanged(table, action);
+                    listener.onTableChanged(action);
                 }
             }
         }
