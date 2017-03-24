@@ -34,9 +34,9 @@ public class SqlUtils {
      */
     @Deprecated
     public static void notifyModelChanged(Class<?> table, Action action,
-                                          Iterable<SQLOperator> sqlConditions) {
+                                          Iterable<SQLOperator> sqlOperators) {
         FlowManager.getContext().getContentResolver().notifyChange(
-            getNotificationUri(table, action, sqlConditions), null, true);
+            getNotificationUri(table, action, sqlOperators), null, true);
     }
 
     /**

@@ -52,7 +52,7 @@ public class Case<TReturn> implements Query {
     public CaseCondition<TReturn> when(TReturn whenValue) {
         if (!efficientCase) {
             throw new IllegalStateException("When not using the efficient CASE method, " +
-                "you must pass in the SQLConditions as a parameter");
+                "you must pass in the SQLOperator as a parameter");
         }
         CaseCondition<TReturn> caseCondition = new CaseCondition<>(this, whenValue);
         caseConditions.add(caseCondition);
