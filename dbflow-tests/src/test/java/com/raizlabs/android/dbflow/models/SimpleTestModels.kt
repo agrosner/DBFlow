@@ -16,12 +16,12 @@ class SimpleCustomModel(@Column var name: String? = "")
 class TwoColumnModel(@PrimaryKey var name: String? = "", @Column var id: Int = 0)
 
 @Table(database = TestDatabase::class, allFields = true)
-class AllFieldsModel(@PrimaryKey var name: String? = null,
-                     var count: Int = 0,
-                     @Column(getterName = "getTruth")
-                     var truth: Boolean = false,
-                     internal val finalName: String = "",
-                     @ColumnIgnore private val hidden: Int = 0) {
+open class AllFieldsModel(@PrimaryKey var name: String? = null,
+                          var count: Int = 0,
+                          @Column(getterName = "getTruth")
+                          var truth: Boolean = false,
+                          internal val finalName: String = "",
+                          @ColumnIgnore private val hidden: Int = 0) {
 
     companion object {
 
@@ -29,3 +29,6 @@ class AllFieldsModel(@PrimaryKey var name: String? = null,
         var COUNT: Int = 0
     }
 }
+
+@Table(database = TestDatabase::class, allFields = true)
+class SubclassAllFields(@Column var order: Int = 0) : AllFieldsModel()
