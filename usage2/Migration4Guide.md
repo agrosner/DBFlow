@@ -19,17 +19,22 @@ _Major Changes In this release_
 7. We generate ~45% less code than 3.0. Combined the `_Table` + `_Adapter` into the singular `_Table` class, which contains both `Property` + all of the regular `ModelAdapter` methods. To ease the transition to 4.0, it is named `_Table` but extends `ModelAdapter`. So most use cases / interactions will not break.
 
 8. `Condition` are now `Operator`, this includes `SQLCondition` -> `SQLOperator`, `ConditionGroup` -> `OperatorGroup`. `Operator` are now typed and safer to use.
+  1. `Operator` now also have `div`, `times`, `rem`, `plus` and `minus` methods.
 
-9. All primitive `Property` classes have been removed. We already boxed the values internally anyways so removing them cut down on method count and maintenance.
+9. Property class changes:
+  1. All primitive `Property` classes have been removed. We already boxed the values internally anyways so removing them cut down on method count and maintenance.
+  2. `BaseProperty` no longer needs to exist, so all of it's methods now exist in `Property`
+  3. `mod` method is now `rem` (remainder) method to match Kotlin 1.1's changes.
+  4. `dividedBy` is now `div` to match Kotlin operators.
+  5. `multipliedBy` is now `times` to match Kotlin operators.
 
 10. Rewrote all Unit tests to be more concise, better tested, and cleaner.
 
 11. A lot of bug fixes
 
-12. More Kotlin extensions. Most importantly you don't need to use `BaseModel`/`Model` at all anymore if you so choose. There are `Model`-like extension methods that supply the `Model` methods.
+12. Kotlin:
+  1. Added more Kotlin extensions.
+  2. Most importantly you don't need to use `BaseModel`/`Model` at all anymore if you so choose. There are `Model`-like extension methods that supply the `Model` methods.
+  3. Updated to version 1.1.1
 
 13. RXJava1 and RXJava2 support! Can now write queries that return `Observable` and more.
-
-14. Kotlin 1.1.1
-
-15. Can support Jack projects (even though Jack is deprecated).
