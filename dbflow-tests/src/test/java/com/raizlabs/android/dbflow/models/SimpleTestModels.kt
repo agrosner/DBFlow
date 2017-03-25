@@ -1,10 +1,7 @@
 package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.annotation.Column
-import com.raizlabs.android.dbflow.annotation.PrimaryKey
-import com.raizlabs.android.dbflow.annotation.QueryModel
-import com.raizlabs.android.dbflow.annotation.Table
+import com.raizlabs.android.dbflow.annotation.*
 
 /**
  * Description:
@@ -17,3 +14,18 @@ class SimpleCustomModel(@Column var name: String? = "")
 
 @Table(database = TestDatabase::class)
 class TwoColumnModel(@PrimaryKey var name: String? = "", @Column var id: Int = 0)
+
+@Table(database = TestDatabase::class, allFields = true)
+class AllFieldsModel(@PrimaryKey var name: String? = null,
+                     var count: Int = 0,
+                     @Column(getterName = "getTruth")
+                     var truth: Boolean = false,
+                     internal val finalName: String = "",
+                     @ColumnIgnore private val hidden: Int = 0) {
+
+    companion object {
+
+        // example field to ensure static not used.
+        var COUNT: Int = 0
+    }
+}
