@@ -20,6 +20,8 @@ typealias ProcessFunction<T> = (T, DatabaseWrapper) -> Unit
  */
 inline fun <reified T> database() = getDatabase(T::class.java)
 
+inline fun <reified T> writableDatabaseForTable() = getWritableDatabaseForTable(T::class.java)
+
 /**
  * Easily get access to its [DatabaseDefinition] directly.
  */
