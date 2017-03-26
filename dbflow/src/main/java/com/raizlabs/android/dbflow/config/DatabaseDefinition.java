@@ -38,13 +38,9 @@ public abstract class DatabaseDefinition {
 
     final Map<Integer, List<Migration>> migrationMap = new HashMap<>();
 
-    final List<Class<?>> models = new ArrayList<>();
-
     final Map<Class<?>, ModelAdapter> modelAdapters = new HashMap<>();
 
     final Map<String, Class<?>> modelTableNames = new HashMap<>();
-
-    final List<Class<?>> modelViews = new ArrayList<>();
 
     final Map<Class<?>, ModelViewAdapter> modelViewAdapterMap = new LinkedHashMap<>();
 
@@ -111,7 +107,7 @@ public abstract class DatabaseDefinition {
      * @return a list of all model classes in this database.
      */
     public List<Class<?>> getModelClasses() {
-        return models;
+        return new ArrayList<>(modelAdapters.keySet());
     }
 
     public BaseTransactionManager getTransactionManager() {
@@ -153,7 +149,7 @@ public abstract class DatabaseDefinition {
      * @return the {@link BaseModelView} list for this database.
      */
     public List<Class<?>> getModelViews() {
-        return modelViews;
+        return new ArrayList<>(modelViewAdapterMap.keySet());
     }
 
     /**

@@ -51,7 +51,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             }
             if (!isValidDatabaseName(databaseName)) {
                 throw Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
-                    "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!")
+                        "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!")
             }
 
             consistencyChecksEnabled = database.consistencyCheckEnabled
@@ -132,14 +132,21 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             if (elementClassName != null) {
                 for (tableDefinition in manager.getTableDefinitions(elementClassName)) {
                     addStatement("holder.putDatabaseForTable(\$T.class, this)", tableDefinition.elementClassName)
+                    addStatement("\$L.put(\$S, \$T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName)
+                    addStatement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
+                            tableDefinition.elementClassName, tableDefinition.outputClassName)
                 }
 
                 for (modelViewDefinition in manager.getModelViewDefinitions(elementClassName)) {
                     addStatement("holder.putDatabaseForTable(\$T.class, this)", modelViewDefinition.elementClassName)
+                    addStatement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
+                            modelViewDefinition.elementClassName, modelViewDefinition.outputClassName)
                 }
 
                 for (queryModelDefinition in manager.getQueryModelDefinitions(elementClassName)) {
                     addStatement("holder.putDatabaseForTable(\$T.class, this)", queryModelDefinition.elementClassName)
+                    addStatement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
+                            queryModelDefinition.elementClassName, queryModelDefinition.outputClassName)
                 }
 
                 val migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName)
@@ -151,33 +158,15 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                         migrationDefinitions?.let {
                             Collections.sort(migrationDefinitions, { o1, o2 -> Integer.valueOf(o2.priority)!!.compareTo(o1.priority) })
                             addStatement("\$T migrations\$L = new \$T()", ParameterizedTypeName.get(ClassName.get(List::class.java), ClassNames.MIGRATION),
-                                version, ParameterizedTypeName.get(ClassName.get(ArrayList::class.java), ClassNames.MIGRATION))
+                                    version, ParameterizedTypeName.get(ClassName.get(ArrayList::class.java), ClassNames.MIGRATION))
                             addStatement("\$L.put(\$L, migrations\$L)", DatabaseHandler.MIGRATION_FIELD_NAME,
-                                version, version)
+                                    version, version)
                             for (migrationDefinition in migrationDefinitions) {
                                 addStatement("migrations\$L.add(new \$T\$L)", version, migrationDefinition.elementClassName,
-                                    migrationDefinition.constructorName)
+                                        migrationDefinition.constructorName)
                             }
                         }
                     }
-                }
-
-                for (tableDefinition in manager.getTableDefinitions(elementClassName)) {
-                    addStatement("\$L.add(\$T.class)", DatabaseHandler.MODEL_FIELD_NAME, tableDefinition.elementClassName)
-                    addStatement("\$L.put(\$S, \$T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName)
-                    addStatement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
-                        tableDefinition.elementClassName, tableDefinition.outputClassName)
-                }
-
-                for (modelViewDefinition in manager.getModelViewDefinitions(elementClassName)) {
-                    addStatement("\$L.add(\$T.class)", DatabaseHandler.MODEL_VIEW_FIELD_NAME, modelViewDefinition.elementClassName)
-                    addStatement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
-                        modelViewDefinition.elementClassName, modelViewDefinition.outputClassName)
-                }
-
-                for (queryModelDefinition in manager.getQueryModelDefinitions(elementClassName)) {
-                    addStatement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
-                        queryModelDefinition.elementClassName, queryModelDefinition.outputClassName)
                 }
             }
             this
@@ -187,7 +176,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
     private fun writeGetters(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
             overrideMethod("getAssociatedDatabaseClassFile" returns ParameterizedTypeName.get(ClassName.get(Class::class.java),
-                WildcardTypeName.subtypeOf(Any::class.java)) modifiers publicFinal) {
+                    WildcardTypeName.subtypeOf(Any::class.java)) modifiers publicFinal) {
                 addStatement("return \$T.class", elementTypeName)
             }
             overrideMethod("isForeignKeysSupported" returns TypeName.BOOLEAN modifiers publicFinal) {
