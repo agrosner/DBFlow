@@ -13,6 +13,9 @@ class SimpleModel(@PrimaryKey var name: String? = "")
 class SimpleCustomModel(@Column var name: String? = "")
 
 @Table(database = TestDatabase::class)
+class NumberModel(@PrimaryKey var id: Int = 0)
+
+@Table(database = TestDatabase::class)
 class TwoColumnModel(@PrimaryKey var name: String? = "", @Column var id: Int = 0)
 
 @Table(database = TestDatabase::class, allFields = true)
