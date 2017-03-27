@@ -91,6 +91,22 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
     }
 
     /**
+     * @return Appends a list of columns to this INSERT and ? as the values.
+     */
+    @NonNull
+    public Insert<TModel> asColumnValues() {
+        asColumns();
+        if (columns != null) {
+            List<Object> values = new ArrayList<>();
+            for (int i = 0; i < columns.length; i++) {
+                values.add("?");
+            }
+            valuesList.add(values);
+        }
+        return this;
+    }
+
+    /**
      * The required values to specify. It must be non-empty and match the length of the columns when
      * a set of columns are specified.
      *
