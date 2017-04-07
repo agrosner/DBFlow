@@ -82,14 +82,12 @@ This can allow you to combine a relationship of objects to a single `Model` to h
 @Table(database = ColonyDatabase.class)
 public class Queen extends BaseModel {
 
-    @Column
     @PrimaryKey(autoincrement = true)
     long id;
 
     @Column
     String name;
 
-    @Column
     @ForeignKey(saveForeignKeyModel = false)
     Colony colony;
 

@@ -6,7 +6,7 @@ import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 
-import static com.raizlabs.android.dbflow.sql.language.BaseCondition.convertValueToString;
+import static com.raizlabs.android.dbflow.sql.language.BaseOperator.convertValueToString;
 
 /**
  * Description: Represents an individual condition inside a CASE.
@@ -15,15 +15,15 @@ public class CaseCondition<TReturn> implements Query {
 
     private final Case<TReturn> caze;
     private TReturn whenValue;
-    private SQLCondition sqlCondition;
+    private SQLOperator sqlOperator;
     private TReturn thenValue;
     private IProperty property;
     private IProperty thenProperty;
     private boolean isThenPropertySet;
 
-    CaseCondition(Case<TReturn> caze, @NonNull SQLCondition sqlCondition) {
+    CaseCondition(Case<TReturn> caze, @NonNull SQLOperator sqlOperator) {
         this.caze = caze;
-        this.sqlCondition = sqlCondition;
+        this.sqlOperator = sqlOperator;
     }
 
     CaseCondition(Case<TReturn> caze, TReturn whenValue) {
@@ -39,11 +39,13 @@ public class CaseCondition<TReturn> implements Query {
     /**
      * THEN part of this query, the value that gets set on column if condition is true.
      */
+    @NonNull
     public Case<TReturn> then(TReturn value) {
         thenValue = value;
         return caze;
     }
 
+    @NonNull
     public Case<TReturn> then(IProperty value) {
         thenProperty = value;
         // in case values are null in some sense.
@@ -57,11 +59,11 @@ public class CaseCondition<TReturn> implements Query {
         if (caze.isEfficientCase()) {
             queryBuilder.append(convertValueToString(property != null ? property : whenValue, false));
         } else {
-            sqlCondition.appendConditionToQuery(queryBuilder);
+            sqlOperator.appendConditionToQuery(queryBuilder);
         }
         queryBuilder.append(" THEN ")
-                .append(convertValueToString(isThenPropertySet ?
-                        thenProperty : thenValue, false));
+            .append(convertValueToString(isThenPropertySet ?
+                thenProperty : thenValue, false));
         return queryBuilder.getQuery();
     }
 

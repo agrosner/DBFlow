@@ -3,8 +3,8 @@ package com.raizlabs.android.dbflow.structure.provider;
 import android.content.ContentResolver;
 import android.net.Uri;
 
-import com.raizlabs.android.dbflow.sql.language.Condition;
-import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.Operator;
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 
 /**
  * Description: A base interface for Models that are connected to providers.
@@ -15,11 +15,11 @@ public interface ModelProvider {
      * Queries the {@link ContentResolver} of the app based on the passed parameters and
      * populates this object with the first row from the returned data.
      *
-     * @param whereConditionGroup The set of {@link Condition} to filter the query by.
+     * @param whereOperatorGroup The set of {@link Operator} to filter the query by.
      * @param orderBy             The order by without the ORDER BY
      * @param columns             The list of columns to select. Leave blank for *
      */
-    void load(ConditionGroup whereConditionGroup,
+    void load(OperatorGroup whereOperatorGroup,
               String orderBy, String... columns);
 
     /**

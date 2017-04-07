@@ -14,7 +14,7 @@ DBFlow is built from a collection of the best features of many database librarie
 - **Speed**: Built with java's annotation processing code generation, there's almost zero runtime performance hit by using this library (only reflection is creation of the main, generated database module's constructor). This library saves hours of boilerplate code and maintenance by generating the code for you. With powerful model caching (multiple primary key `Model` too), you can surpass the speed of SQLite by reusing where possible. We have support for lazy-loading relationships on-demand such as `@ForeignKey` or `@OneToMany` that make queries happen super-fast.
 - **SQLite Query Flow**: The queries in this library adhere as closely as possible to SQLite native queries. `select(name, screenSize).from(Android.class).where(name.is("Nexus 5x")).and(version.is(6.0)).querySingle()`
 - **Open Source**: This library is fully open source and contributions are not only welcomed, but encouraged.
-- **Robust**: We support `Trigger`, `ModelView`, `Index`, `Migration`, built-in ways to manage database access, and many more features.
+- **Robust**: We support `Trigger`, `ModelView`, `Index`, `Migration`, built-in ways to manage database access, and many more features. SQLCipher, RXJava, and more!
 - **Multiple Databases, Multiple Modules**: we seamlessly support multiple database files, database modules using DBFlow in other dependencies, simultaneously.
 - **Built On SQLite**: SQLite is the most widely used database engine in world and using it as your base, you are not tied to a limited set of platforms or libraries.
 
@@ -41,7 +41,7 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
 ```groovy
 
-  def dbflow_version = "4.0.0-beta5"
+  def dbflow_version = "4.0.0-beta6"
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
@@ -56,11 +56,23 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
     // sql-cipher database encryption (optional)
     compile "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${dbflow_version}"
-
     compile "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
 
     // kotlin extensions
     compile "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}"
+
+    // RXJava 1 support
+    compile "com.github.Raizlabs.DBFlow:dbflow-rx:${dbflow_version}"
+
+    // RXJava 1 Kotlin Extensions Support
+    compile "com.github.Raizlabs.DBFlow:dbflow-rx-kotlinextensions:${dbflow_version}"
+
+    // RXJava 2 support
+    compile "com.github.Raizlabs.DBFlow:dbflow-rx2:${dbflow_version}"
+
+    // RXJava 2 Kotlin Extensions Support
+    compile "com.github.Raizlabs.DBFlow:dbflow-rx2-kotlinextensions:${dbflow_version}"
+
   }
 
 // if you're building with Kotlin

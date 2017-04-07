@@ -18,7 +18,6 @@ We defined an `Employee` table:
 @Table(database = AppDatabase.class)
 public class EmployeeModel {
 
-    @Column
     @PrimaryKey
     String uid;
 

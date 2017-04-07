@@ -31,13 +31,11 @@ can also manually instantiate them:
 
 ```java
 
-FlowQueryList<MyTable> list = new FlowQueryList.Builder<>(MyTable.class)
-  .modelQueriable(SQLite.select().from(MyTable.class))
+FlowQueryList<MyTable> list = new FlowQueryList.Builder<>(SQLite.select().from(MyTable.class))
   .cachingEnabled(false) // caching enabled by default
   .build();
 
-FlowCursorList<MyTable> list = new FlowCursorList.Builder<>(MyTable.class)
-  .modelQueriable(SQLite.select().from(MyTable.class))
+FlowCursorList<MyTable> list = new FlowCursorList.Builder<>(SQLite.select().from(MyTable.class))
   .cachingEnabled(true)
   .modelCache(cache) // provide custom cache for this list
   .build();
@@ -55,13 +53,10 @@ They are done in almost the same way:
 
 ```java
 
-FlowCursorList<MyTable> list = new FlowCursorList.Builder<>(MyTable.class)
-  .modelQueriable(SQLite.select().from(MyTable.class))
-  .cachingEnabled(true)
+FlowCursorList<MyTable> list = new FlowCursorList.Builder<>(SQLite.select().from(MyTable.class))
   .modelCache(cache) // provide custom cache for this list
   .build();
-FlowQueryList<MyTable> list = new FlowQueryList.Builder<>(MyTable.class)
-  .modelQueriable(SQLite.select().from(MyTable.class))
+FlowQueryList<MyTable> list = new FlowQueryList.Builder<>(SQLite.select().from(MyTable.class))
   .modelCache(cache)
   .build();
 
@@ -73,10 +68,7 @@ The `FlowCursorList` is simply a wrapper around a standard `Cursor`, giving it t
 ability to cache `Model`, load items at specific position with conversion, and refresh
 it's content easily.
 
-By default the cache size becomes the size of the `Cursor` returned from the query.
-We constrain the size to greater than or equal to 20 unless 0 or not specified, where
-we set it to 50.  **Note** not all caches support a size, read on default provided caches
-[here](/usage2/Caching.md).
+The `FlowCursorList` by default caches its results, for fast usage. The cache size is determined by the `ModelCache` you're using. Read on [here](/usage2/Caching.md).
 
 The `FlowCursorList` provides these methods:
 
@@ -92,7 +84,7 @@ The `FlowCursorList` provides these methods:
 This class is a much more powerful version of the `FlowCursorList`. It contains a `FlowCursorList`,
 which backs it's retrieval operations.
 
-This class acts as `List` and can be used wherever a `List` is used. Also, it is a `FlowContentObserver`
+This class acts as `List` and can be used almost wherever a `List` is used. Also, it is a `FlowContentObserver`
 see [Observability](/usage2/Observability.md), meaning other classes can listen
 for its specific changes and it can auto-refresh itself when content changes.
 

@@ -57,23 +57,27 @@ public interface ModelQueriable<TModel> extends Queriable {
     /**
      * @return the table that this query comes from.
      */
+    @NonNull
     Class<TModel> getTable();
 
     /**
      * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
      * cache models dynamically by setting {@link FlowCursorList#setCacheModels(boolean)} to true.
      */
+    @NonNull
     FlowCursorList<TModel> cursorList();
 
     /**
      * @return A cursor-backed {@link List} that handles conversion, retrieval, caching, content changes,
      * and more.
      */
+    @NonNull
     FlowQueryList<TModel> flowQueryList();
 
     /**
      * @return an async version of this query to run.
      */
+    @NonNull
     AsyncQuery<TModel> async();
 
     /**
@@ -83,6 +87,7 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @param <TQueryModel>   The class that extends {@link BaseQueryModel}
      * @return A list of custom models that are not tied to a table.
      */
+    @NonNull
     <TQueryModel> List<TQueryModel> queryCustomList(Class<TQueryModel> queryModelClass);
 
     /**
@@ -92,6 +97,7 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @param <TQueryModel>   The class that extends {@link BaseQueryModel}
      * @return A single model from the query.
      */
+    @Nullable
     <TQueryModel> TQueryModel queryCustomSingle(Class<TQueryModel> queryModelClass);
 
     /**
@@ -99,5 +105,6 @@ public interface ModelQueriable<TModel> extends Queriable {
      * caching is not enabled, this method is ignored. This also disables caching in a {@link FlowCursorList}
      * or {@link FlowQueryList} if you {@link #flowQueryList()} or {@link #cursorList()}
      */
+    @NonNull
     ModelQueriable<TModel> disableCaching();
 }

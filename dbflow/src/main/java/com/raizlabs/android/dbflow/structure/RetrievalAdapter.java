@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.config.DatabaseConfig;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.config.TableConfig;
-import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
@@ -79,7 +79,7 @@ public abstract class RetrievalAdapter<TModel> {
      * @param model The primary condition clause.
      * @return The clause that contains necessary primary conditions for this table.
      */
-    public abstract ConditionGroup getPrimaryConditionClause(TModel model);
+    public abstract OperatorGroup getPrimaryConditionClause(TModel model);
 
     /**
      * @return the model class this adapter corresponds to

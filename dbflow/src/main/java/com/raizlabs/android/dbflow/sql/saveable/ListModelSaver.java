@@ -8,11 +8,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.Collection;
 
-/**
- * Description:
- */
 public class ListModelSaver<TModel> {
-
 
     private final ModelSaver<TModel> modelSaver;
 

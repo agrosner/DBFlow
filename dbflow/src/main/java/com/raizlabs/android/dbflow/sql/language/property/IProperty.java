@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.language.Method;
@@ -15,6 +17,7 @@ public interface IProperty<P extends IProperty> extends Query {
      * @param aliasName The name of the alias.
      * @return A new {@link P} that expresses the current column name with the specified Alias name.
      */
+    @NonNull
     P as(String aliasName);
 
     /**
@@ -23,6 +26,7 @@ public interface IProperty<P extends IProperty> extends Query {
      * @param iProperty the property to add.
      * @return A new instance.
      */
+    @NonNull
     P plus(IProperty iProperty);
 
     /**
@@ -31,6 +35,7 @@ public interface IProperty<P extends IProperty> extends Query {
      * @param iProperty the property to subtract.
      * @return A new instance.
      */
+    @NonNull
     P minus(IProperty iProperty);
 
     /**
@@ -39,7 +44,8 @@ public interface IProperty<P extends IProperty> extends Query {
      * @param iProperty the property to divide.
      * @return A new instance.
      */
-    P dividedBy(IProperty iProperty);
+    @NonNull
+    P div(IProperty iProperty);
 
     /**
      * Multiplies another property and returns as a new property. i.e p1 * p2
@@ -47,15 +53,16 @@ public interface IProperty<P extends IProperty> extends Query {
      * @param iProperty the property to multiply.
      * @return A new instance.
      */
-    P multipliedBy(IProperty iProperty);
+    P times(IProperty iProperty);
 
     /**
      * Modulous another property and returns as a new property. i.e p1 % p2
      *
-     * @param iProperty the property to mod.
+     * @param iProperty the property to calculate remainder of.
      * @return A new instance.
      */
-    P mod(IProperty iProperty);
+    @NonNull
+    P rem(IProperty iProperty);
 
     /**
      * Concats another property and returns as a new propert.y i.e. p1 || p2
@@ -63,12 +70,14 @@ public interface IProperty<P extends IProperty> extends Query {
      * @param iProperty The property to concatenate.
      * @return A new instance.
      */
+    @NonNull
     P concatenate(IProperty iProperty);
 
     /**
      * @return Appends DISTINCT to the property name. This is handy in {@link Method} queries.
      * This distinct {@link P} can only be used with one column within a {@link Method}.
      */
+    @NonNull
     P distinct();
 
     /**
@@ -77,6 +86,7 @@ public interface IProperty<P extends IProperty> extends Query {
      * <p/>
      * The resulting {@link P} becomes `tableName`.`columnName`.
      */
+    @NonNull
     P withTable();
 
     /**
@@ -87,20 +97,24 @@ public interface IProperty<P extends IProperty> extends Query {
      * <p/>
      * The resulting column name becomes `tableName`.`columnName`.
      */
+    @NonNull
     P withTable(NameAlias tableNameAlias);
 
     /**
      * @return The underlying {@link NameAlias} that represents the name of this property.
      */
+    @NonNull
     NameAlias getNameAlias();
 
     /**
      * @return The key used in placing values into cursor.
      */
+    @NonNull
     String getCursorKey();
 
     /**
      * @return the table this property belongs to.
      */
+    @NonNull
     Class<?> getTable();
 }

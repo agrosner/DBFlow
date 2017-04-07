@@ -162,14 +162,33 @@ public class Method extends Property {
         }
     }
 
+    @NonNull
     @Override
     public Method plus(IProperty property) {
-        return append(property, Condition.Operation.PLUS);
+        return append(property, " " + Operator.Operation.PLUS);
+    }
+
+    @NonNull
+    @Override
+    public Method minus(IProperty property) {
+        return append(property, " " + Operator.Operation.MINUS);
+    }
+
+    @NonNull
+    @Override
+    public Property div(IProperty property) {
+        return append(property, " " + Operator.Operation.DIVISION);
     }
 
     @Override
-    public Method minus(IProperty property) {
-        return append(property, Condition.Operation.MINUS);
+    public Property times(IProperty property) {
+        return append(property, " " + Operator.Operation.MULTIPLY);
+    }
+
+    @NonNull
+    @Override
+    public Property rem(IProperty property) {
+        return append(property, " " + Operator.Operation.MOD);
     }
 
     /**
@@ -201,6 +220,7 @@ public class Method extends Property {
         return propertyList;
     }
 
+    @NonNull
     @Override
     public NameAlias getNameAlias() {
         if (nameAlias == null) {
@@ -213,14 +233,14 @@ public class Method extends Property {
             for (int i = 0; i < propertyList.size(); i++) {
                 IProperty property = propertyList.get(i);
                 if (i > 0) {
-                    query += " " + operationsList.get(i) + " ";
+                    query += operationsList.get(i) + " ";
                 }
                 query += property.toString();
 
             }
             query += ")";
             nameAlias = NameAlias.rawBuilder(query)
-                    .build();
+                .build();
         }
         return nameAlias;
     }
@@ -243,11 +263,11 @@ public class Method extends Property {
         public IProperty as(SQLiteType sqLiteType) {
             //noinspection unchecked
             IProperty newProperty = new Property(property.getTable(),
-                    property.getNameAlias()
-                            .newBuilder()
-                            .shouldAddIdentifierToAliasName(false)
-                            .as(sqLiteType.name())
-                            .build());
+                property.getNameAlias()
+                    .newBuilder()
+                    .shouldAddIdentifierToAliasName(false)
+                    .as(sqLiteType.name())
+                    .build());
             return new Method("CAST", newProperty);
         }
     }

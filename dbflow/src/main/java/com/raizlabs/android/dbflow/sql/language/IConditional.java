@@ -1,74 +1,129 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.Query;
 
 /**
- * Description: Simple interface for objects that can be used as {@link Condition}. This class
+ * Description: Simple interface for objects that can be used as {@link Operator}. This class
  * takes no type parameters for primitive objects.
  */
 public interface IConditional extends Query {
 
-    Condition is(IConditional conditional);
+    @NonNull
+    Operator is(IConditional conditional);
 
-    Condition is(BaseModelQueriable baseModelQueriable);
+    @NonNull
+    Operator is(BaseModelQueriable baseModelQueriable);
 
-    Condition isNull();
+    @NonNull
+    Operator isNull();
 
-    Condition eq(IConditional conditional);
+    @NonNull
+    Operator eq(IConditional conditional);
 
-    Condition eq(BaseModelQueriable baseModelQueriable);
+    @NonNull
+    Operator eq(BaseModelQueriable baseModelQueriable);
 
-    Condition isNotNull();
+    @NonNull
+    Operator isNotNull();
 
-    Condition concatenate(IConditional conditional);
+    @NonNull
+    Operator concatenate(IConditional conditional);
 
-    Condition isNot(IConditional conditional);
+    @NonNull
+    Operator isNot(IConditional conditional);
 
-    Condition isNot(BaseModelQueriable baseModelQueriable);
+    @NonNull
+    Operator isNot(BaseModelQueriable baseModelQueriable);
 
-    Condition notEq(IConditional conditional);
+    @NonNull
+    Operator notEq(IConditional conditional);
 
-    Condition notEq(BaseModelQueriable baseModelQueriable);
+    @NonNull
+    Operator notEq(BaseModelQueriable baseModelQueriable);
 
-    Condition like(IConditional conditional);
+    @NonNull
+    Operator like(IConditional conditional);
 
-    Condition like(BaseModelQueriable baseModelQueriable);
+    @NonNull
+    Operator like(BaseModelQueriable baseModelQueriable);
 
-    Condition glob(IConditional conditional);
+    @NonNull
+    Operator notLike(IConditional conditional);
 
-    Condition glob(BaseModelQueriable baseModelQueriable);
+    @NonNull
+    Operator notLike(BaseModelQueriable baseModelQueriable);
 
-    Condition like(String value);
+    @NonNull
+    Operator glob(IConditional conditional);
 
-    Condition notLike(String value);
+    @NonNull
+    Operator glob(BaseModelQueriable baseModelQueriable);
 
-    Condition glob(String value);
+    @NonNull
+    Operator like(String value);
 
-    Condition greaterThan(IConditional conditional);
+    @NonNull
+    Operator notLike(String value);
 
-    Condition greaterThan(BaseModelQueriable baseModelQueriable);
+    @NonNull
+    Operator glob(String value);
 
-    Condition greaterThanOrEq(IConditional conditional);
+    @NonNull
+    Operator greaterThan(IConditional conditional);
 
-    Condition greaterThanOrEq(BaseModelQueriable baseModelQueriable);
+    @NonNull
+    Operator greaterThan(BaseModelQueriable baseModelQueriable);
 
-    Condition lessThan(IConditional conditional);
+    @NonNull
+    Operator greaterThanOrEq(IConditional conditional);
 
-    Condition lessThan(BaseModelQueriable baseModelQueriable);
+    @NonNull
+    Operator greaterThanOrEq(BaseModelQueriable baseModelQueriable);
 
-    Condition lessThanOrEq(IConditional conditional);
+    @NonNull
+    Operator lessThan(IConditional conditional);
 
-    Condition lessThanOrEq(BaseModelQueriable baseModelQueriable);
+    @NonNull
+    Operator lessThan(BaseModelQueriable baseModelQueriable);
 
-    Condition.Between between(IConditional conditional);
+    @NonNull
+    Operator lessThanOrEq(IConditional conditional);
 
-    Condition.Between between(BaseModelQueriable baseModelQueriable);
+    @NonNull
+    Operator lessThanOrEq(BaseModelQueriable baseModelQueriable);
 
-    Condition.In in(IConditional firstConditional, IConditional... conditionals);
+    @NonNull
+    Operator.Between between(IConditional conditional);
 
-    Condition.In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables);
+    @NonNull
+    Operator.Between between(BaseModelQueriable baseModelQueriable);
 
-    Condition.In notIn(IConditional firstConditional, IConditional... conditionals);
+    @NonNull
+    Operator.In in(IConditional firstConditional, IConditional... conditionals);
 
-    Condition.In notIn(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables);
+    @NonNull
+    Operator.In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables);
+
+    @NonNull
+    Operator.In notIn(IConditional firstConditional, IConditional... conditionals);
+
+    @NonNull
+    Operator.In notIn(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables);
+
+    @NonNull
+    Operator plus(BaseModelQueriable value);
+
+    @NonNull
+    Operator minus(BaseModelQueriable value);
+
+    @NonNull
+    Operator div(BaseModelQueriable value);
+
+    @NonNull
+    Operator times(BaseModelQueriable value);
+
+    @NonNull
+    Operator rem(BaseModelQueriable value);
 }

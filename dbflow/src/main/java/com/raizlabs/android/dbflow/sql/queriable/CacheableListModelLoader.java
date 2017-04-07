@@ -48,6 +48,7 @@ public class CacheableListModelLoader<TModel> extends ListModelLoader<TModel> {
         return modelAdapter;
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     @Override
     public List<TModel> convertToData(@NonNull Cursor cursor, @Nullable List<TModel> data) {

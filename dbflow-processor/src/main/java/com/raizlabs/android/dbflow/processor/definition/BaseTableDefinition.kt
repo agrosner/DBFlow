@@ -20,7 +20,7 @@ import javax.lang.model.element.TypeElement
  * Description: Used to write Models and ModelViews
  */
 abstract class BaseTableDefinition(typeElement: Element, processorManager: ProcessorManager)
-: BaseDefinition(typeElement, processorManager) {
+    : BaseDefinition(typeElement, processorManager) {
 
     var columnDefinitions: MutableList<ColumnDefinition>
         protected set
@@ -34,7 +34,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
     var associatedTypeConverters: MutableMap<ClassName, MutableList<ColumnDefinition>> = HashMap()
     var globalTypeConverters: MutableMap<ClassName, MutableList<ColumnDefinition>> = HashMap()
     val packagePrivateList: MutableList<ColumnDefinition> =
-            Lists.newArrayList<ColumnDefinition>()
+        Lists.newArrayList<ColumnDefinition>()
 
     var orderedCursorLookUp: Boolean = false
     var assignDefaultValuesFromCursor = true
@@ -52,8 +52,6 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
     protected abstract fun createColumnDefinitions(typeElement: TypeElement)
 
     abstract val primaryColumnDefinitions: List<ColumnDefinition>
-
-    abstract val propertyClassName: ClassName
 
     abstract fun prepareForWrite()
 
@@ -89,19 +87,19 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
         if (!packagePrivateList.isEmpty()) {
             val typeBuilder = TypeSpec.classBuilder(elementClassName?.simpleName() +
-                    databaseDefinition?.classSeparator + "Helper")
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                databaseDefinition?.classSeparator + "Helper")
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 
             for (columnDefinition in packagePrivateList) {
                 var helperClassName = manager.elements.getPackageOf(columnDefinition.element).toString() +
-                        "." + ClassName.get(columnDefinition.element.enclosingElement as TypeElement).simpleName() +
-                        databaseDefinition?.classSeparator + "Helper"
+                    "." + ClassName.get(columnDefinition.element.enclosingElement as TypeElement).simpleName() +
+                    databaseDefinition?.classSeparator + "Helper"
                 if (columnDefinition is ForeignKeyColumnDefinition) {
                     val tableDefinition: TableDefinition? = databaseDefinition?.objectHolder?.tableDefinitionMap?.get(columnDefinition.referencedTableClassName as TypeName)
                     if (tableDefinition != null) {
                         helperClassName = manager.elements.getPackageOf(tableDefinition.element).toString() +
-                                "." + ClassName.get(tableDefinition.element as TypeElement).simpleName() +
-                                databaseDefinition?.classSeparator + "Helper"
+                            "." + ClassName.get(tableDefinition.element as TypeElement).simpleName() +
+                            databaseDefinition?.classSeparator + "Helper"
                     }
                 }
                 val className = ElementUtility.getClassName(helperClassName, manager)
@@ -109,34 +107,34 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
                 if (className != null && PackagePrivateScopeColumnAccessor.containsColumn(className, columnDefinition.columnName)) {
 
                     var method: MethodSpec.Builder = MethodSpec.methodBuilder("get" + columnDefinition.columnName.capitalizeFirstLetter())
-                            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                            .addParameter(elementTypeName, ModelUtils.variable)
-                            .returns(columnDefinition.elementTypeName)
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                        .addParameter(elementTypeName, ModelUtils.variable)
+                        .returns(columnDefinition.elementTypeName)
                     val samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this.element)
 
                     if (samePackage) {
                         method.addStatement("return \$L.\$L", ModelUtils.variable, columnDefinition.elementName)
                     } else {
                         method.addStatement("return \$T.get\$L(\$L)", className,
-                                columnDefinition.columnName.capitalizeFirstLetter(),
-                                ModelUtils.variable)
+                            columnDefinition.columnName.capitalizeFirstLetter(),
+                            ModelUtils.variable)
                     }
 
                     typeBuilder.addMethod(method.build())
 
                     method = MethodSpec.methodBuilder("set" + columnDefinition.columnName.capitalizeFirstLetter())
-                            .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                            .addParameter(elementTypeName, ModelUtils.variable)
-                            .addParameter(columnDefinition.elementTypeName, "var")
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                        .addParameter(elementTypeName, ModelUtils.variable)
+                        .addParameter(columnDefinition.elementTypeName, "var")
 
                     if (samePackage) {
                         method.addStatement("\$L.\$L = \$L", ModelUtils.variable,
-                                columnDefinition.elementName, "var")
+                            columnDefinition.elementName, "var")
                     } else {
 
                         method.addStatement("\$T.set\$L(\$L, \$L)", className,
-                                columnDefinition.columnName.capitalizeFirstLetter(),
-                                ModelUtils.variable, "var")
+                            columnDefinition.columnName.capitalizeFirstLetter(),
+                            ModelUtils.variable, "var")
                     }
                     typeBuilder.addMethod(method.build())
                     count++

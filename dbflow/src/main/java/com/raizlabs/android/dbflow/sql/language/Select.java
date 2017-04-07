@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
@@ -53,6 +55,7 @@ public class Select implements Query {
      * @param <TModel> The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      * @return the From part of this query
      */
+    @NonNull
     public <TModel> From<TModel> from(Class<TModel> table) {
         return new From<>(this, table);
     }
@@ -62,11 +65,12 @@ public class Select implements Query {
      *
      * @return
      */
+    @NonNull
     public Select distinct() {
         return selectQualifier(DISTINCT);
     }
 
-    @Override
+    @NonNull
     public String toString() {
         return getQuery();
     }

@@ -1,24 +1,17 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ModelView
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ColumnValidator
-import com.raizlabs.android.dbflow.processor.DatabaseHandler
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
-import com.raizlabs.android.dbflow.processor.utils.ElementUtility
-import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
+import com.raizlabs.android.dbflow.processor.utils.*
+import com.squareup.javapoet.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
@@ -38,7 +31,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     private var name: String? = null
 
     private val methods: Array<MethodDefinition> =
-            arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
+        arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
 
     var allFields: Boolean = false
 
@@ -65,7 +58,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
         if (element is TypeElement) {
             implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.processingEnvironment,
-                    ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element)
+                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element)
         } else {
             implementsLoadFromCursorListener = false
         }
@@ -83,6 +76,8 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
             setOutputClassName(databaseDefinition?.classSeparator + DBFLOW_MODEL_VIEW_TAG)
 
             typeElement?.let { createColumnDefinitions(it) }
+        } else {
+            setOutputClassName(DBFLOW_MODEL_VIEW_TAG)
         }
     }
 
@@ -114,7 +109,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 }
 
                 if (columnDefinition.isPrimaryKey || columnDefinition is ForeignKeyColumnDefinition
-                        || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
+                    || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
                     manager.logError("ModelViews cannot have primary or foreign keys")
                 }
             } else if (variableElement.getAnnotation(ModelViewQuery::class.java) != null) {
@@ -123,12 +118,12 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 }
                 ProcessorUtils.ensureVisibleStatic(variableElement, typeElement, "ModelViewQuery")
 
-                val element = manager.elements.getTypeElement(variableElement.asType().toString())
+                val element = variableElement.toTypeErasedElement()
                 if (!ProcessorUtils.implementsClass(manager.processingEnvironment, ClassNames.QUERY.toString(), element)) {
-                    manager.logError("The field %1s must implement %1s", variableElement.simpleName.toString(), ClassNames.QUERY.toString())
+                    manager.logError("The field ${variableElement.simpleName} must implement ${ClassNames.QUERY}")
                 }
 
-                queryFieldName = variableElement.simpleName.toString()
+                queryFieldName = variableElement.simpleString
             }
         }
 
@@ -140,16 +135,13 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     override val primaryColumnDefinitions: List<ColumnDefinition>
         get() = columnDefinitions
 
-    override val propertyClassName: ClassName
-        get() = outputClassName
-
     override val extendsClass: TypeName?
         get() = ParameterizedTypeName.get(ClassNames.MODEL_VIEW_ADAPTER, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 
         typeBuilder.addField(FieldSpec.builder(ClassName.get(String::class.java),
-                "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("\$S", name!!).build())
+            "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("\$S", name!!).build())
         elementClassName?.let {
             columnDefinitions.forEach {
                 columnDefinition ->
@@ -160,38 +152,34 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this)
         customTypeConverterPropertyMethod.addToType(typeBuilder)
 
-        val constructorCode = CodeBlock.builder()
-        constructorCode.addStatement("super(databaseDefinition)")
-        customTypeConverterPropertyMethod.addCode(constructorCode)
-
-        typeBuilder.addMethod(MethodSpec.constructorBuilder().addParameter(ClassNames.DATABASE_HOLDER, "holder").addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition").addCode(constructorCode.build()).addModifiers(Modifier.PUBLIC).build())
-
-        for (method in methods) {
-            val methodSpec = method.methodSpec
-            if (methodSpec != null) {
-                typeBuilder.addMethod(methodSpec)
+        typeBuilder.constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
+            param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
+            modifiers(public)
+            statement("super(databaseDefinition)")
+            code {
+                customTypeConverterPropertyMethod.addCode(this)
             }
         }
 
+        methods.mapNotNull { it.methodSpec }
+            .forEach { typeBuilder.addMethod(it) }
+
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
 
-        typeBuilder.addMethod(MethodSpec.methodBuilder("getCreationQuery")
-                .addAnnotation(Override::class.java)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return \$T.\$L.getQuery()", elementClassName, queryFieldName)
-                .returns(ClassName.get(String::class.java)).build())
-
-        typeBuilder.addMethod(MethodSpec.methodBuilder("getViewName")
-                .addAnnotation(Override::class.java)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return \$S", name!!)
-                .returns(ClassName.get(String::class.java)).build())
-
-        typeBuilder.addMethod(MethodSpec.methodBuilder("newInstance")
-                .addAnnotation(Override::class.java)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return new \$T()", elementClassName)
-                .returns(elementClassName).build())
+        typeBuilder.apply {
+            `override fun`(String::class, "getCreationQuery") {
+                modifiers(public, final)
+                `return`("\$T.\$L.getQuery()", elementClassName, queryFieldName)
+            }
+            `override fun`(String::class, "getViewName") {
+                modifiers(public, final)
+                `return`(name.S)
+            }
+            `override fun`(elementClassName!!, "newInstance") {
+                modifiers(public, final)
+                `return`("new \$T()", elementClassName)
+            }
+        }
     }
 
     override fun compareTo(other: ModelViewDefinition): Int {

@@ -11,8 +11,9 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.sql.saveable.ListModelSaver;
 import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter;
@@ -27,7 +28,7 @@ import java.util.Collection;
  * Description: Used for generated classes from the combination of {@link Table} and {@link Model}.
  */
 public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
-        implements InternalAdapter<TModel> {
+    implements InternalAdapter<TModel> {
 
     private DatabaseStatement insertStatement;
     private DatabaseStatement compiledStatement;
@@ -50,7 +51,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     public DatabaseStatement getInsertStatement() {
         if (insertStatement == null) {
             insertStatement = getInsertStatement(
-                    FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
         }
 
         return insertStatement;
@@ -73,13 +74,19 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         return databaseWrapper.compileStatement(getInsertStatementQuery());
     }
 
+    public DatabaseStatement getDeleteStatement(TModel model, DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(SQLite.delete().from(getModelClass())
+            .where(getPrimaryConditionClause(model)).getQuery());
+    }
+
+
     /**
      * @return The precompiled full statement for this table model adapter
      */
     public DatabaseStatement getCompiledStatement() {
         if (compiledStatement == null) {
             compiledStatement = getCompiledStatement(
-                    FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
         }
 
         return compiledStatement;
@@ -229,9 +236,9 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     @Override
     public Number getAutoIncrementingId(TModel model) {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
-                                "a single primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain" +
+                    "a single primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 
     /**
@@ -240,9 +247,9 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      */
     public String getAutoIncrementingColumnName() {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain " +
-                                "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain " +
+                    "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 
     /**
@@ -373,6 +380,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      */
     public void setModelSaver(ModelSaver<TModel> modelSaver) {
         this.modelSaver = modelSaver;
+        this.modelSaver.setModelAdapter(this);
     }
 
     /**
@@ -396,14 +404,13 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
 
     public IMultiKeyCacheConverter<?> getCacheConverter() {
         throw new InvalidDBConfiguration("For multiple primary keys, a public static IMultiKeyCacheConverter field must" +
-                "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
-                "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
+            "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
+            "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.");
     }
 
     public ModelCache<TModel, ?> createModelCache() {
         return new SimpleMapCache<>(getCacheSize());
     }
-
 
     /**
      * @return The query used to create this table.
@@ -417,7 +424,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @param columnName The column name of the property.
      * @return The property from the corresponding Table class.
      */
-    public abstract BaseProperty getProperty(String columnName);
+    public abstract Property getProperty(String columnName);
 
     /**
      * @return An array of column properties, in order of declaration.
@@ -427,7 +434,9 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     /**
      * @return The query used to insert a model using a {@link SQLiteStatement}
      */
-    protected abstract String getInsertStatementQuery();
+    protected String getInsertStatementQuery() {
+        return getCompiledStatementQuery();
+    }
 
     /**
      * @return The normal query used in saving a model if we use a {@link SQLiteStatement}.
@@ -450,16 +459,16 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
 
     private void throwCachingError() {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
-                                "an auto-incrementing or at least one primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain" +
+                    "an auto-incrementing or at least one primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 
     private void throwSingleCachingError() {
         throw new InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" +
-                                "an auto-incrementing or one primary key (if used in a ModelCache, this method may be called)",
-                        getModelClass()));
+            String.format("This method may have been called in error. The model class %1s must contain" +
+                    "an auto-incrementing or one primary key (if used in a ModelCache, this method may be called)",
+                getModelClass()));
     }
 
 }

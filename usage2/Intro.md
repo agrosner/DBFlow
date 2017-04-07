@@ -113,6 +113,8 @@ For advanced DBFlow usages:
 
   [Kotlin Support](/usage2/KotlinSupport.md)
 
+  [RX Java Support](/usage2/RXSupport.md)
+
   [Multiple Modules](/usage2/MultipleModules.md)
 
   [Views](/usage2/ModelViews.md)

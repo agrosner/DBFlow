@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.config;
 
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
+import com.raizlabs.android.dbflow.runtime.ModelNotifier;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
 import com.raizlabs.android.dbflow.structure.database.OpenHelper;
 
@@ -27,6 +28,7 @@ public final class DatabaseConfig {
     private final TransactionManagerCreator transactionManagerCreator;
     private final DatabaseHelperListener helperListener;
     private final Map<Class<?>, TableConfig> tableConfigMap;
+    private final ModelNotifier modelNotifier;
 
 
     DatabaseConfig(Builder builder) {
@@ -35,6 +37,7 @@ public final class DatabaseConfig {
         transactionManagerCreator = builder.transactionManagerCreator;
         helperListener = builder.helperListener;
         tableConfigMap = builder.tableConfigMap;
+        modelNotifier = builder.modelNotifier;
     }
 
     public OpenHelperCreator helperCreator() {
@@ -53,6 +56,10 @@ public final class DatabaseConfig {
         return transactionManagerCreator;
     }
 
+    public ModelNotifier modelNotifier() {
+        return modelNotifier;
+    }
+
     public Map<Class<?>, TableConfig> tableConfigMap() {
         return tableConfigMap;
     }
@@ -69,7 +76,7 @@ public final class DatabaseConfig {
         TransactionManagerCreator transactionManagerCreator;
         DatabaseHelperListener helperListener;
         final Map<Class<?>, TableConfig> tableConfigMap = new HashMap<>();
-
+        ModelNotifier modelNotifier;
 
         public Builder(Class<?> databaseClass) {
             this.databaseClass = databaseClass;
@@ -87,6 +94,11 @@ public final class DatabaseConfig {
 
         public Builder addTableConfig(TableConfig<?> tableConfig) {
             tableConfigMap.put(tableConfig.tableClass(), tableConfig);
+            return this;
+        }
+
+        public Builder modelNotifier(ModelNotifier modelNotifier) {
+            this.modelNotifier = modelNotifier;
             return this;
         }
 

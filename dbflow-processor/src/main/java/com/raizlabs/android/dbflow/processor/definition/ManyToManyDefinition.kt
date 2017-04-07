@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.ForeignKey
 import com.raizlabs.android.dbflow.annotation.ManyToMany
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
@@ -9,12 +10,10 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.utils.lower
+import com.raizlabs.android.dbflow.processor.utils.toTypeElement
 import com.squareup.javapoet.AnnotationSpec
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
 import javax.lang.model.type.TypeMirror
@@ -57,7 +56,7 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
         }
 
         if (!thisColumnName.isNullOrEmpty() && !referencedColumnName.isNullOrEmpty()
-                && thisColumnName == referencedColumnName) {
+            && thisColumnName == referencedColumnName) {
             manager.logError(ManyToManyDefinition::class, "The thisTableColumnName and referenceTableColumnName" + "cannot be the same")
         }
     }
@@ -68,7 +67,7 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
             manager.logError("DatabaseDefinition was null for : " + elementName)
         } else {
             if (generatedTableClassName.isNullOrEmpty()) {
-                val referencedOutput = getElementClassName(manager.elements.getTypeElement(referencedTable.toString()))
+                val referencedOutput = getElementClassName(referencedTable.toTypeElement(manager))
                 setOutputClassName(databaseDefinition.classSeparator + referencedOutput?.simpleName())
             } else {
                 setOutputClassNameFull(generatedTableClassName)
@@ -78,19 +77,20 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         typeBuilder.addAnnotation(AnnotationSpec.builder(Table::class.java)
-                .addMember("database", "\$T.class", databaseTypeName).build())
+            .addMember("database", "\$T.class", databaseTypeName).build())
 
         val referencedDefinition = manager.getTableDefinition(databaseTypeName, referencedTable)
         val selfDefinition = manager.getTableDefinition(databaseTypeName, elementTypeName)
 
         if (generateAutoIncrement) {
-            typeBuilder.addField(FieldSpec.builder(TypeName.LONG, "_id")
-                    .addAnnotation(AnnotationSpec.builder(PrimaryKey::class.java)
-                            .addMember("autoincrement", "true").build()).build())
-            typeBuilder.addMethod(MethodSpec.methodBuilder("getId")
-                    .returns(TypeName.LONG)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addStatement("return \$L", "_id").build())
+            typeBuilder.apply {
+                addField(field(`@`(PrimaryKey::class) { this["autoincrement"] = "true" }, TypeName.LONG, "_id").build())
+
+                `fun`(TypeName.LONG, "getId") {
+                    modifiers(public, final)
+                    `return`("_id")
+                }
+            }
         }
 
         referencedDefinition?.let { appendColumnDefinitions(typeBuilder, it, 0, referencedColumnName) }
@@ -111,19 +111,22 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
             fieldName = optionalName
         }
 
-        val fieldBuilder = FieldSpec.builder(referencedDefinition.elementClassName, fieldName)
-                .addAnnotation(AnnotationSpec.builder(ForeignKey::class.java)
-                        .addMember("saveForeignKeyModel", saveForeignKeyModels.toString()).build())
-        if (!generateAutoIncrement) {
-            fieldBuilder.addAnnotation(AnnotationSpec.builder(PrimaryKey::class.java).build())
+        typeBuilder.apply {
+            `field`(referencedDefinition.elementClassName!!, fieldName) {
+                if (!generateAutoIncrement) {
+                    `@`(PrimaryKey::class)
+                }
+                `@`(ForeignKey::class) { member("saveForeignKeyModel", saveForeignKeyModels.toString()) }
+            }
+            `fun`(referencedDefinition.elementClassName!!, "get${fieldName.capitalizeFirstLetter()}") {
+                modifiers(public, final)
+                `return`(fieldName.L)
+            }
+            `fun`(TypeName.VOID, "set${fieldName.capitalizeFirstLetter()}",
+                param(referencedDefinition.elementClassName!!, "param")) {
+                modifiers(public, final)
+                statement("$fieldName = param")
+            }
         }
-        typeBuilder.addField(fieldBuilder.build()).build()
-        typeBuilder.addMethod(MethodSpec.methodBuilder("get" + fieldName.capitalizeFirstLetter())
-                .returns(referencedDefinition.elementClassName)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL).addStatement("return \$L", fieldName).build())
-        typeBuilder.addMethod(MethodSpec.methodBuilder("set" + fieldName.capitalizeFirstLetter())
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(referencedDefinition.elementClassName, "param")
-                .addStatement("\$L = param", fieldName).build())
     }
 }

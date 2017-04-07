@@ -8,8 +8,8 @@ import android.net.Uri;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.Condition;
-import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.Operator;
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
@@ -211,13 +211,13 @@ public class ContentUtils {
      *
      * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
      * @param queryUri        The URI of the query
-     * @param whereConditions The set of {@link Condition} to query the content provider.
+     * @param whereConditions The set of {@link Operator} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @return A {@link android.database.Cursor}
      */
     public static Cursor query(ContentResolver contentResolver, Uri queryUri,
-                               ConditionGroup whereConditions,
+                               OperatorGroup whereConditions,
                                String orderBy, String... columns) {
         return contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
     }
@@ -228,14 +228,14 @@ public class ContentUtils {
      *
      * @param queryUri        The URI of the query
      * @param table           The table to get from.
-     * @param whereConditions The set of {@link Condition} to query the content provider.
+     * @param whereConditions The set of {@link Operator} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @param <TableClass>    The class that implements {@link Model}
      * @return A list of {@link TableClass}
      */
     public static <TableClass> List<TableClass> queryList(Uri queryUri, Class<TableClass> table,
-                                                          ConditionGroup whereConditions,
+                                                          OperatorGroup whereConditions,
                                                           String orderBy, String... columns) {
         return queryList(FlowManager.getContext().getContentResolver(), queryUri, table, whereConditions, orderBy, columns);
     }
@@ -248,14 +248,14 @@ public class ContentUtils {
      * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
      * @param queryUri        The URI of the query
      * @param table           The table to get from.
-     * @param whereConditions The set of {@link Condition} to query the content provider.
+     * @param whereConditions The set of {@link Operator} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @param <TableClass>    The class that implements {@link Model}
      * @return A list of {@link TableClass}
      */
     public static <TableClass> List<TableClass> queryList(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
-                                                          ConditionGroup whereConditions,
+                                                          OperatorGroup whereConditions,
                                                           String orderBy, String... columns) {
         Cursor cursor = contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
         if (cursor != null) {
@@ -273,14 +273,14 @@ public class ContentUtils {
      *
      * @param queryUri        The URI of the query
      * @param table           The table to get from
-     * @param whereConditions The set of {@link Condition} to query the content provider.
+     * @param whereConditions The set of {@link Operator} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @param <TableClass>    The class that implements {@link Model}
      * @return The first {@link TableClass} of the list query from the content provider.
      */
     public static <TableClass> TableClass querySingle(Uri queryUri, Class<TableClass> table,
-                                                      ConditionGroup whereConditions,
+                                                      OperatorGroup whereConditions,
                                                       String orderBy, String... columns) {
         return querySingle(FlowManager.getContext().getContentResolver(), queryUri, table, whereConditions, orderBy, columns);
     }
@@ -292,14 +292,14 @@ public class ContentUtils {
      * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
      * @param queryUri        The URI of the query
      * @param table           The table to get from
-     * @param whereConditions The set of {@link Condition} to query the content provider.
+     * @param whereConditions The set of {@link Operator} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
      * @param <TableClass>    The class that implements {@link Model}
      * @return The first {@link TableClass} of the list query from the content provider.
      */
     public static <TableClass> TableClass querySingle(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
-                                                      ConditionGroup whereConditions,
+                                                      OperatorGroup whereConditions,
                                                       String orderBy, String... columns) {
         List<TableClass> list = queryList(contentResolver, queryUri, table, whereConditions, orderBy, columns);
         return list.size() > 0 ? list.get(0) : null;

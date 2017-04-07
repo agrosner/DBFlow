@@ -22,7 +22,7 @@ abstract class BaseDefinition : TypeDefinition {
 
     var elementClassName: ClassName? = null
     var elementTypeName: TypeName? = null
-    lateinit var outputClassName: ClassName
+    var outputClassName: ClassName? = null
     var erasedTypeName: TypeName? = null
 
     var element: Element
@@ -34,7 +34,7 @@ abstract class BaseDefinition : TypeDefinition {
     constructor(element: ExecutableElement, processorManager: ProcessorManager) {
         this.manager = processorManager
         this.element = element
-        packageName = manager.elements.getPackageOf(element).toString()
+        packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString() ?: ""
         elementName = element.simpleName.toString()
 
         try {
@@ -55,7 +55,7 @@ abstract class BaseDefinition : TypeDefinition {
     constructor(element: Element, processorManager: ProcessorManager) {
         this.manager = processorManager
         this.element = element
-        packageName = manager.elements.getPackageOf(element).toString()
+        packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString() ?: ""
         try {
             val typeMirror: TypeMirror
             if (element is ExecutableElement) {
@@ -89,12 +89,12 @@ abstract class BaseDefinition : TypeDefinition {
         elementClassName = ClassName.get(typeElement)
         elementTypeName = TypeName.get(element.asType())
         elementName = element.simpleName.toString()
-        packageName = manager.elements.getPackageOf(element).toString()
+        packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString() ?: ""
     }
 
-    protected open fun getElementClassName(element: Element): ClassName? {
+    protected open fun getElementClassName(element: Element?): ClassName? {
         try {
-            return ElementUtility.getClassName(element.asType().toString(), manager)
+            return ElementUtility.getClassName(element?.asType().toString(), manager)
         } catch (e: Exception) {
             return null
         }
@@ -124,9 +124,9 @@ abstract class BaseDefinition : TypeDefinition {
 
     override val typeSpec: TypeSpec
         get() {
-            val typeBuilder = TypeSpec.classBuilder(outputClassName.simpleName())
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addSuperinterfaces(Arrays.asList(*implementsClasses))
+            val typeBuilder = TypeSpec.classBuilder(outputClassName?.simpleName())
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addSuperinterfaces(Arrays.asList(*implementsClasses))
             val extendsClass = extendsClass
             if (extendsClass != null) {
                 typeBuilder.superclass(extendsClass)

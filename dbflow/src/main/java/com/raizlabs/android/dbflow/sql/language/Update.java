@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
@@ -26,7 +28,8 @@ public class Update<TModel> implements Query {
         this.table = table;
     }
 
-    public Update conflictAction(ConflictAction conflictAction) {
+    @NonNull
+    public Update<TModel> conflictAction(ConflictAction conflictAction) {
         this.conflictAction = conflictAction;
         return this;
     }
@@ -35,7 +38,8 @@ public class Update<TModel> implements Query {
      * @return This instance.
      * @see ConflictAction#ROLLBACK
      */
-    public Update orRollback() {
+    @NonNull
+    public Update<TModel> orRollback() {
         return conflictAction(ConflictAction.ROLLBACK);
     }
 
@@ -43,7 +47,8 @@ public class Update<TModel> implements Query {
      * @return This instance.
      * @see ConflictAction#ABORT
      */
-    public Update orAbort() {
+    @NonNull
+    public Update<TModel> orAbort() {
         return conflictAction(ConflictAction.ABORT);
     }
 
@@ -51,7 +56,8 @@ public class Update<TModel> implements Query {
      * @return This instance.
      * @see ConflictAction#REPLACE
      */
-    public Update orReplace() {
+    @NonNull
+    public Update<TModel> orReplace() {
         return conflictAction(ConflictAction.REPLACE);
     }
 
@@ -59,7 +65,8 @@ public class Update<TModel> implements Query {
      * @return This instance.
      * @see ConflictAction#FAIL
      */
-    public Update orFail() {
+    @NonNull
+    public Update<TModel> orFail() {
         return conflictAction(ConflictAction.FAIL);
     }
 
@@ -67,7 +74,8 @@ public class Update<TModel> implements Query {
      * @return This instance.
      * @see ConflictAction#IGNORE
      */
-    public Update orIgnore() {
+    @NonNull
+    public Update<TModel> orIgnore() {
         return conflictAction(ConflictAction.IGNORE);
     }
 
@@ -77,7 +85,8 @@ public class Update<TModel> implements Query {
      * @param conditions The array of conditions that define this SET statement
      * @return A SET query piece of this statement
      */
-    public Set<TModel> set(SQLCondition... conditions) {
+    @NonNull
+    public Set<TModel> set(SQLOperator... conditions) {
         return new Set<>(this, table).conditions(conditions);
     }
 
@@ -89,5 +98,9 @@ public class Update<TModel> implements Query {
         }
         queryBuilder.append(FlowManager.getTableName(table)).appendSpace();
         return queryBuilder.getQuery();
+    }
+
+    public Class<TModel> getTable() {
+        return table;
     }
 }
