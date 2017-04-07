@@ -166,7 +166,7 @@ public class AlterTableMigration<TModel> extends BaseMigration {
     }
 
     /**
-     * @return A List of column definitions that add column to a table in the DB.
+     * @return A List of column definitions that add op to a table in the DB.
      */
     public List<String> getColumnDefinitions() {
         String sql = new QueryBuilder(getAlterTableQueryBuilder()).append(FlowManager.getTableName(table)).toString();

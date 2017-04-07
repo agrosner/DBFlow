@@ -4,5 +4,5 @@ include ':dbflow', ':dbflow-rx-kotlinextensions', ':dbflow-rx2', ':dbflow-rx2-ko
     ':dbflow-sqlcipher',
     ':dbflow-kotlinextensions',
     ':dbflow-rx',
-    ':dbflow-tests',
-    ':dbflow-jack-tests'
+    ':dbflow-tests'
+

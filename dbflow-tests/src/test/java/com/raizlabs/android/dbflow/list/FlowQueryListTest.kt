@@ -1,68 +1,83 @@
 package com.raizlabs.android.dbflow.list
 
-import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.list.FlowQueryList
-import com.raizlabs.android.dbflow.sql.language.SQLite
-import com.raizlabs.android.dbflow.structure.database.transaction.FastStoreModelTransaction
+import com.nhaarman.mockito_kotlin.argumentCaptor
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.verify
+import com.raizlabs.android.dbflow.BaseUnitTest
+import com.raizlabs.android.dbflow.models.SimpleModel
+import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.kotlinextensions.select
+import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
-import com.raizlabs.android.dbflow.FlowTestCase
-import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.structure.TestModel1
-
+import org.junit.Assert.*
 import org.junit.Test
 
-import java.util.ArrayList
-
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertTrue
-
-/**
- * Description:
- */
-class FlowQueryListTest : FlowTestCase() {
-
+class FlowQueryListTest : BaseUnitTest() {
 
     @Test
-    fun test_ensureValidateBuilder() {
-        val success = Transaction.Success { }
-        val error = Transaction.Error { transaction, error -> }
-        val queryList = FlowQueryList.Builder(TestModel1::class.java)
-                .success(success)
-                .error(error)
-                .cacheSize(50)
-                .changeInTransaction(true)
-                .build()
-        assertEquals(success, queryList.success())
-        assertEquals(error, queryList.error())
-        assertEquals(true, queryList.cursorList().cachingEnabled())
-        assertEquals(50, queryList.cursorList().cacheSize().toLong())
-        assertTrue(queryList.changeInTransaction())
+    fun validateBuilder() {
 
+        val list = FlowQueryList.Builder<SimpleModel>(select from SimpleModel::class)
+            .modelCache(SimpleMapCache<SimpleModel>(55))
+            .transact(true)
+            .changeInTransaction(true)
+            .build()
+
+        assertTrue(list.cursorList().modelCache() is SimpleMapCache<*>)
+        assertTrue(list.cursorList().cachingEnabled())
+        assertTrue(list.transact())
+        assertTrue(list.changeInTransaction())
     }
 
     @Test
-    fun test_canIterateQueryList() {
-        val models = ArrayList<TestModel1>()
-        for (i in 0..49) {
-            val model = TestModel1()
-            model.name = "" + i
-            models.add(model)
-        }
-        FlowManager.getDatabase(TestDatabase::class.java)
-                .executeTransaction(FastStoreModelTransaction
-                        .insertBuilder(FlowManager.getModelAdapter(TestModel1::class.java))
-                        .addAll(models)
-                        .build())
+    fun validateNonCachedBuilder() {
 
-        val queryList = SQLite.select()
-                .from(TestModel1::class.java).flowQueryList()
-        assertNotEquals(0, queryList.size.toLong())
-        assertEquals(50, queryList.size.toLong())
-        var count = 0
-        for (model in queryList) {
-            assertEquals(count.toString() + "", model.name)
-            count++
-        }
+        val list = FlowQueryList.Builder<SimpleModel>(select from SimpleModel::class)
+            .cacheModels(false)
+            .build()
+
+        assertFalse(list.cursorList().cachingEnabled())
+
     }
+
+
+    @Test
+    fun validateListOperations() {
+        val mockSuccess = mock<Transaction.Success>()
+        val mockError = mock<Transaction.Error>()
+        val list = (select from SimpleModel::class).flowQueryList()
+            .newBuilder().success(mockSuccess)
+            .error(mockError)
+            .build()
+        list += SimpleModel("1")
+
+        // verify added
+        assertEquals(1, list.count)
+        assertFalse(list.isEmpty())
+
+        // verify success called
+        verify(mockSuccess).onSuccess(argumentCaptor<Transaction>().capture())
+
+        list -= SimpleModel("1")
+        assertEquals(0, list.count)
+
+        list += SimpleModel("1")
+        list.removeAt(0)
+        assertEquals(0, list.count)
+
+        val elements = arrayListOf(SimpleModel("1"), SimpleModel("2"))
+        list.addAll(elements)
+        assertEquals(2, list.count)
+        list.removeAll(elements)
+        assertEquals(0, list.count)
+
+        list.addAll(elements)
+
+        val typedArray = list.toTypedArray()
+        assertEquals(typedArray.size, list.size)
+
+        list.clear()
+        assertEquals(0, list.size)
+    }
+
 }

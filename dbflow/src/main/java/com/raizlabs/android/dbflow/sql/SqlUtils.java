@@ -8,11 +8,11 @@ import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
-import com.raizlabs.android.dbflow.sql.language.Condition;
-import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
-import com.raizlabs.android.dbflow.sql.language.SQLCondition;
+import com.raizlabs.android.dbflow.sql.language.Operator;
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
+import com.raizlabs.android.dbflow.sql.language.SQLOperator;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -31,66 +31,54 @@ public class SqlUtils {
 
     /**
      * Notifies the {@link ContentObserver} that the model has changed.
-     *
-     * @param action        The {@link Action} enum
-     * @param table         The table of the model
-     * @param sqlConditions The list of conditions that represent what changed.
      */
+    @Deprecated
     public static void notifyModelChanged(Class<?> table, Action action,
-                                          Iterable<SQLCondition> sqlConditions) {
+                                          Iterable<SQLOperator> sqlOperators) {
         FlowManager.getContext().getContentResolver().notifyChange(
-            getNotificationUri(table, action, sqlConditions), null, true);
+            getNotificationUri(table, action, sqlOperators), null, true);
     }
 
     /**
-     * Performs necessary logic to notify of {@link Model}g changes.
+     * Performs necessary logic to notify of {@link Model} changes.
      *
-     * @param <TModel>     The original model class.
-     * @param modelAdapter The actual {@link ModelAdapter} associated with the {@link TModel}/
-     * @param action       The {@link Action} that occured.
+     * @see NotifyDistributor
      */
     @SuppressWarnings("unchecked")
-    public static <TModel> void notifyModelChanged(TModel model,
-                                                   ModelAdapter<TModel> modelAdapter,
-                                                   Action action) {
-        if (FlowContentObserver.shouldNotify()) {
-            FlowManager.getContext().getContentResolver()
-                .notifyChange(getNotificationUri(modelAdapter.getModelClass(), action,
-                    modelAdapter.getPrimaryConditionClause(model).getConditions()), null, true);
-        }
+    @Deprecated
+    public static <TModel> void notifyModelChanged(@Nullable TModel model,
+                                                   @NonNull ModelAdapter<TModel> modelAdapter,
+                                                   @NonNull Action action) {
+        NotifyDistributor.get().notifyModelChanged(model, modelAdapter, action);
     }
 
     /**
      * Notifies listeners of table-level changes from the SQLite-wrapper language.
      *
-     * @param table
-     * @param action
-     * @param <TModel>
+     * @see NotifyDistributor
      */
-    public static <TModel> void notifyTableChanged(Class<TModel> table,
-                                                   Action action) {
-        if (FlowContentObserver.shouldNotify()) {
-            FlowManager.getContext().getContentResolver()
-                .notifyChange(getNotificationUri(table, action, (SQLCondition[]) null), null, true);
-        }
+    @Deprecated
+    public static <TModel> void notifyTableChanged(@NonNull Class<TModel> table,
+                                                   @NonNull Action action) {
+        NotifyDistributor.get().notifyTableChanged(table, action);
     }
 
     /**
-     * Constructs a {@link Uri} from a set of {@link SQLCondition} for specific table.
+     * Constructs a {@link Uri} from a set of {@link SQLOperator} for specific table.
      *
      * @param modelClass The class of table,
      * @param action     The action to use.
-     * @param conditions The set of key-value {@link SQLCondition} to construct into a uri.
+     * @param conditions The set of key-value {@link SQLOperator} to construct into a uri.
      * @return The {@link Uri}.
      */
-    public static Uri getNotificationUri(Class<?> modelClass, Action action, Iterable<SQLCondition> conditions) {
+    public static Uri getNotificationUri(Class<?> modelClass, Action action, Iterable<SQLOperator> conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
             .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
         if (conditions != null) {
-            for (SQLCondition condition : conditions) {
+            for (SQLOperator condition : conditions) {
                 uriBuilder.appendQueryParameter(Uri.encode(condition.columnName()), Uri.encode(String.valueOf(condition.value())));
             }
         }
@@ -99,22 +87,22 @@ public class SqlUtils {
 
 
     /**
-     * Constructs a {@link Uri} from a set of {@link SQLCondition} for specific table.
+     * Constructs a {@link Uri} from a set of {@link SQLOperator} for specific table.
      *
      * @param modelClass The class of table,
      * @param action     The action to use.
-     * @param conditions The set of key-value {@link SQLCondition} to construct into a uri.
+     * @param conditions The set of key-value {@link SQLOperator} to construct into a uri.
      * @return The {@link Uri}.
      */
     public static Uri getNotificationUri(Class<?> modelClass, Action action,
-                                         @Nullable SQLCondition[] conditions) {
+                                         @Nullable SQLOperator[] conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
             .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
         if (conditions != null && conditions.length > 0) {
-            for (SQLCondition condition : conditions) {
+            for (SQLOperator condition : conditions) {
                 if (condition != null) {
                     uriBuilder.appendQueryParameter(Uri.encode(condition.columnName()), Uri.encode(String.valueOf(condition.value())));
                 }
@@ -135,11 +123,11 @@ public class SqlUtils {
 
     public static Uri getNotificationUri(Class<?> modelClass, Action action,
                                          String notifyKey, Object notifyValue) {
-        Condition condition = null;
+        Operator operator = null;
         if (StringUtils.isNotNullOrEmpty(notifyKey)) {
-            condition = Condition.column(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
+            operator = Operator.op(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
         }
-        return getNotificationUri(modelClass, action, new SQLCondition[]{condition});
+        return getNotificationUri(modelClass, action, new SQLOperator[]{operator});
     }
 
     /**
@@ -180,17 +168,17 @@ public class SqlUtils {
     }
 
     /**
-     * Adds {@link ContentValues} to the specified {@link ConditionGroup}.
+     * Adds {@link ContentValues} to the specified {@link OperatorGroup}.
      *
-     * @param contentValues  The content values to convert.
-     * @param conditionGroup The group to put them into as {@link Condition}.
+     * @param contentValues The content values to convert.
+     * @param operatorGroup The group to put them into as {@link Operator}.
      */
-    public static void addContentValues(@NonNull ContentValues contentValues, @NonNull ConditionGroup conditionGroup) {
+    public static void addContentValues(@NonNull ContentValues contentValues, @NonNull OperatorGroup operatorGroup) {
         java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
 
         for (Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
-            conditionGroup.and(Condition.column(new NameAlias.Builder(key).build())
+            operatorGroup.and(Operator.op(new NameAlias.Builder(key).build())
                 .is(contentValues.get(key)));
         }
     }

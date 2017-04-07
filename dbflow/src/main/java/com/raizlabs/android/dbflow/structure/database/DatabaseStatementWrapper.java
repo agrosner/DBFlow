@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.structure.database;
 
 import android.support.annotation.NonNull;
 
-import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
 
 /**
@@ -25,7 +25,7 @@ public class DatabaseStatementWrapper<TModel> implements DatabaseStatement {
     public long executeUpdateDelete() {
         long affected = databaseStatement.executeUpdateDelete();
         if (affected > 0) {
-            SqlUtils.notifyTableChanged(modelQueriable.getTable(),
+            NotifyDistributor.get().notifyTableChanged(modelQueriable.getTable(),
                 modelQueriable.getPrimaryAction());
         }
         return affected;
@@ -55,7 +55,7 @@ public class DatabaseStatementWrapper<TModel> implements DatabaseStatement {
     public long executeInsert() {
         long affected = databaseStatement.executeInsert();
         if (affected > 0) {
-            SqlUtils.notifyTableChanged(modelQueriable.getTable(),
+            NotifyDistributor.get().notifyTableChanged(modelQueriable.getTable(),
                 modelQueriable.getPrimaryAction());
         }
         return affected;

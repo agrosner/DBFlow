@@ -5,8 +5,11 @@ import com.raizlabs.android.dbflow.annotation.Database
 /**
  * Description:
  */
-@Database(name = TestDatabase.NAME, version = 3, foreignKeyConstraintsEnforced = true)
+@Database(version = TestDatabase.VERSION, name = TestDatabase.NAME)
 object TestDatabase {
 
-    const val NAME = "Test"
+    const val VERSION = 1
+
+    const val NAME = "TestDatabase";
+
 }

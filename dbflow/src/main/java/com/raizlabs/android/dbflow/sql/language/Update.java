@@ -86,7 +86,7 @@ public class Update<TModel> implements Query {
      * @return A SET query piece of this statement
      */
     @NonNull
-    public Set<TModel> set(SQLCondition... conditions) {
+    public Set<TModel> set(SQLOperator... conditions) {
         return new Set<>(this, table).conditions(conditions);
     }
 

@@ -2,6 +2,14 @@
 
 DBFlow supports Kotlin out of the box and is fairly easily to use and implement.
 
+To add useful Kotlin-specific extensions:
+```
+dependencies {
+  compile "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}@aar"
+}
+
+```
+We also support [kotlin extensions for RX 1 + 2](/usage2/RXSupport.md)!
 
 ## Classes
 
@@ -9,56 +17,31 @@ DBFlow Classes are beautifully concise to write:
 
 ```kotlin
 @Table(database = KotlinDatabase::class)
-class Person() : BaseModel() {
-    @PrimaryKey var id: Int = 0
-
-    @Column var name: String? = null
-}
+class Person(@PrimaryKey var id: Int = 0, @Column var name: String? = null)
 ```
 
-Also `data` classes are supported. Starting from Kotlin 1.1 they can be extended from BaseModel:
+Also `data` classes are supported.
 
 ```kotlin
 @Table(database = KotlinTestDatabase::class)
-data class Car(@PrimaryKey var id: Int = 0, @Column var name: String? = null) : BaseModel()
+data class Car(@PrimaryKey var id: Int = 0, @Column var name: String? = null)
 ```
 
-For Kotlin below 1.1 version they _must_ define `Model` implementation:
+In 4.0.0+, DBFlow contains a few extensions for Kotlin models which enable you
+to keep your models acting like `BaseModel`, but do not have to explicitly extend
+the class!
 
 ```kotlin
-@Table(database = KotlinTestDatabase::class)
-data class Car(@PrimaryKey var id: Int = 0, @Column var name: String? = null) : Model {
 
-    override fun save() = modelAdapter<Car>().save(this)
-
-    override fun delete() = modelAdapter<Car>().delete(this)
-
-    override fun update() = modelAdapter<Car>().update(this)
-
-    override fun insert() = modelAdapter<Car>().insert(this)
-
-    override fun exists() = modelAdapter<Car>().exists(this)
-}
-```
-
-## Extensions
-
-DBFlow as of `3.0.0+` contains some extensions for use in Kotlin. These
-are defined in a separate dependency:
-
-```
-dependencies {
-  compile "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}@aar"
-}
+car.save() // extension method, optional databaseWrapper parameter.
+car.insert()
+car.update()
+car.delete()
+car.exists()
 
 ```
 
-### Query Extensions
-
-Note that these features are incubating and may change or get removed in a later version.
-
-
-#### Query LINQ Syntax
+## Query LINQ Syntax
 
 Kotlin has nice support for custim `infix` operators. Using this we can convert a regular, Plain old java query into a C#-like LINQ syntax.
 
@@ -143,9 +126,28 @@ var query = (select
 
 ```
 
-### Database Extensions
+### Query Extensions
 
-The more interesting part is the extensions here.
+We can easily create nested `Operator` into `OperatorGroup` also fairly easily, also
+other, random extensions:
+```kotlin
+
+select from SomeTable::class where (name.eq("name") and id.eq(0))
+
+"name".op<String>() collate NOCASE
+
+"name".nameAlias
+
+"name".nameAlias `as` "My Name"
+
+// query sugar
+
+select from SomeTable::class where (name eq "name") or (id eq 0)
+
+```
+
+
+### Database Extensions
 
 #### Process Models Asynchronously
 

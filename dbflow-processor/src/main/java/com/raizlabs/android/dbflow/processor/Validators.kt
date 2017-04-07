@@ -1,12 +1,6 @@
 package com.raizlabs.android.dbflow.processor
 
-import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition
-import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
-import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition
-import com.raizlabs.android.dbflow.processor.definition.OneToManyDefinition
-import com.raizlabs.android.dbflow.processor.definition.TableDefinition
-import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition
-import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
+import com.raizlabs.android.dbflow.processor.definition.*
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.EnumColumnAccessor
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
@@ -184,6 +178,13 @@ class TableValidator : Validator<TableDefinition> {
 
     override fun validate(processorManager: ProcessorManager, validatorDefinition: TableDefinition): Boolean {
         var success = true
+
+        if (!validatorDefinition.hasPrimaryConstructor) {
+            processorManager.logError(TableValidator::class, "Table ${
+            validatorDefinition.elementClassName}" +
+                    " must provide a visible, default constructor.")
+            success = false
+        }
 
         if (validatorDefinition.columnDefinitions.isEmpty()) {
             processorManager.logError(TableValidator::class, "Table %1s of %1s, %1s needs to define at least one column", validatorDefinition.tableName,

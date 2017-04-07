@@ -13,7 +13,7 @@ import javax.lang.model.element.Modifier
  */
 class DatabaseHolderDefinition(private val processorManager: ProcessorManager) : TypeDefinition {
 
-    private var className = ""
+    var className = ""
 
     init {
 
@@ -46,7 +46,7 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
                 }
             }
 
-            processorManager.getDatabaseHolderDefinitionMap().forEach { databaseDefinition ->
+            processorManager.getDatabaseHolderDefinitionList().sortedBy { it.databaseDefinition?.outputClassName?.simpleName() }.forEach { databaseDefinition ->
                 databaseDefinition.databaseDefinition?.let { constructor.addStatement("new \$T(this)", it.outputClassName) }
             }
 
@@ -55,6 +55,11 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
 
             return typeBuilder.build()
         }
+
+    fun isGarbage(): Boolean {
+        val filter = processorManager.getDatabaseHolderDefinitionList().filter { it.databaseDefinition?.outputClassName != null }
+        return filter.isEmpty()
+    }
 
     companion object {
 

@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.BaseModel;
@@ -95,7 +96,7 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
 
     @Override
     public long executeInsert() {
-        return executeUpdateDelete(FlowManager.getWritableDatabaseForTable(table));
+        return executeInsert(FlowManager.getWritableDatabaseForTable(table));
     }
 
     @Override
@@ -110,7 +111,7 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
             cursor.close();
         } else {
             // we dont query, we're executing something here.
-            SqlUtils.notifyTableChanged(getTable(), getPrimaryAction());
+            NotifyDistributor.get().notifyTableChanged(getTable(), getPrimaryAction());
         }
     }
 
@@ -121,7 +122,7 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
             cursor.close();
         } else {
             // we dont query, we're executing something here.
-            SqlUtils.notifyTableChanged(getTable(), getPrimaryAction());
+            NotifyDistributor.get().notifyTableChanged(getTable(), getPrimaryAction());
         }
     }
 

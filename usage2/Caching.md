@@ -21,6 +21,7 @@ Caching is supported for:
   1. `SparseArray` via `SparseArrayBasedCache` (platform SparseArray)
   2. `Map` via `SimpleMapCache`
   3. `LruCache` via `ModelLruCache` (copy of `LruCache`, so dependency avoided)
+  4. Custom Caching classes that implement `ModelCache`
 
 Cache sizes are not supported for `SimpleMapCache`. This is because `Map` can hold
 arbitrary size of contents.
@@ -59,6 +60,18 @@ If an item exists with the same primary key combination, we return that object o
 If you operate on a model object, that change gets reflected in the cache. But beware
 modifying them in a separate thread might result in state state returned if the cache is not synchronized
 properly.
+
+Any time a field on these objects are modified, you _should_ immediately save those
+since we have a direct reference to the object from the cache. Otherwise, the DB
+and cache could get into an inconsistent state.
+
+```java
+
+MyModel model = SQLite.select().from(MyModel.class).where(...).querySingle();
+model.setName("Name");
+model.save(); // save it to DB post any modifications to this object.
+
+```
 
 ## Disable Caching For Some Queries
 

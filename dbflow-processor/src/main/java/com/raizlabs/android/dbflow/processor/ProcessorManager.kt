@@ -44,8 +44,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun addHandlers(vararg containerHandlers: BaseContainerHandler<*>) {
         containerHandlers
-            .filterNot { handlers.contains(it) }
-            .forEach { handlers.add(it) }
+                .filterNot { handlers.contains(it) }
+                .forEach { handlers.add(it) }
     }
 
     val messager: Messager = processingEnvironment.messager
@@ -65,7 +65,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         holderDefinition?.databaseDefinition = databaseDefinition
     }
 
-    fun getDatabaseHolderDefinitionMap() = ArrayList(databaseDefinitionMap.values)
+    fun getDatabaseHolderDefinitionList() = ArrayList(databaseDefinitionMap.values)
 
     fun getDatabaseHolderDefinition(databaseName: TypeName?) = databaseDefinitionMap[databaseName]
 
@@ -85,7 +85,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     fun addQueryModelDefinition(queryModelDefinition: QueryModelDefinition) {
         queryModelDefinition.elementClassName?.let {
             getOrPutDatabase(queryModelDefinition.databaseTypeName)?.
-                queryModelDefinitionMap?.put(it, queryModelDefinition)
+                    queryModelDefinitionMap?.put(it, queryModelDefinition)
         }
     }
 
@@ -96,7 +96,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
             holderDefinition?.tableNameMap?.let {
                 if (holderDefinition.tableNameMap.containsKey(tableDefinition.tableName)) {
                     logError("Found duplicate table %1s for database %1s", tableDefinition.tableName,
-                        holderDefinition.databaseDefinition?.databaseName)
+                            holderDefinition.databaseDefinition?.databaseName)
                 } else tableDefinition.tableName?.let {
                     holderDefinition.tableNameMap.put(it, tableDefinition)
                 }
@@ -127,17 +127,16 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     fun addModelViewDefinition(modelViewDefinition: ModelViewDefinition) {
         modelViewDefinition.elementClassName?.let {
             getOrPutDatabase(modelViewDefinition.databaseName)?.
-                modelViewDefinitionMap?.put(it, modelViewDefinition)
+                    modelViewDefinitionMap?.put(it, modelViewDefinition)
         }
     }
 
-    fun getTypeConverters(): Set<TypeConverterDefinition> {
-        return Sets.newLinkedHashSet(typeConverters.values)
-    }
+    fun getTypeConverters() = Sets.newLinkedHashSet(typeConverters.values).sortedBy { it.modelTypeName?.toString() }
 
-    fun getTableDefinitions(databaseName: TypeName): Set<TableDefinition> {
+    fun getTableDefinitions(databaseName: TypeName): List<TableDefinition> {
         val databaseHolderDefinition = getOrPutDatabase(databaseName)
         return Sets.newHashSet(databaseHolderDefinition?.tableDefinitionMap?.values ?: arrayListOf())
+                .sortedBy { it.outputClassName?.simpleName() }
     }
 
     fun setTableDefinitions(tableDefinitionSet: MutableMap<TypeName, TableDefinition>, databaseName: TypeName) {
@@ -145,9 +144,10 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         databaseDefinition?.tableDefinitionMap = tableDefinitionSet
     }
 
-    fun getModelViewDefinitions(databaseName: TypeName): Set<ModelViewDefinition> {
+    fun getModelViewDefinitions(databaseName: TypeName): List<ModelViewDefinition> {
         val databaseDefinition = getOrPutDatabase(databaseName)
         return Sets.newHashSet(databaseDefinition?.modelViewDefinitionMap?.values ?: arrayListOf())
+                .sortedBy { it.outputClassName?.simpleName() }
     }
 
     fun setModelViewDefinitions(modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition>, elementClassName: ClassName) {
@@ -155,9 +155,10 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         databaseDefinition?.modelViewDefinitionMap = modelViewDefinitionMap
     }
 
-    fun getQueryModelDefinitions(databaseName: TypeName): Set<QueryModelDefinition> {
+    fun getQueryModelDefinitions(databaseName: TypeName): List<QueryModelDefinition> {
         val databaseDefinition = getOrPutDatabase(databaseName)
         return Sets.newHashSet(databaseDefinition?.queryModelDefinitionMap?.values ?: arrayListOf())
+                .sortedBy { it.outputClassName?.simpleName() }
     }
 
     fun addMigrationDefinition(migrationDefinition: MigrationDefinition) {
@@ -199,7 +200,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         val contentProviderDefinition = providerMap[tableEndpointDefinition.contentProviderName]
         if (contentProviderDefinition == null) {
             logError("Content Provider %1s was not found for the @TableEndpoint %1s",
-                tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName)
+                    tableEndpointDefinition.contentProviderName, tableEndpointDefinition.elementClassName)
         } else {
             contentProviderDefinition.endpointDefinitions.add(tableEndpointDefinition)
         }
@@ -238,24 +239,25 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     override fun handle(processorManager: ProcessorManager, roundEnvironment: RoundEnvironment) {
         handlers.forEach { it.handle(processorManager, roundEnvironment) }
 
-        val databaseDefinitions = getDatabaseHolderDefinitionMap()
+        val databaseDefinitions = getDatabaseHolderDefinitionList()
+                .sortedBy { it.databaseDefinition?.outputClassName?.simpleName() }
         for (databaseHolderDefinition in databaseDefinitions) {
             try {
 
                 if (databaseHolderDefinition.databaseDefinition == null) {
                     manager.logError("Found null db with: ${databaseHolderDefinition.tableNameMap.values.size} tables," +
-                        " ${databaseHolderDefinition.modelViewDefinitionMap.values.size} modelviews. " +
-                        "Attempt to rebuild project should fix this intermittant issue.")
+                            " ${databaseHolderDefinition.modelViewDefinitionMap.values.size} modelviews. " +
+                            "Attempt to rebuild project should fix this intermittant issue.")
                     manager.logError("Found tables: " + databaseHolderDefinition.tableNameMap.values)
                     continue
                 }
 
                 val manyToManyDefinitions = databaseHolderDefinition.manyToManyDefinitionMap.values
-                for (manyToManyList in manyToManyDefinitions) {
-                    for (manyToMany in manyToManyList) {
-                        manyToMany.prepareForWrite()
-                        WriterUtils.writeBaseDefinition(manyToMany, processorManager)
-                    }
+
+                val flattenedList = manyToManyDefinitions.flatten().sortedBy { it.outputClassName?.simpleName() }
+                for (manyToManyList in flattenedList) {
+                    manyToManyList.prepareForWrite()
+                    WriterUtils.writeBaseDefinition(manyToManyList, processorManager)
                 }
 
                 // process all in next round.
@@ -267,6 +269,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                 if (roundEnvironment.processingOver()) {
                     val validator = ContentProviderValidator()
                     val contentProviderDefinitions = databaseHolderDefinition.providerMap.values
+                            .sortedBy { it.outputClassName?.simpleName() }
                     contentProviderDefinitions.forEach { contentProviderDefinition ->
                         contentProviderDefinition.prepareForWrite()
                         if (validator.validate(processorManager, contentProviderDefinition)) {
@@ -279,13 +282,16 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
                 if (roundEnvironment.processingOver()) {
                     databaseHolderDefinition.databaseDefinition?.let {
-                        JavaFile.builder(it.packageName, it.typeSpec).build()
-                            .writeTo(processorManager.processingEnvironment.filer)
+                        if (it.outputClassName != null) {
+                            JavaFile.builder(it.packageName, it.typeSpec).build()
+                                    .writeTo(processorManager.processingEnvironment.filer)
+                        }
                     }
                 }
 
 
                 val tableDefinitions = databaseHolderDefinition.tableDefinitionMap.values
+                        .sortedBy { it.outputClassName?.simpleName() }
 
                 tableDefinitions.forEach { WriterUtils.writeBaseDefinition(it, processorManager) }
 
@@ -294,6 +300,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                 modelViewDefinitions.forEach { WriterUtils.writeBaseDefinition(it, processorManager) }
 
                 val queryModelDefinitions = databaseHolderDefinition.queryModelDefinitionMap.values
+                        .sortedBy { it.outputClassName?.simpleName() }
                 queryModelDefinitions.forEach { WriterUtils.writeBaseDefinition(it, processorManager) }
 
                 tableDefinitions.forEach {
@@ -323,9 +330,12 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
         if (roundEnvironment.processingOver()) {
             try {
-                JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                    DatabaseHolderDefinition(processorManager).typeSpec).build()
-                    .writeTo(processorManager.processingEnvironment.filer)
+                val databaseHolderDefinition = DatabaseHolderDefinition(processorManager)
+                if (!databaseHolderDefinition.isGarbage()) {
+                    JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
+                            databaseHolderDefinition.typeSpec).build()
+                            .writeTo(processorManager.processingEnvironment.filer)
+                }
             } catch (e: IOException) {
                 logError(e.message)
             }

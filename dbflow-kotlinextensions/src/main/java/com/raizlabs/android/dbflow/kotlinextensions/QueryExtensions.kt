@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.kotlinextensions
 
+import com.raizlabs.android.dbflow.annotation.Collate
+import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.language.*
 import com.raizlabs.android.dbflow.sql.language.Set
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
@@ -26,15 +28,17 @@ infix fun <T : Any> Select.from(modelClass: KClass<T>) = from(modelClass.java)
 
 infix fun <T : Any> From<T>.whereExists(where: Where<T>) = where().exists(where)
 
-infix fun <T : Any> From<T>.where(sqlCondition: SQLCondition) = where(sqlCondition)
+infix fun <T : Any> From<T>.where(sqlOperator: SQLOperator) = where(sqlOperator)
 
-infix fun <T : Any> Set<T>.where(sqlCondition: SQLCondition) = where(sqlCondition)
+infix fun <T : Any> From<T>.`as`(alias: String) = `as`(alias)
 
-infix fun <T : Any> Where<T>.and(sqlCondition: SQLCondition) = and(sqlCondition)
+infix fun <T : Any> Set<T>.where(sqlOperator: SQLOperator) = where(sqlOperator)
 
-infix fun <T : Any> Where<T>.or(sqlCondition: SQLCondition) = and(sqlCondition)
+infix fun <T : Any> Where<T>.and(sqlOperator: SQLOperator) = and(sqlOperator)
 
-infix fun <T : Any> Case<T>.`when`(sqlCondition: SQLCondition) = `when`(sqlCondition)
+infix fun <T : Any> Where<T>.or(sqlOperator: SQLOperator) = or(sqlOperator)
+
+infix fun <T : Any> Case<T>.`when`(sqlOperator: SQLOperator) = `when`(sqlOperator)
 
 infix fun <T : Any> Case<T>.`when`(property: IProperty<*>) = `when`(property)
 
@@ -47,6 +51,16 @@ infix fun <T : Any> CaseCondition<T>.then(property: IProperty<*>) = then(propert
 infix fun <T : Any> Case<T>.`else`(value: T?) = _else(value)
 
 infix fun <T : Any> Case<T>.end(columnName: String) = end(columnName)
+
+fun <T : Any> case(caseColumn: IProperty<*>? = null) = SQLite._case<T>(caseColumn)
+
+fun <T : Any> caseWhen(operator: SQLOperator) = SQLite.caseWhen<T>(operator)
+
+inline fun <reified T : Any> insert() = Insert(T::class.java)
+
+inline fun <reified T : Any> indexOn(indexName: String, vararg property: IProperty<*>) = Index<T>(indexName).on(T::class.java, *property)
+
+inline fun <reified T : Any> indexOn(indexName: String, firstNameAlias: NameAlias, vararg arrayOfNameAlias: NameAlias) = Index<T>(indexName).on(T::class.java, firstNameAlias, *arrayOfNameAlias)
 
 // queriable extensions
 
@@ -71,12 +85,21 @@ inline val <T : Any> ModelQueriable<T>.result
 inline val <T : Any> ModelQueriable<T>.cursorResult
     get() = queryResults()
 
+// cursor result extensions
+inline fun <reified T : Any> CursorResult<*>.toCustomList() = toCustomList(T::class.java)
+
+inline fun <reified T : Any> CursorResult<*>.toCustomListClose() = toCustomListClose(T::class.java)
+
+inline fun <reified T : Any> CursorResult<*>.toCustomModel() = toCustomModel(T::class.java)
+
+inline fun <reified T : Any> CursorResult<*>.toCustomModelClose() = toCustomModelClose(T::class.java)
+
 // async extensions
 
 inline val <T : Any> ModelQueriable<T>.async
     get() = async()
 
-infix inline fun <T : Any> AsyncQuery<T>.list(crossinline callback: (QueryTransaction<*>, MutableList<T>?) -> Unit)
+infix inline fun <T : Any> AsyncQuery<T>.list(crossinline callback: (QueryTransaction<*>, MutableList<T>) -> Unit)
         = queryListResultCallback { queryTransaction, mutableList -> callback(queryTransaction, mutableList) }
         .execute()
 
@@ -111,7 +134,9 @@ infix fun <T : Any> Transformable<T>.limit(limit: Int): Where<T> = limit(limit)
 
 infix fun <T : Any> Transformable<T>.offset(offset: Int): Where<T> = offset(offset)
 
-infix fun <T : Any> Transformable<T>.having(sqlCondition: SQLCondition): Where<T> = having(sqlCondition)
+infix fun <T : Any> Transformable<T>.having(sqlOperator: SQLOperator): Where<T> = having(sqlOperator)
+
+infix fun OrderBy.collate(collate: Collate) = collate(collate)
 
 // join
 
@@ -121,13 +146,17 @@ infix fun <T : Any, V : Any> From<V>.crossJoin(joinTable: KClass<T>): Join<T, V>
 
 infix fun <T : Any, V : Any> From<V>.leftOuterJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.LEFT_OUTER)
 
-infix fun <T : Any, V : Any> Join<T, V>.on(sqlCondition: SQLCondition): From<V> = on(sqlCondition)
+infix fun <T : Any, V : Any> From<V>.naturalJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.NATURAL)
+
+infix fun <T : Any, V : Any> Join<T, V>.on(sqlOperator: SQLOperator): From<V> = on(sqlOperator)
+
+infix fun <T : Any, V : Any> Join<T, V>.using(property: IProperty<*>): From<V> = using(property)
 
 // update methods
 
-fun <T : Any> update(modelClass: KClass<T>): Update<T> = SQLite.update(modelClass.java)
+inline fun <reified T : Any> update() = SQLite.update(T::class.java)
 
-infix fun <T : Any> Update<T>.set(sqlCondition: SQLCondition) = set(sqlCondition)
+infix fun <T : Any> Update<T>.set(sqlOperator: SQLOperator) = set(sqlOperator)
 
 // delete
 
@@ -140,31 +169,43 @@ inline fun <reified T : Any> delete(deleteClause: From<T>.() -> BaseModelQueriab
 
 fun <T : Any> insert(modelClass: KClass<T>) = SQLite.insert(modelClass.java)
 
-infix fun <T : Any> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().into(*into)
+infix fun <T : Any> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().columnValues(*into)
 
-infix fun <T : Any> Insert<T>.orRollback(into: Array<out Pair<IProperty<*>, *>>) = orRollback().into(*into)
+infix fun <T : Any> Insert<T>.orRollback(into: Array<out Pair<IProperty<*>, *>>) = orRollback().columnValues(*into)
 
-infix fun <T : Any> Insert<T>.orAbort(into: Array<out Pair<IProperty<*>, *>>) = orAbort().into(*into)
+infix fun <T : Any> Insert<T>.orAbort(into: Array<out Pair<IProperty<*>, *>>) = orAbort().columnValues(*into)
 
-infix fun <T : Any> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) = orFail().into(*into)
+infix fun <T : Any> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) = orFail().columnValues(*into)
 
-infix fun <T : Any> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().into(*into)
+infix fun <T : Any> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().columnValues(*into)
 
 infix fun <T : Any> Insert<T>.select(from: From<*>): Insert<T> = select(from)
 
-fun into(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> = pairs
+fun columnValues(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> = pairs
 
-fun <T> Insert<T>.into(vararg pairs: Pair<IProperty<*>, *>): Insert<T> {
+fun <T> Insert<T>.columnValues(vararg pairs: Pair<IProperty<*>, *>): Insert<T> {
     val columns: MutableList<IProperty<*>> = java.util.ArrayList()
     val values = java.util.ArrayList<Any?>()
     pairs.forEach {
         columns.add(it.first)
         values.add(it.second)
     }
-    this.columns(columns).values(values.toArray())
+    this.columns(columns).values(values)
     return this
 }
 
+// Trigger
+fun createTrigger(name: String) = Trigger.create(name)
+
+infix fun <T : Any> Trigger.deleteOn(kClass: KClass<T>) = deleteOn(kClass.java)
+
+infix fun <T : Any> Trigger.insertOn(kClass: KClass<T>) = insertOn(kClass.java)
+
+infix fun <T : Any> Trigger.updateOn(kClass: KClass<T>) = updateOn(kClass.java)
+
+infix fun <T : Any> TriggerMethod<T>.begin(triggerStatement: Query) = begin(triggerStatement)
+
+infix fun <T : Any> CompletedTrigger<T>.and(nextStatement: Query) = and(nextStatement)
 
 // DSL
 
@@ -178,13 +219,13 @@ fun <T : Any> select(init: Select.() -> BaseModelQueriable<T>) = init(SQLite.sel
 
 inline fun <reified T : Any> Select.from(fromClause: From<T>.() -> Where<T>) = fromClause(from(T::class.java))
 
-inline fun <T : Any> From<T>.where(sqlConditionClause: () -> SQLCondition) = where(sqlConditionClause())
+inline fun <T : Any> From<T>.where(sqlOperatorClause: () -> SQLOperator) = where(sqlOperatorClause())
 
-inline fun <T : Any> Set<T>.where(sqlConditionClause: () -> SQLCondition) = where(sqlConditionClause())
+inline fun <T : Any> Set<T>.where(sqlOperatorClause: () -> SQLOperator) = where(sqlOperatorClause())
 
-inline fun <T : Any> Where<T>.and(sqlConditionClause: () -> SQLCondition) = and(sqlConditionClause())
+inline fun <T : Any> Where<T>.and(sqlOperatorClause: () -> SQLOperator) = and(sqlOperatorClause())
 
-inline fun <T : Any> Where<T>.or(sqlConditionClause: () -> SQLCondition) = or(sqlConditionClause())
+inline fun <T : Any> Where<T>.or(sqlOperatorClause: () -> SQLOperator) = or(sqlOperatorClause())
 
 inline fun <T : Any, reified TJoin : Any> From<T>.join(joinType: Join.JoinType,
                                                        function: Join<TJoin, T>.() -> Unit): Where<T> {
@@ -194,7 +235,7 @@ inline fun <T : Any, reified TJoin : Any> From<T>.join(joinType: Join.JoinType,
 
 inline fun <reified T : Any> insert(insertMethod: Insert<T>.() -> Unit) = SQLite.insert(T::class.java).apply { insertMethod(this) }
 
-inline infix fun <T : Any, TJoin : Any> Join<TJoin, T>.on(conditionFunction: () -> Array<out SQLCondition>) = on(*conditionFunction())
+inline infix fun <T : Any, TJoin : Any> Join<TJoin, T>.on(operatorFunction: () -> Array<out SQLOperator>) = on(*operatorFunction())
 
 inline fun <reified T : Any> update(setMethod: Update<T>.() -> BaseModelQueriable<T>) = setMethod(SQLite.update(T::class.java))
 

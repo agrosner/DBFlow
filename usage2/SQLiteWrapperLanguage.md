@@ -51,11 +51,11 @@ SELECT COUNT(`name`), SUM(`salary`) FROM `Employee`;
 
 There are more handy methods in `Method`.
 
-### Conditions
+### Operators
 
-DBFlow supports many kinds of conditions. They are formulated into a `ConditionGroup`,
-which represent a set of `SQLCondition` subclasses combined into a SQLite conditional piece.
-`Property` translate themselves into `SQLCondition` via their conditional methods such as
+DBFlow supports many kinds of operations. They are formulated into a `OperatorGroup`,
+which represent a set of `SQLOperator` subclasses combined into a SQLite conditional piece.
+`Property` translate themselves into `SQLOperator` via their conditional methods such as
 `eq()`, `lessThan()`, `greaterThan()`, `between()`, `in()`, etc.
 
 They make it very easy to construct concise and meaningful queries:
@@ -80,7 +80,7 @@ SELECT COUNT(`name`) FROM `Employee` WHERE `salary`<150000 AND `salary`>80000;
 
 DBFlow supports `IN`/`NOT IN` and `BETWEEN` as well.
 
-A more comprehensive list of conditional operations DBFlow supports and what they translate to:
+A more comprehensive list of operations DBFlow supports and what they translate to:
 
   1. is(), eq() -> =
   2. isNot(), notEq() -> !=
@@ -93,7 +93,7 @@ A more comprehensive list of conditional operations DBFlow supports and what the
 #### Nested Conditions
 
 To create nested conditions (in parenthesis more often than not), just include
-a `ConditionGroup` as a `SQLCondition` in a query:
+an `OperatorGroup` as a `SQLOperator` in a query:
 
 
 ```java
@@ -101,7 +101,7 @@ a `ConditionGroup` as a `SQLCondition` in a query:
 SQLite.select()
   .from(Location.class)
   .where(Location_Table.latitude.eq(home.getLatitude()))
-  .and(ConditionGroup.clause()
+  .and(OperatorGroup.clause()
       .and(Location_Table.latitude
         .minus(PropertyFactory.from(home.getLatitude())
         .eq(1000L))))
@@ -243,8 +243,8 @@ SQLite.update(Ant.class)
 ```
 
 The `Set` part of the `Update` supports different kinds of values:
-  1. `ContentValues` -> converts to key/value as a `SQLCondition` of `is()`/`eq()`
-  2. `SQLCondition`, which are grouped together as part of the `SET` statement.
+  1. `ContentValues` -> converts to key/value as a `SQLOperator` of `is()`/`eq()`
+  2. `SQLOperator`, which are grouped together as part of the `SET` statement.
 
 ## DELETE
 
@@ -262,7 +262,7 @@ post an operation from (2).
 ```java
 
 // Delete a whole table
-Delete.table(MyTable.class, conditions);
+Delete.table(MyTable.class);
 
 // Delete multiple instantly
 Delete.tables(MyTable1.class, MyTable2.class);
@@ -297,7 +297,7 @@ SQLite.insert(SomeTable.class)
   .async()
   .execute()
 
-// or combine into conditions
+// or combine into Operators
   SQLite.insert(SomeTable.class)
     .columnValues(SomeTable_Table.name.eq("Default"),
      SomeTable_Table.phoneNumber.eq("5555555"))
@@ -318,7 +318,7 @@ SQLite.insert(SomeTable.class)
   .async()
   .execute()
 
-// or combine into conditions
+// or combine into Operators
   SQLite.insert(SomeTable.class)
     .columnValues(SomeTable_Table.name.eq("Default1"),
      SomeTable_Table.phoneNumber.eq("5555555"))
@@ -371,7 +371,7 @@ the 'USA' otherwise we mark the value as "Foreign". These appear alongside the r
 set from the SELECT.
 
 The search CASE is a little more complicated in that each `when()` statement
-represents a `SQLCondition`, which return a `boolean` expression:
+represents a `SQLOperator`, which return a `boolean` expression:
 
 ```java
 

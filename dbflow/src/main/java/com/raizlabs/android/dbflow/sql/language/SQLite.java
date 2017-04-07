@@ -4,7 +4,6 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
-import com.raizlabs.android.dbflow.sql.trigger.Trigger;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -99,17 +98,17 @@ public class SQLite {
     /**
      * Starts a CASE statement.
      *
-     * @param condition The condition to check for in the WHEN.
+     * @param operator The condition to check for in the WHEN.
      * @return A new {@link CaseCondition}.
      */
     @NonNull
-    public static <TReturn> CaseCondition<TReturn> caseWhen(@NonNull SQLCondition condition) {
-        return new Case<TReturn>().when(condition);
+    public static <TReturn> CaseCondition<TReturn> caseWhen(@NonNull SQLOperator operator) {
+        return new Case<TReturn>().when(operator);
     }
 
     /**
      * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
-     * case statement will evaluate all of its {@link SQLCondition}.
+     * case statement will evaluate all of its {@link SQLOperator}.
      *
      * @param caseColumn The value
      */
@@ -120,7 +119,7 @@ public class SQLite {
 
     /**
      * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
-     * case statement will evaluate all of its {@link SQLCondition}.
+     * case statement will evaluate all of its {@link SQLOperator}.
      *
      * @param caseColumn The value
      */

@@ -18,6 +18,7 @@ import java.util.List;
  */
 public class FastStoreModelTransaction<TModel> implements ITransaction {
 
+    @NonNull
     public static <TModel> Builder<TModel> saveBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
         return new Builder<>(new ProcessModelList<TModel>() {
             @Override
@@ -27,6 +28,7 @@ public class FastStoreModelTransaction<TModel> implements ITransaction {
         }, internalAdapter);
     }
 
+    @NonNull
     public static <TModel> Builder<TModel> insertBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
         return new Builder<>(new ProcessModelList<TModel>() {
             @Override
@@ -36,6 +38,7 @@ public class FastStoreModelTransaction<TModel> implements ITransaction {
         }, internalAdapter);
     }
 
+    @NonNull
     public static <TModel> Builder<TModel> updateBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
         return new Builder<>(new ProcessModelList<TModel>() {
             @Override
@@ -93,6 +96,7 @@ public class FastStoreModelTransaction<TModel> implements ITransaction {
             this.internalAdapter = internalAdapter;
         }
 
+        @NonNull
         public Builder<TModel> add(TModel model) {
             models.add(model);
             return this;
@@ -101,6 +105,7 @@ public class FastStoreModelTransaction<TModel> implements ITransaction {
         /**
          * Adds all specified models to the {@link ArrayList}.
          */
+        @NonNull
         @SafeVarargs
         public final Builder<TModel> addAll(TModel... models) {
             this.models.addAll(Arrays.asList(models));
@@ -110,6 +115,7 @@ public class FastStoreModelTransaction<TModel> implements ITransaction {
         /**
          * Adds a {@link Collection} of {@link Model} to the existing {@link ArrayList}.
          */
+        @NonNull
         public Builder<TModel> addAll(Collection<? extends TModel> models) {
             if (models != null) {
                 this.models.addAll(models);
@@ -121,6 +127,7 @@ public class FastStoreModelTransaction<TModel> implements ITransaction {
          * @return A new {@link ProcessModelTransaction}. Subsequent calls to this method produce
          * new instances.
          */
+        @NonNull
         public FastStoreModelTransaction<TModel> build() {
             return new FastStoreModelTransaction<>(this);
         }

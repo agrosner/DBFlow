@@ -11,8 +11,9 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.property.BaseProperty;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.sql.saveable.ListModelSaver;
 import com.raizlabs.android.dbflow.sql.saveable.ModelSaver;
 import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter;
@@ -72,6 +73,12 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     public DatabaseStatement getInsertStatement(DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getInsertStatementQuery());
     }
+
+    public DatabaseStatement getDeleteStatement(TModel model, DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(SQLite.delete().from(getModelClass())
+            .where(getPrimaryConditionClause(model)).getQuery());
+    }
+
 
     /**
      * @return The precompiled full statement for this table model adapter
@@ -405,7 +412,6 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         return new SimpleMapCache<>(getCacheSize());
     }
 
-
     /**
      * @return The query used to create this table.
      */
@@ -418,7 +424,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @param columnName The column name of the property.
      * @return The property from the corresponding Table class.
      */
-    public abstract BaseProperty getProperty(String columnName);
+    public abstract Property getProperty(String columnName);
 
     /**
      * @return An array of column properties, in order of declaration.
@@ -428,7 +434,9 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     /**
      * @return The query used to insert a model using a {@link SQLiteStatement}
      */
-    protected abstract String getInsertStatementQuery();
+    protected String getInsertStatementQuery() {
+        return getCompiledStatementQuery();
+    }
 
     /**
      * @return The normal query used in saving a model if we use a {@link SQLiteStatement}.

@@ -123,23 +123,26 @@ class OneToManyDefinition(typeElement: ExecutableElement,
     }
 
     private fun writeLoopWithMethod(codeBuilder: CodeBlock.Builder, methodName: String, useWrapper: Boolean) {
-        codeBuilder.controlFlow("if (\$L != null) ", this.methodName) {
-            val loopClass: ClassName? = if (extendsBaseModel) ClassNames.BASE_MODEL else ClassName.get(referencedType)
+        val oneToManyMethodName = this@OneToManyDefinition.methodName
+        codeBuilder.apply {
+            codeBuilder.controlFlow("if (\$L != null) ", oneToManyMethodName) {
+                val loopClass: ClassName? = if (extendsBaseModel) ClassNames.BASE_MODEL else ClassName.get(referencedType)
 
-            // need to load adapter for non-model classes
-            if (!extendsModel) {
-                codeBuilder.addStatement("\$T adapter = \$T.getModelAdapter(\$T.class)",
-                    ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
-                    ClassNames.FLOW_MANAGER, referencedTableType)
+                // need to load adapter for non-model classes
 
-                codeBuilder.addStatement("adapter.\$LAll(\$L\$L)", methodName, this.methodName,
-                    if (useWrapper) ", " + ModelUtils.wrapper else "")
-            } else {
-                codeBuilder.controlFlow("for (\$T value: \$L) ", loopClass, this.methodName) {
-                    codeBuilder.addStatement("value.\$L(\$L)", methodName, if (useWrapper) ModelUtils.wrapper else "")
+                if (!extendsModel) {
+                    addStatement("\$T adapter = \$T.getModelAdapter(\$T.class)",
+                        ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
+                        ClassNames.FLOW_MANAGER, referencedTableType)
+
+                    addStatement("adapter.\$LAll(\$L\$L)", methodName, oneToManyMethodName,
+                        if (useWrapper) ", " + ModelUtils.wrapper else "")
+                } else {
+                    controlFlow("for (\$T value: \$L) ", loopClass, oneToManyMethodName) {
+                        codeBuilder.addStatement("value.\$L(\$L)", methodName, if (useWrapper) ModelUtils.wrapper else "")
+                    }
                 }
             }
-
         }
     }
 

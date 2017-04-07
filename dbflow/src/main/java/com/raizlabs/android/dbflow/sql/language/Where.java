@@ -18,7 +18,8 @@ import java.util.List;
 /**
  * Description: Defines the SQL WHERE statement of the query.
  */
-public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQueriable<TModel> {
+public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQueriable<TModel>,
+    Transformable<TModel> {
 
     private static final int VALUE_UNSET = -1;
 
@@ -30,7 +31,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     /**
      * Helps to build the where statement easily
      */
-    private ConditionGroup conditionGroup;
+    private OperatorGroup operatorGroup;
 
     private final List<NameAlias> groupByList = new ArrayList<>();
 
@@ -39,7 +40,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     /**
      * The SQL HAVING statement
      */
-    private ConditionGroup havingGroup;
+    private OperatorGroup havingGroup;
 
     private int limit = VALUE_UNSET;
     private int offset = VALUE_UNSET;
@@ -50,48 +51,48 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      *
      * @param whereBase The FROM or SET statement chunk
      */
-    public Where(WhereBase<TModel> whereBase, SQLCondition... conditions) {
+    public Where(WhereBase<TModel> whereBase, SQLOperator... conditions) {
         super(whereBase.getTable());
         this.whereBase = whereBase;
-        conditionGroup = new ConditionGroup();
-        havingGroup = new ConditionGroup();
+        operatorGroup = OperatorGroup.nonGroupingClause();
+        havingGroup = OperatorGroup.nonGroupingClause();
 
-        conditionGroup.andAll(conditions);
+        operatorGroup.andAll(conditions);
     }
 
     /**
-     * Joins the {@link SQLCondition} by the prefix of "AND" (unless its the first condition).
+     * Joins the {@link SQLOperator} by the prefix of "AND" (unless its the first condition).
      */
     @NonNull
-    public Where<TModel> and(SQLCondition condition) {
-        conditionGroup.and(condition);
+    public Where<TModel> and(SQLOperator condition) {
+        operatorGroup.and(condition);
         return this;
     }
 
     /**
-     * Joins the {@link SQLCondition} by the prefix of "OR" (unless its the first condition).
+     * Joins the {@link SQLOperator} by the prefix of "OR" (unless its the first condition).
      */
     @NonNull
-    public Where<TModel> or(SQLCondition condition) {
-        conditionGroup.or(condition);
+    public Where<TModel> or(SQLOperator condition) {
+        operatorGroup.or(condition);
         return this;
     }
 
     /**
-     * Joins all of the {@link SQLCondition} by the prefix of "AND" (unless its the first condition).
+     * Joins all of the {@link SQLOperator} by the prefix of "AND" (unless its the first condition).
      */
     @NonNull
-    public Where<TModel> andAll(List<SQLCondition> conditions) {
-        conditionGroup.andAll(conditions);
+    public Where<TModel> andAll(List<SQLOperator> conditions) {
+        operatorGroup.andAll(conditions);
         return this;
     }
 
     /**
-     * Joins all of the {@link SQLCondition} by the prefix of "AND" (unless its the first condition).
+     * Joins all of the {@link SQLOperator} by the prefix of "AND" (unless its the first condition).
      */
     @NonNull
-    public Where<TModel> andAll(SQLCondition... conditions) {
-        conditionGroup.andAll(conditions);
+    public Where<TModel> andAll(SQLOperator... conditions) {
+        operatorGroup.andAll(conditions);
         return this;
     }
 
@@ -112,11 +113,11 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     /**
      * Defines a SQL HAVING statement without the HAVING.
      *
-     * @param conditions The array of {@link SQLCondition}
+     * @param conditions The array of {@link SQLOperator}
      * @return
      */
     @NonNull
-    public Where<TModel> having(SQLCondition... conditions) {
+    public Where<TModel> having(SQLOperator... conditions) {
         havingGroup.andAll(conditions);
         return this;
     }
@@ -173,8 +174,8 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      */
     @NonNull
     public Where<TModel> exists(@NonNull Where where) {
-        conditionGroup.and(new ExistenceCondition()
-                .where(where));
+        operatorGroup.and(new ExistenceOperator()
+            .where(where));
         return this;
     }
 
@@ -187,10 +188,10 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     public String getQuery() {
         String fromQuery = whereBase.getQuery().trim();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
-                .appendQualifier("WHERE", conditionGroup.getQuery())
-                .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
-                .appendQualifier("HAVING", havingGroup.getQuery())
-                .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
+            .appendQualifier("WHERE", operatorGroup.getQuery())
+            .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
+            .appendQualifier("HAVING", havingGroup.getQuery())
+            .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
 
         if (limit > VALUE_UNSET) {
             queryBuilder.appendQualifier("LIMIT", String.valueOf(limit));
@@ -235,16 +236,6 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
         return super.queryList();
     }
 
-    public WhereBase<TModel> getWhereBase() {
-        return whereBase;
-    }
-
-    protected void checkSelect(String methodName) {
-        if (!(whereBase.getQueryBuilderBase() instanceof Select)) {
-            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a ISelect");
-        }
-    }
-
     /**
      * Queries and returns only the first {@link TModel} result from the DB. Will enforce a limit of 1 item
      * returned from the database.
@@ -257,5 +248,16 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
         limit(1);
         return super.querySingle();
     }
+
+    public WhereBase<TModel> getWhereBase() {
+        return whereBase;
+    }
+
+    private void checkSelect(String methodName) {
+        if (!(whereBase.getQueryBuilderBase() instanceof Select)) {
+            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a ISelect");
+        }
+    }
+
 
 }

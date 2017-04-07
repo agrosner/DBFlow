@@ -2,10 +2,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'com.getkeepsafe.dexcount'
 
-repositories {
-    mavenCentral()
-}
-
 android {
 
     useLibrary 'org.apache.http.legacy'
@@ -19,10 +15,11 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 9
+        minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
     lintOptions {
@@ -31,6 +28,7 @@ android {
 
     packagingOptions {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
+        exclude 'META-INF/rxjava.properties'
     }
 
     sourceSets {
@@ -39,24 +37,38 @@ android {
 }
 
 dependencies {
-    kapt project(':dbflow-processor')
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    kapt project("${dbflow_project_prefix}dbflow-processor")
     compile project(':dbflow')
-    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:appcompat-v7:25.3.0'
+    compile project("${dbflow_project_prefix}dbflow")
+    compile project("${dbflow_project_prefix}dbflow-sqlcipher")
+    compile project("${dbflow_project_prefix}dbflow-kotlinextensions")
+    compile project("${dbflow_project_prefix}dbflow-rx")
+    compile project("${dbflow_project_prefix}dbflow-rx-kotlinextensions")
+    compile project("${dbflow_project_prefix}dbflow-rx2")
+    compile project("${dbflow_project_prefix}dbflow-rx2-kotlinextensions")
 
     kaptTest project("${dbflow_project_prefix}dbflow-processor")
-    testCompile 'com.jayway.awaitility:awaitility:1.6.5'
-    testCompile project("${dbflow_project_prefix}dbflow")
-    testCompile project("${dbflow_project_prefix}dbflow-sqlcipher")
-    testCompile project("${dbflow_project_prefix}dbflow-kotlinextensions")
-    testCompile project("${dbflow_project_prefix}dbflow-rx")
-    testCompile project("${dbflow_project_prefix}dbflow-rx-kotlinextensions")
 
-    testCompile project("${dbflow_project_prefix}dbflow-rx2")
     testCompile 'junit:junit:4.12'
+    testCompile 'com.jayway.awaitility:awaitility:1.6.5'
     testCompile "org.robolectric:robolectric:3.1.4"
-    testCompile "com.nhaarman:mockito-kotlin:1.3.0"
+    testCompile("com.nhaarman:mockito-kotlin:1.3.0") {
+        exclude group: "org.jetbrains.kotlin"
+    }
     testCompile 'org.mockito:mockito-core:2.7.17'
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile('com.android.support.test:runner:0.5') {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+    androidTestCompile('com.android.support.test:rules:0.5') {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+    androidTestCompile 'org.awaitility:awaitility:3.0.0-rc1'
+
 }
 
 android.applicationVariants.all { variant ->
@@ -69,16 +81,6 @@ android.applicationVariants.all { variant ->
         into "${buildDir}/intermediates/classes/test/${variant.buildType.name}/assets"
     }
     project.getTasksByName("generate${variant.name.capitalize()}Resources", false)[0].dependsOn(taskName)
-}
-
-buildscript {
-    ext.kotlin_version = '1.1.0'
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
 }
 
 kapt {
