@@ -1,7 +1,5 @@
 package com.raizlabs.android.dbflow.structure;
 
-import android.database.Cursor;
-
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 
 /**
@@ -12,18 +10,6 @@ public abstract class ModelViewAdapter<TModelView>
 
     public ModelViewAdapter(DatabaseDefinition databaseDefinition) {
         super(databaseDefinition);
-    }
-
-    /**
-     * Creates a new {@link TModelView} and loads the cursor into it.
-     *
-     * @param cursor The cursor to query
-     * @return The new model view with the cursor data in it.
-     */
-    public TModelView loadFromCursor(Cursor cursor) {
-        TModelView TModelView = newInstance();
-        loadFromCursor(cursor, TModelView);
-        return TModelView;
     }
 
     /**

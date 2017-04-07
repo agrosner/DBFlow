@@ -186,7 +186,7 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
 abstract class BaseContainerHandler<AnnotationClass : Annotation> : Handler {
 
     override fun handle(processorManager: ProcessorManager, roundEnvironment: RoundEnvironment) {
-        val annotatedElements = Sets.newHashSet(roundEnvironment.getElementsAnnotatedWith(annotationClass))
+        val annotatedElements = Sets.newLinkedHashSet(roundEnvironment.getElementsAnnotatedWith(annotationClass))
         processElements(processorManager, annotatedElements)
         if (annotatedElements.size > 0) {
             annotatedElements.forEach { onProcessElement(processorManager, it) }
@@ -233,10 +233,8 @@ class DatabaseHandler : BaseContainerHandler<Database>() {
     companion object {
         val TYPE_CONVERTER_MAP_FIELD_NAME = "typeConverters"
         val METHOD_MODIFIERS: Set<Modifier> = Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL)
-        val MODEL_FIELD_NAME = "models"
         val MODEL_ADAPTER_MAP_FIELD_NAME = "modelAdapters"
         val QUERY_MODEL_ADAPTER_MAP_FIELD_NAME = "queryModelAdapterMap"
-        val MODEL_VIEW_FIELD_NAME = "modelViews"
         val MIGRATION_FIELD_NAME = "migrationMap"
         val MODEL_VIEW_ADAPTER_MAP_FIELD_NAME = "modelViewAdapterMap"
         val MODEL_NAME_MAP = "modelTableNames"

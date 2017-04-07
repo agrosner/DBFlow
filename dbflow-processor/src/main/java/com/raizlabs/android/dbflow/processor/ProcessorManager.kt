@@ -3,25 +3,13 @@ package com.raizlabs.android.dbflow.processor
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
-import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition
-import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
-import com.raizlabs.android.dbflow.processor.definition.DatabaseHolderDefinition
-import com.raizlabs.android.dbflow.processor.definition.DatabaseObjectHolder
-import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition
-import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition
-import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition
-import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition
-import com.raizlabs.android.dbflow.processor.definition.TableDefinition
-import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition
-import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
+import com.raizlabs.android.dbflow.processor.definition.*
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import java.io.IOException
-import java.util.ArrayList
-import java.util.Arrays
-import java.util.Collections
+import java.util.*
 import javax.annotation.processing.FilerException
 import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
@@ -43,7 +31,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     private val uniqueDatabases = Lists.newArrayList<TypeName>()
     private val modelToDatabaseMap = Maps.newHashMap<TypeName, TypeName>()
-    val typeConverters = Maps.newHashMap<TypeName, TypeConverterDefinition>()
+    val typeConverters = Maps.newLinkedHashMap<TypeName, TypeConverterDefinition>()
     private val migrations = Maps.newHashMap<TypeName, MutableMap<Int, MutableList<MigrationDefinition>>>()
 
     private val databaseDefinitionMap = Maps.newHashMap<TypeName, DatabaseObjectHolder>()
@@ -77,7 +65,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         holderDefinition?.databaseDefinition = databaseDefinition
     }
 
-    fun getDatabaseHolderDefinitionMap() = ArrayList(databaseDefinitionMap.values)
+    fun getDatabaseHolderDefinitionList() = ArrayList(databaseDefinitionMap.values)
 
     fun getDatabaseHolderDefinition(databaseName: TypeName?) = databaseDefinitionMap[databaseName]
 
@@ -143,13 +131,12 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         }
     }
 
-    fun getTypeConverters(): Set<TypeConverterDefinition> {
-        return Sets.newHashSet(typeConverters.values)
-    }
+    fun getTypeConverters() = Sets.newLinkedHashSet(typeConverters.values).sortedBy { it.modelTypeName?.toString() }
 
-    fun getTableDefinitions(databaseName: TypeName): Set<TableDefinition> {
+    fun getTableDefinitions(databaseName: TypeName): List<TableDefinition> {
         val databaseHolderDefinition = getOrPutDatabase(databaseName)
         return Sets.newHashSet(databaseHolderDefinition?.tableDefinitionMap?.values ?: arrayListOf())
+                .sortedBy { it.outputClassName?.simpleName() }
     }
 
     fun setTableDefinitions(tableDefinitionSet: MutableMap<TypeName, TableDefinition>, databaseName: TypeName) {
@@ -157,9 +144,10 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         databaseDefinition?.tableDefinitionMap = tableDefinitionSet
     }
 
-    fun getModelViewDefinitions(databaseName: TypeName): Set<ModelViewDefinition> {
+    fun getModelViewDefinitions(databaseName: TypeName): List<ModelViewDefinition> {
         val databaseDefinition = getOrPutDatabase(databaseName)
         return Sets.newHashSet(databaseDefinition?.modelViewDefinitionMap?.values ?: arrayListOf())
+                .sortedBy { it.outputClassName?.simpleName() }
     }
 
     fun setModelViewDefinitions(modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition>, elementClassName: ClassName) {
@@ -167,9 +155,10 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         databaseDefinition?.modelViewDefinitionMap = modelViewDefinitionMap
     }
 
-    fun getQueryModelDefinitions(databaseName: TypeName): Set<QueryModelDefinition> {
+    fun getQueryModelDefinitions(databaseName: TypeName): List<QueryModelDefinition> {
         val databaseDefinition = getOrPutDatabase(databaseName)
         return Sets.newHashSet(databaseDefinition?.queryModelDefinitionMap?.values ?: arrayListOf())
+                .sortedBy { it.outputClassName?.simpleName() }
     }
 
     fun addMigrationDefinition(migrationDefinition: MigrationDefinition) {
@@ -218,7 +207,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     }
 
     fun logError(callingClass: KClass<*>?, error: String?, vararg args: Any?) {
-        messager.printMessage(Diagnostic.Kind.ERROR, String.format("*==========*$callingClass :" + error?.trim { it <= ' ' } + "*==========*", *args))
+        messager.printMessage(Diagnostic.Kind.ERROR, String.format("*==========*${callingClass ?: ""} :" + error?.trim() + "*==========*", *args))
         var stackTraceElements = Thread.currentThread().stackTrace
         if (stackTraceElements.size > 8) {
             stackTraceElements = Arrays.copyOf(stackTraceElements, 8)
@@ -250,7 +239,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     override fun handle(processorManager: ProcessorManager, roundEnvironment: RoundEnvironment) {
         handlers.forEach { it.handle(processorManager, roundEnvironment) }
 
-        val databaseDefinitions = getDatabaseHolderDefinitionMap()
+        val databaseDefinitions = getDatabaseHolderDefinitionList()
+                .sortedBy { it.databaseDefinition?.outputClassName?.simpleName() }
         for (databaseHolderDefinition in databaseDefinitions) {
             try {
 
@@ -263,11 +253,11 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                 }
 
                 val manyToManyDefinitions = databaseHolderDefinition.manyToManyDefinitionMap.values
-                for (manyToManyList in manyToManyDefinitions) {
-                    for (manyToMany in manyToManyList) {
-                        manyToMany.prepareForWrite()
-                        WriterUtils.writeBaseDefinition(manyToMany, processorManager)
-                    }
+
+                val flattenedList = manyToManyDefinitions.flatten().sortedBy { it.outputClassName?.simpleName() }
+                for (manyToManyList in flattenedList) {
+                    manyToManyList.prepareForWrite()
+                    WriterUtils.writeBaseDefinition(manyToManyList, processorManager)
                 }
 
                 // process all in next round.
@@ -279,6 +269,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                 if (roundEnvironment.processingOver()) {
                     val validator = ContentProviderValidator()
                     val contentProviderDefinitions = databaseHolderDefinition.providerMap.values
+                            .sortedBy { it.outputClassName?.simpleName() }
                     contentProviderDefinitions.forEach { contentProviderDefinition ->
                         contentProviderDefinition.prepareForWrite()
                         if (validator.validate(processorManager, contentProviderDefinition)) {
@@ -291,13 +282,16 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
                 if (roundEnvironment.processingOver()) {
                     databaseHolderDefinition.databaseDefinition?.let {
-                        JavaFile.builder(it.packageName, it.typeSpec).build()
-                                .writeTo(processorManager.processingEnvironment.filer)
+                        if (it.outputClassName != null) {
+                            JavaFile.builder(it.packageName, it.typeSpec).build()
+                                    .writeTo(processorManager.processingEnvironment.filer)
+                        }
                     }
                 }
 
 
                 val tableDefinitions = databaseHolderDefinition.tableDefinitionMap.values
+                        .sortedBy { it.outputClassName?.simpleName() }
 
                 tableDefinitions.forEach { WriterUtils.writeBaseDefinition(it, processorManager) }
 
@@ -306,6 +300,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                 modelViewDefinitions.forEach { WriterUtils.writeBaseDefinition(it, processorManager) }
 
                 val queryModelDefinitions = databaseHolderDefinition.queryModelDefinitionMap.values
+                        .sortedBy { it.outputClassName?.simpleName() }
                 queryModelDefinitions.forEach { WriterUtils.writeBaseDefinition(it, processorManager) }
 
                 tableDefinitions.forEach {
@@ -335,9 +330,12 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
         if (roundEnvironment.processingOver()) {
             try {
-                JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                        DatabaseHolderDefinition(processorManager).typeSpec).build()
-                        .writeTo(processorManager.processingEnvironment.filer)
+                val databaseHolderDefinition = DatabaseHolderDefinition(processorManager)
+                if (!databaseHolderDefinition.isGarbage()) {
+                    JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
+                            databaseHolderDefinition.typeSpec).build()
+                            .writeTo(processorManager.processingEnvironment.filer)
+                }
             } catch (e: IOException) {
                 logError(e.message)
             }

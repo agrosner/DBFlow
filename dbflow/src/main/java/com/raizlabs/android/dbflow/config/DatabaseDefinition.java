@@ -7,6 +7,8 @@ import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
+import com.raizlabs.android.dbflow.runtime.ContentResolverNotifier;
+import com.raizlabs.android.dbflow.runtime.ModelNotifier;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -36,13 +38,9 @@ public abstract class DatabaseDefinition {
 
     final Map<Integer, List<Migration>> migrationMap = new HashMap<>();
 
-    final List<Class<?>> models = new ArrayList<>();
-
     final Map<Class<?>, ModelAdapter> modelAdapters = new HashMap<>();
 
     final Map<String, Class<?>> modelTableNames = new HashMap<>();
-
-    final List<Class<?>> modelViews = new ArrayList<>();
 
     final Map<Class<?>, ModelViewAdapter> modelViewAdapterMap = new LinkedHashMap<>();
 
@@ -67,10 +65,12 @@ public abstract class DatabaseDefinition {
 
     private DatabaseConfig databaseConfig;
 
+    private ModelNotifier modelNotifier;
+
     @SuppressWarnings("unchecked")
     public DatabaseDefinition() {
         databaseConfig = FlowManager.getConfig()
-                .databaseConfigMap().get(getAssociatedDatabaseClassFile());
+            .databaseConfigMap().get(getAssociatedDatabaseClassFile());
 
 
         if (databaseConfig != null) {
@@ -107,7 +107,7 @@ public abstract class DatabaseDefinition {
      * @return a list of all model classes in this database.
      */
     public List<Class<?>> getModelClasses() {
-        return models;
+        return new ArrayList<>(modelAdapters.keySet());
     }
 
     public BaseTransactionManager getTransactionManager() {
@@ -131,7 +131,8 @@ public abstract class DatabaseDefinition {
      * @param table The model that exists in this database.
      * @return The ModelAdapter for the table.
      */
-    public ModelAdapter getModelAdapterForTable(Class<?> table) {
+    @SuppressWarnings("unchecked")
+    public <T> ModelAdapter<T> getModelAdapterForTable(Class<T> table) {
         return modelAdapters.get(table);
     }
 
@@ -148,14 +149,15 @@ public abstract class DatabaseDefinition {
      * @return the {@link BaseModelView} list for this database.
      */
     public List<Class<?>> getModelViews() {
-        return modelViews;
+        return new ArrayList<>(modelViewAdapterMap.keySet());
     }
 
     /**
      * @param table the VIEW class to retrieve the ModelViewAdapter from.
      * @return the associated {@link ModelViewAdapter} for the specified table.
      */
-    public ModelViewAdapter getModelViewAdapterForTable(Class<?> table) {
+    @SuppressWarnings("unchecked")
+    public <T> ModelViewAdapter<T> getModelViewAdapterForTable(Class<T> table) {
         return modelViewAdapterMap.get(table);
     }
 
@@ -178,7 +180,8 @@ public abstract class DatabaseDefinition {
      * @param queryModel The {@link QueryModel} class
      * @return The adapter that corresponds to the specified class.
      */
-    public QueryModelAdapter getQueryModelAdapterForQueryClass(Class<?> queryModel) {
+    @SuppressWarnings("unchecked")
+    public <T> QueryModelAdapter<T> getQueryModelAdapterForQueryClass(Class<T> queryModel) {
         return queryModelAdapterMap.get(queryModel);
     }
 
@@ -192,7 +195,7 @@ public abstract class DatabaseDefinition {
     public synchronized OpenHelper getHelper() {
         if (openHelper == null) {
             DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
-                    .get(getAssociatedDatabaseClassFile());
+                .get(getAssociatedDatabaseClassFile());
             if (config == null || config.helperCreator() == null) {
                 openHelper = new FlowSQLiteOpenHelper(this, helperListener);
             } else {
@@ -205,6 +208,19 @@ public abstract class DatabaseDefinition {
 
     public DatabaseWrapper getWritableDatabase() {
         return getHelper().getDatabase();
+    }
+
+    public ModelNotifier getModelNotifier() {
+        if (modelNotifier == null) {
+            DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
+                .get(getAssociatedDatabaseClassFile());
+            if (config == null || config.modelNotifier() == null) {
+                modelNotifier = new ContentResolverNotifier();
+            } else {
+                modelNotifier = config.modelNotifier();
+            }
+        }
+        return modelNotifier;
     }
 
     public Transaction.Builder beginTransactionAsync(ITransaction transaction) {
@@ -232,7 +248,7 @@ public abstract class DatabaseDefinition {
      */
     public String getDatabaseFileName() {
         return getDatabaseName() + (StringUtils.isNotNullOrEmpty(getDatabaseExtensionName()) ?
-                "." + getDatabaseExtensionName() : "");
+            "." + getDatabaseExtensionName() : "");
     }
 
     /**

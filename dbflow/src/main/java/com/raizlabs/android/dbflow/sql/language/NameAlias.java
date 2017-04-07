@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -16,6 +18,7 @@ public class NameAlias implements Query {
      * @param names     The names to join.
      * @return The new namealias object.
      */
+    @NonNull
     public static NameAlias joinNames(String operation, String... names) {
         if (names.length == 0) {
             return null;
@@ -30,6 +33,7 @@ public class NameAlias implements Query {
         return rawBuilder(newName).build();
     }
 
+    @NonNull
     public static Builder builder(String name) {
         return new Builder(name);
     }
@@ -38,10 +42,26 @@ public class NameAlias implements Query {
      * @param name The raw name of this alias.
      * @return A new instance without adding identifier `` to any part of the query.
      */
+    @NonNull
     public static Builder rawBuilder(String name) {
         return new Builder(name)
-                .shouldStripIdentifier(false)
-                .shouldAddIdentifierToName(false);
+            .shouldStripIdentifier(false)
+            .shouldAddIdentifierToName(false);
+    }
+
+    @NonNull
+    public static NameAlias of(String name) {
+        return NameAlias.builder(name).build();
+    }
+
+    @NonNull
+    public static NameAlias of(String name, String aliasName) {
+        return NameAlias.builder(name).as(aliasName).build();
+    }
+
+    @NonNull
+    public static NameAlias ofTable(String tableName, String name) {
+        return NameAlias.builder(name).withTable(tableName).build();
     }
 
     private final String name;
@@ -81,7 +101,7 @@ public class NameAlias implements Query {
      */
     public String name() {
         return (StringUtils.isNotNullOrEmpty(name) && shouldAddIdentifierToQuery) ?
-                QueryBuilder.quoteIfNeeded(name) : name;
+            QueryBuilder.quoteIfNeeded(name) : name;
     }
 
     /**
@@ -96,7 +116,7 @@ public class NameAlias implements Query {
      */
     public String aliasName() {
         return (StringUtils.isNotNullOrEmpty(aliasName) && shouldAddIdentifierToAliasName) ?
-                QueryBuilder.quoteIfNeeded(aliasName) : aliasName;
+            QueryBuilder.quoteIfNeeded(aliasName) : aliasName;
     }
 
     /**
@@ -192,13 +212,13 @@ public class NameAlias implements Query {
      */
     public Builder newBuilder() {
         return new Builder(name)
-                .keyword(keyword)
-                .as(aliasName)
-                .shouldStripAliasName(shouldStripAliasName)
-                .shouldStripIdentifier(shouldStripIdentifier)
-                .shouldAddIdentifierToName(shouldAddIdentifierToQuery)
-                .shouldAddIdentifierToAliasName(shouldAddIdentifierToAliasName)
-                .withTable(tableName);
+            .keyword(keyword)
+            .as(aliasName)
+            .shouldStripAliasName(shouldStripAliasName)
+            .shouldStripIdentifier(shouldStripIdentifier)
+            .shouldAddIdentifierToName(shouldAddIdentifierToQuery)
+            .shouldAddIdentifierToAliasName(shouldAddIdentifierToAliasName)
+            .withTable(tableName);
     }
 
 

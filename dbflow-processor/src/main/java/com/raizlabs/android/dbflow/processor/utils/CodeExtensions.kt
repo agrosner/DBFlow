@@ -13,11 +13,12 @@ import com.squareup.javapoet.MethodSpec
  * Collapses the control flow into an easy to use block
  */
 fun CodeBlock.Builder.controlFlow(statement: String, vararg args: Any?,
-                                  method: (CodeBlock.Builder) -> Unit) {
-    beginControlFlow(statement, *args)
-    method(this)
-    endControlFlow()
-}
+                                  method: (CodeBlock.Builder) -> Unit) = beginControlFlow(statement, *args).apply { method(this) }.endControlFlow()!!
+
+fun MethodSpec.Builder.controlFlow(statement: String, vararg args: Any?,
+                                   method: CodeBlock.Builder.() -> Unit) = beginControlFlow(statement, *args).apply {
+    addCode(CodeBlock.builder().apply { method(this) }.build())
+}.endControlFlow()!!
 
 /**
  * Description: Convenience method for adding [CodeBlock] statements without needing to do so every time.
@@ -25,7 +26,9 @@ fun CodeBlock.Builder.controlFlow(statement: String, vararg args: Any?,
  * @author Andrew Grosner (fuzz)
  */
 fun CodeBlock.Builder.addStatement(codeBlock: CodeBlock?): CodeBlock.Builder
-        = this.addStatement("\$L", codeBlock)
+    = this.addStatement("\$L", codeBlock)
 
 fun MethodSpec.Builder.addStatement(codeBlock: CodeBlock?): MethodSpec.Builder
-        = this.addStatement("\$L", codeBlock)
+
+    = this.addStatement("\$L", codeBlock)
+

@@ -77,6 +77,7 @@ In DBFlow when an INSERT or UPDATE are performed, by default, we use `NONE`. If 
 
 @Database(name = AppDatabase.NAME, version = AppDatabase.VERSION, insertConflict = ConflictAction.IGNORE, updateConflict= ConflictAction.REPLACE)
 public class AppDatabase {
+}
 
 ```
 

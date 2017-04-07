@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.google.common.collect.Lists
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri
 import com.raizlabs.android.dbflow.annotation.provider.Notify
@@ -8,26 +9,18 @@ import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.TableEndpointValidator
+import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.processor.utils.controlFlow
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
+import com.squareup.javapoet.*
+import javax.lang.model.element.*
 import javax.lang.model.type.MirroredTypeException
 
 internal fun appendDefault(code: CodeBlock.Builder) {
     code.beginControlFlow("default:")
-            .addStatement("throw new \$T(\$S + \$L)",
-                    ClassName.get(IllegalArgumentException::class.java), "Unknown URI", Constants.PARAM_URI)
-            .endControlFlow()
+        .addStatement("throw new \$T(\$S + \$L)",
+            ClassName.get(IllegalArgumentException::class.java), "Unknown URI", Constants.PARAM_URI)
+        .endControlFlow()
 }
 
 object Constants {
@@ -45,7 +38,7 @@ internal fun ContentUriDefinition.getSegmentsPreparation(): CodeBlock {
         return CodeBlock.builder().build()
     } else {
         return CodeBlock.builder().addStatement("\$T<\$T> segments = uri.getPathSegments()",
-                List::class.java, String::class.java).build()
+            List::class.java, String::class.java).build()
     }
 }
 
@@ -58,7 +51,7 @@ internal fun ContentUriDefinition.getSelectionAndSelectionArgs(): CodeBlock {
     } else {
         val selectionBuilder = CodeBlock.builder().add("\$T.concatenateWhere(selection, \"", ClassNames.DATABASE_UTILS)
         val selectionArgsBuilder = CodeBlock.builder().add("\$T.appendSelectionArgs(selectionArgs, new \$T[] {",
-                ClassNames.DATABASE_UTILS, String::class.java)
+            ClassNames.DATABASE_UTILS, String::class.java)
         var isFirst = true
         for (segment in segments) {
             if (!isFirst) {
@@ -96,9 +89,9 @@ class DeleteMethod(private val contentProviderDefinition: ContentProviderDefinit
 
                         code.add(uriDefinition.getSegmentsPreparation())
                         code.add("long count = \$T.getDatabase(\$S).getWritableDatabase().delete(\$S, ",
-                                ClassNames.FLOW_MANAGER,
-                                manager.getDatabaseName(contentProviderDefinition.databaseName),
-                                it.tableName)
+                            ClassNames.FLOW_MANAGER,
+                            manager.getDatabaseName(contentProviderDefinition.databaseName),
+                            it.tableName)
                         code.add(uriDefinition.getSelectionAndSelectionArgs())
                         code.add(");\n")
 
@@ -114,12 +107,12 @@ class DeleteMethod(private val contentProviderDefinition: ContentProviderDefinit
             code.endControlFlow()
 
             return MethodSpec.methodBuilder("delete")
-                    .addAnnotation(Override::class.java)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(ClassNames.URI, PARAM_URI)
-                    .addParameter(ClassName.get(String::class.java), PARAM_SELECTION)
-                    .addParameter(ArrayTypeName.of(String::class.java), PARAM_SELECTION_ARGS)
-                    .addCode(code.build()).returns(TypeName.INT).build()
+                .addAnnotation(Override::class.java)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(ClassNames.URI, PARAM_URI)
+                .addParameter(ClassName.get(String::class.java), PARAM_SELECTION)
+                .addParameter(ArrayTypeName.of(String::class.java), PARAM_SELECTION_ARGS)
+                .addCode(code.build()).returns(TypeName.INT).build()
         }
 
     companion object {
@@ -148,12 +141,12 @@ class InsertMethod(private val contentProviderDefinition: ContentProviderDefinit
                         code.apply {
                             beginControlFlow("case \$L:", uriDefinition.name)
                             addStatement("\$T adapter = \$T.getModelAdapter(\$T.getTableClassForName(\$S, \$S))",
-                                    ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
-                                    contentProviderDefinition.databaseNameString, it.tableName)
+                                ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
+                                contentProviderDefinition.databaseNameString, it.tableName)
 
                             add("final long id = FlowManager.getDatabase(\$S).getWritableDatabase()",
-                                    contentProviderDefinition.databaseNameString).add(".insertWithOnConflict(\$S, null, values, " + "\$T.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()));\n", it.tableName,
-                                    ClassNames.CONFLICT_ACTION)
+                                contentProviderDefinition.databaseNameString).add(".insertWithOnConflict(\$S, null, values, " + "\$T.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()));\n", it.tableName,
+                                ClassNames.CONFLICT_ACTION)
 
                             NotifyMethod(it, uriDefinition, Notify.Method.INSERT).addCode(this)
 
@@ -171,10 +164,10 @@ class InsertMethod(private val contentProviderDefinition: ContentProviderDefinit
             appendDefault(code)
             code.endControlFlow()
             return MethodSpec.methodBuilder(if (isBulk) "bulkInsert" else "insert")
-                    .addAnnotation(Override::class.java).addParameter(ClassNames.URI, Constants.PARAM_URI)
-                    .addParameter(ClassNames.CONTENT_VALUES, Constants.PARAM_CONTENT_VALUES)
-                    .addModifiers(if (isBulk) Modifier.PROTECTED else Modifier.PUBLIC, Modifier.FINAL)
-                    .addCode(code.build()).returns(if (isBulk) TypeName.INT else ClassNames.URI).build()
+                .addAnnotation(Override::class.java).addParameter(ClassNames.URI, Constants.PARAM_URI)
+                .addParameter(ClassNames.CONTENT_VALUES, Constants.PARAM_CONTENT_VALUES)
+                .addModifiers(if (isBulk) Modifier.PROTECTED else Modifier.PUBLIC, Modifier.FINAL)
+                .addCode(code.build()).returns(if (isBulk) TypeName.INT else ClassNames.URI).build()
         }
 
 }
@@ -185,7 +178,7 @@ class InsertMethod(private val contentProviderDefinition: ContentProviderDefinit
 class NotifyMethod(private val tableEndpointDefinition: TableEndpointDefinition,
                    private val uriDefinition: ContentUriDefinition, private val method: Notify.Method) : CodeAdder {
 
-    override fun addCode(code: CodeBlock.Builder) {
+    override fun addCode(code: CodeBlock.Builder): CodeBlock.Builder {
         var hasListener = false
         val notifyDefinitionMap = tableEndpointDefinition.notifyDefinitionPathMap[uriDefinition.path]
         if (notifyDefinitionMap != null) {
@@ -195,16 +188,16 @@ class NotifyMethod(private val tableEndpointDefinition: TableEndpointDefinition,
                     val notifyDefinition = notifyDefinitionList[i]
                     if (notifyDefinition.returnsArray) {
                         code.addStatement("\$T[] notifyUris\$L = \$L.\$L(\$L)", ClassNames.URI,
-                                notifyDefinition.methodName, notifyDefinition.parent,
-                                notifyDefinition.methodName, notifyDefinition.params)
+                            notifyDefinition.methodName, notifyDefinition.parent,
+                            notifyDefinition.methodName, notifyDefinition.params)
                         code.beginControlFlow("for (\$T notifyUri: notifyUris\$L)", ClassNames.URI, notifyDefinition.methodName)
                     } else {
                         code.addStatement("\$T notifyUri\$L = \$L.\$L(\$L)", ClassNames.URI,
-                                notifyDefinition.methodName, notifyDefinition.parent,
-                                notifyDefinition.methodName, notifyDefinition.params)
+                            notifyDefinition.methodName, notifyDefinition.parent,
+                            notifyDefinition.methodName, notifyDefinition.params)
                     }
                     code.addStatement("getContext().getContentResolver().notifyChange(notifyUri\$L, null)",
-                            if (notifyDefinition.returnsArray) "" else notifyDefinition.methodName)
+                        if (notifyDefinition.returnsArray) "" else notifyDefinition.methodName)
                     if (notifyDefinition.returnsArray) {
                         code.endControlFlow()
                     }
@@ -227,6 +220,7 @@ class NotifyMethod(private val tableEndpointDefinition: TableEndpointDefinition,
                 code.endControlFlow()
             }
         }
+        return code
     }
 
 }
@@ -239,14 +233,14 @@ class QueryMethod(private val contentProviderDefinition: ContentProviderDefiniti
     override val methodSpec: MethodSpec?
         get() {
             val method = MethodSpec.methodBuilder("query")
-                    .addAnnotation(Override::class.java)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(ClassNames.URI, "uri")
-                    .addParameter(ArrayTypeName.of(String::class.java), "projection")
-                    .addParameter(ClassName.get(String::class.java), "selection")
-                    .addParameter(ArrayTypeName.of(String::class.java), "selectionArgs")
-                    .addParameter(ClassName.get(String::class.java), "sortOrder")
-                    .returns(ClassNames.CURSOR)
+                .addAnnotation(Override::class.java)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(ClassNames.URI, "uri")
+                .addParameter(ArrayTypeName.of(String::class.java), "projection")
+                .addParameter(ClassName.get(String::class.java), "selection")
+                .addParameter(ArrayTypeName.of(String::class.java), "selectionArgs")
+                .addParameter(ClassName.get(String::class.java), "sortOrder")
+                .returns(ClassNames.CURSOR)
 
             method.addStatement("\$L cursor = null", ClassNames.CURSOR)
             method.beginControlFlow("switch(\$L.match(uri))", ContentProviderDefinition.URI_MATCHER)
@@ -257,9 +251,9 @@ class QueryMethod(private val contentProviderDefinition: ContentProviderDefiniti
                             beginControlFlow("case \$L:", uriDefinition.name)
                             addCode(uriDefinition.getSegmentsPreparation())
                             addCode("cursor = \$T.getDatabase(\$S).getWritableDatabase().query(\$S, projection, ",
-                                    ClassNames.FLOW_MANAGER,
-                                    manager.getDatabaseName(contentProviderDefinition.databaseName),
-                                    tableEndpointDefinition.tableName)
+                                ClassNames.FLOW_MANAGER,
+                                manager.getDatabaseName(contentProviderDefinition.databaseName),
+                                tableEndpointDefinition.tableName)
                             addCode(uriDefinition.getSelectionAndSelectionArgs())
                             addCode(", null, null, sortOrder);\n")
                             addStatement("break")
@@ -288,13 +282,13 @@ class UpdateMethod(private val contentProviderDefinition: ContentProviderDefinit
     override val methodSpec: MethodSpec?
         get() {
             val method = MethodSpec.methodBuilder("update")
-                    .addAnnotation(Override::class.java)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(ClassNames.URI, Constants.PARAM_URI)
-                    .addParameter(ClassNames.CONTENT_VALUES, Constants.PARAM_CONTENT_VALUES)
-                    .addParameter(ClassName.get(String::class.java), "selection")
-                    .addParameter(ArrayTypeName.of(String::class.java), "selectionArgs")
-                    .returns(TypeName.INT)
+                .addAnnotation(Override::class.java)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(ClassNames.URI, Constants.PARAM_URI)
+                .addParameter(ClassNames.CONTENT_VALUES, Constants.PARAM_CONTENT_VALUES)
+                .addParameter(ClassName.get(String::class.java), "selection")
+                .addParameter(ArrayTypeName.of(String::class.java), "selectionArgs")
+                .returns(TypeName.INT)
 
             method.beginControlFlow("switch(MATCHER.match(\$L))", Constants.PARAM_URI)
             for (tableEndpointDefinition in contentProviderDefinition.endpointDefinitions) {
@@ -303,24 +297,24 @@ class UpdateMethod(private val contentProviderDefinition: ContentProviderDefinit
                         method.apply {
                             beginControlFlow("case \$L:", uriDefinition.name)
                             addStatement("\$T adapter = \$T.getModelAdapter(\$T.getTableClassForName(\$S, \$S))",
-                                    ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
-                                    contentProviderDefinition.databaseNameString,
-                                    tableEndpointDefinition.tableName)
+                                ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
+                                contentProviderDefinition.databaseNameString,
+                                tableEndpointDefinition.tableName)
                             addCode(uriDefinition.getSegmentsPreparation())
                             addCode(
-                                    "long count = \$T.getDatabase(\$S).getWritableDatabase().updateWithOnConflict(\$S, \$L, ",
-                                    ClassNames.FLOW_MANAGER,
-                                    manager.getDatabaseName(contentProviderDefinition.databaseName),
-                                    tableEndpointDefinition.tableName,
-                                    Constants.PARAM_CONTENT_VALUES)
+                                "long count = \$T.getDatabase(\$S).getWritableDatabase().updateWithOnConflict(\$S, \$L, ",
+                                ClassNames.FLOW_MANAGER,
+                                manager.getDatabaseName(contentProviderDefinition.databaseName),
+                                tableEndpointDefinition.tableName,
+                                Constants.PARAM_CONTENT_VALUES)
                             addCode(uriDefinition.getSelectionAndSelectionArgs())
                             addCode(
-                                    ", \$T.getSQLiteDatabaseAlgorithmInt(adapter.getUpdateOnConflictAction()));\n",
-                                    ClassNames.CONFLICT_ACTION)
+                                ", \$T.getSQLiteDatabaseAlgorithmInt(adapter.getUpdateOnConflictAction()));\n",
+                                ClassNames.CONFLICT_ACTION)
 
                             val code = CodeBlock.builder()
                             NotifyMethod(tableEndpointDefinition, uriDefinition,
-                                    Notify.Method.UPDATE).addCode(code)
+                                Notify.Method.UPDATE).addCode(code)
                             addCode(code.build())
 
                             addStatement("return (int) count")
@@ -355,10 +349,10 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
     var endpointDefinitions: MutableList<TableEndpointDefinition> = Lists.newArrayList<TableEndpointDefinition>()
 
     private val methods: Array<MethodDefinition> = arrayOf(QueryMethod(this, manager),
-            InsertMethod(this, false),
-            InsertMethod(this, true),
-            DeleteMethod(this, manager),
-            UpdateMethod(this, manager))
+        InsertMethod(this, false),
+        InsertMethod(this, true),
+        DeleteMethod(this, manager),
+        UpdateMethod(this, manager))
 
     init {
 
@@ -398,87 +392,67 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 
-        var code = 0
-        for (endpointDefinition in endpointDefinitions) {
-            endpointDefinition.contentUriDefinitions.forEach {
-                typeBuilder.addField(FieldSpec.builder(TypeName.INT, it.name, Modifier.PRIVATE,
-                        Modifier.STATIC, Modifier.FINAL)
-                        .initializer(code.toString()).build())
-                code++
-            }
-        }
-
-        val uriField = FieldSpec.builder(ClassNames.URI_MATCHER, URI_MATCHER,
-                Modifier.PRIVATE, Modifier.FINAL)
-                .initializer("new \$T(\$T.NO_MATCH)", ClassNames.URI_MATCHER, ClassNames.URI_MATCHER)
-
-        typeBuilder.addField(uriField.build())
-
-        val onCreate = MethodSpec.methodBuilder("onCreate")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .returns(TypeName.BOOLEAN)
-                .addStatement("final \$T $AUTHORITY = \$L", String::class.java,
-                        if (authority.contains("R.string."))
-                            "getContext().getString($authority)"
-                        else
-                            "\"$authority\"")
-
-        for (endpointDefinition in endpointDefinitions) {
-            endpointDefinition.contentUriDefinitions.forEach {
-                val path: String
-                if (!it.path.isNullOrEmpty()) {
-                    path = "\"" + it.path + "\""
-                } else {
-                    path = CodeBlock.builder().add("\$L.\$L.getPath()", it.elementClassName,
-                            it.name).build().toString()
+        typeBuilder.apply {
+            var code = 0
+            for (endpointDefinition in endpointDefinitions) {
+                endpointDefinition.contentUriDefinitions.forEach {
+                    `private static final field`(TypeName.INT, it.name) { `=`(code.toString()) }
+                    code++
                 }
-                onCreate.addStatement("\$L.addURI(\$L, \$L, \$L)", URI_MATCHER, AUTHORITY, path, it.name)
             }
-        }
 
-        onCreate.addStatement("return super.onCreate()")
-        typeBuilder.addMethod(onCreate.build())
+            `private final field`(ClassNames.URI_MATCHER, URI_MATCHER) { `=`("new \$T(\$T.NO_MATCH)", ClassNames.URI_MATCHER, ClassNames.URI_MATCHER) }
 
-        typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseName")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return \$S", databaseNameString)
-                .returns(ClassName.get(String::class.java)).build())
+            `override fun`(TypeName.BOOLEAN, "onCreate") {
+                modifiers(public, final)
+                addStatement("final \$T $AUTHORITY = \$L", String::class.java,
+                    if (authority.contains("R.string."))
+                        "getContext().getString($authority)"
+                    else
+                        "\"$authority\"")
 
-        val getTypeBuilder = MethodSpec.methodBuilder("getType")
-                .addAnnotation(Override::class.java)
-                .addParameter(ClassNames.URI, "uri")
-                .returns(ClassName.get(String::class.java))
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-
-        val getTypeCode = CodeBlock.builder().addStatement("\$T type = null",
-                ClassName.get(String::class.java))
-
-        getTypeCode.controlFlow("switch(\$L.match(uri))", URI_MATCHER) {
-            for (tableEndpointDefinition in endpointDefinitions) {
-                for (uriDefinition in tableEndpointDefinition.contentUriDefinitions) {
-                    getTypeCode.controlFlow("case \$L:", uriDefinition.name) {
-                        getTypeCode.addStatement("type = \$S", uriDefinition.type)
-                        getTypeCode.addStatement("break")
+                for (endpointDefinition in endpointDefinitions) {
+                    endpointDefinition.contentUriDefinitions.forEach {
+                        val path: String
+                        if (!it.path.isNullOrEmpty()) {
+                            path = "\"" + it.path + "\""
+                        } else {
+                            path = CodeBlock.builder().add("\$L.\$L.getPath()", it.elementClassName,
+                                it.name).build().toString()
+                        }
+                        addStatement("\$L.addURI(\$L, \$L, \$L)", URI_MATCHER, AUTHORITY, path, it.name)
                     }
                 }
+
+                addStatement("return super.onCreate()")
             }
-            appendDefault(getTypeCode)
-        }
-        getTypeCode.addStatement("return type")
 
-        getTypeBuilder.addCode(getTypeCode.build())
-        typeBuilder.addMethod(getTypeBuilder.build())
+            `override fun`(String::class, "getDatabaseName") {
+                modifiers(public, final)
+                `return`(databaseNameString.S)
+            }
 
-        for (method in methods) {
-            val methodSpec = method.methodSpec
-            if (methodSpec != null) {
-                typeBuilder.addMethod(methodSpec)
+            `override fun`(String::class, "getType", param(ClassNames.URI, "uri")) {
+                modifiers(public, final)
+                code {
+                    statement("\$T type = null", ClassName.get(String::class.java))
+                    controlFlow("switch(\$L.match(uri))", URI_MATCHER) {
+                        endpointDefinitions.flatMap { it.contentUriDefinitions }
+                            .forEach { uri ->
+                                controlFlow("case \$L:", uri.name) {
+                                    statement("type = \$S", uri.type)
+                                    `break`()
+                                }
+                            }
+                        appendDefault(this)
+                    }
+                    `return`("type")
+                }
             }
         }
 
-
+        methods.mapNotNull { it.methodSpec }
+            .forEach { typeBuilder.addMethod(it) }
     }
 
     companion object {
@@ -532,7 +506,7 @@ class ContentUriDefinition(typeElement: Element, processorManager: ProcessorMana
         }
     }
 
-    override fun getElementClassName(element: Element): ClassName? {
+    override fun getElementClassName(element: Element?): ClassName? {
         return null
     }
 }

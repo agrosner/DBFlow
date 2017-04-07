@@ -5,9 +5,8 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
+import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.language.Delete;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
@@ -49,7 +48,7 @@ public class ModelSaver<TModel> {
         }
 
         if (exists) {
-            SqlUtils.notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE);
+            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE);
         }
 
         // return successful store into db.
@@ -70,10 +69,10 @@ public class ModelSaver<TModel> {
         modelAdapter.saveForeignKeys(model, wrapper);
         modelAdapter.bindToContentValues(contentValues, model);
         boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
-                modelAdapter.getPrimaryConditionClause(model).getQuery(), null,
-                ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
+            modelAdapter.getPrimaryConditionClause(model).getQuery(), null,
+            ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
         if (successful) {
-            SqlUtils.notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE);
+            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE);
         }
         return successful;
     }
@@ -104,7 +103,7 @@ public class ModelSaver<TModel> {
         long id = insertStatement.executeInsert();
         if (id > INSERT_FAILED) {
             modelAdapter.updateAutoIncrement(model, id);
-            SqlUtils.notifyModelChanged(model, modelAdapter, BaseModel.Action.INSERT);
+            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.INSERT);
         }
         return id;
     }
@@ -115,16 +114,28 @@ public class ModelSaver<TModel> {
 
     @SuppressWarnings("unchecked")
     public synchronized boolean delete(@NonNull TModel model, @NonNull DatabaseWrapper wrapper) {
+        DatabaseStatement deleteStatement = modelAdapter.getDeleteStatement(model, wrapper);
+        boolean success = false;
+        try {
+            success = delete(model, deleteStatement, wrapper);
+        } finally {
+            // since we generate an insert every time, we can safely close the statement here.
+            deleteStatement.close();
+        }
+        return success;
+    }
+
+    @SuppressWarnings("unchecked")
+    public synchronized boolean delete(@NonNull TModel model, @NonNull DatabaseStatement databaseStatement,
+                                       @NonNull DatabaseWrapper wrapper) {
         modelAdapter.deleteForeignKeys(model, wrapper);
 
-        boolean successful = SQLite.delete(modelAdapter.getModelClass())
-                .where(modelAdapter.getPrimaryConditionClause(model))
-                .executeUpdateDelete(wrapper) != 0;
-        if (successful) {
-            SqlUtils.notifyModelChanged(model, modelAdapter, BaseModel.Action.DELETE);
+        boolean success = databaseStatement.executeUpdateDelete() != 0;
+        if (success) {
+            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.DELETE);
         }
         modelAdapter.updateAutoIncrement(model, 0);
-        return successful;
+        return success;
     }
 
     protected DatabaseWrapper getWritableDatabase() {
@@ -134,5 +145,6 @@ public class ModelSaver<TModel> {
     public ModelAdapter<TModel> getModelAdapter() {
         return modelAdapter;
     }
+
 }
 

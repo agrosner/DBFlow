@@ -18,7 +18,7 @@ public abstract class ModelLoader<TModel, TReturn> {
 
     private final Class<TModel> modelClass;
     private DatabaseDefinition databaseDefinition;
-    private InstanceAdapter instanceAdapter;
+    private InstanceAdapter<TModel> instanceAdapter;
 
     public ModelLoader(Class<TModel> modelClass) {
         this.modelClass = modelClass;
@@ -80,7 +80,7 @@ public abstract class ModelLoader<TModel, TReturn> {
     }
 
     @NonNull
-    public InstanceAdapter getInstanceAdapter() {
+    public InstanceAdapter<TModel> getInstanceAdapter() {
         if (instanceAdapter == null) {
             instanceAdapter = FlowManager.getInstanceAdapter(modelClass);
         }

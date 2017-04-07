@@ -61,7 +61,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
                     public void processModel(TModel model, DatabaseWrapper wrapper) {
-                        getModelAdapter().save(model);
+                        getModelAdapter().save(model, wrapper);
                     }
                 }).add(model).build());
         return false;
@@ -73,7 +73,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
                     public void processModel(TModel model, DatabaseWrapper wrapper) {
-                        getModelAdapter().delete(model);
+                        getModelAdapter().delete(model, wrapper);
                     }
                 }).add(model).build());
         return false;
@@ -85,7 +85,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
                     public void processModel(TModel model, DatabaseWrapper wrapper) {
-                        getModelAdapter().update(model);
+                        getModelAdapter().update(model, wrapper);
                     }
                 }).add(model).build());
         return false;
@@ -97,7 +97,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
                     public void processModel(TModel model, DatabaseWrapper wrapper) {
-                        getModelAdapter().insert(model);
+                        getModelAdapter().insert(model, wrapper);
                     }
                 }).add(model).build());
         return INVALID_ROW_ID;
@@ -109,7 +109,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
                 new ProcessModelTransaction.ProcessModel<TModel>() {
                     @Override
                     public void processModel(TModel model, DatabaseWrapper wrapper) {
-                        getModelAdapter().load(model);
+                        getModelAdapter().load(model, wrapper);
                     }
                 }).add(model).build());
     }

@@ -65,9 +65,8 @@ object ClassNames {
     val WRAPPER_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "WrapperProperty")
 
     val IPROPERTY = ClassName.get(PROPERTY_PACKAGE, "IProperty")
-    val BASE_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "BaseProperty")
     val INDEX_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "IndexProperty")
-    val CONDITION_GROUP = ClassName.get(LANGUAGE, "ConditionGroup")
+    val OPERATOR_GROUP = ClassName.get(LANGUAGE, "OperatorGroup")
 
     val ICONDITIONAL = ClassName.get(LANGUAGE, "IConditional")
 

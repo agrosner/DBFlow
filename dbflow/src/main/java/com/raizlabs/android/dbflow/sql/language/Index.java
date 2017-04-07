@@ -18,7 +18,10 @@ import java.util.List;
  */
 public class Index<TModel> implements Query {
 
+    @NonNull
     private final String indexName;
+
+    @NonNull
     private Class<TModel> table;
     private List<NameAlias> columns;
     private boolean isUnique = false;
@@ -39,6 +42,7 @@ public class Index<TModel> implements Query {
      * @param unique true if unique. If created again, a {@link android.database.SQLException} is thrown.
      * @return This instance.
      */
+    @NonNull
     public Index<TModel> unique(boolean unique) {
         isUnique = unique;
         return this;
@@ -51,6 +55,7 @@ public class Index<TModel> implements Query {
      * @param properties The properties to create an index for.
      * @return This instance.
      */
+    @NonNull
     public Index<TModel> on(@NonNull Class<TModel> table, IProperty... properties) {
         this.table = table;
         for (IProperty property : properties) {
@@ -66,6 +71,7 @@ public class Index<TModel> implements Query {
      * @param columns The columns to create an index for.
      * @return This instance.
      */
+    @NonNull
     public Index<TModel> on(@NonNull Class<TModel> table, NameAlias firstAlias, NameAlias... columns) {
         this.table = table;
         and(firstAlias);
@@ -78,9 +84,10 @@ public class Index<TModel> implements Query {
     /**
      * Appends a column to this index list.
      *
-     * @param property The name of the column. If already exists, this column will not be added
+     * @param property The name of the column. If already exists, this op will not be added
      * @return This instance.
      */
+    @NonNull
     public Index<TModel> and(IProperty property) {
         if (!columns.contains(property.getNameAlias())) {
             columns.add(property.getNameAlias());
@@ -91,9 +98,10 @@ public class Index<TModel> implements Query {
     /**
      * Appends a column to this index list.
      *
-     * @param columnName The name of the column. If already exists, this column will not be added
+     * @param columnName The name of the column. If already exists, this op will not be added
      * @return This instance.
      */
+    @NonNull
     public Index<TModel> and(NameAlias columnName) {
         if (!columns.contains(columnName)) {
             columns.add(columnName);
@@ -104,6 +112,7 @@ public class Index<TModel> implements Query {
     /**
      * @return The name of this index.
      */
+    @NonNull
     public String getIndexName() {
         return indexName;
     }
@@ -111,6 +120,7 @@ public class Index<TModel> implements Query {
     /**
      * @return The table this INDEX belongs to.
      */
+    @NonNull
     public Class<TModel> getTable() {
         return table;
     }
@@ -148,10 +158,10 @@ public class Index<TModel> implements Query {
     @SuppressWarnings("unchecked")
     public String getQuery() {
         return new QueryBuilder("CREATE ")
-                .append(isUnique ? "UNIQUE " : "")
-                .append("INDEX IF NOT EXISTS ")
-                .appendQuotedIfNeeded(indexName)
-                .append(" ON ").append(FlowManager.getTableName(table))
-                .append("(").appendList(columns).append(")").getQuery();
+            .append(isUnique ? "UNIQUE " : "")
+            .append("INDEX IF NOT EXISTS ")
+            .appendQuotedIfNeeded(indexName)
+            .append(" ON ").append(FlowManager.getTableName(table))
+            .append("(").appendList(columns).append(")").getQuery();
     }
 }
