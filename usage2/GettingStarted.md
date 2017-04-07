@@ -44,7 +44,7 @@ public class ExampleApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        FlowManager.init(new FlowConfig.Builder(this).build());
+        FlowManager.init(this);
     }
 }
 

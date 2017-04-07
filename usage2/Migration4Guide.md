@@ -16,7 +16,7 @@ _Major Changes In this release_
 
 6. Removed the `Model` restriction on tables. If you leave out extending `BaseModel`, you _must_ interact with the `ModelAdapter`.
 
-7. We generate ~45% less code than 3.0. Combined the `_Table` + `_Adapter` into the singular `_Table` class, which contains both `Property` + all of the regular `ModelAdapter` methods. To ease the transition to 4.0, it is named `_Table` but extends `ModelAdapter`. So most use cases / interactions will not break.
+7. We generate much less less code than 3.0. Combined the `_Table` + `_Adapter` into the singular `_Table` class, which contains both `Property` + all of the regular `ModelAdapter` methods. To ease the transition to 4.0, it is named `_Table` but extends `ModelAdapter`. So most use cases / interactions will not break.
 
 8. `Condition` are now `Operator`, this includes `SQLCondition` -> `SQLOperator`, `ConditionGroup` -> `OperatorGroup`. `Operator` are now typed and safer to use.
   1. `Operator` now also have `div`, `times`, `rem`, `plus` and `minus` methods.
