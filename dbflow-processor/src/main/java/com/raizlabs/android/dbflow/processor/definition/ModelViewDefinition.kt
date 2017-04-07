@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ModelView
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery
@@ -30,7 +31,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     private var name: String? = null
 
     private val methods: Array<MethodDefinition> =
-            arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
+        arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
 
     var allFields: Boolean = false
 
@@ -57,7 +58,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
         if (element is TypeElement) {
             implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.processingEnvironment,
-                    ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element)
+                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element)
         } else {
             implementsLoadFromCursorListener = false
         }
@@ -108,7 +109,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 }
 
                 if (columnDefinition.isPrimaryKey || columnDefinition is ForeignKeyColumnDefinition
-                        || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
+                    || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
                     manager.logError("ModelViews cannot have primary or foreign keys")
                 }
             } else if (variableElement.getAnnotation(ModelViewQuery::class.java) != null) {
@@ -140,7 +141,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 
         typeBuilder.addField(FieldSpec.builder(ClassName.get(String::class.java),
-                "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("\$S", name!!).build())
+            "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("\$S", name!!).build())
         elementClassName?.let {
             columnDefinitions.forEach {
                 columnDefinition ->
@@ -151,26 +152,32 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this)
         customTypeConverterPropertyMethod.addToType(typeBuilder)
 
-        val constructorCode = CodeBlock.builder()
-        constructorCode.addStatement("super(databaseDefinition)")
-        customTypeConverterPropertyMethod.addCode(constructorCode)
-
-        typeBuilder.addMethod(MethodSpec.constructorBuilder().addParameter(ClassNames.DATABASE_HOLDER, "holder").addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition").addCode(constructorCode.build()).addModifiers(Modifier.PUBLIC).build())
+        typeBuilder.constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
+            param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
+            modifiers(public)
+            statement("super(databaseDefinition)")
+            code {
+                customTypeConverterPropertyMethod.addCode(this)
+            }
+        }
 
         methods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
+            .forEach { typeBuilder.addMethod(it) }
 
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
 
         typeBuilder.apply {
-            overrideMethod("getCreationQuery" returns String::class modifiers publicFinal) {
-                addStatement("return \$T.\$L.getQuery()", elementClassName, queryFieldName)
+            `override fun`(String::class, "getCreationQuery") {
+                modifiers(public, final)
+                `return`("\$T.\$L.getQuery()", elementClassName, queryFieldName)
             }
-            overrideMethod("getViewName" returns String::class modifiers publicFinal) {
-                addStatement("return \$S", name)
+            `override fun`(String::class, "getViewName") {
+                modifiers(public, final)
+                `return`(name.S)
             }
-            overrideMethod("newInstance" returns elementClassName modifiers publicFinal) {
-                addStatement("return new \$T()", elementClassName)
+            `override fun`(elementClassName!!, "newInstance") {
+                modifiers(public, final)
+                `return`("new \$T()", elementClassName)
             }
         }
     }

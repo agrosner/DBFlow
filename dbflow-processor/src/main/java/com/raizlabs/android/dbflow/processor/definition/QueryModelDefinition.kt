@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.QueryModel
 import com.raizlabs.android.dbflow.processor.ClassNames
@@ -7,11 +8,13 @@ import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
-import com.raizlabs.android.dbflow.processor.utils.*
-import com.squareup.javapoet.*
+import com.raizlabs.android.dbflow.processor.utils.ElementUtility
+import com.raizlabs.android.dbflow.processor.utils.`override fun`
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import java.util.*
 import javax.lang.model.element.Element
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
 
@@ -45,7 +48,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
 
         if (element is TypeElement) {
             implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(),
-                    element as TypeElement)
+                element as TypeElement)
         }
 
 
@@ -77,20 +80,26 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this)
         customTypeConverterPropertyMethod.addToType(typeBuilder)
 
-        val constructorCode = CodeBlock.builder()
-        constructorCode.addStatement("super(databaseDefinition)")
-        customTypeConverterPropertyMethod.addCode(constructorCode)
+
 
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
 
-        typeBuilder.addMethod(MethodSpec.constructorBuilder().addParameter(ClassNames.DATABASE_HOLDER, "holder").addParameter(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition").addCode(constructorCode.build()).addModifiers(Modifier.PUBLIC).build())
+        typeBuilder.constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
+            param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
+            modifiers(public)
+            statement("super(databaseDefinition)")
+            code {
+                customTypeConverterPropertyMethod.addCode(this)
+            }
+        }
 
         methods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
+            .forEach { typeBuilder.addMethod(it) }
 
         typeBuilder.apply {
-            overrideMethod("newInstance" returns elementClassName modifiers publicFinal) {
-                addStatement("return new \$T()", elementClassName)
+            `override fun`(elementClassName!!, "newInstance") {
+                modifiers(public, final)
+                `return`("new \$T()", elementClassName)
             }
         }
     }

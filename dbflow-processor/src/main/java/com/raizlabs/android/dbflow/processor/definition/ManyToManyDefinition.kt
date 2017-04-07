@@ -1,16 +1,19 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.ForeignKey
 import com.raizlabs.android.dbflow.annotation.ManyToMany
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.utils.*
+import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
+import com.raizlabs.android.dbflow.processor.utils.lower
+import com.raizlabs.android.dbflow.processor.utils.toTypeElement
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
 import javax.lang.model.type.TypeMirror
@@ -53,7 +56,7 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
         }
 
         if (!thisColumnName.isNullOrEmpty() && !referencedColumnName.isNullOrEmpty()
-                && thisColumnName == referencedColumnName) {
+            && thisColumnName == referencedColumnName) {
             manager.logError(ManyToManyDefinition::class, "The thisTableColumnName and referenceTableColumnName" + "cannot be the same")
         }
     }
@@ -74,19 +77,18 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         typeBuilder.addAnnotation(AnnotationSpec.builder(Table::class.java)
-                .addMember("database", "\$T.class", databaseTypeName).build())
+            .addMember("database", "\$T.class", databaseTypeName).build())
 
         val referencedDefinition = manager.getTableDefinition(databaseTypeName, referencedTable)
         val selfDefinition = manager.getTableDefinition(databaseTypeName, elementTypeName)
 
         if (generateAutoIncrement) {
             typeBuilder.apply {
-                field(TypeName.LONG name "_id") {
-                    annotation(PrimaryKey::class, "autoincrement", "true")
-                }
+                addField(field(`@`(PrimaryKey::class) { this["autoincrement"] = "true" }, TypeName.LONG, "_id").build())
 
-                method("getId" returns TypeName.LONG modifiers listOf(Modifier.PUBLIC, Modifier.FINAL)) {
-                    addStatement("return \$L", "_id")
+                `fun`(TypeName.LONG, "getId") {
+                    modifiers(public, final)
+                    `return`("_id")
                 }
             }
         }
@@ -110,20 +112,20 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
         }
 
         typeBuilder.apply {
-            field(referencedDefinition.elementClassName name fieldName) {
+            `field`(referencedDefinition.elementClassName!!, fieldName) {
                 if (!generateAutoIncrement) {
-                    annotation(PrimaryKey::class)
+                    `@`(PrimaryKey::class)
                 }
-                annotation(ForeignKey::class, "saveForeignKeyModel", saveForeignKeyModels.toString())
+                `@`(ForeignKey::class) { member("saveForeignKeyModel", saveForeignKeyModels.toString()) }
             }
-            method("get${fieldName.capitalizeFirstLetter()}" returns
-                    referencedDefinition.elementClassName modifiers publicFinal) {
-                addStatement("return \$L", fieldName)
+            `fun`(referencedDefinition.elementClassName!!, "get${fieldName.capitalizeFirstLetter()}") {
+                modifiers(public, final)
+                `return`(fieldName.L)
             }
-            method("set${fieldName.capitalizeFirstLetter()}" returns
-                    TypeName.VOID modifiers publicFinal) {
-                addParameter(referencedDefinition.elementClassName, "param")
-                addStatement("\$L = param", fieldName)
+            `fun`(TypeName.VOID, "set${fieldName.capitalizeFirstLetter()}",
+                param(referencedDefinition.elementClassName!!, "param")) {
+                modifiers(public, final)
+                statement("$fieldName = param")
             }
         }
     }

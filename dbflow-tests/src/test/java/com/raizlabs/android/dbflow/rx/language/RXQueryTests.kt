@@ -64,7 +64,7 @@ class RXQueryTests : BaseUnitTest() {
         var count = 0L
         (insert<SimpleModel>().columnValues(name.eq("name")))
             .rxBaseQueriable()
-            .count()
+            .executeInsert()
             .subscribe {
                 count = it
             }

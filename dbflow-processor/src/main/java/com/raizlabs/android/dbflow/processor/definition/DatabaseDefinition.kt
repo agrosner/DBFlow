@@ -1,14 +1,15 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.Database
 import com.raizlabs.android.dbflow.processor.*
-import com.raizlabs.android.dbflow.processor.utils.*
+import com.raizlabs.android.dbflow.processor.utils.`override fun`
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.*
 import java.util.*
 import java.util.regex.Pattern
 import javax.lang.model.element.Element
-import javax.lang.model.element.Modifier
 
 /**
  * Description: Writes [Database] definitions,
@@ -51,7 +52,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             }
             if (!isValidDatabaseName(databaseName)) {
                 throw Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
-                        "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!")
+                    "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!")
             }
 
             consistencyChecksEnabled = database.consistencyCheckEnabled
@@ -125,28 +126,27 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     private fun writeConstructor(builder: TypeSpec.Builder) {
 
-        builder.constructor {
-            modifiers(Modifier.PUBLIC)
-            addParameter(ClassNames.DATABASE_HOLDER, "holder")
+        builder.constructor(param(ClassNames.DATABASE_HOLDER, "holder")) {
+            modifiers(public)
             val elementClassName = this@DatabaseDefinition.elementClassName
             if (elementClassName != null) {
                 for (tableDefinition in manager.getTableDefinitions(elementClassName)) {
-                    addStatement("holder.putDatabaseForTable(\$T.class, this)", tableDefinition.elementClassName)
-                    addStatement("\$L.put(\$S, \$T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName)
-                    addStatement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
-                            tableDefinition.elementClassName, tableDefinition.outputClassName)
+                    statement("holder.putDatabaseForTable(\$T.class, this)", tableDefinition.elementClassName)
+                    statement("\$L.put(\$S, \$T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName)
+                    statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
+                        tableDefinition.elementClassName, tableDefinition.outputClassName)
                 }
 
                 for (modelViewDefinition in manager.getModelViewDefinitions(elementClassName)) {
-                    addStatement("holder.putDatabaseForTable(\$T.class, this)", modelViewDefinition.elementClassName)
-                    addStatement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
-                            modelViewDefinition.elementClassName, modelViewDefinition.outputClassName)
+                    statement("holder.putDatabaseForTable(\$T.class, this)", modelViewDefinition.elementClassName)
+                    statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
+                        modelViewDefinition.elementClassName, modelViewDefinition.outputClassName)
                 }
 
                 for (queryModelDefinition in manager.getQueryModelDefinitions(elementClassName)) {
-                    addStatement("holder.putDatabaseForTable(\$T.class, this)", queryModelDefinition.elementClassName)
-                    addStatement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
-                            queryModelDefinition.elementClassName, queryModelDefinition.outputClassName)
+                    statement("holder.putDatabaseForTable(\$T.class, this)", queryModelDefinition.elementClassName)
+                    statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
+                        queryModelDefinition.elementClassName, queryModelDefinition.outputClassName)
                 }
 
                 val migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName)
@@ -157,13 +157,13 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                         val migrationDefinitions = migrationDefinitionMap[version]
                         migrationDefinitions?.let {
                             Collections.sort(migrationDefinitions, { o1, o2 -> Integer.valueOf(o2.priority)!!.compareTo(o1.priority) })
-                            addStatement("\$T migrations\$L = new \$T()", ParameterizedTypeName.get(ClassName.get(List::class.java), ClassNames.MIGRATION),
-                                    version, ParameterizedTypeName.get(ClassName.get(ArrayList::class.java), ClassNames.MIGRATION))
-                            addStatement("\$L.put(\$L, migrations\$L)", DatabaseHandler.MIGRATION_FIELD_NAME,
-                                    version, version)
+                            statement("\$T migrations\$L = new \$T()", ParameterizedTypeName.get(ClassName.get(List::class.java), ClassNames.MIGRATION),
+                                version, ParameterizedTypeName.get(ClassName.get(ArrayList::class.java), ClassNames.MIGRATION))
+                            statement("\$L.put(\$L, migrations\$L)", DatabaseHandler.MIGRATION_FIELD_NAME,
+                                version, version)
                             for (migrationDefinition in migrationDefinitions) {
-                                addStatement("migrations\$L.add(new \$T\$L)", version, migrationDefinition.elementClassName,
-                                        migrationDefinition.constructorName)
+                                statement("migrations\$L.add(new \$T\$L)", version, migrationDefinition.elementClassName,
+                                    migrationDefinition.constructorName)
                             }
                         }
                     }
@@ -171,35 +171,44 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             }
             this
         }
+
     }
 
     private fun writeGetters(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
-            overrideMethod("getAssociatedDatabaseClassFile" returns ParameterizedTypeName.get(ClassName.get(Class::class.java),
-                    WildcardTypeName.subtypeOf(Any::class.java)) modifiers publicFinal) {
-                addStatement("return \$T.class", elementTypeName)
+            `override fun`(ParameterizedTypeName.get(ClassName.get(Class::class.java), WildcardTypeName.subtypeOf(Any::class.java)),
+                "getAssociatedDatabaseClassFile") {
+                modifiers(public, final)
+                `return`("\$T.class", elementTypeName)
             }
-            overrideMethod("isForeignKeysSupported" returns TypeName.BOOLEAN modifiers publicFinal) {
-                addStatement("return \$L", foreignKeysSupported)
+            `override fun`(TypeName.BOOLEAN, "isForeignKeysSupported") {
+                modifiers(public, final)
+                `return`(foreignKeysSupported.L)
             }
-            overrideMethod("isInMemory" returns TypeName.BOOLEAN modifiers publicFinal) {
-                addStatement("return \$L", isInMemory)
+            `override fun`(TypeName.BOOLEAN, "isInMemory") {
+                modifiers(public, final)
+                `return`(isInMemory.L)
             }
-            overrideMethod("backupEnabled" returns TypeName.BOOLEAN modifiers publicFinal) {
-                addStatement("return \$L", backupEnabled)
+            `override fun`(TypeName.BOOLEAN, "backupEnabled") {
+                modifiers(public, final)
+                `return`(backupEnabled.L)
             }
-            overrideMethod("areConsistencyChecksEnabled" returns TypeName.BOOLEAN modifiers publicFinal) {
-                addStatement("return \$L", consistencyChecksEnabled)
+            `override fun`(TypeName.BOOLEAN, "areConsistencyChecksEnabled") {
+                modifiers(public, final)
+                `return`(consistencyChecksEnabled.L)
             }
-            overrideMethod("getDatabaseVersion" returns TypeName.INT modifiers publicFinal) {
-                addStatement("return \$L", databaseVersion)
+            `override fun`(TypeName.INT, "getDatabaseVersion") {
+                modifiers(public, final)
+                `return`(databaseVersion.L)
             }
-            overrideMethod("getDatabaseName" returns String::class modifiers publicFinal) {
-                addStatement("return \$S", databaseName)
+            `override fun`(String::class, "getDatabaseName") {
+                modifiers(public, final)
+                `return`(databaseName.S)
             }
             if (!databaseExtensionName.isNullOrBlank()) {
-                overrideMethod("getDatabaseExtensionName" returns String::class modifiers publicFinal) {
-                    addStatement("return \$S", databaseExtensionName)
+                `override fun`(String::class, "getDatabaseExtensionName") {
+                    modifiers(public, final)
+                    `return`(databaseExtensionName.S)
                 }
             }
         }

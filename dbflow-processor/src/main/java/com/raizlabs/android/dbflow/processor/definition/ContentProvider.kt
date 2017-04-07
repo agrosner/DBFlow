@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.google.common.collect.Lists
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri
 import com.raizlabs.android.dbflow.annotation.provider.Notify
@@ -8,7 +9,9 @@ import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.TableEndpointValidator
-import com.raizlabs.android.dbflow.processor.utils.*
+import com.raizlabs.android.dbflow.processor.utils.`override fun`
+import com.raizlabs.android.dbflow.processor.utils.controlFlow
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.*
 import javax.lang.model.element.*
 import javax.lang.model.type.MirroredTypeException
@@ -393,18 +396,15 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
             var code = 0
             for (endpointDefinition in endpointDefinitions) {
                 endpointDefinition.contentUriDefinitions.forEach {
-                    field(TypeName.INT name it.name modifiers listOf(Modifier.STATIC, Modifier.FINAL)) {
-                        initializer(code.toString())
-                    }
+                    `private static final field`(TypeName.INT, it.name) { `=`(code.toString()) }
                     code++
                 }
             }
 
-            field(ClassNames.URI_MATCHER name URI_MATCHER modifiers privateFinal) {
-                initializer("new \$T(\$T.NO_MATCH)", ClassNames.URI_MATCHER, ClassNames.URI_MATCHER)
-            }
+            `private final field`(ClassNames.URI_MATCHER, URI_MATCHER) { `=`("new \$T(\$T.NO_MATCH)", ClassNames.URI_MATCHER, ClassNames.URI_MATCHER) }
 
-            overrideMethod("onCreate" returns TypeName.BOOLEAN modifiers publicFinal) {
+            `override fun`(TypeName.BOOLEAN, "onCreate") {
+                modifiers(public, final)
                 addStatement("final \$T $AUTHORITY = \$L", String::class.java,
                     if (authority.contains("R.string."))
                         "getContext().getString($authority)"
@@ -427,26 +427,26 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
                 addStatement("return super.onCreate()")
             }
 
-            overrideMethod("getDatabaseName" returns String::class modifiers publicFinal) {
-                addStatement("return \$S", databaseNameString)
+            `override fun`(String::class, "getDatabaseName") {
+                modifiers(public, final)
+                `return`(databaseNameString.S)
             }
 
-            method("getType" returns String::class modifiers publicFinal) {
-                addParameter(ClassNames.URI, "uri")
-
+            `override fun`(String::class, "getType", param(ClassNames.URI, "uri")) {
+                modifiers(public, final)
                 code {
-                    addStatement("\$T type = null", ClassName.get(String::class.java))
+                    statement("\$T type = null", ClassName.get(String::class.java))
                     controlFlow("switch(\$L.match(uri))", URI_MATCHER) {
                         endpointDefinitions.flatMap { it.contentUriDefinitions }
                             .forEach { uri ->
                                 controlFlow("case \$L:", uri.name) {
-                                    addStatement("type = \$S", uri.type)
-                                    addStatement("break")
+                                    statement("type = \$S", uri.type)
+                                    `break`()
                                 }
                             }
                         appendDefault(this)
                     }
-                    addStatement("return type")
+                    `return`("type")
                 }
             }
         }
