@@ -110,7 +110,6 @@ public class ContentProviderModel extends BaseProviderModel<ContentProviderModel
     @ContentUri(path = NAME, type = ContentUri.ContentType.VND_MULTIPLE + NAME)
     public static final Uri CONTENT_URI = ContentUtils.buildUriWithAuthority(ContentDatabase.AUTHORITY);
 
-    @Column
     @PrimaryKey(autoincrement = true)
     long id;
 

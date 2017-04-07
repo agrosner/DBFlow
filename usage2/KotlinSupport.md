@@ -159,13 +159,16 @@ List<TestModel> items = SQLite.select()
     .from(TestModel.class)
     .queryList();
 
-TransactionManager.getInstance()
-  .add(new ProcessModelTransaction(ProcessModelInfo.withModels(items), null) {
-    @Override
-    public void processModel(TestModel model) {
-        // do something.
-    }
-});
+    database.beginTransactionAsync(new ProcessModelTransaction.Builder<>(
+      new ProcessModel<TestModel>() {
+        @Override
+        public void processModel(TestModel model, DatabaseWrapper database) {
+
+        }
+      })
+      .success(successCallback)
+      .error(errorCallback).build()
+      .execute();
 
 ```
 
@@ -208,18 +211,21 @@ items.processInTransaction { it, databaseWrapper -> it.delete(databaseWrapper) }
 #### Class Extensions
 
 If you need access to the Database, ModelAdapter, etc for a specific class you
-can now:
-
+can now use the following (and more) reified global functions for easy access!
 
 ```kotlin
 
-database<TestModel>
+database<MyDatabase>()
 
-tableName<TestModel>
+databaseForTable<TestModel>()
 
-modelAdapter<TestModel>
+writableDatabaseForTable<TestModel>()
+
+tableName<TestModel>()
+
+modelAdapter<TestModel>()
+
 
 ```
-
 
 Which under-the-hood call their corresponding `FlowManager` methods.
