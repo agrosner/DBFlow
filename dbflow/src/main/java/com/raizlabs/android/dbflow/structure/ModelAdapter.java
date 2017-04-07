@@ -435,7 +435,9 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     /**
      * @return The query used to insert a model using a {@link SQLiteStatement}
      */
-    protected abstract String getInsertStatementQuery();
+    protected String getInsertStatementQuery() {
+        return getCompiledStatementQuery();
+    }
 
     /**
      * @return The normal query used in saving a model if we use a {@link SQLiteStatement}.

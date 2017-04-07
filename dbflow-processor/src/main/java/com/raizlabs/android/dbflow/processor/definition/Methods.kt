@@ -309,7 +309,9 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, p
 
     override val methodSpec: MethodSpec
         get() {
-            val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "getInsertStatementQuery" else "getCompiledStatementQuery").addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL).returns(ClassName.get(String::class.java))
+            val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "getInsertStatementQuery" else "getCompiledStatementQuery")
+                .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .returns(ClassName.get(String::class.java))
 
             val codeBuilder = CodeBlock.builder().add("INSERT ")
             if (!tableDefinition.insertConflictActionName.isEmpty()) {

@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.rx.language.RXModelQueriable
 import com.raizlabs.android.dbflow.rx.language.RXQueriable
 import com.raizlabs.android.dbflow.rx.language.RXSQLite
 import com.raizlabs.android.dbflow.rx.structure.BaseRXModel
+import com.raizlabs.android.dbflow.sql.language.BaseQueriable
 import com.raizlabs.android.dbflow.sql.language.CursorResult
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.sql.queriable.Queriable
@@ -13,6 +14,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import rx.Subscription
 
 fun <T : Any> ModelQueriable<T>.rx() = RXSQLite.rx<T>(this)
+
+fun <T : Any> BaseQueriable<T>.rxBaseQueriable() = RXSQLite.rx<T>(table, this)
 
 inline fun <reified T : Any> Queriable.rx() = RXSQLite.rx(T::class.java, this)
 

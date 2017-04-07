@@ -11,9 +11,12 @@ val privateFinal = listOf(Modifier.PRIVATE, Modifier.FINAL)
 
 val public = listOf(Modifier.PUBLIC)
 
+// method extensions
+fun method(methodSpec: MethodSpec.Builder,
+           methodSpecMethod: MethodSpec.Builder.() -> MethodSpec.Builder) = methodSpecMethod(methodSpec).build()!!
 
-fun TypeSpec.Builder.field(fieldSpec: FieldSpec.Builder,
-                           fieldSpecMethod: FieldSpec.Builder.() -> FieldSpec.Builder = { this }) = addField(fieldSpecMethod(fieldSpec).build())!!
+fun overrideMethod(methodSpec: MethodSpec.Builder,
+                   methodSpecMethod: MethodSpec.Builder.() -> MethodSpec.Builder) = methodSpecMethod(methodSpec).addAnnotation(Override::class.java).build()!!
 
 fun TypeSpec.Builder.method(methodSpec: MethodSpec.Builder,
                             methodSpecMethod: MethodSpec.Builder.() -> MethodSpec.Builder = { this }) = addMethod(methodSpecMethod(methodSpec).build())!!
@@ -25,7 +28,13 @@ fun TypeSpec.Builder.overrideMethod(methodSpec: MethodSpec.Builder,
                                     methodSpecMethod: MethodSpec.Builder.() -> MethodSpec.Builder = { this })
     = addMethod(methodSpecMethod(methodSpec).addAnnotation(Override::class.java).build())!!
 
+
+// field extensions
+fun TypeSpec.Builder.field(fieldSpec: FieldSpec.Builder,
+                           fieldSpecMethod: FieldSpec.Builder.() -> FieldSpec.Builder = { this }) = addField(fieldSpecMethod(fieldSpec).build())!!
+
 infix fun TypeName?.name(name: String?) = FieldSpec.builder(this, name)!!
+
 
 infix fun String.returns(typeName: TypeName?) = MethodSpec.methodBuilder(this).returns(typeName)!!
 
@@ -40,6 +49,8 @@ fun <T : Any> MethodSpec.Builder.annotation(kClass: KClass<T>, name: String = ""
     = addAnnotation(AnnotationSpec.builder(kClass.java).addMember(name, value).build())!!
 
 infix fun MethodSpec.Builder.modifiers(list: List<Modifier>) = addModifiers(list)!!
+
+infix fun String.modifiers(modifier: Array<Modifier>) = MethodSpec.methodBuilder(this).addModifiers(*modifier)!!
 
 fun MethodSpec.Builder.modifiers(vararg modifier: Modifier) = addModifiers(*modifier)!!
 

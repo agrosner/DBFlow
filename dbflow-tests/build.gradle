@@ -48,6 +48,7 @@ dependencies {
     compile project("${dbflow_project_prefix}dbflow-rx")
     compile project("${dbflow_project_prefix}dbflow-rx-kotlinextensions")
     compile project("${dbflow_project_prefix}dbflow-rx2")
+    compile project("${dbflow_project_prefix}dbflow-rx2-kotlinextensions")
 
     kaptTest project("${dbflow_project_prefix}dbflow-processor")
 
