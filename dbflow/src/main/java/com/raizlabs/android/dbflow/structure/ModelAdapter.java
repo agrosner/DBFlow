@@ -412,7 +412,6 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         return new SimpleMapCache<>(getCacheSize());
     }
 
-
     /**
      * @return The query used to create this table.
      */

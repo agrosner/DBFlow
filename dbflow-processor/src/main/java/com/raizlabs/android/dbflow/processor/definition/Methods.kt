@@ -307,8 +307,11 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
  */
 class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, private val isInsert: Boolean) : MethodDefinition {
 
-    override val methodSpec: MethodSpec
+    override val methodSpec: MethodSpec?
         get() {
+            if (isInsert && !tableDefinition.hasAutoIncrement) {
+                return null // dont write method here because we reuse the compiled statement query method
+            }
             val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "getInsertStatementQuery" else "getCompiledStatementQuery")
                 .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .returns(ClassName.get(String::class.java))

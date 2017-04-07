@@ -12,7 +12,7 @@ class SimpleModel(@PrimaryKey var name: String? = "")
 @QueryModel(database = TestDatabase::class)
 class SimpleCustomModel(@Column var name: String? = "")
 
-@Table(database = TestDatabase::class)
+@Table(database = TestDatabase::class, insertConflict = ConflictAction.FAIL, updateConflict = ConflictAction.FAIL)
 class NumberModel(@PrimaryKey var id: Int = 0)
 
 @Table(database = TestDatabase::class)
