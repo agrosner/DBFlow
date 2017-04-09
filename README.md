@@ -33,7 +33,7 @@ public class MyApp extends Application {
 }
 ```
 
-By default, DBFlow generates the `GeneratedDatabaseHolder` class, which is instantiated once by reflection, only once in memory. 
+By default, DBFlow generates the `GeneratedDatabaseHolder` class, which is instantiated once by reflection, only once in memory.
 
 Creating a table is also very simple:
 
@@ -46,7 +46,7 @@ public class User {
 
   @Column
   String name;
-  
+
   @Column
   int age;
 }
@@ -73,17 +73,17 @@ List<User> users = SQLite.select()
                     .from(User.class)
                     .where(User_Table.age.greaterThan(18))
                     .queryList();
+                    
 // or asynchronous retrieval
 SQLite.select()
   .from(User.class)
   .where(User_Table.age.greaterThan(18))
   .async()
-  .queryListCallback(new QueryTransaction.QueryResultCallback<TestModel1>() {
+  .queryListCallback(new QueryTransaction.QueryResultCallback<User>() {
             @Override
-            public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TestModel1> tResult) {
+            public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<User> tResult) {
               // called when query returns on UI thread
-              List<Automobile> autos = tResult.toListClose();
-              // do something with results
+              List<User> users = tResult.toListClose();
             }
         })
   .error(new Transaction.Error() {
@@ -93,7 +93,6 @@ SQLite.select()
             }
         })
   .execute();
-
 ```
 
 
