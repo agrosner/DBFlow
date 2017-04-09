@@ -73,7 +73,7 @@ List<User> users = SQLite.select()
                     .from(User.class)
                     .where(User_Table.age.greaterThan(18))
                     .queryList();
-                    
+
 // or asynchronous retrieval
 SQLite.select()
   .from(User.class)
