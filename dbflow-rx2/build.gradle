@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
 
+project.ext.artifactId = bt_name
+
 android {
     compileSdkVersion Integer.valueOf(dbflow_target_sdk)
     buildToolsVersion dbflow_build_tools_version
