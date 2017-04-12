@@ -173,3 +173,11 @@ public static class UpdateMigration2 extends UpdateTableMigration<MigrationModel
 
 }
   ```
+  
+### Creation of new tables
+
+Creation of new tables inside your database is done automatically during a migration. To add a new table:
+
+* Add your model definiton (including all desired columns and properties).
+* Increment the `version` of your database.
+* Once you run your application, DBFlow will automatically create missing tables for existing models.
