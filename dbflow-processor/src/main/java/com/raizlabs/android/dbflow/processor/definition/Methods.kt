@@ -220,6 +220,10 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
                 }
                 referenceBuilder.add(") ON UPDATE \$L ON DELETE \$L", foreignKeyColumnDefinition.onUpdate.name.replace("_", " "),
                     foreignKeyColumnDefinition.onDelete.name.replace("_", " "))
+
+                if (foreignKeyColumnDefinition.deferrable) {
+                    referenceBuilder.add(" DEFERRABLE INITIALLY DEFERRED")
+                }
                 referenceKeyBlocks.add(referenceBuilder.build())
             }
 

@@ -30,7 +30,7 @@ public @interface ForeignKey {
 
     /**
      * @return Default false. When this column is a {@link ForeignKey} and table object,
-     * returning true will delte the model before deleting its enclosing child class.
+     * returning true will delete the model before deleting its enclosing child class.
      * If false, we expect the field to not change and must delete the model manually outside
      * of the ModelAdapter before saving the child class.
      */
@@ -66,4 +66,11 @@ public @interface ForeignKey {
      * @return {@link ForeignKeyAction}
      */
     ForeignKeyAction onUpdate() default ForeignKeyAction.NO_ACTION;
+
+    /**
+     * @return Default false. Only takes effect when foreignKeyConstraintsEnforced = true for the
+     * enclosing database. When true, foreign key constraints are enforced when transactions are
+     * committed. When false, foreign key constraints are enforced immediately.
+     */
+    boolean deferrable() default false;
 }
