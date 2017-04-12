@@ -46,6 +46,8 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
     var saveForeignKeyModel: Boolean = false
     var deleteForeignKeyModel: Boolean = false
 
+    var deferrable: Boolean = false
+
     var needsReferences = true
 
     override val typeConverterElementNames: List<TypeName?>
@@ -56,6 +58,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
         val foreignKey = element.getAnnotation(ForeignKey::class.java)
         onUpdate = foreignKey.onUpdate
         onDelete = foreignKey.onDelete
+        deferrable = foreignKey.deferrable
 
         isStubbedRelationship = foreignKey.stubbedRelationship
 
