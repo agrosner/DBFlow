@@ -38,7 +38,29 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
     @NonNull
     @Override
     public Flowable<T> queryStreamResults() {
-        return new CursorResultFlowable<>(this);
+        return Flowable.create(new FlowableOnSubscribe<T>() {
+                @Override
+                public void subscribe(@io.reactivex.annotations.NonNull final FlowableEmitter<T> emitter)
+                    throws Exception {
+                  final CursorResult<T> cursorResult = modelQueriable.queryResults();
+                  final FlowCursorIterator<T> iterator = cursorResult.iterator();
+                  try {
+                    while (!emitter.isCancelled() && iterator.hasNext()) {
+                      emitter.onNext(iterator.next());
+                    }
+                    emitter.onComplete();
+                  } catch (final Exception e) {
+                    FlowLog.logError(e);
+                    emitter.onError(e);
+                  } finally {
+                    try {
+                      iterator.close();
+                    } catch (final Exception e) {
+                      FlowLog.logError(e);
+                    }
+                  }
+                }
+          }, BackpressureStrategy.MISSING);
     }
 
     @NonNull
