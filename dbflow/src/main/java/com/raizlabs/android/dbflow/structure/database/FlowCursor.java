@@ -42,6 +42,18 @@ public class FlowCursor extends CursorWrapper {
         return getIntOrDefault(getWrappedCursor().getColumnIndex(columnName), defValue);
     }
 
+    public Integer getIntOrDefault(int index, Integer defValue) {
+        if (index != -1 && !getWrappedCursor().isNull(index)) {
+            return getWrappedCursor().getInt(index);
+        } else {
+            return defValue;
+        }
+    }
+
+    public Integer getIntOrDefault(String columnName, Integer defValue) {
+        return getIntOrDefault(getWrappedCursor().getColumnIndex(columnName), defValue);
+    }
+
     public double getDoubleOrDefault(int index, double defValue) {
         if (index != -1 && !getWrappedCursor().isNull(index)) {
             return getWrappedCursor().getDouble(index);
@@ -51,6 +63,18 @@ public class FlowCursor extends CursorWrapper {
     }
 
     public double getDoubleOrDefault(String columnName, double defValue) {
+        return getDoubleOrDefault(getWrappedCursor().getColumnIndex(columnName), defValue);
+    }
+
+    public Double getDoubleOrDefault(int index, Double defValue) {
+        if (index != -1 && !getWrappedCursor().isNull(index)) {
+            return getWrappedCursor().getDouble(index);
+        } else {
+            return defValue;
+        }
+    }
+
+    public Double getDoubleOrDefault(String columnName, Double defValue) {
         return getDoubleOrDefault(getWrappedCursor().getColumnIndex(columnName), defValue);
     }
 
@@ -66,6 +90,18 @@ public class FlowCursor extends CursorWrapper {
         return getFloatOrDefault(getWrappedCursor().getColumnIndex(columnName), defValue);
     }
 
+    public Float getFloatOrDefault(int index, Float defValue) {
+        if (index != -1 && !getWrappedCursor().isNull(index)) {
+            return getWrappedCursor().getFloat(index);
+        } else {
+            return defValue;
+        }
+    }
+
+    public Float getFloatOrDefault(String columnName, Float defValue) {
+        return getFloatOrDefault(getWrappedCursor().getColumnIndex(columnName), defValue);
+    }
+
     public long getLongOrDefault(int index, long defValue) {
         if (index != -1 && !getWrappedCursor().isNull(index)) {
             return getWrappedCursor().getLong(index);
@@ -78,6 +114,18 @@ public class FlowCursor extends CursorWrapper {
         return getLongOrDefault(getWrappedCursor().getColumnIndex(columnName), defValue);
     }
 
+    public Long getLongOrDefault(int index, Long defValue) {
+        if (index != -1 && !getWrappedCursor().isNull(index)) {
+            return getWrappedCursor().getLong(index);
+        } else {
+            return defValue;
+        }
+    }
+
+    public Long getLongOrDefault(String columnName, Long defValue) {
+        return getLongOrDefault(getWrappedCursor().getColumnIndex(columnName), defValue);
+    }
+
     public short getShortOrDefault(int index, short defValue) {
         if (index != -1 && !getWrappedCursor().isNull(index)) {
             return getWrappedCursor().getShort(index);
@@ -87,6 +135,18 @@ public class FlowCursor extends CursorWrapper {
     }
 
     public short getShortOrDefault(String columnName, short defValue) {
+        return getShortOrDefault(getWrappedCursor().getColumnIndex(columnName), defValue);
+    }
+
+    public Short getShortOrDefault(int index, Short defValue) {
+        if (index != -1 && !getWrappedCursor().isNull(index)) {
+            return getWrappedCursor().getShort(index);
+        } else {
+            return defValue;
+        }
+    }
+
+    public Short getShortOrDefault(String columnName, Short defValue) {
         return getShortOrDefault(getWrappedCursor().getColumnIndex(columnName), defValue);
     }
 
