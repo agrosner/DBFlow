@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 public interface OnTableChangedListener {
 
     /**
-     * Called when table changes.
+     * Called when table changes. This method can be called from the thread another then main thread.
      *
      * @param tableChanged The table that has changed. NULL unless version of app is {@link Build.VERSION_CODES#JELLY_BEAN}
      *                     or higher.
