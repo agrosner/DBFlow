@@ -7,10 +7,7 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
-import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.raizlabs.android.dbflow.processor.utils.lower
-import com.raizlabs.android.dbflow.processor.utils.toTypeElement
+import com.raizlabs.android.dbflow.processor.utils.*
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
@@ -22,7 +19,7 @@ import javax.lang.model.type.TypeMirror
  * Description: Generates the Model class that is used in a many to many.
  */
 class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, processorManager: ProcessorManager,
-                                                     manyToMany: ManyToMany = element.getAnnotation(ManyToMany::class.java))
+                                                     manyToMany: ManyToMany = element.annotation<ManyToMany>()!!)
     : BaseDefinition(element, processorManager) {
 
     internal var referencedTable: TypeName
@@ -48,15 +45,16 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
 
         sameTableReferenced = referencedTable == elementTypeName
 
-        val table = element.getAnnotation(Table::class.java)
-        try {
-            table.database
-        } catch (mte: MirroredTypeException) {
-            databaseTypeName = TypeName.get(mte.typeMirror)
+        element.annotation<Table>()?.let { table ->
+            try {
+                table.database
+            } catch (mte: MirroredTypeException) {
+                databaseTypeName = TypeName.get(mte.typeMirror)
+            }
         }
 
         if (!thisColumnName.isNullOrEmpty() && !referencedColumnName.isNullOrEmpty()
-            && thisColumnName == referencedColumnName) {
+                && thisColumnName == referencedColumnName) {
             manager.logError(ManyToManyDefinition::class, "The thisTableColumnName and referenceTableColumnName" + "cannot be the same")
         }
     }
@@ -77,7 +75,7 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         typeBuilder.addAnnotation(AnnotationSpec.builder(Table::class.java)
-            .addMember("database", "\$T.class", databaseTypeName).build())
+                .addMember("database", "\$T.class", databaseTypeName).build())
 
         val referencedDefinition = manager.getTableDefinition(databaseTypeName, referencedTable)
         val selfDefinition = manager.getTableDefinition(databaseTypeName, elementTypeName)
@@ -123,7 +121,7 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
                 `return`(fieldName.L)
             }
             `fun`(TypeName.VOID, "set${fieldName.capitalizeFirstLetter()}",
-                param(referencedDefinition.elementClassName!!, "param")) {
+                    param(referencedDefinition.elementClassName!!, "param")) {
                 modifiers(public, final)
                 statement("$fieldName = param")
             }

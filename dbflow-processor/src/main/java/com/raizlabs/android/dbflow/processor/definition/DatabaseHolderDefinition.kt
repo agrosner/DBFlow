@@ -46,9 +46,13 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
                 }
             }
 
-            processorManager.getDatabaseHolderDefinitionList().sortedBy { it.databaseDefinition?.outputClassName?.simpleName() }.forEach { databaseDefinition ->
-                databaseDefinition.databaseDefinition?.let { constructor.addStatement("new \$T(this)", it.outputClassName) }
-            }
+            processorManager.getDatabaseHolderDefinitionList()
+                    .sortedBy { it.databaseDefinition?.outputClassName?.simpleName() }
+                    .forEach { databaseDefinition ->
+                        databaseDefinition.databaseDefinition?.let {
+                            constructor.addStatement("new \$T(this)", it.outputClassName)
+                        }
+                    }
 
             typeBuilder.addMethod(constructor.build())
 

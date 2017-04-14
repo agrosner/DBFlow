@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.Database
 import com.raizlabs.android.dbflow.processor.*
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
+import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.*
 import java.util.*
@@ -43,8 +44,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
     init {
         packageName = ClassNames.FLOW_MANAGER_PACKAGE
 
-        val database = element.getAnnotation(Database::class.java)
-        if (database != null) {
+        element.annotation<Database>()?.let { database ->
             databaseName = database.name
             databaseExtensionName = database.databaseExtension
             if (databaseName.isNullOrEmpty()) {
@@ -52,7 +52,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             }
             if (!isValidDatabaseName(databaseName)) {
                 throw Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
-                    "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!")
+                        "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!")
             }
 
             consistencyChecksEnabled = database.consistencyCheckEnabled
@@ -134,19 +134,19 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                     statement("holder.putDatabaseForTable(\$T.class, this)", tableDefinition.elementClassName)
                     statement("\$L.put(\$S, \$T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName)
                     statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
-                        tableDefinition.elementClassName, tableDefinition.outputClassName)
+                            tableDefinition.elementClassName, tableDefinition.outputClassName)
                 }
 
                 for (modelViewDefinition in manager.getModelViewDefinitions(elementClassName)) {
                     statement("holder.putDatabaseForTable(\$T.class, this)", modelViewDefinition.elementClassName)
                     statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
-                        modelViewDefinition.elementClassName, modelViewDefinition.outputClassName)
+                            modelViewDefinition.elementClassName, modelViewDefinition.outputClassName)
                 }
 
                 for (queryModelDefinition in manager.getQueryModelDefinitions(elementClassName)) {
                     statement("holder.putDatabaseForTable(\$T.class, this)", queryModelDefinition.elementClassName)
                     statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
-                        queryModelDefinition.elementClassName, queryModelDefinition.outputClassName)
+                            queryModelDefinition.elementClassName, queryModelDefinition.outputClassName)
                 }
 
                 val migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName)
@@ -158,12 +158,12 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                         migrationDefinitions?.let {
                             Collections.sort(migrationDefinitions, { o1, o2 -> Integer.valueOf(o2.priority)!!.compareTo(o1.priority) })
                             statement("\$T migrations\$L = new \$T()", ParameterizedTypeName.get(ClassName.get(List::class.java), ClassNames.MIGRATION),
-                                version, ParameterizedTypeName.get(ClassName.get(ArrayList::class.java), ClassNames.MIGRATION))
+                                    version, ParameterizedTypeName.get(ClassName.get(ArrayList::class.java), ClassNames.MIGRATION))
                             statement("\$L.put(\$L, migrations\$L)", DatabaseHandler.MIGRATION_FIELD_NAME,
-                                version, version)
+                                    version, version)
                             for (migrationDefinition in migrationDefinitions) {
                                 statement("migrations\$L.add(new \$T\$L)", version, migrationDefinition.elementClassName,
-                                    migrationDefinition.constructorName)
+                                        migrationDefinition.constructorName)
                             }
                         }
                     }
@@ -177,7 +177,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
     private fun writeGetters(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
             `override fun`(ParameterizedTypeName.get(ClassName.get(Class::class.java), WildcardTypeName.subtypeOf(Any::class.java)),
-                "getAssociatedDatabaseClassFile") {
+                    "getAssociatedDatabaseClassFile") {
                 modifiers(public, final)
                 `return`("\$T.class", elementTypeName)
             }

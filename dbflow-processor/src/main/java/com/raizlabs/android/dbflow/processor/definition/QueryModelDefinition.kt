@@ -6,10 +6,11 @@ import com.raizlabs.android.dbflow.annotation.QueryModel
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
+import com.raizlabs.android.dbflow.processor.implementsClass
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
+import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
@@ -34,21 +35,19 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
 
     init {
 
-        val queryModel = typeElement.getAnnotation(QueryModel::class.java)
-        if (queryModel != null) {
+        typeElement.annotation<QueryModel>()?.let { queryModel ->
             try {
                 queryModel.database
             } catch (mte: MirroredTypeException) {
                 databaseTypeName = TypeName.get(mte.typeMirror)
             }
-
         }
 
         elementClassName?.let { databaseTypeName?.let { it1 -> processorManager.addModelToDatabase(it, it1) } }
 
         if (element is TypeElement) {
-            implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(),
-                element as TypeElement)
+            implementsLoadFromCursorListener =
+                    (element as TypeElement).implementsClass(manager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER)
         }
 
 
@@ -85,7 +84,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
 
         typeBuilder.constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
-            param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
+                param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
             modifiers(public)
             statement("super(databaseDefinition)")
             code {
@@ -94,7 +93,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         }
 
         methods.mapNotNull { it.methodSpec }
-            .forEach { typeBuilder.addMethod(it) }
+                .forEach { typeBuilder.addMethod(it) }
 
         typeBuilder.apply {
             `override fun`(elementClassName!!, "newInstance") {
@@ -120,7 +119,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
             val isPackagePrivate = ElementUtility.isPackagePrivate(element)
             val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element)
 
-            if (variableElement.getAnnotation(Column::class.java) != null || isAllFields) {
+            if (variableElement.annotation<Column>() != null || isAllFields) {
 
                 val columnDefinition = ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
                 if (columnValidator.validate(manager, columnDefinition)) {

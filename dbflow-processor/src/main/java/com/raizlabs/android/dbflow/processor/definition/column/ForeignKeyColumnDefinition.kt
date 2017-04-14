@@ -1,13 +1,15 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.case
 import com.raizlabs.android.dbflow.annotation.ForeignKey
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
 import com.raizlabs.android.dbflow.annotation.Table
-import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.ProcessorUtils
+import com.raizlabs.android.dbflow.processor.*
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
+import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.utils.toTypeElement
 import com.raizlabs.android.dbflow.processor.utils.toTypeErasedElement
@@ -30,14 +32,14 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
 
     var referencedTableClassName: ClassName? = null
 
-    var onDelete: ForeignKeyAction
-    var onUpdate: ForeignKeyAction
+    var onDelete = ForeignKeyAction.NO_ACTION
+    var onUpdate = ForeignKeyAction.NO_ACTION
 
     var isStubbedRelationship: Boolean = false
 
     var isReferencingTableObject: Boolean = false
-    var implementsModel: Boolean
-    var extendsBaseModel: Boolean
+    var implementsModel = false
+    var extendsBaseModel = false
 
     var references: List<ForeignKeyReference>? = null
 
@@ -53,49 +55,50 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
 
     init {
 
-        val foreignKey = element.getAnnotation(ForeignKey::class.java)
-        onUpdate = foreignKey.onUpdate
-        onDelete = foreignKey.onDelete
+        element.annotation<ForeignKey>()?.let { foreignKey ->
+            onUpdate = foreignKey.onUpdate
+            onDelete = foreignKey.onDelete
 
-        isStubbedRelationship = foreignKey.stubbedRelationship
+            isStubbedRelationship = foreignKey.stubbedRelationship
 
-        try {
-            foreignKey.tableClass
-        } catch (mte: MirroredTypeException) {
-            referencedTableClassName = ProcessorUtils.fromTypeMirror(mte.typeMirror, manager)
-        }
+            try {
+                foreignKey.tableClass
+            } catch (mte: MirroredTypeException) {
+                referencedTableClassName = fromTypeMirror(mte.typeMirror, manager)
+            }
 
-        val erasedElement = element.toTypeErasedElement()
+            val erasedElement = element.toTypeErasedElement()
 
-        // hopefully intentionally left blank
-        if (referencedTableClassName == TypeName.OBJECT) {
-            if (elementTypeName is ParameterizedTypeName) {
-                val args = (elementTypeName as ParameterizedTypeName).typeArguments
-                if (args.size > 0) {
-                    referencedTableClassName = ClassName.get(args[0].toTypeElement(manager))
-                }
-            } else {
-                if (referencedTableClassName == null || referencedTableClassName == ClassName.OBJECT) {
-                    referencedTableClassName = ClassName.get(elementTypeName.toTypeElement())
+            // hopefully intentionally left blank
+            if (referencedTableClassName == TypeName.OBJECT) {
+                if (elementTypeName is ParameterizedTypeName) {
+                    val args = (elementTypeName as ParameterizedTypeName).typeArguments
+                    if (args.size > 0) {
+                        referencedTableClassName = ClassName.get(args[0].toTypeElement(manager))
+                    }
+                } else {
+                    if (referencedTableClassName == null || referencedTableClassName == ClassName.OBJECT) {
+                        referencedTableClassName = ClassName.get(elementTypeName.toTypeElement())
+                    }
                 }
             }
+
+            if (referencedTableClassName == null) {
+                manager.logError("Referenced was null for $element within $elementTypeName")
+            }
+
+            extendsBaseModel = isSubclass(manager.processingEnvironment,
+                    ClassNames.BASE_MODEL.toString(), erasedElement)
+            implementsModel = erasedElement.implementsClass(manager.processingEnvironment, ClassNames.MODEL)
+            isReferencingTableObject = implementsModel || erasedElement.annotation<Table>() != null
+
+            nonModelColumn = !isReferencingTableObject
+
+            saveForeignKeyModel = foreignKey.saveForeignKeyModel
+            deleteForeignKeyModel = foreignKey.deleteForeignKeyModel
+
+            references = foreignKey.references.asList()
         }
-
-        if (referencedTableClassName == null) {
-            manager.logError("Referenced was null for $element within $elementTypeName")
-        }
-
-        extendsBaseModel = ProcessorUtils.isSubclass(manager.processingEnvironment,
-                ClassNames.BASE_MODEL.toString(), erasedElement)
-        implementsModel = ProcessorUtils.implementsClass(manager.processingEnvironment, ClassNames.MODEL.toString(), erasedElement)
-        isReferencingTableObject = implementsModel || erasedElement?.getAnnotation(Table::class.java) != null
-
-        nonModelColumn = !isReferencingTableObject
-
-        saveForeignKeyModel = foreignKey.saveForeignKeyModel
-        deleteForeignKeyModel = foreignKey.deleteForeignKeyModel
-
-        references = foreignKey.references.asList()
     }
 
     override fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
@@ -108,7 +111,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             }
             if (it.columnName.isNullOrEmpty()) {
                 manager.logError("Found empty reference name at ${it.foreignColumnName}" +
-                        " from tablet ${baseTableDefinition.elementName}")
+                        " from table ${baseTableDefinition.elementName}")
             }
             typeBuilder.addField(FieldSpec.builder(propParam, it.columnName,
                     Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
@@ -120,9 +123,9 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
     override fun addPropertyCase(methodBuilder: MethodSpec.Builder) {
         checkNeedsReferences()
         _foreignKeyReferenceDefinitionList.forEach {
-            methodBuilder.beginControlFlow("case \$S: ", QueryBuilder.quoteIfNeeded(it.columnName))
-            methodBuilder.addStatement("return \$L", it.columnName)
-            methodBuilder.endControlFlow()
+            methodBuilder.case(QueryBuilder.quoteIfNeeded(it.columnName).S) {
+                `return`(it.columnName)
+            }
         }
     }
 
@@ -161,7 +164,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
                     builder.add(",")
                 }
                 val referenceDefinition = _foreignKeyReferenceDefinitionList[i]
-                builder.add("\$L", QueryBuilder.quote(referenceDefinition.columnName))
+                builder.add(QueryBuilder.quote(referenceDefinition.columnName))
             }
             return builder.build()
         }

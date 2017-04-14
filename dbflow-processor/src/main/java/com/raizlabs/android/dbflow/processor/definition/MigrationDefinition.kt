@@ -1,7 +1,9 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.typeName
 import com.raizlabs.android.dbflow.annotation.Migration
 import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -15,7 +17,7 @@ import javax.lang.model.type.MirroredTypeException
  * Description: Used in holding data about migration files.
  */
 class MigrationDefinition(processorManager: ProcessorManager, typeElement: TypeElement)
-: BaseDefinition(typeElement, processorManager) {
+    : BaseDefinition(typeElement, processorManager) {
 
     var databaseName: TypeName? = null
 
@@ -29,14 +31,14 @@ class MigrationDefinition(processorManager: ProcessorManager, typeElement: TypeE
     init {
         setOutputClassName("")
 
-        val migration = typeElement.getAnnotation(Migration::class.java)
+        val migration = typeElement.annotation<Migration>()
         if (migration == null) {
             processorManager.logError("Migration was null for:" + typeElement)
         } else {
             try {
                 migration.database
             } catch (mte: MirroredTypeException) {
-                databaseName = TypeName.get(mte.typeMirror)
+                databaseName = mte.typeMirror.typeName
             }
 
             version = migration.version
@@ -44,7 +46,7 @@ class MigrationDefinition(processorManager: ProcessorManager, typeElement: TypeE
 
             val elements = typeElement.enclosedElements
             for (element in elements) {
-                if (element is ExecutableElement && element.getSimpleName().toString() == "<init>") {
+                if (element is ExecutableElement && element.simpleName.toString() == "<init>") {
                     if (!constructorName.isNullOrEmpty()) {
                         manager.logError(MigrationDefinition::class, "Migrations cannot have more than one constructor. " +
                                 "They can only have an Empty() or single-parameter constructor Empty(Empty.class) that specifies " +
@@ -57,12 +59,12 @@ class MigrationDefinition(processorManager: ProcessorManager, typeElement: TypeE
                         val params = element.parameters
                         val param = params[0]
 
-                        val type = TypeName.get(param.asType())
+                        val type = param.asType().typeName
                         if (type is ParameterizedTypeName && type.rawType == ClassName.get(Class::class.java)) {
                             val containedType = type.typeArguments[0]
-                            constructorName = CodeBlock.builder().add("(\$T.class)", containedType).build().toString()
+                            constructorName = CodeBlock.of("(\$T.class)", containedType).toString()
                         } else {
-                            manager.logError(MigrationDefinition::class, "Wrong parameter type found for %1s. Found %1s" + "but required ModelClass.class", typeElement, type)
+                            manager.logError(MigrationDefinition::class, "Wrong parameter type found for $typeElement. Found $type but required ModelClass.class")
                         }
                     }
                 }

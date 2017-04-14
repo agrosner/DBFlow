@@ -4,11 +4,13 @@ import com.raizlabs.android.dbflow.annotation.*
 import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
+import com.raizlabs.android.dbflow.processor.fromTypeMirror
+import com.raizlabs.android.dbflow.processor.getTypeElement
+import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
@@ -26,8 +28,8 @@ import javax.tools.Diagnostic
 open class ColumnDefinition @JvmOverloads
 constructor(processorManager: ProcessorManager, element: Element,
             var baseTableDefinition: BaseTableDefinition, isPackagePrivate: Boolean,
-            var column: Column? = element.getAnnotation<Column>(Column::class.java),
-            primaryKey: PrimaryKey? = element.getAnnotation<PrimaryKey>(PrimaryKey::class.java))
+            var column: Column? = element.annotation(),
+            primaryKey: PrimaryKey? = element.annotation())
     : BaseDefinition(element, processorManager) {
 
     private val QUOTE_PATTERN = Pattern.compile("\".*\"")
@@ -78,8 +80,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         get() = QueryBuilder.quote(columnName)
 
     init {
-        val notNullAnno = element.getAnnotation<NotNull>(NotNull::class.java)
-        if (notNullAnno != null) {
+        element.annotation<NotNull>()?.let { notNullAnno ->
             notNull = true
             onNullConflict = notNullAnno.onNullConflict
         }
@@ -98,8 +99,8 @@ constructor(processorManager: ProcessorManager, element: Element,
             }
 
             if (defaultValue != null
-                && elementClassName == ClassName.get(String::class.java)
-                && !QUOTE_PATTERN.matcher(defaultValue).find()) {
+                    && elementClassName == ClassName.get(String::class.java)
+                    && !QUOTE_PATTERN.matcher(defaultValue).find()) {
                 defaultValue = "\"" + defaultValue + "\""
             }
         }
@@ -109,19 +110,19 @@ constructor(processorManager: ProcessorManager, element: Element,
 
         if (isPackagePrivate) {
             columnAccessor = PackagePrivateScopeColumnAccessor(elementName, packageName,
-                baseTableDefinition.databaseDefinition?.classSeparator,
-                ClassName.get(element.enclosingElement as TypeElement).simpleName())
+                    baseTableDefinition.databaseDefinition?.classSeparator,
+                    ClassName.get(element.enclosingElement as TypeElement).simpleName())
 
             PackagePrivateScopeColumnAccessor.putElement(
-                (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
-                columnName)
+                    (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
+                    columnName)
 
         } else {
             val isPrivate = element.modifiers.contains(Modifier.PRIVATE)
             if (isPrivate) {
                 val isBoolean = elementTypeName?.box() == TypeName.BOOLEAN.box()
                 val useIs = isBoolean
-                    && baseTableDefinition is TableDefinition && (baseTableDefinition as TableDefinition).useIsForPrivateBooleans
+                        && baseTableDefinition is TableDefinition && (baseTableDefinition as TableDefinition).useIsForPrivateBooleans
                 columnAccessor = PrivateScopeColumnAccessor(elementName, object : GetterSetter {
                     override val getterName: String = column?.getterName ?: ""
                     override val setterName: String = column?.setterName ?: ""
@@ -144,17 +145,15 @@ constructor(processorManager: ProcessorManager, element: Element,
             }
         }
 
-        val uniqueColumn = element.getAnnotation<Unique>(Unique::class.java)
-        if (uniqueColumn != null) {
+        element.annotation<Unique>()?.let { uniqueColumn ->
             unique = uniqueColumn.unique
             onUniqueConflict = uniqueColumn.onUniqueConflict
             uniqueColumn.uniqueGroups.forEach { uniqueGroups.add(it) }
         }
 
-        val index = element.getAnnotation<Index>(Index::class.java)
-        if (index != null) {
+        element.annotation<Index>()?.let { index ->
             // empty index, we assume generic
-            if (index.indexGroups.size == 0) {
+            if (index.indexGroups.isEmpty()) {
                 indexGroups.add(IndexGroup.GENERIC)
             } else {
                 index.indexGroups.forEach { indexGroups.add(it) }
@@ -167,18 +166,18 @@ constructor(processorManager: ProcessorManager, element: Element,
             column?.typeConverter
         } catch (mte: MirroredTypeException) {
             typeMirror = mte.typeMirror
-            typeConverterClassName = ProcessorUtils.fromTypeMirror(typeMirror, manager)
+            typeConverterClassName = fromTypeMirror(typeMirror, manager)
         }
 
         hasCustomConverter = false
         if (typeConverterClassName != null && typeMirror != null &&
-            typeConverterClassName != ClassNames.TYPE_CONVERTER) {
+                typeConverterClassName != ClassNames.TYPE_CONVERTER) {
             typeConverterDefinition = TypeConverterDefinition(typeConverterClassName, typeMirror, manager)
             evaluateTypeConverter(typeConverterDefinition, true)
         }
 
         if (!hasCustomConverter) {
-            val typeElement = ProcessorUtils.getTypeElement(element)
+            val typeElement = getTypeElement(element)
             if (typeElement != null && typeElement.kind == ElementKind.ENUM) {
                 wrapperAccessor = EnumColumnAccessor(elementTypeName!!)
                 wrapperTypeName = ClassName.get(String::class.java)
@@ -190,7 +189,7 @@ constructor(processorManager: ProcessorManager, element: Element,
                     // do nothing, for now.
                 } else if (elementTypeName is ArrayTypeName) {
                     processorManager.messager.printMessage(Diagnostic.Kind.ERROR,
-                        "Columns cannot be of array type.")
+                            "Columns cannot be of array type.")
                 } else {
                     if (elementTypeName == TypeName.BOOLEAN) {
                         wrapperAccessor = BooleanColumnAccessor()
@@ -210,7 +209,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         }
 
         combiner = Combiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
-            subWrapperAccessor)
+                subWrapperAccessor)
     }
 
     private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?,
@@ -220,7 +219,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
             if (it.modelTypeName != elementTypeName) {
                 manager.logError("The specified custom TypeConverter's Model Value ${it.modelTypeName}" +
-                    " from ${it.className} must match the type of the column $elementTypeName. ")
+                        " from ${it.className} must match the type of the column $elementTypeName. ")
             } else {
                 hasTypeConverter = true
                 hasCustomConverter = isCustom
@@ -259,21 +258,21 @@ constructor(processorManager: ProcessorManager, element: Element,
             }
 
             val fieldBuilder = FieldSpec.builder(propParam,
-                columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                    columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
 
             if (isNonPrimitiveTypeConverter) {
                 val codeBlock = CodeBlock.builder()
                 codeBlock.add("new \$T(\$T.class, \$S, true,", propParam, tableClass, columnName)
                 codeBlock.add("\nnew \$T() {" +
-                    "\n@Override" +
-                    "\npublic \$T getTypeConverter(Class<?> modelClass) {" +
-                    "\n  \$T adapter = (\$T) \$T.getInstanceAdapter(modelClass);" +
-                    "\nreturn adapter.\$L;" +
-                    "\n}" +
-                    "\n})", ClassNames.TYPE_CONVERTER_GETTER, ClassNames.TYPE_CONVERTER,
-                    baseTableDefinition.outputClassName, baseTableDefinition.outputClassName,
-                    ClassNames.FLOW_MANAGER,
-                    (wrapperAccessor as TypeConverterScopeColumnAccessor).typeConverterFieldName)
+                        "\n@Override" +
+                        "\npublic \$T getTypeConverter(Class<?> modelClass) {" +
+                        "\n  \$T adapter = (\$T) \$T.getInstanceAdapter(modelClass);" +
+                        "\nreturn adapter.\$L;" +
+                        "\n}" +
+                        "\n})", ClassNames.TYPE_CONVERTER_GETTER, ClassNames.TYPE_CONVERTER,
+                        baseTableDefinition.outputClassName, baseTableDefinition.outputClassName,
+                        ClassNames.FLOW_MANAGER,
+                        (wrapperAccessor as TypeConverterScopeColumnAccessor).typeConverterFieldName)
                 fieldBuilder.initializer(codeBlock.build())
             } else {
                 fieldBuilder.initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
@@ -304,7 +303,7 @@ constructor(processorManager: ProcessorManager, element: Element,
             val code = CodeBlock.builder()
 
             ContentValuesCombiner(combiner)
-                .addCode(code, columnName, getDefaultValueBlock(), 0, modelBlock)
+                    .addCode(code, columnName, getDefaultValueBlock(), 0, modelBlock)
 
             return code.build()
         }
@@ -321,7 +320,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
         val builder = CodeBlock.builder()
         SqliteStatementAccessCombiner(combiner)
-            .addCode(builder, "start", getDefaultValueBlock(), index.get(), modelBlock)
+                .addCode(builder, "start", getDefaultValueBlock(), index.get(), modelBlock)
         return builder.build()
     }
 
@@ -329,9 +328,9 @@ constructor(processorManager: ProcessorManager, element: Element,
 
         val builder = CodeBlock.builder()
         LoadFromCursorAccessCombiner(combiner,
-            baseTableDefinition.orderedCursorLookUp,
-            baseTableDefinition.assignDefaultValuesFromCursor)
-            .addCode(builder, columnName, getDefaultValueBlock(), index.get(), modelBlock)
+                baseTableDefinition.orderedCursorLookUp,
+                baseTableDefinition.assignDefaultValuesFromCursor)
+                .addCode(builder, columnName, getDefaultValueBlock(), index.get(), modelBlock)
         return builder.build()
     }
 
@@ -344,35 +343,35 @@ constructor(processorManager: ProcessorManager, element: Element,
         get() {
             val code = CodeBlock.builder()
             UpdateAutoIncrementAccessCombiner(combiner)
-                .addCode(code, columnName, getDefaultValueBlock(),
-                    0, modelBlock)
+                    .addCode(code, columnName, getDefaultValueBlock(),
+                            0, modelBlock)
             return code.build()
         }
 
     fun getColumnAccessString(index: Int): CodeBlock {
         val codeBlock = CodeBlock.builder()
         CachingIdAccessCombiner(combiner)
-            .addCode(codeBlock, columnName, getDefaultValueBlock(), index, modelBlock)
+                .addCode(codeBlock, columnName, getDefaultValueBlock(), index, modelBlock)
         return codeBlock.build()
     }
 
     fun getSimpleAccessString(): CodeBlock {
         val codeBlock = CodeBlock.builder()
         SimpleAccessCombiner(combiner)
-            .addCode(codeBlock, columnName, getDefaultValueBlock(), 0, modelBlock)
+                .addCode(codeBlock, columnName, getDefaultValueBlock(), 0, modelBlock)
         return codeBlock.build()
     }
 
     open fun appendExistenceMethod(codeBuilder: CodeBlock.Builder) {
         ExistenceAccessCombiner(combiner, isRowId || isPrimaryKeyAutoIncrement,
-            isQuickCheckPrimaryKeyAutoIncrement, baseTableDefinition.elementClassName!!)
-            .addCode(codeBuilder, columnName, getDefaultValueBlock(), 0, modelBlock)
+                isQuickCheckPrimaryKeyAutoIncrement, baseTableDefinition.elementClassName!!)
+                .addCode(codeBuilder, columnName, getDefaultValueBlock(), 0, modelBlock)
     }
 
     open fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
         PrimaryReferenceAccessCombiner(combiner)
-            .addCode(codeBuilder, columnName, getDefaultValueBlock(),
-                0, modelBlock)
+                .addCode(codeBuilder, columnName, getDefaultValueBlock(),
+                        0, modelBlock)
     }
 
     open val creationName: CodeBlock
@@ -383,9 +382,9 @@ constructor(processorManager: ProcessorManager, element: Element,
                 codeBlockBuilder.add(" PRIMARY KEY ")
 
                 if (baseTableDefinition is TableDefinition &&
-                    !(baseTableDefinition as TableDefinition).primaryKeyConflictActionName.isNullOrEmpty()) {
+                        !(baseTableDefinition as TableDefinition).primaryKeyConflictActionName.isNullOrEmpty()) {
                     codeBlockBuilder.add("ON CONFLICT \$L ",
-                        (baseTableDefinition as TableDefinition).primaryKeyConflictActionName)
+                            (baseTableDefinition as TableDefinition).primaryKeyConflictActionName)
                 }
 
                 codeBlockBuilder.add("AUTOINCREMENT")
@@ -422,8 +421,8 @@ constructor(processorManager: ProcessorManager, element: Element,
             if (elementTypeName == TypeName.BOOLEAN) {
                 defaultValue = "false"
             } else if (elementTypeName == TypeName.BYTE || elementTypeName == TypeName.INT
-                || elementTypeName == TypeName.DOUBLE || elementTypeName == TypeName.FLOAT
-                || elementTypeName == TypeName.LONG || elementTypeName == TypeName.SHORT) {
+                    || elementTypeName == TypeName.DOUBLE || elementTypeName == TypeName.FLOAT
+                    || elementTypeName == TypeName.LONG || elementTypeName == TypeName.SHORT) {
                 defaultValue = "($elementTypeName) 0"
             } else if (elementTypeName == TypeName.CHAR) {
                 defaultValue = "'\\u0000'"

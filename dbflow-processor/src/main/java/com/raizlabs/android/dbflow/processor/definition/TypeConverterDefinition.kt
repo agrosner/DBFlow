@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition
 import com.raizlabs.android.dbflow.annotation.TypeConverter
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.TypeElement
@@ -27,8 +28,7 @@ class TypeConverterDefinition(val className: ClassName,
 
     init {
 
-        val annotation = typeElement?.getAnnotation(TypeConverter::class.java)
-        if (annotation != null) {
+        typeElement.annotation<TypeConverter>()?.let { annotation ->
             val allowedSubTypes: MutableList<TypeName> = mutableListOf()
             try {
                 annotation.allowedSubtypes;

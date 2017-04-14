@@ -1,16 +1,13 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
+import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.sql.QueryBuilder
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.*
 import javax.lang.model.element.Modifier
 
 /**
@@ -18,32 +15,27 @@ import javax.lang.model.element.Modifier
  */
 object InternalAdapterHelper {
 
-    fun writeGetModelClass(typeBuilder: TypeSpec.Builder, modelClassName: ClassName?) {
-        typeBuilder.addMethod(MethodSpec.methodBuilder("getModelClass")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return \$T.class", modelClassName)
-                .returns(ParameterizedTypeName.get(ClassName.get(Class::class.java), modelClassName))
-                .build())
+    fun writeGetModelClass(typeBuilder: TypeSpec.Builder, modelClassName: ClassName?) = typeBuilder.apply {
+        `override fun`(ParameterizedTypeName.get(ClassName.get(Class::class.java), modelClassName), "getModelClass") {
+            modifiers(public, final)
+            `return`("\$T.class", modelClassName)
+        }
     }
 
-    fun writeGetTableName(typeBuilder: TypeSpec.Builder, tableName: String?) {
-        typeBuilder.addMethod(MethodSpec.methodBuilder("getTableName")
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return \$S", QueryBuilder.quote(tableName))
-                .returns(ClassName.get(String::class.java))
-                .build())
+    fun writeGetTableName(typeBuilder: TypeSpec.Builder, tableName: String?) = typeBuilder.apply {
+        `override fun`(String::class, "getTableName") {
+            modifiers(public, final)
+            `return`(QueryBuilder.quote(tableName).S)
+        }
     }
 
     fun writeUpdateAutoIncrement(typeBuilder: TypeSpec.Builder, modelClassName: TypeName?,
-                                 autoIncrementDefinition: ColumnDefinition) {
-        typeBuilder.addMethod(MethodSpec.methodBuilder("updateAutoIncrement")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(modelClassName, ModelUtils.variable)
-                .addParameter(ClassName.get(Number::class.java), "id")
-                .addCode(autoIncrementDefinition.updateAutoIncrementMethod)
-                .build())
+                                 autoIncrementDefinition: ColumnDefinition) = typeBuilder.apply {
+        `override fun`(TypeName.VOID, "updateAutoIncrement", param(modelClassName!!, ModelUtils.variable),
+                param(Number::class, "id")) {
+            modifiers(public, final)
+            addCode(autoIncrementDefinition.updateAutoIncrementMethod)
+        }
     }
 
     fun writeGetCachingId(typeBuilder: TypeSpec.Builder, modelClassName: TypeName?,

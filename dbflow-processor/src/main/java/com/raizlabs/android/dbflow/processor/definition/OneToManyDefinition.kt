@@ -4,10 +4,11 @@ import com.google.common.collect.Lists
 import com.raizlabs.android.dbflow.annotation.OneToMany
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.column.*
+import com.raizlabs.android.dbflow.processor.isSubclass
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.addStatement
+import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.controlFlow
 import com.squareup.javapoet.*
 import java.util.*
@@ -46,7 +47,7 @@ class OneToManyDefinition(typeElement: ExecutableElement,
 
     init {
 
-        val oneToMany = typeElement.getAnnotation(OneToMany::class.java)
+        val oneToMany = typeElement.annotation<OneToMany>()!!
 
         _methodName = typeElement.simpleName.toString()
         _variableName = oneToMany.variableName
@@ -78,10 +79,10 @@ class OneToManyDefinition(typeElement: ExecutableElement,
                 referencedTableType = refTableType
 
                 referencedType = manager.elements.getTypeElement(referencedTableType?.toString())
-                extendsBaseModel = ProcessorUtils.isSubclass(manager.processingEnvironment,
-                    ClassNames.BASE_MODEL.toString(), referencedType)
-                extendsModel = ProcessorUtils.isSubclass(manager.processingEnvironment,
-                    ClassNames.MODEL.toString(), referencedType)
+                extendsBaseModel = isSubclass(manager.processingEnvironment,
+                        ClassNames.BASE_MODEL.toString(), referencedType)
+                extendsModel = isSubclass(manager.processingEnvironment,
+                        ClassNames.MODEL.toString(), referencedType)
             }
         }
     }
@@ -132,11 +133,11 @@ class OneToManyDefinition(typeElement: ExecutableElement,
 
                 if (!extendsModel) {
                     addStatement("\$T adapter = \$T.getModelAdapter(\$T.class)",
-                        ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
-                        ClassNames.FLOW_MANAGER, referencedTableType)
+                            ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
+                            ClassNames.FLOW_MANAGER, referencedTableType)
 
                     addStatement("adapter.\$LAll(\$L\$L)", methodName, oneToManyMethodName,
-                        if (useWrapper) ", " + ModelUtils.wrapper else "")
+                            if (useWrapper) ", " + ModelUtils.wrapper else "")
                 } else {
                     controlFlow("for (\$T value: \$L) ", loopClass, oneToManyMethodName) {
                         codeBuilder.addStatement("value.\$L(\$L)", methodName, if (useWrapper) ModelUtils.wrapper else "")

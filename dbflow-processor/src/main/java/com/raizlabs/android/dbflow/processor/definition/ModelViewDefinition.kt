@@ -4,10 +4,7 @@ import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ModelView
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery
-import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.ColumnValidator
-import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.ProcessorUtils
+import com.raizlabs.android.dbflow.processor.*
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
 import com.raizlabs.android.dbflow.processor.utils.*
@@ -31,7 +28,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     private var name: String? = null
 
     private val methods: Array<MethodDefinition> =
-        arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
+            arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
 
     var allFields: Boolean = false
 
@@ -39,8 +36,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
     init {
 
-        val modelView = element.getAnnotation(ModelView::class.java)
-        if (modelView != null) {
+        element.annotation<ModelView>()?.let { modelView ->
             try {
                 modelView.database
             } catch (mte: MirroredTypeException) {
@@ -57,8 +53,8 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         }
 
         if (element is TypeElement) {
-            implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.processingEnvironment,
-                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element)
+            implementsLoadFromCursorListener = element.implementsClass(manager.processingEnvironment,
+                    ClassNames.LOAD_FROM_CURSOR_LISTENER)
         } else {
             implementsLoadFromCursorListener = false
         }
@@ -93,7 +89,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
             val isValidAllFields = ElementUtility.isValidAllFields(allFields, element)
 
-            if (variableElement.getAnnotation(Column::class.java) != null || isValidAllFields) {
+            if (variableElement.annotation<Column>() != null || isValidAllFields) {
 
                 // package private, will generate helper
                 val isPackagePrivate = ElementUtility.isPackagePrivate(element)
@@ -109,17 +105,17 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 }
 
                 if (columnDefinition.isPrimaryKey || columnDefinition is ForeignKeyColumnDefinition
-                    || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
+                        || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
                     manager.logError("ModelViews cannot have primary or foreign keys")
                 }
-            } else if (variableElement.getAnnotation(ModelViewQuery::class.java) != null) {
+            } else if (variableElement.annotation<ModelViewQuery>() != null) {
                 if (!queryFieldName.isNullOrEmpty()) {
                     manager.logError("Found duplicate ")
                 }
-                ProcessorUtils.ensureVisibleStatic(variableElement, typeElement, "ModelViewQuery")
+                ensureVisibleStatic(variableElement, typeElement, "ModelViewQuery")
 
                 val element = variableElement.toTypeErasedElement()
-                if (!ProcessorUtils.implementsClass(manager.processingEnvironment, ClassNames.QUERY.toString(), element)) {
+                if (!element.implementsClass(manager.processingEnvironment, ClassNames.QUERY)) {
                     manager.logError("The field ${variableElement.simpleName} must implement ${ClassNames.QUERY}")
                 }
 
@@ -141,7 +137,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 
         typeBuilder.addField(FieldSpec.builder(ClassName.get(String::class.java),
-            "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("\$S", name!!).build())
+                "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("\$S", name!!).build())
         elementClassName?.let {
             columnDefinitions.forEach {
                 columnDefinition ->
@@ -153,7 +149,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         customTypeConverterPropertyMethod.addToType(typeBuilder)
 
         typeBuilder.constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
-            param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
+                param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
             modifiers(public)
             statement("super(databaseDefinition)")
             code {
@@ -162,7 +158,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         }
 
         methods.mapNotNull { it.methodSpec }
-            .forEach { typeBuilder.addMethod(it) }
+                .forEach { typeBuilder.addMethod(it) }
 
         InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
 

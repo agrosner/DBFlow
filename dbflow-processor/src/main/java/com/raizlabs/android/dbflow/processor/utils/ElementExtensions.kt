@@ -26,3 +26,5 @@ fun TypeMirror?.erasure(manager: ProcessorManager = ProcessorManager.manager): T
 // TypeName
 
 fun TypeName?.toTypeElement(manager: ProcessorManager = ProcessorManager.manager): TypeElement? = manager.elements.getTypeElement(toString())
+
+inline fun <reified T : Annotation> Element?.annotation() = this?.getAnnotation(T::class.java)
