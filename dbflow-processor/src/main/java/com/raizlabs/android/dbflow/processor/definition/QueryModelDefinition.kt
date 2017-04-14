@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
-import com.raizlabs.android.dbflow.processor.implementsClass
+import com.raizlabs.android.dbflow.processor.utils.implementsClass
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.processor.utils.annotation
@@ -60,8 +60,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         columnDefinitions.clear()
         packagePrivateList.clear()
 
-        val queryModel = typeElement?.getAnnotation(QueryModel::class.java)
-        if (queryModel != null) {
+        typeElement.annotation<QueryModel>()?.let { queryModel ->
             databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
             setOutputClassName(databaseDefinition?.classSeparator + DBFLOW_QUERY_MODEL_TAG)
             allFields = queryModel.allFields

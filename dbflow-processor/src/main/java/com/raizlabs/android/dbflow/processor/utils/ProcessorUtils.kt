@@ -1,5 +1,6 @@
-package com.raizlabs.android.dbflow.processor
+package com.raizlabs.android.dbflow.processor.utils
 
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorManager.Companion.manager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.erasure
@@ -16,7 +17,7 @@ import javax.tools.Diagnostic
  * Whether the specified element implements the [ClassName]
  */
 fun TypeElement?.implementsClass(processingEnvironment: ProcessingEnvironment
-                                 = ProcessorManager.manager.processingEnvironment, className: ClassName)
+                                 = manager.processingEnvironment, className: ClassName)
         = implementsClass(processingEnvironment, className.toString())
 
 /**
@@ -47,24 +48,23 @@ fun TypeElement?.implementsClass(processingEnvironment: ProcessingEnvironment, f
 }
 
 /**
- * Whether the specified element is assignable to the fqTn parameter
-
- * @param processingEnvironment The environment this runs in
- * *
- * @param fqTn                  THe fully qualified type name of the element we want to check
- * *
- * @param element               The element to check that implements
- * *
- * @return true if element implements the fqTn
+ * Whether the specified element is assignable to the [className] parameter
  */
-fun isSubclass(processingEnvironment: ProcessingEnvironment, fqTn: String, element: TypeElement?): Boolean {
+fun TypeElement?.isSubclass(processingEnvironment: ProcessingEnvironment
+                            = manager.processingEnvironment, className: ClassName)
+        = isSubclass(processingEnvironment, className.toString())
+
+/**
+ * Whether the specified element is assignable to the [fqTn] parameter
+ */
+fun TypeElement?.isSubclass(processingEnvironment: ProcessingEnvironment, fqTn: String): Boolean {
     val typeElement = processingEnvironment.elementUtils.getTypeElement(fqTn)
     if (typeElement == null) {
         processingEnvironment.messager.printMessage(Diagnostic.Kind.ERROR, "Type Element was null for: $fqTn ensure that the visibility of the class is not private.")
         return false
     } else {
         val classMirror = typeElement.asType()
-        return classMirror != null && element != null && element.asType() != null && processingEnvironment.typeUtils.isSubtype(element.asType(), classMirror)
+        return classMirror != null && this != null && this.asType() != null && processingEnvironment.typeUtils.isSubtype(this.asType(), classMirror)
     }
 }
 
@@ -88,7 +88,7 @@ fun getTypeElement(element: Element): TypeElement? {
 }
 
 fun getTypeElement(typeMirror: TypeMirror): TypeElement? {
-    val manager = ProcessorManager.manager
+    val manager = manager
     var typeElement: TypeElement? = typeMirror.toTypeElement(manager)
     if (typeElement == null) {
         val el = manager.typeUtils.asElement(typeMirror)

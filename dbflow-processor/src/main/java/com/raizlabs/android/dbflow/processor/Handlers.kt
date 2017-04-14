@@ -10,7 +10,6 @@ import com.raizlabs.android.dbflow.processor.definition.*
 import com.raizlabs.android.dbflow.processor.utils.annotation
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.PackageElement
 import javax.lang.model.element.TypeElement
 
@@ -136,7 +135,7 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
 
     override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
         if (element is TypeElement) {
-            val className = fromTypeMirror(element.asType(), processorManager)
+            val className = com.raizlabs.android.dbflow.processor.utils.fromTypeMirror(element.asType(), processorManager)
             val converterDefinition = className?.let { TypeConverterDefinition(it, element.asType(), processorManager, element) }
             converterDefinition?.let {
                 if (VALIDATOR.validate(processorManager, converterDefinition)) {
@@ -214,7 +213,6 @@ class DatabaseHandler : BaseContainerHandler<Database>() {
 
     companion object {
         val TYPE_CONVERTER_MAP_FIELD_NAME = "typeConverters"
-        val METHOD_MODIFIERS: Set<Modifier> = Sets.newHashSet(Modifier.PUBLIC, Modifier.FINAL)
         val MODEL_ADAPTER_MAP_FIELD_NAME = "modelAdapters"
         val QUERY_MODEL_ADAPTER_MAP_FIELD_NAME = "queryModelAdapterMap"
         val MIGRATION_FIELD_NAME = "migrationMap"

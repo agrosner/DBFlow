@@ -9,10 +9,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.processor.*
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
-import com.raizlabs.android.dbflow.processor.utils.annotation
-import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.raizlabs.android.dbflow.processor.utils.toTypeElement
-import com.raizlabs.android.dbflow.processor.utils.toTypeErasedElement
+import com.raizlabs.android.dbflow.processor.utils.*
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
 import java.util.*
@@ -87,8 +84,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
                 manager.logError("Referenced was null for $element within $elementTypeName")
             }
 
-            extendsBaseModel = isSubclass(manager.processingEnvironment,
-                    ClassNames.BASE_MODEL.toString(), erasedElement)
+            extendsBaseModel = erasedElement.isSubclass(manager.processingEnvironment, ClassNames.BASE_MODEL)
             implementsModel = erasedElement.implementsClass(manager.processingEnvironment, ClassNames.MODEL)
             isReferencingTableObject = implementsModel || erasedElement.annotation<Table>() != null
 

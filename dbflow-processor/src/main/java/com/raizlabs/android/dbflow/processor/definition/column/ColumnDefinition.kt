@@ -8,8 +8,8 @@ import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
-import com.raizlabs.android.dbflow.processor.fromTypeMirror
-import com.raizlabs.android.dbflow.processor.getTypeElement
+import com.raizlabs.android.dbflow.processor.utils.fromTypeMirror
+import com.raizlabs.android.dbflow.processor.utils.getTypeElement
 import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
