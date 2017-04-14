@@ -513,7 +513,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
                 `override fun`(TypeName.VOID, "reloadRelationships",
                         param(elementClassName!!, ModelUtils.variable),
-                        param(ClassNames.CURSOR, LoadFromCursorMethod.PARAM_CURSOR)) {
+                        param(ClassNames.FLOW_CURSOR, LoadFromCursorMethod.PARAM_CURSOR)) {
                     modifiers(public, final)
                     code {
                         val noIndex = AtomicInteger(-1)

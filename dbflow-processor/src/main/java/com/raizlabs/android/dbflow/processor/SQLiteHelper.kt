@@ -52,7 +52,7 @@ enum class SQLiteHelper {
 
         private val sMethodMap = hashMapOf(ArrayTypeName.of(TypeName.BYTE) to "getBlob",
                 ArrayTypeName.of(TypeName.BYTE.box()) to "getBlob",
-                TypeName.BOOLEAN to "getInt",
+                TypeName.BOOLEAN to "getBoolean",
                 TypeName.BYTE to "getInt",
                 TypeName.BYTE.box() to "getInt",
                 TypeName.CHAR to "getString",

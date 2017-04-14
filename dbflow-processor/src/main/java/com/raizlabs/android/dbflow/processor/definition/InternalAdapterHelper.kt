@@ -55,7 +55,7 @@ object InternalAdapterHelper {
             methodBuilder = MethodSpec.methodBuilder("getCachingColumnValuesFromCursor")
                     .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(ArrayTypeName.of(Any::class.java), "inValues")
-                    .addParameter(ClassNames.CURSOR, "cursor")
+                    .addParameter(ClassNames.FLOW_CURSOR, "cursor")
             for (i in primaryColumns.indices) {
                 val column = primaryColumns[i]
                 val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.wrapperTypeName)
@@ -75,7 +75,7 @@ object InternalAdapterHelper {
 
             methodBuilder = MethodSpec.methodBuilder("getCachingColumnValueFromCursor")
                     .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(ClassNames.CURSOR, "cursor")
+                    .addParameter(ClassNames.FLOW_CURSOR, "cursor")
             val column = primaryColumns[0]
             val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.wrapperTypeName)
             methodBuilder.addStatement("return \$L.\$L(\$L.getColumnIndex(\$S))", LoadFromCursorMethod.PARAM_CURSOR,

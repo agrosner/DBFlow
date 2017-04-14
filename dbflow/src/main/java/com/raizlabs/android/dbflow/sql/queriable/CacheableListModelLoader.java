@@ -1,12 +1,12 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +51,7 @@ public class CacheableListModelLoader<TModel> extends ListModelLoader<TModel> {
     @NonNull
     @SuppressWarnings("unchecked")
     @Override
-    public List<TModel> convertToData(@NonNull Cursor cursor, @Nullable List<TModel> data) {
+    public List<TModel> convertToData(@NonNull FlowCursor cursor, @Nullable List<TModel> data) {
         if (data == null) {
             data = new ArrayList<>();
         }

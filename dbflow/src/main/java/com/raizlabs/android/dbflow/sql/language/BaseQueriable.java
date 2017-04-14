@@ -14,6 +14,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatementWrapper;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: Base implementation of something that can be queried from the database.
@@ -74,13 +75,13 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
     }
 
     @Override
-    public Cursor query() {
+    public FlowCursor query() {
         query(FlowManager.getWritableDatabaseForTable(table));
         return null;
     }
 
     @Override
-    public Cursor query(DatabaseWrapper databaseWrapper) {
+    public FlowCursor query(DatabaseWrapper databaseWrapper) {
         if (getPrimaryAction().equals(BaseModel.Action.INSERT)) {
             // inserting, let's compile and insert
             DatabaseStatement databaseStatement = compileStatement(databaseWrapper);

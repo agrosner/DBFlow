@@ -248,7 +248,7 @@ class BooleanColumnAccessor(propertyName: String? = null) : ColumnAccessor(prope
                      isDefault: Boolean): CodeBlock {
         return appendAccess {
             if (isDefault) add(existingBlock)
-            else add("\$L == 1 ? true : false", existingBlock)
+            else add("\$L", existingBlock)
         }
     }
 

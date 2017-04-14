@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: Provides a base implementation of a {@link Model} backed
@@ -15,7 +16,7 @@ import com.raizlabs.android.dbflow.structure.Model;
  * keep modifications locally from the {@link ContentProvider}
  */
 public abstract class BaseProviderModel
-        extends BaseModel implements ModelProvider {
+    extends BaseModel implements ModelProvider {
 
     @Override
     public boolean delete() {
@@ -52,7 +53,7 @@ public abstract class BaseProviderModel
     @SuppressWarnings("unchecked")
     public boolean exists() {
         Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(),
-                getQueryUri(), getModelAdapter().getPrimaryConditionClause(this), "");
+            getQueryUri(), getModelAdapter().getPrimaryConditionClause(this), "");
         boolean exists = (cursor != null && cursor.getCount() > 0);
         if (cursor != null) {
             cursor.close();
@@ -64,8 +65,8 @@ public abstract class BaseProviderModel
     @SuppressWarnings("unchecked")
     public void load(OperatorGroup whereConditions,
                      String orderBy, String... columns) {
-        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(),
-                getQueryUri(), whereConditions, orderBy, columns);
+        FlowCursor cursor = FlowCursor.from(ContentUtils.query(FlowManager.getContext().getContentResolver(),
+            getQueryUri(), whereConditions, orderBy, columns));
         if (cursor != null && cursor.moveToFirst()) {
             getModelAdapter().loadFromCursor(cursor, this);
             cursor.close();

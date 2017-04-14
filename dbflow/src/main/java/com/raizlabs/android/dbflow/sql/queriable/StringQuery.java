@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -9,6 +8,7 @@ import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: Provides a very basic query mechanism for strings. Allows you to easily perform custom SQL query string
@@ -41,12 +41,12 @@ public class StringQuery<TModel> extends BaseModelQueriable<TModel> implements Q
     }
 
     @Override
-    public Cursor query() {
+    public FlowCursor query() {
         return query(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
     }
 
     @Override
-    public Cursor query(DatabaseWrapper databaseWrapper) {
+    public FlowCursor query(DatabaseWrapper databaseWrapper) {
         return databaseWrapper.rawQuery(query, args);
     }
 

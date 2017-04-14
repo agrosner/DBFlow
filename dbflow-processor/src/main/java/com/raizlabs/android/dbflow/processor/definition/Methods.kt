@@ -373,9 +373,10 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
 
     override val methodSpec: MethodSpec
         get() {
-            val methodBuilder = MethodSpec.methodBuilder("loadFromCursor").addAnnotation(Override::class.java)
+            val methodBuilder = MethodSpec.methodBuilder("loadFromCursor")
+                    .addAnnotation(Override::class.java)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ClassNames.CURSOR, PARAM_CURSOR)
+                .addParameter(ClassNames.FLOW_CURSOR, PARAM_CURSOR)
                 .addParameter(baseTableDefinition.parameterClassName,
                     ModelUtils.variable).returns(TypeName.VOID)
 

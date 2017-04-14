@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -207,9 +208,9 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      * @return the result of the query as a {@link Cursor}.
      */
     @Override
-    public Cursor query(DatabaseWrapper wrapper) {
+    public FlowCursor query(DatabaseWrapper wrapper) {
         // Query the sql here
-        Cursor cursor;
+        FlowCursor cursor;
         if (whereBase.getQueryBuilderBase() instanceof Select) {
             cursor = wrapper.rawQuery(getQuery(), null);
         } else {
@@ -220,7 +221,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     }
 
     @Override
-    public Cursor query() {
+    public FlowCursor query() {
         return query(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
     }
 
