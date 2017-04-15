@@ -217,6 +217,11 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         bindToInsertValues(contentValues, tModel);
     }
 
+    @Override
+    public void bindToStatement(DatabaseStatement sqLiteStatement, TModel tModel) {
+        bindToInsertStatement(sqLiteStatement, tModel, 0);
+    }
+
     /**
      * If a {@link Model} has an auto-incrementing primary key, then
      * this method will be overridden.

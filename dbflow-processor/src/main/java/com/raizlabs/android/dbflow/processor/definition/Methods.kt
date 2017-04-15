@@ -32,11 +32,11 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
     override val methodSpec: MethodSpec?
         get() {
             val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "bindToInsertValues" else "bindToContentValues")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
-                .addParameter(baseTableDefinition.parameterClassName, ModelUtils.variable)
-                .returns(TypeName.VOID)
+                    .addAnnotation(Override::class.java)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
+                    .addParameter(baseTableDefinition.parameterClassName, ModelUtils.variable)
+                    .returns(TypeName.VOID)
 
             var retMethodBuilder: MethodSpec.Builder? = methodBuilder
 
@@ -49,7 +49,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
 
                 if (implementsContentValuesListener) {
                     methodBuilder.addStatement("\$L.onBindTo\$LValues(\$L)",
-                        ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
+                            ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
                 }
             } else {
                 if (baseTableDefinition.hasAutoIncrement || baseTableDefinition.hasRowID) {
@@ -64,7 +64,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                 methodBuilder.addStatement("bindToInsertValues(\$L, \$L)", PARAM_CONTENT_VALUES, ModelUtils.variable)
                 if (implementsContentValuesListener) {
                     methodBuilder.addStatement("\$L.onBindTo\$LValues(\$L)",
-                        ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
+                            ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
                 }
             }
 
@@ -81,14 +81,14 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
  */
 class BindToStatementMethod(private val tableDefinition: TableDefinition, private val isInsert: Boolean) : MethodDefinition {
 
-    override val methodSpec: MethodSpec
+    override val methodSpec: MethodSpec?
         get() {
             val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "bindToInsertStatement" else "bindToStatement")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
-                .addParameter(tableDefinition.parameterClassName,
-                    ModelUtils.variable).returns(TypeName.VOID)
+                    .addAnnotation(Override::class.java)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
+                    .addParameter(tableDefinition.parameterClassName,
+                            ModelUtils.variable).returns(TypeName.VOID)
 
             // write the reference method
             if (isInsert) {
@@ -103,7 +103,7 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
 
                 if (tableDefinition.implementsSqlStatementListener) {
                     methodBuilder.addStatement("\$L.onBindTo\$LStatement(\$L)",
-                        ModelUtils.variable, if (isInsert) "Insert" else "", PARAM_STATEMENT)
+                            ModelUtils.variable, if (isInsert) "Insert" else "", PARAM_STATEMENT)
                 }
             } else {
                 var start = 0
@@ -113,12 +113,14 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                         methodBuilder.addStatement("int start = 0")
                         methodBuilder.addCode(it.getSQLiteStatementMethod(AtomicInteger(++start)))
                     }
-                }
-
-                methodBuilder.addStatement("bindToInsertStatement(\$L, \$L, \$L)", PARAM_STATEMENT, ModelUtils.variable, start)
-                if (tableDefinition.implementsSqlStatementListener) {
+                    methodBuilder.addStatement("bindToInsertStatement(\$L, \$L, \$L)", PARAM_STATEMENT, ModelUtils.variable, start)
+                } else if (tableDefinition.implementsSqlStatementListener) {
+                    methodBuilder.addStatement("bindToInsertStatement(\$L, \$L, \$L)", PARAM_STATEMENT, ModelUtils.variable, start)
                     methodBuilder.addStatement("\$L.onBindTo\$LStatement(\$L)",
-                        ModelUtils.variable, if (isInsert) "Insert" else "", PARAM_STATEMENT)
+                            ModelUtils.variable, if (isInsert) "Insert" else "", PARAM_STATEMENT)
+                } else {
+                    // don't generate method
+                    return null
                 }
             }
 
@@ -140,12 +142,12 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
     override val methodSpec: MethodSpec
         get() {
             val methodBuilder = MethodSpec.methodBuilder("getCreationQuery")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .returns(ClassName.get(String::class.java))
+                    .addAnnotation(Override::class.java)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .returns(ClassName.get(String::class.java))
 
             val creationBuilder = CodeBlock.builder().add("CREATE TABLE IF NOT EXISTS ")
-                .add(QueryBuilder.quote(tableDefinition.tableName)).add("(")
+                    .add(QueryBuilder.quote(tableDefinition.tableName)).add("(")
 
             (0..tableDefinition.columnDefinitions.size - 1).forEach { i ->
                 if (i > 0) {
@@ -208,7 +210,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
                 foreignKeyBlocks.add(foreignKeyBuilder.build())
 
                 tableNameBlocks.add(CodeBlock.builder().add("\$T.getTableName(\$T.class)",
-                    ClassNames.FLOW_MANAGER, foreignKeyColumnDefinition.referencedTableClassName).build())
+                        ClassNames.FLOW_MANAGER, foreignKeyColumnDefinition.referencedTableClassName).build())
 
                 referenceBuilder.add("(")
                 for (j in 0..foreignKeyColumnDefinition._foreignKeyReferenceDefinitionList.size - 1) {
@@ -219,7 +221,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
                     referenceBuilder.add("\$L", QueryBuilder.quote(referenceDefinition.foreignColumnName))
                 }
                 referenceBuilder.add(") ON UPDATE \$L ON DELETE \$L", foreignKeyColumnDefinition.onUpdate.name.replace("_", " "),
-                    foreignKeyColumnDefinition.onDelete.name.replace("_", " "))
+                        foreignKeyColumnDefinition.onDelete.name.replace("_", " "))
                 referenceKeyBlocks.add(referenceBuilder.build())
             }
 
@@ -250,13 +252,13 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
         val customTypeConverters = baseTableDefinition.associatedTypeConverters.keys
         customTypeConverters.forEach {
             typeBuilder.addField(FieldSpec.builder(it, "typeConverter" + it.simpleName(),
-                Modifier.PRIVATE, Modifier.FINAL).initializer("new \$T()", it).build())
+                    Modifier.PRIVATE, Modifier.FINAL).initializer("new \$T()", it).build())
         }
 
         val globalTypeConverters = baseTableDefinition.globalTypeConverters.keys
         globalTypeConverters.forEach {
             typeBuilder.addField(FieldSpec.builder(it, "global_typeConverter" + it.simpleName(),
-                Modifier.PRIVATE, Modifier.FINAL).build())
+                    Modifier.PRIVATE, Modifier.FINAL).build())
         }
 
 
@@ -270,7 +272,7 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
             val firstDef = def?.get(0)
             firstDef?.typeConverterElementNames?.forEach { elementName ->
                 code.addStatement("global_typeConverter\$L = (\$T) \$L.getTypeConverterForClass(\$T.class)",
-                    it.simpleName(), it, "holder", elementName).build()
+                        it.simpleName(), it, "holder", elementName).build()
             }
         }
         return code
@@ -285,10 +287,10 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
     override val methodSpec: MethodSpec
         get() {
             val methodBuilder = MethodSpec.methodBuilder("exists")
-                .addAnnotation(Override::class.java)
-                .addParameter(tableDefinition.parameterClassName, ModelUtils.variable)
-                .addParameter(ClassNames.DATABASE_WRAPPER, "wrapper")
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL).returns(TypeName.BOOLEAN)
+                    .addAnnotation(Override::class.java)
+                    .addParameter(tableDefinition.parameterClassName, ModelUtils.variable)
+                    .addParameter(ClassNames.DATABASE_WRAPPER, "wrapper")
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL).returns(TypeName.BOOLEAN)
             // only quick check if enabled.
             var primaryColumn = tableDefinition.autoIncrementColumn
             if (primaryColumn == null) {
@@ -313,8 +315,8 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, p
                 return null // dont write method here because we reuse the compiled statement query method
             }
             val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "getInsertStatementQuery" else "getCompiledStatementQuery")
-                .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .returns(ClassName.get(String::class.java))
+                    .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .returns(ClassName.get(String::class.java))
 
             val codeBuilder = CodeBlock.builder().add("INSERT ")
             if (!tableDefinition.insertConflictActionName.isEmpty()) {
@@ -323,7 +325,7 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, p
             codeBuilder.add("INTO ").add(QueryBuilder.quote(tableDefinition.tableName))
 
             val isSingleAutoincrement = tableDefinition.hasAutoIncrement && tableDefinition.columnDefinitions.size == 1
-                && isInsert
+                    && isInsert
 
             codeBuilder.add("(")
 
@@ -375,10 +377,10 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
         get() {
             val methodBuilder = MethodSpec.methodBuilder("loadFromCursor")
                     .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ClassNames.FLOW_CURSOR, PARAM_CURSOR)
-                .addParameter(baseTableDefinition.parameterClassName,
-                    ModelUtils.variable).returns(TypeName.VOID)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(ClassNames.FLOW_CURSOR, PARAM_CURSOR)
+                    .addParameter(baseTableDefinition.parameterClassName,
+                            ModelUtils.variable).returns(TypeName.VOID)
 
             val index = AtomicInteger(0)
             baseTableDefinition.columnDefinitions.forEach {
@@ -433,18 +435,18 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
                 }
 
                 builder.addStatement("boolean successful = super.delete(\$L\$L)", ModelUtils.variable,
-                    if (useWrapper) ", " + ModelUtils.wrapper else "")
+                        if (useWrapper) ", " + ModelUtils.wrapper else "")
 
                 tableDefinition.oneToManyDefinitions.forEach { it.writeDelete(builder, useWrapper) }
 
                 builder.addStatement("return successful")
 
                 val delete = MethodSpec.methodBuilder("delete")
-                    .addAnnotation(Override::class.java)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(tableDefinition.elementClassName, ModelUtils.variable)
-                    .addCode(builder.build())
-                    .returns(TypeName.BOOLEAN)
+                        .addAnnotation(Override::class.java)
+                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                        .addParameter(tableDefinition.elementClassName, ModelUtils.variable)
+                        .addCode(builder.build())
+                        .returns(TypeName.BOOLEAN)
                 if (useWrapper) {
                     delete.addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                 }
@@ -473,12 +475,12 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                 }
 
                 code.addStatement("super.\$L(\$L\$L)", methodName,
-                    ModelUtils.variable,
-                    if (useWrapper) ", " + ModelUtils.wrapper else "")
+                        ModelUtils.variable,
+                        if (useWrapper) ", " + ModelUtils.wrapper else "")
 
                 if (tableDefinition.cachingEnabled) {
                     code.addStatement("getModelCache().addModel(getCachingId(\$L), \$L)", ModelUtils.variable,
-                        ModelUtils.variable)
+                            ModelUtils.variable)
                 }
 
                 for (oneToManyDefinition in tableDefinition.oneToManyDefinitions) {
@@ -490,10 +492,10 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                 }
 
                 val builder = MethodSpec.methodBuilder(methodName)
-                    .addAnnotation(Override::class.java)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(tableDefinition.elementClassName, ModelUtils.variable)
-                    .addCode(code.build())
+                        .addAnnotation(Override::class.java)
+                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                        .addParameter(tableDefinition.elementClassName, ModelUtils.variable)
+                        .addCode(code.build())
                 if (methodName == METHOD_INSERT) {
                     builder.returns(ClassName.LONG)
                     builder.addStatement("return rowId")
@@ -527,10 +529,10 @@ class PrimaryConditionMethod(private val tableDefinition: BaseTableDefinition) :
     override val methodSpec: MethodSpec?
         get() {
             val methodBuilder = MethodSpec.methodBuilder("getPrimaryConditionClause")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(tableDefinition.parameterClassName,
-                    ModelUtils.variable).returns(ClassNames.OPERATOR_GROUP)
+                    .addAnnotation(Override::class.java)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(tableDefinition.parameterClassName,
+                            ModelUtils.variable).returns(ClassNames.OPERATOR_GROUP)
             val code = CodeBlock.builder()
             code.addStatement("\$T clause = \$T.clause()", ClassNames.OPERATOR_GROUP, ClassNames.OPERATOR_GROUP)
             tableDefinition.primaryColumnDefinitions.forEach {
