@@ -35,4 +35,7 @@ public interface DatabaseStatement {
     void bindDoubleOrNull(int index, @Nullable Double name);
 
     void bindBlob(int index, byte[] bytes);
+
+    void bindBlobOrNull(int index, @Nullable byte[] bytes);
+
 }

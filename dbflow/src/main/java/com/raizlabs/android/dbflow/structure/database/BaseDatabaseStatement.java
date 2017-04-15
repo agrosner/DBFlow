@@ -34,4 +34,12 @@ public abstract class BaseDatabaseStatement implements DatabaseStatement {
         }
     }
 
+    @Override
+    public void bindBlobOrNull(int index, @Nullable byte[] bytes) {
+        if (bytes != null) {
+            bindBlob(index, bytes);
+        } else {
+            bindNull(index);
+        }
+    }
 }

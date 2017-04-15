@@ -2,6 +2,8 @@ package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.annotation.*
+import com.raizlabs.android.dbflow.converter.TypeConverter
+import com.raizlabs.android.dbflow.data.Blob
 
 /**
  * Description:
@@ -44,3 +46,21 @@ class DontAssignDefaultModel(@PrimaryKey var name: String? = null,
 @Table(database = TestDatabase::class, orderedCursorLookUp = true)
 class OrderCursorModel(@PrimaryKey var id: Int = 0, @Column var name: String? = "",
                        @Column var age: Int = 0)
+
+@Table(database = TestDatabase::class)
+class TypeConverterModel(@PrimaryKey var id: Int = 0,
+                         @Column var blob: Blob? = null,
+                         @Column(typeConverter = CustomTypeConverter::class) var customType: CustomType? = null)
+
+class CustomType(var name: String? = "")
+
+class CustomTypeConverter : TypeConverter<String, CustomType>() {
+    override fun getDBValue(model: CustomType?) = model?.name
+
+    override fun getModelValue(data: String?) = if (data == null) {
+        null
+    } else {
+        CustomType(data)
+    }
+
+}

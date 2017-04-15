@@ -50,12 +50,6 @@ abstract class ColumnAccessCombiner(val combiner: Combiner) {
     open fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int = -1) {
 
     }
-
-    protected fun useStoredFieldRef(): Boolean {
-        return combiner.wrapperLevelAccessor == null &&
-                combiner.fieldLevelAccessor !is VisibleScopeColumnAccessor
-    }
-
 }
 
 class SimpleAccessCombiner(combiner: Combiner)
@@ -119,12 +113,7 @@ class ContentValuesCombiner(combiner: Combiner)
                 code.addStatement("values.put(\$1S, \$2L)", QueryBuilder.quote(columnRepresentation), fieldAccess)
             } else {
                 if (defaultValue != null) {
-                    var storedFieldAccess = CodeBlock.of("ref\$L", fieldLevelAccessor.propertyName)
-                    if (useStoredFieldRef()) {
-                        code.addStatement("\$T \$L = \$L", fieldTypeName, storedFieldAccess, fieldAccess)
-                    } else {
-                        storedFieldAccess = fieldAccess
-                    }
+                    val storedFieldAccess = fieldAccess
                     var subWrapperFieldAccess = storedFieldAccess
                     if (subWrapperAccessor != null) {
                         subWrapperFieldAccess = subWrapperAccessor.get(storedFieldAccess)
@@ -158,14 +147,7 @@ class SqliteStatementAccessCombiner(combiner: Combiner)
                         index, columnRepresentation, fieldAccess)
             } else {
                 if (defaultValue != null) {
-                    var storedFieldAccess = CodeBlock.of("ref\$L", fieldLevelAccessor.propertyName)
-
-                    if (useStoredFieldRef()) {
-                        code.addStatement("\$T \$L = \$L", fieldTypeName, storedFieldAccess, fieldAccess)
-                    } else {
-                        storedFieldAccess = fieldAccess
-                    }
-
+                    var storedFieldAccess = fieldAccess
                     var subWrapperFieldAccess = storedFieldAccess
                     if (subWrapperAccessor != null) {
                         subWrapperFieldAccess = subWrapperAccessor.get(storedFieldAccess)
