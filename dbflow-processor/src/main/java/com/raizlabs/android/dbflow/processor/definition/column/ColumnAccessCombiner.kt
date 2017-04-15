@@ -170,19 +170,22 @@ class SqliteStatementAccessCombiner(combiner: Combiner)
                     if (subWrapperAccessor != null) {
                         subWrapperFieldAccess = subWrapperAccessor.get(storedFieldAccess)
                     }
-                    code.beginControlFlow("if (\$L != null) ", storedFieldAccess)
-                            .addStatement("statement.bind\$L(\$L + \$L, \$L)",
-                                    SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod,
-                                    index, columnRepresentation, subWrapperFieldAccess)
-                            .nextControlFlow("else")
                     if (!defaultValue.toString().isNullOrEmpty()) {
-                        code.addStatement("statement.bind\$L(\$L + \$L, \$L)",
-                                SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod,
-                                index, columnRepresentation, defaultValue)
-                    } else {
-                        code.addStatement("statement.bindNull(\$L + \$L)", index, columnRepresentation)
+                        code.beginControlFlow("if (\$L != null) ", storedFieldAccess)
                     }
-                    code.endControlFlow()
+
+                    code.addStatement("statement.bind\$LOrNull(\$L + \$L, \$L)",
+                            SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqliteStatementWrapperMethod,
+                            index, columnRepresentation, subWrapperFieldAccess)
+
+                    if (!defaultValue.toString().isNullOrEmpty()) {
+                        code.nextControlFlow("else")
+                                .addStatement("statement.bind\$L(\$L + \$L, \$L)",
+                                        SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod,
+                                        index, columnRepresentation, defaultValue)
+                                .endControlFlow()
+                    }
+
                 } else {
                     code.addStatement("statement.bind\$L(\$L + \$L, \$L)",
                             SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod, index,
@@ -248,12 +251,8 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
                 }
                 if (assignDefaultValuesFromCursor) {
                     code.nextControlFlow("else")
-                    if (wrapperLevelAccessor != null) {
-                        code.addStatement(fieldLevelAccessor.set(wrapperLevelAccessor.set(defaultValue,
-                                isDefault = true), modelBlock))
-                    } else {
-                        code.addStatement(fieldLevelAccessor.set(defaultValue, modelBlock))
-                    }
+                    code.addStatement(fieldLevelAccessor.set(wrapperLevelAccessor.set(defaultValue,
+                            isDefault = true), modelBlock))
                 }
                 code.endControlFlow()
             } else {

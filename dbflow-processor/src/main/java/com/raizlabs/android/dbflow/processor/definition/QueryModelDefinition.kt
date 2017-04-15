@@ -73,33 +73,31 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         get() = ParameterizedTypeName.get(ClassNames.QUERY_MODEL_ADAPTER, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
-        elementClassName?.let { className -> columnDefinitions.forEach { it.addPropertyDefinition(typeBuilder, className) } }
-
-        val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this)
-        customTypeConverterPropertyMethod.addToType(typeBuilder)
-
-
-
-        InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
-
-        typeBuilder.constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
-                param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
-            modifiers(public)
-            statement("super(databaseDefinition)")
-            code {
-                customTypeConverterPropertyMethod.addCode(this)
-            }
-        }
-
-        methods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
-
         typeBuilder.apply {
+            elementClassName?.let { className -> columnDefinitions.forEach { it.addPropertyDefinition(this, className) } }
+
+            val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@QueryModelDefinition)
+            customTypeConverterPropertyMethod.addToType(this)
+
+            InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
+
+            constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
+                    param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
+                modifiers(public)
+                statement("super(databaseDefinition)")
+                code {
+                    customTypeConverterPropertyMethod.addCode(this)
+                }
+            }
+
             `override fun`(elementClassName!!, "newInstance") {
                 modifiers(public, final)
                 `return`("new \$T()", elementClassName)
             }
         }
+
+        methods.mapNotNull { it.methodSpec }
+                .forEach { typeBuilder.addMethod(it) }
     }
 
     override fun createColumnDefinitions(typeElement: TypeElement) {

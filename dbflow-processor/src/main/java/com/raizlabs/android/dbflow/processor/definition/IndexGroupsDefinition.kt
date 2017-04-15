@@ -23,8 +23,8 @@ class IndexGroupsDefinition(private val tableDefinition: TableDefinition, indexG
             "index_$indexName") {
         addModifiers(public, static, final)
         `=` {
-            add("new \$T<>(\$S, \$L, \$T.class", ClassNames.INDEX_PROPERTY,
-                    indexName, isUnique, tableDefinition.elementTypeName)
+            add("new \$T<>(${indexName.S}, $isUnique, \$T.class",
+                    ClassNames.INDEX_PROPERTY, tableDefinition.elementTypeName)
 
             if (columnDefinitionList.isNotEmpty()) {
                 add(",")

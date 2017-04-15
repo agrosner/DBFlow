@@ -74,14 +74,14 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
     }
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
-        typeBuilder.addAnnotation(AnnotationSpec.builder(Table::class.java)
-                .addMember("database", "\$T.class", databaseTypeName).build())
+        typeBuilder.apply {
+            addAnnotation(AnnotationSpec.builder(Table::class.java)
+                    .addMember("database", "\$T.class", databaseTypeName).build())
 
-        val referencedDefinition = manager.getTableDefinition(databaseTypeName, referencedTable)
-        val selfDefinition = manager.getTableDefinition(databaseTypeName, elementTypeName)
+            val referencedDefinition = manager.getTableDefinition(databaseTypeName, referencedTable)
+            val selfDefinition = manager.getTableDefinition(databaseTypeName, elementTypeName)
 
-        if (generateAutoIncrement) {
-            typeBuilder.apply {
+            if (generateAutoIncrement) {
                 addField(field(`@`(PrimaryKey::class) { this["autoincrement"] = "true" }, TypeName.LONG, "_id").build())
 
                 `fun`(TypeName.LONG, "getId") {
@@ -89,10 +89,10 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
                     `return`("_id")
                 }
             }
-        }
 
-        referencedDefinition?.let { appendColumnDefinitions(typeBuilder, it, 0, referencedColumnName) }
-        selfDefinition?.let { appendColumnDefinitions(typeBuilder, it, 1, thisColumnName) }
+            referencedDefinition?.let { appendColumnDefinitions(this, it, 0, referencedColumnName) }
+            selfDefinition?.let { appendColumnDefinitions(this, it, 1, thisColumnName) }
+        }
     }
 
     override val extendsClass: TypeName?

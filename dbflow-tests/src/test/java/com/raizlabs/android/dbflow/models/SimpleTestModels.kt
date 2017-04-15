@@ -20,7 +20,7 @@ class TwoColumnModel(@PrimaryKey var name: String? = "", @Column var id: Int = 0
 
 @Table(database = TestDatabase::class, allFields = true)
 open class AllFieldsModel(@PrimaryKey var name: String? = null,
-                          var count: Int = 0,
+                          var count: Int? = 0,
                           @Column(getterName = "getTruth")
                           var truth: Boolean = false,
                           internal val finalName: String = "",

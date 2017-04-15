@@ -9,11 +9,7 @@ import com.raizlabs.android.dbflow.annotation.OneToMany
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.*
-import com.raizlabs.android.dbflow.processor.utils.isSubclass
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils
-import com.raizlabs.android.dbflow.processor.utils.addStatement
-import com.raizlabs.android.dbflow.processor.utils.annotation
-import com.raizlabs.android.dbflow.processor.utils.toTypeElement
+import com.raizlabs.android.dbflow.processor.utils.*
 import com.squareup.javapoet.*
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
@@ -127,7 +123,7 @@ class OneToManyDefinition(typeElement: ExecutableElement,
     private fun writeLoopWithMethod(codeBuilder: CodeBlock.Builder, methodName: String, useWrapper: Boolean) {
         val oneToManyMethodName = this@OneToManyDefinition.methodName
         codeBuilder.apply {
-            codeBuilder.`if`("($oneToManyMethodName != null)") {
+            `if`("($oneToManyMethodName != null)") {
                 val loopClass: ClassName? = if (extendsBaseModel) ClassNames.BASE_MODEL else ClassName.get(referencedType)
 
                 // need to load adapter for non-model classes

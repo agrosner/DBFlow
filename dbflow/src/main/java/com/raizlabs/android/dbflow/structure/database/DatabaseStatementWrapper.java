@@ -9,7 +9,7 @@ import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
  * Description: Delegates all of its calls to the contained {@link DatabaseStatement}, while
  * providing notification methods for when operations occur.
  */
-public class DatabaseStatementWrapper<TModel> implements DatabaseStatement {
+public class DatabaseStatementWrapper<TModel> extends BaseDatabaseStatement {
 
     @NonNull
     private final DatabaseStatement databaseStatement;

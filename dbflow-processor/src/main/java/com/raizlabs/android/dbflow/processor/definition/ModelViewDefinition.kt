@@ -10,9 +10,10 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
 import com.raizlabs.android.dbflow.processor.utils.*
-import com.squareup.javapoet.*
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Element
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
 
@@ -126,7 +127,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         }
 
         if (queryFieldName.isNullOrEmpty()) {
-            manager.logError("%1s is missing the @ModelViewQuery field.", elementClassName)
+            manager.logError("$elementClassName is missing the @ModelViewQuery field.")
         }
     }
 
@@ -137,34 +138,29 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         get() = ParameterizedTypeName.get(ClassNames.MODEL_VIEW_ADAPTER, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
-
-        typeBuilder.addField(FieldSpec.builder(ClassName.get(String::class.java),
-                "VIEW_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL).initializer("\$S", name!!).build())
-        elementClassName?.let {
-            columnDefinitions.forEach {
-                columnDefinition ->
-                columnDefinition.addPropertyDefinition(typeBuilder, it)
-            }
-        }
-
-        val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this)
-        customTypeConverterPropertyMethod.addToType(typeBuilder)
-
-        typeBuilder.constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
-                param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
-            modifiers(public)
-            statement("super(databaseDefinition)")
-            code {
-                customTypeConverterPropertyMethod.addCode(this)
-            }
-        }
-
-        methods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
-
-        InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
-
         typeBuilder.apply {
+            `public static final field`(String::class, "VIEW_NAME") { `=`(name.S) }
+
+            elementClassName?.let { elementClassName ->
+                columnDefinitions.forEach {
+                    it.addPropertyDefinition(typeBuilder, elementClassName)
+                }
+            }
+
+            val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@ModelViewDefinition)
+            customTypeConverterPropertyMethod.addToType(this)
+
+            constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
+                    param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
+                modifiers(public)
+                statement("super(databaseDefinition)")
+                code {
+                    customTypeConverterPropertyMethod.addCode(this)
+                }
+            }
+
+            InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
+
             `override fun`(String::class, "getCreationQuery") {
                 modifiers(public, final)
                 `return`("\$T.\$L.getQuery()", elementClassName, queryFieldName)
@@ -177,7 +173,11 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 modifiers(public, final)
                 `return`("new \$T()", elementClassName)
             }
+
         }
+
+        methods.mapNotNull { it.methodSpec }
+                .forEach { typeBuilder.addMethod(it) }
     }
 
     override fun compareTo(other: ModelViewDefinition): Int {

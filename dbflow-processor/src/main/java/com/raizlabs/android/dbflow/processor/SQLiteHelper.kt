@@ -13,6 +13,9 @@ enum class SQLiteHelper {
 
     INTEGER {
         override val sqLiteStatementMethod = "Long"
+
+        override val sqliteStatementWrapperMethod: String
+            get() = "Number"
     },
     REAL {
         override val sqLiteStatementMethod = "Double"
@@ -25,6 +28,9 @@ enum class SQLiteHelper {
     };
 
     abstract val sqLiteStatementMethod: String
+
+    open val sqliteStatementWrapperMethod
+        get() = sqLiteStatementMethod
 
     companion object {
 

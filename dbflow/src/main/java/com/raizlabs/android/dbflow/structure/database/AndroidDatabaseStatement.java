@@ -9,7 +9,7 @@ import android.os.Build;
 /**
  * Description:
  */
-public class AndroidDatabaseStatement implements DatabaseStatement {
+public class AndroidDatabaseStatement extends BaseDatabaseStatement {
 
     public static AndroidDatabaseStatement from(SQLiteStatement sqLiteStatement, SQLiteDatabase database) {
         return new AndroidDatabaseStatement(sqLiteStatement, database);

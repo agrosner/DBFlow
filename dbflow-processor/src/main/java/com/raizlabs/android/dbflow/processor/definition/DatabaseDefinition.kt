@@ -86,26 +86,20 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     private fun validateDefinitions() {
         elementClassName?.let {
-            // TODO: validate them here before preparing them
             val map = HashMap<TypeName, TableDefinition>()
             val tableValidator = TableValidator()
-            for (tableDefinition in manager.getTableDefinitions(it)) {
-                if (tableValidator.validate(ProcessorManager.manager, tableDefinition)) {
-                    tableDefinition.elementClassName?.let { className -> map.put(className, tableDefinition) }
-                }
-            }
+            manager.getTableDefinitions(it)
+                    .filter { tableValidator.validate(ProcessorManager.manager, it) }
+                    .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
             manager.setTableDefinitions(map, it)
 
             val modelViewDefinitionMap = HashMap<TypeName, ModelViewDefinition>()
             val modelViewValidator = ModelViewValidator()
-            for (modelViewDefinition in manager.getModelViewDefinitions(it)) {
-                if (modelViewValidator.validate(ProcessorManager.manager, modelViewDefinition)) {
-                    modelViewDefinition.elementClassName?.let { className -> modelViewDefinitionMap.put(className, modelViewDefinition) }
-                }
-            }
+            manager.getModelViewDefinitions(it)
+                    .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
+                    .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
             manager.setModelViewDefinitions(modelViewDefinitionMap, it)
         }
-
     }
 
     private fun prepareDefinitions() {
