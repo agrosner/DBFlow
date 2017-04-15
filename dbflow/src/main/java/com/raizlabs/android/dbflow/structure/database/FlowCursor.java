@@ -164,7 +164,7 @@ public class FlowCursor extends CursorWrapper {
 
     public boolean getBooleanOrDefault(int index, boolean defValue) {
         if (index != -1 && !getWrappedCursor().isNull(index)) {
-            return getWrappedCursor().getInt(index) == 1;
+            return getBoolean(index);
         } else {
             return defValue;
         }
@@ -173,4 +173,10 @@ public class FlowCursor extends CursorWrapper {
     public boolean getBooleanOrDefault(String columnName, boolean defValue) {
         return getBooleanOrDefault(getWrappedCursor().getColumnIndex(columnName), defValue);
     }
+
+    public boolean getBoolean(int index) {
+        return getWrappedCursor().getInt(index) == 1;
+    }
+
 }
+

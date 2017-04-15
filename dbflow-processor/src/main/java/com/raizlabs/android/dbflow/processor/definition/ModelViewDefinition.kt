@@ -4,7 +4,9 @@ import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ModelView
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery
-import com.raizlabs.android.dbflow.processor.*
+import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.ColumnValidator
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
 import com.raizlabs.android.dbflow.processor.utils.*
@@ -69,11 +71,11 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         val modelView = element.getAnnotation(ModelView::class.java)
         if (modelView != null) {
             databaseDefinition = manager.getDatabaseHolderDefinition(databaseName)?.databaseDefinition
-            setOutputClassName(databaseDefinition?.classSeparator + DBFLOW_MODEL_VIEW_TAG)
+            setOutputClassName("${databaseDefinition?.classSeparator}ViewTable")
 
             typeElement?.let { createColumnDefinitions(it) }
         } else {
-            setOutputClassName(DBFLOW_MODEL_VIEW_TAG)
+            setOutputClassName("ViewTable")
         }
     }
 
@@ -180,10 +182,5 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
     override fun compareTo(other: ModelViewDefinition): Int {
         return Integer.valueOf(priority)!!.compareTo(other.priority)
-    }
-
-    companion object {
-
-        private val DBFLOW_MODEL_VIEW_TAG = "ViewTable"
     }
 }

@@ -27,7 +27,7 @@ public abstract class RetrievalAdapter<TModel> {
 
     public RetrievalAdapter(DatabaseDefinition databaseDefinition) {
         DatabaseConfig databaseConfig = FlowManager.getConfig()
-                .getConfigForDatabase(databaseDefinition.getAssociatedDatabaseClassFile());
+            .getConfigForDatabase(databaseDefinition.getAssociatedDatabaseClassFile());
         if (databaseConfig != null) {
             tableConfig = databaseConfig.getTableConfigForTable(getModelClass());
             if (tableConfig != null) {
@@ -48,10 +48,10 @@ public abstract class RetrievalAdapter<TModel> {
 
     public void load(TModel model, DatabaseWrapper databaseWrapper) {
         getSingleModelLoader().load(databaseWrapper,
-                SQLite.select()
-                        .from(getModelClass())
-                        .where(getPrimaryConditionClause(model)).getQuery(),
-                model);
+            SQLite.select()
+                .from(getModelClass())
+                .where(getPrimaryConditionClause(model)).getQuery(),
+            model);
     }
 
     /**

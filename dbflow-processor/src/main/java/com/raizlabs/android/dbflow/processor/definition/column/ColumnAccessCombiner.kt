@@ -206,16 +206,24 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
                          defaultValue: CodeBlock?, index: Int,
                          modelBlock: CodeBlock) {
         combiner.apply {
-            val indexName: CodeBlock
+            var indexName: CodeBlock
             if (!orderedCursorLookup) {
                 indexName = CodeBlock.of(columnRepresentation.S)
             } else {
                 indexName = CodeBlock.of(index.toString())
             }
 
-            val cursorAccess = CodeBlock.of("cursor.\$LOrDefault(\$L, $defaultValue)",
-                    SQLiteHelper.getMethod(wrapperFieldTypeName ?: fieldTypeName), indexName)
             if (wrapperLevelAccessor != null) {
+                if (!orderedCursorLookup) {
+                    indexName = CodeBlock.of("index_\$L", columnRepresentation)
+                    code.addStatement("\$T \$L = cursor.getColumnIndex(\$S)", Int::class.java, indexName,
+                            columnRepresentation)
+                    code.beginControlFlow("if (\$1L != -1 && !cursor.isNull(\$1L))", indexName)
+                } else {
+                    code.beginControlFlow("if (!cursor.isNull(\$1L))", index)
+                }
+                val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
+                        SQLiteHelper.getMethod(wrapperFieldTypeName ?: fieldTypeName), indexName)
                 // special case where we need to append try catch hack
                 val isEnum = wrapperLevelAccessor is EnumColumnAccessor
                 if (isEnum) {
@@ -238,7 +246,24 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
                     }
                     code.endControlFlow()
                 }
+                if (assignDefaultValuesFromCursor) {
+                    code.nextControlFlow("else")
+                    if (wrapperLevelAccessor != null) {
+                        code.addStatement(fieldLevelAccessor.set(wrapperLevelAccessor.set(defaultValue,
+                                isDefault = true), modelBlock))
+                    } else {
+                        code.addStatement(fieldLevelAccessor.set(defaultValue, modelBlock))
+                    }
+                }
+                code.endControlFlow()
             } else {
+
+                var defaultValueBlock = defaultValue
+                if (!assignDefaultValuesFromCursor) {
+                    defaultValueBlock = fieldLevelAccessor.get(modelBlock)
+                }
+                val cursorAccess = CodeBlock.of("cursor.\$LOrDefault(\$L, $defaultValueBlock)",
+                        SQLiteHelper.getMethod(wrapperFieldTypeName ?: fieldTypeName), indexName)
                 code.addStatement(fieldLevelAccessor.set(cursorAccess, modelBlock))
             }
         }

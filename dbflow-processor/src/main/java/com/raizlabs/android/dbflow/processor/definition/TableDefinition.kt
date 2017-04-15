@@ -4,7 +4,10 @@ import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.*
-import com.raizlabs.android.dbflow.processor.*
+import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.ColumnValidator
+import com.raizlabs.android.dbflow.processor.OneToManyValidator
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
 import com.raizlabs.android.dbflow.processor.utils.*
@@ -164,7 +167,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             }
             databaseDefinition?.let {
 
-                setOutputClassName(it.classSeparator + DBFLOW_TABLE_TAG)
+                setOutputClassName("${it.classSeparator}Table")
 
                 // globular default
                 var insertConflict: ConflictAction? = table.insertConflict
@@ -339,57 +342,81 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
         get() = ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
+        typeBuilder.apply {
 
-        InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
-        InternalAdapterHelper.writeGetTableName(typeBuilder, tableName)
+            InternalAdapterHelper.writeGetModelClass(this, elementClassName)
+            InternalAdapterHelper.writeGetTableName(this, tableName)
 
-        val getAllColumnPropertiesMethod = FieldSpec.builder(
-                ArrayTypeName.of(ClassNames.IPROPERTY), "ALL_COLUMN_PROPERTIES",
-                Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-        val getPropertiesBuilder = CodeBlock.builder()
+            val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@TableDefinition)
+            customTypeConverterPropertyMethod.addToType(this)
 
-        val paramColumnName = "columnName"
-        val getPropertyForNameMethod = MethodSpec.methodBuilder("getProperty")
-                .addAnnotation(Override::class.java)
-                .addParameter(ClassName.get(String::class.java), paramColumnName)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .returns(ClassNames.PROPERTY)
-
-        getPropertyForNameMethod.addStatement("\$L = \$T.quoteIfNeeded(\$L)", paramColumnName,
-                ClassName.get(QueryBuilder::class.java), paramColumnName)
-
-        getPropertyForNameMethod.beginControlFlow("switch (\$L) ", paramColumnName)
-        columnDefinitions.indices.forEach { i ->
-            if (i > 0) {
-                getPropertiesBuilder.add(",")
+            constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
+                    param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
+                modifiers(public)
+                statement("super(databaseDefinition)")
+                code {
+                    customTypeConverterPropertyMethod.addCode(this)
+                }
             }
-            val columnDefinition = columnDefinitions[i]
-            elementClassName?.let { columnDefinition.addPropertyDefinition(typeBuilder, it) }
-            columnDefinition.addPropertyCase(getPropertyForNameMethod)
-            columnDefinition.addColumnName(getPropertiesBuilder)
-        }
-        getPropertyForNameMethod.controlFlow("default:") {
-            addStatement("throw new \$T(\$S)", IllegalArgumentException::class.java,
-                    "Invalid column name passed. Ensure you are calling the correct table's column")
-        }
-        getPropertyForNameMethod.endControlFlow()
 
-        getAllColumnPropertiesMethod.initializer("new \$T[]{\$L}", ClassNames.IPROPERTY, getPropertiesBuilder.build().toString())
-        typeBuilder.addField(getAllColumnPropertiesMethod.build())
+            `override fun`(elementClassName!!, "newInstance") {
+                modifiers(public, final)
+                `return`("new \$T()", elementClassName)
+            }
 
-        // add index properties here
-        for (indexGroupsDefinition in indexGroupsDefinitions) {
-            typeBuilder.addField(indexGroupsDefinition.fieldSpec)
-        }
+            if (updateConflictActionName.isNotEmpty()) {
+                `override fun`(ClassNames.CONFLICT_ACTION, "getUpdateOnConflictAction") {
+                    modifiers(public, final)
+                    `return`("\$T.\$L", ClassNames.CONFLICT_ACTION, updateConflictActionName)
+                }
+            }
 
-        typeBuilder.addMethod(getPropertyForNameMethod.build())
+            if (insertConflictActionName.isNotEmpty()) {
+                `override fun`(ClassNames.CONFLICT_ACTION, "getInsertOnConflictAction") {
+                    modifiers(public, final)
+                    `return`("\$T.\$L", ClassNames.CONFLICT_ACTION, insertConflictActionName)
+                }
+            }
 
-        if (hasAutoIncrement || hasRowID) {
-            val autoIncrement = autoIncrementColumn
-            autoIncrement?.let {
-                InternalAdapterHelper.writeUpdateAutoIncrement(typeBuilder, elementClassName, autoIncrement)
+            val paramColumnName = "columnName"
+            val getPropertiesBuilder = CodeBlock.builder()
 
-                typeBuilder.apply {
+            `override fun`(ClassNames.PROPERTY, "getProperty",
+                    param(String::class, paramColumnName)) {
+                modifiers(public, final)
+                statement("$paramColumnName = \$T.quoteIfNeeded($paramColumnName)", ClassName.get(QueryBuilder::class.java))
+
+                switch("($paramColumnName)") {
+                    columnDefinitions.indices.forEach { i ->
+                        if (i > 0) {
+                            getPropertiesBuilder.add(",")
+                        }
+                        val columnDefinition = columnDefinitions[i]
+                        elementClassName?.let { columnDefinition.addPropertyDefinition(typeBuilder, it) }
+                        columnDefinition.addPropertyCase(this)
+                        columnDefinition.addColumnName(getPropertiesBuilder)
+                    }
+
+                    default {
+                        `throw new`(IllegalArgumentException::class, "Invalid column name passed. Ensure you are calling the correct table's column")
+                    }
+                }
+            }
+
+            `public static final field`(ArrayTypeName.of(ClassNames.IPROPERTY), "ALL_COLUMN_PROPERTIES") {
+                `=`("new \$T[]{\$L}", ClassNames.IPROPERTY, getPropertiesBuilder.build().toString())
+            }
+
+            // add index properties here
+            for (indexGroupsDefinition in indexGroupsDefinitions) {
+                addField(indexGroupsDefinition.fieldSpec)
+            }
+
+            if (hasAutoIncrement || hasRowID) {
+                val autoIncrement = autoIncrementColumn
+                autoIncrement?.let {
+                    InternalAdapterHelper.writeUpdateAutoIncrement(typeBuilder, elementClassName, autoIncrement)
+
                     `override fun`(Number::class, "getAutoIncrementingId", param(elementClassName!!, ModelUtils.variable)) {
                         modifiers(public, final)
                         addCode(autoIncrement.getSimpleAccessString())
@@ -400,49 +427,42 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     }
                 }
             }
-        }
 
-        val saveForeignKeyFields = columnDefinitions.filter { (it is ForeignKeyColumnDefinition) && it.saveForeignKeyModel }
-                .map { it as ForeignKeyColumnDefinition }
-        if (saveForeignKeyFields.isNotEmpty()) {
-            val code = CodeBlock.builder()
-            saveForeignKeyFields.forEach {
-                it.appendSaveMethod(code)
-            }
+            val saveForeignKeyFields = columnDefinitions
+                    .filter { (it is ForeignKeyColumnDefinition) && it.saveForeignKeyModel }
+                    .map { it as ForeignKeyColumnDefinition }
+            if (saveForeignKeyFields.isNotEmpty()) {
+                val code = CodeBlock.builder()
+                saveForeignKeyFields.forEach { it.appendSaveMethod(code) }
 
-            typeBuilder.apply {
                 `override fun`(TypeName.VOID, "saveForeignKeys", param(elementClassName!!, ModelUtils.variable),
                         param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
                     modifiers(public, final)
                     addCode(code.build())
                 }
             }
-        }
 
-        val deleteForeignKeyFields = columnDefinitions.filter { (it is ForeignKeyColumnDefinition) && it.deleteForeignKeyModel }
-                .map { it as ForeignKeyColumnDefinition }
-        if (deleteForeignKeyFields.isNotEmpty()) {
-            val code = CodeBlock.builder()
-            deleteForeignKeyFields.forEach {
-                it.appendDeleteMethod(code)
+            val deleteForeignKeyFields = columnDefinitions
+                    .filter { (it is ForeignKeyColumnDefinition) && it.deleteForeignKeyModel }
+                    .map { it as ForeignKeyColumnDefinition }
+            if (deleteForeignKeyFields.isNotEmpty()) {
+                val code = CodeBlock.builder()
+                deleteForeignKeyFields.forEach { it.appendDeleteMethod(code) }
+
+                `override fun`(TypeName.VOID, "deleteForeignKeys", param(elementClassName!!, ModelUtils.variable),
+                        param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+                    modifiers(public, final)
+                    addCode(code.build())
+                }
             }
-            typeBuilder.`override fun`(TypeName.VOID, "deleteForeignKeys", param(elementClassName!!, ModelUtils.variable),
-                    param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+
+            `override fun`(ArrayTypeName.of(ClassNames.IPROPERTY), "getAllColumnProperties") {
                 modifiers(public, final)
-                addCode(code.build())
+                `return`("ALL_COLUMN_PROPERTIES")
             }
-        }
 
-        typeBuilder.`fun`(ArrayTypeName.of(ClassNames.IPROPERTY), "getAllColumnProperties") {
-            modifiers(public, final)
-            `return`("ALL_COLUMN_PROPERTIES")
-        }
+            if (cachingEnabled) {
 
-        if (cachingEnabled) {
-
-            // TODO: pass in model cache loaders.
-
-            typeBuilder.apply {
                 val singlePrimaryKey = primaryColumnDefinitions.size == 1
 
                 `override fun`(ClassNames.SINGLE_MODEL_LOADER, "createSingleModelLoader") {
@@ -527,45 +547,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             }
         }
 
-        val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this)
-        customTypeConverterPropertyMethod.addToType(typeBuilder)
-
-        typeBuilder.apply {
-            constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
-                    param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
-                modifiers(public)
-                statement("super(databaseDefinition)")
-                code {
-                    customTypeConverterPropertyMethod.addCode(this)
-                }
-            }
-
-            `override fun`(elementClassName!!, "newInstance") {
-                modifiers(public, final)
-                `return`("new \$T()", elementClassName)
-            }
-
-            if (!updateConflictActionName.isEmpty()) {
-                `override fun`(ClassNames.CONFLICT_ACTION, "getUpdateOnConflictAction") {
-                    modifiers(public, final)
-                    `return`("\$T.\$L", ClassNames.CONFLICT_ACTION, updateConflictActionName)
-                }
-            }
-
-            if (!insertConflictActionName.isEmpty()) {
-                `override fun`(ClassNames.CONFLICT_ACTION, "getInsertOnConflictAction") {
-                    modifiers(public, final)
-                    `return`("\$T.\$L", ClassNames.CONFLICT_ACTION, insertConflictActionName)
-                }
-            }
-        }
-
         methods.mapNotNull { it.methodSpec }
                 .forEach { typeBuilder.addMethod(it) }
-    }
-
-    companion object {
-
-        val DBFLOW_TABLE_TAG = "Table"
     }
 }

@@ -7,10 +7,10 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
-import com.raizlabs.android.dbflow.processor.utils.implementsClass
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.processor.utils.annotation
+import com.raizlabs.android.dbflow.processor.utils.implementsClass
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
@@ -62,7 +62,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
 
         typeElement.annotation<QueryModel>()?.let { queryModel ->
             databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
-            setOutputClassName(databaseDefinition?.classSeparator + DBFLOW_QUERY_MODEL_TAG)
+            setOutputClassName("${databaseDefinition?.classSeparator}QueryTable")
             allFields = queryModel.allFields
 
             typeElement?.let { createColumnDefinitions(it) }
@@ -135,10 +135,5 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
     override // Shouldn't include any
     val primaryColumnDefinitions: List<ColumnDefinition>
         get() = ArrayList()
-
-    companion object {
-
-        private val DBFLOW_QUERY_MODEL_TAG = "QueryTable"
-    }
 
 }

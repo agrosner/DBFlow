@@ -389,9 +389,9 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
             if (baseTableDefinition is TableDefinition) {
 
                 val codeBuilder = CodeBlock.builder()
-                for (oneToMany in baseTableDefinition.oneToManyDefinitions) {
-                    if (oneToMany.isLoad) oneToMany.writeLoad(codeBuilder)
-                }
+                baseTableDefinition.oneToManyDefinitions
+                        .filter { it.isLoad }
+                        .forEach { it.writeLoad(codeBuilder) }
                 methodBuilder.addCode(codeBuilder.build())
             }
 

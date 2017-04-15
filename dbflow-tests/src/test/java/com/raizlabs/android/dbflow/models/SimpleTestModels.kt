@@ -40,3 +40,7 @@ class SubclassAllFields(@Column var order: Int = 0) : AllFieldsModel()
 class DontAssignDefaultModel(@PrimaryKey var name: String? = null,
                              @Column(getterName = "getNullableBool") var nullableBool: Boolean? = null,
                              @Column var index: Int = 0)
+
+@Table(database = TestDatabase::class, orderedCursorLookUp = true)
+class OrderCursorModel(@PrimaryKey var id: Int = 0, @Column var name: String? = "",
+                       @Column var age: Int = 0)
