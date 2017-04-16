@@ -56,8 +56,8 @@ public class SQLCipherStatement extends BaseDatabaseStatement {
     }
 
     @Override
-    public void bindString(int index, String name) {
-        statement.bindString(index, name);
+    public void bindString(int index, String s) {
+        statement.bindString(index, s);
     }
 
     @Override

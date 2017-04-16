@@ -1,6 +1,9 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.grosner.kpoet.S
+import com.grosner.kpoet.`else`
+import com.grosner.kpoet.`if`
+import com.grosner.kpoet.statement
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
@@ -140,38 +143,26 @@ class SqliteStatementAccessCombiner(combiner: Combiner)
                          modelBlock: CodeBlock) {
         combiner.apply {
             val fieldAccess: CodeBlock = getFieldAccessBlock(code, modelBlock)
+            val wrapperMethod = SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqliteStatementWrapperMethod
+            val statementMethod = SQLiteHelper[fieldTypeName].sqLiteStatementMethod
 
-            if (fieldTypeName.isPrimitive) {
-                code.addStatement("statement.bind\$L(\$L + \$L, \$L)",
-                        SQLiteHelper[fieldTypeName].sqLiteStatementMethod,
-                        index, columnRepresentation, fieldAccess)
-            } else {
-                if (defaultValue != null) {
-                    var storedFieldAccess = fieldAccess
-                    var subWrapperFieldAccess = storedFieldAccess
-                    if (subWrapperAccessor != null) {
-                        subWrapperFieldAccess = subWrapperAccessor.get(storedFieldAccess)
-                    }
-                    if (!defaultValue.toString().isNullOrEmpty()) {
-                        code.beginControlFlow("if (\$L != null) ", storedFieldAccess)
-                    }
-
-                    code.addStatement("statement.bind\$LOrNull(\$L + \$L, \$L)",
-                            SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqliteStatementWrapperMethod,
-                            index, columnRepresentation, subWrapperFieldAccess)
-
-                    if (!defaultValue.toString().isNullOrEmpty()) {
-                        code.nextControlFlow("else")
-                                .addStatement("statement.bind\$L(\$L + \$L, \$L)",
-                                        SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod,
-                                        index, columnRepresentation, defaultValue)
-                                .endControlFlow()
-                    }
-
+            code.apply {
+                if (fieldTypeName.isPrimitive) {
+                    statement("statement.bind$statementMethod($index + $columnRepresentation, $fieldAccess)")
                 } else {
-                    code.addStatement("statement.bind\$L(\$L + \$L, \$L)",
-                            SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod, index,
-                            columnRepresentation, fieldAccess)
+                    val subWrapperFieldAccess = subWrapperAccessor?.get(fieldAccess) ?: fieldAccess
+                    if (!defaultValue.toString().isNullOrEmpty()) {
+                        `if`("$fieldAccess != null") {
+                            statement("statement.bind$wrapperMethod($index + $columnRepresentation," +
+                                    " $subWrapperFieldAccess)")
+                        }.`else` {
+                            statement("statement.bind$statementMethod($index + $columnRepresentation," +
+                                    " $defaultValue)")
+                        }
+                    } else {
+                        statement("statement.bind${wrapperMethod}OrNull($index + $columnRepresentation," +
+                                " $subWrapperFieldAccess)")
+                    }
                 }
             }
         }

@@ -20,19 +20,21 @@ public interface DatabaseStatement {
 
     long executeInsert();
 
-    void bindString(int index, String name);
+    void bindString(int index, String s);
 
-    void bindStringOrNull(int index, @Nullable String name);
+    void bindStringOrNull(int index, @Nullable String s);
 
     void bindNull(int index);
 
     void bindLong(int index, long aLong);
 
-    void bindNumberOrNull(int index, @Nullable Number name);
+    void bindNumber(int index, @Nullable Number number);
+
+    void bindNumberOrNull(int index, @Nullable Number number);
 
     void bindDouble(int index, double aDouble);
 
-    void bindDoubleOrNull(int index, @Nullable Double name);
+    void bindDoubleOrNull(int index, @Nullable Double aDouble);
 
     void bindBlob(int index, byte[] bytes);
 

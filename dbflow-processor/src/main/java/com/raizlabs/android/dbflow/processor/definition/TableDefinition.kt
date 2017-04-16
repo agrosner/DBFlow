@@ -350,8 +350,11 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@TableDefinition)
             customTypeConverterPropertyMethod.addToType(this)
 
-            constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
-                    param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
+            constructor {
+                if (hasGlobalTypeConverters) {
+                    addParameter(param(ClassNames.DATABASE_HOLDER, "holder").build())
+                }
+                addParameter(param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition").build())
                 modifiers(public)
                 statement("super(databaseDefinition)")
                 code {

@@ -95,9 +95,9 @@ class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSette
         get() = if (getterName.isNullOrEmpty()) {
             if (propertyName != null) {
                 if (useIsForPrivateBooleans && !propertyName.startsWith("is", ignoreCase = true)) {
-                    "is" + propertyName.capitalizeFirstLetter()
+                    "is" + propertyName.capitalize()
                 } else if (!useIsForPrivateBooleans && !propertyName.startsWith("get", ignoreCase = true)) {
-                    "get" + propertyName.capitalizeFirstLetter()
+                    "get" + propertyName.capitalize()
                 } else propertyName.lower()
             } else {
                 ""
@@ -114,7 +114,7 @@ class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSette
                     } else if (useIsForPrivateBooleans && setElementName.startsWith("Is")) {
                         setElementName = setElementName.replaceFirst("Is".toRegex(), "")
                     }
-                    "set" + setElementName.capitalizeFirstLetter()
+                    "set" + setElementName.capitalize()
                 } else setElementName.lower()
             } else setterName
         } else ""

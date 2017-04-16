@@ -9,7 +9,10 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateScopeColumnAccessor
-import com.raizlabs.android.dbflow.processor.utils.*
+import com.raizlabs.android.dbflow.processor.utils.ElementUtility
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils
+import com.raizlabs.android.dbflow.processor.utils.getPackage
+import com.raizlabs.android.dbflow.processor.utils.toClassName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
@@ -46,11 +49,13 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
     var classElementLookUpMap: MutableMap<String, Element> = mutableMapOf()
 
-    val modelClassName: String
+    val modelClassName = typeElement.simpleName.toString()
     var databaseDefinition: DatabaseDefinition? = null
 
+    val hasGlobalTypeConverters
+        get() = globalTypeConverters.isNotEmpty()
+
     init {
-        this.modelClassName = typeElement.simpleName.toString()
         columnDefinitions = ArrayList<ColumnDefinition>()
     }
 
@@ -108,7 +113,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
                 if (className != null && PackagePrivateScopeColumnAccessor.containsColumn(className, columnDefinition.columnName)) {
                     typeBuilder.apply {
                         val samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this@BaseTableDefinition.element)
-                        val methodName = columnDefinition.columnName.capitalizeFirstLetter()
+                        val methodName = columnDefinition.columnName.capitalize()
 
                         `public static final`(columnDefinition.elementTypeName!!, "get$methodName",
                                 param(elementTypeName!!, ModelUtils.variable)) {

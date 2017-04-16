@@ -8,27 +8,32 @@ import android.support.annotation.Nullable;
 public abstract class BaseDatabaseStatement implements DatabaseStatement {
 
     @Override
-    public void bindStringOrNull(int index, @Nullable String name) {
-        if (name != null) {
-            bindString(index, name);
+    public void bindStringOrNull(int index, @Nullable String s) {
+        if (s != null) {
+            bindString(index, s);
         } else {
             bindNull(index);
         }
     }
 
     @Override
-    public void bindNumberOrNull(int index, @Nullable Number name) {
-        if (name != null) {
-            bindLong(index, name.longValue());
+    public void bindNumber(int index, @Nullable Number number) {
+        bindNumberOrNull(index, number);
+    }
+
+    @Override
+    public void bindNumberOrNull(int index, @Nullable Number number) {
+        if (number != null) {
+            bindLong(index, number.longValue());
         } else {
             bindNull(index);
         }
     }
 
     @Override
-    public void bindDoubleOrNull(int index, @Nullable Double name) {
-        if (name != null) {
-            bindDouble(index, name);
+    public void bindDoubleOrNull(int index, @Nullable Double aDouble) {
+        if (aDouble != null) {
+            bindDouble(index, aDouble);
         } else {
             bindNull(index);
         }

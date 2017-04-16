@@ -62,8 +62,8 @@ public class DatabaseStatementWrapper<TModel> extends BaseDatabaseStatement {
     }
 
     @Override
-    public void bindString(int index, String name) {
-        databaseStatement.bindString(index, name);
+    public void bindString(int index, String s) {
+        databaseStatement.bindString(index, s);
     }
 
     @Override

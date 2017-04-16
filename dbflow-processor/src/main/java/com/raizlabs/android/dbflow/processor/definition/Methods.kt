@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.S
+import com.grosner.kpoet.statement
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
@@ -225,15 +227,15 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
                 referenceKeyBlocks.add(referenceBuilder.build())
             }
 
-            val codeBuilder = CodeBlock.builder().add("return \$S", creationBuilder.build().toString())
+            val codeBuilder = CodeBlock.builder()
+                    .add("return \$S", creationBuilder.build().toString())
 
             if (foreignSize > 0) {
                 for (i in 0..foreignSize - 1) {
                     codeBuilder.add("+ \$S + \$L + \$S", foreignKeyBlocks[i], tableNameBlocks[i], referenceKeyBlocks[i])
                 }
             }
-            codeBuilder.add(" + \$S", ");").add(";\n")
-
+            codeBuilder.add(" + ${");".S};\n")
 
             methodBuilder.addCode(codeBuilder.build())
 
@@ -247,7 +249,6 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
 class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTableDefinition)
     : TypeAdder, CodeAdder {
 
-
     override fun addToType(typeBuilder: TypeSpec.Builder) {
         val customTypeConverters = baseTableDefinition.associatedTypeConverters.keys
         customTypeConverters.forEach {
@@ -260,8 +261,6 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
             typeBuilder.addField(FieldSpec.builder(it, "global_typeConverter" + it.simpleName(),
                     Modifier.PRIVATE, Modifier.FINAL).build())
         }
-
-
     }
 
     override fun addCode(code: CodeBlock.Builder): CodeBlock.Builder {
@@ -271,8 +270,8 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
             val def = baseTableDefinition.globalTypeConverters[it]
             val firstDef = def?.get(0)
             firstDef?.typeConverterElementNames?.forEach { elementName ->
-                code.addStatement("global_typeConverter\$L = (\$T) \$L.getTypeConverterForClass(\$T.class)",
-                        it.simpleName(), it, "holder", elementName).build()
+                code.statement("global_typeConverter${it.simpleName()} " +
+                        "= (\$T) holder.getTypeConverterForClass(\$T.class)", it, elementName)
             }
         }
         return code

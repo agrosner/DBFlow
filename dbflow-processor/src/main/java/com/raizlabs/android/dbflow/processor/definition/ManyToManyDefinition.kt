@@ -7,7 +7,10 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.utils.*
+import com.raizlabs.android.dbflow.processor.utils.annotation
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
+import com.raizlabs.android.dbflow.processor.utils.lower
+import com.raizlabs.android.dbflow.processor.utils.toTypeElement
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
@@ -18,8 +21,8 @@ import javax.lang.model.type.TypeMirror
 /**
  * Description: Generates the Model class that is used in a many to many.
  */
-class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, processorManager: ProcessorManager,
-                                                     manyToMany: ManyToMany = element.annotation<ManyToMany>()!!)
+class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorManager,
+                           manyToMany: ManyToMany = element.annotation<ManyToMany>()!!)
     : BaseDefinition(element, processorManager) {
 
     internal var referencedTable: TypeName
@@ -116,11 +119,11 @@ class ManyToManyDefinition @JvmOverloads constructor(element: TypeElement, proce
                 }
                 `@`(ForeignKey::class) { member("saveForeignKeyModel", saveForeignKeyModels.toString()) }
             }
-            `fun`(referencedDefinition.elementClassName!!, "get${fieldName.capitalizeFirstLetter()}") {
+            `fun`(referencedDefinition.elementClassName!!, "get${fieldName.capitalize()}") {
                 modifiers(public, final)
                 `return`(fieldName.L)
             }
-            `fun`(TypeName.VOID, "set${fieldName.capitalizeFirstLetter()}",
+            `fun`(TypeName.VOID, "set${fieldName.capitalize()}",
                     param(referencedDefinition.elementClassName!!, "param")) {
                 modifiers(public, final)
                 statement("$fieldName = param")

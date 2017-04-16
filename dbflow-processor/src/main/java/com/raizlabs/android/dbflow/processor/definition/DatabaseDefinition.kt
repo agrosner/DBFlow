@@ -127,8 +127,13 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                 for (tableDefinition in manager.getTableDefinitions(elementClassName)) {
                     statement("holder.putDatabaseForTable(\$T.class, this)", tableDefinition.elementClassName)
                     statement("\$L.put(\$S, \$T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName)
-                    statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
-                            tableDefinition.elementClassName, tableDefinition.outputClassName)
+                    if (tableDefinition.hasGlobalTypeConverters) {
+                        statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
+                                tableDefinition.elementClassName, tableDefinition.outputClassName)
+                    } else {
+                        statement("\$L.put(\$T.class, new \$T(this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
+                                tableDefinition.elementClassName, tableDefinition.outputClassName)
+                    }
                 }
 
                 for (modelViewDefinition in manager.getModelViewDefinitions(elementClassName)) {
