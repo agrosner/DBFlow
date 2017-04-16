@@ -76,19 +76,9 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         typeBuilder.apply {
             elementClassName?.let { className -> columnDefinitions.forEach { it.addPropertyDefinition(this, className) } }
 
-            val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@QueryModelDefinition)
-            customTypeConverterPropertyMethod.addToType(this)
-
             InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
 
-            constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
-                    param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
-                modifiers(public)
-                statement("super(databaseDefinition)")
-                code {
-                    customTypeConverterPropertyMethod.addCode(this)
-                }
-            }
+            writeConstructor(this)
 
             `override fun`(elementClassName!!, "newInstance") {
                 modifiers(public, final)

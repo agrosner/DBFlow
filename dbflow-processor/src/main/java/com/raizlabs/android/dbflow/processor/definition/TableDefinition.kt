@@ -347,20 +347,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             InternalAdapterHelper.writeGetModelClass(this, elementClassName)
             InternalAdapterHelper.writeGetTableName(this, tableName)
 
-            val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@TableDefinition)
-            customTypeConverterPropertyMethod.addToType(this)
-
-            constructor {
-                if (hasGlobalTypeConverters) {
-                    addParameter(param(ClassNames.DATABASE_HOLDER, "holder").build())
-                }
-                addParameter(param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition").build())
-                modifiers(public)
-                statement("super(databaseDefinition)")
-                code {
-                    customTypeConverterPropertyMethod.addCode(this)
-                }
-            }
+            writeConstructor(this)
 
             `override fun`(elementClassName!!, "newInstance") {
                 modifiers(public, final)

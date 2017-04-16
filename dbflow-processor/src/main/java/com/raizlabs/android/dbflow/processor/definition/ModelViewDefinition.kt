@@ -147,17 +147,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 }
             }
 
-            val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@ModelViewDefinition)
-            customTypeConverterPropertyMethod.addToType(this)
-
-            constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
-                    param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
-                modifiers(public)
-                statement("super(databaseDefinition)")
-                code {
-                    customTypeConverterPropertyMethod.addCode(this)
-                }
-            }
+            writeConstructor(this)
 
             InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
 

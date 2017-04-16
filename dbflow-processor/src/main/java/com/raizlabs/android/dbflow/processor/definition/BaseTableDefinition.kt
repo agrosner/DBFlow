@@ -1,10 +1,8 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.google.common.collect.Lists
-import com.grosner.kpoet.`public static final`
-import com.grosner.kpoet.`return`
-import com.grosner.kpoet.param
-import com.grosner.kpoet.statement
+import com.grosner.kpoet.*
+import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
@@ -88,6 +86,25 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
         columnDefinitions.add(columnDefinition)
 
         return "global_typeConverter" + typeConverterName.simpleName()
+    }
+
+    fun writeConstructor(typeBuilder: TypeSpec.Builder) {
+        typeBuilder.apply {
+            val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@BaseTableDefinition)
+            customTypeConverterPropertyMethod.addToType(this)
+
+            constructor {
+                if (hasGlobalTypeConverters) {
+                    addParameter(param(ClassNames.DATABASE_HOLDER, "holder").build())
+                }
+                addParameter(param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition").build())
+                modifiers(public)
+                statement("super(databaseDefinition)")
+                code {
+                    customTypeConverterPropertyMethod.addCode(this)
+                }
+            }
+        }
     }
 
 

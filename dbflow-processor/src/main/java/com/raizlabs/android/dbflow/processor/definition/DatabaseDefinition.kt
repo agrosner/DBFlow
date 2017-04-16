@@ -124,28 +124,28 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             modifiers(public)
             val elementClassName = this@DatabaseDefinition.elementClassName
             if (elementClassName != null) {
-                for (tableDefinition in manager.getTableDefinitions(elementClassName)) {
-                    statement("holder.putDatabaseForTable(\$T.class, this)", tableDefinition.elementClassName)
-                    statement("\$L.put(\$S, \$T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName)
-                    if (tableDefinition.hasGlobalTypeConverters) {
-                        statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
-                                tableDefinition.elementClassName, tableDefinition.outputClassName)
+                for (definition in manager.getTableDefinitions(elementClassName)) {
+                    if (definition.hasGlobalTypeConverters) {
+                        statement("addModelAdapter(new \$T(holder, this), holder)", definition.outputClassName)
                     } else {
-                        statement("\$L.put(\$T.class, new \$T(this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
-                                tableDefinition.elementClassName, tableDefinition.outputClassName)
+                        statement("addModelAdapter(new \$T(this), holder)", definition.outputClassName)
                     }
                 }
 
-                for (modelViewDefinition in manager.getModelViewDefinitions(elementClassName)) {
-                    statement("holder.putDatabaseForTable(\$T.class, this)", modelViewDefinition.elementClassName)
-                    statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
-                            modelViewDefinition.elementClassName, modelViewDefinition.outputClassName)
+                for (definition in manager.getModelViewDefinitions(elementClassName)) {
+                    if (definition.hasGlobalTypeConverters) {
+                        statement("addModelViewAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                    } else {
+                        statement("addModelViewAdapter(new \$T(this), holder)", definition.outputClassName)
+                    }
                 }
 
-                for (queryModelDefinition in manager.getQueryModelDefinitions(elementClassName)) {
-                    statement("holder.putDatabaseForTable(\$T.class, this)", queryModelDefinition.elementClassName)
-                    statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
-                            queryModelDefinition.elementClassName, queryModelDefinition.outputClassName)
+                for (definition in manager.getQueryModelDefinitions(elementClassName)) {
+                    if (definition.hasGlobalTypeConverters) {
+                        statement("addQueryModelAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                    } else {
+                        statement("addQueryModelAdapter(new \$T(this), holder)", definition.outputClassName)
+                    }
                 }
 
                 val migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName)
