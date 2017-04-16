@@ -58,14 +58,14 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
 
         if (!thisColumnName.isNullOrEmpty() && !referencedColumnName.isNullOrEmpty()
                 && thisColumnName == referencedColumnName) {
-            manager.logError(ManyToManyDefinition::class, "The thisTableColumnName and referenceTableColumnName" + "cannot be the same")
+            manager.logError(ManyToManyDefinition::class, "The thisTableColumnName and referenceTableColumnName cannot be the same")
         }
     }
 
     fun prepareForWrite() {
         val databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
         if (databaseDefinition == null) {
-            manager.logError("DatabaseDefinition was null for : " + elementName)
+            manager.logError("DatabaseDefinition was null for : $elementName")
         } else {
             if (generatedTableClassName.isNullOrEmpty()) {
                 val referencedOutput = getElementClassName(referencedTable.toTypeElement(manager))

@@ -45,7 +45,7 @@ class MigrationDefinition(processorManager: ProcessorManager, typeElement: TypeE
             priority = migration.priority
 
             val elements = typeElement.enclosedElements
-            for (element in elements) {
+            elements.forEach { element ->
                 if (element is ExecutableElement && element.simpleName.toString() == "<init>") {
                     if (!constructorName.isNullOrEmpty()) {
                         manager.logError(MigrationDefinition::class, "Migrations cannot have more than one constructor. " +

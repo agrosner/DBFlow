@@ -104,17 +104,9 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     private fun prepareDefinitions() {
         elementClassName?.let {
-            for (tableDefinition in manager.getTableDefinitions(it)) {
-                tableDefinition.prepareForWrite()
-            }
-
-            for (modelViewDefinition in manager.getModelViewDefinitions(it)) {
-                modelViewDefinition.prepareForWrite()
-            }
-
-            for (queryModelDefinition in manager.getQueryModelDefinitions(it)) {
-                queryModelDefinition.prepareForWrite()
-            }
+            manager.getTableDefinitions(it).forEach(TableDefinition::prepareForWrite)
+            manager.getModelViewDefinitions(it).forEach(ModelViewDefinition::prepareForWrite)
+            manager.getQueryModelDefinitions(it).forEach(QueryModelDefinition::prepareForWrite)
         }
     }
 
@@ -122,8 +114,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
         builder.constructor(param(ClassNames.DATABASE_HOLDER, "holder")) {
             modifiers(public)
-            val elementClassName = this@DatabaseDefinition.elementClassName
-            if (elementClassName != null) {
+            this@DatabaseDefinition.elementClassName?.let { elementClassName ->
                 for (definition in manager.getTableDefinitions(elementClassName)) {
                     if (definition.hasGlobalTypeConverters) {
                         statement("addModelAdapter(new \$T(holder, this), holder)", definition.outputClassName)
@@ -158,11 +149,9 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                             Collections.sort(migrationDefinitions, { o1, o2 -> Integer.valueOf(o2.priority)!!.compareTo(o1.priority) })
                             statement("\$T migrations\$L = new \$T()", ParameterizedTypeName.get(ClassName.get(List::class.java), ClassNames.MIGRATION),
                                     version, ParameterizedTypeName.get(ClassName.get(ArrayList::class.java), ClassNames.MIGRATION))
-                            statement("\$L.put(\$L, migrations\$L)", DatabaseHandler.MIGRATION_FIELD_NAME,
-                                    version, version)
+                            statement("${DatabaseHandler.MIGRATION_FIELD_NAME}.put($version, migrations$version)")
                             for (migrationDefinition in migrationDefinitions) {
-                                statement("migrations\$L.add(new \$T\$L)", version, migrationDefinition.elementClassName,
-                                        migrationDefinition.constructorName)
+                                statement("migrations$version.add(new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
                             }
                         }
                     }

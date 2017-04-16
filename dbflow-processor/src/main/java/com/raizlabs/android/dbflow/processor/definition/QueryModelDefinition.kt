@@ -76,7 +76,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         typeBuilder.apply {
             elementClassName?.let { className -> columnDefinitions.forEach { it.addPropertyDefinition(this, className) } }
 
-            InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
+            writeGetModelClass(typeBuilder, elementClassName)
 
             writeConstructor(this)
 

@@ -7,14 +7,8 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateScopeColumnAccessor
-import com.raizlabs.android.dbflow.processor.utils.ElementUtility
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils
-import com.raizlabs.android.dbflow.processor.utils.getPackage
-import com.raizlabs.android.dbflow.processor.utils.toClassName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.JavaFile
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
+import com.raizlabs.android.dbflow.processor.utils.*
+import com.squareup.javapoet.*
 import java.io.IOException
 import java.util.*
 import javax.annotation.processing.ProcessingEnvironment
@@ -107,6 +101,12 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
         }
     }
 
+    fun writeGetModelClass(typeBuilder: TypeSpec.Builder, modelClassName: ClassName?) = typeBuilder.apply {
+        `override fun`(ParameterizedTypeName.get(ClassName.get(Class::class.java), modelClassName), "getModelClass") {
+            modifiers(public, final)
+            `return`("\$T.class", modelClassName)
+        }
+    }
 
     @Throws(IOException::class)
     fun writePackageHelper(processingEnvironment: ProcessingEnvironment) {

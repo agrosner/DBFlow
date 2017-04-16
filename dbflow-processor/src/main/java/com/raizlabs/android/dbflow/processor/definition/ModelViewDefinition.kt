@@ -113,7 +113,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 }
             } else if (variableElement.annotation<ModelViewQuery>() != null) {
                 if (!queryFieldName.isNullOrEmpty()) {
-                    manager.logError("Found duplicate ")
+                    manager.logError("Found duplicate queryField name: $queryFieldName for $elementClassName")
                 }
                 ensureVisibleStatic(variableElement, typeElement, "ModelViewQuery")
 
@@ -142,14 +142,12 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
             `public static final field`(String::class, "VIEW_NAME") { `=`(name.S) }
 
             elementClassName?.let { elementClassName ->
-                columnDefinitions.forEach {
-                    it.addPropertyDefinition(typeBuilder, elementClassName)
-                }
+                columnDefinitions.forEach { it.addPropertyDefinition(typeBuilder, elementClassName) }
             }
 
             writeConstructor(this)
 
-            InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
+            writeGetModelClass(typeBuilder, elementClassName)
 
             `override fun`(String::class, "getCreationQuery") {
                 modifiers(public, final)
