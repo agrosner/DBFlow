@@ -11,15 +11,13 @@ import com.raizlabs.android.dbflow.sql.queriable.Queriable;
  * with {@link SQLite}.
  */
 public class RXSQLite {
-
     @NonNull
     public static <T> RXModelQueriableImpl<T> rx(ModelQueriable<T> modelQueriable) {
         return new RXModelQueriableImpl<>(modelQueriable);
     }
 
     @NonNull
-    public static <T> RXQueriableImpl<T> rx(Class<T> table, Queriable queriable) {
-        return new RXQueriableImpl<>(table, queriable);
+    public static RXQueriableImpl rx(Class<?> table, Queriable queriable) {
+        return new RXQueriableImpl(table, queriable);
     }
-
 }
