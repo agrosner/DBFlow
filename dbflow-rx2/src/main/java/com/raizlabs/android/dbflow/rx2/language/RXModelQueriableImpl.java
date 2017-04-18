@@ -25,7 +25,7 @@ import static io.reactivex.Single.fromCallable;
 /**
  * Description: Represents {@link BaseModelQueriable} in RX form.
  */
-public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
+public class RXModelQueriableImpl<T> extends RXQueriableImpl
         implements RXModelQueriable<T> {
 
     private final ModelQueriable<T> modelQueriable;

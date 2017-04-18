@@ -18,12 +18,12 @@ import static io.reactivex.Single.fromCallable;
 /**
  * Description: Represents {@link BaseQueriable} with RX constructs.
  */
-public class RXQueriableImpl<T> implements RXQueriable {
+public class RXQueriableImpl implements RXQueriable {
 
-    private final Class<T> table;
+    private final Class<?> table;
     private final Queriable queriable;
 
-    public RXQueriableImpl(Class<T> table, Queriable queriable) {
+    public RXQueriableImpl(Class<?> table, Queriable queriable) {
         this.table = table;
         this.queriable = queriable;
     }
