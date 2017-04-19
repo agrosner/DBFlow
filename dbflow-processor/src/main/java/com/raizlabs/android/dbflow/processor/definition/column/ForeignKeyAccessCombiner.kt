@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
-import com.raizlabs.android.dbflow.processor.utils.addStatement
+import com.raizlabs.android.dbflow.processor.utils.statement
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 import java.util.concurrent.atomic.AtomicInteger
@@ -42,8 +42,9 @@ class ForeignKeyAccessField(val columnRepresentation: String,
 
     fun addCode(code: CodeBlock.Builder, index: Int,
                 modelAccessBlock: CodeBlock) {
-        columnAccessCombiner.addCode(code, columnRepresentation, defaultValue, index,
-                modelAccessBlock)
+        columnAccessCombiner.apply {
+            code.addCode(columnRepresentation, defaultValue, index, modelAccessBlock)
+        }
     }
 
     fun addNull(code: CodeBlock.Builder, index: Int) {
@@ -65,7 +66,7 @@ class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
             setterBlock.add("\$T.select().from(\$T.class).where()",
                     ClassNames.SQLITE, referencedTypeName)
         } else {
-            setterBlock.addStatement(
+            setterBlock.statement(
                     fieldAccessor.set(CodeBlock.of("new \$T()", referencedTypeName), modelBlock))
         }
         for ((i, it) in fieldAccesses.withIndex()) {
@@ -82,12 +83,12 @@ class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
 
         code.beginControlFlow("if (\$L)", ifChecker.build())
         if (!isStubbed) {
-            code.addStatement(fieldAccessor.set(setterBlock.build(), modelBlock))
+            code.statement(fieldAccessor.set(setterBlock.build(), modelBlock))
         } else {
             code.add(setterBlock.build())
         }
         code.nextControlFlow("else")
-                .addStatement(fieldAccessor.set(CodeBlock.of("null"), modelBlock))
+                .statement(fieldAccessor.set(CodeBlock.of("null"), modelBlock))
                 .endControlFlow()
     }
 }
@@ -120,14 +121,14 @@ class PartialLoadFromCursorAccessCombiner(
             code.add(CodeBlock.of("\n.and(\$T.\$L.eq(\$L))",
                     referencedTableTypeName, propertyRepresentation, fieldAccessBlock))
         } else if (fieldLevelAccessor != null) {
-            code.addStatement(fieldLevelAccessor.set(cursorAccess, parentAccessor.get(modelBlock)))
+            code.statement(fieldLevelAccessor.set(cursorAccess, parentAccessor.get(modelBlock)))
         }
 
     }
 
     fun addColumnIndex(code: CodeBlock.Builder, index: Int) {
         if (!orderedCursorLookup) {
-            code.addStatement(CodeBlock.of("int \$L = cursor.getColumnIndex(\$S)",
+            code.statement(CodeBlock.of("int \$L = cursor.getColumnIndex(\$S)",
                     getIndexName(index), columnRepresentation))
         }
     }

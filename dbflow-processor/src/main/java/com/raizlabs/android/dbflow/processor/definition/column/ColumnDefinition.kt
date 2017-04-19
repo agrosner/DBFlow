@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
+import com.grosner.kpoet.code
 import com.raizlabs.android.dbflow.annotation.*
 import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.processor.ClassNames
@@ -8,9 +9,9 @@ import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
+import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.fromTypeMirror
 import com.raizlabs.android.dbflow.processor.utils.getTypeElement
-import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
@@ -302,8 +303,9 @@ constructor(processorManager: ProcessorManager, element: Element,
         get() {
             val code = CodeBlock.builder()
 
-            ContentValuesCombiner(combiner)
-                    .addCode(code, columnName, getDefaultValueBlock(), 0, modelBlock)
+            ContentValuesCombiner(combiner).apply {
+                code.addCode(columnName, getDefaultValueBlock(), 0, modelBlock)
+            }
 
             return code.build()
         }
@@ -316,22 +318,20 @@ constructor(processorManager: ProcessorManager, element: Element,
         index.incrementAndGet()
     }
 
-    open fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
-
-        val builder = CodeBlock.builder()
-        SqliteStatementAccessCombiner(combiner)
-                .addCode(builder, "start", getDefaultValueBlock(), index.get(), modelBlock)
-        return builder.build()
+    open fun getSQLiteStatementMethod(index: AtomicInteger) = code {
+        SqliteStatementAccessCombiner(combiner).apply {
+            addCode("start", getDefaultValueBlock(), index.get(), modelBlock)
+        }
+        this
     }
 
-    open fun getLoadFromCursorMethod(endNonPrimitiveIf: Boolean, index: AtomicInteger): CodeBlock {
+    open fun getLoadFromCursorMethod(endNonPrimitiveIf: Boolean, index: AtomicInteger) = code {
 
-        val builder = CodeBlock.builder()
-        LoadFromCursorAccessCombiner(combiner,
-                baseTableDefinition.orderedCursorLookUp,
-                baseTableDefinition.assignDefaultValuesFromCursor)
-                .addCode(builder, columnName, getDefaultValueBlock(), index.get(), modelBlock)
-        return builder.build()
+        LoadFromCursorAccessCombiner(combiner, baseTableDefinition.orderedCursorLookUp,
+                baseTableDefinition.assignDefaultValuesFromCursor).apply {
+            addCode(columnName, getDefaultValueBlock(), index.get(), modelBlock)
+        }
+        this
     }
 
     /**
@@ -339,39 +339,40 @@ constructor(processorManager: ProcessorManager, element: Element,
 
      * @return The statement to use.
      */
-    val updateAutoIncrementMethod: CodeBlock
-        get() {
-            val code = CodeBlock.builder()
-            UpdateAutoIncrementAccessCombiner(combiner)
-                    .addCode(code, columnName, getDefaultValueBlock(),
-                            0, modelBlock)
-            return code.build()
+    val updateAutoIncrementMethod
+        get() = code {
+            UpdateAutoIncrementAccessCombiner(combiner).apply {
+                addCode(columnName, getDefaultValueBlock(), 0, modelBlock)
+            }
+            this
         }
 
-    fun getColumnAccessString(index: Int): CodeBlock {
-        val codeBlock = CodeBlock.builder()
-        CachingIdAccessCombiner(combiner)
-                .addCode(codeBlock, columnName, getDefaultValueBlock(), index, modelBlock)
-        return codeBlock.build()
+    fun getColumnAccessString(index: Int) = code {
+        CachingIdAccessCombiner(combiner).apply {
+            addCode(columnName, getDefaultValueBlock(), index, modelBlock)
+        }
+        this
     }
 
-    fun getSimpleAccessString(): CodeBlock {
-        val codeBlock = CodeBlock.builder()
-        SimpleAccessCombiner(combiner)
-                .addCode(codeBlock, columnName, getDefaultValueBlock(), 0, modelBlock)
-        return codeBlock.build()
+    fun getSimpleAccessString() = code {
+        SimpleAccessCombiner(combiner).apply {
+            addCode(columnName, getDefaultValueBlock(), 0, modelBlock)
+        }
+        this
     }
 
     open fun appendExistenceMethod(codeBuilder: CodeBlock.Builder) {
         ExistenceAccessCombiner(combiner, isRowId || isPrimaryKeyAutoIncrement,
                 isQuickCheckPrimaryKeyAutoIncrement, baseTableDefinition.elementClassName!!)
-                .addCode(codeBuilder, columnName, getDefaultValueBlock(), 0, modelBlock)
+                .apply {
+                    codeBuilder.addCode(columnName, getDefaultValueBlock(), 0, modelBlock)
+                }
     }
 
     open fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
-        PrimaryReferenceAccessCombiner(combiner)
-                .addCode(codeBuilder, columnName, getDefaultValueBlock(),
-                        0, modelBlock)
+        PrimaryReferenceAccessCombiner(combiner).apply {
+            codeBuilder.addCode(columnName, getDefaultValueBlock(), 0, modelBlock)
+        }
     }
 
     open val creationName: CodeBlock

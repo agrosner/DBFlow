@@ -98,29 +98,27 @@ class OneToManyDefinition(typeElement: ExecutableElement,
 
     /**
      * Writes a delete method that will delete all related objects.
-
-     * @param codeBuilder
      */
-    fun writeDelete(codeBuilder: CodeBlock.Builder, useWrapper: Boolean) {
+    fun writeDelete(method: MethodSpec.Builder, useWrapper: Boolean) {
         if (isDelete) {
-            writeLoopWithMethod(codeBuilder, "delete", useWrapper && extendsBaseModel)
-            codeBuilder.addStatement(columnAccessor.set(CodeBlock.of("null"), modelBlock))
+            writeLoopWithMethod(method, "delete", useWrapper && extendsBaseModel)
+            method.statement(columnAccessor.set(CodeBlock.of("null"), modelBlock))
         }
     }
 
-    fun writeSave(codeBuilder: CodeBlock.Builder, useWrapper: Boolean) {
+    fun writeSave(codeBuilder: MethodSpec.Builder, useWrapper: Boolean) {
         if (isSave) writeLoopWithMethod(codeBuilder, "save", useWrapper && extendsBaseModel)
     }
 
-    fun writeUpdate(codeBuilder: CodeBlock.Builder, useWrapper: Boolean) {
+    fun writeUpdate(codeBuilder: MethodSpec.Builder, useWrapper: Boolean) {
         if (isSave) writeLoopWithMethod(codeBuilder, "update", useWrapper && extendsBaseModel)
     }
 
-    fun writeInsert(codeBuilder: CodeBlock.Builder, useWrapper: Boolean) {
+    fun writeInsert(codeBuilder: MethodSpec.Builder, useWrapper: Boolean) {
         if (isSave) writeLoopWithMethod(codeBuilder, "insert", useWrapper && (extendsBaseModel || !extendsModel))
     }
 
-    private fun writeLoopWithMethod(codeBuilder: CodeBlock.Builder, methodName: String, useWrapper: Boolean) {
+    private fun writeLoopWithMethod(codeBuilder: MethodSpec.Builder, methodName: String, useWrapper: Boolean) {
         val oneToManyMethodName = this@OneToManyDefinition.methodName
         codeBuilder.apply {
             `if`("($oneToManyMethodName != null)") {

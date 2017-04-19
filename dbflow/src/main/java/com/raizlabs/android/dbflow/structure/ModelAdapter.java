@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
@@ -23,6 +22,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 import java.util.Collection;
+
+import static com.raizlabs.android.dbflow.config.FlowManager.getWritableDatabaseForTable;
 
 /**
  * Description: Used for generated classes from the combination of {@link Table} and {@link Model}.
@@ -50,8 +51,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      */
     public DatabaseStatement getInsertStatement() {
         if (insertStatement == null) {
-            insertStatement = getInsertStatement(
-                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+            insertStatement = getInsertStatement(getWritableDatabaseForTable(getModelClass()));
         }
 
         return insertStatement;
@@ -85,8 +85,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      */
     public DatabaseStatement getCompiledStatement() {
         if (compiledStatement == null) {
-            compiledStatement = getCompiledStatement(
-                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+            compiledStatement = getCompiledStatement(getWritableDatabaseForTable(getModelClass()));
         }
 
         return compiledStatement;
@@ -134,12 +133,6 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     @Override
     public void saveAll(Collection<TModel> models) {
         getListModelSaver().saveAll(models);
-
-        if (cachingEnabled()) {
-            for (TModel model : models) {
-                getModelCache().addModel(getCachingId(model), model);
-            }
-        }
     }
 
     @Override
@@ -395,7 +388,9 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @param cursor The cursor to reload from.
      */
     public void reloadRelationships(@NonNull TModel model, FlowCursor cursor) {
-        throwCachingError();
+        if (!cachingEnabled()) {
+            throwCachingError();
+        }
     }
 
     @Override

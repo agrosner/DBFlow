@@ -1,14 +1,12 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
-import com.grosner.kpoet.S
-import com.grosner.kpoet.`else`
-import com.grosner.kpoet.`if`
-import com.grosner.kpoet.statement
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
-import com.raizlabs.android.dbflow.processor.utils.addStatement
+import com.raizlabs.android.dbflow.processor.utils.catch
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
+import com.raizlabs.android.dbflow.processor.utils.statement
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -45,10 +43,9 @@ abstract class ColumnAccessCombiner(val combiner: Combiner) {
         return fieldAccess
     }
 
-    abstract fun addCode(code: CodeBlock.Builder,
-                         columnRepresentation: String, defaultValue: CodeBlock? = null,
-                         index: Int = -1,
-                         modelBlock: CodeBlock = CodeBlock.of("model"))
+    abstract fun CodeBlock.Builder.addCode(columnRepresentation: String, defaultValue: CodeBlock? = null,
+                                           index: Int = -1,
+                                           modelBlock: CodeBlock = CodeBlock.of("model"))
 
     open fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int = -1) {
 
@@ -57,9 +54,9 @@ abstract class ColumnAccessCombiner(val combiner: Combiner) {
 
 class SimpleAccessCombiner(combiner: Combiner)
     : ColumnAccessCombiner(combiner) {
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
-        code.addStatement("return \$L", getFieldAccessBlock(code, modelBlock))
+    override fun CodeBlock.Builder.addCode(columnRepresentation: String,
+                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+        statement("return \$L", getFieldAccessBlock(this, modelBlock))
     }
 
 }
@@ -69,36 +66,38 @@ class ExistenceAccessCombiner(combiner: Combiner,
                               val quickCheckPrimaryKey: Boolean,
                               val tableClassName: ClassName)
     : ColumnAccessCombiner(combiner) {
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+    override fun CodeBlock.Builder.addCode(columnRepresentation: String,
+                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
 
         combiner.apply {
             if (autoRowId) {
-                val access = getFieldAccessBlock(code, modelBlock)
+                val access = getFieldAccessBlock(this@addCode, modelBlock)
 
-                code.add("return ")
+                add("return ")
 
                 if (!fieldTypeName.isPrimitive) {
-                    code.add("(\$L != null && ", access)
+                    add("(\$L != null && ", access)
                 }
-                code.add("\$L > 0", access)
+                add("\$L > 0", access)
 
                 if (!fieldTypeName.isPrimitive) {
-                    code.add(" || \$L == null)", access)
+                    add(" || \$L == null)", access)
                 }
             }
 
             if (!autoRowId || !quickCheckPrimaryKey) {
                 if (autoRowId) {
-                    code.add("\n&& ")
+                    add("\n&& ")
                 } else {
-                    code.add("return ")
+                    add("return ")
                 }
 
-                code.add("\$T.selectCountOf()\n.from(\$T.class)\n.where(getPrimaryConditionClause(\$L))\n.hasData(wrapper)",
+                add("\$T.selectCountOf()\n.from(\$T.class)\n" +
+                        ".where(getPrimaryConditionClause(\$L))\n" +
+                        ".hasData(wrapper)",
                         ClassNames.SQLITE, tableClassName, modelBlock)
             }
-            code.add(";\n")
+            add(";\n")
         }
     }
 
@@ -107,13 +106,13 @@ class ExistenceAccessCombiner(combiner: Combiner,
 class ContentValuesCombiner(combiner: Combiner)
     : ColumnAccessCombiner(combiner) {
 
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int,
-                         modelBlock: CodeBlock) {
+    override fun CodeBlock.Builder.addCode(columnRepresentation: String,
+                                           defaultValue: CodeBlock?, index: Int,
+                                           modelBlock: CodeBlock) {
         combiner.apply {
-            val fieldAccess: CodeBlock = getFieldAccessBlock(code, modelBlock)
+            val fieldAccess: CodeBlock = getFieldAccessBlock(this@addCode, modelBlock)
             if (fieldTypeName.isPrimitive) {
-                code.addStatement("values.put(\$1S, \$2L)", QueryBuilder.quote(columnRepresentation), fieldAccess)
+                statement("values.put(\$1S, \$2L)", QueryBuilder.quote(columnRepresentation), fieldAccess)
             } else {
                 if (defaultValue != null) {
                     val storedFieldAccess = fieldAccess
@@ -121,10 +120,10 @@ class ContentValuesCombiner(combiner: Combiner)
                     if (subWrapperAccessor != null) {
                         subWrapperFieldAccess = subWrapperAccessor.get(storedFieldAccess)
                     }
-                    code.addStatement("values.put(\$S, \$L != null ? \$L : \$L)",
+                    statement("values.put(\$S, \$L != null ? \$L : \$L)",
                             QueryBuilder.quote(columnRepresentation), storedFieldAccess, subWrapperFieldAccess, defaultValue)
                 } else {
-                    code.addStatement("values.put(\$S, \$L)",
+                    statement("values.put(\$S, \$L)",
                             QueryBuilder.quote(columnRepresentation), fieldAccess)
                 }
             }
@@ -138,38 +137,36 @@ class ContentValuesCombiner(combiner: Combiner)
 
 class SqliteStatementAccessCombiner(combiner: Combiner)
     : ColumnAccessCombiner(combiner) {
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int,
-                         modelBlock: CodeBlock) {
+    override fun CodeBlock.Builder.addCode(columnRepresentation: String,
+                                           defaultValue: CodeBlock?, index: Int,
+                                           modelBlock: CodeBlock) {
         combiner.apply {
-            val fieldAccess: CodeBlock = getFieldAccessBlock(code, modelBlock)
+            val fieldAccess: CodeBlock = getFieldAccessBlock(this@addCode, modelBlock)
             val wrapperMethod = SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqliteStatementWrapperMethod
             val statementMethod = SQLiteHelper[fieldTypeName].sqLiteStatementMethod
 
-            code.apply {
-                if (fieldTypeName.isPrimitive) {
-                    statement("statement.bind$statementMethod($index + $columnRepresentation, $fieldAccess)")
-                } else {
-                    val subWrapperFieldAccess = subWrapperAccessor?.get(fieldAccess) ?: fieldAccess
-                    if (!defaultValue.toString().isNullOrEmpty()) {
-                        `if`("$fieldAccess != null") {
-                            statement("statement.bind$wrapperMethod($index + $columnRepresentation," +
-                                    " $subWrapperFieldAccess)")
-                        }.`else` {
-                            statement("statement.bind$statementMethod($index + $columnRepresentation," +
-                                    " $defaultValue)")
-                        }
-                    } else {
-                        statement("statement.bind${wrapperMethod}OrNull($index + $columnRepresentation," +
+            if (fieldTypeName.isPrimitive) {
+                statement("statement.bind$statementMethod($index + $columnRepresentation, $fieldAccess)")
+            } else {
+                val subWrapperFieldAccess = subWrapperAccessor?.get(fieldAccess) ?: fieldAccess
+                if (!defaultValue.toString().isNullOrEmpty()) {
+                    `if`("$fieldAccess != null") {
+                        statement("statement.bind$wrapperMethod($index + $columnRepresentation," +
                                 " $subWrapperFieldAccess)")
+                    }.`else` {
+                        statement("statement.bind$statementMethod($index + $columnRepresentation," +
+                                " $defaultValue)")
                     }
+                } else {
+                    statement("statement.bind${wrapperMethod}OrNull($index + $columnRepresentation," +
+                            " $subWrapperFieldAccess)")
                 }
             }
         }
     }
 
     override fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int) {
-        code.addStatement("statement.bindNull(\$L + \$L)", index, columnRepresentation)
+        code.addStatement("statement.bindNull($index + $columnRepresentation)")
     }
 }
 
@@ -178,56 +175,55 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
                                    val assignDefaultValuesFromCursor: Boolean = true)
     : ColumnAccessCombiner(combiner) {
 
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int,
-                         modelBlock: CodeBlock) {
+    override fun CodeBlock.Builder.addCode(columnRepresentation: String,
+                                           defaultValue: CodeBlock?, index: Int,
+                                           modelBlock: CodeBlock) {
         combiner.apply {
-            var indexName: CodeBlock
-            if (!orderedCursorLookup) {
-                indexName = CodeBlock.of(columnRepresentation.S)
+            var indexName = if (!orderedCursorLookup) {
+                CodeBlock.of(columnRepresentation.S)
             } else {
-                indexName = CodeBlock.of(index.toString())
-            }
+                CodeBlock.of(index.toString())
+            }!!
 
             if (wrapperLevelAccessor != null) {
                 if (!orderedCursorLookup) {
                     indexName = CodeBlock.of("index_\$L", columnRepresentation)
-                    code.addStatement("\$T \$L = cursor.getColumnIndex(\$S)", Int::class.java, indexName,
+                    statement("\$T \$L = cursor.getColumnIndex(\$S)", Int::class.java, indexName,
                             columnRepresentation)
-                    code.beginControlFlow("if (\$1L != -1 && !cursor.isNull(\$1L))", indexName)
+                    beginControlFlow("if (\$1L != -1 && !cursor.isNull(\$1L))", indexName)
                 } else {
-                    code.beginControlFlow("if (!cursor.isNull(\$1L))", index)
+                    beginControlFlow("if (!cursor.isNull(\$1L))", index)
                 }
                 val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
                         SQLiteHelper.getMethod(wrapperFieldTypeName ?: fieldTypeName), indexName)
                 // special case where we need to append try catch hack
                 val isEnum = wrapperLevelAccessor is EnumColumnAccessor
                 if (isEnum) {
-                    code.beginControlFlow("try")
+                    beginControlFlow("try")
                 }
                 if (subWrapperAccessor != null) {
-                    code.addStatement(fieldLevelAccessor.set(
+                    statement(fieldLevelAccessor.set(
                             wrapperLevelAccessor.set(subWrapperAccessor.set(cursorAccess)), modelBlock))
                 } else {
-                    code.addStatement(fieldLevelAccessor.set(
+                    statement(fieldLevelAccessor.set(
                             wrapperLevelAccessor.set(cursorAccess), modelBlock))
                 }
                 if (isEnum) {
-                    code.nextControlFlow("catch (\$T i)", IllegalArgumentException::class.java)
-                    if (assignDefaultValuesFromCursor) {
-                        code.addStatement(fieldLevelAccessor.set(wrapperLevelAccessor.set(defaultValue,
-                                isDefault = true), modelBlock))
-                    } else {
-                        code.addStatement(fieldLevelAccessor.set(defaultValue, modelBlock))
+                    catch(IllegalArgumentException::class) {
+                        if (assignDefaultValuesFromCursor) {
+                            statement(fieldLevelAccessor.set(wrapperLevelAccessor.set(defaultValue,
+                                    isDefault = true), modelBlock))
+                        } else {
+                            statement(fieldLevelAccessor.set(defaultValue, modelBlock))
+                        }
                     }
-                    code.endControlFlow()
                 }
                 if (assignDefaultValuesFromCursor) {
-                    code.nextControlFlow("else")
-                    code.addStatement(fieldLevelAccessor.set(wrapperLevelAccessor.set(defaultValue,
+                    nextControlFlow("else")
+                    statement(fieldLevelAccessor.set(wrapperLevelAccessor.set(defaultValue,
                             isDefault = true), modelBlock))
                 }
-                code.endControlFlow()
+                endControlFlow()
             } else {
 
                 var defaultValueBlock = defaultValue
@@ -236,7 +232,7 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
                 }
                 val cursorAccess = CodeBlock.of("cursor.\$LOrDefault(\$L, $defaultValueBlock)",
                         SQLiteHelper.getMethod(wrapperFieldTypeName ?: fieldTypeName), indexName)
-                code.addStatement(fieldLevelAccessor.set(cursorAccess, modelBlock))
+                statement(fieldLevelAccessor.set(cursorAccess, modelBlock))
             }
         }
     }
@@ -244,13 +240,13 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
 
 class PrimaryReferenceAccessCombiner(combiner: Combiner)
     : ColumnAccessCombiner(combiner) {
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int,
-                         modelBlock: CodeBlock) {
-        val wrapperLevelAccessor = this.combiner.wrapperLevelAccessor
-        code.addStatement("clause.and(\$L.\$Leq(\$L))", columnRepresentation,
+    override fun CodeBlock.Builder.addCode(columnRepresentation: String,
+                                           defaultValue: CodeBlock?, index: Int,
+                                           modelBlock: CodeBlock) {
+        val wrapperLevelAccessor = this@PrimaryReferenceAccessCombiner.combiner.wrapperLevelAccessor
+        statement("clause.and(\$L.\$Leq(\$L))", columnRepresentation,
                 if (!wrapperLevelAccessor.isPrimitiveTarget()) "invertProperty()." else "",
-                getFieldAccessBlock(code, modelBlock, wrapperLevelAccessor !is BooleanColumnAccessor))
+                getFieldAccessBlock(this, modelBlock, wrapperLevelAccessor !is BooleanColumnAccessor))
     }
 
     override fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int) {
@@ -261,15 +257,15 @@ class PrimaryReferenceAccessCombiner(combiner: Combiner)
 
 class UpdateAutoIncrementAccessCombiner(combiner: Combiner)
     : ColumnAccessCombiner(combiner) {
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+    override fun CodeBlock.Builder.addCode(columnRepresentation: String, defaultValue: CodeBlock?,
+                                           index: Int, modelBlock: CodeBlock) {
         combiner.apply {
             var method = ""
             if (SQLiteHelper.containsNumberMethod(fieldTypeName.unbox())) {
                 method = fieldTypeName.unbox().toString()
             }
 
-            code.addStatement(fieldLevelAccessor.set(CodeBlock.of("id.\$LValue()", method), modelBlock))
+            statement(fieldLevelAccessor.set(CodeBlock.of("id.\$LValue()", method), modelBlock))
         }
     }
 
@@ -277,9 +273,9 @@ class UpdateAutoIncrementAccessCombiner(combiner: Combiner)
 
 class CachingIdAccessCombiner(combiner: Combiner)
     : ColumnAccessCombiner(combiner) {
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
-        code.addStatement("inValues[\$L] = \$L", index, getFieldAccessBlock(code, modelBlock))
+    override fun CodeBlock.Builder.addCode(columnRepresentation: String,
+                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+        statement("inValues[\$L] = \$L", index, getFieldAccessBlock(this, modelBlock))
     }
 
 }
@@ -288,19 +284,18 @@ class SaveModelAccessCombiner(combiner: Combiner,
                               val implementsModel: Boolean,
                               val extendsBaseModel: Boolean)
     : ColumnAccessCombiner(combiner) {
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+    override fun CodeBlock.Builder.addCode(columnRepresentation: String,
+                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
         combiner.apply {
-            val access = getFieldAccessBlock(code, modelBlock)
-            code.beginControlFlow("if (\$L != null)", access)
-            if (implementsModel) {
-                code.addStatement("\$L.save(\$L)", access,
-                        if (extendsBaseModel) ModelUtils.wrapper else "")
-            } else {
-                code.addStatement("\$T.getModelAdapter(\$T.class).save(\$L, \$L)",
-                        ClassNames.FLOW_MANAGER, fieldTypeName, access, ModelUtils.wrapper)
-            }
-            code.endControlFlow()
+            val access = getFieldAccessBlock(this@addCode, modelBlock)
+            `if`("$access != null") {
+                if (implementsModel) {
+                    statement("$access.save(${wrapperIfBaseModel(extendsBaseModel)})")
+                } else {
+                    statement("\$T.getModelAdapter(\$T.class).save($access, ${ModelUtils.wrapper})",
+                            ClassNames.FLOW_MANAGER, fieldTypeName)
+                }
+            }.end()
         }
     }
 
@@ -310,20 +305,22 @@ class DeleteModelAccessCombiner(combiner: Combiner,
                                 val implementsModel: Boolean,
                                 val extendsBaseModel: Boolean)
     : ColumnAccessCombiner(combiner) {
-    override fun addCode(code: CodeBlock.Builder, columnRepresentation: String,
-                         defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+    override fun CodeBlock.Builder.addCode(columnRepresentation: String,
+                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
         combiner.apply {
-            val access = getFieldAccessBlock(code, modelBlock)
-            code.beginControlFlow("if (\$L != null)", access)
-            if (implementsModel) {
-                code.addStatement("\$L.delete(\$L)", access,
-                        if (extendsBaseModel) ModelUtils.wrapper else "")
-            } else {
-                code.addStatement("\$T.getModelAdapter(\$T.class).delete(\$L, \$L)",
-                        ClassNames.FLOW_MANAGER, fieldTypeName, access, ModelUtils.wrapper)
-            }
-            code.endControlFlow()
+            val access = getFieldAccessBlock(this@addCode, modelBlock)
+            `if`("$access != null") {
+                if (implementsModel) {
+                    statement("$access.delete(${wrapperIfBaseModel(extendsBaseModel)})")
+                } else {
+                    statement("\$T.getModelAdapter(\$T.class).delete($access, ${ModelUtils.wrapper})",
+                            ClassNames.FLOW_MANAGER, fieldTypeName)
+                }
+            }.end()
         }
     }
 
 }
+
+fun wrapperIfBaseModel(extendsBaseModel: Boolean) = if (extendsBaseModel) ModelUtils.wrapper else ""
+fun wrapperCommaIfBaseModel(extendsBaseModel: Boolean) = if (extendsBaseModel) ", " + ModelUtils.wrapper else ""
