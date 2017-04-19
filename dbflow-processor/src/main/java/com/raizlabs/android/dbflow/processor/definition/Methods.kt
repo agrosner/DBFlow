@@ -341,6 +341,7 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
         get() = `override fun`(TypeName.VOID, "loadFromCursor",
                 param(ClassNames.FLOW_CURSOR, PARAM_CURSOR),
                 param(baseTableDefinition.parameterClassName!!, ModelUtils.variable)) {
+            modifiers(public, final)
             val index = AtomicInteger(0)
             baseTableDefinition.columnDefinitions.forEach {
                 addCode(it.getLoadFromCursorMethod(true, index))
@@ -412,11 +413,11 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
         get() {
             if (!tableDefinition.oneToManyDefinitions.isEmpty() || tableDefinition.cachingEnabled) {
                 var retType = TypeName.BOOLEAN
-                var retStatement = "rowId"
+                var retStatement = "successful"
                 when (methodName) {
                     METHOD_INSERT -> {
                         retType = ClassName.LONG
-                        retStatement = "successful"
+                        retStatement = "rowId"
                     }
                 }
 
