@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition.column
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.utils.statement
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.TypeName
@@ -73,8 +74,9 @@ class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
         }
         for ((i, it) in fieldAccesses.withIndex()) {
             it.addRetrieval(setterBlock, index.get(), referencedTableTypeName, isStubbed, fieldAccessor, nameAllocator)
-            it.addColumnIndex(code, index.get(), nameAllocator)
-            it.addIndexCheckStatement(ifChecker, index.get(), i == fieldAccesses.size - 1, nameAllocator)
+            it.addColumnIndex(code, index.get(), referencedTableTypeName, nameAllocator)
+            it.addIndexCheckStatement(ifChecker, index.get(), referencedTableTypeName,
+                i == fieldAccesses.size - 1, nameAllocator)
 
             if (i < fieldAccesses.size - 1) {
                 index.incrementAndGet()
@@ -106,10 +108,12 @@ class PartialLoadFromCursorAccessCombiner(
 
     var indexName: CodeBlock? = null
 
-    fun getIndexName(index: Int, nameAllocator: NameAllocator): CodeBlock {
+    fun getIndexName(index: Int, nameAllocator: NameAllocator, referencedTypeName: TypeName): CodeBlock {
         if (indexName == null) {
             indexName = if (!orderedCursorLookup) {
-                CodeBlock.of(nameAllocator.newName("index_$columnRepresentation", columnRepresentation))
+                // post fix with referenced type name simple name
+                CodeBlock.of(nameAllocator.newName("index_${columnRepresentation}_" +
+                    if (referencedTypeName is ClassName) referencedTypeName.simpleName() else "", columnRepresentation))
             } else {
                 CodeBlock.of(index.toString())
             }
@@ -122,7 +126,8 @@ class PartialLoadFromCursorAccessCombiner(
                      isStubbed: Boolean, parentAccessor: ColumnAccessor,
                      nameAllocator: NameAllocator) {
         val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
-            SQLiteHelper.getMethod(subWrapperTypeName ?: fieldTypeName), getIndexName(index, nameAllocator))
+            SQLiteHelper.getMethod(subWrapperTypeName ?: fieldTypeName),
+            getIndexName(index, nameAllocator, referencedTableTypeName))
         val fieldAccessBlock = subWrapperAccessor?.set(cursorAccess) ?: cursorAccess
 
         if (!isStubbed) {
@@ -134,18 +139,22 @@ class PartialLoadFromCursorAccessCombiner(
 
     }
 
-    fun addColumnIndex(code: CodeBlock.Builder, index: Int, nameAllocator: NameAllocator) {
+    fun addColumnIndex(code: CodeBlock.Builder, index: Int,
+                       referencedTableTypeName: TypeName,
+                       nameAllocator: NameAllocator) {
         if (!orderedCursorLookup) {
             code.statement(CodeBlock.of("int \$L = cursor.getColumnIndex(\$S)",
-                getIndexName(index, nameAllocator), columnRepresentation))
+                getIndexName(index, nameAllocator, referencedTableTypeName), columnRepresentation))
         }
     }
 
     fun addIndexCheckStatement(code: CodeBlock.Builder, index: Int,
+                               referencedTableTypeName: TypeName,
                                isLast: Boolean, nameAllocator: NameAllocator) {
-        if (!orderedCursorLookup) code.add("\$L != -1 && ", getIndexName(index, nameAllocator))
+        val indexName = getIndexName(index, nameAllocator, referencedTableTypeName)
+        if (!orderedCursorLookup) code.add("$indexName != -1 && ")
 
-        code.add("!cursor.isNull(\$L)", getIndexName(index, nameAllocator))
+        code.add("!cursor.isNull($indexName)")
 
         if (!isLast) code.add(" && ")
     }
