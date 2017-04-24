@@ -14,8 +14,16 @@ public class FlowCursor extends CursorWrapper {
         }
     }
 
+    private Cursor cursor; // compatibility reasons
+
     private FlowCursor(@NonNull Cursor cursor) {
         super(cursor);
+        this.cursor = cursor;
+    }
+
+    // compatibility
+    public Cursor getWrappedCursor() {
+        return cursor;
     }
 
     public String getStringOrDefault(int index, String defValue) {
