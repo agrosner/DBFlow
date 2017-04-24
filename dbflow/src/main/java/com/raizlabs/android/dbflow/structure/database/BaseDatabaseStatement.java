@@ -47,4 +47,5 @@ public abstract class BaseDatabaseStatement implements DatabaseStatement {
             bindNull(index);
         }
     }
+
 }
