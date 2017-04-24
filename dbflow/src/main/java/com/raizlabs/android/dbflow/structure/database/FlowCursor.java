@@ -5,6 +5,10 @@ import android.database.CursorWrapper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+/**
+ * Common {@link Cursor} class that wraps cursors we use in this library with convenience loading methods.
+ * This is used to help cut down on generated code size and potentially decrease method count.
+ */
 public class FlowCursor extends CursorWrapper {
 
     public static FlowCursor from(Cursor cursor) {
