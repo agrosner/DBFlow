@@ -36,6 +36,7 @@ constructor(processorManager: ProcessorManager, element: Element,
     private val QUOTE_PATTERN = Pattern.compile("\".*\"")
 
     var columnName: String = ""
+    var propertyFieldName: String = ""
 
     var hasTypeConverter: Boolean = false
     var isPrimaryKey: Boolean = false
@@ -108,6 +109,9 @@ constructor(processorManager: ProcessorManager, element: Element,
         if (column == null) {
             this.columnName = element.simpleName.toString()
         }
+
+        val nameAllocator = NameAllocator()
+        propertyFieldName = nameAllocator.newName(this.columnName)
 
         if (isPackagePrivate) {
             columnAccessor = PackagePrivateScopeColumnAccessor(elementName, packageName,
@@ -259,7 +263,7 @@ constructor(processorManager: ProcessorManager, element: Element,
             }
 
             val fieldBuilder = FieldSpec.builder(propParam,
-                columnName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                propertyFieldName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
 
             if (isNonPrimitiveTypeConverter) {
                 val codeBlock = CodeBlock.builder()
@@ -290,13 +294,13 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun addPropertyCase(methodBuilder: MethodSpec.Builder) {
         methodBuilder.apply {
             beginControlFlow("case \$S: ", QueryBuilder.quote(columnName))
-            addStatement("return \$L", columnName)
+            addStatement("return \$L", propertyFieldName)
             endControlFlow()
         }
     }
 
     open fun addColumnName(codeBuilder: CodeBlock.Builder) {
-        codeBuilder.add(columnName)
+        codeBuilder.add(propertyFieldName)
     }
 
     open val contentValuesStatement: CodeBlock
@@ -373,7 +377,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
         PrimaryReferenceAccessCombiner(combiner).apply {
-            codeBuilder.addCode(columnName, getDefaultValueBlock(), 0, modelBlock)
+            codeBuilder.addCode(propertyFieldName, getDefaultValueBlock(), 0, modelBlock)
         }
     }
 
