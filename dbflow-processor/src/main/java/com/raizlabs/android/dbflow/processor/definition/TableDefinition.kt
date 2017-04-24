@@ -1,11 +1,14 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.google.common.collect.Lists
-import com.google.common.collect.Maps
 import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.*
-import com.raizlabs.android.dbflow.processor.*
+import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.ColumnValidator
+import com.raizlabs.android.dbflow.processor.OneToManyValidator
+import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
+import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
 import com.raizlabs.android.dbflow.processor.utils.*
 import com.raizlabs.android.dbflow.sql.QueryBuilder
@@ -32,10 +35,10 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
     var primaryKeyConflictActionName: String = ""
 
-    var _primaryColumnDefinitions: MutableList<ColumnDefinition>
-    var foreignKeyDefinitions: MutableList<ForeignKeyColumnDefinition>
-    var uniqueGroupsDefinitions: MutableList<UniqueGroupsDefinition>
-    var indexGroupsDefinitions: MutableList<IndexGroupsDefinition>
+    val _primaryColumnDefinitions = mutableListOf<ColumnDefinition>()
+    val foreignKeyDefinitions = mutableListOf<ForeignKeyColumnDefinition>()
+    val uniqueGroupsDefinitions = mutableListOf<UniqueGroupsDefinition>()
+    val indexGroupsDefinitions = mutableListOf<IndexGroupsDefinition>()
 
     var implementsContentValuesListener = false
 
@@ -53,28 +56,21 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
     var allFields = false
     var useIsForPrivateBooleans: Boolean = false
 
-    val columnMap: MutableMap<String, ColumnDefinition> = Maps.newHashMap<String, ColumnDefinition>()
+    val columnMap = mutableMapOf<String, ColumnDefinition>()
 
-    var columnUniqueMap: MutableMap<Int, MutableList<ColumnDefinition>>
-        = Maps.newHashMap<Int, MutableList<ColumnDefinition>>()
+    var columnUniqueMap = mutableMapOf<Int, MutableSet<ColumnDefinition>>()
 
-    var oneToManyDefinitions: MutableList<OneToManyDefinition> = ArrayList()
+    var oneToManyDefinitions = mutableListOf<OneToManyDefinition>()
 
-    var inheritedColumnMap: MutableMap<String, InheritedColumn> = HashMap()
-    var inheritedFieldNameList: MutableList<String> = ArrayList()
-    var inheritedPrimaryKeyMap: MutableMap<String, InheritedPrimaryKey> = HashMap()
+    var inheritedColumnMap = hashMapOf<String, InheritedColumn>()
+    var inheritedFieldNameList = mutableListOf<String>()
+    var inheritedPrimaryKeyMap = hashMapOf<String, InheritedPrimaryKey>()
 
     var hasPrimaryConstructor = false
 
     init {
 
-        _primaryColumnDefinitions = ArrayList<ColumnDefinition>()
-        foreignKeyDefinitions = ArrayList<ForeignKeyColumnDefinition>()
-        uniqueGroupsDefinitions = ArrayList<UniqueGroupsDefinition>()
-        indexGroupsDefinitions = ArrayList<IndexGroupsDefinition>()
-
-        val table = element.getAnnotation(Table::class.java)
-        if (table != null) {
+        element.annotation<Table>()?.let { table ->
             this.tableName = table.name
 
             if (tableName == null || tableName!!.isEmpty()) {
@@ -119,14 +115,14 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 inheritedPrimaryKeyMap.put(it.fieldName, it)
             }
 
-            implementsLoadFromCursorListener = ProcessorUtils.implementsClass(manager.processingEnvironment,
-                ClassNames.LOAD_FROM_CURSOR_LISTENER.toString(), element)
+            implementsLoadFromCursorListener = element.implementsClass(manager.processingEnvironment,
+                ClassNames.LOAD_FROM_CURSOR_LISTENER)
 
-            implementsContentValuesListener = ProcessorUtils.implementsClass(manager.processingEnvironment,
-                ClassNames.CONTENT_VALUES_LISTENER.toString(), element)
+            implementsContentValuesListener = element.implementsClass(manager.processingEnvironment,
+                ClassNames.CONTENT_VALUES_LISTENER)
 
-            implementsSqlStatementListener = ProcessorUtils.implementsClass(manager.processingEnvironment,
-                ClassNames.SQLITE_STATEMENT_LISTENER.toString(), element)
+            implementsSqlStatementListener = element.implementsClass(manager.processingEnvironment,
+                ClassNames.SQLITE_STATEMENT_LISTENER)
         }
 
         methods = arrayOf(BindToContentValuesMethod(this, true, implementsContentValuesListener),
@@ -165,24 +161,23 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             }
             databaseDefinition?.let {
 
-                setOutputClassName(it.classSeparator + DBFLOW_TABLE_TAG)
+                setOutputClassName("${it.classSeparator}Table")
 
                 // globular default
-                var insertConflict: ConflictAction? = table.insertConflict
+                var insertConflict = table.insertConflict
                 if (insertConflict == ConflictAction.NONE && it.insertConflict != ConflictAction.NONE) {
-                    insertConflict = it.insertConflict
+                    insertConflict = it.insertConflict ?: ConflictAction.NONE
                 }
 
-                var updateConflict: ConflictAction? = table.updateConflict
-                if (updateConflict == ConflictAction.NONE
-                    && it.updateConflict != ConflictAction.NONE) {
-                    updateConflict = it.updateConflict
+                var updateConflict = table.updateConflict
+                if (updateConflict == ConflictAction.NONE && it.updateConflict != ConflictAction.NONE) {
+                    updateConflict = it.updateConflict ?: ConflictAction.NONE
                 }
 
                 val primaryKeyConflict = table.primaryKeyConflict
 
-                insertConflictActionName = if (insertConflict == ConflictAction.NONE) "" else insertConflict?.name ?: ""
-                updateConflictActionName = if (updateConflict == ConflictAction.NONE) "" else updateConflict?.name ?: ""
+                insertConflictActionName = if (insertConflict == ConflictAction.NONE) "" else insertConflict.name
+                updateConflictActionName = if (updateConflict == ConflictAction.NONE) "" else updateConflict.name
                 primaryKeyConflictActionName = if (primaryKeyConflict == ConflictAction.NONE) "" else primaryKeyConflict.name
             }
 
@@ -195,11 +190,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     manager.logError("A duplicate unique group with number %1s was found for %1s", uniqueGroup.groupNumber, tableName)
                 }
                 val definition = UniqueGroupsDefinition(uniqueGroup)
-                for (columnDefinition in columnDefinitions) {
-                    if (columnDefinition.uniqueGroups.contains(definition.number)) {
-                        definition.addColumnDefinition(columnDefinition)
-                    }
-                }
+                columnDefinitions.filter { it.uniqueGroups.contains(definition.number) }
+                    .forEach { definition.addColumnDefinition(it) }
                 uniqueGroupsDefinitions.add(definition)
                 uniqueNumbersSet.add(uniqueGroup.groupNumber)
             }
@@ -211,11 +203,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     manager.logError(TableDefinition::class, "A duplicate unique index number %1s was found for %1s", indexGroup.number, elementName)
                 }
                 val definition = IndexGroupsDefinition(this, indexGroup)
-                columnDefinitions.forEach {
-                    if (it.indexGroups.contains(definition.indexNumber)) {
-                        definition.columnDefinitionList.add(it)
-                    }
-                }
+                columnDefinitions.filter { it.indexGroups.contains(definition.indexNumber) }
+                    .forEach { definition.columnDefinitionList.add(it) }
                 indexGroupsDefinitions.add(definition)
                 uniqueNumbersSet.add(indexGroup.number)
             }
@@ -246,11 +235,11 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             val isPackagePrivate = ElementUtility.isPackagePrivate(element)
             val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element)
 
-            val isForeign = element.getAnnotation(ForeignKey::class.java) != null
-            val isPrimary = element.getAnnotation(PrimaryKey::class.java) != null
+            val isForeign = element.annotation<ForeignKey>() != null
+            val isPrimary = element.annotation<PrimaryKey>() != null
             val isInherited = inheritedColumnMap.containsKey(element.simpleName.toString())
             val isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.simpleName.toString())
-            if (element.getAnnotation(Column::class.java) != null || isForeign || isPrimary
+            if (element.annotation<Column>() != null || isForeign || isPrimary
                 || isAllFields || isInherited || isInheritedPrimaryKey) {
 
                 val columnDefinition: ColumnDefinition
@@ -290,14 +279,12 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     if (!columnDefinition.uniqueGroups.isEmpty()) {
                         val groups = columnDefinition.uniqueGroups
                         for (group in groups) {
-                            var groupList: MutableList<ColumnDefinition>? = columnUniqueMap[group]
+                            var groupList = columnUniqueMap[group]
                             if (groupList == null) {
-                                groupList = ArrayList<ColumnDefinition>()
+                                groupList = mutableSetOf()
                                 columnUniqueMap.put(group, groupList)
                             }
-                            if (!groupList.contains(columnDefinition)) {
-                                groupList.add(columnDefinition)
-                            }
+                            groupList.add(columnDefinition)
                         }
                     }
 
@@ -305,20 +292,20 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                         packagePrivateList.add(columnDefinition)
                     }
                 }
-            } else if (element.getAnnotation(OneToMany::class.java) != null) {
+            } else if (element.annotation<OneToMany>() != null) {
                 val oneToManyDefinition = OneToManyDefinition(element as ExecutableElement, manager)
                 if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition)
                 }
-            } else if (element.getAnnotation(ModelCacheField::class.java) != null) {
-                ProcessorUtils.ensureVisibleStatic(element, typeElement, "ModelCacheField")
+            } else if (element.annotation<ModelCacheField>() != null) {
+                ensureVisibleStatic(element, typeElement, "ModelCacheField")
                 if (!customCacheFieldName.isNullOrEmpty()) {
                     manager.logError("ModelCacheField can only be declared once from: " + typeElement)
                 } else {
                     customCacheFieldName = element.simpleName.toString()
                 }
-            } else if (element.getAnnotation(MultiCacheField::class.java) != null) {
-                ProcessorUtils.ensureVisibleStatic(element, typeElement, "MultiCacheField")
+            } else if (element.annotation<MultiCacheField>() != null) {
+                ensureVisibleStatic(element, typeElement, "MultiCacheField")
                 if (!customMultiCacheFieldName.isNullOrEmpty()) {
                     manager.logError("MultiCacheField can only be declared once from: " + typeElement)
                 } else {
@@ -326,7 +313,6 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 }
             }
         }
-
     }
 
     override val primaryColumnDefinitions: List<ColumnDefinition>
@@ -340,57 +326,78 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
         get() = ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
+        typeBuilder.apply {
 
-        InternalAdapterHelper.writeGetModelClass(typeBuilder, elementClassName)
-        InternalAdapterHelper.writeGetTableName(typeBuilder, tableName)
+            writeGetModelClass(this, elementClassName)
+            writeConstructor(this)
 
-        val getAllColumnPropertiesMethod = FieldSpec.builder(
-            ArrayTypeName.of(ClassNames.IPROPERTY), "ALL_COLUMN_PROPERTIES",
-            Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-        val getPropertiesBuilder = CodeBlock.builder()
-
-        val paramColumnName = "columnName"
-        val getPropertyForNameMethod = MethodSpec.methodBuilder("getProperty")
-            .addAnnotation(Override::class.java)
-            .addParameter(ClassName.get(String::class.java), paramColumnName)
-            .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-            .returns(ClassNames.PROPERTY)
-
-        getPropertyForNameMethod.addStatement("\$L = \$T.quoteIfNeeded(\$L)", paramColumnName,
-            ClassName.get(QueryBuilder::class.java), paramColumnName)
-
-        getPropertyForNameMethod.beginControlFlow("switch (\$L) ", paramColumnName)
-        columnDefinitions.indices.forEach { i ->
-            if (i > 0) {
-                getPropertiesBuilder.add(",")
+            `override fun`(String::class, "getTableName") {
+                modifiers(public, final)
+                `return`(QueryBuilder.quote(tableName).S)
             }
-            val columnDefinition = columnDefinitions[i]
-            elementClassName?.let { columnDefinition.addPropertyDefinition(typeBuilder, it) }
-            columnDefinition.addPropertyCase(getPropertyForNameMethod)
-            columnDefinition.addColumnName(getPropertiesBuilder)
-        }
-        getPropertyForNameMethod.controlFlow("default:") {
-            addStatement("throw new \$T(\$S)", IllegalArgumentException::class.java,
-                "Invalid column name passed. Ensure you are calling the correct table's column")
-        }
-        getPropertyForNameMethod.endControlFlow()
 
-        getAllColumnPropertiesMethod.initializer("new \$T[]{\$L}", ClassNames.IPROPERTY, getPropertiesBuilder.build().toString())
-        typeBuilder.addField(getAllColumnPropertiesMethod.build())
+            `override fun`(elementClassName!!, "newInstance") {
+                modifiers(public, final)
+                `return`("new \$T()", elementClassName)
+            }
 
-        // add index properties here
-        for (indexGroupsDefinition in indexGroupsDefinitions) {
-            typeBuilder.addField(indexGroupsDefinition.fieldSpec)
-        }
+            if (updateConflictActionName.isNotEmpty()) {
+                `override fun`(ClassNames.CONFLICT_ACTION, "getUpdateOnConflictAction") {
+                    modifiers(public, final)
+                    `return`("\$T.$updateConflictActionName", ClassNames.CONFLICT_ACTION)
+                }
+            }
 
-        typeBuilder.addMethod(getPropertyForNameMethod.build())
+            if (insertConflictActionName.isNotEmpty()) {
+                `override fun`(ClassNames.CONFLICT_ACTION, "getInsertOnConflictAction") {
+                    modifiers(public, final)
+                    `return`("\$T.$insertConflictActionName", ClassNames.CONFLICT_ACTION)
+                }
+            }
 
-        if (hasAutoIncrement || hasRowID) {
-            val autoIncrement = autoIncrementColumn
-            autoIncrement?.let {
-                InternalAdapterHelper.writeUpdateAutoIncrement(typeBuilder, elementClassName, autoIncrement)
+            val paramColumnName = "columnName"
+            val getPropertiesBuilder = CodeBlock.builder()
 
-                typeBuilder.apply {
+            `override fun`(ClassNames.PROPERTY, "getProperty",
+                param(String::class, paramColumnName)) {
+                modifiers(public, final)
+                statement("$paramColumnName = \$T.quoteIfNeeded($paramColumnName)", ClassName.get(QueryBuilder::class.java))
+
+                switch("($paramColumnName)") {
+                    columnDefinitions.indices.forEach { i ->
+                        if (i > 0) {
+                            getPropertiesBuilder.add(",")
+                        }
+                        val columnDefinition = columnDefinitions[i]
+                        elementClassName?.let { columnDefinition.addPropertyDefinition(typeBuilder, it) }
+                        columnDefinition.addPropertyCase(this)
+                        columnDefinition.addColumnName(getPropertiesBuilder)
+                    }
+
+                    default {
+                        `throw new`(IllegalArgumentException::class, "Invalid column name passed. Ensure you are calling the correct table's column")
+                    }
+                }
+            }
+
+            `public static final field`(ArrayTypeName.of(ClassNames.IPROPERTY), "ALL_COLUMN_PROPERTIES") {
+                `=`("new \$T[]{\$L}", ClassNames.IPROPERTY, getPropertiesBuilder.build().toString())
+            }
+
+            // add index properties here
+            for (indexGroupsDefinition in indexGroupsDefinitions) {
+                addField(indexGroupsDefinition.fieldSpec)
+            }
+
+            if (hasAutoIncrement || hasRowID) {
+                val autoIncrement = autoIncrementColumn
+                autoIncrement?.let {
+                    `override fun`(TypeName.VOID, "updateAutoIncrement", param(elementClassName!!, ModelUtils.variable),
+                        param(Number::class, "id")) {
+                        modifiers(public, final)
+                        addCode(autoIncrement.updateAutoIncrementMethod)
+                    }
+
                     `override fun`(Number::class, "getAutoIncrementingId", param(elementClassName!!, ModelUtils.variable)) {
                         modifiers(public, final)
                         addCode(autoIncrement.getSimpleAccessString())
@@ -401,49 +408,42 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     }
                 }
             }
-        }
 
-        val saveForeignKeyFields = columnDefinitions.filter { (it is ForeignKeyColumnDefinition) && it.saveForeignKeyModel }
-            .map { it as ForeignKeyColumnDefinition }
-        if (saveForeignKeyFields.isNotEmpty()) {
-            val code = CodeBlock.builder()
-            saveForeignKeyFields.forEach {
-                it.appendSaveMethod(code)
-            }
+            val saveForeignKeyFields = columnDefinitions
+                .filter { (it is ForeignKeyColumnDefinition) && it.saveForeignKeyModel }
+                .map { it as ForeignKeyColumnDefinition }
+            if (saveForeignKeyFields.isNotEmpty()) {
+                val code = CodeBlock.builder()
+                saveForeignKeyFields.forEach { it.appendSaveMethod(code) }
 
-            typeBuilder.apply {
                 `override fun`(TypeName.VOID, "saveForeignKeys", param(elementClassName!!, ModelUtils.variable),
                     param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
                     modifiers(public, final)
                     addCode(code.build())
                 }
             }
-        }
 
-        val deleteForeignKeyFields = columnDefinitions.filter { (it is ForeignKeyColumnDefinition) && it.deleteForeignKeyModel }
-            .map { it as ForeignKeyColumnDefinition }
-        if (deleteForeignKeyFields.isNotEmpty()) {
-            val code = CodeBlock.builder()
-            deleteForeignKeyFields.forEach {
-                it.appendDeleteMethod(code)
+            val deleteForeignKeyFields = columnDefinitions
+                .filter { (it is ForeignKeyColumnDefinition) && it.deleteForeignKeyModel }
+                .map { it as ForeignKeyColumnDefinition }
+            if (deleteForeignKeyFields.isNotEmpty()) {
+                val code = CodeBlock.builder()
+                deleteForeignKeyFields.forEach { it.appendDeleteMethod(code) }
+
+                `override fun`(TypeName.VOID, "deleteForeignKeys", param(elementClassName!!, ModelUtils.variable),
+                    param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+                    modifiers(public, final)
+                    addCode(code.build())
+                }
             }
-            typeBuilder.`override fun`(TypeName.VOID, "deleteForeignKeys", param(elementClassName!!, ModelUtils.variable),
-                param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+
+            `override fun`(ArrayTypeName.of(ClassNames.IPROPERTY), "getAllColumnProperties") {
                 modifiers(public, final)
-                addCode(code.build())
+                `return`("ALL_COLUMN_PROPERTIES")
             }
-        }
 
-        typeBuilder.`fun`(ArrayTypeName.of(ClassNames.IPROPERTY), "getAllColumnProperties") {
-            modifiers(public, final)
-            `return`("ALL_COLUMN_PROPERTIES")
-        }
+            if (cachingEnabled) {
 
-        if (cachingEnabled) {
-
-            // TODO: pass in model cache loaders.
-
-            typeBuilder.apply {
                 val singlePrimaryKey = primaryColumnDefinitions.size == 1
 
                 `override fun`(ClassNames.SINGLE_MODEL_LOADER, "createSingleModelLoader") {
@@ -472,21 +472,55 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     `return`(true.L)
                 }
 
-                val primaries = primaryColumnDefinitions
-                InternalAdapterHelper.writeGetCachingId(this, elementClassName, primaries)
+                val primaryColumns = primaryColumnDefinitions
+                if (primaryColumns.size > 1) {
+                    `override fun`(ArrayTypeName.of(Any::class.java), "getCachingColumnValuesFromModel",
+                        param(ArrayTypeName.of(Any::class.java), "inValues"),
+                        param(elementClassName!!, ModelUtils.variable)) {
+                        modifiers(public, final)
+                        for (i in primaryColumns.indices) {
+                            val column = primaryColumns[i]
+                            addCode(column.getColumnAccessString(i))
+                        }
+
+                        `return`("inValues")
+                    }
+
+                    `override fun`(ArrayTypeName.of(Any::class.java), "getCachingColumnValuesFromCursor",
+                        param(ArrayTypeName.of(Any::class.java), "inValues"),
+                        param(ClassNames.FLOW_CURSOR, "cursor")) {
+                        modifiers(public, final)
+                        for (i in primaryColumns.indices) {
+                            val column = primaryColumns[i]
+                            val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.wrapperTypeName)
+                            statement("inValues[$i] = ${LoadFromCursorMethod.PARAM_CURSOR}" +
+                                ".$method(${LoadFromCursorMethod.PARAM_CURSOR}.getColumnIndex(${column.columnName.S}))")
+                        }
+                        `return`("inValues")
+                    }
+                } else {
+                    // single primary key
+                    `override fun`(Any::class, "getCachingColumnValueFromModel",
+                        param(elementClassName!!, ModelUtils.variable)) {
+                        modifiers(public, final)
+                        addCode(primaryColumns[0].getSimpleAccessString())
+                    }
+
+                    `override fun`(Any::class, "getCachingColumnValueFromCursor", param(ClassNames.FLOW_CURSOR, "cursor")) {
+                        modifiers(public, final)
+                        val column = primaryColumns[0]
+                        val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.wrapperTypeName)
+                        `return`("${LoadFromCursorMethod.PARAM_CURSOR}.$method(${LoadFromCursorMethod.PARAM_CURSOR}.getColumnIndex(${column.columnName.S}))")
+                    }
+                    `override fun`(Any::class, "getCachingId", param(elementClassName!!, ModelUtils.variable)) {
+                        modifiers(public, final)
+                        `return`("getCachingColumnValueFromModel(${ModelUtils.variable})")
+                    }
+                }
 
                 `override fun`(ArrayTypeName.of(ClassName.get(String::class.java)), "createCachingColumns") {
                     modifiers(public, final)
-                    var columns = "return new String[]{"
-                    primaries.indices.forEach { i ->
-                        val column = primaries[i]
-                        if (i > 0) {
-                            columns += ","
-                        }
-                        columns += "\"" + QueryBuilder.quoteIfNeeded(column.columnName) + "\""
-                    }
-                    columns += "}"
-                    statement(columns)
+                    `return`("new String[]{${primaryColumns.joinToString { QueryBuilder.quoteIfNeeded(it.columnName).S }}}")
                 }
 
                 if (cacheSize != Table.DEFAULT_CACHE_SIZE) {
@@ -500,7 +534,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     `override fun`(ParameterizedTypeName.get(ClassNames.MODEL_CACHE, elementClassName,
                         WildcardTypeName.subtypeOf(Any::class.java)), "createModelCache") {
                         modifiers(public, final)
-                        `return`("\$T.\$L", elementClassName, customCacheFieldName)
+                        `return`("\$T.$customCacheFieldName", elementClassName)
                     }
                 }
 
@@ -508,65 +542,27 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     `override fun`(ParameterizedTypeName.get(ClassNames.MULTI_KEY_CACHE_CONVERTER,
                         WildcardTypeName.subtypeOf(Any::class.java)), "getCacheConverter") {
                         modifiers(public, final)
-                        `return`("\$T.\$L", elementClassName, customMultiCacheFieldName)
+                        `return`("\$T.$customMultiCacheFieldName", elementClassName)
                     }
                 }
 
-                `override fun`(TypeName.VOID, "reloadRelationships",
-                    param(elementClassName!!, ModelUtils.variable),
-                    param(ClassNames.CURSOR, LoadFromCursorMethod.PARAM_CURSOR)) {
-                    modifiers(public, final)
-                    code {
-                        val noIndex = AtomicInteger(-1)
-
-                        foreignKeyDefinitions.forEach {
-                            add(it.getLoadFromCursorMethod(false, noIndex))
+                if (foreignKeyDefinitions.isNotEmpty()) {
+                    `override fun`(TypeName.VOID, "reloadRelationships",
+                        param(elementClassName!!, ModelUtils.variable),
+                        param(ClassNames.FLOW_CURSOR, LoadFromCursorMethod.PARAM_CURSOR)) {
+                        modifiers(public, final)
+                        code {
+                            val noIndex = AtomicInteger(-1)
+                            val nameAllocator = NameAllocator()
+                            foreignKeyDefinitions.forEach { add(it.getLoadFromCursorMethod(false, noIndex, nameAllocator)) }
+                            this
                         }
-                        this
                     }
-                }
-            }
-        }
-
-        val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this)
-        customTypeConverterPropertyMethod.addToType(typeBuilder)
-
-        typeBuilder.apply {
-            constructor(param(ClassNames.DATABASE_HOLDER, "holder"),
-                param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition")) {
-                modifiers(public)
-                statement("super(databaseDefinition)")
-                code {
-                    customTypeConverterPropertyMethod.addCode(this)
-                }
-            }
-
-            `override fun`(elementClassName!!, "newInstance") {
-                modifiers(public, final)
-                `return`("new \$T()", elementClassName)
-            }
-
-            if (!updateConflictActionName.isEmpty()) {
-                `override fun`(ClassNames.CONFLICT_ACTION, "getUpdateOnConflictAction") {
-                    modifiers(public, final)
-                    `return`("\$T.\$L", ClassNames.CONFLICT_ACTION, updateConflictActionName)
-                }
-            }
-
-            if (!insertConflictActionName.isEmpty()) {
-                `override fun`(ClassNames.CONFLICT_ACTION, "getInsertOnConflictAction") {
-                    modifiers(public, final)
-                    `return`("\$T.\$L", ClassNames.CONFLICT_ACTION, insertConflictActionName)
                 }
             }
         }
 
         methods.mapNotNull { it.methodSpec }
             .forEach { typeBuilder.addMethod(it) }
-    }
-
-    companion object {
-
-        val DBFLOW_TABLE_TAG = "Table"
     }
 }

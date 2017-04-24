@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.utils
 
 import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
@@ -26,3 +27,9 @@ fun TypeMirror?.erasure(manager: ProcessorManager = ProcessorManager.manager): T
 // TypeName
 
 fun TypeName?.toTypeElement(manager: ProcessorManager = ProcessorManager.manager): TypeElement? = manager.elements.getTypeElement(toString())
+
+inline fun <reified T : Annotation> Element?.annotation() = this?.getAnnotation(T::class.java)
+
+fun Element?.getPackage(manager: ProcessorManager = ProcessorManager.manager) = manager.elements.getPackageOf(this)
+
+fun Element?.toClassName() = ClassName.get(this as TypeElement)

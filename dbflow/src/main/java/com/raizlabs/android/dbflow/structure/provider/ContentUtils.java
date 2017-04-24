@@ -12,6 +12,7 @@ import com.raizlabs.android.dbflow.sql.language.Operator;
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -254,16 +255,16 @@ public class ContentUtils {
      * @param <TableClass>    The class that implements {@link Model}
      * @return A list of {@link TableClass}
      */
-    public static <TableClass> List<TableClass> queryList(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,
+    public static <TableClass> List<TableClass> queryList(ContentResolver contentResolver, Uri queryUri,
+                                                          Class<TableClass> table,
                                                           OperatorGroup whereConditions,
                                                           String orderBy, String... columns) {
-        Cursor cursor = contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
+        FlowCursor cursor = FlowCursor.from(contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy));
         if (cursor != null) {
             return FlowManager.getModelAdapter(table)
-                    .getListModelLoader()
-                    .load(cursor);
+                .getListModelLoader()
+                .load(cursor);
         }
-
         return new ArrayList<>();
     }
 

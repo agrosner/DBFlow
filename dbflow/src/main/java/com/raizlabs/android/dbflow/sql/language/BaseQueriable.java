@@ -14,6 +14,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatementWrapper;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: Base implementation of something that can be queried from the database.
@@ -39,6 +40,8 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
      * Execute a statement that returns a 1 by 1 table with a numeric value.
      * For example, SELECT COUNT(*) FROM table.
      * Please see {@link SQLiteStatement#simpleQueryForLong()}.
+     * <p>
+     * catches a {@link SQLiteDoneException} if result is not found and returns 0. The error can safely be ignored.
      */
     @Override
     public long count(DatabaseWrapper databaseWrapper) {
@@ -48,7 +51,7 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
             return SqlUtils.longForQuery(databaseWrapper, query);
         } catch (SQLiteDoneException sde) {
             // catch exception here, log it but return 0;
-            FlowLog.log(FlowLog.Level.E, sde);
+            FlowLog.log(FlowLog.Level.W, sde);
         }
         return 0;
     }
@@ -74,13 +77,13 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
     }
 
     @Override
-    public Cursor query() {
+    public FlowCursor query() {
         query(FlowManager.getWritableDatabaseForTable(table));
         return null;
     }
 
     @Override
-    public Cursor query(DatabaseWrapper databaseWrapper) {
+    public FlowCursor query(DatabaseWrapper databaseWrapper) {
         if (getPrimaryAction().equals(BaseModel.Action.INSERT)) {
             // inserting, let's compile and insert
             DatabaseStatement databaseStatement = compileStatement(databaseWrapper);

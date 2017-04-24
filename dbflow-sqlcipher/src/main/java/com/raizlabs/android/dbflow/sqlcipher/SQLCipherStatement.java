@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.sqlcipher;
 
+import com.raizlabs.android.dbflow.structure.database.BaseDatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 
 import net.sqlcipher.database.SQLiteStatement;
@@ -8,7 +9,7 @@ import net.sqlcipher.database.SQLiteStatement;
  * Description: Implements the methods necessary for {@link DatabaseStatement}. Delegates calls to
  * the contained {@link SQLiteStatement}.
  */
-public class SQLCipherStatement implements DatabaseStatement {
+public class SQLCipherStatement extends BaseDatabaseStatement {
 
     public static SQLCipherStatement from(SQLiteStatement statement) {
         return new SQLCipherStatement(statement);
@@ -55,8 +56,8 @@ public class SQLCipherStatement implements DatabaseStatement {
     }
 
     @Override
-    public void bindString(int index, String name) {
-        statement.bindString(index, name);
+    public void bindString(int index, String s) {
+        statement.bindString(index, s);
     }
 
     @Override

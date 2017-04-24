@@ -8,6 +8,7 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorIterator;
 import com.raizlabs.android.dbflow.list.IFlowCursorIterator;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,18 +22,18 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
     private final InstanceAdapter<TModel> retrievalAdapter;
 
     @Nullable
-    private Cursor cursor;
+    private FlowCursor cursor;
 
     @SuppressWarnings("unchecked")
     CursorResult(Class<TModel> modelClass, @Nullable Cursor cursor) {
-        this.cursor = cursor;
+        this.cursor = FlowCursor.from(cursor);
         retrievalAdapter = FlowManager.getInstanceAdapter(modelClass);
     }
 
     /**
      * Swaps the current cursor and will close existing one.
      */
-    public void swapCursor(@Nullable Cursor cursor) {
+    public void swapCursor(@Nullable FlowCursor cursor) {
         if (this.cursor != null) {
             if (!this.cursor.isClosed()) {
                 this.cursor.close();

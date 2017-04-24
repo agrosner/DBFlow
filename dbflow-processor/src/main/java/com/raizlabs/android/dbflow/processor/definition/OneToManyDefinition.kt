@@ -1,16 +1,16 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.google.common.collect.Lists
+import com.grosner.kpoet.`for`
+import com.grosner.kpoet.`if`
+import com.grosner.kpoet.end
+import com.grosner.kpoet.statement
 import com.raizlabs.android.dbflow.annotation.OneToMany
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.ProcessorUtils
 import com.raizlabs.android.dbflow.processor.definition.column.*
-import com.raizlabs.android.dbflow.processor.utils.ModelUtils
-import com.raizlabs.android.dbflow.processor.utils.addStatement
-import com.raizlabs.android.dbflow.processor.utils.controlFlow
+import com.raizlabs.android.dbflow.processor.utils.*
 import com.squareup.javapoet.*
-import java.util.*
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
@@ -46,7 +46,7 @@ class OneToManyDefinition(typeElement: ExecutableElement,
 
     init {
 
-        val oneToMany = typeElement.getAnnotation(OneToMany::class.java)
+        val oneToMany = typeElement.annotation<OneToMany>()!!
 
         _methodName = typeElement.simpleName.toString()
         _variableName = oneToMany.variableName
@@ -54,7 +54,7 @@ class OneToManyDefinition(typeElement: ExecutableElement,
             _variableName = _methodName.replace("get", "")
             _variableName = _variableName.substring(0, 1).toLowerCase() + _variableName.substring(1)
         }
-        methods.addAll(Arrays.asList<OneToMany.Method>(*oneToMany.methods))
+        methods.addAll(oneToMany.methods)
 
         if (oneToMany.isVariablePrivate) {
             columnAccessor = PrivateScopeColumnAccessor(_variableName, object : GetterSetter {
@@ -77,11 +77,9 @@ class OneToManyDefinition(typeElement: ExecutableElement,
                 }
                 referencedTableType = refTableType
 
-                referencedType = manager.elements.getTypeElement(referencedTableType?.toString())
-                extendsBaseModel = ProcessorUtils.isSubclass(manager.processingEnvironment,
-                    ClassNames.BASE_MODEL.toString(), referencedType)
-                extendsModel = ProcessorUtils.isSubclass(manager.processingEnvironment,
-                    ClassNames.MODEL.toString(), referencedType)
+                referencedType = referencedTableType.toTypeElement(manager)
+                extendsBaseModel = referencedType.isSubclass(manager.processingEnvironment, ClassNames.BASE_MODEL)
+                extendsModel = referencedType.isSubclass(manager.processingEnvironment, ClassNames.MODEL)
             }
         }
     }
@@ -100,49 +98,47 @@ class OneToManyDefinition(typeElement: ExecutableElement,
 
     /**
      * Writes a delete method that will delete all related objects.
-
-     * @param codeBuilder
      */
-    fun writeDelete(codeBuilder: CodeBlock.Builder, useWrapper: Boolean) {
+    fun writeDelete(method: MethodSpec.Builder, useWrapper: Boolean) {
         if (isDelete) {
-            writeLoopWithMethod(codeBuilder, "delete", useWrapper && extendsBaseModel)
-            codeBuilder.addStatement(columnAccessor.set(CodeBlock.of("null"), modelBlock))
+            writeLoopWithMethod(method, "delete", useWrapper && extendsBaseModel)
+            method.statement(columnAccessor.set(CodeBlock.of("null"), modelBlock))
         }
     }
 
-    fun writeSave(codeBuilder: CodeBlock.Builder, useWrapper: Boolean) {
+    fun writeSave(codeBuilder: MethodSpec.Builder, useWrapper: Boolean) {
         if (isSave) writeLoopWithMethod(codeBuilder, "save", useWrapper && extendsBaseModel)
     }
 
-    fun writeUpdate(codeBuilder: CodeBlock.Builder, useWrapper: Boolean) {
+    fun writeUpdate(codeBuilder: MethodSpec.Builder, useWrapper: Boolean) {
         if (isSave) writeLoopWithMethod(codeBuilder, "update", useWrapper && extendsBaseModel)
     }
 
-    fun writeInsert(codeBuilder: CodeBlock.Builder, useWrapper: Boolean) {
+    fun writeInsert(codeBuilder: MethodSpec.Builder, useWrapper: Boolean) {
         if (isSave) writeLoopWithMethod(codeBuilder, "insert", useWrapper && (extendsBaseModel || !extendsModel))
     }
 
-    private fun writeLoopWithMethod(codeBuilder: CodeBlock.Builder, methodName: String, useWrapper: Boolean) {
+    private fun writeLoopWithMethod(codeBuilder: MethodSpec.Builder, methodName: String, useWrapper: Boolean) {
         val oneToManyMethodName = this@OneToManyDefinition.methodName
         codeBuilder.apply {
-            codeBuilder.controlFlow("if (\$L != null) ", oneToManyMethodName) {
+            `if`("($oneToManyMethodName != null)") {
                 val loopClass: ClassName? = if (extendsBaseModel) ClassNames.BASE_MODEL else ClassName.get(referencedType)
 
                 // need to load adapter for non-model classes
 
                 if (!extendsModel) {
-                    addStatement("\$T adapter = \$T.getModelAdapter(\$T.class)",
-                        ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
-                        ClassNames.FLOW_MANAGER, referencedTableType)
+                    statement("\$T adapter = \$T.getModelAdapter(\$T.class)",
+                            ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
+                            ClassNames.FLOW_MANAGER, referencedTableType)
 
-                    addStatement("adapter.\$LAll(\$L\$L)", methodName, oneToManyMethodName,
-                        if (useWrapper) ", " + ModelUtils.wrapper else "")
+                    statement("adapter.${methodName}All($oneToManyMethodName\$L)",
+                            if (useWrapper) ", " + ModelUtils.wrapper else "")
                 } else {
-                    controlFlow("for (\$T value: \$L) ", loopClass, oneToManyMethodName) {
-                        codeBuilder.addStatement("value.\$L(\$L)", methodName, if (useWrapper) ModelUtils.wrapper else "")
+                    `for`("(\$T value: $oneToManyMethodName)", loopClass) {
+                        statement("value.$methodName(\$L)", if (useWrapper) ModelUtils.wrapper else "")
                     }
                 }
-            }
+            }.end()
         }
     }
 

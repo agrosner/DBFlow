@@ -1,12 +1,12 @@
 package com.raizlabs.android.dbflow.structure.provider;
 
 import android.content.ContentProvider;
-import android.database.Cursor;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: Provides a base implementation of a {@link Model} backed
@@ -44,7 +44,8 @@ public abstract class BaseSyncableProviderModel extends BaseModel implements Mod
     @SuppressWarnings("unchecked")
     public void load(OperatorGroup whereOperatorGroup,
                      String orderBy, String... columns) {
-        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), whereOperatorGroup, orderBy, columns);
+        FlowCursor cursor = FlowCursor.from(ContentUtils.query(FlowManager.getContext().getContentResolver(),
+            getQueryUri(), whereOperatorGroup, orderBy, columns));
         if (cursor != null && cursor.moveToFirst()) {
             getModelAdapter().loadFromCursor(cursor, this);
             cursor.close();
