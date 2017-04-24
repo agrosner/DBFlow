@@ -40,6 +40,8 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
      * Execute a statement that returns a 1 by 1 table with a numeric value.
      * For example, SELECT COUNT(*) FROM table.
      * Please see {@link SQLiteStatement#simpleQueryForLong()}.
+     * <p>
+     * catches a {@link SQLiteDoneException} if result is not found and returns 0. The error can safely be ignored.
      */
     @Override
     public long count(DatabaseWrapper databaseWrapper) {
@@ -49,7 +51,7 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
             return SqlUtils.longForQuery(databaseWrapper, query);
         } catch (SQLiteDoneException sde) {
             // catch exception here, log it but return 0;
-            FlowLog.log(FlowLog.Level.E, sde);
+            FlowLog.log(FlowLog.Level.W, sde);
         }
         return 0;
     }
