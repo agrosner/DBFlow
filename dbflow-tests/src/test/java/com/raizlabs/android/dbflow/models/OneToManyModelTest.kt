@@ -23,8 +23,9 @@ class OneToManyModelTest : BaseUnitTest() {
 
         // assert loading works as expected.
         oneToManyModel = (select from OneToManyModel::class).result!!
-        assertNotNull(oneToManyModel.getRelatedOrders())
-        assertTrue(!oneToManyModel.getRelatedOrders().isEmpty())
+        val wrapper = writableDatabaseForTable<OneToManyModel>()
+        assertNotNull(oneToManyModel.getRelatedOrders(wrapper))
+        assertTrue(!oneToManyModel.getRelatedOrders(wrapper).isEmpty())
 
         // assert the deletion cleared the variable
         oneToManyModel.delete()

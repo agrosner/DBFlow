@@ -62,19 +62,20 @@ class VisibleScopeColumnAccessor(propertyName: String) : ColumnAccessor(property
         val codeBlock: CodeBlock.Builder = CodeBlock.builder()
         baseVariableName?.let { codeBlock.add("\$L.", baseVariableName) }
         return codeBlock.add("\$L = \$L", propertyName, existingBlock)
-                .build()
+            .build()
     }
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
         val codeBlock: CodeBlock.Builder = CodeBlock.builder()
         existingBlock?.let { codeBlock.add("\$L.", existingBlock) }
         return codeBlock.add(propertyName)
-                .build()
+            .build()
     }
 }
 
 class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSetter? = null,
-                                 private val useIsForPrivateBooleans: Boolean = false)
+                                 private val useIsForPrivateBooleans: Boolean = false,
+                                 private val optionalGetterParam: String? = "")
     : ColumnAccessor(propertyName) {
 
     private var getterName: String = ""
@@ -82,7 +83,7 @@ class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSette
 
     override fun get(existingBlock: CodeBlock?) = code {
         existingBlock?.let { this.add("$existingBlock.") }
-        add("$getterNameElement()")
+        add("$getterNameElement($optionalGetterParam)")
     }
 
     override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
@@ -128,7 +129,7 @@ class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSette
 }
 
 class PackagePrivateScopeColumnAccessor(
-        propertyName: String, packageName: String, separator: String?, tableClassName: String)
+    propertyName: String, packageName: String, separator: String?, tableClassName: String)
     : ColumnAccessor(propertyName) {
 
     val helperClassName: ClassName
@@ -141,16 +142,16 @@ class PackagePrivateScopeColumnAccessor(
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
         return CodeBlock.of("\$T.get\$L(\$L)", internalHelperClassName,
-                propertyName.capitalizeFirstLetter(),
-                existingBlock)
+            propertyName.capitalizeFirstLetter(),
+            existingBlock)
     }
 
     override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
                      isDefault: Boolean): CodeBlock {
         return CodeBlock.of("\$T.set\$L(\$L, \$L)", helperClassName,
-                propertyName.capitalizeFirstLetter(),
-                baseVariableName,
-                existingBlock)
+            propertyName.capitalizeFirstLetter(),
+            baseVariableName,
+            existingBlock)
     }
 
     companion object {

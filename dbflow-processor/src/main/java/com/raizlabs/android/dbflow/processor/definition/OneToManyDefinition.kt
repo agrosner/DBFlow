@@ -1,10 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.google.common.collect.Lists
-import com.grosner.kpoet.`for`
-import com.grosner.kpoet.`if`
-import com.grosner.kpoet.end
-import com.grosner.kpoet.statement
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.OneToMany
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
@@ -17,8 +14,8 @@ import javax.lang.model.element.TypeElement
 /**
  * Description: Represents the [OneToMany] annotation.
  */
-class OneToManyDefinition(typeElement: ExecutableElement,
-                          processorManager: ProcessorManager) : BaseDefinition(typeElement, processorManager) {
+class OneToManyDefinition(executableElement: ExecutableElement,
+                          processorManager: ProcessorManager) : BaseDefinition(executableElement, processorManager) {
 
     private var _methodName: String
 
@@ -38,17 +35,19 @@ class OneToManyDefinition(typeElement: ExecutableElement,
     val isSave: Boolean
         get() = isAll || methods.contains(OneToMany.Method.SAVE)
 
+    var referencedTableType: TypeName? = null
+    var hasWrapper = false
+
     private var columnAccessor: ColumnAccessor
     private var extendsBaseModel: Boolean = false
     private var extendsModel: Boolean = false
-    private var referencedTableType: TypeName? = null
     private var referencedType: TypeElement? = null
 
     init {
 
-        val oneToMany = typeElement.annotation<OneToMany>()!!
+        val oneToMany = executableElement.annotation<OneToMany>()!!
 
-        _methodName = typeElement.simpleName.toString()
+        _methodName = executableElement.simpleName.toString()
         _variableName = oneToMany.variableName
         if (_variableName.isEmpty()) {
             _variableName = _methodName.replace("get", "")
@@ -56,17 +55,32 @@ class OneToManyDefinition(typeElement: ExecutableElement,
         }
         methods.addAll(oneToMany.methods)
 
+        val parameters = executableElement.parameters
+        if (parameters.isNotEmpty()) {
+            if (parameters.size > 1) {
+                manager.logError(OneToManyDefinition::class, "OneToMany Methods can only have one parameter and that be the DatabaseWrapper.")
+            } else {
+                val param = parameters[0]
+                val name = param.asType().typeName
+                if (name == ClassNames.DATABASE_WRAPPER) {
+                    hasWrapper = true
+                } else {
+                    manager.logError(OneToManyDefinition::class, "OneToMany Methods can only specify a ${ClassNames.DATABASE_WRAPPER} as its parameter.")
+                }
+            }
+        }
+
         if (oneToMany.isVariablePrivate) {
             columnAccessor = PrivateScopeColumnAccessor(_variableName, object : GetterSetter {
                 override val getterName: String = ""
                 override val setterName: String = ""
-            })
+            }, optionalGetterParam = if (hasWrapper) ModelUtils.wrapper else "")
         } else {
             columnAccessor = VisibleScopeColumnAccessor(_variableName)
         }
 
         extendsBaseModel = false
-        val returnType = typeElement.returnType
+        val returnType = executableElement.returnType
         val typeName = TypeName.get(returnType)
         if (typeName is ParameterizedTypeName) {
             val typeArguments = typeName.typeArguments
@@ -82,10 +96,17 @@ class OneToManyDefinition(typeElement: ExecutableElement,
                 extendsModel = referencedType.isSubclass(manager.processingEnvironment, ClassNames.MODEL)
             }
         }
+
     }
 
-    private val methodName = String.format("%1s.%1s()", ModelUtils.variable, _methodName)
+    private val methodName = "${ModelUtils.variable}.$_methodName(${wrapperIfUsed(hasWrapper)})"
 
+    private fun wrapperIfUsed(useWrapper: Boolean) = if (useWrapper) ModelUtils.wrapper else ""
+
+    fun writeWrapperStatement(method: MethodSpec.Builder) {
+           method.statement("\$T ${ModelUtils.wrapper} = \$T.getWritableDatabaseForTable(\$T.class)",
+                ClassNames.DATABASE_WRAPPER, ClassNames.FLOW_MANAGER, referencedTableType)
+    }
 
     /**
      * Writes the method to the specified builder for loading from DB.
@@ -125,17 +146,16 @@ class OneToManyDefinition(typeElement: ExecutableElement,
                 val loopClass: ClassName? = if (extendsBaseModel) ClassNames.BASE_MODEL else ClassName.get(referencedType)
 
                 // need to load adapter for non-model classes
-
                 if (!extendsModel) {
                     statement("\$T adapter = \$T.getModelAdapter(\$T.class)",
-                            ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
-                            ClassNames.FLOW_MANAGER, referencedTableType)
+                        ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
+                        ClassNames.FLOW_MANAGER, referencedTableType)
 
                     statement("adapter.${methodName}All($oneToManyMethodName\$L)",
-                            if (useWrapper) ", " + ModelUtils.wrapper else "")
+                        if (useWrapper) ", " + ModelUtils.wrapper else "")
                 } else {
                     `for`("(\$T value: $oneToManyMethodName)", loopClass) {
-                        statement("value.$methodName(\$L)", if (useWrapper) ModelUtils.wrapper else "")
+                        statement("value.$methodName(${wrapperIfUsed(useWrapper)})")
                     }
                 }
             }.end()
