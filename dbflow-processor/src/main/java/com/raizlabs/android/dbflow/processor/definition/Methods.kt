@@ -106,8 +106,8 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                 }
 
                 if (tableDefinition.implementsSqlStatementListener) {
-                    methodBuilder.addStatement("\$L.onBindTo\$LStatement(\$L)",
-                            ModelUtils.variable, if (isInsert) "Insert" else "", PARAM_STATEMENT)
+                    methodBuilder.addStatement("${ModelUtils.variable}.onBindTo\$LStatement($PARAM_STATEMENT)",
+                            if (isInsert) "Insert" else "")
                 }
             } else {
                 var start = 0
@@ -117,11 +117,11 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                         methodBuilder.addStatement("int start = 0")
                         methodBuilder.addCode(it.getSQLiteStatementMethod(AtomicInteger(++start)))
                     }
-                    methodBuilder.addStatement("bindToInsertStatement(\$L, \$L, \$L)", PARAM_STATEMENT, ModelUtils.variable, start)
+                    methodBuilder.addStatement("bindToInsertStatement($PARAM_STATEMENT, ${ModelUtils.variable}, $start)")
                 } else if (tableDefinition.implementsSqlStatementListener) {
-                    methodBuilder.addStatement("bindToInsertStatement(\$L, \$L, \$L)", PARAM_STATEMENT, ModelUtils.variable, start)
-                    methodBuilder.addStatement("\$L.onBindTo\$LStatement(\$L)",
-                            ModelUtils.variable, if (isInsert) "Insert" else "", PARAM_STATEMENT)
+                    methodBuilder.addStatement("bindToInsertStatement($PARAM_STATEMENT, ${ModelUtils.variable}, $start)")
+                    methodBuilder.addStatement("${ModelUtils.variable}.onBindTo\$LStatement($PARAM_STATEMENT)",
+                            if (isInsert) "Insert" else "")
                 } else {
                     // don't generate method
                     return null
@@ -220,14 +220,12 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
     override fun addToType(typeBuilder: TypeSpec.Builder) {
         val customTypeConverters = baseTableDefinition.associatedTypeConverters.keys
         customTypeConverters.forEach {
-            typeBuilder.addField(FieldSpec.builder(it, "typeConverter" + it.simpleName(),
-                    Modifier.PRIVATE, Modifier.FINAL).initializer("new \$T()", it).build())
+            typeBuilder.`private final field`(it, "typeConverter${it.simpleName()}") { `=`("new \$T()", it) }
         }
 
         val globalTypeConverters = baseTableDefinition.globalTypeConverters.keys
         globalTypeConverters.forEach {
-            typeBuilder.addField(FieldSpec.builder(it, "global_typeConverter" + it.simpleName(),
-                    Modifier.PRIVATE, Modifier.FINAL).build())
+            typeBuilder.`private final field`(it, "global_typeConverter${it.simpleName()}")
         }
     }
 
@@ -278,57 +276,38 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, p
             if (isInsert && !tableDefinition.hasAutoIncrement) {
                 return null // dont write method here because we reuse the compiled statement query method
             }
-            val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "getInsertStatementQuery" else "getCompiledStatementQuery")
-                    .addAnnotation(Override::class.java).addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .returns(ClassName.get(String::class.java))
-
-            val codeBuilder = CodeBlock.builder().add("INSERT ")
-            if (!tableDefinition.insertConflictActionName.isEmpty()) {
-                codeBuilder.add("OR \$L ", tableDefinition.insertConflictActionName)
-            }
-            codeBuilder.add("INTO ").add(QueryBuilder.quote(tableDefinition.tableName))
-
-            val isSingleAutoincrement = tableDefinition.hasAutoIncrement && tableDefinition.columnDefinitions.size == 1
-                    && isInsert
-
-            codeBuilder.add("(")
-
-            val columnSize = tableDefinition.columnDefinitions.size
-            var columnCount = 0
-            tableDefinition.columnDefinitions.forEach {
-                if (!it.isPrimaryKeyAutoIncrement && !it.isRowId || !isInsert || isSingleAutoincrement) {
-                    if (columnCount > 0) codeBuilder.add(",")
-
-                    codeBuilder.add(it.insertStatementColumnName)
-                    columnCount++
-                }
-            }
-            codeBuilder.add(")")
-
-            codeBuilder.add(" VALUES (")
-
-            columnCount = 0
-            for (i in 0..columnSize - 1) {
-                val definition = tableDefinition.columnDefinitions[i]
-                if (!definition.isPrimaryKeyAutoIncrement && !definition.isRowId || !isInsert) {
-                    if (columnCount > 0) {
-                        codeBuilder.add(",")
+            return `override fun`(String::class,
+                    if (isInsert) "getInsertStatementQuery" else "getCompiledStatementQuery") {
+                modifiers(public, final)
+                val isSingleAutoincrement = tableDefinition.hasAutoIncrement
+                        && tableDefinition.columnDefinitions.size == 1 && isInsert
+                `return`(codeBlock {
+                    add("INSERT ")
+                    if (!tableDefinition.insertConflictActionName.isEmpty()) {
+                        add("OR ${tableDefinition.insertConflictActionName} ")
                     }
+                    add("INTO ${QueryBuilder.quote(tableDefinition.tableName)}(")
 
-                    codeBuilder.add(definition.insertStatementValuesString)
-                    columnCount++
-                }
+                    tableDefinition.columnDefinitions.filter {
+                        !it.isPrimaryKeyAutoIncrement && !it.isRowId || !isInsert || isSingleAutoincrement
+                    }.forEachIndexed { index, columnDefinition ->
+                        if (index > 0) add(",")
+                        add(columnDefinition.insertStatementColumnName)
+
+                    }
+                    add(") VALUES (")
+
+                    tableDefinition.columnDefinitions.filter { it.isPrimaryKeyAutoIncrement && !it.isRowId || !isInsert }
+                            .forEachIndexed { index, columnDefinition ->
+                                if (index > 0) add(",")
+                                add(columnDefinition.insertStatementValuesString)
+                            }
+
+                    if (isSingleAutoincrement) add("NULL")
+
+                    add(")")
+                }.S)
             }
-
-            if (isSingleAutoincrement) {
-                codeBuilder.add("NULL")
-            }
-
-            codeBuilder.add(")")
-
-            methodBuilder.addStatement("return \$S", codeBuilder.build().toString())
-
-            return methodBuilder.build()
         }
 }
 
