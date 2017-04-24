@@ -297,7 +297,7 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, p
                     }
                     add(") VALUES (")
 
-                    tableDefinition.columnDefinitions.filter { it.isPrimaryKeyAutoIncrement && !it.isRowId || !isInsert }
+                    tableDefinition.columnDefinitions.filter { !it.isPrimaryKeyAutoIncrement && !it.isRowId || !isInsert }
                             .forEachIndexed { index, columnDefinition ->
                                 if (index > 0) add(",")
                                 add(columnDefinition.insertStatementValuesString)
@@ -322,8 +322,9 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
                 param(baseTableDefinition.parameterClassName!!, ModelUtils.variable)) {
             modifiers(public, final)
             val index = AtomicInteger(0)
+            val nameAllocator = NameAllocator() // unique names
             baseTableDefinition.columnDefinitions.forEach {
-                addCode(it.getLoadFromCursorMethod(true, index))
+                addCode(it.getLoadFromCursorMethod(true, index, nameAllocator))
                 index.incrementAndGet()
             }
 
