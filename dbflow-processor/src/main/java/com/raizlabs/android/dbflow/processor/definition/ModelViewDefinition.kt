@@ -90,13 +90,13 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         val columnValidator = ColumnValidator()
         for (variableElement in variableElements) {
 
-            val isValidAllFields = ElementUtility.isValidAllFields(allFields, element)
+            val isValidAllFields = ElementUtility.isValidAllFields(allFields, variableElement)
 
             if (variableElement.annotation<Column>() != null || isValidAllFields) {
 
                 // package private, will generate helper
-                val isPackagePrivate = ElementUtility.isPackagePrivate(element)
-                val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element)
+                val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
+                val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, variableElement, this.element)
 
                 val columnDefinition = ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
                 if (columnValidator.validate(manager, columnDefinition)) {

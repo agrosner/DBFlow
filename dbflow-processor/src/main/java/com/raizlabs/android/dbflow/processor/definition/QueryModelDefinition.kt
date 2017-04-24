@@ -1,6 +1,9 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.grosner.kpoet.*
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.public
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.QueryModel
 import com.raizlabs.android.dbflow.processor.ClassNames
@@ -47,7 +50,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
 
         if (element is TypeElement) {
             implementsLoadFromCursorListener =
-                    (element as TypeElement).implementsClass(manager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER)
+                (element as TypeElement).implementsClass(manager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER)
         }
 
 
@@ -87,7 +90,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         }
 
         methods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
+            .forEach { typeBuilder.addMethod(it) }
     }
 
     override fun createColumnDefinitions(typeElement: TypeElement) {
@@ -101,10 +104,10 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         for (variableElement in variableElements) {
 
             // no private static or final fields
-            val isAllFields = ElementUtility.isValidAllFields(allFields, element)
+            val isAllFields = ElementUtility.isValidAllFields(allFields, variableElement)
             // package private, will generate helper
-            val isPackagePrivate = ElementUtility.isPackagePrivate(element)
-            val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element)
+            val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
+            val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, variableElement, this.element)
 
             if (variableElement.annotation<Column>() != null || isAllFields) {
 

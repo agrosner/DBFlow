@@ -24,3 +24,6 @@ class CustomBlobModel(@Column var myBlob: MyBlob? = null) {
         override fun getModelValue(data: Blob) = MyBlob(data.blob)
     }
 }
+
+@QueryModel(database = TestDatabase::class, allFields = true)
+class AllFieldsQueryModel(var model: String? = null)
