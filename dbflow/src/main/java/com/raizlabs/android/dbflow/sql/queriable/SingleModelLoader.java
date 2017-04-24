@@ -1,8 +1,9 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: Responsible for loading data into a single object.
@@ -15,7 +16,7 @@ public class SingleModelLoader<TModel> extends ModelLoader<TModel, TModel> {
 
     @SuppressWarnings("unchecked")
     @Nullable
-    public TModel convertToData(@NonNull final Cursor cursor, @Nullable TModel data, boolean moveToFirst) {
+    public TModel convertToData(@NonNull final FlowCursor cursor, @Nullable TModel data, boolean moveToFirst) {
         if (!moveToFirst || cursor.moveToFirst()) {
             if (data == null) {
                 data = getInstanceAdapter().newInstance();
@@ -26,7 +27,7 @@ public class SingleModelLoader<TModel> extends ModelLoader<TModel, TModel> {
     }
 
     @Override
-    public TModel convertToData(@NonNull final Cursor cursor, @Nullable TModel data) {
+    public TModel convertToData(@NonNull final FlowCursor cursor, @Nullable TModel data) {
         return convertToData(cursor, data, true);
     }
 }

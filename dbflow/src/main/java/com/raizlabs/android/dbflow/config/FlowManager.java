@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.BaseModelView;
@@ -95,9 +96,12 @@ public class FlowManager {
         DatabaseDefinition databaseDefinition = getDatabase(databaseName);
         Class<?> modelClass = databaseDefinition.getModelClassForName(tableName);
         if (modelClass == null) {
-            throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
-                    "Did you forget to add the @Table annotation and point it to %1s?",
-                tableName, databaseName));
+            modelClass = databaseDefinition.getModelClassForName(QueryBuilder.quote(tableName));
+            if (modelClass == null) {
+                throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
+                        "Did you forget to add the @Table annotation and point it to %1s?",
+                    tableName, databaseName));
+            }
         }
         return modelClass;
     }

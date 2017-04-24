@@ -1,10 +1,10 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +46,13 @@ public class ListModelLoader<TModel> extends ModelLoader<TModel, List<TModel>> {
 
     @NonNull
     @Override
-    public List<TModel> load(@Nullable Cursor cursor) {
+    public List<TModel> load(@Nullable FlowCursor cursor) {
         return super.load(cursor);
     }
 
     @NonNull
     @Override
-    public List<TModel> load(@Nullable Cursor cursor, @Nullable List<TModel> data) {
+    public List<TModel> load(@Nullable FlowCursor cursor, @Nullable List<TModel> data) {
         if (data == null) {
             data = new ArrayList<>();
         } else {
@@ -64,7 +64,7 @@ public class ListModelLoader<TModel> extends ModelLoader<TModel, List<TModel>> {
     @SuppressWarnings("unchecked")
     @Override
     @NonNull
-    public List<TModel> convertToData(@NonNull Cursor cursor, @Nullable List<TModel> data) {
+    public List<TModel> convertToData(@NonNull FlowCursor cursor, @Nullable List<TModel> data) {
         if (data == null) {
             data = new ArrayList<>();
         } else {

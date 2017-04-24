@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: Represents how models load from DB. It will query a {@link SQLiteDatabase}
@@ -54,17 +55,17 @@ public abstract class ModelLoader<TModel, TReturn> {
 
     @Nullable
     public TReturn load(@NonNull DatabaseWrapper databaseWrapper, String query, @Nullable TReturn data) {
-        final Cursor cursor = databaseWrapper.rawQuery(query, null);
+        final FlowCursor cursor = databaseWrapper.rawQuery(query, null);
         return load(cursor, data);
     }
 
     @Nullable
-    public TReturn load(@Nullable Cursor cursor) {
+    public TReturn load(@Nullable FlowCursor cursor) {
         return load(cursor, null);
     }
 
     @Nullable
-    public TReturn load(@Nullable Cursor cursor, @Nullable TReturn data) {
+    public TReturn load(@Nullable FlowCursor cursor, @Nullable TReturn data) {
         if (cursor != null) {
             try {
                 data = convertToData(cursor, data);
@@ -103,5 +104,5 @@ public abstract class ModelLoader<TModel, TReturn> {
      * @return A new (or reused) instance that represents the {@link Cursor}.
      */
     @Nullable
-    public abstract TReturn convertToData(@NonNull final Cursor cursor, @Nullable TReturn data);
+    public abstract TReturn convertToData(@NonNull final FlowCursor cursor, @Nullable TReturn data);
 }

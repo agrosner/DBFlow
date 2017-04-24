@@ -13,6 +13,7 @@ import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.ModelLruCache;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -48,7 +49,7 @@ public class FlowCursorList<TModel> implements
     public static final int MIN_CACHE_SIZE = 20;
 
     @Nullable
-    private Cursor cursor;
+    private FlowCursor cursor;
 
     private Class<TModel> table;
     private ModelCache<TModel, ?> modelCache;
@@ -301,7 +302,7 @@ public class FlowCursorList<TModel> implements
     public static class Builder<TModel> {
 
         private final Class<TModel> modelClass;
-        private Cursor cursor;
+        private FlowCursor cursor;
         private ModelQueriable<TModel> modelQueriable;
         private boolean cacheModels = true;
         private ModelCache<TModel, ?> modelCache;
@@ -316,7 +317,7 @@ public class FlowCursorList<TModel> implements
         }
 
         public Builder<TModel> cursor(Cursor cursor) {
-            this.cursor = cursor;
+            this.cursor = FlowCursor.from(cursor);
             return this;
         }
 

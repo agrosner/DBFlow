@@ -59,7 +59,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
     @Test
     fun testSpecificUrlSave() {
         // insert on SAVE
-        assertProperConditions(BaseModel.Action.SAVE, { it.apply { age = 57 }.save() })
+        assertProperConditions(BaseModel.Action.INSERT, { it.apply { age = 57 }.save() })
     }
 
     @Test

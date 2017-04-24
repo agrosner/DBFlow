@@ -103,6 +103,22 @@ public abstract class DatabaseDefinition {
         }
     }
 
+    protected <T> void addModelAdapter(ModelAdapter<T> modelAdapter, DatabaseHolder holder) {
+        holder.putDatabaseForTable(modelAdapter.getModelClass(), this);
+        modelTableNames.put(modelAdapter.getTableName(), modelAdapter.getModelClass());
+        modelAdapters.put(modelAdapter.getModelClass(), modelAdapter);
+    }
+
+    protected <T> void addModelViewAdapter(ModelViewAdapter<T> modelViewAdapter, DatabaseHolder holder) {
+        holder.putDatabaseForTable(modelViewAdapter.getModelClass(), this);
+        modelViewAdapterMap.put(modelViewAdapter.getModelClass(), modelViewAdapter);
+    }
+
+    protected <T> void addQueryModelAdapter(QueryModelAdapter<T> queryModelAdapter, DatabaseHolder holder) {
+        holder.putDatabaseForTable(queryModelAdapter.getModelClass(), this);
+        queryModelAdapterMap.put(queryModelAdapter.getModelClass(), queryModelAdapter);
+    }
+
     /**
      * @return a list of all model classes in this database.
      */

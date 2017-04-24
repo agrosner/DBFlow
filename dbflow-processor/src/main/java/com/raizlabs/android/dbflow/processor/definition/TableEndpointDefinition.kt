@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.annotation.provider.ContentUri
 import com.raizlabs.android.dbflow.annotation.provider.Notify
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
 import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.element.PackageElement
@@ -14,7 +15,7 @@ import javax.lang.model.type.MirroredTypeException
  * Description:
  */
 class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorManager)
-: BaseDefinition(typeElement, processorManager) {
+    : BaseDefinition(typeElement, processorManager) {
 
     var contentUriDefinitions: MutableList<ContentUriDefinition> = mutableListOf()
 
@@ -34,9 +35,7 @@ class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorM
 
     init {
 
-        val endpoint = typeElement.getAnnotation(TableEndpoint::class.java)
-        if (endpoint != null) {
-
+        typeElement.annotation<TableEndpoint>()?.let { endpoint ->
             tableName = endpoint.name
 
             try {
@@ -44,21 +43,20 @@ class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorM
             } catch (mte: MirroredTypeException) {
                 contentProviderName = TypeName.get(mte.typeMirror)
             }
-
         }
 
         isTopLevel = typeElement.enclosingElement is PackageElement
 
         val elements = processorManager.elements.getAllMembers(typeElement as TypeElement)
         for (innerElement in elements) {
-            if (innerElement.getAnnotation(ContentUri::class.java) != null) {
+            if (innerElement.annotation<ContentUri>() != null) {
                 val contentUriDefinition = ContentUriDefinition(innerElement, processorManager)
                 if (!pathValidationMap.containsKey(contentUriDefinition.path)) {
                     contentUriDefinitions.add(contentUriDefinition)
                 } else {
                     processorManager.logError("There must be unique paths for the specified @ContentUri" + " %1s from %1s", contentUriDefinition.name, contentProviderName)
                 }
-            } else if (innerElement.getAnnotation(Notify::class.java) != null) {
+            } else if (innerElement.annotation<Notify>() != null) {
                 val notifyDefinition = NotifyDefinition(innerElement, processorManager)
 
                 for (path in notifyDefinition.paths) {

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.google.common.collect.Maps
+import com.grosner.kpoet.code
 import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
@@ -79,50 +80,44 @@ class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSette
     private var getterName: String = ""
     private var setterName: String = ""
 
-    override fun get(existingBlock: CodeBlock?): CodeBlock {
-        val codeBlock: CodeBlock.Builder = CodeBlock.builder()
-        existingBlock?.let { codeBlock.add("\$L.", existingBlock) }
-        return codeBlock.add("\$L()", getGetterNameElement())
-                .build()
+    override fun get(existingBlock: CodeBlock?) = code {
+        existingBlock?.let { this.add("$existingBlock.") }
+        add("$getterNameElement()")
     }
 
     override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
-                     isDefault: Boolean): CodeBlock {
-        val codeBlock: CodeBlock.Builder = CodeBlock.builder()
-        baseVariableName?.let { codeBlock.add("\$L.", baseVariableName) }
-        return codeBlock.add("\$L(\$L)", getSetterNameElement(), existingBlock)
-                .build()
+                     isDefault: Boolean) = code {
+        baseVariableName?.let { add("$baseVariableName.") }
+        add("$setterNameElement($existingBlock)")
     }
 
-    fun getGetterNameElement(): String {
-        return if (getterName.isNullOrEmpty()) {
+    val getterNameElement: String
+        get() = if (getterName.isNullOrEmpty()) {
             if (propertyName != null) {
                 if (useIsForPrivateBooleans && !propertyName.startsWith("is", ignoreCase = true)) {
-                    "is" + propertyName.capitalizeFirstLetter()
+                    "is" + propertyName.capitalize()
                 } else if (!useIsForPrivateBooleans && !propertyName.startsWith("get", ignoreCase = true)) {
-                    "get" + propertyName.capitalizeFirstLetter()
+                    "get" + propertyName.capitalize()
                 } else propertyName.lower()
             } else {
                 ""
             }
         } else getterName
-    }
 
-    fun getSetterNameElement(): String {
-        if (propertyName != null) {
+    val setterNameElement: String
+        get() = if (propertyName != null) {
             var setElementName = propertyName
-            return if (setterName.isNullOrEmpty()) {
+            if (setterName.isNullOrEmpty()) {
                 if (!setElementName.startsWith("set", ignoreCase = true)) {
                     if (useIsForPrivateBooleans && setElementName.startsWith("is")) {
                         setElementName = setElementName.replaceFirst("is".toRegex(), "")
                     } else if (useIsForPrivateBooleans && setElementName.startsWith("Is")) {
                         setElementName = setElementName.replaceFirst("Is".toRegex(), "")
                     }
-                    "set" + setElementName.capitalizeFirstLetter()
+                    "set" + setElementName.capitalize()
                 } else setElementName.lower()
             } else setterName
-        } else return ""
-    }
+        } else ""
 
     init {
         getterSetter?.let {
@@ -134,7 +129,7 @@ class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSette
 
 class PackagePrivateScopeColumnAccessor(
         propertyName: String, packageName: String, separator: String?, tableClassName: String)
-: ColumnAccessor(propertyName) {
+    : ColumnAccessor(propertyName) {
 
     val helperClassName: ClassName
     val internalHelperClassName: ClassName
@@ -186,7 +181,7 @@ class PackagePrivateScopeColumnAccessor(
 
 class TypeConverterScopeColumnAccessor(val typeConverterFieldName: String,
                                        propertyName: String? = null)
-: ColumnAccessor(propertyName) {
+    : ColumnAccessor(propertyName) {
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
         val codeBlock = CodeBlock.builder()
@@ -209,7 +204,7 @@ class TypeConverterScopeColumnAccessor(val typeConverterFieldName: String,
 
 class EnumColumnAccessor(val propertyTypeName: TypeName,
                          propertyName: String? = null)
-: ColumnAccessor(propertyName) {
+    : ColumnAccessor(propertyName) {
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
         return appendAccess { add("\$L.name()", existingBlock) }
@@ -253,7 +248,7 @@ class BooleanColumnAccessor(propertyName: String? = null) : ColumnAccessor(prope
                      isDefault: Boolean): CodeBlock {
         return appendAccess {
             if (isDefault) add(existingBlock)
-            else add("\$L == 1 ? true : false", existingBlock)
+            else add("\$L", existingBlock)
         }
     }
 

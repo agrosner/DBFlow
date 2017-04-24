@@ -1,15 +1,14 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import java.util.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
@@ -39,14 +38,14 @@ abstract class BaseDefinition : TypeDefinition {
 
         try {
             val typeMirror = element.asType()
-            elementTypeName = TypeName.get(typeMirror)
+            elementTypeName = typeMirror.typeName
             elementTypeName?.let {
                 if (!it.isPrimitive) {
                     elementClassName = getElementClassName(element)
                 }
             }
             val erasedType = processorManager.typeUtils.erasure(typeMirror)
-            erasedTypeName = TypeName.get(erasedType)
+            erasedTypeName = erasedType.typeName
         } catch (e: Exception) {
 
         }
@@ -60,16 +59,16 @@ abstract class BaseDefinition : TypeDefinition {
             val typeMirror: TypeMirror
             if (element is ExecutableElement) {
                 typeMirror = element.returnType
-                elementTypeName = TypeName.get(typeMirror)
+                elementTypeName = typeMirror.typeName
             } else {
                 typeMirror = element.asType()
-                elementTypeName = TypeName.get(typeMirror)
+                elementTypeName = typeMirror.typeName
             }
             val erasedType = processorManager.typeUtils.erasure(typeMirror)
             erasedTypeName = TypeName.get(erasedType)
         } catch (i: IllegalArgumentException) {
-            manager.logError("Found illegal type:" + element.asType() + " for " + element.simpleName.toString())
-            manager.logError("Exception here:" + i.toString())
+            manager.logError("Found illegal type: ${element.asType()} for ${element.simpleName}")
+            manager.logError("Exception here: $i")
         }
 
         elementName = element.simpleName.toString()
@@ -87,7 +86,7 @@ abstract class BaseDefinition : TypeDefinition {
         this.typeElement = element
         this.element = element
         elementClassName = ClassName.get(typeElement)
-        elementTypeName = TypeName.get(element.asType())
+        elementTypeName = element.asType().typeName
         elementName = element.simpleName.toString()
         packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString() ?: ""
     }
@@ -124,16 +123,13 @@ abstract class BaseDefinition : TypeDefinition {
 
     override val typeSpec: TypeSpec
         get() {
-            val typeBuilder = TypeSpec.classBuilder(outputClassName?.simpleName())
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addSuperinterfaces(Arrays.asList(*implementsClasses))
-            val extendsClass = extendsClass
-            if (extendsClass != null) {
-                typeBuilder.superclass(extendsClass)
+            return `public final class`(outputClassName?.simpleName() ?: "") {
+                extendsClass?.let { extends(it) }
+                implementsClasses.forEach { implements(it) }
+                javadoc("This is generated code. Please do not modify")
+                onWriteDefinition(this)
+                this
             }
-            typeBuilder.addJavadoc("This is generated code. Please do not modify")
-            onWriteDefinition(typeBuilder)
-            return typeBuilder.build()
         }
 
     protected open val extendsClass: TypeName?
