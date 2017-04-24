@@ -107,6 +107,19 @@ public class Queen extends BaseModel {
 
 ```
 
+### Custom ForeignKeyReferences
+When simple `@ForeignKey` annotation is not enough, you can manually specify references for your table:
+
+```java
+
+@ForeignKey(saveForeignKeyModel = false,
+references = {@ForeignKeyReference(columnName = "colony", foreignKeyColumnName = "id")})
+Colony colony;
+
+```
+
+By default not specifying references will take each field and append "${foreignKeyFieldName}_${ForeignKeyReferenceColumnName}" to make the reference column name. So by default the previous example would use `colony_id` without references. With references it becomes `colony`.
+
 ## Many To Many
 
 
