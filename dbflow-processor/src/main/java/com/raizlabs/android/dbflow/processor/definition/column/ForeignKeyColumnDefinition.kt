@@ -48,6 +48,8 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
 
     var needsReferences = true
 
+    var deferred = false
+
     override val typeConverterElementNames: List<TypeName?>
         get() = _foreignKeyReferenceDefinitionList.filter { it.hasTypeConverter }.map { it.columnClassName }
 
@@ -57,6 +59,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             onUpdate = foreignKey.onUpdate
             onDelete = foreignKey.onDelete
 
+            deferred = foreignKey.deferred
             isStubbedRelationship = foreignKey.stubbedRelationship
 
             try {

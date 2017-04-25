@@ -195,6 +195,9 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
                     add("(")
                     add(fk._foreignKeyReferenceDefinitionList.joinToString { QueryBuilder.quote(it.foreignColumnName) })
                     add(") ON UPDATE ${fk.onUpdate.name.replace("_", " ")} ON DELETE ${fk.onDelete.name.replace("_", " ")}")
+                    if (fk.deferred) {
+                        add(" DEFERRABLE INITIALLY DEFERRED")
+                    }
                 }.build())
             }
 

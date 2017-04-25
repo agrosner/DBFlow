@@ -19,6 +19,13 @@ class Author(@PrimaryKey(autoincrement = true) var id: Int = 0,
              @Column(name = "last_name") var lastName: String = "")
 
 /**
+ * Example of simple foreign key object with its [ForeignKey] deferred.
+ */
+@Table(database = TestDatabase::class)
+class BlogDeferred(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
+           @ForeignKey(deferred = true) var author: Author? = null)
+
+/**
  * Class has example of single foreign key with [ForeignKeyReference] specified
  */
 @Table(database = TestDatabase::class)
