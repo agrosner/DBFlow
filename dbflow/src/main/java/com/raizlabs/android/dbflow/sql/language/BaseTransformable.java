@@ -24,7 +24,7 @@ public abstract class BaseTransformable<TModel> extends BaseModelQueriable<TMode
     }
 
     @NonNull
-    public Where<TModel> where(SQLOperator... conditions) {
+    public Where<TModel> where(@NonNull SQLOperator... conditions) {
         return new Where<>(this, conditions);
     }
 
