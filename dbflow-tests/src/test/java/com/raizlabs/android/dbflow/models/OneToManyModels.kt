@@ -16,7 +16,7 @@ class OneToManyModel(@PrimaryKey var name: String? = null) {
     var orders: List<TwoColumnModel>? = null
 
     @OneToMany(methods = arrayOf(OneToMany.Method.ALL), isVariablePrivate = true,
-        variableName = "orders")
+        variableName = "orders", efficientMethods = true)
     fun getRelatedOrders(databaseWrapper: DatabaseWrapper): List<TwoColumnModel> {
         var localOrders = orders
         if (localOrders == null) {

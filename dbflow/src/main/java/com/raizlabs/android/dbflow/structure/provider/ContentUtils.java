@@ -10,7 +10,6 @@ import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.Operator;
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
@@ -58,9 +57,8 @@ public class ContentUtils {
      * Inserts the model into the {@link android.content.ContentResolver}. Uses the insertUri to resolve
      * the reference and the model to convert its data into {@link android.content.ContentValues}
      *
-     * @param insertUri    A {@link android.net.Uri} from the {@link ContentProvider} class definition.
-     * @param model        The model to insert.
-     * @param <TableClass> The class that implements {@link Model}
+     * @param insertUri A {@link android.net.Uri} from the {@link ContentProvider} class definition.
+     * @param model     The model to insert.
      * @return A Uri of the inserted data.
      */
     public static <TableClass> Uri insert(Uri insertUri, TableClass model) {
@@ -74,7 +72,6 @@ public class ContentUtils {
      * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
      * @param insertUri       A {@link android.net.Uri} from the {@link ContentProvider} class definition.
      * @param model           The model to insert.
-     * @param <TableClass>    The class that implements {@link Model}
      * @return The Uri of the inserted data.
      */
     @SuppressWarnings("unchecked")
@@ -98,7 +95,6 @@ public class ContentUtils {
      * @param bulkInsertUri   The URI to bulk insert with
      * @param table           The table to insert into
      * @param models          The models to insert.
-     * @param <TableClass>    The class that implements {@link Model}
      * @return The count of the rows affected by the insert.
      */
     public static <TableClass> int bulkInsert(ContentResolver contentResolver, Uri bulkInsertUri,
@@ -124,7 +120,6 @@ public class ContentUtils {
      * @param bulkInsertUri The URI to bulk insert with
      * @param table         The table to insert into
      * @param models        The models to insert.
-     * @param <TableClass>  The class that implements {@link Model}
      * @return The count of the rows affected by the insert.
      */
     public static <TableClass> int bulkInsert(Uri bulkInsertUri, Class<TableClass> table, List<TableClass> models) {
@@ -135,9 +130,8 @@ public class ContentUtils {
      * Updates the model through the {@link android.content.ContentResolver}. Uses the updateUri to
      * resolve the reference and the model to convert its data in {@link android.content.ContentValues}
      *
-     * @param updateUri    A {@link android.net.Uri} from the {@link ContentProvider}
-     * @param model        A model to update
-     * @param <TableClass> The class that implements {@link Model}
+     * @param updateUri A {@link android.net.Uri} from the {@link ContentProvider}
+     * @param model     A model to update
      * @return The number of rows updated.
      */
     public static <TableClass> int update(Uri updateUri, TableClass model) {
@@ -151,7 +145,6 @@ public class ContentUtils {
      * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
      * @param updateUri       A {@link android.net.Uri} from the {@link ContentProvider}
      * @param model           The model to update
-     * @param <TableClass>    The class that implements {@link Model}
      * @return The number of rows updated.
      */
     @SuppressWarnings("unchecked")
@@ -169,11 +162,10 @@ public class ContentUtils {
 
     /**
      * Deletes the specified model through the {@link android.content.ContentResolver}. Uses the deleteUri
-     * to resolve the reference and the model to {@link ModelAdapter#getPrimaryConditionClause(Model)}
+     * to resolve the reference and the model to {@link ModelAdapter#getPrimaryConditionClause(Object)}}
      *
-     * @param deleteUri    A {@link android.net.Uri} from the {@link ContentProvider}
-     * @param model        The model to delete
-     * @param <TableClass> The class that implements {@link Model}
+     * @param deleteUri A {@link android.net.Uri} from the {@link ContentProvider}
+     * @param model     The model to delete
      * @return The number of rows deleted.
      */
     @SuppressWarnings("unchecked")
@@ -183,12 +175,11 @@ public class ContentUtils {
 
     /**
      * Deletes the specified model through the {@link android.content.ContentResolver}. Uses the deleteUri
-     * to resolve the reference and the model to {@link ModelAdapter#getPrimaryConditionClause(Model)}
+     * to resolve the reference and the model to {@link ModelAdapter#getPrimaryConditionClause(Object)}
      *
      * @param contentResolver The content resolver to use (if different from {@link FlowManager#getContext()})
      * @param deleteUri       A {@link android.net.Uri} from the {@link ContentProvider}
      * @param model           The model to delete
-     * @param <TableClass>    The class that implements {@link Model}
      * @return The number of rows deleted.
      */
     @SuppressWarnings("unchecked")
@@ -232,7 +223,6 @@ public class ContentUtils {
      * @param whereConditions The set of {@link Operator} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
-     * @param <TableClass>    The class that implements {@link Model}
      * @return A list of {@link TableClass}
      */
     public static <TableClass> List<TableClass> queryList(Uri queryUri, Class<TableClass> table,
@@ -252,7 +242,6 @@ public class ContentUtils {
      * @param whereConditions The set of {@link Operator} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
-     * @param <TableClass>    The class that implements {@link Model}
      * @return A list of {@link TableClass}
      */
     public static <TableClass> List<TableClass> queryList(ContentResolver contentResolver, Uri queryUri,
@@ -277,7 +266,6 @@ public class ContentUtils {
      * @param whereConditions The set of {@link Operator} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
-     * @param <TableClass>    The class that implements {@link Model}
      * @return The first {@link TableClass} of the list query from the content provider.
      */
     public static <TableClass> TableClass querySingle(Uri queryUri, Class<TableClass> table,
@@ -296,7 +284,6 @@ public class ContentUtils {
      * @param whereConditions The set of {@link Operator} to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
      * @param columns         The list of columns to query.
-     * @param <TableClass>    The class that implements {@link Model}
      * @return The first {@link TableClass} of the list query from the content provider.
      */
     public static <TableClass> TableClass querySingle(ContentResolver contentResolver, Uri queryUri, Class<TableClass> table,

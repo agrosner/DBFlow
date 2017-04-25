@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.google.common.collect.Lists
 import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.OneToMany
 import com.raizlabs.android.dbflow.processor.ClassNames
@@ -21,12 +20,12 @@ class OneToManyDefinition(executableElement: ExecutableElement,
 
     private var _variableName: String
 
-    var methods: MutableList<OneToMany.Method> = Lists.newArrayList<OneToMany.Method>()
+    var methods = mutableListOf<OneToMany.Method>()
 
-    val isLoad: Boolean
+    val isLoad
         get() = isAll || methods.contains(OneToMany.Method.LOAD)
 
-    val isAll: Boolean
+    val isAll
         get() = methods.contains(OneToMany.Method.ALL)
 
     val isDelete: Boolean
@@ -43,9 +42,13 @@ class OneToManyDefinition(executableElement: ExecutableElement,
     private var extendsModel: Boolean = false
     private var referencedType: TypeElement? = null
 
+    private var efficientCodeMethods = false
+
     init {
 
         val oneToMany = executableElement.annotation<OneToMany>()!!
+
+        efficientCodeMethods = oneToMany.efficientMethods
 
         _methodName = executableElement.simpleName.toString()
         _variableName = oneToMany.variableName
@@ -99,13 +102,11 @@ class OneToManyDefinition(executableElement: ExecutableElement,
 
     }
 
-    private val methodName = "${ModelUtils.variable}.$_methodName(${wrapperIfUsed(hasWrapper)})"
-
-    private fun wrapperIfUsed(useWrapper: Boolean) = if (useWrapper) ModelUtils.wrapper else ""
+    private val methodName = "${ModelUtils.variable}.$_methodName(${wrapperIfBaseModel(hasWrapper)})"
 
     fun writeWrapperStatement(method: MethodSpec.Builder) {
-           method.statement("\$T ${ModelUtils.wrapper} = \$T.getWritableDatabaseForTable(\$T.class)",
-                ClassNames.DATABASE_WRAPPER, ClassNames.FLOW_MANAGER, referencedTableType)
+        method.statement("\$T ${ModelUtils.wrapper} = \$T.getWritableDatabaseForTable(\$T.class)",
+            ClassNames.DATABASE_WRAPPER, ClassNames.FLOW_MANAGER, referencedTableType)
     }
 
     /**
@@ -142,7 +143,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
     private fun writeLoopWithMethod(codeBuilder: MethodSpec.Builder, methodName: String, useWrapper: Boolean) {
         val oneToManyMethodName = this@OneToManyDefinition.methodName
         codeBuilder.apply {
-            `if`("($oneToManyMethodName != null)") {
+            `if`("$oneToManyMethodName != null") {
                 val loopClass: ClassName? = if (extendsBaseModel) ClassNames.BASE_MODEL else ClassName.get(referencedType)
 
                 // need to load adapter for non-model classes
@@ -150,16 +151,22 @@ class OneToManyDefinition(executableElement: ExecutableElement,
                     statement("\$T adapter = \$T.getModelAdapter(\$T.class)",
                         ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
                         ClassNames.FLOW_MANAGER, referencedTableType)
+                }
 
-                    statement("adapter.${methodName}All($oneToManyMethodName\$L)",
-                        if (useWrapper) ", " + ModelUtils.wrapper else "")
+                if (efficientCodeMethods) {
+                    statement("adapter.${methodName}All($oneToManyMethodName${wrapperCommaIfBaseModel(useWrapper)})")
                 } else {
-                    `for`("(\$T value: $oneToManyMethodName)", loopClass) {
-                        statement("value.$methodName(${wrapperIfUsed(useWrapper)})")
+                    `for`("\$T value: $oneToManyMethodName", loopClass) {
+                        if (!extendsModel) {
+                            statement("adapter.$methodName(value${wrapperCommaIfBaseModel(useWrapper)})")
+                        } else {
+                            statement("value.$methodName(${wrapperIfBaseModel(useWrapper)})")
+                        }
+                        this
                     }
                 }
-            }.end()
-        }
+            }
+        }.end()
     }
-
 }
+
