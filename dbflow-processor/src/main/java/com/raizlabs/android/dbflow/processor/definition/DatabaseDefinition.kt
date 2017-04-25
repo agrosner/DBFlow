@@ -3,7 +3,10 @@ package com.raizlabs.android.dbflow.processor.definition
 import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.Database
-import com.raizlabs.android.dbflow.processor.*
+import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.ModelViewValidator
+import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.TableValidator
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
@@ -52,7 +55,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             }
             if (!isValidDatabaseName(databaseName)) {
                 throw Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
-                        "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!")
+                    "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!")
             }
 
             consistencyChecksEnabled = database.consistencyCheckEnabled
@@ -89,15 +92,15 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             val map = HashMap<TypeName, TableDefinition>()
             val tableValidator = TableValidator()
             manager.getTableDefinitions(it)
-                    .filter { tableValidator.validate(ProcessorManager.manager, it) }
-                    .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
+                .filter { tableValidator.validate(ProcessorManager.manager, it) }
+                .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
             manager.setTableDefinitions(map, it)
 
             val modelViewDefinitionMap = HashMap<TypeName, ModelViewDefinition>()
             val modelViewValidator = ModelViewValidator()
             manager.getModelViewDefinitions(it)
-                    .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
-                    .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
+                .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
+                .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
             manager.setModelViewDefinitions(modelViewDefinitionMap, it)
         }
     }
@@ -147,11 +150,8 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                         val migrationDefinitions = migrationDefinitionMap[version]
                         migrationDefinitions?.let {
                             Collections.sort(migrationDefinitions, { o1, o2 -> Integer.valueOf(o2.priority)!!.compareTo(o1.priority) })
-                            statement("\$T migrations\$L = new \$T()", ParameterizedTypeName.get(ClassName.get(List::class.java), ClassNames.MIGRATION),
-                                    version, ParameterizedTypeName.get(ClassName.get(ArrayList::class.java), ClassNames.MIGRATION))
-                            statement("${DatabaseHandler.MIGRATION_FIELD_NAME}.put($version, migrations$version)")
                             for (migrationDefinition in migrationDefinitions) {
-                                statement("migrations$version.add(new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
+                                statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
                             }
                         }
                     }
@@ -165,7 +165,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
     private fun writeGetters(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
             `override fun`(ParameterizedTypeName.get(ClassName.get(Class::class.java), WildcardTypeName.subtypeOf(Any::class.java)),
-                    "getAssociatedDatabaseClassFile") {
+                "getAssociatedDatabaseClassFile") {
                 modifiers(public, final)
                 `return`("\$T.class", elementTypeName)
             }

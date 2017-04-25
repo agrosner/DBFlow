@@ -36,15 +36,15 @@ import java.util.Map;
  */
 public abstract class DatabaseDefinition {
 
-    final Map<Integer, List<Migration>> migrationMap = new HashMap<>();
+    private final Map<Integer, List<Migration>> migrationMap = new HashMap<>();
 
-    final Map<Class<?>, ModelAdapter> modelAdapters = new HashMap<>();
+    private final Map<Class<?>, ModelAdapter> modelAdapters = new HashMap<>();
 
-    final Map<String, Class<?>> modelTableNames = new HashMap<>();
+    private final Map<String, Class<?>> modelTableNames = new HashMap<>();
 
-    final Map<Class<?>, ModelViewAdapter> modelViewAdapterMap = new LinkedHashMap<>();
+    private final Map<Class<?>, ModelViewAdapter> modelViewAdapterMap = new LinkedHashMap<>();
 
-    final Map<Class<?>, QueryModelAdapter> queryModelAdapterMap = new LinkedHashMap<>();
+    private final Map<Class<?>, QueryModelAdapter> queryModelAdapterMap = new LinkedHashMap<>();
 
     /**
      * The helper that manages database changes and initialization
@@ -117,6 +117,15 @@ public abstract class DatabaseDefinition {
     protected <T> void addQueryModelAdapter(QueryModelAdapter<T> queryModelAdapter, DatabaseHolder holder) {
         holder.putDatabaseForTable(queryModelAdapter.getModelClass(), this);
         queryModelAdapterMap.put(queryModelAdapter.getModelClass(), queryModelAdapter);
+    }
+
+    protected void addMigration(int version, Migration migration) {
+        List<Migration> list = migrationMap.get(version);
+        if (list == null) {
+            list = new ArrayList<>();
+            migrationMap.put(version, list);
+        }
+        list.add(migration);
     }
 
     /**
