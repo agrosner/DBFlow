@@ -38,8 +38,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
     var hasWrapper = false
 
     private var columnAccessor: ColumnAccessor
-    private var extendsBaseModel: Boolean = false
-    private var extendsModel: Boolean = false
+    private var extendsModel = false
     private var referencedType: TypeElement? = null
 
     private var efficientCodeMethods = false
@@ -82,7 +81,6 @@ class OneToManyDefinition(executableElement: ExecutableElement,
             columnAccessor = VisibleScopeColumnAccessor(_variableName)
         }
 
-        extendsBaseModel = false
         val returnType = executableElement.returnType
         val typeName = TypeName.get(returnType)
         if (typeName is ParameterizedTypeName) {
@@ -95,7 +93,6 @@ class OneToManyDefinition(executableElement: ExecutableElement,
                 referencedTableType = refTableType
 
                 referencedType = referencedTableType.toTypeElement(manager)
-                extendsBaseModel = referencedType.isSubclass(manager.processingEnvironment, ClassNames.BASE_MODEL)
                 extendsModel = referencedType.isSubclass(manager.processingEnvironment, ClassNames.MODEL)
             }
         }
@@ -123,29 +120,27 @@ class OneToManyDefinition(executableElement: ExecutableElement,
      */
     fun writeDelete(method: MethodSpec.Builder, useWrapper: Boolean) {
         if (isDelete) {
-            writeLoopWithMethod(method, "delete", useWrapper && extendsBaseModel)
+            writeLoopWithMethod(method, "delete", useWrapper)
             method.statement(columnAccessor.set(CodeBlock.of("null"), modelBlock))
         }
     }
 
     fun writeSave(codeBuilder: MethodSpec.Builder, useWrapper: Boolean) {
-        if (isSave) writeLoopWithMethod(codeBuilder, "save", useWrapper && extendsBaseModel)
+        if (isSave) writeLoopWithMethod(codeBuilder, "save", useWrapper)
     }
 
     fun writeUpdate(codeBuilder: MethodSpec.Builder, useWrapper: Boolean) {
-        if (isSave) writeLoopWithMethod(codeBuilder, "update", useWrapper && extendsBaseModel)
+        if (isSave) writeLoopWithMethod(codeBuilder, "update", useWrapper)
     }
 
     fun writeInsert(codeBuilder: MethodSpec.Builder, useWrapper: Boolean) {
-        if (isSave) writeLoopWithMethod(codeBuilder, "insert", useWrapper && (extendsBaseModel || !extendsModel))
+        if (isSave) writeLoopWithMethod(codeBuilder, "insert", useWrapper)
     }
 
     private fun writeLoopWithMethod(codeBuilder: MethodSpec.Builder, methodName: String, useWrapper: Boolean) {
         val oneToManyMethodName = this@OneToManyDefinition.methodName
         codeBuilder.apply {
             `if`("$oneToManyMethodName != null") {
-                val loopClass: ClassName? = if (extendsBaseModel) ClassNames.BASE_MODEL else ClassName.get(referencedType)
-
                 // need to load adapter for non-model classes
                 if (!extendsModel) {
                     statement("\$T adapter = \$T.getModelAdapter(\$T.class)",
@@ -156,7 +151,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
                 if (efficientCodeMethods) {
                     statement("adapter.${methodName}All($oneToManyMethodName${wrapperCommaIfBaseModel(useWrapper)})")
                 } else {
-                    `for`("\$T value: $oneToManyMethodName", loopClass) {
+                    `for`("\$T value: $oneToManyMethodName", ClassName.get(referencedType)) {
                         if (!extendsModel) {
                             statement("adapter.$methodName(value${wrapperCommaIfBaseModel(useWrapper)})")
                         } else {
