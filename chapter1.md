@@ -49,12 +49,16 @@ Or in Kotlin:
       }
     }
 
-**Caching: **DBFlow supports caching in models. Caching them greatly increases speed, but cache carefully. 
+**Caching: **DBFlow supports caching in models. Caching them greatly increases speed, but cache carefully as it can lead to problems such as stale data.
 
 ```
 @Table(cachingEnabled = true)
 public class User
 ```
+
+**Migrations: **Migrations are made very simple in DBFlow. We only support the kinds that [SQLite provide](https://sqlite.org/lang_altertable.html), but also allow you to modify the data within the DB in a structured way during these. They are also run whenever the `SQLiteOpenHelper` detects a version change in the order of version they specify.
+
+
 
 
 
