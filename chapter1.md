@@ -1,3 +1,4 @@
-# First Chapter
+# Usage
 
-GitBook allows you to organize your book into chapters, each chapter is stored in a separate file like this one.
+DBFlow supports a number of database features that will enhance and decrease time you need to spend coding with databases.
+
