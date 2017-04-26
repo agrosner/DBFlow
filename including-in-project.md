@@ -60,6 +60,11 @@ allProjects {
     compile "com.github.Raizlabs.DBFlow:dbflow-rx2-kotlinextensions:${dbflow_version}"
 
   }
+  
+  // if you build with Kotlin KAPT1 (Kapt2/3 do not require this)
+  kapt {
+    generateStubs = true
+  }
 ```
 
 
