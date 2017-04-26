@@ -6,5 +6,5 @@ Since DBFlow uses annotation processing, which is run pre-proguard phase, the co
 -keep class * extends com.raizlabs.android.dbflow.config.DatabaseHolder { *; }
 ```
 
-
+This also works on modules from other library projects that use DBFlow.
 
