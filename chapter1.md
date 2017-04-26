@@ -1,6 +1,6 @@
 # Usage
 
-DBFlow supports a number of database features that will enhance and decrease time you need to spend coding with databases. We support multiple databases at the same time as long as there's no shared models.
+DBFlow supports a number of database features that will enhance and decrease time you need to spend coding with databases. We support multiple databases at the same time \(and in separate modules\) as long as there's no shared models.
 
 What is covered in these docs are not all inclusive, but should give you an idea of how to operate with DBFlow on databases.
 
@@ -25,7 +25,7 @@ FlowManager.getDatabase(AppDatabase.class).beginTransactionAsync((DatabaseWrappe
 
 CursorResult<User> results = SQLite.select().from(User.class).queryResults();
 for (User user: results) { // memory efficient iterator
-    
+
 }
 ```
 
@@ -38,11 +38,6 @@ Or in Kotlin:
     database<AppDatabase>().beginTransactionAsync {
 
     }
-
-
-
-
-
 
 
 
