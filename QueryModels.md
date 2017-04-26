@@ -98,7 +98,7 @@ If you use the optional base class of `BaseQueryModel`,
  an `InvalidSqlViewOperationException`. Otherwise, `RetrievalAdapter` do not
  contain modification methods.
 
-They support `allFields` and inheritance and visibility modifiers as defined by [Models](/usage2/Models.md).
+They support `allFields` and inheritance and visibility modifiers as defined by [Models](Models.md).
 
 `QueryModel` **do not** support:
   1. `InheritedField`/`InheritedPrimaryKey`

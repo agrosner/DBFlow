@@ -115,7 +115,7 @@ RXSQLite.rx(
 
 ## Kotlin Support
 
-Most of the support mirrors [kotlin support](/usage2/KotlinSupport.md) with a few
+Most of the support mirrors [kotlin support](KotlinSupport.md) with a few
 minor changes.
 
 Extension properties/methods include:

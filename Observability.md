@@ -5,7 +5,7 @@ DBFlow provides a flexible way to observe changes on models and tables in this l
 By default, DBFlow utilizes the [`ContentResolver`](https://developer.android.com/reference/android/content/ContentResolver.html)
 to send changes through the android system. We then can utilize [`ContentObserver`](http://developer.android.com/reference/android/database/ContentObserver.html) to listen for these changes via the `FlowContentObserver`.
 
-Also, DBFlow also supports direct [model notification](/usage2/Observability.md#direct-changes) via a custom `ModelNotifier`.
+Also, DBFlow also supports direct [model notification](Observability.md#direct-changes) via a custom `ModelNotifier`.
 
 ## FlowContentObserver
 

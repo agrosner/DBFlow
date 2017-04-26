@@ -68,7 +68,7 @@ The `FlowCursorList` is simply a wrapper around a standard `Cursor`, giving it t
 ability to cache `Model`, load items at specific position with conversion, and refresh
 it's content easily.
 
-The `FlowCursorList` by default caches its results, for fast usage. The cache size is determined by the `ModelCache` you're using. Read on [here](/usage2/Caching.md).
+The `FlowCursorList` by default caches its results, for fast usage. The cache size is determined by the `ModelCache` you're using. Read on [here](Caching.md).
 
 The `FlowCursorList` provides these methods:
 
@@ -85,7 +85,7 @@ This class is a much more powerful version of the `FlowCursorList`. It contains 
 which backs it's retrieval operations.
 
 This class acts as `List` and can be used almost wherever a `List` is used. Also, it is a `FlowContentObserver`
-see [Observability](/usage2/Observability.md), meaning other classes can listen
+see [Observability](Observability.md), meaning other classes can listen
 for its specific changes and it can auto-refresh itself when content changes.
 
 Feature rundown:
@@ -115,7 +115,7 @@ and then converts it using the associated method on that returned `List`.
 ### FlowContentObserver Implementation
 
 Using the `FlowContentObserver`, we can enable self-refreshes whenever a model changes
-for the table this query points to. See [Observability](/usage2/Observability.md).
+for the table this query points to. See [Observability](Observability.md).
 
 To turn on self-refreshes, call `registerForContentChanges(context)`, which requeries
 the data whenever it changes.

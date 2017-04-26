@@ -8,20 +8,20 @@ _Some Changes to Note:_
 2. Package private fields from other packages are now automatically accessible via generated `_Helper` classes. The referenced fields must be annotated with `@Column`, `@PrimaryKey`, or `@ForeignKey`. if its a legacy `ForeignKeyReference`, `referendFieldIsPackagePrivate()` must be set to true.
 3. `@Column` no longer required in conjunction with `@PrimaryKey` or `@ForeignKey`
 4. Can now have DBFlow in multiple modules, libraries, etc via "Modules"!
-5. `TransactionManager` has been replaced with a new per-database `BaseTransactionManager`. Each DB has its own `DBTransactionQueue` and you can replace the default with your own system. Also, no longer is this priority-based, but rather order-based. See more [here](/usage2/Transactions.md)
+5. `TransactionManager` has been replaced with a new per-database `BaseTransactionManager`. Each DB has its own `DBTransactionQueue` and you can replace the default with your own system. Also, no longer is this priority-based, but rather order-based. See more [here](Transactions.md)
 
 This doc is to provide some basic examples of what has changed, but read all of the new usage docs!
-Starting with [Intro](/usage2/Intro.md)
+Starting with [Intro](Intro.md)
 
 ## Table Of Contents
-  1. [Initialization](/usage2/Migration3Guide.md#initialization)
-  2. [Database + Table Structure](/usage2/Migration3Guide.md#database-and-table-structure)
-  3. [Transactions Overhaul](/usage2/Migration3Guide.md#transactions-overhaul)
-  4. [Properties](/usage2/Migration3Guide.md#properties)
-  5. [ModelContainers](/usage2/Migration3Guide.md#modelcontainers)
-  6. [ModelViews](/usage2/Migration3Guide.md#modelviews)
-  7. [Caching](/usage2/Migration3Guide.md#caching)
-  8. [Database Modules](/usage2/Migration3Guide.md#database-modules)
+  1. [Initialization](Migration3Guide.md#initialization)
+  2. [Database + Table Structure](Migration3Guide.md#database-and-table-structure)
+  3. [Transactions Overhaul](Migration3Guide.md#transactions-overhaul)
+  4. [Properties](Migration3Guide.md#properties)
+  5. [ModelContainers](Migration3Guide.md#modelcontainers)
+  6. [ModelViews](Migration3Guide.md#modelviews)
+  7. [Caching](Migration3Guide.md#caching)
+  8. [Database Modules](Migration3Guide.md#database-modules)
 
 ## Initialization
 
@@ -53,7 +53,7 @@ public class ExampleApplication extends Application {
 
 ```
 
-See more of what you can customize [here](/usage2/GettingStarted.md)
+See more of what you can customize [here](GettingStarted.md)
 
 ## Database And Table Structure
 ### Database changes
@@ -440,7 +440,7 @@ FlowManager.getDatabase(AppDatabase.class)
 ```
 
 For more usage on the new system, including the ability to roll your own `TransactionManager`,
-visit [Transactions](/usage2/Transactions.md)
+visit [Transactions](Transactions.md)
 
 
 ## Properties

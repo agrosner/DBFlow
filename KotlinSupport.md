@@ -9,7 +9,7 @@ dependencies {
 }
 
 ```
-We also support [kotlin extensions for RX 1 + 2](/usage2/RXSupport.md)!
+We also support [kotlin extensions for RX 1 + 2](RXSupport.md)!
 
 ## Classes
 

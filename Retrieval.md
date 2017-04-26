@@ -6,11 +6,11 @@ the `Model` classes we can map this information to easy-to-use objects.
 DBFlow provides a few different ways to retrieve information from the database. We
 can retrieve synchronously or asynchronous (preferred).
 
-We can also use `ModelView` ([read here](/usage2/ModelViews.md)) and `@Index` ([read here](/usage2/Indexing.md)) to perform faster retrieval on a set of data constantly queried.
+We can also use `ModelView` ([read here](ModelViews.md)) and `@Index` ([read here](Indexing.md)) to perform faster retrieval on a set of data constantly queried.
 
 ## Synchronous Retrieval
 
-Using the [SQLite query language](/usage2/SQLiteWrapperLanguage.md) we can retrieve
+Using the [SQLite query language](SQLiteWrapperLanguage.md) we can retrieve
 data easily and expressively. To perform it synchronously:
 
 
@@ -40,11 +40,11 @@ AnotherTable anotherObject = SQLite.select()
 
 ```
 
-To query custom objects or lists, see how to do so in [QueryModel](/usage2/QueryModel.md).
+To query custom objects or lists, see how to do so in [QueryModel](QueryModel.md).
 
 Also you can query a `FlowCursorList`/`FlowTableList` from a query easily
 via `queryCursorList()` and the `queryTableList()` methods. To see more on these,
-go to [Flow Lists](/usage2/FlowLists.md).
+go to [Flow Lists](FlowLists.md).
 
 
 ## Asynchronous Retrieval
@@ -96,13 +96,13 @@ By default the library uses the `DefaultTransactionManager` which utilizes
 a `DefaultTransactionQueue`. This queue is essentially an ordered queue that
 executes FIFO (first-in-first-out) and blocks itself until new `Transaction` are added.
 
-If you wish to customize and provide a different queue (or map it to an existing system), read up on [Transactions](/usage2/StoringData.md).
+If you wish to customize and provide a different queue (or map it to an existing system), read up on [Transactions](StoringData.md).
 
 
 Compared to pre-3.0 DBFlow, this is a breaking change from the old, priority-based
 queue system. The reason for this change was to simplify the queuing system and
 allow other systems to exist without confusing loss of functionality. To keep the old
-system read [Transactions](/usage2/StoringData.md).
+system read [Transactions](StoringData.md).
 
 ## Faster Retrieval
 

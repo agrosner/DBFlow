@@ -1,4 +1,5 @@
 # DBFlow
+## Outdated - use https://agrosner.gitbooks.io/dbflow/content
 
 DBFlow for Android lets you write very efficient database code while remaining
 expressive and concise.

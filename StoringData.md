@@ -68,9 +68,9 @@ you should use transactions whenever you can.
 Async is the preferred method. Transactions, using the `DefaultTransactionManager`,
  occur on one thread per-database (to prevent flooding from other DB in your app)
   and receive callbacks on the UI. You can override this behavior and roll your own
-  or hook into an existing system, read [here](/usage2/StoringData.md#custom-transactionmanager).
+  or hook into an existing system, read [here](StoringData.md#custom-transactionmanager).
 
-Also to use the legacy, priority-based system, read [here](/usage2/StoringData.md#priority-queue).
+Also to use the legacy, priority-based system, read [here](StoringData.md#priority-queue).
 
  A basic transaction:
 
@@ -274,7 +274,7 @@ In versions pre-3.0, DBFlow utilized a `PriorityBlockingQueue` to manage the asy
 dispatch of `Transaction`. As of 3.0, it has switched to simply a FIFO queue. To
 keep the legacy way, a `PriorityTransactionQueue` was created.
 
-As seen in [Custom Transaction Managers](/usage2/StoringData.md#custom-transactionmanager),
+As seen in [Custom Transaction Managers](StoringData.md#custom-transactionmanager),
 we provide a custom instance of the  `DefaultTransactionManager` with the `PriorityTransactionQueue` specified:
 
 ```java

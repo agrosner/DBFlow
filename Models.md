@@ -51,7 +51,7 @@ Columns have a wide-range of supported types in the `Model` classes:
   1. all java primitives including `char`,`byte`, `short`, and `boolean`.
   2. All java boxed primitive classes
   3. String, Date, java.sql.Date, Calendar, Blob, Boolean
-  4. Custom data types via a [TypeConverter](/usage2/TypeConverters.md)
+  4. Custom data types via a [TypeConverter](TypeConverters.md)
   5. `Model` as fields, but only as `@PrimaryKey` and/or `@ForeignKey`
 
 **Unsupported Types**:

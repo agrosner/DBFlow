@@ -28,7 +28,7 @@ public class Dog extends BaseModel {
 `@ForeignKey` can only be a subset of types:
   1. `Model`
   2. Any field not requiring a `TypeConverter`. If not a `Model` or a table class, you _must_ specify the `tableClass` it points to.
-  3. Cannot inherit `@ForeignKey` from non-model classes (see [Inherited Columns](/usage2/Models.md#inherited-columns))
+  3. Cannot inherit `@ForeignKey` from non-model classes (see [Inherited Columns](Models.md#inherited-columns))
 
 If you create a circular reference (i.e. two tables with strong references to `Model` as `@ForeignKey` to each other), read on.
 

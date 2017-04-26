@@ -28,7 +28,7 @@ class is automatically placed into the main `GeneratedDatabaseHolder`, which hol
 potentially many databases. The name, `AppDatabaseAppDatabase_Database.java`, is generated
 via {DatabaseClassName}{DatabaseFileName}{GeneratedClassSepator, default = "\_"}Database
 
-To learn more about what you can configure in a database, read [here](/usage2/Databases.md)
+To learn more about what you can configure in a database, read [here](Databases.md)
 
 ## Initialize FlowManager
 
@@ -84,13 +84,13 @@ FlowManager.init(new FlowConfig.Builder(this)
 
 ```
 You can define different kinds for each database.
-To read more on transactions and subclassing `BaseTransactionManager` go [here](/usage2/StoringData.md)
+To read more on transactions and subclassing `BaseTransactionManager` go [here](StoringData.md)
 
 
 ## Create Models
 
 Creating models are as simple as defining the model class, and adding the `@Table` annotation.
-To read more on this, read [here](/usage2/Models.md).
+To read more on this, read [here](Models.md).
 
 An example:
 
@@ -148,7 +148,7 @@ SQLite.select()
 ```
 
 We support many kinds of complex and complicated queries using the builder
-language. To read more about this, see [the wrapper language docs](/usage2/SQLiteWrapperLanguage.md)
+language. To read more about this, see [the wrapper language docs](SQLiteWrapperLanguage.md)
 
 There is much more you can do in DBFlow. Read through the other docs to
 get a sense of the library.

@@ -57,7 +57,7 @@ public class AppDatabase {
 ```
 This simple example adds a column to the `User` table named "email". In code, just add
 the column to the `Model` class and this migration runs only on existing dbs.
- To read more on migrations and more examples of different kinds, visit the [page](/usage2/Migrations.md).
+ To read more on migrations and more examples of different kinds, visit the [page](Migrations.md).
 
 ## Advanced Database features
 
@@ -96,7 +96,7 @@ time in case of failure we create a **third copy of the database** in case trans
 For variety of reasons, you may want to provide your own `FlowSQLiteOpenHelper`
 to manage database interactions. To do so, you must implement `OpenHelper`, but
 for convenience you should extend `FlowSQLiteOpenHelper` (for Android databases),
-or `SQLCipherOpenHelper` for SQLCipher. Read more [here](/usage2/SQLCipherSupport.md)
+or `SQLCipherOpenHelper` for SQLCipher. Read more [here](SQLCipherSupport.md)
 
 ```java
 

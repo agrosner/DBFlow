@@ -9,7 +9,7 @@ Indexes are defined using the `indexGroups()` property of the `@Table` annotatio
 2. Add the `@Index`
 3. Build and an `IndexProperty` gets generated. This allows super-easy access to the index so you can enable/disable it with ease.
 
-__Note__: `Index` are not explicitly enabled unless coupled with an `IndexMigration`. ([read here](/usage2/Migrations.md#index-migrations)).
+__Note__: `Index` are not explicitly enabled unless coupled with an `IndexMigration`. ([read here](Migrations.md#index-migrations)).
 
 You can define as many `@IndexGroup` you want within a `@Table` as long as one field references the group. Also individual `@Column` can belong to any number of groups:
 
