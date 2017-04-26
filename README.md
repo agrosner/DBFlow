@@ -85,19 +85,18 @@ SQLite.select()
   .from(User.class)
   .where(User_Table.age.greaterThan(18))
   .async()
-  .queryListCallback(new QueryTransaction.QueryResultCallback<User>() {
-            @Override
-            public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<User> tResult) {
+  .queryListCallback((QueryTransaction transaction, @NonNull CursorResult<User> result) -> {
               // called when query returns on UI thread
-              List<User> users = tResult.toListClose();
-            }
-        })
-  .error(new Transaction.Error() {
-            @Override
-            public void onError(Transaction transaction, Throwable error) {
+              try {
+                List<User> users = result.toList();
+                // do something with users
+              } finally {
+                result.close();
+              }
+            })
+  .error((Transaction transaction, Throwable error) -> {
               // handle any errors
-            }
-        })
+         })
   .execute();
 ```
 
