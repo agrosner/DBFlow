@@ -74,3 +74,7 @@ public class User
 
 **Transaction Management:** Place all transactions and retrievals on same background thread for maximum efficiency and to prevent UI-hiccups.
 
+**Type Converters**: Have custom data? Define a TypeConverter to map it to SQLite data types.
+
+
+
