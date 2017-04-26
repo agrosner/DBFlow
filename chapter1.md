@@ -49,7 +49,12 @@ Or in Kotlin:
       }
     }
 
+**Caching: **DBFlow supports caching in models.
 
+```
+@Table(cachingEnabled = true)
+public class User
+```
 
 
 
