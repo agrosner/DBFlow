@@ -4,7 +4,7 @@ DBFlow supports a number of database features that will enhance and decrease tim
 
 What is covered in these docs are not all inclusive, but should give you an idea of how to operate with DBFlow on databases.
 
-There are a few concepts to familiarize yourself with:
+There are a few concepts to familiarize yourself with. We will go more in depth in other sections in this doc.
 
 **SQLite Wrapper Language:** DBFlow provides a number of convenience methods, extensions, and generated helpers that produce a concise, flowable query syntax. A few examples below:
 
