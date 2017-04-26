@@ -49,7 +49,7 @@ Or in Kotlin:
       }
     }
 
-**Caching: **DBFlow supports caching in models.
+**Caching: **DBFlow supports caching in models. Caching them greatly increases speed, but cache carefully. 
 
 ```
 @Table(cachingEnabled = true)
