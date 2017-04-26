@@ -45,7 +45,7 @@ public class CacheableModel {
 
 ```
 
-to use caching on a table that uses multiple primary keys, [see](/usage2/Caching.md#multiple-primary-key-caching).
+to use caching on a table that uses multiple primary keys, [see](Caching.md#multiple-primary-key-caching).
 
 By default we use a `SimpleMapCache`, which loads `Model` into a `Map`. The key is
 either the primary key of the object or a combination of the two, but it should have
