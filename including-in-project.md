@@ -14,7 +14,18 @@ DBFlow has a number of artifacts that you can include in the project.
 
 **RXJava: **RX1 and RX2 supported. Wraps around normal DB operations by providing RXJava support for Model CRUD updates and SQLite wrapper language. Also Kotlin extensions exist for RX-specific methods.
 
+### Add the jitpack.io repository
 
+This repo is used to publish the artifacts. It also enables dynamic builds, allowing you to specify specific branches or commit hashes of the project to include outside of normal releases.
+
+```Groovy
+allProjects {
+  repositories {
+    // required to find the project's artifacts
+    maven { url "https://www.jitpack.io" }
+  }
+}
+```
 
 ```Groovy
   def dbflow_version = "xxxx" // reference the releases tab on Github for latest versions
@@ -49,7 +60,6 @@ DBFlow has a number of artifacts that you can include in the project.
     compile "com.github.Raizlabs.DBFlow:dbflow-rx2-kotlinextensions:${dbflow_version}"
 
   }
-
 ```
 
 
