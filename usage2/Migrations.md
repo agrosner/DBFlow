@@ -95,7 +95,7 @@ For adding columns, we only support `SQLiteType` (all supported ones [here](http
 
 
 @Migration(version = 2, database = AppDatabase.class)
-public class Migration2 extends AlterTableMigration<AModel> {
+public static class Migration2 extends AlterTableMigration<AModel> {
 
     public Migration2(Class<AModel> table) {
         super(table);
