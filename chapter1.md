@@ -1,6 +1,6 @@
 # Usage
 
-DBFlow supports a number of database features that will enhance and decrease time you need to spend coding with databases.
+DBFlow supports a number of database features that will enhance and decrease time you need to spend coding with databases. We support multiple databases at the same time as long as there's no shared models.
 
 What is covered in these docs are not all inclusive, but should give you an idea of how to operate with DBFlow on databases.
 
@@ -19,12 +19,30 @@ SQLite.update(User.class)
   .where(name.eq("Andy Grosner"))
   .executeUpdateDelete()
 
-database.beginTransactionAsync((DatabaseWrapper wrapper) -> {
+FlowManager.getDatabase(AppDatabase.class).beginTransactionAsync((DatabaseWrapper wrapper) -> {
   // wraps in a SQLite transaction, do something on BG thread.
 });
 
-
+CursorResult<User> results = SQLite.select().from(User.class).queryResults();
+for (User user: results) { // memory efficient iterator
+    
+}
 ```
+
+Or in Kotlin:
+
+    val users = (select from User::class where (name `is` "Andrew Grosner")).list
+
+    (update<User>() set (name eq "Andrew Grosner") where (name eq "Andy Grosner")).executeUpdateDelete()
+
+    database<AppDatabase>().beginTransactionAsync {
+
+    }
+
+
+
+
+
 
 
 
