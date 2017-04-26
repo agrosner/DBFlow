@@ -64,9 +64,9 @@ public class User
 
 **Views:** Declared like tables, Views \(Virtual Tables\) are supported.
 
-**Query Models:** Query models have no SQLite connection, but are extremely useful for custom queries or join queries that return a result set not mappable to any model you currently use for tables. 
+**Query Models:** Query models have no SQLite connection, but are extremely useful for custom queries or join queries that return a result set not mappable to any model you currently use for tables.
 
 **Encrypted Databases:** DBFlow supports database encryption for security using SQLCipher through a separate, easy-to-integrate artifact.
 
-
+**Indexes: **A SQLite feature that drastically improves query performance on large datasets. Dead-easy to implement.
 
