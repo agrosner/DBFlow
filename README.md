@@ -37,7 +37,7 @@ By default, DBFlow generates the `GeneratedDatabaseHolder` class, which is insta
 
 Creating a table is also very simple:
 
-```
+```java
 @Table(database = AppDatabase.class)
 public class User {
 
@@ -54,7 +54,7 @@ public class User {
 
 Then to create, read, update, and delete the model:
 
-```
+```java
 User user = new User();
 user.id = UUID.randomUUID();
 user.name = "Andrew Grosner";
@@ -67,6 +67,12 @@ user.name = "Not Andrew Grosner";
 adapter.update(user);
 
 adapter.delete(user); 
+
+// if you extend BaseModel or implement Model
+user.insert();
+user.update();
+user.delete();
+user.save();
 
 // find adult users
 List<User> users = SQLite.select()
