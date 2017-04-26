@@ -70,3 +70,5 @@ public class User
 
 **Indexes: **A SQLite feature that drastically improves query performance on large datasets. Dead-easy to implement.
 
+**Reactive: **Easily listen to changes in database data via `ModelNotifier` system.
+
