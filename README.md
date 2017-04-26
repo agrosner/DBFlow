@@ -23,7 +23,7 @@ DBFlow is built from a collection of the best features of many database librarie
 Changes exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases).
 
 # Usage Docs
-For more detailed usage, check out it out [here](/usage2/Intro.md)
+For more detailed usage, check out it out [here](https://agrosner.gitbooks.io/dbflow/content/)
 
 # Including in your project
 
