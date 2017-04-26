@@ -72,5 +72,5 @@ public class User
 
 **Reactive: **Easily listen to changes in database data via `ModelNotifier` system.
 
-**Transactions:** Place all transactions and retrievals on same background thread for maximum efficiency and to prevent UI-hiccups. 
+**Transaction Management:** Place all transactions and retrievals on same background thread for maximum efficiency and to prevent UI-hiccups.
 
