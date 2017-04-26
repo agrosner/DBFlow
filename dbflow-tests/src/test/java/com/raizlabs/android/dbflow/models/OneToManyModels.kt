@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.kotlinextensions.from
 import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.kotlinextensions.where
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 @Table(database = TestDatabase::class)
 class OneToManyModel(@PrimaryKey var name: String? = null) {
@@ -16,12 +15,12 @@ class OneToManyModel(@PrimaryKey var name: String? = null) {
     var orders: List<TwoColumnModel>? = null
 
     @OneToMany(methods = arrayOf(OneToMany.Method.ALL), isVariablePrivate = true,
-        variableName = "orders", efficientMethods = true)
-    fun getRelatedOrders(databaseWrapper: DatabaseWrapper): List<TwoColumnModel> {
+        variableName = "orders", efficientMethods = false)
+    fun getRelatedOrders(): List<TwoColumnModel> {
         var localOrders = orders
         if (localOrders == null) {
             localOrders = (select from TwoColumnModel::class where id.greaterThan(3))
-                .queryList(databaseWrapper)
+                .queryList()
         }
         orders = localOrders
         return localOrders

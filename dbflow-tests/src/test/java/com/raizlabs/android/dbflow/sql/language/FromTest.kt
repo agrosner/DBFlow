@@ -1,12 +1,13 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
+import com.raizlabs.android.dbflow.contentobserver.User
+import com.raizlabs.android.dbflow.kotlinextensions.*
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.models.TwoColumnModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
-import com.raizlabs.android.dbflow.kotlinextensions.*
 import com.raizlabs.android.dbflow.sql.language.SQLite.select
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
