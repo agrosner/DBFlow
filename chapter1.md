@@ -24,8 +24,12 @@ FlowManager.getDatabase(AppDatabase.class).beginTransactionAsync((DatabaseWrappe
 });
 
 CursorResult<User> results = SQLite.select().from(User.class).queryResults();
-for (User user: results) { // memory efficient iterator
+try {
+  for (User user: results) { // memory efficient iterator
 
+  }
+} finally {
+  results.close()
 }
 ```
 
@@ -38,6 +42,14 @@ Or in Kotlin:
     database<AppDatabase>().beginTransactionAsync {
 
     }
+
+    (select from User::class).queryResults().use { results ->
+      for (user in results) { 
+
+      }
+    }
+
+
 
 
 
