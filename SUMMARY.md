@@ -3,7 +3,7 @@
 * [Introduction](README.md)
 * [Including in Project](including-in-project.md)
 * [Proguard](proguard.md)
-* [Usage](chapter1.md)
+* [Usage](Usage.md)
     * [Databases] (Databases.md)
     * [Models](Models.md)
     * [Migrations] (Migrations.md)
