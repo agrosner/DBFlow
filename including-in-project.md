@@ -16,7 +16,7 @@ DBFlow has a number of artifacts that you can include in the project.
 
 ### Add the jitpack.io repository
 
-This repo is used to publish the artifacts. It also enables dynamic builds, allowing you to specify specific branches or commit hashes of the project to include outside of normal releases.
+This repo is used to publish the artifacts. It also enables [dynamic builds](https://jitpack.io/docs/), allowing you to specify specific branches or commit hashes of the project to include outside of normal releases.
 
 ```Groovy
 allProjects {
