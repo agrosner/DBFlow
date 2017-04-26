@@ -58,7 +58,7 @@ public class User
 
 **Migrations: **Migrations are made very simple in DBFlow. We only support the kinds that [SQLite provide](https://sqlite.org/lang_altertable.html), but also allow you to modify the data within the DB in a structured way during these. They are also run whenever the `SQLiteOpenHelper` detects a version change in the order of version they specify.
 
-
+**Multiple Modules:** DBFlow can be used in library projects, in any number of inner-project modules simultaneously. However these models must reside in separate databases.
 
 
 
