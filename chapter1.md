@@ -6,7 +6,7 @@ What is covered in these docs are not all inclusive, but should give you an idea
 
 There are a few concepts to familiarize yourself with:
 
-**SQLite Wrapper Language:** DBFlow provides a number of convenience methods, extensions, and generated helpers that produce a concise, flowable query syntax.
+**SQLite Wrapper Language:** DBFlow provides a number of convenience methods, extensions, and generated helpers that produce a concise, flowable query syntax. A few examples below:
 
 ```
 List<User> users = SQLite.select()
@@ -22,6 +22,8 @@ SQLite.update(User.class)
 database.beginTransactionAsync((DatabaseWrapper wrapper) -> {
   // wraps in a SQLite transaction, do something on BG thread.
 });
+
+
 ```
 
 
