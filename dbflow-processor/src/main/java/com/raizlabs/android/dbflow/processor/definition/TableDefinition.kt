@@ -10,8 +10,6 @@ import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnD
 import com.raizlabs.android.dbflow.processor.utils.*
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
-import com.sun.deploy.panel.IProperty
-import sun.management.jmxremote.ConnectorBootstrap
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.ExecutableElement
