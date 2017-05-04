@@ -10,6 +10,8 @@ import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnD
 import com.raizlabs.android.dbflow.processor.utils.*
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
+import com.sun.deploy.panel.IProperty
+import sun.management.jmxremote.ConnectorBootstrap
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.ExecutableElement
@@ -347,6 +349,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
         val getAllColumnPropertiesMethod = FieldSpec.builder(
             ArrayTypeName.of(ClassNames.IPROPERTY), "ALL_COLUMN_PROPERTIES",
             Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+        val getStarPropertyMethod = FieldSpec.builder(
+            ClassNames.IPROPERTY, "STAR", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
         val getPropertiesBuilder = CodeBlock.builder()
 
         val paramColumnName = "columnName"
@@ -377,6 +381,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
         getAllColumnPropertiesMethod.initializer("new \$T[]{\$L}", ClassNames.IPROPERTY, getPropertiesBuilder.build().toString())
         typeBuilder.addField(getAllColumnPropertiesMethod.build())
+        getStarPropertyMethod.initializer("new \$T(\$T.class, \$T.rawBuilder(\"*\").build())", ClassNames.PROPERTY, elementClassName, ClassNames.NAMEALIAS)
+        typeBuilder.addField(getStarPropertyMethod.build())
 
         // add index properties here
         for (indexGroupsDefinition in indexGroupsDefinitions) {

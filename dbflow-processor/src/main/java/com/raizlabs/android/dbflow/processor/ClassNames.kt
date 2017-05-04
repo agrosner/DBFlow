@@ -83,6 +83,8 @@ object ClassNames {
 
     val DATABASE_WRAPPER = ClassName.get(DATABASE, "DatabaseWrapper")
 
+    val NAMEALIAS = ClassName.get(LANGUAGE, "NameAlias")
+
     val SQLITE = ClassName.get(LANGUAGE, "SQLite")
 
     val CACHEABLE_LIST_MODEL_SAVER = ClassName.get(SAVEABLE, "CacheableListModelSaver")
