@@ -379,7 +379,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
         getAllColumnPropertiesMethod.initializer("new \$T[]{\$L}", ClassNames.IPROPERTY, getPropertiesBuilder.build().toString())
         typeBuilder.addField(getAllColumnPropertiesMethod.build())
-        getStarPropertyMethod.initializer("new \$T(\$T.class, \$T.rawBuilder(\"*\").build())", ClassNames.PROPERTY, elementClassName, ClassNames.NAMEALIAS)
+        getStarPropertyMethod.initializer("new \$T(\$T.class, \$T.rawBuilder(\$S).build()).withTable()", ClassNames.PROPERTY, elementClassName, ClassNames.NAMEALIAS, "*")
         typeBuilder.addField(getStarPropertyMethod.build())
 
         // add index properties here
