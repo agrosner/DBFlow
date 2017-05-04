@@ -353,6 +353,14 @@ public abstract class DatabaseDefinition {
         }
     }
 
+    public void close() {
+        getTransactionManager().stopQueue();
+        getHelper().closeDB();
+
+        openHelper = null;
+        isResetting = false;
+    }
+    
     /**
      * @return True if the database is ok. If backups are enabled, we restore from backup and will
      * override the return value if it replaces the main DB.
