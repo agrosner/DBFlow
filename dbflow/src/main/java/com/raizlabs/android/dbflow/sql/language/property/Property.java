@@ -8,6 +8,7 @@ import com.raizlabs.android.dbflow.sql.language.IConditional;
 import com.raizlabs.android.dbflow.sql.language.IOperator;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.Operator;
+import com.raizlabs.android.dbflow.sql.language.OrderBy;
 
 import java.util.Collection;
 
@@ -503,6 +504,19 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
     @Override
     public Operator<T> rem(T value) {
         return getCondition().rem(value);
+    }
+
+
+    @Override
+    @NonNull
+    public OrderBy asc() {
+        return OrderBy.fromProperty(this).ascending();
+    }
+
+    @Override
+    @NonNull
+    public OrderBy desc() {
+        return OrderBy.fromProperty(this).descending();
     }
 
     /**
