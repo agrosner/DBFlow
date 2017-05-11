@@ -45,7 +45,7 @@ object ElementUtility {
         return allFields && element.kind.isField &&
                 !element.modifiers.contains(Modifier.STATIC) &&
                 !element.modifiers.contains(Modifier.FINAL) &&
-                element.getAnnotation(ColumnIgnore::class.java) == null &&
+                element.annotation<ColumnIgnore>() == null &&
                 element.asType().toString() != ClassNames.MODEL_ADAPTER.toString()
     }
 

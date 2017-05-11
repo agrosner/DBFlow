@@ -56,62 +56,92 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
     }
 
     @Override
+    public boolean save(@NonNull DatabaseWrapper wrapper) {
+        return save();
+    }
+
+    @Override
     public boolean save() {
         executeTransaction(new ProcessModelTransaction.Builder<>(
-                new ProcessModelTransaction.ProcessModel<TModel>() {
-                    @Override
-                    public void processModel(TModel model, DatabaseWrapper wrapper) {
-                        getModelAdapter().save(model, wrapper);
-                    }
-                }).add(model).build());
+            new ProcessModelTransaction.ProcessModel<TModel>() {
+                @Override
+                public void processModel(TModel model, DatabaseWrapper wrapper) {
+                    getModelAdapter().save(model, wrapper);
+                }
+            }).add(model).build());
         return false;
+    }
+
+    @Override
+    public boolean delete(@NonNull DatabaseWrapper wrapper) {
+        return delete();
     }
 
     @Override
     public boolean delete() {
         executeTransaction(new ProcessModelTransaction.Builder<>(
-                new ProcessModelTransaction.ProcessModel<TModel>() {
-                    @Override
-                    public void processModel(TModel model, DatabaseWrapper wrapper) {
-                        getModelAdapter().delete(model, wrapper);
-                    }
-                }).add(model).build());
+            new ProcessModelTransaction.ProcessModel<TModel>() {
+                @Override
+                public void processModel(TModel model, DatabaseWrapper wrapper) {
+                    getModelAdapter().delete(model, wrapper);
+                }
+            }).add(model).build());
         return false;
+    }
+
+    @Override
+    public boolean update(@NonNull DatabaseWrapper wrapper) {
+        return update();
     }
 
     @Override
     public boolean update() {
         executeTransaction(new ProcessModelTransaction.Builder<>(
-                new ProcessModelTransaction.ProcessModel<TModel>() {
-                    @Override
-                    public void processModel(TModel model, DatabaseWrapper wrapper) {
-                        getModelAdapter().update(model, wrapper);
-                    }
-                }).add(model).build());
+            new ProcessModelTransaction.ProcessModel<TModel>() {
+                @Override
+                public void processModel(TModel model, DatabaseWrapper wrapper) {
+                    getModelAdapter().update(model, wrapper);
+                }
+            }).add(model).build());
         return false;
+    }
+
+    @Override
+    public long insert(DatabaseWrapper wrapper) {
+        return insert();
     }
 
     @Override
     public long insert() {
         executeTransaction(new ProcessModelTransaction.Builder<>(
-                new ProcessModelTransaction.ProcessModel<TModel>() {
-                    @Override
-                    public void processModel(TModel model, DatabaseWrapper wrapper) {
-                        getModelAdapter().insert(model, wrapper);
-                    }
-                }).add(model).build());
+            new ProcessModelTransaction.ProcessModel<TModel>() {
+                @Override
+                public void processModel(TModel model, DatabaseWrapper wrapper) {
+                    getModelAdapter().insert(model, wrapper);
+                }
+            }).add(model).build());
         return INVALID_ROW_ID;
+    }
+
+    @Override
+    public void load(DatabaseWrapper wrapper) {
+        load();
     }
 
     @Override
     public void load() {
         executeTransaction(new ProcessModelTransaction.Builder<>(
-                new ProcessModelTransaction.ProcessModel<TModel>() {
-                    @Override
-                    public void processModel(TModel model, DatabaseWrapper wrapper) {
-                        getModelAdapter().load(model, wrapper);
-                    }
-                }).add(model).build());
+            new ProcessModelTransaction.ProcessModel<TModel>() {
+                @Override
+                public void processModel(TModel model, DatabaseWrapper wrapper) {
+                    getModelAdapter().load(model, wrapper);
+                }
+            }).add(model).build());
+    }
+
+    @Override
+    public boolean exists(DatabaseWrapper wrapper) {
+        return exists();
     }
 
     @Override
@@ -119,8 +149,18 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
         return getModelAdapter().exists(model);
     }
 
+    /**
+     * @return Itself since it's already async.
+     */
+    @NonNull
     @Override
-    protected void onSuccess(Transaction transaction) {
+    public AsyncModel<? extends Model> async() {
+        //noinspection unchecked
+        return (AsyncModel<? extends Model>) this;
+    }
+
+    @Override
+    protected void onSuccess(@NonNull Transaction transaction) {
         if (onModelChangedListener != null && onModelChangedListener.get() != null) {
             onModelChangedListener.get().onModelChanged(model);
         }

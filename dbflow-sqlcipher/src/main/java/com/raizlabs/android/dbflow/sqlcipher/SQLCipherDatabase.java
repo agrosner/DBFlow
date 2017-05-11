@@ -1,12 +1,12 @@
 package com.raizlabs.android.dbflow.sqlcipher;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -60,8 +60,8 @@ public class SQLCipherDatabase implements DatabaseWrapper {
     }
 
     @Override
-    public Cursor rawQuery(String query, String[] selectionArgs) {
-        return database.rawQuery(query, selectionArgs);
+    public FlowCursor rawQuery(String query, String[] selectionArgs) {
+        return FlowCursor.from(database.rawQuery(query, selectionArgs));
     }
 
     @Override
@@ -75,15 +75,14 @@ public class SQLCipherDatabase implements DatabaseWrapper {
     }
 
     @Override
-    public Cursor query(
-            @NonNull String tableName,
-            @Nullable String[] columns,
-            @Nullable String selection,
-            @Nullable String[] selectionArgs,
-            @Nullable String groupBy,
-            @Nullable String having,
-            @Nullable String orderBy) {
-        return database.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy);
+    public FlowCursor query(@NonNull String tableName,
+                            @Nullable String[] columns,
+                            @Nullable String selection,
+                            @Nullable String[] selectionArgs,
+                            @Nullable String groupBy,
+                            @Nullable String having,
+                            @Nullable String orderBy) {
+        return FlowCursor.from(database.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy));
     }
 
     @Override

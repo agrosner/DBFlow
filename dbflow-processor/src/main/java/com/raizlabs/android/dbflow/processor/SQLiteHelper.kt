@@ -13,6 +13,9 @@ enum class SQLiteHelper {
 
     INTEGER {
         override val sqLiteStatementMethod = "Long"
+
+        override val sqliteStatementWrapperMethod: String
+            get() = "Number"
     },
     REAL {
         override val sqLiteStatementMethod = "Double"
@@ -25,6 +28,9 @@ enum class SQLiteHelper {
     };
 
     abstract val sqLiteStatementMethod: String
+
+    open val sqliteStatementWrapperMethod
+        get() = sqLiteStatementMethod
 
     companion object {
 
@@ -52,7 +58,7 @@ enum class SQLiteHelper {
 
         private val sMethodMap = hashMapOf(ArrayTypeName.of(TypeName.BYTE) to "getBlob",
                 ArrayTypeName.of(TypeName.BYTE.box()) to "getBlob",
-                TypeName.BOOLEAN to "getInt",
+                TypeName.BOOLEAN to "getBoolean",
                 TypeName.BYTE to "getInt",
                 TypeName.BYTE.box() to "getInt",
                 TypeName.CHAR to "getString",

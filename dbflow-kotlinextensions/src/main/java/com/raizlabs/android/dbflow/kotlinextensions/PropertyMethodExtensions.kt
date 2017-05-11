@@ -5,7 +5,6 @@ import com.raizlabs.android.dbflow.sql.language.IConditional
 import com.raizlabs.android.dbflow.sql.language.Operator
 import com.raizlabs.android.dbflow.sql.language.Operator.Between
 import com.raizlabs.android.dbflow.sql.language.property.Property
-import com.raizlabs.android.dbflow.structure.Model
 
 /**
  * Description: Provides property methods in via infix functions.
@@ -93,36 +92,28 @@ infix fun IConditional.notIn(values: Array<IConditional>): Operator.In<*> {
     }
 }
 
-infix fun IConditional.`is`(baseModelQueriable: BaseModelQueriable<Model>): Operator<*> = this.`is`(baseModelQueriable)
+infix fun <T> IConditional.`is`(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.`is`(baseModelQueriable)
 
-infix fun IConditional.eq(baseModelQueriable: BaseModelQueriable<Model>): Operator<*> = this.eq(baseModelQueriable)
+infix fun <T> IConditional.eq(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.eq(baseModelQueriable)
 
-infix fun IConditional.isNot(baseModelQueriable: BaseModelQueriable<Model>): Operator<*> = this.isNot(baseModelQueriable)
+infix fun <T> IConditional.isNot(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.isNot(baseModelQueriable)
+infix fun <T> IConditional.notEq(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.notEq(baseModelQueriable)
+infix fun <T> IConditional.like(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.like(baseModelQueriable)
+infix fun <T> IConditional.glob(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.glob(baseModelQueriable)
+infix fun <T> IConditional.greaterThan(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.greaterThan(baseModelQueriable)
+infix fun <T> IConditional.greaterThanOrEq(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.greaterThanOrEq(baseModelQueriable)
+infix fun <T> IConditional.lessThan(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.lessThan(baseModelQueriable)
+infix fun <T> IConditional.lessThanOrEq(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.lessThanOrEq(baseModelQueriable)
+infix fun <T> IConditional.between(baseModelQueriable: BaseModelQueriable<T>): Between<*> = this.between(baseModelQueriable)
 
-infix fun IConditional.notEq(baseModelQueriable: BaseModelQueriable<Model>): Operator<*> = this.notEq(baseModelQueriable)
-
-infix fun IConditional.like(baseModelQueriable: BaseModelQueriable<Model>): Operator<*> = this.like(baseModelQueriable)
-
-infix fun IConditional.glob(baseModelQueriable: BaseModelQueriable<Model>): Operator<*> = this.glob(baseModelQueriable)
-
-infix fun IConditional.greaterThan(baseModelQueriable: BaseModelQueriable<Model>): Operator<*> = this.greaterThan(baseModelQueriable)
-
-infix fun IConditional.greaterThanOrEq(baseModelQueriable: BaseModelQueriable<Model>): Operator<*> = this.greaterThanOrEq(baseModelQueriable)
-
-infix fun IConditional.lessThan(baseModelQueriable: BaseModelQueriable<Model>): Operator<*> = this.lessThan(baseModelQueriable)
-
-infix fun IConditional.lessThanOrEq(baseModelQueriable: BaseModelQueriable<Model>): Operator<*> = this.lessThanOrEq(baseModelQueriable)
-
-infix fun IConditional.between(baseModelQueriable: BaseModelQueriable<Model>): Between<*> = this.between(baseModelQueriable)
-
-infix fun IConditional.`in`(values: Array<BaseModelQueriable<Model>>): Operator.In<*> {
+infix fun <T> IConditional.`in`(values: Array<BaseModelQueriable<T>>): Operator.In<*> {
     return when (values.size) {
         1 -> `in`(values[0])
         else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
     }
 }
 
-infix fun IConditional.notIn(values: Array<BaseModelQueriable<Model>>): Operator.In<*> {
+infix fun <T> IConditional.notIn(values: Array<BaseModelQueriable<T>>): Operator.In<*> {
     return when (values.size) {
         1 -> notIn(values[0])
         else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))

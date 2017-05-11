@@ -12,6 +12,7 @@ import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: Provides a base retrieval class for all {@link Model} backed
@@ -26,7 +27,7 @@ public abstract class RetrievalAdapter<TModel> {
 
     public RetrievalAdapter(DatabaseDefinition databaseDefinition) {
         DatabaseConfig databaseConfig = FlowManager.getConfig()
-                .getConfigForDatabase(databaseDefinition.getAssociatedDatabaseClassFile());
+            .getConfigForDatabase(databaseDefinition.getAssociatedDatabaseClassFile());
         if (databaseConfig != null) {
             tableConfig = databaseConfig.getTableConfigForTable(getModelClass());
             if (tableConfig != null) {
@@ -47,10 +48,10 @@ public abstract class RetrievalAdapter<TModel> {
 
     public void load(TModel model, DatabaseWrapper databaseWrapper) {
         getSingleModelLoader().load(databaseWrapper,
-                SQLite.select()
-                        .from(getModelClass())
-                        .where(getPrimaryConditionClause(model)).getQuery(),
-                model);
+            SQLite.select()
+                .from(getModelClass())
+                .where(getPrimaryConditionClause(model)).getQuery(),
+            model);
     }
 
     /**
@@ -59,7 +60,7 @@ public abstract class RetrievalAdapter<TModel> {
      * @param model  The model to assign cursor data to
      * @param cursor The cursor to load into the model
      */
-    public abstract void loadFromCursor(Cursor cursor, TModel model);
+    public abstract void loadFromCursor(FlowCursor cursor, TModel model);
 
     /**
      * @param model The model to query values from

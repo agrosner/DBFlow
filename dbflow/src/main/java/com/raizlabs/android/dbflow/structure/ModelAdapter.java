@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.structure;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
 
@@ -10,7 +9,6 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
-import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
@@ -21,8 +19,11 @@ import com.raizlabs.android.dbflow.structure.cache.ModelCache;
 import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 import java.util.Collection;
+
+import static com.raizlabs.android.dbflow.config.FlowManager.getWritableDatabaseForTable;
 
 /**
  * Description: Used for generated classes from the combination of {@link Table} and {@link Model}.
@@ -50,8 +51,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      */
     public DatabaseStatement getInsertStatement() {
         if (insertStatement == null) {
-            insertStatement = getInsertStatement(
-                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+            insertStatement = getInsertStatement(getWritableDatabaseForTable(getModelClass()));
         }
 
         return insertStatement;
@@ -85,8 +85,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      */
     public DatabaseStatement getCompiledStatement() {
         if (compiledStatement == null) {
-            compiledStatement = getCompiledStatement(
-                FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
+            compiledStatement = getCompiledStatement(getWritableDatabaseForTable(getModelClass()));
         }
 
         return compiledStatement;
@@ -115,7 +114,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @param cursor The cursor to load
      * @return A new {@link TModel}
      */
-    public TModel loadFromCursor(Cursor cursor) {
+    public TModel loadFromCursor(FlowCursor cursor) {
         TModel model = newInstance();
         loadFromCursor(cursor, model);
         return model;
@@ -134,12 +133,6 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     @Override
     public void saveAll(Collection<TModel> models) {
         getListModelSaver().saveAll(models);
-
-        if (cachingEnabled()) {
-            for (TModel model : models) {
-                getModelCache().addModel(getCachingId(model), model);
-            }
-        }
     }
 
     @Override
@@ -217,6 +210,11 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         bindToInsertValues(contentValues, tModel);
     }
 
+    @Override
+    public void bindToStatement(DatabaseStatement sqLiteStatement, TModel tModel) {
+        bindToInsertStatement(sqLiteStatement, tModel, 0);
+    }
+
     /**
      * If a {@link Model} has an auto-incrementing primary key, then
      * this method will be overridden.
@@ -286,14 +284,14 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     /**
-     * Loads all primary keys from the {@link Cursor} into the inValues. The size of the array must
+     * Loads all primary keys from the {@link FlowCursor} into the inValues. The size of the array must
      * match all primary keys. This method gets generated when caching is enabled.
      *
      * @param inValues The reusable array of values to populate.
      * @param cursor   The cursor to load from.
      * @return The populated set of values to load from cache.
      */
-    public Object[] getCachingColumnValuesFromCursor(Object[] inValues, Cursor cursor) {
+    public Object[] getCachingColumnValuesFromCursor(Object[] inValues, FlowCursor cursor) {
         throwCachingError();
         return null;
     }
@@ -302,7 +300,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @param cursor The cursor to load caching id from.
      * @return The single cache column from cursor (if single).
      */
-    public Object getCachingColumnValueFromCursor(Cursor cursor) {
+    public Object getCachingColumnValueFromCursor(FlowCursor cursor) {
         throwSingleCachingError();
         return null;
     }
@@ -384,13 +382,15 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     /**
-     * Reloads relationships when loading from {@link Cursor} in a model that's cacheable. By having
+     * Reloads relationships when loading from {@link FlowCursor} in a model that's cacheable. By having
      * relationships with cached models, the retrieval will be very fast.
      *
      * @param cursor The cursor to reload from.
      */
-    public void reloadRelationships(@NonNull TModel model, Cursor cursor) {
-        throwCachingError();
+    public void reloadRelationships(@NonNull TModel model, FlowCursor cursor) {
+        if (!cachingEnabled()) {
+            throwCachingError();
+        }
     }
 
     @Override

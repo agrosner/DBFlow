@@ -23,6 +23,7 @@ class OneToManyModelTest : BaseUnitTest() {
 
         // assert loading works as expected.
         oneToManyModel = (select from OneToManyModel::class).result!!
+        val wrapper = writableDatabaseForTable<OneToManyModel>()
         assertNotNull(oneToManyModel.getRelatedOrders())
         assertTrue(!oneToManyModel.getRelatedOrders().isEmpty())
 

@@ -3,8 +3,12 @@ package com.raizlabs.android.dbflow.processor.definition
 import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.Database
-import com.raizlabs.android.dbflow.processor.*
+import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.ModelViewValidator
+import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.TableValidator
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
+import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.*
 import java.util.*
@@ -43,8 +47,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
     init {
         packageName = ClassNames.FLOW_MANAGER_PACKAGE
 
-        val database = element.getAnnotation(Database::class.java)
-        if (database != null) {
+        element.annotation<Database>()?.let { database ->
             databaseName = database.name
             databaseExtensionName = database.databaseExtension
             if (databaseName.isNullOrEmpty()) {
@@ -86,41 +89,27 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     private fun validateDefinitions() {
         elementClassName?.let {
-            // TODO: validate them here before preparing them
             val map = HashMap<TypeName, TableDefinition>()
             val tableValidator = TableValidator()
-            for (tableDefinition in manager.getTableDefinitions(it)) {
-                if (tableValidator.validate(ProcessorManager.manager, tableDefinition)) {
-                    tableDefinition.elementClassName?.let { className -> map.put(className, tableDefinition) }
-                }
-            }
+            manager.getTableDefinitions(it)
+                .filter { tableValidator.validate(ProcessorManager.manager, it) }
+                .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
             manager.setTableDefinitions(map, it)
 
             val modelViewDefinitionMap = HashMap<TypeName, ModelViewDefinition>()
             val modelViewValidator = ModelViewValidator()
-            for (modelViewDefinition in manager.getModelViewDefinitions(it)) {
-                if (modelViewValidator.validate(ProcessorManager.manager, modelViewDefinition)) {
-                    modelViewDefinition.elementClassName?.let { className -> modelViewDefinitionMap.put(className, modelViewDefinition) }
-                }
-            }
+            manager.getModelViewDefinitions(it)
+                .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
+                .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
             manager.setModelViewDefinitions(modelViewDefinitionMap, it)
         }
-
     }
 
     private fun prepareDefinitions() {
         elementClassName?.let {
-            for (tableDefinition in manager.getTableDefinitions(it)) {
-                tableDefinition.prepareForWrite()
-            }
-
-            for (modelViewDefinition in manager.getModelViewDefinitions(it)) {
-                modelViewDefinition.prepareForWrite()
-            }
-
-            for (queryModelDefinition in manager.getQueryModelDefinitions(it)) {
-                queryModelDefinition.prepareForWrite()
-            }
+            manager.getTableDefinitions(it).forEach(TableDefinition::prepareForWrite)
+            manager.getModelViewDefinitions(it).forEach(ModelViewDefinition::prepareForWrite)
+            manager.getQueryModelDefinitions(it).forEach(QueryModelDefinition::prepareForWrite)
         }
     }
 
@@ -128,25 +117,29 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
         builder.constructor(param(ClassNames.DATABASE_HOLDER, "holder")) {
             modifiers(public)
-            val elementClassName = this@DatabaseDefinition.elementClassName
-            if (elementClassName != null) {
-                for (tableDefinition in manager.getTableDefinitions(elementClassName)) {
-                    statement("holder.putDatabaseForTable(\$T.class, this)", tableDefinition.elementClassName)
-                    statement("\$L.put(\$S, \$T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName)
-                    statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
-                        tableDefinition.elementClassName, tableDefinition.outputClassName)
+            this@DatabaseDefinition.elementClassName?.let { elementClassName ->
+                for (definition in manager.getTableDefinitions(elementClassName)) {
+                    if (definition.hasGlobalTypeConverters) {
+                        statement("addModelAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                    } else {
+                        statement("addModelAdapter(new \$T(this), holder)", definition.outputClassName)
+                    }
                 }
 
-                for (modelViewDefinition in manager.getModelViewDefinitions(elementClassName)) {
-                    statement("holder.putDatabaseForTable(\$T.class, this)", modelViewDefinition.elementClassName)
-                    statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
-                        modelViewDefinition.elementClassName, modelViewDefinition.outputClassName)
+                for (definition in manager.getModelViewDefinitions(elementClassName)) {
+                    if (definition.hasGlobalTypeConverters) {
+                        statement("addModelViewAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                    } else {
+                        statement("addModelViewAdapter(new \$T(this), holder)", definition.outputClassName)
+                    }
                 }
 
-                for (queryModelDefinition in manager.getQueryModelDefinitions(elementClassName)) {
-                    statement("holder.putDatabaseForTable(\$T.class, this)", queryModelDefinition.elementClassName)
-                    statement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
-                        queryModelDefinition.elementClassName, queryModelDefinition.outputClassName)
+                for (definition in manager.getQueryModelDefinitions(elementClassName)) {
+                    if (definition.hasGlobalTypeConverters) {
+                        statement("addQueryModelAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                    } else {
+                        statement("addQueryModelAdapter(new \$T(this), holder)", definition.outputClassName)
+                    }
                 }
 
                 val migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName)
@@ -157,13 +150,8 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                         val migrationDefinitions = migrationDefinitionMap[version]
                         migrationDefinitions?.let {
                             Collections.sort(migrationDefinitions, { o1, o2 -> Integer.valueOf(o2.priority)!!.compareTo(o1.priority) })
-                            statement("\$T migrations\$L = new \$T()", ParameterizedTypeName.get(ClassName.get(List::class.java), ClassNames.MIGRATION),
-                                version, ParameterizedTypeName.get(ClassName.get(ArrayList::class.java), ClassNames.MIGRATION))
-                            statement("\$L.put(\$L, migrations\$L)", DatabaseHandler.MIGRATION_FIELD_NAME,
-                                version, version)
                             for (migrationDefinition in migrationDefinitions) {
-                                statement("migrations\$L.add(new \$T\$L)", version, migrationDefinition.elementClassName,
-                                    migrationDefinition.constructorName)
+                                statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
                             }
                         }
                     }

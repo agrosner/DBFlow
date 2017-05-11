@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.language.Method;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
+import com.raizlabs.android.dbflow.sql.language.OrderBy;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -117,4 +118,10 @@ public interface IProperty<P extends IProperty> extends Query {
      */
     @NonNull
     Class<?> getTable();
+
+    @NonNull
+    OrderBy asc();
+
+    @NonNull
+    OrderBy desc();
 }

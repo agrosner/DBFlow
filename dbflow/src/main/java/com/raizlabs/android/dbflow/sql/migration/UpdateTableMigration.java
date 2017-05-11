@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
 import android.support.annotation.CallSuper;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
@@ -23,11 +24,13 @@ public class UpdateTableMigration<TModel> extends BaseMigration {
     /**
      * Builds the conditions for the WHERE part of our query
      */
+    @Nullable
     private OperatorGroup whereOperatorGroup;
 
     /**
      * The conditions to use to set fields in the update query
      */
+    @Nullable
     private OperatorGroup setOperatorGroup;
 
     /**
@@ -78,8 +81,8 @@ public class UpdateTableMigration<TModel> extends BaseMigration {
 
     public BaseQueriable<TModel> getUpdateStatement() {
         return SQLite.update(table)
-                .set(setOperatorGroup)
-                .where(whereOperatorGroup);
+            .set(setOperatorGroup)
+            .where(whereOperatorGroup);
     }
 
 }

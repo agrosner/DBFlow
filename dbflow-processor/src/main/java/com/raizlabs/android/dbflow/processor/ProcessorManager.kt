@@ -29,23 +29,21 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         lateinit var manager: ProcessorManager
     }
 
-    private val uniqueDatabases = Lists.newArrayList<TypeName>()
-    private val modelToDatabaseMap = Maps.newHashMap<TypeName, TypeName>()
-    val typeConverters = Maps.newLinkedHashMap<TypeName, TypeConverterDefinition>()
-    private val migrations = Maps.newHashMap<TypeName, MutableMap<Int, MutableList<MigrationDefinition>>>()
+    private val uniqueDatabases = arrayListOf<TypeName>()
+    private val modelToDatabaseMap = hashMapOf<TypeName, TypeName>()
+    val typeConverters = linkedMapOf<TypeName?, TypeConverterDefinition>()
+    private val migrations = hashMapOf<TypeName?, MutableMap<Int, MutableList<MigrationDefinition>>>()
 
-    private val databaseDefinitionMap = Maps.newHashMap<TypeName, DatabaseObjectHolder>()
-    private val handlers = ArrayList<BaseContainerHandler<*>>()
-    private val providerMap = Maps.newHashMap<TypeName, ContentProviderDefinition>()
+    private val databaseDefinitionMap = hashMapOf<TypeName?, DatabaseObjectHolder>()
+    private val handlers = mutableSetOf<BaseContainerHandler<*>>()
+    private val providerMap = hashMapOf<TypeName?, ContentProviderDefinition>()
 
     init {
         manager = this
     }
 
     fun addHandlers(vararg containerHandlers: BaseContainerHandler<*>) {
-        containerHandlers
-                .filterNot { handlers.contains(it) }
-                .forEach { handlers.add(it) }
+        containerHandlers.forEach { handlers.add(it) }
     }
 
     val messager: Messager = processingEnvironment.messager
@@ -179,14 +177,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         }
     }
 
-    fun getMigrationsForDatabase(databaseName: TypeName): Map<Int, List<MigrationDefinition>> {
-        val migrationDefinitions = migrations[databaseName]
-        if (migrationDefinitions != null) {
-            return migrationDefinitions
-        } else {
-            return Maps.newHashMap<Int, List<MigrationDefinition>>()
-        }
-    }
+    fun getMigrationsForDatabase(databaseName: TypeName) = migrations[databaseName] ?: hashMapOf<Int, List<MigrationDefinition>>()
 
     fun addContentProviderDefinition(contentProviderDefinition: ContentProviderDefinition) {
         contentProviderDefinition.elementTypeName?.let {
@@ -210,11 +201,9 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         messager.printMessage(Diagnostic.Kind.ERROR, String.format("*==========*${callingClass ?: ""} :" + error?.trim() + "*==========*", *args))
         var stackTraceElements = Thread.currentThread().stackTrace
         if (stackTraceElements.size > 8) {
-            stackTraceElements = Arrays.copyOf(stackTraceElements, 8)
+            stackTraceElements = stackTraceElements.copyOf(8)
         }
-        for (stackTrace in stackTraceElements) {
-            messager.printMessage(Diagnostic.Kind.ERROR, stackTrace.toString())
-        }
+        stackTraceElements.forEach { messager.printMessage(Diagnostic.Kind.ERROR, it.toString()) }
     }
 
     fun logError(error: String?, vararg args: Any?) = logError(callingClass = null, error = error, args = args)

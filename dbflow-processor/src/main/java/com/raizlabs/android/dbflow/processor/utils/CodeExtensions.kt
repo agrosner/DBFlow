@@ -1,7 +1,10 @@
 package com.raizlabs.android.dbflow.processor.utils
 
+import com.grosner.kpoet.end
+import com.grosner.kpoet.nextControl
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
+import kotlin.reflect.KClass
 
 /**
  * Description: Set of utility methods to save code
@@ -25,10 +28,16 @@ fun MethodSpec.Builder.controlFlow(statement: String, vararg args: Any?,
  *
  * @author Andrew Grosner (fuzz)
  */
-fun CodeBlock.Builder.addStatement(codeBlock: CodeBlock?): CodeBlock.Builder
-    = this.addStatement("\$L", codeBlock)
+fun CodeBlock.Builder.statement(codeBlock: CodeBlock?): CodeBlock.Builder
+        = this.addStatement("\$L", codeBlock)
 
-fun MethodSpec.Builder.addStatement(codeBlock: CodeBlock?): MethodSpec.Builder
+fun MethodSpec.Builder.statement(codeBlock: CodeBlock?): MethodSpec.Builder
 
-    = this.addStatement("\$L", codeBlock)
+        = this.addStatement("\$L", codeBlock)
+
+inline fun <T : Throwable> CodeBlock.Builder.catch(exception: KClass<T>,
+                                                   function: CodeBlock.Builder.() -> CodeBlock.Builder)
+        = nextControl("catch", statement = "\$T e", args = arrayOf(exception), function = function).end()
+
+fun codeBlock(function: CodeBlock.Builder.() -> CodeBlock.Builder) = CodeBlock.builder().function().build()
 

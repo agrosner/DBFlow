@@ -57,6 +57,10 @@ public class BaseDatabaseHelper {
         checkForeignKeySupport(db);
     }
 
+    public void onDowngrade(DatabaseWrapper db, int oldVersion, int newVersion) {
+        checkForeignKeySupport(db);
+    }
+
     /**
      * If foreign keys are supported, we turn it on the DB specified.
      */
@@ -86,10 +90,10 @@ public class BaseDatabaseHelper {
             List<ModelViewAdapter> modelViews = databaseDefinition.getModelViewAdapters();
             for (ModelViewAdapter modelView : modelViews) {
                 QueryBuilder queryBuilder = new QueryBuilder()
-                        .append("CREATE VIEW IF NOT EXISTS")
-                        .appendSpaceSeparated(modelView.getViewName())
-                        .append("AS ")
-                        .append(modelView.getCreationQuery());
+                    .append("CREATE VIEW IF NOT EXISTS")
+                    .appendSpaceSeparated(modelView.getViewName())
+                    .append("AS ")
+                    .append(modelView.getCreationQuery());
                 try {
                     database.execSQL(queryBuilder.getQuery());
                 } catch (SQLiteException e) {
@@ -108,7 +112,7 @@ public class BaseDatabaseHelper {
         // will try migrations file or execute migrations from code
         try {
             final List<String> files = Arrays.asList(FlowManager.getContext().getAssets().list(
-                    MIGRATION_PATH + "/" + databaseDefinition.getDatabaseName()));
+                MIGRATION_PATH + "/" + databaseDefinition.getDatabaseName()));
             Collections.sort(files, new NaturalOrderComparator());
 
             final Map<Integer, List<String>> migrationFileMap = new HashMap<>();

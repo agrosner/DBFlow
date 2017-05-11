@@ -26,8 +26,8 @@ abstract class NoModificationModel implements ReadOnlyModel {
     }
 
     @SuppressWarnings("unchecked")
-    public void load(DatabaseWrapper databaseWrapper) {
-        getRetrievalAdapter().load(this, databaseWrapper);
+    public void load(DatabaseWrapper wrapper) {
+        getRetrievalAdapter().load(this, wrapper);
     }
 
     public RetrievalAdapter getRetrievalAdapter() {

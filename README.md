@@ -23,7 +23,7 @@ DBFlow is built from a collection of the best features of many database librarie
 Changes exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases).
 
 # Usage Docs
-For more detailed usage, check out it out [here](/usage2/Intro.md)
+For more detailed usage, check out it out [here](https://agrosner.gitbooks.io/dbflow/content/)
 
 # Including in your project
 
@@ -41,7 +41,7 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
 ```groovy
 
-  def dbflow_version = "4.0.0-beta7"
+  def dbflow_version = "4.0.0"
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 

@@ -18,7 +18,7 @@ public class Delete implements Query {
      * @param <TModel>   The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
     public static <TModel> void table(Class<TModel> table, SQLOperator... conditions) {
-        new Delete().from(table).where(conditions).query();
+        new Delete().from(table).where(conditions).executeUpdateDelete();
     }
 
     /**
@@ -48,7 +48,7 @@ public class Delete implements Query {
     @Override
     public String getQuery() {
         return new QueryBuilder()
-                .append("DELETE")
-                .appendSpace().getQuery();
+            .append("DELETE")
+            .appendSpace().getQuery();
     }
 }

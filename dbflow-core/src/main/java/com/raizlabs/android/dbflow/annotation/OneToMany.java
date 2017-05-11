@@ -57,4 +57,10 @@ public @interface OneToMany {
      * a setter for it.
      */
     boolean isVariablePrivate() default false;
+
+    /**
+     * @return If true, the code generated for this relationship done as efficiently as possible.
+     * It will not work on nested relationships, caching, and other code that requires overriding of BaseModel or Model operations.
+     */
+    boolean efficientMethods() default true;
 }

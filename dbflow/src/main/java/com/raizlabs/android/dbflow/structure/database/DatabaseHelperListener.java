@@ -28,5 +28,12 @@ public interface DatabaseHelperListener {
      */
     void onUpgrade(DatabaseWrapper database, int oldVersion, int newVersion);
 
-
+    /**
+     * Called when DB is downgraded. Note that this may not be supported by all implementations of the DB.
+     *
+     * @param databaseWrapper The database downgraded.
+     * @param oldVersion      The old. higher version.
+     * @param newVersion      The new lower version.
+     */
+    void onDowngrade(DatabaseWrapper databaseWrapper, int oldVersion, int newVersion);
 }

@@ -33,6 +33,7 @@ object ClassNames {
     val URI = ClassName.get("android.net", "Uri")
     val URI_MATCHER = ClassName.get("android.content", "UriMatcher")
     val CURSOR = ClassName.get("android.database", "Cursor")
+    val FLOW_CURSOR = ClassName.get(DATABASE, "FlowCursor")
     val DATABASE_UTILS = ClassName.get("android.database", "DatabaseUtils")
     val CONTENT_VALUES = ClassName.get("android.content", "ContentValues")
     val CONTENT_URIS = ClassName.get("android.content", "ContentUris")

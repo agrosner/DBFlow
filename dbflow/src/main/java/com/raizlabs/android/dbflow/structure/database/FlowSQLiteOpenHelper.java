@@ -82,6 +82,11 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
     }
 
     @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        databaseHelperDelegate.onDowngrade(AndroidDatabase.from(db), oldVersion, newVersion);
+    }
+
+    @Override
     public void closeDB() {
         getDatabase();
         androidDatabase.getDatabase().close();
@@ -143,6 +148,11 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         @Override
         public void onOpen(SQLiteDatabase db) {
             baseDatabaseHelper.onOpen(AndroidDatabase.from(db));
+        }
+
+        @Override
+        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            baseDatabaseHelper.onDowngrade(AndroidDatabase.from(db), oldVersion, newVersion);
         }
 
         @Override

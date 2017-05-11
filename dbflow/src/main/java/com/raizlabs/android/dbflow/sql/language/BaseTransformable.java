@@ -1,10 +1,10 @@
 package com.raizlabs.android.dbflow.sql.language;
 
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 import java.util.List;
 
@@ -24,17 +24,17 @@ public abstract class BaseTransformable<TModel> extends BaseModelQueriable<TMode
     }
 
     @NonNull
-    public Where<TModel> where(SQLOperator... conditions) {
+    public Where<TModel> where(@NonNull SQLOperator... conditions) {
         return new Where<>(this, conditions);
     }
 
     @Override
-    public Cursor query() {
+    public FlowCursor query() {
         return where().query();
     }
 
     @Override
-    public Cursor query(DatabaseWrapper databaseWrapper) {
+    public FlowCursor query(DatabaseWrapper databaseWrapper) {
         return where().query(databaseWrapper);
     }
 

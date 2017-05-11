@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -164,10 +165,12 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
      * Appends the {@link SQLOperator} with the specified operator string.
      */
     @NonNull
-    private OperatorGroup operator(String operator, SQLOperator sqlOperator) {
-        setPreviousSeparator(operator);
-        conditionsList.add(sqlOperator);
-        isChanged = true;
+    private OperatorGroup operator(String operator, @Nullable SQLOperator sqlOperator) {
+        if (sqlOperator != null) {
+            setPreviousSeparator(operator);
+            conditionsList.add(sqlOperator);
+            isChanged = true;
+        }
         return this;
     }
 

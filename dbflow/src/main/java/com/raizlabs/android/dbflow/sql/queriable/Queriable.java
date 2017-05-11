@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
-import android.database.Cursor;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.Query;
@@ -11,6 +10,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: The most basic interface that some of the classes such as {@link Insert}, {@link ModelQueriable},
@@ -22,7 +22,7 @@ public interface Queriable extends Query {
      * @return A cursor from the DB based on this query
      */
     @Nullable
-    Cursor query();
+    FlowCursor query();
 
     /**
      * Allows you to pass in a {@link DatabaseWrapper} manually.
@@ -31,7 +31,7 @@ public interface Queriable extends Query {
      * @return A cursor from the DB based on this query
      */
     @Nullable
-    Cursor query(DatabaseWrapper databaseWrapper);
+    FlowCursor query(DatabaseWrapper databaseWrapper);
 
 
     /**

@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
@@ -13,10 +15,17 @@ public class BaseAsyncObject<TAsync> {
     private Transaction.Success successCallback;
     private Transaction.Error errorCallback;
     private Transaction currentTransaction;
+
+    private final Class<?> table;
     private final DatabaseDefinition databaseDefinition;
 
-    public BaseAsyncObject(Class<?> modelClass) {
-        databaseDefinition = FlowManager.getDatabaseForTable(modelClass);
+    public BaseAsyncObject(Class<?> table) {
+        this.table = table;
+        databaseDefinition = FlowManager.getDatabaseForTable(table);
+    }
+
+    public Class<?> getTable() {
+        return table;
     }
 
     /**
@@ -46,21 +55,21 @@ public class BaseAsyncObject<TAsync> {
         }
     }
 
-    protected void executeTransaction(ITransaction transaction) {
+    protected void executeTransaction(@NonNull ITransaction transaction) {
         cancel();
         currentTransaction = databaseDefinition
-                .beginTransactionAsync(transaction)
-                .error(error)
-                .success(success)
-                .build();
+            .beginTransactionAsync(transaction)
+            .error(error)
+            .success(success)
+            .build();
         currentTransaction.execute();
     }
 
-    protected void onError(Transaction transaction, Throwable error) {
+    protected void onError(@NonNull Transaction transaction, Throwable error) {
 
     }
 
-    protected void onSuccess(Transaction transaction) {
+    protected void onSuccess(@NonNull Transaction transaction) {
 
     }
 

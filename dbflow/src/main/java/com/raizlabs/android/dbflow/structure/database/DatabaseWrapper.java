@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.structure.database;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -23,7 +22,7 @@ public interface DatabaseWrapper {
 
     DatabaseStatement compileStatement(String rawQuery);
 
-    Cursor rawQuery(String query, String[] selectionArgs);
+    FlowCursor rawQuery(String query, String[] selectionArgs);
 
     long updateWithOnConflict(String tableName, ContentValues contentValues, String where,
                               String[] whereArgs, int conflictAlgorithm);
@@ -31,9 +30,9 @@ public interface DatabaseWrapper {
     long insertWithOnConflict(String tableName, String nullColumnHack, ContentValues values,
                               int sqLiteDatabaseAlgorithmInt);
 
-    Cursor query(@NonNull String tableName, @Nullable String[] columns, @Nullable String selection,
-                 @Nullable String[] selectionArgs, @Nullable String groupBy,
-                 @Nullable String having, @Nullable String orderBy);
+    FlowCursor query(@NonNull String tableName, @Nullable String[] columns, @Nullable String selection,
+                     @Nullable String[] selectionArgs, @Nullable String groupBy,
+                     @Nullable String having, @Nullable String orderBy);
 
     int delete(@NonNull String tableName, @Nullable String whereClause, @Nullable String[] whereArgs);
 }
