@@ -100,6 +100,8 @@ public interface RXModelQueriable<TModel> extends RXQueriable {
 
     /**
      * @return A new {@link Observable} that observes when the {@link TModel} table changes.
+     * Result Flowable may emmit the data in the thread another then current thread or subscribeOn(), because
+     * notification from ContentResolver about data changes comes from Binder thread.
      * This can also be multiple tables, given if it results from a {@link Join} (one for each join table).
      */
     @NonNull
