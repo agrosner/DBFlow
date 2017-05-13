@@ -93,8 +93,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
             holderDefinition?.tableDefinitionMap?.put(it, tableDefinition)
             holderDefinition?.tableNameMap?.let {
                 if (holderDefinition.tableNameMap.containsKey(tableDefinition.tableName)) {
-                    logError("Found duplicate table %1s for database %1s", tableDefinition.tableName,
-                            holderDefinition.databaseDefinition?.databaseName)
+                    logError("Found duplicate table ${tableDefinition.tableName} " +
+                            "for database ${holderDefinition.databaseDefinition?.databaseName}")
                 } else tableDefinition.tableName?.let {
                     holderDefinition.tableNameMap.put(it, tableDefinition)
                 }

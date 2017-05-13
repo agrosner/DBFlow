@@ -103,7 +103,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
 
     fun writeWrapperStatement(method: MethodSpec.Builder) {
         method.statement("\$T ${ModelUtils.wrapper} = \$T.getWritableDatabaseForTable(\$T.class)",
-            ClassNames.DATABASE_WRAPPER, ClassNames.FLOW_MANAGER, referencedTableType)
+                ClassNames.DATABASE_WRAPPER, ClassNames.FLOW_MANAGER, referencedTableType)
     }
 
     /**
@@ -142,10 +142,10 @@ class OneToManyDefinition(executableElement: ExecutableElement,
         codeBuilder.apply {
             `if`("$oneToManyMethodName != null") {
                 // need to load adapter for non-model classes
-                if (!extendsModel) {
+                if (!extendsModel || efficientCodeMethods) {
                     statement("\$T adapter = \$T.getModelAdapter(\$T.class)",
-                        ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
-                        ClassNames.FLOW_MANAGER, referencedTableType)
+                            ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
+                            ClassNames.FLOW_MANAGER, referencedTableType)
                 }
 
                 if (efficientCodeMethods) {
