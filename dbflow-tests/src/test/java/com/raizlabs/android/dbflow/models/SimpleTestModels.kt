@@ -23,6 +23,15 @@ class CharModel(@PrimaryKey var id: Int = 0, @Column var exampleChar: Char? = nu
 @Table(database = TestDatabase::class)
 class TwoColumnModel(@PrimaryKey var name: String? = "", @Column var id: Int = 0)
 
+enum class Difficulty {
+    EASY,
+    MEDIUM,
+    HARD
+}
+
+@Table(database = TestDatabase::class)
+class EnumModel(@PrimaryKey var id: Int = 0, @Column var difficulty: Difficulty? = Difficulty.EASY)
+
 @Table(database = TestDatabase::class, allFields = true)
 open class AllFieldsModel(@PrimaryKey var name: String? = null,
                           var count: Int? = 0,
