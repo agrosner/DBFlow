@@ -33,6 +33,8 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
 
     private DatabaseStatement insertStatement;
     private DatabaseStatement compiledStatement;
+    private DatabaseStatement updateStatement;
+
     private String[] cachingColumns;
     private ModelCache<TModel, ?> modelCache;
     private ModelSaver<TModel> modelSaver;
@@ -57,6 +59,17 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         return insertStatement;
     }
 
+    /**
+     * @return The pre-compiled update statement for this table model adapter. This is reused and cached.
+     */
+    public DatabaseStatement getUpdateStatement() {
+        if (insertStatement == null) {
+            insertStatement = getUpdateStatement(getWritableDatabaseForTable(getModelClass()));
+        }
+
+        return insertStatement;
+    }
+
     public void closeInsertStatement() {
         if (insertStatement == null) {
             return;
@@ -72,6 +85,15 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      */
     public DatabaseStatement getInsertStatement(DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getInsertStatementQuery());
+    }
+
+    /**
+     * @param databaseWrapper The database used to do an update statement.
+     * @return a new compiled {@link DatabaseStatement} representing update. Not cached, always generated.
+     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Object)}.
+     */
+    public DatabaseStatement getUpdateStatement(DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(getUpdateStatementQuery());
     }
 
     public DatabaseStatement getDeleteStatement(TModel model, DatabaseWrapper databaseWrapper) {
@@ -442,6 +464,8 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @return The normal query used in saving a model if we use a {@link SQLiteStatement}.
      */
     protected abstract String getCompiledStatementQuery();
+
+    protected abstract String getUpdateStatementQuery();
 
     /**
      * @return The conflict algorithm to use when updating a row in this table.
