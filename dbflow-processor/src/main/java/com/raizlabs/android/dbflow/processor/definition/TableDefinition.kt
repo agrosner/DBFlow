@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.raizlabs.android.dbflow.processor.OneToManyValidator
 import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod.Mode.*
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
@@ -127,7 +128,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
         methods = arrayOf(BindToContentValuesMethod(this, true, implementsContentValuesListener),
                 BindToContentValuesMethod(this, false, implementsContentValuesListener),
-                BindToStatementMethod(this, true), BindToStatementMethod(this, false),
+                BindToStatementMethod(this, INSERT), BindToStatementMethod(this, NON_INSERT),
+                BindToStatementMethod(this, UPDATE),
                 InsertStatementQueryMethod(this, true), InsertStatementQueryMethod(this, false),
                 UpdateStatementQueryMethod(this),
                 CreationQueryMethod(this), LoadFromCursorMethod(this), ExistenceMethod(this),

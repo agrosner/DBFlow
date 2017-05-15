@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.sql.saveable;
 
-import android.content.ContentValues;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -30,14 +29,15 @@ public class CacheableListModelSaver<TModel>
         ModelSaver<TModel> modelSaver = getModelSaver();
         ModelAdapter<TModel> modelAdapter = modelSaver.getModelAdapter();
         DatabaseStatement statement = modelAdapter.getInsertStatement(wrapper);
-        ContentValues contentValues = new ContentValues();
+        DatabaseStatement updateStatement = modelAdapter.getUpdateStatement(wrapper);
         try {
             for (TModel model : tableCollection) {
-                if (modelSaver.save(model, wrapper, statement, contentValues)) {
+                if (modelSaver.save(model, wrapper, statement, updateStatement)) {
                     modelAdapter.storeModelInCache(model);
                 }
             }
         } finally {
+            updateStatement.close();
             statement.close();
         }
     }
@@ -73,11 +73,15 @@ public class CacheableListModelSaver<TModel>
         }
         ModelSaver<TModel> modelSaver = getModelSaver();
         ModelAdapter<TModel> modelAdapter = modelSaver.getModelAdapter();
-        ContentValues contentValues = new ContentValues();
-        for (TModel model : tableCollection) {
-            if (modelSaver.update(model, wrapper, contentValues)) {
-                modelAdapter.storeModelInCache(model);
+        DatabaseStatement statement = modelAdapter.getUpdateStatement(wrapper);
+        try {
+            for (TModel model : tableCollection) {
+                if (modelSaver.update(model, wrapper, statement)) {
+                    modelAdapter.storeModelInCache(model);
+                }
             }
+        } finally {
+            statement.close();
         }
     }
 }

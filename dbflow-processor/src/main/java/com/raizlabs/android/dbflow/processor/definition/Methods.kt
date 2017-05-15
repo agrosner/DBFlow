@@ -83,11 +83,25 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
 /**
  * Description:
  */
-class BindToStatementMethod(private val tableDefinition: TableDefinition, private val isInsert: Boolean) : MethodDefinition {
+class BindToStatementMethod(private val tableDefinition: TableDefinition, private val mode: Mode) : MethodDefinition {
+
+    enum class Mode {
+        INSERT {
+            override val methodName = "bindToInsertStatement"
+        },
+        UPDATE {
+            override val methodName = "bindToUpdateStatement"
+        },
+        NON_INSERT {
+            override val methodName = "bindToStatement"
+        };
+
+        abstract val methodName: String
+    }
 
     override val methodSpec: MethodSpec?
         get() {
-            val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "bindToInsertStatement" else "bindToStatement")
+            val methodBuilder = MethodSpec.methodBuilder(mode.methodName)
                     .addAnnotation(Override::class.java)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
@@ -95,36 +109,49 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                             ModelUtils.variable).returns(TypeName.VOID)
 
             // write the reference method
-            if (isInsert) {
+            if (mode == Mode.INSERT) {
                 methodBuilder.addParameter(TypeName.INT, PARAM_START)
                 val realCount = AtomicInteger(1)
-                tableDefinition.columnDefinitions.forEach {
-                    if (!it.isPrimaryKeyAutoIncrement && !it.isRowId) {
-                        methodBuilder.addCode(it.getSQLiteStatementMethod(realCount))
-                        realCount.incrementAndGet()
-                    }
-                }
+                tableDefinition.columnDefinitions
+                        .filter { !it.isPrimaryKeyAutoIncrement && !it.isRowId }
+                        .forEach {
+                            methodBuilder.addCode(it.getSQLiteStatementMethod(realCount, true))
+                            realCount.incrementAndGet()
+                        }
 
-                if (tableDefinition.implementsSqlStatementListener) {
-                    methodBuilder.addStatement("${ModelUtils.variable}.onBindTo\$LStatement($PARAM_STATEMENT)",
-                            if (isInsert) "Insert" else "")
+                if (tableDefinition.implementsSqlStatementListener && mode != Mode.UPDATE) {
+                    methodBuilder.addStatement("${ModelUtils.variable}.${mode.methodName}($PARAM_STATEMENT)")
                 }
             } else {
-                var start = 0
-                if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
-                    val autoIncrement = tableDefinition.autoIncrementColumn
-                    autoIncrement?.let {
-                        methodBuilder.addStatement("int start = 0")
-                        methodBuilder.addCode(it.getSQLiteStatementMethod(AtomicInteger(++start)))
+                if (mode == Mode.UPDATE) {
+                    val realCount = AtomicInteger(1)
+                    // attach non rowid first, then go onto the WHERE clause
+                    tableDefinition.columnDefinitions
+                            .filter { !it.isRowId }
+                            .forEach {
+                                methodBuilder.addCode(it.getSQLiteStatementMethod(realCount, false))
+                                realCount.incrementAndGet()
+                            }
+                    tableDefinition.primaryColumnDefinitions.forEach {
+                        methodBuilder.addCode(it.getSQLiteStatementMethod(realCount, false))
+                        realCount.incrementAndGet()
                     }
-                    methodBuilder.addStatement("bindToInsertStatement($PARAM_STATEMENT, ${ModelUtils.variable}, $start)")
-                } else if (tableDefinition.implementsSqlStatementListener) {
-                    methodBuilder.addStatement("bindToInsertStatement($PARAM_STATEMENT, ${ModelUtils.variable}, $start)")
-                    methodBuilder.addStatement("${ModelUtils.variable}.onBindTo\$LStatement($PARAM_STATEMENT)",
-                            if (isInsert) "Insert" else "")
                 } else {
-                    // don't generate method
-                    return null
+                    var start = 0
+                    if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
+                        val autoIncrement = tableDefinition.autoIncrementColumn
+                        autoIncrement?.let {
+                            methodBuilder.addStatement("int start = 0")
+                            methodBuilder.addCode(it.getSQLiteStatementMethod(AtomicInteger(++start), true))
+                        }
+                        methodBuilder.addStatement("bindToInsertStatement($PARAM_STATEMENT, ${ModelUtils.variable}, $start)")
+                    } else if (tableDefinition.implementsSqlStatementListener && mode != Mode.UPDATE) {
+                        methodBuilder.addStatement("bindToInsertStatement($PARAM_STATEMENT, ${ModelUtils.variable}, $start)")
+                        methodBuilder.addStatement("${ModelUtils.variable}.${mode.methodName}($PARAM_STATEMENT)")
+                    } else {
+                        // don't generate method
+                        return null
+                    }
                 }
             }
 
@@ -320,31 +347,32 @@ class UpdateStatementQueryMethod(private val tableDefinition: TableDefinition) :
         get() {
             return `override fun`(String::class, "getUpdateStatementQuery") {
                 modifiers(public, final)
-                code {
-                    add("return \$T.update(getModelClass())\n", ClassNames.SQLITE)
+                `return`(codeBlock {
+                    add("UPDATE")
                     if (!tableDefinition.updateConflictActionName.isEmpty()) {
-                        add(".or(\$T.${tableDefinition.updateConflictActionName})\n", ClassNames.CONFLICT_ACTION)
+                        add(" OR ${tableDefinition.updateConflictActionName}")
                     }
-                    add(".set(")
+                    add(" ${QueryBuilder.quote(tableDefinition.tableName)} SET ")
 
+                    // can only change non primary key values.
                     tableDefinition.columnDefinitions.filter {
-                        !it.isPrimaryKeyAutoIncrement && !it.isRowId
+                        !it.isRowId
                     }.forEachIndexed { index, columnDefinition ->
                         if (index > 0) add(",")
                         add(columnDefinition.updateStatementBlock)
 
                     }
-                    add(")\n.where(")
+                    add(" WHERE ")
 
+                    // primary key values used as WHERE
                     tableDefinition.columnDefinitions.filter {
                         it.isPrimaryKey || it.isPrimaryKeyAutoIncrement || it.isRowId
                     }.forEachIndexed { index, columnDefinition ->
-                        if (index > 0) add(",")
+                        if (index > 0) add(" AND ")
                         add(columnDefinition.updateStatementBlock)
                     }
-
-                    add(")\n.getQuery();\n")
-                }
+                    this
+                }.S)
             }
         }
 }

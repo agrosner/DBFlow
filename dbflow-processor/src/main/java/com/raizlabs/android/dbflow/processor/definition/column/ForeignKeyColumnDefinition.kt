@@ -164,7 +164,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
                     builder.add(",")
                 }
                 val referenceDefinition = _foreignKeyReferenceDefinitionList[i]
-                builder.add("${referenceDefinition.columnName}.eq(\$T.WILDCARD)", ClassNames.PROPERTY)
+                builder.add(CodeBlock.of("${QueryBuilder.quote(referenceDefinition.columnName)}=?"))
             }
             return builder.build()
         }
@@ -240,9 +240,9 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             codeBuilder.build()
         }
 
-    override fun getSQLiteStatementMethod(index: AtomicInteger): CodeBlock {
+    override fun getSQLiteStatementMethod(index: AtomicInteger, useStart: Boolean): CodeBlock {
         if (nonModelColumn) {
-            return super.getSQLiteStatementMethod(index)
+            return super.getSQLiteStatementMethod(index, useStart)
         } else {
             checkNeedsReferences()
             val codeBuilder = CodeBlock.builder()
@@ -251,7 +251,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
                 _foreignKeyReferenceDefinitionList.forEach {
                     foreignKeyCombiner.fieldAccesses += it.sqliteStatementField
                 }
-                foreignKeyCombiner.addCode(codeBuilder, index)
+                foreignKeyCombiner.addCode(codeBuilder, index, useStart)
             }
             return codeBuilder.build()
         }

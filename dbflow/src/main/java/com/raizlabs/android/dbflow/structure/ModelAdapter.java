@@ -63,11 +63,11 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @return The pre-compiled update statement for this table model adapter. This is reused and cached.
      */
     public DatabaseStatement getUpdateStatement() {
-        if (insertStatement == null) {
-            insertStatement = getUpdateStatement(getWritableDatabaseForTable(getModelClass()));
+        if (updateStatement == null) {
+            updateStatement = getUpdateStatement(getWritableDatabaseForTable(getModelClass()));
         }
 
-        return insertStatement;
+        return updateStatement;
     }
 
     public void closeInsertStatement() {
@@ -236,6 +236,8 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     public void bindToStatement(DatabaseStatement sqLiteStatement, TModel tModel) {
         bindToInsertStatement(sqLiteStatement, tModel, 0);
     }
+
+    abstract public void bindToUpdateStatement(DatabaseStatement updateStatement, TModel model);
 
     /**
      * If a {@link Model} has an auto-incrementing primary key, then

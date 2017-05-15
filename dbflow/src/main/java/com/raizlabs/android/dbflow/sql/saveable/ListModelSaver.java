@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.sql.saveable;
 
-import android.content.ContentValues;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
@@ -27,10 +26,10 @@ public class ListModelSaver<TModel> {
         }
 
         DatabaseStatement statement = modelSaver.getModelAdapter().getInsertStatement(wrapper);
-        ContentValues contentValues = new ContentValues();
+        DatabaseStatement updateStatement = modelSaver.getModelAdapter().getUpdateStatement(wrapper);
         try {
             for (TModel model : tableCollection) {
-                modelSaver.save(model, wrapper, statement, contentValues);
+                modelSaver.save(model, wrapper, statement, updateStatement);
             }
         } finally {
             statement.close();
@@ -68,9 +67,13 @@ public class ListModelSaver<TModel> {
             return;
         }
 
-        ContentValues contentValues = new ContentValues();
-        for (TModel model : tableCollection) {
-            modelSaver.update(model, wrapper, contentValues);
+        DatabaseStatement updateStatement = modelSaver.getModelAdapter().getUpdateStatement(wrapper);
+        try {
+            for (TModel model : tableCollection) {
+                modelSaver.update(model, wrapper, updateStatement);
+            }
+        } finally {
+            updateStatement.close();
         }
     }
 

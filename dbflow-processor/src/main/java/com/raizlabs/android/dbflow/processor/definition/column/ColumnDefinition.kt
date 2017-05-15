@@ -70,7 +70,7 @@ constructor(processorManager: ProcessorManager, element: Element,
     var typeConverterDefinition: TypeConverterDefinition? = null
 
     open val updateStatementBlock: CodeBlock
-        get() = CodeBlock.of("$propertyFieldName.eq(\$T.WILDCARD)", ClassNames.PROPERTY)
+        get() = CodeBlock.of("${QueryBuilder.quote(columnName)}=?")
 
     open val insertStatementColumnName: CodeBlock
         get() = CodeBlock.of("\$L", QueryBuilder.quote(columnName))
@@ -324,9 +324,9 @@ constructor(processorManager: ProcessorManager, element: Element,
         index.incrementAndGet()
     }
 
-    open fun getSQLiteStatementMethod(index: AtomicInteger) = code {
+    open fun getSQLiteStatementMethod(index: AtomicInteger, useStart: Boolean) = code {
         SqliteStatementAccessCombiner(combiner).apply {
-            addCode("start", getDefaultValueBlock(), index.get(), modelBlock)
+            addCode(if (useStart) "start" else "", getDefaultValueBlock(), index.get(), modelBlock)
         }
         this
     }
