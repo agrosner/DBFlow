@@ -59,7 +59,7 @@ public class ListModelSaver<TModel> {
     }
 
     public synchronized void updateAll(@NonNull Collection<TModel> tableCollection) {
-        saveAll(tableCollection, modelSaver.getWritableDatabase());
+        updateAll(tableCollection, modelSaver.getWritableDatabase());
     }
 
     public synchronized void updateAll(@NonNull Collection<TModel> tableCollection,
