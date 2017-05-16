@@ -90,8 +90,13 @@ public class ListModelSaver<TModel> {
             return;
         }
 
-        for (TModel model : tableCollection) {
-            modelSaver.delete(model, wrapper);
+        DatabaseStatement deleteStatement = modelSaver.getModelAdapter().getDeleteStatement(wrapper);
+        try {
+            for (TModel model : tableCollection) {
+                modelSaver.delete(model, deleteStatement, wrapper);
+            }
+        } finally {
+            deleteStatement.close();
         }
     }
 
