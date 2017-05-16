@@ -49,7 +49,8 @@ abstract class ColumnAccessCombiner(val combiner: Combiner) {
 
     abstract fun CodeBlock.Builder.addCode(columnRepresentation: String, defaultValue: CodeBlock? = null,
                                            index: Int = -1,
-                                           modelBlock: CodeBlock = CodeBlock.of("model"))
+                                           modelBlock: CodeBlock = CodeBlock.of("model"),
+                                           defineProperty: Boolean = true)
 
     open fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int = -1) {
 
@@ -59,7 +60,7 @@ abstract class ColumnAccessCombiner(val combiner: Combiner) {
 class SimpleAccessCombiner(combiner: Combiner)
     : ColumnAccessCombiner(combiner) {
     override fun CodeBlock.Builder.addCode(columnRepresentation: String,
-                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock, defineProperty: Boolean) {
         statement("return \$L", getFieldAccessBlock(this, modelBlock))
     }
 
@@ -71,7 +72,7 @@ class ExistenceAccessCombiner(combiner: Combiner,
                               val tableClassName: ClassName)
     : ColumnAccessCombiner(combiner) {
     override fun CodeBlock.Builder.addCode(columnRepresentation: String,
-                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock, defineProperty: Boolean) {
 
         combiner.apply {
             if (autoRowId) {
@@ -112,7 +113,7 @@ class ContentValuesCombiner(combiner: Combiner)
 
     override fun CodeBlock.Builder.addCode(columnRepresentation: String,
                                            defaultValue: CodeBlock?, index: Int,
-                                           modelBlock: CodeBlock) {
+                                           modelBlock: CodeBlock, defineProperty: Boolean) {
         combiner.apply {
             val fieldAccess: CodeBlock = getFieldAccessBlock(this@addCode, modelBlock)
             if (fieldTypeName.isPrimitive) {
@@ -139,11 +140,11 @@ class ContentValuesCombiner(combiner: Combiner)
     }
 }
 
-class SqliteStatementAccessCombiner(combiner: Combiner, val defineProperty: Boolean = true)
+class SqliteStatementAccessCombiner(combiner: Combiner)
     : ColumnAccessCombiner(combiner) {
     override fun CodeBlock.Builder.addCode(columnRepresentation: String,
                                            defaultValue: CodeBlock?, index: Int,
-                                           modelBlock: CodeBlock) {
+                                           modelBlock: CodeBlock, defineProperty: Boolean) {
         combiner.apply {
             val fieldAccess: CodeBlock = getFieldAccessBlock(this@addCode, modelBlock,
                     defineProperty = defineProperty)
@@ -189,7 +190,7 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
 
     override fun CodeBlock.Builder.addCode(columnRepresentation: String,
                                            defaultValue: CodeBlock?, index: Int,
-                                           modelBlock: CodeBlock) {
+                                           modelBlock: CodeBlock, defineProperty: Boolean) {
         combiner.apply {
             var indexName = if (!orderedCursorLookup) {
                 CodeBlock.of(columnRepresentation.S)
@@ -254,7 +255,7 @@ class PrimaryReferenceAccessCombiner(combiner: Combiner)
     : ColumnAccessCombiner(combiner) {
     override fun CodeBlock.Builder.addCode(columnRepresentation: String,
                                            defaultValue: CodeBlock?, index: Int,
-                                           modelBlock: CodeBlock) {
+                                           modelBlock: CodeBlock, defineProperty: Boolean) {
         val wrapperLevelAccessor = this@PrimaryReferenceAccessCombiner.combiner.wrapperLevelAccessor
         statement("clause.and(\$L.\$Leq(\$L))", columnRepresentation,
                 if (!wrapperLevelAccessor.isPrimitiveTarget()) "invertProperty()." else "",
@@ -270,7 +271,7 @@ class PrimaryReferenceAccessCombiner(combiner: Combiner)
 class UpdateAutoIncrementAccessCombiner(combiner: Combiner)
     : ColumnAccessCombiner(combiner) {
     override fun CodeBlock.Builder.addCode(columnRepresentation: String, defaultValue: CodeBlock?,
-                                           index: Int, modelBlock: CodeBlock) {
+                                           index: Int, modelBlock: CodeBlock, defineProperty: Boolean) {
         combiner.apply {
             var method = ""
             if (SQLiteHelper.containsNumberMethod(fieldTypeName.unbox())) {
@@ -286,7 +287,7 @@ class UpdateAutoIncrementAccessCombiner(combiner: Combiner)
 class CachingIdAccessCombiner(combiner: Combiner)
     : ColumnAccessCombiner(combiner) {
     override fun CodeBlock.Builder.addCode(columnRepresentation: String,
-                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock, defineProperty: Boolean) {
         statement("inValues[\$L] = \$L", index, getFieldAccessBlock(this, modelBlock))
     }
 
@@ -297,7 +298,7 @@ class SaveModelAccessCombiner(combiner: Combiner,
                               val extendsBaseModel: Boolean)
     : ColumnAccessCombiner(combiner) {
     override fun CodeBlock.Builder.addCode(columnRepresentation: String,
-                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock, defineProperty: Boolean) {
         combiner.apply {
             val access = getFieldAccessBlock(this@addCode, modelBlock)
             `if`("$access != null") {
@@ -318,7 +319,7 @@ class DeleteModelAccessCombiner(combiner: Combiner,
                                 val extendsBaseModel: Boolean)
     : ColumnAccessCombiner(combiner) {
     override fun CodeBlock.Builder.addCode(columnRepresentation: String,
-                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock) {
+                                           defaultValue: CodeBlock?, index: Int, modelBlock: CodeBlock, defineProperty: Boolean) {
         combiner.apply {
             val access = getFieldAccessBlock(this@addCode, modelBlock)
             `if`("$access != null") {

@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.processor.definition.column.*
 import com.raizlabs.android.dbflow.processor.definition.column.PrimaryReferenceAccessCombiner
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.TypeName
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -105,7 +106,8 @@ class ForeignKeyAccessCombinerTest {
     fun test_canLoadFromCursor() {
         val foreignKeyAccessCombiner = ForeignKeyLoadFromCursorCombiner(VisibleScopeColumnAccessor("testModel1"),
                 ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel"),
-                ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel_Table"), false)
+                ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel_Table"), false,
+                NameAllocator())
         foreignKeyAccessCombiner.fieldAccesses += PartialLoadFromCursorAccessCombiner("testmodel_id",
                 "name", TypeName.get(String::class.java), false, null)
         foreignKeyAccessCombiner.fieldAccesses += PartialLoadFromCursorAccessCombiner("testmodel_type",
@@ -130,7 +132,8 @@ class ForeignKeyAccessCombinerTest {
     fun test_canLoadFromCursorStubbed() {
         val foreignKeyAccessCombiner = ForeignKeyLoadFromCursorCombiner(VisibleScopeColumnAccessor("testModel1"),
                 ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel"),
-                ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel_Table"), true)
+                ClassName.get("com.raizlabs.android.dbflow.test.container", "ParentModel_Table"), true,
+                NameAllocator())
         foreignKeyAccessCombiner.fieldAccesses += PartialLoadFromCursorAccessCombiner("testmodel_id",
                 "name", TypeName.get(String::class.java), false, VisibleScopeColumnAccessor("name"))
         foreignKeyAccessCombiner.fieldAccesses += PartialLoadFromCursorAccessCombiner("testmodel_type",

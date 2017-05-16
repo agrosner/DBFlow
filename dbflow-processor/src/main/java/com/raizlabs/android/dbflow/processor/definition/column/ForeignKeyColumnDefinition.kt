@@ -252,7 +252,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
                 _foreignKeyReferenceDefinitionList.forEach {
                     foreignKeyCombiner.fieldAccesses += it.sqliteStatementField
                 }
-                foreignKeyCombiner.addCode(codeBuilder, index, useStart)
+                foreignKeyCombiner.addCode(codeBuilder, index, useStart, defineProperty)
             }
             return codeBuilder.build()
         }

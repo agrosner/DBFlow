@@ -1,7 +1,9 @@
 package com.raizlabs.android.dbflow.sql.saveable;
 
+import android.content.ContentValues;
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.language.Delete;
@@ -153,5 +155,47 @@ public class ModelSaver<TModel> {
         return modelAdapter;
     }
 
+    /**
+     * @see #save(Object, DatabaseWrapper, DatabaseStatement, DatabaseStatement)
+     */
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public synchronized boolean save(@NonNull TModel model, DatabaseWrapper wrapper,
+                                     DatabaseStatement insertStatement, ContentValues contentValues) {
+        boolean exists = modelAdapter.exists(model, wrapper);
+
+        if (exists) {
+            exists = update(model, wrapper, contentValues);
+        }
+
+        if (!exists) {
+            exists = insert(model, insertStatement, wrapper) > INSERT_FAILED;
+        }
+
+        if (exists) {
+            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE);
+        }
+
+        // return successful store into db.
+        return exists;
+    }
+
+    /**
+     * @see #update(Object, DatabaseWrapper, DatabaseStatement)
+     */
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public synchronized boolean update(@NonNull TModel model, @NonNull DatabaseWrapper wrapper,
+                                       @NonNull ContentValues contentValues) {
+        modelAdapter.saveForeignKeys(model, wrapper);
+        modelAdapter.bindToContentValues(contentValues, model);
+        boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
+            modelAdapter.getPrimaryConditionClause(model).getQuery(), null,
+            ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
+        if (successful) {
+            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE);
+        }
+        return successful;
+    }
 }
 

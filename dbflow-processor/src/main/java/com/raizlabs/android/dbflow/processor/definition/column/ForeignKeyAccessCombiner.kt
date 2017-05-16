@@ -19,12 +19,13 @@ class ForeignKeyAccessCombiner(val fieldAccessor: ColumnAccessor) {
 
     var fieldAccesses: List<ForeignKeyAccessField> = arrayListOf()
 
-    fun addCode(code: CodeBlock.Builder, index: AtomicInteger, useStart: Boolean = true) {
+    fun addCode(code: CodeBlock.Builder, index: AtomicInteger, useStart: Boolean = true,
+                defineProperty: Boolean = true) {
         val modelAccessBlock = fieldAccessor.get(modelBlock)
         code.beginControlFlow("if (\$L != null)", modelAccessBlock)
         val nullAccessBlock = CodeBlock.builder()
         for ((i, it) in fieldAccesses.withIndex()) {
-            it.addCode(code, index.get(), modelAccessBlock, useStart)
+            it.addCode(code, index.get(), modelAccessBlock, useStart, defineProperty)
             it.addNull(nullAccessBlock, index.get(), useStart)
 
             // do not increment last
@@ -43,9 +44,11 @@ class ForeignKeyAccessField(val columnRepresentation: String,
                             val defaultValue: CodeBlock? = null) {
 
     fun addCode(code: CodeBlock.Builder, index: Int, modelAccessBlock: CodeBlock,
-                useStart: Boolean = true) {
+                useStart: Boolean = true,
+                defineProperty: Boolean = true) {
         columnAccessCombiner.apply {
-            code.addCode(if (useStart) columnRepresentation else "", defaultValue, index, modelAccessBlock)
+            code.addCode(if (useStart) columnRepresentation else "", defaultValue, index,
+                    modelAccessBlock, defineProperty)
         }
     }
 
