@@ -19,7 +19,8 @@ public class ListModelSaver<TModel> {
         saveAll(tableCollection, modelSaver.getWritableDatabase());
     }
 
-    public synchronized void saveAll(@NonNull Collection<TModel> tableCollection, DatabaseWrapper wrapper) {
+    public synchronized void saveAll(@NonNull Collection<TModel> tableCollection,
+                                     @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
@@ -40,7 +41,8 @@ public class ListModelSaver<TModel> {
         insertAll(tableCollection, modelSaver.getWritableDatabase());
     }
 
-    public synchronized void insertAll(@NonNull Collection<TModel> tableCollection, DatabaseWrapper wrapper) {
+    public synchronized void insertAll(@NonNull Collection<TModel> tableCollection,
+                                       @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
@@ -61,7 +63,7 @@ public class ListModelSaver<TModel> {
     }
 
     public synchronized void updateAll(@NonNull Collection<TModel> tableCollection,
-                                       DatabaseWrapper wrapper) {
+                                       @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
@@ -82,7 +84,7 @@ public class ListModelSaver<TModel> {
     }
 
     public synchronized void deleteAll(@NonNull Collection<TModel> tableCollection,
-                                       DatabaseWrapper wrapper) {
+                                       @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
@@ -93,7 +95,7 @@ public class ListModelSaver<TModel> {
         }
     }
 
-
+    @NonNull
     public ModelSaver<TModel> getModelSaver() {
         return modelSaver;
     }

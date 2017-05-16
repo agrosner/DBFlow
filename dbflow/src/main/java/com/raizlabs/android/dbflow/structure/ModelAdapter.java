@@ -356,6 +356,10 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         getModelCache().addModel(getCachingId(model), model);
     }
 
+    public void removeModelFromCache(@NonNull TModel model) {
+        getModelCache().removeModel(getCachingId(model));
+    }
+
     public ModelCache<TModel, ?> getModelCache() {
         if (modelCache == null) {
             modelCache = createModelCache();

@@ -66,7 +66,7 @@ public class CacheableListModelSaver<TModel>
 
     @Override
     public synchronized void updateAll(@NonNull Collection<TModel> tableCollection,
-                                       DatabaseWrapper wrapper) {
+                                       @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
@@ -82,6 +82,22 @@ public class CacheableListModelSaver<TModel>
             }
         } finally {
             statement.close();
+        }
+    }
+
+    @Override
+    public synchronized void deleteAll(@NonNull Collection<TModel> tableCollection,
+                                       @NonNull DatabaseWrapper wrapper) {
+        // skip if empty.
+        if (tableCollection.isEmpty()) {
+            return;
+        }
+
+        ModelSaver<TModel> modelSaver = getModelSaver();
+        for (TModel model : tableCollection) {
+            if (modelSaver.delete(model, wrapper)) {
+                getModelSaver().getModelAdapter().removeModelFromCache(model);
+            }
         }
     }
 }
