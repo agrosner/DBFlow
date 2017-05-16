@@ -88,18 +88,28 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
     enum class Mode {
         INSERT {
             override val methodName = "bindToInsertStatement"
+
+            override val sqlListenerName = "onBindToInsertStatement"
         },
         UPDATE {
             override val methodName = "bindToUpdateStatement"
+
+            override val sqlListenerName = "onBindToUpdateStatement"
         },
         DELETE {
             override val methodName = "bindToDeleteStatement"
+
+            override val sqlListenerName = "onBindToDeleteStatement"
         },
         NON_INSERT {
             override val methodName = "bindToStatement"
+
+            override val sqlListenerName = "onBindToStatement"
         };
 
         abstract val methodName: String
+
+        abstract val sqlListenerName: String
     }
 
     override val methodSpec: MethodSpec?
@@ -122,9 +132,6 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                             realCount.incrementAndGet()
                         }
 
-                if (tableDefinition.implementsSqlStatementListener && mode != Mode.UPDATE) {
-                    methodBuilder.addStatement("${ModelUtils.variable}.${mode.methodName}($PARAM_STATEMENT)")
-                }
             } else {
                 if (mode == Mode.UPDATE) {
                     val realCount = AtomicInteger(1)
@@ -156,14 +163,17 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                             methodBuilder.addCode(it.getSQLiteStatementMethod(AtomicInteger(++start), true))
                         }
                         methodBuilder.addStatement("bindToInsertStatement($PARAM_STATEMENT, ${ModelUtils.variable}, $start)")
-                    } else if (tableDefinition.implementsSqlStatementListener && mode != Mode.UPDATE) {
+                    } else if (tableDefinition.implementsSqlStatementListener) {
                         methodBuilder.addStatement("bindToInsertStatement($PARAM_STATEMENT, ${ModelUtils.variable}, $start)")
-                        methodBuilder.addStatement("${ModelUtils.variable}.${mode.methodName}($PARAM_STATEMENT)")
                     } else {
                         // don't generate method
                         return null
                     }
                 }
+            }
+
+            if (tableDefinition.implementsSqlStatementListener) {
+                methodBuilder.addStatement("${ModelUtils.variable}.${mode.sqlListenerName}($PARAM_STATEMENT)")
             }
 
             return methodBuilder.build()
