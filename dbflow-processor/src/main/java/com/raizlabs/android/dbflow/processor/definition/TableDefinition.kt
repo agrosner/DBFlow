@@ -253,7 +253,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 } else if (isInherited) {
                     val inherited = inheritedColumnMap[element.simpleName.toString()]
                     columnDefinition = ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
-                            inherited?.column, null)
+                            inherited?.column, null, inherited?.nonNullConflict ?: ConflictAction.NONE)
                 } else if (isForeign) {
                     columnDefinition = ForeignKeyColumnDefinition(manager, this,
                             element, isPackagePrivateNotInSamePackage)

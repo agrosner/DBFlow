@@ -30,7 +30,8 @@ open class ColumnDefinition @JvmOverloads
 constructor(processorManager: ProcessorManager, element: Element,
             var baseTableDefinition: BaseTableDefinition, isPackagePrivate: Boolean,
             var column: Column? = element.annotation(),
-            primaryKey: PrimaryKey? = element.annotation())
+            primaryKey: PrimaryKey? = element.annotation(),
+            notNullConflict: ConflictAction = ConflictAction.NONE)
     : BaseDefinition(element, processorManager) {
 
     private val QUOTE_PATTERN = Pattern.compile("\".*\"")
@@ -87,6 +88,11 @@ constructor(processorManager: ProcessorManager, element: Element,
         element.annotation<NotNull>()?.let { notNullAnno ->
             notNull = true
             onNullConflict = notNullAnno.onNullConflict
+        }
+
+        if (onNullConflict == ConflictAction.NONE && notNullConflict != ConflictAction.NONE) {
+            onNullConflict = notNullConflict
+            notNull = true
         }
 
         column?.let {
