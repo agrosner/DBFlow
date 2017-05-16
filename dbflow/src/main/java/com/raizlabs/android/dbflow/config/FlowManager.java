@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
+import com.raizlabs.android.dbflow.runtime.ModelNotifier;
+import com.raizlabs.android.dbflow.runtime.TableNotifierRegister;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.BaseModel;
@@ -407,6 +409,16 @@ public class FlowManager {
             throwCannotFindAdapter("QueryModelAdapter", queryModelClass);
         }
         return queryModelAdapter;
+    }
+
+    @NonNull
+    public static ModelNotifier getModelNotifierForTable(Class<?> table) {
+        return getDatabaseForTable(table).getModelNotifier();
+    }
+
+    @NonNull
+    public static TableNotifierRegister newRegisterForTable(Class<?> table) {
+        return getModelNotifierForTable(table).newRegister();
     }
 
     @Nullable

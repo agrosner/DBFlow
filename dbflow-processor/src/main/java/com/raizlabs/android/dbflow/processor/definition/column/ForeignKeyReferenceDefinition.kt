@@ -52,12 +52,12 @@ class ForeignKeyReferenceDefinition(private val manager: ProcessorManager,
             columnAccessor = PrivateScopeColumnAccessor(foreignKeyFieldName, getterSetter, false)
         } else if (isReferencedFieldPackagePrivate) {
             columnAccessor = PackagePrivateScopeColumnAccessor(foreignKeyFieldName, packageName,
-                foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
-                name)
+                    foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
+                    name)
 
             PackagePrivateScopeColumnAccessor.putElement(
-                (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
-                foreignKeyFieldName)
+                    (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
+                    foreignKeyFieldName)
         } else {
             columnAccessor = VisibleScopeColumnAccessor(foreignKeyFieldName)
         }
@@ -69,10 +69,10 @@ class ForeignKeyReferenceDefinition(private val manager: ProcessorManager,
         evaluateTypeConverter(typeConverterDefinition)
 
         val combiner = Combiner(columnAccessor, columnClassName!!, wrapperAccessor,
-            wrapperTypeName, subWrapperAccessor)
+                wrapperTypeName, subWrapperAccessor)
         partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, foreignColumnName,
-            columnClassName, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
-            columnAccessor, wrapperAccessor, wrapperTypeName)
+                columnClassName, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
+                columnAccessor, wrapperAccessor, wrapperTypeName)
 
         primaryReferenceField = ForeignKeyAccessField(columnName, PrimaryReferenceAccessCombiner(combiner))
 
@@ -88,12 +88,12 @@ class ForeignKeyReferenceDefinition(private val manager: ProcessorManager,
 
             if (it.modelTypeName != columnClassName) {
                 manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
-                    it.modelTypeName, it.className, columnClassName)
+                        it.modelTypeName, it.className, columnClassName)
             } else {
                 hasTypeConverter = true
 
                 val fieldName = foreignKeyColumnDefinition.baseTableDefinition
-                    .addColumnForTypeConverter(foreignKeyColumnDefinition, it.className)
+                        .addColumnForTypeConverter(foreignKeyColumnDefinition, it.className)
                 wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
                 wrapperTypeName = it.dbTypeName
 
@@ -109,7 +109,7 @@ class ForeignKeyReferenceDefinition(private val manager: ProcessorManager,
         if (!localColumnName.isNullOrEmpty()) {
             this.columnName = localColumnName
         } else if (!foreignKeyColumnDefinition.isPrimaryKey && !foreignKeyColumnDefinition.isPrimaryKeyAutoIncrement
-            && !foreignKeyColumnDefinition.isRowId || referenceCount > 0) {
+                && !foreignKeyColumnDefinition.isRowId || referenceCount > 0) {
             this.columnName = foreignKeyFieldName + "_" + referencedColumn.columnName
         } else {
             this.columnName = foreignKeyFieldName
@@ -120,8 +120,8 @@ class ForeignKeyReferenceDefinition(private val manager: ProcessorManager,
         isReferencedFieldPackagePrivate = referencedColumn.columnAccessor is PackagePrivateScopeColumnAccessor
         val isPackagePrivate = ElementUtility.isPackagePrivate(referencedColumn.element)
         val isPackagePrivateNotInSamePackage = isPackagePrivate &&
-            !ElementUtility.isInSamePackage(manager, referencedColumn.element,
-                foreignKeyColumnDefinition.element)
+                !ElementUtility.isInSamePackage(manager, referencedColumn.element,
+                        foreignKeyColumnDefinition.element)
         isReferencedFieldPackagePrivate = isReferencedFieldPackagePrivate || isPackagePrivateNotInSamePackage
         val packageName = referencedColumn.packageName
         val name = ClassName.get(referencedColumn.element.enclosingElement as TypeElement).simpleName()

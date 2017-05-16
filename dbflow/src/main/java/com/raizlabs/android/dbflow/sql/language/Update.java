@@ -34,6 +34,11 @@ public class Update<TModel> implements Query {
         return this;
     }
 
+    @NonNull
+    public Update<TModel> or(ConflictAction conflictAction) {
+        return conflictAction(conflictAction);
+    }
+
     /**
      * @return This instance.
      * @see ConflictAction#ROLLBACK

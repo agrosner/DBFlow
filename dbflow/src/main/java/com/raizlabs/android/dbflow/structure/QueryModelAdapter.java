@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.structure;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
@@ -17,17 +19,17 @@ public abstract class QueryModelAdapter<TQueryModel> extends
     }
 
     @Override
-    public OperatorGroup getPrimaryConditionClause(TQueryModel model) {
+    public OperatorGroup getPrimaryConditionClause(@NonNull TQueryModel model) {
         throw new UnsupportedOperationException("QueryModels cannot check for existence");
     }
 
     @Override
-    public boolean exists(TQueryModel model) {
+    public boolean exists(@NonNull TQueryModel model) {
         throw new UnsupportedOperationException("QueryModels cannot check for existence");
     }
 
     @Override
-    public boolean exists(TQueryModel model, DatabaseWrapper databaseWrapper) {
+    public boolean exists(@NonNull TQueryModel model, @NonNull DatabaseWrapper databaseWrapper) {
         throw new UnsupportedOperationException("QueryModels cannot check for existence");
     }
 }

@@ -37,7 +37,7 @@ fun MethodSpec.Builder.statement(codeBlock: CodeBlock?): MethodSpec.Builder
 
 inline fun <T : Throwable> CodeBlock.Builder.catch(exception: KClass<T>,
                                                    function: CodeBlock.Builder.() -> CodeBlock.Builder)
-        = nextControl("catch", statement = "\$T e", args = arrayOf(exception), function = function).end()
+        = nextControl("catch", statement = "\$T e", args = exception.java, function = function).end()
 
 fun codeBlock(function: CodeBlock.Builder.() -> CodeBlock.Builder) = CodeBlock.builder().function().build()
 

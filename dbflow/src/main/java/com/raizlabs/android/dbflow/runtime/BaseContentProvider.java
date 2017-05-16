@@ -45,6 +45,8 @@ public abstract class BaseContentProvider extends ContentProvider {
         // framework has been initialized.
         if (moduleClass != null) {
             FlowManager.initModule(moduleClass);
+        } else if (getContext() != null) {
+            FlowManager.init(getContext());
         }
 
         return true;

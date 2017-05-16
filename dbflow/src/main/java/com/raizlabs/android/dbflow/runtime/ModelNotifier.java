@@ -16,4 +16,5 @@ public interface ModelNotifier {
 
     <T> void notifyTableChanged(@NonNull Class<T> table, @NonNull BaseModel.Action action);
 
+    TableNotifierRegister newRegister();
 }

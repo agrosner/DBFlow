@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 public interface SQLiteStatementListener {
 
     /**
-     * Called at the end of {@link InternalAdapter#bindToStatement(DatabaseStatement, Model)}
+     * Called at the end of {@link InternalAdapter#bindToStatement(DatabaseStatement, Object)}
      * Perform a custom manipulation of the statement as willed.
      *
      * @param databaseStatement The statement from the {@link ModelAdapter}
@@ -20,10 +20,20 @@ public interface SQLiteStatementListener {
     void onBindToStatement(DatabaseStatement databaseStatement);
 
     /**
-     * Called at the end of {@link InternalAdapter#bindToInsertStatement(DatabaseStatement, Model)}
+     * Called at the end of {@link InternalAdapter#bindToInsertStatement(DatabaseStatement, Object)}
      * Perform a custom manipulation of the statement as willed.
      *
      * @param databaseStatement The insert statement from the {@link ModelAdapter}
      */
     void onBindToInsertStatement(DatabaseStatement databaseStatement);
+
+    /**
+     * Called at the end of {@link InternalAdapter#bindToUpdateStatement(DatabaseStatement, Object)}
+     * Perform a custom manipulation of the statement as willed.
+     *
+     * @param databaseStatement The insert statement from the {@link ModelAdapter}
+     */
+    void onBindToUpdateStatement(DatabaseStatement databaseStatement);
+
+    void onBindToDeleteStatement(DatabaseStatement databaseStatement);
 }
