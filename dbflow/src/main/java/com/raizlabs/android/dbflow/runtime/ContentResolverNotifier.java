@@ -32,4 +32,57 @@ public class ContentResolverNotifier implements ModelNotifier {
         }
     }
 
+    @Override
+    public TableNotifierRegister newRegister() {
+        return new FlowContentTableNotifierRegister();
+    }
+
+    public static class FlowContentTableNotifierRegister implements TableNotifierRegister {
+
+        private final FlowContentObserver flowContentObserver = new FlowContentObserver();
+
+        @Nullable
+        private OnTableChangedListener tableChangedListener;
+
+        public FlowContentTableNotifierRegister() {
+            flowContentObserver.addOnTableChangedListener(internalContentChangeListener);
+        }
+
+        @Override
+        public <T> void register(Class<T> tClass) {
+            flowContentObserver.registerForContentChanges(FlowManager.getContext(), tClass);
+        }
+
+        @Override
+        public <T> void unregister(Class<T> tClass) {
+            flowContentObserver.unregisterForContentChanges(FlowManager.getContext());
+        }
+
+        @Override
+        public void unregisterAll() {
+            flowContentObserver.removeTableChangedListener(internalContentChangeListener);
+            this.tableChangedListener = null;
+        }
+
+        @Override
+        public void setListener(OnTableChangedListener contentChangeListener) {
+            this.tableChangedListener = contentChangeListener;
+        }
+
+        @Override
+        public boolean isSubscribed() {
+            return !flowContentObserver.isSubscribed();
+        }
+
+        private final OnTableChangedListener internalContentChangeListener
+            = new OnTableChangedListener() {
+
+            @Override
+            public void onTableChanged(@Nullable Class<?> tableChanged, @NonNull BaseModel.Action action) {
+                if (tableChangedListener != null) {
+                    tableChangedListener.onTableChanged(tableChanged, action);
+                }
+            }
+        };
+    }
 }

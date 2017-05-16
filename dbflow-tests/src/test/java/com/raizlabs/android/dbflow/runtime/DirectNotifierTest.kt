@@ -25,7 +25,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(Build.VERSION_CODES.LOLLIPOP),
-    assetDir = "build/intermediates/classes/test/")
+        assetDir = "build/intermediates/classes/test/")
 class DirectNotifierTest {
 
     val context: Context
@@ -34,18 +34,18 @@ class DirectNotifierTest {
     @Before
     fun setupTest() {
         FlowManager.init(FlowConfig.Builder(context)
-            .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
-                .transactionManagerCreator(::ImmediateTransactionManager)
-                .modelNotifier(DirectModelNotifier.get())
-                .build()).build())
+                .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+                        .transactionManagerCreator(::ImmediateTransactionManager)
+                        .modelNotifier(DirectModelNotifier.get())
+                        .build()).build())
     }
 
     @Test
     fun validateCanNotifyDirect() {
         val simpleModel = SimpleModel("Name")
 
-        val modelChange = mock<DirectModelNotifier.ModelChangedListener<SimpleModel>>()
-        DirectModelNotifier.get().registerForModelChanges(SimpleModel::class.java, modelChange)
+        val modelChange = mock<DirectModelNotifier.OnModelStateChangedListener<SimpleModel>>()
+        DirectModelNotifier.get().registerForModelStateChanges(SimpleModel::class.java, modelChange)
 
         simpleModel.insert()
         verify(modelChange).onModelChanged(simpleModel, BaseModel.Action.INSERT)
@@ -62,20 +62,20 @@ class DirectNotifierTest {
 
     @Test
     fun validateCanNotifyWrapperClasses() {
-        val modelChange = mock<DirectModelNotifier.ModelChangedListener<SimpleModel>>()
-        DirectModelNotifier.get().registerForModelChanges(SimpleModel::class.java, modelChange)
+        val modelChange = mock<OnTableChangedListener>()
+        DirectModelNotifier.get().registerForTableChanges(SimpleModel::class.java, modelChange)
 
         insert<SimpleModel>().columnValues(SimpleModel_Table.name to "name").executeInsert()
 
-        verify(modelChange).onTableChanged(BaseModel.Action.INSERT)
+        verify(modelChange).onTableChanged(SimpleModel::class.java, BaseModel.Action.INSERT)
 
         (update<SimpleModel>() set SimpleModel_Table.name.eq("name2")).executeUpdateDelete()
 
-        verify(modelChange).onTableChanged(BaseModel.Action.UPDATE)
+        verify(modelChange).onTableChanged(SimpleModel::class.java, BaseModel.Action.UPDATE)
 
         delete<SimpleModel>().executeUpdateDelete()
 
-        verify(modelChange).onTableChanged(BaseModel.Action.DELETE)
+        verify(modelChange).onTableChanged(SimpleModel::class.java, BaseModel.Action.DELETE)
     }
 
     @After

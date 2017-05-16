@@ -1,9 +1,11 @@
 package com.raizlabs.android.dbflow.rx.language;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
+import com.raizlabs.android.dbflow.runtime.OnTableChangedListener;
+import com.raizlabs.android.dbflow.runtime.TableNotifierRegister;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.language.Where;
@@ -29,21 +31,21 @@ public class TableChangeListenerEmitter<TModel> implements Action1<Emitter<Model
     @Override
     public void call(Emitter<ModelQueriable<TModel>> modelQueriableEmitter) {
         modelQueriableEmitter.setSubscription(
-            new FlowContentObserverSubscription(modelQueriableEmitter));
+            new FlowContentObserverSubscription(modelQueriableEmitter, modelQueriable.getTable()));
     }
 
     private class FlowContentObserverSubscription implements Subscription {
 
         private final Emitter<ModelQueriable<TModel>> modelQueriableEmitter;
 
-        private final FlowContentObserver flowContentObserver = new FlowContentObserver();
+        private final TableNotifierRegister register;
 
         private FlowContentObserverSubscription(
-            Emitter<ModelQueriable<TModel>> modelQueriableEmitter) {
+            Emitter<ModelQueriable<TModel>> modelQueriableEmitter, Class<TModel> table) {
             this.modelQueriableEmitter = modelQueriableEmitter;
+            register = FlowManager.newRegisterForTable(table);
 
-
-                From<TModel> from = null;
+            From<TModel> from = null;
             if (modelQueriable instanceof From) {
                 from = (From<TModel>) modelQueriable;
             } else if (modelQueriable instanceof Where
@@ -55,32 +57,30 @@ public class TableChangeListenerEmitter<TModel> implements Action1<Emitter<Model
             // From could be part of many joins, so we register for all affected tables here.
             if (from != null) {
                 java.util.Set<Class<?>> associatedTables = from.getAssociatedTables();
-                for (Class<?> table : associatedTables) {
-                    flowContentObserver.registerForContentChanges(FlowManager.getContext(), table);
+                for (Class<?> associated : associatedTables) {
+                    register.register(associated);
                 }
             } else {
-                flowContentObserver.registerForContentChanges(FlowManager.getContext(),
-                    modelQueriable.getTable());
+                register.register(table);
             }
 
-            flowContentObserver.addOnTableChangedListener(onTableChangedListener);
+            register.setListener(onTableChangedListener);
         }
 
         @Override
         public void unsubscribe() {
-            flowContentObserver.unregisterForContentChanges(FlowManager.getContext());
-            flowContentObserver.removeTableChangedListener(onTableChangedListener);
+            register.unregisterAll();
         }
 
         @Override
         public boolean isUnsubscribed() {
-            return !flowContentObserver.isSubscribed();
+            return !register.isSubscribed();
         }
 
-        private final FlowContentObserver.OnTableChangedListener onTableChangedListener
-            = new FlowContentObserver.OnTableChangedListener() {
+        private final OnTableChangedListener onTableChangedListener
+            = new OnTableChangedListener() {
             @Override
-            public void onTableChanged(@Nullable Class<?> tableChanged, BaseModel.Action action) {
+            public void onTableChanged(@Nullable Class<?> tableChanged, @NonNull BaseModel.Action action) {
                 if (modelQueriable.getTable().equals(tableChanged)) {
                     modelQueriableEmitter.onNext(modelQueriable);
                 }

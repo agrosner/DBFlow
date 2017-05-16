@@ -83,19 +83,8 @@ public class FlowContentObserver extends ContentObserver {
         void onModelStateChanged(@Nullable Class<?> table, Action action, @NonNull SQLOperator[] primaryKeyValues);
     }
 
-    /**
-     * Interface for when a generic change on a table occurs.
-     */
-    public interface OnTableChangedListener {
+    public interface ContentChangeListener extends OnModelStateChangedListener, OnTableChangedListener {
 
-        /**
-         * Called when table changes.
-         *
-         * @param tableChanged The table that has changed. NULL unless version of app is {@link VERSION_CODES#JELLY_BEAN}
-         *                     or higher.
-         * @param action       The action that occurred.
-         */
-        void onTableChanged(@Nullable Class<?> tableChanged, Action action);
     }
 
     private final Set<OnModelStateChangedListener> modelChangeListeners = new CopyOnWriteArraySet<>();
@@ -189,6 +178,26 @@ public class FlowContentObserver extends ContentObserver {
 
     public void removeTableChangedListener(OnTableChangedListener onTableChangedListener) {
         onTableChangedListeners.remove(onTableChangedListener);
+    }
+
+    /**
+     * Add a listener for model + table changes
+     *
+     * @param contentChangeListener Generic model change events from an {@link Action}
+     */
+    public void addContentChangeListener(ContentChangeListener contentChangeListener) {
+        modelChangeListeners.add(contentChangeListener);
+        onTableChangedListeners.add(contentChangeListener);
+    }
+
+    /**
+     * Removes a listener for model + table changes
+     *
+     * @param contentChangeListener Generic model change events from a {@link Action}
+     */
+    public void removeContentChangeListener(ContentChangeListener contentChangeListener) {
+        modelChangeListeners.remove(contentChangeListener);
+        onTableChangedListeners.remove(contentChangeListener);
     }
 
     /**

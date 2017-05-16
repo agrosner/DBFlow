@@ -7,8 +7,10 @@ import com.raizlabs.android.dbflow.config.DatabaseConfig;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,14 +30,22 @@ public class DirectModelNotifier implements ModelNotifier {
         return notifier;
     }
 
-    public interface ModelChangedListener<T> {
+    public interface OnModelStateChangedListener<T> {
 
         void onModelChanged(T model, BaseModel.Action action);
 
-        void onTableChanged(BaseModel.Action action);
     }
 
-    private final Map<Class<?>, Set<ModelChangedListener>> modelChangedListenerMap = new LinkedHashMap<>();
+    public interface ModelChangedListener<T> extends OnModelStateChangedListener<T>, OnTableChangedListener {
+
+    }
+
+    private final Map<Class<?>, Set<OnModelStateChangedListener>> modelChangedListenerMap = new LinkedHashMap<>();
+
+    private final Map<Class<?>, Set<OnTableChangedListener>> tableChangedListenerMap = new LinkedHashMap<>();
+
+
+    private final TableNotifierRegister singleRegister = new DirectTableNotifierRegister();
 
     /**
      * Private constructor. Use shared {@link #get()} to ensure singular instance.
@@ -49,9 +59,9 @@ public class DirectModelNotifier implements ModelNotifier {
     @Override
     public <T> void notifyModelChanged(@Nullable T model, @NonNull ModelAdapter<T> adapter,
                                        @NonNull BaseModel.Action action) {
-        final Set<ModelChangedListener> listeners = modelChangedListenerMap.get(adapter.getModelClass());
+        final Set<OnModelStateChangedListener> listeners = modelChangedListenerMap.get(adapter.getModelClass());
         if (listeners != null) {
-            for (ModelChangedListener listener : listeners) {
+            for (OnModelStateChangedListener listener : listeners) {
                 if (listener != null) {
                     listener.onModelChanged(model, action);
                 }
@@ -61,18 +71,28 @@ public class DirectModelNotifier implements ModelNotifier {
 
     @Override
     public <T> void notifyTableChanged(@NonNull Class<T> table, @NonNull BaseModel.Action action) {
-        final Set<ModelChangedListener> listeners = modelChangedListenerMap.get(table);
+        final Set<OnTableChangedListener> listeners = tableChangedListenerMap.get(table);
         if (listeners != null) {
-            for (ModelChangedListener listener : listeners) {
+            for (OnTableChangedListener listener : listeners) {
                 if (listener != null) {
-                    listener.onTableChanged(action);
+                    listener.onTableChanged(table, action);
                 }
             }
         }
     }
 
+    @Override
+    public TableNotifierRegister newRegister() {
+        return singleRegister;
+    }
+
     public <T> void registerForModelChanges(Class<T> table, ModelChangedListener<T> listener) {
-        Set<ModelChangedListener> listeners = modelChangedListenerMap.get(table);
+        registerForModelStateChanges(table, listener);
+        registerForTableChanges(table, listener);
+    }
+
+    public <T> void registerForModelStateChanges(Class<T> table, OnModelStateChangedListener<T> listener) {
+        Set<OnModelStateChangedListener> listeners = modelChangedListenerMap.get(table);
         if (listeners == null) {
             listeners = new LinkedHashSet<>();
             modelChangedListenerMap.put(table, listeners);
@@ -80,10 +100,81 @@ public class DirectModelNotifier implements ModelNotifier {
         listeners.add(listener);
     }
 
+    public <T> void registerForTableChanges(Class<T> table, OnTableChangedListener listener) {
+        Set<OnTableChangedListener> listeners = tableChangedListenerMap.get(table);
+        if (listeners == null) {
+            listeners = new LinkedHashSet<>();
+            tableChangedListenerMap.put(table, listeners);
+        }
+        listeners.add(listener);
+    }
+
     public <T> void unregisterForModelChanges(Class<T> table, ModelChangedListener<T> listener) {
-        Set<ModelChangedListener> listeners = modelChangedListenerMap.get(table);
+        unregisterForModelStateChanges(table, listener);
+        unregisterForTableChanges(table, listener);
+    }
+
+
+    public <T> void unregisterForModelStateChanges(Class<T> table, OnModelStateChangedListener<T> listener) {
+        Set<OnModelStateChangedListener> listeners = modelChangedListenerMap.get(table);
         if (listeners != null) {
             listeners.remove(listener);
         }
     }
+
+    public <T> void unregisterForTableChanges(Class<T> table, OnTableChangedListener listener) {
+        Set<OnTableChangedListener> listeners = tableChangedListenerMap.get(table);
+        if (listeners != null) {
+            listeners.remove(listener);
+        }
+    }
+
+    private class DirectTableNotifierRegister implements TableNotifierRegister {
+        private List<Class> registeredTables = new ArrayList<>();
+
+        @Nullable
+        private OnTableChangedListener modelChangedListener;
+
+        @Override
+        public <T> void register(Class<T> tClass) {
+            registeredTables.add(tClass);
+            registerForTableChanges(tClass, internalChangeListener);
+        }
+
+        @Override
+        public <T> void unregister(Class<T> tClass) {
+            registeredTables.remove(tClass);
+            unregisterForTableChanges(tClass, internalChangeListener);
+        }
+
+        @Override
+        public void unregisterAll() {
+            for (Class table : registeredTables) {
+                unregisterForTableChanges(table, internalChangeListener);
+            }
+            this.modelChangedListener = null;
+        }
+
+        @Override
+        public void setListener(OnTableChangedListener modelChangedListener) {
+            this.modelChangedListener = modelChangedListener;
+        }
+
+        @Override
+        public boolean isSubscribed() {
+            return !registeredTables.isEmpty();
+        }
+
+        private final OnTableChangedListener internalChangeListener
+            = new OnTableChangedListener() {
+
+            @Override
+            public void onTableChanged(@Nullable Class<?> table, @NonNull BaseModel.Action action) {
+                if (modelChangedListener != null) {
+                    modelChangedListener.onTableChanged(table, action);
+                }
+            }
+        };
+    }
+
 }

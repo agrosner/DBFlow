@@ -1,9 +1,11 @@
 package com.raizlabs.android.dbflow.rx2.language;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
+import com.raizlabs.android.dbflow.runtime.OnTableChangedListener;
+import com.raizlabs.android.dbflow.runtime.TableNotifierRegister;
 import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.language.Where;
@@ -22,11 +24,12 @@ public class TableChangeOnSubscribe<TModel> implements FlowableOnSubscribe<Model
 
     private final ModelQueriable<TModel> modelQueriable;
 
-    private final FlowContentObserver flowContentObserver = new FlowContentObserver();
+    private final TableNotifierRegister register;
     private FlowableEmitter<ModelQueriable<TModel>> flowableEmitter;
 
     public TableChangeOnSubscribe(ModelQueriable<TModel> modelQueriable) {
         this.modelQueriable = modelQueriable;
+        register = FlowManager.newRegisterForTable(modelQueriable.getTable());
     }
 
     @Override
@@ -35,8 +38,7 @@ public class TableChangeOnSubscribe<TModel> implements FlowableOnSubscribe<Model
         flowableEmitter.setDisposable(Disposables.fromRunnable(new Runnable() {
             @Override
             public void run() {
-                flowContentObserver.unregisterForContentChanges(FlowManager.getContext());
-                flowContentObserver.removeTableChangedListener(onTableChangedListener);
+                register.unregisterAll();
             }
         }));
 
@@ -44,7 +46,7 @@ public class TableChangeOnSubscribe<TModel> implements FlowableOnSubscribe<Model
         if (modelQueriable instanceof From) {
             from = (From<TModel>) modelQueriable;
         } else if (modelQueriable instanceof Where
-                && ((Where) modelQueriable).getWhereBase() instanceof From) {
+            && ((Where) modelQueriable).getWhereBase() instanceof From) {
             //noinspection unchecked
             from = (From<TModel>) ((Where) modelQueriable).getWhereBase();
         }
@@ -53,21 +55,20 @@ public class TableChangeOnSubscribe<TModel> implements FlowableOnSubscribe<Model
         if (from != null) {
             java.util.Set<Class<?>> associatedTables = from.getAssociatedTables();
             for (Class<?> table : associatedTables) {
-                flowContentObserver.registerForContentChanges(FlowManager.getContext(), table);
+                register.register(table);
             }
         } else {
-            flowContentObserver.registerForContentChanges(FlowManager.getContext(),
-                    modelQueriable.getTable());
+            register.register(modelQueriable.getTable());
         }
 
-        flowContentObserver.addOnTableChangedListener(onTableChangedListener);
+        register.setListener(onTableChangedListener);
         flowableEmitter.onNext(modelQueriable);
     }
 
-    private final FlowContentObserver.OnTableChangedListener onTableChangedListener
-            = new FlowContentObserver.OnTableChangedListener() {
+    private final OnTableChangedListener onTableChangedListener
+        = new OnTableChangedListener() {
         @Override
-        public void onTableChanged(@Nullable Class<?> tableChanged, BaseModel.Action action) {
+        public void onTableChanged(@Nullable Class<?> tableChanged, @NonNull BaseModel.Action action) {
             if (modelQueriable.getTable().equals(tableChanged)) {
                 flowableEmitter.onNext(modelQueriable);
             }

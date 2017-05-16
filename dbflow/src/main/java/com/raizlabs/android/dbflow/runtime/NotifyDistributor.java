@@ -22,11 +22,16 @@ public class NotifyDistributor implements ModelNotifier {
     }
 
     @Override
+    public TableNotifierRegister newRegister() {
+        throw new RuntimeException("Cannot create a register from the distributor class");
+    }
+
+    @Override
     public <TModel> void notifyModelChanged(@Nullable TModel model,
-                                            @NonNull ModelAdapter<TModel> modelAdapter,
+                                            @NonNull ModelAdapter<TModel> adapter,
                                             @NonNull BaseModel.Action action) {
-        FlowManager.getDatabaseForTable(modelAdapter.getModelClass())
-            .getModelNotifier().notifyModelChanged(model, modelAdapter, action);
+        FlowManager.getModelNotifierForTable(adapter.getModelClass())
+            .notifyModelChanged(model, adapter, action);
     }
 
     /**
@@ -35,7 +40,6 @@ public class NotifyDistributor implements ModelNotifier {
     @Override
     public <TModel> void notifyTableChanged(@NonNull Class<TModel> table,
                                             @NonNull BaseModel.Action action) {
-        FlowManager.getDatabaseForTable(table)
-            .getModelNotifier().notifyTableChanged(table, action);
+        FlowManager.getModelNotifierForTable(table).notifyTableChanged(table, action);
     }
 }
