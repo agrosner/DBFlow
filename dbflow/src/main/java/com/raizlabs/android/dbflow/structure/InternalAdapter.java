@@ -14,6 +14,7 @@ import java.util.Collection;
 /**
  * Description: Used for our internal Adapter classes such as generated {@link ModelAdapter}.
  */
+@SuppressWarnings("NullableProblems")
 public interface InternalAdapter<TModel> {
 
     /**
