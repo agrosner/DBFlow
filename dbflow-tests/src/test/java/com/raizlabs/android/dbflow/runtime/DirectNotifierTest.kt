@@ -19,6 +19,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
@@ -62,7 +63,7 @@ class DirectNotifierTest {
 
     @Test
     fun validateCanNotifyWrapperClasses() {
-        val modelChange = mock<OnTableChangedListener>()
+        val modelChange = Mockito.mock(OnTableChangedListener::class.java)
         DirectModelNotifier.get().registerForTableChanges(SimpleModel::class.java, modelChange)
 
         insert<SimpleModel>().columnValues(SimpleModel_Table.name to "name").executeInsert()
