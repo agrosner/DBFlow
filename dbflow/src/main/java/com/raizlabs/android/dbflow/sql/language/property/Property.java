@@ -35,6 +35,8 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
         }
     };
 
+    public static final Property<?> WILDCARD = new Property<Object>(null, NameAlias.rawBuilder("?").build());
+
     final Class<?> table;
     protected NameAlias nameAlias;
 

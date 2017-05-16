@@ -4,6 +4,8 @@ import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.annotation.*
 import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.data.Blob
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
+import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener
 
 /**
  * Description:
@@ -62,7 +64,27 @@ class OrderCursorModel(@PrimaryKey var id: Int = 0, @Column var name: String? = 
 @Table(database = TestDatabase::class)
 class TypeConverterModel(@PrimaryKey var id: Int = 0,
                          @Column var blob: Blob? = null,
-                         @Column(typeConverter = CustomTypeConverter::class) var customType: CustomType? = null)
+                         @Column(typeConverter = CustomTypeConverter::class)
+                         @PrimaryKey var customType: CustomType? = null)
+
+@Table(database = TestDatabase::class)
+class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener {
+    override fun onBindToStatement(databaseStatement: DatabaseStatement?) {
+        TODO("not implemented")
+    }
+
+    override fun onBindToInsertStatement(databaseStatement: DatabaseStatement?) {
+        TODO("not implemented")
+    }
+
+    override fun onBindToUpdateStatement(databaseStatement: DatabaseStatement?) {
+        TODO("not implemented")
+    }
+
+    override fun onBindToDeleteStatement(databaseStatement: DatabaseStatement?) {
+        TODO("not implemented")
+    }
+}
 
 class CustomType(var name: String? = "")
 

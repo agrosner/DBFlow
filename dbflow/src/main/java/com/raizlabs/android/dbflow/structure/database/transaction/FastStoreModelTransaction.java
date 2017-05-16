@@ -48,6 +48,16 @@ public class FastStoreModelTransaction<TModel> implements ITransaction {
         }, internalAdapter);
     }
 
+    @NonNull
+    public static <TModel> Builder<TModel> deleteBuilder(@NonNull InternalAdapter<TModel> internalAdapter) {
+        return new Builder<>(new ProcessModelList<TModel>() {
+            @Override
+            public void processModel(@NonNull List<TModel> tModels, InternalAdapter<TModel> adapter, DatabaseWrapper wrapper) {
+                adapter.deleteAll(tModels, wrapper);
+            }
+        }, internalAdapter);
+    }
+
     /**
      * Description: Simple interface for acting on a model in a Transaction or list of {@link Model}
      */

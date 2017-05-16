@@ -1,5 +1,8 @@
 package com.raizlabs.android.dbflow.config;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.runtime.ModelNotifier;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
@@ -40,31 +43,38 @@ public final class DatabaseConfig {
         modelNotifier = builder.modelNotifier;
     }
 
+    @Nullable
     public OpenHelperCreator helperCreator() {
         return openHelperCreator;
     }
 
+    @Nullable
     public DatabaseHelperListener helperListener() {
         return helperListener;
     }
 
+    @NonNull
     public Class<?> databaseClass() {
         return databaseClass;
     }
 
+    @Nullable
     public TransactionManagerCreator transactionManagerCreator() {
         return transactionManagerCreator;
     }
 
+    @Nullable
     public ModelNotifier modelNotifier() {
         return modelNotifier;
     }
 
+    @NonNull
     public Map<Class<?>, TableConfig> tableConfigMap() {
         return tableConfigMap;
     }
 
     @SuppressWarnings("unchecked")
+    @Nullable
     public <TModel> TableConfig<TModel> getTableConfigForTable(Class<TModel> modelClass) {
         return tableConfigMap().get(modelClass);
     }
@@ -78,7 +88,7 @@ public final class DatabaseConfig {
         final Map<Class<?>, TableConfig> tableConfigMap = new HashMap<>();
         ModelNotifier modelNotifier;
 
-        public Builder(Class<?> databaseClass) {
+        public Builder(@NonNull Class<?> databaseClass) {
             this.databaseClass = databaseClass;
         }
 

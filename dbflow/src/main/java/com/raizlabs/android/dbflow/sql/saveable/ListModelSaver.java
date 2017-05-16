@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.sql.saveable;
 
-import android.content.ContentValues;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
@@ -20,17 +19,18 @@ public class ListModelSaver<TModel> {
         saveAll(tableCollection, modelSaver.getWritableDatabase());
     }
 
-    public synchronized void saveAll(@NonNull Collection<TModel> tableCollection, DatabaseWrapper wrapper) {
+    public synchronized void saveAll(@NonNull Collection<TModel> tableCollection,
+                                     @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
         }
 
         DatabaseStatement statement = modelSaver.getModelAdapter().getInsertStatement(wrapper);
-        ContentValues contentValues = new ContentValues();
+        DatabaseStatement updateStatement = modelSaver.getModelAdapter().getUpdateStatement(wrapper);
         try {
             for (TModel model : tableCollection) {
-                modelSaver.save(model, wrapper, statement, contentValues);
+                modelSaver.save(model, wrapper, statement, updateStatement);
             }
         } finally {
             statement.close();
@@ -41,7 +41,8 @@ public class ListModelSaver<TModel> {
         insertAll(tableCollection, modelSaver.getWritableDatabase());
     }
 
-    public synchronized void insertAll(@NonNull Collection<TModel> tableCollection, DatabaseWrapper wrapper) {
+    public synchronized void insertAll(@NonNull Collection<TModel> tableCollection,
+                                       @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
@@ -58,19 +59,23 @@ public class ListModelSaver<TModel> {
     }
 
     public synchronized void updateAll(@NonNull Collection<TModel> tableCollection) {
-        saveAll(tableCollection, modelSaver.getWritableDatabase());
+        updateAll(tableCollection, modelSaver.getWritableDatabase());
     }
 
     public synchronized void updateAll(@NonNull Collection<TModel> tableCollection,
-                                       DatabaseWrapper wrapper) {
+                                       @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
         }
 
-        ContentValues contentValues = new ContentValues();
-        for (TModel model : tableCollection) {
-            modelSaver.update(model, wrapper, contentValues);
+        DatabaseStatement updateStatement = modelSaver.getModelAdapter().getUpdateStatement(wrapper);
+        try {
+            for (TModel model : tableCollection) {
+                modelSaver.update(model, wrapper, updateStatement);
+            }
+        } finally {
+            updateStatement.close();
         }
     }
 
@@ -79,18 +84,23 @@ public class ListModelSaver<TModel> {
     }
 
     public synchronized void deleteAll(@NonNull Collection<TModel> tableCollection,
-                                       DatabaseWrapper wrapper) {
+                                       @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
         }
 
-        for (TModel model : tableCollection) {
-            modelSaver.delete(model, wrapper);
+        DatabaseStatement deleteStatement = modelSaver.getModelAdapter().getDeleteStatement(wrapper);
+        try {
+            for (TModel model : tableCollection) {
+                modelSaver.delete(model, deleteStatement, wrapper);
+            }
+        } finally {
+            deleteStatement.close();
         }
     }
 
-
+    @NonNull
     public ModelSaver<TModel> getModelSaver() {
         return modelSaver;
     }

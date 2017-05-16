@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.sql.saveable.ListModelSaver;
@@ -28,17 +27,21 @@ import static com.raizlabs.android.dbflow.config.FlowManager.getWritableDatabase
 /**
  * Description: Used for generated classes from the combination of {@link Table} and {@link Model}.
  */
+@SuppressWarnings("NullableProblems")
 public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     implements InternalAdapter<TModel> {
 
     private DatabaseStatement insertStatement;
     private DatabaseStatement compiledStatement;
+    private DatabaseStatement updateStatement;
+    private DatabaseStatement deleteStatement;
+
     private String[] cachingColumns;
     private ModelCache<TModel, ?> modelCache;
     private ModelSaver<TModel> modelSaver;
     private ListModelSaver<TModel> listModelSaver;
 
-    public ModelAdapter(DatabaseDefinition databaseDefinition) {
+    public ModelAdapter(@NonNull DatabaseDefinition databaseDefinition) {
         super(databaseDefinition);
         if (getTableConfig() != null && getTableConfig().modelSaver() != null) {
             modelSaver = getTableConfig().modelSaver();
@@ -49,12 +52,37 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     /**
      * @return The pre-compiled insert statement for this table model adapter. This is reused and cached.
      */
+    @NonNull
     public DatabaseStatement getInsertStatement() {
         if (insertStatement == null) {
             insertStatement = getInsertStatement(getWritableDatabaseForTable(getModelClass()));
         }
 
         return insertStatement;
+    }
+
+    /**
+     * @return The pre-compiled update statement for this table model adapter. This is reused and cached.
+     */
+    @NonNull
+    public DatabaseStatement getUpdateStatement() {
+        if (updateStatement == null) {
+            updateStatement = getUpdateStatement(getWritableDatabaseForTable(getModelClass()));
+        }
+
+        return updateStatement;
+    }
+
+    /**
+     * @return The pre-compiled delete statement for this table model adapter. This is reused and cached.
+     */
+    @NonNull
+    public DatabaseStatement getDeleteStatement() {
+        if (deleteStatement == null) {
+            deleteStatement = getDeleteStatement(getWritableDatabaseForTable(getModelClass()));
+        }
+
+        return deleteStatement;
     }
 
     public void closeInsertStatement() {
@@ -70,19 +98,35 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @return a new compiled {@link DatabaseStatement} representing insert. Not cached, always generated.
      * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Object)}.
      */
-    public DatabaseStatement getInsertStatement(DatabaseWrapper databaseWrapper) {
+    @NonNull
+    public DatabaseStatement getInsertStatement(@NonNull DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getInsertStatementQuery());
     }
 
-    public DatabaseStatement getDeleteStatement(TModel model, DatabaseWrapper databaseWrapper) {
-        return databaseWrapper.compileStatement(SQLite.delete().from(getModelClass())
-            .where(getPrimaryConditionClause(model)).getQuery());
+    /**
+     * @param databaseWrapper The database used to do an update statement.
+     * @return a new compiled {@link DatabaseStatement} representing update. Not cached, always generated.
+     * To bind values use {@link #bindToUpdateStatement(DatabaseStatement, Object)}.
+     */
+    @NonNull
+    public DatabaseStatement getUpdateStatement(@NonNull DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(getUpdateStatementQuery());
     }
 
+    /**
+     * @param databaseWrapper The database used to do a delete statement.
+     * @return a new compiled {@link DatabaseStatement} representing delete. Not cached, always generated.
+     * To bind values use {@link #bindToDeleteStatement(DatabaseStatement, Object)}.
+     */
+    @NonNull
+    public DatabaseStatement getDeleteStatement(@NonNull DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(getDeleteStatementQuery());
+    }
 
     /**
      * @return The precompiled full statement for this table model adapter
      */
+    @NonNull
     public DatabaseStatement getCompiledStatement() {
         if (compiledStatement == null) {
             compiledStatement = getCompiledStatement(getWritableDatabaseForTable(getModelClass()));
@@ -104,7 +148,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @return a new compiled {@link DatabaseStatement} representing insert.
      * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Object)}.
      */
-    public DatabaseStatement getCompiledStatement(DatabaseWrapper databaseWrapper) {
+    public DatabaseStatement getCompiledStatement(@NonNull DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getCompiledStatementQuery());
     }
 
@@ -114,104 +158,104 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @param cursor The cursor to load
      * @return A new {@link TModel}
      */
-    public TModel loadFromCursor(FlowCursor cursor) {
+    public TModel loadFromCursor(@NonNull FlowCursor cursor) {
         TModel model = newInstance();
         loadFromCursor(cursor, model);
         return model;
     }
 
     @Override
-    public boolean save(TModel model) {
+    public boolean save(@NonNull TModel model) {
         return getModelSaver().save(model);
     }
 
     @Override
-    public boolean save(TModel model, DatabaseWrapper databaseWrapper) {
+    public boolean save(@NonNull TModel model, @NonNull DatabaseWrapper databaseWrapper) {
         return getModelSaver().save(model, databaseWrapper);
     }
 
     @Override
-    public void saveAll(Collection<TModel> models) {
+    public void saveAll(@NonNull Collection<TModel> models) {
         getListModelSaver().saveAll(models);
     }
 
     @Override
-    public void saveAll(Collection<TModel> models, DatabaseWrapper databaseWrapper) {
+    public void saveAll(@NonNull Collection<TModel> models, @NonNull DatabaseWrapper databaseWrapper) {
         getListModelSaver().saveAll(models, databaseWrapper);
     }
 
     @Override
-    public long insert(TModel model) {
+    public long insert(@NonNull TModel model) {
         return getModelSaver().insert(model);
     }
 
     @Override
-    public long insert(TModel model, DatabaseWrapper databaseWrapper) {
+    public long insert(@NonNull TModel model, @NonNull DatabaseWrapper databaseWrapper) {
         return getModelSaver().insert(model, databaseWrapper);
     }
 
     @Override
-    public void insertAll(Collection<TModel> models) {
+    public void insertAll(@NonNull Collection<TModel> models) {
         getListModelSaver().insertAll(models);
     }
 
     @Override
-    public void insertAll(Collection<TModel> models, DatabaseWrapper databaseWrapper) {
+    public void insertAll(@NonNull Collection<TModel> models, @NonNull DatabaseWrapper databaseWrapper) {
         getListModelSaver().insertAll(models, databaseWrapper);
     }
 
     @Override
-    public boolean update(TModel model) {
+    public boolean update(@NonNull TModel model) {
         return getModelSaver().update(model);
     }
 
     @Override
-    public boolean update(TModel model, DatabaseWrapper databaseWrapper) {
+    public boolean update(@NonNull TModel model, @NonNull DatabaseWrapper databaseWrapper) {
         return getModelSaver().update(model, databaseWrapper);
     }
 
     @Override
-    public void updateAll(Collection<TModel> models) {
+    public void updateAll(@NonNull Collection<TModel> models) {
         getListModelSaver().updateAll(models);
     }
 
     @Override
-    public void updateAll(Collection<TModel> models, DatabaseWrapper databaseWrapper) {
+    public void updateAll(@NonNull Collection<TModel> models, @NonNull DatabaseWrapper databaseWrapper) {
         getListModelSaver().updateAll(models, databaseWrapper);
     }
 
     @Override
-    public boolean delete(TModel model) {
+    public boolean delete(@NonNull TModel model) {
         return getModelSaver().delete(model);
     }
 
     @Override
-    public boolean delete(TModel model, DatabaseWrapper databaseWrapper) {
+    public boolean delete(@NonNull TModel model, @NonNull DatabaseWrapper databaseWrapper) {
         return getModelSaver().delete(model, databaseWrapper);
     }
 
     @Override
-    public void deleteAll(Collection<TModel> tModels, DatabaseWrapper databaseWrapper) {
+    public void deleteAll(@NonNull Collection<TModel> tModels, @NonNull DatabaseWrapper databaseWrapper) {
         getListModelSaver().deleteAll(tModels, databaseWrapper);
     }
 
     @Override
-    public void deleteAll(Collection<TModel> tModels) {
+    public void deleteAll(@NonNull Collection<TModel> tModels) {
         getListModelSaver().deleteAll(tModels);
     }
 
     @Override
-    public void bindToInsertStatement(DatabaseStatement sqLiteStatement, TModel model) {
+    public void bindToInsertStatement(@NonNull DatabaseStatement sqLiteStatement, @NonNull TModel model) {
         bindToInsertStatement(sqLiteStatement, model, 0);
     }
 
     @Override
-    public void bindToContentValues(ContentValues contentValues, TModel tModel) {
+    public void bindToContentValues(@NonNull ContentValues contentValues, @NonNull TModel tModel) {
         bindToInsertValues(contentValues, tModel);
     }
 
     @Override
-    public void bindToStatement(DatabaseStatement sqLiteStatement, TModel tModel) {
+    public void bindToStatement(@NonNull DatabaseStatement sqLiteStatement, @NonNull TModel tModel) {
         bindToInsertStatement(sqLiteStatement, tModel, 0);
     }
 
@@ -223,7 +267,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @param id    The key to store
      */
     @Override
-    public void updateAutoIncrement(TModel model, Number id) {
+    public void updateAutoIncrement(@NonNull TModel model, @NonNull Number id) {
 
     }
 
@@ -231,8 +275,9 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @return The value for the {@link PrimaryKey#autoincrement()}
      * if it has the field. This method is overridden when its specified for the {@link TModel}
      */
+    @NonNull
     @Override
-    public Number getAutoIncrementingId(TModel model) {
+    public Number getAutoIncrementingId(@NonNull TModel model) {
         throw new InvalidDBConfiguration(
             String.format("This method may have been called in error. The model class %1s must contain" +
                     "a single primary key (if used in a ModelCache, this method may be called)",
@@ -243,6 +288,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @return The autoincrement column name for the {@link PrimaryKey#autoincrement()}
      * if it has the field. This method is overridden when its specified for the {@link TModel}
      */
+    @NonNull
     public String getAutoIncrementingColumnName() {
         throw new InvalidDBConfiguration(
             String.format("This method may have been called in error. The model class %1s must contain " +
@@ -254,7 +300,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * Called when we want to save our {@link ForeignKey} objects. usually during insert + update.
      * This method is overridden when {@link ForeignKey} specified
      */
-    public void saveForeignKeys(TModel model, DatabaseWrapper wrapper) {
+    public void saveForeignKeys(@NonNull TModel model, @NonNull DatabaseWrapper wrapper) {
 
     }
 
@@ -262,13 +308,14 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * Called when we want to delete our {@link ForeignKey} objects. During deletion {@link #delete(Object, DatabaseWrapper)}
      * This method is overridden when {@link ForeignKey} specified
      */
-    public void deleteForeignKeys(TModel model, DatabaseWrapper wrapper) {
+    public void deleteForeignKeys(@NonNull TModel model, @NonNull DatabaseWrapper wrapper) {
 
     }
 
     /**
      * @return A set of columns that represent the caching columns.
      */
+    @NonNull
     public String[] createCachingColumns() {
         return new String[]{getAutoIncrementingColumnName()};
     }
@@ -291,7 +338,8 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @param cursor   The cursor to load from.
      * @return The populated set of values to load from cache.
      */
-    public Object[] getCachingColumnValuesFromCursor(Object[] inValues, FlowCursor cursor) {
+    public Object[] getCachingColumnValuesFromCursor(@NonNull Object[] inValues,
+                                                     @NonNull FlowCursor cursor) {
         throwCachingError();
         return null;
     }
@@ -300,7 +348,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @param cursor The cursor to load caching id from.
      * @return The single cache column from cursor (if single).
      */
-    public Object getCachingColumnValueFromCursor(FlowCursor cursor) {
+    public Object getCachingColumnValueFromCursor(@NonNull FlowCursor cursor) {
         throwSingleCachingError();
         return null;
     }
@@ -314,7 +362,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @param TModel   The model to load from.
      * @return The populated set of values to load from cache.
      */
-    public Object[] getCachingColumnValuesFromModel(Object[] inValues, TModel TModel) {
+    public Object[] getCachingColumnValuesFromModel(@NonNull Object[] inValues, @NonNull TModel TModel) {
         throwCachingError();
         return null;
     }
@@ -323,13 +371,17 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @param model The model to load cache column data from.
      * @return The single cache column from model (if single).
      */
-    public Object getCachingColumnValueFromModel(TModel model) {
+    public Object getCachingColumnValueFromModel(@NonNull TModel model) {
         throwSingleCachingError();
         return null;
     }
 
     public void storeModelInCache(@NonNull TModel model) {
         getModelCache().addModel(getCachingId(model), model);
+    }
+
+    public void removeModelFromCache(@NonNull TModel model) {
+        getModelCache().removeModel(getCachingId(model));
     }
 
     public ModelCache<TModel, ?> getModelCache() {
@@ -387,7 +439,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      *
      * @param cursor The cursor to reload from.
      */
-    public void reloadRelationships(@NonNull TModel model, FlowCursor cursor) {
+    public void reloadRelationships(@NonNull TModel model, @NonNull FlowCursor cursor) {
         if (!cachingEnabled()) {
             throwCachingError();
         }
@@ -442,6 +494,10 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @return The normal query used in saving a model if we use a {@link SQLiteStatement}.
      */
     protected abstract String getCompiledStatementQuery();
+
+    protected abstract String getUpdateStatementQuery();
+
+    protected abstract String getDeleteStatementQuery();
 
     /**
      * @return The conflict algorithm to use when updating a row in this table.

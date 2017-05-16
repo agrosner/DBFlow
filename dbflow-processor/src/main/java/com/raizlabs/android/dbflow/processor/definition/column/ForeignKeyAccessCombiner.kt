@@ -19,13 +19,14 @@ class ForeignKeyAccessCombiner(val fieldAccessor: ColumnAccessor) {
 
     var fieldAccesses: List<ForeignKeyAccessField> = arrayListOf()
 
-    fun addCode(code: CodeBlock.Builder, index: AtomicInteger) {
+    fun addCode(code: CodeBlock.Builder, index: AtomicInteger, useStart: Boolean = true,
+                defineProperty: Boolean = true) {
         val modelAccessBlock = fieldAccessor.get(modelBlock)
         code.beginControlFlow("if (\$L != null)", modelAccessBlock)
         val nullAccessBlock = CodeBlock.builder()
         for ((i, it) in fieldAccesses.withIndex()) {
-            it.addCode(code, index.get(), modelAccessBlock)
-            it.addNull(nullAccessBlock, index.get())
+            it.addCode(code, index.get(), modelAccessBlock, useStart, defineProperty)
+            it.addNull(nullAccessBlock, index.get(), useStart)
 
             // do not increment last
             if (i < fieldAccesses.size - 1) {
@@ -33,8 +34,8 @@ class ForeignKeyAccessCombiner(val fieldAccessor: ColumnAccessor) {
             }
         }
         code.nextControlFlow("else")
-            .add(nullAccessBlock.build().toString())
-            .endControlFlow()
+                .add(nullAccessBlock.build().toString())
+                .endControlFlow()
     }
 }
 
@@ -42,15 +43,17 @@ class ForeignKeyAccessField(val columnRepresentation: String,
                             val columnAccessCombiner: ColumnAccessCombiner,
                             val defaultValue: CodeBlock? = null) {
 
-    fun addCode(code: CodeBlock.Builder, index: Int,
-                modelAccessBlock: CodeBlock) {
+    fun addCode(code: CodeBlock.Builder, index: Int, modelAccessBlock: CodeBlock,
+                useStart: Boolean = true,
+                defineProperty: Boolean = true) {
         columnAccessCombiner.apply {
-            code.addCode(columnRepresentation, defaultValue, index, modelAccessBlock)
+            code.addCode(if (useStart) columnRepresentation else "", defaultValue, index,
+                    modelAccessBlock, defineProperty)
         }
     }
 
-    fun addNull(code: CodeBlock.Builder, index: Int) {
-        columnAccessCombiner.addNull(code, columnRepresentation, index)
+    fun addNull(code: CodeBlock.Builder, index: Int, useStart: Boolean) {
+        columnAccessCombiner.addNull(code, if (useStart) columnRepresentation else "", index)
     }
 }
 
@@ -67,16 +70,16 @@ class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
 
         if (!isStubbed) {
             setterBlock.add("\$T.select().from(\$T.class).where()",
-                ClassNames.SQLITE, referencedTypeName)
+                    ClassNames.SQLITE, referencedTypeName)
         } else {
             setterBlock.statement(
-                fieldAccessor.set(CodeBlock.of("new \$T()", referencedTypeName), modelBlock))
+                    fieldAccessor.set(CodeBlock.of("new \$T()", referencedTypeName), modelBlock))
         }
         for ((i, it) in fieldAccesses.withIndex()) {
             it.addRetrieval(setterBlock, index.get(), referencedTableTypeName, isStubbed, fieldAccessor, nameAllocator)
             it.addColumnIndex(code, index.get(), referencedTableTypeName, nameAllocator)
             it.addIndexCheckStatement(ifChecker, index.get(), referencedTableTypeName,
-                i == fieldAccesses.size - 1, nameAllocator)
+                    i == fieldAccesses.size - 1, nameAllocator)
 
             if (i < fieldAccesses.size - 1) {
                 index.incrementAndGet()
@@ -92,19 +95,19 @@ class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
             code.add(setterBlock.build())
         }
         code.nextControlFlow("else")
-            .statement(fieldAccessor.set(CodeBlock.of("null"), modelBlock))
-            .endControlFlow()
+                .statement(fieldAccessor.set(CodeBlock.of("null"), modelBlock))
+                .endControlFlow()
     }
 }
 
 class PartialLoadFromCursorAccessCombiner(
-    val columnRepresentation: String,
-    val propertyRepresentation: String,
-    val fieldTypeName: TypeName,
-    val orderedCursorLookup: Boolean = false,
-    val fieldLevelAccessor: ColumnAccessor? = null,
-    val subWrapperAccessor: ColumnAccessor? = null,
-    val subWrapperTypeName: TypeName? = null) {
+        val columnRepresentation: String,
+        val propertyRepresentation: String,
+        val fieldTypeName: TypeName,
+        val orderedCursorLookup: Boolean = false,
+        val fieldLevelAccessor: ColumnAccessor? = null,
+        val subWrapperAccessor: ColumnAccessor? = null,
+        val subWrapperTypeName: TypeName? = null) {
 
     var indexName: CodeBlock? = null
 
@@ -113,7 +116,7 @@ class PartialLoadFromCursorAccessCombiner(
             indexName = if (!orderedCursorLookup) {
                 // post fix with referenced type name simple name
                 CodeBlock.of(nameAllocator.newName("index_${columnRepresentation}_" +
-                    if (referencedTypeName is ClassName) referencedTypeName.simpleName() else "", columnRepresentation))
+                        if (referencedTypeName is ClassName) referencedTypeName.simpleName() else "", columnRepresentation))
             } else {
                 CodeBlock.of(index.toString())
             }
@@ -126,13 +129,13 @@ class PartialLoadFromCursorAccessCombiner(
                      isStubbed: Boolean, parentAccessor: ColumnAccessor,
                      nameAllocator: NameAllocator) {
         val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
-            SQLiteHelper.getMethod(subWrapperTypeName ?: fieldTypeName),
-            getIndexName(index, nameAllocator, referencedTableTypeName))
+                SQLiteHelper.getMethod(subWrapperTypeName ?: fieldTypeName),
+                getIndexName(index, nameAllocator, referencedTableTypeName))
         val fieldAccessBlock = subWrapperAccessor?.set(cursorAccess) ?: cursorAccess
 
         if (!isStubbed) {
             code.add(CodeBlock.of("\n.and(\$T.\$L.eq(\$L))",
-                referencedTableTypeName, propertyRepresentation, fieldAccessBlock))
+                    referencedTableTypeName, propertyRepresentation, fieldAccessBlock))
         } else if (fieldLevelAccessor != null) {
             code.statement(fieldLevelAccessor.set(cursorAccess, parentAccessor.get(modelBlock)))
         }
@@ -144,7 +147,7 @@ class PartialLoadFromCursorAccessCombiner(
                        nameAllocator: NameAllocator) {
         if (!orderedCursorLookup) {
             code.statement(CodeBlock.of("int \$L = cursor.getColumnIndex(\$S)",
-                getIndexName(index, nameAllocator, referencedTableTypeName), columnRepresentation))
+                    getIndexName(index, nameAllocator, referencedTableTypeName), columnRepresentation))
         }
     }
 
