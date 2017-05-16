@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
 import com.raizlabs.android.dbflow.sql.saveable.ListModelSaver;
@@ -34,6 +33,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     private DatabaseStatement insertStatement;
     private DatabaseStatement compiledStatement;
     private DatabaseStatement updateStatement;
+    private DatabaseStatement deleteStatement;
 
     private String[] cachingColumns;
     private ModelCache<TModel, ?> modelCache;
@@ -70,6 +70,17 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         return updateStatement;
     }
 
+    /**
+     * @return The pre-compiled delete statement for this table model adapter. This is reused and cached.
+     */
+    public DatabaseStatement getDeleteStatement() {
+        if (deleteStatement == null) {
+            deleteStatement = getDeleteStatement(getWritableDatabaseForTable(getModelClass()));
+        }
+
+        return deleteStatement;
+    }
+
     public void closeInsertStatement() {
         if (insertStatement == null) {
             return;
@@ -90,17 +101,20 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     /**
      * @param databaseWrapper The database used to do an update statement.
      * @return a new compiled {@link DatabaseStatement} representing update. Not cached, always generated.
-     * To bind values use {@link #bindToInsertStatement(DatabaseStatement, Object)}.
+     * To bind values use {@link #bindToUpdateStatement(DatabaseStatement, Object)}.
      */
     public DatabaseStatement getUpdateStatement(DatabaseWrapper databaseWrapper) {
         return databaseWrapper.compileStatement(getUpdateStatementQuery());
     }
 
-    public DatabaseStatement getDeleteStatement(TModel model, DatabaseWrapper databaseWrapper) {
-        return databaseWrapper.compileStatement(SQLite.delete().from(getModelClass())
-            .where(getPrimaryConditionClause(model)).getQuery());
+    /**
+     * @param databaseWrapper The database used to do a delete statement.
+     * @return a new compiled {@link DatabaseStatement} representing delete. Not cached, always generated.
+     * To bind values use {@link #bindToDeleteStatement(DatabaseStatement, Object)}.
+     */
+    public DatabaseStatement getDeleteStatement(DatabaseWrapper databaseWrapper) {
+        return databaseWrapper.compileStatement(getDeleteStatementQuery());
     }
-
 
     /**
      * @return The precompiled full statement for this table model adapter
@@ -237,7 +251,9 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         bindToInsertStatement(sqLiteStatement, tModel, 0);
     }
 
-    abstract public void bindToUpdateStatement(DatabaseStatement updateStatement, TModel model);
+    public abstract void bindToUpdateStatement(DatabaseStatement updateStatement, TModel model);
+
+    public abstract void bindToDeleteStatement(DatabaseStatement deleteStatement, TModel model);
 
     /**
      * If a {@link Model} has an auto-incrementing primary key, then
@@ -472,6 +488,8 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     protected abstract String getCompiledStatementQuery();
 
     protected abstract String getUpdateStatementQuery();
+
+    protected abstract String getDeleteStatementQuery();
 
     /**
      * @return The conflict algorithm to use when updating a row in this table.

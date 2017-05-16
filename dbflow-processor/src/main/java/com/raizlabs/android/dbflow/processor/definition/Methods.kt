@@ -92,6 +92,9 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
         UPDATE {
             override val methodName = "bindToUpdateStatement"
         },
+        DELETE {
+            override val methodName = "bindToDeleteStatement"
+        },
         NON_INSERT {
             override val methodName = "bindToStatement"
         };
@@ -136,6 +139,12 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                     tableDefinition.primaryColumnDefinitions.forEach {
                         methodBuilder.addCode(it.getSQLiteStatementMethod(realCount,
                                 useStart = false, defineProperty = false))
+                        realCount.incrementAndGet()
+                    }
+                } else if (mode == Mode.DELETE) {
+                    val realCount = AtomicInteger(1)
+                    tableDefinition.primaryColumnDefinitions.forEach {
+                        methodBuilder.addCode(it.getSQLiteStatementMethod(realCount, useStart = false))
                         realCount.incrementAndGet()
                     }
                 } else {
@@ -365,6 +374,28 @@ class UpdateStatementQueryMethod(private val tableDefinition: TableDefinition) :
 
                     }
                     add(" WHERE ")
+
+                    // primary key values used as WHERE
+                    tableDefinition.columnDefinitions.filter {
+                        it.isPrimaryKey || it.isPrimaryKeyAutoIncrement || it.isRowId
+                    }.forEachIndexed { index, columnDefinition ->
+                        if (index > 0) add(" AND ")
+                        add(columnDefinition.updateStatementBlock)
+                    }
+                    this
+                }.S)
+            }
+        }
+}
+
+class DeleteStatementQueryMethod(private val tableDefinition: TableDefinition) : MethodDefinition {
+
+    override val methodSpec: MethodSpec?
+        get() {
+            return `override fun`(String::class, "getDeleteStatementQuery") {
+                modifiers(public, final)
+                `return`(codeBlock {
+                    add("DELETE FROM ${QueryBuilder.quote(tableDefinition.tableName)} WHERE ")
 
                     // primary key values used as WHERE
                     tableDefinition.columnDefinitions.filter {

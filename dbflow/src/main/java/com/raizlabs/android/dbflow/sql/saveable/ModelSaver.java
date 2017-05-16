@@ -119,12 +119,12 @@ public class ModelSaver<TModel> {
     }
 
     public synchronized boolean delete(@NonNull TModel model) {
-        return delete(model, getWritableDatabase());
+        return delete(model, modelAdapter.getDeleteStatement(), getWritableDatabase());
     }
 
     @SuppressWarnings("unchecked")
     public synchronized boolean delete(@NonNull TModel model, @NonNull DatabaseWrapper wrapper) {
-        DatabaseStatement deleteStatement = modelAdapter.getDeleteStatement(model, wrapper);
+        DatabaseStatement deleteStatement = modelAdapter.getDeleteStatement(wrapper);
         boolean success = false;
         try {
             success = delete(model, deleteStatement, wrapper);
@@ -140,6 +140,7 @@ public class ModelSaver<TModel> {
                                        @NonNull DatabaseStatement deleteStatement,
                                        @NonNull DatabaseWrapper wrapper) {
         modelAdapter.deleteForeignKeys(model, wrapper);
+        modelAdapter.bindToDeleteStatement(deleteStatement, model);
 
         boolean success = deleteStatement.executeUpdateDelete() != 0;
         if (success) {
