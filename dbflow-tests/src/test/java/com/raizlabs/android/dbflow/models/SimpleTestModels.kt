@@ -62,7 +62,8 @@ class OrderCursorModel(@PrimaryKey var id: Int = 0, @Column var name: String? = 
 @Table(database = TestDatabase::class)
 class TypeConverterModel(@PrimaryKey var id: Int = 0,
                          @Column var blob: Blob? = null,
-                         @Column(typeConverter = CustomTypeConverter::class) var customType: CustomType? = null)
+                         @Column(typeConverter = CustomTypeConverter::class)
+                         @PrimaryKey var customType: CustomType? = null)
 
 class CustomType(var name: String? = "")
 

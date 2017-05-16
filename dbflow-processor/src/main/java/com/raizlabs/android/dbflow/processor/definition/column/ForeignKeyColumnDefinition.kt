@@ -240,9 +240,10 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
             codeBuilder.build()
         }
 
-    override fun getSQLiteStatementMethod(index: AtomicInteger, useStart: Boolean): CodeBlock {
+    override fun getSQLiteStatementMethod(index: AtomicInteger, useStart: Boolean,
+                                          defineProperty: Boolean): CodeBlock {
         if (nonModelColumn) {
-            return super.getSQLiteStatementMethod(index, useStart)
+            return super.getSQLiteStatementMethod(index, useStart, defineProperty)
         } else {
             checkNeedsReferences()
             val codeBuilder = CodeBlock.builder()

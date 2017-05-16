@@ -324,8 +324,9 @@ constructor(processorManager: ProcessorManager, element: Element,
         index.incrementAndGet()
     }
 
-    open fun getSQLiteStatementMethod(index: AtomicInteger, useStart: Boolean) = code {
-        SqliteStatementAccessCombiner(combiner).apply {
+    open fun getSQLiteStatementMethod(index: AtomicInteger, useStart: Boolean,
+                                      defineProperty: Boolean = true) = code {
+        SqliteStatementAccessCombiner(combiner, defineProperty).apply {
             addCode(if (useStart) "start" else "", getDefaultValueBlock(), index.get(), modelBlock)
         }
         this

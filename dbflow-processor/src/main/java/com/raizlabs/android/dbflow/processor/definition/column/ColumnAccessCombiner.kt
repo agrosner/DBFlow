@@ -23,16 +23,19 @@ abstract class ColumnAccessCombiner(val combiner: Combiner) {
 
     fun getFieldAccessBlock(existingBuilder: CodeBlock.Builder,
                             modelBlock: CodeBlock,
-                            useWrapper: Boolean = true): CodeBlock {
+                            useWrapper: Boolean = true,
+                            defineProperty: Boolean = true): CodeBlock {
         var fieldAccess: CodeBlock = CodeBlock.of("")
         combiner.apply {
             if (wrapperLevelAccessor != null && !fieldTypeName.isPrimitive) {
                 fieldAccess = CodeBlock.of("ref" + fieldLevelAccessor.propertyName)
 
-                existingBuilder.addStatement("\$T \$L = \$L != null ? \$L : null",
-                        wrapperFieldTypeName, fieldAccess,
-                        fieldLevelAccessor.get(modelBlock),
-                        wrapperLevelAccessor.get(fieldLevelAccessor.get(modelBlock)))
+                if (defineProperty) {
+                    existingBuilder.addStatement("\$T \$L = \$L != null ? \$L : null",
+                            wrapperFieldTypeName, fieldAccess,
+                            fieldLevelAccessor.get(modelBlock),
+                            wrapperLevelAccessor.get(fieldLevelAccessor.get(modelBlock)))
+                }
             } else {
                 if (useWrapper && wrapperLevelAccessor != null) {
                     fieldAccess = wrapperLevelAccessor.get(fieldLevelAccessor.get(modelBlock))
@@ -136,13 +139,14 @@ class ContentValuesCombiner(combiner: Combiner)
     }
 }
 
-class SqliteStatementAccessCombiner(combiner: Combiner)
+class SqliteStatementAccessCombiner(combiner: Combiner, val defineProperty: Boolean = true)
     : ColumnAccessCombiner(combiner) {
     override fun CodeBlock.Builder.addCode(columnRepresentation: String,
                                            defaultValue: CodeBlock?, index: Int,
                                            modelBlock: CodeBlock) {
         combiner.apply {
-            val fieldAccess: CodeBlock = getFieldAccessBlock(this@addCode, modelBlock)
+            val fieldAccess: CodeBlock = getFieldAccessBlock(this@addCode, modelBlock,
+                    defineProperty = defineProperty)
             val wrapperMethod = SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqliteStatementWrapperMethod
             val statementMethod = SQLiteHelper[fieldTypeName].sqLiteStatementMethod
 

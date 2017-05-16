@@ -129,11 +129,13 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                     tableDefinition.columnDefinitions
                             .filter { !it.isRowId }
                             .forEach {
-                                methodBuilder.addCode(it.getSQLiteStatementMethod(realCount, false))
+                                methodBuilder.addCode(it.getSQLiteStatementMethod(realCount,
+                                        useStart = false))
                                 realCount.incrementAndGet()
                             }
                     tableDefinition.primaryColumnDefinitions.forEach {
-                        methodBuilder.addCode(it.getSQLiteStatementMethod(realCount, false))
+                        methodBuilder.addCode(it.getSQLiteStatementMethod(realCount,
+                                useStart = false, defineProperty = false))
                         realCount.incrementAndGet()
                     }
                 } else {
