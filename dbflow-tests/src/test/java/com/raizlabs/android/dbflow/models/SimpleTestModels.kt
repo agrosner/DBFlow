@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener
 
+
 /**
  * Description:
  */
@@ -66,6 +67,12 @@ class TypeConverterModel(@PrimaryKey var id: Int = 0,
                          @Column var blob: Blob? = null,
                          @Column(typeConverter = CustomTypeConverter::class)
                          @PrimaryKey var customType: CustomType? = null)
+
+@Table(database = TestDatabase::class, allFields = true)
+class FeedEntry(@PrimaryKey var id: Int = 0,
+                var title: String? = null,
+                var subtitle: String? = null)
+
 
 @Table(database = TestDatabase::class)
 class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener {

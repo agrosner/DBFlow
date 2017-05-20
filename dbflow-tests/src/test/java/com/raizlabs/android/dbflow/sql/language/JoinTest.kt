@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.models.TwoColumnModel_Table
 import junit.framework.Assert.assertEquals
 import org.junit.Test
 
+
 class JoinTest : BaseUnitTest() {
 
     @Test
@@ -67,5 +68,4 @@ class JoinTest : BaseUnitTest() {
         assertEquals("SELECT * FROM `SimpleModel` NATURAL JOIN `TwoColumnModel`",
                 join.query.trim())
     }
-
 }
