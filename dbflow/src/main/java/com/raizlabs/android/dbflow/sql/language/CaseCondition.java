@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -40,13 +41,13 @@ public class CaseCondition<TReturn> implements Query {
      * THEN part of this query, the value that gets set on column if condition is true.
      */
     @NonNull
-    public Case<TReturn> then(TReturn value) {
+    public Case<TReturn> then(@Nullable TReturn value) {
         thenValue = value;
         return caze;
     }
 
     @NonNull
-    public Case<TReturn> then(IProperty value) {
+    public Case<TReturn> then(@NonNull IProperty value) {
         thenProperty = value;
         // in case values are null in some sense.
         isThenPropertySet = true;

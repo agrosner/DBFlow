@@ -96,11 +96,13 @@ public class FlowCursorList<TModel> implements
         return (ModelAdapter<TModel>) instanceAdapter;
     }
 
+    @NonNull
     @Override
     public FlowCursorIterator<TModel> iterator() {
         return new FlowCursorIterator<>(this);
     }
 
+    @NonNull
     @Override
     public FlowCursorIterator<TModel> iterator(int startingLocation, long limit) {
         return new FlowCursorIterator<>(this, startingLocation, limit);

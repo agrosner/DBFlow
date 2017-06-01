@@ -52,7 +52,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      *
      * @param whereBase The FROM or SET statement chunk
      */
-    public Where(WhereBase<TModel> whereBase, SQLOperator... conditions) {
+    public Where(@NonNull WhereBase<TModel> whereBase, SQLOperator... conditions) {
         super(whereBase.getTable());
         this.whereBase = whereBase;
         operatorGroup = OperatorGroup.nonGroupingClause();
@@ -65,7 +65,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      * Joins the {@link SQLOperator} by the prefix of "AND" (unless its the first condition).
      */
     @NonNull
-    public Where<TModel> and(SQLOperator condition) {
+    public Where<TModel> and(@NonNull SQLOperator condition) {
         operatorGroup.and(condition);
         return this;
     }
@@ -74,7 +74,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      * Joins the {@link SQLOperator} by the prefix of "OR" (unless its the first condition).
      */
     @NonNull
-    public Where<TModel> or(SQLOperator condition) {
+    public Where<TModel> or(@NonNull SQLOperator condition) {
         operatorGroup.or(condition);
         return this;
     }
@@ -83,7 +83,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      * Joins all of the {@link SQLOperator} by the prefix of "AND" (unless its the first condition).
      */
     @NonNull
-    public Where<TModel> andAll(List<SQLOperator> conditions) {
+    public Where<TModel> andAll(@NonNull List<SQLOperator> conditions) {
         operatorGroup.andAll(conditions);
         return this;
     }
@@ -124,19 +124,19 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
     }
 
     @NonNull
-    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
+    public Where<TModel> orderBy(@NonNull NameAlias nameAlias, boolean ascending) {
         orderByList.add(new OrderBy(nameAlias, ascending));
         return this;
     }
 
     @NonNull
-    public Where<TModel> orderBy(IProperty property, boolean ascending) {
+    public Where<TModel> orderBy(@NonNull IProperty property, boolean ascending) {
         orderByList.add(new OrderBy(property.getNameAlias(), ascending));
         return this;
     }
 
     @NonNull
-    public Where<TModel> orderBy(OrderBy orderBy) {
+    public Where<TModel> orderBy(@NonNull OrderBy orderBy) {
         orderByList.add(orderBy);
         return this;
     }
@@ -148,10 +148,8 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      * @return this instance.
      */
     @NonNull
-    public Where<TModel> orderByAll(List<OrderBy> orderBies) {
-        if (orderBies != null) {
-            orderByList.addAll(orderBies);
-        }
+    public Where<TModel> orderByAll(@NonNull List<OrderBy> orderBies) {
+        orderByList.addAll(orderBies);
         return this;
     }
 
@@ -180,6 +178,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
         return this;
     }
 
+    @NonNull
     @Override
     public BaseModel.Action getPrimaryAction() {
         return whereBase.getPrimaryAction();
@@ -208,7 +207,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
      * @return the result of the query as a {@link Cursor}.
      */
     @Override
-    public FlowCursor query(DatabaseWrapper wrapper) {
+    public FlowCursor query(@NonNull DatabaseWrapper wrapper) {
         // Query the sql here
         FlowCursor cursor;
         if (whereBase.getQueryBuilderBase() instanceof Select) {
@@ -250,6 +249,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQu
         return super.querySingle();
     }
 
+    @NonNull
     public WhereBase<TModel> getWhereBase() {
         return whereBase;
     }

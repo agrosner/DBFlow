@@ -34,7 +34,7 @@ public abstract class BaseTransformable<TModel> extends BaseModelQueriable<TMode
     }
 
     @Override
-    public FlowCursor query(DatabaseWrapper databaseWrapper) {
+    public FlowCursor query(@NonNull DatabaseWrapper databaseWrapper) {
         return where().query(databaseWrapper);
     }
 
@@ -49,12 +49,12 @@ public abstract class BaseTransformable<TModel> extends BaseModelQueriable<TMode
     }
 
     @Override
-    public long count(DatabaseWrapper databaseWrapper) {
+    public long count(@NonNull DatabaseWrapper databaseWrapper) {
         return where().count(databaseWrapper);
     }
 
     @Override
-    public long executeUpdateDelete(DatabaseWrapper databaseWrapper) {
+    public long executeUpdateDelete(@NonNull DatabaseWrapper databaseWrapper) {
         return where().executeUpdateDelete(databaseWrapper);
     }
 
@@ -72,25 +72,25 @@ public abstract class BaseTransformable<TModel> extends BaseModelQueriable<TMode
 
     @NonNull
     @Override
-    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
+    public Where<TModel> orderBy(@NonNull NameAlias nameAlias, boolean ascending) {
         return where().orderBy(nameAlias, ascending);
     }
 
     @NonNull
     @Override
-    public Where<TModel> orderBy(IProperty property, boolean ascending) {
+    public Where<TModel> orderBy(@NonNull IProperty property, boolean ascending) {
         return where().orderBy(property, ascending);
     }
 
     @NonNull
     @Override
-    public Where<TModel> orderByAll(List<OrderBy> orderBies) {
+    public Where<TModel> orderByAll(@NonNull List<OrderBy> orderBies) {
         return where().orderByAll(orderBies);
     }
 
     @NonNull
     @Override
-    public Where<TModel> orderBy(OrderBy orderBy) {
+    public Where<TModel> orderBy(@NonNull OrderBy orderBy) {
         return where().orderBy(orderBy);
     }
 

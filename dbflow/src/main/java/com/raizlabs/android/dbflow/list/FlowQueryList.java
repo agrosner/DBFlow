@@ -334,6 +334,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
         return internalCursorList.getItem(position);
     }
 
+    @Nullable
     @Override
     public Cursor cursor() {
         return internalCursorList.cursor();
@@ -373,6 +374,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
         return new FlowCursorIterator<>(this);
     }
 
+    @NonNull
     @Override
     public FlowCursorIterator<TModel> iterator(int startingLocation, long limit) {
         return new FlowCursorIterator<>(this, startingLocation, limit);

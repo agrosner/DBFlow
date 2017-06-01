@@ -19,7 +19,7 @@ public interface IProperty<P extends IProperty> extends Query {
      * @return A new {@link P} that expresses the current column name with the specified Alias name.
      */
     @NonNull
-    P as(String aliasName);
+    P as(@NonNull String aliasName);
 
     /**
      * Adds another property and returns as a new property. i.e p1 + p2
@@ -28,7 +28,7 @@ public interface IProperty<P extends IProperty> extends Query {
      * @return A new instance.
      */
     @NonNull
-    P plus(IProperty iProperty);
+    P plus(@NonNull IProperty iProperty);
 
     /**
      * Subtracts another property and returns as a new property. i.e p1 - p2
@@ -37,7 +37,7 @@ public interface IProperty<P extends IProperty> extends Query {
      * @return A new instance.
      */
     @NonNull
-    P minus(IProperty iProperty);
+    P minus(@NonNull IProperty iProperty);
 
     /**
      * Divides another property and returns as a new property. i.e p1 / p2
@@ -46,7 +46,7 @@ public interface IProperty<P extends IProperty> extends Query {
      * @return A new instance.
      */
     @NonNull
-    P div(IProperty iProperty);
+    P div(@NonNull IProperty iProperty);
 
     /**
      * Multiplies another property and returns as a new property. i.e p1 * p2
@@ -54,7 +54,7 @@ public interface IProperty<P extends IProperty> extends Query {
      * @param iProperty the property to multiply.
      * @return A new instance.
      */
-    P times(IProperty iProperty);
+    P times(@NonNull IProperty iProperty);
 
     /**
      * Modulous another property and returns as a new property. i.e p1 % p2
@@ -63,7 +63,7 @@ public interface IProperty<P extends IProperty> extends Query {
      * @return A new instance.
      */
     @NonNull
-    P rem(IProperty iProperty);
+    P rem(@NonNull IProperty iProperty);
 
     /**
      * Concats another property and returns as a new propert.y i.e. p1 || p2
@@ -72,7 +72,7 @@ public interface IProperty<P extends IProperty> extends Query {
      * @return A new instance.
      */
     @NonNull
-    P concatenate(IProperty iProperty);
+    P concatenate(@NonNull IProperty iProperty);
 
     /**
      * @return Appends DISTINCT to the property name. This is handy in {@link Method} queries.
@@ -99,7 +99,7 @@ public interface IProperty<P extends IProperty> extends Query {
      * The resulting column name becomes `tableName`.`columnName`.
      */
     @NonNull
-    P withTable(NameAlias tableNameAlias);
+    P withTable(@NonNull NameAlias tableNameAlias);
 
     /**
      * @return The underlying {@link NameAlias} that represents the name of this property.

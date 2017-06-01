@@ -194,6 +194,7 @@ public class From<TModel> extends BaseTransformable<TModel> {
         return new IndexedBy<>(indexProperty, this);
     }
 
+    @NonNull
     @Override
     public BaseModel.Action getPrimaryAction() {
         return (queryBase instanceof Delete) ? BaseModel.Action.DELETE : BaseModel.Action.CHANGE;

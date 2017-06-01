@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.list;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.io.Closeable;
@@ -25,16 +26,19 @@ public interface IFlowCursorIterator<TModel> extends Closeable {
     /**
      * @return The cursor.
      */
+    @Nullable
     Cursor cursor();
 
     /**
      * @return Can iterate the {@link Cursor}.
      */
+    @NonNull
     FlowCursorIterator<TModel> iterator();
 
     /**
      * @return Can iterate the {@link Cursor}. Specifies a starting location + count limit of results.
      */
+    @NonNull
     FlowCursorIterator<TModel> iterator(int startingLocation, long limit);
 
     @Override

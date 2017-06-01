@@ -38,7 +38,7 @@ public class Case<TReturn> implements Query {
     }
 
     @NonNull
-    public CaseCondition<TReturn> when(SQLOperator sqlOperator) {
+    public CaseCondition<TReturn> when(@NonNull SQLOperator sqlOperator) {
         if (efficientCase) {
             throw new IllegalStateException("When using the efficient CASE method," +
                 "you must pass in value only, not condition.");
@@ -49,7 +49,7 @@ public class Case<TReturn> implements Query {
     }
 
     @NonNull
-    public CaseCondition<TReturn> when(TReturn whenValue) {
+    public CaseCondition<TReturn> when(@Nullable TReturn whenValue) {
         if (!efficientCase) {
             throw new IllegalStateException("When not using the efficient CASE method, " +
                 "you must pass in the SQLOperator as a parameter");
@@ -60,7 +60,7 @@ public class Case<TReturn> implements Query {
     }
 
     @NonNull
-    public CaseCondition<TReturn> when(IProperty property) {
+    public CaseCondition<TReturn> when(@NonNull IProperty property) {
         if (!efficientCase) {
             throw new IllegalStateException("When not using the efficient CASE method, " +
                 "you must pass in the SQLOperator as a parameter");
@@ -74,7 +74,7 @@ public class Case<TReturn> implements Query {
      * Default case here. If not specified, value will be NULL.
      */
     @NonNull
-    public Case<TReturn> _else(TReturn elseValue) {
+    public Case<TReturn> _else(@Nullable TReturn elseValue) {
         this.elseValue = elseValue;
         elseSpecified = true; // ensure its set especially if null specified.
         return this;

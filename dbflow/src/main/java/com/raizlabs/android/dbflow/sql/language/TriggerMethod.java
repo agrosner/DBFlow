@@ -52,7 +52,7 @@ public class TriggerMethod<TModel> implements Query {
      * @return
      */
     @NonNull
-    public TriggerMethod<TModel> when(SQLOperator condition) {
+    public TriggerMethod<TModel> when(@NonNull SQLOperator condition) {
         whenCondition = condition;
         return this;
     }
@@ -66,7 +66,7 @@ public class TriggerMethod<TModel> implements Query {
      * @return This trigger
      */
     @NonNull
-    public CompletedTrigger<TModel> begin(Query triggerLogicQuery) {
+    public CompletedTrigger<TModel> begin(@NonNull Query triggerLogicQuery) {
         return new CompletedTrigger<>(this, triggerLogicQuery);
     }
 

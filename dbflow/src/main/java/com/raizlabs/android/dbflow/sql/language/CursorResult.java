@@ -68,7 +68,7 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      * @return A {@link List} of items from this object. You must call {@link #close()} when finished.
      */
     @NonNull
-    public <TCustom> List<TCustom> toCustomList(Class<TCustom> customClass) {
+    public <TCustom> List<TCustom> toCustomList(@NonNull Class<TCustom> customClass) {
         return cursor != null ? FlowManager.getQueryModelAdapter(customClass)
             .getListModelLoader().convertToData(cursor, null) : new ArrayList<TCustom>();
     }
@@ -77,7 +77,7 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      * @return Converts the {@link Cursor} to a {@link List} of {@link TModel} and then closes it.
      */
     @NonNull
-    public <TCustom> List<TCustom> toCustomListClose(Class<TCustom> customClass) {
+    public <TCustom> List<TCustom> toCustomListClose(@NonNull Class<TCustom> customClass) {
         final List<TCustom> customList = cursor != null ? FlowManager.getQueryModelAdapter(customClass)
             .getListModelLoader().load(cursor) : new ArrayList<TCustom>();
         close();
@@ -106,7 +106,7 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      * @return The first {@link TModel} of items from the contained {@link Cursor}. You must call {@link #close()} when finished.
      */
     @Nullable
-    public <TCustom> TCustom toCustomModel(Class<TCustom> customClass) {
+    public <TCustom> TCustom toCustomModel(@NonNull Class<TCustom> customClass) {
         return cursor != null ? FlowManager.getQueryModelAdapter(customClass)
             .getSingleModelLoader().convertToData(cursor, null) : null;
     }
@@ -115,7 +115,7 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
      * @return Converts the {@link Cursor} to a {@link TModel} and then closes it.
      */
     @Nullable
-    public <TCustom> TCustom toCustomModelClose(Class<TCustom> customClass) {
+    public <TCustom> TCustom toCustomModelClose(@NonNull Class<TCustom> customClass) {
         final TCustom customList = cursor != null ? FlowManager.getQueryModelAdapter(customClass)
             .getSingleModelLoader().load(cursor) : null;
         close();
@@ -132,11 +132,13 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
         return model;
     }
 
+    @NonNull
     @Override
     public FlowCursorIterator<TModel> iterator() {
         return new FlowCursorIterator<>(this);
     }
 
+    @NonNull
     @Override
     public FlowCursorIterator<TModel> iterator(int startingLocation, long limit) {
         return new FlowCursorIterator<>(this, startingLocation, limit);

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
@@ -46,7 +47,7 @@ public class StringQuery<TModel> extends BaseModelQueriable<TModel> implements Q
     }
 
     @Override
-    public FlowCursor query(DatabaseWrapper databaseWrapper) {
+    public FlowCursor query(@NonNull DatabaseWrapper databaseWrapper) {
         return databaseWrapper.rawQuery(query, args);
     }
 
@@ -58,6 +59,7 @@ public class StringQuery<TModel> extends BaseModelQueriable<TModel> implements Q
         return this;
     }
 
+    @NonNull
     @Override
     public BaseModel.Action getPrimaryAction() {
         return BaseModel.Action.CHANGE; // we don't explicitly know the change, but something changed.

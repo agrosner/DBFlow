@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.database.DatabaseUtils;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.converter.TypeConverter;
@@ -15,6 +16,7 @@ import com.raizlabs.android.dbflow.sql.SqlUtils;
  */
 public abstract class BaseOperator implements SQLOperator {
 
+    @Nullable
     public static String convertValueToString(Object value, boolean appendInnerQueryParenthesis) {
         return convertValueToString(value, appendInnerQueryParenthesis, true);
     }
@@ -43,7 +45,9 @@ public abstract class BaseOperator implements SQLOperator {
      * @return Returns the result as a string that's safe for SQLite.
      */
     @SuppressWarnings("unchecked")
-    public static String convertValueToString(Object value, boolean appendInnerQueryParenthesis,
+    @Nullable
+    public static String convertValueToString(@Nullable Object value,
+                                              boolean appendInnerQueryParenthesis,
                                               boolean typeConvert) {
         if (value == null) {
             return "NULL";
@@ -100,8 +104,10 @@ public abstract class BaseOperator implements SQLOperator {
      *                  the objects by calling {@link #convertValueToString(Object, boolean)}.
      * @return A joined string
      */
-    public static String joinArguments(CharSequence delimiter, Iterable tokens,
-                                       BaseOperator condition) {
+    @NonNull
+    public static String joinArguments(@NonNull CharSequence delimiter,
+                                       @NonNull Iterable tokens,
+                                       @NonNull BaseOperator condition) {
         StringBuilder sb = new StringBuilder();
         boolean firstTime = true;
         for (Object token : tokens) {
@@ -123,7 +129,8 @@ public abstract class BaseOperator implements SQLOperator {
      *                  the objects by calling object.toString().
      * @return A joined string
      */
-    public static String joinArguments(CharSequence delimiter, Object[] tokens) {
+    @NonNull
+    public static String joinArguments(@NonNull CharSequence delimiter, @NonNull Object[] tokens) {
         StringBuilder sb = new StringBuilder();
         boolean firstTime = true;
         for (Object token : tokens) {
@@ -145,7 +152,8 @@ public abstract class BaseOperator implements SQLOperator {
      *                  the objects by calling object.toString().
      * @return A joined string
      */
-    public static String joinArguments(CharSequence delimiter, Iterable tokens) {
+    @NonNull
+    public static String joinArguments(@NonNull CharSequence delimiter, @NonNull Iterable tokens) {
         StringBuilder sb = new StringBuilder();
         boolean firstTime = true;
         for (Object token : tokens) {
@@ -172,6 +180,7 @@ public abstract class BaseOperator implements SQLOperator {
     /**
      * The column name
      */
+    @NonNull
     protected NameAlias nameAlias;
 
     /**
@@ -189,7 +198,7 @@ public abstract class BaseOperator implements SQLOperator {
      */
     protected boolean isValueSet;
 
-    BaseOperator(NameAlias nameAlias) {
+    BaseOperator(@NonNull NameAlias nameAlias) {
         this.nameAlias = nameAlias;
     }
 
@@ -204,6 +213,7 @@ public abstract class BaseOperator implements SQLOperator {
     /**
      * @return the column name
      */
+    @NonNull
     @Override
     public String columnName() {
         return nameAlias.getQuery();
@@ -211,11 +221,12 @@ public abstract class BaseOperator implements SQLOperator {
 
     @NonNull
     @Override
-    public SQLOperator separator(String separator) {
+    public SQLOperator separator(@NonNull String separator) {
         this.separator = separator;
         return this;
     }
 
+    @Nullable
     @Override
     public String separator() {
         return separator;
@@ -232,6 +243,7 @@ public abstract class BaseOperator implements SQLOperator {
     /**
      * @return the operator such as "&lt;", "&gt;", or "="
      */
+    @NonNull
     public String operation() {
         return operation;
     }

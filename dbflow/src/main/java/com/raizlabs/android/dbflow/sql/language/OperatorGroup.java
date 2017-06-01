@@ -175,7 +175,7 @@ public class OperatorGroup extends BaseOperator implements Query, Iterable<SQLOp
     }
 
     @Override
-    public void appendConditionToQuery(QueryBuilder queryBuilder) {
+    public void appendConditionToQuery(@NonNull QueryBuilder queryBuilder) {
         int conditionListSize = conditionsList.size();
         if (useParenthesis && conditionListSize > 0) {
             queryBuilder.append("(");
