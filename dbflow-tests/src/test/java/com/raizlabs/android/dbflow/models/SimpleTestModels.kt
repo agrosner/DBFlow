@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener
+import java.util.*
 
 
 /**
@@ -73,6 +74,13 @@ class FeedEntry(@PrimaryKey var id: Int = 0,
                 var title: String? = null,
                 var subtitle: String? = null)
 
+@Table(database = TestDatabase::class)
+@ManyToMany(
+        generatedTableClassName = "Refund", referencedTable = Transfer::class,
+        referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
+        saveForeignKeyModels = true
+)
+data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
 class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener {
