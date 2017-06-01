@@ -1,13 +1,11 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import com.raizlabs.android.dbflow.annotation.Collate
 import com.raizlabs.android.dbflow.assertEquals
-import com.raizlabs.android.dbflow.kotlinextensions.and
-import com.raizlabs.android.dbflow.kotlinextensions.between
-import com.raizlabs.android.dbflow.kotlinextensions.collate
-import com.raizlabs.android.dbflow.kotlinextensions.op
+import com.raizlabs.android.dbflow.kotlinextensions.*
+import com.raizlabs.android.dbflow.models.SimpleModel
+import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import org.junit.Test
 
 class OperatorTest : BaseUnitTest() {
@@ -58,5 +56,6 @@ class OperatorTest : BaseUnitTest() {
     @Test
     fun testIn() {
         assertEquals("`id` IN (5,6,7,8,9)", id.`in`(5, 6, 7, 8) and 9)
+        assertEquals("`id` NOT IN (SELECT * FROM `SimpleModel`)", id.notIn(select from SimpleModel::class))
     }
 }

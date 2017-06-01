@@ -372,21 +372,21 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
     @SuppressWarnings("unchecked")
     @Override
     public In in(IConditional firstConditional, IConditional... conditionals) {
-        return new In(this, firstConditional, true, (Object) conditionals);
+        return new In(this, firstConditional, true, conditionals);
     }
 
     @NonNull
     @SuppressWarnings("unchecked")
     @Override
     public In notIn(IConditional firstConditional, IConditional... conditionals) {
-        return new In(this, firstConditional, false, (Object) conditionals);
+        return new In(this, firstConditional, false, conditionals);
     }
 
     @NonNull
     @SuppressWarnings("unchecked")
     @Override
     public In notIn(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable[] baseModelQueriables) {
-        return new In(this, firstBaseModelQueriable, false, (Object) baseModelQueriables);
+        return new In(this, firstBaseModelQueriable, false, (Object[]) baseModelQueriables);
     }
 
     @NonNull
@@ -527,7 +527,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
     @SuppressWarnings("unchecked")
     @Override
     public In in(BaseModelQueriable firstBaseModelQueriable, BaseModelQueriable... baseModelQueriables) {
-        return new In(this, firstBaseModelQueriable, true, (Object[]) baseModelQueriables);
+        return new In(this, firstBaseModelQueriable, true, baseModelQueriables);
     }
 
     @Override

@@ -2,9 +2,6 @@ package com.raizlabs.android.dbflow.processor.utils
 
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorManager.Companion.manager
-import com.raizlabs.android.dbflow.processor.utils.ElementUtility
-import com.raizlabs.android.dbflow.processor.utils.erasure
-import com.raizlabs.android.dbflow.processor.utils.toTypeElement
 import com.squareup.javapoet.ClassName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
@@ -92,7 +89,7 @@ fun getTypeElement(typeMirror: TypeMirror): TypeElement? {
     var typeElement: TypeElement? = typeMirror.toTypeElement(manager)
     if (typeElement == null) {
         val el = manager.typeUtils.asElement(typeMirror)
-        typeElement = if (el != null) (el as TypeElement) else null
+        typeElement = if (el != null && el is TypeElement) el else null
     }
     return typeElement
 }
