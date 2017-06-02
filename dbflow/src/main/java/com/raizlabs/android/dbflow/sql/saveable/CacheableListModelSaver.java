@@ -14,13 +14,13 @@ import java.util.Collection;
 public class CacheableListModelSaver<TModel>
     extends ListModelSaver<TModel> {
 
-    public CacheableListModelSaver(ModelSaver<TModel> modelSaver) {
+    public CacheableListModelSaver(@NonNull ModelSaver<TModel> modelSaver) {
         super(modelSaver);
     }
 
     @Override
     public synchronized void saveAll(@NonNull Collection<TModel> tableCollection,
-                                     DatabaseWrapper wrapper) {
+                                     @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
@@ -44,7 +44,7 @@ public class CacheableListModelSaver<TModel>
 
     @Override
     public synchronized void insertAll(@NonNull Collection<TModel> tableCollection,
-                                       DatabaseWrapper wrapper) {
+                                       @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;

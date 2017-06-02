@@ -38,7 +38,7 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @return a list of model converted items
      */
     @NonNull
-    List<TModel> queryList(DatabaseWrapper wrapper);
+    List<TModel> queryList(@NonNull DatabaseWrapper wrapper);
 
     /**
      * @return Single model, the first of potentially many results
@@ -52,7 +52,7 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @return Single model, the first of potentially many results
      */
     @Nullable
-    TModel querySingle(DatabaseWrapper wrapper);
+    TModel querySingle(@NonNull DatabaseWrapper wrapper);
 
     /**
      * @return the table that this query comes from.
@@ -88,7 +88,7 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @return A list of custom models that are not tied to a table.
      */
     @NonNull
-    <TQueryModel> List<TQueryModel> queryCustomList(Class<TQueryModel> queryModelClass);
+    <TQueryModel> List<TQueryModel> queryCustomList(@NonNull Class<TQueryModel> queryModelClass);
 
     /**
      * Returns a single {@link TQueryModel} from this query.
@@ -98,7 +98,7 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @return A single model from the query.
      */
     @Nullable
-    <TQueryModel> TQueryModel queryCustomSingle(Class<TQueryModel> queryModelClass);
+    <TQueryModel> TQueryModel queryCustomSingle(@NonNull Class<TQueryModel> queryModelClass);
 
     /**
      * Disables caching on this query for the object retrieved from DB (if caching enabled). If

@@ -16,7 +16,8 @@ public class SingleModelLoader<TModel> extends ModelLoader<TModel, TModel> {
 
     @SuppressWarnings("unchecked")
     @Nullable
-    public TModel convertToData(@NonNull final FlowCursor cursor, @Nullable TModel data, boolean moveToFirst) {
+    public TModel convertToData(@NonNull final FlowCursor cursor, @Nullable TModel data,
+                                boolean moveToFirst) {
         if (!moveToFirst || cursor.moveToFirst()) {
             if (data == null) {
                 data = getInstanceAdapter().newInstance();

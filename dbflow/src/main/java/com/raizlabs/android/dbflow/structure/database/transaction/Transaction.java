@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.structure.database.transaction;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
@@ -29,7 +30,8 @@ public final class Transaction {
          * @param transaction The transaction that failed.
          * @param error       The error that was thrown.
          */
-        void onError(Transaction transaction, Throwable error);
+        void onError(@NonNull Transaction transaction,
+                     @NonNull Throwable error);
     }
 
     /**
@@ -42,7 +44,7 @@ public final class Transaction {
          *
          * @param transaction The transaction that succeeded.
          */
-        void onSuccess(Transaction transaction);
+        void onSuccess(@NonNull Transaction transaction);
     }
 
     private static Handler TRANSACTION_HANDLER;
@@ -74,18 +76,22 @@ public final class Transaction {
         runCallbacksOnSameThread = builder.runCallbacksOnSameThread;
     }
 
+    @Nullable
     public Error error() {
         return errorCallback;
     }
 
+    @Nullable
     public Success success() {
         return successCallback;
     }
 
+    @NonNull
     public ITransaction transaction() {
         return transaction;
     }
 
+    @Nullable
     public String name() {
         return name;
     }
@@ -147,13 +153,14 @@ public final class Transaction {
         }
     }
 
+    @NonNull
     public Builder newBuilder() {
         return new Builder(transaction, databaseDefinition)
-                .error(errorCallback)
-                .success(successCallback)
-                .name(name)
-                .shouldRunInTransaction(shouldRunInTransaction)
-                .runCallbacksOnSameThread(runCallbacksOnSameThread);
+            .error(errorCallback)
+            .success(successCallback)
+            .name(name)
+            .shouldRunInTransaction(shouldRunInTransaction)
+            .runCallbacksOnSameThread(runCallbacksOnSameThread);
     }
 
     /**
@@ -183,7 +190,8 @@ public final class Transaction {
         /**
          * Specify an error callback to return all and any {@link Throwable} that occured during a {@link Transaction}.
          */
-        public Builder error(Error errorCallback) {
+        @NonNull
+        public Builder error(@Nullable Error errorCallback) {
             this.errorCallback = errorCallback;
             return this;
         }
@@ -194,7 +202,8 @@ public final class Transaction {
          *
          * @param successCallback The callback, invoked on the UI thread.
          */
-        public Builder success(Success successCallback) {
+        @NonNull
+        public Builder success(@Nullable Success successCallback) {
             this.successCallback = successCallback;
             return this;
         }
@@ -205,7 +214,8 @@ public final class Transaction {
          * @param name The name of this transaction. Should be unique for any transaction currently
          *             running in the {@link ITransactionQueue}.
          */
-        public Builder name(String name) {
+        @NonNull
+        public Builder name(@Nullable String name) {
             this.name = name;
             return this;
         }
@@ -216,6 +226,7 @@ public final class Transaction {
          *                               {@link QueryTransaction}), you should specify false.
          * @return
          */
+        @NonNull
         public Builder shouldRunInTransaction(boolean shouldRunInTransaction) {
             this.shouldRunInTransaction = shouldRunInTransaction;
             return this;
@@ -226,6 +237,7 @@ public final class Transaction {
          *                                 this {@link Transaction} on the same thread we call
          *                                 {@link #execute()} from.
          */
+        @NonNull
         public Builder runCallbacksOnSameThread(boolean runCallbacksOnSameThread) {
             this.runCallbacksOnSameThread = runCallbacksOnSameThread;
             return this;
@@ -235,6 +247,7 @@ public final class Transaction {
          * @return A new instance of {@link Transaction}. Subsequent calls to this method produce
          * new instances.
          */
+        @NonNull
         public Transaction build() {
             return new Transaction(this);
         }

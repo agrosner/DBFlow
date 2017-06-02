@@ -41,6 +41,7 @@ public class IndexedBy<TModel> extends BaseTransformable<TModel> {
         return queryBuilder.getQuery();
     }
 
+    @NonNull
     @Override
     public BaseModel.Action getPrimaryAction() {
         return whereBase.getPrimaryAction();

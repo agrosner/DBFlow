@@ -324,7 +324,7 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
      * If [ForeignKey] has no [ForeignKeyReference]s, we use the primary key the referenced
      * table. We do this post-evaluation so all of the [TableDefinition] can be generated.
      */
-    private fun checkNeedsReferences() {
+    fun checkNeedsReferences() {
         val tableDefinition = (baseTableDefinition as TableDefinition)
         val referencedTableDefinition = manager.getTableDefinition(
                 tableDefinition.databaseTypeName, referencedTableClassName)

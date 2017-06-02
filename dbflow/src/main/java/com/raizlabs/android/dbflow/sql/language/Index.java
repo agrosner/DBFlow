@@ -72,7 +72,7 @@ public class Index<TModel> implements Query {
      * @return This instance.
      */
     @NonNull
-    public Index<TModel> on(@NonNull Class<TModel> table, NameAlias firstAlias, NameAlias... columns) {
+    public Index<TModel> on(@NonNull Class<TModel> table, @NonNull NameAlias firstAlias, NameAlias... columns) {
         this.table = table;
         and(firstAlias);
         for (NameAlias column : columns) {
@@ -88,7 +88,7 @@ public class Index<TModel> implements Query {
      * @return This instance.
      */
     @NonNull
-    public Index<TModel> and(IProperty property) {
+    public Index<TModel> and(@NonNull IProperty property) {
         if (!columns.contains(property.getNameAlias())) {
             columns.add(property.getNameAlias());
         }
@@ -102,7 +102,7 @@ public class Index<TModel> implements Query {
      * @return This instance.
      */
     @NonNull
-    public Index<TModel> and(NameAlias columnName) {
+    public Index<TModel> and(@NonNull NameAlias columnName) {
         if (!columns.contains(columnName)) {
             columns.add(columnName);
         }
@@ -132,8 +132,7 @@ public class Index<TModel> implements Query {
         return isUnique;
     }
 
-    public void enable(DatabaseWrapper databaseWrapper) {
-
+    public void enable(@NonNull DatabaseWrapper databaseWrapper) {
         if (table == null) {
             throw new IllegalStateException("Please call on() to set a table to use this index on.");
         } else if (columns == null || columns.isEmpty()) {

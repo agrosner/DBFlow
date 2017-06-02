@@ -22,6 +22,7 @@ public abstract class BaseTransactionManager {
         checkQueue();
     }
 
+    @NonNull
     public DBBatchSaveQueue getSaveQueue() {
         try {
             if (!saveQueue.isAlive()) {
@@ -33,6 +34,7 @@ public abstract class BaseTransactionManager {
         return saveQueue;
     }
 
+    @NonNull
     public ITransactionQueue getQueue() {
         return transactionQueue;
     }
@@ -56,7 +58,7 @@ public abstract class BaseTransactionManager {
      *
      * @param transaction The transaction to add.
      */
-    public void addTransaction(Transaction transaction) {
+    public void addTransaction(@NonNull Transaction transaction) {
         getQueue().add(transaction);
     }
 
@@ -65,7 +67,7 @@ public abstract class BaseTransactionManager {
      *
      * @param transaction
      */
-    public void cancelTransaction(Transaction transaction) {
+    public void cancelTransaction(@NonNull Transaction transaction) {
         getQueue().cancel(transaction);
     }
 }

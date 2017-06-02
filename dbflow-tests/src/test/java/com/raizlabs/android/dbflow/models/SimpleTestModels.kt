@@ -6,6 +6,8 @@ import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener
+import java.util.*
+
 
 /**
  * Description:
@@ -67,21 +69,34 @@ class TypeConverterModel(@PrimaryKey var id: Int = 0,
                          @Column(typeConverter = CustomTypeConverter::class)
                          @PrimaryKey var customType: CustomType? = null)
 
+@Table(database = TestDatabase::class, allFields = true)
+class FeedEntry(@PrimaryKey var id: Int = 0,
+                var title: String? = null,
+                var subtitle: String? = null)
+
+@Table(database = TestDatabase::class)
+@ManyToMany(
+        generatedTableClassName = "Refund", referencedTable = Transfer::class,
+        referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
+        saveForeignKeyModels = true
+)
+data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
+
 @Table(database = TestDatabase::class)
 class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener {
-    override fun onBindToStatement(databaseStatement: DatabaseStatement?) {
+    override fun onBindToStatement(databaseStatement: DatabaseStatement) {
         TODO("not implemented")
     }
 
-    override fun onBindToInsertStatement(databaseStatement: DatabaseStatement?) {
+    override fun onBindToInsertStatement(databaseStatement: DatabaseStatement) {
         TODO("not implemented")
     }
 
-    override fun onBindToUpdateStatement(databaseStatement: DatabaseStatement?) {
+    override fun onBindToUpdateStatement(databaseStatement: DatabaseStatement) {
         TODO("not implemented")
     }
 
-    override fun onBindToDeleteStatement(databaseStatement: DatabaseStatement?) {
+    override fun onBindToDeleteStatement(databaseStatement: DatabaseStatement) {
         TODO("not implemented")
     }
 }

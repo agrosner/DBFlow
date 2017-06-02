@@ -35,7 +35,7 @@ public class CompletedTrigger<TModel> implements Query {
      * Appends the nextStatement to this query as another line to be executed by trigger.
      */
     @NonNull
-    public CompletedTrigger<TModel> and(Query nextStatement) {
+    public CompletedTrigger<TModel> and(@NonNull Query nextStatement) {
         this.triggerLogicQuery.add(nextStatement);
         return this;
     }

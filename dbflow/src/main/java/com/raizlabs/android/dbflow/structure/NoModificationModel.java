@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.structure;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
@@ -16,7 +18,7 @@ abstract class NoModificationModel implements ReadOnlyModel {
     }
 
     @SuppressWarnings("unchecked")
-    public boolean exists(DatabaseWrapper databaseWrapper) {
+    public boolean exists(@NonNull DatabaseWrapper databaseWrapper) {
         return getRetrievalAdapter().exists(this, databaseWrapper);
     }
 
@@ -26,7 +28,7 @@ abstract class NoModificationModel implements ReadOnlyModel {
     }
 
     @SuppressWarnings("unchecked")
-    public void load(DatabaseWrapper wrapper) {
+    public void load(@NonNull DatabaseWrapper wrapper) {
         getRetrievalAdapter().load(this, wrapper);
     }
 

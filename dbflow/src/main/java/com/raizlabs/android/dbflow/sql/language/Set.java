@@ -17,7 +17,7 @@ public class Set<TModel> extends BaseTransformable<TModel> implements WhereBase<
 
     private Query update;
 
-    public Set(Query update, Class<TModel> table) {
+    public Set(@NonNull Query update, @NonNull Class<TModel> table) {
         super(table);
         this.update = update;
         operatorGroup = OperatorGroup.nonGroupingClause().setAllCommaSeparated(true);
@@ -36,7 +36,7 @@ public class Set<TModel> extends BaseTransformable<TModel> implements WhereBase<
     }
 
     @NonNull
-    public Set<TModel> conditionValues(ContentValues contentValues) {
+    public Set<TModel> conditionValues(@NonNull ContentValues contentValues) {
         SqlUtils.addContentValues(contentValues, operatorGroup);
         return this;
     }
@@ -56,6 +56,7 @@ public class Set<TModel> extends BaseTransformable<TModel> implements WhereBase<
         return update;
     }
 
+    @NonNull
     @Override
     public BaseModel.Action getPrimaryAction() {
         return BaseModel.Action.UPDATE;

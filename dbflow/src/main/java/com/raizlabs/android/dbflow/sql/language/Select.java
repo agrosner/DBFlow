@@ -56,7 +56,7 @@ public class Select implements Query {
      * @return the From part of this query
      */
     @NonNull
-    public <TModel> From<TModel> from(Class<TModel> table) {
+    public <TModel> From<TModel> from(@NonNull Class<TModel> table) {
         return new From<>(this, table);
     }
 

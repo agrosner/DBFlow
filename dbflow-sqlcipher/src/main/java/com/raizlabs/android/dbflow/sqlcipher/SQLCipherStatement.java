@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sqlcipher;
 
+import android.support.annotation.Nullable;
+
 import com.raizlabs.android.dbflow.structure.database.BaseDatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 
@@ -45,6 +47,7 @@ public class SQLCipherStatement extends BaseDatabaseStatement {
         return statement.simpleQueryForLong();
     }
 
+    @Nullable
     @Override
     public String simpleQueryForString() {
         return statement.simpleQueryForString();

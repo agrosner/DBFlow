@@ -19,20 +19,21 @@ class IndexGroupsDefinition(private val tableDefinition: TableDefinition, indexG
 
     val columnDefinitionList: MutableList<ColumnDefinition> = ArrayList()
 
-    val fieldSpec = field(ParameterizedTypeName.get(ClassNames.INDEX_PROPERTY, tableDefinition.elementClassName),
-            "index_$indexName") {
-        addModifiers(public, static, final)
-        `=` {
-            add("new \$T<>(${indexName.S}, $isUnique, \$T.class",
-                    ClassNames.INDEX_PROPERTY, tableDefinition.elementTypeName)
+    val fieldSpec
+        get() = field(ParameterizedTypeName.get(ClassNames.INDEX_PROPERTY, tableDefinition.elementClassName),
+                "index_$indexName") {
+            addModifiers(public, static, final)
+            `=` {
+                add("new \$T<>(${indexName.S}, $isUnique, \$T.class",
+                        ClassNames.INDEX_PROPERTY, tableDefinition.elementTypeName)
 
-            if (columnDefinitionList.isNotEmpty()) {
-                add(",")
+                if (columnDefinitionList.isNotEmpty()) {
+                    add(",")
+                }
+                val index = AtomicInteger(0)
+                columnDefinitionList.forEach { it.appendIndexInitializer(this, index) }
+                add(")")
             }
-            val index = AtomicInteger(0)
-            columnDefinitionList.forEach { it.appendIndexInitializer(this, index) }
-            add(")")
-        }
-    }.build()!!
+        }.build()!!
 
 }

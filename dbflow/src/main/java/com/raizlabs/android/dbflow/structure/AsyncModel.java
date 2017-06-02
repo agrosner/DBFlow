@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.BaseAsyncObject;
@@ -24,7 +25,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
         /**
          * Called when the change finishes on the {@link DefaultTransactionQueue}. This method is called on the UI thread.
          */
-        void onModelChanged(T model);
+        void onModelChanged(@NonNull T model);
     }
 
     private final TModel model;
@@ -42,7 +43,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
      *
      * @param onModelChangedListener The listener to use for a corresponding call to a method.
      */
-    public AsyncModel<TModel> withListener(OnModelChangedListener<TModel> onModelChangedListener) {
+    public AsyncModel<TModel> withListener(@Nullable OnModelChangedListener<TModel> onModelChangedListener) {
         this.onModelChangedListener = new WeakReference<>(onModelChangedListener);
         return this;
     }
@@ -124,7 +125,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
     }
 
     @Override
-    public void load(DatabaseWrapper wrapper) {
+    public void load(@NonNull DatabaseWrapper wrapper) {
         load();
     }
 
@@ -140,7 +141,7 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
     }
 
     @Override
-    public boolean exists(DatabaseWrapper wrapper) {
+    public boolean exists(@NonNull DatabaseWrapper wrapper) {
         return exists();
     }
 

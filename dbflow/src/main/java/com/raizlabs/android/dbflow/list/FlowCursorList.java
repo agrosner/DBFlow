@@ -35,7 +35,7 @@ public class FlowCursorList<TModel> implements
          *
          * @param cursorList The object that changed.
          */
-        void onCursorRefreshed(FlowCursorList<TModel> cursorList);
+        void onCursorRefreshed(@NonNull FlowCursorList<TModel> cursorList);
     }
 
     /**
@@ -88,19 +88,23 @@ public class FlowCursorList<TModel> implements
         setCacheModels(cacheModels);
     }
 
+    @NonNull
     InstanceAdapter<TModel> getInstanceAdapter() {
         return instanceAdapter;
     }
 
+    @NonNull
     ModelAdapter<TModel> getModelAdapter() {
         return (ModelAdapter<TModel>) instanceAdapter;
     }
 
+    @NonNull
     @Override
     public FlowCursorIterator<TModel> iterator() {
         return new FlowCursorIterator<>(this);
     }
 
+    @NonNull
     @Override
     public FlowCursorIterator<TModel> iterator(int startingLocation, long limit) {
         return new FlowCursorIterator<>(this, startingLocation, limit);
@@ -109,13 +113,13 @@ public class FlowCursorList<TModel> implements
     /**
      * Register listener for when cursor refreshes.
      */
-    public void addOnCursorRefreshListener(OnCursorRefreshListener<TModel> onCursorRefreshListener) {
+    public void addOnCursorRefreshListener(@NonNull OnCursorRefreshListener<TModel> onCursorRefreshListener) {
         synchronized (cursorRefreshListenerSet) {
             cursorRefreshListenerSet.add(onCursorRefreshListener);
         }
     }
 
-    public void removeOnCursorRefreshListener(OnCursorRefreshListener<TModel> onCursorRefreshListener) {
+    public void removeOnCursorRefreshListener(@NonNull OnCursorRefreshListener<TModel> onCursorRefreshListener) {
         synchronized (cursorRefreshListenerSet) {
             cursorRefreshListenerSet.remove(onCursorRefreshListener);
         }
@@ -204,6 +208,7 @@ public class FlowCursorList<TModel> implements
      * @return the full, converted {@link TModel} list from the database on this list. For large
      * data sets that require a large conversion, consider calling this on a BG thread.
      */
+    @NonNull
     public List<TModel> getAll() {
         throwIfCursorClosed();
         warnEmptyCursor();
@@ -238,6 +243,7 @@ public class FlowCursorList<TModel> implements
         return cursor != null ? cursor.getCount() : 0;
     }
 
+    @NonNull
     public ModelCache<TModel, ?> modelCache() {
         return modelCache;
     }
@@ -266,6 +272,7 @@ public class FlowCursorList<TModel> implements
         return cursor;
     }
 
+    @NonNull
     public Class<TModel> table() {
         return table;
     }
@@ -286,6 +293,7 @@ public class FlowCursorList<TModel> implements
      * @return A new {@link Builder} that contains the same cache, query statement, and other
      * underlying data, but allows for modification.
      */
+    @NonNull
     public Builder<TModel> newBuilder() {
         return new Builder<>(table)
             .modelQueriable(modelQueriable)
@@ -307,7 +315,7 @@ public class FlowCursorList<TModel> implements
         private boolean cacheModels = true;
         private ModelCache<TModel, ?> modelCache;
 
-        public Builder(Class<TModel> modelClass) {
+        public Builder(@NonNull Class<TModel> modelClass) {
             this.modelClass = modelClass;
         }
 
@@ -316,22 +324,28 @@ public class FlowCursorList<TModel> implements
             modelQueriable(modelQueriable);
         }
 
-        public Builder<TModel> cursor(Cursor cursor) {
-            this.cursor = FlowCursor.from(cursor);
+        @NonNull
+        public Builder<TModel> cursor(@Nullable Cursor cursor) {
+            if (cursor != null) {
+                this.cursor = FlowCursor.from(cursor);
+            }
             return this;
         }
 
-        public Builder<TModel> modelQueriable(ModelQueriable<TModel> modelQueriable) {
+        @NonNull
+        public Builder<TModel> modelQueriable(@Nullable ModelQueriable<TModel> modelQueriable) {
             this.modelQueriable = modelQueriable;
             return this;
         }
 
+        @NonNull
         public Builder<TModel> cacheModels(boolean cacheModels) {
             this.cacheModels = cacheModels;
             return this;
         }
 
-        public Builder<TModel> modelCache(ModelCache<TModel, ?> modelCache) {
+        @NonNull
+        public Builder<TModel> modelCache(@Nullable ModelCache<TModel, ?> modelCache) {
             this.modelCache = modelCache;
             if (modelCache != null) {
                 cacheModels(true);
@@ -339,6 +353,7 @@ public class FlowCursorList<TModel> implements
             return this;
         }
 
+        @NonNull
         public FlowCursorList<TModel> build() {
             return new FlowCursorList<>(this);
         }

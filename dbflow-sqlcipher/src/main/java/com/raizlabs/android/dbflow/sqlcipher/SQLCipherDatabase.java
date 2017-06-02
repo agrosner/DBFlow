@@ -26,7 +26,7 @@ public class SQLCipherDatabase implements DatabaseWrapper {
     }
 
     @Override
-    public void execSQL(String query) {
+    public void execSQL(@NonNull String query) {
         database.execSQL(query);
     }
 
@@ -50,8 +50,9 @@ public class SQLCipherDatabase implements DatabaseWrapper {
         return database.getVersion();
     }
 
+    @NonNull
     @Override
-    public DatabaseStatement compileStatement(String rawQuery) {
+    public DatabaseStatement compileStatement(@NonNull String rawQuery) {
         return SQLCipherStatement.from(database.compileStatement(rawQuery));
     }
 
@@ -59,21 +60,23 @@ public class SQLCipherDatabase implements DatabaseWrapper {
         return database;
     }
 
+    @NonNull
     @Override
-    public FlowCursor rawQuery(String query, String[] selectionArgs) {
+    public FlowCursor rawQuery(@NonNull String query, @Nullable String[] selectionArgs) {
         return FlowCursor.from(database.rawQuery(query, selectionArgs));
     }
 
     @Override
-    public long updateWithOnConflict(String tableName, ContentValues contentValues, String where, String[] whereArgs, int conflictAlgorithm) {
+    public long updateWithOnConflict(@NonNull String tableName, @NonNull ContentValues contentValues, @Nullable String where, @Nullable String[] whereArgs, int conflictAlgorithm) {
         return database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm);
     }
 
     @Override
-    public long insertWithOnConflict(String tableName, String nullColumnHack, ContentValues values, int sqLiteDatabaseAlgorithmInt) {
+    public long insertWithOnConflict(@NonNull String tableName, @Nullable String nullColumnHack, @NonNull ContentValues values, int sqLiteDatabaseAlgorithmInt) {
         return database.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt);
     }
 
+    @NonNull
     @Override
     public FlowCursor query(@NonNull String tableName,
                             @Nullable String[] columns,

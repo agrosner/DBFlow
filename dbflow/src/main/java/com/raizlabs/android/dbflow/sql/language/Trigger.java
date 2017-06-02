@@ -43,7 +43,7 @@ public class Trigger implements Query {
      * @return A new trigger.
      */
     @NonNull
-    public static Trigger create(String triggerName) {
+    public static Trigger create(@NonNull String triggerName) {
         return new Trigger(triggerName);
     }
 
@@ -53,7 +53,7 @@ public class Trigger implements Query {
      *
      * @param triggerName What we should call this trigger
      */
-    private Trigger(String triggerName) {
+    private Trigger(@NonNull String triggerName) {
         this.triggerName = triggerName;
     }
 
@@ -99,7 +99,7 @@ public class Trigger implements Query {
      * @param onTable The table ON
      */
     @NonNull
-    public <TModel> TriggerMethod<TModel> deleteOn(Class<TModel> onTable) {
+    public <TModel> TriggerMethod<TModel> deleteOn(@NonNull Class<TModel> onTable) {
         return new TriggerMethod<>(this, TriggerMethod.DELETE, onTable);
     }
 
@@ -109,7 +109,7 @@ public class Trigger implements Query {
      * @param onTable The table ON
      */
     @NonNull
-    public <TModel> TriggerMethod<TModel> insertOn(Class<TModel> onTable) {
+    public <TModel> TriggerMethod<TModel> insertOn(@NonNull Class<TModel> onTable) {
         return new TriggerMethod<>(this, TriggerMethod.INSERT, onTable);
     }
 
@@ -121,13 +121,14 @@ public class Trigger implements Query {
      *                   the UPDATE OF column1, column2,... will be used.
      */
     @NonNull
-    public <TModel> TriggerMethod<TModel> updateOn(Class<TModel> onTable, IProperty... properties) {
+    public <TModel> TriggerMethod<TModel> updateOn(@NonNull Class<TModel> onTable, IProperty... properties) {
         return new TriggerMethod<>(this, TriggerMethod.UPDATE, onTable, properties);
     }
 
     /**
      * @return The name of this TRIGGER
      */
+    @NonNull
     public String getName() {
         return triggerName;
     }

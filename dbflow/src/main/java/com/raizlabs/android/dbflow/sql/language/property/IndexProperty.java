@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Index;
@@ -21,7 +23,7 @@ public class IndexProperty<T> {
             .unique(unique);
     }
 
-    public void createIfNotExists(DatabaseWrapper wrapper) {
+    public void createIfNotExists(@NonNull DatabaseWrapper wrapper) {
         index.enable(wrapper);
     }
 

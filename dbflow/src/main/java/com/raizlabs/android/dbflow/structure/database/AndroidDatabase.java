@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
  */
 public class AndroidDatabase implements DatabaseWrapper {
 
-    public static AndroidDatabase from(SQLiteDatabase database) {
+    public static AndroidDatabase from(@NonNull SQLiteDatabase database) {
         return new AndroidDatabase(database);
     }
 
@@ -22,7 +22,7 @@ public class AndroidDatabase implements DatabaseWrapper {
     }
 
     @Override
-    public void execSQL(String query) {
+    public void execSQL(@NonNull String query) {
         database.execSQL(query);
     }
 
@@ -50,18 +50,20 @@ public class AndroidDatabase implements DatabaseWrapper {
         return database;
     }
 
+    @NonNull
     @Override
-    public DatabaseStatement compileStatement(String rawQuery) {
+    public DatabaseStatement compileStatement(@NonNull String rawQuery) {
         return AndroidDatabaseStatement.from(database.compileStatement(rawQuery), database);
     }
 
+    @NonNull
     @Override
-    public FlowCursor rawQuery(String query, String[] selectionArgs) {
+    public FlowCursor rawQuery(@NonNull String query, @Nullable String[] selectionArgs) {
         return FlowCursor.from(database.rawQuery(query, selectionArgs));
     }
 
     @Override
-    public long updateWithOnConflict(String tableName, ContentValues contentValues, String where, String[] whereArgs, int conflictAlgorithm) {
+    public long updateWithOnConflict(@NonNull String tableName, @NonNull ContentValues contentValues, @Nullable String where, @Nullable String[] whereArgs, int conflictAlgorithm) {
         long count;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             count = database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm);
@@ -72,7 +74,7 @@ public class AndroidDatabase implements DatabaseWrapper {
     }
 
     @Override
-    public long insertWithOnConflict(String tableName, String nullColumnHack, ContentValues values, int sqLiteDatabaseAlgorithmInt) {
+    public long insertWithOnConflict(@NonNull String tableName, @Nullable String nullColumnHack, @NonNull ContentValues values, int sqLiteDatabaseAlgorithmInt) {
         long count;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             count = database.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt);
@@ -82,6 +84,7 @@ public class AndroidDatabase implements DatabaseWrapper {
         return count;
     }
 
+    @NonNull
     @Override
     public FlowCursor query(@NonNull String tableName,
                             @Nullable String[] columns,

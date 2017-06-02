@@ -1,5 +1,8 @@
 package com.raizlabs.android.dbflow.structure.cache;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.raizlabs.android.dbflow.annotation.Table;
 
 /**
@@ -23,7 +26,7 @@ public class ModelLruCache<TModel> extends ModelCache<TModel, LruCache<Long, TMo
     }
 
     @Override
-    public void addModel(Object id, TModel model) {
+    public void addModel(@Nullable Object id, @NonNull TModel model) {
         if (id instanceof Number) {
             synchronized (getCache()) {
                 Number number = ((Number) id);
@@ -36,7 +39,7 @@ public class ModelLruCache<TModel> extends ModelCache<TModel, LruCache<Long, TMo
     }
 
     @Override
-    public TModel removeModel(Object id) {
+    public TModel removeModel(@NonNull Object id) {
         TModel model;
         if (id instanceof Number) {
             synchronized (getCache()) {
@@ -62,7 +65,7 @@ public class ModelLruCache<TModel> extends ModelCache<TModel, LruCache<Long, TMo
     }
 
     @Override
-    public TModel get(Object id) {
+    public TModel get(@Nullable Object id) {
         if (id instanceof Number) {
             return getCache().get(((Number) id).longValue());
         } else {

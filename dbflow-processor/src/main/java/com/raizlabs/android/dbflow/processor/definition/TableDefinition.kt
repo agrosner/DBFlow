@@ -329,6 +329,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
         get() = ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
+        // check references to properly set them up.
+        foreignKeyDefinitions.forEach { it.checkNeedsReferences() }
         typeBuilder.apply {
 
             writeGetModelClass(this, elementClassName)

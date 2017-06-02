@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.Query;
@@ -30,7 +31,7 @@ public class StringQuery<TModel> extends BaseModelQueriable<TModel> implements Q
      * @param sql   The sql statement to query the DB with. Does not work with {@link Delete},
      *              this must be done with {@link SQLiteDatabase#execSQL(String)}
      */
-    public StringQuery(Class<TModel> table, String sql) {
+    public StringQuery(@NonNull Class<TModel> table, @NonNull String sql) {
         super(table);
         query = sql;
     }
@@ -46,18 +47,20 @@ public class StringQuery<TModel> extends BaseModelQueriable<TModel> implements Q
     }
 
     @Override
-    public FlowCursor query(DatabaseWrapper databaseWrapper) {
+    public FlowCursor query(@NonNull DatabaseWrapper databaseWrapper) {
         return databaseWrapper.rawQuery(query, args);
     }
 
     /**
      * Set selection arguments to execute on this raw query.
      */
-    public StringQuery<TModel> setSelectionArgs(String[] args) {
+    @NonNull
+    public StringQuery<TModel> setSelectionArgs(@NonNull String[] args) {
         this.args = args;
         return this;
     }
 
+    @NonNull
     @Override
     public BaseModel.Action getPrimaryAction() {
         return BaseModel.Action.CHANGE; // we don't explicitly know the change, but something changed.

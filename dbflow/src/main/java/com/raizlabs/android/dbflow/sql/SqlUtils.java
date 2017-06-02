@@ -71,7 +71,9 @@ public class SqlUtils {
      * @param conditions The set of key-value {@link SQLOperator} to construct into a uri.
      * @return The {@link Uri}.
      */
-    public static Uri getNotificationUri(Class<?> modelClass, Action action, Iterable<SQLOperator> conditions) {
+    public static Uri getNotificationUri(@NonNull Class<?> modelClass,
+                                         @Nullable Action action,
+                                         @Nullable Iterable<SQLOperator> conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
             .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
@@ -94,7 +96,8 @@ public class SqlUtils {
      * @param conditions The set of key-value {@link SQLOperator} to construct into a uri.
      * @return The {@link Uri}.
      */
-    public static Uri getNotificationUri(Class<?> modelClass, Action action,
+    public static Uri getNotificationUri(@NonNull Class<?> modelClass,
+                                         @NonNull Action action,
                                          @Nullable SQLOperator[] conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
             .authority(FlowManager.getTableName(modelClass));
@@ -121,8 +124,10 @@ public class SqlUtils {
      * @return Notification uri.
      */
 
-    public static Uri getNotificationUri(Class<?> modelClass, Action action,
-                                         String notifyKey, Object notifyValue) {
+    public static Uri getNotificationUri(@NonNull Class<?> modelClass,
+                                         @NonNull Action action,
+                                         @NonNull String notifyKey,
+                                         @Nullable Object notifyValue) {
         Operator operator = null;
         if (StringUtils.isNotNullOrEmpty(notifyKey)) {
             operator = Operator.op(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
@@ -135,7 +140,7 @@ public class SqlUtils {
      * @param action     The {@link Action} to use.
      * @return The uri for updates to {@link Model}, meant for general changes.
      */
-    public static Uri getNotificationUri(Class<?> modelClass, Action action) {
+    public static Uri getNotificationUri(@NonNull Class<?> modelClass, @NonNull Action action) {
         return getNotificationUri(modelClass, action, null, null);
     }
 
@@ -146,7 +151,7 @@ public class SqlUtils {
      * @param mOnTable    The table that this trigger runs on
      * @param triggerName The name of the trigger
      */
-    public static void dropTrigger(Class<?> mOnTable, String triggerName) {
+    public static void dropTrigger(@NonNull Class<?> mOnTable, @NonNull String triggerName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
             .append(triggerName);
         FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
@@ -157,13 +162,15 @@ public class SqlUtils {
      *
      * @param indexName The name of the index.
      */
-    public static void dropIndex(DatabaseWrapper databaseWrapper, String indexName) {
+    public static void dropIndex(@NonNull DatabaseWrapper databaseWrapper,
+                                 @NonNull String indexName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
             .append(QueryBuilder.quoteIfNeeded(indexName));
         databaseWrapper.execSQL(queryBuilder.getQuery());
     }
 
-    public static void dropIndex(Class<?> onTable, String indexName) {
+    public static void dropIndex(@NonNull Class<?> onTable,
+                                 @NonNull String indexName) {
         dropIndex(FlowManager.getDatabaseForTable(onTable).getWritableDatabase(), indexName);
     }
 
@@ -188,6 +195,7 @@ public class SqlUtils {
      * @param key           The key to check.
      * @return The key, whether it's quoted or not.
      */
+    @NonNull
     public static String getContentValuesKey(ContentValues contentValues, String key) {
         String quoted = QueryBuilder.quoteIfNeeded(key);
         if (contentValues.containsKey(quoted)) {
@@ -202,7 +210,8 @@ public class SqlUtils {
         }
     }
 
-    public static long longForQuery(DatabaseWrapper wrapper, String query) {
+    public static long longForQuery(@NonNull DatabaseWrapper wrapper,
+                                    @NonNull String query) {
         DatabaseStatement statement = wrapper.compileStatement(query);
         try {
             return statement.simpleQueryForLong();
@@ -214,6 +223,7 @@ public class SqlUtils {
     /**
      * Converts a byte[] to a String hex representation for within wrapper queries.
      */
+    @NonNull
     public static String byteArrayToHexString(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {

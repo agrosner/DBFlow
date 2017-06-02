@@ -21,6 +21,7 @@ public class Method extends Property {
      * @return The average value of all properties within this group. The result is always a float from this statement
      * as long as there is at least one non-NULL input. The result may be NULL if there are no non-NULL columns.
      */
+    @NonNull
     public static Method avg(IProperty... properties) {
         return new Method("AVG", properties);
     }
@@ -30,6 +31,7 @@ public class Method extends Property {
      * @return A count of the number of times that specified properties are not NULL in a group. Leaving
      * the properties empty returns COUNT(*), which is the total number of rows in the query.
      */
+    @NonNull
     public static Method count(IProperty... properties) {
         return new Method("COUNT", properties);
     }
@@ -38,6 +40,7 @@ public class Method extends Property {
      * @param properties Set of properties that the method acts on.
      * @return A string which is the concatenation of all non-NULL values of the properties.
      */
+    @NonNull
     public static Method group_concat(IProperty... properties) {
         return new Method("GROUP_CONCAT", properties);
     }
@@ -46,6 +49,7 @@ public class Method extends Property {
      * @param properties Set of properties that the method acts on.
      * @return The method that represents the max of the specified columns/properties.
      */
+    @NonNull
     public static Method max(IProperty... properties) {
         return new Method("MAX", properties);
     }
@@ -54,6 +58,7 @@ public class Method extends Property {
      * @param properties Set of properties that the method acts on.
      * @return The method that represents the min of the specified columns/properties.
      */
+    @NonNull
     public static Method min(IProperty... properties) {
         return new Method("MIN", properties);
     }
@@ -62,6 +67,7 @@ public class Method extends Property {
      * @param properties Set of properties that the method acts on.
      * @return The method that represents the sum of the specified columns/properties.
      */
+    @NonNull
     public static Method sum(IProperty... properties) {
         return new Method("SUM", properties);
     }
@@ -70,6 +76,7 @@ public class Method extends Property {
      * @param properties Set of properties that the method acts on.
      * @return The method that represents the total of the specified columns/properties.
      */
+    @NonNull
     public static Method total(IProperty... properties) {
         return new Method("TOTAL", properties);
     }
@@ -78,18 +85,21 @@ public class Method extends Property {
      * @param property The property to cast.
      * @return A new CAST object. To complete use the {@link Cast#as(SQLiteType)} method.
      */
+    @NonNull
     public static Cast cast(@NonNull IProperty property) {
         return new Cast(property);
     }
 
-    public static Method replace(IProperty property, String findString, String replacement) {
+    @NonNull
+    public static Method replace(@NonNull IProperty property, String findString, String replacement) {
         return new Method("REPLACE", property, PropertyFactory.from(findString), PropertyFactory.from(replacement));
     }
 
     /**
      * SQLite standard "strftime()" method. See SQLite documentation on this method.
      */
-    public static Method strftime(String formatString, String timeString, String... modifiers) {
+    public static Method strftime(@NonNull String formatString,
+                                  @NonNull String timeString, String... modifiers) {
         List<IProperty> propertyList = new ArrayList<>();
         propertyList.add(PropertyFactory.from(formatString));
         propertyList.add(PropertyFactory.from(timeString));
@@ -114,7 +124,8 @@ public class Method extends Property {
     /**
      * Sqlite "date" method. See SQLite documentation on this method.
      */
-    public static Method date(String timeString, String... modifiers) {
+    public static Method date(@NonNull String timeString,
+                              String... modifiers) {
         List<IProperty> propertyList = new ArrayList<>();
         propertyList.add(PropertyFactory.from(timeString));
         for (String modifier : modifiers) {
@@ -127,7 +138,8 @@ public class Method extends Property {
      * @return Constructs using the "IFNULL" method in SQLite. It will pick the first non null
      * value and set that. If both are NULL then it will use NULL.
      */
-    public static Method ifNull(IProperty first, IProperty secondIfFirstNull) {
+    public static Method ifNull(@NonNull IProperty first,
+                                @NonNull IProperty secondIfFirstNull) {
         return new Method("IFNULL", first, secondIfFirstNull);
     }
 
@@ -135,7 +147,8 @@ public class Method extends Property {
      * @return Constructs using the "NULLIF" method in SQLite. If both expressions are equal, then
      * NULL is set into the DB.
      */
-    public static Method nullIf(IProperty first, IProperty second) {
+    public static Method nullIf(@NonNull IProperty first,
+                                @NonNull IProperty second) {
         return new Method("NULLIF", first, second);
     }
 
@@ -164,30 +177,30 @@ public class Method extends Property {
 
     @NonNull
     @Override
-    public Method plus(IProperty property) {
+    public Method plus(@NonNull IProperty property) {
         return append(property, " " + Operator.Operation.PLUS);
     }
 
     @NonNull
     @Override
-    public Method minus(IProperty property) {
+    public Method minus(@NonNull IProperty property) {
         return append(property, " " + Operator.Operation.MINUS);
     }
 
     @NonNull
     @Override
-    public Property div(IProperty property) {
+    public Property div(@NonNull IProperty property) {
         return append(property, " " + Operator.Operation.DIVISION);
     }
 
     @Override
-    public Property times(IProperty property) {
+    public Property times(@NonNull IProperty property) {
         return append(property, " " + Operator.Operation.MULTIPLY);
     }
 
     @NonNull
     @Override
-    public Property rem(IProperty property) {
+    public Property rem(@NonNull IProperty property) {
         return append(property, " " + Operator.Operation.MOD);
     }
 

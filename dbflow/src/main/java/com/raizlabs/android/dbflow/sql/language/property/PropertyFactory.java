@@ -135,7 +135,7 @@ public class PropertyFactory {
      * @return A new property with its type.
      */
     @NonNull
-    public static <T> Property<T> from(@Nullable Class<T> type, String stringRepresentation) {
+    public static <T> Property<T> from(@Nullable Class<T> type, @Nullable String stringRepresentation) {
         return new Property<>(null, NameAlias.rawBuilder(stringRepresentation)
             .build());
     }

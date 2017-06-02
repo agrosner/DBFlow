@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure.listener;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -15,5 +16,5 @@ public interface LoadFromCursorListener {
      *
      * @param cursor The cursor that is loaded.
      */
-    void onLoadFromCursor(Cursor cursor);
+    void onLoadFromCursor(@NonNull Cursor cursor);
 }

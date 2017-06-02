@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
@@ -38,7 +39,7 @@ public class SQLite {
      * @return A new UPDATE statement.
      */
     @NonNull
-    public static <TModel> Update<TModel> update(Class<TModel> table) {
+    public static <TModel> Update<TModel> update(@NonNull Class<TModel> table) {
         return new Update<>(table);
     }
 
@@ -48,7 +49,7 @@ public class SQLite {
      * @return A new INSERT statement.
      */
     @NonNull
-    public static <TModel> Insert<TModel> insert(Class<TModel> table) {
+    public static <TModel> Insert<TModel> insert(@NonNull Class<TModel> table) {
         return new Insert<>(table);
     }
 
@@ -68,7 +69,7 @@ public class SQLite {
      * @return A {@link From} with specified DELETE on table.
      */
     @NonNull
-    public static <TModel> From<TModel> delete(Class<TModel> table) {
+    public static <TModel> From<TModel> delete(@NonNull Class<TModel> table) {
         return delete().from(table);
     }
 
@@ -80,7 +81,7 @@ public class SQLite {
      * @return A new INDEX statement.
      */
     @NonNull
-    public static <TModel> Index<TModel> index(String name) {
+    public static <TModel> Index<TModel> index(@NonNull String name) {
         return new Index<>(name);
     }
 
@@ -91,7 +92,7 @@ public class SQLite {
      * @return A new TRIGGER statement.
      */
     @NonNull
-    public static Trigger createTrigger(String name) {
+    public static Trigger createTrigger(@NonNull String name) {
         return Trigger.create(name);
     }
 
@@ -113,7 +114,7 @@ public class SQLite {
      * @param caseColumn The value
      */
     @NonNull
-    public static <TReturn> Case<TReturn> _case(Property<TReturn> caseColumn) {
+    public static <TReturn> Case<TReturn> _case(@NonNull Property<TReturn> caseColumn) {
         return new Case<>(caseColumn);
     }
 
@@ -124,7 +125,7 @@ public class SQLite {
      * @param caseColumn The value
      */
     @NonNull
-    public static <TReturn> Case<TReturn> _case(IProperty caseColumn) {
+    public static <TReturn> Case<TReturn> _case(@NonNull IProperty caseColumn) {
         return new Case<>(caseColumn);
     }
 }

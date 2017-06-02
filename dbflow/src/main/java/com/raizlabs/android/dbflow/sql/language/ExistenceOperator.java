@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
@@ -13,15 +14,17 @@ public class ExistenceOperator implements SQLOperator, Query {
     private Where innerWhere;
 
     @Override
-    public void appendConditionToQuery(QueryBuilder queryBuilder) {
+    public void appendConditionToQuery(@NonNull QueryBuilder queryBuilder) {
         queryBuilder.appendQualifier("EXISTS", "(" + innerWhere.getQuery().trim() + ")");
     }
 
+    @NonNull
     @Override
     public String columnName() {
         throw new RuntimeException("Method not valid for ExistenceOperator");
     }
 
+    @Nullable
     @Override
     public String separator() {
         throw new RuntimeException("Method not valid for ExistenceOperator");
@@ -29,7 +32,7 @@ public class ExistenceOperator implements SQLOperator, Query {
 
     @NonNull
     @Override
-    public SQLOperator separator(String separator) {
+    public SQLOperator separator(@NonNull String separator) {
         // not used.
         throw new RuntimeException("Method not valid for ExistenceOperator");
     }
@@ -39,6 +42,7 @@ public class ExistenceOperator implements SQLOperator, Query {
         return false;
     }
 
+    @NonNull
     @Override
     public String operation() {
         return "";

@@ -19,13 +19,13 @@ public interface Transformable<T> {
     Where<T> groupBy(IProperty... properties);
 
     @NonNull
-    Where<T> orderBy(NameAlias nameAlias, boolean ascending);
+    Where<T> orderBy(@NonNull NameAlias nameAlias, boolean ascending);
 
     @NonNull
-    Where<T> orderBy(IProperty property, boolean ascending);
+    Where<T> orderBy(@NonNull IProperty property, boolean ascending);
 
     @NonNull
-    Where<T> orderBy(OrderBy orderBy);
+    Where<T> orderBy(@NonNull OrderBy orderBy);
 
     @NonNull
     Where<T> limit(int count);
@@ -37,5 +37,5 @@ public interface Transformable<T> {
     Where<T> having(SQLOperator... conditions);
 
     @NonNull
-    Where<T> orderByAll(List<OrderBy> orderBies);
+    Where<T> orderByAll(@NonNull List<OrderBy> orderBies);
 }

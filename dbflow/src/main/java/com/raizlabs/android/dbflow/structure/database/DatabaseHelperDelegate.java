@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
@@ -63,7 +64,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     @Override
-    public void onCreate(DatabaseWrapper db) {
+    public void onCreate(@NonNull DatabaseWrapper db) {
         if (databaseHelperListener != null) {
             databaseHelperListener.onCreate(db);
         }
@@ -71,7 +72,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     @Override
-    public void onUpgrade(DatabaseWrapper db, int oldVersion, int newVersion) {
+    public void onUpgrade(@NonNull DatabaseWrapper db, int oldVersion, int newVersion) {
         if (databaseHelperListener != null) {
             databaseHelperListener.onUpgrade(db, oldVersion, newVersion);
         }
@@ -79,7 +80,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     @Override
-    public void onOpen(DatabaseWrapper db) {
+    public void onOpen(@NonNull DatabaseWrapper db) {
         if (databaseHelperListener != null) {
             databaseHelperListener.onOpen(db);
         }
@@ -87,7 +88,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     @Override
-    public void onDowngrade(DatabaseWrapper db, int oldVersion, int newVersion) {
+    public void onDowngrade(@NonNull DatabaseWrapper db, int oldVersion, int newVersion) {
         if (databaseHelperListener != null) {
             databaseHelperListener.onDowngrade(db, oldVersion, newVersion);
         }

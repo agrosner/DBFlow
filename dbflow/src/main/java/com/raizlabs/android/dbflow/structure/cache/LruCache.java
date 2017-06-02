@@ -24,7 +24,11 @@ import java.util.Map;
  * Static library version of {@link android.util.LruCache}. Used to write apps that run on API levels prior to 12. When
  * running on API level 12 or above, this implementation is still used; it does not try to switch to the framework's
  * implementation. See the framework SDK documentation for a class overview.
+ *
+ * @see {@link android.util.LruCache}
+ * @deprecated
  */
+@Deprecated
 public class LruCache<K, V> {
     private final LinkedHashMap<K, V> map;
 
@@ -327,8 +331,8 @@ public class LruCache<K, V> {
         int accesses = hitCount + missCount;
         int hitPercent = accesses != 0 ? (100 * hitCount / accesses) : 0;
         return String.format(Locale.getDefault(),
-                "LruCache[maxSize=%d,hits=%d,misses=%d,hitRate=%d%%]", maxSize,
-                hitCount, missCount, hitPercent);
+            "LruCache[maxSize=%d,hits=%d,misses=%d,hitRate=%d%%]", maxSize,
+            hitCount, missCount, hitPercent);
     }
 }
 

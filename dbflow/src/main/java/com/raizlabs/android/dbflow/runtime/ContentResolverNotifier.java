@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
  */
 public class ContentResolverNotifier implements ModelNotifier {
     @Override
-    public <T> void notifyModelChanged(@Nullable T model, @NonNull ModelAdapter<T> adapter,
+    public <T> void notifyModelChanged(@NonNull T model, @NonNull ModelAdapter<T> adapter,
                                        @NonNull BaseModel.Action action) {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.getContext().getContentResolver()
@@ -49,12 +49,12 @@ public class ContentResolverNotifier implements ModelNotifier {
         }
 
         @Override
-        public <T> void register(Class<T> tClass) {
+        public <T> void register(@NonNull Class<T> tClass) {
             flowContentObserver.registerForContentChanges(FlowManager.getContext(), tClass);
         }
 
         @Override
-        public <T> void unregister(Class<T> tClass) {
+        public <T> void unregister(@NonNull Class<T> tClass) {
             flowContentObserver.unregisterForContentChanges(FlowManager.getContext());
         }
 
@@ -65,7 +65,7 @@ public class ContentResolverNotifier implements ModelNotifier {
         }
 
         @Override
-        public void setListener(OnTableChangedListener contentChangeListener) {
+        public void setListener(@Nullable OnTableChangedListener contentChangeListener) {
             this.tableChangedListener = contentChangeListener;
         }
 

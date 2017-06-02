@@ -37,7 +37,8 @@ public class ModelSaver<TModel> {
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized boolean save(@NonNull TModel model, DatabaseWrapper wrapper,
+    public synchronized boolean save(@NonNull TModel model,
+                                     @NonNull DatabaseWrapper wrapper,
                                      @NonNull DatabaseStatement insertStatement,
                                      @NonNull DatabaseStatement updateStatement) {
         boolean exists = modelAdapter.exists(model, wrapper);
@@ -150,6 +151,7 @@ public class ModelSaver<TModel> {
         return success;
     }
 
+    @NonNull
     protected DatabaseWrapper getWritableDatabase() {
         return FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
     }

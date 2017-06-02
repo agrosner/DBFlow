@@ -70,7 +70,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
     }
 
     @Override
-    public TModel querySingle(DatabaseWrapper wrapper) {
+    public TModel querySingle(@NonNull DatabaseWrapper wrapper) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         return getSingleModelLoader().load(wrapper, query);
@@ -78,7 +78,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
 
     @NonNull
     @Override
-    public List<TModel> queryList(DatabaseWrapper wrapper) {
+    public List<TModel> queryList(@NonNull DatabaseWrapper wrapper) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         return getListModelLoader().load(wrapper, query);
@@ -107,7 +107,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
     }
 
     @Override
-    public long executeUpdateDelete(DatabaseWrapper databaseWrapper) {
+    public long executeUpdateDelete(@NonNull DatabaseWrapper databaseWrapper) {
         long affected = databaseWrapper.compileStatement(getQuery()).executeUpdateDelete();
 
         // only notify for affected.
@@ -125,7 +125,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
 
     @NonNull
     @Override
-    public <QueryClass> List<QueryClass> queryCustomList(Class<QueryClass> queryModelClass) {
+    public <QueryClass> List<QueryClass> queryCustomList(@NonNull Class<QueryClass> queryModelClass) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         QueryModelAdapter<QueryClass> adapter = FlowManager.getQueryModelAdapter(queryModelClass);
@@ -136,7 +136,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
 
     @Nullable
     @Override
-    public <QueryClass> QueryClass queryCustomSingle(Class<QueryClass> queryModelClass) {
+    public <QueryClass> QueryClass queryCustomSingle(@NonNull Class<QueryClass> queryModelClass) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         QueryModelAdapter<QueryClass> adapter = FlowManager.getQueryModelAdapter(queryModelClass);
