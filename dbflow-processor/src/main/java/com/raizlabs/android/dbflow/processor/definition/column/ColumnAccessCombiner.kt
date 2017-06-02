@@ -136,7 +136,7 @@ class ContentValuesCombiner(combiner: Combiner)
     }
 
     override fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int) {
-        code.addStatement("values.putNull(\$S)", columnRepresentation)
+        code.addStatement("values.putNull(\$S)", QueryBuilder.quote(columnRepresentation))
     }
 }
 
