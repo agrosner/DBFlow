@@ -14,23 +14,21 @@ class ImmediateTransactionManager(databaseDefinition: DatabaseDefinition)
 
 class ImmediateTransactionQueue : ITransactionQueue {
 
-    override fun add(transaction: Transaction?) {
-        if (transaction != null) {
-            transaction.newBuilder()
+    override fun add(transaction: Transaction) {
+        transaction.newBuilder()
                 .runCallbacksOnSameThread(true)
                 .build()
                 .executeSync()
-        }
     }
 
-    override fun cancel(transaction: Transaction?) {
+    override fun cancel(transaction: Transaction) {
 
     }
 
     override fun startIfNotAlive() {
     }
 
-    override fun cancel(name: String?) {
+    override fun cancel(name: String) {
     }
 
     override fun quit() {
