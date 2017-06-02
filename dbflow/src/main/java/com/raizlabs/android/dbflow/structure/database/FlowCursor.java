@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
  */
 public class FlowCursor extends CursorWrapper {
 
-    public static FlowCursor from(Cursor cursor) {
+    public static FlowCursor from(@NonNull Cursor cursor) {
         if (cursor instanceof FlowCursor) {
             return (FlowCursor) cursor;
         } else {

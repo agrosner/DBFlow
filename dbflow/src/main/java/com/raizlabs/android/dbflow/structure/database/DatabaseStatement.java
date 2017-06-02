@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure.database;
 
 import android.database.sqlite.SQLiteStatement;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 /**
@@ -16,6 +17,7 @@ public interface DatabaseStatement {
 
     long simpleQueryForLong();
 
+    @Nullable
     String simpleQueryForString();
 
     long executeInsert();

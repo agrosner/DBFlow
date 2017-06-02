@@ -70,7 +70,7 @@ public abstract class DatabaseDefinition {
     @Nullable
     private DatabaseConfig databaseConfig;
 
-    @NonNull
+    @Nullable
     private ModelNotifier modelNotifier;
 
     @SuppressWarnings("unchecked")

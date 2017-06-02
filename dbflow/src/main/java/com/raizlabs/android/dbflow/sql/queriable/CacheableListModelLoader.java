@@ -19,10 +19,11 @@ public class CacheableListModelLoader<TModel> extends ListModelLoader<TModel> {
     private ModelAdapter<TModel> modelAdapter;
     private ModelCache<TModel, ?> modelCache;
 
-    public CacheableListModelLoader(Class<TModel> modelClass) {
+    public CacheableListModelLoader(@NonNull Class<TModel> modelClass) {
         super(modelClass);
     }
 
+    @NonNull
     public ModelCache<TModel, ?> getModelCache() {
         if (modelCache == null) {
             modelCache = modelAdapter.getModelCache();
@@ -33,6 +34,7 @@ public class CacheableListModelLoader<TModel> extends ListModelLoader<TModel> {
         return modelCache;
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     public ModelAdapter<TModel> getModelAdapter() {
         if (modelAdapter == null) {

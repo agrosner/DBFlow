@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
 import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
@@ -38,7 +39,7 @@ public class UpdateTableMigration<TModel> extends BaseMigration {
      *
      * @param table The table to update
      */
-    public UpdateTableMigration(Class<TModel> table) {
+    public UpdateTableMigration(@NonNull Class<TModel> table) {
         this.table = table;
     }
 
@@ -48,6 +49,7 @@ public class UpdateTableMigration<TModel> extends BaseMigration {
      *
      * @param conditions The conditions to append
      */
+    @NonNull
     public UpdateTableMigration<TModel> set(SQLOperator... conditions) {
         if (setOperatorGroup == null) {
             setOperatorGroup = OperatorGroup.nonGroupingClause();
@@ -57,6 +59,7 @@ public class UpdateTableMigration<TModel> extends BaseMigration {
         return this;
     }
 
+    @NonNull
     public UpdateTableMigration<TModel> where(SQLOperator... conditions) {
         if (whereOperatorGroup == null) {
             whereOperatorGroup = OperatorGroup.nonGroupingClause();
@@ -67,7 +70,7 @@ public class UpdateTableMigration<TModel> extends BaseMigration {
     }
 
     @Override
-    public final void migrate(DatabaseWrapper database) {
+    public final void migrate(@NonNull DatabaseWrapper database) {
         getUpdateStatement().execute(database);
     }
 
@@ -79,6 +82,7 @@ public class UpdateTableMigration<TModel> extends BaseMigration {
         whereOperatorGroup = null;
     }
 
+    @NonNull
     public BaseQueriable<TModel> getUpdateStatement() {
         return SQLite.update(table)
             .set(setOperatorGroup)

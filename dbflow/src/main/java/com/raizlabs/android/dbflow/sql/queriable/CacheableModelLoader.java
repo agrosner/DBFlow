@@ -17,10 +17,11 @@ public class CacheableModelLoader<TModel> extends SingleModelLoader<TModel> {
     private ModelAdapter<TModel> modelAdapter;
     private ModelCache<TModel, ?> modelCache;
 
-    public CacheableModelLoader(Class<TModel> modelClass) {
+    public CacheableModelLoader(@NonNull Class<TModel> modelClass) {
         super(modelClass);
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     public ModelAdapter<TModel> getModelAdapter() {
         if (modelAdapter == null) {
@@ -36,6 +37,7 @@ public class CacheableModelLoader<TModel> extends SingleModelLoader<TModel> {
         return modelAdapter;
     }
 
+    @NonNull
     public ModelCache<TModel, ?> getModelCache() {
         if (modelCache == null) {
             modelCache = getModelAdapter().getModelCache();

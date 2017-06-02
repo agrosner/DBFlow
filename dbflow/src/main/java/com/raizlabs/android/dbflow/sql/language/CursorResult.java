@@ -26,7 +26,9 @@ public class CursorResult<TModel> implements IFlowCursorIterator<TModel> {
 
     @SuppressWarnings("unchecked")
     CursorResult(Class<TModel> modelClass, @Nullable Cursor cursor) {
-        this.cursor = FlowCursor.from(cursor);
+        if (cursor != null) {
+            this.cursor = FlowCursor.from(cursor);
+        }
         retrievalAdapter = FlowManager.getInstanceAdapter(modelClass);
     }
 

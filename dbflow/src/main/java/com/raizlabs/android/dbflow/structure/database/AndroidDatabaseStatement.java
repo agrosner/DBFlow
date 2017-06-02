@@ -5,24 +5,29 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 /**
  * Description:
  */
 public class AndroidDatabaseStatement extends BaseDatabaseStatement {
 
-    public static AndroidDatabaseStatement from(SQLiteStatement sqLiteStatement, SQLiteDatabase database) {
+    public static AndroidDatabaseStatement from(@NonNull SQLiteStatement sqLiteStatement,
+                                                @NonNull SQLiteDatabase database) {
         return new AndroidDatabaseStatement(sqLiteStatement, database);
     }
 
     private final SQLiteStatement statement;
     private final SQLiteDatabase database;
 
-    AndroidDatabaseStatement(SQLiteStatement statement, SQLiteDatabase database) {
+    AndroidDatabaseStatement(@NonNull SQLiteStatement statement,
+                             @NonNull SQLiteDatabase database) {
         this.statement = statement;
         this.database = database;
     }
 
+    @NonNull
     public SQLiteStatement getStatement() {
         return statement;
     }
@@ -67,6 +72,7 @@ public class AndroidDatabaseStatement extends BaseDatabaseStatement {
         return statement.simpleQueryForLong();
     }
 
+    @Nullable
     @Override
     public String simpleQueryForString() {
         return statement.simpleQueryForString();

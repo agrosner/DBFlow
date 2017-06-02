@@ -23,6 +23,7 @@ public class DirectModelNotifier implements ModelNotifier {
 
     private static DirectModelNotifier notifier;
 
+    @NonNull
     public static DirectModelNotifier get() {
         if (notifier == null) {
             notifier = new DirectModelNotifier();
@@ -32,7 +33,7 @@ public class DirectModelNotifier implements ModelNotifier {
 
     public interface OnModelStateChangedListener<T> {
 
-        void onModelChanged(T model, BaseModel.Action action);
+        void onModelChanged(@NonNull T model, @NonNull BaseModel.Action action);
 
     }
 
@@ -57,7 +58,7 @@ public class DirectModelNotifier implements ModelNotifier {
     }
 
     @Override
-    public <T> void notifyModelChanged(@Nullable T model, @NonNull ModelAdapter<T> adapter,
+    public <T> void notifyModelChanged(@NonNull T model, @NonNull ModelAdapter<T> adapter,
                                        @NonNull BaseModel.Action action) {
         final Set<OnModelStateChangedListener> listeners = modelChangedListenerMap.get(adapter.getModelClass());
         if (listeners != null) {
@@ -86,12 +87,14 @@ public class DirectModelNotifier implements ModelNotifier {
         return singleRegister;
     }
 
-    public <T> void registerForModelChanges(Class<T> table, ModelChangedListener<T> listener) {
+    public <T> void registerForModelChanges(@NonNull Class<T> table,
+                                            @NonNull ModelChangedListener<T> listener) {
         registerForModelStateChanges(table, listener);
         registerForTableChanges(table, listener);
     }
 
-    public <T> void registerForModelStateChanges(Class<T> table, OnModelStateChangedListener<T> listener) {
+    public <T> void registerForModelStateChanges(@NonNull Class<T> table,
+                                                 @NonNull OnModelStateChangedListener<T> listener) {
         Set<OnModelStateChangedListener> listeners = modelChangedListenerMap.get(table);
         if (listeners == null) {
             listeners = new LinkedHashSet<>();
@@ -100,7 +103,8 @@ public class DirectModelNotifier implements ModelNotifier {
         listeners.add(listener);
     }
 
-    public <T> void registerForTableChanges(Class<T> table, OnTableChangedListener listener) {
+    public <T> void registerForTableChanges(@NonNull Class<T> table,
+                                            @NonNull OnTableChangedListener listener) {
         Set<OnTableChangedListener> listeners = tableChangedListenerMap.get(table);
         if (listeners == null) {
             listeners = new LinkedHashSet<>();
@@ -109,20 +113,23 @@ public class DirectModelNotifier implements ModelNotifier {
         listeners.add(listener);
     }
 
-    public <T> void unregisterForModelChanges(Class<T> table, ModelChangedListener<T> listener) {
+    public <T> void unregisterForModelChanges(@NonNull Class<T> table,
+                                              @NonNull ModelChangedListener<T> listener) {
         unregisterForModelStateChanges(table, listener);
         unregisterForTableChanges(table, listener);
     }
 
 
-    public <T> void unregisterForModelStateChanges(Class<T> table, OnModelStateChangedListener<T> listener) {
+    public <T> void unregisterForModelStateChanges(@NonNull Class<T> table,
+                                                   @NonNull OnModelStateChangedListener<T> listener) {
         Set<OnModelStateChangedListener> listeners = modelChangedListenerMap.get(table);
         if (listeners != null) {
             listeners.remove(listener);
         }
     }
 
-    public <T> void unregisterForTableChanges(Class<T> table, OnTableChangedListener listener) {
+    public <T> void unregisterForTableChanges(@NonNull Class<T> table,
+                                              @NonNull OnTableChangedListener listener) {
         Set<OnTableChangedListener> listeners = tableChangedListenerMap.get(table);
         if (listeners != null) {
             listeners.remove(listener);
@@ -136,13 +143,13 @@ public class DirectModelNotifier implements ModelNotifier {
         private OnTableChangedListener modelChangedListener;
 
         @Override
-        public <T> void register(Class<T> tClass) {
+        public <T> void register(@NonNull Class<T> tClass) {
             registeredTables.add(tClass);
             registerForTableChanges(tClass, internalChangeListener);
         }
 
         @Override
-        public <T> void unregister(Class<T> tClass) {
+        public <T> void unregister(@NonNull Class<T> tClass) {
             registeredTables.remove(tClass);
             unregisterForTableChanges(tClass, internalChangeListener);
         }
@@ -156,7 +163,7 @@ public class DirectModelNotifier implements ModelNotifier {
         }
 
         @Override
-        public void setListener(OnTableChangedListener modelChangedListener) {
+        public void setListener(@Nullable OnTableChangedListener modelChangedListener) {
             this.modelChangedListener = modelChangedListener;
         }
 

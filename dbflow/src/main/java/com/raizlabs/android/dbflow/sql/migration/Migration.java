@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
@@ -18,7 +20,7 @@ public interface Migration {
      *
      * @param database The database to operate on
      */
-    void migrate(DatabaseWrapper database);
+    void migrate(@NonNull DatabaseWrapper database);
 
     /**
      * Called after the migration completes. Release migration data here.

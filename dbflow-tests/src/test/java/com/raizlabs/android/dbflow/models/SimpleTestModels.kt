@@ -84,19 +84,19 @@ data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
 class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener {
-    override fun onBindToStatement(databaseStatement: DatabaseStatement?) {
+    override fun onBindToStatement(databaseStatement: DatabaseStatement) {
         TODO("not implemented")
     }
 
-    override fun onBindToInsertStatement(databaseStatement: DatabaseStatement?) {
+    override fun onBindToInsertStatement(databaseStatement: DatabaseStatement) {
         TODO("not implemented")
     }
 
-    override fun onBindToUpdateStatement(databaseStatement: DatabaseStatement?) {
+    override fun onBindToUpdateStatement(databaseStatement: DatabaseStatement) {
         TODO("not implemented")
     }
 
-    override fun onBindToDeleteStatement(databaseStatement: DatabaseStatement?) {
+    override fun onBindToDeleteStatement(databaseStatement: DatabaseStatement) {
         TODO("not implemented")
     }
 }

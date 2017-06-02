@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor;
  */
 public class SingleKeyCacheableModelLoader<TModel> extends CacheableModelLoader<TModel> {
 
-    public SingleKeyCacheableModelLoader(Class<TModel> modelClass) {
+    public SingleKeyCacheableModelLoader(@NonNull Class<TModel> modelClass) {
         super(modelClass);
     }
 
@@ -24,7 +24,8 @@ public class SingleKeyCacheableModelLoader<TModel> extends CacheableModelLoader<
      */
     @Nullable
     @Override
-    public TModel convertToData(@NonNull FlowCursor cursor, @Nullable TModel data, boolean moveToFirst) {
+    public TModel convertToData(@NonNull FlowCursor cursor, @Nullable TModel data,
+                                boolean moveToFirst) {
         if (!moveToFirst || cursor.moveToFirst()) {
             Object value = getModelAdapter().getCachingColumnValueFromCursor(cursor);
             TModel model = getModelCache().get(value);

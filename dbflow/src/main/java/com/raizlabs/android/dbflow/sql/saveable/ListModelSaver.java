@@ -11,7 +11,7 @@ public class ListModelSaver<TModel> {
 
     private final ModelSaver<TModel> modelSaver;
 
-    public ListModelSaver(ModelSaver<TModel> modelSaver) {
+    public ListModelSaver(@NonNull ModelSaver<TModel> modelSaver) {
         this.modelSaver = modelSaver;
     }
 

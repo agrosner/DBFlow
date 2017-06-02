@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.list;
 
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.ConcurrentModificationException;
 import java.util.ListIterator;
@@ -15,15 +17,15 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel>, AutoClo
     private long startingCount;
     private long count;
 
-    public FlowCursorIterator(IFlowCursorIterator<TModel> cursorList) {
+    public FlowCursorIterator(@NonNull IFlowCursorIterator<TModel> cursorList) {
         this(cursorList, 0, cursorList.getCount());
     }
 
-    public FlowCursorIterator(IFlowCursorIterator<TModel> cursorList, int startingLocation) {
+    public FlowCursorIterator(@NonNull IFlowCursorIterator<TModel> cursorList, int startingLocation) {
         this(cursorList, startingLocation, cursorList.getCount() - startingLocation);
     }
 
-    public FlowCursorIterator(IFlowCursorIterator<TModel> cursorList, int startingLocation,
+    public FlowCursorIterator(@NonNull IFlowCursorIterator<TModel> cursorList, int startingLocation,
                               long count) {
         this.cursorList = cursorList;
         this.count = count;
@@ -51,7 +53,7 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel>, AutoClo
     }
 
     @Override
-    public void add(TModel object) {
+    public void add(@Nullable TModel object) {
         throw new UnsupportedOperationException("Cursor Iterator: Cannot add a model in the iterator");
     }
 
@@ -67,6 +69,7 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel>, AutoClo
         return reverseIndex < count;
     }
 
+    @Nullable
     @Override
     public TModel next() {
         checkSizes();
@@ -80,6 +83,7 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel>, AutoClo
         return (int) (reverseIndex + 1);
     }
 
+    @Nullable
     @Override
     public TModel previous() {
         checkSizes();
@@ -99,7 +103,7 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel>, AutoClo
     }
 
     @Override
-    public void set(TModel object) {
+    public void set(@Nullable TModel object) {
         throw new UnsupportedOperationException("Cursor Iterator: cannot set on an active Iterator ");
     }
 

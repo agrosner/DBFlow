@@ -100,7 +100,7 @@ public class FlowContentObserver extends ContentObserver {
         super(null);
     }
 
-    public FlowContentObserver(Handler handler) {
+    public FlowContentObserver(@Nullable Handler handler) {
         super(handler);
     }
 
@@ -159,7 +159,7 @@ public class FlowContentObserver extends ContentObserver {
      *
      * @param modelChangeListener Generic model change events from an {@link Action}
      */
-    public void addModelChangeListener(OnModelStateChangedListener modelChangeListener) {
+    public void addModelChangeListener(@NonNull OnModelStateChangedListener modelChangeListener) {
         modelChangeListeners.add(modelChangeListener);
     }
 
@@ -168,15 +168,15 @@ public class FlowContentObserver extends ContentObserver {
      *
      * @param modelChangeListener Generic model change events from a {@link Action}
      */
-    public void removeModelChangeListener(OnModelStateChangedListener modelChangeListener) {
+    public void removeModelChangeListener(@NonNull OnModelStateChangedListener modelChangeListener) {
         modelChangeListeners.remove(modelChangeListener);
     }
 
-    public void addOnTableChangedListener(OnTableChangedListener onTableChangedListener) {
+    public void addOnTableChangedListener(@NonNull OnTableChangedListener onTableChangedListener) {
         onTableChangedListeners.add(onTableChangedListener);
     }
 
-    public void removeTableChangedListener(OnTableChangedListener onTableChangedListener) {
+    public void removeTableChangedListener(@NonNull OnTableChangedListener onTableChangedListener) {
         onTableChangedListeners.remove(onTableChangedListener);
     }
 
@@ -185,7 +185,7 @@ public class FlowContentObserver extends ContentObserver {
      *
      * @param contentChangeListener Generic model change events from an {@link Action}
      */
-    public void addContentChangeListener(ContentChangeListener contentChangeListener) {
+    public void addContentChangeListener(@NonNull ContentChangeListener contentChangeListener) {
         modelChangeListeners.add(contentChangeListener);
         onTableChangedListeners.add(contentChangeListener);
     }
@@ -195,7 +195,7 @@ public class FlowContentObserver extends ContentObserver {
      *
      * @param contentChangeListener Generic model change events from a {@link Action}
      */
-    public void removeContentChangeListener(ContentChangeListener contentChangeListener) {
+    public void removeContentChangeListener(@NonNull ContentChangeListener contentChangeListener) {
         modelChangeListeners.remove(contentChangeListener);
         onTableChangedListeners.remove(contentChangeListener);
     }
@@ -203,14 +203,16 @@ public class FlowContentObserver extends ContentObserver {
     /**
      * Registers the observer for model change events for specific class.
      */
-    public void registerForContentChanges(Context context, Class<?> table) {
+    public void registerForContentChanges(@NonNull Context context,
+                                          @NonNull Class<?> table) {
         registerForContentChanges(context.getContentResolver(), table);
     }
 
     /**
      * Registers the observer for model change events for specific class.
      */
-    public void registerForContentChanges(ContentResolver contentResolver, Class<?> table) {
+    public void registerForContentChanges(@NonNull ContentResolver contentResolver,
+                                          @NonNull Class<?> table) {
         contentResolver.registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
         REGISTERED_COUNT.incrementAndGet();
         if (!registeredTables.containsValue(table)) {
@@ -221,7 +223,7 @@ public class FlowContentObserver extends ContentObserver {
     /**
      * Unregisters this list for model change events
      */
-    public void unregisterForContentChanges(Context context) {
+    public void unregisterForContentChanges(@NonNull Context context) {
         context.getContentResolver().unregisterContentObserver(this);
         REGISTERED_COUNT.decrementAndGet();
         registeredTables.clear();

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure.database;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
@@ -16,7 +17,7 @@ public class DatabaseStatementWrapper<TModel> extends BaseDatabaseStatement {
     private final BaseQueriable<TModel> modelQueriable;
 
     public DatabaseStatementWrapper(@NonNull DatabaseStatement databaseStatement,
-                                    BaseQueriable<TModel> modelQueriable) {
+                                    @NonNull BaseQueriable<TModel> modelQueriable) {
         this.databaseStatement = databaseStatement;
         this.modelQueriable = modelQueriable;
     }
@@ -46,6 +47,7 @@ public class DatabaseStatementWrapper<TModel> extends BaseDatabaseStatement {
         return databaseStatement.simpleQueryForLong();
     }
 
+    @Nullable
     @Override
     public String simpleQueryForString() {
         return databaseStatement.simpleQueryForString();

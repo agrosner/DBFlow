@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.sqlcipher;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.DatabaseConfig;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
@@ -42,6 +44,7 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
         databaseHelperDelegate.performRestoreFromBackup();
     }
 
+    @Nullable
     @Override
     public DatabaseHelperDelegate getDelegate() {
         return databaseHelperDelegate;
@@ -57,6 +60,7 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
         databaseHelperDelegate.backupDB();
     }
 
+    @NonNull
     @Override
     public DatabaseWrapper getDatabase() {
         if (cipherDatabase == null || !cipherDatabase.getDatabase().isOpen()) {
@@ -71,7 +75,7 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
      *
      * @param listener
      */
-    public void setDatabaseListener(DatabaseHelperListener listener) {
+    public void setDatabaseListener(@Nullable DatabaseHelperListener listener) {
         databaseHelperDelegate.setDatabaseHelperListener(listener);
     }
 
@@ -114,6 +118,7 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
             this.baseDatabaseHelper = new BaseDatabaseHelper(databaseDefinition);
         }
 
+        @NonNull
         @Override
         public DatabaseWrapper getDatabase() {
             if (sqlCipherDatabase == null) {
@@ -126,6 +131,7 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
         public void performRestoreFromBackup() {
         }
 
+        @Nullable
         @Override
         public DatabaseHelperDelegate getDelegate() {
             return null;
@@ -145,7 +151,7 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
         }
 
         @Override
-        public void setDatabaseListener(DatabaseHelperListener helperListener) {
+        public void setDatabaseListener(@Nullable DatabaseHelperListener helperListener) {
         }
 
         @Override

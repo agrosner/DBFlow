@@ -10,7 +10,7 @@ import android.support.annotation.Nullable;
  */
 public interface DatabaseWrapper {
 
-    void execSQL(String query);
+    void execSQL(@NonNull String query);
 
     void beginTransaction();
 
@@ -20,16 +20,23 @@ public interface DatabaseWrapper {
 
     int getVersion();
 
-    DatabaseStatement compileStatement(String rawQuery);
+    @NonNull
+    DatabaseStatement compileStatement(@NonNull String rawQuery);
 
-    FlowCursor rawQuery(String query, String[] selectionArgs);
+    @NonNull
+    FlowCursor rawQuery(@NonNull String query, @Nullable String[] selectionArgs);
 
-    long updateWithOnConflict(String tableName, ContentValues contentValues, String where,
-                              String[] whereArgs, int conflictAlgorithm);
+    long updateWithOnConflict(@NonNull String tableName,
+                              @NonNull ContentValues contentValues,
+                              @Nullable String where,
+                              @Nullable String[] whereArgs, int conflictAlgorithm);
 
-    long insertWithOnConflict(String tableName, String nullColumnHack, ContentValues values,
+    long insertWithOnConflict(@NonNull String tableName,
+                              @Nullable String nullColumnHack,
+                              @NonNull ContentValues values,
                               int sqLiteDatabaseAlgorithmInt);
 
+    @NonNull
     FlowCursor query(@NonNull String tableName, @Nullable String[] columns, @Nullable String selection,
                      @Nullable String[] selectionArgs, @Nullable String groupBy,
                      @Nullable String having, @Nullable String orderBy);

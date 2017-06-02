@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.structure.listener;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.structure.InternalAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -17,7 +19,7 @@ public interface SQLiteStatementListener {
      *
      * @param databaseStatement The statement from the {@link ModelAdapter}
      */
-    void onBindToStatement(DatabaseStatement databaseStatement);
+    void onBindToStatement(@NonNull DatabaseStatement databaseStatement);
 
     /**
      * Called at the end of {@link InternalAdapter#bindToInsertStatement(DatabaseStatement, Object)}
@@ -25,7 +27,7 @@ public interface SQLiteStatementListener {
      *
      * @param databaseStatement The insert statement from the {@link ModelAdapter}
      */
-    void onBindToInsertStatement(DatabaseStatement databaseStatement);
+    void onBindToInsertStatement(@NonNull DatabaseStatement databaseStatement);
 
     /**
      * Called at the end of {@link InternalAdapter#bindToUpdateStatement(DatabaseStatement, Object)}
@@ -33,7 +35,7 @@ public interface SQLiteStatementListener {
      *
      * @param databaseStatement The insert statement from the {@link ModelAdapter}
      */
-    void onBindToUpdateStatement(DatabaseStatement databaseStatement);
+    void onBindToUpdateStatement(@NonNull DatabaseStatement databaseStatement);
 
-    void onBindToDeleteStatement(DatabaseStatement databaseStatement);
+    void onBindToDeleteStatement(@NonNull DatabaseStatement databaseStatement);
 }

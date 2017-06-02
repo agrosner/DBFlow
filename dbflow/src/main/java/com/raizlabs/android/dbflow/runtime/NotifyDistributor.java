@@ -14,6 +14,7 @@ public class NotifyDistributor implements ModelNotifier {
 
     private static NotifyDistributor distributor;
 
+    @NonNull
     public static NotifyDistributor get() {
         if (distributor == null) {
             distributor = new NotifyDistributor();
@@ -27,7 +28,7 @@ public class NotifyDistributor implements ModelNotifier {
     }
 
     @Override
-    public <TModel> void notifyModelChanged(@Nullable TModel model,
+    public <TModel> void notifyModelChanged(@NonNull TModel model,
                                             @NonNull ModelAdapter<TModel> adapter,
                                             @NonNull BaseModel.Action action) {
         FlowManager.getModelNotifierForTable(adapter.getModelClass())

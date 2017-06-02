@@ -31,7 +31,7 @@ public class StringQuery<TModel> extends BaseModelQueriable<TModel> implements Q
      * @param sql   The sql statement to query the DB with. Does not work with {@link Delete},
      *              this must be done with {@link SQLiteDatabase#execSQL(String)}
      */
-    public StringQuery(Class<TModel> table, String sql) {
+    public StringQuery(@NonNull Class<TModel> table, @NonNull String sql) {
         super(table);
         query = sql;
     }
@@ -54,7 +54,8 @@ public class StringQuery<TModel> extends BaseModelQueriable<TModel> implements Q
     /**
      * Set selection arguments to execute on this raw query.
      */
-    public StringQuery<TModel> setSelectionArgs(String[] args) {
+    @NonNull
+    public StringQuery<TModel> setSelectionArgs(@NonNull String[] args) {
         this.args = args;
         return this;
     }

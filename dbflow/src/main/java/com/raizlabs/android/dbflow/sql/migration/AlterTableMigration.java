@@ -50,7 +50,7 @@ public class AlterTableMigration<TModel> extends BaseMigration {
     }
 
     @Override
-    public final void migrate(DatabaseWrapper database) {
+    public final void migrate(@NonNull DatabaseWrapper database) {
         // "ALTER TABLE "
         String sql = getAlterTableQueryBuilder().getQuery();
         String tableName = FlowManager.getTableName(table);
