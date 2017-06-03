@@ -12,6 +12,7 @@ import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils
 import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
 import com.raizlabs.android.dbflow.processor.utils.*
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils.wrapper
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
 import java.util.*
@@ -475,6 +476,13 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 `override fun`(TypeName.BOOLEAN, "cachingEnabled") {
                     modifiers(public, final)
                     `return`(true.L)
+                }
+
+                `override fun`(TypeName.VOID, "load", param(elementClassName!!, "model"),
+                        param(ClassNames.DATABASE_WRAPPER, wrapper)) {
+                    modifiers(public, final)
+                    statement("super.load(model, $wrapper)")
+                    statement("getModelCache().addModel(getCachingId(${ModelUtils.variable}), ${ModelUtils.variable})")
                 }
 
                 val primaryColumns = primaryColumnDefinitions

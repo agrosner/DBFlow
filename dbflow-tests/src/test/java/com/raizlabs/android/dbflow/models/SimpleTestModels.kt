@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.annotation.*
 import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.data.Blob
+import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener
 import java.util.*
@@ -129,3 +130,24 @@ class CustomTypeConverter : TypeConverter<String, CustomType>() {
 class DefaultModel(@PrimaryKey @Column(defaultValue = "5") var id: Int? = 0,
                    @Column(defaultValue = "5.0") var location: Double? = 0.0,
                    @Column(defaultValue = "\"String\"") var name: String? = "")
+
+@Table(database = TestDatabase::class, cachingEnabled = true)
+class TestModelChild : BaseModel() {
+    @PrimaryKey
+    var id: Long = 0
+
+    @Column
+    var name: String? = null
+}
+
+@Table(database = TestDatabase::class)
+class TestModelParent : BaseModel() {
+    @PrimaryKey
+    var id: Long = 0
+
+    @Column
+    var name: String? = null
+
+    @ForeignKey(stubbedRelationship = true)
+    var child: TestModelChild? = null
+}
