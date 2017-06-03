@@ -83,6 +83,17 @@ class FeedEntry(@PrimaryKey var id: Int = 0,
 data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
+data class Transfer2(
+        @PrimaryKey
+        var id: UUID = UUID.randomUUID(),
+        @ForeignKey(stubbedRelationship = true)
+        var origin: Account? = null
+)
+
+@Table(database = TestDatabase::class)
+data class Account(@PrimaryKey var id: UUID = UUID.randomUUID())
+
+@Table(database = TestDatabase::class)
 class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener {
     override fun onBindToStatement(databaseStatement: DatabaseStatement) {
         TODO("not implemented")

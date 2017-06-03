@@ -17,9 +17,12 @@ data class Combiner(val fieldLevelAccessor: ColumnAccessor,
                     val fieldTypeName: TypeName,
                     val wrapperLevelAccessor: ColumnAccessor? = null,
                     val wrapperFieldTypeName: TypeName? = null,
-                    val subWrapperAccessor: ColumnAccessor? = null)
+                    val subWrapperAccessor: ColumnAccessor? = null,
+                    val customPrefixName: String = "")
 
 abstract class ColumnAccessCombiner(val combiner: Combiner) {
+
+    private val nameAllocator = NameAllocator()
 
     fun getFieldAccessBlock(existingBuilder: CodeBlock.Builder,
                             modelBlock: CodeBlock,
@@ -28,7 +31,7 @@ abstract class ColumnAccessCombiner(val combiner: Combiner) {
         var fieldAccess: CodeBlock = CodeBlock.of("")
         combiner.apply {
             if (wrapperLevelAccessor != null && !fieldTypeName.isPrimitive) {
-                fieldAccess = CodeBlock.of("ref" + fieldLevelAccessor.propertyName)
+                fieldAccess = CodeBlock.of("${nameAllocator.newName(customPrefixName)}ref" + fieldLevelAccessor.propertyName)
 
                 if (defineProperty) {
                     existingBuilder.addStatement("\$T \$L = \$L != null ? \$L : null",

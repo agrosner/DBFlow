@@ -137,7 +137,7 @@ class PartialLoadFromCursorAccessCombiner(
             code.add(CodeBlock.of("\n.and(\$T.\$L.eq(\$L))",
                     referencedTableTypeName, propertyRepresentation, fieldAccessBlock))
         } else if (fieldLevelAccessor != null) {
-            code.statement(fieldLevelAccessor.set(cursorAccess, parentAccessor.get(modelBlock)))
+            code.statement(fieldLevelAccessor.set(fieldAccessBlock, parentAccessor.get(modelBlock)))
         }
 
     }

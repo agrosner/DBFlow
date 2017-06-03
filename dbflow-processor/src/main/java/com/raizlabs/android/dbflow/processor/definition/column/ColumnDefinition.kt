@@ -140,7 +140,7 @@ constructor(processorManager: ProcessorManager, element: Element,
                     override val getterName: String = column?.getterName ?: ""
                     override val setterName: String = column?.setterName ?: ""
 
-                }, useIs)
+                }, useIsForPrivateBooleans = useIs)
 
             } else {
                 columnAccessor = VisibleScopeColumnAccessor(elementName)

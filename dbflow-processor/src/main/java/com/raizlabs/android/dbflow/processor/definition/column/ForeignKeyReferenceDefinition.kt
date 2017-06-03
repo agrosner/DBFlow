@@ -69,7 +69,7 @@ class ForeignKeyReferenceDefinition(private val manager: ProcessorManager,
         evaluateTypeConverter(typeConverterDefinition)
 
         val combiner = Combiner(columnAccessor, columnClassName!!, wrapperAccessor,
-                wrapperTypeName, subWrapperAccessor)
+                wrapperTypeName, subWrapperAccessor, foreignKeyColumnDefinition.elementName)
         partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, foreignColumnName,
                 columnClassName, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
                 columnAccessor, wrapperAccessor, wrapperTypeName)
