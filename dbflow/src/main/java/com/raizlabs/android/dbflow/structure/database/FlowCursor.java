@@ -39,6 +39,7 @@ public class FlowCursor extends CursorWrapper {
         }
     }
 
+    @Nullable
     public String getStringOrDefault(String columnName) {
         return getStringOrDefault(cursor.getColumnIndex(columnName));
     }

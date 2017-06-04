@@ -9,10 +9,7 @@ import com.raizlabs.android.dbflow.processor.definition.BaseDefinition
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
-import com.raizlabs.android.dbflow.processor.utils.annotation
-import com.raizlabs.android.dbflow.processor.utils.fromTypeMirror
-import com.raizlabs.android.dbflow.processor.utils.getTypeElement
-import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
+import com.raizlabs.android.dbflow.processor.utils.*
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.*
 import java.util.*
@@ -47,6 +44,7 @@ constructor(processorManager: ProcessorManager, element: Element,
     var isRowId: Boolean = false
     var length = -1
     var notNull = false
+    var isNotNullType = false
     var onNullConflict: ConflictAction? = null
     var onUniqueConflict: ConflictAction? = null
     var unique = false
@@ -95,6 +93,16 @@ constructor(processorManager: ProcessorManager, element: Element,
             notNull = true
         }
 
+        // if specified, usually from Kotlin targets, we will not set null on the field.
+        element.annotation<org.jetbrains.annotations.NotNull>()?.let {
+            isNotNullType = true
+        }
+
+        element.annotationMirrors
+                .find { it.annotationType.toTypeElement().toClassName() == ClassNames.NON_NULL }?.let {
+            isNotNullType = true
+        }
+
         column?.let {
             this.columnName = if (it.name == "")
                 element.simpleName.toString()
@@ -104,8 +112,12 @@ constructor(processorManager: ProcessorManager, element: Element,
             collate = it.collate
             defaultValue = it.defaultValue
 
-            if (defaultValue?.isBlank() ?: false) {
-                defaultValue = null
+            if (it.defaultValue.isBlank()) {
+                if (isNotNullType && elementTypeName == ClassName.get(String::class.java)) {
+                    defaultValue = "\"\""
+                } else {
+                    defaultValue = null
+                }
             }
 
             if (defaultValue != null
@@ -116,6 +128,11 @@ constructor(processorManager: ProcessorManager, element: Element,
         }
         if (column == null) {
             this.columnName = element.simpleName.toString()
+        }
+
+        if (isNotNullType && defaultValue == null
+                && elementTypeName == ClassName.get(String::class.java)) {
+            defaultValue = "\"\""
         }
 
         val nameAllocator = NameAllocator()
@@ -254,7 +271,12 @@ constructor(processorManager: ProcessorManager, element: Element,
     }
 
     override fun toString(): String {
-        return QueryBuilder.quoteIfNeeded(columnName)
+        val tableDef = baseTableDefinition
+        var tableName = tableDef.elementName
+        if (tableDef is TableDefinition) {
+            tableName = tableDef.tableName ?: ""
+        }
+        return "${baseTableDefinition.databaseDefinition?.databaseName}.$tableName.${QueryBuilder.quote(columnName)}"
     }
 
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
@@ -342,9 +364,15 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun getLoadFromCursorMethod(endNonPrimitiveIf: Boolean, index: AtomicInteger,
                                      nameAllocator: NameAllocator) = code {
 
+        var assignDefaultValue = baseTableDefinition.assignDefaultValuesFromCursor
+        val defaultValueBlock = getDefaultValueBlock()
+        if (isNotNullType && CodeBlock.of("null") == defaultValueBlock) {
+            assignDefaultValue = false
+        }
+
         LoadFromCursorAccessCombiner(combiner, defaultValue != null,
                 nameAllocator, baseTableDefinition.orderedCursorLookUp,
-                baseTableDefinition.assignDefaultValuesFromCursor).apply {
+                assignDefaultValue).apply {
             addCode(columnName, getDefaultValueBlock(), index.get(), modelBlock)
         }
         this

@@ -151,3 +151,7 @@ class TestModelParent : BaseModel() {
     @ForeignKey(stubbedRelationship = true)
     var child: TestModelChild? = null
 }
+
+@Table(database = TestDatabase::class)
+class NonNullKotlinModel(@PrimaryKey var name: String = "",
+                         @Column var date: Date = Date())
