@@ -36,6 +36,11 @@ public @interface Database {
     String databaseExtension() default "";
 
     /**
+     * @return The filename of the DB. If not specified it assume the default value.
+     */
+    String fileName() default "";
+
+    /**
      * @return If true, SQLite will throw exceptions when {@link ForeignKey} constraints are not respected.
      * Default is false and will not throw exceptions.
      */
