@@ -77,18 +77,18 @@ class FeedEntry(@PrimaryKey var id: Int = 0,
 
 @Table(database = TestDatabase::class)
 @ManyToMany(
-        generatedTableClassName = "Refund", referencedTable = Transfer::class,
-        referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
-        saveForeignKeyModels = true
+    generatedTableClassName = "Refund", referencedTable = Transfer::class,
+    referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
+    saveForeignKeyModels = true
 )
 data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
 data class Transfer2(
-        @PrimaryKey
-        var id: UUID = UUID.randomUUID(),
-        @ForeignKey(stubbedRelationship = true)
-        var origin: Account? = null
+    @PrimaryKey
+    var id: UUID = UUID.randomUUID(),
+    @ForeignKey(stubbedRelationship = true)
+    var origin: Account? = null
 )
 
 @Table(database = TestDatabase::class)
@@ -151,3 +151,8 @@ class TestModelParent : BaseModel() {
     @ForeignKey(stubbedRelationship = true)
     var child: TestModelChild? = null
 }
+
+@Table(database = TestDatabase::class)
+class NullableNumbers(@PrimaryKey var id: Int = 0,
+                      @Column var double: Double? = null,
+                      @Column var int: Int? = null)
