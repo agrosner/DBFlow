@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Description: An annotation used to ignore a column in the {@link Table#allFields()} instance.
  */
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @Target(ElementType.FIELD)
 public @interface ColumnIgnore {
 }
