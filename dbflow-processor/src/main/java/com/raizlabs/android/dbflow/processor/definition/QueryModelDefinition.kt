@@ -109,6 +109,8 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
             val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
             val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, variableElement, this.element)
 
+            if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, variableElement)) return
+
             if (variableElement.annotation<Column>() != null || isAllFields) {
 
                 val columnDefinition = ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)

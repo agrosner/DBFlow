@@ -98,6 +98,8 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
                 val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, variableElement, this.element)
 
+                if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, variableElement)) return
+
                 val columnDefinition = ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition)
