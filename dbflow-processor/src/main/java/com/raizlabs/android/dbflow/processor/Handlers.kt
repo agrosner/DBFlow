@@ -143,8 +143,8 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
                     // Check here if user already placed definition of same type, since default converters
                     // are added last.
                     if (processorManager.typeConverters
-                            .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
-                            .isEmpty()) {
+                        .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
+                        .isEmpty()) {
                         processorManager.addTypeConverterDefinition(converterDefinition)
                     }
                 }
@@ -155,10 +155,10 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
     companion object {
         private val VALIDATOR = TypeConverterValidator()
         private val DEFAULT_TYPE_CONVERTERS = arrayOf<Class<*>>(CalendarConverter::class.java,
-                BigDecimalConverter::class.java,
-                DateConverter::class.java, SqlDateConverter::class.java,
-                BooleanConverter::class.java, UUIDConverter::class.java,
-                CharConverter::class.java)
+            BigDecimalConverter::class.java, BigIntegerConverter::class.java,
+            DateConverter::class.java, SqlDateConverter::class.java,
+            BooleanConverter::class.java, UUIDConverter::class.java,
+            CharConverter::class.java)
     }
 }
 

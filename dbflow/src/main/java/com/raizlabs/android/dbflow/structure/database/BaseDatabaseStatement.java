@@ -40,6 +40,15 @@ public abstract class BaseDatabaseStatement implements DatabaseStatement {
     }
 
     @Override
+    public void bindFloatOrNull(int index, @Nullable Float aFloat) {
+        if (aFloat != null) {
+            bindDouble(index, aFloat);
+        } else {
+            bindNull(index);
+        }
+    }
+
+    @Override
     public void bindBlobOrNull(int index, @Nullable byte[] bytes) {
         if (bytes != null) {
             bindBlob(index, bytes);

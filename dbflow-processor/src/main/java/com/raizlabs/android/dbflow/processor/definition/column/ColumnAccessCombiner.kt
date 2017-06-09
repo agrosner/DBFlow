@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.catch
@@ -152,7 +151,7 @@ class SqliteStatementAccessCombiner(combiner: Combiner)
         combiner.apply {
             val fieldAccess: CodeBlock = getFieldAccessBlock(this@addCode, modelBlock,
                 defineProperty = defineProperty)
-            val wrapperMethod = SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqliteStatementWrapperMethod
+            val wrapperMethod = SQLiteHelper.getWrapperMethod(wrapperFieldTypeName ?: fieldTypeName)
             val statementMethod = SQLiteHelper[fieldTypeName].sqLiteStatementMethod
 
             var offset = "$index + $columnRepresentation"
