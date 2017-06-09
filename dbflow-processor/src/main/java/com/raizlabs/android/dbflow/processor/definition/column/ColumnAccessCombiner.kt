@@ -242,8 +242,6 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
                 }
                 endControlFlow()
             } else {
-                ProcessorManager.manager.logWarning("Found column $modelBlock of type $fieldTypeName")
-
                 var hasDefault = hasDefaultValue
                 var defaultValueBlock = defaultValue
                 if (!assignDefaultValuesFromCursor) {
