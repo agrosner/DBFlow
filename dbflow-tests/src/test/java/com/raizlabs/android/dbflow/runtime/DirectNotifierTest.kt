@@ -6,7 +6,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.raizlabs.android.dbflow.BuildConfig
-import com.raizlabs.android.dbflow.ImmediateTransactionManager
+import com.raizlabs.android.dbflow.ImmediateTransactionManager2
 import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.config.DatabaseConfig
 import com.raizlabs.android.dbflow.config.FlowConfig
@@ -36,7 +36,7 @@ class DirectNotifierTest {
     fun setupTest() {
         FlowManager.init(FlowConfig.Builder(context)
                 .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
-                        .transactionManagerCreator(::ImmediateTransactionManager)
+                        .transactionManagerCreator(::ImmediateTransactionManager2)
                         .modelNotifier(DirectModelNotifier.get())
                         .build()).build())
     }

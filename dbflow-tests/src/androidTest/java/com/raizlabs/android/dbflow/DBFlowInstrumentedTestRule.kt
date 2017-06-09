@@ -16,7 +16,7 @@ class DBFlowInstrumentedTestRule : TestRule {
             override fun evaluate() {
                 FlowManager.init(FlowConfig.Builder(DemoApp.context)
                         .addDatabaseConfig(DatabaseConfig.Builder(AppDatabase::class.java)
-                                .transactionManagerCreator(::ImmediateTransactionManager2)
+                                .transactionManagerCreator(::ImmediateTransactionManager)
                                 .build()).build())
                 try {
                     base.evaluate()

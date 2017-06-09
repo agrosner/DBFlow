@@ -4,8 +4,11 @@ import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.annotation.*
 import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.data.Blob
+import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener
+import java.math.BigDecimal
+import java.math.BigInteger
 import java.util.*
 
 
@@ -83,6 +86,17 @@ class FeedEntry(@PrimaryKey var id: Int = 0,
 data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
+data class Transfer2(
+        @PrimaryKey
+        var id: UUID = UUID.randomUUID(),
+        @ForeignKey(stubbedRelationship = true)
+        var origin: Account? = null
+)
+
+@Table(database = TestDatabase::class)
+data class Account(@PrimaryKey var id: UUID = UUID.randomUUID())
+
+@Table(database = TestDatabase::class)
 class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener {
     override fun onBindToStatement(databaseStatement: DatabaseStatement) {
         TODO("not implemented")
@@ -118,3 +132,38 @@ class CustomTypeConverter : TypeConverter<String, CustomType>() {
 class DefaultModel(@PrimaryKey @Column(defaultValue = "5") var id: Int? = 0,
                    @Column(defaultValue = "5.0") var location: Double? = 0.0,
                    @Column(defaultValue = "\"String\"") var name: String? = "")
+
+@Table(database = TestDatabase::class, cachingEnabled = true)
+class TestModelChild : BaseModel() {
+    @PrimaryKey
+    var id: Long = 0
+
+    @Column
+    var name: String? = null
+}
+
+@Table(database = TestDatabase::class)
+class TestModelParent : BaseModel() {
+    @PrimaryKey
+    var id: Long = 0
+
+    @Column
+    var name: String? = null
+
+    @ForeignKey(stubbedRelationship = true)
+    var child: TestModelChild? = null
+}
+
+@Table(database = TestDatabase::class)
+class NullableNumbers(@PrimaryKey var id: Int = 0,
+                      @Column var float: Float? = null,
+                      @Column var double: Double? = null,
+                      @Column var long: Long? = null,
+                      @Column var int: Int? = null,
+                      @Column var bigDecimal: BigDecimal? = null,
+                      @Column var bigInteger: BigInteger? = null)
+
+@Table(database = TestDatabase::class)
+class NonNullKotlinModel(@PrimaryKey var name: String = "",
+                         @Column var date: Date = Date(),
+                         @Column var numb: Int = 0)

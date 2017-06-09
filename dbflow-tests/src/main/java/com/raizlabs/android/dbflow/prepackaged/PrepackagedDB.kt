@@ -14,7 +14,7 @@ object PrepackagedDB {
     const val VERSION = 1
 }
 
-@Table(database = PrepackagedDB::class)
+@Table(database = PrepackagedDB::class, allFields = true)
 class Dog : BaseModel() {
 
     @PrimaryKey

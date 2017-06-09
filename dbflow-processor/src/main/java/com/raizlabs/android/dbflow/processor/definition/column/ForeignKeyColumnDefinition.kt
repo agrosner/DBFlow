@@ -99,6 +99,11 @@ class ForeignKeyColumnDefinition(manager: ProcessorManager, tableDefinition: Tab
 
             references = foreignKey.references.asList()
         }
+
+        if (isNotNullType) {
+            manager.logError("Foreign Keys must be nullable. Please remove the non-null annotation if using " +
+                    "Java, or add ? to the type for Kotlin.")
+        }
     }
 
     override fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {

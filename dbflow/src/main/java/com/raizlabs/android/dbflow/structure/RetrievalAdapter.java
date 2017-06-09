@@ -44,12 +44,18 @@ public abstract class RetrievalAdapter<TModel> {
         }
     }
 
+    /**
+     * Force loads the model from the DB. Even if caching is enabled it will requery the object.
+     */
     public void load(@NonNull TModel model) {
         load(model, FlowManager.getDatabaseForTable(getModelClass()).getWritableDatabase());
     }
 
+    /**
+     * Force loads the model from the DB. Even if caching is enabled it will requery the object.
+     */
     public void load(@NonNull TModel model, DatabaseWrapper databaseWrapper) {
-        getSingleModelLoader().load(databaseWrapper,
+        getNonCacheableSingleModelLoader().load(databaseWrapper,
             SQLite.select()
                 .from(getModelClass())
                 .where(getPrimaryConditionClause(model)).getQuery(),
