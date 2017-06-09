@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.processor.utils
 
 import com.raizlabs.android.dbflow.annotation.ColumnIgnore
-import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.squareup.javapoet.ClassName
 import java.util.*
@@ -38,15 +37,14 @@ object ElementUtility {
 
     fun isPackagePrivate(element: Element): Boolean {
         return !element.modifiers.contains(Modifier.PUBLIC) && !element.modifiers.contains(Modifier.PRIVATE)
-                && !element.modifiers.contains(Modifier.STATIC)
+            && !element.modifiers.contains(Modifier.STATIC)
     }
 
     fun isValidAllFields(allFields: Boolean, element: Element): Boolean {
         return allFields && element.kind.isField &&
-                !element.modifiers.contains(Modifier.STATIC) &&
-                !element.modifiers.contains(Modifier.FINAL) &&
-                element.annotation<ColumnIgnore>() == null &&
-                element.asType().toString() != ClassNames.MODEL_ADAPTER.toString()
+            !element.modifiers.contains(Modifier.STATIC) &&
+            !element.modifiers.contains(Modifier.FINAL) &&
+            element.annotation<ColumnIgnore>() == null
     }
 
     fun getClassName(elementClassname: String, manager: ProcessorManager): ClassName? {

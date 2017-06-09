@@ -38,6 +38,8 @@ public interface DatabaseStatement {
 
     void bindDoubleOrNull(int index, @Nullable Double aDouble);
 
+    void bindFloatOrNull(int index, @Nullable Float aFloat);
+
     void bindBlob(int index, byte[] bytes);
 
     void bindBlobOrNull(int index, @Nullable byte[] bytes);

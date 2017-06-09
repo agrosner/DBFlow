@@ -7,6 +7,8 @@ import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener
+import java.math.BigDecimal
+import java.math.BigInteger
 import java.util.*
 
 
@@ -151,6 +153,15 @@ class TestModelParent : BaseModel() {
     @ForeignKey(stubbedRelationship = true)
     var child: TestModelChild? = null
 }
+
+@Table(database = TestDatabase::class)
+class NullableNumbers(@PrimaryKey var id: Int = 0,
+                      @Column var float: Float? = null,
+                      @Column var double: Double? = null,
+                      @Column var long: Long? = null,
+                      @Column var int: Int? = null,
+                      @Column var bigDecimal: BigDecimal? = null,
+                      @Column var bigInteger: BigInteger? = null)
 
 @Table(database = TestDatabase::class)
 class NonNullKotlinModel(@PrimaryKey var name: String = "",
