@@ -5,5 +5,13 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 
 public class DatabaseModel extends BaseModel {
     @PrimaryKey
-    Integer id;
+    private Integer id;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
 }
