@@ -154,4 +154,5 @@ class TestModelParent : BaseModel() {
 
 @Table(database = TestDatabase::class)
 class NonNullKotlinModel(@PrimaryKey var name: String = "",
-                         @Column var date: Date = Date())
+                         @Column var date: Date = Date(),
+                         @Column var numb: Int = 0)

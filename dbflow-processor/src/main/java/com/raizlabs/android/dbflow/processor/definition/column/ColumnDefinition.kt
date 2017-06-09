@@ -113,25 +113,24 @@ constructor(processorManager: ProcessorManager, element: Element,
             defaultValue = it.defaultValue
 
             if (it.defaultValue.isBlank()) {
-                if (isNotNullType && elementTypeName == ClassName.get(String::class.java)) {
-                    defaultValue = "\"\""
-                } else {
-                    defaultValue = null
-                }
+                defaultValue = null
             }
 
-            if (defaultValue != null
-                    && elementClassName == ClassName.get(String::class.java)
-                    && !QUOTE_PATTERN.matcher(defaultValue).find()) {
-                defaultValue = "\"" + defaultValue + "\""
-            }
+
         }
         if (column == null) {
             this.columnName = element.simpleName.toString()
         }
 
+        val isString = (elementTypeName == ClassName.get(String::class.java))
+        if (defaultValue != null
+                && isString
+                && !QUOTE_PATTERN.matcher(defaultValue).find()) {
+            defaultValue = "\"" + defaultValue + "\""
+        }
+
         if (isNotNullType && defaultValue == null
-                && elementTypeName == ClassName.get(String::class.java)) {
+                && isString) {
             defaultValue = "\"\""
         }
 
