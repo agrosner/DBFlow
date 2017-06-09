@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
+import io.reactivex.Completable;
 import io.reactivex.Single;
 
 /**
@@ -108,12 +109,12 @@ public interface RXQueriable {
      * you're not interested in the result.
      */
     @NonNull
-    Single<Void> execute();
+    Completable execute();
 
     /**
      * Will not return a result, rather simply will execute a SQL statement. Use this for non-SELECT statements or when
      * you're not interested in the result.
      */
     @NonNull
-    Single<Void> execute(DatabaseWrapper databaseWrapper);
+    Completable execute(DatabaseWrapper databaseWrapper);
 }

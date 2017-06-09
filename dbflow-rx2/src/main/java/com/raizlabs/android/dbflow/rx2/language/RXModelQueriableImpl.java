@@ -20,13 +20,14 @@ import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.Single;
 
+import static com.raizlabs.android.dbflow.rx2.language.RXSQLite.nullToNse;
 import static io.reactivex.Single.fromCallable;
 
 /**
  * Description: Represents {@link BaseModelQueriable} in RX form.
  */
 public class RXModelQueriableImpl<T> extends RXQueriableImpl
-        implements RXModelQueriable<T> {
+    implements RXModelQueriable<T> {
 
     private final ModelQueriable<T> modelQueriable;
 
@@ -43,28 +44,28 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl
     @Override
     public Flowable<T> queryStreamResults() {
         return Flowable.create(new FlowableOnSubscribe<T>() {
-                @Override
-                public void subscribe(@io.reactivex.annotations.NonNull final FlowableEmitter<T> emitter)
-                    throws Exception {
-                  final CursorResult<T> cursorResult = modelQueriable.queryResults();
-                  final FlowCursorIterator<T> iterator = cursorResult.iterator();
-                  try {
+            @Override
+            public void subscribe(@io.reactivex.annotations.NonNull final FlowableEmitter<T> emitter)
+                throws Exception {
+                final CursorResult<T> cursorResult = modelQueriable.queryResults();
+                final FlowCursorIterator<T> iterator = cursorResult.iterator();
+                try {
                     while (!emitter.isCancelled() && iterator.hasNext()) {
-                      emitter.onNext(iterator.next());
+                        emitter.onNext(iterator.next());
                     }
                     emitter.onComplete();
-                  } catch (final Exception e) {
+                } catch (final Exception e) {
                     FlowLog.logError(e);
                     emitter.onError(e);
-                  } finally {
+                } finally {
                     try {
-                      iterator.close();
+                        iterator.close();
                     } catch (final Exception e) {
-                      FlowLog.logError(e);
+                        FlowLog.logError(e);
                     }
-                  }
                 }
-          }, BackpressureStrategy.MISSING);
+            }
+        }, BackpressureStrategy.MISSING);
     }
 
     @NonNull
@@ -103,23 +104,25 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl
     @NonNull
     @Override
     public Single<T> querySingle() {
-        return fromCallable(new Callable<T>() {
-            @Override
-            public T call() throws Exception {
-                return getInnerModelQueriable().querySingle();
-            }
-        });
+        return fromCallable(nullToNse(new Callable<T>() {
+                @Override
+                public T call() throws Exception {
+                    return getInnerModelQueriable().querySingle();
+                }
+            })
+        );
     }
 
     @NonNull
     @Override
     public Single<T> querySingle(final DatabaseWrapper wrapper) {
-        return fromCallable(new Callable<T>() {
-            @Override
-            public T call() throws Exception {
-                return getInnerModelQueriable().querySingle(wrapper);
-            }
-        });
+        return fromCallable(nullToNse(new Callable<T>() {
+                @Override
+                public T call() throws Exception {
+                    return getInnerModelQueriable().querySingle(wrapper);
+                }
+            })
+        );
     }
 
     @NonNull
@@ -153,7 +156,7 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl
     @NonNull
     @Override
     public <TQueryModel> Single<List<TQueryModel>> queryCustomList(
-            final Class<TQueryModel> tQueryModelClass) {
+        final Class<TQueryModel> tQueryModelClass) {
         return fromCallable(new Callable<List<TQueryModel>>() {
             @Override
             public List<TQueryModel> call() throws Exception {
@@ -165,13 +168,14 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl
     @NonNull
     @Override
     public <TQueryModel> Single<TQueryModel> queryCustomSingle(
-            final Class<TQueryModel> tQueryModelClass) {
-        return fromCallable(new Callable<TQueryModel>() {
-            @Override
-            public TQueryModel call() throws Exception {
-                return getInnerModelQueriable().queryCustomSingle(tQueryModelClass);
-            }
-        });
+        final Class<TQueryModel> tQueryModelClass) {
+        return fromCallable(nullToNse(new Callable<TQueryModel>() {
+                @Override
+                public TQueryModel call() throws Exception {
+                    return getInnerModelQueriable().queryCustomSingle(tQueryModelClass);
+                }
+            })
+        );
     }
 
     @NonNull
@@ -185,6 +189,6 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl
     @Override
     public Flowable<ModelQueriable<T>> observeOnTableChanges() {
         return Flowable.create(new TableChangeOnSubscribe<>(getInnerModelQueriable()),
-                BackpressureStrategy.LATEST);
+            BackpressureStrategy.LATEST);
     }
 }

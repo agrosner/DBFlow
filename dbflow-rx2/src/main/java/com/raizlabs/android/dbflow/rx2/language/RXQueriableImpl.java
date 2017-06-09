@@ -11,8 +11,10 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.concurrent.Callable;
 
+import io.reactivex.Completable;
 import io.reactivex.Single;
 
+import static com.raizlabs.android.dbflow.rx2.language.RXSQLite.nullToNse;
 import static io.reactivex.Single.fromCallable;
 
 /**
@@ -36,23 +38,25 @@ public class RXQueriableImpl implements RXQueriable {
     @NonNull
     @Override
     public Single<Cursor> query() {
-        return fromCallable(new Callable<Cursor>() {
-            @Override
-            public Cursor call() throws Exception {
-                return getInnerQueriable().query();
-            }
-        });
+        return fromCallable(nullToNse(new Callable<Cursor>() {
+                @Override
+                public Cursor call() throws Exception {
+                    return getInnerQueriable().query();
+                }
+            })
+        );
     }
 
     @NonNull
     @Override
     public Single<Cursor> query(final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Cursor>() {
-            @Override
-            public Cursor call() throws Exception {
-                return getInnerQueriable().query(databaseWrapper);
-            }
-        });
+        return fromCallable(nullToNse(new Callable<Cursor>() {
+                @Override
+                public Cursor call() throws Exception {
+                    return getInnerQueriable().query(databaseWrapper);
+                }
+            })
+        );
     }
 
     @NonNull
@@ -167,24 +171,22 @@ public class RXQueriableImpl implements RXQueriable {
 
     @NonNull
     @Override
-    public Single<Void> execute() {
-        return fromCallable(new Callable<Void>() {
+    public Completable execute() {
+        return Completable.fromRunnable(new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 getInnerQueriable().execute();
-                return null;
             }
         });
     }
 
     @NonNull
     @Override
-    public Single<Void> execute(final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Void>() {
+    public Completable execute(final DatabaseWrapper databaseWrapper) {
+        return Completable.fromRunnable(new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 getInnerQueriable().execute(databaseWrapper);
-                return null;
             }
         });
     }
