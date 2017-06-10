@@ -80,27 +80,27 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
 
     @NonNull
     @Override
-    public Operator<T> is(T value) {
+    public Operator<T> is(@Nullable T value) {
         operation = Operation.EQUALS;
         return value(value);
     }
 
     @NonNull
     @Override
-    public Operator<T> eq(T value) {
+    public Operator<T> eq(@Nullable T value) {
         return is(value);
     }
 
     @NonNull
     @Override
-    public Operator<T> isNot(T value) {
+    public Operator<T> isNot(@Nullable T value) {
         operation = Operation.NOT_EQUALS;
         return value(value);
     }
 
     @NonNull
     @Override
-    public Operator<T> notEq(T value) {
+    public Operator<T> notEq(@Nullable T value) {
         return isNot(value);
     }
 
@@ -161,7 +161,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      * @param value The value of the column in the DB
      * @return This condition
      */
-    public Operator<T> value(Object value) {
+    public Operator<T> value(@Nullable Object value) {
         this.value = value;
         isValueSet = true;
         return this;
@@ -243,7 +243,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      * @return This condition.
      */
     @NonNull
-    public Operator<T> collate(String collation) {
+    public Operator<T> collate(@NonNull String collation) {
         postArg = "COLLATE " + collation;
         return this;
     }
@@ -255,7 +255,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      * @return This condition.
      */
     @NonNull
-    public Operator<T> collate(Collate collation) {
+    public Operator<T> collate(@NonNull Collate collation) {
         if (collation.equals(Collate.NONE)) {
             postArg = null;
         } else {
@@ -269,7 +269,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
      * Appends an optional SQL string to the end of this condition
      */
     @NonNull
-    public Operator<T> postfix(String postfix) {
+    public Operator<T> postfix(@NonNull String postfix) {
         postArg = postfix;
         return this;
     }
@@ -540,7 +540,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
     @NonNull
     @SuppressWarnings("unchecked")
     @Override
-    public Operator<T> concatenate(Object value) {
+    public Operator<T> concatenate(@Nullable Object value) {
         operation = new QueryBuilder(Operation.EQUALS).append(columnName()).toString();
 
         TypeConverter typeConverter = this.typeConverter;

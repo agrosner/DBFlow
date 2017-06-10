@@ -399,25 +399,25 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
 
     @NonNull
     @Override
-    public Operator<T> is(T value) {
+    public Operator<T> is(@Nullable T value) {
         return getCondition().is(value);
     }
 
     @NonNull
     @Override
-    public Operator<T> eq(T value) {
+    public Operator<T> eq(@Nullable T value) {
         return getCondition().eq(value);
     }
 
     @NonNull
     @Override
-    public Operator<T> isNot(T value) {
+    public Operator<T> isNot(@Nullable T value) {
         return getCondition().isNot(value);
     }
 
     @NonNull
     @Override
-    public Operator<T> notEq(T value) {
+    public Operator<T> notEq(@Nullable T value) {
         return getCondition().notEq(value);
     }
 
@@ -479,7 +479,7 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
 
     @NonNull
     @Override
-    public Operator<T> concatenate(T value) {
+    public Operator<T> concatenate(@Nullable T value) {
         return getCondition().concatenate(value);
     }
 
