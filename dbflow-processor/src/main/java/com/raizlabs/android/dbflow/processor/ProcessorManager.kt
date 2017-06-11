@@ -324,6 +324,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                     databaseHolderDefinition.typeSpec).build()
                     .writeTo(processorManager.processingEnvironment.filer)
             }
+        } catch (e: FilerException) {
         } catch (e: IOException) {
             logError(e.message)
         }
