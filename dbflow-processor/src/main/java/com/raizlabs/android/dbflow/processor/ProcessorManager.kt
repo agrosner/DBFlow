@@ -317,18 +317,15 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
         }
 
-        if (roundEnvironment.processingOver()) {
-            try {
-                val databaseHolderDefinition = DatabaseHolderDefinition(processorManager)
-                if (!databaseHolderDefinition.isGarbage()) {
-                    JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
-                        databaseHolderDefinition.typeSpec).build()
-                        .writeTo(processorManager.processingEnvironment.filer)
-                }
-            } catch (e: IOException) {
-                logError(e.message)
+        try {
+            val databaseHolderDefinition = DatabaseHolderDefinition(processorManager)
+            if (!databaseHolderDefinition.isGarbage()) {
+                JavaFile.builder(ClassNames.FLOW_MANAGER_PACKAGE,
+                    databaseHolderDefinition.typeSpec).build()
+                    .writeTo(processorManager.processingEnvironment.filer)
             }
-
+        } catch (e: IOException) {
+            logError(e.message)
         }
     }
 
