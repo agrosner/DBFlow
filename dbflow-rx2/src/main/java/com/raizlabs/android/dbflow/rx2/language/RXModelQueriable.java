@@ -13,6 +13,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import java.util.List;
 
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
@@ -34,7 +35,7 @@ public interface RXModelQueriable<TModel> extends RXQueriable {
      * @return Single model, the first of potentially many results
      */
     @NonNull
-    Single<TModel> querySingle();
+    Maybe<TModel> querySingle();
 
     /**
      * Allows you to specify a DB, useful for migrations.
@@ -42,7 +43,7 @@ public interface RXModelQueriable<TModel> extends RXQueriable {
      * @return Single model, the first of potentially many results
      */
     @NonNull
-    Single<TModel> querySingle(DatabaseWrapper wrapper);
+    Maybe<TModel> querySingle(DatabaseWrapper wrapper);
 
     /**
      * @return Queries for {@link #queryResults()}, and returns one at a time from this {@link Observable}
@@ -88,7 +89,7 @@ public interface RXModelQueriable<TModel> extends RXQueriable {
      * @return A single model from the query.
      */
     @NonNull
-    <TQueryModel> Single<TQueryModel> queryCustomSingle(Class<TQueryModel> queryModelClass);
+    <TQueryModel> Maybe<TQueryModel> queryCustomSingle(Class<TQueryModel> queryModelClass);
 
     /**
      * Disables caching on this query for the object retrieved from DB (if caching enabled). If

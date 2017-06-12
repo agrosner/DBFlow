@@ -12,6 +12,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 
 /**
@@ -23,7 +24,7 @@ public interface RXQueriable {
      * @return An {@link Single} from the DB based on this query
      */
     @NonNull
-    Single<Cursor> query();
+    Maybe<Cursor> query();
 
     /**
      * Allows you to pass in a {@link DatabaseWrapper} manually.
@@ -32,7 +33,7 @@ public interface RXQueriable {
      * @return An {@link Single} from the DB based on this query
      */
     @NonNull
-    Single<Cursor> query(DatabaseWrapper databaseWrapper);
+    Maybe<Cursor> query(DatabaseWrapper databaseWrapper);
 
 
     /**

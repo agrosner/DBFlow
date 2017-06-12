@@ -18,9 +18,9 @@ import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableEmitter;
 import io.reactivex.FlowableOnSubscribe;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 
-import static com.raizlabs.android.dbflow.rx2.language.RXSQLite.nullToNse;
 import static io.reactivex.Single.fromCallable;
 
 /**
@@ -103,25 +103,24 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl
 
     @NonNull
     @Override
-    public Single<T> querySingle() {
-        return fromCallable(nullToNse(new Callable<T>() {
-                @Override
-                public T call() throws Exception {
-                    return getInnerModelQueriable().querySingle();
-                }
-            })
-        );
+    public Maybe<T> querySingle() {
+        return Maybe.fromCallable(new Callable<T>() {
+            @Override
+            public T call() throws Exception {
+                return getInnerModelQueriable().querySingle();
+            }
+        });
     }
 
     @NonNull
     @Override
-    public Single<T> querySingle(final DatabaseWrapper wrapper) {
-        return fromCallable(nullToNse(new Callable<T>() {
+    public Maybe<T> querySingle(final DatabaseWrapper wrapper) {
+        return Maybe.fromCallable(new Callable<T>() {
                 @Override
                 public T call() throws Exception {
                     return getInnerModelQueriable().querySingle(wrapper);
                 }
-            })
+            }
         );
     }
 
@@ -167,14 +166,14 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl
 
     @NonNull
     @Override
-    public <TQueryModel> Single<TQueryModel> queryCustomSingle(
+    public <TQueryModel> Maybe<TQueryModel> queryCustomSingle(
         final Class<TQueryModel> tQueryModelClass) {
-        return fromCallable(nullToNse(new Callable<TQueryModel>() {
+        return Maybe.fromCallable(new Callable<TQueryModel>() {
                 @Override
                 public TQueryModel call() throws Exception {
                     return getInnerModelQueriable().queryCustomSingle(tQueryModelClass);
                 }
-            })
+            }
         );
     }
 

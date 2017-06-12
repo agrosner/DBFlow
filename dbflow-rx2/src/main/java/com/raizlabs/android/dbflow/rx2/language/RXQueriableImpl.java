@@ -12,9 +12,9 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 
-import static com.raizlabs.android.dbflow.rx2.language.RXSQLite.nullToNse;
 import static io.reactivex.Single.fromCallable;
 
 /**
@@ -37,25 +37,24 @@ public class RXQueriableImpl implements RXQueriable {
 
     @NonNull
     @Override
-    public Single<Cursor> query() {
-        return fromCallable(nullToNse(new Callable<Cursor>() {
+    public Maybe<Cursor> query() {
+        return Maybe.fromCallable(new Callable<Cursor>() {
                 @Override
                 public Cursor call() throws Exception {
                     return getInnerQueriable().query();
                 }
-            })
-        );
+            });
     }
 
     @NonNull
     @Override
-    public Single<Cursor> query(final DatabaseWrapper databaseWrapper) {
-        return fromCallable(nullToNse(new Callable<Cursor>() {
+    public Maybe<Cursor> query(final DatabaseWrapper databaseWrapper) {
+        return Maybe.fromCallable(new Callable<Cursor>() {
                 @Override
                 public Cursor call() throws Exception {
                     return getInnerQueriable().query(databaseWrapper);
                 }
-            })
+            }
         );
     }
 
