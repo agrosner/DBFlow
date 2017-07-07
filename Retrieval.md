@@ -40,7 +40,7 @@ AnotherTable anotherObject = SQLite.select()
 
 ```
 
-To query custom objects or lists, see how to do so in [QueryModel](QueryModel.md).
+To query custom objects or lists, see how to do so in [QueryModel](QueryModels.md).
 
 Also you can query a `FlowCursorList`/`FlowTableList` from a query easily
 via `queryCursorList()` and the `queryTableList()` methods. To see more on these,
