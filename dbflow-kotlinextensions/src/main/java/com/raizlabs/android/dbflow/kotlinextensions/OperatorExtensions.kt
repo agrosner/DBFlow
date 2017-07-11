@@ -3,9 +3,11 @@ package com.raizlabs.android.dbflow.kotlinextensions
 import com.raizlabs.android.dbflow.annotation.Collate
 import com.raizlabs.android.dbflow.sql.language.NameAlias
 import com.raizlabs.android.dbflow.sql.language.Operator
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup.clause
 import com.raizlabs.android.dbflow.sql.language.SQLOperator
 
+fun SQLOperator.clause() = OperatorGroup.clause(this)
 
 fun <T : Any> NameAlias.op() = Operator.op<T>(this)
 
@@ -29,3 +31,10 @@ infix fun <T : Any> Operator<T>.andAll(sqlOperator: Collection<SQLOperator>) = c
 
 infix fun <T : Any> Operator<T>.orAll(sqlOperator: Collection<SQLOperator>) = clause(this).orAll(sqlOperator)
 
+infix fun OperatorGroup.and(sqlOperator: SQLOperator) = and(sqlOperator)
+
+infix fun OperatorGroup.or(sqlOperator: SQLOperator) = or(sqlOperator)
+
+infix fun OperatorGroup.and(sqlOperator: OperatorGroup) = clause().and(sqlOperator)
+
+infix fun OperatorGroup.or(sqlOperator: OperatorGroup) = clause().or(sqlOperator)

@@ -1,13 +1,13 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
-import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.name
 import com.raizlabs.android.dbflow.assertEquals
 import com.raizlabs.android.dbflow.kotlinextensions.and
 import com.raizlabs.android.dbflow.kotlinextensions.andAll
 import com.raizlabs.android.dbflow.kotlinextensions.or
 import com.raizlabs.android.dbflow.kotlinextensions.orAll
+import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
+import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.name
 import org.junit.Test
 
 class OperatorGroupTest : BaseUnitTest() {
@@ -42,4 +42,5 @@ class OperatorGroupTest : BaseUnitTest() {
     fun validateAndAll() {
         assertEquals("(`name`='name' AND `id`=0 AND `name`='test')", name.eq("name") andAll arrayListOf(id.eq(0), name.eq("test")))
     }
+
 }
