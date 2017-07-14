@@ -1,7 +1,9 @@
 package com.raizlabs.android.dbflow.kotlinextensions
 
+import com.raizlabs.android.dbflow.sql.language.property.Property
 import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory.from
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
+import kotlin.reflect.KClass
 
 /**
  * Description: Provides some very nice Property class extensions.
@@ -35,3 +37,5 @@ val <T : Any> ModelQueriable<T>.property
     get() = from(this)
 
 inline fun <reified T : Any> propertyString(stringRepresentation: String?) = from(T::class.java, stringRepresentation)
+
+inline fun <reified T : Any> KClass<T>.allProperty() = Property.allProperty(this.java)

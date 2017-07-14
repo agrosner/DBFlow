@@ -28,18 +28,15 @@ import static com.raizlabs.android.dbflow.sql.language.Operator.op;
  */
 public class Property<T> implements IProperty<Property<T>>, IConditional, IOperator<T> {
 
-    public static final Property<?> ALL_PROPERTY = new Property<Object>(null, "*") {
-        @Override
-        public String toString() {
-            // don't tick the *
-            return nameAlias.nameRaw();
-        }
-    };
+    public static final Property<String> ALL_PROPERTY = new Property<>(null, NameAlias.rawBuilder("*").build());
 
     public static final Property<?> WILDCARD = new Property<Object>(null, NameAlias.rawBuilder("?").build());
 
-    @Nullable
-    final Class<?> table;
+    public static Property<String> allProperty(Class<?> table) {
+        return new Property<String>(table, NameAlias.rawBuilder("*").build()).withTable();
+    }
+
+    @Nullable final Class<?> table;
 
     protected NameAlias nameAlias;
 
