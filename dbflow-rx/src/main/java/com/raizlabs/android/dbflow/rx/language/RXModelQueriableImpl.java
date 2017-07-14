@@ -21,8 +21,7 @@ import static rx.Single.fromCallable;
 /**
  * Description: Represents {@link BaseModelQueriable} in RX form.
  */
-public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
-        implements RXModelQueriable<T> {
+public class RXModelQueriableImpl<T> extends RXQueriableImpl implements RXModelQueriable<T> {
 
     private final ModelQueriable<T> modelQueriable;
 
@@ -127,7 +126,7 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
     @NonNull
     @Override
     public <TQueryModel> Single<List<TQueryModel>> queryCustomList(
-            final Class<TQueryModel> tQueryModelClass) {
+        final Class<TQueryModel> tQueryModelClass) {
         return fromCallable(new Callable<List<TQueryModel>>() {
             @Override
             public List<TQueryModel> call() throws Exception {
@@ -139,7 +138,7 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
     @NonNull
     @Override
     public <TQueryModel> Single<TQueryModel> queryCustomSingle(
-            final Class<TQueryModel> tQueryModelClass) {
+        final Class<TQueryModel> tQueryModelClass) {
         return fromCallable(new Callable<TQueryModel>() {
             @Override
             public TQueryModel call() throws Exception {
@@ -159,6 +158,6 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
     @Override
     public Observable<ModelQueriable<T>> observeOnTableChanges() {
         return Observable.create(new TableChangeListenerEmitter<>(getInnerModelQueriable()),
-                Emitter.BackpressureMode.LATEST);
+            Emitter.BackpressureMode.LATEST);
     }
 }

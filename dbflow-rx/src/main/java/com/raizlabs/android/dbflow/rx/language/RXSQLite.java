@@ -16,7 +16,7 @@ public class RXSQLite {
     }
 
     @NonNull
-    public static <T> RXQueriableImpl<T> rx(Class<T> table, Queriable queriable) {
-        return new RXQueriableImpl<>(table, queriable);
+    public static RXQueriableImpl rx(Class<?> table, Queriable queriable) {
+        return new RXQueriableImpl(table, queriable);
     }
 }
