@@ -103,9 +103,8 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 val columnDefinition = ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition)
-
                     if (isPackagePrivate) {
-                        columnDefinitions.add(columnDefinition)
+                        packagePrivateList.add(columnDefinition)
                     }
                 }
 
