@@ -54,11 +54,11 @@ dependencies {
     kaptTest project("${dbflow_project_prefix}dbflow-processor")
 
     testCompile 'junit:junit:4.12'
-    testCompile "org.robolectric:robolectric:3.1.4"
-    testCompile("com.nhaarman:mockito-kotlin:1.3.0") {
+    testCompile "org.robolectric:robolectric:3.3.2"
+    testCompile("com.nhaarman:mockito-kotlin:1.5.0") {
         exclude group: "org.jetbrains.kotlin"
     }
-    testCompile 'org.mockito:mockito-core:2.7.17'
+    testCompile 'org.mockito:mockito-core:2.8.9'
 
     androidTestCompile 'junit:junit:4.12'
     androidTestCompile('com.android.support.test:runner:0.5') {

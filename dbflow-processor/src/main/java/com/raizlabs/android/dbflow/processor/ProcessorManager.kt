@@ -3,7 +3,18 @@ package com.raizlabs.android.dbflow.processor
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
 import com.google.common.collect.Sets
-import com.raizlabs.android.dbflow.processor.definition.*
+import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
+import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseHolderDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseObjectHolder
+import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition
+import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition
+import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition
+import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition
+import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition
+import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
 import com.raizlabs.android.dbflow.processor.utils.WriterUtils
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
@@ -209,7 +220,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun logError(error: String?, vararg args: Any?) = logError(callingClass = null, error = error, args = args)
 
-    fun logWarning(error: String, vararg args: Any) {
+    fun logWarning(error: String?, vararg args: Any) {
         messager.printMessage(Diagnostic.Kind.WARNING, String.format("*==========*\n$error\n*==========*", *args))
     }
 

@@ -11,6 +11,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.concurrent.Callable;
 
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 
 import static io.reactivex.Single.fromCallable;
@@ -35,8 +37,8 @@ public class RXQueriableImpl<T> implements RXQueriable {
 
     @NonNull
     @Override
-    public Single<Cursor> query() {
-        return fromCallable(new Callable<Cursor>() {
+    public Maybe<Cursor> query() {
+        return Maybe.fromCallable(new Callable<Cursor>() {
             @Override
             public Cursor call() throws Exception {
                 return getInnerQueriable().query();
@@ -46,8 +48,8 @@ public class RXQueriableImpl<T> implements RXQueriable {
 
     @NonNull
     @Override
-    public Single<Cursor> query(final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Cursor>() {
+    public Maybe<Cursor> query(final DatabaseWrapper databaseWrapper) {
+        return Maybe.fromCallable(new Callable<Cursor>() {
             @Override
             public Cursor call() throws Exception {
                 return getInnerQueriable().query(databaseWrapper);
@@ -167,24 +169,22 @@ public class RXQueriableImpl<T> implements RXQueriable {
 
     @NonNull
     @Override
-    public Single<Void> execute() {
-        return fromCallable(new Callable<Void>() {
+    public Completable execute() {
+        return Completable.fromRunnable(new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 getInnerQueriable().execute();
-                return null;
             }
         });
     }
 
     @NonNull
     @Override
-    public Single<Void> execute(final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Void>() {
+    public Completable execute(final DatabaseWrapper databaseWrapper) {
+        return Completable.fromRunnable(new Runnable() {
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 getInnerQueriable().execute(databaseWrapper);
-                return null;
             }
         });
     }
