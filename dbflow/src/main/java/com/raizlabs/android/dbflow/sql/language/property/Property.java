@@ -28,18 +28,15 @@ import static com.raizlabs.android.dbflow.sql.language.Operator.op;
  */
 public class Property<T> implements IProperty<Property<T>>, IConditional, IOperator<T> {
 
-    public static final Property<?> ALL_PROPERTY = new Property<Object>(null, "*") {
-        @Override
-        public String toString() {
-            // don't tick the *
-            return nameAlias.nameRaw();
-        }
-    };
+    public static final Property<String> ALL_PROPERTY = new Property<>(null, NameAlias.rawBuilder("*").build());
 
     public static final Property<?> WILDCARD = new Property<Object>(null, NameAlias.rawBuilder("?").build());
 
-    @Nullable
-    final Class<?> table;
+    public static Property<String> allProperty(Class<?> table) {
+        return new Property<String>(table, NameAlias.rawBuilder("*").build()).withTable();
+    }
+
+    @Nullable final Class<?> table;
 
     protected NameAlias nameAlias;
 
@@ -399,25 +396,25 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
 
     @NonNull
     @Override
-    public Operator<T> is(T value) {
+    public Operator<T> is(@Nullable T value) {
         return getCondition().is(value);
     }
 
     @NonNull
     @Override
-    public Operator<T> eq(T value) {
+    public Operator<T> eq(@Nullable T value) {
         return getCondition().eq(value);
     }
 
     @NonNull
     @Override
-    public Operator<T> isNot(T value) {
+    public Operator<T> isNot(@Nullable T value) {
         return getCondition().isNot(value);
     }
 
     @NonNull
     @Override
-    public Operator<T> notEq(T value) {
+    public Operator<T> notEq(@Nullable T value) {
         return getCondition().notEq(value);
     }
 
@@ -479,7 +476,7 @@ public class Property<T> implements IProperty<Property<T>>, IConditional, IOpera
 
     @NonNull
     @Override
-    public Operator<T> concatenate(T value) {
+    public Operator<T> concatenate(@Nullable T value) {
         return getCondition().concatenate(value);
     }
 

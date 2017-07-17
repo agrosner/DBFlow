@@ -14,6 +14,7 @@ import java.util.concurrent.Callable;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 
 import static io.reactivex.Single.fromCallable;
@@ -21,8 +22,7 @@ import static io.reactivex.Single.fromCallable;
 /**
  * Description: Represents {@link BaseModelQueriable} in RX form.
  */
-public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
-        implements RXModelQueriable<T> {
+public class RXModelQueriableImpl<T> extends RXQueriableImpl implements RXModelQueriable<T> {
 
     private final ModelQueriable<T> modelQueriable;
 
@@ -76,8 +76,8 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
 
     @NonNull
     @Override
-    public Single<T> querySingle() {
-        return fromCallable(new Callable<T>() {
+    public Maybe<T> querySingle() {
+        return Maybe.fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
                 return getInnerModelQueriable().querySingle();
@@ -87,8 +87,8 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
 
     @NonNull
     @Override
-    public Single<T> querySingle(final DatabaseWrapper wrapper) {
-        return fromCallable(new Callable<T>() {
+    public Maybe<T> querySingle(final DatabaseWrapper wrapper) {
+        return Maybe.fromCallable(new Callable<T>() {
             @Override
             public T call() throws Exception {
                 return getInnerModelQueriable().querySingle(wrapper);
@@ -127,7 +127,7 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
     @NonNull
     @Override
     public <TQueryModel> Single<List<TQueryModel>> queryCustomList(
-            final Class<TQueryModel> tQueryModelClass) {
+        final Class<TQueryModel> tQueryModelClass) {
         return fromCallable(new Callable<List<TQueryModel>>() {
             @Override
             public List<TQueryModel> call() throws Exception {
@@ -138,9 +138,9 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
 
     @NonNull
     @Override
-    public <TQueryModel> Single<TQueryModel> queryCustomSingle(
-            final Class<TQueryModel> tQueryModelClass) {
-        return fromCallable(new Callable<TQueryModel>() {
+    public <TQueryModel> Maybe<TQueryModel> queryCustomSingle(
+        final Class<TQueryModel> tQueryModelClass) {
+        return Maybe.fromCallable(new Callable<TQueryModel>() {
             @Override
             public TQueryModel call() throws Exception {
                 return getInnerModelQueriable().queryCustomSingle(tQueryModelClass);
@@ -159,6 +159,6 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl<T>
     @Override
     public Flowable<ModelQueriable<T>> observeOnTableChanges() {
         return Flowable.create(new TableChangeOnSubscribe<>(getInnerModelQueriable()),
-                BackpressureStrategy.LATEST);
+            BackpressureStrategy.LATEST);
     }
 }
