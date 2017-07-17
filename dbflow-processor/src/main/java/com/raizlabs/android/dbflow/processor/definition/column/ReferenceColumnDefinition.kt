@@ -248,6 +248,10 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Tabl
                 }
                 val referenceDefinition = _referenceDefinitionList[i]
                 builder.add(referenceDefinition.creationStatement)
+
+                if (referenceDefinition.notNull) {
+                    builder.add(" NOT NULL ON CONFLICT \$L", referenceDefinition.onNullConflict)
+                }
             }
             return builder.build()
         }
@@ -397,7 +401,8 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Tabl
                         _referenceDefinitionList.add(
                             ReferenceDefinition(manager, elementName,
                                 foundDefinition.elementName, foundDefinition, this,
-                                primaryColumns.size, reference.columnName))
+                                primaryColumns.size, reference.columnName,
+                                reference.notNull.onNullConflict))
                     }
                 }
                 needsReferences = false
