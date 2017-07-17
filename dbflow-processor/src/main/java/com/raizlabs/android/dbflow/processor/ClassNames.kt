@@ -50,7 +50,7 @@ object ClassNames {
 
     val TYPE_CONVERTER = ClassName.get(CONVERTER, "TypeConverter")
     val TYPE_CONVERTER_GETTER: ClassName = ClassName.get(PROPERTY_PACKAGE,
-            "TypeConvertedProperty.TypeConverterGetter")
+        "TypeConvertedProperty.TypeConverterGetter")
 
     val MIGRATION = ClassName.get(MIGRATION_PACKAGE, "Migration")
 
@@ -92,4 +92,6 @@ object ClassNames {
     val SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleKeyCacheableListModelLoader")
 
     val NON_NULL = ClassName.get("android.support.annotation", "NonNull")
+
+    val GENERATED = ClassName.get("javax.annotation", "Generated")
 }

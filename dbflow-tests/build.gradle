@@ -53,6 +53,8 @@ dependencies {
 
     kaptTest project("${dbflow_project_prefix}dbflow-processor")
 
+    testCompile 'org.glassfish:javax.annotation:10.0-b28'
+
     testCompile 'junit:junit:4.12'
     testCompile "org.robolectric:robolectric:3.3.2"
     testCompile("com.nhaarman:mockito-kotlin:1.5.0") {

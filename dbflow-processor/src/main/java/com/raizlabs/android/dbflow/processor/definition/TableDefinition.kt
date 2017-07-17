@@ -4,6 +4,7 @@ import com.google.common.collect.Lists
 import com.grosner.kpoet.L
 import com.grosner.kpoet.S
 import com.grosner.kpoet.`=`
+import com.grosner.kpoet.`@`
 import com.grosner.kpoet.`public static final field`
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.`throw new`
@@ -44,6 +45,7 @@ import com.raizlabs.android.dbflow.processor.utils.ModelUtils.wrapper
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.ensureVisibleStatic
+import com.raizlabs.android.dbflow.processor.utils.hasJavaX
 import com.raizlabs.android.dbflow.processor.utils.implementsClass
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder

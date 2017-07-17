@@ -13,6 +13,8 @@ dependencies {
     compile 'com.google.auto.service:auto-service:1.0-rc2'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 
+    compileOnly 'org.glassfish:javax.annotation:10.0-b28'
+
     testCompile 'junit:junit:4.12'
 
 }

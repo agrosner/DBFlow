@@ -1,12 +1,17 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`@`
 import com.grosner.kpoet.`public final class`
 import com.grosner.kpoet.extends
 import com.grosner.kpoet.implements
 import com.grosner.kpoet.javadoc
 import com.grosner.kpoet.typeName
+import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.DBFlowProcessor
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
+import com.raizlabs.android.dbflow.processor.utils.hasJavaX
 import com.raizlabs.android.dbflow.processor.utils.toTypeElement
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
@@ -134,6 +139,11 @@ abstract class BaseDefinition : TypeDefinition {
                 manager.logError("Found error for ${elementTypeName} ${outputClassName} ${(this as QueryModelDefinition).databaseTypeName}")
             }
             return `public final class`(outputClassName?.simpleName() ?: "") {
+                if (hasJavaX()) {
+                    addAnnotation(`@`(ClassNames.GENERATED, {
+                        this["value"] = DBFlowProcessor::class.qualifiedName.toString().S
+                    }).build())
+                }
                 extendsClass?.let { extends(it) }
                 implementsClasses.forEach { implements(it) }
                 javadoc("This is generated code. Please do not modify")
