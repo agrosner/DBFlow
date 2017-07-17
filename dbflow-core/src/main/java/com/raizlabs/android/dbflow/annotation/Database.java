@@ -62,6 +62,8 @@ public @interface Database {
     /**
      * @return Marks all generated classes within this database with this character. For example
      * "TestTable" becomes "TestTable$Table" for a "$" separator.
+     * @deprecated Generated class files will become '_' only in next major release.
      */
+    @Deprecated
     String generatedClassSeparator() default "_";
 }
