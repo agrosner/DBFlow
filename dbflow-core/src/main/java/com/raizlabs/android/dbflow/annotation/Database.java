@@ -31,6 +31,11 @@ public @interface Database {
     String name() default "";
 
     /**
+     * @return The name of the FileName DB. Optional as it will default to the class name.
+     */
+    String fileName() default "";
+
+    /**
      * @return Specify the extension of the file name : {fileName}.{extension}. Default is ".db"
      */
     String databaseExtension() default "";
