@@ -71,7 +71,7 @@ class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorM
                         notifyDefinitionList = arrayListOf()
                         methodListMap.put(notifyDefinition.method, notifyDefinitionList)
                     }
-                    notifyDefinitionList!!.add(notifyDefinition)
+                    notifyDefinitionList.add(notifyDefinition)
                 }
             }
         }
