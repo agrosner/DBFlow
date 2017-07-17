@@ -11,13 +11,11 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 class RealContentProvider : ContentProvider() {
 
-    var databaseName = TestDatabase.NAME
-
     lateinit var database: DatabaseWrapper
 
     override fun onCreate(): Boolean {
         FlowManager.init(FlowConfig.Builder(context).build())
-        database = FlowManager.getDatabase(databaseName).writableDatabase
+        database = FlowManager.getDatabase(TestDatabase::class.java).writableDatabase
         return true
     }
 

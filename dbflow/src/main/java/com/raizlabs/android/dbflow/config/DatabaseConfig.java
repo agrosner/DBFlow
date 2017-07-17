@@ -41,6 +41,7 @@ public final class DatabaseConfig {
     private final Map<Class<?>, TableConfig> tableConfigMap;
     private final ModelNotifier modelNotifier;
     private final boolean inMemory;
+    private final String databaseName;
 
     DatabaseConfig(Builder builder) {
         openHelperCreator = builder.openHelperCreator;
@@ -50,10 +51,20 @@ public final class DatabaseConfig {
         tableConfigMap = builder.tableConfigMap;
         modelNotifier = builder.modelNotifier;
         inMemory = builder.inMemory;
+        if (builder.databaseName == null) {
+            databaseName = builder.databaseClass.getSimpleName();
+        } else {
+            databaseName = builder.databaseName;
+        }
     }
 
     public boolean isInMemory() {
         return inMemory;
+    }
+
+    @NonNull
+    public String getDatabaseName() {
+        return databaseName;
     }
 
     @Nullable
@@ -101,6 +112,7 @@ public final class DatabaseConfig {
         final Map<Class<?>, TableConfig> tableConfigMap = new HashMap<>();
         ModelNotifier modelNotifier;
         boolean inMemory = false;
+        String databaseName;
 
         public Builder(@NonNull Class<?> databaseClass) {
             this.databaseClass = databaseClass;
@@ -129,6 +141,15 @@ public final class DatabaseConfig {
         @NonNull
         public Builder inMemory() {
             inMemory = true;
+            return this;
+        }
+
+        /**
+         * @return Pass in dynamic database name here. Otherwise it defaults to class name.
+         */
+        @NonNull
+        public Builder databaseName(String name) {
+            databaseName = name;
             return this;
         }
 

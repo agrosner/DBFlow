@@ -287,7 +287,9 @@ public abstract class DatabaseDefinition {
      * @return The name of this database as defined in {@link Database}
      */
     @NonNull
-    public abstract String getDatabaseName();
+    public String getDatabaseName() {
+        return databaseConfig != null ? databaseConfig.getDatabaseName() : getAssociatedDatabaseClassFile().getSimpleName();
+    }
 
     /**
      * @return The file name that this database points to

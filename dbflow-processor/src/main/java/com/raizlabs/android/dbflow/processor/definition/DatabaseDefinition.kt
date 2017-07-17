@@ -17,7 +17,6 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.TableValidator
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.processor.utils.annotation
-import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -33,7 +32,7 @@ import javax.lang.model.element.Element
  */
 class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefinition(element, manager), TypeDefinition {
 
-    var databaseName: String? = null
+    var databaseClassName: String? = null
 
     var databaseVersion: Int = 0
 
@@ -58,23 +57,15 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
         packageName = ClassNames.FLOW_MANAGER_PACKAGE
 
         element.annotation<Database>()?.let { database ->
-            databaseName = database.name
             databaseExtensionName = database.databaseExtension
-            if (databaseName.isNullOrEmpty()) {
-                databaseName = element.simpleName.toString()
-            }
-            if (!isValidDatabaseName(databaseName)) {
-                throw Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
-                    "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!")
-            }
-
+            databaseClassName = element.simpleName.toString()
             consistencyChecksEnabled = database.consistencyCheckEnabled
             backupEnabled = database.backupEnabled
 
             classSeparator = database.generatedClassSeparator
             fieldRefSeparator = classSeparator
 
-            setOutputClassName(databaseName + classSeparator + "Database")
+            setOutputClassName(databaseClassName + classSeparator + "Database")
 
             databaseVersion = database.version
             foreignKeysSupported = database.foreignKeyConstraintsEnforced
@@ -193,10 +184,6 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             `override fun`(TypeName.INT, "getDatabaseVersion") {
                 modifiers(public, final)
                 `return`(databaseVersion.L)
-            }
-            `override fun`(String::class, "getDatabaseName") {
-                modifiers(public, final)
-                `return`(databaseName.S)
             }
             if (!databaseExtensionName.isNullOrBlank()) {
                 `override fun`(String::class, "getDatabaseExtensionName") {

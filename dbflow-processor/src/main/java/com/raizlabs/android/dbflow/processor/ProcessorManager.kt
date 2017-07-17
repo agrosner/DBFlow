@@ -90,7 +90,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         modelToDatabaseMap.put(modelType, databaseName)
     }
 
-    fun getDatabaseName(databaseTypeName: TypeName?) = getOrPutDatabase(databaseTypeName)?.databaseDefinition?.databaseName ?: ""
+    fun getDatabaseName(databaseTypeName: TypeName?) = getOrPutDatabase(databaseTypeName)?.databaseDefinition?.databaseClassName ?: ""
 
     fun addQueryModelDefinition(queryModelDefinition: QueryModelDefinition) {
         queryModelDefinition.elementClassName?.let {
@@ -106,7 +106,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
             holderDefinition?.tableNameMap?.let {
                 if (holderDefinition.tableNameMap.containsKey(tableDefinition.tableName)) {
                     logError("Found duplicate table ${tableDefinition.tableName} " +
-                        "for database ${holderDefinition.databaseDefinition?.databaseName}")
+                        "for database ${holderDefinition.databaseDefinition?.databaseClassName}")
                 } else tableDefinition.tableName?.let {
                     holderDefinition.tableNameMap.put(it, tableDefinition)
                 }
@@ -201,7 +201,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun addContentProviderDefinition(contentProviderDefinition: ContentProviderDefinition) {
         contentProviderDefinition.elementTypeName?.let {
-            val holderDefinition = getOrPutDatabase(contentProviderDefinition.databaseName)
+            val holderDefinition = getOrPutDatabase(contentProviderDefinition.databaseTypeName)
             holderDefinition?.providerMap?.put(it, contentProviderDefinition)
             providerMap.put(it, contentProviderDefinition)
         }

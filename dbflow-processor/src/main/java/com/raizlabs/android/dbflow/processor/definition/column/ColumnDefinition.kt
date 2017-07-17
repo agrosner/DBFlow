@@ -275,7 +275,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         if (tableDef is TableDefinition) {
             tableName = tableDef.tableName ?: ""
         }
-        return "${baseTableDefinition.databaseDefinition?.databaseName}.$tableName.${QueryBuilder.quote(columnName)}"
+        return "${baseTableDefinition.databaseDefinition?.databaseClassName}.$tableName.${QueryBuilder.quote(columnName)}"
     }
 
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {

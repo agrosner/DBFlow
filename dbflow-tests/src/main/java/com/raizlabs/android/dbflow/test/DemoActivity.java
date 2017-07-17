@@ -5,8 +5,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.raizlabs.android.dbflow.config.DatabaseConfig;
 import com.raizlabs.android.dbflow.config.FlowConfig;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.prepackaged.PrepackagedDB;
 
 
 public class DemoActivity extends Activity {
@@ -16,7 +18,12 @@ public class DemoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_demo);
 
-        FlowManager.init(new FlowConfig.Builder(getApplicationContext()).build());
+        FlowManager.init(new FlowConfig.Builder(getApplicationContext())
+            .addDatabaseConfig(
+                DatabaseConfig.builder(PrepackagedDB.class)
+                    .databaseName("prepackaged")
+                    .build())
+            .build());
     }
 
 

@@ -8,12 +8,10 @@ import com.raizlabs.android.dbflow.sql.migration.UpdateTableMigration
 /**
  * Description:
  */
-@Database(version = TestDatabase.VERSION, name = TestDatabase.NAME)
+@Database(version = TestDatabase.VERSION)
 object TestDatabase {
 
     const val VERSION = 1
-
-    const val NAME = "TestDatabase"
 
     @Migration(version = 1, database = TestDatabase::class)
     class TestMigration : UpdateTableMigration<SimpleModel>(SimpleModel::class.java) {
