@@ -237,7 +237,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
                     add(") REFERENCES ")
                 }.build())
 
-                tableNameBlocks.add(codeBlock { add("\$T.getTableName(\$T.class)", ClassNames.FLOW_MANAGER, fk.referencedTableClassName) })
+                tableNameBlocks.add(codeBlock { add("\$T.getTableName(\$T.class)", ClassNames.FLOW_MANAGER, fk.referencedClassName) })
 
                 referenceKeyBlocks.add(referenceBuilder.apply {
                     add("(")

@@ -244,8 +244,9 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             val isPrimary = element.annotation<PrimaryKey>() != null
             val isInherited = inheritedColumnMap.containsKey(element.simpleName.toString())
             val isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.simpleName.toString())
+            val isColumnMap = element.annotation<ColumnMap>() != null
             if (element.annotation<Column>() != null || isForeign || isPrimary
-                || isAllFields || isInherited || isInheritedPrimaryKey) {
+                || isAllFields || isInherited || isInheritedPrimaryKey || isColumnMap) {
 
                 if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, element)) return
 
@@ -258,7 +259,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     val inherited = inheritedColumnMap[element.simpleName.toString()]
                     columnDefinition = ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
                         inherited?.column, null, inherited?.nonNullConflict ?: ConflictAction.NONE)
-                } else if (isForeign) {
+                } else if (isForeign || isColumnMap) {
                     columnDefinition = ForeignKeyColumnDefinition(manager, this,
                         element, isPackagePrivateNotInSamePackage)
                 } else {

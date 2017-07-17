@@ -120,7 +120,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
             for (columnDefinition in packagePrivateList) {
                 var helperClassName = "${columnDefinition.element.getPackage()}.${columnDefinition.element.enclosingElement.toClassName().simpleName()}${classSeparator}Helper"
                 if (columnDefinition is ForeignKeyColumnDefinition) {
-                    val tableDefinition: TableDefinition? = databaseDefinition?.objectHolder?.tableDefinitionMap?.get(columnDefinition.referencedTableClassName as TypeName)
+                    val tableDefinition: TableDefinition? = databaseDefinition?.objectHolder?.tableDefinitionMap?.get(columnDefinition.referencedClassName as TypeName)
                     if (tableDefinition != null) {
                         helperClassName = "${tableDefinition.element.getPackage()}.${ClassName.get(tableDefinition.element as TypeElement).simpleName()}${classSeparator}Helper"
                     }

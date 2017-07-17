@@ -134,6 +134,14 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         return getOrPutDatabase(databaseName)?.tableDefinitionMap?.get(typeName)
     }
 
+    fun getQueryModelDefinition(databaseName: TypeName?, typeName: TypeName?): QueryModelDefinition? {
+        return getOrPutDatabase(databaseName)?.queryModelDefinitionMap?.get(typeName)
+    }
+
+    fun getReferenceDefinition(databaseName: TypeName?, typeName: TypeName?): BaseTableDefinition? {
+        return getTableDefinition(databaseName, typeName) ?: getQueryModelDefinition(databaseName, typeName)
+    }
+
     fun addModelViewDefinition(modelViewDefinition: ModelViewDefinition) {
         modelViewDefinition.elementClassName?.let {
             getOrPutDatabase(modelViewDefinition.databaseName)?.
