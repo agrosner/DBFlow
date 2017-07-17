@@ -4,10 +4,17 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.raizlabs.android.dbflow.BaseUnitTest
+import com.raizlabs.android.dbflow.kotlinextensions.cursor
+import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.kotlinextensions.get
+import com.raizlabs.android.dbflow.kotlinextensions.save
+import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.models.SimpleModel
-import com.raizlabs.android.dbflow.kotlinextensions.*
 import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**

@@ -1,8 +1,18 @@
 package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.*
-import org.junit.Assert.*
+import com.raizlabs.android.dbflow.kotlinextensions.delete
+import com.raizlabs.android.dbflow.kotlinextensions.exists
+import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.kotlinextensions.list
+import com.raizlabs.android.dbflow.kotlinextensions.result
+import com.raizlabs.android.dbflow.kotlinextensions.save
+import com.raizlabs.android.dbflow.kotlinextensions.select
+import com.raizlabs.android.dbflow.kotlinextensions.writableDatabaseForTable
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class OneToManyModelTest : BaseUnitTest() {
@@ -23,7 +33,6 @@ class OneToManyModelTest : BaseUnitTest() {
 
         // assert loading works as expected.
         oneToManyModel = (select from OneToManyModel::class).result!!
-        val wrapper = writableDatabaseForTable<OneToManyModel>()
         assertNotNull(oneToManyModel.getRelatedOrders())
         assertTrue(!oneToManyModel.getRelatedOrders().isEmpty())
 

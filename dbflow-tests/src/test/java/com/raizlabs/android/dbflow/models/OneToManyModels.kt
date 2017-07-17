@@ -18,19 +18,19 @@ class OneToManyModel(@PrimaryKey var name: String? = null) {
     var models: List<OneToManyBaseModel>? = null
 
     @OneToMany(methods = arrayOf(OneToMany.Method.ALL), isVariablePrivate = true,
-            variableName = "orders", efficientMethods = false)
+        variableName = "orders", efficientMethods = false)
     fun getRelatedOrders(): List<TwoColumnModel> {
         var localOrders = orders
         if (localOrders == null) {
             localOrders = (select from TwoColumnModel::class where id.greaterThan(3))
-                    .queryList()
+                .queryList()
         }
         orders = localOrders
         return localOrders
     }
 
     @OneToMany(methods = arrayOf(OneToMany.Method.DELETE), isVariablePrivate = true,
-            variableName = "models")
+        variableName = "models")
     fun getRelatedModels(): List<OneToManyBaseModel> {
         var localModels = models
         if (localModels == null) {

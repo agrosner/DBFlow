@@ -2,8 +2,8 @@ package com.raizlabs.android.dbflow.config
 
 import com.nhaarman.mockito_kotlin.mock
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.TestDatabase
+import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader
@@ -11,7 +11,9 @@ import com.raizlabs.android.dbflow.sql.saveable.ModelSaver
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener
 import com.raizlabs.android.dbflow.structure.database.OpenHelper
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransactionQueue
-import junit.framework.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 

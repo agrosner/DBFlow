@@ -1,8 +1,8 @@
 package com.raizlabs.android.dbflow.sql.language.property
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.converter.DateConverter
+import com.raizlabs.android.dbflow.models.SimpleModel
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.*
