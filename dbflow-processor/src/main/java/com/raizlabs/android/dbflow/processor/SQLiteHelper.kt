@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.data.Blob
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
-import java.util.*
 
 /**
  * Author: andrewgrosner
@@ -14,6 +13,9 @@ enum class SQLiteHelper {
 
     INTEGER {
         override val sqLiteStatementMethod = "Long"
+
+        override val sqliteStatementWrapperMethod: String
+            get() = "Number"
     },
     REAL {
         override val sqLiteStatementMethod = "Double"
@@ -27,62 +29,65 @@ enum class SQLiteHelper {
 
     abstract val sqLiteStatementMethod: String
 
+    open val sqliteStatementWrapperMethod
+        get() = sqLiteStatementMethod
+
     companion object {
 
-        private val sTypeMap = object : HashMap<TypeName, SQLiteHelper>() {
-            init {
-                put(TypeName.BYTE, SQLiteHelper.INTEGER)
-                put(TypeName.SHORT, SQLiteHelper.INTEGER)
-                put(TypeName.INT, SQLiteHelper.INTEGER)
-                put(TypeName.LONG, SQLiteHelper.INTEGER)
-                put(TypeName.FLOAT, SQLiteHelper.REAL)
-                put(TypeName.DOUBLE, SQLiteHelper.REAL)
-                put(TypeName.BOOLEAN, SQLiteHelper.INTEGER)
-                put(TypeName.CHAR, SQLiteHelper.TEXT)
-                put(ArrayTypeName.of(TypeName.BYTE), SQLiteHelper.BLOB)
-                put(TypeName.BYTE.box(), SQLiteHelper.INTEGER)
-                put(TypeName.SHORT.box(), SQLiteHelper.INTEGER)
-                put(TypeName.INT.box(), SQLiteHelper.INTEGER)
-                put(TypeName.LONG.box(), SQLiteHelper.INTEGER)
-                put(TypeName.FLOAT.box(), SQLiteHelper.REAL)
-                put(TypeName.DOUBLE.box(), SQLiteHelper.REAL)
-                put(TypeName.BOOLEAN.box(), SQLiteHelper.INTEGER)
-                put(TypeName.CHAR.box(), SQLiteHelper.TEXT)
-                put(ClassName.get(String::class.java), SQLiteHelper.TEXT)
-                put(ArrayTypeName.of(TypeName.BYTE.box()), SQLiteHelper.BLOB)
-                put(ArrayTypeName.of(TypeName.BYTE), SQLiteHelper.BLOB)
-                put(ClassName.get(Blob::class.java), SQLiteHelper.BLOB)
-            }
-        }
+        private val sTypeMap = hashMapOf(TypeName.BYTE to SQLiteHelper.INTEGER,
+            TypeName.SHORT to SQLiteHelper.INTEGER,
+            TypeName.INT to SQLiteHelper.INTEGER,
+            TypeName.LONG to SQLiteHelper.INTEGER,
+            TypeName.FLOAT to SQLiteHelper.REAL,
+            TypeName.DOUBLE to SQLiteHelper.REAL,
+            TypeName.BOOLEAN to SQLiteHelper.INTEGER,
+            TypeName.CHAR to SQLiteHelper.TEXT,
+            ArrayTypeName.of(TypeName.BYTE) to SQLiteHelper.BLOB,
+            TypeName.BYTE.box() to SQLiteHelper.INTEGER,
+            TypeName.SHORT.box() to SQLiteHelper.INTEGER,
+            TypeName.INT.box() to SQLiteHelper.INTEGER,
+            TypeName.LONG.box() to SQLiteHelper.INTEGER,
+            TypeName.FLOAT.box() to SQLiteHelper.REAL,
+            TypeName.DOUBLE.box() to SQLiteHelper.REAL,
+            TypeName.BOOLEAN.box() to SQLiteHelper.INTEGER,
+            TypeName.CHAR.box() to SQLiteHelper.TEXT,
+            ClassName.get(String::class.java) to SQLiteHelper.TEXT,
+            ArrayTypeName.of(TypeName.BYTE.box()) to SQLiteHelper.BLOB,
+            ArrayTypeName.of(TypeName.BYTE) to SQLiteHelper.BLOB,
+            ClassName.get(Blob::class.java) to SQLiteHelper.BLOB)
 
-        private val sMethodMap = object : HashMap<TypeName, String>() {
-            init {
-                put(ArrayTypeName.of(TypeName.BYTE), "getBlob")
-                put(ArrayTypeName.of(TypeName.BYTE.box()), "getBlob")
-                put(TypeName.BOOLEAN, "getInt")
-                put(TypeName.BYTE, "getInt")
-                put(TypeName.BYTE.box(), "getInt")
-                put(TypeName.CHAR, "getString")
-                put(TypeName.CHAR.box(), "getString")
-                put(TypeName.DOUBLE, "getDouble")
-                put(TypeName.DOUBLE.box(), "getDouble")
-                put(TypeName.FLOAT, "getFloat")
-                put(TypeName.FLOAT.box(), "getFloat")
-                put(TypeName.INT, "getInt")
-                put(TypeName.INT.box(), "getInt")
-                put(TypeName.LONG, "getLong")
-                put(TypeName.LONG.box(), "getLong")
-                put(TypeName.SHORT, "getShort")
-                put(TypeName.SHORT.box(), "getShort")
-                put(ClassName.get(String::class.java), "getString")
-                put(ClassName.get(Blob::class.java), "getBlob")
-            }
-        }
+        private val sMethodMap = hashMapOf(ArrayTypeName.of(TypeName.BYTE) to "getBlob",
+            ArrayTypeName.of(TypeName.BYTE.box()) to "getBlob",
+            TypeName.BOOLEAN to "getBoolean",
+            TypeName.BYTE to "getInt",
+            TypeName.BYTE.box() to "getInt",
+            TypeName.CHAR to "getString",
+            TypeName.CHAR.box() to "getString",
+            TypeName.DOUBLE to "getDouble",
+            TypeName.DOUBLE.box() to "getDouble",
+            TypeName.FLOAT to "getFloat",
+            TypeName.FLOAT.box() to "getFloat",
+            TypeName.INT to "getInt",
+            TypeName.INT.box() to "getInt",
+            TypeName.LONG to "getLong",
+            TypeName.LONG.box() to "getLong",
+            TypeName.SHORT to "getShort",
+            TypeName.SHORT.box() to "getShort",
+            ClassName.get(String::class.java) to "getString",
+            ClassName.get(Blob::class.java) to "getBlob")
 
         private val sNumberMethodList = hashSetOf(TypeName.BYTE, TypeName.DOUBLE, TypeName.FLOAT,
-                TypeName.LONG, TypeName.SHORT, TypeName.INT)
+            TypeName.LONG, TypeName.SHORT, TypeName.INT)
 
         operator fun get(typeName: TypeName?): SQLiteHelper = sTypeMap[typeName] ?: SQLiteHelper.TEXT
+
+        fun getWrapperMethod(typeName: TypeName?): String {
+            var sqLiteHelper = get(typeName).sqliteStatementWrapperMethod
+            if (typeName == TypeName.FLOAT.box()) {
+                sqLiteHelper = "Float";
+            }
+            return sqLiteHelper;
+        }
 
         fun containsType(typeName: TypeName?): Boolean = sTypeMap.containsKey(typeName)
 

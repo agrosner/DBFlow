@@ -1,12 +1,10 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.processor.ClassNames
-import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
 import com.raizlabs.android.dbflow.processor.DatabaseHandler
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Modifier
 
 /**
  * Description: Top-level writer that handles writing all [DatabaseDefinition]
@@ -14,12 +12,11 @@ import javax.lang.model.element.Modifier
  */
 class DatabaseHolderDefinition(private val processorManager: ProcessorManager) : TypeDefinition {
 
-    private var className = ""
+    var className = ""
 
     init {
 
         val options = this.processorManager.processingEnvironment.options
-
         if (options.containsKey(OPTION_TARGET_MODULE_NAME)) {
             className = options[OPTION_TARGET_MODULE_NAME] ?: ""
         }
@@ -27,31 +24,39 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
         className += ClassNames.DATABASE_HOLDER_STATIC_CLASS_NAME
     }
 
-    override val typeSpec: TypeSpec
-        get() {
-            val typeBuilder = TypeSpec.classBuilder(this.className)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .superclass(ClassNames.DATABASE_HOLDER)
+    override val typeSpec: TypeSpec = `public final class`(this.className) {
+        extends(ClassNames.DATABASE_HOLDER)
 
-            val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC)
+        constructor {
+            modifiers(public)
 
-            processorManager.getTypeConverters().forEach {
-                constructor.addStatement("\$L.put(\$T.class, new \$T())",
-                        DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, it.modelTypeName, it.className)
+            processorManager.getTypeConverters().forEach { tc ->
+                statement("\$L.put(\$T.class, new \$T())",
+                        DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, tc.modelTypeName, tc.className)
+
+                tc.allowedSubTypes?.forEach { subType ->
+                    statement("\$L.put(\$T.class, new \$T())",
+                            DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, subType, tc.className)
+                }
             }
 
-            processorManager.getDatabaseHolderDefinitionMap().forEach { databaseDefinition ->
-                databaseDefinition.databaseDefinition?.let { constructor.addStatement("new \$T(this)", it.outputClassName) }
-            }
-
-            typeBuilder.addMethod(constructor.build())
-
-
-            return typeBuilder.build()
+            processorManager.getDatabaseHolderDefinitionList()
+                    .mapNotNull { it.databaseDefinition?.outputClassName }
+                    .sortedBy { it.simpleName() }
+                    .forEach { statement("new \$T(this)", it) }
+            this
         }
+    }
+
+    /**
+     * If none of the database holder databases exist, don't generate a holder.
+     */
+    fun isGarbage() = processorManager.getDatabaseHolderDefinitionList()
+            .filter { it.databaseDefinition?.outputClassName != null }.isEmpty()
 
     companion object {
 
-        private val OPTION_TARGET_MODULE_NAME = "targetModuleName"
+        @JvmField
+        val OPTION_TARGET_MODULE_NAME = "targetModuleName"
     }
 }

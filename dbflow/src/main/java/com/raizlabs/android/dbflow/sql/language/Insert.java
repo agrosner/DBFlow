@@ -1,21 +1,28 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.content.ContentValues;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.builder.ValueQueryBuilder;
+import com.raizlabs.android.dbflow.sql.Query;
+import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Description: The SQLite INSERT command
  */
-public class Insert<TModel> extends BaseQueriable<TModel> {
+public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
 
 
     /**
@@ -26,7 +33,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
     /**
      * The values to specify in this query
      */
-    private Object[] values;
+    private List<Collection<Object>> valuesList;
 
     /**
      * The conflict algorithm to use to resolve inserts.
@@ -40,7 +47,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @param table The table to insert into
      */
-    public Insert(Class<TModel> table) {
+    public Insert(@NonNull Class<TModel> table) {
         super(table);
     }
 
@@ -50,7 +57,8 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @param columns The columns to use
      */
-    public Insert<TModel> columns(String... columns) {
+    @NonNull
+    public Insert<TModel> columns(@NonNull String... columns) {
         this.columns = new IProperty[columns.length];
         ModelAdapter<TModel> modelClassModelAdapter = FlowManager.getModelAdapter(getTable());
         for (int i = 0; i < columns.length; i++) {
@@ -60,7 +68,8 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
         return this;
     }
 
-    public Insert<TModel> columns(IProperty... properties) {
+    @NonNull
+    public Insert<TModel> columns(@NonNull IProperty... properties) {
         this.columns = new IProperty[properties.length];
         for (int i = 0; i < properties.length; i++) {
             columns[i] = properties[i];
@@ -68,21 +77,33 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
         return this;
     }
 
-    public Insert<TModel> columns(List<IProperty> properties) {
-        if (properties != null) {
-            this.columns = new IProperty[properties.size()];
-            for (int i = 0; i < properties.size(); i++) {
-                columns[i] = properties.get(i);
-            }
-        }
-        return this;
+    @NonNull
+    public Insert<TModel> columns(@NonNull List<IProperty> properties) {
+        return columns(properties.toArray(new IProperty[properties.size()]));
     }
 
     /**
      * @return Appends a list of columns to this INSERT statement from the associated {@link TModel}.
      */
+    @NonNull
     public Insert<TModel> asColumns() {
         columns(FlowManager.getModelAdapter(getTable()).getAllColumnProperties());
+        return this;
+    }
+
+    /**
+     * @return Appends a list of columns to this INSERT and ? as the values.
+     */
+    @NonNull
+    public Insert<TModel> asColumnValues() {
+        asColumns();
+        if (columns != null) {
+            List<Object> values = new ArrayList<>();
+            for (int i = 0; i < columns.length; i++) {
+                values.add("?");
+            }
+            valuesList.add(values);
+        }
         return this;
     }
 
@@ -92,23 +113,43 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @param values The non type-converted values
      */
-    public Insert<TModel> values(Object... values) {
-        this.values = values;
+    @NonNull
+    public Insert<TModel> values(@Nullable Object... values) {
+        if (this.valuesList == null) {
+            this.valuesList = new ArrayList<>();
+        }
+        this.valuesList.add(Arrays.asList(values));
         return this;
     }
 
     /**
-     * Uses the {@link Condition} pairs to fill this insert query.
+     * The required values to specify. It must be non-empty and match the length of the columns when
+     * a set of columns are specified.
+     *
+     * @param values The non type-converted values
+     */
+    @NonNull
+    public Insert<TModel> values(@NonNull Collection<Object> values) {
+        if (this.valuesList == null) {
+            this.valuesList = new ArrayList<>();
+        }
+        this.valuesList.add(values);
+        return this;
+    }
+
+    /**
+     * Uses the {@link Operator} pairs to fill this insert query.
      *
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      */
-    public Insert<TModel> columnValues(SQLCondition... conditions) {
+    @NonNull
+    public Insert<TModel> columnValues(@NonNull SQLOperator... conditions) {
 
         String[] columns = new String[conditions.length];
         Object[] values = new Object[conditions.length];
 
         for (int i = 0; i < conditions.length; i++) {
-            SQLCondition condition = conditions[i];
+            SQLOperator condition = conditions[i];
             columns[i] = condition.columnName();
             values[i] = condition.value();
         }
@@ -117,18 +158,19 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
     }
 
     /**
-     * Uses the {@link Condition} pairs to fill this insert query.
+     * Uses the {@link Operator} pairs to fill this insert query.
      *
-     * @param conditionGroup The ConditionGroup to use
+     * @param operatorGroup The OperatorGroup to use
      */
-    public Insert<TModel> columnValues(ConditionGroup conditionGroup) {
+    @NonNull
+    public Insert<TModel> columnValues(@NonNull OperatorGroup operatorGroup) {
 
-        int size = conditionGroup.size();
+        int size = operatorGroup.size();
         String[] columns = new String[size];
         Object[] values = new Object[size];
 
         for (int i = 0; i < size; i++) {
-            SQLCondition condition = conditionGroup.getConditions().get(i);
+            SQLOperator condition = operatorGroup.getConditions().get(i);
             columns[i] = condition.columnName();
             values[i] = condition.value();
         }
@@ -136,7 +178,8 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
         return columns(columns).values(values);
     }
 
-    public Insert<TModel> columnValues(ContentValues contentValues) {
+    @NonNull
+    public Insert<TModel> columnValues(@NonNull ContentValues contentValues) {
         java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
         int count = 0;
         String[] columns = new String[contentValues.size()];
@@ -156,7 +199,8 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @param selectFrom The from that is continuation of {@link Select}.
      */
-    public Insert<TModel> select(From<?> selectFrom) {
+    @NonNull
+    public Insert<TModel> select(@NonNull From<?> selectFrom) {
         this.selectFrom = selectFrom;
         return this;
     }
@@ -168,7 +212,8 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      * @param action The conflict action to use
      * @return
      */
-    public Insert<TModel> or(ConflictAction action) {
+    @NonNull
+    public Insert<TModel> or(@NonNull ConflictAction action) {
         conflictAction = action;
         return this;
     }
@@ -178,6 +223,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @return
      */
+    @NonNull
     public Insert<TModel> orReplace() {
         return or(ConflictAction.REPLACE);
     }
@@ -187,6 +233,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @return
      */
+    @NonNull
     public Insert<TModel> orRollback() {
         return or(ConflictAction.ROLLBACK);
     }
@@ -197,6 +244,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @return
      */
+    @NonNull
     public Insert<TModel> orAbort() {
         return or(ConflictAction.ABORT);
     }
@@ -207,6 +255,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @return
      */
+    @NonNull
     public Insert<TModel> orFail() {
         return or(ConflictAction.FAIL);
     }
@@ -216,12 +265,13 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
      *
      * @return
      */
+    @NonNull
     public Insert<TModel> orIgnore() {
         return or(ConflictAction.IGNORE);
     }
 
     @Override
-    public long executeUpdateDelete(DatabaseWrapper databaseWrapper) {
+    public long executeUpdateDelete(@NonNull DatabaseWrapper databaseWrapper) {
         throw new IllegalStateException("Cannot call executeUpdateDelete() from an Insert");
     }
 
@@ -232,36 +282,51 @@ public class Insert<TModel> extends BaseQueriable<TModel> {
 
     @Override
     public String getQuery() {
-        ValueQueryBuilder queryBuilder = new ValueQueryBuilder("INSERT ");
+        QueryBuilder queryBuilder = new QueryBuilder("INSERT ");
         if (conflictAction != null && !conflictAction.equals(ConflictAction.NONE)) {
             queryBuilder.append("OR").appendSpaceSeparated(conflictAction);
         }
         queryBuilder.append("INTO")
-                .appendSpace()
-                .appendTableName(getTable());
+            .appendSpace()
+            .append(FlowManager.getTableName(getTable()));
 
         if (columns != null) {
             queryBuilder.append("(")
-                    .appendArray((Object[]) columns)
-                    .append(")");
+                .appendArray((Object[]) columns)
+                .append(")");
         }
 
         // append FROM, which overrides values
         if (selectFrom != null) {
             queryBuilder.appendSpace().append(selectFrom.getQuery());
         } else {
-            if (columns != null && values != null && columns.length != values.length) {
-                throw new IllegalStateException("The Insert of " + FlowManager.getTableName(getTable()) + " when specifying" +
-                        "columns needs to have the same amount of values and columns");
-            } else if (values == null) {
+            if (valuesList == null || valuesList.size() < 1) {
                 throw new IllegalStateException("The insert of " + FlowManager.getTableName(getTable()) + " should have" +
-                        "at least one value specified for the insert");
+                    "at least one value specified for the insert");
+            } else if (columns != null) {
+                for (Collection<Object> values : valuesList) {
+                    if (values.size() != columns.length) {
+                        throw new IllegalStateException("The Insert of " + FlowManager.getTableName(getTable()) + " when specifying" +
+                            "columns needs to have the same amount of values and columns");
+                    }
+                }
             }
 
-            queryBuilder.append(" VALUES(").appendModelArray(values).append(")");
+            queryBuilder.append(" VALUES(");
+            for (int i = 0; i < valuesList.size(); i++) {
+                if (i > 0) {
+                    queryBuilder.append(",(");
+                }
+                queryBuilder.append(BaseOperator.joinArguments(", ", valuesList.get(i))).append(")");
+            }
         }
 
         return queryBuilder.getQuery();
     }
 
+    @NonNull
+    @Override
+    public BaseModel.Action getPrimaryAction() {
+        return BaseModel.Action.INSERT;
+    }
 }

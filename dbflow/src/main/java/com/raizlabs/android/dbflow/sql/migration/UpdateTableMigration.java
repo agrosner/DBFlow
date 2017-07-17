@@ -1,12 +1,13 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
 import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
-import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
-import com.raizlabs.android.dbflow.sql.language.SQLCondition;
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
+import com.raizlabs.android.dbflow.sql.language.SQLOperator;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
@@ -24,19 +25,21 @@ public class UpdateTableMigration<TModel> extends BaseMigration {
     /**
      * Builds the conditions for the WHERE part of our query
      */
-    private ConditionGroup whereConditionGroup;
+    @Nullable
+    private OperatorGroup whereOperatorGroup;
 
     /**
      * The conditions to use to set fields in the update query
      */
-    private ConditionGroup setConditionGroup;
+    @Nullable
+    private OperatorGroup setOperatorGroup;
 
     /**
      * Creates an update migration.
      *
      * @param table The table to update
      */
-    public UpdateTableMigration(Class<TModel> table) {
+    public UpdateTableMigration(@NonNull Class<TModel> table) {
         this.table = table;
     }
 
@@ -46,26 +49,28 @@ public class UpdateTableMigration<TModel> extends BaseMigration {
      *
      * @param conditions The conditions to append
      */
-    public UpdateTableMigration<TModel> set(SQLCondition... conditions) {
-        if (setConditionGroup == null) {
-            setConditionGroup = ConditionGroup.nonGroupingClause();
+    @NonNull
+    public UpdateTableMigration<TModel> set(SQLOperator... conditions) {
+        if (setOperatorGroup == null) {
+            setOperatorGroup = OperatorGroup.nonGroupingClause();
         }
 
-        setConditionGroup.andAll(conditions);
+        setOperatorGroup.andAll(conditions);
         return this;
     }
 
-    public UpdateTableMigration<TModel> where(SQLCondition... conditions) {
-        if (whereConditionGroup == null) {
-            whereConditionGroup = ConditionGroup.nonGroupingClause();
+    @NonNull
+    public UpdateTableMigration<TModel> where(SQLOperator... conditions) {
+        if (whereOperatorGroup == null) {
+            whereOperatorGroup = OperatorGroup.nonGroupingClause();
         }
 
-        whereConditionGroup.andAll(conditions);
+        whereOperatorGroup.andAll(conditions);
         return this;
     }
 
     @Override
-    public final void migrate(DatabaseWrapper database) {
+    public final void migrate(@NonNull DatabaseWrapper database) {
         getUpdateStatement().execute(database);
     }
 
@@ -73,14 +78,15 @@ public class UpdateTableMigration<TModel> extends BaseMigration {
     @Override
     public void onPostMigrate() {
         // make fields eligible for GC
-        setConditionGroup = null;
-        whereConditionGroup = null;
+        setOperatorGroup = null;
+        whereOperatorGroup = null;
     }
 
+    @NonNull
     public BaseQueriable<TModel> getUpdateStatement() {
         return SQLite.update(table)
-                .set(setConditionGroup)
-                .where(whereConditionGroup);
+            .set(setOperatorGroup)
+            .where(whereOperatorGroup);
     }
 
 }

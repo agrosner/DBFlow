@@ -25,9 +25,10 @@ public class ProcessModelTransaction<TModel> implements ITransaction {
         /**
          * Called when processing models
          *
-         * @param model The model to process
+         * @param model   The model to process
+         * @param wrapper
          */
-        void processModel(TModel model);
+        void processModel(TModel model, DatabaseWrapper wrapper);
     }
 
     /**
@@ -65,7 +66,7 @@ public class ProcessModelTransaction<TModel> implements ITransaction {
             final int size = models.size();
             for (int i = 0; i < size; i++) {
                 final TModel model = models.get(i);
-                processModel.processModel(model);
+                processModel.processModel(model, databaseWrapper);
 
                 if (processListener != null) {
                     if (runProcessListenerOnSameThread) {

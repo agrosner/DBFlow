@@ -1,14 +1,30 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.L
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.constructor
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.param
+import com.grosner.kpoet.public
+import com.grosner.kpoet.statement
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.Database
-import com.raizlabs.android.dbflow.processor.*
-import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.squareup.javapoet.*
+import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.ModelViewValidator
+import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.TableValidator
+import com.raizlabs.android.dbflow.processor.utils.`override fun`
+import com.raizlabs.android.dbflow.processor.utils.annotation
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.WildcardTypeName
 import java.util.*
 import java.util.regex.Pattern
 import javax.lang.model.element.Element
-import javax.lang.model.element.Modifier
 
 /**
  * Description: Writes [Database] definitions,
@@ -16,7 +32,7 @@ import javax.lang.model.element.Modifier
  */
 class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefinition(element, manager), TypeDefinition {
 
-    var databaseName: String? = null
+    var databaseClassName: String? = null
 
     var databaseVersion: Int = 0
 
@@ -33,38 +49,29 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
     var classSeparator: String = ""
     var fieldRefSeparator: String = "" // safe field for javapoet
 
-    var isInMemory: Boolean = false
-
     var objectHolder: DatabaseObjectHolder? = null
+
+    var databaseExtensionName = ""
 
     init {
         packageName = ClassNames.FLOW_MANAGER_PACKAGE
 
-        val database = element.getAnnotation(Database::class.java)
-        if (database != null) {
-            databaseName = database.name
-            if (databaseName.isNullOrEmpty()) {
-                databaseName = element.simpleName.toString()
-            }
-            if (!isValidDatabaseName(databaseName)) {
-                throw Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
-                        "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!")
-            }
-
+        element.annotation<Database>()?.let { database ->
+            databaseExtensionName = database.databaseExtension
+            databaseClassName = element.simpleName.toString()
             consistencyChecksEnabled = database.consistencyCheckEnabled
             backupEnabled = database.backupEnabled
 
             classSeparator = database.generatedClassSeparator
             fieldRefSeparator = classSeparator
 
-            setOutputClassName(databaseName + classSeparator + "Database")
+            setOutputClassName(databaseClassName + classSeparator + "Database")
 
             databaseVersion = database.version
-            foreignKeysSupported = database.foreignKeysSupported
+            foreignKeysSupported = database.foreignKeyConstraintsEnforced
 
             insertConflict = database.insertConflict
             updateConflict = database.updateConflict
-            isInMemory = database.inMemory
         }
     }
 
@@ -82,135 +89,109 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     private fun validateDefinitions() {
         elementClassName?.let {
-            // TODO: validate them here before preparing them
             val map = HashMap<TypeName, TableDefinition>()
             val tableValidator = TableValidator()
-            for (tableDefinition in manager.getTableDefinitions(it)) {
-                if (tableValidator.validate(ProcessorManager.manager, tableDefinition)) {
-                    tableDefinition.elementClassName?.let { className -> map.put(className, tableDefinition) }
-                }
-            }
+            manager.getTableDefinitions(it)
+                .filter { tableValidator.validate(ProcessorManager.manager, it) }
+                .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
             manager.setTableDefinitions(map, it)
 
             val modelViewDefinitionMap = HashMap<TypeName, ModelViewDefinition>()
             val modelViewValidator = ModelViewValidator()
-            for (modelViewDefinition in manager.getModelViewDefinitions(it)) {
-                if (modelViewValidator.validate(ProcessorManager.manager, modelViewDefinition)) {
-                    modelViewDefinition.elementClassName?.let { className -> modelViewDefinitionMap.put(className, modelViewDefinition) }
-                }
-            }
+            manager.getModelViewDefinitions(it)
+                .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
+                .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
             manager.setModelViewDefinitions(modelViewDefinitionMap, it)
         }
-
     }
 
     private fun prepareDefinitions() {
         elementClassName?.let {
-            for (tableDefinition in manager.getTableDefinitions(it)) {
-                tableDefinition.prepareForWrite()
-            }
-
-            for (modelViewDefinition in manager.getModelViewDefinitions(it)) {
-                modelViewDefinition.prepareForWrite()
-            }
-
-            for (queryModelDefinition in manager.getQueryModelDefinitions(it)) {
-                queryModelDefinition.prepareForWrite()
-            }
+            manager.getTableDefinitions(it).forEach(TableDefinition::prepareForWrite)
+            manager.getModelViewDefinitions(it).forEach(ModelViewDefinition::prepareForWrite)
+            manager.getQueryModelDefinitions(it).forEach(QueryModelDefinition::prepareForWrite)
         }
     }
 
     private fun writeConstructor(builder: TypeSpec.Builder) {
 
-        val constructor = MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC).addParameter(ClassNames.DATABASE_HOLDER, "holder")
+        builder.constructor(param(ClassNames.DATABASE_HOLDER, "holder")) {
+            modifiers(public)
+            this@DatabaseDefinition.elementClassName?.let { elementClassName ->
+                for (definition in manager.getTableDefinitions(elementClassName)) {
+                    if (definition.hasGlobalTypeConverters) {
+                        statement("addModelAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                    } else {
+                        statement("addModelAdapter(new \$T(this), holder)", definition.outputClassName)
+                    }
+                }
 
-        elementClassName?.let {
+                for (definition in manager.getModelViewDefinitions(elementClassName)) {
+                    if (definition.hasGlobalTypeConverters) {
+                        statement("addModelViewAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                    } else {
+                        statement("addModelViewAdapter(new \$T(this), holder)", definition.outputClassName)
+                    }
+                }
 
-            for (tableDefinition in manager.getTableDefinitions(it)) {
-                constructor.addStatement("holder.putDatabaseForTable(\$T.class, this)", tableDefinition.elementClassName)
-            }
+                for (definition in manager.getQueryModelDefinitions(elementClassName)) {
+                    if (definition.hasGlobalTypeConverters) {
+                        statement("addQueryModelAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                    } else {
+                        statement("addQueryModelAdapter(new \$T(this), holder)", definition.outputClassName)
+                    }
+                }
 
-            for (modelViewDefinition in manager.getModelViewDefinitions(it)) {
-                constructor.addStatement("holder.putDatabaseForTable(\$T.class, this)", modelViewDefinition.elementClassName)
-            }
-
-            for (queryModelDefinition in manager.getQueryModelDefinitions(it)) {
-                constructor.addStatement("holder.putDatabaseForTable(\$T.class, this)", queryModelDefinition.elementClassName)
-            }
-
-            val migrationDefinitionMap = manager.getMigrationsForDatabase(it)
-            if (!migrationDefinitionMap.isEmpty()) {
-                val versionSet = ArrayList<Int>(migrationDefinitionMap.keys)
-                Collections.sort<Int>(versionSet)
-                for (version in versionSet) {
-                    val migrationDefinitions = migrationDefinitionMap[version]
-                    migrationDefinitions?.let {
-                        Collections.sort(migrationDefinitions, { o1, o2 -> Integer.valueOf(o2.priority)!!.compareTo(o1.priority) })
-                        constructor.addStatement("\$T migrations\$L = new \$T()", ParameterizedTypeName.get(ClassName.get(List::class.java), ClassNames.MIGRATION),
-                                version, ParameterizedTypeName.get(ClassName.get(ArrayList::class.java), ClassNames.MIGRATION))
-                        constructor.addStatement("\$L.put(\$L, migrations\$L)", DatabaseHandler.MIGRATION_FIELD_NAME,
-                                version, version)
-                        for (migrationDefinition in migrationDefinitions) {
-                            constructor.addStatement("migrations\$L.add(new \$T\$L)", version, migrationDefinition.elementClassName,
-                                    migrationDefinition.constructorName)
+                val migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName)
+                if (!migrationDefinitionMap.isEmpty()) {
+                    val versionSet = ArrayList<Int>(migrationDefinitionMap.keys)
+                    Collections.sort<Int>(versionSet)
+                    for (version in versionSet) {
+                        val migrationDefinitions = migrationDefinitionMap[version]
+                        migrationDefinitions?.let {
+                            Collections.sort(migrationDefinitions, { o1, o2 -> Integer.valueOf(o2.priority)!!.compareTo(o1.priority) })
+                            for (migrationDefinition in migrationDefinitions) {
+                                statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
+                            }
                         }
                     }
                 }
             }
-
-            for (tableDefinition in manager.getTableDefinitions(it)) {
-                constructor.addStatement("\$L.add(\$T.class)", DatabaseHandler.MODEL_FIELD_NAME, tableDefinition.elementClassName)
-                constructor.addStatement("\$L.put(\$S, \$T.class)", DatabaseHandler.MODEL_NAME_MAP, tableDefinition.tableName, tableDefinition.elementClassName)
-                constructor.addStatement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_ADAPTER_MAP_FIELD_NAME,
-                        tableDefinition.elementClassName, tableDefinition.outputClassName)
-            }
-
-            for (modelViewDefinition in manager.getModelViewDefinitions(it)) {
-                constructor.addStatement("\$L.add(\$T.class)", DatabaseHandler.MODEL_VIEW_FIELD_NAME, modelViewDefinition.elementClassName)
-                constructor.addStatement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.MODEL_VIEW_ADAPTER_MAP_FIELD_NAME,
-                        modelViewDefinition.elementClassName, modelViewDefinition.outputClassName)
-            }
-
-            for (queryModelDefinition in manager.getQueryModelDefinitions(it)) {
-                constructor.addStatement("\$L.put(\$T.class, new \$T(holder, this))", DatabaseHandler.QUERY_MODEL_ADAPTER_MAP_FIELD_NAME,
-                        queryModelDefinition.elementClassName, queryModelDefinition.outputClassName)
-            }
+            this
         }
 
-        builder.addMethod(constructor.build())
     }
 
     private fun writeGetters(typeBuilder: TypeSpec.Builder) {
-
-        typeBuilder.addMethod(MethodSpec.methodBuilder("getAssociatedDatabaseClassFile")
-                .addAnnotation(Override::class.java).addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return \$T.class", elementTypeName)
-                .returns(ParameterizedTypeName.get(ClassName.get(Class::class.java), WildcardTypeName.subtypeOf(Any::class.java))).build())
-
-        typeBuilder.addMethod(MethodSpec.methodBuilder("isForeignKeysSupported")
-                .addAnnotation(Override::class.java).addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return \$L", foreignKeysSupported).returns(TypeName.BOOLEAN).build())
-
-        typeBuilder.addMethod(MethodSpec.methodBuilder("isInMemory").addAnnotation(Override::class.java)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS).addStatement("return \$L", isInMemory)
-                .returns(TypeName.BOOLEAN).build())
-
-        typeBuilder.addMethod(MethodSpec.methodBuilder("backupEnabled").addAnnotation(Override::class.java)
-                .addModifiers(DatabaseHandler.METHOD_MODIFIERS).addStatement("return \$L", backupEnabled)
-                .returns(TypeName.BOOLEAN).build())
-
-        typeBuilder.addMethod(MethodSpec.methodBuilder("areConsistencyChecksEnabled")
-                .addAnnotation(Override::class.java).addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return \$L", consistencyChecksEnabled).returns(TypeName.BOOLEAN).build())
-
-        typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseVersion")
-                .addAnnotation(Override::class.java).addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return \$L", databaseVersion).returns(TypeName.INT).build())
-
-        typeBuilder.addMethod(MethodSpec.methodBuilder("getDatabaseName")
-                .addAnnotation(Override::class.java).addModifiers(DatabaseHandler.METHOD_MODIFIERS)
-                .addStatement("return \$S", databaseName!!).returns(ClassName.get(String::class.java)).build())
+        typeBuilder.apply {
+            `override fun`(ParameterizedTypeName.get(ClassName.get(Class::class.java), WildcardTypeName.subtypeOf(Any::class.java)),
+                "getAssociatedDatabaseClassFile") {
+                modifiers(public, final)
+                `return`("\$T.class", elementTypeName)
+            }
+            `override fun`(TypeName.BOOLEAN, "isForeignKeysSupported") {
+                modifiers(public, final)
+                `return`(foreignKeysSupported.L)
+            }
+            `override fun`(TypeName.BOOLEAN, "backupEnabled") {
+                modifiers(public, final)
+                `return`(backupEnabled.L)
+            }
+            `override fun`(TypeName.BOOLEAN, "areConsistencyChecksEnabled") {
+                modifiers(public, final)
+                `return`(consistencyChecksEnabled.L)
+            }
+            `override fun`(TypeName.INT, "getDatabaseVersion") {
+                modifiers(public, final)
+                `return`(databaseVersion.L)
+            }
+            if (!databaseExtensionName.isNullOrBlank()) {
+                `override fun`(String::class, "getDatabaseExtensionName") {
+                    modifiers(public, final)
+                    `return`(databaseExtensionName.S)
+                }
+            }
+        }
     }
 
     /**

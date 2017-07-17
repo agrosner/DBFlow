@@ -1,13 +1,12 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: Loads model data that is backed by a {@link ModelCache}. Used when {@link Table#cachingEnabled()}
@@ -18,10 +17,11 @@ public class CacheableModelLoader<TModel> extends SingleModelLoader<TModel> {
     private ModelAdapter<TModel> modelAdapter;
     private ModelCache<TModel, ?> modelCache;
 
-    public CacheableModelLoader(Class<TModel> modelClass) {
+    public CacheableModelLoader(@NonNull Class<TModel> modelClass) {
         super(modelClass);
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
     public ModelAdapter<TModel> getModelAdapter() {
         if (modelAdapter == null) {
@@ -37,6 +37,7 @@ public class CacheableModelLoader<TModel> extends SingleModelLoader<TModel> {
         return modelAdapter;
     }
 
+    @NonNull
     public ModelCache<TModel, ?> getModelCache() {
         if (modelCache == null) {
             modelCache = getModelAdapter().getModelCache();
@@ -52,7 +53,7 @@ public class CacheableModelLoader<TModel> extends SingleModelLoader<TModel> {
      */
     @Nullable
     @Override
-    public TModel convertToData(@NonNull Cursor cursor, @Nullable TModel data, boolean moveToFirst) {
+    public TModel convertToData(@NonNull FlowCursor cursor, @Nullable TModel data, boolean moveToFirst) {
         if (!moveToFirst || cursor.moveToFirst()) {
             Object[] values = getModelAdapter().getCachingColumnValuesFromCursor(
                     new Object[getModelAdapter().getCachingColumns().length], cursor);

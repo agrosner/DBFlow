@@ -1,14 +1,16 @@
 package com.raizlabs.android.dbflow.structure;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.annotation.ColumnIgnore;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
-import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 
 /**
  * Description: The base implementation of {@link Model}. It is recommended to use this class as
  * the base for your {@link Model}, but it is not required.
  */
+@SuppressWarnings("unchecked")
 public class BaseModel implements Model {
 
     /**
@@ -45,76 +47,70 @@ public class BaseModel implements Model {
     @ColumnIgnore
     private transient ModelAdapter modelAdapter;
 
-    @SuppressWarnings("unchecked")
     @Override
     public void load() {
         getModelAdapter().load(this);
     }
 
-    @SuppressWarnings("unchecked")
-    public void load(DatabaseWrapper databaseWrapper) {
-        getModelAdapter().load(this, databaseWrapper);
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
-    public void save() {
-        getModelAdapter().save(this);
+    public void load(@NonNull DatabaseWrapper wrapper) {
+        getModelAdapter().load(this, wrapper);
     }
 
-    @SuppressWarnings("unchecked")
-    public void save(DatabaseWrapper databaseWrapper) {
-        getModelAdapter().save(this, databaseWrapper);
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
-    public void delete() {
-        getModelAdapter().delete(this);
+    public boolean save() {
+        return getModelAdapter().save(this);
     }
 
-    @SuppressWarnings("unchecked")
-    public void delete(DatabaseWrapper databaseWrapper) {
-        getModelAdapter().delete(this, databaseWrapper);
-    }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public void update() {
-        getModelAdapter().update(this);
+    public boolean save(@NonNull DatabaseWrapper databaseWrapper) {
+        return getModelAdapter().save(this, databaseWrapper);
     }
 
-    @SuppressWarnings("unchecked")
-    public void update(DatabaseWrapper databaseWrapper) {
-        getModelAdapter().update(this, databaseWrapper);
+    @Override
+    public boolean delete() {
+        return getModelAdapter().delete(this);
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
+    public boolean delete(@NonNull DatabaseWrapper databaseWrapper) {
+        return getModelAdapter().delete(this, databaseWrapper);
+    }
+
+    @Override
+    public boolean update() {
+        return getModelAdapter().update(this);
+    }
+
+    @Override
+    public boolean update(@NonNull DatabaseWrapper databaseWrapper) {
+        return getModelAdapter().update(this, databaseWrapper);
+    }
+
     @Override
     public long insert() {
         return getModelAdapter().insert(this);
     }
 
-    @SuppressWarnings("unchecked")
-    public void insert(DatabaseWrapper databaseWrapper) {
-        getModelAdapter().insert(this, databaseWrapper);
+    @Override
+    public long insert(DatabaseWrapper databaseWrapper) {
+        return getModelAdapter().insert(this, databaseWrapper);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean exists() {
         return getModelAdapter().exists(this);
     }
 
-    @SuppressWarnings("unchecked")
-    public boolean exists(DatabaseWrapper databaseWrapper) {
+    @Override
+    public boolean exists(@NonNull DatabaseWrapper databaseWrapper) {
         return getModelAdapter().exists(this, databaseWrapper);
     }
 
-    /**
-     * @return An async instance of this model where all transactions are on the {@link DefaultTransactionQueue}
-     */
-    public AsyncModel<BaseModel> async() {
+    @NonNull
+    @Override
+    public AsyncModel<? extends Model> async() {
         return new AsyncModel<>(this);
     }
 

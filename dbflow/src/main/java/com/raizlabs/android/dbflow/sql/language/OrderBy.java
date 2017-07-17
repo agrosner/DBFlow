@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.annotation.Collate;
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
@@ -20,15 +22,18 @@ public class OrderBy implements Query {
     private Collate collation;
     private String orderByString;
 
-    public static OrderBy fromProperty(IProperty property) {
+    @NonNull
+    public static OrderBy fromProperty(@NonNull IProperty property) {
         return new OrderBy(property.getNameAlias());
     }
 
-    public static OrderBy fromNameAlias(NameAlias nameAlias) {
+    @NonNull
+    public static OrderBy fromNameAlias(@NonNull NameAlias nameAlias) {
         return new OrderBy(nameAlias);
     }
 
-    public static OrderBy fromString(String orderByString) {
+    @NonNull
+    public static OrderBy fromString(@NonNull String orderByString) {
         return new OrderBy(orderByString);
     }
 
@@ -45,16 +50,19 @@ public class OrderBy implements Query {
         this.orderByString = orderByString;
     }
 
+    @NonNull
     public OrderBy ascending() {
         isAscending = true;
         return this;
     }
 
+    @NonNull
     public OrderBy descending() {
         isAscending = false;
         return this;
     }
 
+    @NonNull
     public OrderBy collate(Collate collate) {
         this.collation = collate;
         return this;
@@ -69,7 +77,7 @@ public class OrderBy implements Query {
             if (collation != null) {
                 query.append("COLLATE").append(" ").append(collation).append(" ");
             }
-            query.append(isAscending ? "ASC" : "DESC");
+            query.append(isAscending ? ASCENDING : DESCENDING);
             return query.toString();
         } else {
             return orderByString;

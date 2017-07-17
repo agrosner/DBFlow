@@ -3,6 +3,8 @@ package com.raizlabs.android.dbflow.structure.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -15,13 +17,17 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
     private DatabaseHelperDelegate databaseHelperDelegate;
     private AndroidDatabase androidDatabase;
 
-    public FlowSQLiteOpenHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
-        super(FlowManager.getContext(), databaseDefinition.isInMemory() ? null : databaseDefinition.getDatabaseFileName(), null, databaseDefinition.getDatabaseVersion());
+
+    public FlowSQLiteOpenHelper(@NonNull DatabaseDefinition databaseDefinition,
+                                @NonNull DatabaseHelperListener listener) {
+        super(FlowManager.getContext(), databaseDefinition.isInMemory() ? null : databaseDefinition.getDatabaseFileName(),
+            null, databaseDefinition.getDatabaseVersion());
 
         OpenHelper backupHelper = null;
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
-            backupHelper = new BackupHelper(FlowManager.getContext(), DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
+            backupHelper = new BackupHelper(FlowManager.getContext(),
+                DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
                 databaseDefinition.getDatabaseVersion(), databaseDefinition);
         }
 
@@ -33,6 +39,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         databaseHelperDelegate.performRestoreFromBackup();
     }
 
+    @Nullable
     @Override
     public DatabaseHelperDelegate getDelegate() {
         return databaseHelperDelegate;
@@ -48,9 +55,10 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         databaseHelperDelegate.backupDB();
     }
 
+    @NonNull
     @Override
     public DatabaseWrapper getDatabase() {
-        if (androidDatabase == null) {
+        if (androidDatabase == null || !androidDatabase.getDatabase().isOpen()) {
             androidDatabase = AndroidDatabase.from(getWritableDatabase());
         }
         return androidDatabase;
@@ -62,23 +70,28 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
      *
      * @param listener
      */
-    public void setDatabaseListener(DatabaseHelperListener listener) {
+    public void setDatabaseListener(@Nullable DatabaseHelperListener listener) {
         databaseHelperDelegate.setDatabaseHelperListener(listener);
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onCreate(@NonNull SQLiteDatabase db) {
         databaseHelperDelegate.onCreate(AndroidDatabase.from(db));
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
         databaseHelperDelegate.onUpgrade(AndroidDatabase.from(db), oldVersion, newVersion);
     }
 
     @Override
-    public void onOpen(SQLiteDatabase db) {
+    public void onOpen(@NonNull SQLiteDatabase db) {
         databaseHelperDelegate.onOpen(AndroidDatabase.from(db));
+    }
+
+    @Override
+    public void onDowngrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
+        databaseHelperDelegate.onDowngrade(AndroidDatabase.from(db), oldVersion, newVersion);
     }
 
     @Override
@@ -100,6 +113,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
             this.baseDatabaseHelper = new BaseDatabaseHelper(databaseDefinition);
         }
 
+        @NonNull
         @Override
         public DatabaseWrapper getDatabase() {
             if (androidDatabase == null) {
@@ -112,6 +126,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         public void performRestoreFromBackup() {
         }
 
+        @Nullable
         @Override
         public DatabaseHelperDelegate getDelegate() {
             return null;
@@ -127,7 +142,7 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         }
 
         @Override
-        public void setDatabaseListener(DatabaseHelperListener helperListener) {
+        public void setDatabaseListener(@Nullable DatabaseHelperListener helperListener) {
         }
 
         @Override
@@ -143,6 +158,11 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
         @Override
         public void onOpen(SQLiteDatabase db) {
             baseDatabaseHelper.onOpen(AndroidDatabase.from(db));
+        }
+
+        @Override
+        public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            baseDatabaseHelper.onDowngrade(AndroidDatabase.from(db), oldVersion, newVersion);
         }
 
         @Override

@@ -1,3 +1,3 @@
-<manifest package="com.raizlabs.dbflow.android.sqlcipher">
+<manifest package="com.raizlabs.android.dbflow.sqlcipher">
     <application/>
 </manifest>

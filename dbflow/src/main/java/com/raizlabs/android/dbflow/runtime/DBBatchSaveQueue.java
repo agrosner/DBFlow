@@ -1,11 +1,14 @@
 package com.raizlabs.android.dbflow.runtime;
 
 import android.os.Looper;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
@@ -50,6 +53,7 @@ public class DBBatchSaveQueue extends Thread {
 
     private Transaction.Error errorListener;
     private Transaction.Success successListener;
+    private Runnable emptyTransactionListener;
 
     private DatabaseDefinition databaseDefinition;
 
@@ -83,21 +87,30 @@ public class DBBatchSaveQueue extends Thread {
 
 
     /**
-     * Listener for errors in each batch {@link Transaction}.
+     * Listener for errors in each batch {@link Transaction}. Called from the DBBatchSaveQueue thread.
      *
      * @param errorListener The listener to use.
      */
-    public void setErrorListener(Transaction.Error errorListener) {
+    public void setErrorListener(@Nullable Transaction.Error errorListener) {
         this.errorListener = errorListener;
     }
 
     /**
-     * Listener for batch updates.
+     * Listener for batch updates. Called from the DBBatchSaveQueue thread.
      *
      * @param successListener The listener to get notified when changes are successful.
      */
-    public void setSuccessListener(Transaction.Success successListener) {
+    public void setSuccessListener(@Nullable Transaction.Success successListener) {
         this.successListener = successListener;
+    }
+
+    /**
+     * Listener for when there is no work done. Called from the DBBatchSaveQueue thread.
+     *
+     * @param emptyTransactionListener The listener to get notified when the save queue thread ran but was empty.
+     */
+    public void setEmptyTransactionListener(@Nullable Runnable emptyTransactionListener) {
+        this.emptyTransactionListener = emptyTransactionListener;
     }
 
     @SuppressWarnings("unchecked")
@@ -121,6 +134,8 @@ public class DBBatchSaveQueue extends Thread {
                         .error(errorCallback)
                         .build()
                         .execute();
+            } else if (emptyTransactionListener != null) {
+                emptyTransactionListener.run();
             }
 
             try {
@@ -146,7 +161,7 @@ public class DBBatchSaveQueue extends Thread {
     /**
      * Adds an object to this queue.
      */
-    public void add(final Object inModel) {
+    public void add(@NonNull final Object inModel) {
         synchronized (models) {
             models.add(inModel);
 
@@ -159,7 +174,7 @@ public class DBBatchSaveQueue extends Thread {
     /**
      * Adds a {@link java.util.Collection} of DB objects to this queue
      */
-    public void addAll(final Collection<Object> list) {
+    public void addAll(@NonNull final Collection<Object> list) {
         synchronized (models) {
             models.addAll(list);
 
@@ -172,7 +187,7 @@ public class DBBatchSaveQueue extends Thread {
     /**
      * Adds a {@link java.util.Collection} of class that extend Object to this queue
      */
-    public void addAll2(final Collection<?> list) {
+    public void addAll2(@NonNull final Collection<?> list) {
         synchronized (models) {
             models.addAll(list);
 
@@ -185,7 +200,7 @@ public class DBBatchSaveQueue extends Thread {
     /**
      * Removes a DB object from this queue before it is processed.
      */
-    public void remove(final Object outModel) {
+    public void remove(@NonNull final Object outModel) {
         synchronized (models) {
             models.remove(outModel);
         }
@@ -195,7 +210,7 @@ public class DBBatchSaveQueue extends Thread {
      * Removes a {@link java.util.Collection} of DB object from this queue
      * before it is processed.
      */
-    public void removeAll(final Collection<Object> outCollection) {
+    public void removeAll(@NonNull final Collection<Object> outCollection) {
         synchronized (models) {
             models.removeAll(outCollection);
         }
@@ -205,7 +220,7 @@ public class DBBatchSaveQueue extends Thread {
      * Removes a {@link java.util.Collection} of DB objects from this queue
      * before it is processed.
      */
-    public void removeAll2(final Collection<?> outCollection) {
+    public void removeAll2(@NonNull final Collection<?> outCollection) {
         synchronized (models) {
             models.removeAll(outCollection);
         }
@@ -220,7 +235,7 @@ public class DBBatchSaveQueue extends Thread {
 
     private final ProcessModelTransaction.ProcessModel modelSaver = new ProcessModelTransaction.ProcessModel() {
         @Override
-        public void processModel(Object model) {
+        public void processModel(Object model, DatabaseWrapper wrapper) {
             if (model instanceof Model) {
                 ((Model) model).save();
             } else if (model != null) {
@@ -233,7 +248,7 @@ public class DBBatchSaveQueue extends Thread {
 
     private final Transaction.Success successCallback = new Transaction.Success() {
         @Override
-        public void onSuccess(Transaction transaction) {
+        public void onSuccess(@NonNull Transaction transaction) {
             if (successListener != null) {
                 successListener.onSuccess(transaction);
             }
@@ -242,7 +257,7 @@ public class DBBatchSaveQueue extends Thread {
 
     private final Transaction.Error errorCallback = new Transaction.Error() {
         @Override
-        public void onError(Transaction transaction, Throwable error) {
+        public void onError(@NonNull Transaction transaction, @NonNull Throwable error) {
             if (errorListener != null) {
                 errorListener.onError(transaction, error);
             }

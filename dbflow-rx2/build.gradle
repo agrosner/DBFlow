@@ -1,0 +1,25 @@
+apply plugin: 'com.android.library'
+
+project.ext.artifactId = bt_name
+
+android {
+    compileSdkVersion Integer.valueOf(dbflow_target_sdk)
+    buildToolsVersion dbflow_build_tools_version
+
+    defaultConfig {
+        minSdkVersion dbflow_min_sdk_rx
+        targetSdkVersion Integer.valueOf(dbflow_target_sdk)
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+dependencies {
+    compile project("${dbflow_project_prefix}dbflow")
+    compile 'io.reactivex.rxjava2:rxjava:2.0.7'
+}
+
+apply from: '../android-artifacts.gradle'

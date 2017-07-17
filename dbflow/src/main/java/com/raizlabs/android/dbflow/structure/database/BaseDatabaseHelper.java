@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure.database;
 
 import android.database.sqlite.SQLiteException;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;
@@ -33,45 +34,48 @@ public class BaseDatabaseHelper {
     public static final String MIGRATION_PATH = "migrations";
     private final DatabaseDefinition databaseDefinition;
 
-    public BaseDatabaseHelper(DatabaseDefinition databaseDefinition) {
+    public BaseDatabaseHelper(@NonNull DatabaseDefinition databaseDefinition) {
         this.databaseDefinition = databaseDefinition;
     }
 
+    @NonNull
     public DatabaseDefinition getDatabaseDefinition() {
         return databaseDefinition;
     }
 
-    public void onCreate(DatabaseWrapper db) {
+    public void onCreate(@NonNull DatabaseWrapper db) {
         checkForeignKeySupport(db);
         executeTableCreations(db);
         executeMigrations(db, -1, db.getVersion());
         executeViewCreations(db);
     }
 
-    public void onUpgrade(DatabaseWrapper db, int oldVersion, int newVersion) {
+    public void onUpgrade(@NonNull DatabaseWrapper db, int oldVersion, int newVersion) {
         checkForeignKeySupport(db);
         executeTableCreations(db);
         executeMigrations(db, oldVersion, newVersion);
         executeViewCreations(db);
     }
 
-    public void onOpen(DatabaseWrapper db) {
+    public void onOpen(@NonNull DatabaseWrapper db) {
+        checkForeignKeySupport(db);
+    }
+
+    public void onDowngrade(@NonNull DatabaseWrapper db, int oldVersion, int newVersion) {
         checkForeignKeySupport(db);
     }
 
     /**
-     * If foreign keys are supported, we turn it on the DB.
-     *
-     * @param database
+     * If foreign keys are supported, we turn it on the DB specified.
      */
-    protected void checkForeignKeySupport(DatabaseWrapper database) {
+    protected void checkForeignKeySupport(@NonNull DatabaseWrapper database) {
         if (databaseDefinition.isForeignKeysSupported()) {
             database.execSQL("PRAGMA foreign_keys=ON;");
             FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.");
         }
     }
 
-    protected void executeTableCreations(final DatabaseWrapper database){
+    protected void executeTableCreations(@NonNull final DatabaseWrapper database){
         try {
             database.beginTransaction();
             List<ModelAdapter> modelAdapters = databaseDefinition.getModelAdapters();
@@ -88,7 +92,10 @@ public class BaseDatabaseHelper {
         }
     }
 
-    protected void executeViewCreations(final DatabaseWrapper database){
+    /**
+     * This method executes CREATE TABLE statements as well as CREATE VIEW on the database passed.
+     */
+    protected void executeViewCreations(@NonNull final DatabaseWrapper database){
 
         try {
             database.beginTransaction();
@@ -111,12 +118,13 @@ public class BaseDatabaseHelper {
         }
     }
 
-    protected void executeMigrations(final DatabaseWrapper db, final int oldVersion, final int newVersion) {
+    protected void executeMigrations(@NonNull final DatabaseWrapper db,
+                                     final int oldVersion, final int newVersion) {
 
         // will try migrations file or execute migrations from code
         try {
             final List<String> files = Arrays.asList(FlowManager.getContext().getAssets().list(
-                    MIGRATION_PATH + "/" + databaseDefinition.getDatabaseName()));
+                MIGRATION_PATH + "/" + databaseDefinition.getDatabaseName()));
             Collections.sort(files, new NaturalOrderComparator());
 
             final Map<Integer, List<String>> migrationFileMap = new HashMap<>();
@@ -151,20 +159,18 @@ public class BaseDatabaseHelper {
                         }
                     }
 
-                    if (migrationMap != null) {
-                        List<Migration> migrationsList = migrationMap.get(i);
-                        if (migrationsList != null) {
-                            for (Migration migration : migrationsList) {
-                                // before migration
-                                migration.onPreMigrate();
+                    List<Migration> migrationsList = migrationMap.get(i);
+                    if (migrationsList != null) {
+                        for (Migration migration : migrationsList) {
+                            // before migration
+                            migration.onPreMigrate();
 
-                                // migrate
-                                migration.migrate(db);
+                            // migrate
+                            migration.migrate(db);
 
-                                // after migration cleanup
-                                migration.onPostMigrate();
-                                FlowLog.log(FlowLog.Level.I, migration.getClass() + " executed successfully.");
-                            }
+                            // after migration cleanup
+                            migration.onPostMigrate();
+                            FlowLog.log(FlowLog.Level.I, migration.getClass() + " executed successfully.");
                         }
                     }
                 }
@@ -184,7 +190,8 @@ public class BaseDatabaseHelper {
      * @param db   The database to run it on
      * @param file the file name in assets/migrations that we read from
      */
-    private void executeSqlScript(DatabaseWrapper db, String file) {
+    private void executeSqlScript(@NonNull DatabaseWrapper db,
+                                  @NonNull String file) {
         try {
             final InputStream input = FlowManager.getContext().getAssets().open(MIGRATION_PATH + "/" + getDatabaseDefinition().getDatabaseName() + "/" + file);
             final BufferedReader reader = new BufferedReader(new InputStreamReader(input));

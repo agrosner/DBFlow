@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.structure.database;
 
+import android.support.annotation.NonNull;
+
 /**
  * Description: Provides callbacks for {@link OpenHelper} methods
  */
@@ -10,14 +12,14 @@ public interface DatabaseHelperListener {
      *
      * @param database The database that is opened
      */
-    void onOpen(DatabaseWrapper database);
+    void onOpen(@NonNull DatabaseWrapper database);
 
     /**
      * Called when the DB is created
      *
      * @param database The database that is created
      */
-    void onCreate(DatabaseWrapper database);
+    void onCreate(@NonNull DatabaseWrapper database);
 
     /**
      * Called when the DB is upgraded.
@@ -26,7 +28,14 @@ public interface DatabaseHelperListener {
      * @param oldVersion The previous DB version
      * @param newVersion The new DB version
      */
-    void onUpgrade(DatabaseWrapper database, int oldVersion, int newVersion);
+    void onUpgrade(@NonNull DatabaseWrapper database, int oldVersion, int newVersion);
 
-
+    /**
+     * Called when DB is downgraded. Note that this may not be supported by all implementations of the DB.
+     *
+     * @param databaseWrapper The database downgraded.
+     * @param oldVersion      The old. higher version.
+     * @param newVersion      The new lower version.
+     */
+    void onDowngrade(@NonNull DatabaseWrapper databaseWrapper, int oldVersion, int newVersion);
 }

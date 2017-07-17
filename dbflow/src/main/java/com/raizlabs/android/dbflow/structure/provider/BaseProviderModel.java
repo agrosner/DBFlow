@@ -2,11 +2,14 @@ package com.raizlabs.android.dbflow.structure.provider;
 
 import android.content.ContentProvider;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: Provides a base implementation of a {@link Model} backed
@@ -14,25 +17,27 @@ import com.raizlabs.android.dbflow.structure.Model;
  * Consider using a {@link BaseSyncableProviderModel} if you wish to
  * keep modifications locally from the {@link ContentProvider}
  */
-public abstract class BaseProviderModel<TProviderModel extends BaseProviderModel>
-        extends BaseModel implements ModelProvider {
+public abstract class BaseProviderModel
+    extends BaseModel implements ModelProvider {
 
     @Override
-    public void delete() {
-        ContentUtils.delete(getDeleteUri(), this);
+    public boolean delete() {
+        return ContentUtils.delete(getDeleteUri(), this) > 0;
     }
 
     @Override
-    public void save() {
+    public boolean save() {
         int count = ContentUtils.update(getUpdateUri(), this);
         if (count == 0) {
-            ContentUtils.insert(getInsertUri(), this);
+            return ContentUtils.insert(getInsertUri(), this) != null;
+        } else {
+            return count > 0;
         }
     }
 
     @Override
-    public void update() {
-        ContentUtils.update(getUpdateUri(), this);
+    public boolean update() {
+        return ContentUtils.update(getUpdateUri(), this) > 0;
     }
 
     @Override
@@ -50,7 +55,7 @@ public abstract class BaseProviderModel<TProviderModel extends BaseProviderModel
     @SuppressWarnings("unchecked")
     public boolean exists() {
         Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(),
-                getQueryUri(), getModelAdapter().getPrimaryConditionClause(this), "");
+            getQueryUri(), getModelAdapter().getPrimaryConditionClause(this), "");
         boolean exists = (cursor != null && cursor.getCount() > 0);
         if (cursor != null) {
             cursor.close();
@@ -60,10 +65,10 @@ public abstract class BaseProviderModel<TProviderModel extends BaseProviderModel
 
     @Override
     @SuppressWarnings("unchecked")
-    public void load(ConditionGroup whereConditions,
-                     String orderBy, String... columns) {
-        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(),
-                getQueryUri(), whereConditions, orderBy, columns);
+    public void load(@NonNull OperatorGroup whereConditions,
+                     @Nullable String orderBy, String... columns) {
+        FlowCursor cursor = FlowCursor.from(ContentUtils.query(FlowManager.getContext().getContentResolver(),
+            getQueryUri(), whereConditions, orderBy, columns));
         if (cursor != null && cursor.moveToFirst()) {
             getModelAdapter().loadFromCursor(cursor, this);
             cursor.close();

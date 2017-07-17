@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.structure;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
@@ -13,11 +14,13 @@ import java.util.Collection;
 /**
  * Description: Used for our internal Adapter classes such as generated {@link ModelAdapter}.
  */
+@SuppressWarnings("NullableProblems")
 public interface InternalAdapter<TModel> {
 
     /**
      * @return The table name of this adapter.
      */
+    @NonNull
     String getTableName();
 
     /**
@@ -25,7 +28,7 @@ public interface InternalAdapter<TModel> {
      *
      * @param model The model to save/insert/update
      */
-    void save(TModel model);
+    boolean save(@NonNull TModel model);
 
     /**
      * Saves the specified model to the DB.
@@ -33,14 +36,14 @@ public interface InternalAdapter<TModel> {
      * @param model           The model to save/insert/update
      * @param databaseWrapper The manually specified wrapper.
      */
-    void save(TModel model, DatabaseWrapper databaseWrapper);
+    boolean save(@NonNull TModel model, @NonNull DatabaseWrapper databaseWrapper);
 
     /**
      * Saves a {@link Collection} of models to the DB.
      *
      * @param models The {@link Collection} of models to save.
      */
-    void saveAll(Collection<TModel> models);
+    void saveAll(@NonNull Collection<TModel> models);
 
     /**
      * Saves a {@link Collection} of models to the DB.
@@ -48,28 +51,29 @@ public interface InternalAdapter<TModel> {
      * @param models          The {@link Collection} of models to save.
      * @param databaseWrapper The manually specified wrapper
      */
-    void saveAll(Collection<TModel> models, DatabaseWrapper databaseWrapper);
+    void saveAll(@NonNull Collection<TModel> models, @NonNull DatabaseWrapper databaseWrapper);
 
     /**
      * Inserts the specified model into the DB.
      *
      * @param model The model to insert.
      */
-    long insert(TModel model);
+    long insert(@NonNull TModel model);
 
     /**
      * Inserts the specified model into the DB.
-     *  @param model           The model to insert.
+     *
+     * @param model           The model to insert.
      * @param databaseWrapper The manually specified wrapper.
      */
-    long insert(TModel model, DatabaseWrapper databaseWrapper);
+    long insert(@NonNull TModel model, @NonNull DatabaseWrapper databaseWrapper);
 
     /**
      * Inserts a {@link Collection} of models into the DB.
      *
      * @param models The {@link Collection} of models to save.
      */
-    void insertAll(Collection<TModel> models);
+    void insertAll(@NonNull Collection<TModel> models);
 
     /**
      * Inserts a {@link Collection} of models into the DB.
@@ -77,14 +81,14 @@ public interface InternalAdapter<TModel> {
      * @param models          The {@link Collection} of models to save.
      * @param databaseWrapper The manually specified wrapper
      */
-    void insertAll(Collection<TModel> models, DatabaseWrapper databaseWrapper);
+    void insertAll(@NonNull Collection<TModel> models, @NonNull DatabaseWrapper databaseWrapper);
 
     /**
      * Updates the specified model into the DB.
      *
      * @param model The model to update.
      */
-    void update(TModel model);
+    boolean update(@NonNull TModel model);
 
     /**
      * Updates the specified model into the DB.
@@ -92,14 +96,14 @@ public interface InternalAdapter<TModel> {
      * @param model           The model to update.
      * @param databaseWrapper The manually specified wrapper.
      */
-    void update(TModel model, DatabaseWrapper databaseWrapper);
+    boolean update(@NonNull TModel model, @NonNull DatabaseWrapper databaseWrapper);
 
     /**
      * Updates a {@link Collection} of models in the DB.
      *
      * @param models The {@link Collection} of models to save.
      */
-    void updateAll(Collection<TModel> models);
+    void updateAll(@NonNull Collection<TModel> models);
 
     /**
      * Updates a {@link Collection} of models in the DB.
@@ -107,14 +111,14 @@ public interface InternalAdapter<TModel> {
      * @param models          The {@link Collection} of models to save.
      * @param databaseWrapper The manually specified wrapper
      */
-    void updateAll(Collection<TModel> models, DatabaseWrapper databaseWrapper);
+    void updateAll(@NonNull Collection<TModel> models, @NonNull DatabaseWrapper databaseWrapper);
 
     /**
      * Deletes the model from the DB
      *
      * @param model The model to delete
      */
-    void delete(TModel model);
+    boolean delete(@NonNull TModel model);
 
     /**
      * Deletes the model from the DB
@@ -122,14 +126,14 @@ public interface InternalAdapter<TModel> {
      * @param model           The model to delete
      * @param databaseWrapper The manually specified wrapper.
      */
-    void delete(TModel model, DatabaseWrapper databaseWrapper);
+    boolean delete(@NonNull TModel model, @NonNull DatabaseWrapper databaseWrapper);
 
     /**
      * Updates a {@link Collection} of models in the DB.
      *
      * @param models The {@link Collection} of models to save.
      */
-    void deleteAll(Collection<TModel> models);
+    void deleteAll(@NonNull Collection<TModel> models);
 
     /**
      * Updates a {@link Collection} of models in the DB.
@@ -137,14 +141,14 @@ public interface InternalAdapter<TModel> {
      * @param models          The {@link Collection} of models to save.
      * @param databaseWrapper The manually specified wrapper
      */
-    void deleteAll(Collection<TModel> models, DatabaseWrapper databaseWrapper);
+    void deleteAll(@NonNull Collection<TModel> models, @NonNull DatabaseWrapper databaseWrapper);
 
     /**
      * Binds a {@link TModel} to the specified db statement
      *
      * @param sqLiteStatement The statement to fill
      */
-    void bindToStatement(DatabaseStatement sqLiteStatement, TModel model);
+    void bindToStatement(@NonNull DatabaseStatement sqLiteStatement, @NonNull TModel model);
 
     /**
      * Provides common logic and a starting value for insert statements. So we can property compile
@@ -154,7 +158,7 @@ public interface InternalAdapter<TModel> {
      * @param model           The model to retrieve data from.
      * @param start           The starting index for this bind.
      */
-    void bindToInsertStatement(DatabaseStatement sqLiteStatement, TModel model,
+    void bindToInsertStatement(@NonNull DatabaseStatement sqLiteStatement, @NonNull TModel model,
                                @IntRange(from = 0, to = 1) int start);
 
     /**
@@ -164,7 +168,7 @@ public interface InternalAdapter<TModel> {
      * @param sqLiteStatement The statement to bind to.
      * @param model           The model to read from.
      */
-    void bindToInsertStatement(DatabaseStatement sqLiteStatement, TModel model);
+    void bindToInsertStatement(@NonNull DatabaseStatement sqLiteStatement, @NonNull TModel model);
 
     /**
      * Binds a {@link TModel} to the specified db statement
@@ -172,7 +176,7 @@ public interface InternalAdapter<TModel> {
      * @param contentValues The content values to fill.
      * @param model         The model values to put on the contentvalues
      */
-    void bindToContentValues(ContentValues contentValues, TModel model);
+    void bindToContentValues(@NonNull ContentValues contentValues, @NonNull TModel model);
 
     /**
      * Binds a {@link TModel} to the specified db statement, leaving out the {@link PrimaryKey#autoincrement()}
@@ -181,22 +185,34 @@ public interface InternalAdapter<TModel> {
      * @param contentValues The content values to fill.
      * @param model         The model values to put on the content values.
      */
-    void bindToInsertValues(ContentValues contentValues, TModel model);
+    void bindToInsertValues(@NonNull ContentValues contentValues, @NonNull TModel model);
 
     /**
-     * If a {@link com.raizlabs.android.dbflow.structure.Model} has an autoincrementing primary key, then
+     * Binds values of the model to an update {@link DatabaseStatement}. It repeats each primary
+     * key binding twice to ensure proper update statements.
+     */
+    void bindToUpdateStatement(@NonNull DatabaseStatement updateStatement, @NonNull TModel model);
+
+    /**
+     * Binds values of the model to a delete {@link DatabaseStatement}.
+     */
+    void bindToDeleteStatement(@NonNull DatabaseStatement deleteStatement, @NonNull TModel model);
+
+    /**
+     * If a model has an autoincrementing primary key, then
      * this method will be overridden.
      *
      * @param model The model object to store the key
      * @param id    The key to store
      */
-    void updateAutoIncrement(TModel model, Number id);
+    void updateAutoIncrement(@NonNull TModel model, @NonNull Number id);
 
     /**
      * @return The value for the {@link PrimaryKey#autoincrement()}
      * if it has the field. This method is overridden when its specified for the {@link TModel}
      */
-    Number getAutoIncrementingId(TModel model);
+    @NonNull
+    Number getAutoIncrementingId(@NonNull TModel model);
 
     /**
      * @return true if the {@link InternalAdapter} can be cached.

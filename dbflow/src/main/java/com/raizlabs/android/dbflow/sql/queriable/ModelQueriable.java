@@ -38,7 +38,7 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @return a list of model converted items
      */
     @NonNull
-    List<TModel> queryList(DatabaseWrapper wrapper);
+    List<TModel> queryList(@NonNull DatabaseWrapper wrapper);
 
     /**
      * @return Single model, the first of potentially many results
@@ -52,28 +52,32 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @return Single model, the first of potentially many results
      */
     @Nullable
-    TModel querySingle(DatabaseWrapper wrapper);
+    TModel querySingle(@NonNull DatabaseWrapper wrapper);
 
     /**
      * @return the table that this query comes from.
      */
+    @NonNull
     Class<TModel> getTable();
 
     /**
      * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
      * cache models dynamically by setting {@link FlowCursorList#setCacheModels(boolean)} to true.
      */
+    @NonNull
     FlowCursorList<TModel> cursorList();
 
     /**
      * @return A cursor-backed {@link List} that handles conversion, retrieval, caching, content changes,
      * and more.
      */
+    @NonNull
     FlowQueryList<TModel> flowQueryList();
 
     /**
      * @return an async version of this query to run.
      */
+    @NonNull
     AsyncQuery<TModel> async();
 
     /**
@@ -83,7 +87,8 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @param <TQueryModel>   The class that extends {@link BaseQueryModel}
      * @return A list of custom models that are not tied to a table.
      */
-    <TQueryModel extends BaseQueryModel> List<TQueryModel> queryCustomList(Class<TQueryModel> queryModelClass);
+    @NonNull
+    <TQueryModel> List<TQueryModel> queryCustomList(@NonNull Class<TQueryModel> queryModelClass);
 
     /**
      * Returns a single {@link TQueryModel} from this query.
@@ -92,6 +97,14 @@ public interface ModelQueriable<TModel> extends Queriable {
      * @param <TQueryModel>   The class that extends {@link BaseQueryModel}
      * @return A single model from the query.
      */
-    <TQueryModel extends BaseQueryModel> TQueryModel queryCustomSingle(Class<TQueryModel> queryModelClass);
+    @Nullable
+    <TQueryModel> TQueryModel queryCustomSingle(@NonNull Class<TQueryModel> queryModelClass);
 
+    /**
+     * Disables caching on this query for the object retrieved from DB (if caching enabled). If
+     * caching is not enabled, this method is ignored. This also disables caching in a {@link FlowCursorList}
+     * or {@link FlowQueryList} if you {@link #flowQueryList()} or {@link #cursorList()}
+     */
+    @NonNull
+    ModelQueriable<TModel> disableCaching();
 }

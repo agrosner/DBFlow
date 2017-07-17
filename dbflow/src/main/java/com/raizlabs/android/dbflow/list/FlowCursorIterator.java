@@ -1,31 +1,44 @@
 package com.raizlabs.android.dbflow.list;
 
 import android.database.Cursor;
-
-import com.raizlabs.android.dbflow.structure.Model;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.ConcurrentModificationException;
 import java.util.ListIterator;
 
 /**
- * Description: Provides iteration capabilitie to a {@link FlowCursorList}.
+ * Description: Provides iteration capabilities to a {@link FlowCursorList}.
  */
-public class FlowCursorIterator<TModel> implements ListIterator<TModel> {
+public class FlowCursorIterator<TModel> implements ListIterator<TModel>, AutoCloseable {
 
     private final IFlowCursorIterator<TModel> cursorList;
-    private int reverseIndex;
-    private int startingCount;
+    private long reverseIndex;
+    private long startingCount;
+    private long count;
 
-    public FlowCursorIterator(IFlowCursorIterator<TModel> cursorList) {
-        this(cursorList, 0);
+    public FlowCursorIterator(@NonNull IFlowCursorIterator<TModel> cursorList) {
+        this(cursorList, 0, cursorList.getCount());
     }
 
-    public FlowCursorIterator(IFlowCursorIterator<TModel> cursorList, int startingLocation) {
+    public FlowCursorIterator(@NonNull IFlowCursorIterator<TModel> cursorList, int startingLocation) {
+        this(cursorList, startingLocation, cursorList.getCount() - startingLocation);
+    }
+
+    public FlowCursorIterator(@NonNull IFlowCursorIterator<TModel> cursorList, int startingLocation,
+                              long count) {
         this.cursorList = cursorList;
+        this.count = count;
         Cursor cursor = cursorList.cursor();
         if (cursor != null) {
+            // request larger than actual count.
+            if (this.count > cursor.getCount() - startingLocation) {
+                this.count = cursor.getCount() - startingLocation;
+            }
+
             cursor.moveToPosition(startingLocation - 1);
-            reverseIndex = startingCount = cursor.getCount();
+            startingCount = cursorList.getCount();
+            reverseIndex = this.count;
             reverseIndex -= startingLocation;
 
             if (reverseIndex < 0) {
@@ -35,7 +48,12 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel> {
     }
 
     @Override
-    public void add(TModel object) {
+    public void close() throws Exception {
+        cursorList.close();
+    }
+
+    @Override
+    public void add(@Nullable TModel object) {
         throw new UnsupportedOperationException("Cursor Iterator: Cannot add a model in the iterator");
     }
 
@@ -48,33 +66,35 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel> {
     @Override
     public boolean hasPrevious() {
         checkSizes();
-        return reverseIndex < cursorList.getCount();
+        return reverseIndex < count;
     }
 
+    @Nullable
     @Override
     public TModel next() {
         checkSizes();
-        TModel item = cursorList.getItem(cursorList.getCount() - reverseIndex);
+        TModel item = cursorList.getItem(count - reverseIndex);
         reverseIndex--;
         return item;
     }
 
     @Override
     public int nextIndex() {
-        return reverseIndex + 1;
+        return (int) (reverseIndex + 1);
     }
 
+    @Nullable
     @Override
     public TModel previous() {
         checkSizes();
-        TModel item = cursorList.getItem(cursorList.getCount() - reverseIndex);
+        TModel item = cursorList.getItem(count - reverseIndex);
         reverseIndex++;
         return item;
     }
 
     @Override
     public int previousIndex() {
-        return reverseIndex;
+        return (int) reverseIndex;
     }
 
     @Override
@@ -83,7 +103,7 @@ public class FlowCursorIterator<TModel> implements ListIterator<TModel> {
     }
 
     @Override
-    public void set(TModel object) {
+    public void set(@Nullable TModel object) {
         throw new UnsupportedOperationException("Cursor Iterator: cannot set on an active Iterator ");
     }
 

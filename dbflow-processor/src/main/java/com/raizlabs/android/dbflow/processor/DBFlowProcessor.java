@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.annotation.TypeConverter;
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint;
+import com.raizlabs.android.dbflow.processor.definition.DatabaseHolderDefinition;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -21,9 +22,6 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 
-/**
- * Author: andrewgrosner
- */
 @AutoService(Processor.class)
 public class DBFlowProcessor extends AbstractProcessor {
 
@@ -51,6 +49,13 @@ public class DBFlowProcessor extends AbstractProcessor {
         supportedTypes.add(ColumnIgnore.class.getCanonicalName());
         supportedTypes.add(QueryModel.class.getCanonicalName());
         return supportedTypes;
+    }
+
+    @Override
+    public Set<String> getSupportedOptions() {
+        Set<String> supportedOptions = new LinkedHashSet<>();
+        supportedOptions.add(DatabaseHolderDefinition.OPTION_TARGET_MODULE_NAME);
+        return supportedOptions;
     }
 
     /**

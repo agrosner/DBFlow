@@ -1,15 +1,24 @@
 package com.raizlabs.android.dbflow.processor.definition
 
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`@`
+import com.grosner.kpoet.`public final class`
+import com.grosner.kpoet.extends
+import com.grosner.kpoet.implements
+import com.grosner.kpoet.javadoc
+import com.grosner.kpoet.typeName
+import com.raizlabs.android.dbflow.processor.ClassNames
+import com.raizlabs.android.dbflow.processor.DBFlowProcessor
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
+import com.raizlabs.android.dbflow.processor.utils.hasJavaX
+import com.raizlabs.android.dbflow.processor.utils.toTypeElement
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import java.util.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
@@ -22,7 +31,7 @@ abstract class BaseDefinition : TypeDefinition {
 
     var elementClassName: ClassName? = null
     var elementTypeName: TypeName? = null
-    lateinit var outputClassName: ClassName
+    var outputClassName: ClassName? = null
     var erasedTypeName: TypeName? = null
 
     var element: Element
@@ -34,19 +43,19 @@ abstract class BaseDefinition : TypeDefinition {
     constructor(element: ExecutableElement, processorManager: ProcessorManager) {
         this.manager = processorManager
         this.element = element
-        packageName = manager.elements.getPackageOf(element).toString()
+        packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString() ?: ""
         elementName = element.simpleName.toString()
 
         try {
             val typeMirror = element.asType()
-            elementTypeName = TypeName.get(typeMirror)
+            elementTypeName = typeMirror.typeName
             elementTypeName?.let {
                 if (!it.isPrimitive) {
                     elementClassName = getElementClassName(element)
                 }
             }
             val erasedType = processorManager.typeUtils.erasure(typeMirror)
-            erasedTypeName = TypeName.get(erasedType)
+            erasedTypeName = erasedType.typeName
         } catch (e: Exception) {
 
         }
@@ -55,21 +64,21 @@ abstract class BaseDefinition : TypeDefinition {
     constructor(element: Element, processorManager: ProcessorManager) {
         this.manager = processorManager
         this.element = element
-        packageName = manager.elements.getPackageOf(element).toString()
+        packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString() ?: ""
         try {
             val typeMirror: TypeMirror
             if (element is ExecutableElement) {
                 typeMirror = element.returnType
-                elementTypeName = TypeName.get(typeMirror)
+                elementTypeName = typeMirror.typeName
             } else {
                 typeMirror = element.asType()
-                elementTypeName = TypeName.get(typeMirror)
+                elementTypeName = typeMirror.typeName
             }
             val erasedType = processorManager.typeUtils.erasure(typeMirror)
             erasedTypeName = TypeName.get(erasedType)
         } catch (i: IllegalArgumentException) {
-            manager.logError("Found illegal type:" + element.asType() + " for " + element.simpleName.toString())
-            manager.logError("Exception here:" + i.toString())
+            manager.logError("Found illegal type: ${element.asType()} for ${element.simpleName}")
+            manager.logError("Exception here: $i")
         }
 
         elementName = element.simpleName.toString()
@@ -79,6 +88,8 @@ abstract class BaseDefinition : TypeDefinition {
 
         if (element is TypeElement) {
             typeElement = element
+        } else {
+            typeElement = element.toTypeElement()
         }
     }
 
@@ -87,14 +98,14 @@ abstract class BaseDefinition : TypeDefinition {
         this.typeElement = element
         this.element = element
         elementClassName = ClassName.get(typeElement)
-        elementTypeName = TypeName.get(element.asType())
+        elementTypeName = element.asType().typeName
         elementName = element.simpleName.toString()
-        packageName = manager.elements.getPackageOf(element).toString()
+        packageName = manager.elements.getPackageOf(element)?.qualifiedName?.toString() ?: ""
     }
 
-    protected open fun getElementClassName(element: Element): ClassName? {
+    protected open fun getElementClassName(element: Element?): ClassName? {
         try {
-            return ElementUtility.getClassName(element.asType().toString(), manager)
+            return ElementUtility.getClassName(element?.asType().toString(), manager)
         } catch (e: Exception) {
             return null
         }
@@ -124,16 +135,21 @@ abstract class BaseDefinition : TypeDefinition {
 
     override val typeSpec: TypeSpec
         get() {
-            val typeBuilder = TypeSpec.classBuilder(outputClassName.simpleName())
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addSuperinterfaces(Arrays.asList(*implementsClasses))
-            val extendsClass = extendsClass
-            if (extendsClass != null) {
-                typeBuilder.superclass(extendsClass)
+            if (outputClassName == null) {
+                manager.logError("Found error for ${elementTypeName} ${outputClassName} ${(this as QueryModelDefinition).databaseTypeName}")
             }
-            typeBuilder.addJavadoc("This is generated code. Please do not modify")
-            onWriteDefinition(typeBuilder)
-            return typeBuilder.build()
+            return `public final class`(outputClassName?.simpleName() ?: "") {
+                if (hasJavaX()) {
+                    addAnnotation(`@`(ClassNames.GENERATED, {
+                        this["value"] = DBFlowProcessor::class.qualifiedName.toString().S
+                    }).build())
+                }
+                extendsClass?.let { extends(it) }
+                implementsClasses.forEach { implements(it) }
+                javadoc("This is generated code. Please do not modify")
+                onWriteDefinition(this)
+                this
+            }
         }
 
     protected open val extendsClass: TypeName?

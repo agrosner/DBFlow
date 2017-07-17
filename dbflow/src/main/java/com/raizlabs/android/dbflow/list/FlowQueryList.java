@@ -8,8 +8,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.list.FlowCursorList.OnCursorRefreshListener;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
@@ -17,15 +19,13 @@ import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.cache.ModelCache;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue;
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -37,17 +37,16 @@ import java.util.ListIterator;
  * on the underlying table.
  */
 public class FlowQueryList<TModel> extends FlowContentObserver
-        implements List<TModel>, Closeable, IFlowCursorIterator<TModel> {
+    implements List<TModel>, IFlowCursorIterator<TModel> {
 
     private static final Handler REFRESH_HANDLER = new Handler(Looper.myLooper());
 
     /**
      * Holds the table cursor
      */
-    private FlowCursorList<TModel> internalCursorList;
-
-    private Transaction.Success successCallback;
-    private Transaction.Error errorCallback;
+    private final FlowCursorList<TModel> internalCursorList;
+    private final Transaction.Success successCallback;
+    private final Transaction.Error errorCallback;
 
     /**
      * If true, we will make all modifications on the {@link DefaultTransactionQueue}, else
@@ -66,12 +65,11 @@ public class FlowQueryList<TModel> extends FlowContentObserver
         successCallback = builder.success;
         errorCallback = builder.error;
         internalCursorList = new FlowCursorList.Builder<>(builder.table)
-                .cursor(builder.cursor)
-                .cacheModels(builder.cacheModels)
-                .cacheSize(builder.cacheSize)
-                .modelQueriable(builder.modelQueriable)
-                .modelCache(builder.modelCache)
-                .build();
+            .cursor(builder.cursor)
+            .cacheModels(builder.cacheModels)
+            .modelQueriable(builder.modelQueriable)
+            .modelCache(builder.modelCache)
+            .build();
     }
 
     /**
@@ -79,22 +77,23 @@ public class FlowQueryList<TModel> extends FlowContentObserver
      * {@link #beginTransaction()} to bunch up calls to model changes and then {@link #endTransactionAndNotify()} to dispatch
      * and refresh this list when completed.
      */
-    public void registerForContentChanges(Context context) {
+    public void registerForContentChanges(@NonNull Context context) {
         super.registerForContentChanges(context, internalCursorList.table());
     }
 
-    public void addOnCursorRefreshListener(FlowCursorList.OnCursorRefreshListener<TModel> onCursorRefreshListener) {
+    public void addOnCursorRefreshListener(@NonNull OnCursorRefreshListener<TModel> onCursorRefreshListener) {
         internalCursorList.addOnCursorRefreshListener(onCursorRefreshListener);
     }
 
-    public void removeOnCursorRefreshListener(FlowCursorList.OnCursorRefreshListener<TModel> onCursorRefreshListener) {
+    public void removeOnCursorRefreshListener(@NonNull OnCursorRefreshListener<TModel> onCursorRefreshListener) {
         internalCursorList.removeOnCursorRefreshListener(onCursorRefreshListener);
     }
 
     @Override
     public void registerForContentChanges(Context context, Class<?> table) {
         throw new RuntimeException(
-                "This method is not to be used in the FlowQueryList. call registerForContentChanges(Context) instead");
+            "This method is not to be used in the FlowQueryList. We should only ever receive" +
+                " notifications for one class here. Call registerForContentChanges(Context) instead");
     }
 
     @Override
@@ -121,18 +120,22 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     /**
      * @return a mutable list that does not reflect changes on the underlying DB.
      */
+    @NonNull
     public List<TModel> getCopy() {
         return internalCursorList.getAll();
     }
 
+    @NonNull
     public FlowCursorList<TModel> cursorList() {
         return internalCursorList;
     }
 
+    @Nullable
     public Transaction.Error error() {
         return errorCallback;
     }
 
+    @Nullable
     public Transaction.Success success() {
         return successCallback;
     }
@@ -145,10 +148,12 @@ public class FlowQueryList<TModel> extends FlowContentObserver
         return transact;
     }
 
+    @NonNull
     ModelAdapter<TModel> getModelAdapter() {
         return internalCursorList.getModelAdapter();
     }
 
+    @NonNull
     InstanceAdapter<TModel> getInstanceAdapter() {
         return internalCursorList.getInstanceAdapter();
     }
@@ -157,12 +162,13 @@ public class FlowQueryList<TModel> extends FlowContentObserver
      * @return Constructs a new {@link Builder} that reuses the underlying {@link Cursor}, cache,
      * callbacks, and other properties.
      */
+    @NonNull
     public Builder<TModel> newBuilder() {
         return new Builder<>(internalCursorList)
-                .success(successCallback)
-                .error(errorCallback)
-                .changeInTransaction(changeInTransaction)
-                .transact(transact);
+            .success(successCallback)
+            .error(errorCallback)
+            .changeInTransaction(changeInTransaction)
+            .transact(transact);
     }
 
     /**
@@ -203,7 +209,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
      * @param model    The model to save
      */
     @Override
-    public void add(int location, TModel model) {
+    public void add(int location, @Nullable TModel model) {
         add(model);
     }
 
@@ -214,19 +220,23 @@ public class FlowQueryList<TModel> extends FlowContentObserver
      * @return always true
      */
     @Override
-    public boolean add(TModel model) {
-        Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.table())
+    public boolean add(@Nullable TModel model) {
+        if (model != null) {
+            Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.table())
                 .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
-                        .add(model).build())
+                    .add(model).build())
                 .error(internalErrorCallback)
                 .success(internalSuccessCallback).build();
 
-        if (transact) {
-            transaction.execute();
+            if (transact) {
+                transaction.execute();
+            } else {
+                transaction.executeSync();
+            }
+            return true;
         } else {
-            transaction.executeSync();
+            return false;
         }
-        return true;
     }
 
     /**
@@ -238,7 +248,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
      * @return always true
      */
     @Override
-    public boolean addAll(int location, Collection<? extends TModel> collection) {
+    public boolean addAll(int location, @NonNull Collection<? extends TModel> collection) {
         return addAll(collection);
     }
 
@@ -250,15 +260,15 @@ public class FlowQueryList<TModel> extends FlowContentObserver
      */
     @SuppressWarnings("unchecked")
     @Override
-    public boolean addAll(Collection<? extends TModel> collection) {
+    public boolean addAll(@NonNull Collection<? extends TModel> collection) {
         // cast to normal collection, we do not want subclasses of this table saved
         final Collection<TModel> tmpCollection = (Collection<TModel>) collection;
 
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.table())
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
-                        .addAll(tmpCollection).build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback).build();
+            .beginTransactionAsync(new ProcessModelTransaction.Builder<>(saveModel)
+                .addAll(tmpCollection).build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback).build();
 
         if (transact) {
             transaction.execute();
@@ -274,11 +284,11 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     @Override
     public void clear() {
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.table())
-                .beginTransactionAsync(new QueryTransaction.Builder<>(
-                        SQLite.delete().from(internalCursorList.table())).build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback)
-                .build();
+            .beginTransactionAsync(new QueryTransaction.Builder<>(
+                SQLite.delete().from(internalCursorList.table())).build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback)
+            .build();
 
         if (transact) {
             transaction.execute();
@@ -295,9 +305,9 @@ public class FlowQueryList<TModel> extends FlowContentObserver
      */
     @SuppressWarnings("unchecked")
     @Override
-    public boolean contains(Object object) {
+    public boolean contains(@Nullable Object object) {
         boolean contains = false;
-        if (internalCursorList.table().isAssignableFrom(object.getClass())) {
+        if (object != null && internalCursorList.table().isAssignableFrom(object.getClass())) {
             TModel model = ((TModel) object);
             contains = internalCursorList.getInstanceAdapter().exists(model);
         }
@@ -326,15 +336,17 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     }
 
     @Override
-    public int getCount() {
+    public long getCount() {
         return internalCursorList.getCount();
     }
 
+    @Nullable
     @Override
     public TModel getItem(long position) {
         return internalCursorList.getItem(position);
     }
 
+    @Nullable
     @Override
     public Cursor cursor() {
         return internalCursorList.cursor();
@@ -348,6 +360,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
      * @return A model converted from the internal {@link FlowCursorList}. For
      * performance improvements, ensure caching is turned on.
      */
+    @Nullable
     @Override
     public TModel get(int row) {
         return internalCursorList.getItem(row);
@@ -356,7 +369,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     @Override
     public int indexOf(Object object) {
         throw new UnsupportedOperationException(
-                "We cannot determine which index in the table this item exists at efficiently");
+            "We cannot determine which index in the table this item exists at efficiently");
     }
 
     @Override
@@ -370,14 +383,20 @@ public class FlowQueryList<TModel> extends FlowContentObserver
      */
     @NonNull
     @Override
-    public Iterator<TModel> iterator() {
+    public FlowCursorIterator<TModel> iterator() {
         return new FlowCursorIterator<>(this);
+    }
+
+    @NonNull
+    @Override
+    public FlowCursorIterator<TModel> iterator(int startingLocation, long limit) {
+        return new FlowCursorIterator<>(this, startingLocation, limit);
     }
 
     @Override
     public int lastIndexOf(Object object) {
         throw new UnsupportedOperationException(
-                "We cannot determine which index in the table this item exists at efficiently");
+            "We cannot determine which index in the table this item exists at efficiently");
     }
 
     /**
@@ -414,10 +433,10 @@ public class FlowQueryList<TModel> extends FlowContentObserver
         TModel model = internalCursorList.getItem(location);
 
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.table())
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
-                        .add(model).build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback).build();
+            .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
+                .add(model).build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback).build();
 
         if (transact) {
             transaction.execute();
@@ -443,10 +462,10 @@ public class FlowQueryList<TModel> extends FlowContentObserver
         if (internalCursorList.table().isAssignableFrom(object.getClass())) {
             TModel model = ((TModel) object);
             Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.table())
-                    .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
-                            .add(model).build())
-                    .error(internalErrorCallback)
-                    .success(internalSuccessCallback).build();
+                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
+                    .add(model).build())
+                .error(internalErrorCallback)
+                .success(internalSuccessCallback).build();
 
             if (transact) {
                 transaction.execute();
@@ -473,10 +492,10 @@ public class FlowQueryList<TModel> extends FlowContentObserver
         // if its a ModelClass
         Collection<TModel> modelCollection = (Collection<TModel>) collection;
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.table())
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
-                        .addAll(modelCollection).build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback).build();
+            .beginTransactionAsync(new ProcessModelTransaction.Builder<>(deleteModel)
+                .addAll(modelCollection).build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback).build();
 
         if (transact) {
             transaction.execute();
@@ -499,10 +518,10 @@ public class FlowQueryList<TModel> extends FlowContentObserver
         List<TModel> tableList = internalCursorList.getAll();
         tableList.removeAll(collection);
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.table())
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(tableList, deleteModel)
-                        .build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback).build();
+            .beginTransactionAsync(new ProcessModelTransaction.Builder<>(tableList, deleteModel)
+                .build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback).build();
 
         if (transact) {
             transaction.execute();
@@ -533,11 +552,11 @@ public class FlowQueryList<TModel> extends FlowContentObserver
      */
     public TModel set(TModel object) {
         Transaction transaction = FlowManager.getDatabaseForTable(internalCursorList.table())
-                .beginTransactionAsync(new ProcessModelTransaction.Builder<>(updateModel)
-                        .add(object)
-                        .build())
-                .error(internalErrorCallback)
-                .success(internalSuccessCallback).build();
+            .beginTransactionAsync(new ProcessModelTransaction.Builder<>(updateModel)
+                .add(object)
+                .build())
+            .error(internalErrorCallback)
+            .success(internalSuccessCallback).build();
 
         if (transact) {
             transaction.execute();
@@ -549,7 +568,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
 
     @Override
     public int size() {
-        return internalCursorList.getCount();
+        return (int) internalCursorList.getCount();
     }
 
     @NonNull
@@ -574,37 +593,37 @@ public class FlowQueryList<TModel> extends FlowContentObserver
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         internalCursorList.close();
     }
 
     private final ProcessModelTransaction.ProcessModel<TModel> saveModel =
-            new ProcessModelTransaction.ProcessModel<TModel>() {
-                @Override
-                public void processModel(TModel model) {
-                    getModelAdapter().save(model);
-                }
-            };
+        new ProcessModelTransaction.ProcessModel<TModel>() {
+            @Override
+            public void processModel(TModel model, DatabaseWrapper wrapper) {
+                getModelAdapter().save(model);
+            }
+        };
 
     private final ProcessModelTransaction.ProcessModel<TModel> updateModel =
-            new ProcessModelTransaction.ProcessModel<TModel>() {
-                @Override
-                public void processModel(TModel model) {
-                    getModelAdapter().update(model);
-                }
-            };
+        new ProcessModelTransaction.ProcessModel<TModel>() {
+            @Override
+            public void processModel(TModel model, DatabaseWrapper wrapper) {
+                getModelAdapter().update(model);
+            }
+        };
 
     private final ProcessModelTransaction.ProcessModel<TModel> deleteModel =
-            new ProcessModelTransaction.ProcessModel<TModel>() {
-                @Override
-                public void processModel(TModel model) {
-                    getModelAdapter().delete(model);
-                }
-            };
+        new ProcessModelTransaction.ProcessModel<TModel>() {
+            @Override
+            public void processModel(TModel model, DatabaseWrapper wrapper) {
+                getModelAdapter().delete(model);
+            }
+        };
 
     private final Transaction.Error internalErrorCallback = new Transaction.Error() {
         @Override
-        public void onError(Transaction transaction, Throwable error) {
+        public void onError(@NonNull Transaction transaction, @NonNull Throwable error) {
 
             if (errorCallback != null) {
                 errorCallback.onError(transaction, error);
@@ -614,7 +633,7 @@ public class FlowQueryList<TModel> extends FlowContentObserver
 
     private final Transaction.Success internalSuccessCallback = new Transaction.Success() {
         @Override
-        public void onSuccess(Transaction transaction) {
+        public void onSuccess(@NonNull Transaction transaction) {
             if (!isInTransaction) {
                 refreshAsync();
             } else {
@@ -645,7 +664,6 @@ public class FlowQueryList<TModel> extends FlowContentObserver
         private boolean changeInTransaction;
         private Cursor cursor;
         private boolean cacheModels = true;
-        private int cacheSize;
         private ModelQueriable<TModel> modelQueriable;
         private ModelCache<TModel, ?> modelCache;
 
@@ -656,7 +674,6 @@ public class FlowQueryList<TModel> extends FlowContentObserver
             table = cursorList.table();
             cursor = cursorList.cursor();
             cacheModels = cursorList.cachingEnabled();
-            cacheSize = cursorList.cacheSize();
             modelQueriable = cursorList.modelQueriable();
             modelCache = cursorList.modelCache();
         }
@@ -700,11 +717,6 @@ public class FlowQueryList<TModel> extends FlowContentObserver
 
         public Builder<TModel> cacheModels(boolean cacheModels) {
             this.cacheModels = cacheModels;
-            return this;
-        }
-
-        public Builder<TModel> cacheSize(int cacheSize) {
-            this.cacheSize = cacheSize;
             return this;
         }
 

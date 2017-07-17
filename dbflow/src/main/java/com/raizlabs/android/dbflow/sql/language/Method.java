@@ -21,6 +21,7 @@ public class Method extends Property {
      * @return The average value of all properties within this group. The result is always a float from this statement
      * as long as there is at least one non-NULL input. The result may be NULL if there are no non-NULL columns.
      */
+    @NonNull
     public static Method avg(IProperty... properties) {
         return new Method("AVG", properties);
     }
@@ -30,6 +31,7 @@ public class Method extends Property {
      * @return A count of the number of times that specified properties are not NULL in a group. Leaving
      * the properties empty returns COUNT(*), which is the total number of rows in the query.
      */
+    @NonNull
     public static Method count(IProperty... properties) {
         return new Method("COUNT", properties);
     }
@@ -38,6 +40,7 @@ public class Method extends Property {
      * @param properties Set of properties that the method acts on.
      * @return A string which is the concatenation of all non-NULL values of the properties.
      */
+    @NonNull
     public static Method group_concat(IProperty... properties) {
         return new Method("GROUP_CONCAT", properties);
     }
@@ -46,6 +49,7 @@ public class Method extends Property {
      * @param properties Set of properties that the method acts on.
      * @return The method that represents the max of the specified columns/properties.
      */
+    @NonNull
     public static Method max(IProperty... properties) {
         return new Method("MAX", properties);
     }
@@ -54,6 +58,7 @@ public class Method extends Property {
      * @param properties Set of properties that the method acts on.
      * @return The method that represents the min of the specified columns/properties.
      */
+    @NonNull
     public static Method min(IProperty... properties) {
         return new Method("MIN", properties);
     }
@@ -62,6 +67,7 @@ public class Method extends Property {
      * @param properties Set of properties that the method acts on.
      * @return The method that represents the sum of the specified columns/properties.
      */
+    @NonNull
     public static Method sum(IProperty... properties) {
         return new Method("SUM", properties);
     }
@@ -70,6 +76,7 @@ public class Method extends Property {
      * @param properties Set of properties that the method acts on.
      * @return The method that represents the total of the specified columns/properties.
      */
+    @NonNull
     public static Method total(IProperty... properties) {
         return new Method("TOTAL", properties);
     }
@@ -78,12 +85,71 @@ public class Method extends Property {
      * @param property The property to cast.
      * @return A new CAST object. To complete use the {@link Cast#as(SQLiteType)} method.
      */
+    @NonNull
     public static Cast cast(@NonNull IProperty property) {
         return new Cast(property);
     }
 
-    public static Method replace(IProperty property, String findString, String replacement) {
+    @NonNull
+    public static Method replace(@NonNull IProperty property, String findString, String replacement) {
         return new Method("REPLACE", property, PropertyFactory.from(findString), PropertyFactory.from(replacement));
+    }
+
+    /**
+     * SQLite standard "strftime()" method. See SQLite documentation on this method.
+     */
+    public static Method strftime(@NonNull String formatString,
+                                  @NonNull String timeString, String... modifiers) {
+        List<IProperty> propertyList = new ArrayList<>();
+        propertyList.add(PropertyFactory.from(formatString));
+        propertyList.add(PropertyFactory.from(timeString));
+        for (String modifier : modifiers) {
+            propertyList.add(PropertyFactory.from(modifier));
+        }
+        return new Method("strftime", propertyList.toArray(new IProperty[propertyList.size()]));
+    }
+
+    /**
+     * Sqlite "datetime" method. See SQLite documentation on this method.
+     */
+    public static Method datetime(long timeStamp, String... modifiers) {
+        List<IProperty> propertyList = new ArrayList<>();
+        propertyList.add(PropertyFactory.from(timeStamp));
+        for (String modifier : modifiers) {
+            propertyList.add(PropertyFactory.from(modifier));
+        }
+        return new Method("datetime", propertyList.toArray(new IProperty[propertyList.size()]));
+    }
+
+    /**
+     * Sqlite "date" method. See SQLite documentation on this method.
+     */
+    public static Method date(@NonNull String timeString,
+                              String... modifiers) {
+        List<IProperty> propertyList = new ArrayList<>();
+        propertyList.add(PropertyFactory.from(timeString));
+        for (String modifier : modifiers) {
+            propertyList.add(PropertyFactory.from(modifier));
+        }
+        return new Method("date", propertyList.toArray(new IProperty[propertyList.size()]));
+    }
+
+    /**
+     * @return Constructs using the "IFNULL" method in SQLite. It will pick the first non null
+     * value and set that. If both are NULL then it will use NULL.
+     */
+    public static Method ifNull(@NonNull IProperty first,
+                                @NonNull IProperty secondIfFirstNull) {
+        return new Method("IFNULL", first, secondIfFirstNull);
+    }
+
+    /**
+     * @return Constructs using the "NULLIF" method in SQLite. If both expressions are equal, then
+     * NULL is set into the DB.
+     */
+    public static Method nullIf(@NonNull IProperty first,
+                                @NonNull IProperty second) {
+        return new Method("NULLIF", first, second);
     }
 
     private final List<IProperty> propertyList = new ArrayList<>();
@@ -94,10 +160,11 @@ public class Method extends Property {
         this(null, properties);
     }
 
+    @SuppressWarnings("unchecked")
     public Method(String methodName, IProperty... properties) {
         super(null, (String) null);
 
-        methodProperty = new Property(null, NameAlias.rawBuilder(methodName).build());
+        methodProperty = new Property<>(null, NameAlias.rawBuilder(methodName).build());
 
         if (properties.length == 0) {
             propertyList.add(Property.ALL_PROPERTY);
@@ -108,14 +175,33 @@ public class Method extends Property {
         }
     }
 
+    @NonNull
     @Override
-    public Method plus(IProperty property) {
-        return append(property, Condition.Operation.PLUS);
+    public Method plus(@NonNull IProperty property) {
+        return append(property, " " + Operator.Operation.PLUS);
+    }
+
+    @NonNull
+    @Override
+    public Method minus(@NonNull IProperty property) {
+        return append(property, " " + Operator.Operation.MINUS);
+    }
+
+    @NonNull
+    @Override
+    public Property div(@NonNull IProperty property) {
+        return append(property, " " + Operator.Operation.DIVISION);
     }
 
     @Override
-    public Method minus(IProperty property) {
-        return append(property, Condition.Operation.MINUS);
+    public Property times(@NonNull IProperty property) {
+        return append(property, " " + Operator.Operation.MULTIPLY);
+    }
+
+    @NonNull
+    @Override
+    public Property rem(@NonNull IProperty property) {
+        return append(property, " " + Operator.Operation.MOD);
     }
 
     /**
@@ -125,9 +211,6 @@ public class Method extends Property {
      * @param property The property to add.
      */
     public Method addProperty(@NonNull IProperty property) {
-        if (propertyList.size() == 1 && propertyList.get(0) == Property.ALL_PROPERTY) {
-            propertyList.remove(0);
-        }
         return append(property, ",");
     }
 
@@ -136,6 +219,10 @@ public class Method extends Property {
      * the property specified.
      */
     public Method append(IProperty property, String operation) {
+        // remove all property since its not needed when we specify a property.
+        if (propertyList.size() == 1 && propertyList.get(0) == Property.ALL_PROPERTY) {
+            propertyList.remove(0);
+        }
         propertyList.add(property);
         operationsList.add(operation);
         return this;
@@ -146,6 +233,7 @@ public class Method extends Property {
         return propertyList;
     }
 
+    @NonNull
     @Override
     public NameAlias getNameAlias() {
         if (nameAlias == null) {
@@ -158,14 +246,14 @@ public class Method extends Property {
             for (int i = 0; i < propertyList.size(); i++) {
                 IProperty property = propertyList.get(i);
                 if (i > 0) {
-                    query += " " + operationsList.get(i) + " ";
+                    query += operationsList.get(i) + " ";
                 }
                 query += property.toString();
 
             }
             query += ")";
             nameAlias = NameAlias.rawBuilder(query)
-                    .build();
+                .build();
         }
         return nameAlias;
     }
@@ -188,11 +276,11 @@ public class Method extends Property {
         public IProperty as(SQLiteType sqLiteType) {
             //noinspection unchecked
             IProperty newProperty = new Property(property.getTable(),
-                    property.getNameAlias()
-                            .newBuilder()
-                            .shouldAddIdentifierToAliasName(false)
-                            .as(sqLiteType.name())
-                            .build());
+                property.getNameAlias()
+                    .newBuilder()
+                    .shouldAddIdentifierToAliasName(false)
+                    .as(sqLiteType.name())
+                    .build());
             return new Method("CAST", newProperty);
         }
     }

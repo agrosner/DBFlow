@@ -1,9 +1,10 @@
 package com.raizlabs.android.dbflow.structure.cache;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.SparseArray;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
-import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: A cache backed by a {@link android.util.SparseArray}
@@ -31,12 +32,12 @@ public class SparseArrayBasedCache<TModel> extends ModelCache<TModel, SparseArra
      *
      * @param sparseArray The sparse array to use.
      */
-    public SparseArrayBasedCache(SparseArray<TModel> sparseArray) {
+    public SparseArrayBasedCache(@NonNull SparseArray<TModel> sparseArray) {
         super(sparseArray);
     }
 
     @Override
-    public void addModel(Object id, TModel model) {
+    public void addModel(@Nullable Object id, @NonNull TModel model) {
         if (id instanceof Number) {
             synchronized (getCache()) {
                 getCache().put(((Number) id).intValue(), model);
@@ -48,7 +49,7 @@ public class SparseArrayBasedCache<TModel> extends ModelCache<TModel, SparseArra
     }
 
     @Override
-    public TModel removeModel(Object id) {
+    public TModel removeModel(@NonNull Object id) {
         TModel model = get(id);
         synchronized (getCache()) {
             getCache().remove(((Number) id).intValue());
@@ -69,7 +70,7 @@ public class SparseArrayBasedCache<TModel> extends ModelCache<TModel, SparseArra
     }
 
     @Override
-    public TModel get(Object id) {
+    public TModel get(@Nullable Object id) {
         if (id instanceof Number) {
             return getCache().get(((Number) id).intValue());
         } else {

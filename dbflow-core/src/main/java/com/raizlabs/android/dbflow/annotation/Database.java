@@ -26,16 +26,15 @@ public @interface Database {
     int version();
 
     /**
-     * @return The name of the DB. Optional as it will default to the class name.
+     * @return Specify the extension of the file name : {fileName}.{extension}. Default is ".db"
      */
-    String name() default "";
+    String databaseExtension() default "";
 
     /**
-     * In order to use Foreign keys, set this to true.
-     *
-     * @return if key constraints are enabled.
+     * @return If true, SQLite will throw exceptions when {@link ForeignKey} constraints are not respected.
+     * Default is false and will not throw exceptions.
      */
-    boolean foreignKeysSupported() default false;
+    boolean foreignKeyConstraintsEnforced() default false;
 
     /**
      * @return Checks for consistency in the DB, if true it will recopy over the prepackage database.
@@ -47,11 +46,6 @@ public @interface Database {
      * replace the corrupted DB
      */
     boolean backupEnabled() default false;
-
-    /**
-     * @return true if you want it to be in-memory, false if not.
-     */
-    boolean inMemory() default false;
 
     /**
      * @return Global default insert conflict that can be applied to any table when it leaves
@@ -68,6 +62,8 @@ public @interface Database {
     /**
      * @return Marks all generated classes within this database with this character. For example
      * "TestTable" becomes "TestTable$Table" for a "$" separator.
+     * @deprecated Generated class files will become '_' only in next major release.
      */
+    @Deprecated
     String generatedClassSeparator() default "_";
 }

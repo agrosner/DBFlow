@@ -5,11 +5,12 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,8 +19,8 @@ import java.util.List;
 /**
  * Description: Defines the SQL WHERE statement of the query.
  */
-public class Where<TModel> extends BaseModelQueriable<TModel>
-        implements Query, ModelQueriable<TModel>, Transformable<TModel> {
+public class Where<TModel> extends BaseModelQueriable<TModel> implements ModelQueriable<TModel>,
+    Transformable<TModel> {
 
     private static final int VALUE_UNSET = -1;
 
@@ -31,7 +32,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     /**
      * Helps to build the where statement easily
      */
-    private ConditionGroup conditionGroup;
+    private OperatorGroup operatorGroup;
 
     private final List<NameAlias> groupByList = new ArrayList<>();
 
@@ -40,7 +41,7 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     /**
      * The SQL HAVING statement
      */
-    private ConditionGroup havingGroup;
+    private OperatorGroup havingGroup;
 
     private int limit = VALUE_UNSET;
     private int offset = VALUE_UNSET;
@@ -51,66 +52,58 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
      *
      * @param whereBase The FROM or SET statement chunk
      */
-    Where(WhereBase<TModel> whereBase, SQLCondition... conditions) {
+    public Where(@NonNull WhereBase<TModel> whereBase, SQLOperator... conditions) {
         super(whereBase.getTable());
         this.whereBase = whereBase;
-        conditionGroup = new ConditionGroup();
-        havingGroup = new ConditionGroup();
+        operatorGroup = OperatorGroup.nonGroupingClause();
+        havingGroup = OperatorGroup.nonGroupingClause();
 
-        conditionGroup.andAll(conditions);
+        operatorGroup.andAll(conditions);
     }
 
     /**
-     * Adds a param to the WHERE clause with the custom {@link SQLCondition}
-     *
-     * @param condition The {@link SQLCondition} to use
-     * @return
+     * Joins the {@link SQLOperator} by the prefix of "AND" (unless its the first condition).
      */
-    public Where<TModel> and(SQLCondition condition) {
-        conditionGroup.and(condition);
+    @NonNull
+    public Where<TModel> and(@NonNull SQLOperator condition) {
+        operatorGroup.and(condition);
         return this;
     }
 
     /**
-     * Appends an OR with a Condition to the WHERE clause with the specified {@link SQLCondition}
-     *
-     * @param condition
-     * @return
+     * Joins the {@link SQLOperator} by the prefix of "OR" (unless its the first condition).
      */
-    public Where<TModel> or(SQLCondition condition) {
-        conditionGroup.or(condition);
+    @NonNull
+    public Where<TModel> or(@NonNull SQLOperator condition) {
+        operatorGroup.or(condition);
         return this;
     }
 
     /**
-     * Adds a bunch of {@link Condition} to this builder.
-     *
-     * @param conditions The list of {@link SQLCondition}
-     * @return
+     * Joins all of the {@link SQLOperator} by the prefix of "AND" (unless its the first condition).
      */
-    public Where<TModel> andAll(List<SQLCondition> conditions) {
-        conditionGroup.andAll(conditions);
+    @NonNull
+    public Where<TModel> andAll(@NonNull List<SQLOperator> conditions) {
+        operatorGroup.andAll(conditions);
         return this;
     }
 
     /**
-     * Adds a bunch of {@link SQLCondition} to this builder.
-     *
-     * @param conditions The array of {@link SQLCondition}
-     * @return
+     * Joins all of the {@link SQLOperator} by the prefix of "AND" (unless its the first condition).
      */
-    public Where<TModel> andAll(SQLCondition... conditions) {
-        conditionGroup.andAll(conditions);
+    @NonNull
+    public Where<TModel> andAll(SQLOperator... conditions) {
+        operatorGroup.andAll(conditions);
         return this;
     }
 
-    @Override
+    @NonNull
     public Where<TModel> groupBy(NameAlias... columns) {
         Collections.addAll(groupByList, columns);
         return this;
     }
 
-    @Override
+    @NonNull
     public Where<TModel> groupBy(IProperty... properties) {
         for (IProperty property : properties) {
             groupByList.add(property.getNameAlias());
@@ -121,29 +114,29 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
     /**
      * Defines a SQL HAVING statement without the HAVING.
      *
-     * @param conditions The array of {@link SQLCondition}
+     * @param conditions The array of {@link SQLOperator}
      * @return
      */
-    @Override
-    public Where<TModel> having(SQLCondition... conditions) {
+    @NonNull
+    public Where<TModel> having(SQLOperator... conditions) {
         havingGroup.andAll(conditions);
         return this;
     }
 
-    @Override
-    public Where<TModel> orderBy(NameAlias nameAlias, boolean ascending) {
+    @NonNull
+    public Where<TModel> orderBy(@NonNull NameAlias nameAlias, boolean ascending) {
         orderByList.add(new OrderBy(nameAlias, ascending));
         return this;
     }
 
-    @Override
-    public Where<TModel> orderBy(IProperty property, boolean ascending) {
+    @NonNull
+    public Where<TModel> orderBy(@NonNull IProperty property, boolean ascending) {
         orderByList.add(new OrderBy(property.getNameAlias(), ascending));
         return this;
     }
 
-    @Override
-    public Where<TModel> orderBy(OrderBy orderBy) {
+    @NonNull
+    public Where<TModel> orderBy(@NonNull OrderBy orderBy) {
         orderByList.add(orderBy);
         return this;
     }
@@ -154,20 +147,19 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
      * @param orderBies The order by.
      * @return this instance.
      */
-    public Where<TModel> orderByAll(List<OrderBy> orderBies) {
-        if (orderBies != null) {
-            orderByList.addAll(orderBies);
-        }
+    @NonNull
+    public Where<TModel> orderByAll(@NonNull List<OrderBy> orderBies) {
+        orderByList.addAll(orderBies);
         return this;
     }
 
-    @Override
+    @NonNull
     public Where<TModel> limit(int count) {
         this.limit = count;
         return this;
     }
 
-    @Override
+    @NonNull
     public Where<TModel> offset(int offset) {
         this.offset = offset;
         return this;
@@ -179,20 +171,27 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
      * @param where The query to use in the EXISTS clause. Such as SELECT * FROM `MyTable` WHERE ... etc.
      * @return This where with an EXISTS clause.
      */
+    @NonNull
     public Where<TModel> exists(@NonNull Where where) {
-        conditionGroup.and(new ExistenceCondition()
-                .where(where));
+        operatorGroup.and(new ExistenceOperator()
+            .where(where));
         return this;
+    }
+
+    @NonNull
+    @Override
+    public BaseModel.Action getPrimaryAction() {
+        return whereBase.getPrimaryAction();
     }
 
     @Override
     public String getQuery() {
         String fromQuery = whereBase.getQuery().trim();
         QueryBuilder queryBuilder = new QueryBuilder().append(fromQuery).appendSpace()
-                .appendQualifier("WHERE", conditionGroup.getQuery())
-                .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
-                .appendQualifier("HAVING", havingGroup.getQuery())
-                .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
+            .appendQualifier("WHERE", operatorGroup.getQuery())
+            .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
+            .appendQualifier("HAVING", havingGroup.getQuery())
+            .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList));
 
         if (limit > VALUE_UNSET) {
             queryBuilder.appendQualifier("LIMIT", String.valueOf(limit));
@@ -208,21 +207,20 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
      * @return the result of the query as a {@link Cursor}.
      */
     @Override
-    public Cursor query(DatabaseWrapper wrapper) {
+    public FlowCursor query(@NonNull DatabaseWrapper wrapper) {
         // Query the sql here
-        Cursor cursor = null;
-        String query = getQuery();
+        FlowCursor cursor;
         if (whereBase.getQueryBuilderBase() instanceof Select) {
-            cursor = wrapper.rawQuery(query, null);
+            cursor = wrapper.rawQuery(getQuery(), null);
         } else {
-            wrapper.execSQL(query);
+            cursor = super.query(wrapper);
         }
 
         return cursor;
     }
 
     @Override
-    public Cursor query() {
+    public FlowCursor query() {
         return query(FlowManager.getDatabaseForTable(getTable()).getWritableDatabase());
     }
 
@@ -231,16 +229,11 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
      *
      * @return All of the entries in the DB converted into {@link TModel}
      */
+    @NonNull
     @Override
     public List<TModel> queryList() {
         checkSelect("query");
         return super.queryList();
-    }
-
-    protected void checkSelect(String methodName) {
-        if (!(whereBase.getQueryBuilderBase() instanceof Select)) {
-            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a Select");
-        }
     }
 
     /**
@@ -255,5 +248,17 @@ public class Where<TModel> extends BaseModelQueriable<TModel>
         limit(1);
         return super.querySingle();
     }
+
+    @NonNull
+    public WhereBase<TModel> getWhereBase() {
+        return whereBase;
+    }
+
+    private void checkSelect(String methodName) {
+        if (!(whereBase.getQueryBuilderBase() instanceof Select)) {
+            throw new IllegalArgumentException("Please use " + methodName + "(). The beginning is not a ISelect");
+        }
+    }
+
 
 }

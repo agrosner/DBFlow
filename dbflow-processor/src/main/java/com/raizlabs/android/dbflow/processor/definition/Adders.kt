@@ -15,5 +15,5 @@ interface TypeAdder {
 
 interface CodeAdder {
 
-    fun addCode(code: CodeBlock.Builder)
+    fun addCode(code: CodeBlock.Builder): CodeBlock.Builder
 }

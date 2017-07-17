@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.structure.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
@@ -42,12 +43,12 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
 
     public void performRestoreFromBackup() {
         movePrepackagedDB(getDatabaseDefinition().getDatabaseFileName(),
-                getDatabaseDefinition().getDatabaseFileName());
+            getDatabaseDefinition().getDatabaseFileName());
 
         if (getDatabaseDefinition().backupEnabled()) {
             if (backupHelper == null) {
                 throw new IllegalStateException("the passed backup helper was null, even though backup is enabled. " +
-                        "Ensure that its passed in.");
+                    "Ensure that its passed in.");
             }
             restoreDatabase(getTempDbFileName(), getDatabaseDefinition().getDatabaseFileName());
             backupHelper.getDatabase();
@@ -63,7 +64,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     @Override
-    public void onCreate(DatabaseWrapper db) {
+    public void onCreate(@NonNull DatabaseWrapper db) {
         if (databaseHelperListener != null) {
             databaseHelperListener.onCreate(db);
         }
@@ -71,7 +72,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     @Override
-    public void onUpgrade(DatabaseWrapper db, int oldVersion, int newVersion) {
+    public void onUpgrade(@NonNull DatabaseWrapper db, int oldVersion, int newVersion) {
         if (databaseHelperListener != null) {
             databaseHelperListener.onUpgrade(db, oldVersion, newVersion);
         }
@@ -79,11 +80,19 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     @Override
-    public void onOpen(DatabaseWrapper db) {
+    public void onOpen(@NonNull DatabaseWrapper db) {
         if (databaseHelperListener != null) {
             databaseHelperListener.onOpen(db);
         }
         super.onOpen(db);
+    }
+
+    @Override
+    public void onDowngrade(@NonNull DatabaseWrapper db, int oldVersion, int newVersion) {
+        if (databaseHelperListener != null) {
+            databaseHelperListener.onDowngrade(db, oldVersion, newVersion);
+        }
+        super.onDowngrade(db, oldVersion, newVersion);
     }
 
     /**
@@ -106,8 +115,8 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
 
         // If the database already exists, and is ok return
         if (dbPath.exists() && (!getDatabaseDefinition().areConsistencyChecksEnabled() ||
-                (getDatabaseDefinition().areConsistencyChecksEnabled()
-                        && isDatabaseIntegrityOk(getWritableDatabase())))) {
+            (getDatabaseDefinition().areConsistencyChecksEnabled()
+                && isDatabaseIntegrityOk(getWritableDatabase())))) {
             return;
         }
 
@@ -121,7 +130,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
             InputStream inputStream;
             // if it exists and the integrity is ok we use backup as the main DB is no longer valid
             if (existingDb.exists() && (!getDatabaseDefinition().backupEnabled() || getDatabaseDefinition().backupEnabled()
-                    && backupHelper != null && isDatabaseIntegrityOk(backupHelper.getDatabase()))) {
+                && backupHelper != null && isDatabaseIntegrityOk(backupHelper.getDatabase()))) {
                 inputStream = new FileInputStream(existingDb);
             } else {
                 inputStream = FlowManager.getContext().getAssets().open(prepackagedName);
@@ -154,13 +163,14 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     public boolean isDatabaseIntegrityOk(DatabaseWrapper databaseWrapper) {
         boolean integrityOk = true;
 
-        DatabaseStatement prog = null;
+        DatabaseStatement statement = null;
         try {
-            prog = databaseWrapper.compileStatement("PRAGMA quick_check(1)");
-            String rslt = prog.simpleQueryForString();
-            if (!rslt.equalsIgnoreCase("ok")) {
+            statement = databaseWrapper.compileStatement("PRAGMA quick_check(1)");
+            String result = statement.simpleQueryForString();
+            if (!result.equalsIgnoreCase("ok")) {
                 // integrity_checker failed on main or attached databases
-                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on " + getDatabaseDefinition().getDatabaseName() + " returned: " + rslt);
+                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on " +
+                    getDatabaseDefinition().getDatabaseName() + " returned: " + result);
 
                 integrityOk = false;
 
@@ -169,8 +179,8 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
                 }
             }
         } finally {
-            if (prog != null) {
-                prog.close();
+            if (statement != null) {
+                statement.close();
             }
         }
         return integrityOk;
@@ -199,10 +209,10 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     }
 
     /**
-     * Writes the inputstream of the existing db to the file specified.
+     * Writes the {@link InputStream} of the existing db to the file specified.
      *
      * @param dbPath     The file to write to.
-     * @param existingDB The existing databasefile's input stream¬
+     * @param existingDB The existing database file's input stream¬
      * @throws IOException
      */
     private void writeDB(File dbPath, InputStream existingDB) throws IOException {
@@ -245,7 +255,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
             InputStream inputStream;
             // if it exists and the integrity is ok
             if (existingDb.exists() && (getDatabaseDefinition().backupEnabled()
-                    && backupHelper != null && isDatabaseIntegrityOk(backupHelper.getDatabase()))) {
+                && backupHelper != null && isDatabaseIntegrityOk(backupHelper.getDatabase()))) {
                 inputStream = new FileInputStream(existingDb);
             } else {
                 inputStream = FlowManager.getContext().getAssets().open(prepackagedName);
@@ -264,7 +274,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
     public void backupDB() {
         if (!getDatabaseDefinition().backupEnabled() || !getDatabaseDefinition().areConsistencyChecksEnabled()) {
             throw new IllegalStateException("Backups are not enabled for : " + getDatabaseDefinition().getDatabaseName() + ". Please consider adding " +
-                    "both backupEnabled and consistency checks enabled to the Database annotation");
+                "both backupEnabled and consistency checks enabled to the Database annotation");
         }
 
         getDatabaseDefinition().beginTransactionAsync(new ITransaction() {

@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor
 import com.raizlabs.android.dbflow.processor.definition.*
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.EnumColumnAccessor
-import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
+import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.PrivateScopeColumnAccessor
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 
@@ -39,25 +39,25 @@ class ColumnValidator : Validator<ColumnDefinition> {
         // validate getter and setters.
         if (validatorDefinition.columnAccessor is PrivateScopeColumnAccessor) {
             val privateColumnAccess = validatorDefinition.columnAccessor as PrivateScopeColumnAccessor
-            if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getGetterNameElement())) {
+            if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getterNameElement)) {
                 processorManager.logError(ColumnValidator::class,
                         "Could not find getter for private element: " + "\"%1s\" from table class: %1s. Consider adding a getter with name %1s or making it more accessible.",
                         validatorDefinition.elementName, validatorDefinition.baseTableDefinition.elementName,
-                        privateColumnAccess.getGetterNameElement())
+                        privateColumnAccess.getterNameElement)
                 success = false
             }
-            if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getSetterNameElement())) {
+            if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.setterNameElement)) {
                 processorManager.logError(ColumnValidator::class,
-                        "Could not find setter for private element: " + "\"%1s\" from table class: %1s. Consider adding a setter with name %1s or making it more accessible.",
-                        validatorDefinition.elementName, validatorDefinition.baseTableDefinition.elementName,
-                        privateColumnAccess.getSetterNameElement())
+                        "Could not find setter for private element: \"${validatorDefinition.elementName}\"" +
+                                " from table class: ${validatorDefinition.baseTableDefinition.elementName}. " +
+                                "Consider adding a setter with name ${privateColumnAccess.setterNameElement} or making it more accessible.")
                 success = false
             }
         }
 
         if (!validatorDefinition.defaultValue.isNullOrEmpty()) {
             val typeName = validatorDefinition.elementTypeName
-            if (validatorDefinition is ForeignKeyColumnDefinition && validatorDefinition.isReferencingTableObject) {
+            if (validatorDefinition is ReferenceColumnDefinition && validatorDefinition.isReferencingTableObject) {
                 processorManager.logError(ColumnValidator::class, "Default values cannot be specified for model fields")
             } else if (typeName != null && typeName.isPrimitive) {
                 processorManager.logWarning(ColumnValidator::class.java, "Primitive column types will not respect default values")
@@ -74,23 +74,22 @@ class ColumnValidator : Validator<ColumnDefinition> {
         if (validatorDefinition.columnAccessor is EnumColumnAccessor) {
             if (validatorDefinition.isPrimaryKey) {
                 success = false
-                processorManager.logError("Enums cannot be primary keys. Column: %1s and type: %1s", validatorDefinition.columnName,
-                        validatorDefinition.elementTypeName)
-            } else if (validatorDefinition is ForeignKeyColumnDefinition) {
+                processorManager.logError("Enums cannot be primary keys. Column: ${validatorDefinition.columnName}" +
+                        " and type: ${validatorDefinition.elementTypeName}")
+            } else if (validatorDefinition is ReferenceColumnDefinition) {
                 success = false
-                processorManager.logError("Enums cannot be foreign keys. Column: %1s and type: %1s", validatorDefinition.columnName,
-                        validatorDefinition.elementTypeName)
+                processorManager.logError("Enums cannot be foreign keys. Column: ${validatorDefinition.columnName}" +
+                        " and type: ${validatorDefinition.elementTypeName}")
             }
         }
 
-        if (validatorDefinition is ForeignKeyColumnDefinition) {
+        if (validatorDefinition is ReferenceColumnDefinition) {
             validatorDefinition.column?.let {
-                if (it.name.length > 0) {
+                if (it.name.isNotEmpty()) {
                     success = false
-                    processorManager.logError("Foreign Key %1s cannot specify the column() field. "
-                            + "Use a @ForeignKeyReference(columnName = {NAME} instead. Column: %1s and type: %1s",
-                            validatorDefinition.elementName, validatorDefinition.columnName,
-                            validatorDefinition.elementTypeName)
+                    processorManager.logError("Foreign Key ${validatorDefinition.elementName} cannot specify the column() field. "
+                            + "Use a @ForeignKeyReference(columnName = {NAME} instead. " +
+                            "Column: ${validatorDefinition.columnName} and type: ${validatorDefinition.elementTypeName}")
                 }
             }
 
@@ -104,9 +103,8 @@ class ColumnValidator : Validator<ColumnDefinition> {
                 if (autoIncrementingPrimaryKey == null) {
                     autoIncrementingPrimaryKey = validatorDefinition
                 } else if (autoIncrementingPrimaryKey != validatorDefinition) {
-                    processorManager.logError(
-                            "Only one autoincrementing primary key is allowed on a table. Found Column: %1s and type: %1s",
-                            validatorDefinition.columnName, validatorDefinition.elementTypeName)
+                    processorManager.logError("Only one auto-incrementing primary key is allowed on a table. " +
+                            "Found Column: ${validatorDefinition.columnName} and type: ${validatorDefinition.elementTypeName}")
                     success = false
                 }
             }
@@ -125,8 +123,8 @@ class ContentProviderValidator : Validator<ContentProviderDefinition> {
         var success = true
 
         if (validatorDefinition.endpointDefinitions.isEmpty()) {
-            processorManager.logError("The content provider %1s must have at least 1 @TableEndpoint associated with it",
-                    validatorDefinition.element.simpleName)
+            processorManager.logError("The content provider ${validatorDefinition.element.simpleName} " +
+                    "must have at least 1 @TableEndpoint associated with it")
             success = false
         }
 
@@ -163,7 +161,8 @@ class TableEndpointValidator : Validator<TableEndpointDefinition> {
         var success = true
 
         if (validatorDefinition.contentUriDefinitions.isEmpty()) {
-            processorManager.logError("A table endpoint %1s must supply at least one @ContentUri", validatorDefinition.elementClassName)
+            processorManager.logError("A table endpoint ${validatorDefinition.elementClassName} " +
+                    "must supply at least one @ContentUri")
             success = false
         }
 
@@ -179,25 +178,36 @@ class TableValidator : Validator<TableDefinition> {
     override fun validate(processorManager: ProcessorManager, validatorDefinition: TableDefinition): Boolean {
         var success = true
 
-        if (validatorDefinition.columnDefinitions.isEmpty()) {
-            processorManager.logError(TableValidator::class, "Table %1s of %1s, %1s needs to define at least one column", validatorDefinition.tableName,
-                    validatorDefinition.elementClassName, validatorDefinition.element.javaClass)
+        if (!validatorDefinition.hasPrimaryConstructor) {
+            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.elementClassName}" +
+                    " must provide a visible, default constructor.")
             success = false
         }
 
-        val hasTwoKinds = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID) && !validatorDefinition._primaryColumnDefinitions.isEmpty()
+        if (validatorDefinition.columnDefinitions.isEmpty()) {
+            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.tableName} " +
+                    "of ${validatorDefinition.elementClassName}, ${validatorDefinition.element.javaClass} " +
+                    "needs to define at least one column")
+            success = false
+        }
+
+        val hasTwoKinds = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID)
+                && !validatorDefinition._primaryColumnDefinitions.isEmpty()
 
         if (hasTwoKinds) {
-            processorManager.logError(TableValidator::class, "Table %1s cannot mix and match autoincrement and composite primary keys",
-                    validatorDefinition.tableName)
+            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.tableName}" +
+                    " cannot mix and match autoincrement and composite primary keys")
             success = false
         }
 
-        val hasPrimary = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID) && validatorDefinition._primaryColumnDefinitions.isEmpty()
-                || !validatorDefinition.hasAutoIncrement && !validatorDefinition.hasRowID && !validatorDefinition._primaryColumnDefinitions.isEmpty()
+        val hasPrimary = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID)
+                && validatorDefinition._primaryColumnDefinitions.isEmpty()
+                || !validatorDefinition.hasAutoIncrement && !validatorDefinition.hasRowID
+                && !validatorDefinition._primaryColumnDefinitions.isEmpty()
 
         if (!hasPrimary) {
-            processorManager.logError(TableValidator::class, "Table %1s needs to define at least one primary key", validatorDefinition.tableName)
+            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.tableName} " +
+                    "needs to define at least one primary key")
             success = false
         }
 
@@ -211,14 +221,14 @@ class TypeConverterValidator : Validator<TypeConverterDefinition> {
         var success = true
 
         if (validatorDefinition.modelTypeName == null) {
-            processorManager.logError("TypeConverter: " + validatorDefinition.className.toString() +
-                    " uses an unsupported Model Element parameter. If it has type parameters, you must remove them or subclass it" +
-                    "for proper usage.")
+            processorManager.logError("TypeConverter: ${validatorDefinition.className} uses an " +
+                    "unsupported Model Element parameter. If it has type parameters, you must " +
+                    "remove them or subclass it for proper usage.")
             success = false
         } else if (validatorDefinition.dbTypeName == null) {
-            processorManager.logError("TypeConverter: " + validatorDefinition.className.toString() +
-                    " uses an unsupported DB Element parameter. If it has type parameters, you must remove them or subclass it " +
-                    "for proper usage.")
+            processorManager.logError("TypeConverter: ${validatorDefinition.className} uses an " +
+                    "unsupported DB Element parameter. If it has type parameters, you must remove" +
+                    " them or subclass it for proper usage.")
             success = false
         }
 

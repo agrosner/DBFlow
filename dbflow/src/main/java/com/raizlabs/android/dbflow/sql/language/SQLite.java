@@ -1,10 +1,10 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
 import com.raizlabs.android.dbflow.sql.language.property.Property;
-import com.raizlabs.android.dbflow.sql.trigger.Trigger;
 import com.raizlabs.android.dbflow.structure.Model;
 
 /**
@@ -16,6 +16,7 @@ public class SQLite {
      * @param properties The properties/columns to SELECT.
      * @return A beginning of the SELECT statement.
      */
+    @NonNull
     public static Select select(IProperty... properties) {
         return new Select(properties);
     }
@@ -27,6 +28,7 @@ public class SQLite {
      * @param properties Optional, if specified returns the count of non-null ROWs from a specific single/group of columns.
      * @return A new select statement SELECT COUNT(expression)
      */
+    @NonNull
     public static Select selectCountOf(IProperty... properties) {
         return new Select(Method.count(properties));
     }
@@ -36,7 +38,8 @@ public class SQLite {
      * @param <TModel> The class that implements {@link Model}.
      * @return A new UPDATE statement.
      */
-    public static <TModel> Update<TModel> update(Class<TModel> table) {
+    @NonNull
+    public static <TModel> Update<TModel> update(@NonNull Class<TModel> table) {
         return new Update<>(table);
     }
 
@@ -45,13 +48,15 @@ public class SQLite {
      * @param <TModel> The class that implements {@link Model}.
      * @return A new INSERT statement.
      */
-    public static <TModel> Insert<TModel> insert(Class<TModel> table) {
+    @NonNull
+    public static <TModel> Insert<TModel> insert(@NonNull Class<TModel> table) {
         return new Insert<>(table);
     }
 
     /**
      * @return Begins a DELETE statement.
      */
+    @NonNull
     public static Delete delete() {
         return new Delete();
     }
@@ -63,7 +68,8 @@ public class SQLite {
      * @param <TModel> The class that implements {@link Model}.
      * @return A {@link From} with specified DELETE on table.
      */
-    public static <TModel> From<TModel> delete(Class<TModel> table) {
+    @NonNull
+    public static <TModel> From<TModel> delete(@NonNull Class<TModel> table) {
         return delete().from(table);
     }
 
@@ -74,7 +80,8 @@ public class SQLite {
      * @param <TModel> The class that implements {@link Model}.
      * @return A new INDEX statement.
      */
-    public static <TModel> Index<TModel> index(String name) {
+    @NonNull
+    public static <TModel> Index<TModel> index(@NonNull String name) {
         return new Index<>(name);
     }
 
@@ -84,41 +91,41 @@ public class SQLite {
      * @param name The name of the trigger.
      * @return A new TRIGGER statement.
      */
-    public static Trigger createTrigger(String name) {
+    @NonNull
+    public static Trigger createTrigger(@NonNull String name) {
         return Trigger.create(name);
     }
 
     /**
      * Starts a CASE statement.
      *
-     * @param condition The condition to check for in the WHEN.
+     * @param operator The condition to check for in the WHEN.
      * @return A new {@link CaseCondition}.
      */
-    public static <TReturn> CaseCondition<TReturn> caseWhen(@NonNull SQLCondition condition) {
-        return new Case<TReturn>().when(condition);
+    @NonNull
+    public static <TReturn> CaseCondition<TReturn> caseWhen(@NonNull SQLOperator operator) {
+        return new Case<TReturn>().when(operator);
     }
 
     /**
      * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
-     * case statement will evaluate all of its {@link SQLCondition}.
+     * case statement will evaluate all of its {@link SQLOperator}.
      *
      * @param caseColumn The value
-     * @param <TReturn>
-     * @return
      */
-    public static <TReturn> Case<TReturn> _case(Property<TReturn> caseColumn) {
+    @NonNull
+    public static <TReturn> Case<TReturn> _case(@NonNull Property<TReturn> caseColumn) {
         return new Case<>(caseColumn);
     }
 
     /**
      * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
-     * case statement will evaluate all of its {@link SQLCondition}.
+     * case statement will evaluate all of its {@link SQLOperator}.
      *
      * @param caseColumn The value
-     * @param <TReturn>
-     * @return
      */
-    public static <TReturn> Case<TReturn> _case(IProperty caseColumn) {
+    @NonNull
+    public static <TReturn> Case<TReturn> _case(@NonNull IProperty caseColumn) {
         return new Case<>(caseColumn);
     }
 }

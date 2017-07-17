@@ -32,7 +32,7 @@ public abstract class BaseContentProvider extends ContentProvider {
     protected BaseContentProvider() {
     }
 
-    protected BaseContentProvider(Class<? extends DatabaseHolder> databaseHolderClass) {
+    protected BaseContentProvider(@NonNull Class<? extends DatabaseHolder> databaseHolderClass) {
         this.moduleClass = databaseHolderClass;
     }
 
@@ -45,6 +45,8 @@ public abstract class BaseContentProvider extends ContentProvider {
         // framework has been initialized.
         if (moduleClass != null) {
             FlowManager.initModule(moduleClass);
+        } else if (getContext() != null) {
+            FlowManager.init(getContext());
         }
 
         return true;
@@ -68,8 +70,9 @@ public abstract class BaseContentProvider extends ContentProvider {
 
     protected abstract String getDatabaseName();
 
-    protected abstract int bulkInsert(Uri uri, ContentValues contentValues);
+    protected abstract int bulkInsert(@NonNull Uri uri, @NonNull ContentValues contentValues);
 
+    @NonNull
     protected DatabaseDefinition getDatabase() {
         if (database == null) {
             database = FlowManager.getDatabase(getDatabaseName());

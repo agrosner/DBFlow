@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.CursorResult;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
@@ -13,14 +12,14 @@ import java.util.List;
 /**
  * Description: Provides an easy way to query for data asynchronously.
  */
-public class QueryTransaction<TResult > implements ITransaction {
+public class QueryTransaction<TResult> implements ITransaction {
 
     /**
      * Simple interface that provides callback on result.
      *
      * @param <TResult> The result that we got from querying.
      */
-    public interface QueryResultCallback<TResult > {
+    public interface QueryResultCallback<TResult> {
 
         /**
          * Called when the query completes.
@@ -28,7 +27,8 @@ public class QueryTransaction<TResult > implements ITransaction {
          * @param transaction The transaction that ran.
          * @param tResult     The result of the query. Use this object to get data that you need.
          */
-        void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TResult> tResult);
+        void onQueryResult(QueryTransaction<TResult> transaction,
+                           @NonNull CursorResult<TResult> tResult);
     }
 
     /**
@@ -44,7 +44,7 @@ public class QueryTransaction<TResult > implements ITransaction {
          * @param transaction The transaction that ran.
          * @param tResult     The {@link List} result of the query.
          */
-        void onListQueryResult(QueryTransaction transaction, @Nullable List<TResult> tResult);
+        void onListQueryResult(QueryTransaction transaction, @NonNull List<TResult> tResult);
     }
 
     /**
@@ -52,7 +52,7 @@ public class QueryTransaction<TResult > implements ITransaction {
      *
      * @param <TResult> The result that we got from querying.
      */
-    public interface QueryResultSingleCallback<TResult > {
+    public interface QueryResultSingleCallback<TResult> {
 
         /**
          * Called when the query completes.
@@ -127,7 +127,7 @@ public class QueryTransaction<TResult > implements ITransaction {
      *
      * @param <TResult>
      */
-    public static final class Builder<TResult > {
+    public static final class Builder<TResult> {
 
         final ModelQueriable<TResult> modelQueriable;
         QueryResultCallback<TResult> queryResultCallback;

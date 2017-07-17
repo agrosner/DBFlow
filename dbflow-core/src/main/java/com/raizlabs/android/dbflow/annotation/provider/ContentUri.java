@@ -39,12 +39,12 @@ public @interface ContentUri {
     }
 
     /**
-     * @return the path of this ContentUri. ex: notes/#, notes/1, etc. Must be unique within a {@link com.raizlabs.android.dbflow.annotation.provider.TableEndpoint}
+     * @return the path of this ContentUri. ex: notes/#, notes/1, etc. Must be unique within a {@link TableEndpoint}
      */
     String path();
 
     /**
-     * @return The type of content that this uri is associated with. Ex: {@link com.raizlabs.android.dbflow.annotation.provider.ContentUri.ContentType#VND_SINGLE}
+     * @return The type of content that this uri is associated with. Ex: {@link ContentType#VND_SINGLE}
      */
     String type();
 

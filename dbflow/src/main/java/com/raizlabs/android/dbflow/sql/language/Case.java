@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.Query;
@@ -31,33 +32,38 @@ public class Case<TReturn> implements Query {
 
     Case(IProperty caseColumn) {
         this.caseColumn = caseColumn;
-        efficientCase = true;
+        if (caseColumn != null) {
+            efficientCase = true;
+        }
     }
 
-    public CaseCondition<TReturn> when(SQLCondition sqlCondition) {
+    @NonNull
+    public CaseCondition<TReturn> when(@NonNull SQLOperator sqlOperator) {
         if (efficientCase) {
             throw new IllegalStateException("When using the efficient CASE method," +
-                    "you must pass in value only, not condition.");
+                "you must pass in value only, not condition.");
         }
-        CaseCondition<TReturn> caseCondition = new CaseCondition<>(this, sqlCondition);
+        CaseCondition<TReturn> caseCondition = new CaseCondition<>(this, sqlOperator);
         caseConditions.add(caseCondition);
         return caseCondition;
     }
 
-    public CaseCondition<TReturn> when(TReturn whenValue) {
+    @NonNull
+    public CaseCondition<TReturn> when(@Nullable TReturn whenValue) {
         if (!efficientCase) {
             throw new IllegalStateException("When not using the efficient CASE method, " +
-                    "you must pass in the SQLConditions as a parameter");
+                "you must pass in the SQLOperator as a parameter");
         }
         CaseCondition<TReturn> caseCondition = new CaseCondition<>(this, whenValue);
         caseConditions.add(caseCondition);
         return caseCondition;
     }
 
-    public CaseCondition<TReturn> when(IProperty property) {
+    @NonNull
+    public CaseCondition<TReturn> when(@NonNull IProperty property) {
         if (!efficientCase) {
             throw new IllegalStateException("When not using the efficient CASE method, " +
-                    "you must pass in the SQLCondition as a parameter");
+                "you must pass in the SQLOperator as a parameter");
         }
         CaseCondition<TReturn> caseCondition = new CaseCondition<>(this, property);
         caseConditions.add(caseCondition);
@@ -67,7 +73,8 @@ public class Case<TReturn> implements Query {
     /**
      * Default case here. If not specified, value will be NULL.
      */
-    public Case<TReturn> _else(TReturn elseValue) {
+    @NonNull
+    public Case<TReturn> _else(@Nullable TReturn elseValue) {
         this.elseValue = elseValue;
         elseSpecified = true; // ensure its set especially if null specified.
         return this;
@@ -77,27 +84,30 @@ public class Case<TReturn> implements Query {
      * @param columnName The name of the case that we return in a column.
      * @return The case completed as a property.
      */
+    @NonNull
     public Property<Case<TReturn>> end(@Nullable String columnName) {
         endSpecified = true;
         if (columnName != null) {
             this.columnName = QueryBuilder.quoteIfNeeded(columnName);
         }
         return new Property<>(null, NameAlias.rawBuilder(getQuery())
-                .build());
+            .build());
     }
 
     /**
      * @return The case completed as a property.
      */
+    @NonNull
     public Property<Case<TReturn>> end() {
         return end(null);
     }
 
     /**
-     * @return The case complete as a condition.
+     * @return The case complete as an operator.
      */
-    public Condition endAsCondition() {
-        return Condition.column(end().getNameAlias());
+    @NonNull
+    public Operator endAsOperator() {
+        return Operator.op(end().getNameAlias());
     }
 
     boolean isEfficientCase() {
@@ -108,13 +118,13 @@ public class Case<TReturn> implements Query {
     public String getQuery() {
         QueryBuilder queryBuilder = new QueryBuilder(" CASE");
         if (isEfficientCase()) {
-            queryBuilder.append(" " + BaseCondition.convertValueToString(caseColumn, false));
+            queryBuilder.append(" " + BaseOperator.convertValueToString(caseColumn, false));
         }
 
-        queryBuilder.append(QueryBuilder.join(" ", caseConditions));
+        queryBuilder.append(QueryBuilder.join("", caseConditions));
 
         if (elseSpecified) {
-            queryBuilder.append(" ELSE ").append(BaseCondition.convertValueToString(elseValue, false));
+            queryBuilder.append(" ELSE ").append(BaseOperator.convertValueToString(elseValue, false));
         }
         if (endSpecified) {
             queryBuilder.append(" END " + (columnName != null ? columnName : ""));

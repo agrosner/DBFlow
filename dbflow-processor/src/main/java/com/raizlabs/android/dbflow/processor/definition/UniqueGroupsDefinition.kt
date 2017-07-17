@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor.definition
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.UniqueGroup
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
-import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
+import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.squareup.javapoet.CodeBlock
 import java.util.*
@@ -31,8 +31,8 @@ class UniqueGroupsDefinition(uniqueGroup: UniqueGroup) {
                 if (count > 0) {
                     codeBuilder.add(",")
                 }
-                if (it is ForeignKeyColumnDefinition) {
-                    for (reference in it._foreignKeyReferenceDefinitionList) {
+                if (it is ReferenceColumnDefinition) {
+                    for (reference in it._referenceDefinitionList) {
                         codeBuilder.add(QueryBuilder.quote(reference.columnName))
                     }
                 } else {

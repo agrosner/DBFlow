@@ -1,17 +1,20 @@
 package com.raizlabs.android.dbflow.structure.provider;
 
-import android.database.Cursor;
+import android.content.ContentProvider;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.sql.language.ConditionGroup;
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
- * Description: Provides a base implementation of a {@link com.raizlabs.android.dbflow.structure.Model} backed
- * by a content provider. All operations sync with the content provider in this app from a {@link android.content.ContentProvider}
+ * Description: Provides a base implementation of a {@link Model} backed
+ * by a content provider. All operations sync with the content provider in this app from a {@link ContentProvider}
  */
-public abstract class BaseSyncableProviderModel
-        extends BaseModel implements ModelProvider {
+public abstract class BaseSyncableProviderModel extends BaseModel implements ModelProvider {
 
     @Override
     public long insert() {
@@ -21,33 +24,30 @@ public abstract class BaseSyncableProviderModel
     }
 
     @Override
-    public void save() {
-        super.save();
-
+    public boolean save() {
         if (exists()) {
-            ContentUtils.update(getUpdateUri(), this);
+            return super.save() && ContentUtils.update(getUpdateUri(), this) > 0;
         } else {
-            ContentUtils.insert(getInsertUri(), this);
+            return super.save() && ContentUtils.insert(getInsertUri(), this) != null;
         }
     }
 
     @Override
-    public void delete() {
-        super.delete();
-        ContentUtils.delete(getDeleteUri(), this);
+    public boolean delete() {
+        return super.delete() && ContentUtils.delete(getDeleteUri(), this) > 0;
     }
 
     @Override
-    public void update() {
-        super.update();
-        ContentUtils.update(getUpdateUri(), this);
+    public boolean update() {
+        return super.update() && ContentUtils.update(getUpdateUri(), this) > 0;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public void load(ConditionGroup whereConditionGroup,
-                     String orderBy, String... columns) {
-        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(), getQueryUri(), whereConditionGroup, orderBy, columns);
+    public void load(@NonNull OperatorGroup whereOperatorGroup,
+                     @Nullable String orderBy, String... columns) {
+        FlowCursor cursor = FlowCursor.from(ContentUtils.query(FlowManager.getContext().getContentResolver(),
+            getQueryUri(), whereOperatorGroup, orderBy, columns));
         if (cursor != null && cursor.moveToFirst()) {
             getModelAdapter().loadFromCursor(cursor, this);
             cursor.close();

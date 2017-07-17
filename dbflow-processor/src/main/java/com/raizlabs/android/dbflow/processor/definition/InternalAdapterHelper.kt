@@ -5,7 +5,12 @@ import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.sql.QueryBuilder
-import com.squareup.javapoet.*
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
 /**
@@ -33,6 +38,7 @@ object InternalAdapterHelper {
     fun writeUpdateAutoIncrement(typeBuilder: TypeSpec.Builder, modelClassName: TypeName?,
                                  autoIncrementDefinition: ColumnDefinition) {
         typeBuilder.addMethod(MethodSpec.methodBuilder("updateAutoIncrement")
+                .addAnnotation(Override::class.java)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addParameter(modelClassName, ModelUtils.variable)
                 .addParameter(ClassName.get(Number::class.java), "id")

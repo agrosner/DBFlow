@@ -1,21 +1,17 @@
 package com.raizlabs.android.dbflow.structure.database;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
-import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 /**
  * Description: Specifies the android default implementation of a database.
  */
 public class AndroidDatabase implements DatabaseWrapper {
 
-    public static AndroidDatabase from(SQLiteDatabase database) {
+    public static AndroidDatabase from(@NonNull SQLiteDatabase database) {
         return new AndroidDatabase(database);
     }
 
@@ -26,7 +22,7 @@ public class AndroidDatabase implements DatabaseWrapper {
     }
 
     @Override
-    public void execSQL(String query) {
+    public void execSQL(@NonNull String query) {
         database.execSQL(query);
     }
 
@@ -54,18 +50,20 @@ public class AndroidDatabase implements DatabaseWrapper {
         return database;
     }
 
+    @NonNull
     @Override
-    public DatabaseStatement compileStatement(String rawQuery) {
+    public DatabaseStatement compileStatement(@NonNull String rawQuery) {
         return AndroidDatabaseStatement.from(database.compileStatement(rawQuery), database);
     }
 
+    @NonNull
     @Override
-    public Cursor rawQuery(String query, String[] selectionArgs) {
-        return database.rawQuery(query, selectionArgs);
+    public FlowCursor rawQuery(@NonNull String query, @Nullable String[] selectionArgs) {
+        return FlowCursor.from(database.rawQuery(query, selectionArgs));
     }
 
     @Override
-    public long updateWithOnConflict(String tableName, ContentValues contentValues, String where, String[] whereArgs, int conflictAlgorithm) {
+    public long updateWithOnConflict(@NonNull String tableName, @NonNull ContentValues contentValues, @Nullable String where, @Nullable String[] whereArgs, int conflictAlgorithm) {
         long count;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             count = database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm);
@@ -76,7 +74,7 @@ public class AndroidDatabase implements DatabaseWrapper {
     }
 
     @Override
-    public long insertWithOnConflict(String tableName, String nullColumnHack, ContentValues values, int sqLiteDatabaseAlgorithmInt) {
+    public long insertWithOnConflict(@NonNull String tableName, @Nullable String nullColumnHack, @NonNull ContentValues values, int sqLiteDatabaseAlgorithmInt) {
         long count;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             count = database.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt);
@@ -86,16 +84,16 @@ public class AndroidDatabase implements DatabaseWrapper {
         return count;
     }
 
+    @NonNull
     @Override
-    public Cursor query(
-            @NonNull String tableName,
-            @Nullable String[] columns,
-            @Nullable String selection,
-            @Nullable String[] selectionArgs,
-            @Nullable String groupBy,
-            @Nullable String having,
-            @Nullable String orderBy) {
-        return database.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy);
+    public FlowCursor query(@NonNull String tableName,
+                            @Nullable String[] columns,
+                            @Nullable String selection,
+                            @Nullable String[] selectionArgs,
+                            @Nullable String groupBy,
+                            @Nullable String having,
+                            @Nullable String orderBy) {
+        return FlowCursor.from(database.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy));
     }
 
     @Override

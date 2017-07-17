@@ -44,6 +44,13 @@ public @interface ForeignKey {
     boolean stubbedRelationship() default false;
 
     /**
+     * @return If true, during a transaction, FK constraints are not violated immediately until the resulting transaction commits.
+     * This is useful for out of order foreign key operations.
+     * @see <a href="http://www.sqlite.org/foreignkeys.html#fk_deferred">Deferred Foreign Key Constraints</a>
+     */
+    boolean deferred() default false;
+
+    /**
      * @return an optional table class that this reference points to. It's only used if the field
      * is NOT a Model class.
      */

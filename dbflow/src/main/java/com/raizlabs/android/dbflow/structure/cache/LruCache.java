@@ -17,13 +17,18 @@ package com.raizlabs.android.dbflow.structure.cache;
  */
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
  * Static library version of {@link android.util.LruCache}. Used to write apps that run on API levels prior to 12. When
  * running on API level 12 or above, this implementation is still used; it does not try to switch to the framework's
  * implementation. See the framework SDK documentation for a class overview.
+ *
+ * @see {@link android.util.LruCache}
+ * @deprecated
  */
+@Deprecated
 public class LruCache<K, V> {
     private final LinkedHashMap<K, V> map;
 
@@ -325,7 +330,9 @@ public class LruCache<K, V> {
     public synchronized final String toString() {
         int accesses = hitCount + missCount;
         int hitPercent = accesses != 0 ? (100 * hitCount / accesses) : 0;
-        return String.format("LruCache[maxSize=%d,hits=%d,misses=%d,hitRate=%d%%]", maxSize, hitCount, missCount, hitPercent);
+        return String.format(Locale.getDefault(),
+            "LruCache[maxSize=%d,hits=%d,misses=%d,hitRate=%d%%]", maxSize,
+            hitCount, missCount, hitPercent);
     }
 }
 

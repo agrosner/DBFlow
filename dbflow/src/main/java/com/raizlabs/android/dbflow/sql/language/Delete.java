@@ -1,8 +1,9 @@
 package com.raizlabs.android.dbflow.sql.language;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
-import com.raizlabs.android.dbflow.structure.Model;
 
 /**
  * Description: Constructs the beginning of a SQL DELETE query
@@ -16,8 +17,8 @@ public class Delete implements Query {
      * @param conditions The list of conditions to use to delete from the specified table
      * @param <TModel>   The class that implements {@link com.raizlabs.android.dbflow.structure.Model}
      */
-    public static <TModel> void table(Class<TModel> table, SQLCondition... conditions) {
-        new Delete().from(table).where(conditions).query();
+    public static <TModel> void table(@NonNull Class<TModel> table, SQLOperator... conditions) {
+        new Delete().from(table).where(conditions).executeUpdateDelete();
     }
 
     /**
@@ -39,14 +40,15 @@ public class Delete implements Query {
      * @param <TModel> The table class
      * @return
      */
-    public <TModel> From<TModel> from(Class<TModel> table) {
+    @NonNull
+    public <TModel> From<TModel> from(@NonNull Class<TModel> table) {
         return new From<>(this, table);
     }
 
     @Override
     public String getQuery() {
         return new QueryBuilder()
-                .append("DELETE")
-                .appendSpace().getQuery();
+            .append("DELETE")
+            .appendSpace().getQuery();
     }
 }

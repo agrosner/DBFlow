@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.language.Index;
 import com.raizlabs.android.dbflow.sql.language.property.IProperty;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
@@ -17,11 +16,6 @@ public abstract class IndexMigration<TModel> extends BaseMigration {
      * The table to index on
      */
     private Class<TModel> onTable;
-
-    /**
-     * The name of this index
-     */
-    private String name;
 
     /**
      * The underlying index object.
@@ -42,7 +36,7 @@ public abstract class IndexMigration<TModel> extends BaseMigration {
     }
 
     @Override
-    public final void migrate(DatabaseWrapper database) {
+    public final void migrate(@NonNull DatabaseWrapper database) {
         database.execSQL(getIndex().getQuery());
     }
 
@@ -50,7 +44,6 @@ public abstract class IndexMigration<TModel> extends BaseMigration {
     @Override
     public void onPostMigrate() {
         onTable = null;
-        name = null;
         index = null;
     }
 
@@ -60,6 +53,7 @@ public abstract class IndexMigration<TModel> extends BaseMigration {
      * @param property The name of the column to add to the Index
      * @return This migration
      */
+    @NonNull
     public IndexMigration<TModel> addColumn(IProperty property) {
         getIndex().and(property);
         return this;
@@ -70,6 +64,7 @@ public abstract class IndexMigration<TModel> extends BaseMigration {
      *
      * @return This migration.
      */
+    @NonNull
     public IndexMigration<TModel> unique() {
         getIndex().unique(true);
         return this;
@@ -78,9 +73,10 @@ public abstract class IndexMigration<TModel> extends BaseMigration {
     /**
      * @return The index object based on the contents of this migration.
      */
+    @NonNull
     public Index<TModel> getIndex() {
         if (index == null) {
-            index = new Index<TModel>(name).on(onTable);
+            index = new Index<TModel>(getName()).on(onTable);
         }
         return index;
     }
@@ -88,8 +84,8 @@ public abstract class IndexMigration<TModel> extends BaseMigration {
     /**
      * @return the query backing this migration.
      */
+    @NonNull
     public String getIndexQuery() {
         return getIndex().getQuery();
     }
-
 }

@@ -49,6 +49,7 @@ public enum SQLiteType {
             put(Double.class.getName(), SQLiteType.REAL);
             put(Boolean.class.getName(), SQLiteType.INTEGER);
             put(Character.class.getName(), SQLiteType.TEXT);
+            put(CharSequence.class.getName(), SQLiteType.TEXT);
             put(String.class.getName(), SQLiteType.TEXT);
             put(Byte[].class.getName(), SQLiteType.BLOB);
             put(Blob.class.getName(), SQLiteType.BLOB);

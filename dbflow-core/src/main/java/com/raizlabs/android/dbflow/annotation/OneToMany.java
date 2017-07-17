@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Description: Describes a 1-many relationship. It applies to some method that returns a {@link List} of Model objects.
  * This annotation can handle loading, deleting, and saving when the current data changes. By default it will call the
- * associated method when the
+ * associated method when the containing class operates.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.SOURCE)
@@ -57,4 +57,10 @@ public @interface OneToMany {
      * a setter for it.
      */
     boolean isVariablePrivate() default false;
+
+    /**
+     * @return If true, the code generated for this relationship done as efficiently as possible.
+     * It will not work on nested relationships, caching, and other code that requires overriding of BaseModel or Model operations.
+     */
+    boolean efficientMethods() default true;
 }

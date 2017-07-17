@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.SQLiteType;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.ArrayList;
@@ -51,7 +50,7 @@ public class AlterTableMigration<TModel> extends BaseMigration {
     }
 
     @Override
-    public final void migrate(DatabaseWrapper database) {
+    public final void migrate(@NonNull DatabaseWrapper database) {
         // "ALTER TABLE "
         String sql = getAlterTableQueryBuilder().getQuery();
         String tableName = FlowManager.getTableName(table);
@@ -167,7 +166,7 @@ public class AlterTableMigration<TModel> extends BaseMigration {
     }
 
     /**
-     * @return A List of column definitions that add column to a table in the DB.
+     * @return A List of column definitions that add op to a table in the DB.
      */
     public List<String> getColumnDefinitions() {
         String sql = new QueryBuilder(getAlterTableQueryBuilder()).append(FlowManager.getTableName(table)).toString();

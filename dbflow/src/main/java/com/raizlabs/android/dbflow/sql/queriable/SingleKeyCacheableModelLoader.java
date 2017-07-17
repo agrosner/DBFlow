@@ -1,10 +1,10 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
-import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.structure.Model;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: More optimized version of {@link CacheableModelLoader} which assumes that the {@link Model}
@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.Model;
  */
 public class SingleKeyCacheableModelLoader<TModel> extends CacheableModelLoader<TModel> {
 
-    public SingleKeyCacheableModelLoader(Class<TModel> modelClass) {
+    public SingleKeyCacheableModelLoader(@NonNull Class<TModel> modelClass) {
         super(modelClass);
     }
 
@@ -24,7 +24,8 @@ public class SingleKeyCacheableModelLoader<TModel> extends CacheableModelLoader<
      */
     @Nullable
     @Override
-    public TModel convertToData(@NonNull Cursor cursor, @Nullable TModel data, boolean moveToFirst) {
+    public TModel convertToData(@NonNull FlowCursor cursor, @Nullable TModel data,
+                                boolean moveToFirst) {
         if (!moveToFirst || cursor.moveToFirst()) {
             Object value = getModelAdapter().getCachingColumnValueFromCursor(cursor);
             TModel model = getModelCache().get(value);

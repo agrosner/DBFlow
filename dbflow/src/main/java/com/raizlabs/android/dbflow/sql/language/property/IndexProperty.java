@@ -1,10 +1,11 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 import com.raizlabs.android.dbflow.sql.language.Index;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
@@ -12,17 +13,17 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  * It gets generated from {@link Table#indexGroups()}, but also can be manually constructed. These are activated
  * and deactivated manually.
  */
-public class IndexProperty<T > {
+public class IndexProperty<T> {
 
     private final Index<T> index;
 
     public IndexProperty(String indexName, boolean unique, Class<T> table, IProperty... properties) {
         index = SQLite.index(indexName);
         index.on(table, properties)
-                .unique(unique);
+            .unique(unique);
     }
 
-    public void createIfNotExists(DatabaseWrapper wrapper) {
+    public void createIfNotExists(@NonNull DatabaseWrapper wrapper) {
         index.enable(wrapper);
     }
 

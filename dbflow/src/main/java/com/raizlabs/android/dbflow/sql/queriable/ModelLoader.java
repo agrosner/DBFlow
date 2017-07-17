@@ -8,8 +8,8 @@ import android.support.annotation.Nullable;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
-import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.FlowCursor;
 
 /**
  * Description: Represents how models load from DB. It will query a {@link SQLiteDatabase}
@@ -19,9 +19,9 @@ public abstract class ModelLoader<TModel, TReturn> {
 
     private final Class<TModel> modelClass;
     private DatabaseDefinition databaseDefinition;
-    private InstanceAdapter instanceAdapter;
+    private InstanceAdapter<TModel> instanceAdapter;
 
-    public ModelLoader(Class<TModel> modelClass) {
+    public ModelLoader(@NonNull Class<TModel> modelClass) {
         this.modelClass = modelClass;
     }
 
@@ -31,11 +31,13 @@ public abstract class ModelLoader<TModel, TReturn> {
      * @param query The query to call.
      * @return The data loaded from the database.
      */
-    public TReturn load(String query) {
+    @Nullable
+    public TReturn load(@NonNull String query) {
         return load(getDatabaseDefinition().getWritableDatabase(), query);
     }
 
-    public TReturn load(String query, @Nullable TReturn data) {
+    @Nullable
+    public TReturn load(@NonNull String query, @Nullable TReturn data) {
         return load(getDatabaseDefinition().getWritableDatabase(), query, data);
     }
 
@@ -47,23 +49,24 @@ public abstract class ModelLoader<TModel, TReturn> {
      * @return The data loaded from the database.
      */
     @Nullable
-    public TReturn load(@NonNull DatabaseWrapper databaseWrapper, String query) {
+    public TReturn load(@NonNull DatabaseWrapper databaseWrapper, @NonNull String query) {
         return load(databaseWrapper, query, null);
     }
 
     @Nullable
-    public TReturn load(@NonNull DatabaseWrapper databaseWrapper, String query, @Nullable TReturn data) {
-        final Cursor cursor = databaseWrapper.rawQuery(query, null);
+    public TReturn load(@NonNull DatabaseWrapper databaseWrapper, @NonNull String query,
+                        @Nullable TReturn data) {
+        final FlowCursor cursor = databaseWrapper.rawQuery(query, null);
         return load(cursor, data);
     }
 
     @Nullable
-    public TReturn load(@Nullable Cursor cursor) {
+    public TReturn load(@Nullable FlowCursor cursor) {
         return load(cursor, null);
     }
 
     @Nullable
-    public TReturn load(@Nullable Cursor cursor, @Nullable TReturn data) {
+    public TReturn load(@Nullable FlowCursor cursor, @Nullable TReturn data) {
         if (cursor != null) {
             try {
                 data = convertToData(cursor, data);
@@ -74,12 +77,13 @@ public abstract class ModelLoader<TModel, TReturn> {
         return data;
     }
 
+    @NonNull
     public Class<TModel> getModelClass() {
         return modelClass;
     }
 
     @NonNull
-    public InstanceAdapter getInstanceAdapter() {
+    public InstanceAdapter<TModel> getInstanceAdapter() {
         if (instanceAdapter == null) {
             instanceAdapter = FlowManager.getInstanceAdapter(modelClass);
         }
@@ -102,5 +106,5 @@ public abstract class ModelLoader<TModel, TReturn> {
      * @return A new (or reused) instance that represents the {@link Cursor}.
      */
     @Nullable
-    public abstract TReturn convertToData(@NonNull final Cursor cursor, @Nullable TReturn data);
+    public abstract TReturn convertToData(@NonNull final FlowCursor cursor, @Nullable TReturn data);
 }

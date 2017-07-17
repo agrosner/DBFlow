@@ -23,4 +23,8 @@ public @interface InheritedColumn {
      */
     String fieldName();
 
+    /**
+     * @return If specified other than {@link ConflictAction#NONE}, then we assume {@link NotNull}.
+     */
+    ConflictAction nonNullConflict() default ConflictAction.NONE;
 }
