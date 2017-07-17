@@ -1,8 +1,13 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.grosner.kpoet.*
+import com.grosner.kpoet.`public final class`
+import com.grosner.kpoet.extends
+import com.grosner.kpoet.implements
+import com.grosner.kpoet.javadoc
+import com.grosner.kpoet.typeName
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
+import com.raizlabs.android.dbflow.processor.utils.toTypeElement
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -78,6 +83,8 @@ abstract class BaseDefinition : TypeDefinition {
 
         if (element is TypeElement) {
             typeElement = element
+        } else {
+            typeElement = element.toTypeElement()
         }
     }
 
@@ -123,6 +130,9 @@ abstract class BaseDefinition : TypeDefinition {
 
     override val typeSpec: TypeSpec
         get() {
+            if (outputClassName == null) {
+                manager.logError("Found error for ${elementTypeName} ${outputClassName} ${(this as QueryModelDefinition).databaseTypeName}")
+            }
             return `public final class`(outputClassName?.simpleName() ?: "") {
                 extendsClass?.let { extends(it) }
                 implementsClasses.forEach { implements(it) }

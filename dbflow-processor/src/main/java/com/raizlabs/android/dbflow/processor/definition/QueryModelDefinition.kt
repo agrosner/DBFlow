@@ -46,7 +46,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
             }
         }
 
-        elementClassName?.let { databaseTypeName?.let { it1 -> processorManager.addModelToDatabase(it, it1) } }
+        elementClassName?.let { elementClassName -> databaseTypeName?.let { processorManager.addModelToDatabase(elementClassName, it) } }
 
         if (element is TypeElement) {
             implementsLoadFromCursorListener =
@@ -63,13 +63,17 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         columnDefinitions.clear()
         packagePrivateList.clear()
 
-        typeElement.annotation<QueryModel>()?.let { queryModel ->
-            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
-            setOutputClassName("${databaseDefinition?.classSeparator}QueryTable")
+        val queryModel = typeElement.annotation<QueryModel>()
+        if (queryModel != null) {
             allFields = queryModel.allFields
-
-            typeElement?.let { createColumnDefinitions(it) }
+        } else {
+            allFields = true
         }
+
+        databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
+        setOutputClassName("${databaseDefinition?.classSeparator}QueryTable")
+
+        typeElement?.let { createColumnDefinitions(it) }
     }
 
     override val extendsClass: TypeName?

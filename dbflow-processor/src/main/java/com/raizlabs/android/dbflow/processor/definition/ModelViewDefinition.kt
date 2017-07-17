@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
-import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
+import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
 import com.raizlabs.android.dbflow.processor.utils.*
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -108,7 +108,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                     }
                 }
 
-                if (columnDefinition.isPrimaryKey || columnDefinition is ForeignKeyColumnDefinition
+                if (columnDefinition.isPrimaryKey || columnDefinition is ReferenceColumnDefinition
                         || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
                     manager.logError("ModelViews cannot have primary or foreign keys")
                 }

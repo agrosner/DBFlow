@@ -14,11 +14,11 @@ import javax.lang.model.element.TypeElement
 /**
  * Description:
  */
-class ForeignKeyReferenceDefinition(private val manager: ProcessorManager,
-                                    foreignKeyFieldName: String,
-                                    foreignKeyElementName: String, referencedColumn: ColumnDefinition,
-                                    private val foreignKeyColumnDefinition: ForeignKeyColumnDefinition,
-                                    referenceCount: Int, localColumnName: String = "") {
+class ReferenceDefinition(private val manager: ProcessorManager,
+                          foreignKeyFieldName: String,
+                          foreignKeyElementName: String, referencedColumn: ColumnDefinition,
+                          private val referenceColumnDefinition: ReferenceColumnDefinition,
+                          referenceCount: Int, localColumnName: String = "") {
 
     val columnName: String
     val foreignColumnName: String
@@ -45,14 +45,14 @@ class ForeignKeyReferenceDefinition(private val manager: ProcessorManager,
     lateinit var contentValuesField: ForeignKeyAccessField
     lateinit var sqliteStatementField: ForeignKeyAccessField
 
-    private fun createScopes(foreignKeyColumnDefinition: ForeignKeyColumnDefinition,
+    private fun createScopes(referenceColumnDefinition: ReferenceColumnDefinition,
                              foreignKeyFieldName: String, getterSetter: GetterSetter,
                              name: String, packageName: String) {
         if (isReferencedFieldPrivate) {
             columnAccessor = PrivateScopeColumnAccessor(foreignKeyFieldName, getterSetter, false)
         } else if (isReferencedFieldPackagePrivate) {
             columnAccessor = PackagePrivateScopeColumnAccessor(foreignKeyFieldName, packageName,
-                    foreignKeyColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
+                    referenceColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
                     name)
 
             PackagePrivateScopeColumnAccessor.putElement(
@@ -64,14 +64,14 @@ class ForeignKeyReferenceDefinition(private val manager: ProcessorManager,
     }
 
 
-    private fun createForeignKeyFields(columnClassName: TypeName?, foreignKeyColumnDefinition: ForeignKeyColumnDefinition, manager: ProcessorManager) {
+    private fun createForeignKeyFields(columnClassName: TypeName?, referenceColumnDefinition: ReferenceColumnDefinition, manager: ProcessorManager) {
         val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
         evaluateTypeConverter(typeConverterDefinition)
 
         val combiner = Combiner(columnAccessor, columnClassName!!, wrapperAccessor,
-                wrapperTypeName, subWrapperAccessor, foreignKeyColumnDefinition.elementName)
+                wrapperTypeName, subWrapperAccessor, referenceColumnDefinition.elementName)
         partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, foreignColumnName,
-                columnClassName, foreignKeyColumnDefinition.baseTableDefinition.orderedCursorLookUp,
+                columnClassName, referenceColumnDefinition.baseTableDefinition.orderedCursorLookUp,
                 columnAccessor, wrapperAccessor, wrapperTypeName)
 
         primaryReferenceField = ForeignKeyAccessField(columnName, PrimaryReferenceAccessCombiner(combiner))
@@ -92,8 +92,8 @@ class ForeignKeyReferenceDefinition(private val manager: ProcessorManager,
             } else {
                 hasTypeConverter = true
 
-                val fieldName = foreignKeyColumnDefinition.baseTableDefinition
-                        .addColumnForTypeConverter(foreignKeyColumnDefinition, it.className)
+                val fieldName = referenceColumnDefinition.baseTableDefinition
+                        .addColumnForTypeConverter(referenceColumnDefinition, it.className)
                 wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
                 wrapperTypeName = it.dbTypeName
 
@@ -108,8 +108,8 @@ class ForeignKeyReferenceDefinition(private val manager: ProcessorManager,
     init {
         if (!localColumnName.isNullOrEmpty()) {
             this.columnName = localColumnName
-        } else if (!foreignKeyColumnDefinition.isPrimaryKey && !foreignKeyColumnDefinition.isPrimaryKeyAutoIncrement
-                && !foreignKeyColumnDefinition.isRowId || referenceCount > 0) {
+        } else if (!referenceColumnDefinition.isPrimaryKey && !referenceColumnDefinition.isPrimaryKeyAutoIncrement
+                && !referenceColumnDefinition.isRowId || referenceCount > 0) {
             this.columnName = foreignKeyFieldName + "_" + referencedColumn.columnName
         } else {
             this.columnName = foreignKeyFieldName
@@ -121,15 +121,15 @@ class ForeignKeyReferenceDefinition(private val manager: ProcessorManager,
         val isPackagePrivate = ElementUtility.isPackagePrivate(referencedColumn.element)
         val isPackagePrivateNotInSamePackage = isPackagePrivate &&
                 !ElementUtility.isInSamePackage(manager, referencedColumn.element,
-                        foreignKeyColumnDefinition.element)
+                        referenceColumnDefinition.element)
         isReferencedFieldPackagePrivate = isReferencedFieldPackagePrivate || isPackagePrivateNotInSamePackage
         val packageName = referencedColumn.packageName
         val name = ClassName.get(referencedColumn.element.enclosingElement as TypeElement).simpleName()
-        createScopes(foreignKeyColumnDefinition, foreignKeyElementName, object : GetterSetter {
+        createScopes(referenceColumnDefinition, foreignKeyElementName, object : GetterSetter {
             override val getterName: String = referencedColumn.column?.getterName ?: ""
             override val setterName: String = referencedColumn.column?.setterName ?: ""
         }, name, packageName)
-        createForeignKeyFields(columnClassName, foreignKeyColumnDefinition, manager)
+        createForeignKeyFields(columnClassName, referenceColumnDefinition, manager)
     }
 
 

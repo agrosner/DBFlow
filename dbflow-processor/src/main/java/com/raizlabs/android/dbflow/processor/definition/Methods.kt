@@ -233,7 +233,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
 
                 foreignKeyBlocks.add(foreignKeyBuilder.apply {
                     add(", FOREIGN KEY(")
-                    add(fk._foreignKeyReferenceDefinitionList.joinToString { QueryBuilder.quote(it.columnName) })
+                    add(fk._referenceDefinitionList.joinToString { QueryBuilder.quote(it.columnName) })
                     add(") REFERENCES ")
                 }.build())
 
@@ -241,7 +241,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
 
                 referenceKeyBlocks.add(referenceBuilder.apply {
                     add("(")
-                    add(fk._foreignKeyReferenceDefinitionList.joinToString { QueryBuilder.quote(it.foreignColumnName) })
+                    add(fk._referenceDefinitionList.joinToString { QueryBuilder.quote(it.foreignColumnName) })
                     add(") ON UPDATE ${fk.onUpdate.name.replace("_", " ")} ON DELETE ${fk.onDelete.name.replace("_", " ")}")
                     if (fk.deferred) {
                         add(" DEFERRABLE INITIALLY DEFERRED")

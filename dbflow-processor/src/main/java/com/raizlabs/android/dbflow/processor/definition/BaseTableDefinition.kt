@@ -5,7 +5,7 @@ import com.grosner.kpoet.*
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
-import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
+import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateScopeColumnAccessor
 import com.raizlabs.android.dbflow.processor.utils.*
 import com.squareup.javapoet.*
@@ -119,7 +119,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
             for (columnDefinition in packagePrivateList) {
                 var helperClassName = "${columnDefinition.element.getPackage()}.${columnDefinition.element.enclosingElement.toClassName().simpleName()}${classSeparator}Helper"
-                if (columnDefinition is ForeignKeyColumnDefinition) {
+                if (columnDefinition is ReferenceColumnDefinition) {
                     val tableDefinition: TableDefinition? = databaseDefinition?.objectHolder?.tableDefinitionMap?.get(columnDefinition.referencedClassName as TypeName)
                     if (tableDefinition != null) {
                         helperClassName = "${tableDefinition.element.getPackage()}.${ClassName.get(tableDefinition.element as TypeElement).simpleName()}${classSeparator}Helper"

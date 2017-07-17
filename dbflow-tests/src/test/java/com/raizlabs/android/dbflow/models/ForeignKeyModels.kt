@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
-import com.raizlabs.android.dbflow.annotation.QueryModel
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener
 
@@ -72,7 +71,6 @@ class BlogStubbed(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var
     }
 }
 
-@QueryModel(database = TestDatabase::class, allFields = true)
 class Location(var latitude: Double = 0.0, var longitude: Double = 0.0)
 
 @Table(database = TestDatabase::class, allFields = true)
