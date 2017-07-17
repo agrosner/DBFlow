@@ -1,6 +1,12 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.grosner.kpoet.*
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`=`
+import com.grosner.kpoet.`public static final field`
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.public
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ModelView
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery
@@ -9,7 +15,14 @@ import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
-import com.raizlabs.android.dbflow.processor.utils.*
+import com.raizlabs.android.dbflow.processor.utils.ElementUtility
+import com.raizlabs.android.dbflow.processor.utils.`override fun`
+import com.raizlabs.android.dbflow.processor.utils.annotation
+import com.raizlabs.android.dbflow.processor.utils.ensureVisibleStatic
+import com.raizlabs.android.dbflow.processor.utils.implementsClass
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
+import com.raizlabs.android.dbflow.processor.utils.simpleString
+import com.raizlabs.android.dbflow.processor.utils.toTypeErasedElement
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
@@ -20,7 +33,7 @@ import javax.lang.model.type.MirroredTypeException
 /**
  * Description: Used in writing ModelViewAdapters
  */
-class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTableDefinition(element, manager), Comparable<ModelViewDefinition> {
+class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTableDefinition(element, manager) {
 
     internal val implementsLoadFromCursorListener: Boolean
 
@@ -31,7 +44,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     private var name: String? = null
 
     private val methods: Array<MethodDefinition> =
-            arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
+        arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
 
     var allFields: Boolean = false
 
@@ -57,7 +70,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
         if (element is TypeElement) {
             implementsLoadFromCursorListener = element.implementsClass(manager.processingEnvironment,
-                    ClassNames.LOAD_FROM_CURSOR_LISTENER)
+                ClassNames.LOAD_FROM_CURSOR_LISTENER)
         } else {
             implementsLoadFromCursorListener = false
         }
@@ -109,7 +122,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 }
 
                 if (columnDefinition.isPrimaryKey || columnDefinition is ReferenceColumnDefinition
-                        || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
+                    || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
                     manager.logError("ModelViews cannot have primary or foreign keys")
                 }
             } else if (variableElement.annotation<ModelViewQuery>() != null) {
@@ -166,10 +179,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         }
 
         methods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
+            .forEach { typeBuilder.addMethod(it) }
     }
 
-    override fun compareTo(other: ModelViewDefinition): Int {
-        return Integer.valueOf(priority)!!.compareTo(other.priority)
-    }
 }

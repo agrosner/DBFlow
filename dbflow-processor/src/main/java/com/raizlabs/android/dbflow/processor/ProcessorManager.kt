@@ -166,6 +166,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         val databaseDefinition = getOrPutDatabase(databaseName)
         return Sets.newHashSet(databaseDefinition?.modelViewDefinitionMap?.values ?: arrayListOf())
             .sortedBy { it.outputClassName?.simpleName() }
+            .sortedByDescending { it.priority }
     }
 
     fun setModelViewDefinitions(modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition>, elementClassName: ClassName) {
@@ -303,9 +304,10 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
                 tableDefinitions.forEach { WriterUtils.writeBaseDefinition(it, processorManager) }
 
-                val modelViewDefinitions = ArrayList(databaseHolderDefinition.modelViewDefinitionMap.values)
-                Collections.sort(modelViewDefinitions)
-                modelViewDefinitions.forEach { WriterUtils.writeBaseDefinition(it, processorManager) }
+                val modelViewDefinitions = databaseHolderDefinition.modelViewDefinitionMap.values
+                modelViewDefinitions
+                    .sortedByDescending { it.priority }
+                    .forEach { WriterUtils.writeBaseDefinition(it, processorManager) }
 
                 val queryModelDefinitions = databaseHolderDefinition.queryModelDefinitionMap.values
                     .sortedBy { it.outputClassName?.simpleName() }

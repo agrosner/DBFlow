@@ -23,3 +23,13 @@ class AuthorView(@Column var authorId: Int = 0, @Column var authorName: String =
                 .concatenate(last_name as IProperty<out IProperty<*>>).`as`("authorName")) from Author::class
     }
 }
+
+@ModelView(database = TestDatabase::class, priority = 2, allFields = true)
+class PriorityView(var name: String = "") {
+
+    companion object {
+        @JvmField
+        @ModelViewQuery
+        val query = select((first_name + last_name).`as`("name")) from Author::class
+    }
+}

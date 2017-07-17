@@ -143,19 +143,15 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                 }
 
                 val migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName)
-                if (!migrationDefinitionMap.isEmpty()) {
-                    val versionSet = ArrayList<Int>(migrationDefinitionMap.keys)
-                    Collections.sort<Int>(versionSet)
-                    for (version in versionSet) {
-                        val migrationDefinitions = migrationDefinitionMap[version]
-                        migrationDefinitions?.let {
-                            Collections.sort(migrationDefinitions, { o1, o2 -> Integer.valueOf(o2.priority)!!.compareTo(o1.priority) })
-                            for (migrationDefinition in migrationDefinitions) {
+                migrationDefinitionMap.keys
+                    .sortedByDescending { it }
+                    .forEach { version ->
+                        migrationDefinitionMap[version]
+                            ?.sortedBy { it.priority }
+                            ?.forEach { migrationDefinition ->
                                 statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
                             }
-                        }
                     }
-                }
             }
             this
         }
