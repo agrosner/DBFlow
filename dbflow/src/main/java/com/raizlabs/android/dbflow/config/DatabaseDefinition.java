@@ -78,7 +78,6 @@ public abstract class DatabaseDefinition {
         databaseConfig = FlowManager.getConfig()
             .databaseConfigMap().get(getAssociatedDatabaseClassFile());
 
-
         if (databaseConfig != null) {
             // initialize configuration if exists.
             Collection<TableConfig> tableConfigCollection = databaseConfig.tableConfigMap().values();
@@ -310,7 +309,9 @@ public abstract class DatabaseDefinition {
     /**
      * @return True if the database will reside in memory.
      */
-    public abstract boolean isInMemory();
+    public boolean isInMemory() {
+        return databaseConfig != null && databaseConfig.isInMemory();
+    }
 
     /**
      * @return The version of the database currently.

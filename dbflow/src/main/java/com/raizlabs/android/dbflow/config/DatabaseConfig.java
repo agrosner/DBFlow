@@ -16,6 +16,14 @@ import java.util.Map;
  */
 public final class DatabaseConfig {
 
+    public static DatabaseConfig.Builder builder(@NonNull Class<?> database) {
+        return new DatabaseConfig.Builder(database);
+    }
+
+    public static DatabaseConfig.Builder inMemoryBuilder(@NonNull Class<?> database) {
+        return new DatabaseConfig.Builder(database).inMemory();
+    }
+
     public interface OpenHelperCreator {
 
         OpenHelper createHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener helperListener);
@@ -32,7 +40,7 @@ public final class DatabaseConfig {
     private final DatabaseHelperListener helperListener;
     private final Map<Class<?>, TableConfig> tableConfigMap;
     private final ModelNotifier modelNotifier;
-
+    private final boolean inMemory;
 
     DatabaseConfig(Builder builder) {
         openHelperCreator = builder.openHelperCreator;
@@ -41,6 +49,11 @@ public final class DatabaseConfig {
         helperListener = builder.helperListener;
         tableConfigMap = builder.tableConfigMap;
         modelNotifier = builder.modelNotifier;
+        inMemory = builder.inMemory;
+    }
+
+    public boolean isInMemory() {
+        return inMemory;
     }
 
     @Nullable
@@ -87,6 +100,7 @@ public final class DatabaseConfig {
         DatabaseHelperListener helperListener;
         final Map<Class<?>, TableConfig> tableConfigMap = new HashMap<>();
         ModelNotifier modelNotifier;
+        boolean inMemory = false;
 
         public Builder(@NonNull Class<?> databaseClass) {
             this.databaseClass = databaseClass;
@@ -109,6 +123,12 @@ public final class DatabaseConfig {
 
         public Builder modelNotifier(ModelNotifier modelNotifier) {
             this.modelNotifier = modelNotifier;
+            return this;
+        }
+
+        @NonNull
+        public Builder inMemory() {
+            inMemory = true;
             return this;
         }
 

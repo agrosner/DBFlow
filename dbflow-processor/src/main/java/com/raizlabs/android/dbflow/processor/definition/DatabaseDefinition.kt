@@ -1,6 +1,14 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.grosner.kpoet.*
+import com.grosner.kpoet.L
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.constructor
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.param
+import com.grosner.kpoet.public
+import com.grosner.kpoet.statement
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.Database
 import com.raizlabs.android.dbflow.processor.ClassNames
@@ -10,7 +18,11 @@ import com.raizlabs.android.dbflow.processor.TableValidator
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.squareup.javapoet.*
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.WildcardTypeName
 import java.util.*
 import java.util.regex.Pattern
 import javax.lang.model.element.Element
@@ -37,8 +49,6 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     var classSeparator: String = ""
     var fieldRefSeparator: String = "" // safe field for javapoet
-
-    var isInMemory: Boolean = false
 
     var objectHolder: DatabaseObjectHolder? = null
 
@@ -71,7 +81,6 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
             insertConflict = database.insertConflict
             updateConflict = database.updateConflict
-            isInMemory = database.inMemory
         }
     }
 
@@ -172,10 +181,6 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             `override fun`(TypeName.BOOLEAN, "isForeignKeysSupported") {
                 modifiers(public, final)
                 `return`(foreignKeysSupported.L)
-            }
-            `override fun`(TypeName.BOOLEAN, "isInMemory") {
-                modifiers(public, final)
-                `return`(isInMemory.L)
             }
             `override fun`(TypeName.BOOLEAN, "backupEnabled") {
                 modifiers(public, final)

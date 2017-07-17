@@ -53,11 +53,6 @@ public @interface Database {
     boolean backupEnabled() default false;
 
     /**
-     * @return true if you want it to be in-memory, false if not.
-     */
-    boolean inMemory() default false;
-
-    /**
      * @return Global default insert conflict that can be applied to any table when it leaves
      * its {@link ConflictAction} as NONE.
      */
