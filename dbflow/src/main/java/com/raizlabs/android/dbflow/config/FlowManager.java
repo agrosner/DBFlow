@@ -239,7 +239,7 @@ public class FlowManager {
     public static void reset() {
         Set<Map.Entry<Class<?>, DatabaseDefinition>> entrySet = globalDatabaseHolder.databaseClassLookupMap.entrySet();
         for (Map.Entry<Class<?>, DatabaseDefinition> value : entrySet) {
-            value.getValue().reset(getContext());
+            value.getValue().reset();
         }
         globalDatabaseHolder.reset();
         loadedModules.clear();
@@ -326,7 +326,7 @@ public class FlowManager {
         Set<Map.Entry<Class<?>, DatabaseDefinition>> entrySet =
             globalDatabaseHolder.databaseClassLookupMap.entrySet();
         for (Map.Entry<Class<?>, DatabaseDefinition> value : entrySet) {
-            value.getValue().destroy(getContext());
+            value.getValue().destroy();
         }
 
         config = null;

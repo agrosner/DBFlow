@@ -93,6 +93,22 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         insertStatement = null;
     }
 
+    public void closeUpdateStatement() {
+        if (updateStatement == null) {
+            return;
+        }
+        updateStatement.close();
+        updateStatement = null;
+    }
+
+    public void closeDeleteStatement() {
+        if (deleteStatement == null) {
+            return;
+        }
+        deleteStatement.close();
+        deleteStatement = null;
+    }
+
     /**
      * @param databaseWrapper The database used to do an insert statement.
      * @return a new compiled {@link DatabaseStatement} representing insert. Not cached, always generated.
