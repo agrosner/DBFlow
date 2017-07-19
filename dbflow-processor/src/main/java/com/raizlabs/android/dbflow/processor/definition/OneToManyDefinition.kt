@@ -18,6 +18,7 @@ import com.raizlabs.android.dbflow.processor.definition.column.wrapperIfBaseMode
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.isSubclass
+import com.raizlabs.android.dbflow.processor.utils.simpleString
 import com.raizlabs.android.dbflow.processor.utils.statement
 import com.raizlabs.android.dbflow.processor.utils.toTypeElement
 import com.squareup.javapoet.ClassName
@@ -78,11 +79,21 @@ class OneToManyDefinition(executableElement: ExecutableElement,
             _variableName = _variableName.substring(0, 1).toLowerCase() + _variableName.substring(1)
         }
 
+        val privateAccessor = PrivateScopeColumnAccessor(_variableName, object : GetterSetter {
+            override val getterName: String = ""
+            override val setterName: String = ""
+        }, optionalGetterParam = if (hasWrapper) ModelUtils.wrapper else "")
+
         var isVariablePrivate = false
-        val referencedElement = parentElements.firstOrNull { it.simpleName.toString() == _variableName }
+        val referencedElement = parentElements.firstOrNull { it.simpleString == _variableName }
         if (referencedElement == null) {
-            manager.logError(OneToManyDefinition::class,
-                "@OneToMany definition $elementName Cannot find referenced variable $_variableName.")
+            // check on setter. if setter exists, we can reference it safely since a getter has already been defined.
+            if (!parentElements.any { it.simpleString == privateAccessor.setterNameElement }) {
+                manager.logError(OneToManyDefinition::class,
+                    "@OneToMany definition $elementName Cannot find referenced variable $_variableName.")
+            } else {
+                isVariablePrivate = true
+            }
         } else {
             isVariablePrivate = referencedElement.modifiers.contains(Modifier.PRIVATE)
         }
@@ -105,10 +116,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
         }
 
         if (isVariablePrivate) {
-            columnAccessor = PrivateScopeColumnAccessor(_variableName, object : GetterSetter {
-                override val getterName: String = ""
-                override val setterName: String = ""
-            }, optionalGetterParam = if (hasWrapper) ModelUtils.wrapper else "")
+            columnAccessor = privateAccessor
         } else {
             columnAccessor = VisibleScopeColumnAccessor(_variableName)
         }
