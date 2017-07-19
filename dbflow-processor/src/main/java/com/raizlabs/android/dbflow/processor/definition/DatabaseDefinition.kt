@@ -53,10 +53,13 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     var databaseExtensionName = ""
 
+    var databaseName = ""
+
     init {
         packageName = ClassNames.FLOW_MANAGER_PACKAGE
 
         element.annotation<Database>()?.let { database ->
+            databaseName = database.name
             databaseExtensionName = database.databaseExtension
             databaseClassName = element.simpleName.toString()
             consistencyChecksEnabled = database.consistencyCheckEnabled
@@ -185,6 +188,12 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                 `override fun`(String::class, "getDatabaseExtensionName") {
                     modifiers(public, final)
                     `return`(databaseExtensionName.S)
+                }
+            }
+            if (!databaseName.isNullOrBlank()) {
+                `override fun`(String::class, "getDatabaseName") {
+                    modifiers(public, final)
+                    `return`(databaseName.S)
                 }
             }
         }

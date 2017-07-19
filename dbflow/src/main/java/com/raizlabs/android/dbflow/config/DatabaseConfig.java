@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.config;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.runtime.ModelNotifier;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
@@ -42,6 +43,7 @@ public final class DatabaseConfig {
     private final ModelNotifier modelNotifier;
     private final boolean inMemory;
     private final String databaseName;
+    private final String databaseExtensionName;
 
     DatabaseConfig(Builder builder) {
         openHelperCreator = builder.openHelperCreator;
@@ -56,6 +58,18 @@ public final class DatabaseConfig {
         } else {
             databaseName = builder.databaseName;
         }
+
+        if (builder.databaseExtensionName == null) {
+            databaseExtensionName = ".db";
+        } else {
+            databaseExtensionName = StringUtils.isNotNullOrEmpty(builder.databaseExtensionName)
+                ? "." + builder.databaseExtensionName : "";
+        }
+    }
+
+    @NonNull
+    public String getDatabaseExtensionName() {
+        return databaseExtensionName;
     }
 
     public boolean isInMemory() {
@@ -113,6 +127,7 @@ public final class DatabaseConfig {
         ModelNotifier modelNotifier;
         boolean inMemory = false;
         String databaseName;
+        String databaseExtensionName;
 
         public Builder(@NonNull Class<?> databaseClass) {
             this.databaseClass = databaseClass;
@@ -150,6 +165,15 @@ public final class DatabaseConfig {
         @NonNull
         public Builder databaseName(String name) {
             databaseName = name;
+            return this;
+        }
+
+        /**
+         * @return Pass in the extension for the DB here.
+         * Otherwise defaults to ".db". If empty string passed, no extension is used.
+         */
+        public Builder extensionName(String name) {
+            databaseExtensionName = name;
             return this;
         }
 

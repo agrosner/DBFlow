@@ -26,8 +26,15 @@ public @interface Database {
     int version();
 
     /**
-     * @return Specify the extension of the file name : {fileName}.{extension}. Default is ".db"
+     * @deprecated use DatabaseConfig.databaseName() to change the name.
      */
+    @Deprecated
+    String name() default "";
+
+    /**
+     * @deprecated use DatabaseConfig.extension() to change the extension.
+     */
+    @Deprecated
     String databaseExtension() default "";
 
     /**
