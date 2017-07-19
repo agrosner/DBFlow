@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
-import com.google.common.collect.Maps
 import com.grosner.kpoet.code
 import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.processor.utils.capitalizeFirstLetter
@@ -158,7 +157,7 @@ class PackagePrivateScopeColumnAccessor(
 
         val classSuffix = "Helper"
 
-        private val methodWrittenMap = Maps.newHashMap<ClassName, MutableList<String>>()
+        private val methodWrittenMap = hashMapOf<ClassName, MutableList<String>>()
 
         fun containsColumn(className: ClassName, columnName: String): Boolean {
             return methodWrittenMap[className]?.contains(columnName) ?: false

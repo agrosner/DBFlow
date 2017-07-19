@@ -1,10 +1,8 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.google.common.collect.Lists
 import com.grosner.kpoet.L
 import com.grosner.kpoet.S
 import com.grosner.kpoet.`=`
-import com.grosner.kpoet.`@`
 import com.grosner.kpoet.`public static final field`
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.`throw new`
@@ -45,7 +43,6 @@ import com.raizlabs.android.dbflow.processor.utils.ModelUtils.wrapper
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.ensureVisibleStatic
-import com.raizlabs.android.dbflow.processor.utils.hasJavaX
 import com.raizlabs.android.dbflow.processor.utils.implementsClass
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
@@ -365,11 +362,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
     }
 
     override val primaryColumnDefinitions: List<ColumnDefinition>
-        get() = if (autoIncrementColumn != null) {
-            Lists.newArrayList(autoIncrementColumn!!)
-        } else {
-            _primaryColumnDefinitions
-        }
+        get() = autoIncrementColumn?.let { arrayListOf(it) } ?: _primaryColumnDefinitions
 
     override val extendsClass: TypeName?
         get() = ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName)

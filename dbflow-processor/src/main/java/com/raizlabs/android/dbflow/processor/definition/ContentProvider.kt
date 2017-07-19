@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.google.common.collect.Lists
 import com.grosner.kpoet.L
 import com.grosner.kpoet.`=`
 import com.grosner.kpoet.`break`
@@ -366,7 +365,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
 
     var authority: String = ""
 
-    var endpointDefinitions: MutableList<TableEndpointDefinition> = Lists.newArrayList<TableEndpointDefinition>()
+    var endpointDefinitions = arrayListOf<TableEndpointDefinition>()
 
     private val methods: Array<MethodDefinition> = arrayOf(QueryMethod(this, manager),
         InsertMethod(this, false),

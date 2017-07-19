@@ -1,8 +1,5 @@
 package com.raizlabs.android.dbflow.processor
 
-import com.google.common.collect.Lists
-import com.google.common.collect.Maps
-import com.google.common.collect.Sets
 import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
 import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition
 import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
@@ -149,11 +146,12 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         }
     }
 
-    fun getTypeConverters() = Sets.newLinkedHashSet(typeConverters.values).sortedBy { it.modelTypeName?.toString() }
+    fun getTypeConverters() = typeConverters.values.toHashSet().sortedBy { it.modelTypeName?.toString() }
 
     fun getTableDefinitions(databaseName: TypeName): List<TableDefinition> {
         val databaseHolderDefinition = getOrPutDatabase(databaseName)
-        return Sets.newHashSet(databaseHolderDefinition?.tableDefinitionMap?.values ?: arrayListOf())
+        return (databaseHolderDefinition?.tableDefinitionMap?.values ?: arrayListOf())
+            .toHashSet()
             .sortedBy { it.outputClassName?.simpleName() }
     }
 
@@ -164,7 +162,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun getModelViewDefinitions(databaseName: TypeName): List<ModelViewDefinition> {
         val databaseDefinition = getOrPutDatabase(databaseName)
-        return Sets.newHashSet(databaseDefinition?.modelViewDefinitionMap?.values ?: arrayListOf())
+        return (databaseDefinition?.modelViewDefinitionMap?.values ?: arrayListOf())
+            .toHashSet()
             .sortedBy { it.outputClassName?.simpleName() }
             .sortedByDescending { it.priority }
     }
@@ -176,24 +175,25 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun getQueryModelDefinitions(databaseName: TypeName): List<QueryModelDefinition> {
         val databaseDefinition = getOrPutDatabase(databaseName)
-        return Sets.newHashSet(databaseDefinition?.queryModelDefinitionMap?.values ?: arrayListOf())
+        return (databaseDefinition?.queryModelDefinitionMap?.values ?: arrayListOf())
+            .toHashSet()
             .sortedBy { it.outputClassName?.simpleName() }
     }
 
     fun addMigrationDefinition(migrationDefinition: MigrationDefinition) {
         var migrationDefinitionMap: MutableMap<Int, MutableList<MigrationDefinition>>? = migrations[migrationDefinition.databaseName]
         if (migrationDefinitionMap == null) {
-            migrationDefinitionMap = Maps.newHashMap<Int, MutableList<MigrationDefinition>>()
+            migrationDefinitionMap = hashMapOf()
             migrations.put(migrationDefinition.databaseName, migrationDefinitionMap)
         }
 
         var migrationDefinitions: MutableList<MigrationDefinition>? = migrationDefinitionMap!![migrationDefinition.version]
         if (migrationDefinitions == null) {
-            migrationDefinitions = Lists.newArrayList<MigrationDefinition>()
+            migrationDefinitions = arrayListOf()
             migrationDefinitionMap.put(migrationDefinition.version, migrationDefinitions)
         }
 
-        if (!migrationDefinitions!!.contains(migrationDefinition)) {
+        if (!migrationDefinitions.contains(migrationDefinition)) {
             migrationDefinitions.add(migrationDefinition)
         }
     }

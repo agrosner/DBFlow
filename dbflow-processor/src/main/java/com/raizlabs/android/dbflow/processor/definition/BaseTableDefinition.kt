@@ -1,14 +1,29 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.google.common.collect.Lists
-import com.grosner.kpoet.*
+import com.grosner.kpoet.`public static final`
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.code
+import com.grosner.kpoet.constructor
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.param
+import com.grosner.kpoet.public
+import com.grosner.kpoet.statement
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
-import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.PackagePrivateScopeColumnAccessor
-import com.raizlabs.android.dbflow.processor.utils.*
-import com.squareup.javapoet.*
+import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
+import com.raizlabs.android.dbflow.processor.utils.ElementUtility
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils
+import com.raizlabs.android.dbflow.processor.utils.`override fun`
+import com.raizlabs.android.dbflow.processor.utils.getPackage
+import com.raizlabs.android.dbflow.processor.utils.toClassName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.JavaFile
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import java.io.IOException
 import java.util.*
 import javax.annotation.processing.ProcessingEnvironment
@@ -31,10 +46,9 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
     var autoIncrementColumn: ColumnDefinition? = null
 
-    var associatedTypeConverters: MutableMap<ClassName, MutableList<ColumnDefinition>> = HashMap()
-    var globalTypeConverters: MutableMap<ClassName, MutableList<ColumnDefinition>> = HashMap()
-    val packagePrivateList: MutableList<ColumnDefinition> =
-        Lists.newArrayList<ColumnDefinition>()
+    var associatedTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
+    var globalTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
+    val packagePrivateList = arrayListOf<ColumnDefinition>()
 
     var orderedCursorLookUp: Boolean = false
     var assignDefaultValuesFromCursor = true

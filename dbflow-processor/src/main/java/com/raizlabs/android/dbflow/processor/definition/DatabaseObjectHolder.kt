@@ -1,7 +1,5 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.google.common.collect.Maps
-import com.raizlabs.android.dbflow.processor.definition.*
 import com.squareup.javapoet.TypeName
 import java.util.*
 
@@ -23,5 +21,5 @@ class DatabaseObjectHolder {
     var queryModelDefinitionMap: MutableMap<TypeName, QueryModelDefinition> = HashMap()
     var modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition> = HashMap()
     var manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> = HashMap()
-    var providerMap: MutableMap<TypeName, ContentProviderDefinition> = Maps.newHashMap<TypeName, ContentProviderDefinition>()
+    var providerMap = hashMapOf<TypeName, ContentProviderDefinition>()
 }
