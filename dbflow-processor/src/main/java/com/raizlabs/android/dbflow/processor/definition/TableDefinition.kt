@@ -339,7 +339,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     }
                 }
             } else if (element.annotation<OneToMany>() != null) {
-                val oneToManyDefinition = OneToManyDefinition(element as ExecutableElement, manager)
+                val oneToManyDefinition = OneToManyDefinition(element as ExecutableElement, manager, elements)
                 if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition)
                 }

@@ -1,20 +1,42 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.grosner.kpoet.*
+import com.grosner.kpoet.`for`
+import com.grosner.kpoet.`if`
+import com.grosner.kpoet.end
+import com.grosner.kpoet.statement
+import com.grosner.kpoet.typeName
 import com.raizlabs.android.dbflow.annotation.OneToMany
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.definition.column.*
-import com.raizlabs.android.dbflow.processor.utils.*
-import com.squareup.javapoet.*
+import com.raizlabs.android.dbflow.processor.definition.column.ColumnAccessor
+import com.raizlabs.android.dbflow.processor.definition.column.GetterSetter
+import com.raizlabs.android.dbflow.processor.definition.column.PrivateScopeColumnAccessor
+import com.raizlabs.android.dbflow.processor.definition.column.VisibleScopeColumnAccessor
+import com.raizlabs.android.dbflow.processor.definition.column.modelBlock
+import com.raizlabs.android.dbflow.processor.definition.column.wrapperCommaIfBaseModel
+import com.raizlabs.android.dbflow.processor.definition.column.wrapperIfBaseModel
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils
+import com.raizlabs.android.dbflow.processor.utils.annotation
+import com.raizlabs.android.dbflow.processor.utils.isSubclass
+import com.raizlabs.android.dbflow.processor.utils.statement
+import com.raizlabs.android.dbflow.processor.utils.toTypeElement
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.WildcardTypeName
+import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 
 /**
  * Description: Represents the [OneToMany] annotation.
  */
 class OneToManyDefinition(executableElement: ExecutableElement,
-                          processorManager: ProcessorManager) : BaseDefinition(executableElement, processorManager) {
+                          processorManager: ProcessorManager,
+                          parentElements: Collection<Element>) : BaseDefinition(executableElement, processorManager) {
 
     private var _methodName: String
 
@@ -55,6 +77,16 @@ class OneToManyDefinition(executableElement: ExecutableElement,
             _variableName = _methodName.replace("get", "")
             _variableName = _variableName.substring(0, 1).toLowerCase() + _variableName.substring(1)
         }
+
+        var isVariablePrivate = false
+        val referencedElement = parentElements.firstOrNull { it.simpleName.toString() == _variableName }
+        if (referencedElement == null) {
+            manager.logError(OneToManyDefinition::class,
+                "@OneToMany definition $elementName Cannot find referenced variable $_variableName.")
+        } else {
+            isVariablePrivate = referencedElement.modifiers.contains(Modifier.PRIVATE)
+        }
+
         methods.addAll(oneToMany.methods)
 
         val parameters = executableElement.parameters
@@ -72,7 +104,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
             }
         }
 
-        if (oneToMany.isVariablePrivate) {
+        if (isVariablePrivate) {
             columnAccessor = PrivateScopeColumnAccessor(_variableName, object : GetterSetter {
                 override val getterName: String = ""
                 override val setterName: String = ""
@@ -103,7 +135,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
 
     fun writeWrapperStatement(method: MethodSpec.Builder) {
         method.statement("\$T ${ModelUtils.wrapper} = \$T.getWritableDatabaseForTable(\$T.class)",
-                ClassNames.DATABASE_WRAPPER, ClassNames.FLOW_MANAGER, referencedTableType)
+            ClassNames.DATABASE_WRAPPER, ClassNames.FLOW_MANAGER, referencedTableType)
     }
 
     /**
@@ -144,8 +176,8 @@ class OneToManyDefinition(executableElement: ExecutableElement,
                 // need to load adapter for non-model classes
                 if (!extendsModel || efficientCodeMethods) {
                     statement("\$T adapter = \$T.getModelAdapter(\$T.class)",
-                            ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
-                            ClassNames.FLOW_MANAGER, referencedTableType)
+                        ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
+                        ClassNames.FLOW_MANAGER, referencedTableType)
                 }
 
                 if (efficientCodeMethods) {

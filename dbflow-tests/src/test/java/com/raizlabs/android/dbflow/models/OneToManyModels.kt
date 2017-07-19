@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.annotation.OneToMany
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.kotlinextensions.list
 import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.kotlinextensions.where
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
@@ -16,6 +17,17 @@ class OneToManyModel(@PrimaryKey var name: String? = null) {
     var orders: List<TwoColumnModel>? = null
 
     var models: List<OneToManyBaseModel>? = null
+
+    @get:OneToMany(methods = arrayOf(OneToMany.Method.ALL))
+    var simpleModels: List<OneToManyBaseModel>? = null
+        get() {
+            var f = field
+            if (f == null || f.isEmpty()) {
+                f = (select from OneToManyBaseModel::class).list
+                field = f
+            }
+            return f
+        }
 
     @OneToMany(methods = arrayOf(OneToMany.Method.ALL), isVariablePrivate = true,
         variableName = "orders", efficientMethods = false)
