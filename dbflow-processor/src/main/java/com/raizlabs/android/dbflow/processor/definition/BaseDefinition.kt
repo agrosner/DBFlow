@@ -141,7 +141,7 @@ abstract class BaseDefinition : TypeDefinition {
             return `public final class`(outputClassName?.simpleName() ?: "") {
                 if (hasJavaX()) {
                     addAnnotation(`@`(ClassNames.GENERATED, {
-                        this["value"] = DBFlowProcessor::class.qualifiedName.toString().S
+                        this["value"] = DBFlowProcessor::class.java.canonicalName.toString().S
                     }).build())
                 }
                 extendsClass?.let { extends(it) }

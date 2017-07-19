@@ -187,7 +187,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
             migrations.put(migrationDefinition.databaseName, migrationDefinitionMap)
         }
 
-        var migrationDefinitions: MutableList<MigrationDefinition>? = migrationDefinitionMap!![migrationDefinition.version]
+        var migrationDefinitions: MutableList<MigrationDefinition>? = migrationDefinitionMap[migrationDefinition.version]
         if (migrationDefinitions == null) {
             migrationDefinitions = arrayListOf()
             migrationDefinitionMap.put(migrationDefinition.version, migrationDefinitions)
