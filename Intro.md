@@ -3,71 +3,57 @@
 
 DBFlow for Android lets you write very efficient database code while remaining
 expressive and concise.
+DBFlow fully supports Kotlin and public API reflects that via `@NonNull` and `@Nullable` annotations.
 
-```java
+```kotlin
 
-@Table(database = AppDatabase.class)
-public class Automobile extends BaseModel { // convenience, but not required to interact with db
+@Table(database = AppDatabase::class)
+class Automobile(@PrimaryKey var vin: String? = null,
+                 @Column var make: String? = null,
+                 @Column var model: String = "", // nullability of kotlin fields respected
+                 @Column var year: Int = 0) // default constructor required
 
-  @PrimaryKey
-  String vin;
-
-  @Column
-  String make;
-
-  @Column
-  String model;
-
-  @Column
-  int year;
-
-}
-
-Automobile venza = new Automobile();
-venza.vin = "499499449";
-venza.make = "Toyota";
-venza.model = "Venza";
-venza.year = 2013;
-venza.save(); // inserts if not exists by primary key, updates if exists.
+val venza = new Automobile(vin = "499499449",
+                           make = "Toyota",
+                           model = "Venza",
+                           year = 2013);
+venza.save();
+// inserts if not exists by primary key, updates if exists.
+// Kotlin extensions add methods found in BaseModel
 
 // querying
 // SELECT * FROM `Automobile` WHERE `year`=2001 AND `model`='Camry'
 // we autogen a "_Table" class that contains convenience Properties which provide easy SQL ops.
-SQLite().select()
-        .from(Automobile.class)
-        .where(Automobile_Table.year.is(2001))
-        .and(Automobile_Table.model.is("Camry"))
-        .async()
-        .queryResultCallback(new QueryTransaction.QueryResultCallback<TestModel1>() {
-            @Override
-            public void onQueryResult(QueryTransaction transaction, @NonNull CursorResult<TestModel1> tResult) {
-              // called when query returns on UI thread
-              List<Automobile> autos = tResult.toListClose();
-              // do something with results
-            }
-        }, new Transaction.Error() {
-            @Override
-            public void onError(Transaction transaction, Throwable error) {
-              // handle any errors
-            }
-        }).execute();
+(select from Automobile:::class
+  where Automobile_Table.year.is(2001)
+  and Automobile_Table.model.is("Camry")).async()
 
-// run a transaction synchronous easily.
-DatabaseDefinition database = FlowManager.getDatabase(AppDatabase.class);
-database.executeTransaction(new ITransaction() {
-            @Override
-            public void execute(DatabaseWrapper databaseWrapper) {
-              // do something here
-            }
-});
+(select from Automobile::class
+        where Automobile_Table.year.`is`(2001)
+        and Automobile_Table.model.`is`("Camry")).async()
+ .queryResultCallback { transaction, tResult ->
+   // called when query returns on UI thread
+   val autos = tResult.toListClose()
+   // do something with results
+ }
+ .error { transaction, error ->
+     // handle any errors
+ }.execute()
 
-// run asynchronous transactions easily, with expressive builders
-database.beginTransactionAsync(new ITransaction() {
-            @Override
-            public void execute(DatabaseWrapper databaseWrapper) {
-                // do something in BG
-            }
-        }).success(successCallback).error(errorCallback).build().execute();
+ // run a transaction synchronous easily.
+ val database = database<AppDatabase>()
+ database.executeTransaction {
+     // do something here
+ }
+
+ // run asynchronous transactions easily, with expressive builders
+ database.beginTransactionAsync {
+     // do something in BG
+ }.success { transaction ->  
+
+ }.error {  transaction, error ->  
+
+ }.build().execute()
 
 ```
 

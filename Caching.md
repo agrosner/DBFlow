@@ -45,6 +45,22 @@ public class CacheableModel {
 
 ```
 
+or in Kotlin:
+
+```kotlin
+
+@Table(database = AppDatabase.class, cachingEnabled = true)
+class CacheableModel {
+
+    @PrimaryKey(autoincrement = true)
+    var id: Long = 0L
+
+    @Column
+    var name: String? = null;
+}
+
+```
+
 to use caching on a table that uses multiple primary keys, [see](Caching.md#multiple-primary-key-caching).
 
 By default we use a `SimpleMapCache`, which loads `Model` into a `Map`. The key is
@@ -73,6 +89,14 @@ model.save(); // save it to DB post any modifications to this object.
 
 ```
 
+```kotlin
+
+(select from MyModel::class where (...)).result?.let { result ->
+  result.name = "Name"
+  result.save()
+}
+
+```
 ## Disable Caching For Some Queries
 
 To disable caching on certain queries as you might want to project on only a few columns,
@@ -87,6 +111,14 @@ select(My_Table.column, My_Table.column2)
 
 ```
 
+```kotlin
+
+select(My_Table.column, My_Table.column2)
+  .from(My::class)
+  .disableCaching()
+  .list;
+
+```
 ## Advanced
 
 ### Specifying cache Size
@@ -99,12 +131,17 @@ caches support sizing. It's up to each cache.
 To specify a custom cache for a table, please define a `public static final` field:
 
 ```java
-
 @ModelCacheField
 public static ModelCache<CacheableModel3, ?> modelCache = new SimpleMapCache<>(); // replace with any cache you want.
-
 ```
 
+```kotlin
+companion object {
+
+  @JvmField @ModelCacheField
+  val modelCache = SimpleMapCache<CacheableModel3, Any>()
+}
+```
 ### Multiple Primary Key Caching
 
 This allows for tables that have multiple primary keys be used in caching. To use,
@@ -113,8 +150,6 @@ for example we have a `Coordinate` class:
 
 
 ```java
-
-
 @Table(database = AppDatabase.class, cachingEnabled = true)
 public class Coordinate {
 
@@ -133,7 +168,20 @@ public class Coordinate {
 
     @PrimaryKey
     double longitude;
+```
 
+```kotlin
+
+@Table(database = AppDatabase.class, cachingEnabled = true)
+class Coordinate(@PrimaryKey latitude: Double = 0.0,
+                 @PrimaryKey longitude: Double = 0.0) {
+
+    companion object {
+      @JvmField
+      @MultiCacheField
+      val cacheConverter = IMultiKeyCacheConverter { values -> "${values[0]},${values[1]}" }
+    }
+}
 
 ```
 

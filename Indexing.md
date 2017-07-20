@@ -16,11 +16,11 @@ You can define as many `@IndexGroup` you want within a `@Table` as long as one f
 ```java
 
 @Table(database = TestDatabase.class,
-       indexGroups = {
+       indexGroups = [
                @IndexGroup(number = 1, name = "firstIndex"),
                @IndexGroup(number = 2, name = "secondIndex"),
                @IndexGroup(number = 3, name = "thirdIndex")
-       })
+       ])
 public class IndexModel2 {
 
    @Index(indexGroups = {1, 2, 3})
@@ -60,6 +60,16 @@ SQLite.select()
 IndexModel2_Table.firstIndex.drop(); // turn it off when no longer needed.
 ```
 
+```kotlin
+
+IndexModel2_Table.firstIndex.createIfNotExists()
+
+(select from IndexModel2::class indexedBy IndexModel2_Table.firstIndex where (...))
+
+IndexModel2_Table.firstIndex.drop() // turn it off when no longer needed.
+
+```
+
 ## SQLite Index Wrapper
 
 For flexibility, we also support the SQLite `Index` wrapper object, in which the `IndexProperty`
@@ -74,5 +84,15 @@ index.enable();
 // do some operations
 
 index.disable(); // disable when no longer needed
+
+```
+
+
+```kotlin
+
+val index = indexOn<SomeTable>("MyIndex", SomeTable_Table.name, SomeTable_Table.othercolumn)
+index.enable()
+
+index.disable()
 
 ```

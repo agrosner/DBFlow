@@ -28,6 +28,9 @@ allProjects {
 ```
 
 ```Groovy
+
+  apply plugin: 'kotlin-kapt' // required for Kotlin
+
   def dbflow_version = "xxxx" // reference the releases tab on Github for latest versions
   // or you can grab a 10-digit commit hash of any commit in the project that builds.
 
@@ -60,12 +63,5 @@ allProjects {
     compile "com.github.Raizlabs.DBFlow:dbflow-rx2-kotlinextensions:${dbflow_version}"
 
   }
-  
-  // if you build with Kotlin KAPT1 (Kapt2/3 do not require this)
-  kapt {
-    generateStubs = true
-  }
+
 ```
-
-
-

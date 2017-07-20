@@ -23,10 +23,8 @@ We recommend placing any `Migration` inside an associated `@Database` class so i
 An example migration class:
 
 ```java
-@Database(version = 2, name = AppDatabase.NAME)
+@Database(version = 2)
 public class AppDatabase {
-
-    public static final String NAME = "AppDatabase";
 
     @Migration(version = 2, database = AppDatabase.class)
     public static class Migration2 extends BaseMigration {
@@ -38,6 +36,24 @@ public class AppDatabase {
             .set(Employee_Table.status.eq("Invalid"))
             .where(Employee_Table.job.eq("Laid Off"))
             .execute(database); // required inside a migration to pass the wrapper
+        }
+    }
+}
+```
+
+```kotlin
+@Database(version = 2)
+object AppDatabase {
+
+    @Migration(version = 2, database = AppDatabase.class)
+    class Migration2 : BaseMigration() {
+
+        override fun migrate(database: DatabaseWrapper) {
+          // run some code here
+          (update<Employee>()
+            set Employee_Table.status.eq("Invalid")
+            where Employee_Table.job.eq("Laid Off"))
+            .execute(database) // required to pass wrapper in migration
         }
     }
 }
@@ -110,6 +126,19 @@ public class Migration2 extends AlterTableMigration<AModel> {
 
 ```
 
+
+```kotlin
+@Migration(version = 2, database = AppDatabase.class)
+class Migration2 : AlterTableMigration<AModel>(AModel::class.java) {
+
+    override fun onPreMigrate() {
+        addColumn(SQLiteType.TEXT, "myColumn")
+        addColumn(SQLiteType.REAL, "anotherColumn")
+    }
+}
+
+```
+
 ### Index Migrations
 
 An `IndexMigration` (and `IndexPropertyMigration`) is used to structurally activate an `Index` on the database at a specific version. See [here](Indexing.md) for information on creating them.
@@ -135,6 +164,15 @@ public static class IndexMigration2 extends IndexMigration<MigrationModel> {
 }
 ```
 
+```kotlin
+@Migration(version = 2, priority = 0, database = MigrationDatabase::class)
+class IndexMigration2 : IndexMigration<MigrationModel>(MigrationModel::class.java) {
+
+    override fun getName() = "TestIndex"
+}
+
+```
+
 An `IndexPropertyMigration`:
 
 ```java
@@ -147,6 +185,15 @@ public static class IndexPropertyMigration2 extends IndexPropertyMigration {
    public IndexProperty getIndexProperty() {
        return IndexModel_Table.index_customIndex;
    }
+}
+
+```
+
+```kotlin
+@Migration(version = 2, priority = 1, database = MigrationDatabase.class)
+class IndexPropertyMigration2 : IndexPropertyMigration {
+
+   override fun getIndexProperty() = IndexModel_Table.index_customIndex
 }
 
 ```

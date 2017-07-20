@@ -26,6 +26,12 @@ FlowCursorList<MyTable> list = SQLite.select()
 
 ```
 
+```kotlin
+val list = (select from MyTable::class where (...)).cursorList
+val list = (select from MyTable::class where (...)).flowQueryList
+list.close()
+```
+
 Any query method allows you to retrieve a default implementation of each. You
 can also manually instantiate them:
 

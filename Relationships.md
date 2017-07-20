@@ -93,12 +93,12 @@ public class Queen extends BaseModel {
 
     List<Ant> ants;
 
-    @OneToMany(methods = {OneToMany.Method.ALL}, _variableName = "ants")
+    @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "ants")
     public List<Ant> getMyAnts() {
         if (ants == null || ants.isEmpty()) {
             ants = SQLite.select()
                 .from(Ant.class)
-                .where(Ant_Table.queenForeignKeyContainer_id.eq(id))
+                .where(Ant_Table.queen_id.eq(id))
                 .queryList();
         }
         return ants;
@@ -106,6 +106,24 @@ public class Queen extends BaseModel {
 }
 
 ```
+
+### Efficient Methods
+When using `@ManyToMany`, by default we skip the `Model` methods in each retrieved `Ant` (in this example).
+If you have nested `@ManyToMany` (which should strongly be avoided), you can turn off the efficient operations.
+Call `@OneToMany(efficientMethods = false)` and it will instead loop through each model and perform `save()`, `delete()`, etc
+when the parent model is called.
+
+### Kotlin Support
+
+Also, with DBFlow Kotlin extensions, we can make this much more concise:
+```kotlin
+
+@get:OneToMany(methods = arrayOf(OneToMany.Method.ALL))
+var ants by oneToMany { select from Ant::class where (Ant_Table.queen_id.eq(id)) }
+```
+
+This creates a delegated property which does the same operation as above. The only difference is the
+variable is nullable.
 
 ### Custom ForeignKeyReferences
 When simple `@ForeignKey` annotation is not enough, you can manually specify references for your table:

@@ -41,6 +41,10 @@ car.exists()
 
 ```
 
+## Null Safety
+DBFlow reflects the nullability on fields defined in their classes. If you define a
+`@Column` as not null, it will not assign a null value to that field in the generated java.
+
 ## Query LINQ Syntax
 
 Kotlin has nice support for custim `infix` operators. Using this we can convert a regular, Plain old java query into a C#-like LINQ syntax.
@@ -183,15 +187,15 @@ var items = (select from TestModel1::class).list
 
  // easily delete all these items with success
  items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
-            Transaction.Success {
+            success = { transaction ->
                 // do something here
             })
 // delete with all callbacks
 items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
-    Transaction.Success {
+    success = { transaction ->
         // do something here
     },
-    Transaction.Error { transaction, throwable ->
+    error = { transaction, throwable ->
 
     })
 
@@ -211,7 +215,7 @@ items.processInTransaction { it, databaseWrapper -> it.delete(databaseWrapper) }
 #### Class Extensions
 
 If you need access to the Database, ModelAdapter, etc for a specific class you
-can now use the following (and more) reified global functions for easy access!
+can now use the following (and more) inline reified global functions for easy access!
 
 ```kotlin
 

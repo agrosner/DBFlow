@@ -11,22 +11,30 @@ can only be associated with one database.
 
 ```java
 
-@Database(name = AppDatabase.NAME, version = AppDatabase.VERSION)
+@Database(version = AppDatabase.VERSION)
 public class AppDatabase {
-
-  public static final String NAME = "AppDatabase"; // we will add the .db extension
-
   public static final int VERSION = 1;
 }
 
 
 ```
 
+
+```kotlin
+
+@Database(version = AppDatabase.VERSION)
+object AppDatabase {
+  const val VERSION = 1
+}
+```
+
+The name of the database by default is the class name. To change it, read [here](Databases.md).
+
 Writing this file generates (by default) a `AppDatabaseAppDatabase_Database.java`
 file, which contains tables, views, and more all tied to a specific database. This
 class is automatically placed into the main `GeneratedDatabaseHolder`, which holds
 potentially many databases. The name, `AppDatabaseAppDatabase_Database.java`, is generated
-via {DatabaseClassName}{DatabaseFileName}{GeneratedClassSepator, default = "\_"}Database
+via {DatabaseClassName}{DatabaseFileName}_Database
 
 To learn more about what you can configure in a database, read [here](Databases.md)
 
@@ -50,6 +58,16 @@ public class ExampleApplication extends Application {
 
 ```
 
+```kotlin
+class ExampleApplication : Application {
+
+  override fun onCreate() {
+    super.onCreate()
+    FlowManager.init(this)
+  }
+}
+```
+
 Finally, add the definition to the manifest (with the name that you chose for your custom application):
 ```xml
 <application
@@ -66,8 +84,20 @@ don't want this behavior or prefer it to happen immediately, modify your `FlowCo
 @Override
 public void onCreate() {
     super.onCreate();
-    FlowManager.init(new FlowConfig.Builder(this)
-        .openDatabasesOnInit(true).build());
+    FlowManager.init(FlowConfig.builder(this)
+        .openDatabasesOnInit(true)
+        .build());
+}
+
+```
+
+```kotlin
+
+override fun onCreate() {
+    super.onCreate()
+    FlowManager.init(FlowConfig.builder(this)
+        .openDatabasesOnInit(true)
+        .build());
 }
 
 ```
@@ -76,16 +106,15 @@ If you do not like the built-in `DefaultTransactionManager`, or just want to rol
 
 ```java
 
-FlowManager.init(new FlowConfig.Builder(this)
-    .addDatabaseConfig(
-        new DatabaseConfig.Builder(AppDatabase.class)
+FlowManager.init(FlowConfig.builder(this)
+    .addDatabaseConfig(DatabaseConfig.builder(AppDatabase.class)
             .transactionManager(new CustomTransactionManager())
           .build()));
 
 ```
+
 You can define different kinds for each database.
 To read more on transactions and subclassing `BaseTransactionManager` go [here](StoringData.md)
-
 
 ## Create Models
 
@@ -125,6 +154,18 @@ public class Currency {
 
 ```
 
+Kotlin is fully supported too, as long as you define default values to generate a default constructor:
+
+```kotlin
+
+@Table(database = TestDatabase::class)
+    class Currency(@PrimaryKey(autoincrement = true) var id: Long = 0,
+                   @Column @Unique var symbol: String? = null,
+                   @Column var shortName: String? = null,
+                   @Column @Unique var name: String = "") // nullability of fields are respected. We will not assign a null value to this field.
+
+```
+
 ## Perform Some Queries
 
 DBFlow uses expressive builders to represent and translate to the SQLite language.
@@ -144,6 +185,12 @@ Can be represented by:
 SQLite.select()
   .from(Currency.class)
   .where(Currency_Table.symbol.eq("$"));
+
+```
+
+```kotlin
+
+(select from Currency::class where (symbol eq "$"))
 
 ```
 
