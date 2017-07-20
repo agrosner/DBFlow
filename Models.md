@@ -1,6 +1,6 @@
 # Models
 
-In DBFlow we dont have any restrictions on what your table class is. We do, however recommend you subclass `BaseModel` on
+In DBFlow we dont have any restrictions on what your table class is. We do, however if you use Java, we recommend you subclass `BaseModel` on
 your highest-order base-class, which provides a default implementation for you.
 
 When using regular models:
@@ -14,9 +14,14 @@ When using `BaseModel`, it is much cleaner:
 myTableObject.save();
 ```
 
+if you use Kotlin, you can add the [kotlin extensions](/KotlinSupport.md) to your project use them as extension methods:
+```kotlin
+myTableObject.save()
+```
+
 ## Columns
 
-We, by default, lazily look for columns. This means that they all must contain either `@PrimaryKey`, `@Column`, or `@ForeignKey` to be used in tables.
+By default, DBFlow lazily looks for columns. This means that they all must contain either `@PrimaryKey`, `@Column`, or `@ForeignKey` to be used in tables.
 
 If you wish to make it simpler and include all fields in a class, set `@Table(allFields = true)`.
 However this still requires you to specify at least one `@PrimaryKey` field. You
@@ -46,6 +51,11 @@ public class Dog {
 
 ```
 
+```kotlin
+@Table(database = AppDatabase.class)
+public class Dog(@Primary var name: String? = null)
+```
+
 Columns have a wide-range of supported types in the `Model` classes:
 **Supported Types**:
   1. all java primitives including `char`,`byte`, `short`, and `boolean`.
@@ -53,6 +63,7 @@ Columns have a wide-range of supported types in the `Model` classes:
   3. String, Date, java.sql.Date, Calendar, Blob, Boolean
   4. Custom data types via a [TypeConverter](TypeConverters.md)
   5. `Model` as fields, but only as `@PrimaryKey` and/or `@ForeignKey`
+  6. `@ColumnMap` objects that flatten an object into the current table. Just like a `@ForeignKey`, but without requiring a separate table. (4.1.0+). Avoid nesting more than one object, as the column count could get out of control.
 
 **Unsupported Types**:
   1. `List<T>` : List columns are not supported and not generally proper for a relational database. However, you can get away with a non-generic `List` column via a `TypeConverter`. But again, avoid this if you can.
@@ -91,6 +102,14 @@ public class Dog extends BaseModel {
 }
 
 ```
+
+```kotlin
+@Table(database = AppDatabase::class)
+class Dog(@PrimaryKey var name: String? = null,
+          @PrimaryKey var breed: String? = null)
+
+```
+
 
 If we want an auto-incrementing key, you specify `@PrimaryKey(autoincrement = true)`, but only one of these kind can exist in a table and you cannot mix with regular primary keys.
 

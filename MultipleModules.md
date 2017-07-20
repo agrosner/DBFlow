@@ -40,7 +40,7 @@ affect DBFlow. If DBFlow is already initialized, we append the module to DBFlow 
 ```java
 
 public void initialize(Context context) {
-  FlowManager.init(new FlowConfig.Builder(context)
+  FlowManager.init(FlowConfig.builder(context)
     .addDatabaseHolder(SomeUniqueModuleNameGeneratedDatabaseHolder.class)
     .build());
 }

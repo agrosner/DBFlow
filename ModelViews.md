@@ -22,14 +22,25 @@ public class TestModelView {
 
 ```
 
+```kotlin
+@ModelView(database = TestDatabase::class)
+class TestModelView(@Column modelOrder: Long = 0L) {
+
+  companion object {
+    @ModelViewQuery @JvmField
+    val query = (select from TestModel2::class where TestModel2_Table.model_order.greaterThan(5))
+  }
+}
+
+```
+
 To specify the query that a `ModelView` creates itself with, we _must_ define
 a public static final field annotated with `@ModelViewQuery`. This tells DBFlow
 what field is the query. This query is used only once when the database is created
 (or updated) to create the view.
 
-
 The full list of limitations/supported types are:
-  1. Only `@Column` are allowed
+  1. Only `@Column`/`@ColumnMap` are allowed
   2. No `@PrimaryKey` or `@ForeignKey`
   3. Supports all fields, and accessibility modifiers that `Model` support
   4. Does not support `@InheritedField`, `@InheritedPrimaryKey`
@@ -44,4 +55,8 @@ SQLite.select()
   .from(TestModelView.class)
   .where(...) // ETC
 
+```
+
+```kotlin
+(select from TestModelView::class where (...))
 ```
