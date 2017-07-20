@@ -15,6 +15,10 @@ import java.util.Set;
  */
 public final class FlowConfig {
 
+    public static FlowConfig.Builder builder(Context context) {
+        return new FlowConfig.Builder(context);
+    }
+
     private final Set<Class<? extends DatabaseHolder>> databaseHolders;
     private final Map<Class<?>, DatabaseConfig> databaseConfigMap;
     private final Context context;

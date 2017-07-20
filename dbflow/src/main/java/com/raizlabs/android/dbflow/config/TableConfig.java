@@ -16,6 +16,10 @@ import java.util.List;
  */
 public final class TableConfig<TModel> {
 
+    public static <TModel> TableConfig.Builder<TModel> builder(Class<TModel> tableClass) {
+        return new TableConfig.Builder<>(tableClass);
+    }
+
     private final Class<TModel> tableClass;
     private final ModelSaver<TModel> modelSaver;
     private final SingleModelLoader<TModel> singleModelLoader;

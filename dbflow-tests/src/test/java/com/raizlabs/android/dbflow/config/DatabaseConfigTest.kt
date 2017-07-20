@@ -94,6 +94,7 @@ class DatabaseConfigTest : BaseUnitTest() {
         }
     }
 
+
 }
 
 class TestTransactionManager(databaseDefinition: DatabaseDefinition)
