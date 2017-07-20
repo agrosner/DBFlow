@@ -68,8 +68,6 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
     var tableName: String? = null
 
-    var databaseTypeName: TypeName? = null
-
     var insertConflictActionName: String = ""
 
     var updateConflictActionName: String = ""
@@ -288,20 +286,19 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
                 if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, element)) return
 
-                val columnDefinition: ColumnDefinition
-                if (isInheritedPrimaryKey) {
+                val columnDefinition = if (isInheritedPrimaryKey) {
                     val inherited = inheritedPrimaryKeyMap[element.simpleName.toString()]
-                    columnDefinition = ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
+                    ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
                         inherited?.column, inherited?.primaryKey)
                 } else if (isInherited) {
                     val inherited = inheritedColumnMap[element.simpleName.toString()]
-                    columnDefinition = ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
+                    ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
                         inherited?.column, null, inherited?.nonNullConflict ?: ConflictAction.NONE)
                 } else if (isForeign || isColumnMap) {
-                    columnDefinition = ReferenceColumnDefinition(manager, this,
+                    ReferenceColumnDefinition(manager, this,
                         element, isPackagePrivateNotInSamePackage)
                 } else {
-                    columnDefinition = ColumnDefinition(manager, element,
+                    ColumnDefinition(manager, element,
                         this, isPackagePrivateNotInSamePackage)
                 }
 

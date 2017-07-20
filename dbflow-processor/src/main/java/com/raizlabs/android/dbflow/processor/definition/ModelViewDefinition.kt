@@ -8,6 +8,7 @@ import com.grosner.kpoet.final
 import com.grosner.kpoet.modifiers
 import com.grosner.kpoet.public
 import com.raizlabs.android.dbflow.annotation.Column
+import com.raizlabs.android.dbflow.annotation.ColumnMap
 import com.raizlabs.android.dbflow.annotation.ModelView
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery
 import com.raizlabs.android.dbflow.processor.ClassNames
@@ -36,8 +37,6 @@ import javax.lang.model.type.MirroredTypeException
 class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTableDefinition(element, manager) {
 
     internal val implementsLoadFromCursorListener: Boolean
-
-    var databaseTypeName: TypeName? = null
 
     private var queryFieldName: String? = null
 
@@ -104,8 +103,10 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         for (variableElement in variableElements) {
 
             val isValidAllFields = ElementUtility.isValidAllFields(allFields, variableElement)
+            val isColumnMap = variableElement.annotation<ColumnMap>() != null
 
-            if (variableElement.annotation<Column>() != null || isValidAllFields) {
+            if (variableElement.annotation<Column>() != null || isValidAllFields
+                || isColumnMap) {
 
                 // package private, will generate helper
                 val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
@@ -113,7 +114,11 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
                 if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, variableElement)) return
 
-                val columnDefinition = ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
+                val columnDefinition = if (isColumnMap) {
+                    ReferenceColumnDefinition(manager, this, variableElement, isPackagePrivateNotInSamePackage)
+                } else {
+                    ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
+                }
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition)
                     if (isPackagePrivate) {
@@ -121,9 +126,8 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                     }
                 }
 
-                if (columnDefinition.isPrimaryKey || columnDefinition is ReferenceColumnDefinition
-                    || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
-                    manager.logError("ModelViews cannot have primary or foreign keys")
+                if (columnDefinition.isPrimaryKey || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
+                    manager.logError("ModelView $elementName cannot have primary keys")
                 }
             } else if (variableElement.annotation<ModelViewQuery>() != null) {
                 if (!queryFieldName.isNullOrEmpty()) {

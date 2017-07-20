@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.annotation.QueryModel
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
+import com.raizlabs.android.dbflow.processor.definition.BaseTableDefinition
 import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition
 import com.raizlabs.android.dbflow.processor.definition.TableDefinition
 import com.raizlabs.android.dbflow.processor.utils.annotation
@@ -39,7 +40,7 @@ import javax.lang.model.type.MirroredTypeException
  * Description: Represents both a [ForeignKey] and [ColumnMap]. Builds up the model of fields
  * required to generate definitions.
  */
-class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: TableDefinition,
+class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: BaseTableDefinition,
                                 element: Element, isPackagePrivate: Boolean)
     : ColumnDefinition(manager, element, tableDefinition, isPackagePrivate) {
 
@@ -89,6 +90,9 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Tabl
         }
 
         element.annotation<ForeignKey>()?.let { foreignKey ->
+            if (tableDefinition !is TableDefinition) {
+                manager.logError("Class $elementName cannot declare a @ForeignKey. Use @ColumnMap instead.")
+            }
             onUpdate = foreignKey.onUpdate
             onDelete = foreignKey.onDelete
 
@@ -371,13 +375,13 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Tabl
      * table. We do this post-evaluation so all of the [TableDefinition] can be generated.
      */
     fun checkNeedsReferences() {
-        val tableDefinition = (baseTableDefinition as TableDefinition)
+        val tableDefinition = baseTableDefinition
         val referencedTableDefinition = manager.getReferenceDefinition(tableDefinition.databaseTypeName, referencedClassName)
         if (referencedTableDefinition == null) {
             manager.logError(ReferenceColumnDefinition::class,
                 "Could not find the referenced ${Table::class.java.simpleName} " +
                     "or ${QueryModel::class.java.simpleName} definition $referencedClassName" +
-                    " from ${tableDefinition.tableName}. " +
+                    " from ${tableDefinition.elementName}. " +
                     "Ensure it exists in the same database as ${tableDefinition.databaseTypeName}")
         } else if (needsReferences) {
             val primaryColumns =
