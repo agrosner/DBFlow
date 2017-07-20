@@ -27,7 +27,7 @@ public class QueryTransaction<TResult> implements ITransaction {
          * @param transaction The transaction that ran.
          * @param tResult     The result of the query. Use this object to get data that you need.
          */
-        void onQueryResult(QueryTransaction<TResult> transaction,
+        void onQueryResult(@NonNull QueryTransaction<TResult> transaction,
                            @NonNull CursorResult<TResult> tResult);
     }
 

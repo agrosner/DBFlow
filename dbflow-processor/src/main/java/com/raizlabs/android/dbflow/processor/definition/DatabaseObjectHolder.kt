@@ -22,4 +22,29 @@ class DatabaseObjectHolder {
     var modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition> = HashMap()
     var manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> = HashMap()
     var providerMap = hashMapOf<TypeName, ContentProviderDefinition>()
+
+    /**
+     * Retrieve what database class they're trying to reference.
+     */
+    fun getMissingDBRefs(): List<String> {
+        if (databaseDefinition == null) {
+            val list = mutableListOf<String>()
+            tableDefinitionMap.values.forEach {
+                list += "Database ${it.databaseTypeName} not found for Table ${it.tableName}"
+            }
+            queryModelDefinitionMap.values.forEach {
+                list += "Database ${it.databaseTypeName} not found for QueryModel ${it.elementName}"
+            }
+            modelViewDefinitionMap.values.forEach {
+                list += "Database ${it.databaseTypeName} not found for ModelView ${it.elementName}"
+            }
+            providerMap.values.forEach {
+                list += "Database ${it.databaseTypeName} not found for ContentProvider ${it.elementName}"
+            }
+            return list
+
+        } else {
+            return listOf()
+        }
+    }
 }

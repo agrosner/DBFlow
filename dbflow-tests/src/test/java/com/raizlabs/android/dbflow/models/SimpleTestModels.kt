@@ -163,10 +163,10 @@ class TestModelParent : BaseModel() {
 
 @Table(database = TestDatabase::class)
 class NullableNumbers(@PrimaryKey var id: Int = 0,
-                      @Column var float: Float? = null,
-                      @Column var double: Double? = null,
-                      @Column var long: Long? = null,
-                      @Column var int: Int? = null,
+                      @Column var f: Float? = null,
+                      @Column var d: Double? = null,
+                      @Column var l: Long? = null,
+                      @Column var i: Int? = null,
                       @Column var bigDecimal: BigDecimal? = null,
                       @Column var bigInteger: BigInteger? = null)
 

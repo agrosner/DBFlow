@@ -141,7 +141,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun addModelViewDefinition(modelViewDefinition: ModelViewDefinition) {
         modelViewDefinition.elementClassName?.let {
-            getOrPutDatabase(modelViewDefinition.databaseName)?.
+            getOrPutDatabase(modelViewDefinition.databaseTypeName)?.
                 modelViewDefinitionMap?.put(it, modelViewDefinition)
         }
     }
@@ -255,9 +255,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
             try {
 
                 if (databaseHolderDefinition.databaseDefinition == null) {
-                    manager.logError("Found cannot find referenced db with: ${databaseHolderDefinition.tableNameMap.values.size} tables," +
-                        " ${databaseHolderDefinition.modelViewDefinitionMap.values.size} modelviews. ")
-                    manager.logError("Found tables: " + databaseHolderDefinition.tableNameMap.values)
+                    manager.logError(databaseHolderDefinition.getMissingDBRefs().joinToString("\n"))
                     continue
                 }
 

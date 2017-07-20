@@ -37,7 +37,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
     internal val implementsLoadFromCursorListener: Boolean
 
-    var databaseName: TypeName? = null
+    var databaseTypeName: TypeName? = null
 
     private var queryFieldName: String? = null
 
@@ -56,7 +56,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
             try {
                 modelView.database
             } catch (mte: MirroredTypeException) {
-                this.databaseName = TypeName.get(mte.typeMirror)
+                this.databaseTypeName = TypeName.get(mte.typeMirror)
             }
 
             allFields = modelView.allFields
@@ -84,7 +84,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
         val modelView = element.getAnnotation(ModelView::class.java)
         if (modelView != null) {
-            databaseDefinition = manager.getDatabaseHolderDefinition(databaseName)?.databaseDefinition
+            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
             setOutputClassName("${databaseDefinition?.classSeparator}ViewTable")
 
             typeElement?.let { createColumnDefinitions(it) }

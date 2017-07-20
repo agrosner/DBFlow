@@ -52,6 +52,7 @@ dependencies {
     compile project("${dbflow_project_prefix}dbflow-rx2-kotlinextensions")
 
     kaptTest project("${dbflow_project_prefix}dbflow-processor")
+    kaptAndroidTest project("${dbflow_project_prefix}dbflow-processor")
 
     testCompile 'org.glassfish:javax.annotation:10.0-b28'
 
