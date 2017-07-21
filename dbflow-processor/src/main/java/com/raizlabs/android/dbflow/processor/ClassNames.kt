@@ -87,6 +87,8 @@ object ClassNames {
     val SQLITE = ClassName.get(LANGUAGE, "SQLite")
 
     val CACHEABLE_LIST_MODEL_SAVER = ClassName.get(SAVEABLE, "CacheableListModelSaver")
+    val SINGLE_MODEL_SAVER = ClassName.get(SAVEABLE, "ModelSaver")
+    val AUTOINCREMENT_MODEL_SAVER = ClassName.get(SAVEABLE, "AutoIncrementModelSaver")
 
     val SINGLE_KEY_CACHEABLE_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleKeyCacheableModelLoader")
     val SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleKeyCacheableListModelLoader")

@@ -312,6 +312,10 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
                 getModelClass()));
     }
 
+    public boolean hasAutoIncrement(TModel model) {
+        return getAutoIncrementingId(model).longValue() > 0;
+    }
+
     /**
      * Called when we want to save our {@link ForeignKey} objects. usually during insert + update.
      * This method is overridden when {@link ForeignKey} specified
@@ -422,7 +426,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
 
     public ModelSaver<TModel> getModelSaver() {
         if (modelSaver == null) {
-            modelSaver = new ModelSaver<>();
+            modelSaver = createSingleModelSaver();
             modelSaver.setModelAdapter(this);
         }
         return modelSaver;
@@ -433,6 +437,10 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
             listModelSaver = createListModelSaver();
         }
         return listModelSaver;
+    }
+
+    protected ModelSaver<TModel> createSingleModelSaver() {
+        return new ModelSaver<>();
     }
 
     protected ListModelSaver<TModel> createListModelSaver() {

@@ -447,6 +447,11 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                         modifiers(public, final)
                         `return`(QueryBuilder.stripQuotes(autoIncrement.columnName).S)
                     }
+
+                    `override fun`(ParameterizedTypeName.get(ClassNames.SINGLE_MODEL_SAVER, elementClassName!!), "createSingleModelSaver") {
+                        modifiers(public, final)
+                        `return`("new \$T<>()", ClassNames.AUTOINCREMENT_MODEL_SAVER)
+                    }
                 }
             }
 
