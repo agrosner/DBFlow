@@ -4,6 +4,7 @@ import com.grosner.kpoet.S
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.case
 import com.raizlabs.android.dbflow.annotation.ColumnMap
+import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.ForeignKey
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction
 import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
@@ -57,7 +58,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
     var implementsModel = false
     var extendsBaseModel = false
 
-    var references: List<ForeignKeyReference>? = null
+    var references: List<ReferenceSpecificationDefinition>? = null
 
     var nonModelColumn: Boolean = false
 
@@ -86,6 +87,12 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                     databaseTypeName = tableDefinition.databaseTypeName
                     manager.addQueryModelDefinition(this)
                 }
+            }
+
+            references = it.references.map {
+                ReferenceSpecificationDefinition(columnName = it.columnName,
+                    referenceName = it.columnMapFieldName,
+                    onNullConflictAction = it.notNull.onNullConflict)
             }
         }
 
@@ -125,7 +132,11 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             saveForeignKeyModel = foreignKey.saveForeignKeyModel
             deleteForeignKeyModel = foreignKey.deleteForeignKeyModel
 
-            references = foreignKey.references.asList()
+            references = foreignKey.references.map {
+                ReferenceSpecificationDefinition(columnName = it.columnName,
+                    referenceName = it.foreignKeyColumnName,
+                    onNullConflictAction = it.notNull.onNullConflict)
+            }
         }
 
         if (isNotNullType) {
@@ -162,7 +173,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             typeBuilder.addField(FieldSpec.builder(propParam, it.columnName,
                 Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer("new \$T(\$T.class, \$S)", propParam, tableClass, it.columnName)
-                .addJavadoc("Foreign Key" + if (isPrimaryKey) " / Primary Key" else "").build())
+                .addJavadoc(if (isColumnMap) "Column Mapped Field" else ("Foreign Key" + if (isPrimaryKey) " / Primary Key" else "")).build())
         }
     }
 
@@ -396,17 +407,17 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                 needsReferences = false
             } else {
                 references?.forEach { reference ->
-                    val foundDefinition = primaryColumns.find { it.columnName == reference.foreignKeyColumnName }
+                    val foundDefinition = primaryColumns.find { it.columnName == reference.referenceName }
                     if (foundDefinition == null) {
                         manager.logError(ReferenceColumnDefinition::class,
-                            "Could not find referenced column ${reference.foreignKeyColumnName} " +
+                            "Could not find referenced column ${reference.referenceName} " +
                                 "from reference named ${reference.columnName}")
                     } else {
                         _referenceDefinitionList.add(
                             ReferenceDefinition(manager, elementName,
                                 foundDefinition.elementName, foundDefinition, this,
                                 primaryColumns.size, reference.columnName,
-                                reference.notNull.onNullConflict))
+                                reference.onNullConflictAction))
                     }
                 }
                 needsReferences = false
@@ -418,3 +429,8 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
         }
     }
 }
+
+/**
+ * Description: defines a ForeignKeyReference or ColumnMapReference.
+ */
+class ReferenceSpecificationDefinition(val columnName: String, val referenceName: String, val onNullConflictAction: ConflictAction)

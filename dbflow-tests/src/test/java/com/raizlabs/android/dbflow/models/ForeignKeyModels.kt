@@ -4,6 +4,7 @@ import android.database.Cursor
 import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ColumnMap
+import com.raizlabs.android.dbflow.annotation.ColumnMapReference
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.ForeignKey
 import com.raizlabs.android.dbflow.annotation.ForeignKeyAction
@@ -75,5 +76,12 @@ class BlogStubbed(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var
 
 class Location(var latitude: Double = 0.0, var longitude: Double = 0.0)
 
-@Table(database = TestDatabase::class, allFields = true)
+@Table(database = TestDatabase::class)
 class Position(@PrimaryKey var id: Int = 0, @ColumnMap var location: Location? = null)
+
+@Table(database = TestDatabase::class)
+class Position2(@PrimaryKey var id: Int = 0,
+                @ColumnMap(references = arrayOf(
+                    ColumnMapReference(columnName = "latitude", columnMapFieldName = "latitude"),
+                    ColumnMapReference(columnName = "longitude", columnMapFieldName = "longitude")))
+                var location: Location? = null)

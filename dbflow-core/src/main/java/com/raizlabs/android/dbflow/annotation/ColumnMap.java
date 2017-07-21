@@ -13,4 +13,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface ColumnMap {
 
+    /**
+     * Defines explicit references for a composite {@link ColumnMap} definition.
+     *
+     * @return override explicit usage of all fields and provide custom references.
+     */
+    ColumnMapReference[] references() default {};
 }
