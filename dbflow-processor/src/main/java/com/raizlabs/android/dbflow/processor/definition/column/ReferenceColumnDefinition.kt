@@ -401,7 +401,8 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             if (references?.isEmpty() ?: true) {
                 primaryColumns.forEach {
                     val foreignKeyReferenceDefinition = ReferenceDefinition(manager,
-                        elementName, it.elementName, it, this, primaryColumns.size)
+                        elementName, it.elementName, it, this, primaryColumns.size,
+                            if (isColumnMap) it.elementName else "")
                     _referenceDefinitionList.add(foreignKeyReferenceDefinition)
                 }
                 needsReferences = false
