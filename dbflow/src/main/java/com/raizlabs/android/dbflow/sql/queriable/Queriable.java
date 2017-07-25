@@ -50,14 +50,28 @@ public interface Queriable extends Query {
 
     /**
      * @return the count of the results of the query.
+     * @deprecated use {@link #longValue()}
      */
+    @Deprecated
     long count();
+
+    /**
+     * @return the long value of the results of query.
+     */
+    long longValue();
+
+    /**
+     * @return the long value of the results of query.
+     */
+    long longValue(DatabaseWrapper databaseWrapper);
 
     /**
      * Allows you to pass in a {@link DatabaseWrapper} manually.
      *
      * @return the count of the results of the query.
+     * @deprecated use {@link #longValue(DatabaseWrapper)}
      */
+    @Deprecated
     long count(@NonNull DatabaseWrapper databaseWrapper);
 
     /**

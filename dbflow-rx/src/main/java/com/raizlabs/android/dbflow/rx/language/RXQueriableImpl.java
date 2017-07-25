@@ -100,6 +100,28 @@ public class RXQueriableImpl implements RXQueriable {
 
     @NonNull
     @Override
+    public Single<Long> longValue() {
+        return fromCallable(new Callable<Long>() {
+            @Override
+            public Long call() throws Exception {
+                return getInnerQueriable().longValue();
+            }
+        });
+    }
+
+    @NonNull
+    @Override
+    public Single<Long> longValue(final DatabaseWrapper databaseWrapper) {
+        return fromCallable(new Callable<Long>() {
+            @Override
+            public Long call() throws Exception {
+                return getInnerQueriable().longValue(databaseWrapper);
+            }
+        });
+    }
+
+    @NonNull
+    @Override
     public Single<Long> executeInsert() {
         return fromCallable(new Callable<Long>() {
             @Override

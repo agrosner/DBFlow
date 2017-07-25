@@ -51,6 +51,7 @@ public interface RXQueriable {
 
     /**
      * @return the count of the results of the query.
+     * @deprecated use {@link #longValue()}
      */
     @NonNull
     Single<Long> count();
@@ -59,9 +60,22 @@ public interface RXQueriable {
      * Allows you to pass in a {@link DatabaseWrapper} manually.
      *
      * @return the count of the results of the query.
+     * @deprecated use {@link #longValue(DatabaseWrapper)}
      */
     @NonNull
     Single<Long> count(DatabaseWrapper databaseWrapper);
+
+    /**
+     * @return the long value of this query.
+     **/
+    @NonNull
+    Single<Long> longValue();
+
+    /**
+     * @return the long value of this query.
+     **/
+    @NonNull
+    Single<Long> longValue(DatabaseWrapper databaseWrapper);
 
     /**
      * @return This may return the number of rows affected from a {@link Insert}  statement.

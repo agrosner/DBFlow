@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.rx.language;
 
 import android.database.Cursor;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Insert;
@@ -50,14 +49,28 @@ public interface RXQueriable {
 
     /**
      * @return the count of the results of the query.
+     * @deprecated use {@link #longValue()}
      */
     @NonNull
     Single<Long> count();
 
     /**
+     * @return the long value of this query.
+     **/
+    @NonNull
+    Single<Long> longValue();
+
+    /**
+     * @return the long value of this query.
+     **/
+    @NonNull
+    Single<Long> longValue(DatabaseWrapper databaseWrapper);
+
+    /**
      * Allows you to pass in a {@link DatabaseWrapper} manually.
      *
      * @return the count of the results of the query.
+     * @deprecated use {@link #longValue(DatabaseWrapper)}
      */
     @NonNull
     Single<Long> count(DatabaseWrapper databaseWrapper);
