@@ -38,26 +38,6 @@ public abstract class BaseTransformable<TModel> extends BaseModelQueriable<TMode
         return where().query(databaseWrapper);
     }
 
-    /**
-     * Executes a SQL statement that retrieves the count of results in the DB.
-     *
-     * @return The number of rows this query returns
-     */
-    @Override
-    public long count() {
-        return where().count();
-    }
-
-    @Override
-    public long count(@NonNull DatabaseWrapper databaseWrapper) {
-        return where().count(databaseWrapper);
-    }
-
-    @Override
-    public long executeUpdateDelete(@NonNull DatabaseWrapper databaseWrapper) {
-        return where().executeUpdateDelete(databaseWrapper);
-    }
-
     @NonNull
     @Override
     public Where<TModel> groupBy(NameAlias... nameAliases) {

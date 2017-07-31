@@ -1,7 +1,14 @@
 package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.annotation.*
+import com.raizlabs.android.dbflow.annotation.Column
+import com.raizlabs.android.dbflow.annotation.ColumnIgnore
+import com.raizlabs.android.dbflow.annotation.ConflictAction
+import com.raizlabs.android.dbflow.annotation.ForeignKey
+import com.raizlabs.android.dbflow.annotation.ManyToMany
+import com.raizlabs.android.dbflow.annotation.PrimaryKey
+import com.raizlabs.android.dbflow.annotation.QueryModel
+import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.structure.BaseModel
@@ -79,18 +86,18 @@ class FeedEntry(@PrimaryKey var id: Int = 0,
 
 @Table(database = TestDatabase::class)
 @ManyToMany(
-        generatedTableClassName = "Refund", referencedTable = Transfer::class,
-        referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
-        saveForeignKeyModels = true
+    generatedTableClassName = "Refund", referencedTable = Transfer::class,
+    referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
+    saveForeignKeyModels = true
 )
 data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
 data class Transfer2(
-        @PrimaryKey
-        var id: UUID = UUID.randomUUID(),
-        @ForeignKey(stubbedRelationship = true)
-        var origin: Account? = null
+    @PrimaryKey
+    var id: UUID = UUID.randomUUID(),
+    @ForeignKey(stubbedRelationship = true)
+    var origin: Account? = null
 )
 
 @Table(database = TestDatabase::class)
@@ -156,10 +163,10 @@ class TestModelParent : BaseModel() {
 
 @Table(database = TestDatabase::class)
 class NullableNumbers(@PrimaryKey var id: Int = 0,
-                      @Column var float: Float? = null,
-                      @Column var double: Double? = null,
-                      @Column var long: Long? = null,
-                      @Column var int: Int? = null,
+                      @Column var f: Float? = null,
+                      @Column var d: Double? = null,
+                      @Column var l: Long? = null,
+                      @Column var i: Int? = null,
                       @Column var bigDecimal: BigDecimal? = null,
                       @Column var bigInteger: BigInteger? = null)
 

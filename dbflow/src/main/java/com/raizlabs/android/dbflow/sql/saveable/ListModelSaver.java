@@ -34,6 +34,7 @@ public class ListModelSaver<TModel> {
             }
         } finally {
             statement.close();
+            updateStatement.close();
         }
     }
 

@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.config;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
 import com.raizlabs.android.dbflow.runtime.ModelNotifier;
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener;
@@ -15,6 +16,14 @@ import java.util.Map;
  * Description:
  */
 public final class DatabaseConfig {
+
+    public static DatabaseConfig.Builder builder(@NonNull Class<?> database) {
+        return new DatabaseConfig.Builder(database);
+    }
+
+    public static DatabaseConfig.Builder inMemoryBuilder(@NonNull Class<?> database) {
+        return new DatabaseConfig.Builder(database).inMemory();
+    }
 
     public interface OpenHelperCreator {
 
@@ -32,7 +41,9 @@ public final class DatabaseConfig {
     private final DatabaseHelperListener helperListener;
     private final Map<Class<?>, TableConfig> tableConfigMap;
     private final ModelNotifier modelNotifier;
-
+    private final boolean inMemory;
+    private final String databaseName;
+    private final String databaseExtensionName;
 
     DatabaseConfig(Builder builder) {
         openHelperCreator = builder.openHelperCreator;
@@ -41,6 +52,33 @@ public final class DatabaseConfig {
         helperListener = builder.helperListener;
         tableConfigMap = builder.tableConfigMap;
         modelNotifier = builder.modelNotifier;
+        inMemory = builder.inMemory;
+        if (builder.databaseName == null) {
+            databaseName = builder.databaseClass.getSimpleName();
+        } else {
+            databaseName = builder.databaseName;
+        }
+
+        if (builder.databaseExtensionName == null) {
+            databaseExtensionName = ".db";
+        } else {
+            databaseExtensionName = StringUtils.isNotNullOrEmpty(builder.databaseExtensionName)
+                ? "." + builder.databaseExtensionName : "";
+        }
+    }
+
+    @NonNull
+    public String getDatabaseExtensionName() {
+        return databaseExtensionName;
+    }
+
+    public boolean isInMemory() {
+        return inMemory;
+    }
+
+    @NonNull
+    public String getDatabaseName() {
+        return databaseName;
     }
 
     @Nullable
@@ -87,6 +125,9 @@ public final class DatabaseConfig {
         DatabaseHelperListener helperListener;
         final Map<Class<?>, TableConfig> tableConfigMap = new HashMap<>();
         ModelNotifier modelNotifier;
+        boolean inMemory = false;
+        String databaseName;
+        String databaseExtensionName;
 
         public Builder(@NonNull Class<?> databaseClass) {
             this.databaseClass = databaseClass;
@@ -109,6 +150,30 @@ public final class DatabaseConfig {
 
         public Builder modelNotifier(ModelNotifier modelNotifier) {
             this.modelNotifier = modelNotifier;
+            return this;
+        }
+
+        @NonNull
+        public Builder inMemory() {
+            inMemory = true;
+            return this;
+        }
+
+        /**
+         * @return Pass in dynamic database name here. Otherwise it defaults to class name.
+         */
+        @NonNull
+        public Builder databaseName(String name) {
+            databaseName = name;
+            return this;
+        }
+
+        /**
+         * @return Pass in the extension for the DB here.
+         * Otherwise defaults to ".db". If empty string passed, no extension is used.
+         */
+        public Builder extensionName(String name) {
+            databaseExtensionName = name;
             return this;
         }
 

@@ -93,6 +93,22 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
         insertStatement = null;
     }
 
+    public void closeUpdateStatement() {
+        if (updateStatement == null) {
+            return;
+        }
+        updateStatement.close();
+        updateStatement = null;
+    }
+
+    public void closeDeleteStatement() {
+        if (deleteStatement == null) {
+            return;
+        }
+        deleteStatement.close();
+        deleteStatement = null;
+    }
+
     /**
      * @param databaseWrapper The database used to do an insert statement.
      * @return a new compiled {@link DatabaseStatement} representing insert. Not cached, always generated.
@@ -296,6 +312,10 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
                 getModelClass()));
     }
 
+    public boolean hasAutoIncrement(TModel model) {
+        return getAutoIncrementingId(model).longValue() > 0;
+    }
+
     /**
      * Called when we want to save our {@link ForeignKey} objects. usually during insert + update.
      * This method is overridden when {@link ForeignKey} specified
@@ -406,7 +426,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
 
     public ModelSaver<TModel> getModelSaver() {
         if (modelSaver == null) {
-            modelSaver = new ModelSaver<>();
+            modelSaver = createSingleModelSaver();
             modelSaver.setModelAdapter(this);
         }
         return modelSaver;
@@ -417,6 +437,10 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
             listModelSaver = createListModelSaver();
         }
         return listModelSaver;
+    }
+
+    protected ModelSaver<TModel> createSingleModelSaver() {
+        return new ModelSaver<>();
     }
 
     protected ListModelSaver<TModel> createListModelSaver() {

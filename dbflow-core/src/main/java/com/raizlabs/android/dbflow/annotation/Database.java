@@ -26,13 +26,15 @@ public @interface Database {
     int version();
 
     /**
-     * @return The name of the DB. Optional as it will default to the class name.
+     * @deprecated use DatabaseConfig.databaseName() to change the name.
      */
+    @Deprecated
     String name() default "";
 
     /**
-     * @return Specify the extension of the file name : {fileName}.{extension}. Default is ".db"
+     * @deprecated use DatabaseConfig.extension() to change the extension.
      */
+    @Deprecated
     String databaseExtension() default "";
 
     /**
@@ -53,11 +55,6 @@ public @interface Database {
     boolean backupEnabled() default false;
 
     /**
-     * @return true if you want it to be in-memory, false if not.
-     */
-    boolean inMemory() default false;
-
-    /**
      * @return Global default insert conflict that can be applied to any table when it leaves
      * its {@link ConflictAction} as NONE.
      */
@@ -72,6 +69,8 @@ public @interface Database {
     /**
      * @return Marks all generated classes within this database with this character. For example
      * "TestTable" becomes "TestTable$Table" for a "$" separator.
+     * @deprecated Generated class files will become '_' only in next major release.
      */
+    @Deprecated
     String generatedClassSeparator() default "_";
 }

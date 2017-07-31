@@ -32,7 +32,7 @@ object ProcessorUtils {
         val typeElement = processingEnvironment.elementUtils.getTypeElement(fqTn)
         if (typeElement == null) {
             processingEnvironment.messager.printMessage(Diagnostic.Kind.ERROR,
-                    "Type Element was null for: $fqTn ensure that the visibility of the class is not private.")
+                "Type Element was null for: $fqTn ensure that the visibility of the class is not private.")
             return false
         } else {
             val classMirror: TypeMirror? = typeElement.asType().erasure()
@@ -67,14 +67,12 @@ object ProcessorUtils {
     }
 
     fun fromTypeMirror(typeMirror: TypeMirror, processorManager: ProcessorManager): ClassName? {
-        var className: ClassName? = null
         val element = getTypeElement(typeMirror)
-        if (element != null) {
-            className = ClassName.get(element)
+        return if (element != null) {
+            ClassName.get(element)
         } else {
-            className = ElementUtility.getClassName(typeMirror.toString(), processorManager)
+            ElementUtility.getClassName(typeMirror.toString(), processorManager)
         }
-        return className
     }
 
     fun getTypeElement(element: Element): TypeElement? {
@@ -100,7 +98,7 @@ object ProcessorUtils {
     fun ensureVisibleStatic(element: Element, typeElement: TypeElement,
                             name: String) {
         if (element.modifiers.contains(Modifier.PRIVATE)
-                || element.modifiers.contains(Modifier.PROTECTED)) {
+            || element.modifiers.contains(Modifier.PROTECTED)) {
             manager.logError("$name must be visible from: " + typeElement)
         }
         if (!element.modifiers.contains(Modifier.STATIC)) {

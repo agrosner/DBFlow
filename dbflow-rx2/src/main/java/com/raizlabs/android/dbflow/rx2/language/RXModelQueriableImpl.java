@@ -26,8 +26,7 @@ import static io.reactivex.Single.fromCallable;
 /**
  * Description: Represents {@link BaseModelQueriable} in RX form.
  */
-public class RXModelQueriableImpl<T> extends RXQueriableImpl
-    implements RXModelQueriable<T> {
+public class RXModelQueriableImpl<T> extends RXQueriableImpl implements RXModelQueriable<T> {
 
     private final ModelQueriable<T> modelQueriable;
 
@@ -116,12 +115,11 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl
     @Override
     public Maybe<T> querySingle(final DatabaseWrapper wrapper) {
         return Maybe.fromCallable(new Callable<T>() {
-                @Override
-                public T call() throws Exception {
-                    return getInnerModelQueriable().querySingle(wrapper);
-                }
+            @Override
+            public T call() throws Exception {
+                return getInnerModelQueriable().querySingle(wrapper);
             }
-        );
+        });
     }
 
     @NonNull
@@ -169,12 +167,11 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl
     public <TQueryModel> Maybe<TQueryModel> queryCustomSingle(
         final Class<TQueryModel> tQueryModelClass) {
         return Maybe.fromCallable(new Callable<TQueryModel>() {
-                @Override
-                public TQueryModel call() throws Exception {
-                    return getInnerModelQueriable().queryCustomSingle(tQueryModelClass);
-                }
+            @Override
+            public TQueryModel call() throws Exception {
+                return getInnerModelQueriable().queryCustomSingle(tQueryModelClass);
             }
-        );
+        });
     }
 
     @NonNull

@@ -1,7 +1,12 @@
 package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.*
+import com.raizlabs.android.dbflow.kotlinextensions.eq
+import com.raizlabs.android.dbflow.kotlinextensions.exists
+import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.kotlinextensions.innerJoin
+import com.raizlabs.android.dbflow.kotlinextensions.on
+import com.raizlabs.android.dbflow.kotlinextensions.save
 import com.raizlabs.android.dbflow.models.Author_Table.id
 import com.raizlabs.android.dbflow.models.Blog_Table.author_id
 import com.raizlabs.android.dbflow.models.Blog_Table.name

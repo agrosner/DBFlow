@@ -13,4 +13,4 @@ inline fun <reified T : Any> T.delete(databaseWrapper: DatabaseWrapper = writabl
 
 inline fun <reified T : Any> T.exists(databaseWrapper: DatabaseWrapper = writableDatabaseForTable<T>()) = modelAdapter<T>().exists(this, databaseWrapper)
 
-inline fun <reified T : Any> T.async(databaseWrapper: DatabaseWrapper = writableDatabaseForTable<T>()) = AsyncModel(this)
+inline fun <reified T : Any> T.async() = AsyncModel(this)

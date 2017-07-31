@@ -109,6 +109,25 @@ public class FlowManager {
     }
 
     /**
+     * @param databaseClass The class of the database. Will throw an exception if the database doesn't exist.
+     * @param tableName     The name of the table in the DB.
+     * @return The associated table class for the specified name.
+     */
+    public static Class<?> getTableClassForName(Class<?> databaseClass, String tableName) {
+        DatabaseDefinition databaseDefinition = getDatabase(databaseClass);
+        Class<?> modelClass = databaseDefinition.getModelClassForName(tableName);
+        if (modelClass == null) {
+            modelClass = databaseDefinition.getModelClassForName(QueryBuilder.quote(tableName));
+            if (modelClass == null) {
+                throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
+                        "Did you forget to add the @Table annotation and point it to %1s?",
+                    tableName, databaseClass));
+            }
+        }
+        return modelClass;
+    }
+
+    /**
      * @param table The table to lookup the database for.
      * @return the corresponding {@link DatabaseDefinition} for the specified model
      */
@@ -132,6 +151,11 @@ public class FlowManager {
                 "Did you forget the @Database annotation?");
         }
         return databaseDefinition;
+    }
+
+    @NonNull
+    public static String getDatabaseName(Class<?> database) {
+        return getDatabase(database).getDatabaseName();
     }
 
     @NonNull
@@ -215,7 +239,7 @@ public class FlowManager {
     public static void reset() {
         Set<Map.Entry<Class<?>, DatabaseDefinition>> entrySet = globalDatabaseHolder.databaseClassLookupMap.entrySet();
         for (Map.Entry<Class<?>, DatabaseDefinition> value : entrySet) {
-            value.getValue().reset(getContext());
+            value.getValue().reset();
         }
         globalDatabaseHolder.reset();
         loadedModules.clear();
@@ -302,7 +326,7 @@ public class FlowManager {
         Set<Map.Entry<Class<?>, DatabaseDefinition>> entrySet =
             globalDatabaseHolder.databaseClassLookupMap.entrySet();
         for (Map.Entry<Class<?>, DatabaseDefinition> value : entrySet) {
-            value.getValue().destroy(getContext());
+            value.getValue().destroy();
         }
 
         config = null;

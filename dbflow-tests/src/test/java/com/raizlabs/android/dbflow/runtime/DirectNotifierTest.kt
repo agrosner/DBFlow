@@ -11,7 +11,12 @@ import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.config.DatabaseConfig
 import com.raizlabs.android.dbflow.config.FlowConfig
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.kotlinextensions.*
+import com.raizlabs.android.dbflow.kotlinextensions.columnValues
+import com.raizlabs.android.dbflow.kotlinextensions.delete
+import com.raizlabs.android.dbflow.kotlinextensions.insert
+import com.raizlabs.android.dbflow.kotlinextensions.save
+import com.raizlabs.android.dbflow.kotlinextensions.set
+import com.raizlabs.android.dbflow.kotlinextensions.update
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table
 import com.raizlabs.android.dbflow.structure.BaseModel
@@ -26,7 +31,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class, sdk = intArrayOf(Build.VERSION_CODES.LOLLIPOP),
-        assetDir = "build/intermediates/classes/test/")
+    assetDir = "build/intermediates/classes/test/")
 class DirectNotifierTest {
 
     val context: Context
@@ -35,10 +40,10 @@ class DirectNotifierTest {
     @Before
     fun setupTest() {
         FlowManager.init(FlowConfig.Builder(context)
-                .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
-                        .transactionManagerCreator(::ImmediateTransactionManager2)
-                        .modelNotifier(DirectModelNotifier.get())
-                        .build()).build())
+            .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+                .transactionManagerCreator(::ImmediateTransactionManager2)
+                .modelNotifier(DirectModelNotifier.get())
+                .build()).build())
     }
 
     @Test

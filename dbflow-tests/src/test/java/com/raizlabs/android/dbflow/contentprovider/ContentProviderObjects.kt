@@ -1,6 +1,11 @@
 package com.raizlabs.android.dbflow.contentprovider
 
-import com.raizlabs.android.dbflow.annotation.*
+import com.raizlabs.android.dbflow.annotation.Column
+import com.raizlabs.android.dbflow.annotation.Database
+import com.raizlabs.android.dbflow.annotation.ForeignKey
+import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
+import com.raizlabs.android.dbflow.annotation.PrimaryKey
+import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
@@ -14,14 +19,12 @@ import com.raizlabs.android.dbflow.structure.provider.ContentUtils
  */
 @ContentProvider(authority = ContentDatabase.AUTHORITY, database = ContentDatabase::class,
     baseContentUri = ContentDatabase.BASE_CONTENT_URI)
-@Database(version = ContentDatabase.VERSION, name = ContentDatabase.NAME)
+@Database(version = ContentDatabase.VERSION)
 object ContentDatabase {
 
     const val BASE_CONTENT_URI = "content://"
 
     const val AUTHORITY = "com.raizlabs.android.content.test.ContentDatabase"
-
-    const val NAME = "content"
 
     const val VERSION = 1
 

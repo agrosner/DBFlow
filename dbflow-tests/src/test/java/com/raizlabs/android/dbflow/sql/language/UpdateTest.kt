@@ -48,8 +48,8 @@ class UpdateTest : BaseUnitTest() {
     @Test
     fun validateWildcardQuery() {
         assertEquals("UPDATE OR FAIL `NumberModel` SET `id`=? WHERE `id`=?",
-                update<NumberModel>().or(ConflictAction.FAIL)
-                        .set(id.eq(Property.WILDCARD))
-                        .where(id.eq(Property.WILDCARD)))
+            update<NumberModel>().or(ConflictAction.FAIL)
+                .set(id.eq(Property.WILDCARD))
+                .where(id.eq(Property.WILDCARD)))
     }
 }

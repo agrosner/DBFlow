@@ -1,7 +1,11 @@
 package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.annotation.*
+import com.raizlabs.android.dbflow.annotation.Column
+import com.raizlabs.android.dbflow.annotation.Index
+import com.raizlabs.android.dbflow.annotation.IndexGroup
+import com.raizlabs.android.dbflow.annotation.PrimaryKey
+import com.raizlabs.android.dbflow.annotation.Table
 import java.util.*
 
 /**
@@ -9,8 +13,8 @@ import java.util.*
  */
 
 @Table(database = TestDatabase::class, indexGroups = arrayOf(IndexGroup(number = 1, name = "firstIndex"),
-        IndexGroup(number = 2, name = "secondIndex"),
-        IndexGroup(number = 3, name = "thirdIndex")))
+    IndexGroup(number = 2, name = "secondIndex"),
+    IndexGroup(number = 3, name = "thirdIndex")))
 class IndexModel {
     @Index(indexGroups = intArrayOf(1, 2, 3))
     @PrimaryKey

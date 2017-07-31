@@ -1,15 +1,19 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.*
+import com.raizlabs.android.dbflow.kotlinextensions.`as`
+import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.kotlinextensions.innerJoin
+import com.raizlabs.android.dbflow.kotlinextensions.on
+import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.models.TwoColumnModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import com.raizlabs.android.dbflow.sql.language.SQLite.select
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FromTest : BaseUnitTest() {
@@ -27,7 +31,7 @@ class FromTest : BaseUnitTest() {
     @Test
     fun validateMultipleProjection() {
         assertEquals("SELECT `name`,`name`,`id` FROM `SimpleModel`",
-                (select(name, TwoColumnModel_Table.name, id) from SimpleModel::class).query.trim())
+            (select(name, TwoColumnModel_Table.name, id) from SimpleModel::class).query.trim())
     }
 
     @Test
@@ -38,10 +42,10 @@ class FromTest : BaseUnitTest() {
     @Test
     fun validateJoins() {
         val from = (select from SimpleModel::class
-                innerJoin TwoColumnModel::class
-                on name.eq(TwoColumnModel_Table.name.withTable()))
+            innerJoin TwoColumnModel::class
+            on name.eq(TwoColumnModel_Table.name.withTable()))
         assertEquals("SELECT * FROM `SimpleModel` INNER JOIN `TwoColumnModel` ON `name`=`TwoColumnModel`.`name`",
-                from.query.trim())
+            from.query.trim())
         assertTrue(from.associatedTables.isNotEmpty())
     }
 }

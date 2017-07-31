@@ -220,6 +220,16 @@ public class SqlUtils {
         }
     }
 
+    public static double doubleForQuery(@NonNull DatabaseWrapper wrapper,
+                                    @NonNull String query) {
+        DatabaseStatement statement = wrapper.compileStatement(query);
+        try {
+            return statement.simpleQueryForLong();
+        } finally {
+            statement.close();
+        }
+    }
+
     /**
      * Converts a byte[] to a String hex representation for within wrapper queries.
      */

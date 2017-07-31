@@ -2,15 +2,14 @@ package com.raizlabs.android.dbflow.sql.language
 
 import android.content.ContentValues
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.models.SimpleModel
-import com.raizlabs.android.dbflow.models.TwoColumnModel
-import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
-import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.name
 import com.raizlabs.android.dbflow.kotlinextensions.from
 import com.raizlabs.android.dbflow.kotlinextensions.insert
 import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.kotlinextensions.set
-import com.raizlabs.android.dbflow.sql.language.property.IProperty
+import com.raizlabs.android.dbflow.models.SimpleModel
+import com.raizlabs.android.dbflow.models.TwoColumnModel
+import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
+import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.name
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -50,7 +49,7 @@ class InsertTest : BaseUnitTest() {
         assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
             insert<TwoColumnModel>().columns("name", "id").values("name", "id").query.trim())
         assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
-            insert<TwoColumnModel>().columns(arrayListOf(name, id) as List<IProperty<IProperty<*>>>).values("name", "id").query.trim())
+            insert<TwoColumnModel>().columns(listOf(name, id)).values("name", "id").query.trim())
     }
 
     @Test

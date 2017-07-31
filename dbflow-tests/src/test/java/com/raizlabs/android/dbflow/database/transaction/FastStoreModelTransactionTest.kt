@@ -2,7 +2,13 @@ package com.raizlabs.android.dbflow.database.transaction
 
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.kotlinextensions.*
+import com.raizlabs.android.dbflow.kotlinextensions.database
+import com.raizlabs.android.dbflow.kotlinextensions.fastInsert
+import com.raizlabs.android.dbflow.kotlinextensions.fastSave
+import com.raizlabs.android.dbflow.kotlinextensions.fastUpdate
+import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.kotlinextensions.list
+import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel
 import org.junit.Assert.assertEquals
@@ -16,10 +22,10 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
     fun testSaveBuilder() {
 
         database<TestDatabase>()
-                .beginTransactionAsync((0..9)
-                        .map { SimpleModel("$it") }
-                        .fastSave().build())
-                .execute()
+            .beginTransactionAsync((0..9)
+                .map { SimpleModel("$it") }
+                .fastSave().build())
+            .execute()
 
         val list = (select from SimpleModel::class).list
         assertEquals(10, list.size)
@@ -29,10 +35,10 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
     fun testInsertBuilder() {
 
         database<TestDatabase>()
-                .beginTransactionAsync((0..9)
-                        .map { SimpleModel("$it") }
-                        .fastInsert().build())
-                .execute()
+            .beginTransactionAsync((0..9)
+                .map { SimpleModel("$it") }
+                .fastInsert().build())
+            .execute()
 
         val list = (select from SimpleModel::class).list
         assertEquals(10, list.size)
@@ -43,13 +49,13 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
 
         val oldList = (0..9).map { TwoColumnModel("$it", Random().nextInt()) }
         database<TestDatabase>()
-                .beginTransactionAsync(oldList.fastInsert().build())
-                .execute()
+            .beginTransactionAsync(oldList.fastInsert().build())
+            .execute()
 
         database<TestDatabase>()
-                .beginTransactionAsync((0..9).map { TwoColumnModel("$it", Random().nextInt()) }
-                        .fastUpdate().build())
-                .execute()
+            .beginTransactionAsync((0..9).map { TwoColumnModel("$it", Random().nextInt()) }
+                .fastUpdate().build())
+            .execute()
 
         val list = (select from TwoColumnModel::class).list
         assertEquals(10, list.size)

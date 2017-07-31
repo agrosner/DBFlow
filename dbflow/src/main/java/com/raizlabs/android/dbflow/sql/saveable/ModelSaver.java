@@ -17,7 +17,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  */
 public class ModelSaver<TModel> {
 
-    private static final int INSERT_FAILED = -1;
+    public static final int INSERT_FAILED = -1;
 
     private ModelAdapter<TModel> modelAdapter;
 
@@ -64,13 +64,13 @@ public class ModelSaver<TModel> {
     }
 
     public synchronized boolean update(@NonNull TModel model, @NonNull DatabaseWrapper wrapper) {
-        DatabaseStatement insertStatement = modelAdapter.getUpdateStatement(wrapper);
+        DatabaseStatement updateStatement = modelAdapter.getUpdateStatement(wrapper);
         boolean success = false;
         try {
-            success = update(model, wrapper, insertStatement);
+            success = update(model, wrapper, updateStatement);
         } finally {
             // since we generate an insert every time, we can safely close the statement here.
-            insertStatement.close();
+            updateStatement.close();
         }
         return success;
     }

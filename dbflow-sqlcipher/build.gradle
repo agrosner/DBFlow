@@ -23,7 +23,7 @@ android {
 }
 
 dependencies {
-    compile "net.zetetic:android-database-sqlcipher:3.5.4@aar"
+    compile "net.zetetic:android-database-sqlcipher:3.5.7@aar"
     compile project("${dbflow_project_prefix}dbflow")
 }
 

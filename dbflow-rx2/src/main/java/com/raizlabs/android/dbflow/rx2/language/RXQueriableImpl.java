@@ -39,23 +39,22 @@ public class RXQueriableImpl implements RXQueriable {
     @Override
     public Maybe<Cursor> query() {
         return Maybe.fromCallable(new Callable<Cursor>() {
-                @Override
-                public Cursor call() throws Exception {
-                    return getInnerQueriable().query();
-                }
-            });
+            @Override
+            public Cursor call() throws Exception {
+                return getInnerQueriable().query();
+            }
+        });
     }
 
     @NonNull
     @Override
     public Maybe<Cursor> query(final DatabaseWrapper databaseWrapper) {
         return Maybe.fromCallable(new Callable<Cursor>() {
-                @Override
-                public Cursor call() throws Exception {
-                    return getInnerQueriable().query(databaseWrapper);
-                }
+            @Override
+            public Cursor call() throws Exception {
+                return getInnerQueriable().query(databaseWrapper);
             }
-        );
+        });
     }
 
     @NonNull
@@ -98,6 +97,28 @@ public class RXQueriableImpl implements RXQueriable {
             @Override
             public Long call() throws Exception {
                 return getInnerQueriable().count(databaseWrapper);
+            }
+        });
+    }
+
+    @NonNull
+    @Override
+    public Single<Long> longValue() {
+        return fromCallable(new Callable<Long>() {
+            @Override
+            public Long call() throws Exception {
+                return getInnerQueriable().longValue();
+            }
+        });
+    }
+
+    @NonNull
+    @Override
+    public Single<Long> longValue(final DatabaseWrapper databaseWrapper) {
+        return fromCallable(new Callable<Long>() {
+            @Override
+            public Long call() throws Exception {
+                return getInnerQueriable().longValue(databaseWrapper);
             }
         });
     }

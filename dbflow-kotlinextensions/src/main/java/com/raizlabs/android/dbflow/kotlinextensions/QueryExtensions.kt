@@ -2,8 +2,26 @@ package com.raizlabs.android.dbflow.kotlinextensions
 
 import com.raizlabs.android.dbflow.annotation.Collate
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.language.*
+import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable
+import com.raizlabs.android.dbflow.sql.language.Case
+import com.raizlabs.android.dbflow.sql.language.CaseCondition
+import com.raizlabs.android.dbflow.sql.language.CompletedTrigger
+import com.raizlabs.android.dbflow.sql.language.CursorResult
+import com.raizlabs.android.dbflow.sql.language.From
+import com.raizlabs.android.dbflow.sql.language.Index
+import com.raizlabs.android.dbflow.sql.language.Insert
+import com.raizlabs.android.dbflow.sql.language.Join
+import com.raizlabs.android.dbflow.sql.language.NameAlias
+import com.raizlabs.android.dbflow.sql.language.OrderBy
+import com.raizlabs.android.dbflow.sql.language.SQLOperator
+import com.raizlabs.android.dbflow.sql.language.SQLite
+import com.raizlabs.android.dbflow.sql.language.Select
 import com.raizlabs.android.dbflow.sql.language.Set
+import com.raizlabs.android.dbflow.sql.language.Transformable
+import com.raizlabs.android.dbflow.sql.language.Trigger
+import com.raizlabs.android.dbflow.sql.language.TriggerMethod
+import com.raizlabs.android.dbflow.sql.language.Update
+import com.raizlabs.android.dbflow.sql.language.Where
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
@@ -85,6 +103,12 @@ inline val <T : Any> ModelQueriable<T>.result
 inline val <T : Any> ModelQueriable<T>.cursorResult
     get() = queryResults()
 
+inline val <T : Any> ModelQueriable<T>.flowQueryList
+    get() = flowQueryList()
+
+inline val <T : Any> ModelQueriable<T>.cursorList
+    get() = cursorList()
+
 // cursor result extensions
 inline fun <reified T : Any> CursorResult<*>.toCustomList() = toCustomList(T::class.java)
 
@@ -100,16 +124,16 @@ inline val <T : Any> ModelQueriable<T>.async
     get() = async()
 
 infix inline fun <T : Any> AsyncQuery<T>.list(crossinline callback: (QueryTransaction<*>, MutableList<T>) -> Unit)
-        = queryListResultCallback { queryTransaction, mutableList -> callback(queryTransaction, mutableList) }
-        .execute()
+    = queryListResultCallback { queryTransaction, mutableList -> callback(queryTransaction, mutableList) }
+    .execute()
 
 infix inline fun <T : Any> AsyncQuery<T>.result(crossinline callback: (QueryTransaction<*>, T?) -> Unit)
-        = querySingleResultCallback { queryTransaction, model -> callback(queryTransaction, model) }
-        .execute()
+    = querySingleResultCallback { queryTransaction, model -> callback(queryTransaction, model) }
+    .execute()
 
 infix inline fun <T : Any> AsyncQuery<T>.cursorResult(crossinline callback: (QueryTransaction<*>, CursorResult<T>) -> Unit)
-        = queryResultCallback { queryTransaction, cursorResult -> callback(queryTransaction, cursorResult) }
-        .execute()
+    = queryResultCallback { queryTransaction, cursorResult -> callback(queryTransaction, cursorResult) }
+    .execute()
 
 inline val Model.async
     get() = async()
@@ -163,7 +187,7 @@ infix fun <T : Any> Update<T>.set(sqlOperator: SQLOperator) = set(sqlOperator)
 inline fun <reified T : Any> delete() = SQLite.delete(T::class.java)
 
 inline fun <reified T : Any> delete(deleteClause: From<T>.() -> BaseModelQueriable<T>)
-        = deleteClause(SQLite.delete(T::class.java))
+    = deleteClause(SQLite.delete(T::class.java))
 
 // insert methods
 

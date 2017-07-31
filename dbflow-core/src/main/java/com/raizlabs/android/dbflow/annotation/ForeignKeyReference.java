@@ -24,4 +24,8 @@ public @interface ForeignKeyReference {
      */
     String foreignKeyColumnName();
 
+    /**
+     * @return Specify the {@link NotNull} annotation here and it will get pasted into the reference definition.
+     */
+    NotNull notNull() default @NotNull(onNullConflict = ConflictAction.NONE);
 }
