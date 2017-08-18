@@ -79,6 +79,12 @@ class TypeConverterModel(@PrimaryKey var id: Int = 0,
                          @Column(typeConverter = CustomTypeConverter::class)
                          @PrimaryKey var customType: CustomType? = null)
 
+@Table(database = TestDatabase::class)
+class EnumTypeConverterModel(@PrimaryKey var id: Int = 0,
+                         @Column var blob: Blob? = null,
+                         @Column(typeConverter = CustomEnumTypeConverter::class)
+                         var difficulty: Difficulty = Difficulty.EASY)
+
 @Table(database = TestDatabase::class, allFields = true)
 class FeedEntry(@PrimaryKey var id: Int = 0,
                 var title: String? = null,
@@ -131,6 +137,18 @@ class CustomTypeConverter : TypeConverter<String, CustomType>() {
         null
     } else {
         CustomType(data)
+    }
+
+}
+
+class CustomEnumTypeConverter : TypeConverter<String, Difficulty>() {
+    override fun getDBValue(model: Difficulty) = model.name.substring(0..0)
+
+    override fun getModelValue(data: String) = when(data) {
+        "E" -> Difficulty.EASY
+        "M" -> Difficulty.MEDIUM
+        "H" -> Difficulty.HARD
+        else -> Difficulty.HARD
     }
 
 }
