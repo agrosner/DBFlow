@@ -7,7 +7,7 @@ android {
 
     useLibrary 'org.apache.http.legacy'
 
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion dbflow_build_tools_version
 
     compileOptions {
@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -35,6 +35,11 @@ android {
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
+    testOptions {
+        unitTests {
+            includeAndroidResources true
+        }
+    }
 }
 
 dependencies {
@@ -42,7 +47,7 @@ dependencies {
 
     kapt project("${dbflow_project_prefix}dbflow-processor")
     compile project(':dbflow')
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:appcompat-v7:26.0.1'
     compile project("${dbflow_project_prefix}dbflow")
     compile project("${dbflow_project_prefix}dbflow-sqlcipher")
     compile project("${dbflow_project_prefix}dbflow-kotlinextensions")
@@ -57,7 +62,7 @@ dependencies {
     testCompile 'org.glassfish:javax.annotation:10.0-b28'
 
     testCompile 'junit:junit:4.12'
-    testCompile "org.robolectric:robolectric:3.3.2"
+    testCompile "org.robolectric:robolectric:3.4.2"
     testCompile("com.nhaarman:mockito-kotlin:1.5.0") {
         exclude group: "org.jetbrains.kotlin"
     }

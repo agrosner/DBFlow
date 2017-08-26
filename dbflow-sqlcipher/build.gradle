@@ -3,12 +3,12 @@ apply plugin: 'com.android.library'
 project.ext.artifactId = bt_name
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion dbflow_build_tools_version
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode = version_code
     }
 
