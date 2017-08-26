@@ -80,10 +80,12 @@ public class BaseDatabaseHelper {
             database.beginTransaction();
             List<ModelAdapter> modelAdapters = databaseDefinition.getModelAdapters();
             for (ModelAdapter modelAdapter : modelAdapters) {
-                try {
-                    database.execSQL(modelAdapter.getCreationQuery());
-                } catch (SQLiteException e) {
-                    FlowLog.logError(e);
+                if (modelAdapter.createWithDatabase()) {
+                    try {
+                        database.execSQL(modelAdapter.getCreationQuery());
+                    } catch (SQLiteException e) {
+                        FlowLog.logError(e);
+                    }
                 }
             }
             database.setTransactionSuccessful();

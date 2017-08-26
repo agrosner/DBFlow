@@ -37,6 +37,9 @@ class CharModel(@PrimaryKey var id: Int = 0, @Column var exampleChar: Char? = nu
 @Table(database = TestDatabase::class)
 class TwoColumnModel(@PrimaryKey var name: String? = "", @Column var id: Int = 0)
 
+@Table(database = TestDatabase::class, createWithDatabase = false)
+class DontCreateModel(@PrimaryKey var id: Int = 0)
+
 enum class Difficulty {
     EASY,
     MEDIUM,

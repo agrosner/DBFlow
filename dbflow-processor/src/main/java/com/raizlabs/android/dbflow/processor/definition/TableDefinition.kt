@@ -92,6 +92,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
     var customCacheFieldName: String? = null
     var customMultiCacheFieldName: String? = null
 
+    var createWithDatabase = true
+
     var allFields = false
     var useIsForPrivateBooleans: Boolean = false
 
@@ -127,6 +129,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
             orderedCursorLookUp = table.orderedCursorLookUp
             assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor
+
+            createWithDatabase = table.createWithDatabase
 
             allFields = table.allFields
             useIsForPrivateBooleans = table.useBooleanGetterSetters
@@ -486,6 +490,13 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             `override fun`(ArrayTypeName.of(ClassNames.IPROPERTY), "getAllColumnProperties") {
                 modifiers(public, final)
                 `return`("ALL_COLUMN_PROPERTIES")
+            }
+
+            if (!createWithDatabase) {
+                `override fun`(TypeName.BOOLEAN, "createWithDatabase") {
+                    modifiers(public, final)
+                    `return`(false.L)
+                }
             }
 
             if (cachingEnabled) {
