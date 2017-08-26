@@ -43,39 +43,39 @@ android {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     kapt project("${dbflow_project_prefix}dbflow-processor")
-    compile project(':dbflow')
-    compile 'com.android.support:appcompat-v7:26.0.1'
-    compile project("${dbflow_project_prefix}dbflow")
-    compile project("${dbflow_project_prefix}dbflow-sqlcipher")
-    compile project("${dbflow_project_prefix}dbflow-kotlinextensions")
-    compile project("${dbflow_project_prefix}dbflow-rx")
-    compile project("${dbflow_project_prefix}dbflow-rx-kotlinextensions")
-    compile project("${dbflow_project_prefix}dbflow-rx2")
-    compile project("${dbflow_project_prefix}dbflow-rx2-kotlinextensions")
+    implementation project(':dbflow')
+    implementation 'com.android.support:appcompat-v7:26.0.1'
+    implementation project("${dbflow_project_prefix}dbflow")
+    implementation project("${dbflow_project_prefix}dbflow-sqlcipher")
+    implementation project("${dbflow_project_prefix}dbflow-kotlinextensions")
+    implementation project("${dbflow_project_prefix}dbflow-rx")
+    implementation project("${dbflow_project_prefix}dbflow-rx-kotlinextensions")
+    implementation project("${dbflow_project_prefix}dbflow-rx2")
+    implementation project("${dbflow_project_prefix}dbflow-rx2-kotlinextensions")
 
     kaptTest project("${dbflow_project_prefix}dbflow-processor")
     kaptAndroidTest project("${dbflow_project_prefix}dbflow-processor")
 
-    testCompile 'org.glassfish:javax.annotation:10.0-b28'
+    testImplementation 'org.glassfish:javax.annotation:10.0-b28'
 
-    testCompile 'junit:junit:4.12'
-    testCompile "org.robolectric:robolectric:3.4.2"
-    testCompile("com.nhaarman:mockito-kotlin:1.5.0") {
+    testImplementation 'junit:junit:4.12'
+    testImplementation "org.robolectric:robolectric:3.4.2"
+    testImplementation("com.nhaarman:mockito-kotlin:1.5.0") {
         exclude group: "org.jetbrains.kotlin"
     }
-    testCompile 'org.mockito:mockito-core:2.8.9'
+    testImplementation 'org.mockito:mockito-core:2.8.9'
 
-    androidTestCompile 'junit:junit:4.12'
-    androidTestCompile('com.android.support.test:runner:0.5') {
+    androidTestImplementation 'junit:junit:4.12'
+    androidTestImplementation('com.android.support.test:runner:0.5') {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
-    androidTestCompile('com.android.support.test:rules:0.5') {
+    androidTestImplementation('com.android.support.test:rules:0.5') {
         exclude group: 'com.android.support', module: 'support-annotations'
     }
-    androidTestCompile 'org.awaitility:awaitility:3.0.0-rc1'
+    androidTestImplementation 'org.awaitility:awaitility:3.0.0-rc1'
 
 }
 
@@ -89,10 +89,6 @@ android.applicationVariants.all { variant ->
         into "${buildDir}/intermediates/classes/test/${variant.buildType.name}/assets"
     }
     project.getTasksByName("generate${variant.name.capitalize()}Resources", false)[0].dependsOn(taskName)
-}
-
-kapt {
-    generateStubs = true
 }
 
 dexcount {

@@ -41,14 +41,18 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
 ```groovy
 
+  apply plugin: 'kotlin-kapt' // required for kotlin.
+
   def dbflow_version = "4.1.0"
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
   dependencies {
+
+    // if Java use this. If using Kotlin do NOT use this.
     annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
 
-    // use kapt for kotlin apt if you're a Kotlin user
+    // Use if Kotlin user.
     kapt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
 
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
@@ -75,10 +79,6 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
   }
 
-// if you're building with Kotlin
-  kapt {
-    generateStubs = true
-  }
 ```
 
 # Pull Requests

@@ -23,8 +23,8 @@ android {
 }
 
 dependencies {
-    compile "net.zetetic:android-database-sqlcipher:3.5.7@aar"
-    compile project("${dbflow_project_prefix}dbflow")
+    api "net.zetetic:android-database-sqlcipher:3.5.7@aar"
+    api project("${dbflow_project_prefix}dbflow")
 }
 
 apply from: '../android-artifacts.gradle'

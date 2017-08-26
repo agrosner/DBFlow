@@ -14,9 +14,9 @@ android {
 }
 
 dependencies {
-    compile project("${dbflow_project_prefix}dbflow")
-    compile project("${dbflow_project_prefix}dbflow-rx")
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    api project("${dbflow_project_prefix}dbflow")
+    api project("${dbflow_project_prefix}dbflow-rx")
+    api "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }
 
 apply from: '../kotlin-artifacts.gradle'
