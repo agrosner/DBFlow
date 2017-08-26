@@ -10,13 +10,13 @@ import com.raizlabs.android.dbflow.sql.language.property.Property
  * Description: Provides property methods in via infix functions.
  */
 
-infix fun <T : Any> Property<T>.eq(value: T) = this.eq(value)
+infix fun <T : Any> Property<T>.eq(value: T?) = this.eq(value)
 
-infix fun <T : Any> Property<T>.`is`(value: T) = this.`is`(value)
+infix fun <T : Any> Property<T>.`is`(value: T?) = this.`is`(value)
 
-infix fun <T : Any> Property<T>.isNot(value: T) = this.isNot(value)
+infix fun <T : Any> Property<T>.isNot(value: T?) = this.isNot(value)
 
-infix fun <T : Any> Property<T>.notEq(value: T) = this.notEq(value)
+infix fun <T : Any> Property<T>.notEq(value: T?) = this.notEq(value)
 
 infix fun <T : Any> Property<T>.like(value: String) = this.like(value)
 
