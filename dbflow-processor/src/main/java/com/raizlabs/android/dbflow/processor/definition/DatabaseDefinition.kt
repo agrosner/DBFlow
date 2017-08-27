@@ -55,12 +55,15 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     var databaseName = ""
 
+    var inMemory = false
+
     init {
         packageName = ClassNames.FLOW_MANAGER_PACKAGE
 
         element.annotation<Database>()?.let { database ->
             databaseName = database.name
             databaseExtensionName = database.databaseExtension
+            inMemory = database.inMemory
             databaseClassName = element.simpleName.toString()
             consistencyChecksEnabled = database.consistencyCheckEnabled
             backupEnabled = database.backupEnabled
@@ -194,6 +197,12 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                 `override fun`(String::class, "getDatabaseName") {
                     modifiers(public, final)
                     `return`(databaseName.S)
+                }
+            }
+            if (inMemory) {
+                `override fun`(TypeName.BOOLEAN, "isInMemory") {
+                    modifiers(public, final)
+                    `return`(true.L)
                 }
             }
         }
