@@ -1,12 +1,14 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.models.SimpleModel_Table
 import com.raizlabs.android.dbflow.kotlinextensions.`else`
 import com.raizlabs.android.dbflow.kotlinextensions.case
 import com.raizlabs.android.dbflow.kotlinextensions.caseWhen
 import com.raizlabs.android.dbflow.kotlinextensions.propertyString
-import org.junit.Assert.*
+import com.raizlabs.android.dbflow.models.SimpleModel_Table
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CaseTest : BaseUnitTest() {

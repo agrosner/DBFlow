@@ -55,7 +55,9 @@ public @interface OneToMany {
     /**
      * @return If true, the underlying variable that we use is private, requiring us to provide
      * a setter for it.
+     * @deprecated has no effect on the visibility of the call since we now autodetect visibility.
      */
+    @Deprecated
     boolean isVariablePrivate() default false;
 
     /**

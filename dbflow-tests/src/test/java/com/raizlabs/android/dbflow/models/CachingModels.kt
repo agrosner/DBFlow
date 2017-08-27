@@ -1,7 +1,11 @@
 package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.annotation.*
+import com.raizlabs.android.dbflow.annotation.Column
+import com.raizlabs.android.dbflow.annotation.ForeignKey
+import com.raizlabs.android.dbflow.annotation.MultiCacheField
+import com.raizlabs.android.dbflow.annotation.PrimaryKey
+import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter
 
 @Table(database = TestDatabase::class, cachingEnabled = true)

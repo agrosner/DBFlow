@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -73,12 +72,16 @@ public abstract class DatabaseDefinition {
     @Nullable
     private ModelNotifier modelNotifier;
 
-    @SuppressWarnings("unchecked")
     public DatabaseDefinition() {
-        databaseConfig = FlowManager.getConfig()
-            .databaseConfigMap().get(getAssociatedDatabaseClassFile());
+        applyDatabaseConfig(FlowManager.getConfig().databaseConfigMap().get(getAssociatedDatabaseClassFile()));
+    }
 
-
+    /**
+     * Applies a database configuration object to this class.
+     */
+    @SuppressWarnings({"unchecked", "ConstantConditions"})
+    void applyDatabaseConfig(@Nullable DatabaseConfig databaseConfig) {
+        this.databaseConfig = databaseConfig;
         if (databaseConfig != null) {
             // initialize configuration if exists.
             Collection<TableConfig> tableConfigCollection = databaseConfig.tableConfigMap().values();
@@ -288,15 +291,16 @@ public abstract class DatabaseDefinition {
      * @return The name of this database as defined in {@link Database}
      */
     @NonNull
-    public abstract String getDatabaseName();
+    public String getDatabaseName() {
+        return databaseConfig != null ? databaseConfig.getDatabaseName() : getAssociatedDatabaseClassFile().getSimpleName();
+    }
 
     /**
      * @return The file name that this database points to
      */
     @NonNull
     public String getDatabaseFileName() {
-        return getDatabaseName() + (StringUtils.isNotNullOrEmpty(getDatabaseExtensionName()) ?
-            "." + getDatabaseExtensionName() : "");
+        return getDatabaseName() + getDatabaseExtensionName();
     }
 
     /**
@@ -304,13 +308,15 @@ public abstract class DatabaseDefinition {
      */
     @NonNull
     public String getDatabaseExtensionName() {
-        return "db";
+        return databaseConfig != null ? databaseConfig.getDatabaseExtensionName() : ".db";
     }
 
     /**
      * @return True if the database will reside in memory.
      */
-    public abstract boolean isInMemory();
+    public boolean isInMemory() {
+        return databaseConfig != null && databaseConfig.isInMemory();
+    }
 
     /**
      * @return The version of the database currently.
@@ -338,44 +344,62 @@ public abstract class DatabaseDefinition {
     @NonNull
     public abstract Class<?> getAssociatedDatabaseClassFile();
 
+
+    /**
+     * @deprecated use {@link #reset()}
+     */
+    @Deprecated
+    public void reset(Context context) {
+        reset(databaseConfig);
+    }
+
+    /**
+     * Performs a full deletion of this database. Reopens the {@link FlowSQLiteOpenHelper} as well.
+     * Reapplies the {@link DatabaseConfig} if we have one.
+     */
+    public void reset() {
+        reset(databaseConfig);
+    }
+
     /**
      * Performs a full deletion of this database. Reopens the {@link FlowSQLiteOpenHelper} as well.
      *
-     * @param context Where the database resides
+     * @param databaseConfig sets a new {@link DatabaseConfig} on this class.
      */
-    public void reset(@NonNull Context context) {
+    public void reset(@Nullable DatabaseConfig databaseConfig) {
         if (!isResetting) {
-            isResetting = true;
-            getTransactionManager().stopQueue();
-            getHelper().closeDB();
-            for (ModelAdapter modelAdapter : modelAdapters.values()) {
-                modelAdapter.closeInsertStatement();
-                modelAdapter.closeCompiledStatement();
-            }
-            context.deleteDatabase(getDatabaseFileName());
-
-            // recreate queue after interrupting it.
-            if (databaseConfig == null || databaseConfig.transactionManagerCreator() == null) {
-                transactionManager = new DefaultTransactionManager(this);
-            } else {
-                transactionManager = databaseConfig.transactionManagerCreator().createManager(this);
-            }
-            openHelper = null;
-            isResetting = false;
+            destroy();
+            // reapply configuration before opening it.
+            applyDatabaseConfig(databaseConfig);
             getHelper().getDatabase();
         }
     }
 
-    public void destroy(@NonNull Context context) {
+    /**
+     * Deletes the underlying database and destroys it.
+     */
+    public void destroy() {
         if (!isResetting) {
             isResetting = true;
-            getTransactionManager().stopQueue();
-            getHelper().closeDB();
-            context.deleteDatabase(getDatabaseFileName());
-
+            close();
+            FlowManager.getContext().deleteDatabase(getDatabaseFileName());
             openHelper = null;
             isResetting = false;
         }
+    }
+
+    /**
+     * Closes the DB and stops the {@link BaseTransactionManager}
+     */
+    public void close() {
+        getTransactionManager().stopQueue();
+        for (ModelAdapter modelAdapter : modelAdapters.values()) {
+            modelAdapter.closeInsertStatement();
+            modelAdapter.closeCompiledStatement();
+            modelAdapter.closeDeleteStatement();
+            modelAdapter.closeUpdateStatement();
+        }
+        getHelper().closeDB();
     }
 
     /**

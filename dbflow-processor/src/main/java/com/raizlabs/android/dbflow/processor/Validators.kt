@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.processor
 import com.raizlabs.android.dbflow.processor.definition.*
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.EnumColumnAccessor
-import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
+import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.PrivateScopeColumnAccessor
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 
@@ -57,7 +57,7 @@ class ColumnValidator : Validator<ColumnDefinition> {
 
         if (!validatorDefinition.defaultValue.isNullOrEmpty()) {
             val typeName = validatorDefinition.elementTypeName
-            if (validatorDefinition is ForeignKeyColumnDefinition && validatorDefinition.isReferencingTableObject) {
+            if (validatorDefinition is ReferenceColumnDefinition && validatorDefinition.isReferencingTableObject) {
                 processorManager.logError(ColumnValidator::class, "Default values cannot be specified for model fields")
             } else if (typeName != null && typeName.isPrimitive) {
                 processorManager.logWarning(ColumnValidator::class.java, "Primitive column types will not respect default values")
@@ -76,14 +76,14 @@ class ColumnValidator : Validator<ColumnDefinition> {
                 success = false
                 processorManager.logError("Enums cannot be primary keys. Column: ${validatorDefinition.columnName}" +
                         " and type: ${validatorDefinition.elementTypeName}")
-            } else if (validatorDefinition is ForeignKeyColumnDefinition) {
+            } else if (validatorDefinition is ReferenceColumnDefinition) {
                 success = false
                 processorManager.logError("Enums cannot be foreign keys. Column: ${validatorDefinition.columnName}" +
                         " and type: ${validatorDefinition.elementTypeName}")
             }
         }
 
-        if (validatorDefinition is ForeignKeyColumnDefinition) {
+        if (validatorDefinition is ReferenceColumnDefinition) {
             validatorDefinition.column?.let {
                 if (it.name.isNotEmpty()) {
                     success = false

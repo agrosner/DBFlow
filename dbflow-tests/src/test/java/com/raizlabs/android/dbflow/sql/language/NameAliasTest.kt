@@ -3,8 +3,8 @@ package com.raizlabs.android.dbflow.sql.language
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.kotlinextensions.`as`
 import com.raizlabs.android.dbflow.kotlinextensions.nameAlias
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertFalse
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Test
 
 class NameAliasTest : BaseUnitTest() {

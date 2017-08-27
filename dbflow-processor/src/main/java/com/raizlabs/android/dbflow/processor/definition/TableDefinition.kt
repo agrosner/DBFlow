@@ -1,23 +1,61 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.google.common.collect.Lists
-import com.grosner.kpoet.*
-import com.raizlabs.android.dbflow.annotation.*
+import com.grosner.kpoet.L
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`=`
+import com.grosner.kpoet.`public static final field`
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.`throw new`
+import com.grosner.kpoet.code
+import com.grosner.kpoet.default
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.param
+import com.grosner.kpoet.protected
+import com.grosner.kpoet.public
+import com.grosner.kpoet.statement
+import com.grosner.kpoet.switch
+import com.raizlabs.android.dbflow.annotation.Column
+import com.raizlabs.android.dbflow.annotation.ColumnMap
+import com.raizlabs.android.dbflow.annotation.ConflictAction
+import com.raizlabs.android.dbflow.annotation.ForeignKey
+import com.raizlabs.android.dbflow.annotation.InheritedColumn
+import com.raizlabs.android.dbflow.annotation.InheritedPrimaryKey
+import com.raizlabs.android.dbflow.annotation.ModelCacheField
+import com.raizlabs.android.dbflow.annotation.MultiCacheField
+import com.raizlabs.android.dbflow.annotation.OneToMany
+import com.raizlabs.android.dbflow.annotation.PrimaryKey
+import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.raizlabs.android.dbflow.processor.OneToManyValidator
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod.Mode.*
+import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod.Mode.DELETE
+import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod.Mode.INSERT
+import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod.Mode.NON_INSERT
+import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod.Mode.UPDATE
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils
-import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
-import com.raizlabs.android.dbflow.processor.utils.*
+import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
+import com.raizlabs.android.dbflow.processor.utils.ElementUtility
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils.wrapper
+import com.raizlabs.android.dbflow.processor.utils.`override fun`
+import com.raizlabs.android.dbflow.processor.utils.annotation
+import com.raizlabs.android.dbflow.processor.utils.ensureVisibleStatic
+import com.raizlabs.android.dbflow.processor.utils.implementsClass
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.sql.QueryBuilder
-import com.squareup.javapoet.*
+import com.squareup.javapoet.ArrayTypeName
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.NameAllocator
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.WildcardTypeName
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
-import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
@@ -30,8 +68,6 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
     var tableName: String? = null
 
-    var databaseTypeName: TypeName? = null
-
     var insertConflictActionName: String = ""
 
     var updateConflictActionName: String = ""
@@ -39,7 +75,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
     var primaryKeyConflictActionName: String = ""
 
     val _primaryColumnDefinitions = mutableListOf<ColumnDefinition>()
-    val foreignKeyDefinitions = mutableListOf<ForeignKeyColumnDefinition>()
+    val foreignKeyDefinitions = mutableListOf<ReferenceColumnDefinition>()
     val uniqueGroupsDefinitions = mutableListOf<UniqueGroupsDefinition>()
     val indexGroupsDefinitions = mutableListOf<IndexGroupsDefinition>()
 
@@ -55,6 +91,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
     var cacheSize: Int = 0
     var customCacheFieldName: String? = null
     var customMultiCacheFieldName: String? = null
+
+    var createWithDatabase = true
 
     var allFields = false
     var useIsForPrivateBooleans: Boolean = false
@@ -91,6 +129,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
             orderedCursorLookUp = table.orderedCursorLookUp
             assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor
+
+            createWithDatabase = table.createWithDatabase
 
             allFields = table.allFields
             useIsForPrivateBooleans = table.useBooleanGetterSetters
@@ -244,25 +284,25 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             val isPrimary = element.annotation<PrimaryKey>() != null
             val isInherited = inheritedColumnMap.containsKey(element.simpleName.toString())
             val isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.simpleName.toString())
+            val isColumnMap = element.annotation<ColumnMap>() != null
             if (element.annotation<Column>() != null || isForeign || isPrimary
-                || isAllFields || isInherited || isInheritedPrimaryKey) {
+                || isAllFields || isInherited || isInheritedPrimaryKey || isColumnMap) {
 
                 if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, element)) return
 
-                val columnDefinition: ColumnDefinition
-                if (isInheritedPrimaryKey) {
+                val columnDefinition = if (isInheritedPrimaryKey) {
                     val inherited = inheritedPrimaryKeyMap[element.simpleName.toString()]
-                    columnDefinition = ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
+                    ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
                         inherited?.column, inherited?.primaryKey)
                 } else if (isInherited) {
                     val inherited = inheritedColumnMap[element.simpleName.toString()]
-                    columnDefinition = ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
+                    ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
                         inherited?.column, null, inherited?.nonNullConflict ?: ConflictAction.NONE)
-                } else if (isForeign) {
-                    columnDefinition = ForeignKeyColumnDefinition(manager, this,
+                } else if (isForeign || isColumnMap) {
+                    ReferenceColumnDefinition(manager, this,
                         element, isPackagePrivateNotInSamePackage)
                 } else {
-                    columnDefinition = ColumnDefinition(manager, element,
+                    ColumnDefinition(manager, element,
                         this, isPackagePrivateNotInSamePackage)
                 }
 
@@ -279,7 +319,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                         hasRowID = true
                     }
 
-                    if (columnDefinition is ForeignKeyColumnDefinition) {
+                    if (columnDefinition is ReferenceColumnDefinition && !columnDefinition.isColumnMap) {
                         foreignKeyDefinitions.add(columnDefinition)
                     }
 
@@ -300,7 +340,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     }
                 }
             } else if (element.annotation<OneToMany>() != null) {
-                val oneToManyDefinition = OneToManyDefinition(element as ExecutableElement, manager)
+                val oneToManyDefinition = OneToManyDefinition(element as ExecutableElement, manager, elements)
                 if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition)
                 }
@@ -323,11 +363,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
     }
 
     override val primaryColumnDefinitions: List<ColumnDefinition>
-        get() = if (autoIncrementColumn != null) {
-            Lists.newArrayList(autoIncrementColumn!!)
-        } else {
-            _primaryColumnDefinitions
-        }
+        get() = autoIncrementColumn?.let { arrayListOf(it) } ?: _primaryColumnDefinitions
 
     override val extendsClass: TypeName?
         get() = ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName)
@@ -415,12 +451,17 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                         modifiers(public, final)
                         `return`(QueryBuilder.stripQuotes(autoIncrement.columnName).S)
                     }
+
+                    `override fun`(ParameterizedTypeName.get(ClassNames.SINGLE_MODEL_SAVER, elementClassName!!), "createSingleModelSaver") {
+                        modifiers(public, final)
+                        `return`("new \$T<>()", ClassNames.AUTOINCREMENT_MODEL_SAVER)
+                    }
                 }
             }
 
             val saveForeignKeyFields = columnDefinitions
-                .filter { (it is ForeignKeyColumnDefinition) && it.saveForeignKeyModel }
-                .map { it as ForeignKeyColumnDefinition }
+                .filter { (it is ReferenceColumnDefinition) && it.saveForeignKeyModel }
+                .map { it as ReferenceColumnDefinition }
             if (saveForeignKeyFields.isNotEmpty()) {
                 val code = CodeBlock.builder()
                 saveForeignKeyFields.forEach { it.appendSaveMethod(code) }
@@ -433,8 +474,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             }
 
             val deleteForeignKeyFields = columnDefinitions
-                .filter { (it is ForeignKeyColumnDefinition) && it.deleteForeignKeyModel }
-                .map { it as ForeignKeyColumnDefinition }
+                .filter { (it is ReferenceColumnDefinition) && it.deleteForeignKeyModel }
+                .map { it as ReferenceColumnDefinition }
             if (deleteForeignKeyFields.isNotEmpty()) {
                 val code = CodeBlock.builder()
                 deleteForeignKeyFields.forEach { it.appendDeleteMethod(code) }
@@ -449,6 +490,13 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             `override fun`(ArrayTypeName.of(ClassNames.IPROPERTY), "getAllColumnProperties") {
                 modifiers(public, final)
                 `return`("ALL_COLUMN_PROPERTIES")
+            }
+
+            if (!createWithDatabase) {
+                `override fun`(TypeName.BOOLEAN, "createWithDatabase") {
+                    modifiers(public, final)
+                    `return`(false.L)
+                }
             }
 
             if (cachingEnabled) {

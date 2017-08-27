@@ -17,10 +17,10 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
     private DatabaseHelperDelegate databaseHelperDelegate;
     private AndroidDatabase androidDatabase;
 
+
     public FlowSQLiteOpenHelper(@NonNull DatabaseDefinition databaseDefinition,
                                 @NonNull DatabaseHelperListener listener) {
-        super(FlowManager.getContext(),
-            databaseDefinition.isInMemory() ? null : databaseDefinition.getDatabaseFileName(),
+        super(FlowManager.getContext(), databaseDefinition.isInMemory() ? null : databaseDefinition.getDatabaseFileName(),
             null, databaseDefinition.getDatabaseVersion());
 
         OpenHelper backupHelper = null;

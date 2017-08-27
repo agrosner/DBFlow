@@ -3,12 +3,12 @@ apply plugin: 'com.android.library'
 project.ext.artifactId = bt_name
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion dbflow_build_tools_version
 
     defaultConfig {
         minSdkVersion 7
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode = version_code
     }
 
@@ -23,8 +23,8 @@ android {
 }
 
 dependencies {
-    compile "net.zetetic:android-database-sqlcipher:3.5.7@aar"
-    compile project("${dbflow_project_prefix}dbflow")
+    api "net.zetetic:android-database-sqlcipher:3.5.7@aar"
+    api project("${dbflow_project_prefix}dbflow")
 }
 
 apply from: '../android-artifacts.gradle'

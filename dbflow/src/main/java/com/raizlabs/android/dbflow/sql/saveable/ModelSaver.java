@@ -17,7 +17,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
  */
 public class ModelSaver<TModel> {
 
-    private static final int INSERT_FAILED = -1;
+    public static final int INSERT_FAILED = -1;
 
     private ModelAdapter<TModel> modelAdapter;
 

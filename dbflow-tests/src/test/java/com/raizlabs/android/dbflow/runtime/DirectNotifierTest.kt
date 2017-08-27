@@ -1,17 +1,20 @@
 package com.raizlabs.android.dbflow.runtime
 
 import android.content.Context
-import android.os.Build
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
-import com.raizlabs.android.dbflow.BuildConfig
 import com.raizlabs.android.dbflow.ImmediateTransactionManager2
 import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.config.DatabaseConfig
 import com.raizlabs.android.dbflow.config.FlowConfig
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.kotlinextensions.*
+import com.raizlabs.android.dbflow.kotlinextensions.columnValues
+import com.raizlabs.android.dbflow.kotlinextensions.delete
+import com.raizlabs.android.dbflow.kotlinextensions.insert
+import com.raizlabs.android.dbflow.kotlinextensions.save
+import com.raizlabs.android.dbflow.kotlinextensions.set
+import com.raizlabs.android.dbflow.kotlinextensions.update
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table
 import com.raizlabs.android.dbflow.structure.BaseModel
@@ -25,8 +28,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, sdk = intArrayOf(Build.VERSION_CODES.LOLLIPOP),
-        assetDir = "build/intermediates/classes/test/")
+@Config (manifest = Config.NONE)
 class DirectNotifierTest {
 
     val context: Context

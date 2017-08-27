@@ -45,14 +45,16 @@ public class BaseDatabaseHelper {
 
     public void onCreate(@NonNull DatabaseWrapper db) {
         checkForeignKeySupport(db);
-        executeCreations(db);
+        executeTableCreations(db);
         executeMigrations(db, -1, db.getVersion());
+        executeViewCreations(db);
     }
 
     public void onUpgrade(@NonNull DatabaseWrapper db, int oldVersion, int newVersion) {
         checkForeignKeySupport(db);
-        executeCreations(db);
+        executeTableCreations(db);
         executeMigrations(db, oldVersion, newVersion);
+        executeViewCreations(db);
     }
 
     public void onOpen(@NonNull DatabaseWrapper db) {
@@ -73,22 +75,32 @@ public class BaseDatabaseHelper {
         }
     }
 
-    /**
-     * This method executes CREATE TABLE statements as well as CREATE VIEW on the database passed.
-     */
-    protected void executeCreations(@NonNull final DatabaseWrapper database) {
+    protected void executeTableCreations(@NonNull final DatabaseWrapper database){
         try {
             database.beginTransaction();
             List<ModelAdapter> modelAdapters = databaseDefinition.getModelAdapters();
             for (ModelAdapter modelAdapter : modelAdapters) {
-                try {
-                    database.execSQL(modelAdapter.getCreationQuery());
-                } catch (SQLiteException e) {
-                    FlowLog.logError(e);
+                if (modelAdapter.createWithDatabase()) {
+                    try {
+                        database.execSQL(modelAdapter.getCreationQuery());
+                    } catch (SQLiteException e) {
+                        FlowLog.logError(e);
+                    }
                 }
             }
+            database.setTransactionSuccessful();
+        } finally {
+            database.endTransaction();
+        }
+    }
 
-            // create our model views
+    /**
+     * This method executes CREATE TABLE statements as well as CREATE VIEW on the database passed.
+     */
+    protected void executeViewCreations(@NonNull final DatabaseWrapper database){
+
+        try {
+            database.beginTransaction();
             List<ModelViewAdapter> modelViews = databaseDefinition.getModelViewAdapters();
             for (ModelViewAdapter modelView : modelViews) {
                 QueryBuilder queryBuilder = new QueryBuilder()
@@ -106,7 +118,6 @@ public class BaseDatabaseHelper {
         } finally {
             database.endTransaction();
         }
-
     }
 
     protected void executeMigrations(@NonNull final DatabaseWrapper db,

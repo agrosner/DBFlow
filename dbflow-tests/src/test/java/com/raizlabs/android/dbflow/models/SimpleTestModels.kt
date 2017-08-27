@@ -1,7 +1,14 @@
 package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.annotation.*
+import com.raizlabs.android.dbflow.annotation.Column
+import com.raizlabs.android.dbflow.annotation.ColumnIgnore
+import com.raizlabs.android.dbflow.annotation.ConflictAction
+import com.raizlabs.android.dbflow.annotation.ForeignKey
+import com.raizlabs.android.dbflow.annotation.ManyToMany
+import com.raizlabs.android.dbflow.annotation.PrimaryKey
+import com.raizlabs.android.dbflow.annotation.QueryModel
+import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.structure.BaseModel
@@ -29,6 +36,9 @@ class CharModel(@PrimaryKey var id: Int = 0, @Column var exampleChar: Char? = nu
 
 @Table(database = TestDatabase::class)
 class TwoColumnModel(@PrimaryKey var name: String? = "", @Column var id: Int = 0)
+
+@Table(database = TestDatabase::class, createWithDatabase = false)
+class DontCreateModel(@PrimaryKey var id: Int = 0)
 
 enum class Difficulty {
     EASY,
@@ -72,6 +82,12 @@ class TypeConverterModel(@PrimaryKey var id: Int = 0,
                          @Column(typeConverter = CustomTypeConverter::class)
                          @PrimaryKey var customType: CustomType? = null)
 
+@Table(database = TestDatabase::class)
+class EnumTypeConverterModel(@PrimaryKey var id: Int = 0,
+                         @Column var blob: Blob? = null,
+                         @Column(typeConverter = CustomEnumTypeConverter::class)
+                         var difficulty: Difficulty = Difficulty.EASY)
+
 @Table(database = TestDatabase::class, allFields = true)
 class FeedEntry(@PrimaryKey var id: Int = 0,
                 var title: String? = null,
@@ -79,18 +95,18 @@ class FeedEntry(@PrimaryKey var id: Int = 0,
 
 @Table(database = TestDatabase::class)
 @ManyToMany(
-        generatedTableClassName = "Refund", referencedTable = Transfer::class,
-        referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
-        saveForeignKeyModels = true
+    generatedTableClassName = "Refund", referencedTable = Transfer::class,
+    referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
+    saveForeignKeyModels = true
 )
 data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
 data class Transfer2(
-        @PrimaryKey
-        var id: UUID = UUID.randomUUID(),
-        @ForeignKey(stubbedRelationship = true)
-        var origin: Account? = null
+    @PrimaryKey
+    var id: UUID = UUID.randomUUID(),
+    @ForeignKey(stubbedRelationship = true)
+    var origin: Account? = null
 )
 
 @Table(database = TestDatabase::class)
@@ -128,6 +144,18 @@ class CustomTypeConverter : TypeConverter<String, CustomType>() {
 
 }
 
+class CustomEnumTypeConverter : TypeConverter<String, Difficulty>() {
+    override fun getDBValue(model: Difficulty) = model.name.substring(0..0)
+
+    override fun getModelValue(data: String) = when(data) {
+        "E" -> Difficulty.EASY
+        "M" -> Difficulty.MEDIUM
+        "H" -> Difficulty.HARD
+        else -> Difficulty.HARD
+    }
+
+}
+
 @Table(database = TestDatabase::class)
 class DefaultModel(@PrimaryKey @Column(defaultValue = "5") var id: Int? = 0,
                    @Column(defaultValue = "5.0") var location: Double? = 0.0,
@@ -156,10 +184,10 @@ class TestModelParent : BaseModel() {
 
 @Table(database = TestDatabase::class)
 class NullableNumbers(@PrimaryKey var id: Int = 0,
-                      @Column var float: Float? = null,
-                      @Column var double: Double? = null,
-                      @Column var long: Long? = null,
-                      @Column var int: Int? = null,
+                      @Column var f: Float? = null,
+                      @Column var d: Double? = null,
+                      @Column var l: Long? = null,
+                      @Column var i: Int? = null,
                       @Column var bigDecimal: BigDecimal? = null,
                       @Column var bigInteger: BigInteger? = null)
 
