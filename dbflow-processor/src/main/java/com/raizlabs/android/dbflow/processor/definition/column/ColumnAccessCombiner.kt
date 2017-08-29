@@ -182,7 +182,12 @@ class SqliteStatementAccessCombiner(combiner: Combiner)
                         statement("statement.bind$statementMethod($offset, $defaultValue)")
                     }
                 } else {
-                    statement("statement.bind${wrapperMethod}OrNull($offset, $subWrapperFieldAccess)")
+                    if (subWrapperAccessor != null) {
+                        statement("statement.bind${wrapperMethod}OrNull($offset, $fieldAccess != null ? $subWrapperFieldAccess : null)")
+                    } else {
+                        statement("statement.bind${wrapperMethod}OrNull($offset, $subWrapperFieldAccess)")
+                    }
+
                 }
             }
         }
