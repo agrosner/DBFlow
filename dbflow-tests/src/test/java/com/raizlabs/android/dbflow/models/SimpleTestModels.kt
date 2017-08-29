@@ -78,6 +78,7 @@ class OrderCursorModel(@PrimaryKey var id: Int = 0, @Column var name: String? = 
 
 @Table(database = TestDatabase::class)
 class TypeConverterModel(@PrimaryKey var id: Int = 0,
+                         @Column(typeConverter = BlobConverter::class) var opaqueData: ByteArray? = null,
                          @Column var blob: Blob? = null,
                          @Column(typeConverter = CustomTypeConverter::class)
                          @PrimaryKey var customType: CustomType? = null)
@@ -154,6 +155,18 @@ class CustomEnumTypeConverter : TypeConverter<String, Difficulty>() {
         else -> Difficulty.HARD
     }
 
+}
+
+@com.raizlabs.android.dbflow.annotation.TypeConverter
+class BlobConverter : TypeConverter<Blob, ByteArray>() {
+
+    override fun getDBValue(model: ByteArray?): Blob? {
+        return if (model == null) null else Blob(model)
+    }
+
+    override fun getModelValue(data: Blob?): ByteArray? {
+        return data?.blob
+    }
 }
 
 @Table(database = TestDatabase::class)
