@@ -155,9 +155,9 @@ public class AsyncModel<TModel> extends BaseAsyncObject<AsyncModel<TModel>> impl
      */
     @NonNull
     @Override
-    public AsyncModel<? extends Model> async() {
+    public <TModel extends Model> AsyncModel<TModel> async() {
         //noinspection unchecked
-        return (AsyncModel<? extends Model>) this;
+        return (AsyncModel<TModel>) this;
     }
 
     @Override
