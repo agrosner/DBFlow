@@ -32,11 +32,11 @@ class ForeignKeyAccessCombinerTest {
         foreignKeyAccessCombiner.addCode(builder, AtomicInteger(4))
 
         assertEquals("if (model.name != null) {" +
-                "\n  values.put(\"test\", model.name.test);" +
-                "\n  values.put(\"test2\", model.name.getTest2());" +
+                "\n  values.put(\"`test`\", model.name.test);" +
+                "\n  values.put(\"`test2`\", model.name.getTest2());" +
                 "\n} else {" +
-                "\n  values.putNull(\"test\");" +
-                "\n  values.putNull(\"test2\");" +
+                "\n  values.putNull(\"`test`\");" +
+                "\n  values.putNull(\"`test2`\");" +
                 "\n}",
                 builder.build().toString().trim())
     }
@@ -51,7 +51,7 @@ class ForeignKeyAccessCombinerTest {
         foreignKeyAccessCombiner.addCode(builder, AtomicInteger(4))
 
         assertEquals("if (model.getName() != null) {" +
-                "\n  statement.bindString(4 + start, model.getName().test);" +
+                "\n  statement.bindStringOrNull(4 + start, model.getName().test);" +
                 "\n} else {" +
                 "\n  statement.bindNull(4 + start);" +
                 "\n}",
@@ -93,11 +93,11 @@ class ForeignKeyAccessCombinerTest {
         foreignKeyAccessCombiner.addCode(builder, AtomicInteger(1))
 
         assertEquals("if (model.modem != null) {" +
-                "\n  values.put(\"number\", com.fuzz.AnotherHelper\$Helper.getNumber(model.modem));" +
-                "\n  values.put(\"date\", global_converter.getDBValue(model.modem.date));" +
+                "\n  values.put(\"`number`\", com.fuzz.AnotherHelper\$Helper.getNumber(model.modem));" +
+                "\n  values.put(\"`date`\", global_converter.getDBValue(model.modem.date));" +
                 "\n} else {" +
-                "\n  values.putNull(\"number\");" +
-                "\n  values.putNull(\"date\");" +
+                "\n  values.putNull(\"`number`\");" +
+                "\n  values.putNull(\"`date`\");" +
                 "\n}",
                 builder.build().toString().trim())
     }
@@ -116,12 +116,12 @@ class ForeignKeyAccessCombinerTest {
         val builder = CodeBlock.builder()
         foreignKeyAccessCombiner.addCode(builder, AtomicInteger(0))
 
-        assertEquals("int index_testmodel_id = cursor.getColumnIndex(\"testmodel_id\");" +
-                "\nint index_testmodel_type = cursor.getColumnIndex(\"testmodel_type\");" +
-                "\nif (index_testmodel_id != -1 && !cursor.isNull(index_testmodel_id) && index_testmodel_type != -1 && !cursor.isNull(index_testmodel_type)) {" +
+        assertEquals("int index_testmodel_id_ParentModel_Table = cursor.getColumnIndex(\"testmodel_id\");" +
+                "\nint index_testmodel_type_ParentModel_Table = cursor.getColumnIndex(\"testmodel_type\");" +
+                "\nif (index_testmodel_id_ParentModel_Table != -1 && !cursor.isNull(index_testmodel_id_ParentModel_Table) && index_testmodel_type_ParentModel_Table != -1 && !cursor.isNull(index_testmodel_type_ParentModel_Table)) {" +
                 "\n  model.testModel1 = com.raizlabs.android.dbflow.sql.language.SQLite.select().from(com.raizlabs.android.dbflow.test.container.ParentModel.class).where()" +
-                "\n      .and(com.raizlabs.android.dbflow.test.container.ParentModel_Table.name.eq(cursor.getString(index_testmodel_id)))" +
-                "\n      .and(com.raizlabs.android.dbflow.test.container.ParentModel_Table.type.eq(cursor.getString(index_testmodel_type)))" +
+                "\n      .and(com.raizlabs.android.dbflow.test.container.ParentModel_Table.name.eq(cursor.getString(index_testmodel_id_ParentModel_Table)))" +
+                "\n      .and(com.raizlabs.android.dbflow.test.container.ParentModel_Table.type.eq(cursor.getString(index_testmodel_type_ParentModel_Table)))" +
                 "\n      .querySingle();" +
                 "\n} else {" +
                 "\n  model.testModel1 = null;" +
@@ -142,12 +142,12 @@ class ForeignKeyAccessCombinerTest {
         val builder = CodeBlock.builder()
         foreignKeyAccessCombiner.addCode(builder, AtomicInteger(0))
 
-        assertEquals("int index_testmodel_id = cursor.getColumnIndex(\"testmodel_id\");" +
-                "\nint index_testmodel_type = cursor.getColumnIndex(\"testmodel_type\");" +
-                "\nif (index_testmodel_id != -1 && !cursor.isNull(index_testmodel_id) && index_testmodel_type != -1 && !cursor.isNull(index_testmodel_type)) {" +
+        assertEquals("int index_testmodel_id_ParentModel_Table = cursor.getColumnIndex(\"testmodel_id\");" +
+                "\nint index_testmodel_type_ParentModel_Table = cursor.getColumnIndex(\"testmodel_type\");" +
+                "\nif (index_testmodel_id_ParentModel_Table != -1 && !cursor.isNull(index_testmodel_id_ParentModel_Table) && index_testmodel_type_ParentModel_Table != -1 && !cursor.isNull(index_testmodel_type_ParentModel_Table)) {" +
                 "\n  model.testModel1 = new com.raizlabs.android.dbflow.test.container.ParentModel();" +
-                "\n  model.testModel1.name = cursor.getString(index_testmodel_id);" +
-                "\n  model.testModel1.type = cursor.getString(index_testmodel_type);" +
+                "\n  model.testModel1.name = cursor.getString(index_testmodel_id_ParentModel_Table);" +
+                "\n  model.testModel1.type = cursor.getString(index_testmodel_type_ParentModel_Table);" +
                 "\n} else {" +
                 "\n  model.testModel1 = null;" +
                 "\n}", builder.build().toString().trim())
