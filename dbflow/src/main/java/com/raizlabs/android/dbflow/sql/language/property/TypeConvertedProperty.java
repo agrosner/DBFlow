@@ -72,4 +72,13 @@ public class TypeConvertedProperty<T, V> extends Property<V> {
         return databaseProperty;
     }
 
+    @NonNull
+    @Override
+    public Property<V> withTable(@NonNull NameAlias tableNameAlias) {
+        NameAlias nameAlias = this.getNameAlias()
+                                  .newBuilder()
+                                  .withTable(tableNameAlias.getQuery())
+                                  .build();
+        return new TypeConvertedProperty<>(this.getTable(), nameAlias, this.convertToDB, this.getter);
+    }
 }

@@ -26,12 +26,9 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-
-    compile project("${dbflow_project_prefix}dbflow-core")
-    compile project("${dbflow_project_prefix}dbflow")
+    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    api project("${dbflow_project_prefix}dbflow-core")
+    api project("${dbflow_project_prefix}dbflow")
 }
 
 apply from: '../kotlin-artifacts.gradle'

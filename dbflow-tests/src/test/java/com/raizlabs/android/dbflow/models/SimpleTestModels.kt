@@ -37,6 +37,9 @@ class CharModel(@PrimaryKey var id: Int = 0, @Column var exampleChar: Char? = nu
 @Table(database = TestDatabase::class)
 class TwoColumnModel(@PrimaryKey var name: String? = "", @Column var id: Int = 0)
 
+@Table(database = TestDatabase::class, createWithDatabase = false)
+class DontCreateModel(@PrimaryKey var id: Int = 0)
+
 enum class Difficulty {
     EASY,
     MEDIUM,
@@ -75,9 +78,16 @@ class OrderCursorModel(@PrimaryKey var id: Int = 0, @Column var name: String? = 
 
 @Table(database = TestDatabase::class)
 class TypeConverterModel(@PrimaryKey var id: Int = 0,
+                         @Column(typeConverter = BlobConverter::class) var opaqueData: ByteArray? = null,
                          @Column var blob: Blob? = null,
                          @Column(typeConverter = CustomTypeConverter::class)
                          @PrimaryKey var customType: CustomType? = null)
+
+@Table(database = TestDatabase::class)
+class EnumTypeConverterModel(@PrimaryKey var id: Int = 0,
+                         @Column var blob: Blob? = null,
+                         @Column(typeConverter = CustomEnumTypeConverter::class)
+                         var difficulty: Difficulty = Difficulty.EASY)
 
 @Table(database = TestDatabase::class, allFields = true)
 class FeedEntry(@PrimaryKey var id: Int = 0,
@@ -133,6 +143,30 @@ class CustomTypeConverter : TypeConverter<String, CustomType>() {
         CustomType(data)
     }
 
+}
+
+class CustomEnumTypeConverter : TypeConverter<String, Difficulty>() {
+    override fun getDBValue(model: Difficulty) = model.name.substring(0..0)
+
+    override fun getModelValue(data: String) = when(data) {
+        "E" -> Difficulty.EASY
+        "M" -> Difficulty.MEDIUM
+        "H" -> Difficulty.HARD
+        else -> Difficulty.HARD
+    }
+
+}
+
+@com.raizlabs.android.dbflow.annotation.TypeConverter
+class BlobConverter : TypeConverter<Blob, ByteArray>() {
+
+    override fun getDBValue(model: ByteArray?): Blob? {
+        return if (model == null) null else Blob(model)
+    }
+
+    override fun getModelValue(data: Blob?): ByteArray? {
+        return data?.blob
+    }
 }
 
 @Table(database = TestDatabase::class)

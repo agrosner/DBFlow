@@ -15,7 +15,7 @@ class OneToMany<T : Any>(private val query: () -> ModelQueriable<T>) : ReadWrite
     private var list: List<T>? = null
 
     override fun getValue(thisRef: Any, property: KProperty<*>): List<T>? {
-        if (list?.isEmpty() ?: true) {
+        if (list?.isEmpty() != false) {
             list = query().list
         }
         return list

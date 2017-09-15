@@ -38,6 +38,12 @@ public @interface Database {
     String databaseExtension() default "";
 
     /**
+     * @deprecated use DatabaseConfig.inMemoryBuilder() instead.
+     */
+    @Deprecated
+    boolean inMemory() default false;
+
+    /**
      * @return If true, SQLite will throw exceptions when {@link ForeignKey} constraints are not respected.
      * Default is false and will not throw exceptions.
      */
