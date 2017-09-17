@@ -24,6 +24,12 @@ public interface InternalAdapter<TModel> {
     String getTableName();
 
     /**
+     * @return The table alias of this adapter.
+     */
+    @NonNull
+    String getTableAlias();
+
+    /**
      * Saves the specified model to the DB.
      *
      * @param model The model to save/insert/update

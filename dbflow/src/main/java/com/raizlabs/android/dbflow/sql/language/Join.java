@@ -86,7 +86,12 @@ public class Join<TModel, TFromModel> implements Query {
         this.from = from;
         this.table = table;
         type = joinType;
-        alias = new NameAlias.Builder(FlowManager.getTableName(table)).build();
+        NameAlias.Builder builder = new NameAlias.Builder(FlowManager.getTableName(table));
+        String tableAlias = FlowManager.getModelAdapter(table).getTableAlias().trim();
+        if (tableAlias.length() > 0) {
+            builder.as(tableAlias);
+        }
+        alias = builder.build();
     }
 
     public Join(@NonNull From<TFromModel> from, @NonNull JoinType joinType,

@@ -68,6 +68,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
     var tableName: String? = null
 
+    var tableAlias: String? = null
+
     var insertConflictActionName: String = ""
 
     var updateConflictActionName: String = ""
@@ -123,6 +125,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             } catch (mte: MirroredTypeException) {
                 databaseTypeName = TypeName.get(mte.typeMirror)
             }
+
+            this.tableAlias = table.tableAlias
 
             cachingEnabled = table.cachingEnabled
             cacheSize = table.cacheSize
@@ -379,6 +383,11 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             `override fun`(String::class, "getTableName") {
                 modifiers(public, final)
                 `return`(QueryBuilder.quote(tableName).S)
+            }
+
+            `override fun`(String::class, "getTableAlias") {
+                modifiers(public, final)
+                `return`(QueryBuilder.quote(tableAlias).S)
             }
 
             `override fun`(elementClassName!!, "newInstance") {
