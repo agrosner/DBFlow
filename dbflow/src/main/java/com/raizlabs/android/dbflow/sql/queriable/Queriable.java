@@ -8,10 +8,13 @@ import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Insert;
 import com.raizlabs.android.dbflow.sql.language.Set;
 import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.FlowCursorCustomAdapter;
 import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.FlowCursor;
+
+import java.util.List;
 
 /**
  * Description: The most basic interface that some of the classes such as {@link Insert}, {@link ModelQueriable},
@@ -34,6 +37,15 @@ public interface Queriable extends Query {
     @Nullable
     FlowCursor query(@NonNull DatabaseWrapper databaseWrapper);
 
+    /**
+     * Allows the convenience of using DBFlow's wrapper language while using custom loading logic
+     * to result in any type, without the need for a QueryModel.  Useful especially for lists of
+     * results from a single column.
+     * @param adapter a functional interface to adapt the cursor rows to AnyType
+     * @param <AnyType> whatever type you want.  A Long, Integer, whatever.
+     * @return
+     */
+    <AnyType> List<AnyType> queryCustomList(FlowCursorCustomAdapter<AnyType> adapter);
 
     /**
      * @return A new {@link DatabaseStatement} from this query.

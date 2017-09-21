@@ -11,10 +11,14 @@ import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;
 import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.FlowCursorCustomAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatementWrapper;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.FlowCursor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Description: Base implementation of something that can be queried from the database.
@@ -105,6 +109,25 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
             databaseWrapper.execSQL(query);
         }
         return null;
+    }
+
+    public <AnyType> List<AnyType> queryCustomList(FlowCursorCustomAdapter<AnyType> adapter) {
+        List<AnyType> list = new ArrayList<>();
+        FlowCursor cursor = null;
+        try {
+            cursor = query();
+            if (cursor == null) {
+                return list;
+            }
+            while (cursor.moveToNext()) {
+                list.add(adapter.loadFromCursor(cursor));
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return list;
     }
 
     @Override
