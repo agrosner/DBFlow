@@ -19,6 +19,7 @@ public class AutoIncrementModelSaver<TModel> extends ModelSaver<TModel> {
 
     @Override
     public synchronized long insert(@NonNull TModel model, @NonNull DatabaseWrapper wrapper) {
+        getModelAdapter().saveForeignKeys(model, wrapper);
         final boolean hasAutoIncrement = getModelAdapter().hasAutoIncrement(model);
         DatabaseStatement insertStatement = hasAutoIncrement
             ? getModelAdapter().getCompiledStatement(wrapper)
@@ -46,6 +47,7 @@ public class AutoIncrementModelSaver<TModel> extends ModelSaver<TModel> {
     public synchronized long insert(@NonNull TModel model,
                                     @NonNull DatabaseStatement insertStatement,
                                     @NonNull DatabaseWrapper wrapper) {
+        getModelAdapter().saveForeignKeys(model, wrapper);
         if (getModelAdapter().hasAutoIncrement(model)) {
             getModelAdapter().bindToStatement(insertStatement, model);
         } else {
