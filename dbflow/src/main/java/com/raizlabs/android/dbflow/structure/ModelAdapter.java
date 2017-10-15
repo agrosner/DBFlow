@@ -313,7 +313,12 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     public boolean hasAutoIncrement(TModel model) {
-        return getAutoIncrementingId(model).longValue() > 0;
+        Number id = getAutoIncrementingId(model);
+        //noinspection ConstantConditions
+        if (id == null) {
+            throw new IllegalStateException("An autoincrementing column field cannot be null.");
+        }
+        return id.longValue() > 0;
     }
 
     /**
