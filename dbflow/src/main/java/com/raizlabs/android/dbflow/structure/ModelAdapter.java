@@ -457,7 +457,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      *
      * @param modelSaver The saver to use.
      */
-    public void setModelSaver(ModelSaver<TModel> modelSaver) {
+    public void setModelSaver(@NonNull ModelSaver<TModel> modelSaver) {
         this.modelSaver = modelSaver;
         this.modelSaver.setModelAdapter(this);
     }
