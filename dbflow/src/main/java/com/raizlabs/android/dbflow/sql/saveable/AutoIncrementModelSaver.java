@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.saveable;
 
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
@@ -47,17 +48,11 @@ public class AutoIncrementModelSaver<TModel> extends ModelSaver<TModel> {
     public synchronized long insert(@NonNull TModel model,
                                     @NonNull DatabaseStatement insertStatement,
                                     @NonNull DatabaseWrapper wrapper) {
-        getModelAdapter().saveForeignKeys(model, wrapper);
-        if (getModelAdapter().hasAutoIncrement(model)) {
-            getModelAdapter().bindToStatement(insertStatement, model);
+        if (!getModelAdapter().hasAutoIncrement(model)) {
+            return super.insert(model, insertStatement, wrapper);
         } else {
-            getModelAdapter().bindToInsertStatement(insertStatement, model);
+            FlowLog.log(FlowLog.Level.W, "Ignoring insert statement " + insertStatement + " since an autoincrement column specified in the insert.");
+            return insert(model, wrapper);
         }
-        long id = insertStatement.executeInsert();
-        if (id > INSERT_FAILED) {
-            getModelAdapter().updateAutoIncrement(model, id);
-            NotifyDistributor.get().notifyModelChanged(model, getModelAdapter(), BaseModel.Action.INSERT);
-        }
-        return id;
     }
 }
