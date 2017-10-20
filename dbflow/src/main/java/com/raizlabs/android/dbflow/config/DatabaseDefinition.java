@@ -241,7 +241,7 @@ public abstract class DatabaseDefinition {
     public synchronized OpenHelper getHelper() {
         if (openHelper == null) {
             DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
-                .get(getAssociatedDatabaseClassFile());
+                    .get(getAssociatedDatabaseClassFile());
             if (config == null || config.helperCreator() == null) {
                 openHelper = new FlowSQLiteOpenHelper(this, helperListener);
             } else {
@@ -261,7 +261,7 @@ public abstract class DatabaseDefinition {
     public ModelNotifier getModelNotifier() {
         if (modelNotifier == null) {
             DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
-                .get(getAssociatedDatabaseClassFile());
+                    .get(getAssociatedDatabaseClassFile());
             if (config == null || config.modelNotifier() == null) {
                 modelNotifier = new ContentResolverNotifier();
             } else {
@@ -373,6 +373,26 @@ public abstract class DatabaseDefinition {
             applyDatabaseConfig(databaseConfig);
             getHelper().getDatabase();
         }
+    }
+
+    /**
+     * Reopens the DB with the new {@link DatabaseConfig} specified.
+     */
+    public void reopen(@Nullable DatabaseConfig databaseConfig) {
+        if (!isResetting) {
+            close();
+            openHelper = null;
+            applyDatabaseConfig(databaseConfig);
+            getHelper().getDatabase();
+            isResetting = false;
+        }
+    }
+
+    /**
+     * Closes and reopens the database.
+     */
+    public void reopen() {
+        reopen(databaseConfig);
     }
 
     /**
