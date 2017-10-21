@@ -134,7 +134,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 
             for (columnDefinition in packagePrivateList) {
-                var helperClassName = "${columnDefinition.element.getPackage()}.${columnDefinition.element.enclosingElement.toClassName().simpleName()}${classSeparator}Helper"
+                var helperClassName = "${columnDefinition.element.getPackage()}.${columnDefinition.element.enclosingElement.toClassName()?.simpleName()}${classSeparator}Helper"
                 if (columnDefinition is ReferenceColumnDefinition) {
                     val tableDefinition: TableDefinition? = databaseDefinition?.objectHolder?.tableDefinitionMap?.get(columnDefinition.referencedClassName as TypeName)
                     if (tableDefinition != null) {

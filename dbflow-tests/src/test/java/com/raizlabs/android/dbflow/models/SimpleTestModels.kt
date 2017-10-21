@@ -85,9 +85,10 @@ class TypeConverterModel(@PrimaryKey var id: Int = 0,
 
 @Table(database = TestDatabase::class)
 class EnumTypeConverterModel(@PrimaryKey var id: Int = 0,
-                         @Column var blob: Blob? = null,
-                         @Column(typeConverter = CustomEnumTypeConverter::class)
-                         var difficulty: Difficulty = Difficulty.EASY)
+                             @Column var blob: Blob? = null,
+                             @Column var byteArray: ByteArray? = null,
+                             @Column(typeConverter = CustomEnumTypeConverter::class)
+                             var difficulty: Difficulty = Difficulty.EASY)
 
 @Table(database = TestDatabase::class, allFields = true)
 class FeedEntry(@PrimaryKey var id: Int = 0,
@@ -96,18 +97,18 @@ class FeedEntry(@PrimaryKey var id: Int = 0,
 
 @Table(database = TestDatabase::class)
 @ManyToMany(
-    generatedTableClassName = "Refund", referencedTable = Transfer::class,
-    referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
-    saveForeignKeyModels = true
+        generatedTableClassName = "Refund", referencedTable = Transfer::class,
+        referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
+        saveForeignKeyModels = true
 )
 data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
 data class Transfer2(
-    @PrimaryKey
-    var id: UUID = UUID.randomUUID(),
-    @ForeignKey(stubbedRelationship = true)
-    var origin: Account? = null
+        @PrimaryKey
+        var id: UUID = UUID.randomUUID(),
+        @ForeignKey(stubbedRelationship = true)
+        var origin: Account? = null
 )
 
 @Table(database = TestDatabase::class)
@@ -148,7 +149,7 @@ class CustomTypeConverter : TypeConverter<String, CustomType>() {
 class CustomEnumTypeConverter : TypeConverter<String, Difficulty>() {
     override fun getDBValue(model: Difficulty) = model.name.substring(0..0)
 
-    override fun getModelValue(data: String) = when(data) {
+    override fun getModelValue(data: String) = when (data) {
         "E" -> Difficulty.EASY
         "M" -> Difficulty.MEDIUM
         "H" -> Difficulty.HARD

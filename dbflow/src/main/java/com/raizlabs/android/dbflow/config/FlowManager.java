@@ -60,10 +60,10 @@ public class FlowManager {
     private static final String DEFAULT_DATABASE_HOLDER_NAME = "GeneratedDatabaseHolder";
 
     private static final String DEFAULT_DATABASE_HOLDER_PACKAGE_NAME =
-        FlowManager.class.getPackage().getName();
+            FlowManager.class.getPackage().getName();
 
     private static final String DEFAULT_DATABASE_HOLDER_CLASSNAME =
-        DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + DEFAULT_DATABASE_HOLDER_NAME;
+            DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + DEFAULT_DATABASE_HOLDER_NAME;
 
     /**
      * Returns the table name for the specific model class
@@ -101,8 +101,8 @@ public class FlowManager {
             modelClass = databaseDefinition.getModelClassForName(QueryBuilder.quote(tableName));
             if (modelClass == null) {
                 throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
-                        "Did you forget to add the @Table annotation and point it to %1s?",
-                    tableName, databaseName));
+                                "Did you forget to add the @Table annotation and point it to %1s?",
+                        tableName, databaseName));
             }
         }
         return modelClass;
@@ -120,8 +120,8 @@ public class FlowManager {
             modelClass = databaseDefinition.getModelClassForName(QueryBuilder.quote(tableName));
             if (modelClass == null) {
                 throw new IllegalArgumentException(String.format("The specified table %1s was not found. " +
-                        "Did you forget to add the @Table annotation and point it to %1s?",
-                    tableName, databaseClass));
+                                "Did you forget to add the @Table annotation and point it to %1s?",
+                        tableName, databaseClass));
             }
         }
         return modelClass;
@@ -137,7 +137,7 @@ public class FlowManager {
         DatabaseDefinition databaseDefinition = globalDatabaseHolder.getDatabaseForTable(table);
         if (databaseDefinition == null) {
             throw new InvalidDBConfiguration("Model object: " + table.getName() +
-                " is not registered with a Database. " + "Did you forget an annotation?");
+                    " is not registered with a Database. " + "Did you forget an annotation?");
         }
         return databaseDefinition;
     }
@@ -148,7 +148,7 @@ public class FlowManager {
         DatabaseDefinition databaseDefinition = globalDatabaseHolder.getDatabase(databaseClass);
         if (databaseDefinition == null) {
             throw new InvalidDBConfiguration("Database: " + databaseClass.getName() + " is not a registered Database. " +
-                "Did you forget the @Database annotation?");
+                    "Did you forget the @Database annotation?");
         }
         return databaseDefinition;
     }
@@ -177,7 +177,7 @@ public class FlowManager {
         }
 
         throw new InvalidDBConfiguration("The specified database" + databaseName + " was not found. " +
-            "Did you forget the @Database annotation?");
+                "Did you forget the @Database annotation?");
     }
 
     @NonNull
@@ -204,7 +204,7 @@ public class FlowManager {
     public static FlowConfig getConfig() {
         if (config == null) {
             throw new IllegalStateException("Configuration is not initialized. " +
-                "Please call init(FlowConfig) in your application class.");
+                    "Please call init(FlowConfig) in your application class.");
         }
         return config;
     }
@@ -246,6 +246,23 @@ public class FlowManager {
     }
 
     /**
+     * Close all DB files and resets {@link FlowConfig} and the {@link GlobalDatabaseHolder}. Brings
+     * DBFlow back to initial application state.
+     */
+    public static synchronized void close() {
+        Set<Map.Entry<Class<?>, DatabaseDefinition>> entrySet =
+                globalDatabaseHolder.databaseClassLookupMap.entrySet();
+        for (Map.Entry<Class<?>, DatabaseDefinition> value : entrySet) {
+            value.getValue().close();
+        }
+
+        config = null;
+
+        globalDatabaseHolder = new GlobalDatabaseHolder();
+        loadedModules.clear();
+    }
+
+    /**
      * Will throw an exception if this class is not initialized yet in {@link #init(FlowConfig)}
      *
      * @return The shared context.
@@ -254,7 +271,7 @@ public class FlowManager {
     public static Context getContext() {
         if (config == null) {
             throw new IllegalStateException("You must provide a valid FlowConfig instance. " +
-                "We recommend calling init() in your application class.");
+                    "We recommend calling init() in your application class.");
         }
         return config.getContext();
     }
@@ -292,7 +309,7 @@ public class FlowManager {
             FlowLog.log(FlowLog.Level.W, "Could not find the default GeneratedDatabaseHolder");
         }
 
-        if (flowConfig.databaseHolders() != null && !flowConfig.databaseHolders().isEmpty()) {
+        if (!flowConfig.databaseHolders().isEmpty()) {
             for (Class<? extends DatabaseHolder> holder : flowConfig.databaseHolders()) {
                 loadDatabaseHolder(holder);
             }
@@ -324,7 +341,7 @@ public class FlowManager {
      */
     public static synchronized void destroy() {
         Set<Map.Entry<Class<?>, DatabaseDefinition>> entrySet =
-            globalDatabaseHolder.databaseClassLookupMap.entrySet();
+                globalDatabaseHolder.databaseClassLookupMap.entrySet();
         for (Map.Entry<Class<?>, DatabaseDefinition> value : entrySet) {
             value.getValue().destroy();
         }
@@ -409,7 +426,7 @@ public class FlowManager {
     @SuppressWarnings("unchecked")
     @NonNull
     public static <TModelView> ModelViewAdapter<TModelView> getModelViewAdapter(
-        Class<TModelView> modelViewClass) {
+            Class<TModelView> modelViewClass) {
         final ModelViewAdapter modelViewAdapter = getModelViewAdapterOrNull(modelViewClass);
         if (modelViewAdapter == null) {
             throwCannotFindAdapter("ModelViewAdapter", modelViewClass);
@@ -427,7 +444,7 @@ public class FlowManager {
     @SuppressWarnings("unchecked")
     @NonNull
     public static <TQueryModel> QueryModelAdapter<TQueryModel> getQueryModelAdapter(
-        Class<TQueryModel> queryModelClass) {
+            Class<TQueryModel> queryModelClass) {
         final QueryModelAdapter queryModelAdapter = getQueryModelAdapterOrNull(queryModelClass);
         if (queryModelAdapter == null) {
             throwCannotFindAdapter("QueryModelAdapter", queryModelClass);
@@ -480,13 +497,13 @@ public class FlowManager {
 
     private static void throwCannotFindAdapter(String type, Class<?> clazz) {
         throw new IllegalArgumentException("Cannot find " + type + " for " + clazz + ". Ensure " +
-            "the class is annotated with proper annotation.");
+                "the class is annotated with proper annotation.");
     }
 
     private static void checkDatabaseHolder() {
         if (!globalDatabaseHolder.isInitialized()) {
             throw new IllegalStateException("The global database holder is not initialized. Ensure you call " +
-                "FlowManager.init() before accessing the database.");
+                    "FlowManager.init() before accessing the database.");
         }
     }
 
