@@ -243,11 +243,12 @@ constructor(processorManager: ProcessorManager, element: Element,
                 wrapperAccessor = BlobColumnAccessor()
                 wrapperTypeName = ArrayTypeName.of(TypeName.BYTE)
             } else {
-                if (elementTypeName is ParameterizedTypeName) {
+                if (elementTypeName is ParameterizedTypeName ||
+                        elementTypeName == ArrayTypeName.of(TypeName.BYTE.unbox())) {
                     // do nothing, for now.
                 } else if (elementTypeName is ArrayTypeName) {
                     processorManager.messager.printMessage(Diagnostic.Kind.ERROR,
-                            "Columns cannot be of array type.")
+                            "Columns cannot be of array type. Found $elementTypeName")
                 } else {
                     if (elementTypeName == TypeName.BOOLEAN) {
                         wrapperAccessor = BooleanColumnAccessor()
