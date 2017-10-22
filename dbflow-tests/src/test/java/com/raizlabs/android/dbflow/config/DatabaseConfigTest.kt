@@ -46,14 +46,14 @@ class DatabaseConfigTest : BaseUnitTest() {
         val flowConfig = FlowManager.getConfig()
         Assert.assertNotNull(flowConfig)
 
-        val databaseConfig = flowConfig.databaseConfigMap()[TestDatabase::class.java]!!
+        val databaseConfig = flowConfig.getDatabaseConfigMap()[TestDatabase::class.java]!!
         Assert.assertEquals("Test", databaseConfig.databaseName)
         Assert.assertEquals(".db", databaseConfig.databaseExtensionName)
-        Assert.assertEquals(databaseConfig.transactionManagerCreator(), managerCreator)
-        Assert.assertEquals(databaseConfig.databaseClass(), TestDatabase::class.java)
-        Assert.assertEquals(databaseConfig.helperCreator(), openHelperCreator)
-        Assert.assertEquals(databaseConfig.helperListener(), helperListener)
-        Assert.assertTrue(databaseConfig.tableConfigMap().isEmpty())
+        Assert.assertEquals(databaseConfig.getTransactionManagerCreator(), managerCreator)
+        Assert.assertEquals(databaseConfig.getDatabaseClass(), TestDatabase::class.java)
+        Assert.assertEquals(databaseConfig.getOpenHelperCreator(), openHelperCreator)
+        Assert.assertEquals(databaseConfig.getHelperListener(), helperListener)
+        Assert.assertTrue(databaseConfig.getTableConfigMap().isEmpty())
 
 
         val databaseDefinition = FlowManager.getDatabase(TestDatabase::class.java)
@@ -71,7 +71,7 @@ class DatabaseConfigTest : BaseUnitTest() {
                 .build())
             .build())
 
-        val databaseConfig = FlowManager.getConfig().databaseConfigMap()[TestDatabase::class.java]!!
+        val databaseConfig = FlowManager.getConfig().getDatabaseConfigMap()[TestDatabase::class.java]!!
         Assert.assertEquals("Test", databaseConfig.databaseName)
         Assert.assertEquals("", databaseConfig.databaseExtensionName)
     }

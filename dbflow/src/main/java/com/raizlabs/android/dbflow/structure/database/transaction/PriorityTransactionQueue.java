@@ -102,7 +102,7 @@ public class PriorityTransactionQueue extends Thread implements ITransactionQueu
                     start();
                 } catch (IllegalThreadStateException i) {
                     // log if failure from thread is still alive.
-                    FlowLog.log(FlowLog.Level.E, i);
+                    FlowLog.INSTANCE.log(FlowLog.INSTANCE.Level.E, i);
                 }
             }
         }

@@ -285,7 +285,7 @@ public class FlowCursorList<TModel> implements
 
     private void warnEmptyCursor() {
         if (cursor == null) {
-            FlowLog.log(FlowLog.Level.W, "Cursor was null for FlowCursorList");
+            FlowLog.log(FlowLog.INSTANCE.Level.W, "Cursor was null for FlowCursorList");
         }
     }
 

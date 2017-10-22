@@ -82,13 +82,13 @@ public class CursorResultSubscriber<T> implements Observable.OnSubscribe<T> {
                         }
                         limit = requested.addAndGet(-limit);
                     } catch (Exception e) {
-                        FlowLog.logError(e);
+                        FlowLog.INSTANCE.logError(e);
                         subscriber.onError(e);
                     } finally {
                         try {
                             iterator.close();
                         } catch (Exception e) {
-                            FlowLog.logError(e);
+                            FlowLog.INSTANCE.logError(e);
                             subscriber.onError(e);
                         }
                     }

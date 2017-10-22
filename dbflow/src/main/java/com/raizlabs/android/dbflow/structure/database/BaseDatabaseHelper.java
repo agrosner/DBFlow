@@ -71,7 +71,7 @@ public class BaseDatabaseHelper {
     protected void checkForeignKeySupport(@NonNull DatabaseWrapper database) {
         if (databaseDefinition.isForeignKeysSupported()) {
             database.execSQL("PRAGMA foreign_keys=ON;");
-            FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.");
+            FlowLog.log(FlowLog.INSTANCE.Level.I, "Foreign Keys supported. Enabling foreign key features.");
         }
     }
 
@@ -84,7 +84,7 @@ public class BaseDatabaseHelper {
                     try {
                         database.execSQL(modelAdapter.getCreationQuery());
                     } catch (SQLiteException e) {
-                        FlowLog.logError(e);
+                        FlowLog.INSTANCE.logError(e);
                     }
                 }
             }
@@ -111,7 +111,7 @@ public class BaseDatabaseHelper {
                 try {
                     database.execSQL(queryBuilder.getQuery());
                 } catch (SQLiteException e) {
-                    FlowLog.logError(e);
+                    FlowLog.INSTANCE.logError(e);
                 }
             }
             database.setTransactionSuccessful();
@@ -140,7 +140,7 @@ public class BaseDatabaseHelper {
                     }
                     fileList.add(file);
                 } catch (NumberFormatException e) {
-                    FlowLog.log(FlowLog.Level.W, "Skipping invalidly named file: " + file, e);
+                    FlowLog.INSTANCE.log(FlowLog.INSTANCE.Level.W, "Skipping invalidly named file: " + file, e);
                 }
             }
 
@@ -157,7 +157,7 @@ public class BaseDatabaseHelper {
                     if (migrationFiles != null) {
                         for (String migrationFile : migrationFiles) {
                             executeSqlScript(db, migrationFile);
-                            FlowLog.log(FlowLog.Level.I, migrationFile + " executed successfully.");
+                            FlowLog.log(FlowLog.INSTANCE.Level.I, migrationFile + " executed successfully.");
                         }
                     }
 
@@ -172,7 +172,7 @@ public class BaseDatabaseHelper {
 
                             // after migration cleanup
                             migration.onPostMigrate();
-                            FlowLog.log(FlowLog.Level.I, migration.getClass() + " executed successfully.");
+                            FlowLog.log(FlowLog.INSTANCE.Level.I, migration.getClass() + " executed successfully.");
                         }
                     }
                 }
@@ -181,7 +181,7 @@ public class BaseDatabaseHelper {
                 db.endTransaction();
             }
         } catch (IOException e) {
-            FlowLog.log(FlowLog.Level.E, "Failed to execute migrations.", e);
+            FlowLog.INSTANCE.log(FlowLog.INSTANCE.Level.E, "Failed to execute migrations.", e);
         }
 
     }
@@ -227,7 +227,7 @@ public class BaseDatabaseHelper {
                 db.execSQL(queryString);
             }
         } catch (IOException e) {
-            FlowLog.log(FlowLog.Level.E, "Failed to execute " + file, e);
+            FlowLog.INSTANCE.log(FlowLog.INSTANCE.Level.E, "Failed to execute " + file, e);
         }
     }
 }

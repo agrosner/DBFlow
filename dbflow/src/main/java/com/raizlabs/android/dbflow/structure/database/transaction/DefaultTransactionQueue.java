@@ -105,7 +105,7 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
                     start();
                 } catch (IllegalThreadStateException i) {
                     // log if failure from thread is still alive.
-                    FlowLog.log(FlowLog.Level.E, i);
+                    FlowLog.INSTANCE.log(FlowLog.INSTANCE.Level.E, i);
                 }
             }
         }

@@ -55,7 +55,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     @NonNull
     public DatabaseStatement getInsertStatement() {
         if (insertStatement == null) {
-            insertStatement = getInsertStatement(getWritableDatabaseForTable(getModelClass()));
+            insertStatement = getInsertStatement(INSTANCE.getWritableDatabaseForTable(getModelClass()));
         }
 
         return insertStatement;
@@ -67,7 +67,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     @NonNull
     public DatabaseStatement getUpdateStatement() {
         if (updateStatement == null) {
-            updateStatement = getUpdateStatement(getWritableDatabaseForTable(getModelClass()));
+            updateStatement = getUpdateStatement(INSTANCE.getWritableDatabaseForTable(getModelClass()));
         }
 
         return updateStatement;
@@ -79,7 +79,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     @NonNull
     public DatabaseStatement getDeleteStatement() {
         if (deleteStatement == null) {
-            deleteStatement = getDeleteStatement(getWritableDatabaseForTable(getModelClass()));
+            deleteStatement = getDeleteStatement(INSTANCE.getWritableDatabaseForTable(getModelClass()));
         }
 
         return deleteStatement;
@@ -145,7 +145,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     @NonNull
     public DatabaseStatement getCompiledStatement() {
         if (compiledStatement == null) {
-            compiledStatement = getCompiledStatement(getWritableDatabaseForTable(getModelClass()));
+            compiledStatement = getCompiledStatement(INSTANCE.getWritableDatabaseForTable(getModelClass()));
         }
 
         return compiledStatement;

@@ -1,19 +1,12 @@
 package com.raizlabs.android.dbflow.config
 
-import com.nhaarman.mockito_kotlin.mock
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.models.SimpleModel
-import com.raizlabs.android.dbflow.runtime.BaseTransactionManager
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader
 import com.raizlabs.android.dbflow.sql.saveable.ModelSaver
-import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener
-import com.raizlabs.android.dbflow.structure.database.OpenHelper
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransactionQueue
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
@@ -35,14 +28,14 @@ class ConfigIntegrationTest : BaseUnitTest() {
     @Test
     fun test_flowConfig() {
         FlowManager.init(builder
-            .openDatabasesOnInit(true)
-            .build())
+                .openDatabasesOnInit(true)
+                .build())
 
         val config = FlowManager.getConfig()
         assertNotNull(config)
-        assertEquals(config.openDatabasesOnInit(), true)
-        assertTrue(config.databaseConfigMap().isEmpty())
-        assertTrue(config.databaseHolders().isEmpty())
+        assertEquals(config.openDatabasesOnInit, true)
+        assertTrue(config.databaseConfigMap.isEmpty())
+        assertTrue(config.databaseHolders.isEmpty())
     }
 
     @Test
@@ -53,23 +46,23 @@ class ConfigIntegrationTest : BaseUnitTest() {
         val modelSaver = ModelSaver<SimpleModel>()
 
         FlowManager.init(builder
-            .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
-                .addTableConfig(TableConfig.Builder(SimpleModel::class.java)
-                    .singleModelLoader(singleModelLoader)
-                    .listModelLoader(customListModelLoader)
-                    .modelAdapterModelSaver(modelSaver)
-                    .build())
+                .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+                        .addTableConfig(TableConfig.Builder(SimpleModel::class.java)
+                                .singleModelLoader(singleModelLoader)
+                                .listModelLoader(customListModelLoader)
+                                .modelAdapterModelSaver(modelSaver)
+                                .build())
+                        .build())
                 .build())
-            .build())
 
         val flowConfig = FlowManager.getConfig()
         assertNotNull(flowConfig)
 
-        val databaseConfig = flowConfig.databaseConfigMap()[TestDatabase::class.java] as DatabaseConfig
+        val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class.java] as DatabaseConfig
         assertNotNull(databaseConfig)
 
 
-        val config = databaseConfig.tableConfigMap()[SimpleModel::class.java] as TableConfig
+        val config = databaseConfig.tableConfigMap[SimpleModel::class.java] as TableConfig
         assertNotNull(config)
 
         assertEquals(config.listModelLoader(), customListModelLoader)

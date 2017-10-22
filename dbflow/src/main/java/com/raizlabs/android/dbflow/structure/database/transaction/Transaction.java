@@ -135,7 +135,7 @@ public final class Transaction {
                 }
             }
         } catch (final Throwable throwable) {
-            FlowLog.logError(throwable);
+            FlowLog.INSTANCE.logError(throwable);
             if (errorCallback != null) {
                 if (runCallbacksOnSameThread) {
                     errorCallback.onError(this, throwable);

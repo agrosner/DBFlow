@@ -19,16 +19,16 @@ public class FlowSQLiteOpenHelper extends SQLiteOpenHelper implements OpenHelper
 
 
     public FlowSQLiteOpenHelper(@NonNull DatabaseDefinition databaseDefinition,
-                                @NonNull DatabaseHelperListener listener) {
+                                @Nullable DatabaseHelperListener listener) {
         super(FlowManager.getContext(), databaseDefinition.isInMemory() ? null : databaseDefinition.getDatabaseFileName(),
-            null, databaseDefinition.getDatabaseVersion());
+                null, databaseDefinition.getDatabaseVersion());
 
         OpenHelper backupHelper = null;
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = new BackupHelper(FlowManager.getContext(),
-                DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                databaseDefinition.getDatabaseVersion(), databaseDefinition);
+                    DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
+                    databaseDefinition.getDatabaseVersion(), databaseDefinition);
         }
 
         databaseHelperDelegate = new DatabaseHelperDelegate(listener, databaseDefinition, backupHelper);

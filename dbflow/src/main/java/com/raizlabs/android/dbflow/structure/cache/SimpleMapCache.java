@@ -54,7 +54,7 @@ public class SimpleMapCache<TModel> extends ModelCache<TModel, Map<Object, TMode
 
     @Override
     public void setCacheSize(int size) {
-        FlowLog.log(FlowLog.Level.I, "The cache size for " + SimpleMapCache.class.getSimpleName() +
+        FlowLog.log(FlowLog.INSTANCE.Level.I, "The cache size for " + SimpleMapCache.class.getSimpleName() +
                 " is not re-configurable.");
     }
 }

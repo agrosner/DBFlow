@@ -138,7 +138,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
             writeDB(dbPath, inputStream);
 
         } catch (IOException e) {
-            FlowLog.log(FlowLog.Level.W, "Failed to open file", e);
+            FlowLog.INSTANCE.log(FlowLog.INSTANCE.Level.W, "Failed to open file", e);
         }
     }
 
@@ -169,7 +169,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
             String result = statement.simpleQueryForString();
             if (!result.equalsIgnoreCase("ok")) {
                 // integrity_checker failed on main or attached databases
-                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on " +
+                FlowLog.log(FlowLog.INSTANCE.Level.E, "PRAGMA integrity_check on " +
                     getDatabaseDefinition().getDatabaseName() + " returned: " + result);
 
                 integrityOk = false;
@@ -199,11 +199,11 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
             try {
                 writeDB(corrupt, new FileInputStream(db));
             } catch (IOException e) {
-                FlowLog.logError(e);
+                FlowLog.INSTANCE.logError(e);
                 success = false;
             }
         } else {
-            FlowLog.log(FlowLog.Level.E, "Failed to delete DB");
+            FlowLog.log(FlowLog.INSTANCE.Level.E, "Failed to delete DB");
         }
         return success;
     }
@@ -262,7 +262,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
             }
             writeDB(dbPath, inputStream);
         } catch (IOException e) {
-            FlowLog.logError(e);
+            FlowLog.INSTANCE.logError(e);
         }
     }
 
@@ -302,7 +302,7 @@ public class DatabaseHelperDelegate extends BaseDatabaseHelper {
 
                     temp.delete();
                 } catch (Exception e) {
-                    FlowLog.logError(e);
+                    FlowLog.INSTANCE.logError(e);
 
                 }
             }

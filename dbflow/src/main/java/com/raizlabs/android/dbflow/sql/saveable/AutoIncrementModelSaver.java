@@ -51,7 +51,7 @@ public class AutoIncrementModelSaver<TModel> extends ModelSaver<TModel> {
         if (!getModelAdapter().hasAutoIncrement(model)) {
             return super.insert(model, insertStatement, wrapper);
         } else {
-            FlowLog.log(FlowLog.Level.W, "Ignoring insert statement " + insertStatement + " since an autoincrement column specified in the insert.");
+            FlowLog.log(FlowLog.INSTANCE.Level.W, "Ignoring insert statement " + insertStatement + " since an autoincrement column specified in the insert.");
             return insert(model, wrapper);
         }
     }
