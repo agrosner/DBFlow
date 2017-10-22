@@ -142,7 +142,7 @@ public class DBBatchSaveQueue extends Thread {
                 //sleep, and then check for leftovers
                 Thread.sleep(modelSaveCheckTime);
             } catch (InterruptedException e) {
-                FlowLog.log(FlowLog.INSTANCE.Level.I, "DBRequestQueue Batch interrupted to start saving");
+                FlowLog.log(FlowLog.Level.I, "DBRequestQueue Batch interrupted to start saving");
             }
 
             if (isQuitting) {

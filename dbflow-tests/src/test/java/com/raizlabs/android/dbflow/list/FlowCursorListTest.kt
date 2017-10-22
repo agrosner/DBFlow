@@ -30,8 +30,8 @@ class FlowCursorListTest : BaseUnitTest() {
             .modelCache(SimpleMapCache<SimpleModel>(55))
             .build()
 
-        assertTrue(list.modelCache() is SimpleMapCache<*>)
-        assertTrue(list.cachingEnabled())
+        assertTrue(list.modelCache is SimpleMapCache<*>)
+        assertTrue(list.cachingEnabled)
     }
 
     @Test
@@ -41,7 +41,7 @@ class FlowCursorListTest : BaseUnitTest() {
             .cacheModels(false)
             .build()
 
-        assertFalse(list.cachingEnabled())
+        assertFalse(list.cachingEnabled)
     }
 
     @Test
@@ -57,11 +57,11 @@ class FlowCursorListTest : BaseUnitTest() {
     @Test
     fun validateModelQueriable() {
         val modelQueriable = (select from SimpleModel::class)
-        val list = FlowCursorList.Builder<SimpleModel>(SimpleModel::class.java)
+        val list = FlowCursorList.Builder(SimpleModel::class.java)
             .modelQueriable(modelQueriable)
             .build()
 
-        assertEquals(modelQueriable, list.modelQueriable())
+        assertEquals(modelQueriable, list.modelQueriable)
     }
 
     @Test

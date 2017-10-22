@@ -617,7 +617,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
                 converted = convertToDB ? typeConverter.getDBValue(object) : object;
             } catch (ClassCastException c) {
                 // if object type is not valid converted type, just use type as is here.
-                FlowLog.INSTANCE.log(FlowLog.INSTANCE.Level.W, c);
+                FlowLog.log(FlowLog.Level.W, c);
             }
             return BaseOperator.convertValueToString(converted, appendInnerParenthesis, false);
         } else {

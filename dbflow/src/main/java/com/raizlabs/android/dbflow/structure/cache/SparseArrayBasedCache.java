@@ -66,7 +66,7 @@ public class SparseArrayBasedCache<TModel> extends ModelCache<TModel, SparseArra
 
     @Override
     public void setCacheSize(int size) {
-        FlowLog.log(FlowLog.INSTANCE.Level.I, "The cache size for " + SparseArrayBasedCache.class.getSimpleName() + " is not re-configurable.");
+        FlowLog.log(FlowLog.Level.I, "The cache size for " + SparseArrayBasedCache.class.getSimpleName() + " is not re-configurable.");
     }
 
     @Override

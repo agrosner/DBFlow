@@ -9,9 +9,7 @@ import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Test
 
 class FlowQueryListTest : BaseUnitTest() {
@@ -20,37 +18,23 @@ class FlowQueryListTest : BaseUnitTest() {
     fun validateBuilder() {
 
         val list = FlowQueryList.Builder<SimpleModel>(select from SimpleModel::class)
-            .modelCache(SimpleMapCache<SimpleModel>(55))
-            .transact(true)
-            .changeInTransaction(true)
-            .build()
+                .modelCache(SimpleMapCache<SimpleModel>(55))
+                .transact(true)
+                .changeInTransaction(true)
+                .build()
 
-        assertTrue(list.cursorList().modelCache() is SimpleMapCache<*>)
-        assertTrue(list.cursorList().cachingEnabled())
         assertTrue(list.transact())
         assertTrue(list.changeInTransaction())
     }
-
-    @Test
-    fun validateNonCachedBuilder() {
-
-        val list = FlowQueryList.Builder<SimpleModel>(select from SimpleModel::class)
-            .cacheModels(false)
-            .build()
-
-        assertFalse(list.cursorList().cachingEnabled())
-
-    }
-
 
     @Test
     fun validateListOperations() {
         val mockSuccess = mock<Transaction.Success>()
         val mockError = mock<Transaction.Error>()
         val list = (select from SimpleModel::class).flowQueryList()
-            .newBuilder().success(mockSuccess)
-            .error(mockError)
-            .build()
+                .newBuilder().success(mockSuccess)
+                .error(mockError)
+                .build()
         list += SimpleModel("1")
 
         // verify added

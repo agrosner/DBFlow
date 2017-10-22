@@ -155,7 +155,7 @@ public class ContentUtils {
         adapter.bindToContentValues(contentValues, model);
         int count = contentResolver.update(updateUri, contentValues, adapter.getPrimaryConditionClause(model).getQuery(), null);
         if (count == 0) {
-            FlowLog.log(FlowLog.INSTANCE.Level.W, "Updated failed of: " + model.getClass());
+            FlowLog.log(FlowLog.Level.W, "Updated failed of: " + model.getClass());
         }
         return count;
     }
@@ -192,7 +192,7 @@ public class ContentUtils {
         if (count > 0) {
             adapter.updateAutoIncrement(model, 0);
         } else {
-            FlowLog.log(FlowLog.INSTANCE.Level.W, "A delete on " + model.getClass() + " within the ContentResolver appeared to fail.");
+            FlowLog.log(FlowLog.Level.W, "A delete on " + model.getClass() + " within the ContentResolver appeared to fail.");
         }
         return count;
     }

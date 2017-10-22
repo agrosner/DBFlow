@@ -29,7 +29,7 @@ public abstract class BaseTransactionManager {
                 saveQueue.start();
             }
         } catch (IllegalThreadStateException i) {
-            FlowLog.INSTANCE.logError(i); // if queue is alive, will throw error. might occur in multithreading.
+            FlowLog.logError(i); // if queue is alive, will throw error. might occur in multithreading.
         }
         return saveQueue;
     }

@@ -40,6 +40,17 @@ object FlowLog {
     }
 
     /**
+     * Logs information to the [Log] class. It wraps around the standard implementation.
+     *
+     * @param level     The log level to use
+     * @param tag       The tag of the log
+     * @param message   The message to print out
+     * @param throwable The optional stack trace to print
+     */
+    @JvmStatic
+    fun log(level: Level, message: String, throwable: Throwable?) = log(level = level, tag = TAG, message = message, throwable = throwable)
+
+    /**
      * Returns true if the logging level is lower than the specified [Level]
      *
      * @return
@@ -54,7 +65,17 @@ object FlowLog {
      */
     @JvmStatic
     fun logError(throwable: Throwable) {
-        log(Level.E, throwable)
+        log(Level.E, throwable = throwable)
+    }
+
+    /**
+     * Logs a [java.lang.Throwable] as a warning.
+     *
+     * @param throwable The stack trace to print
+     */
+    @JvmStatic
+    fun logWarning(throwable: Throwable) {
+        log(Level.W, throwable = throwable)
     }
 
     /**

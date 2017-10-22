@@ -57,7 +57,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
     @Override
     public List<TModel> queryList() {
         String query = getQuery();
-        FlowLog.log(FlowLog.INSTANCE.Level.V, "Executing query: " + query);
+        FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         return getListModelLoader().load(query);
     }
 
@@ -65,14 +65,14 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
     @Override
     public TModel querySingle() {
         String query = getQuery();
-        FlowLog.log(FlowLog.INSTANCE.Level.V, "Executing query: " + query);
+        FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         return getSingleModelLoader().load(query);
     }
 
     @Override
     public TModel querySingle(@NonNull DatabaseWrapper wrapper) {
         String query = getQuery();
-        FlowLog.log(FlowLog.INSTANCE.Level.V, "Executing query: " + query);
+        FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         return getSingleModelLoader().load(wrapper, query);
     }
 
@@ -80,7 +80,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
     @Override
     public List<TModel> queryList(@NonNull DatabaseWrapper wrapper) {
         String query = getQuery();
-        FlowLog.log(FlowLog.INSTANCE.Level.V, "Executing query: " + query);
+        FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         return getListModelLoader().load(wrapper, query);
     }
 
@@ -127,7 +127,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
     @Override
     public <QueryClass> List<QueryClass> queryCustomList(@NonNull Class<QueryClass> queryModelClass) {
         String query = getQuery();
-        FlowLog.log(FlowLog.INSTANCE.Level.V, "Executing query: " + query);
+        FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         QueryModelAdapter<QueryClass> adapter = FlowManager.getQueryModelAdapter(queryModelClass);
         return cachingEnabled
                 ? adapter.getListModelLoader().load(query)
@@ -138,7 +138,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
     @Override
     public <QueryClass> QueryClass queryCustomSingle(@NonNull Class<QueryClass> queryModelClass) {
         String query = getQuery();
-        FlowLog.log(FlowLog.INSTANCE.Level.V, "Executing query: " + query);
+        FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         QueryModelAdapter<QueryClass> adapter = FlowManager.getQueryModelAdapter(queryModelClass);
         return cachingEnabled
                 ? adapter.getSingleModelLoader().load(query)

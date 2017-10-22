@@ -67,11 +67,11 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
     public long longValue(DatabaseWrapper databaseWrapper) {
         try {
             String query = getQuery();
-            FlowLog.log(FlowLog.INSTANCE.Level.V, "Executing query: " + query);
+            FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
             return SqlUtils.longForQuery(databaseWrapper, query);
         } catch (SQLiteDoneException sde) {
             // catch exception here, log it but return 0;
-            FlowLog.INSTANCE.log(FlowLog.INSTANCE.Level.W, sde);
+            FlowLog.logWarning(sde);
         }
         return 0;
     }
@@ -101,7 +101,7 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
             databaseStatement.close();
         } else {
             String query = getQuery();
-            FlowLog.log(FlowLog.INSTANCE.Level.V, "Executing query: " + query);
+            FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
             databaseWrapper.execSQL(query);
         }
         return null;
@@ -149,7 +149,7 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
     @Override
     public DatabaseStatement compileStatement(@NonNull DatabaseWrapper databaseWrapper) {
         String query = getQuery();
-        FlowLog.log(FlowLog.INSTANCE.Level.V, "Compiling Query Into Statement: " + query);
+        FlowLog.log(FlowLog.Level.V, "Compiling Query Into Statement: " + query);
         return new DatabaseStatementWrapper<>(databaseWrapper.compileStatement(query), this);
     }
 
