@@ -35,7 +35,7 @@ public class AutoIncrementModelSaver<TModel> extends ModelSaver<TModel> {
             id = insertStatement.executeInsert();
             if (id > INSERT_FAILED) {
                 getModelAdapter().updateAutoIncrement(model, id);
-                NotifyDistributor.get().notifyModelChanged(model, getModelAdapter(), BaseModel.Action.INSERT);
+                NotifyDistributor.Companion.get().notifyModelChanged(model, getModelAdapter(), BaseModel.Action.INSERT);
             }
         } finally {
             // since we generate an insert every time, we can safely close the statement here.

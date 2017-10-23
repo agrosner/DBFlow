@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
  * Description: This is used as a wrapper around {@link StringBuilder} in order to provide more
  * database focused methods and to assist in generating queries to the DB using our SQL wrappers.
  */
-public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
+public class QueryBuilder implements Query {
 
     private static final char QUOTE = '`';
 
@@ -39,7 +39,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      *
      * @return This instance
      */
-    public QueryClass appendSpace() {
+    public QueryBuilder appendSpace() {
         return append(" ");
     }
 
@@ -50,8 +50,8 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return This instance
      */
     @SuppressWarnings("unchecked")
-    public QueryClass appendSpaceSeparated(Object object) {
-        return (QueryClass) appendSpace().append(object).appendSpace();
+    public QueryBuilder appendSpaceSeparated(Object object) {
+        return appendSpace().append(object).appendSpace();
     }
 
     /**
@@ -61,8 +61,8 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return This instance
      */
     @SuppressWarnings("unchecked")
-    public QueryClass appendParenthesisEnclosed(Object string) {
-        return (QueryClass) append("(").append(string).append(")");
+    public QueryBuilder appendParenthesisEnclosed(Object string) {
+        return append("(").append(string).append(")");
     }
 
     /**
@@ -71,9 +71,9 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @param object The object to append
      * @return This instance
      */
-    public QueryClass append(Object object) {
+    public QueryBuilder append(Object object) {
         query.append(object);
-        return castThis();
+        return this;
     }
 
     /**
@@ -82,21 +82,11 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @param object If not null, its string representation.
      * @return This instance
      */
-    public QueryClass appendOptional(Object object) {
+    public QueryBuilder appendOptional(Object object) {
         if (object != null) {
             append(object);
         }
-        return castThis();
-    }
-
-    /**
-     * Casts the current object to the {@link QueryClass}
-     *
-     * @return This casted instance
-     */
-    @SuppressWarnings("unchecked")
-    protected QueryClass castThis() {
-        return (QueryClass) this;
+        return this;
     }
 
     /**
@@ -106,7 +96,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @param type The Class to look up from {@link SQLiteType}
      * @return This instance
      */
-    public QueryClass appendType(String type) {
+    public QueryBuilder appendType(String type) {
         return appendSQLiteType(SQLiteType.get(type));
     }
 
@@ -116,7 +106,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @param sqLiteType The {@link SQLiteType} to append
      * @return This instance
      */
-    public QueryClass appendSQLiteType(SQLiteType sqLiteType) {
+    public QueryBuilder appendSQLiteType(SQLiteType sqLiteType) {
         return append(sqLiteType.name());
     }
 
@@ -127,7 +117,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @param objects The array of objects to pass in
      * @return This instance
      */
-    public QueryClass appendArray(Object... objects) {
+    public QueryBuilder appendArray(Object... objects) {
         return append(join(", ", objects));
     }
 
@@ -138,7 +128,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @param objects The list of objects to pass in
      * @return This instance
      */
-    public QueryClass appendList(List<?> objects) {
+    public QueryBuilder appendList(List<?> objects) {
         return append(join(", ", objects));
     }
 
@@ -149,14 +139,14 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @param value The value to append after the name
      * @return This instance
      */
-    public QueryClass appendQualifier(String name, String value) {
+    public QueryBuilder appendQualifier(String name, String value) {
         if (value != null && value.length() > 0) {
             if (name != null) {
                 append(name);
             }
             appendSpaceSeparated(value);
         }
-        return castThis();
+        return this;
     }
 
     /**
@@ -165,11 +155,11 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @param string The string to append
      * @return This instance
      */
-    public QueryClass appendNotEmpty(String string) {
+    public QueryBuilder appendNotEmpty(String string) {
         if (string != null && !string.isEmpty()) {
             append(string);
         }
-        return castThis();
+        return this;
     }
 
     /**
@@ -179,12 +169,12 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return This instance
      */
     @SuppressWarnings("unchecked")
-    public QueryClass appendQuoted(String string) {
+    public QueryBuilder appendQuoted(String string) {
         if (string.equals("*"))
             return append(string);
 
         append(quote(string));
-        return castThis();
+        return this;
     }
 
     /**
@@ -194,12 +184,12 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return This instance
      */
     @SuppressWarnings("unchecked")
-    public QueryClass appendQuotedIfNeeded(String string) {
+    public QueryBuilder appendQuotedIfNeeded(String string) {
         if (string.equals("*"))
             return append(string);
 
         append(quoteIfNeeded(string));
-        return castThis();
+        return this;
     }
 
     /**
@@ -210,7 +200,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @return This instance
      */
     @SuppressWarnings("unchecked")
-    public QueryClass appendQuotedList(List<?> objects) {
+    public QueryBuilder appendQuotedList(List<?> objects) {
         return appendQuoted(join("`, `", objects));
     }
 
@@ -221,7 +211,7 @@ public class QueryBuilder<QueryClass extends QueryBuilder> implements Query {
      * @param objects The array of objects to pass in
      * @return This instance
      */
-    public QueryClass appendQuotedArray(Object... objects) {
+    public QueryBuilder appendQuotedArray(Object... objects) {
         return appendQuoted(join("`, `", objects));
     }
 

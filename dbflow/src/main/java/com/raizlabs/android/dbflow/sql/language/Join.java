@@ -94,7 +94,7 @@ public class Join<TModel, TFromModel> implements Query {
         table = modelQueriable.getTable();
         this.from = from;
         type = joinType;
-        alias = PropertyFactory.from(modelQueriable).getNameAlias();
+        alias = PropertyFactory.INSTANCE.from(modelQueriable).getNameAlias();
     }
 
     /**

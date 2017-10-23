@@ -80,8 +80,8 @@ public class TableChangeListenerEmitter<TModel> implements Action1<Emitter<Model
         private final OnTableChangedListener onTableChangedListener
             = new OnTableChangedListener() {
             @Override
-            public void onTableChanged(@Nullable Class<?> tableChanged, @NonNull BaseModel.Action action) {
-                if (modelQueriable.getTable().equals(tableChanged)) {
+            public void onTableChanged(@Nullable Class<?> table, @NonNull BaseModel.Action action) {
+                if (modelQueriable.getTable().equals(table)) {
                     modelQueriableEmitter.onNext(modelQueriable);
                 }
             }

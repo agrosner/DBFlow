@@ -26,7 +26,7 @@ public class DatabaseStatementWrapper<TModel> extends BaseDatabaseStatement {
     public long executeUpdateDelete() {
         long affected = databaseStatement.executeUpdateDelete();
         if (affected > 0) {
-            NotifyDistributor.get().notifyTableChanged(modelQueriable.getTable(),
+            NotifyDistributor.Companion.get().notifyTableChanged(modelQueriable.getTable(),
                 modelQueriable.getPrimaryAction());
         }
         return affected;
@@ -57,7 +57,7 @@ public class DatabaseStatementWrapper<TModel> extends BaseDatabaseStatement {
     public long executeInsert() {
         long affected = databaseStatement.executeInsert();
         if (affected > 0) {
-            NotifyDistributor.get().notifyTableChanged(modelQueriable.getTable(),
+            NotifyDistributor.Companion.get().notifyTableChanged(modelQueriable.getTable(),
                 modelQueriable.getPrimaryAction());
         }
         return affected;

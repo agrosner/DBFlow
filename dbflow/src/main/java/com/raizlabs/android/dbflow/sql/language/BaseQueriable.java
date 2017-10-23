@@ -124,7 +124,7 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
             cursor.close();
         } else {
             // we dont query, we're executing something here.
-            NotifyDistributor.get().notifyTableChanged(getTable(), getPrimaryAction());
+            NotifyDistributor.Companion.get().notifyTableChanged(getTable(), getPrimaryAction());
         }
     }
 
@@ -135,7 +135,7 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
             cursor.close();
         } else {
             // we dont query, we're executing something here.
-            NotifyDistributor.get().notifyTableChanged(getTable(), getPrimaryAction());
+            NotifyDistributor.Companion.get().notifyTableChanged(getTable(), getPrimaryAction());
         }
     }
 

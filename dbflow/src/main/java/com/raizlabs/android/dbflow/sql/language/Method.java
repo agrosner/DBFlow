@@ -92,7 +92,7 @@ public class Method extends Property {
 
     @NonNull
     public static Method replace(@NonNull IProperty property, String findString, String replacement) {
-        return new Method("REPLACE", property, PropertyFactory.from(findString), PropertyFactory.from(replacement));
+        return new Method("REPLACE", property, PropertyFactory.INSTANCE.from(findString), PropertyFactory.INSTANCE.from(replacement));
     }
 
     /**
@@ -101,10 +101,10 @@ public class Method extends Property {
     public static Method strftime(@NonNull String formatString,
                                   @NonNull String timeString, String... modifiers) {
         List<IProperty> propertyList = new ArrayList<>();
-        propertyList.add(PropertyFactory.from(formatString));
-        propertyList.add(PropertyFactory.from(timeString));
+        propertyList.add(PropertyFactory.INSTANCE.from(formatString));
+        propertyList.add(PropertyFactory.INSTANCE.from(timeString));
         for (String modifier : modifiers) {
-            propertyList.add(PropertyFactory.from(modifier));
+            propertyList.add(PropertyFactory.INSTANCE.from(modifier));
         }
         return new Method("strftime", propertyList.toArray(new IProperty[propertyList.size()]));
     }
@@ -114,9 +114,9 @@ public class Method extends Property {
      */
     public static Method datetime(long timeStamp, String... modifiers) {
         List<IProperty> propertyList = new ArrayList<>();
-        propertyList.add(PropertyFactory.from(timeStamp));
+        propertyList.add(PropertyFactory.INSTANCE.from(timeStamp));
         for (String modifier : modifiers) {
-            propertyList.add(PropertyFactory.from(modifier));
+            propertyList.add(PropertyFactory.INSTANCE.from(modifier));
         }
         return new Method("datetime", propertyList.toArray(new IProperty[propertyList.size()]));
     }
@@ -127,9 +127,9 @@ public class Method extends Property {
     public static Method date(@NonNull String timeString,
                               String... modifiers) {
         List<IProperty> propertyList = new ArrayList<>();
-        propertyList.add(PropertyFactory.from(timeString));
+        propertyList.add(PropertyFactory.INSTANCE.from(timeString));
         for (String modifier : modifiers) {
-            propertyList.add(PropertyFactory.from(modifier));
+            propertyList.add(PropertyFactory.INSTANCE.from(modifier));
         }
         return new Method("date", propertyList.toArray(new IProperty[propertyList.size()]));
     }
@@ -167,7 +167,7 @@ public class Method extends Property {
         methodProperty = new Property<>(null, NameAlias.rawBuilder(methodName).build());
 
         if (properties.length == 0) {
-            propertyList.add(Property.ALL_PROPERTY);
+            propertyList.add(Property.Companion.getALL_PROPERTY());
         } else {
             for (IProperty property : properties) {
                 addProperty(property);
@@ -220,7 +220,7 @@ public class Method extends Property {
      */
     public Method append(IProperty property, String operation) {
         // remove all property since its not needed when we specify a property.
-        if (propertyList.size() == 1 && propertyList.get(0) == Property.ALL_PROPERTY) {
+        if (propertyList.size() == 1 && propertyList.get(0) == Property.Companion.getALL_PROPERTY()) {
             propertyList.remove(0);
         }
         propertyList.add(property);
@@ -236,7 +236,7 @@ public class Method extends Property {
     @NonNull
     @Override
     public NameAlias getNameAlias() {
-        if (nameAlias == null) {
+        if (getNameAlias() == null) {
             String query = methodProperty.getQuery();
             if (query == null) {
                 query = "";
@@ -252,10 +252,10 @@ public class Method extends Property {
 
             }
             query += ")";
-            nameAlias = NameAlias.rawBuilder(query)
-                .build();
+            getNameAlias(NameAlias.rawBuilder(query)
+                    .build());
         }
-        return nameAlias;
+        return getNameAlias();
     }
 
     /**

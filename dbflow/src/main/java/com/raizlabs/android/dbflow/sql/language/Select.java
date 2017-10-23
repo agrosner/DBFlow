@@ -44,7 +44,7 @@ public class Select implements Query {
         Collections.addAll(propertyList, properties);
 
         if (propertyList.isEmpty()) {
-            propertyList.add(Property.ALL_PROPERTY);
+            propertyList.add(Property.Companion.getALL_PROPERTY());
         }
     }
 

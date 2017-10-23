@@ -77,7 +77,7 @@ abstract class DatabaseDefinition {
      * creating model views in the DB.
      */
     val modelViewAdapters: List<ModelViewAdapter<*>>
-        get() = ArrayList<ModelViewAdapter>(modelViewAdapterMap.values)
+        get() = modelViewAdapterMap.values.toList()
 
     /**
      * @return The list of [QueryModelAdapter]. Internal method for creating query models in the DB.
@@ -94,7 +94,7 @@ abstract class DatabaseDefinition {
     val helper: OpenHelper
         @Synchronized get() {
             if (openHelper == null) {
-                val config = FlowManager.getConfig().getDatabaseConfigMap()[associatedDatabaseClassFile]
+                val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
                 openHelper = if (config?.openHelperCreator != null) {
                     config.openHelperCreator.invoke(this, helperListener)
                 } else {
@@ -155,7 +155,8 @@ abstract class DatabaseDefinition {
         get() = helper.isDatabaseIntegrityOk
 
     init {
-        applyDatabaseConfig(FlowManager.getConfig().getDatabaseConfigMap()[associatedDatabaseClassFile])
+        @Suppress("LeakingThis")
+        applyDatabaseConfig(FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile])
     }
 
     /**

@@ -52,7 +52,7 @@ public class ModelSaver<TModel> {
         }
 
         if (exists) {
-            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE);
+            NotifyDistributor.Companion.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE);
         }
 
         // return successful store into db.
@@ -82,7 +82,7 @@ public class ModelSaver<TModel> {
         modelAdapter.bindToUpdateStatement(databaseStatement, model);
         boolean successful = databaseStatement.executeUpdateDelete() != 0;
         if (successful) {
-            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE);
+            NotifyDistributor.Companion.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE);
         }
         return successful;
     }
@@ -114,7 +114,7 @@ public class ModelSaver<TModel> {
         long id = insertStatement.executeInsert();
         if (id > INSERT_FAILED) {
             modelAdapter.updateAutoIncrement(model, id);
-            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.INSERT);
+            NotifyDistributor.Companion.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.INSERT);
         }
         return id;
     }
@@ -145,7 +145,7 @@ public class ModelSaver<TModel> {
 
         boolean success = deleteStatement.executeUpdateDelete() != 0;
         if (success) {
-            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.DELETE);
+            NotifyDistributor.Companion.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.DELETE);
         }
         modelAdapter.updateAutoIncrement(model, 0);
         return success;
@@ -183,7 +183,7 @@ public class ModelSaver<TModel> {
         }
 
         if (exists) {
-            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE);
+            NotifyDistributor.Companion.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE);
         }
 
         // return successful store into db.
@@ -204,7 +204,7 @@ public class ModelSaver<TModel> {
             modelAdapter.getPrimaryConditionClause(model).getQuery(), null,
             ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
         if (successful) {
-            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE);
+            NotifyDistributor.Companion.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE);
         }
         return successful;
     }

@@ -112,7 +112,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
 
         // only notify for affected.
         if (affected > 0) {
-            NotifyDistributor.get().notifyTableChanged(getTable(), getPrimaryAction());
+            NotifyDistributor.Companion.get().notifyTableChanged(getTable(), getPrimaryAction());
         }
         return affected;
     }

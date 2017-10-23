@@ -49,7 +49,7 @@ public class SqlUtils {
     public static <TModel> void notifyModelChanged(@Nullable TModel model,
                                                    @NonNull ModelAdapter<TModel> modelAdapter,
                                                    @NonNull Action action) {
-        NotifyDistributor.get().notifyModelChanged(model, modelAdapter, action);
+        NotifyDistributor.Companion.get().notifyModelChanged(model, modelAdapter, action);
     }
 
     /**
@@ -60,7 +60,7 @@ public class SqlUtils {
     @Deprecated
     public static <TModel> void notifyTableChanged(@NonNull Class<TModel> table,
                                                    @NonNull Action action) {
-        NotifyDistributor.get().notifyTableChanged(table, action);
+        NotifyDistributor.Companion.get().notifyTableChanged(table, action);
     }
 
     /**
