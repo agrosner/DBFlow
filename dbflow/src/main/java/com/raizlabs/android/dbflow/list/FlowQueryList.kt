@@ -289,7 +289,7 @@ class FlowQueryList<TModel>(
         }
 
         /**
-         * If true, when an operation occurs when we call endTransactionAndNotify, we refresh content.
+         * If true, when an operation occurs whenever we call endTransactionAndNotify, we refresh content.
          */
         fun changeInTransaction(changeInTransaction: Boolean) = apply {
             this.changeInTransaction = changeInTransaction

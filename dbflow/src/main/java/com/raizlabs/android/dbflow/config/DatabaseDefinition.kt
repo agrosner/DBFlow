@@ -168,17 +168,17 @@ abstract class DatabaseDefinition {
             // initialize configuration if exists.
             val tableConfigCollection = databaseConfig.tableConfigMap.values
             for (tableConfig in tableConfigCollection) {
-                val modelAdapter = modelAdapters[tableConfig.tableClass()] ?: continue
-                if (tableConfig.listModelLoader() != null) {
-                    modelAdapter.setListModelLoader(tableConfig.listModelLoader())
+                val modelAdapter = modelAdapters[tableConfig.tableClass] ?: continue
+                if (tableConfig.listModelLoader != null) {
+                    modelAdapter.listModelLoader = tableConfig.listModelLoader
                 }
 
-                if (tableConfig.singleModelLoader() != null) {
-                    modelAdapter.setSingleModelLoader(tableConfig.singleModelLoader())
+                if (tableConfig.singleModelLoader != null) {
+                    modelAdapter.singleModelLoader = tableConfig.singleModelLoader
                 }
 
-                if (tableConfig.modelSaver() != null) {
-                    modelAdapter.setModelSaver(tableConfig.modelSaver())
+                if (tableConfig.modelSaver != null) {
+                    modelAdapter.modelSaver = tableConfig.modelSaver
                 }
 
             }

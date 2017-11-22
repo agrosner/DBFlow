@@ -24,55 +24,55 @@ public interface IProperty<P extends IProperty> extends Query {
     /**
      * Adds another property and returns as a new property. i.e p1 + p2
      *
-     * @param iProperty the property to add.
+     * @param property the property to add.
      * @return A new instance.
      */
     @NonNull
-    P plus(@NonNull IProperty iProperty);
+    P plus(@NonNull IProperty property);
 
     /**
      * Subtracts another property and returns as a new property. i.e p1 - p2
      *
-     * @param iProperty the property to subtract.
+     * @param property the property to subtract.
      * @return A new instance.
      */
     @NonNull
-    P minus(@NonNull IProperty iProperty);
+    P minus(@NonNull IProperty property);
 
     /**
      * Divides another property and returns as a new property. i.e p1 / p2
      *
-     * @param iProperty the property to divide.
+     * @param property the property to divide.
      * @return A new instance.
      */
     @NonNull
-    P div(@NonNull IProperty iProperty);
+    P div(@NonNull IProperty property);
 
     /**
      * Multiplies another property and returns as a new property. i.e p1 * p2
      *
-     * @param iProperty the property to multiply.
+     * @param property the property to multiply.
      * @return A new instance.
      */
-    P times(@NonNull IProperty iProperty);
+    P times(@NonNull IProperty property);
 
     /**
      * Modulous another property and returns as a new property. i.e p1 % p2
      *
-     * @param iProperty the property to calculate remainder of.
+     * @param property the property to calculate remainder of.
      * @return A new instance.
      */
     @NonNull
-    P rem(@NonNull IProperty iProperty);
+    P rem(@NonNull IProperty property);
 
     /**
      * Concats another property and returns as a new propert.y i.e. p1 || p2
      *
-     * @param iProperty The property to concatenate.
+     * @param property The property to concatenate.
      * @return A new instance.
      */
     @NonNull
-    P concatenate(@NonNull IProperty iProperty);
+    P concatenate(@NonNull IProperty property);
 
     /**
      * @return Appends DISTINCT to the property name. This is handy in {@link Method} queries.

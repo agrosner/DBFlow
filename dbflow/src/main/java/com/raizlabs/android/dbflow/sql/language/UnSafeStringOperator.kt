@@ -1,0 +1,51 @@
+package com.raizlabs.android.dbflow.sql.language
+
+import com.raizlabs.android.dbflow.StringUtils
+import com.raizlabs.android.dbflow.sql.Query
+import com.raizlabs.android.dbflow.sql.QueryBuilder
+
+/**
+ * Description: This class will use a String to describe its condition.
+ * Not recommended for normal queries, but can be used as a fall-back.
+ */
+class UnSafeStringOperator(selection: String, selectionArgs: Array<String>) : SQLOperator, Query {
+
+    private val conditionString: String?
+    private var separator = ""
+
+    override val query: String
+        get() {
+            val queryBuilder = QueryBuilder()
+            appendConditionToQuery(queryBuilder)
+            return queryBuilder.query
+        }
+
+    init {
+        var newSelection: String? = selection
+        // replace question marks in order
+        if (newSelection != null) {
+            for (selectionArg in selectionArgs) {
+                newSelection = newSelection?.replaceFirst("\\?".toRegex(), selectionArg)
+            }
+        }
+        this.conditionString = newSelection
+    }
+
+    override fun appendConditionToQuery(queryBuilder: QueryBuilder) {
+        queryBuilder.append(conditionString)
+    }
+
+    override fun columnName(): String = ""
+
+    override fun separator(): String? = separator
+
+    override fun separator(separator: String) = apply {
+        this.separator = separator
+    }
+
+    override fun hasSeparator(): Boolean = StringUtils.isNotNullOrEmpty(separator)
+
+    override fun operation(): String = ""
+
+    override fun value(): Any? = ""
+}

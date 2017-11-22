@@ -12,7 +12,7 @@ interface SQLOperator {
      *
      * @param queryBuilder The builder to append to.
      */
-    fun appendConditionToQuery(queryBuilder: QueryBuilder<*>)
+    fun appendConditionToQuery(queryBuilder: QueryBuilder)
 
     /**
      * The name of the column.

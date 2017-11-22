@@ -44,12 +44,6 @@ interface Queriable : Query {
     fun compileStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement
 
     /**
-     * @return the count of the results of the query.
-     */
-    @Deprecated("use {@link #longValue()}")
-    fun count(): Long
-
-    /**
      * @return the long value of the results of query.
      */
     fun longValue(): Long
@@ -58,14 +52,6 @@ interface Queriable : Query {
      * @return the long value of the results of query.
      */
     fun longValue(databaseWrapper: DatabaseWrapper): Long
-
-    /**
-     * Allows you to pass in a [DatabaseWrapper] manually.
-     *
-     * @return the count of the results of the query.
-     */
-    @Deprecated("use {@link #longValue(DatabaseWrapper)}")
-    fun count(databaseWrapper: DatabaseWrapper): Long
 
     /**
      * @return This may return the number of rows affected from a [Set] or [Delete] statement.

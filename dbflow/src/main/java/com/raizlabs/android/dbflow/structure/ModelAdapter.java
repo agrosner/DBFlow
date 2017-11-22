@@ -43,8 +43,8 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
 
     public ModelAdapter(@NonNull DatabaseDefinition databaseDefinition) {
         super(databaseDefinition);
-        if (getTableConfig() != null && getTableConfig().modelSaver() != null) {
-            modelSaver = getTableConfig().modelSaver();
+        if (getTableConfig() != null && getTableConfig().getModelSaver() != null) {
+            modelSaver = getTableConfig().getModelSaver();
             modelSaver.setModelAdapter(this);
         }
     }

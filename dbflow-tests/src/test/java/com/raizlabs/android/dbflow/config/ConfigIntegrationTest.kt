@@ -65,8 +65,8 @@ class ConfigIntegrationTest : BaseUnitTest() {
         val config = databaseConfig.tableConfigMap[SimpleModel::class.java] as TableConfig
         assertNotNull(config)
 
-        assertEquals(config.listModelLoader(), customListModelLoader)
-        assertEquals(config.singleModelLoader(), singleModelLoader)
+        assertEquals(config.listModelLoader, customListModelLoader)
+        assertEquals(config.singleModelLoader, singleModelLoader)
 
         val modelAdapter = FlowManager.getModelAdapter(SimpleModel::class.java)
         assertEquals(modelAdapter.listModelLoader, customListModelLoader)

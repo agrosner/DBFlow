@@ -8,9 +8,9 @@ import com.raizlabs.android.dbflow.sql.Query
  */
 interface IConditional : Query {
 
-    val isNull: Operator<*>
+    fun isNull(): Operator<*>
 
-    val isNotNull: Operator<*>
+    fun isNotNull(): Operator<*>
 
     fun `is`(conditional: IConditional): Operator<*>
 

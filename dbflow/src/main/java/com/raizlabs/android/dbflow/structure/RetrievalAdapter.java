@@ -29,16 +29,16 @@ public abstract class RetrievalAdapter<TModel> {
 
     public RetrievalAdapter(@NonNull DatabaseDefinition databaseDefinition) {
         DatabaseConfig databaseConfig = FlowManager.getConfig()
-            .getConfigForDatabase(databaseDefinition.getAssociatedDatabaseClassFile());
+                .getConfigForDatabase(databaseDefinition.getAssociatedDatabaseClassFile());
         if (databaseConfig != null) {
             tableConfig = databaseConfig.getTableConfigForTable(getModelClass());
             if (tableConfig != null) {
-                if (tableConfig.singleModelLoader() != null) {
-                    singleModelLoader = tableConfig.singleModelLoader();
+                if (tableConfig.getSingleModelLoader() != null) {
+                    singleModelLoader = tableConfig.getSingleModelLoader();
                 }
 
-                if (tableConfig.listModelLoader() != null) {
-                    listModelLoader = tableConfig.listModelLoader();
+                if (tableConfig.getListModelLoader() != null) {
+                    listModelLoader = tableConfig.getListModelLoader();
                 }
             }
         }
@@ -56,10 +56,10 @@ public abstract class RetrievalAdapter<TModel> {
      */
     public void load(@NonNull TModel model, DatabaseWrapper databaseWrapper) {
         getNonCacheableSingleModelLoader().load(databaseWrapper,
-            SQLite.select()
-                .from(getModelClass())
-                .where(getPrimaryConditionClause(model)).getQuery(),
-            model);
+                SQLite.INSTANCE.select()
+                        .from(getModelClass())
+                        .where(getPrimaryConditionClause(model)).getQuery(),
+                model);
     }
 
     /**

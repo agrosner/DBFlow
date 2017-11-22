@@ -29,14 +29,14 @@ interface ModelQueriable<TModel> : Queriable {
     /**
      * @return a list of model converted items
      */
-    fun queryList(): List<TModel>
+    fun queryList(): MutableList<TModel>
 
     /**
      * Allows you to specify a DB, useful for migrations.
      *
      * @return a list of model converted items
      */
-    fun queryList(wrapper: DatabaseWrapper): List<TModel>
+    fun queryList(wrapper: DatabaseWrapper): MutableList<TModel>
 
     /**
      * @return Single model, the first of potentially many results
@@ -74,7 +74,7 @@ interface ModelQueriable<TModel> : Queriable {
      * @param <TQueryModel>   The class that extends [BaseQueryModel]
      * @return A list of custom models that are not tied to a table.
     </TQueryModel> */
-    fun <TQueryModel> queryCustomList(queryModelClass: Class<TQueryModel>): List<TQueryModel>
+    fun <TQueryModel> queryCustomList(queryModelClass: Class<TQueryModel>): MutableList<TQueryModel>
 
     /**
      * Returns a single [TQueryModel] from this query.
@@ -85,10 +85,4 @@ interface ModelQueriable<TModel> : Queriable {
     </TQueryModel> */
     fun <TQueryModel> queryCustomSingle(queryModelClass: Class<TQueryModel>): TQueryModel?
 
-    /**
-     * Disables caching on this query for the object retrieved from DB (if caching enabled). If
-     * caching is not enabled, this method is ignored. This also disables caching in a [FlowCursorList]
-     * or [FlowQueryList] if you [.flowQueryList] or [.cursorList]
-     */
-    fun disableCaching(): ModelQueriable<TModel>
 }

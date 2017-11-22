@@ -21,6 +21,6 @@ public class JavaModelView {
     Integer firstName;
 
     private static Query getQuery() {
-        return SQLite.select(Author_Table.first_name.as("firstName"), Author_Table.id.as("id"));
+        return SQLite.INSTANCE.select(Author_Table.first_name.as("firstName"), Author_Table.id.as("id"));
     }
 }

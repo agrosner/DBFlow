@@ -56,15 +56,12 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
         }
     }
 
-    constructor(table: Class<*>?, columnName: String, aliasName: String) : this(table, NameAlias.builder(columnName).`as`(aliasName).build()) {}
+    constructor(table: Class<*>?, columnName: String, aliasName: String) : this(table, NameAlias.builder(columnName).`as`(aliasName).build())
 
-    override fun withTable(): Property<T> {
-        return withTable(NameAlias.Builder(FlowManager.getTableName(table!!)).build())
-    }
+    override fun withTable(): Property<T> =
+            withTable(NameAlias.Builder(FlowManager.getTableName(table!!)).build())
 
-    override fun getNameAlias(): NameAlias {
-        return internalNameAlias
-    }
+    override fun getNameAlias(): NameAlias = internalNameAlias
 
     override val query: String
         get() = nameAlias.query
@@ -114,7 +111,7 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
     override fun `is`(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
             operator.`is`(baseModelQueriable)
 
-    override fun isNull(): Operator<*> = operator.isNull
+    override fun isNull(): Operator<*> = operator.isNull()
 
     override fun eq(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
             operator.eq(baseModelQueriable)
@@ -122,7 +119,7 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
     override fun isNot(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
             operator.isNot(baseModelQueriable)
 
-    override fun isNotNull(): Operator<*> = operator.isNotNull
+    override fun isNotNull(): Operator<*> = operator.isNotNull()
 
     override fun notEq(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
             operator.notEq(baseModelQueriable)
@@ -180,34 +177,34 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
         return table!!
     }
 
-    override fun plus(iProperty: IProperty<*>): Property<T> {
+    override fun plus(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.PLUS,
-                internalNameAlias.fullName(), iProperty.toString()))
+                internalNameAlias.fullName(), property.toString()))
     }
 
-    override fun minus(iProperty: IProperty<*>): Property<T> {
+    override fun minus(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.MINUS,
-                internalNameAlias.fullName(), iProperty.toString()))
+                internalNameAlias.fullName(), property.toString()))
     }
 
-    override fun div(iProperty: IProperty<*>): Property<T> {
+    override fun div(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.DIVISION,
-                internalNameAlias.fullName(), iProperty.toString()))
+                internalNameAlias.fullName(), property.toString()))
     }
 
-    override fun times(iProperty: IProperty<*>): Property<T> {
+    override fun times(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.MULTIPLY,
-                internalNameAlias.fullName(), iProperty.toString()))
+                internalNameAlias.fullName(), property.toString()))
     }
 
-    override fun rem(iProperty: IProperty<*>): Property<T> {
+    override fun rem(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.MOD,
-                internalNameAlias.fullName(), iProperty.toString()))
+                internalNameAlias.fullName(), property.toString()))
     }
 
-    override fun concatenate(iProperty: IProperty<*>): Property<T> {
+    override fun concatenate(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.CONCATENATE,
-                internalNameAlias.fullName(), iProperty.toString()))
+                internalNameAlias.fullName(), property.toString()))
     }
 
     override fun `as`(aliasName: String): Property<T> {

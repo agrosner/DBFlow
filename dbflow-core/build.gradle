@@ -1,8 +1,19 @@
 apply plugin: 'java'
+apply plugin: 'kotlin'
 
 project.ext.artifactId = bt_name
 
 targetCompatibility = JavaVersion.VERSION_1_7
 sourceCompatibility = JavaVersion.VERSION_1_7
 
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+}
+
 apply from: '../java-artifacts.gradle'
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.7"
+    }
+}

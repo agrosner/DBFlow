@@ -85,7 +85,7 @@ public abstract class BaseOperator implements SQLOperator {
                     stringVal = "X" + DatabaseUtils.sqlEscapeString(SqlUtils.byteArrayToHexString(bytes));
                 } else {
                     stringVal = String.valueOf(value);
-                    if (!stringVal.equals(Operator.Operation.EMPTY_PARAM)) {
+                    if (!stringVal.equals(Operator.Operation.INSTANCE.getEMPTY_PARAM())) {
                         stringVal = DatabaseUtils.sqlEscapeString(stringVal);
                     }
                 }
@@ -180,7 +180,7 @@ public abstract class BaseOperator implements SQLOperator {
     /**
      * The column name
      */
-    @NonNull
+    @Nullable
     protected NameAlias nameAlias;
 
     /**
@@ -198,7 +198,7 @@ public abstract class BaseOperator implements SQLOperator {
      */
     protected boolean isValueSet;
 
-    BaseOperator(@NonNull NameAlias nameAlias) {
+    BaseOperator(@Nullable NameAlias nameAlias) {
         this.nameAlias = nameAlias;
     }
 

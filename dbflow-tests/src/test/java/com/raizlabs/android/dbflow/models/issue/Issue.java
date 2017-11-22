@@ -24,7 +24,7 @@ public class Issue extends BaseModel {
     @OneToMany(methods = {OneToMany.Method.SAVE, OneToMany.Method.DELETE}, variableName = "subIssueList")
     public List<SubIssue> getDbSubIssueList() {
         if (subIssueList == null || subIssueList.isEmpty()) {
-            subIssueList = SQLite.select()
+            subIssueList = SQLite.INSTANCE.select()
                 .from(SubIssue.class)
                 .where(SubIssue_Table.owningIssueId.eq(id))
                 .queryList();
