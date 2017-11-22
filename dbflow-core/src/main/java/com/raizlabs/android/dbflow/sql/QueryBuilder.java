@@ -97,7 +97,7 @@ public class QueryBuilder implements Query {
      * @return This instance
      */
     public QueryBuilder appendType(String type) {
-        return appendSQLiteType(SQLiteType.get(type));
+        return appendSQLiteType(SQLiteType.Companion.get(type));
     }
 
     /**

@@ -129,7 +129,7 @@ public class SqlUtils {
                                          @NonNull String notifyKey,
                                          @Nullable Object notifyValue) {
         Operator operator = null;
-        if (StringUtils.isNotNullOrEmpty(notifyKey)) {
+        if (StringUtils.INSTANCE.isNotNullOrEmpty(notifyKey)) {
             operator = Operator.Companion.op(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
         }
         return getNotificationUri(modelClass, action, new SQLOperator[]{operator});

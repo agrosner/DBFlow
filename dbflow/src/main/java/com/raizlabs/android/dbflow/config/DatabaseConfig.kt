@@ -125,13 +125,10 @@ class DatabaseConfig(
     companion object {
 
         @JvmStatic
-        fun builder(database: Class<*>): DatabaseConfig.Builder {
-            return DatabaseConfig.Builder(database)
-        }
+        fun builder(database: Class<*>): DatabaseConfig.Builder = DatabaseConfig.Builder(database)
 
         @JvmStatic
-        fun inMemoryBuilder(database: Class<*>): DatabaseConfig.Builder {
-            return DatabaseConfig.Builder(database).inMemory()
-        }
+        fun inMemoryBuilder(database: Class<*>): DatabaseConfig.Builder =
+                DatabaseConfig.Builder(database).inMemory()
     }
 }

@@ -480,7 +480,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
     }
 
     public int getCacheSize() {
-        return Table.DEFAULT_CACHE_SIZE;
+        return Table.Companion.getDEFAULT_CACHE_SIZE();
     }
 
     public IMultiKeyCacheConverter<?> getCacheConverter() {
