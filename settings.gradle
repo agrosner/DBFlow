@@ -2,7 +2,6 @@ include ':dbflow', ':dbflow-rx-kotlinextensions', ':dbflow-rx2', ':dbflow-rx2-ko
     ':dbflow-processor',
     ':dbflow-core',
     ':dbflow-sqlcipher',
-    ':dbflow-kotlinextensions',
     ':dbflow-rx',
     ':dbflow-tests'
 
