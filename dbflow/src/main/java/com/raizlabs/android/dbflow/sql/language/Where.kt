@@ -2,8 +2,8 @@ package com.raizlabs.android.dbflow.sql.language
 
 import android.database.Cursor
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
+import com.raizlabs.android.dbflow.appendQualifier
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.structure.BaseModel
@@ -51,11 +51,11 @@ class Where<T : Any>
     override val query: String
         get() {
             val fromQuery = whereBase.query.trim { it <= ' ' }
-            val queryBuilder = QueryBuilder().append(fromQuery).appendSpace()
+            val queryBuilder = StringBuilder(fromQuery).append(" ")
                     .appendQualifier("WHERE", operatorGroup.query)
-                    .appendQualifier("GROUP BY", QueryBuilder.join(",", groupByList))
+                    .appendQualifier("GROUP BY", groupByList.joinToString(separator = ","))
                     .appendQualifier("HAVING", havingGroup.query)
-                    .appendQualifier("ORDER BY", QueryBuilder.join(",", orderByList))
+                    .appendQualifier("ORDER BY", orderByList.joinToString(separator = ","))
 
             if (limit > VALUE_UNSET) {
                 queryBuilder.appendQualifier("LIMIT", limit.toString())
@@ -64,7 +64,7 @@ class Where<T : Any>
                 queryBuilder.appendQualifier("OFFSET", offset.toString())
             }
 
-            return queryBuilder.query
+            return queryBuilder.toString()
         }
 
     init {

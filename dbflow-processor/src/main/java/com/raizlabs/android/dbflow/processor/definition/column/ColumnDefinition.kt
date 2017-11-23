@@ -22,7 +22,7 @@ import com.raizlabs.android.dbflow.processor.utils.getTypeElement
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.utils.toClassName
 import com.raizlabs.android.dbflow.processor.utils.toTypeElement
-import com.raizlabs.android.dbflow.sql.QueryBuilder
+import com.raizlabs.android.dbflow.quote
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -32,7 +32,6 @@ import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.regex.Pattern
 import javax.lang.model.element.Element
@@ -70,8 +69,8 @@ constructor(processorManager: ProcessorManager, element: Element,
     var onUniqueConflict: ConflictAction? = null
     var unique = false
 
-    var uniqueGroups: MutableList<Int> = ArrayList()
-    var indexGroups: MutableList<Int> = ArrayList()
+    var uniqueGroups: MutableList<Int> = arrayListOf()
+    var indexGroups: MutableList<Int> = arrayListOf()
 
     var collate = Collate.NONE
     var defaultValue: String? = null
@@ -90,10 +89,10 @@ constructor(processorManager: ProcessorManager, element: Element,
     var typeConverterDefinition: TypeConverterDefinition? = null
 
     open val updateStatementBlock: CodeBlock
-        get() = CodeBlock.of("${QueryBuilder.quote(columnName)}=?")
+        get() = CodeBlock.of("${columnName.quote()}=?")
 
     open val insertStatementColumnName: CodeBlock
-        get() = CodeBlock.of("\$L", QueryBuilder.quote(columnName))
+        get() = CodeBlock.of("\$L", columnName.quote())
 
     open val insertStatementValuesString: CodeBlock? = CodeBlock.of("?")
 
@@ -101,7 +100,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         get() = arrayListOf(elementTypeName)
 
     open val primaryKeyName: String?
-        get() = QueryBuilder.quote(columnName)
+        get() = columnName.quote()
 
     init {
         element.annotation<NotNull>()?.let { notNullAnno ->
@@ -305,7 +304,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         if (tableDef is TableDefinition) {
             tableName = tableDef.tableName ?: ""
         }
-        return "${baseTableDefinition.databaseDefinition?.databaseClassName}.$tableName.${QueryBuilder.quote(columnName)}"
+        return "${baseTableDefinition.databaseDefinition?.databaseClassName}.$tableName.${columnName.quote()}"
     }
 
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
@@ -352,7 +351,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open fun addPropertyCase(methodBuilder: MethodSpec.Builder) {
         methodBuilder.apply {
-            beginControlFlow("case \$S: ", QueryBuilder.quote(columnName))
+            beginControlFlow("case \$S: ", columnName.quote())
             addStatement("return \$L", propertyFieldName)
             endControlFlow()
         }

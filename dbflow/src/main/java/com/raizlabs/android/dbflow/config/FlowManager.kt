@@ -3,9 +3,9 @@ package com.raizlabs.android.dbflow.config
 import android.content.Context
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.converter.TypeConverter
+import com.raizlabs.android.dbflow.quote
 import com.raizlabs.android.dbflow.runtime.ModelNotifier
 import com.raizlabs.android.dbflow.runtime.TableNotifierRegister
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.migration.Migration
 import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.BaseModelView
@@ -87,7 +87,7 @@ object FlowManager {
     fun getTableClassForName(databaseName: String, tableName: String): Class<*> {
         val databaseDefinition = getDatabase(databaseName)
         return databaseDefinition.getModelClassForName(tableName)
-                ?: databaseDefinition.getModelClassForName(QueryBuilder.quote(tableName))
+                ?: databaseDefinition.getModelClassForName(tableName.quote())
                 ?: throw IllegalArgumentException("The specified table $tableName was not found." +
                 " Did you forget to add the @Table annotation and point it to $databaseName?")
     }
@@ -101,7 +101,7 @@ object FlowManager {
     fun getTableClassForName(databaseClass: Class<*>, tableName: String): Class<*> {
         val databaseDefinition = getDatabase(databaseClass)
         return databaseDefinition.getModelClassForName(tableName)
-                ?: databaseDefinition.getModelClassForName(QueryBuilder.quote(tableName))
+                ?: databaseDefinition.getModelClassForName(tableName.quote())
                 ?: throw IllegalArgumentException("The specified table $tableName was not found." +
                 " Did you forget to add the @Table annotation and point it to $databaseClass?")
     }

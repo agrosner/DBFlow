@@ -6,7 +6,7 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.raizlabs.android.dbflow.sql.QueryBuilder
+import com.raizlabs.android.dbflow.quote
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
@@ -34,7 +34,7 @@ class ReferenceDefinition(private val manager: ProcessorManager,
         get() = DefinitionUtils.getCreationStatement(columnClassName, wrapperTypeName, columnName).build()
 
     internal val primaryKeyName: String
-        get() = QueryBuilder.quote(columnName)
+        get() = columnName.quote()
 
     private var isReferencedFieldPrivate: Boolean = false
     private var isReferencedFieldPackagePrivate: Boolean = false
@@ -56,12 +56,12 @@ class ReferenceDefinition(private val manager: ProcessorManager,
             columnAccessor = PrivateScopeColumnAccessor(foreignKeyFieldName, getterSetter, false)
         } else if (isReferencedFieldPackagePrivate) {
             columnAccessor = PackagePrivateScopeColumnAccessor(foreignKeyFieldName, packageName,
-                referenceColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
-                name)
+                    referenceColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
+                    name)
 
             PackagePrivateScopeColumnAccessor.putElement(
-                (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
-                foreignKeyFieldName)
+                    (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
+                    foreignKeyFieldName)
         } else {
             columnAccessor = VisibleScopeColumnAccessor(foreignKeyFieldName)
         }
@@ -73,10 +73,10 @@ class ReferenceDefinition(private val manager: ProcessorManager,
         evaluateTypeConverter(typeConverterDefinition)
 
         val combiner = Combiner(columnAccessor, columnClassName!!, wrapperAccessor,
-            wrapperTypeName, subWrapperAccessor, referenceColumnDefinition.elementName)
+                wrapperTypeName, subWrapperAccessor, referenceColumnDefinition.elementName)
         partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, foreignColumnName,
-            columnClassName, referenceColumnDefinition.baseTableDefinition.orderedCursorLookUp,
-            columnAccessor, wrapperAccessor, wrapperTypeName)
+                columnClassName, referenceColumnDefinition.baseTableDefinition.orderedCursorLookUp,
+                columnAccessor, wrapperAccessor, wrapperTypeName)
 
         primaryReferenceField = ForeignKeyAccessField(columnName, PrimaryReferenceAccessCombiner(combiner))
 
@@ -92,12 +92,12 @@ class ReferenceDefinition(private val manager: ProcessorManager,
 
             if (it.modelTypeName != columnClassName) {
                 manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
-                    it.modelTypeName, it.className, columnClassName)
+                        it.modelTypeName, it.className, columnClassName)
             } else {
                 hasTypeConverter = true
 
                 val fieldName = referenceColumnDefinition.baseTableDefinition
-                    .addColumnForTypeConverter(referenceColumnDefinition, it.className)
+                        .addColumnForTypeConverter(referenceColumnDefinition, it.className)
                 wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
                 wrapperTypeName = it.dbTypeName
 
@@ -113,7 +113,7 @@ class ReferenceDefinition(private val manager: ProcessorManager,
         if (!localColumnName.isNullOrEmpty()) {
             this.columnName = localColumnName
         } else if (!referenceColumnDefinition.isPrimaryKey && !referenceColumnDefinition.isPrimaryKeyAutoIncrement
-            && !referenceColumnDefinition.isRowId || referenceCount > 0) {
+                && !referenceColumnDefinition.isRowId || referenceCount > 0) {
             this.columnName = "${foreignKeyFieldName}_${referencedColumn.columnName}"
         } else {
             this.columnName = foreignKeyFieldName
@@ -124,8 +124,8 @@ class ReferenceDefinition(private val manager: ProcessorManager,
         isReferencedFieldPackagePrivate = referencedColumn.columnAccessor is PackagePrivateScopeColumnAccessor
         val isPackagePrivate = ElementUtility.isPackagePrivate(referencedColumn.element)
         val isPackagePrivateNotInSamePackage = isPackagePrivate &&
-            !ElementUtility.isInSamePackage(manager, referencedColumn.element,
-                referenceColumnDefinition.element)
+                !ElementUtility.isInSamePackage(manager, referencedColumn.element,
+                        referenceColumnDefinition.element)
         isReferencedFieldPackagePrivate = isReferencedFieldPackagePrivate || isPackagePrivateNotInSamePackage
         val packageName = referencedColumn.packageName
         val name = ClassName.get(referencedColumn.element.enclosingElement as TypeElement).simpleName()

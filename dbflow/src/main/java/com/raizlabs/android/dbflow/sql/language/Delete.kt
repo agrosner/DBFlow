@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 
 /**
  * Description: Constructs the beginning of a SQL DELETE query
@@ -9,9 +8,7 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder
 class Delete : Query {
 
     override val query: String
-        get() = QueryBuilder()
-                .append("DELETE")
-                .appendSpace().query
+        get() = "DELETE "
 
     /**
      * Returns the new SQL FROM statement wrapper

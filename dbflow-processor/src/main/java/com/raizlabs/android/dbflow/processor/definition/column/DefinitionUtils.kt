@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
-import com.raizlabs.android.dbflow.sql.QueryBuilder
+import com.raizlabs.android.dbflow.quote
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 
@@ -19,7 +19,7 @@ object DefinitionUtils {
             statement = SQLiteHelper[elementTypeName].toString()
         }
 
-        return CodeBlock.builder().add("\$L \$L", QueryBuilder.quote(columnName), statement)
+        return CodeBlock.builder().add("\$L \$L", columnName.quote(), statement)
 
     }
 

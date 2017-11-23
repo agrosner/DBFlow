@@ -1,14 +1,12 @@
 package com.raizlabs.android.dbflow.sql.language
 
-import com.raizlabs.android.dbflow.sql.QueryBuilder
-
 /**
  * Description: Basic interface for all of the Operator classes.
  */
 interface SQLOperator {
 
     /**
-     * Appends itself to the [QueryBuilder]
+     * Appends itself to the [StringBuilder]
      *
      * @param queryBuilder The builder to append to.
      */

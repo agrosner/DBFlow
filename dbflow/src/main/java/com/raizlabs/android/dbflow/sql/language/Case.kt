@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language
 
+import com.raizlabs.android.dbflow.quoteIfNeeded
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.language.property.Property
 
@@ -23,12 +23,12 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
 
     override val query: String
         get() {
-            val queryBuilder = QueryBuilder(" CASE")
+            val queryBuilder = StringBuilder(" CASE")
             if (isEfficientCase) {
                 queryBuilder.append(" " + BaseOperator.convertValueToString(caseColumn, false)!!)
             }
 
-            queryBuilder.append(QueryBuilder.join("", caseConditions))
+            queryBuilder.append(caseConditions.joinToString(separator = ""))
 
             if (elseSpecified) {
                 queryBuilder.append(" ELSE ").append(BaseOperator.convertValueToString(elseValue, false))
@@ -36,7 +36,7 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
             if (endSpecified) {
                 queryBuilder.append(" END " + if (columnName != null) columnName else "")
             }
-            return queryBuilder.query
+            return queryBuilder.toString()
         }
 
     internal constructor() : this(null)
@@ -90,10 +90,9 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
     fun end(columnName: String? = null): Property<Case<TReturn>> {
         endSpecified = true
         if (columnName != null) {
-            this.columnName = QueryBuilder.quoteIfNeeded(columnName)
+            this.columnName = columnName.quoteIfNeeded()
         }
-        return Property(null, NameAlias.rawBuilder(query)
-                .build())
+        return Property(null, NameAlias.rawBuilder(query).build())
     }
 
     /**

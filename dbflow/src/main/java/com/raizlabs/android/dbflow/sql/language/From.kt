@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.Join.JoinType
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
@@ -44,7 +43,7 @@ class From<TModel : Any>
 
     override val query: String
         get() {
-            val queryBuilder = QueryBuilder()
+            val queryBuilder = StringBuilder()
                     .append(queryBuilderBase.query)
             if (queryBuilderBase !is Update<*>) {
                 queryBuilder.append("FROM ")
@@ -54,16 +53,14 @@ class From<TModel : Any>
 
             if (queryBuilderBase is Select) {
                 if (!joins.isEmpty()) {
-                    queryBuilder.appendSpace()
+                    queryBuilder.append(" ")
                 }
-                for (join in joins) {
-                    queryBuilder.append(join.query)
-                }
+                joins.forEach { queryBuilder.append(it.query) }
             } else {
-                queryBuilder.appendSpace()
+                queryBuilder.append(" ")
             }
 
-            return queryBuilder.query
+            return queryBuilder.toString()
         }
 
     /**

@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language.property
 
 import com.raizlabs.android.dbflow.annotation.Table
-import com.raizlabs.android.dbflow.sql.QueryBuilder
+import com.raizlabs.android.dbflow.quoteIfNeeded
 import com.raizlabs.android.dbflow.sql.language.Index
 import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
@@ -17,11 +17,10 @@ class IndexProperty<T>(indexName: String, unique: Boolean, table: Class<T>,
     val index: Index<T> = SQLite.index(indexName)
 
     val indexName: String
-        get() = QueryBuilder.quoteIfNeeded(index.indexName)
+        get() = index.indexName.quoteIfNeeded() ?: ""
 
     init {
-        index.on(table, *properties)
-                .unique(unique)
+        index.on(table, *properties).unique(unique)
     }
 
     fun createIfNotExists(wrapper: DatabaseWrapper) {

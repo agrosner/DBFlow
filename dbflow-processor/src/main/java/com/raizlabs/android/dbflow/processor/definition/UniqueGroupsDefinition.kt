@@ -4,7 +4,7 @@ import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.UniqueGroup
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
-import com.raizlabs.android.dbflow.sql.QueryBuilder
+import com.raizlabs.android.dbflow.quote
 import com.squareup.javapoet.CodeBlock
 import java.util.*
 
@@ -33,10 +33,10 @@ class UniqueGroupsDefinition(uniqueGroup: UniqueGroup) {
                 }
                 if (it is ReferenceColumnDefinition) {
                     for (reference in it._referenceDefinitionList) {
-                        codeBuilder.add(QueryBuilder.quote(reference.columnName))
+                        codeBuilder.add(reference.columnName.quote())
                     }
                 } else {
-                    codeBuilder.add(QueryBuilder.quote(it.columnName))
+                    codeBuilder.add(it.columnName.quote())
                 }
                 count++
             }

@@ -1,21 +1,18 @@
 package com.raizlabs.android.dbflow.sql;
 
 import android.content.ContentValues;
-import android.database.ContentObserver;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.Operator;
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
 import com.raizlabs.android.dbflow.sql.language.SQLOperator;
 import com.raizlabs.android.dbflow.structure.BaseModel.Action;
 import com.raizlabs.android.dbflow.structure.Model;
-import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
@@ -30,40 +27,6 @@ public class SqlUtils {
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     /**
-     * Notifies the {@link ContentObserver} that the model has changed.
-     */
-    @Deprecated
-    public static void notifyModelChanged(Class<?> table, Action action,
-                                          Iterable<SQLOperator> sqlOperators) {
-        FlowManager.getContext().getContentResolver().notifyChange(
-            getNotificationUri(table, action, sqlOperators), null, true);
-    }
-
-    /**
-     * Performs necessary logic to notify of {@link Model} changes.
-     *
-     * @see NotifyDistributor
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public static <TModel> void notifyModelChanged(@Nullable TModel model,
-                                                   @NonNull ModelAdapter<TModel> modelAdapter,
-                                                   @NonNull Action action) {
-        NotifyDistributor.Companion.get().notifyModelChanged(model, modelAdapter, action);
-    }
-
-    /**
-     * Notifies listeners of table-level changes from the SQLite-wrapper language.
-     *
-     * @see NotifyDistributor
-     */
-    @Deprecated
-    public static <TModel> void notifyTableChanged(@NonNull Class<TModel> table,
-                                                   @NonNull Action action) {
-        NotifyDistributor.Companion.get().notifyTableChanged(table, action);
-    }
-
-    /**
      * Constructs a {@link Uri} from a set of {@link SQLOperator} for specific table.
      *
      * @param modelClass The class of table,
@@ -75,7 +38,7 @@ public class SqlUtils {
                                          @Nullable Action action,
                                          @Nullable Iterable<SQLOperator> conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
-            .authority(FlowManager.getTableName(modelClass));
+                .authority(FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
@@ -100,10 +63,8 @@ public class SqlUtils {
                                          @NonNull Action action,
                                          @Nullable SQLOperator[] conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
-            .authority(FlowManager.getTableName(modelClass));
-        if (action != null) {
-            uriBuilder.fragment(action.name());
-        }
+                .authority(FlowManager.getTableName(modelClass));
+        uriBuilder.fragment(action.name());
         if (conditions != null && conditions.length > 0) {
             for (SQLOperator condition : conditions) {
                 if (condition != null) {
@@ -129,7 +90,7 @@ public class SqlUtils {
                                          @NonNull String notifyKey,
                                          @Nullable Object notifyValue) {
         Operator operator = null;
-        if (StringUtils.INSTANCE.isNotNullOrEmpty(notifyKey)) {
+        if (StringUtils.isNotNullOrEmpty(notifyKey)) {
             operator = Operator.Companion.op(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
         }
         return getNotificationUri(modelClass, action, new SQLOperator[]{operator});
@@ -152,9 +113,8 @@ public class SqlUtils {
      * @param triggerName The name of the trigger
      */
     public static void dropTrigger(@NonNull Class<?> mOnTable, @NonNull String triggerName) {
-        QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
-            .append(triggerName);
-        FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
+        FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase()
+                .execSQL("DROP TRIGGER IF EXISTS " + triggerName);
     }
 
     /**
@@ -164,9 +124,7 @@ public class SqlUtils {
      */
     public static void dropIndex(@NonNull DatabaseWrapper databaseWrapper,
                                  @NonNull String indexName) {
-        QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
-            .append(QueryBuilder.quoteIfNeeded(indexName));
-        databaseWrapper.execSQL(queryBuilder.getQuery());
+        databaseWrapper.execSQL("DROP INDEX IF EXISTS " + StringUtils.quoteIfNeeded(indexName));
     }
 
     public static void dropIndex(@NonNull Class<?> onTable,
@@ -186,7 +144,7 @@ public class SqlUtils {
         for (Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
             operatorGroup.and(Operator.Companion.op(new NameAlias.Builder(key).build())
-                .is(contentValues.get(key)));
+                    .is(contentValues.get(key)));
         }
     }
 
@@ -197,11 +155,11 @@ public class SqlUtils {
      */
     @NonNull
     public static String getContentValuesKey(ContentValues contentValues, String key) {
-        String quoted = QueryBuilder.quoteIfNeeded(key);
+        String quoted = StringUtils.quoteIfNeeded(key);
         if (contentValues.containsKey(quoted)) {
             return quoted;
         } else {
-            String stripped = QueryBuilder.stripQuotes(key);
+            String stripped = StringUtils.stripQuotes(key);
             if (contentValues.containsKey(stripped)) {
                 return stripped;
             } else {
@@ -221,7 +179,7 @@ public class SqlUtils {
     }
 
     public static double doubleForQuery(@NonNull DatabaseWrapper wrapper,
-                                    @NonNull String query) {
+                                        @NonNull String query) {
         DatabaseStatement statement = wrapper.compileStatement(query);
         try {
             return statement.simpleQueryForLong();

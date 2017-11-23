@@ -1,8 +1,9 @@
 package com.raizlabs.android.dbflow.sql.language
 
-import com.raizlabs.android.dbflow.StringUtils
+import com.raizlabs.android.dbflow.isNotNullOrEmpty
+import com.raizlabs.android.dbflow.quoteIfNeeded
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
+import com.raizlabs.android.dbflow.stripQuotes
 
 /**
  * Description: Rewritten from the ground up, this class makes it easier to build an alias.
@@ -22,8 +23,8 @@ class NameAlias(private val name: String,
      */
     override val query: String
         get() = when {
-            StringUtils.isNotNullOrEmpty(aliasName) -> aliasName!!
-            StringUtils.isNotNullOrEmpty(name) -> fullName()
+            aliasName.isNotNullOrEmpty() -> aliasName!!
+            name.isNotNullOrEmpty() -> fullName()
             else -> ""
         }
 
@@ -32,7 +33,7 @@ class NameAlias(private val name: String,
      * or the [.nameRaw], depending on what's specified.
      */
     val nameAsKey: String?
-        get() = if (StringUtils.isNotNullOrEmpty(aliasName)) {
+        get() = if (aliasName.isNotNullOrEmpty()) {
             aliasNameRaw()
         } else {
             nameRaw()
@@ -44,10 +45,10 @@ class NameAlias(private val name: String,
     val fullQuery: String
         get() {
             var query = fullName()
-            if (StringUtils.isNotNullOrEmpty(aliasName)) {
+            if (aliasName.isNotNullOrEmpty()) {
                 query += " AS ${aliasName()}"
             }
-            if (StringUtils.isNotNullOrEmpty(keyword)) {
+            if (keyword.isNotNullOrEmpty()) {
                 query = "$keyword $query"
             }
             return query
@@ -55,18 +56,18 @@ class NameAlias(private val name: String,
 
     private constructor(builder: Builder) : this(
             name = if (builder.shouldStripIdentifier) {
-                QueryBuilder.stripQuotes(builder.name)
+                builder.name.stripQuotes() ?: ""
             } else {
                 builder.name
             },
             keyword = builder.keyword,
             aliasName = if (builder.shouldStripAliasName) {
-                QueryBuilder.stripQuotes(builder.aliasName)
+                builder.aliasName.stripQuotes()
             } else {
                 builder.aliasName
             },
-            tableName = if (StringUtils.isNotNullOrEmpty(builder.tableName)) {
-                QueryBuilder.quoteIfNeeded(builder.tableName)
+            tableName = if (builder.tableName.isNotNullOrEmpty()) {
+                builder.tableName.quoteIfNeeded()
             } else {
                 null
             },
@@ -79,22 +80,22 @@ class NameAlias(private val name: String,
      * @return The real column name.
      */
     fun name(): String? {
-        return if (StringUtils.isNotNullOrEmpty(name) && shouldAddIdentifierToQuery)
-            QueryBuilder.quoteIfNeeded(name)
+        return if (name.isNotNullOrEmpty() && shouldAddIdentifierToQuery)
+            name.quoteIfNeeded()
         else name
     }
 
     /**
      * @return The name, stripped from identifier syntax completely.
      */
-    fun nameRaw(): String = if (shouldStripIdentifier) name else QueryBuilder.stripQuotes(name)
+    fun nameRaw(): String = if (shouldStripIdentifier) name else name.stripQuotes() ?: ""
 
     /**
      * @return The name used as part of the AS query.
      */
     fun aliasName(): String? {
-        return if (StringUtils.isNotNullOrEmpty(aliasName) && shouldAddIdentifierToAliasName)
-            QueryBuilder.quoteIfNeeded(aliasName)
+        return if (aliasName.isNotNullOrEmpty() && shouldAddIdentifierToAliasName)
+            aliasName.quoteIfNeeded()
         else aliasName
     }
 
@@ -102,13 +103,13 @@ class NameAlias(private val name: String,
      * @return The alias name, stripped from identifier syntax completely.
      */
     fun aliasNameRaw(): String? =
-            if (shouldStripAliasName) aliasName else QueryBuilder.stripQuotes(aliasName)
+            if (shouldStripAliasName) aliasName else aliasName.stripQuotes()
 
     /**
      * @return The `{tableName}`.`{name}`. If [.tableName] specified.
      */
     fun fullName(): String =
-            (if (StringUtils.isNotNullOrEmpty(tableName)) "$tableName." else "") + name()
+            (if (tableName.isNotNullOrEmpty()) "$tableName." else "") + name()
 
     override fun toString(): String = fullQuery
 

@@ -1,9 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import android.content.ContentValues
-
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.SqlUtils
 import com.raizlabs.android.dbflow.structure.BaseModel
 
@@ -16,12 +14,7 @@ class Set<T : Any>(override val queryBuilderBase: Query, table: Class<T>)
     private val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause().setAllCommaSeparated(true)
 
     override val query: String
-        get() {
-            val queryBuilder = QueryBuilder(queryBuilderBase.query)
-                    .append("SET ")
-                    .append(operatorGroup.query).appendSpace()
-            return queryBuilder.query
-        }
+        get() = " ${queryBuilderBase.query}SET ${operatorGroup.query} "
 
     override val primaryAction: BaseModel.Action
         get() = BaseModel.Action.UPDATE

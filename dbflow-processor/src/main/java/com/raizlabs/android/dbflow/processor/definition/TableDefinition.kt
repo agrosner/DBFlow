@@ -43,7 +43,9 @@ import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.ensureVisibleStatic
 import com.raizlabs.android.dbflow.processor.utils.implementsClass
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.raizlabs.android.dbflow.sql.QueryBuilder
+import com.raizlabs.android.dbflow.quote
+import com.raizlabs.android.dbflow.quoteIfNeeded
+import com.raizlabs.android.dbflow.stripQuotes
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -387,7 +389,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
             `override fun`(String::class, "getTableName") {
                 modifiers(public, final)
-                `return`(QueryBuilder.quote(tableName).S)
+                `return`(tableName.quote().S)
             }
 
             `override fun`(elementClassName!!, "newInstance") {
@@ -415,7 +417,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             `override fun`(ClassNames.PROPERTY, "getProperty",
                     param(String::class, paramColumnName)) {
                 modifiers(public, final)
-                statement("$paramColumnName = \$T.quoteIfNeeded($paramColumnName)", ClassName.get(QueryBuilder::class.java))
+                statement("$paramColumnName = \$T.quoteIfNeeded($paramColumnName)", ClassNames.STRING_UTILS)
 
                 switch("($paramColumnName)") {
                     columnDefinitions.indices.forEach { i ->
@@ -458,7 +460,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     }
                     `override fun`(String::class, "getAutoIncrementingColumnName") {
                         modifiers(public, final)
-                        `return`(QueryBuilder.stripQuotes(autoIncrement.columnName).S)
+                        `return`(autoIncrement.columnName.stripQuotes().S)
                     }
 
                     `override fun`(ParameterizedTypeName.get(ClassNames.SINGLE_MODEL_SAVER, elementClassName!!), "createSingleModelSaver") {
@@ -593,7 +595,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
                 `override fun`(ArrayTypeName.of(ClassName.get(String::class.java)), "createCachingColumns") {
                     modifiers(public, final)
-                    `return`("new String[]{${primaryColumns.joinToString { QueryBuilder.quoteIfNeeded(it.columnName).S }}}")
+                    `return`("new String[]{${primaryColumns.joinToString { it.columnName.quoteIfNeeded().S }}}")
                 }
 
                 if (cacheSize != DEFAULT_CACHE_SIZE) {

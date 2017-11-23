@@ -1,8 +1,8 @@
 package com.raizlabs.android.dbflow.sql.language
 
+import com.raizlabs.android.dbflow.appendList
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
@@ -44,27 +44,27 @@ class Join<TModel : Any, TFromModel : Any> : Query {
     override// natural joins do no have on or using clauses.
     val query: String
         get() {
-            val queryBuilder = QueryBuilder()
+            val queryBuilder = StringBuilder()
 
-            queryBuilder.append(type.name.replace("_", " ")).appendSpace()
+            queryBuilder.append(type.name.replace("_", " ")).append(" ")
 
             queryBuilder.append("JOIN")
-                    .appendSpace()
-                    .append(alias!!.fullQuery)
-                    .appendSpace()
+                    .append(" ")
+                    .append(alias.fullQuery)
+                    .append(" ")
             if (JoinType.NATURAL != type) {
                 onGroup?.let { onGroup ->
                     queryBuilder.append("ON")
-                            .appendSpace()
+                            .append(" ")
                             .append(onGroup.query)
-                            .appendSpace()
+                            .append(" ")
                 } ?: if (!using.isEmpty()) {
                     queryBuilder.append("USING (")
                             .appendList(using)
-                            .append(")").appendSpace()
+                            .append(") ")
                 }
             }
-            return queryBuilder.query
+            return queryBuilder.toString()
         }
 
     /**

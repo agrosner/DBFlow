@@ -1,14 +1,28 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.grosner.kpoet.*
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`=`
+import com.grosner.kpoet.`private final field`
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.code
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.param
+import com.grosner.kpoet.public
+import com.grosner.kpoet.statement
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.column.wrapperCommaIfBaseModel
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.processor.utils.codeBlock
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.raizlabs.android.dbflow.sql.QueryBuilder
-import com.squareup.javapoet.*
+import com.raizlabs.android.dbflow.quote
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.MethodSpec
+import com.squareup.javapoet.NameAllocator
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Modifier
@@ -198,7 +212,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
             val foreignSize = tableDefinition.foreignKeyDefinitions.size
 
             val creationBuilder = codeBlock {
-                add("CREATE TABLE IF NOT EXISTS ${QueryBuilder.quote(tableDefinition.tableName)}(")
+                add("CREATE TABLE IF NOT EXISTS ${tableDefinition.tableName.quote()}(")
                 add(tableDefinition.columnDefinitions.joinToString { it.creationName.toString() })
                 tableDefinition.uniqueGroupsDefinitions.forEach {
                     if (!it.columnDefinitionList.isEmpty()) add(it.creationName)
@@ -233,7 +247,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
 
                 foreignKeyBlocks.add(foreignKeyBuilder.apply {
                     add(", FOREIGN KEY(")
-                    add(fk._referenceDefinitionList.joinToString { QueryBuilder.quote(it.columnName) })
+                    add(fk._referenceDefinitionList.joinToString { it.columnName.quote() })
                     add(") REFERENCES ")
                 }.build())
 
@@ -241,7 +255,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
 
                 referenceKeyBlocks.add(referenceBuilder.apply {
                     add("(")
-                    add(fk._referenceDefinitionList.joinToString { QueryBuilder.quote(it.foreignColumnName) })
+                    add(fk._referenceDefinitionList.joinToString { it.foreignColumnName.quote() })
                     add(") ON UPDATE ${fk.onUpdate.name.replace("_", " ")} ON DELETE ${fk.onDelete.name.replace("_", " ")}")
                     if (fk.deferred) {
                         add(" DEFERRABLE INITIALLY DEFERRED")
@@ -337,7 +351,7 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, p
                     if (!tableDefinition.insertConflictActionName.isEmpty()) {
                         add("OR ${tableDefinition.insertConflictActionName} ")
                     }
-                    add("INTO ${QueryBuilder.quote(tableDefinition.tableName)}(")
+                    add("INTO ${tableDefinition.tableName.quote()}(")
 
                     tableDefinition.columnDefinitions.filter {
                         !it.isPrimaryKeyAutoIncrement && !it.isRowId || !isInsert || isSingleAutoincrement
@@ -373,7 +387,7 @@ class UpdateStatementQueryMethod(private val tableDefinition: TableDefinition) :
                     if (!tableDefinition.updateConflictActionName.isEmpty()) {
                         add(" OR ${tableDefinition.updateConflictActionName}")
                     }
-                    add(" ${QueryBuilder.quote(tableDefinition.tableName)} SET ")
+                    add(" ${tableDefinition.tableName.quote()} SET ")
 
                     // can only change non primary key values.
                     tableDefinition.columnDefinitions.filter {
@@ -405,7 +419,7 @@ class DeleteStatementQueryMethod(private val tableDefinition: TableDefinition) :
             return `override fun`(String::class, "getDeleteStatementQuery") {
                 modifiers(public, final)
                 `return`(codeBlock {
-                    add("DELETE FROM ${QueryBuilder.quote(tableDefinition.tableName)} WHERE ")
+                    add("DELETE FROM ${tableDefinition.tableName.quote()} WHERE ")
 
                     // primary key values used as WHERE
                     tableDefinition.columnDefinitions.filter {

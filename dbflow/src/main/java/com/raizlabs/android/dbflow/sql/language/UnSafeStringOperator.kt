@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language
 
-import com.raizlabs.android.dbflow.StringUtils
+import com.raizlabs.android.dbflow.isNotNullOrEmpty
 import com.raizlabs.android.dbflow.sql.Query
 
 /**
@@ -38,7 +38,7 @@ class UnSafeStringOperator(selection: String, selectionArgs: Array<String>) : SQ
         this.separator = separator
     }
 
-    override fun hasSeparator(): Boolean = StringUtils.isNotNullOrEmpty(separator)
+    override fun hasSeparator(): Boolean = separator.isNotNullOrEmpty()
 
     override fun operation(): String = ""
 

@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.config
 
-import com.raizlabs.android.dbflow.StringUtils
+import com.raizlabs.android.dbflow.isNotNullOrEmpty
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager
 import com.raizlabs.android.dbflow.runtime.ModelNotifier
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener
@@ -44,7 +44,7 @@ class DatabaseConfig(
             databaseName = builder.databaseName ?: builder.databaseClass.simpleName,
             databaseExtensionName = when {
                 builder.databaseExtensionName == null -> ".db"
-                StringUtils.isNotNullOrEmpty(builder.databaseExtensionName) -> ".${builder.databaseExtensionName}"
+                builder.databaseExtensionName.isNotNullOrEmpty() -> ".${builder.databaseExtensionName}"
                 else -> ""
             })
 

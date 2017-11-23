@@ -1,7 +1,8 @@
 package com.raizlabs.android.dbflow.sql.language
 
+import com.raizlabs.android.dbflow.appendOptional
+import com.raizlabs.android.dbflow.appendQuotedIfNeeded
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import kotlin.reflect.KClass
 
@@ -33,15 +34,15 @@ private constructor(
 
     override val query: String
         get() {
-            val queryBuilder = QueryBuilder("CREATE ")
+            val queryBuilder = StringBuilder("CREATE ")
             if (temporary) {
                 queryBuilder.append("TEMP ")
             }
             queryBuilder.append("TRIGGER IF NOT EXISTS ")
-                    .appendQuotedIfNeeded(name).appendSpace()
+                    .appendQuotedIfNeeded(name).append(" ")
                     .appendOptional(beforeOrAfter + " ")
 
-            return queryBuilder.query
+            return queryBuilder.toString()
         }
 
     /**

@@ -1,8 +1,9 @@
 package com.raizlabs.android.dbflow.sql.language
 
+import com.raizlabs.android.dbflow.appendList
+import com.raizlabs.android.dbflow.appendQuotedIfNeeded
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.SqlUtils
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
@@ -36,12 +37,14 @@ class Index<TModel>
         private set
 
     override val query: String
-        get() = QueryBuilder("CREATE ")
-                .append(if (isUnique) "UNIQUE " else "")
-                .append("INDEX IF NOT EXISTS ")
-                .appendQuotedIfNeeded(indexName)
-                .append(" ON ").append(FlowManager.getTableName(table!!))
-                .append("(").appendList(columns).append(")").query
+        get() = buildString {
+            append("CREATE ")
+            append(if (isUnique) "UNIQUE " else "")
+            append("INDEX IF NOT EXISTS ")
+            appendQuotedIfNeeded(indexName)
+            append(" ON ").append(FlowManager.getTableName(table!!))
+            append("(").appendList(columns).append(")")
+        }
 
     /**
      * If true, will append the UNIQUE statement to this trigger.

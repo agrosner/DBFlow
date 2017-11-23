@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.SqlUtils
 import java.util.*
 
@@ -21,13 +20,8 @@ class CompletedTrigger<TModel> internal constructor(
     private val triggerLogicQuery = ArrayList<Query>()
 
     override val query: String
-        get() {
-            val queryBuilder = QueryBuilder(triggerMethod.query)
-            queryBuilder.append("\nBEGIN")
-                    .append("\n").append(QueryBuilder.join(";\n", triggerLogicQuery)).append(";")
-                    .append("\nEND")
-            return queryBuilder.query
-        }
+        get() =
+            "${triggerMethod.query}\nBEGIN\n${triggerLogicQuery.joinToString(separator = ";\n")};\nEND"
 
     init {
         this.triggerLogicQuery.add(triggerLogicQuery)

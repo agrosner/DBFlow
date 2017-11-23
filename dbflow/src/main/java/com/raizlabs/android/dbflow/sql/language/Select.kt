@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.language.property.Property
 import java.util.*
@@ -25,7 +24,7 @@ class Select
 
     override val query: String
         get() {
-            val queryBuilder = QueryBuilder("SELECT ")
+            val queryBuilder = StringBuilder("SELECT ")
 
             if (selectQualifier != NONE) {
                 if (selectQualifier == DISTINCT) {
@@ -33,12 +32,12 @@ class Select
                 } else if (selectQualifier == ALL) {
                     queryBuilder.append("ALL")
                 }
-                queryBuilder.appendSpace()
+                queryBuilder.append(" ")
             }
 
-            queryBuilder.append(QueryBuilder.join(",", propertyList))
-            queryBuilder.appendSpace()
-            return queryBuilder.query
+            queryBuilder.append(propertyList.joinToString(separator = ","))
+            queryBuilder.append(" ")
+            return queryBuilder.toString()
         }
 
     init {

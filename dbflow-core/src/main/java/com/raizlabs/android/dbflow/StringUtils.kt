@@ -1,27 +1,22 @@
+@file:JvmName("StringUtils")
+
 package com.raizlabs.android.dbflow
 
 import com.raizlabs.android.dbflow.sql.SQLiteType
 import java.util.regex.Pattern
 
+
 /**
- * Description: Provides handy method for strings
+ * @return true if the string is not null, empty string "", or the length is greater than 0
  */
-object StringUtils {
+fun String?.isNullOrEmpty(): Boolean =
+        this == null || this == "" || isEmpty()
 
-    /**
-     * @return true if the string is not null, empty string "", or the length is greater than 0
-     */
-    @JvmStatic
-    fun isNotNullOrEmpty(inString: String?): Boolean =
-            inString != null && inString != "" && inString.isNotEmpty()
-
-    /**
-     * @return true if the string is null, empty string "", or the length is less than equal to 0
-     */
-    @JvmStatic
-    fun isNullOrEmpty(inString: String?): Boolean =
-            inString == null || inString == "" || inString.isEmpty()
-}
+/**
+ * @return true if the string is null, empty string "", or the length is less than equal to 0
+ */
+fun String?.isNotNullOrEmpty(): Boolean =
+        this != null && this != "" && isNotEmpty()
 
 fun StringBuilder.appendQuotedIfNeeded(string: String?) = apply {
     if (string == "*")

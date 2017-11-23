@@ -2,9 +2,9 @@ package com.raizlabs.android.dbflow.sql.language
 
 import android.content.ContentValues
 import com.raizlabs.android.dbflow.annotation.ConflictAction
+import com.raizlabs.android.dbflow.appendArray
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
@@ -42,12 +42,12 @@ class Insert<TModel : Any>
     override// append FROM, which overrides values
     val query: String
         get() {
-            val queryBuilder = QueryBuilder("INSERT ")
+            val queryBuilder = StringBuilder("INSERT ")
             if (conflictAction != null && conflictAction != ConflictAction.NONE) {
-                queryBuilder.append("OR").appendSpaceSeparated(conflictAction)
+                queryBuilder.append("OR").append(" $conflictAction ")
             }
             queryBuilder.append("INTO")
-                    .appendSpace()
+                    .append(" ")
                     .append(FlowManager.getTableName(table))
 
             columns?.let { columns ->
@@ -56,7 +56,7 @@ class Insert<TModel : Any>
                         .append(")")
             }
             if (selectFrom != null) {
-                queryBuilder.appendSpace().append(selectFrom!!.query)
+                queryBuilder.append(" ").append(selectFrom!!.query)
             } else {
                 if (valuesList.size < 1) {
                     throw IllegalStateException("The insert of " + FlowManager.getTableName(table) + " should have" +
@@ -81,7 +81,7 @@ class Insert<TModel : Any>
                 }
             }
 
-            return queryBuilder.query
+            return queryBuilder.toString()
         }
 
     override val primaryAction: BaseModel.Action

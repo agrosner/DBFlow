@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.sql.language
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 
 /**
  * Description: The SQLite UPDATE query. Will update rows in the DB.
@@ -23,14 +22,14 @@ internal constructor(val table: Class<T>) : Query {
 
     override val query: String
         get() {
-            val queryBuilder = QueryBuilder("UPDATE ")
+            val queryBuilder = StringBuilder("UPDATE ")
             conflictAction?.let { conflictAction ->
                 if (conflictAction != ConflictAction.NONE) {
-                    queryBuilder.append("OR").appendSpaceSeparated(conflictAction.name)
+                    queryBuilder.append("OR").append(" ${conflictAction.name} ")
                 }
             }
-            queryBuilder.append(FlowManager.getTableName(table)).appendSpace()
-            return queryBuilder.query
+            queryBuilder.append(FlowManager.getTableName(table)).append(" ")
+            return queryBuilder.toString()
         }
 
     fun conflictAction(conflictAction: ConflictAction) = apply {

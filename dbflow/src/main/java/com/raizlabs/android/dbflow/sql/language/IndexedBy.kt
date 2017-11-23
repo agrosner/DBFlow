@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language
 
+import com.raizlabs.android.dbflow.quoteIfNeeded
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty
 import com.raizlabs.android.dbflow.structure.BaseModel
 
@@ -22,12 +22,11 @@ class IndexedBy<TModel : Any>
         get() = whereBase.queryBuilderBase
 
     override val query: String
-        get() {
-            val queryBuilder = QueryBuilder(whereBase.query)
-                    .append(" INDEXED BY ")
-                    .append(QueryBuilder.quoteIfNeeded(indexProperty.indexName))
-                    .appendSpace()
-            return queryBuilder.query
+        get() = buildString {
+            append(whereBase.query)
+            append(" INDEXED BY ")
+            append(indexProperty.indexName.quoteIfNeeded())
+            append(" ")
         }
 
     override val primaryAction: BaseModel.Action

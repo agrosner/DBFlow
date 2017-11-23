@@ -4,7 +4,7 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
-import com.raizlabs.android.dbflow.sql.QueryBuilder
+import com.raizlabs.android.dbflow.quote
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
@@ -30,7 +30,7 @@ object InternalAdapterHelper {
     fun writeGetTableName(typeBuilder: TypeSpec.Builder, tableName: String?) {
         typeBuilder.addMethod(MethodSpec.methodBuilder("getTableName")
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addStatement("return \$S", QueryBuilder.quote(tableName))
+                .addStatement("return \$S", tableName.quote())
                 .returns(ClassName.get(String::class.java))
                 .build())
     }

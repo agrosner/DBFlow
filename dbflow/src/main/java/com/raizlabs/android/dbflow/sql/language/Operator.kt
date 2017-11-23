@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.config.FlowLog
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.property.Property
 import java.util.*
 
@@ -325,7 +324,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
     override fun concatenate(value: Any?): Operator<T> {
         var _value = value
-        operation = QueryBuilder(Operation.EQUALS).append(columnName()).toString()
+        operation = "${Operation.EQUALS} ${columnName()}"
 
         var typeConverter: TypeConverter<*, Any>? = this.typeConverter as TypeConverter<*, Any>?
         if (typeConverter == null && _value != null) {

@@ -1,13 +1,17 @@
 package com.raizlabs.android.dbflow.processor.definition.column
 
-import com.grosner.kpoet.*
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`else`
+import com.grosner.kpoet.`if`
+import com.grosner.kpoet.end
+import com.grosner.kpoet.statement
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.SQLiteHelper
 import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.catch
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.utils.statement
-import com.raizlabs.android.dbflow.sql.QueryBuilder
+import com.raizlabs.android.dbflow.quote
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.NameAllocator
@@ -126,7 +130,7 @@ class ContentValuesCombiner(combiner: Combiner)
         combiner.apply {
             val fieldAccess: CodeBlock = getFieldAccessBlock(this@addCode, modelBlock)
             if (fieldTypeName.isPrimitive) {
-                statement("values.put(\$1S, \$2L)", QueryBuilder.quote(columnRepresentation), fieldAccess)
+                statement("values.put(\$1S, \$2L)", columnRepresentation.quote(), fieldAccess)
             } else {
                 if (defaultValue != null) {
                     val storedFieldAccess = fieldAccess
@@ -137,22 +141,22 @@ class ContentValuesCombiner(combiner: Combiner)
                     if (storedFieldAccess.toString() != subWrapperFieldAccess.toString()
                             || defaultValue.toString() != "null") {
                         statement("values.put(\$S, \$L != null ? \$L : \$L)",
-                                QueryBuilder.quote(columnRepresentation), storedFieldAccess, subWrapperFieldAccess, defaultValue)
+                                columnRepresentation.quote(), storedFieldAccess, subWrapperFieldAccess, defaultValue)
                     } else {
                         // if same default value is null and object reference is same as subwrapper.
                         statement("values.put(\$S, \$L)",
-                                QueryBuilder.quote(columnRepresentation), storedFieldAccess)
+                                columnRepresentation.quote(), storedFieldAccess)
                     }
                 } else {
                     statement("values.put(\$S, \$L)",
-                            QueryBuilder.quote(columnRepresentation), fieldAccess)
+                            columnRepresentation.quote(), fieldAccess)
                 }
             }
         }
     }
 
     override fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int) {
-        code.addStatement("values.putNull(\$S)", QueryBuilder.quote(columnRepresentation))
+        code.addStatement("values.putNull(\$S)", columnRepresentation.quote())
     }
 }
 

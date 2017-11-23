@@ -96,4 +96,6 @@ object ClassNames {
     val NON_NULL = ClassName.get("android.support.annotation", "NonNull")
 
     val GENERATED = ClassName.get("javax.annotation", "Generated")
+
+    val STRING_UTILS = ClassName.get(BASE_PACKAGE, "StringUtils")
 }
