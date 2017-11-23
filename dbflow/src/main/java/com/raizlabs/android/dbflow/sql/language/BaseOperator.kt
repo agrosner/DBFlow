@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.SqlUtils
+import com.raizlabs.android.dbflow.sql.byteArrayToHexString
 
 /**
  * Description: Base class for all kinds of [SQLOperator]
@@ -157,7 +157,7 @@ abstract class BaseOperator internal constructor(
                         } else {
                             bytes = _value as ByteArray?
                         }
-                        stringVal = "X" + DatabaseUtils.sqlEscapeString(SqlUtils.byteArrayToHexString(bytes))
+                        stringVal = "X" + DatabaseUtils.sqlEscapeString(byteArrayToHexString(bytes))
                     } else {
                         stringVal = _value.toString()
                         if (stringVal != Operator.Operation.EMPTY_PARAM) {

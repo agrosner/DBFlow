@@ -31,11 +31,11 @@ class BytePropertyTest : BaseUnitTest() {
         assertEquals("`Prop` AS `Alias`", prop.toString().trim())
 
         val prop2 = Property<Byte>(SimpleModel::class.java,
-            NameAlias.builder("Prop")
-                .shouldAddIdentifierToName(false)
-                .`as`("Alias")
-                .shouldAddIdentifierToAliasName(false)
-                .build())
+                NameAlias.builder("Prop")
+                        .shouldAddIdentifierToName(false)
+                        .`as`("Alias")
+                        .shouldAddIdentifierToAliasName(false)
+                        .build())
         assertEquals("Prop AS Alias", prop2.toString().trim())
     }
 }

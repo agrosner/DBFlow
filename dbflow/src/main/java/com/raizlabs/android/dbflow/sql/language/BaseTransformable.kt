@@ -16,6 +16,9 @@ abstract class BaseTransformable<TModel : Any>
 protected constructor(table: Class<TModel>)
     : BaseModelQueriable<TModel>(table), Transformable<TModel>, WhereBase<TModel> {
 
+
+    infix fun <T : Any> whereExists(where: Where<T>) = where().exists(where)
+
     fun where(vararg conditions: SQLOperator): Where<TModel> = Where(this, *conditions)
 
     override fun query(): FlowCursor? = where().query()
@@ -62,3 +65,5 @@ protected constructor(table: Class<TModel>)
         }
     }
 }
+
+infix fun <T : Any> BaseTransformable<T>.where(sqlOperator: SQLOperator) = where(sqlOperator)

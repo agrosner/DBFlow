@@ -145,7 +145,7 @@ public class FlowContentObserver extends ContentObserver {
                     for (Uri uri : tableUris) {
                         for (OnTableChangedListener onTableChangedListener : onTableChangedListeners) {
                             onTableChangedListener.onTableChanged(registeredTables.get(uri.getAuthority()),
-                                Action.valueOf(uri.getFragment()));
+                                    Action.valueOf(uri.getFragment()));
                         }
                     }
                     tableUris.clear();
@@ -266,7 +266,7 @@ public class FlowContentObserver extends ContentObserver {
                 param = Uri.decode(uri.getQueryParameter(key));
                 columnName = Uri.decode(key);
                 columnsChanged[index] = Operator.Companion.op(new NameAlias.Builder(columnName).build())
-                    .eq(param);
+                        .eq(param);
                 index++;
             }
         }

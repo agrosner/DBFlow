@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDoneException
 import com.raizlabs.android.dbflow.config.FlowLog
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor
-import com.raizlabs.android.dbflow.sql.SqlUtils
+import com.raizlabs.android.dbflow.sql.longForQuery
 import com.raizlabs.android.dbflow.sql.queriable.Queriable
 import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
@@ -29,7 +29,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
         try {
             val query = query
             FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
-            return SqlUtils.longForQuery(databaseWrapper, query)
+            return longForQuery(databaseWrapper, query)
         } catch (sde: SQLiteDoneException) {
             // catch exception here, log it but return 0;
             FlowLog.logWarning(sde)

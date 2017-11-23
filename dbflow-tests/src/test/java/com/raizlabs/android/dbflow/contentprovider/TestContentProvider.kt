@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.annotation.provider.Notify
 import com.raizlabs.android.dbflow.annotation.provider.NotifyMethod
 import com.raizlabs.android.dbflow.annotation.provider.PathSegment
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
-import com.raizlabs.android.dbflow.sql.SqlUtils
+import com.raizlabs.android.dbflow.sql.getContentValuesKey
 
 @ContentProvider(authority = TestContentProvider.AUTHORITY, database = ContentDatabase::class,
         baseContentUri = TestContentProvider.BASE_CONTENT_URI)
@@ -90,14 +90,14 @@ object TestContentProvider {
         @JvmStatic
         @Notify(notifyMethod = NotifyMethod.INSERT, paths = arrayOf(ENDPOINT))
         fun onInsert(contentValues: ContentValues): Array<Uri> {
-            val listId = contentValues.getAsLong(SqlUtils.getContentValuesKey(contentValues, "providerModel"))!!
+            val listId = contentValues.getAsLong(getContentValuesKey(contentValues, "providerModel"))!!
             return arrayOf(ContentProviderModel.withId(listId), fromList(listId))
         }
 
         @JvmStatic
         @Notify(notifyMethod = NotifyMethod.INSERT, paths = arrayOf(ENDPOINT))
         fun onInsert2(contentValues: ContentValues): Uri {
-            val listId = contentValues.getAsLong(SqlUtils.getContentValuesKey(contentValues, "providerModel"))!!
+            val listId = contentValues.getAsLong(getContentValuesKey(contentValues, "providerModel"))!!
             return fromList(listId)
         }
 

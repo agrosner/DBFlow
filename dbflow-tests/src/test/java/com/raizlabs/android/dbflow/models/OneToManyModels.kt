@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.annotation.OneToManyMethod
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
-import com.raizlabs.android.dbflow.sql.language.from
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.sql.language.where
 import com.raizlabs.android.dbflow.structure.BaseModel

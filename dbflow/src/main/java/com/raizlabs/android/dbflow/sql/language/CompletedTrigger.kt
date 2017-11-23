@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.SqlUtils
+import com.raizlabs.android.dbflow.sql.dropTrigger
 import java.util.*
 
 /**
@@ -47,6 +47,6 @@ class CompletedTrigger<TModel> internal constructor(
      * Disables this trigger
      */
     fun disable() {
-        SqlUtils.dropTrigger(triggerMethod.onTable, triggerMethod.trigger.name)
+        dropTrigger(triggerMethod.onTable, triggerMethod.trigger.name)
     }
 }

@@ -53,9 +53,9 @@ class CaseCondition<TReturn> : Query {
     /**
      * THEN part of this query, the value that gets set on column if condition is true.
      */
-    fun then(value: TReturn?): Case<TReturn> = caze.apply { thenValue = value }
+    infix fun then(value: TReturn?): Case<TReturn> = caze.apply { thenValue = value }
 
-    fun then(value: IProperty<*>): Case<TReturn> = caze.apply {
+    infix fun then(value: IProperty<*>): Case<TReturn> = caze.apply {
         thenProperty = value
 
         // in case values are null in some sense.

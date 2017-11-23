@@ -12,6 +12,6 @@ class UnsafeStringOperatorTest : BaseUnitTest() {
         val op = UnSafeStringOperator("name = ?, id = ?, test = ?", arrayOf("'name'", "0", "'test'"))
         assertEquals("name = 'name', id = 0, test = 'test'", op)
         assertEquals("SELECT * FROM `SimpleModel` WHERE name = 'name', id = 0, test = 'test'",
-            select from SimpleModel::class where op)
+                select from SimpleModel::class where op)
     }
 }

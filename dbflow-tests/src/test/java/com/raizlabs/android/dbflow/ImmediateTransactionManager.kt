@@ -16,9 +16,9 @@ class ImmediateTransactionQueue2 : ITransactionQueue {
 
     override fun add(transaction: Transaction) {
         transaction.newBuilder()
-            .runCallbacksOnSameThread(true)
-            .build()
-            .executeSync()
+                .runCallbacksOnSameThread(true)
+                .build()
+                .executeSync()
     }
 
     override fun cancel(transaction: Transaction) {

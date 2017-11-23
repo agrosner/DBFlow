@@ -85,7 +85,7 @@ object SQLite {
      */
     @JvmStatic
     fun <TReturn> caseWhen(operator: SQLOperator): CaseCondition<TReturn> =
-            Case<TReturn>().`when`(operator)
+            Case<TReturn>().whenever(operator)
 
     /**
      * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
@@ -105,3 +105,7 @@ object SQLite {
     @JvmStatic
     fun <TReturn> _case(caseColumn: IProperty<*>): Case<TReturn> = Case(caseColumn)
 }
+
+fun <T : Any> case(caseColumn: IProperty<*>) = SQLite._case<T>(caseColumn)
+
+fun <T : Any> caseWhen(operator: SQLOperator) = SQLite.caseWhen<T>(operator)

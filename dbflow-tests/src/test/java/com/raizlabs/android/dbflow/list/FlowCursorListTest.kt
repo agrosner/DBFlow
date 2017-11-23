@@ -5,7 +5,6 @@ import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.models.SimpleModel
-import com.raizlabs.android.dbflow.sql.language.from
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.sql.queriable.cursor
 import com.raizlabs.android.dbflow.structure.save

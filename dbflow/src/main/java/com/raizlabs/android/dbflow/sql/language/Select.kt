@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.sql.language
 import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.language.property.Property
-import java.util.*
+import kotlin.reflect.KClass
 
 /**
  * Description: A SQL SELECT statement generator. It generates the SELECT part of the statement.
@@ -20,7 +20,7 @@ class Select
      */
     private var selectQualifier = NONE
 
-    private val propertyList = ArrayList<IProperty<*>>()
+    private val propertyList = arrayListOf<IProperty<*>>()
 
     override val query: String
         get() {
@@ -55,6 +55,10 @@ class Select
      * @return the From part of this query
      */
     fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
+
+    inline fun <reified T : Any> from() = from(T::class.java)
+
+    infix fun <T : Any> from(table: KClass<T>) = from(table.java)
 
     /**
      * appends [.DISTINCT] to the query
@@ -95,3 +99,6 @@ class Select
         val ALL = 1
     }
 }
+
+inline val select: Select
+    get() = SQLite.select()

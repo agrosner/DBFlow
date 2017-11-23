@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.models.Blog_Table.author_id
 import com.raizlabs.android.dbflow.models.Blog_Table.name
 import com.raizlabs.android.dbflow.sql.language.SQLite.select
 import com.raizlabs.android.dbflow.sql.language.eq
-import com.raizlabs.android.dbflow.sql.language.from
 import com.raizlabs.android.dbflow.sql.language.innerJoin
 import com.raizlabs.android.dbflow.sql.language.on
 import com.raizlabs.android.dbflow.structure.exists

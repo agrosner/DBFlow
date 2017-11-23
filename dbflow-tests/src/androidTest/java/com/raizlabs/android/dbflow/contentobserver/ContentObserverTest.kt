@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.contentobserver.User_Table.id
 import com.raizlabs.android.dbflow.contentobserver.User_Table.name
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver
-import com.raizlabs.android.dbflow.sql.SqlUtils
+import com.raizlabs.android.dbflow.sql.getNotificationUri
 import com.raizlabs.android.dbflow.sql.language.Delete
 import com.raizlabs.android.dbflow.sql.language.SQLOperator
 import com.raizlabs.android.dbflow.structure.BaseModel
@@ -35,7 +35,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
     fun testSpecificUris() {
         val conditionGroup = FlowManager.getModelAdapter(User::class.java)
                 .getPrimaryConditionClause(user)
-        val uri = SqlUtils.getNotificationUri(User::class.java, BaseModel.Action.DELETE,
+        val uri = getNotificationUri(User::class.java, BaseModel.Action.DELETE,
                 conditionGroup.conditions.toTypedArray())
 
         assertEquals(uri.authority, FlowManager.getTableName(User::class.java))

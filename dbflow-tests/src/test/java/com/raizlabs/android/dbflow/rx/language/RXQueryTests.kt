@@ -7,7 +7,6 @@ import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.rx.kotlinextensions.rx
 import com.raizlabs.android.dbflow.rx.kotlinextensions.rxBaseQueriable
 import com.raizlabs.android.dbflow.sql.language.SQLite.selectCountOf
-import com.raizlabs.android.dbflow.sql.language.from
 import com.raizlabs.android.dbflow.sql.language.insert
 import com.raizlabs.android.dbflow.sql.language.property.Property
 import com.raizlabs.android.dbflow.sql.language.select

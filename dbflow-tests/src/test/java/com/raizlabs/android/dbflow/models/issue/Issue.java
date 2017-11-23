@@ -26,9 +26,9 @@ public class Issue extends BaseModel {
     public List<SubIssue> getDbSubIssueList() {
         if (subIssueList == null || subIssueList.isEmpty()) {
             subIssueList = SQLite.INSTANCE.select()
-                .from(SubIssue.class)
-                .where(SubIssue_Table.owningIssueId.eq(id))
-                .queryList();
+                    .from(SubIssue.class)
+                    .where(SubIssue_Table.owningIssueId.eq(id))
+                    .queryList();
         }
         return subIssueList;
     }

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.sql.Query
+import kotlin.reflect.KClass
 
 /**
  * Description: Constructs the beginning of a SQL DELETE query
@@ -44,8 +45,6 @@ class Delete : Query {
     }
 }
 
+fun <T : Any> delete(modelClass: KClass<T>) = SQLite.delete(modelClass.java)
 
 inline fun <reified T : Any> delete() = SQLite.delete(T::class.java)
-
-inline fun <reified T : Any> delete(deleteClause: From<T>.() -> BaseModelQueriable<T>)
-        = deleteClause(SQLite.delete(T::class.java))

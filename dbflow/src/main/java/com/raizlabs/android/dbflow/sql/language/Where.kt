@@ -74,14 +74,14 @@ class Where<T : Any>
     /**
      * Joins the [SQLOperator] by the prefix of "AND" (unless its the first condition).
      */
-    fun and(condition: SQLOperator) = apply {
+    infix fun and(condition: SQLOperator) = apply {
         operatorGroup.and(condition)
     }
 
     /**
      * Joins the [SQLOperator] by the prefix of "OR" (unless its the first condition).
      */
-    fun or(condition: SQLOperator) = apply {
+    infix fun or(condition: SQLOperator) = apply {
         operatorGroup.or(condition)
     }
 

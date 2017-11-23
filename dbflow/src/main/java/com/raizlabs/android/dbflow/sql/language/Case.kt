@@ -47,7 +47,8 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
         }
     }
 
-    fun `when`(sqlOperator: SQLOperator): CaseCondition<TReturn> {
+    @JvmName("when")
+    infix fun whenever(sqlOperator: SQLOperator): CaseCondition<TReturn> {
         if (isEfficientCase) {
             throw IllegalStateException("When using the efficient CASE method," + "you must pass in value only, not condition.")
         }
@@ -56,7 +57,8 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
         return caseCondition
     }
 
-    fun `when`(whenValue: TReturn?): CaseCondition<TReturn> {
+    @JvmName("when")
+    infix fun whenever(whenValue: TReturn?): CaseCondition<TReturn> {
         if (!isEfficientCase) {
             throw IllegalStateException("When not using the efficient CASE method, " + "you must pass in the SQLOperator as a parameter")
         }
@@ -65,7 +67,8 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
         return caseCondition
     }
 
-    fun `when`(property: IProperty<*>): CaseCondition<TReturn> {
+    @JvmName("when")
+    infix fun whenever(property: IProperty<*>): CaseCondition<TReturn> {
         if (!isEfficientCase) {
             throw IllegalStateException("When not using the efficient CASE method, " + "you must pass in the SQLOperator as a parameter")
         }
@@ -77,7 +80,8 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
     /**
      * Default case here. If not specified, value will be NULL.
      */
-    fun _else(elseValue: TReturn?) = apply {
+    @JvmName("_else")
+    infix fun `else`(elseValue: TReturn?) = apply {
         this.elseValue = elseValue
         elseSpecified = true // ensure its set especially if null specified.
     }
@@ -100,6 +104,5 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
      */
     fun <T : Any> endAsOperator(): Operator<T> = Operator.op(end().nameAlias)
 }
-/**
- * @return The case completed as a property.
- */
+
+infix fun <T : Any> Case<T>.end(columnName: String) = end(columnName)

@@ -26,7 +26,7 @@ class FromTest : BaseUnitTest() {
     @Test
     fun validateMultipleProjection() {
         assertEquals("SELECT `name`,`name`,`id` FROM `SimpleModel`",
-            (select(name, TwoColumnModel_Table.name, id) from SimpleModel::class).query.trim())
+                (select(name, TwoColumnModel_Table.name, id) from SimpleModel::class).query.trim())
     }
 
     @Test
@@ -37,10 +37,10 @@ class FromTest : BaseUnitTest() {
     @Test
     fun validateJoins() {
         val from = (select from SimpleModel::class
-            innerJoin TwoColumnModel::class
-            on name.eq(TwoColumnModel_Table.name.withTable()))
+                innerJoin TwoColumnModel::class
+                on name.eq(TwoColumnModel_Table.name.withTable()))
         assertEquals("SELECT * FROM `SimpleModel` INNER JOIN `TwoColumnModel` ON `name`=`TwoColumnModel`.`name`",
-            from.query.trim())
+                from.query.trim())
         assertTrue(from.associatedTables.isNotEmpty())
     }
 }

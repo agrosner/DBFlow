@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.sql.language
 
 import android.content.ContentValues
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.SqlUtils
+import com.raizlabs.android.dbflow.sql.addContentValues
 import com.raizlabs.android.dbflow.structure.BaseModel
 
 /**
@@ -30,6 +30,6 @@ class Set<T : Any>(override val queryBuilderBase: Query, table: Class<T>)
     }
 
     fun conditionValues(contentValues: ContentValues) = apply {
-        SqlUtils.addContentValues(contentValues, operatorGroup)
+        addContentValues(contentValues, operatorGroup)
     }
 }

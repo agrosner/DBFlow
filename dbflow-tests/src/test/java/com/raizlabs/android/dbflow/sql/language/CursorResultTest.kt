@@ -6,9 +6,7 @@ import com.raizlabs.android.dbflow.models.SimpleCustomModel
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.sql.queriable.cursorResult
 import com.raizlabs.android.dbflow.structure.save
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 

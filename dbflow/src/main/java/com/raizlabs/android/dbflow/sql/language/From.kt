@@ -84,7 +84,7 @@ class From<TModel : Any>
     /**
      * Set an alias to the table name of this [From].
      */
-    fun `as`(alias: String): From<TModel> {
+    infix fun `as`(alias: String): From<TModel> {
         tableAlias = getTableAlias()
                 .newBuilder()
                 .`as`(alias)
@@ -194,4 +194,5 @@ class From<TModel : Any>
      */
     fun indexedBy(indexProperty: IndexProperty<TModel>): IndexedBy<TModel> =
             IndexedBy(indexProperty, this)
+
 }

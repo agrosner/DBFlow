@@ -50,7 +50,7 @@ class BlogRef(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var nam
 @Table(database = TestDatabase::class)
 class BlogRefNoModel(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
                      @ForeignKey(references = arrayOf(ForeignKeyReference(columnName = "authorId", foreignKeyColumnName = "id", notNull = NotNull(onNullConflict = ConflictAction.FAIL))),
-                         tableClass = Author::class)
+                             tableClass = Author::class)
                      var authorId: String? = null)
 
 
@@ -67,7 +67,7 @@ class BlogPrimary(@PrimaryKey @ForeignKey var author: Author? = null, @Column va
 @Table(database = TestDatabase::class)
 class BlogStubbed(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
                   @ForeignKey(stubbedRelationship = true, deleteForeignKeyModel = true, saveForeignKeyModel = true,
-                      onDelete = ForeignKeyAction.CASCADE, onUpdate = ForeignKeyAction.RESTRICT)
+                          onDelete = ForeignKeyAction.CASCADE, onUpdate = ForeignKeyAction.RESTRICT)
                   var author: Author? = null) : LoadFromCursorListener {
     override fun onLoadFromCursor(cursor: Cursor) {
 
@@ -82,6 +82,6 @@ class Position(@PrimaryKey var id: Int = 0, @ColumnMap var location: Location? =
 @Table(database = TestDatabase::class)
 class Position2(@PrimaryKey var id: Int = 0,
                 @ColumnMap(references = arrayOf(
-                    ColumnMapReference(columnName = "latitude", columnMapFieldName = "latitude"),
-                    ColumnMapReference(columnName = "longitude", columnMapFieldName = "longitude")))
+                        ColumnMapReference(columnName = "latitude", columnMapFieldName = "latitude"),
+                        ColumnMapReference(columnName = "longitude", columnMapFieldName = "longitude")))
                 var location: Location? = null)

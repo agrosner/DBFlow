@@ -4,7 +4,7 @@ import com.raizlabs.android.dbflow.appendList
 import com.raizlabs.android.dbflow.appendQuotedIfNeeded
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.SqlUtils
+import com.raizlabs.android.dbflow.sql.dropIndex
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
@@ -116,10 +116,16 @@ class Index<TModel>
     }
 
     fun disable() {
-        SqlUtils.dropIndex(FlowManager.getDatabaseForTable(table!!).writableDatabase, indexName)
+        dropIndex(FlowManager.getDatabaseForTable(table!!).writableDatabase, indexName)
     }
 
     fun disable(databaseWrapper: DatabaseWrapper) {
-        SqlUtils.dropIndex(databaseWrapper, indexName)
+        dropIndex(databaseWrapper, indexName)
     }
 }
+
+
+inline fun <reified T : Any> indexOn(indexName: String, vararg property: IProperty<*>) = Index<T>(indexName).on(T::class.java, *property)
+
+inline fun <reified T : Any> indexOn(indexName: String, firstNameAlias: NameAlias, vararg arrayOfNameAlias: NameAlias) = Index<T>(indexName).on(T::class.java, firstNameAlias, *arrayOfNameAlias)
+

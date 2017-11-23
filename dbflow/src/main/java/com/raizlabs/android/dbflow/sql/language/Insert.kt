@@ -272,6 +272,8 @@ class Insert<TModel : Any>
     }
 }
 
+inline fun <reified T : Any> insert() = Insert(T::class.java)
+
 fun <T : Any> insert(modelClass: KClass<T>) = SQLite.insert(modelClass.java)
 
 infix fun <T : Any> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().columnValues(*into)

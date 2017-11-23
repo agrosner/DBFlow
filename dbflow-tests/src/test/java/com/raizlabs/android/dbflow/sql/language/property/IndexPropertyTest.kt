@@ -13,7 +13,7 @@ class IndexPropertyTest : BaseUnitTest() {
     fun validateIndexProperty() {
 
         val prop = IndexProperty<SimpleModel>("Index", true, SimpleModel::class.java,
-            SimpleModel_Table.name)
+                SimpleModel_Table.name)
         prop.createIfNotExists()
         prop.drop()
         assertEquals("`Index`", prop.indexName)
