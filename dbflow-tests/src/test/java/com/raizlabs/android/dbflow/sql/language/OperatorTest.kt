@@ -3,12 +3,9 @@ package com.raizlabs.android.dbflow.sql.language
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.annotation.Collate
 import com.raizlabs.android.dbflow.assertEquals
-import com.raizlabs.android.dbflow.kotlinextensions.and
 import com.raizlabs.android.dbflow.kotlinextensions.between
 import com.raizlabs.android.dbflow.kotlinextensions.collate
-import com.raizlabs.android.dbflow.kotlinextensions.from
 import com.raizlabs.android.dbflow.kotlinextensions.op
-import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import org.junit.Test

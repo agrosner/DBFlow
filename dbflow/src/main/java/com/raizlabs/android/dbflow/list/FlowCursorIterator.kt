@@ -51,7 +51,7 @@ class FlowCursorIterator<TModel>
 
     override fun next(): TModel {
         checkSizes()
-        val item = cursorList.getItem(count - reverseIndex)
+        val item = cursorList.get(count - reverseIndex)
         reverseIndex--
         return item
     }
@@ -60,7 +60,7 @@ class FlowCursorIterator<TModel>
 
     override fun previous(): TModel {
         checkSizes()
-        val item = cursorList.getItem(count - reverseIndex)
+        val item = cursorList.get(count - reverseIndex)
         reverseIndex++
         return item
     }

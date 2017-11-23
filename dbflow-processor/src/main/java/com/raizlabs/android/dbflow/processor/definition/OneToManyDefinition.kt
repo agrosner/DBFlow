@@ -6,6 +6,7 @@ import com.grosner.kpoet.end
 import com.grosner.kpoet.statement
 import com.grosner.kpoet.typeName
 import com.raizlabs.android.dbflow.annotation.OneToMany
+import com.raizlabs.android.dbflow.annotation.OneToManyMethod
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnAccessor
@@ -43,19 +44,19 @@ class OneToManyDefinition(executableElement: ExecutableElement,
 
     private var _variableName: String
 
-    var methods = mutableListOf<OneToMany.Method>()
+    var methods = mutableListOf<OneToManyMethod>()
 
     val isLoad
-        get() = isAll || methods.contains(OneToMany.Method.LOAD)
+        get() = isAll || methods.contains(OneToManyMethod.LOAD)
 
     val isAll
-        get() = methods.contains(OneToMany.Method.ALL)
+        get() = methods.contains(OneToManyMethod.ALL)
 
     val isDelete: Boolean
-        get() = isAll || methods.contains(OneToMany.Method.DELETE)
+        get() = isAll || methods.contains(OneToManyMethod.DELETE)
 
     val isSave: Boolean
-        get() = isAll || methods.contains(OneToMany.Method.SAVE)
+        get() = isAll || methods.contains(OneToManyMethod.SAVE)
 
     var referencedTableType: TypeName? = null
     var hasWrapper = false
@@ -90,7 +91,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
             // check on setter. if setter exists, we can reference it safely since a getter has already been defined.
             if (!parentElements.any { it.simpleString == privateAccessor.setterNameElement }) {
                 manager.logError(OneToManyDefinition::class,
-                    "@OneToMany definition $elementName Cannot find referenced variable $_variableName.")
+                        "@OneToMany definition $elementName Cannot find referenced variable $_variableName.")
             } else {
                 isVariablePrivate = true
             }
@@ -98,7 +99,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
             isVariablePrivate = referencedElement.modifiers.contains(Modifier.PRIVATE)
         }
 
-        methods.addAll(oneToMany.methods)
+        methods.addAll(oneToMany.oneToManyMethods)
 
         val parameters = executableElement.parameters
         if (parameters.isNotEmpty()) {
@@ -143,7 +144,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
 
     fun writeWrapperStatement(method: MethodSpec.Builder) {
         method.statement("\$T ${ModelUtils.wrapper} = \$T.getWritableDatabaseForTable(\$T.class)",
-            ClassNames.DATABASE_WRAPPER, ClassNames.FLOW_MANAGER, referencedTableType)
+                ClassNames.DATABASE_WRAPPER, ClassNames.FLOW_MANAGER, referencedTableType)
     }
 
     /**
@@ -184,8 +185,8 @@ class OneToManyDefinition(executableElement: ExecutableElement,
                 // need to load adapter for non-model classes
                 if (!extendsModel || efficientCodeMethods) {
                     statement("\$T adapter = \$T.getModelAdapter(\$T.class)",
-                        ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
-                        ClassNames.FLOW_MANAGER, referencedTableType)
+                            ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
+                            ClassNames.FLOW_MANAGER, referencedTableType)
                 }
 
                 if (efficientCodeMethods) {

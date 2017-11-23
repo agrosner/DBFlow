@@ -4,10 +4,10 @@ import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.annotation.OneToMany
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
-import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.sql.language.from
 import com.raizlabs.android.dbflow.kotlinextensions.oneToMany
-import com.raizlabs.android.dbflow.kotlinextensions.select
-import com.raizlabs.android.dbflow.kotlinextensions.where
+import com.raizlabs.android.dbflow.sql.language.select
+import com.raizlabs.android.dbflow.sql.language.where
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import com.raizlabs.android.dbflow.structure.BaseModel
 
@@ -18,10 +18,10 @@ class OneToManyModel(@PrimaryKey var name: String? = null) {
 
     var models: List<OneToManyBaseModel>? = null
 
-    @get:OneToMany(methods = arrayOf(OneToMany.Method.ALL))
+    @get:OneToMany(oneToManyMethods = arrayOf(OneToMany.Method.ALL))
     var simpleModels by oneToMany { select from OneToManyBaseModel::class }
 
-    @OneToMany(methods = arrayOf(OneToMany.Method.ALL), isVariablePrivate = true,
+    @OneToMany(oneToManyMethods = arrayOf(OneToMany.Method.ALL), isVariablePrivate = true,
         variableName = "orders", efficientMethods = false)
     fun getRelatedOrders(): List<TwoColumnModel> {
         var localOrders = orders
@@ -33,7 +33,7 @@ class OneToManyModel(@PrimaryKey var name: String? = null) {
         return localOrders
     }
 
-    @OneToMany(methods = arrayOf(OneToMany.Method.DELETE), isVariablePrivate = true,
+    @OneToMany(oneToManyMethods = arrayOf(OneToMany.Method.DELETE), isVariablePrivate = true,
         variableName = "models")
     fun getRelatedModels(): List<OneToManyBaseModel> {
         var localModels = models

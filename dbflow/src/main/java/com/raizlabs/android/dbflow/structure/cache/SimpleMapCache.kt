@@ -27,17 +27,13 @@ class SimpleMapCache<TModel> : ModelCache<TModel, MutableMap<Any?, TModel>> {
         cache.put(id, model)
     }
 
-    override fun removeModel(id: Any): TModel? {
-        return cache.remove(id)
-    }
+    override fun removeModel(id: Any): TModel? = cache.remove(id)
 
     override fun clear() {
         cache.clear()
     }
 
-    override fun get(id: Any?): TModel? {
-        return cache.get(id)
-    }
+    override fun get(id: Any?): TModel? = cache[id]
 
     override fun setCacheSize(size: Int) {
         FlowLog.log(FlowLog.Level.W, "The cache size for ${SimpleMapCache::class.java.simpleName} is not re-configurable.")

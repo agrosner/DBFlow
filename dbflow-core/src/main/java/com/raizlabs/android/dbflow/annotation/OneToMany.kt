@@ -11,7 +11,7 @@ annotation class OneToMany(
         /**
          * @return The methods you wish to call it from. By default it's loaded out of the DB.
          */
-        val methods: Array<Method> = arrayOf(Method.LOAD),
+        val oneToManyMethods: Array<OneToManyMethod> = arrayOf(OneToManyMethod.LOAD),
         /**
          * @return The name of the list variable to use. If is left blank, we will remove the "get" and then decapitalize the remaining name.
          */
@@ -31,7 +31,7 @@ annotation class OneToMany(
 /**
  * The method to apply the OneToMany to.
  */
-enum class Method {
+enum class OneToManyMethod {
 
     /**
      * Load this relationship when the parent model loads from the database. This is called before the OnLoadFromCursor
@@ -54,3 +54,4 @@ enum class Method {
      */
     ALL
 }
+

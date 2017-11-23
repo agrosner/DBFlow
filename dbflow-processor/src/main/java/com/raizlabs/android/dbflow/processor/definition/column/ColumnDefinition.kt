@@ -4,8 +4,8 @@ import com.grosner.kpoet.code
 import com.raizlabs.android.dbflow.annotation.Collate
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ConflictAction
+import com.raizlabs.android.dbflow.annotation.INDEX_GENERIC
 import com.raizlabs.android.dbflow.annotation.Index
-import com.raizlabs.android.dbflow.annotation.IndexGroup
 import com.raizlabs.android.dbflow.annotation.NotNull
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Unique
@@ -212,7 +212,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         element.annotation<Index>()?.let { index ->
             // empty index, we assume generic
             if (index.indexGroups.isEmpty()) {
-                indexGroups.add(IndexGroup.GENERIC)
+                indexGroups.add(INDEX_GENERIC)
             } else {
                 index.indexGroups.forEach { indexGroups.add(it) }
             }

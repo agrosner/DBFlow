@@ -2,18 +2,13 @@ package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.assertEquals
-import com.raizlabs.android.dbflow.kotlinextensions.and
 import com.raizlabs.android.dbflow.kotlinextensions.begin
 import com.raizlabs.android.dbflow.kotlinextensions.columnValues
 import com.raizlabs.android.dbflow.kotlinextensions.createTrigger
 import com.raizlabs.android.dbflow.kotlinextensions.eq
-import com.raizlabs.android.dbflow.kotlinextensions.from
-import com.raizlabs.android.dbflow.kotlinextensions.insert
 import com.raizlabs.android.dbflow.kotlinextensions.insertOn
 import com.raizlabs.android.dbflow.kotlinextensions.property
-import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.kotlinextensions.updateOn
-import com.raizlabs.android.dbflow.kotlinextensions.where
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.models.TwoColumnModel

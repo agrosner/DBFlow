@@ -13,8 +13,8 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter
  */
 class ContentResolverNotifier : ModelNotifier {
 
-    override fun <T> notifyModelChanged(model: T, adapter: ModelAdapter<T>,
-                                        action: BaseModel.Action) {
+    override fun <T : Any> notifyModelChanged(model: T, adapter: ModelAdapter<T>,
+                                              action: BaseModel.Action) {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.context.contentResolver
                     .notifyChange(SqlUtils.getNotificationUri(adapter.modelClass, action,
@@ -22,7 +22,7 @@ class ContentResolverNotifier : ModelNotifier {
         }
     }
 
-    override fun <T> notifyTableChanged(table: Class<T>, action: BaseModel.Action) {
+    override fun <T : Any> notifyTableChanged(table: Class<T>, action: BaseModel.Action) {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.context.contentResolver
                     .notifyChange(SqlUtils.getNotificationUri(table, action,
@@ -30,9 +30,7 @@ class ContentResolverNotifier : ModelNotifier {
         }
     }
 
-    override fun newRegister(): TableNotifierRegister {
-        return FlowContentTableNotifierRegister()
-    }
+    override fun newRegister(): TableNotifierRegister = FlowContentTableNotifierRegister()
 
     class FlowContentTableNotifierRegister : TableNotifierRegister {
 
@@ -40,9 +38,9 @@ class ContentResolverNotifier : ModelNotifier {
 
         private var tableChangedListener: OnTableChangedListener? = null
 
-        private val internalContentChangeListener = OnTableChangedListener { tableChanged, action ->
-            if (tableChangedListener != null) {
-                tableChangedListener!!.onTableChanged(tableChanged, action)
+        private val internalContentChangeListener = object : OnTableChangedListener {
+            override fun onTableChanged(table: Class<*>?, action: BaseModel.Action) {
+                tableChangedListener?.onTableChanged(table, action)
             }
         }
 
@@ -63,12 +61,11 @@ class ContentResolverNotifier : ModelNotifier {
             this.tableChangedListener = null
         }
 
-        override fun setListener(contentChangeListener: OnTableChangedListener?) {
-            this.tableChangedListener = contentChangeListener
+        override fun setListener(listener: OnTableChangedListener?) {
+            this.tableChangedListener = listener
         }
 
-        override fun isSubscribed(): Boolean {
-            return !flowContentObserver.isSubscribed
-        }
+        override val isSubscribed: Boolean
+            get() = !flowContentObserver.isSubscribed
     }
 }

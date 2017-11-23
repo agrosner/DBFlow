@@ -18,7 +18,7 @@ interface IFlowCursorIterator<TModel> : Closeable, Iterable<TModel> {
     /**
      * @param position The position within the [Cursor] to retrieve and convert into a [TModel]
      */
-    fun getItem(position: Long): TModel
+    operator fun get(position: Long): TModel
 
     /**
      * @return The cursor.
@@ -35,3 +35,5 @@ interface IFlowCursorIterator<TModel> : Closeable, Iterable<TModel> {
     @Throws(IOException::class)
     override fun close()
 }
+
+operator fun <TModel> IFlowCursorIterator<TModel>.get(i: Int): TModel = this[i.toLong()] ?: throw IndexOutOfBoundsException("Could not find item at index $i from the cursor.")

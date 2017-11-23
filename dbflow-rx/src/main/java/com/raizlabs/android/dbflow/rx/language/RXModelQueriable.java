@@ -90,14 +90,6 @@ public interface RXModelQueriable<TModel> extends RXQueriable {
     <TQueryModel> Single<TQueryModel> queryCustomSingle(Class<TQueryModel> queryModelClass);
 
     /**
-     * Disables caching on this query for the object retrieved from DB (if caching enabled). If
-     * caching is not enabled, this method is ignored. This also disables caching in a {@link FlowCursorList}
-     * or {@link FlowQueryList} if you {@link #flowQueryList()} or {@link #cursorList()}
-     */
-    @NonNull
-    RXModelQueriable<TModel> disableCaching();
-
-    /**
      * @return A new {@link Observable} that observes when the {@link TModel} table changes.
      * This can also be multiple tables, given if it results from a {@link Join} (one for each join table).
      */

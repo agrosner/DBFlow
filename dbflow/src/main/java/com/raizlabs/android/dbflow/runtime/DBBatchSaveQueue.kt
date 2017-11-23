@@ -7,6 +7,9 @@ import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
+import com.raizlabs.android.dbflow.structure.database.transaction.processModel
+import com.raizlabs.android.dbflow.structure.database.transaction.transactionError
+import com.raizlabs.android.dbflow.structure.database.transaction.transactionSuccess
 import java.util.*
 
 /**
@@ -43,20 +46,15 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
     private var successListener: Transaction.Success? = null
     private var emptyTransactionListener: Runnable? = null
 
-    private val modelSaver = ProcessModelTransaction.ProcessModel<Any?> { model, _ ->
+    private val modelSaver = processModel<Any?> { model, _ ->
         (model as? Model)?.save() ?: if (model != null) {
             val modelClass = model.javaClass
             FlowManager.getModelAdapter(modelClass).save(model)
         }
     }
 
-    private val successCallback = Transaction.Success { transaction ->
-        successListener?.onSuccess(transaction)
-    }
-
-    private val errorCallback = Transaction.Error { transaction, error ->
-        errorListener?.onError(transaction, error)
-    }
+    private val successCallback = transactionSuccess { transaction -> successListener?.onSuccess(transaction) }
+    private val errorCallback = transactionError { transaction, error -> errorListener?.onError(transaction, error) }
 
     /**
      * Sets how many models to save at a time in this queue.
@@ -116,10 +114,9 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
                 models.clear()
             }
             if (tmpModels.isNotEmpty()) {
-                databaseDefinition.beginTransactionAsync(
-                        ProcessModelTransaction.Builder(modelSaver)
-                                .addAll(tmpModels)
-                                .build())
+                val builder = ProcessModelTransaction.Builder(modelSaver)
+                tmpModels.forEach { builder.add(it) }
+                databaseDefinition.beginTransactionAsync(builder.build())
                         .success(successCallback)
                         .error(errorCallback)
                         .build()
@@ -164,7 +161,7 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
     /**
      * Adds a [java.util.Collection] of DB objects to this queue
      */
-    fun addAll(list: Collection<Any>) {
+    fun addAll(list: MutableCollection<Any>) {
         synchronized(models) {
             models.addAll(list)
 
@@ -177,7 +174,7 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
     /**
      * Adds a [java.util.Collection] of class that extend Object to this queue
      */
-    fun addAll2(list: Collection<*>) {
+    fun addAll2(list: Collection<Any>) {
         synchronized(models) {
             models.addAll(list)
 

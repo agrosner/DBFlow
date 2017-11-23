@@ -18,9 +18,6 @@ inline fun <reified T : Any> Queriable.rx() = RXSQLite.rx(T::class.java, this)
 
 // queriable extensions
 
-inline val RXQueriable.count
-    get() = count()
-
 inline val RXQueriable.cursor
     get() = query()
 
@@ -80,5 +77,3 @@ infix inline fun RXQueriable.statement(crossinline func: (DatabaseStatement) -> 
 infix inline fun RXQueriable.hasData(crossinline func: (Boolean) -> Unit): Disposable = hasData.subscribe { hasData -> func(hasData) }
 
 infix inline fun RXQueriable.cursor(crossinline func: (Cursor) -> Unit): Disposable = cursor.subscribe { cursor -> func(cursor) }
-
-infix inline fun RXQueriable.count(crossinline func: (Long) -> Unit): Disposable = count.subscribe { count -> func(count) }

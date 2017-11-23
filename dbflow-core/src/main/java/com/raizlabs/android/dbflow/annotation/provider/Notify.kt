@@ -11,14 +11,14 @@ annotation class Notify(
         /**
          * @return The [com.raizlabs.android.dbflow.annotation.provider.Notify.Method] notify
          */
-        val method: Method,
+        val notifyMethod: NotifyMethod,
         /**
          * @return Registers itself for the following paths. If a specific path is called for the specified
          * method, the method this annotation corresponds to will be called.
          */
         val paths: Array<String> = arrayOf())
 
-enum class Method {
+enum class NotifyMethod {
     INSERT,
     UPDATE,
     DELETE

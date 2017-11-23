@@ -8,11 +8,12 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import kotlin.reflect.KClass
 
 /**
  * Description: The SQLite INSERT command
  */
-class Insert<TModel>
+class Insert<TModel : Any>
 /**
  * Constructs a new INSERT command
  *
@@ -76,7 +77,7 @@ class Insert<TModel>
                     if (i > 0) {
                         queryBuilder.append(",(")
                     }
-                    queryBuilder.append(BaseOperator.joinArguments(", ", valuesList[i])).append(")")
+                    queryBuilder.append(BaseOperator.joinArguments(", ", valuesList)).append(")")
                 }
             }
 
@@ -269,4 +270,31 @@ class Insert<TModel>
     override fun executeUpdateDelete(): Long {
         throw IllegalStateException("Cannot call executeUpdateDelete() from an Insert")
     }
+}
+
+fun <T : Any> insert(modelClass: KClass<T>) = SQLite.insert(modelClass.java)
+
+infix fun <T : Any> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().columnValues(*into)
+
+infix fun <T : Any> Insert<T>.orRollback(into: Array<out Pair<IProperty<*>, *>>) = orRollback().columnValues(*into)
+
+infix fun <T : Any> Insert<T>.orAbort(into: Array<out Pair<IProperty<*>, *>>) = orAbort().columnValues(*into)
+
+infix fun <T : Any> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) = orFail().columnValues(*into)
+
+infix fun <T : Any> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().columnValues(*into)
+
+infix fun <T : Any> Insert<T>.select(from: From<*>): Insert<T> = select(from)
+
+fun columnValues(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> = pairs
+
+fun <T : Any> Insert<T>.columnValues(vararg pairs: Pair<IProperty<*>, *>): Insert<T> {
+    val columns: MutableList<IProperty<*>> = java.util.ArrayList()
+    val values = java.util.ArrayList<Any?>()
+    pairs.forEach {
+        columns.add(it.first)
+        values.add(it.second)
+    }
+    this.columns(columns).values(values)
+    return this
 }

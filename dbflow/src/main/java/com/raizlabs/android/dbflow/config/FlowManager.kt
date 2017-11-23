@@ -241,18 +241,18 @@ object FlowManager {
     fun init(flowConfig: FlowConfig) {
         FlowManager.config = flowConfig
 
+        @Suppress("UNCHECKED_CAST")
         try {
-
             val defaultHolderClass = Class.forName(DEFAULT_DATABASE_HOLDER_CLASSNAME) as Class<out DatabaseHolder>
             loadDatabaseHolder(defaultHolderClass)
         } catch (e: ModuleNotFoundException) {
             // Ignore this exception since it means the application does not have its
             // own database. The initialization happens because the application is using
             // a module that has a database.
-            FlowLog.log(FlowLog.Level.W, e.message)
+            FlowLog.log(level = FlowLog.Level.W, message = e.message)
         } catch (e: ClassNotFoundException) {
             // warning if a library uses DBFlow with module support but the app you're using doesn't support it.
-            FlowLog.log(FlowLog.Level.W, "Could not find the default GeneratedDatabaseHolder")
+            FlowLog.log(level = FlowLog.Level.W, message = "Could not find the default GeneratedDatabaseHolder")
         }
 
         flowConfig.databaseHolders.forEach { loadDatabaseHolder(it) }
@@ -298,7 +298,7 @@ object FlowManager {
      */
     @Suppress("UNCHECKED_CAST")
     @JvmStatic
-    fun <TModel> getInstanceAdapter(modelClass: Class<TModel>): InstanceAdapter<TModel> {
+    fun <T : Any> getInstanceAdapter(modelClass: Class<T>): InstanceAdapter<T> {
         var internalAdapter: InstanceAdapter<*>? = getModelAdapterOrNull(modelClass)
         if (internalAdapter == null) {
             internalAdapter = getModelViewAdapterOrNull(modelClass)
@@ -306,7 +306,7 @@ object FlowManager {
                 internalAdapter = getQueryModelAdapterOrNull(modelClass)
             }
         }
-        return internalAdapter as InstanceAdapter<TModel>? ?: throwCannotFindAdapter("InstanceAdapter", modelClass)
+        return internalAdapter as InstanceAdapter<T>? ?: throwCannotFindAdapter("InstanceAdapter", modelClass)
     }
 
     /**
@@ -315,8 +315,8 @@ object FlowManager {
      * it checks both the [ModelViewAdapter] and [QueryModelAdapter].
      */
     @JvmStatic
-    fun <TModel> getRetrievalAdapter(modelClass: Class<TModel>): RetrievalAdapter<TModel> {
-        var retrievalAdapter: RetrievalAdapter<TModel>? = getModelAdapterOrNull(modelClass)
+    fun <T : Any> getRetrievalAdapter(modelClass: Class<T>): RetrievalAdapter<T> {
+        var retrievalAdapter: RetrievalAdapter<T>? = getModelAdapterOrNull(modelClass)
         if (retrievalAdapter == null) {
             retrievalAdapter = getModelViewAdapterOrNull(modelClass)
             if (retrievalAdapter == null) {
@@ -329,39 +329,36 @@ object FlowManager {
 
     /**
      * @param modelClass The class of the table
-     * @param <TModel>   The class that implements [Model]
+     * @param [T]   The class that implements [Model]
      * @return The associated model adapter (DAO) that is generated from a [Table] class. Handles
      * interactions with the database. This method is meant for internal usage only.
      * We strongly prefer you use the built-in methods associated with [Model] and [BaseModel].
      */
     @JvmStatic
-    fun <TModel> getModelAdapter(modelClass: Class<TModel>): ModelAdapter<TModel> {
-        return getModelAdapterOrNull(modelClass) ?: throwCannotFindAdapter("ModelAdapter", modelClass)
-    }
+    fun <T : Any> getModelAdapter(modelClass: Class<T>): ModelAdapter<T> =
+            getModelAdapterOrNull(modelClass) ?: throwCannotFindAdapter("ModelAdapter", modelClass)
 
     /**
      * Returns the model view adapter for a SQLite VIEW. These are only created with the [com.raizlabs.android.dbflow.annotation.ModelView] annotation.
      *
      * @param modelViewClass The class of the VIEW
-     * @param <TModelView>   The class that extends [BaseModelView]
+     * @param [T]  The class that extends [BaseModelView]
      * @return The model view adapter for the specified model view.
      */
     @JvmStatic
-    fun <TModelView> getModelViewAdapter(modelViewClass: Class<TModelView>): ModelViewAdapter<TModelView> {
-        return getModelViewAdapterOrNull(modelViewClass) ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
-    }
+    fun <T : Any> getModelViewAdapter(modelViewClass: Class<T>): ModelViewAdapter<T> =
+            getModelViewAdapterOrNull(modelViewClass) ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
 
     /**
-     * Returns the query model adapter for an undefined query. These are only created with the [TQueryModel] annotation.
+     * Returns the query model adapter for an undefined query. These are only created with the [T] annotation.
      *
      * @param queryModelClass The class of the query
-     * @param <TQueryModel>   The class that extends [BaseQueryModel]
+     * @param [T]  The class that extends [BaseQueryModel]
      * @return The query model adapter for the specified model query.
      */
     @JvmStatic
-    fun <TQueryModel> getQueryModelAdapter(queryModelClass: Class<TQueryModel>): QueryModelAdapter<TQueryModel> {
-        return getQueryModelAdapterOrNull(queryModelClass) ?: throwCannotFindAdapter("QueryModelAdapter", queryModelClass)
-    }
+    fun <T : Any> getQueryModelAdapter(queryModelClass: Class<T>): QueryModelAdapter<T> =
+            getQueryModelAdapterOrNull(queryModelClass) ?: throwCannotFindAdapter("QueryModelAdapter", queryModelClass)
 
     @JvmStatic
     fun getModelNotifierForTable(table: Class<*>): ModelNotifier =
@@ -371,17 +368,14 @@ object FlowManager {
     fun newRegisterForTable(table: Class<*>): TableNotifierRegister =
             getModelNotifierForTable(table).newRegister()
 
-    private fun <T> getModelAdapterOrNull(modelClass: Class<T>): ModelAdapter<T>? {
-        return FlowManager.getDatabaseForTable(modelClass).getModelAdapterForTable(modelClass)
-    }
+    private fun <T : Any> getModelAdapterOrNull(modelClass: Class<T>): ModelAdapter<T>? =
+            FlowManager.getDatabaseForTable(modelClass).getModelAdapterForTable(modelClass)
 
-    private fun <T> getModelViewAdapterOrNull(modelClass: Class<T>): ModelViewAdapter<T>? {
-        return FlowManager.getDatabaseForTable(modelClass).getModelViewAdapterForTable(modelClass)
-    }
+    private fun <T : Any> getModelViewAdapterOrNull(modelClass: Class<T>): ModelViewAdapter<T>? =
+            FlowManager.getDatabaseForTable(modelClass).getModelViewAdapterForTable(modelClass)
 
-    private fun <T> getQueryModelAdapterOrNull(modelClass: Class<T>): QueryModelAdapter<T>? {
-        return FlowManager.getDatabaseForTable(modelClass).getQueryModelAdapterForQueryClass(modelClass)
-    }
+    private fun <T : Any> getQueryModelAdapterOrNull(modelClass: Class<T>): QueryModelAdapter<T>? =
+            FlowManager.getDatabaseForTable(modelClass).getQueryModelAdapterForQueryClass(modelClass)
 
     /**
      * @param databaseName The name of the database. Will throw an exception if the database doesn't exist.
@@ -427,3 +421,35 @@ object FlowManager {
     }
 
 }
+
+/**
+ * Easily get access to its [DatabaseDefinition] directly.
+ */
+inline fun <reified T : Any> database() = FlowManager.getDatabase(T::class.java)
+
+inline fun <reified T : Any> writableDatabaseForTable() = FlowManager.getWritableDatabaseForTable(T::class.java)
+
+/**
+ * Easily get access to its [DatabaseDefinition] directly.
+ */
+inline fun <reified T : Any> databaseForTable() = FlowManager.getDatabaseForTable(T::class.java)
+
+/**
+ * Easily get its table name.
+ */
+inline fun <reified T : Any> tableName() = FlowManager.getTableName(T::class.java)
+
+/**
+ * Easily get its [ModelAdapter].
+ */
+inline fun <reified T : Any> modelAdapter() = FlowManager.getModelAdapter(T::class.java)
+
+/**
+ * Easily get its [QueryModelAdapter].
+ */
+inline fun <reified T : Any> queryModelAdapter() = FlowManager.getQueryModelAdapter(T::class.java)
+
+/**
+ * Easily get its [ModelViewAdapter]
+ */
+inline fun <reified T : Any> modelViewAdapter() = FlowManager.getModelViewAdapter(T::class.java)

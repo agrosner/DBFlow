@@ -3,10 +3,10 @@ package com.raizlabs.android.dbflow.contentprovider
 import android.content.ContentResolver
 import android.content.pm.ProviderInfo
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.sql.language.from
 import com.raizlabs.android.dbflow.kotlinextensions.result
-import com.raizlabs.android.dbflow.kotlinextensions.select
-import com.raizlabs.android.dbflow.kotlinextensions.where
+import com.raizlabs.android.dbflow.sql.language.select
+import com.raizlabs.android.dbflow.sql.language.where
 import com.raizlabs.android.dbflow.sql.language.Delete
 import com.raizlabs.android.dbflow.structure.provider.ContentUtils
 import org.junit.Assert.assertEquals

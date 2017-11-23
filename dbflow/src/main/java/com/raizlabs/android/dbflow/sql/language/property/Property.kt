@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.sql.language.IConditional
 import com.raizlabs.android.dbflow.sql.language.IOperator
 import com.raizlabs.android.dbflow.sql.language.NameAlias
 import com.raizlabs.android.dbflow.sql.language.Operator
-import com.raizlabs.android.dbflow.sql.language.Operator.op
 import com.raizlabs.android.dbflow.sql.language.OrderBy
 
 /**
@@ -42,7 +41,7 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
                 .build()
 
     protected open val operator: Operator<T>
-        get() = op(nameAlias)
+        get() = Operator.op(nameAlias)
 
     constructor(table: Class<*>?, nameAlias: NameAlias) {
         this.table = table
@@ -251,7 +250,7 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
 
     override fun notIn(values: Collection<T>): Operator.In<T> = operator.notIn(values)
 
-    override fun concatenate(value: T?): Operator<T> = operator.concatenate(value)
+    override fun concatenate(value: Any?): Operator<T> = operator.concatenate(value)
 
     override fun plus(value: T): Operator<T> = operator.plus(value)
 
@@ -281,3 +280,46 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
         }
     }
 }
+
+
+infix fun <T : Any> Property<T>.eq(value: T?) = this.eq(value)
+
+infix fun <T : Any> Property<T>.`is`(value: T?) = this.`is`(value)
+
+infix fun <T : Any> Property<T>.isNot(value: T?) = this.isNot(value)
+
+infix fun <T : Any> Property<T>.notEq(value: T?) = this.notEq(value)
+
+infix fun <T : Any> Property<T>.like(value: String) = this.like(value)
+
+infix fun <T : Any> Property<T>.glob(value: String) = this.glob(value)
+
+infix fun <T : Any> Property<T>.greaterThan(value: T) = this.greaterThan(value)
+
+infix fun <T : Any> Property<T>.greaterThanOrEq(value: T) = this.greaterThanOrEq(value)
+
+infix fun <T : Any> Property<T>.lessThan(value: T) = this.lessThan(value)
+
+infix fun <T : Any> Property<T>.lessThanOrEq(value: T) = this.lessThanOrEq(value)
+
+infix fun <T : Any> Property<T>.between(value: T) = this.between(value)
+
+infix fun <T : Any> Property<T>.`in`(values: Array<T>): Operator.In<T> {
+    return when (values.size) {
+        1 -> `in`(values[0])
+        else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
+    }
+}
+
+infix fun <T : Any> Property<T>.notIn(values: Array<T>): Operator.In<T> {
+    return when (values.size) {
+        1 -> notIn(values[0])
+        else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
+    }
+}
+
+infix fun <T : Any> Property<T>.`in`(values: Collection<T>) = this.`in`(values)
+
+infix fun <T : Any> Property<T>.notIn(values: Collection<T>) = this.notIn(values)
+
+infix fun <T : Any> Property<T>.concatenate(value: T) = this.concatenate(value)

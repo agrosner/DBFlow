@@ -14,7 +14,7 @@ import java.util.*
 /**
  * Description: Defines the SQL WHERE statement of the query.
  */
-class Where<TModel>
+class Where<T : Any>
 /**
  * Constructs this class with the specified [com.raizlabs.android.dbflow.config.FlowManager]
  * and [From] chunk
@@ -25,8 +25,8 @@ class Where<TModel>
         /**
          * The first chunk of the SQL statement before this query.
          */
-        val whereBase: WhereBase<TModel>, vararg conditions: SQLOperator)
-    : BaseModelQueriable<TModel>(whereBase.table), ModelQueriable<TModel>, Transformable<TModel> {
+        val whereBase: WhereBase<T>, vararg conditions: SQLOperator)
+    : BaseModelQueriable<T>(whereBase.table), ModelQueriable<T>, Transformable<T> {
 
     /**
      * Helps to build the where statement easily
@@ -169,22 +169,22 @@ class Where<TModel>
     override fun query(): FlowCursor? = query(FlowManager.getDatabaseForTable(table).writableDatabase)
 
     /**
-     * Queries for all of the results this statement returns from a DB cursor in the form of the [TModel]
+     * Queries for all of the results this statement returns from a DB cursor in the form of the [T]
      *
-     * @return All of the entries in the DB converted into [TModel]
+     * @return All of the entries in the DB converted into [T]
      */
-    override fun queryList(): MutableList<TModel> {
+    override fun queryList(): MutableList<T> {
         checkSelect("query")
         return super.queryList()
     }
 
     /**
-     * Queries and returns only the first [TModel] result from the DB. Will enforce a limit of 1 item
+     * Queries and returns only the first [T] result from the DB. Will enforce a limit of 1 item
      * returned from the database.
      *
      * @return The first result of this query. Note: this query forces a limit of 1 from the database.
      */
-    override fun querySingle(): TModel? {
+    override fun querySingle(): T? {
         checkSelect("query")
         limit(1)
         return super.querySingle()

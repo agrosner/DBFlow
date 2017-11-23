@@ -6,34 +6,32 @@ import com.raizlabs.android.dbflow.structure.cache.ModelCache
 import com.raizlabs.android.dbflow.structure.database.FlowCursor
 
 /**
- * Description: Loads a [List] of [TModel] with [Table.cachingEnabled] true.
+ * Description: Loads a [List] of [T] with [Table.cachingEnabled] true.
  */
-open class CacheableListModelLoader<TModel>(modelClass: Class<TModel>)
-    : ListModelLoader<TModel>(modelClass) {
+open class CacheableListModelLoader<T : Any>(modelClass: Class<T>)
+    : ListModelLoader<T>(modelClass) {
 
-    val modelAdapter: ModelAdapter<TModel> by lazy {
+    val modelAdapter: ModelAdapter<T> by lazy {
         if (instanceAdapter !is ModelAdapter<*>) {
             throw IllegalArgumentException("A non-Table type was used.")
         }
-        val modelAdapter = instanceAdapter as ModelAdapter<TModel>
+        val modelAdapter = instanceAdapter as ModelAdapter<T>
         if (!modelAdapter.cachingEnabled()) {
             throw IllegalArgumentException("You cannot call this method for a table that has no caching id. Either" + "use one Primary Key or use the MultiCacheKeyConverter")
         }
         return@lazy modelAdapter
     }
 
-    val modelCache: ModelCache<TModel, *> by lazy {
-        modelAdapter.modelCache ?: throw IllegalArgumentException("ModelCache specified in convertToCacheableList() must not be null.")
-    }
+    val modelCache: ModelCache<T, *> by lazy { modelAdapter.modelCache }
 
-    override fun convertToData(cursor: FlowCursor, data: MutableList<TModel>?): MutableList<TModel> {
+    override fun convertToData(cursor: FlowCursor, data: MutableList<T>?): MutableList<T> {
         val _data = data ?: arrayListOf()
         val cacheValues = arrayOfNulls<Any>(modelAdapter.cachingColumns.size)
         // Ensure that we aren't iterating over this cursor concurrently from different threads
         if (cursor.moveToFirst()) {
             do {
                 val values = modelAdapter.getCachingColumnValuesFromCursor(cacheValues, cursor)
-                var model: TModel? = modelCache.get(modelAdapter.getCachingId(values))
+                var model: T? = modelCache.get(modelAdapter.getCachingId(values))
                 if (model != null) {
                     modelAdapter.reloadRelationships(model, cursor)
                     _data.add(model)

@@ -1,8 +1,7 @@
 package com.raizlabs.android.dbflow.structure.cache
 
 import android.util.LruCache
-
-import com.raizlabs.android.dbflow.annotation.Table
+import com.raizlabs.android.dbflow.annotation.DEFAULT_CACHE_SIZE
 
 /**
  * Description: Provides an [android.util.LruCache] under its hood
@@ -52,12 +51,12 @@ class ModelLruCache<TModel>(size: Int)
     companion object {
 
         /**
-         * @param size The size, if less than or equal to 0 we set it to [Table.DEFAULT_CACHE_SIZE].
+         * @param size The size, if less than or equal to 0 we set it to [DEFAULT_CACHE_SIZE].
          */
         fun <TModel> newInstance(size: Int): ModelLruCache<TModel> {
             var _size = size
             if (_size <= 0) {
-                _size = Table.DEFAULT_CACHE_SIZE
+                _size = DEFAULT_CACHE_SIZE
             }
             return ModelLruCache(_size)
         }

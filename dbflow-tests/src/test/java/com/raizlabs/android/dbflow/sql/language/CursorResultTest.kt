@@ -3,9 +3,7 @@ package com.raizlabs.android.dbflow.sql.language
 import android.database.StaleDataException
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.kotlinextensions.cursorResult
-import com.raizlabs.android.dbflow.kotlinextensions.from
 import com.raizlabs.android.dbflow.kotlinextensions.save
-import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.kotlinextensions.toCustomList
 import com.raizlabs.android.dbflow.kotlinextensions.toCustomListClose
 import com.raizlabs.android.dbflow.kotlinextensions.toCustomModel

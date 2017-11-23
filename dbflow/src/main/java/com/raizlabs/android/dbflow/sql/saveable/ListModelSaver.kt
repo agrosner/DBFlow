@@ -2,16 +2,16 @@ package com.raizlabs.android.dbflow.sql.saveable
 
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
-open class ListModelSaver<TModel>(val modelSaver: ModelSaver<TModel>) {
+open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
 
     @Synchronized
-    fun saveAll(tableCollection: Collection<TModel>) {
+    open fun saveAll(tableCollection: Collection<T>) {
         saveAll(tableCollection, modelSaver.writableDatabase)
     }
 
     @Synchronized
-    fun saveAll(tableCollection: Collection<TModel>,
-                wrapper: DatabaseWrapper) {
+    open fun saveAll(tableCollection: Collection<T>,
+                     wrapper: DatabaseWrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return
@@ -30,13 +30,13 @@ open class ListModelSaver<TModel>(val modelSaver: ModelSaver<TModel>) {
     }
 
     @Synchronized
-    fun insertAll(tableCollection: Collection<TModel>) {
+    open fun insertAll(tableCollection: Collection<T>) {
         insertAll(tableCollection, modelSaver.writableDatabase)
     }
 
     @Synchronized
-    fun insertAll(tableCollection: Collection<TModel>,
-                  wrapper: DatabaseWrapper) {
+    open fun insertAll(tableCollection: Collection<T>,
+                       wrapper: DatabaseWrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return
@@ -51,13 +51,13 @@ open class ListModelSaver<TModel>(val modelSaver: ModelSaver<TModel>) {
     }
 
     @Synchronized
-    fun updateAll(tableCollection: Collection<TModel>) {
+    open fun updateAll(tableCollection: Collection<T>) {
         updateAll(tableCollection, modelSaver.writableDatabase)
     }
 
     @Synchronized
-    fun updateAll(tableCollection: Collection<TModel>,
-                  wrapper: DatabaseWrapper) {
+    open fun updateAll(tableCollection: Collection<T>,
+                       wrapper: DatabaseWrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return
@@ -72,13 +72,13 @@ open class ListModelSaver<TModel>(val modelSaver: ModelSaver<TModel>) {
     }
 
     @Synchronized
-    fun deleteAll(tableCollection: Collection<TModel>) {
+    open fun deleteAll(tableCollection: Collection<T>) {
         deleteAll(tableCollection, modelSaver.writableDatabase)
     }
 
     @Synchronized
-    fun deleteAll(tableCollection: Collection<TModel>,
-                  wrapper: DatabaseWrapper) {
+    open fun deleteAll(tableCollection: Collection<T>,
+                       wrapper: DatabaseWrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return

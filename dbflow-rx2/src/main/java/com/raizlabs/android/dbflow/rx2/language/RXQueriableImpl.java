@@ -81,28 +81,6 @@ public class RXQueriableImpl implements RXQueriable {
 
     @NonNull
     @Override
-    public Single<Long> count() {
-        return fromCallable(new Callable<Long>() {
-            @Override
-            public Long call() throws Exception {
-                return getInnerQueriable().count();
-            }
-        });
-    }
-
-    @NonNull
-    @Override
-    public Single<Long> count(final DatabaseWrapper databaseWrapper) {
-        return fromCallable(new Callable<Long>() {
-            @Override
-            public Long call() throws Exception {
-                return getInnerQueriable().count(databaseWrapper);
-            }
-        });
-    }
-
-    @NonNull
-    @Override
     public Single<Long> longValue() {
         return fromCallable(new Callable<Long>() {
             @Override

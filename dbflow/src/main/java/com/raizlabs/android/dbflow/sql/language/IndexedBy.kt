@@ -8,7 +8,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel
 /**
  * Description: The INDEXED BY part of a SELECT/UPDATE/DELETE
  */
-class IndexedBy<TModel>
+class IndexedBy<TModel : Any>
 /**
  * Creates the INDEXED BY part of the clause.
  *

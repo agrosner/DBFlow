@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.`as`
 import com.raizlabs.android.dbflow.kotlinextensions.nameAlias
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

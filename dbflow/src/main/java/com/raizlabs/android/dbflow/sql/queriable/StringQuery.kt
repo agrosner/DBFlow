@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
  * code where this library does not provide. It only runs a
  * [SQLiteDatabase.rawQuery].
  */
-class StringQuery<TModel>
+class StringQuery<T : Any>
 /**
  * Creates an instance of this class
  *
@@ -23,11 +23,11 @@ class StringQuery<TModel>
  * @param sql   The sql statement to query the DB with. Does not work with [Delete],
  * this must be done with [SQLiteDatabase.execSQL]
  */
-(table: Class<TModel>,
+(table: Class<T>,
  /**
   * The full SQLite query to use
   */
- override val query: String) : BaseModelQueriable<TModel>(table), Query, ModelQueriable<TModel> {
+ override val query: String) : BaseModelQueriable<T>(table), Query, ModelQueriable<T> {
     private var args: Array<String>? = null
 
     override// we don't explicitly know the change, but something changed.

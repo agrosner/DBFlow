@@ -7,11 +7,12 @@ import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.language.property.PropertyFactory
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import java.util.*
+import kotlin.reflect.KClass
 
 /**
  * Description: Specifies a SQLite JOIN statement
  */
-class Join<TModel, TFromModel> : Query {
+class Join<TModel : Any, TFromModel : Any> : Query {
 
     val table: Class<TModel>
 
@@ -170,3 +171,15 @@ class Join<TModel, TFromModel> : Query {
         }
     }
 }
+
+infix fun <T : Any, V : Any> From<V>.innerJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.INNER)
+
+infix fun <T : Any, V : Any> From<V>.crossJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.CROSS)
+
+infix fun <T : Any, V : Any> From<V>.leftOuterJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.LEFT_OUTER)
+
+infix fun <T : Any, V : Any> From<V>.naturalJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.NATURAL)
+
+infix fun <T : Any, V : Any> Join<T, V>.on(sqlOperator: SQLOperator): From<V> = on(sqlOperator)
+
+infix fun <T : Any, V : Any> Join<T, V>.using(property: IProperty<*>): From<V> = using(property)

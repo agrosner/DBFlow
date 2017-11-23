@@ -101,3 +101,12 @@ interface Queriable : Query {
      */
     fun execute(databaseWrapper: DatabaseWrapper)
 }
+
+inline val Queriable.cursor
+    get() = query()
+
+inline val Queriable.hasData
+    get() = hasData()
+
+inline val Queriable.statement
+    get() = compileStatement()

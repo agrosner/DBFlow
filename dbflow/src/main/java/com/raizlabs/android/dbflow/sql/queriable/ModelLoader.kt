@@ -13,7 +13,7 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
  * Description: Represents how models load from DB. It will query a [SQLiteDatabase]
  * and query for a [Cursor]. Then the cursor is used to convert itself into an object.
  */
-abstract class ModelLoader<TModel, TReturn>(val modelClass: Class<TModel>) {
+abstract class ModelLoader<TModel : Any, TReturn : Any>(val modelClass: Class<TModel>) {
 
     val databaseDefinition: DatabaseDefinition by lazy { FlowManager.getDatabaseForTable(modelClass) }
     val instanceAdapter: InstanceAdapter<TModel> by lazy { FlowManager.getInstanceAdapter(modelClass) }

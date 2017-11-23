@@ -1,15 +1,13 @@
 package com.raizlabs.android.dbflow.sql.saveable
 
-import com.raizlabs.android.dbflow.structure.ModelAdapter
-import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 /**
  * Description: Used for model caching, enables caching models when saving in list.
  */
-class CacheableListModelSaver<TModel>(modelSaver: ModelSaver<TModel>) : ListModelSaver<TModel>(modelSaver) {
+class CacheableListModelSaver<T : Any>(modelSaver: ModelSaver<T>) : ListModelSaver<T>(modelSaver) {
 
-    @Synchronized override fun saveAll(tableCollection: Collection<TModel>,
+    @Synchronized override fun saveAll(tableCollection: Collection<T>,
                                        wrapper: DatabaseWrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
@@ -32,7 +30,7 @@ class CacheableListModelSaver<TModel>(modelSaver: ModelSaver<TModel>) : ListMode
         }
     }
 
-    @Synchronized override fun insertAll(tableCollection: Collection<TModel>,
+    @Synchronized override fun insertAll(tableCollection: Collection<T>,
                                          wrapper: DatabaseWrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
@@ -53,7 +51,7 @@ class CacheableListModelSaver<TModel>(modelSaver: ModelSaver<TModel>) : ListMode
         }
     }
 
-    @Synchronized override fun updateAll(tableCollection: Collection<TModel>,
+    @Synchronized override fun updateAll(tableCollection: Collection<T>,
                                          wrapper: DatabaseWrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
@@ -73,7 +71,7 @@ class CacheableListModelSaver<TModel>(modelSaver: ModelSaver<TModel>) : ListMode
         }
     }
 
-    @Synchronized override fun deleteAll(tableCollection: Collection<TModel>,
+    @Synchronized override fun deleteAll(tableCollection: Collection<T>,
                                          wrapper: DatabaseWrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {

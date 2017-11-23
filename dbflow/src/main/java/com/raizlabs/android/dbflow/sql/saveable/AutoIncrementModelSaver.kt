@@ -9,13 +9,11 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 /**
  * Description: Used to properly handle autoincrementing fields.
  */
-class AutoIncrementModelSaver<TModel> : ModelSaver<TModel>() {
+class AutoIncrementModelSaver<T : Any> : ModelSaver<T>() {
 
-    @Synchronized override fun insert(model: TModel): Long {
-        return insert(model, writableDatabase)
-    }
+    @Synchronized override fun insert(model: T): Long = insert(model, writableDatabase)
 
-    @Synchronized override fun insert(model: TModel, wrapper: DatabaseWrapper): Long {
+    @Synchronized override fun insert(model: T, wrapper: DatabaseWrapper): Long {
         val hasAutoIncrement = modelAdapter.hasAutoIncrement(model)
         val insertStatement = when {
             hasAutoIncrement -> modelAdapter.getCompiledStatement(wrapper)
@@ -41,7 +39,7 @@ class AutoIncrementModelSaver<TModel> : ModelSaver<TModel>() {
         return id
     }
 
-    @Synchronized override fun insert(model: TModel,
+    @Synchronized override fun insert(model: T,
                                       insertStatement: DatabaseStatement,
                                       wrapper: DatabaseWrapper): Long {
         return if (!modelAdapter.hasAutoIncrement(model)) {

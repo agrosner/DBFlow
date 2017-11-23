@@ -2,14 +2,13 @@ package com.raizlabs.android.dbflow.rx.language
 
 import android.database.Cursor
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.from
-import com.raizlabs.android.dbflow.kotlinextensions.insert
+import com.raizlabs.android.dbflow.sql.language.from
+import com.raizlabs.android.dbflow.sql.language.insert
 import com.raizlabs.android.dbflow.kotlinextensions.save
-import com.raizlabs.android.dbflow.kotlinextensions.select
+import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.rx.kotlinextensions.rx
-import com.raizlabs.android.dbflow.rx.kotlinextensions.rxBaseQueriable
 import com.raizlabs.android.dbflow.sql.language.SQLite.selectCountOf
 import com.raizlabs.android.dbflow.sql.language.property.Property
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement

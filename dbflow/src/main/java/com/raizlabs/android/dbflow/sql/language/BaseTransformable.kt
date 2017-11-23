@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
 /**
  * Description: Combines basic transformations and query ops into a base class.
  */
-abstract class BaseTransformable<TModel>
+abstract class BaseTransformable<TModel : Any>
 /**
  * Constructs new instance of this class and is meant for subclasses only.
  *

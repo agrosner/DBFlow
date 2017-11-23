@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
 /**
  * Description: Base implementation of something that can be queried from the database.
  */
-abstract class BaseQueriable<TModel> protected constructor(
+abstract class BaseQueriable<TModel : Any> protected constructor(
         /**
          * @return The table associated with this INSERT
          */

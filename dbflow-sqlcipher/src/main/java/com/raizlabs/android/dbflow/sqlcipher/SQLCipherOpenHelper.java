@@ -32,7 +32,7 @@ public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements Op
         OpenHelper backupHelper = null;
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
-            backupHelper = new BackupHelper(FlowManager.getContext(), DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
+            backupHelper = new BackupHelper(FlowManager.getContext(), DatabaseHelperDelegate.Companion.getTempDbFileName(databaseDefinition),
                 databaseDefinition.getDatabaseVersion(), databaseDefinition);
         }
 

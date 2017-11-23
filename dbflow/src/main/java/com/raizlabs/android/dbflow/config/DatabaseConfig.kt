@@ -57,9 +57,8 @@ class DatabaseConfig(
             })
 
     @Suppress("UNCHECKED_CAST")
-    fun <TModel> getTableConfigForTable(modelClass: Class<TModel>): TableConfig<TModel>? {
-        return tableConfigMap[modelClass] as TableConfig<TModel>?
-    }
+    fun <T : Any> getTableConfigForTable(modelClass: Class<T>): TableConfig<T>? =
+            tableConfigMap[modelClass] as TableConfig<T>?
 
     /**
      * Build compatibility class for Java. Use the [DatabaseConfig] class directly if Kotlin consumer.

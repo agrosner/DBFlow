@@ -31,7 +31,7 @@ interface IOperator<T> : Query, IConditional {
      * @param value The value to concatenate.
      * @return A [<] that represents concatenation.
      */
-    fun concatenate(value: T?): Operator<T>
+    fun concatenate(value: Any?): Operator<T>
 
     /**
      * Assigns the operation to "!="

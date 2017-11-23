@@ -71,3 +71,5 @@ constructor(private val column: NameAlias? = null,
         fun fromString(orderByString: String): OrderBy = OrderBy(orderByString)
     }
 }
+
+infix fun OrderBy.collate(collate: Collate) = collate(collate)

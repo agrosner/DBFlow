@@ -13,7 +13,7 @@ import kotlin.collections.Set as KSet
 /**
  * Description: The SQL FROM query wrapper that must have a [Query] base.
  */
-class From<TModel>
+class From<TModel : Any>
 /**
  * The SQL from statement constructed.
  *
@@ -101,7 +101,7 @@ class From<TModel>
      * @param table    The table this corresponds to
      * @param joinType The type of join to use
      */
-    fun <TJoin> join(table: Class<TJoin>, joinType: JoinType): Join<TJoin, TModel> {
+    fun <TJoin : Any> join(table: Class<TJoin>, joinType: JoinType): Join<TJoin, TModel> {
         val join = Join(this, table, joinType)
         joins.add(join)
         return join
@@ -113,7 +113,7 @@ class From<TModel>
      * @param modelQueriable A query we construct the [Join] from.
      * @param joinType       The type of join to use.
      */
-    fun <TJoin> join(modelQueriable: ModelQueriable<TJoin>, joinType: JoinType): Join<TJoin, TModel> {
+    fun <TJoin : Any> join(modelQueriable: ModelQueriable<TJoin>, joinType: JoinType): Join<TJoin, TModel> {
         val join = Join(this, joinType, modelQueriable)
         joins.add(join)
         return join
@@ -125,7 +125,7 @@ class From<TModel>
      * @param table   The table to join on.
      * @param <TJoin> The class of the join table.
     </TJoin> */
-    fun <TJoin> crossJoin(table: Class<TJoin>): Join<TJoin, TModel> = join(table, JoinType.CROSS)
+    fun <TJoin : Any> crossJoin(table: Class<TJoin>): Join<TJoin, TModel> = join(table, JoinType.CROSS)
 
     /**
      * Adds a [JoinType.CROSS] join on a specific table for this query.
@@ -133,7 +133,7 @@ class From<TModel>
      * @param modelQueriable The query to join on.
      * @param <TJoin>        The class of the join table.
     </TJoin> */
-    fun <TJoin> crossJoin(modelQueriable: ModelQueriable<TJoin>): Join<TJoin, TModel> =
+    fun <TJoin : Any> crossJoin(modelQueriable: ModelQueriable<TJoin>): Join<TJoin, TModel> =
             join(modelQueriable, JoinType.CROSS)
 
     /**
@@ -142,7 +142,7 @@ class From<TModel>
      * @param table   The table to join on.
      * @param <TJoin> The class of the join table.
     </TJoin> */
-    fun <TJoin> innerJoin(table: Class<TJoin>): Join<TJoin, TModel> = join(table, JoinType.INNER)
+    fun <TJoin : Any> innerJoin(table: Class<TJoin>): Join<TJoin, TModel> = join(table, JoinType.INNER)
 
     /**
      * Adds a [JoinType.INNER] join on a specific table for this query.
@@ -150,7 +150,7 @@ class From<TModel>
      * @param modelQueriable The query to join on.
      * @param <TJoin>        The class of the join table.
     </TJoin> */
-    fun <TJoin> innerJoin(modelQueriable: ModelQueriable<TJoin>): Join<TJoin, TModel> =
+    fun <TJoin : Any> innerJoin(modelQueriable: ModelQueriable<TJoin>): Join<TJoin, TModel> =
             join(modelQueriable, JoinType.INNER)
 
     /**
@@ -159,7 +159,7 @@ class From<TModel>
      * @param table   The table to join on.
      * @param <TJoin> The class of the join table.
     </TJoin> */
-    fun <TJoin> leftOuterJoin(table: Class<TJoin>): Join<TJoin, TModel> =
+    fun <TJoin : Any> leftOuterJoin(table: Class<TJoin>): Join<TJoin, TModel> =
             join(table, JoinType.LEFT_OUTER)
 
     /**
@@ -168,7 +168,7 @@ class From<TModel>
      * @param modelQueriable The query to join on.
      * @param <TJoin>        The class of the join table.
     </TJoin> */
-    fun <TJoin> leftOuterJoin(modelQueriable: ModelQueriable<TJoin>): Join<TJoin, TModel> =
+    fun <TJoin : Any> leftOuterJoin(modelQueriable: ModelQueriable<TJoin>): Join<TJoin, TModel> =
             join(modelQueriable, JoinType.LEFT_OUTER)
 
 
@@ -178,7 +178,7 @@ class From<TModel>
      * @param table   The table to join on.
      * @param <TJoin> The class of the join table.
     </TJoin> */
-    fun <TJoin> naturalJoin(table: Class<TJoin>): Join<TJoin, TModel> =
+    fun <TJoin : Any> naturalJoin(table: Class<TJoin>): Join<TJoin, TModel> =
             join(table, JoinType.NATURAL)
 
     /**
@@ -187,7 +187,7 @@ class From<TModel>
      * @param modelQueriable The query to join on.
      * @param <TJoin>        The class of the join table.
     </TJoin> */
-    fun <TJoin> naturalJoin(modelQueriable: ModelQueriable<TJoin>): Join<TJoin, TModel> =
+    fun <TJoin : Any> naturalJoin(modelQueriable: ModelQueriable<TJoin>): Join<TJoin, TModel> =
             join(modelQueriable, JoinType.NATURAL)
 
     /**

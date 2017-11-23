@@ -238,3 +238,8 @@ class NameAlias(private val name: String,
                 NameAlias.builder(name).withTable(tableName).build()
     }
 }
+
+val String.nameAlias
+    get() = NameAlias.of(this)
+
+fun String.`as`(alias: String = "") = NameAlias.of(this, alias)

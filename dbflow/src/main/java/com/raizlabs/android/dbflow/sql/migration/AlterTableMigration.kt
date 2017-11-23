@@ -10,11 +10,11 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 /**
  * Description: Provides a very nice way to alter a single table quickly and easily.
  */
-class AlterTableMigration<TModel>(
+class AlterTableMigration<T : Any>(
         /**
          * The table to ALTER
          */
-        private val table: Class<TModel>) : BaseMigration() {
+        private val table: Class<T>) : BaseMigration() {
 
     /**
      * The query we use
@@ -93,7 +93,7 @@ class AlterTableMigration<TModel>(
     }
 
     /**
-     * Add a column to the DB. This does not necessarily need to be reflected in the [TModel],
+     * Add a column to the DB. This does not necessarily need to be reflected in the [T],
      * but it is recommended.
      *
      * @param sqLiteType The type of column represented in the DB.
@@ -108,7 +108,7 @@ class AlterTableMigration<TModel>(
     }
 
     /**
-     * Add a column to the DB. This does not necessarily need to be reflected in the [TModel],
+     * Add a column to the DB. This does not necessarily need to be reflected in the [T],
      * but it is recommended.
      *
      * @param sqLiteType      The type of column that pertains to an [SQLiteType]

@@ -10,8 +10,8 @@ import com.raizlabs.android.dbflow.structure.BaseModel
 /**
  * Description: Used to specify the SET part of an [com.raizlabs.android.dbflow.sql.language.Update] query.
  */
-class Set<TModel>(override val queryBuilderBase: Query, table: Class<TModel>)
-    : BaseTransformable<TModel>(table), WhereBase<TModel> {
+class Set<T : Any>(override val queryBuilderBase: Query, table: Class<T>)
+    : BaseTransformable<T>(table), WhereBase<T> {
 
     private val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause().setAllCommaSeparated(true)
 

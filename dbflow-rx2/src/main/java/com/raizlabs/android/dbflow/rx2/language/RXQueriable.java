@@ -50,22 +50,6 @@ public interface RXQueriable {
     Single<DatabaseStatement> compileStatement(DatabaseWrapper databaseWrapper);
 
     /**
-     * @return the count of the results of the query.
-     * @deprecated use {@link #longValue()}
-     */
-    @NonNull
-    Single<Long> count();
-
-    /**
-     * Allows you to pass in a {@link DatabaseWrapper} manually.
-     *
-     * @return the count of the results of the query.
-     * @deprecated use {@link #longValue(DatabaseWrapper)}
-     */
-    @NonNull
-    Single<Long> count(DatabaseWrapper databaseWrapper);
-
-    /**
      * @return the long value of this query.
      **/
     @NonNull

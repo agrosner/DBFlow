@@ -4,8 +4,8 @@ import com.nhaarman.mockito_kotlin.argumentCaptor
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.verify
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.from
-import com.raizlabs.android.dbflow.kotlinextensions.select
+import com.raizlabs.android.dbflow.sql.language.from
+import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction

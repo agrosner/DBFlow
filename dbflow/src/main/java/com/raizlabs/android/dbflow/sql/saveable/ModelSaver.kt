@@ -14,28 +14,28 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
  * Description: Defines how models get saved into the DB. It will bind values to [DatabaseStatement]
  * for all CRUD operations as they are wildly faster and more efficient than [ContentValues].
  */
-open class ModelSaver<TModel> {
+open class ModelSaver<T : Any> {
 
-    lateinit var modelAdapter: ModelAdapter<TModel>
+    lateinit var modelAdapter: ModelAdapter<T>
 
-    protected val writableDatabase: DatabaseWrapper
+    val writableDatabase: DatabaseWrapper
         get() = FlowManager.getDatabaseForTable(modelAdapter.modelClass).writableDatabase
 
     @Synchronized
-    fun save(model: TModel): Boolean {
-        return save(model, writableDatabase, modelAdapter.insertStatement,
-                modelAdapter.updateStatement)
+    fun save(model: T): Boolean {
+        return save(model, writableDatabase, modelAdapter.getInsertStatement(),
+                modelAdapter.getUpdateStatement())
     }
 
     @Synchronized
-    fun save(model: TModel,
+    fun save(model: T,
              wrapper: DatabaseWrapper): Boolean {
         return save(model, wrapper, modelAdapter.getInsertStatement(wrapper),
                 modelAdapter.getUpdateStatement(wrapper))
     }
 
     @Synchronized
-    fun save(model: TModel,
+    fun save(model: T,
              wrapper: DatabaseWrapper,
              insertStatement: DatabaseStatement,
              updateStatement: DatabaseStatement): Boolean {
@@ -58,14 +58,13 @@ open class ModelSaver<TModel> {
     }
 
     @Synchronized
-    fun update(model: TModel): Boolean {
-        return update(model, writableDatabase, modelAdapter.updateStatement)
-    }
+    fun update(model: T): Boolean =
+            update(model, writableDatabase, modelAdapter.getUpdateStatement())
 
     @Synchronized
-    fun update(model: TModel, wrapper: DatabaseWrapper): Boolean {
+    fun update(model: T, wrapper: DatabaseWrapper): Boolean {
         val updateStatement = modelAdapter.getUpdateStatement(wrapper)
-        var success = false
+        val success: Boolean
         try {
             success = update(model, wrapper, updateStatement)
         } finally {
@@ -76,7 +75,7 @@ open class ModelSaver<TModel> {
     }
 
     @Synchronized
-    fun update(model: TModel, wrapper: DatabaseWrapper,
+    fun update(model: T, wrapper: DatabaseWrapper,
                databaseStatement: DatabaseStatement): Boolean {
         modelAdapter.saveForeignKeys(model, wrapper)
         modelAdapter.bindToUpdateStatement(databaseStatement, model)
@@ -87,11 +86,10 @@ open class ModelSaver<TModel> {
         return successful
     }
 
-    @Synchronized open fun insert(model: TModel): Long {
-        return insert(model, modelAdapter.insertStatement, writableDatabase)
-    }
+    @Synchronized open fun insert(model: T): Long =
+            insert(model, modelAdapter.getInsertStatement(), writableDatabase)
 
-    @Synchronized open fun insert(model: TModel, wrapper: DatabaseWrapper): Long {
+    @Synchronized open fun insert(model: T, wrapper: DatabaseWrapper): Long {
         val insertStatement = modelAdapter.getInsertStatement(wrapper)
         var result: Long = 0
         try {
@@ -103,7 +101,7 @@ open class ModelSaver<TModel> {
         return result
     }
 
-    @Synchronized open fun insert(model: TModel,
+    @Synchronized open fun insert(model: T,
                                   insertStatement: DatabaseStatement,
                                   wrapper: DatabaseWrapper): Long {
         modelAdapter.saveForeignKeys(model, wrapper)
@@ -117,12 +115,10 @@ open class ModelSaver<TModel> {
     }
 
     @Synchronized
-    fun delete(model: TModel): Boolean {
-        return delete(model, modelAdapter.deleteStatement, writableDatabase)
-    }
+    fun delete(model: T): Boolean = delete(model, modelAdapter.getDeleteStatement(), writableDatabase)
 
     @Synchronized
-    fun delete(model: TModel, wrapper: DatabaseWrapper): Boolean {
+    fun delete(model: T, wrapper: DatabaseWrapper): Boolean {
         val deleteStatement = modelAdapter.getDeleteStatement(wrapper)
         var success = false
         try {
@@ -135,7 +131,7 @@ open class ModelSaver<TModel> {
     }
 
     @Synchronized
-    fun delete(model: TModel,
+    fun delete(model: T,
                deleteStatement: DatabaseStatement,
                wrapper: DatabaseWrapper): Boolean {
         modelAdapter.deleteForeignKeys(model, wrapper)
@@ -156,7 +152,7 @@ open class ModelSaver<TModel> {
      */
     @Deprecated("")
     @Synchronized
-    fun save(model: TModel,
+    fun save(model: T,
              wrapper: DatabaseWrapper,
              insertStatement: DatabaseStatement,
              contentValues: ContentValues): Boolean {
@@ -183,7 +179,7 @@ open class ModelSaver<TModel> {
      */
     @Deprecated("")
     @Synchronized
-    fun update(model: TModel, wrapper: DatabaseWrapper, contentValues: ContentValues): Boolean {
+    fun update(model: T, wrapper: DatabaseWrapper, contentValues: ContentValues): Boolean {
         modelAdapter.saveForeignKeys(model, wrapper)
         modelAdapter.bindToContentValues(contentValues, model)
         val successful = wrapper.updateWithOnConflict(modelAdapter.tableName, contentValues,

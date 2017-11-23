@@ -11,7 +11,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
  * It ties an SQLite [com.raizlabs.android.dbflow.sql.language.Update]
  * to migrations whenever we want to batch update tables in a structured manner.
  */
-open class UpdateTableMigration<TModel>
+open class UpdateTableMigration<T : Any>
 /**
  * Creates an update migration.
  *
@@ -21,7 +21,7 @@ open class UpdateTableMigration<TModel>
         /**
          * The table to update
          */
-        private val table: Class<TModel>) : BaseMigration() {
+        private val table: Class<T>) : BaseMigration() {
 
     /**
      * Builds the conditions for the WHERE part of our query
@@ -33,7 +33,7 @@ open class UpdateTableMigration<TModel>
      */
     private val setOperatorGroup: OperatorGroup by lazy { OperatorGroup.nonGroupingClause() }
 
-    val updateStatement: BaseQueriable<TModel>
+    val updateStatement: BaseQueriable<T>
         get() = SQLite.update(table)
                 .set(setOperatorGroup)
                 .where(whereOperatorGroup)

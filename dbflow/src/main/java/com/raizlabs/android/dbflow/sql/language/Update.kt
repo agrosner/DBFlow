@@ -8,13 +8,13 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder
 /**
  * Description: The SQLite UPDATE query. Will update rows in the DB.
  */
-class Update<TModel>
+class Update<T : Any>
 /**
  * Constructs new instace of an UPDATE query with the specified table.
  *
  * @param table The table to use.
  */
-internal constructor(val table: Class<TModel>) : Query {
+internal constructor(val table: Class<T>) : Query {
 
     /**
      * The conflict action to resolve updates.
@@ -75,5 +75,10 @@ internal constructor(val table: Class<TModel>) : Query {
      * @param conditions The array of conditions that define this SET statement
      * @return A SET query piece of this statement
      */
-    fun set(vararg conditions: SQLOperator): Set<TModel> = Set(this, table).conditions(*conditions)
+    fun set(vararg conditions: SQLOperator): Set<T> = Set(this, table).conditions(*conditions)
 }
+
+
+inline fun <reified T : Any> update() = SQLite.update(T::class.java)
+
+infix fun <T : Any> Update<T>.set(sqlOperator: SQLOperator) = set(sqlOperator)

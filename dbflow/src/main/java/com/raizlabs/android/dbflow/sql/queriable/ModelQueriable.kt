@@ -14,58 +14,58 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
  * Description: An interface for query objects to enable you to query from the database in a structured way.
  * Examples of such statements are: [From], [Where], [StringQuery]
  */
-interface ModelQueriable<TModel> : Queriable {
+interface ModelQueriable<T : Any> : Queriable {
 
     /**
      * @return the table that this query comes from.
      */
-    val table: Class<TModel>
+    val table: Class<T>
 
     /**
      * @return A wrapper class around [Cursor] that allows you to convert its data into results.
      */
-    fun queryResults(): CursorResult<TModel>
+    fun queryResults(): CursorResult<T>
 
     /**
      * @return a list of model converted items
      */
-    fun queryList(): MutableList<TModel>
+    fun queryList(): MutableList<T>
 
     /**
      * Allows you to specify a DB, useful for migrations.
      *
      * @return a list of model converted items
      */
-    fun queryList(wrapper: DatabaseWrapper): MutableList<TModel>
+    fun queryList(wrapper: DatabaseWrapper): MutableList<T>
 
     /**
      * @return Single model, the first of potentially many results
      */
-    fun querySingle(): TModel?
+    fun querySingle(): T?
 
     /**
      * Allows you to specify a DB, useful for migrations.
      *
      * @return Single model, the first of potentially many results
      */
-    fun querySingle(wrapper: DatabaseWrapper): TModel?
+    fun querySingle(wrapper: DatabaseWrapper): T?
 
     /**
      * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
      * cache models dynamically by setting [FlowCursorList.setCacheModels] to true.
      */
-    fun cursorList(): FlowCursorList<TModel>
+    fun cursorList(): FlowCursorList<T>
 
     /**
      * @return A cursor-backed [List] that handles conversion, retrieval, caching, content changes,
      * and more.
      */
-    fun flowQueryList(): FlowQueryList<TModel>
+    fun flowQueryList(): FlowQueryList<T>
 
     /**
      * @return an async version of this query to run.
      */
-    fun async(): AsyncQuery<TModel>
+    fun async(): AsyncQuery<T>
 
     /**
      * Returns a [List] based on the custom [TQueryModel] you pass in.
@@ -74,7 +74,7 @@ interface ModelQueriable<TModel> : Queriable {
      * @param <TQueryModel>   The class that extends [BaseQueryModel]
      * @return A list of custom models that are not tied to a table.
     </TQueryModel> */
-    fun <TQueryModel> queryCustomList(queryModelClass: Class<TQueryModel>): MutableList<TQueryModel>
+    fun <TQueryModel : Any> queryCustomList(queryModelClass: Class<TQueryModel>): MutableList<TQueryModel>
 
     /**
      * Returns a single [TQueryModel] from this query.
@@ -83,6 +83,24 @@ interface ModelQueriable<TModel> : Queriable {
      * @param <TQueryModel>   The class that extends [BaseQueryModel]
      * @return A single model from the query.
     </TQueryModel> */
-    fun <TQueryModel> queryCustomSingle(queryModelClass: Class<TQueryModel>): TQueryModel?
+    fun <TQueryModel : Any> queryCustomSingle(queryModelClass: Class<TQueryModel>): TQueryModel?
 
 }
+
+inline val <T : Any> ModelQueriable<T>.list
+    get() = queryList()
+
+inline val <T : Any> ModelQueriable<T>.result
+    get() = querySingle()
+
+inline val <T : Any> ModelQueriable<T>.cursorResult
+    get() = queryResults()
+
+inline val <T : Any> ModelQueriable<T>.flowQueryList
+    get() = flowQueryList()
+
+inline val <T : Any> ModelQueriable<T>.cursorList
+    get() = cursorList()
+
+inline val <T : Any> ModelQueriable<T>.async
+    get() = async()

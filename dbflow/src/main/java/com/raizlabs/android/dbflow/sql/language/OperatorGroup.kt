@@ -190,3 +190,13 @@ constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, It
                 OperatorGroup().setUseParenthesis(false).andAll(*condition)
     }
 }
+
+fun SQLOperator.clause() = OperatorGroup.clause(this)
+
+infix fun OperatorGroup.and(sqlOperator: SQLOperator) = and(sqlOperator)
+
+infix fun OperatorGroup.or(sqlOperator: SQLOperator) = or(sqlOperator)
+
+infix fun OperatorGroup.and(sqlOperator: OperatorGroup) = clause().and(sqlOperator)
+
+infix fun OperatorGroup.or(sqlOperator: OperatorGroup) = clause().or(sqlOperator)

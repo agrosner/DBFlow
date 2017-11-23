@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.models.issue;
 
 import com.raizlabs.android.dbflow.TestDatabase;
 import com.raizlabs.android.dbflow.annotation.OneToMany;
+import com.raizlabs.android.dbflow.annotation.OneToManyMethod;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
@@ -21,7 +22,7 @@ public class Issue extends BaseModel {
 
     List<SubIssue> subIssueList;
 
-    @OneToMany(methods = {OneToMany.Method.SAVE, OneToMany.Method.DELETE}, variableName = "subIssueList")
+    @OneToMany(oneToManyMethods = {OneToManyMethod.SAVE, OneToManyMethod.DELETE}, variableName = "subIssueList")
     public List<SubIssue> getDbSubIssueList() {
         if (subIssueList == null || subIssueList.isEmpty()) {
             subIssueList = SQLite.INSTANCE.select()

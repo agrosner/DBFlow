@@ -17,10 +17,10 @@ class Delete : Query {
      * Returns the new SQL FROM statement wrapper
      *
      * @param table    The table we want to run this query from
-     * @param <TModel> The table class
-     * @return <TModel>
+     * @param [T] The table class
+     * @return [T]
      **/
-    fun <TModel> from(table: Class<TModel>): From<TModel> = From(this, table)
+    fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
 
     companion object {
 
@@ -29,9 +29,9 @@ class Delete : Query {
          *
          * @param table      The table to delete
          * @param conditions The list of conditions to use to delete from the specified table
-         * @param <TModel>   The class that implements [com.raizlabs.android.dbflow.structure.Model]
-        </TModel> */
-        fun <TModel> table(table: Class<TModel>, vararg conditions: SQLOperator) {
+         * @param [T]   The class that implements [com.raizlabs.android.dbflow.structure.Model]
+         */
+        fun <T : Any> table(table: Class<T>, vararg conditions: SQLOperator) {
             Delete().from(table).where(*conditions).executeUpdateDelete()
         }
 
@@ -46,3 +46,9 @@ class Delete : Query {
         }
     }
 }
+
+
+inline fun <reified T : Any> delete() = SQLite.delete(T::class.java)
+
+inline fun <reified T : Any> delete(deleteClause: From<T>.() -> BaseModelQueriable<T>)
+        = deleteClause(SQLite.delete(T::class.java))

@@ -63,7 +63,7 @@ public class SQLCipherDatabase implements DatabaseWrapper {
     @NonNull
     @Override
     public FlowCursor rawQuery(@NonNull String query, @Nullable String[] selectionArgs) {
-        return FlowCursor.from(database.rawQuery(query, selectionArgs));
+        return FlowCursor.Companion.from(database.rawQuery(query, selectionArgs));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class SQLCipherDatabase implements DatabaseWrapper {
                             @Nullable String groupBy,
                             @Nullable String having,
                             @Nullable String orderBy) {
-        return FlowCursor.from(database.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy));
+        return FlowCursor.Companion.from(database.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy));
     }
 
     @Override

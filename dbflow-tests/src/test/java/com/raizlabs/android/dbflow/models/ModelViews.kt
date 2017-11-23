@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ColumnMap
 import com.raizlabs.android.dbflow.annotation.ModelView
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery
-import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.sql.language.from
 import com.raizlabs.android.dbflow.kotlinextensions.property
 import com.raizlabs.android.dbflow.models.Author_Table.first_name
 import com.raizlabs.android.dbflow.models.Author_Table.id

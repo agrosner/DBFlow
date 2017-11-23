@@ -9,8 +9,8 @@ import com.raizlabs.android.dbflow.sql.language.property.IProperty
  * Description: Describes the method that the trigger uses.
  */
 class TriggerMethod<TModel>
-internal constructor(private val trigger: Trigger, private val methodName: String,
-                     private var onTable: Class<TModel>, vararg properties: IProperty<*>) : Query {
+internal constructor(internal val trigger: Trigger, private val methodName: String,
+                     internal var onTable: Class<TModel>, vararg properties: IProperty<*>) : Query {
     private var properties: List<IProperty<*>> = arrayListOf()
     private var forEachRow = false
     private var whenCondition: SQLOperator? = null

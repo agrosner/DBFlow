@@ -8,6 +8,9 @@ import com.raizlabs.android.dbflow.runtime.BaseTransactionManager
 import com.raizlabs.android.dbflow.runtime.ContentResolverNotifier
 import com.raizlabs.android.dbflow.runtime.ModelNotifier
 import com.raizlabs.android.dbflow.sql.migration.Migration
+import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader
+import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader
+import com.raizlabs.android.dbflow.sql.saveable.ModelSaver
 import com.raizlabs.android.dbflow.structure.BaseModelView
 import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter
@@ -83,7 +86,7 @@ abstract class DatabaseDefinition {
      * @return The list of [QueryModelAdapter]. Internal method for creating query models in the DB.
      */
     val modelQueryAdapters: List<QueryModelAdapter<*>>
-        get() = ArrayList<QueryModelAdapter>(queryModelAdapterMap.values)
+        get() = queryModelAdapterMap.values.toList()
 
     /**
      * @return The map of migrations to DB version
@@ -162,25 +165,17 @@ abstract class DatabaseDefinition {
     /**
      * Applies a database configuration object to this class.
      */
+    @Suppress("UNCHECKED_CAST")
     internal fun applyDatabaseConfig(databaseConfig: DatabaseConfig?) {
         this.databaseConfig = databaseConfig
         if (databaseConfig != null) {
             // initialize configuration if exists.
             val tableConfigCollection = databaseConfig.tableConfigMap.values
             for (tableConfig in tableConfigCollection) {
-                val modelAdapter = modelAdapters[tableConfig.tableClass] ?: continue
-                if (tableConfig.listModelLoader != null) {
-                    modelAdapter.listModelLoader = tableConfig.listModelLoader
-                }
-
-                if (tableConfig.singleModelLoader != null) {
-                    modelAdapter.singleModelLoader = tableConfig.singleModelLoader
-                }
-
-                if (tableConfig.modelSaver != null) {
-                    modelAdapter.modelSaver = tableConfig.modelSaver
-                }
-
+                val modelAdapter: ModelAdapter<Any> = modelAdapters[tableConfig.tableClass] as ModelAdapter<Any>? ?: continue
+                tableConfig.listModelLoader?.let { modelAdapter.listModelLoader = it as ListModelLoader<Any> }
+                tableConfig.singleModelLoader?.let { modelAdapter.singleModelLoader = it as SingleModelLoader<Any> }
+                tableConfig.modelSaver?.let { modelAdapter.modelSaver = it as ModelSaver<Any> }
             }
             helperListener = databaseConfig.helperListener
         }
@@ -191,18 +186,18 @@ abstract class DatabaseDefinition {
         }
     }
 
-    protected fun <T> addModelAdapter(modelAdapter: ModelAdapter<T>, holder: DatabaseHolder) {
+    protected fun <T : Any> addModelAdapter(modelAdapter: ModelAdapter<T>, holder: DatabaseHolder) {
         holder.putDatabaseForTable(modelAdapter.modelClass, this)
         modelTableNames.put(modelAdapter.tableName, modelAdapter.modelClass)
         modelAdapters.put(modelAdapter.modelClass, modelAdapter)
     }
 
-    protected fun <T> addModelViewAdapter(modelViewAdapter: ModelViewAdapter<T>, holder: DatabaseHolder) {
+    protected fun <T : Any> addModelViewAdapter(modelViewAdapter: ModelViewAdapter<T>, holder: DatabaseHolder) {
         holder.putDatabaseForTable(modelViewAdapter.modelClass, this)
         modelViewAdapterMap.put(modelViewAdapter.modelClass, modelViewAdapter)
     }
 
-    protected fun <T> addQueryModelAdapter(queryModelAdapter: QueryModelAdapter<T>, holder: DatabaseHolder) {
+    protected fun <T : Any> addQueryModelAdapter(queryModelAdapter: QueryModelAdapter<T>, holder: DatabaseHolder) {
         holder.putDatabaseForTable(queryModelAdapter.modelClass, this)
         queryModelAdapterMap.put(queryModelAdapter.modelClass, queryModelAdapter)
     }
@@ -231,7 +226,7 @@ abstract class DatabaseDefinition {
      * @param table The model that exists in this database.
      * @return The ModelAdapter for the table.
      */
-    fun <T> getModelAdapterForTable(table: Class<T>): ModelAdapter<T>? {
+    fun <T : Any> getModelAdapterForTable(table: Class<T>): ModelAdapter<T>? {
         @Suppress("UNCHECKED_CAST")
         return modelAdapters[table] as ModelAdapter<T>?
     }
@@ -241,31 +236,27 @@ abstract class DatabaseDefinition {
      * @return The associated [ModelAdapter] within this database for the specified table name.
      * If the Model is missing the [Table] annotation, this will return null.
      */
-    fun getModelClassForName(tableName: String): Class<*>? {
-        return modelTableNames[tableName]
-    }
+    fun getModelClassForName(tableName: String): Class<*>? = modelTableNames[tableName]
 
     /**
      * @param table the VIEW class to retrieve the ModelViewAdapter from.
      * @return the associated [ModelViewAdapter] for the specified table.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T> getModelViewAdapterForTable(table: Class<T>): ModelViewAdapter<T>? {
-        return modelViewAdapterMap[table] as ModelViewAdapter<T>?
-    }
+    fun <T : Any> getModelViewAdapterForTable(table: Class<T>): ModelViewAdapter<T>? =
+            modelViewAdapterMap[table] as ModelViewAdapter<T>?
 
     /**
      * @param queryModel The [QueryModel] class
      * @return The adapter that corresponds to the specified class.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T> getQueryModelAdapterForQueryClass(queryModel: Class<T>): QueryModelAdapter<T>? {
-        return queryModelAdapterMap[queryModel] as QueryModelAdapter<T>?
-    }
+    fun <T : Any> getQueryModelAdapterForQueryClass(queryModel: Class<T>): QueryModelAdapter<T>? =
+            queryModelAdapterMap[queryModel] as QueryModelAdapter<T>?
 
     fun getModelNotifier(): ModelNotifier {
         if (modelNotifier == null) {
-            val config = FlowManager.getConfig().getDatabaseConfigMap()[associatedDatabaseClassFile]
+            val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
             modelNotifier = if (config?.modelNotifier == null) {
                 ContentResolverNotifier()
             } else {
@@ -275,9 +266,8 @@ abstract class DatabaseDefinition {
         return modelNotifier!!
     }
 
-    fun beginTransactionAsync(transaction: ITransaction): Transaction.Builder {
-        return Transaction.Builder(transaction, this)
-    }
+    fun beginTransactionAsync(transaction: ITransaction): Transaction.Builder =
+            Transaction.Builder(transaction, this)
 
     fun executeTransaction(transaction: ITransaction) {
         val database = writableDatabase
@@ -289,6 +279,11 @@ abstract class DatabaseDefinition {
             database.endTransaction()
         }
     }
+
+    inline fun executeTransaction(crossinline transaction: (DatabaseWrapper) -> Unit)
+            = executeTransaction(object : ITransaction {
+        override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
+    })
 
     /**
      * @return True if the [Database.consistencyCheckEnabled] annotation is true.

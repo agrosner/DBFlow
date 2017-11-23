@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.sql.language
 import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
+import kotlin.reflect.KClass
 
 /**
  * Description: Describes an easy way to create a SQLite TRIGGER
@@ -125,3 +126,15 @@ private constructor(
         fun create(triggerName: String) = Trigger(triggerName)
     }
 }
+
+fun createTrigger(name: String) = Trigger.create(name)
+
+infix fun <T : Any> Trigger.deleteOn(kClass: KClass<T>) = deleteOn(kClass.java)
+
+infix fun <T : Any> Trigger.insertOn(kClass: KClass<T>) = insertOn(kClass.java)
+
+infix fun <T : Any> Trigger.updateOn(kClass: KClass<T>) = updateOn(kClass.java)
+
+infix fun <T : Any> TriggerMethod<T>.begin(triggerStatement: Query) = begin(triggerStatement)
+
+infix fun <T : Any> CompletedTrigger<T>.and(nextStatement: Query) = and(nextStatement)

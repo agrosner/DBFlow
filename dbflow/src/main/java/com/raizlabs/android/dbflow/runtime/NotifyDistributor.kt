@@ -13,9 +13,9 @@ class NotifyDistributor : ModelNotifier {
         throw RuntimeException("Cannot create a register from the distributor class")
     }
 
-    override fun <TModel> notifyModelChanged(model: TModel,
-                                             adapter: ModelAdapter<TModel>,
-                                             action: BaseModel.Action) {
+    override fun <T : Any> notifyModelChanged(model: T,
+                                              adapter: ModelAdapter<T>,
+                                              action: BaseModel.Action) {
         FlowManager.getModelNotifierForTable(adapter.modelClass)
                 .notifyModelChanged(model, adapter, action)
     }
@@ -23,8 +23,8 @@ class NotifyDistributor : ModelNotifier {
     /**
      * Notifies listeners of table-level changes from the SQLite-wrapper language.
      */
-    override fun <TModel> notifyTableChanged(table: Class<TModel>,
-                                             action: BaseModel.Action) {
+    override fun <T : Any> notifyTableChanged(table: Class<T>,
+                                              action: BaseModel.Action) {
         FlowManager.getModelNotifierForTable(table).notifyTableChanged(table, action)
     }
 

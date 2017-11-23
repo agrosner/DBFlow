@@ -33,7 +33,7 @@ object FlowLog {
      */
     @JvmOverloads
     @JvmStatic
-    fun log(level: Level, tag: String = TAG, message: String = "", throwable: Throwable? = null) {
+    fun log(level: Level, tag: String = TAG, message: String? = "", throwable: Throwable? = null) {
         if (isEnabled(level)) {
             level.call(tag, message, throwable)
         }
@@ -83,32 +83,32 @@ object FlowLog {
      */
     enum class Level {
         V {
-            override fun call(tag: String, message: String, throwable: Throwable?) {
+            override fun call(tag: String, message: String?, throwable: Throwable?) {
                 Log.v(tag, message, throwable)
             }
         },
         D {
-            override fun call(tag: String, message: String, throwable: Throwable?) {
+            override fun call(tag: String, message: String?, throwable: Throwable?) {
                 Log.d(tag, message, throwable)
             }
         },
         I {
-            override fun call(tag: String, message: String, throwable: Throwable?) {
+            override fun call(tag: String, message: String?, throwable: Throwable?) {
                 Log.i(tag, message, throwable)
             }
         },
         W {
-            override fun call(tag: String, message: String, throwable: Throwable?) {
+            override fun call(tag: String, message: String?, throwable: Throwable?) {
                 Log.w(tag, message, throwable)
             }
         },
         E {
-            override fun call(tag: String, message: String, throwable: Throwable?) {
+            override fun call(tag: String, message: String?, throwable: Throwable?) {
                 Log.e(tag, message, throwable)
             }
         },
         WTF {
-            override fun call(tag: String, message: String, throwable: Throwable?) {
+            override fun call(tag: String, message: String?, throwable: Throwable?) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
                     Log.wtf(tag, message, throwable)
                 } else {
@@ -118,7 +118,7 @@ object FlowLog {
             }
         };
 
-        internal abstract fun call(tag: String, message: String, throwable: Throwable?)
+        internal abstract fun call(tag: String, message: String?, throwable: Throwable?)
     }
 
 }

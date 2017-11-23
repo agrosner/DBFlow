@@ -6,9 +6,9 @@ import com.raizlabs.android.dbflow.kotlinextensions.database
 import com.raizlabs.android.dbflow.kotlinextensions.fastInsert
 import com.raizlabs.android.dbflow.kotlinextensions.fastSave
 import com.raizlabs.android.dbflow.kotlinextensions.fastUpdate
-import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.sql.language.from
 import com.raizlabs.android.dbflow.kotlinextensions.list
-import com.raizlabs.android.dbflow.kotlinextensions.select
+import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel
 import org.junit.Assert.assertEquals

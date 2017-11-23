@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.QueryBuilder
-import com.raizlabs.android.dbflow.sql.language.BaseOperator.convertValueToString
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 
 /**
@@ -22,12 +21,12 @@ class CaseCondition<TReturn> : Query {
         get() {
             val queryBuilder = QueryBuilder(" WHEN ")
             if (caze.isEfficientCase) {
-                queryBuilder.append(convertValueToString(property ?: whenValue, false))
+                queryBuilder.append(BaseOperator.convertValueToString(property ?: whenValue, false))
             } else {
                 sqlOperator?.appendConditionToQuery(queryBuilder)
             }
             queryBuilder.append(" THEN ")
-                    .append(convertValueToString(if (isThenPropertySet)
+                    .append(BaseOperator.convertValueToString(if (isThenPropertySet)
                         thenProperty
                     else
                         thenValue, false))
@@ -41,7 +40,7 @@ class CaseCondition<TReturn> : Query {
         this.property = null
     }
 
-    internal constructor(caze: Case<TReturn>, whenValue: TReturn) {
+    internal constructor(caze: Case<TReturn>, whenValue: TReturn?) {
         this.caze = caze
         this.whenValue = whenValue
         this.sqlOperator = null

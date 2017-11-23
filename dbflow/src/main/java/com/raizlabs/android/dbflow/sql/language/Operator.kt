@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.annotation.Collate
@@ -16,7 +18,7 @@ import java.util.*
 </T> */
 class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
-    private var typeConverter: TypeConverter<*, *>? = null
+    private var typeConverter: TypeConverter<*, Any?>? = null
     private var convertToDB: Boolean = false
 
     override val query: String
@@ -29,11 +31,11 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
     /**
      * Creates a new instance
      *
-     * @param nameAlias The name of the column in the DB
+     * @param [nameAlias] The name of the column in the DB
      */
     internal constructor(nameAlias: NameAlias) : super(nameAlias)
 
-    internal constructor(alias: NameAlias, typeConverter: TypeConverter<*, *>, convertToDB: Boolean) : super(alias) {
+    internal constructor(alias: NameAlias, typeConverter: TypeConverter<*, Any?>, convertToDB: Boolean) : super(alias) {
         this.typeConverter = typeConverter
         this.convertToDB = convertToDB
     }
@@ -245,17 +247,17 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
     override fun lessThanOrEq(conditional: IConditional): Operator<T> =
             assignValueOp(conditional, Operation.LESS_THAN_OR_EQUALS)
 
-    override fun between(conditional: IConditional): Between<*> = Between(this, conditional)
+    override fun between(conditional: IConditional): Between<*> = Between(this as Operator<Any>, conditional)
 
     override fun `in`(firstConditional: IConditional, vararg conditionals: IConditional): In<*> =
-            In(this, firstConditional, true, *conditionals)
+            In(this as Operator<Any>, firstConditional, true, *conditionals)
 
     override fun notIn(firstConditional: IConditional, vararg conditionals: IConditional): In<*> =
-            In(this, firstConditional, false, *conditionals)
+            In(this as Operator<Any>, firstConditional, false, *conditionals)
 
     override fun notIn(firstBaseModelQueriable: BaseModelQueriable<*>,
                        vararg baseModelQueriables: BaseModelQueriable<*>): In<*> =
-            In(this, firstBaseModelQueriable, false, *baseModelQueriables)
+            In(this as Operator<Any>, firstBaseModelQueriable, false, *baseModelQueriables)
 
     override fun `is`(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
             assignValueOp(baseModelQueriable, Operation.EQUALS)
@@ -319,18 +321,18 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
             assignValueOp(value, Operation.MOD)
 
     override fun between(baseModelQueriable: BaseModelQueriable<*>): Between<*> =
-            Between(this, baseModelQueriable)
+            Between(this as Operator<Any>, baseModelQueriable)
 
     override fun `in`(firstBaseModelQueriable: BaseModelQueriable<*>, vararg baseModelQueriables: BaseModelQueriable<*>): In<*> =
-            In<BaseModelQueriable<*>>(this, firstBaseModelQueriable, true, *baseModelQueriables)
+            In(this as Operator<Any>, firstBaseModelQueriable, true, *baseModelQueriables)
 
-    override fun concatenate(value: T?): Operator<T> {
+    override fun concatenate(value: Any?): Operator<T> {
         var _value = value
         operation = QueryBuilder(Operation.EQUALS).append(columnName()).toString()
 
-        var typeConverter: TypeConverter<*, *>? = this.typeConverter
+        var typeConverter: TypeConverter<*, Any?>? = this.typeConverter
         if (typeConverter == null && _value != null) {
-            typeConverter = FlowManager.getTypeConverterForClass(_value.javaClass)
+            typeConverter = FlowManager.getTypeConverterForClass(_value.javaClass) as TypeConverter<*, Any?>?
         }
         if (typeConverter != null && convertToDB) {
             _value = typeConverter.getDBValue(_value)
@@ -339,7 +341,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
             is String, is IOperator<*>, is Char -> "$operation ${Operation.CONCATENATE} "
             is Number -> "$operation ${Operation.PLUS} "
             else -> throw IllegalArgumentException(
-                    "Cannot concatenate the ${if (_value != null) _value.javaClass else "null"}"
+                    "Cannot concatenate the ${if (_value != null) _value.javaClass else "null"}")
         }
         this.value = _value
         isValueSet = true
@@ -369,21 +371,18 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
     override fun notIn(values: Collection<T>): In<T> = In(this, values, false)
 
-    override fun convertObjectToString(`object`: Any?, appendInnerParenthesis: Boolean): String? {
-        if (typeConverter != null) {
-            var converted = `object`
-            try {
-                converted = if (convertToDB) typeConverter!!.getDBValue(`object`) else `object`
-            } catch (c: ClassCastException) {
-                // if object type is not valid converted type, just use type as is here.
-                FlowLog.log(FlowLog.Level.W, c)
-            }
+    override fun convertObjectToString(obj: Any?, appendInnerParenthesis: Boolean): String? =
+            typeConverter?.let { typeConverter ->
+                var converted = obj
+                try {
+                    converted = if (convertToDB) typeConverter.getDBValue(obj) else obj
+                } catch (c: ClassCastException) {
+                    // if object type is not valid converted type, just use type as is here.
+                    FlowLog.log(FlowLog.Level.W, throwable = c)
+                }
 
-            return BaseOperator.convertValueToString(converted, appendInnerParenthesis, false)
-        } else {
-            return super.convertObjectToString(`object`, appendInnerParenthesis)
-        }
-    }
+                BaseOperator.convertValueToString(converted, appendInnerParenthesis, false)
+            } ?: super.convertObjectToString(obj, appendInnerParenthesis)
 
     private fun assignValueOp(value: Any?, operation: String): Operator<T> {
         this.operation = operation
@@ -614,13 +613,38 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
     companion object {
 
-        fun convertValueToString(value: Any): String? =
+        @JvmStatic
+        fun convertValueToString(value: Any?): String? =
                 BaseOperator.convertValueToString(value, false)
 
+        @JvmStatic
         fun <T> op(column: NameAlias): Operator<T> = Operator(column)
 
-        fun <T> op(alias: NameAlias, typeConverter: TypeConverter<*, *>, convertToDB: Boolean): Operator<T> =
+        @JvmStatic
+        fun <T> op(alias: NameAlias, typeConverter: TypeConverter<*, Any?>, convertToDB: Boolean): Operator<T> =
                 Operator(alias, typeConverter, convertToDB)
     }
 
 }
+
+fun <T : Any> NameAlias.op() = Operator.op<T>(this)
+
+fun <T : Any> String.op(): Operator<T> = nameAlias.op<T>()
+
+infix fun <T : Any> Operator<T>.collate(collation: Collate) = collate(collation)
+
+infix fun <T : Any> Operator<T>.collate(collation: String) = collate(collation)
+
+infix fun <T : Any> Operator<T>.postfix(collation: String) = postfix(collation)
+
+infix fun <T : Any> Operator.Between<T>.and(value: T?) = and(value)
+
+infix fun <T : Any> Operator.In<T>.and(value: T?) = and(value)
+
+infix fun <T : Any> Operator<T>.and(sqlOperator: SQLOperator) = OperatorGroup.clause(this).and(sqlOperator)
+
+infix fun <T : Any> Operator<T>.or(sqlOperator: SQLOperator) = OperatorGroup.clause(this).or(sqlOperator)
+
+infix fun <T : Any> Operator<T>.andAll(sqlOperator: Collection<SQLOperator>) = OperatorGroup.clause(this).andAll(sqlOperator)
+
+infix fun <T : Any> Operator<T>.orAll(sqlOperator: Collection<SQLOperator>) = OperatorGroup.clause(this).orAll(sqlOperator)

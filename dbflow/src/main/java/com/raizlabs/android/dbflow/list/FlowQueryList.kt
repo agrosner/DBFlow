@@ -23,7 +23,7 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
  * on this list to know when the results complete. NOTE: any modifications to this list will be reflected
  * on the underlying table.
  */
-class FlowQueryList<TModel>(
+class FlowQueryList<T : Any>(
         /**
          * If true, we will make all modifications on the [DefaultTransactionQueue], else
          * we will run it on the main thread.
@@ -33,21 +33,21 @@ class FlowQueryList<TModel>(
         /**
          * Holds the table cursor
          */
-        val internalCursorList: FlowCursorList<TModel>)
-    : FlowContentObserver(), List<TModel>, IFlowCursorIterator<TModel> {
+        val internalCursorList: FlowCursorList<T>)
+    : FlowContentObserver(), List<T>, IFlowCursorIterator<T> {
 
     private var pendingRefresh = false
 
     /**
      * @return a mutable list that does not reflect changes on the underlying DB.
      */
-    val copy: List<TModel>
+    val copy: List<T>
         get() = internalCursorList.all
 
-    internal val modelAdapter: ModelAdapter<TModel>
+    internal val modelAdapter: ModelAdapter<T>
         get() = internalCursorList.modelAdapter
 
-    internal val instanceAdapter: InstanceAdapter<TModel>
+    internal val instanceAdapter: InstanceAdapter<T>
         get() = internalCursorList.instanceAdapter
 
     override val count: Long
@@ -64,7 +64,7 @@ class FlowQueryList<TModel>(
         }
     }
 
-    internal constructor(builder: Builder<TModel>) : this(
+    internal constructor(builder: Builder<T>) : this(
             transact = builder.transact,
             changeInTransaction = builder.changeInTransaction,
             internalCursorList = FlowCursorList.Builder(builder.modelQueriable)
@@ -81,11 +81,11 @@ class FlowQueryList<TModel>(
         super.registerForContentChanges(context, internalCursorList.table)
     }
 
-    fun addOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<TModel>) {
+    fun addOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<T>) {
         internalCursorList.addOnCursorRefreshListener(onCursorRefreshListener)
     }
 
-    fun removeOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<TModel>) {
+    fun removeOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<T>) {
         internalCursorList.removeOnCursorRefreshListener(onCursorRefreshListener)
     }
 
@@ -114,14 +114,14 @@ class FlowQueryList<TModel>(
         }
     }
 
-    val cursorList: FlowCursorList<TModel>
+    val cursorList: FlowCursorList<T>
         get() = internalCursorList
 
     /**
      * @return Constructs a new [Builder] that reuses the underlying [Cursor], cache,
      * callbacks, and other properties.
      */
-    fun newBuilder(): Builder<TModel> {
+    fun newBuilder(): Builder<T> {
         return Builder(internalCursorList)
                 .changeInTransaction(changeInTransaction)
                 .transact(transact)
@@ -157,12 +157,12 @@ class FlowQueryList<TModel>(
     }
 
     /**
-     * Checks to see if the table contains the object only if its a [TModel]
+     * Checks to see if the table contains the object only if its a [T]
      *
      * @param element A model class. For interface purposes, this must be an Object.
      * @return always false if its anything other than the current table. True if [com.raizlabs.android.dbflow.structure.Model.exists] passes.
      */
-    override operator fun contains(element: TModel): Boolean {
+    override operator fun contains(element: T): Boolean {
         return internalCursorList.instanceAdapter.exists(element)
     }
 
@@ -172,7 +172,7 @@ class FlowQueryList<TModel>(
      * @param elements The collection to check if all exist within the table.
      * @return true if all items exist in table, false if at least one fails.
      */
-    override fun containsAll(elements: Collection<TModel>): Boolean {
+    override fun containsAll(elements: Collection<T>): Boolean {
         var contains = !elements.isEmpty()
         if (contains) {
             contains = elements.all { it in this }
@@ -180,8 +180,8 @@ class FlowQueryList<TModel>(
         return contains
     }
 
-    override fun getItem(position: Long): TModel {
-        return internalCursorList.getItem(position)
+    override fun get(position: Long): T {
+        return internalCursorList.get(position)
     }
 
     override fun cursor(): Cursor? {
@@ -196,11 +196,9 @@ class FlowQueryList<TModel>(
      * @return A model converted from the internal [FlowCursorList]. For
      * performance improvements, ensure caching is turned on.
      */
-    override operator fun get(index: Int): TModel {
-        return internalCursorList.getItem(index.toLong())
-    }
+    override operator fun get(index: Int): T = internalCursorList.get(index.toLong())
 
-    override fun indexOf(element: TModel): Int {
+    override fun indexOf(element: T): Int {
         throw UnsupportedOperationException(
                 "We cannot determine which index in the table this item exists at efficiently")
     }
@@ -211,42 +209,42 @@ class FlowQueryList<TModel>(
 
     /**
      * @return An iterator from [FlowCursorList.getAll].
-     * Be careful as this method will convert all data under this table into a list of [TModel] in the UI thread.
+     * Be careful as this method will convert all data under this table into a list of [T] in the UI thread.
      */
-    override fun iterator(): FlowCursorIterator<TModel> {
+    override fun iterator(): FlowCursorIterator<T> {
         return FlowCursorIterator(this)
     }
 
-    override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<TModel> {
+    override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> {
         return FlowCursorIterator(this, startingLocation, limit)
     }
 
-    override fun lastIndexOf(element: TModel): Int {
+    override fun lastIndexOf(element: T): Int {
         throw UnsupportedOperationException(
                 "We cannot determine which index in the table this item exists at efficiently")
     }
 
     /**
      * @return A list iterator from the [FlowCursorList.getAll].
-     * Be careful as this method will convert all data under this table into a list of [TModel] in the UI thread.
+     * Be careful as this method will convert all data under this table into a list of [T] in the UI thread.
      */
-    override fun listIterator(): ListIterator<TModel> {
+    override fun listIterator(): ListIterator<T> {
         return FlowCursorIterator(this)
     }
 
     /**
      * @param location The index to start the iterator.
      * @return A list iterator from the [FlowCursorList.getAll].
-     * Be careful as this method will convert all data under this table into a list of [TModel] in the UI thread.
+     * Be careful as this method will convert all data under this table into a list of [T] in the UI thread.
      */
-    override fun listIterator(location: Int): ListIterator<TModel> {
+    override fun listIterator(location: Int): ListIterator<T> {
         return FlowCursorIterator(this, location)
     }
 
     override val size: Int
         get() = internalCursorList.count.toInt()
 
-    override fun subList(fromIndex: Int, toIndex: Int): List<TModel> {
+    override fun subList(fromIndex: Int, toIndex: Int): List<T> {
         val tableList = internalCursorList.all
         return tableList.subList(fromIndex, toIndex)
     }
@@ -255,27 +253,27 @@ class FlowQueryList<TModel>(
         internalCursorList.close()
     }
 
-    class Builder<TModel> {
+    class Builder<T : Any> {
 
-        internal val table: Class<TModel>
+        internal val table: Class<T>
 
         internal var transact: Boolean = false
         internal var changeInTransaction: Boolean = false
         internal var cursor: Cursor? = null
-        internal var modelQueriable: ModelQueriable<TModel>
+        internal var modelQueriable: ModelQueriable<T>
 
-        internal constructor(cursorList: FlowCursorList<TModel>) {
+        internal constructor(cursorList: FlowCursorList<T>) {
             table = cursorList.table
             cursor = cursorList.cursor()
             modelQueriable = cursorList.modelQueriable
         }
 
-        constructor(table: Class<TModel>) {
+        constructor(table: Class<T>) {
             this.table = table
             modelQueriable = SQLite.select().from(table)
         }
 
-        constructor(modelQueriable: ModelQueriable<TModel>) {
+        constructor(modelQueriable: ModelQueriable<T>) {
             this.table = modelQueriable.table
             this.modelQueriable = modelQueriable
         }

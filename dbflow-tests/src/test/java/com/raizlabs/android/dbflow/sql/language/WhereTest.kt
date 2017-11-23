@@ -2,21 +2,15 @@ package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.assertEquals
-import com.raizlabs.android.dbflow.kotlinextensions.and
-import com.raizlabs.android.dbflow.kotlinextensions.from
 import com.raizlabs.android.dbflow.kotlinextensions.groupBy
 import com.raizlabs.android.dbflow.kotlinextensions.having
 import com.raizlabs.android.dbflow.kotlinextensions.limit
 import com.raizlabs.android.dbflow.kotlinextensions.list
 import com.raizlabs.android.dbflow.kotlinextensions.nameAlias
 import com.raizlabs.android.dbflow.kotlinextensions.offset
-import com.raizlabs.android.dbflow.kotlinextensions.or
 import com.raizlabs.android.dbflow.kotlinextensions.orderBy
 import com.raizlabs.android.dbflow.kotlinextensions.result
-import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.kotlinextensions.update
-import com.raizlabs.android.dbflow.kotlinextensions.where
-import com.raizlabs.android.dbflow.kotlinextensions.whereExists
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.models.TwoColumnModel

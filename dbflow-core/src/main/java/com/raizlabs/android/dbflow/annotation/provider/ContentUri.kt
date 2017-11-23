@@ -42,11 +42,9 @@ annotation class ContentUri(
  */
 object ContentType {
 
-    @JvmField
-    val VND_MULTIPLE = "vnd.android.cursor.dir/"
+    const val VND_MULTIPLE = "vnd.android.cursor.dir/"
 
-    @JvmField
-    val VND_SINGLE = "vnd.android.cursor.item/"
+    const val VND_SINGLE = "vnd.android.cursor.item/"
 }
 
 /**

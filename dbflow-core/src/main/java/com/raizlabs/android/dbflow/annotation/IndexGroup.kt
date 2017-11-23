@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.annotation
 
-const val GENERIC = -1
+const val INDEX_GENERIC = -1
 
 /**
  * Description:
@@ -10,9 +10,9 @@ const val GENERIC = -1
 annotation class IndexGroup(
         /**
          * @return The number that each contained [Index] points to, so they can be combined into a single index.
-         * If [.GENERIC], this will assume a generic index that covers the whole table.
+         * If [.INDEX_GENERIC], this will assume a generic index that covers the whole table.
          */
-        val number: Int = GENERIC,
+        val number: Int = INDEX_GENERIC,
         /**
          * @return The name of this index. It must be unique from other [IndexGroup].
          */

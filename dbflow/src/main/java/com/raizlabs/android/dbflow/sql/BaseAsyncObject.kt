@@ -4,24 +4,26 @@ import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
+import com.raizlabs.android.dbflow.structure.database.transaction.transactionError
+import com.raizlabs.android.dbflow.structure.database.transaction.transactionSuccess
 
 /**
  * Description: Internal use to provide common implementation for async objects.
  */
-open class BaseAsyncObject<TAsync>(open val table: Class<*>) {
+open class BaseAsyncObject<out TAsync>(open val table: Class<*>) {
 
     private var successCallback: Transaction.Success? = null
     private var errorCallback: Transaction.Error? = null
     private var currentTransaction: Transaction? = null
     private val databaseDefinition: DatabaseDefinition by lazy { FlowManager.getDatabaseForTable(table) }
 
-    private val error = Transaction.Error { transaction, error ->
+    private val error = transactionError { transaction, error ->
         errorCallback?.onError(transaction, error)
         this@BaseAsyncObject.onError(transaction, error)
         currentTransaction = null
     }
 
-    private val success = Transaction.Success { transaction ->
+    private val success = transactionSuccess { transaction ->
         successCallback?.onSuccess(transaction)
         this@BaseAsyncObject.onSuccess(transaction)
         currentTransaction = null

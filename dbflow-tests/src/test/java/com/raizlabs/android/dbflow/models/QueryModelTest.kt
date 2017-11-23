@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.models
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.kotlinextensions.eq
 import com.raizlabs.android.dbflow.kotlinextensions.exists
-import com.raizlabs.android.dbflow.kotlinextensions.from
+import com.raizlabs.android.dbflow.sql.language.from
 import com.raizlabs.android.dbflow.kotlinextensions.innerJoin
 import com.raizlabs.android.dbflow.kotlinextensions.on
 import com.raizlabs.android.dbflow.kotlinextensions.save

@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
+import com.raizlabs.android.dbflow.annotation.provider.ContentType
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
 import com.raizlabs.android.dbflow.structure.provider.BaseProviderModel
@@ -18,7 +19,7 @@ import com.raizlabs.android.dbflow.structure.provider.ContentUtils
  * Description:
  */
 @ContentProvider(authority = ContentDatabase.AUTHORITY, database = ContentDatabase::class,
-    baseContentUri = ContentDatabase.BASE_CONTENT_URI)
+        baseContentUri = ContentDatabase.BASE_CONTENT_URI)
 @Database(version = ContentDatabase.VERSION)
 object ContentDatabase {
 
@@ -39,19 +40,19 @@ class ContentProviderModel(@PrimaryKey(autoincrement = true)
                            @Column
                            var title: String? = null) : BaseProviderModel() {
 
-    override fun getDeleteUri() = TestContentProvider.ContentProviderModel.CONTENT_URI
+    override val deleteUri get() = TestContentProvider.ContentProviderModel.CONTENT_URI
 
-    override fun getInsertUri() = TestContentProvider.ContentProviderModel.CONTENT_URI
+    override val insertUri get() = TestContentProvider.ContentProviderModel.CONTENT_URI
 
-    override fun getUpdateUri() = TestContentProvider.ContentProviderModel.CONTENT_URI
+    override val updateUri get() = TestContentProvider.ContentProviderModel.CONTENT_URI
 
-    override fun getQueryUri() = TestContentProvider.ContentProviderModel.CONTENT_URI
+    override val queryUri get() = TestContentProvider.ContentProviderModel.CONTENT_URI
 
     companion object {
 
         const val NAME = "ContentProviderModel"
 
-        @ContentUri(path = NAME, type = ContentUri.ContentType.VND_MULTIPLE + NAME)
+        @ContentUri(path = NAME, type = "${ContentType.VND_MULTIPLE}$NAME")
         val CONTENT_URI = ContentUtils.buildUriWithAuthority(ContentDatabase.AUTHORITY)
     }
 }
@@ -61,7 +62,7 @@ class NoteModel(@PrimaryKey(autoincrement = true)
                 var id: Long = 0,
 
                 @ForeignKey(references = arrayOf(ForeignKeyReference(columnName = "providerModel",
-                    foreignKeyColumnName = "id")))
+                        foreignKeyColumnName = "id")))
                 var contentProviderModel: ContentProviderModel? = null,
 
                 @Column
@@ -70,13 +71,13 @@ class NoteModel(@PrimaryKey(autoincrement = true)
                 @Column
                 var isOpen: Boolean = false) : BaseProviderModel() {
 
-    override fun getDeleteUri() = TestContentProvider.NoteModel.CONTENT_URI
+    override val deleteUri get() = TestContentProvider.NoteModel.CONTENT_URI
 
-    override fun getInsertUri() = TestContentProvider.NoteModel.CONTENT_URI
+    override val insertUri get() = TestContentProvider.NoteModel.CONTENT_URI
 
-    override fun getUpdateUri() = TestContentProvider.NoteModel.CONTENT_URI
+    override val updateUri get() = TestContentProvider.NoteModel.CONTENT_URI
 
-    override fun getQueryUri() = TestContentProvider.NoteModel.CONTENT_URI
+    override val queryUri get() = TestContentProvider.NoteModel.CONTENT_URI
 }
 
 @Table(database = ContentDatabase::class)
@@ -85,11 +86,11 @@ class TestSyncableModel(@PrimaryKey(autoincrement = true)
                         @Column
                         var name: String? = null) : BaseSyncableProviderModel() {
 
-    override fun getDeleteUri() = TestContentProvider.TestSyncableModel.CONTENT_URI
+    override val deleteUri get() = TestContentProvider.TestSyncableModel.CONTENT_URI
 
-    override fun getInsertUri() = TestContentProvider.TestSyncableModel.CONTENT_URI
+    override val insertUri get() = TestContentProvider.TestSyncableModel.CONTENT_URI
 
-    override fun getUpdateUri() = TestContentProvider.TestSyncableModel.CONTENT_URI
+    override val updateUri get() = TestContentProvider.TestSyncableModel.CONTENT_URI
 
-    override fun getQueryUri() = TestContentProvider.TestSyncableModel.CONTENT_URI
+    override val queryUri get() = TestContentProvider.TestSyncableModel.CONTENT_URI
 }

@@ -14,12 +14,12 @@ import java.util.*
 /**
  * Description: A non-modifiable, cursor-backed list that you can use in [ListView] or other data sources.
  */
-class FlowCursorList<TModel> private constructor(builder: Builder<TModel>) : IFlowCursorIterator<TModel> {
+class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCursorIterator<T> {
 
     /**
      * Interface for callbacks when cursor gets refreshed.
      */
-    interface OnCursorRefreshListener<TModel> {
+    interface OnCursorRefreshListener<TModel : Any> {
 
         /**
          * Callback when cursor refreshes.
@@ -30,23 +30,23 @@ class FlowCursorList<TModel> private constructor(builder: Builder<TModel>) : IFl
     }
 
 
-    val table: Class<TModel>
-    val modelQueriable: ModelQueriable<TModel>
+    val table: Class<T>
+    val modelQueriable: ModelQueriable<T>
     private var cursor: FlowCursor? = null
     private val cursorFunc: () -> FlowCursor
 
-    internal val instanceAdapter: InstanceAdapter<TModel>
+    internal val instanceAdapter: InstanceAdapter<T>
 
-    private val cursorRefreshListenerSet = HashSet<OnCursorRefreshListener<TModel>>()
+    private val cursorRefreshListenerSet = HashSet<OnCursorRefreshListener<T>>()
 
-    internal val modelAdapter: ModelAdapter<TModel>
-        get() = instanceAdapter as ModelAdapter<TModel>
+    internal val modelAdapter: ModelAdapter<T>
+        get() = instanceAdapter as ModelAdapter<T>
 
     /**
-     * @return the full, converted [TModel] list from the database on this list. For large
+     * @return the full, converted [T] list from the database on this list. For large
      * data sets that require a large conversion, consider calling this on a BG thread.
      */
-    val all: List<TModel>
+    val all: List<T>
         get() {
             throwIfCursorClosed()
             warnEmptyCursor()
@@ -73,24 +73,24 @@ class FlowCursorList<TModel> private constructor(builder: Builder<TModel>) : IFl
         instanceAdapter = FlowManager.getInstanceAdapter(builder.modelClass)
     }
 
-    override operator fun iterator(): FlowCursorIterator<TModel> {
+    override operator fun iterator(): FlowCursorIterator<T> {
         return FlowCursorIterator(this)
     }
 
-    override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<TModel> {
+    override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> {
         return FlowCursorIterator(this, startingLocation, limit)
     }
 
     /**
      * Register listener for when cursor refreshes.
      */
-    fun addOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<TModel>) {
+    fun addOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<T>) {
         synchronized(cursorRefreshListenerSet) {
             cursorRefreshListenerSet.add(onCursorRefreshListener)
         }
     }
 
-    fun removeOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<TModel>) {
+    fun removeOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<T>) {
         synchronized(cursorRefreshListenerSet) {
             cursorRefreshListenerSet.remove(onCursorRefreshListener)
         }
@@ -111,12 +111,12 @@ class FlowCursorList<TModel> private constructor(builder: Builder<TModel>) : IFl
 
     /**
      * Returns a model at the specified position. If we are using the cache and it does not contain a model
-     * at that position, we move the cursor to the specified position and construct the [TModel].
+     * at that position, we move the cursor to the specified position and construct the [T].
      *
      * @param position The row number in the [android.database.Cursor] to look at
-     * @return The [TModel] converted from the cursor
+     * @return The [T] converted from the cursor
      */
-    override fun getItem(position: Long): TModel {
+    override fun get(position: Long): T {
         throwIfCursorClosed()
 
         val cursor = unpackCursor()
@@ -176,27 +176,27 @@ class FlowCursorList<TModel> private constructor(builder: Builder<TModel>) : IFl
      * @return A new [Builder] that contains the same cache, query statement, and other
      * underlying data, but allows for modification.
      */
-    fun newBuilder(): Builder<TModel> {
+    fun newBuilder(): Builder<T> {
         return Builder(modelQueriable).cursor(unpackCursor())
     }
 
     /**
      * Provides easy way to construct a [FlowCursorList].
      *
-     * @param <TModel>
-    </TModel> */
-    class Builder<TModel> {
+     * @param [T]
+     */
+    class Builder<T : Any> {
 
-        internal val modelClass: Class<TModel>
+        internal val modelClass: Class<T>
         internal var cursor: FlowCursor? = null
-        internal var modelQueriable: ModelQueriable<TModel>
+        internal var modelQueriable: ModelQueriable<T>
 
-        constructor(modelClass: Class<TModel>) {
+        constructor(modelClass: Class<T>) {
             this.modelClass = modelClass
             this.modelQueriable = SQLite.select().from(modelClass)
         }
 
-        constructor(modelQueriable: ModelQueriable<TModel>) {
+        constructor(modelQueriable: ModelQueriable<T>) {
             this.modelClass = modelQueriable.table
             this.modelQueriable = modelQueriable
         }
@@ -213,11 +213,13 @@ class FlowCursorList<TModel> private constructor(builder: Builder<TModel>) : IFl
         /**
          * The default size of the cache if cache size is 0 or not specified.
          */
+        @JvmStatic
         val DEFAULT_CACHE_SIZE = 50
 
         /**
          * Minimum size that we make the cache (if size is supported in cache)
          */
+        @JvmStatic
         val MIN_CACHE_SIZE = 20
     }
 }

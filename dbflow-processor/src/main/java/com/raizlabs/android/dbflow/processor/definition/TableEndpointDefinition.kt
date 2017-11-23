@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.annotation.provider.ContentUri
 import com.raizlabs.android.dbflow.annotation.provider.Notify
+import com.raizlabs.android.dbflow.annotation.provider.NotifyMethod
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.annotation
@@ -24,7 +25,7 @@ class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorM
      */
     internal var pathValidationMap: Map<String, ContentUriDefinition> = mutableMapOf()
 
-    var notifyDefinitionPathMap: MutableMap<String, MutableMap<Notify.Method, MutableList<NotifyDefinition>>>
+    var notifyDefinitionPathMap: MutableMap<String, MutableMap<NotifyMethod, MutableList<NotifyDefinition>>>
             = mutableMapOf()
 
     var tableName: String? = null

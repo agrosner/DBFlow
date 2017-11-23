@@ -18,6 +18,7 @@ import com.grosner.kpoet.switch
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ColumnMap
 import com.raizlabs.android.dbflow.annotation.ConflictAction
+import com.raizlabs.android.dbflow.annotation.DEFAULT_CACHE_SIZE
 import com.raizlabs.android.dbflow.annotation.ForeignKey
 import com.raizlabs.android.dbflow.annotation.InheritedColumn
 import com.raizlabs.android.dbflow.annotation.InheritedPrimaryKey
@@ -595,7 +596,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     `return`("new String[]{${primaryColumns.joinToString { QueryBuilder.quoteIfNeeded(it.columnName).S }}}")
                 }
 
-                if (cacheSize != Table.DEFAULT_CACHE_SIZE) {
+                if (cacheSize != DEFAULT_CACHE_SIZE) {
                     `override fun`(TypeName.INT, "getCacheSize") {
                         modifiers(public, final)
                         `return`(cacheSize.L)

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.raizlabs.android.dbflow.annotation.provider.Notify
+import com.raizlabs.android.dbflow.annotation.provider.NotifyMethod
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.annotation
@@ -16,7 +17,7 @@ class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
     : BaseDefinition(typeElement, processorManager) {
 
     var paths = arrayOf<String>()
-    var method = Notify.Method.DELETE
+    var method = NotifyMethod.DELETE
     val parent = (typeElement.enclosingElement as TypeElement).qualifiedName.toString()
     val methodName = typeElement.simpleName.toString()
     var params: String
@@ -27,7 +28,7 @@ class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
 
         typeElement.annotation<Notify>()?.let { notify ->
             paths = notify.paths
-            method = notify.method
+            method = notify.notifyMethod
         }
 
         val executableElement = typeElement as ExecutableElement

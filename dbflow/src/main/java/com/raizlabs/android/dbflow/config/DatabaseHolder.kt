@@ -12,6 +12,8 @@ abstract class DatabaseHolder {
     val databaseDefinitionMap: MutableMap<Class<*>, DatabaseDefinition> = HashMap()
     val databaseNameMap: MutableMap<String, DatabaseDefinition> = HashMap()
     val databaseClassLookupMap: MutableMap<Class<*>, DatabaseDefinition> = HashMap()
+
+    @JvmField
     val typeConverters: MutableMap<Class<*>, TypeConverter<*, *>> = HashMap()
 
     val databaseDefinitions: List<DatabaseDefinition>
@@ -21,29 +23,22 @@ abstract class DatabaseHolder {
      * @param clazz The model value class to get a [com.raizlabs.android.dbflow.converter.TypeConverter]
      * @return Type converter for the specified model value.
      */
-    fun getTypeConverterForClass(clazz: Class<*>): TypeConverter<*, *>? {
-        return typeConverters[clazz]
-    }
+    fun getTypeConverterForClass(clazz: Class<*>): TypeConverter<*, *>? = typeConverters[clazz]
 
     /**
      * @param table The model class
      * @return The database that the table belongs in
      */
-    fun getDatabaseForTable(table: Class<*>): DatabaseDefinition? {
-        return databaseDefinitionMap[table]
-    }
+    fun getDatabaseForTable(table: Class<*>): DatabaseDefinition? = databaseDefinitionMap[table]
 
-    fun getDatabase(databaseClass: Class<*>): DatabaseDefinition? {
-        return databaseClassLookupMap[databaseClass]
-    }
+    fun getDatabase(databaseClass: Class<*>): DatabaseDefinition? =
+            databaseClassLookupMap[databaseClass]
 
     /**
      * @param databaseName The name of the database to retrieve
      * @return The database that has the specified name
      */
-    fun getDatabase(databaseName: String): DatabaseDefinition? {
-        return databaseNameMap[databaseName]
-    }
+    fun getDatabase(databaseName: String): DatabaseDefinition? = databaseNameMap[databaseName]
 
     /**
      * Helper method used to store a database for the specified table.

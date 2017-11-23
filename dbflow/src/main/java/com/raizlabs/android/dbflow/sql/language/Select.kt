@@ -52,10 +52,10 @@ class Select
      * Passes this statement to the [From]
      *
      * @param table    The model table to run this query on
-     * @param <TModel> The class that implements [com.raizlabs.android.dbflow.structure.Model]
+     * @param [T] The class that implements [com.raizlabs.android.dbflow.structure.Model]
      * @return the From part of this query
-    </TModel> */
-    fun <TModel> from(table: Class<TModel>): From<TModel> = From(this, table)
+     */
+    fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
 
     /**
      * appends [.DISTINCT] to the query

@@ -1,11 +1,11 @@
 package com.raizlabs.android.dbflow.sqlcipher
 
 import com.raizlabs.android.dbflow.BaseInstrumentedUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.from
-import com.raizlabs.android.dbflow.kotlinextensions.result
-import com.raizlabs.android.dbflow.kotlinextensions.select
-import com.raizlabs.android.dbflow.kotlinextensions.where
 import com.raizlabs.android.dbflow.sql.language.Delete
+import com.raizlabs.android.dbflow.sql.language.from
+import com.raizlabs.android.dbflow.sql.language.select
+import com.raizlabs.android.dbflow.sql.language.where
+import com.raizlabs.android.dbflow.sql.queriable.result
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

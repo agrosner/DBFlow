@@ -17,7 +17,7 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
  * Description: Provides a base implementation of [ModelQueriable] to simplify a lot of code. It provides the
  * default implementation for convenience.
  */
-abstract class BaseModelQueriable<TModel>
+abstract class BaseModelQueriable<TModel : Any>
 /**
  * Constructs new instance of this class and is meant for subclasses only.
  *
@@ -80,14 +80,14 @@ protected constructor(table: Class<TModel>)
 
     override fun async(): AsyncQuery<TModel> = AsyncQuery(this)
 
-    override fun <QueryClass> queryCustomList(queryModelClass: Class<QueryClass>): MutableList<QueryClass> {
+    override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>): MutableList<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
         val adapter = FlowManager.getQueryModelAdapter(queryModelClass)
         return adapter.listModelLoader.load(query)!!
     }
 
-    override fun <QueryClass> queryCustomSingle(queryModelClass: Class<QueryClass>): QueryClass? {
+    override fun <QueryClass : Any> queryCustomSingle(queryModelClass: Class<QueryClass>): QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
         val adapter = FlowManager.getQueryModelAdapter(queryModelClass)

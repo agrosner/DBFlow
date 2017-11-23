@@ -3,8 +3,6 @@ package com.raizlabs.android.dbflow.sql.language
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.assertEquals
-import com.raizlabs.android.dbflow.kotlinextensions.eq
-import com.raizlabs.android.dbflow.kotlinextensions.set
 import com.raizlabs.android.dbflow.kotlinextensions.update
 import com.raizlabs.android.dbflow.models.NumberModel
 import com.raizlabs.android.dbflow.models.NumberModel_Table.id

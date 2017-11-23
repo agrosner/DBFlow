@@ -44,7 +44,7 @@ object TestContentProvider {
         }
 
         @JvmStatic
-        @Notify(method = Notify.Method.INSERT, paths = arrayOf(ContentProviderModel.ENDPOINT + "/#"))
+        @Notify(notifyMethod = Notify.Method.INSERT, paths = arrayOf(ContentProviderModel.ENDPOINT + "/#"))
         fun onInsert(contentValues: ContentValues): Array<Uri> {
             val id = contentValues.getAsLong("id")!!
             return arrayOf(withId(id))
@@ -85,21 +85,21 @@ object TestContentProvider {
         }
 
         @JvmStatic
-        @Notify(method = Notify.Method.INSERT, paths = arrayOf(ENDPOINT))
+        @Notify(notifyMethod = Notify.Method.INSERT, paths = arrayOf(ENDPOINT))
         fun onInsert(contentValues: ContentValues): Array<Uri> {
             val listId = contentValues.getAsLong(SqlUtils.getContentValuesKey(contentValues, "providerModel"))!!
             return arrayOf(ContentProviderModel.withId(listId), fromList(listId))
         }
 
         @JvmStatic
-        @Notify(method = Notify.Method.INSERT, paths = arrayOf(ENDPOINT))
+        @Notify(notifyMethod = Notify.Method.INSERT, paths = arrayOf(ENDPOINT))
         fun onInsert2(contentValues: ContentValues): Uri {
             val listId = contentValues.getAsLong(SqlUtils.getContentValuesKey(contentValues, "providerModel"))!!
             return fromList(listId)
         }
 
         @JvmStatic
-        @Notify(method = Notify.Method.UPDATE, paths = arrayOf(ENDPOINT + "/#"))
+        @Notify(notifyMethod = Notify.Method.UPDATE, paths = arrayOf(ENDPOINT + "/#"))
         fun onUpdate(context: Context, uri: Uri): Array<Uri> {
             val noteId = java.lang.Long.valueOf(uri.pathSegments[1])!!
             val c = context.contentResolver.query(uri, arrayOf("noteModel"), null, null, null)
@@ -111,7 +111,7 @@ object TestContentProvider {
         }
 
         @JvmStatic
-        @Notify(method = Notify.Method.DELETE, paths = arrayOf(ENDPOINT + "/#"))
+        @Notify(notifyMethod = Notify.Method.DELETE, paths = arrayOf(ENDPOINT + "/#"))
         fun onDelete(context: Context, uri: Uri): Array<Uri> {
             val noteId = java.lang.Long.valueOf(uri.pathSegments[1])!!
             val c = context.contentResolver.query(uri, null, null, null, null)

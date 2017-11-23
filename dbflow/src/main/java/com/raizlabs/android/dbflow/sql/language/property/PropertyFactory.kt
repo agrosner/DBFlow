@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.sql.language.property
 import com.raizlabs.android.dbflow.sql.language.NameAlias
 import com.raizlabs.android.dbflow.sql.language.Operator
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
+import kotlin.reflect.KClass
 
 /**
  * Description: Provides some useful methods for creating [IProperty] from non-property types.
@@ -108,7 +109,7 @@ object PropertyFactory {
     @JvmStatic
     fun <T> from(type: T?): Property<T> {
         return Property(null, NameAlias.rawBuilder(
-                Operator.convertValueToString(type))
+                Operator.convertValueToString(type) ?: "")
                 .build())
     }
 
@@ -116,24 +117,54 @@ object PropertyFactory {
      * Creates a new [Property] that is used to allow selects in a query.
      *
      * @param queriable The queriable to use and evaulated into a query.
-     * @param <TModel>  The model class of the query.
+     * @param [T] The model class of the query.
      * @return A new property that is a query.
      */
     @JvmStatic
-    fun <TModel> from(queriable: ModelQueriable<TModel>): Property<TModel> {
-        return from(queriable.table, "(${queriable.query.trim { it <= ' ' }})")
-    }
+    fun <T : Any> from(queriable: ModelQueriable<T>): Property<T> =
+            from(queriable.table, "(${queriable.query.trim { it <= ' ' }})")
 
     /**
      * Creates a new type-parameterized [Property] to be used as its value represented by the string passed in.
      *
      * @param stringRepresentation The string representation of the object you wish to use.
-     * @param <T>                  The parameter of its type.
+     * @param [T]                 The parameter of its type.
      * @return A new property with its type.
      */
     @JvmStatic
     fun <T> from(table: Class<T>, stringRepresentation: String?): Property<T> {
-        return Property(null, NameAlias.rawBuilder(stringRepresentation)
+        return Property(null, NameAlias.rawBuilder(stringRepresentation ?: "")
                 .build())
     }
 }
+
+val Int.property
+    get() = PropertyFactory.from(this)
+
+val Char.property
+    get() = PropertyFactory.from(this)
+
+val Double.property
+    get() = PropertyFactory.from(this)
+
+val Long.property
+    get() = PropertyFactory.from(this)
+
+val Float.property
+    get() = PropertyFactory.from(this)
+
+val Short.property
+    get() = PropertyFactory.from(this)
+
+val Byte.property
+    get() = PropertyFactory.from(this)
+
+val <T : Any> T?.property
+    get() = PropertyFactory.from(this)
+
+val <T : Any> ModelQueriable<T>.property
+    get() = PropertyFactory.from(this)
+
+inline fun <reified T : Any> propertyString(stringRepresentation: String?) = PropertyFactory.from(T::class.java, stringRepresentation)
+
+inline fun <reified T : Any> KClass<T>.allProperty() = Property.allProperty(this.java)

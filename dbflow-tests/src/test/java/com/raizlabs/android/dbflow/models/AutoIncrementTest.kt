@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
-import com.raizlabs.android.dbflow.kotlinextensions.insert
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -1,9 +1,9 @@
 package com.raizlabs.android.dbflow.prepackaged
 
 import com.raizlabs.android.dbflow.BaseInstrumentedUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.from
-import com.raizlabs.android.dbflow.kotlinextensions.list
-import com.raizlabs.android.dbflow.kotlinextensions.select
+import com.raizlabs.android.dbflow.sql.language.from
+import com.raizlabs.android.dbflow.sql.language.select
+import com.raizlabs.android.dbflow.sql.queriable.list
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

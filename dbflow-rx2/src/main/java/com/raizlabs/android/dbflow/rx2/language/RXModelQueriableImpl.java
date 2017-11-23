@@ -127,7 +127,7 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl implements RXModelQ
     @NonNull
     @Override
     public <TQueryModel> Single<List<TQueryModel>> queryCustomList(
-        final Class<TQueryModel> tQueryModelClass) {
+            final Class<TQueryModel> tQueryModelClass) {
         return fromCallable(new Callable<List<TQueryModel>>() {
             @Override
             public List<TQueryModel> call() throws Exception {
@@ -139,7 +139,7 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl implements RXModelQ
     @NonNull
     @Override
     public <TQueryModel> Maybe<TQueryModel> queryCustomSingle(
-        final Class<TQueryModel> tQueryModelClass) {
+            final Class<TQueryModel> tQueryModelClass) {
         return Maybe.fromCallable(new Callable<TQueryModel>() {
             @Override
             public TQueryModel call() throws Exception {
@@ -150,15 +150,8 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl implements RXModelQ
 
     @NonNull
     @Override
-    public RXModelQueriable<T> disableCaching() {
-        getInnerModelQueriable().disableCaching();
-        return this;
-    }
-
-    @NonNull
-    @Override
     public Flowable<ModelQueriable<T>> observeOnTableChanges() {
         return Flowable.create(new TableChangeOnSubscribe<>(getInnerModelQueriable()),
-            BackpressureStrategy.LATEST);
+                BackpressureStrategy.LATEST);
     }
 }

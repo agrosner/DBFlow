@@ -88,3 +88,74 @@ interface IConditional : Query {
 
     operator fun rem(value: BaseModelQueriable<*>): Operator<*>
 }
+
+infix fun IConditional.eq(value: IConditional): Operator<*> = this.eq(value)
+
+infix fun IConditional.`is`(conditional: IConditional): Operator<*> = this.`is`(conditional)
+
+infix fun IConditional.isNot(conditional: IConditional): Operator<*> = this.isNot(conditional)
+
+infix fun IConditional.notEq(conditional: IConditional): Operator<*> = this.notEq(conditional)
+
+infix fun IConditional.like(conditional: IConditional): Operator<*> = this.like(conditional)
+
+infix fun IConditional.glob(conditional: IConditional): Operator<*> = this.glob(conditional)
+
+infix fun IConditional.like(value: String): Operator<*> = this.like(value)
+
+infix fun IConditional.glob(value: String): Operator<*> = this.glob(value)
+
+infix fun IConditional.greaterThan(conditional: IConditional): Operator<*> = this.greaterThan(conditional)
+
+infix fun IConditional.greaterThanOrEq(conditional: IConditional): Operator<*> = this.greaterThanOrEq(conditional)
+
+infix fun IConditional.lessThan(conditional: IConditional): Operator<*> = this.lessThan(conditional)
+
+infix fun IConditional.lessThanOrEq(conditional: IConditional): Operator<*> = this.lessThanOrEq(conditional)
+
+infix fun IConditional.between(conditional: IConditional): Operator.Between<*> = this.between(conditional)
+
+infix fun IConditional.`in`(values: Array<IConditional>): Operator.In<*> {
+    return when (values.size) {
+        1 -> `in`(values[0])
+        else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
+    }
+}
+
+infix fun IConditional.notIn(values: Array<IConditional>): Operator.In<*> {
+    return when (values.size) {
+        1 -> notIn(values[0])
+        else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
+    }
+}
+
+infix fun <T : Any> IConditional.`is`(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.`is`(baseModelQueriable)
+
+infix fun <T : Any> IConditional.eq(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.eq(baseModelQueriable)
+
+infix fun <T : Any> IConditional.isNot(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.isNot(baseModelQueriable)
+infix fun <T : Any> IConditional.notEq(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.notEq(baseModelQueriable)
+infix fun <T : Any> IConditional.like(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.like(baseModelQueriable)
+infix fun <T : Any> IConditional.glob(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.glob(baseModelQueriable)
+infix fun <T : Any> IConditional.greaterThan(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.greaterThan(baseModelQueriable)
+infix fun <T : Any> IConditional.greaterThanOrEq(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.greaterThanOrEq(baseModelQueriable)
+infix fun <T : Any> IConditional.lessThan(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.lessThan(baseModelQueriable)
+infix fun <T : Any> IConditional.lessThanOrEq(baseModelQueriable: BaseModelQueriable<T>): Operator<*> = this.lessThanOrEq(baseModelQueriable)
+infix fun <T : Any> IConditional.between(baseModelQueriable: BaseModelQueriable<T>): Operator.Between<*> = this.between(baseModelQueriable)
+
+infix fun <T : Any> IConditional.`in`(values: Array<BaseModelQueriable<T>>): Operator.In<*> {
+    return when (values.size) {
+        1 -> `in`(values[0])
+        else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
+    }
+}
+
+infix fun <T : Any> IConditional.notIn(values: Array<BaseModelQueriable<T>>): Operator.In<*> {
+    return when (values.size) {
+        1 -> notIn(values[0])
+        else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
+    }
+}
+
+infix fun IConditional.concatenate(conditional: IConditional): Operator<*> = this.concatenate(conditional)
+

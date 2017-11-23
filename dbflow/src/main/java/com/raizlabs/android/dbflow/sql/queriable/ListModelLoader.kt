@@ -3,12 +3,12 @@ package com.raizlabs.android.dbflow.sql.queriable
 import com.raizlabs.android.dbflow.structure.database.FlowCursor
 
 /**
- * Description: Loads a [List] of [TModel].
+ * Description: Loads a [List] of [T].
  */
-open class ListModelLoader<TModel>(modelClass: Class<TModel>)
-    : ModelLoader<TModel, MutableList<TModel>>(modelClass) {
+open class ListModelLoader<T : Any>(modelClass: Class<T>)
+    : ModelLoader<T, MutableList<T>>(modelClass) {
 
-    override fun load(cursor: FlowCursor?, data: MutableList<TModel>?): MutableList<TModel>? {
+    override fun load(cursor: FlowCursor?, data: MutableList<T>?): MutableList<T>? {
         var _data = data
         if (_data == null) {
             _data = arrayListOf()
@@ -18,7 +18,7 @@ open class ListModelLoader<TModel>(modelClass: Class<TModel>)
         return super.load(cursor, _data)
     }
 
-    override fun convertToData(cursor: FlowCursor, data: MutableList<TModel>?): MutableList<TModel> {
+    override fun convertToData(cursor: FlowCursor, data: MutableList<T>?): MutableList<T> {
         var _data = data
         if (_data == null) {
             _data = arrayListOf()
