@@ -1,12 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.crossJoin
-import com.raizlabs.android.dbflow.kotlinextensions.innerJoin
-import com.raizlabs.android.dbflow.kotlinextensions.leftOuterJoin
-import com.raizlabs.android.dbflow.kotlinextensions.naturalJoin
-import com.raizlabs.android.dbflow.kotlinextensions.on
-import com.raizlabs.android.dbflow.kotlinextensions.using
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table
 import com.raizlabs.android.dbflow.models.TwoColumnModel

@@ -9,10 +9,10 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder
  */
 class NameAlias(private val name: String,
                 private val aliasName: String? = null,
-                private val tableName: String? = null,
-                private val keyword: String? = null,
-                private val shouldStripIdentifier: Boolean = true,
-                private val shouldStripAliasName: Boolean = true,
+                val tableName: String? = null,
+                val keyword: String? = null,
+                val shouldStripIdentifier: Boolean = true,
+                val shouldStripAliasName: Boolean = true,
                 private val shouldAddIdentifierToQuery: Boolean = true,
                 private val shouldAddIdentifierToAliasName: Boolean = true) : Query {
 

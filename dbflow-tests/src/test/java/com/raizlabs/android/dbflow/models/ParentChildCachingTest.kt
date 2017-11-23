@@ -2,8 +2,8 @@ package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.sql.language.from
-import com.raizlabs.android.dbflow.kotlinextensions.result
 import com.raizlabs.android.dbflow.sql.language.select
+import com.raizlabs.android.dbflow.sql.queriable.result
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

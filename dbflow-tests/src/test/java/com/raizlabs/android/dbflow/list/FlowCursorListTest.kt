@@ -4,17 +4,13 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.cursor
-import com.raizlabs.android.dbflow.sql.language.from
-import com.raizlabs.android.dbflow.kotlinextensions.get
-import com.raizlabs.android.dbflow.kotlinextensions.save
-import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.models.SimpleModel
-import com.raizlabs.android.dbflow.structure.cache.SimpleMapCache
+import com.raizlabs.android.dbflow.sql.language.from
+import com.raizlabs.android.dbflow.sql.language.select
+import com.raizlabs.android.dbflow.sql.queriable.cursor
+import com.raizlabs.android.dbflow.structure.save
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -22,34 +18,12 @@ import org.junit.Test
  */
 class FlowCursorListTest : BaseUnitTest() {
 
-
-    @Test
-    fun validateBuilder() {
-
-        val list = FlowCursorList.Builder<SimpleModel>(select from SimpleModel::class)
-            .modelCache(SimpleMapCache<SimpleModel>(55))
-            .build()
-
-        assertTrue(list.modelCache is SimpleMapCache<*>)
-        assertTrue(list.cachingEnabled)
-    }
-
-    @Test
-    fun validateNonCachedBuilder() {
-
-        val list = FlowCursorList.Builder<SimpleModel>(select from SimpleModel::class)
-            .cacheModels(false)
-            .build()
-
-        assertFalse(list.cachingEnabled)
-    }
-
     @Test
     fun validateCursorPassed() {
         val cursor = (select from SimpleModel::class).cursor
-        val list = FlowCursorList.Builder<SimpleModel>(SimpleModel::class.java)
-            .cursor(cursor)
-            .build()
+        val list = FlowCursorList.Builder(SimpleModel::class.java)
+                .cursor(cursor)
+                .build()
 
         assertEquals(cursor, list.cursor())
     }
@@ -57,9 +31,8 @@ class FlowCursorListTest : BaseUnitTest() {
     @Test
     fun validateModelQueriable() {
         val modelQueriable = (select from SimpleModel::class)
-        val list = FlowCursorList.Builder(SimpleModel::class.java)
-            .modelQueriable(modelQueriable)
-            .build()
+        val list = FlowCursorList.Builder(modelQueriable)
+                .build()
 
         assertEquals(modelQueriable, list.modelQueriable)
     }
@@ -76,7 +49,6 @@ class FlowCursorListTest : BaseUnitTest() {
         assertEquals(firsItem, firsItem)
         assertEquals(list[2], list[2])
 
-        list.clearCache()
         assertNotEquals(firsItem, list[0])
     }
 

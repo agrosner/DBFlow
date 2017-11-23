@@ -95,7 +95,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      * Force loads the model from the DB. Even if caching is enabled it will requery the object.
      */
     @JvmOverloads
-    fun load(model: T, databaseWrapper: DatabaseWrapper = FlowManager.getDatabaseForTable(modelClass).writableDatabase) {
+    open fun load(model: T, databaseWrapper: DatabaseWrapper = FlowManager.getDatabaseForTable(modelClass).writableDatabase) {
         nonCacheableSingleModelLoader.load(databaseWrapper,
                 SQLite.select()
                         .from(modelClass)
@@ -133,12 +133,12 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
     /**
      * @return A new [ListModelLoader], caching will override this loader instance.
      */
-    protected fun createListModelLoader(): ListModelLoader<T> = ListModelLoader(modelClass)
+    protected open fun createListModelLoader(): ListModelLoader<T> = ListModelLoader(modelClass)
 
     /**
      * @return A new [SingleModelLoader], caching will override this loader instance.
      */
-    protected fun createSingleModelLoader(): SingleModelLoader<T> = SingleModelLoader(modelClass)
+    protected open fun createSingleModelLoader(): SingleModelLoader<T> = SingleModelLoader(modelClass)
 
 }
 /**

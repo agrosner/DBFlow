@@ -316,7 +316,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
     /**
      * @return A set of columns that represent the caching columns.
      */
-    fun createCachingColumns(): Array<String> = arrayOf(autoIncrementingColumnName)
+    open fun createCachingColumns(): Array<String> = arrayOf(autoIncrementingColumnName)
 
     /**
      * Loads all primary keys from the [FlowCursor] into the inValues. The size of the array must
@@ -379,7 +379,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
         else -> null
     }
 
-    fun getCachingId(model: T): Any? =
+    open fun getCachingId(model: T): Any? =
             getCachingId(getCachingColumnValuesFromModel(arrayOfNulls(cachingColumns.size), model))
 
     var modelSaver: ModelSaver<T>
@@ -427,7 +427,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      * @return When false, this table gets generated and associated with database, however it will not immediately
      * get created upon startup. This is useful for keeping around legacy tables for migrations.
      */
-    fun createWithDatabase(): Boolean = true
+    open fun createWithDatabase(): Boolean = true
 
     private fun throwCachingError() {
         throw InvalidDBConfiguration(

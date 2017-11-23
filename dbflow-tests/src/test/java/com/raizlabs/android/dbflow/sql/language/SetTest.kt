@@ -13,13 +13,17 @@ class SetTest : BaseUnitTest() {
     @Test
     fun validateSetWithConditions() {
         assertEquals("SET `name`='name'",
-            Set<SimpleModel>(Query { "" }, SimpleModel::class.java).conditions(name.`is`("name")))
+                Set(object : Query {
+                    override val query = ""
+                }, SimpleModel::class.java).conditions(name.`is`("name")))
     }
 
     @Test
     fun validateMultipleConditions() {
         assertEquals("SET `name`='name', `id`=0",
-            Set<SimpleModel>(Query { "" }, SimpleModel::class.java)
-                .conditions(name.`is`("name"), id.`is`(0)))
+                Set(object : Query {
+                    override val query = ""
+                }, SimpleModel::class.java)
+                        .conditions(name.`is`("name"), id.`is`(0)))
     }
 }

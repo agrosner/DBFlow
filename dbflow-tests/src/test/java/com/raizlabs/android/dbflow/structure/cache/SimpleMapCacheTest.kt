@@ -13,7 +13,7 @@ class SimpleMapCacheTest : BaseUnitTest() {
         val cache = SimpleMapCache<SimpleModel>(10)
         cache.addModel("1", SimpleModel("1"))
 
-        assertEquals("1", cache["1"].name)
+        assertEquals("1", cache["1"]!!.name)
         assertEquals(1, cache.cache.size)
 
         cache.removeModel("1")

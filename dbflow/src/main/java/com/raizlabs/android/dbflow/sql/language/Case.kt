@@ -16,7 +16,7 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
     private var elseSpecified = false
 
     // when true, only WHEN value is supported. Not WHEN condition
-    internal var isEfficientCase = false
+    var isEfficientCase = false
         private set
 
     private var endSpecified = false

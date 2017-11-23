@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.save
+import com.raizlabs.android.dbflow.structure.save
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

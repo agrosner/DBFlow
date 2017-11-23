@@ -3,15 +3,13 @@ package com.raizlabs.android.dbflow.contentprovider
 import android.content.ContentResolver
 import android.content.pm.ProviderInfo
 import com.raizlabs.android.dbflow.BaseUnitTest
+import com.raizlabs.android.dbflow.sql.language.Delete
 import com.raizlabs.android.dbflow.sql.language.from
-import com.raizlabs.android.dbflow.kotlinextensions.result
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.sql.language.where
-import com.raizlabs.android.dbflow.sql.language.Delete
+import com.raizlabs.android.dbflow.sql.queriable.result
 import com.raizlabs.android.dbflow.structure.provider.ContentUtils
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.robolectric.Robolectric
@@ -110,7 +108,7 @@ class ContentProviderTests : BaseUnitTest() {
         assertEquals(testSyncableModel.name, "TestName")
 
         testSyncableModel = (select from TestSyncableModel::class
-            where (TestSyncableModel_Table.id.`is`(testSyncableModel.id))).result!!
+                where (TestSyncableModel_Table.id.`is`(testSyncableModel.id))).result!!
 
         val fromContentProvider = TestSyncableModel(id = testSyncableModel.id)
         fromContentProvider.load()

@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener
 import com.raizlabs.android.dbflow.structure.database.OpenHelper
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransactionQueue
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -35,43 +34,43 @@ class DatabaseConfigTest : BaseUnitTest() {
         val managerCreator = CustomTransactionManagerCreator()
 
         FlowManager.init(builder
-            .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
-                .databaseName("Test")
-                .helperListener(helperListener)
-                .openHelper(openHelperCreator)
-                .transactionManagerCreator(managerCreator)
+                .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+                        .databaseName("Test")
+                        .helperListener(helperListener)
+                        .openHelper(openHelperCreator)
+                        .transactionManagerCreator(managerCreator)
+                        .build())
                 .build())
-            .build())
 
         val flowConfig = FlowManager.getConfig()
         Assert.assertNotNull(flowConfig)
 
-        val databaseConfig = flowConfig.getDatabaseConfigMap()[TestDatabase::class.java]!!
+        val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class.java]!!
         Assert.assertEquals("Test", databaseConfig.databaseName)
         Assert.assertEquals(".db", databaseConfig.databaseExtensionName)
-        Assert.assertEquals(databaseConfig.getTransactionManagerCreator(), managerCreator)
-        Assert.assertEquals(databaseConfig.getDatabaseClass(), TestDatabase::class.java)
-        Assert.assertEquals(databaseConfig.getOpenHelperCreator(), openHelperCreator)
-        Assert.assertEquals(databaseConfig.getHelperListener(), helperListener)
-        Assert.assertTrue(databaseConfig.getTableConfigMap().isEmpty())
+        Assert.assertEquals(databaseConfig.transactionManagerCreator, managerCreator)
+        Assert.assertEquals(databaseConfig.databaseClass, TestDatabase::class.java)
+        Assert.assertEquals(databaseConfig.openHelperCreator, openHelperCreator)
+        Assert.assertEquals(databaseConfig.helperListener, helperListener)
+        Assert.assertTrue(databaseConfig.tableConfigMap.isEmpty())
 
 
         val databaseDefinition = FlowManager.getDatabase(TestDatabase::class.java)
         Assert.assertEquals(databaseDefinition.transactionManager,
-            managerCreator.testTransactionManager)
+                managerCreator.testTransactionManager)
         Assert.assertEquals(databaseDefinition.helper, openHelperCreator.customOpenHelper)
     }
 
     @Test
     fun test_EmptyName() {
         FlowManager.init(builder
-            .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
-                .databaseName("Test")
-                .extensionName("")
+                .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+                        .databaseName("Test")
+                        .extensionName("")
+                        .build())
                 .build())
-            .build())
 
-        val databaseConfig = FlowManager.getConfig().getDatabaseConfigMap()[TestDatabase::class.java]!!
+        val databaseConfig = FlowManager.getConfig().databaseConfigMap[TestDatabase::class.java]!!
         Assert.assertEquals("Test", databaseConfig.databaseName)
         Assert.assertEquals("", databaseConfig.databaseExtensionName)
     }
@@ -90,12 +89,11 @@ class DatabaseConfigTest : BaseUnitTest() {
 
         val customOpenHelper = mock<OpenHelper>()
 
-        override fun createHelper(databaseDefinition: DatabaseDefinition, helperListener: DatabaseHelperListener): OpenHelper {
-            return customOpenHelper
-        }
+        override fun createHelper(databaseDefinition: DatabaseDefinition,
+                                  helperListener: DatabaseHelperListener?) = customOpenHelper
     }
 
 }
 
 class TestTransactionManager(databaseDefinition: DatabaseDefinition)
-    : BaseTransactionManager(mock<ITransactionQueue>(), databaseDefinition)
+    : BaseTransactionManager(mock(), databaseDefinition)

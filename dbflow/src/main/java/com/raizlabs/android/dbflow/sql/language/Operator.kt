@@ -18,7 +18,7 @@ import java.util.*
 </T> */
 class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
-    private var typeConverter: TypeConverter<*, Any?>? = null
+    private var typeConverter: TypeConverter<*, *>? = null
     private var convertToDB: Boolean = false
 
     override val query: String
@@ -35,7 +35,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
      */
     internal constructor(nameAlias: NameAlias) : super(nameAlias)
 
-    internal constructor(alias: NameAlias, typeConverter: TypeConverter<*, Any?>, convertToDB: Boolean) : super(alias) {
+    internal constructor(alias: NameAlias, typeConverter: TypeConverter<*, *>, convertToDB: Boolean) : super(alias) {
         this.typeConverter = typeConverter
         this.convertToDB = convertToDB
     }
@@ -330,9 +330,9 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
         var _value = value
         operation = QueryBuilder(Operation.EQUALS).append(columnName()).toString()
 
-        var typeConverter: TypeConverter<*, Any?>? = this.typeConverter
+        var typeConverter: TypeConverter<*, Any>? = this.typeConverter as TypeConverter<*, Any>?
         if (typeConverter == null && _value != null) {
-            typeConverter = FlowManager.getTypeConverterForClass(_value.javaClass) as TypeConverter<*, Any?>?
+            typeConverter = FlowManager.getTypeConverterForClass(_value.javaClass) as TypeConverter<*, Any>?
         }
         if (typeConverter != null && convertToDB) {
             _value = typeConverter.getDBValue(_value)
@@ -372,7 +372,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
     override fun notIn(values: Collection<T>): In<T> = In(this, values, false)
 
     override fun convertObjectToString(obj: Any?, appendInnerParenthesis: Boolean): String? =
-            typeConverter?.let { typeConverter ->
+            (typeConverter as? TypeConverter<*, Any>?)?.let { typeConverter ->
                 var converted = obj
                 try {
                     converted = if (convertToDB) typeConverter.getDBValue(obj) else obj
@@ -621,7 +621,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
         fun <T> op(column: NameAlias): Operator<T> = Operator(column)
 
         @JvmStatic
-        fun <T> op(alias: NameAlias, typeConverter: TypeConverter<*, Any?>, convertToDB: Boolean): Operator<T> =
+        fun <T> op(alias: NameAlias, typeConverter: TypeConverter<*, *>, convertToDB: Boolean): Operator<T> =
                 Operator(alias, typeConverter, convertToDB)
     }
 

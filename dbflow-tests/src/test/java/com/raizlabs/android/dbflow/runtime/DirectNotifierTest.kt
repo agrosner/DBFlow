@@ -9,12 +9,18 @@ import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.config.DatabaseConfig
 import com.raizlabs.android.dbflow.config.FlowConfig
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.sql.language.delete
-import com.raizlabs.android.dbflow.sql.language.insert
-import com.raizlabs.android.dbflow.kotlinextensions.update
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table
+import com.raizlabs.android.dbflow.sql.language.columnValues
+import com.raizlabs.android.dbflow.sql.language.delete
+import com.raizlabs.android.dbflow.sql.language.insert
+import com.raizlabs.android.dbflow.sql.language.set
+import com.raizlabs.android.dbflow.sql.language.update
 import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.delete
+import com.raizlabs.android.dbflow.structure.insert
+import com.raizlabs.android.dbflow.structure.save
+import com.raizlabs.android.dbflow.structure.update
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -25,7 +31,7 @@ import org.robolectric.RuntimeEnvironment
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config (manifest = Config.NONE)
+@Config(manifest = Config.NONE)
 class DirectNotifierTest {
 
     val context: Context

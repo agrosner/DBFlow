@@ -3,8 +3,6 @@ package com.raizlabs.android.dbflow.sql.language
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.annotation.Collate
 import com.raizlabs.android.dbflow.assertEquals
-import com.raizlabs.android.dbflow.kotlinextensions.collate
-import com.raizlabs.android.dbflow.kotlinextensions.nameAlias
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import org.junit.Test
 

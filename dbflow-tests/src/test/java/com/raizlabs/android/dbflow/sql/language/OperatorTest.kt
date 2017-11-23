@@ -3,9 +3,6 @@ package com.raizlabs.android.dbflow.sql.language
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.annotation.Collate
 import com.raizlabs.android.dbflow.assertEquals
-import com.raizlabs.android.dbflow.kotlinextensions.between
-import com.raizlabs.android.dbflow.kotlinextensions.collate
-import com.raizlabs.android.dbflow.kotlinextensions.op
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import org.junit.Test
@@ -52,7 +49,7 @@ class OperatorTest : BaseUnitTest() {
 
     @Test
     fun testBetween() {
-        assertEquals("`id` BETWEEN 6 AND 7", id between 6 and 7)
+        assertEquals("`id` BETWEEN 6 AND 7", id.between(6) and 7)
     }
 
     @Test

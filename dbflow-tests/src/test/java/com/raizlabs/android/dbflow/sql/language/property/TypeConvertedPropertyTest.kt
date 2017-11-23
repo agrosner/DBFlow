@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language.property
 
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.converter.DateConverter
+import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.models.Difficulty
 import com.raizlabs.android.dbflow.models.EnumTypeConverterModel_Table
 import com.raizlabs.android.dbflow.models.SimpleModel
@@ -16,7 +17,9 @@ class TypeConvertedPropertyTest : BaseUnitTest() {
     @Test
     fun testTypeConverter() {
         val property = TypeConvertedProperty<Long, Date>(SimpleModel::class.java, "Prop", true,
-            TypeConvertedProperty.TypeConverterGetter { DateConverter() })
+                object : TypeConvertedProperty.TypeConverterGetter {
+                    override fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *> = DateConverter()
+                })
         assertEquals("`Prop`", property.toString())
 
         val date = Date()

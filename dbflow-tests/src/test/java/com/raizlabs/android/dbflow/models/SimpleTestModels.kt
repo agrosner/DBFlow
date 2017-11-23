@@ -147,9 +147,9 @@ class CustomTypeConverter : TypeConverter<String, CustomType>() {
 }
 
 class CustomEnumTypeConverter : TypeConverter<String, Difficulty>() {
-    override fun getDBValue(model: Difficulty) = model.name.substring(0..0)
+    override fun getDBValue(model: Difficulty?) = model?.name?.substring(0..0)
 
-    override fun getModelValue(data: String) = when (data) {
+    override fun getModelValue(data: String?) = when (data) {
         "E" -> Difficulty.EASY
         "M" -> Difficulty.MEDIUM
         "H" -> Difficulty.HARD

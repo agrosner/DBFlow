@@ -78,6 +78,12 @@ class DatabaseConfig(
             this.transactionManagerCreator = transactionManager
         }
 
+        inline fun transactionManagerCreator(crossinline function: (DatabaseDefinition) -> BaseTransactionManager)
+                = transactionManagerCreator(object : TransactionManagerCreator {
+            override fun createManager(databaseDefinition: DatabaseDefinition) = function(databaseDefinition)
+        })
+
+
         fun helperListener(helperListener: DatabaseHelperListener) = apply {
             this.helperListener = helperListener
         }

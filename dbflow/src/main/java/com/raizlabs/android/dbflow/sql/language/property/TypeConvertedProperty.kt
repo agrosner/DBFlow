@@ -28,7 +28,7 @@ class TypeConvertedProperty<T, V> : Property<V> {
      */
     interface TypeConverterGetter {
 
-        fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, Any?>
+        fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *>
     }
 
     constructor(table: Class<*>, nameAlias: NameAlias,
@@ -53,7 +53,7 @@ class TypeConvertedProperty<T, V> : Property<V> {
         if (databaseProperty == null) {
             databaseProperty = TypeConvertedProperty(getTable(), nameAlias,
                     !convertToDB, object : TypeConverterGetter {
-                override fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, Any?> =
+                override fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *> =
                         getter.getTypeConverter(modelClass)
             })
         }

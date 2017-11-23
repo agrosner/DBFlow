@@ -2,10 +2,10 @@ package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.sql.language.from
-import com.raizlabs.android.dbflow.kotlinextensions.list
-import com.raizlabs.android.dbflow.kotlinextensions.result
-import com.raizlabs.android.dbflow.kotlinextensions.save
 import com.raizlabs.android.dbflow.sql.language.select
+import com.raizlabs.android.dbflow.sql.queriable.list
+import com.raizlabs.android.dbflow.sql.queriable.result
+import com.raizlabs.android.dbflow.structure.save
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
