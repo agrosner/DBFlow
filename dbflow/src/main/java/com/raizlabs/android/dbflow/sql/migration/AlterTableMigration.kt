@@ -1,10 +1,12 @@
 package com.raizlabs.android.dbflow.sql.migration
 
 import android.support.annotation.CallSuper
+import com.raizlabs.android.dbflow.appendQuotedIfNeeded
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.sql.QueryBuilder
+import com.raizlabs.android.dbflow.quoteIfNeeded
 import com.raizlabs.android.dbflow.sql.SQLiteType
 import com.raizlabs.android.dbflow.sql.language.SQLite
+import com.raizlabs.android.dbflow.stripQuotes
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 /**
@@ -17,19 +19,14 @@ class AlterTableMigration<T : Any>(
         private val table: Class<T>) : BaseMigration() {
 
     /**
-     * The query we use
-     */
-    private val query by lazy { QueryBuilder().append("ALTER").appendSpaceSeparated("TABLE") }
-
-    /**
      * The query to rename the table with
      */
-    private var renameQuery: QueryBuilder? = null
+    private var renameQuery: String? = null
 
     /**
      * The columns to ALTER within a table
      */
-    private val internalColumnDefinitions: MutableList<QueryBuilder> by lazy { mutableListOf<QueryBuilder>() }
+    private val internalColumnDefinitions: MutableList<String> by lazy { mutableListOf<String>() }
 
     private val columnNames: MutableList<String> by lazy { arrayListOf<String>() }
 
@@ -38,34 +35,32 @@ class AlterTableMigration<T : Any>(
      */
     private var oldTableName: String? = null
 
-    val alterTableQueryBuilder: QueryBuilder
-        get() = query
-
     override fun migrate(database: DatabaseWrapper) {
         // "ALTER TABLE "
-        var sql = alterTableQueryBuilder.query
+        var sql = ALTER_TABLE
         val tableName = FlowManager.getTableName(table)
 
         // "{oldName}  RENAME TO {newName}"
         // Since the structure has been updated already, the manager knows only the new name.
-        if (renameQuery != null) {
-            val renameQuery = QueryBuilder(sql).appendQuotedIfNeeded(oldTableName)
-                    .append(this.renameQuery!!.query)
-                    .append(tableName)
-                    .toString()
-            database.execSQL(renameQuery)
+        renameQuery?.let { renameQuery ->
+            database.execSQL(buildString {
+                append(sql)
+                appendQuotedIfNeeded(oldTableName)
+                append(renameQuery)
+                append(tableName)
+            })
         }
 
         // We have column definitions to add here
         // ADD COLUMN columnName {type}
         if (internalColumnDefinitions.isNotEmpty()) {
             SQLite.select().from(table).limit(0).query(database)?.use { cursor ->
-                sql = QueryBuilder(sql).append(tableName).toString()
+                sql = "$sql$tableName"
                 for (i in internalColumnDefinitions.indices) {
                     val columnDefinition = internalColumnDefinitions[i]
-                    val columnName = QueryBuilder.stripQuotes(columnNames!![i])
+                    val columnName = columnNames[i].stripQuotes()
                     if (cursor.getColumnIndex(columnName) == -1) {
-                        database.execSQL("$sql ADD COLUMN ${columnDefinition.query}")
+                        database.execSQL("$sql ADD COLUMN $columnDefinition")
                     }
                 }
             }
@@ -89,7 +84,7 @@ class AlterTableMigration<T : Any>(
      */
     fun renameFrom(oldName: String) = apply {
         oldTableName = oldName
-        renameQuery = QueryBuilder().append(" RENAME").appendSpaceSeparated("TO")
+        renameQuery = " RENAME TO "
     }
 
     /**
@@ -101,9 +96,7 @@ class AlterTableMigration<T : Any>(
      * @return This instance
      */
     fun addColumn(sqLiteType: SQLiteType, columnName: String) = apply {
-        val queryBuilder = QueryBuilder()
-                .append(QueryBuilder.quoteIfNeeded(columnName)).appendSpace().appendSQLiteType(sqLiteType)
-        internalColumnDefinitions.add(queryBuilder)
+        internalColumnDefinitions.add("${columnName.quoteIfNeeded()} ${sqLiteType.name}")
         columnNames.add(columnName)
     }
 
@@ -117,27 +110,30 @@ class AlterTableMigration<T : Any>(
      * @return This instance
      */
     fun addForeignKeyColumn(sqLiteType: SQLiteType, columnName: String, referenceClause: String) = apply {
-        val queryBuilder = QueryBuilder()
-                .append(QueryBuilder.quoteIfNeeded(columnName)).appendSpace().appendSQLiteType(sqLiteType)
-                .appendSpace().append("REFERENCES ").append(referenceClause)
-        internalColumnDefinitions.add(queryBuilder)
+        internalColumnDefinitions.add("${columnName.quoteIfNeeded()} ${sqLiteType.name} REFERENCES $referenceClause")
         columnNames.add(columnName)
     }
 
     /**
      * @return The query that renames the table.
      */
-    fun getRenameQuery(): String {
-        val queryBuilder = QueryBuilder(alterTableQueryBuilder.query).appendQuotedIfNeeded(oldTableName)
-                .append(renameQuery).append(FlowManager.getTableName(table))
-        return queryBuilder.query
+    fun getRenameQuery(): String = buildString {
+        append(ALTER_TABLE)
+        appendQuotedIfNeeded(oldTableName)
+        append(renameQuery)
+        append(FlowManager.getTableName(table))
     }
 
     /**
      * @return A List of column definitions that add op to a table in the DB.
      */
     fun getColumnDefinitions(): List<String> {
-        val sql = QueryBuilder(alterTableQueryBuilder).append(FlowManager.getTableName(table)).toString()
-        return internalColumnDefinitions.map { QueryBuilder(sql).appendSpaceSeparated("ADD COLUMN").append(it.query).query }
+        val sql = "$ALTER_TABLE${FlowManager.getTableName(table)}"
+        return internalColumnDefinitions.map { "$sql ADD COLUMN $it" }
+    }
+
+    companion object {
+
+        const val ALTER_TABLE = "ALTER TABLE "
     }
 }

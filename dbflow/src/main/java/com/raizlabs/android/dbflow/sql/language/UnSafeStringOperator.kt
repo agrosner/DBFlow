@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.StringUtils
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 
 /**
  * Description: This class will use a String to describe its condition.
@@ -14,11 +13,7 @@ class UnSafeStringOperator(selection: String, selectionArgs: Array<String>) : SQ
     private var separator = ""
 
     override val query: String
-        get() {
-            val queryBuilder = QueryBuilder()
-            appendConditionToQuery(queryBuilder)
-            return queryBuilder.query
-        }
+        get() = appendToQuery()
 
     init {
         var newSelection: String? = selection
@@ -31,7 +26,7 @@ class UnSafeStringOperator(selection: String, selectionArgs: Array<String>) : SQ
         this.conditionString = newSelection
     }
 
-    override fun appendConditionToQuery(queryBuilder: QueryBuilder) {
+    override fun appendConditionToQuery(queryBuilder: StringBuilder) {
         queryBuilder.append(conditionString)
     }
 

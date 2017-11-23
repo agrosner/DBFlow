@@ -5,7 +5,6 @@ import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowLog
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.config.NaturalOrderComparator
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -72,23 +71,19 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
      * This method executes CREATE TABLE statements as well as CREATE VIEW on the database passed.
      */
     protected fun executeViewCreations(database: DatabaseWrapper) {
-
         try {
             database.beginTransaction()
             val modelViews = databaseDefinition.modelViewAdapters
-            for (modelView in modelViews) {
-                val queryBuilder = QueryBuilder()
-                        .append("CREATE VIEW IF NOT EXISTS")
-                        .appendSpaceSeparated(modelView.viewName)
-                        .append("AS ")
-                        .append(modelView.creationQuery)
-                try {
-                    database.execSQL(queryBuilder.query)
-                } catch (e: SQLiteException) {
-                    FlowLog.logError(e)
-                }
-
-            }
+            modelViews
+                    .asSequence()
+                    .map { "CREATE VIEW IF NOT EXISTS ${it.viewName} AS ${it.creationQuery}" }
+                    .forEach {
+                        try {
+                            database.execSQL(it)
+                        } catch (e: SQLiteException) {
+                            FlowLog.logError(e)
+                        }
+                    }
             database.setTransactionSuccessful()
         } finally {
             database.endTransaction()

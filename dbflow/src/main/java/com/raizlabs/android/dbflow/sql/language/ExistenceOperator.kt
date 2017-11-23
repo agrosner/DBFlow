@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language
 
+import com.raizlabs.android.dbflow.appendQualifier
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 
 /**
  * Description: The condition that represents EXISTS in a SQL statement.
@@ -9,13 +9,9 @@ import com.raizlabs.android.dbflow.sql.QueryBuilder
 class ExistenceOperator(private val innerWhere: Where<*>) : SQLOperator, Query {
 
     override val query: String
-        get() {
-            val queryBuilder = QueryBuilder()
-            appendConditionToQuery(queryBuilder)
-            return queryBuilder.query
-        }
+        get() = appendToQuery()
 
-    override fun appendConditionToQuery(queryBuilder: QueryBuilder) {
+    override fun appendConditionToQuery(queryBuilder: StringBuilder) {
         queryBuilder.appendQualifier("EXISTS", "(" + innerWhere.query.trim({ it <= ' ' }) + ")")
     }
 

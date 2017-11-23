@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.Operator.Operation
 import java.util.*
 
@@ -14,7 +13,7 @@ constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, It
 
     private val conditionsList = ArrayList<SQLOperator>()
 
-    private var internalQuery: QueryBuilder? = null
+    private var internalQuery: String? = null
     private var isChanged: Boolean = false
     private var allCommaSeparated: Boolean = false
     private var useParenthesis = true
@@ -22,12 +21,8 @@ constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, It
     val conditions: List<SQLOperator>
         get() = conditionsList
 
-    private val querySafe: QueryBuilder
-        get() {
-            val query = QueryBuilder()
-            appendConditionToQuery(query)
-            return query
-        }
+    private val querySafe: String
+        get() = appendToQuery()
 
     init {
 
@@ -114,7 +109,7 @@ constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, It
         }
     }
 
-    override fun appendConditionToQuery(queryBuilder: QueryBuilder) {
+    override fun appendConditionToQuery(queryBuilder: StringBuilder) {
         val conditionListSize = conditionsList.size
         if (useParenthesis && conditionListSize > 0) {
             queryBuilder.append("(")
@@ -123,7 +118,7 @@ constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, It
             val condition = conditionsList[i]
             condition.appendConditionToQuery(queryBuilder)
             if (!allCommaSeparated && condition.hasSeparator() && i < conditionListSize - 1) {
-                queryBuilder.appendSpaceSeparated(condition.separator())
+                queryBuilder.append(" ${condition.separator()} ")
             } else if (i < conditionListSize - 1) {
                 queryBuilder.append(", ")
             }
@@ -150,10 +145,10 @@ constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, It
             if (isChanged) {
                 internalQuery = querySafe
             }
-            return if (internalQuery == null) "" else internalQuery.toString()
+            return internalQuery ?: ""
         }
 
-    override fun toString(): String = querySafe.toString()
+    override fun toString(): String = querySafe
 
     val size: Int
         get() = conditionsList.size

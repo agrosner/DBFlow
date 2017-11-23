@@ -3,6 +3,7 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.annotation.Collate
+import com.raizlabs.android.dbflow.appendOptional
 import com.raizlabs.android.dbflow.config.FlowLog
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.converter.TypeConverter
@@ -22,11 +23,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
     private var convertToDB: Boolean = false
 
     override val query: String
-        get() {
-            val queryBuilder = QueryBuilder()
-            appendConditionToQuery(queryBuilder)
-            return queryBuilder.query
-        }
+        get() = appendToQuery()
 
     /**
      * Creates a new instance
@@ -46,7 +43,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
         this.value = operator.value
     }
 
-    override fun appendConditionToQuery(queryBuilder: QueryBuilder) {
+    override fun appendConditionToQuery(queryBuilder: StringBuilder) {
         queryBuilder.append(columnName()).append(operation())
 
         // Do not use value for certain operators
@@ -56,7 +53,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
         }
 
         if (postArgument() != null) {
-            queryBuilder.appendSpace().append(postArgument())
+            queryBuilder.append(" ${postArgument()}")
         }
     }
 
@@ -530,11 +527,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
         private var secondValue: T? = null
 
         override val query: String
-            get() {
-                val builder = QueryBuilder()
-                appendConditionToQuery(builder)
-                return builder.query
-            }
+            get() = appendToQuery()
 
         init {
             this.operation = " ${Operation.BETWEEN} "
@@ -549,12 +542,13 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
         fun secondValue(): T? = secondValue
 
-        override fun appendConditionToQuery(queryBuilder: QueryBuilder) {
+        override fun appendConditionToQuery(queryBuilder: StringBuilder) {
             queryBuilder.append(columnName()).append(operation())
                     .append(convertObjectToString(value(), true))
-                    .appendSpaceSeparated(Operation.AND)
+                    .append(" ${Operation.AND} ")
                     .append(convertObjectToString(secondValue(), true))
-                    .appendSpace().appendOptional(postArgument())
+                    .append(" ")
+                    .appendOptional(postArgument())
         }
     }
 
@@ -567,11 +561,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
         private val inArguments = ArrayList<T?>()
 
         override val query: String
-            get() {
-                val builder = QueryBuilder()
-                appendConditionToQuery(builder)
-                return builder.query
-            }
+            get() = appendToQuery()
 
         /**
          * Creates a new instance
@@ -605,9 +595,12 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
             return this
         }
 
-        override fun appendConditionToQuery(queryBuilder: QueryBuilder) {
-            queryBuilder.append(columnName()).append(operation())
-                    .append("(").append(BaseOperator.joinArguments(",", inArguments, this)).append(")")
+        override fun appendConditionToQuery(queryBuilder: StringBuilder) {
+            queryBuilder.append(columnName())
+                    .append(operation())
+                    .append("(")
+                    .append(BaseOperator.joinArguments(",", inArguments, this))
+                    .append(")")
         }
     }
 

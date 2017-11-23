@@ -12,7 +12,7 @@ interface SQLOperator {
      *
      * @param queryBuilder The builder to append to.
      */
-    fun appendConditionToQuery(queryBuilder: QueryBuilder)
+    fun appendConditionToQuery(queryBuilder: StringBuilder)
 
     /**
      * The name of the column.
@@ -51,4 +51,10 @@ interface SQLOperator {
      */
     fun value(): Any?
 
+}
+
+fun SQLOperator.appendToQuery(): String {
+    val queryBuilder = StringBuilder()
+    appendConditionToQuery(queryBuilder)
+    return queryBuilder.toString()
 }

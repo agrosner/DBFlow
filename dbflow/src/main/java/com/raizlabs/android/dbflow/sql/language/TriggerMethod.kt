@@ -1,8 +1,8 @@
 package com.raizlabs.android.dbflow.sql.language
 
+import com.raizlabs.android.dbflow.appendArray
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 
 /**
@@ -17,27 +17,27 @@ internal constructor(internal val trigger: Trigger, private val methodName: Stri
 
     override val query: String
         get() {
-            val queryBuilder = QueryBuilder(trigger.query)
+            val queryBuilder = StringBuilder(trigger.query)
                     .append(methodName)
             if (properties.isNotEmpty()) {
-                queryBuilder.appendSpaceSeparated("OF")
+                queryBuilder.append(" OF ")
                         .appendArray(properties.toTypedArray())
             }
-            queryBuilder.appendSpaceSeparated("ON").append(FlowManager.getTableName(onTable))
+            queryBuilder.append(" ON ").append(FlowManager.getTableName(onTable))
 
             if (forEachRow) {
-                queryBuilder.appendSpaceSeparated("FOR EACH ROW")
+                queryBuilder.append(" FOR EACH ROW ")
             }
 
-            if (whenCondition != null) {
+            whenCondition?.let { whenCondition ->
                 queryBuilder.append(" WHEN ")
-                whenCondition!!.appendConditionToQuery(queryBuilder)
-                queryBuilder.appendSpace()
+                whenCondition.appendConditionToQuery(queryBuilder)
+                queryBuilder.append(" ")
             }
 
-            queryBuilder.appendSpace()
+            queryBuilder.append(" ")
 
-            return queryBuilder.query
+            return queryBuilder.toString()
         }
 
     init {

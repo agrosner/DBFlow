@@ -1,12 +1,10 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import android.database.DatabaseUtils
-
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.data.Blob
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.SqlUtils
 
 /**
@@ -147,7 +145,7 @@ abstract class BaseOperator internal constructor(
                     } else if (_value is NameAlias) {
                         stringVal = _value.query
                     } else if (_value is SQLOperator) {
-                        val queryBuilder = QueryBuilder()
+                        val queryBuilder = StringBuilder()
                         _value.appendConditionToQuery(queryBuilder)
                         stringVal = queryBuilder.toString()
                     } else if (_value is Query) {

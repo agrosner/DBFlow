@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.QueryBuilder
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 
 /**
@@ -18,19 +17,16 @@ class CaseCondition<TReturn> : Query {
     private var isThenPropertySet: Boolean = false
 
     override val query: String
-        get() {
-            val queryBuilder = QueryBuilder(" WHEN ")
+        get() = buildString {
+            append(" WHEN ")
             if (caze.isEfficientCase) {
-                queryBuilder.append(BaseOperator.convertValueToString(property ?: whenValue, false))
+                append(BaseOperator.convertValueToString(property ?: whenValue, false))
             } else {
-                sqlOperator?.appendConditionToQuery(queryBuilder)
+                sqlOperator?.appendConditionToQuery(this)
             }
-            queryBuilder.append(" THEN ")
-                    .append(BaseOperator.convertValueToString(if (isThenPropertySet)
-                        thenProperty
-                    else
-                        thenValue, false))
-            return queryBuilder.query
+            append(" THEN ")
+            append(BaseOperator.convertValueToString(
+                    if (isThenPropertySet) thenProperty else thenValue, false))
         }
 
     internal constructor(caze: Case<TReturn>, sqlOperator: SQLOperator) {
