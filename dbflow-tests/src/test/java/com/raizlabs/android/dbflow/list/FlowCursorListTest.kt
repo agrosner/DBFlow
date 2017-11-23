@@ -10,7 +10,6 @@ import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.sql.queriable.cursor
 import com.raizlabs.android.dbflow.structure.save
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
 import org.junit.Test
 
 /**
@@ -38,21 +37,6 @@ class FlowCursorListTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateSpecialModelCache() {
-        (0..9).forEach {
-            SimpleModel("$it").save()
-        }
-
-        val list = (select from SimpleModel::class).cursorList()
-        assertEquals(10, list.count)
-        val firsItem = list[0]
-        assertEquals(firsItem, firsItem)
-        assertEquals(list[2], list[2])
-
-        assertNotEquals(firsItem, list[0])
-    }
-
-    @Test
     fun validateGetAll() {
         (0..9).forEach {
             SimpleModel("$it").save()
@@ -61,9 +45,6 @@ class FlowCursorListTest : BaseUnitTest() {
         val list = (select from SimpleModel::class).cursorList()
         val all = list.all
         assertEquals(list.count, all.size.toLong())
-        all.indices.forEach {
-            assertEquals(all[it], list[it])
-        }
     }
 
     @Test

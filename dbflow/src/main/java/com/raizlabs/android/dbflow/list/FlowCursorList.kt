@@ -48,6 +48,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
      */
     val all: List<T>
         get() {
+            unpackCursor()
             throwIfCursorClosed()
             warnEmptyCursor()
             return cursor?.let { cursor ->
@@ -73,13 +74,10 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         instanceAdapter = FlowManager.getInstanceAdapter(builder.modelClass)
     }
 
-    override operator fun iterator(): FlowCursorIterator<T> {
-        return FlowCursorIterator(this)
-    }
+    override operator fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(this)
 
-    override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> {
-        return FlowCursorIterator(this, startingLocation, limit)
-    }
+    override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> =
+            FlowCursorIterator(this, startingLocation, limit)
 
     /**
      * Register listener for when cursor refreshes.
@@ -133,6 +131,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
      */
     override val count: Long
         get() {
+            unpackCursor()
             throwIfCursorClosed()
             warnEmptyCursor()
             return (cursor?.count ?: 0).toLong()
@@ -148,6 +147,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     }
 
     override fun cursor(): Cursor? {
+        unpackCursor()
         throwIfCursorClosed()
         warnEmptyCursor()
         return cursor
@@ -176,9 +176,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
      * @return A new [Builder] that contains the same cache, query statement, and other
      * underlying data, but allows for modification.
      */
-    fun newBuilder(): Builder<T> {
-        return Builder(modelQueriable).cursor(unpackCursor())
-    }
+    fun newBuilder(): Builder<T> = Builder(modelQueriable).cursor(cursor())
 
     /**
      * Provides easy way to construct a [FlowCursorList].
