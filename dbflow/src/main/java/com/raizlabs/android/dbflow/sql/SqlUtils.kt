@@ -56,11 +56,11 @@ fun getNotificationUri(modelClass: Class<*>,
  * @return The [Uri].
  */
 fun getNotificationUri(modelClass: Class<*>,
-                       action: Action,
+                       action: Action?,
                        conditions: Array<SQLOperator>?): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
             .authority(FlowManager.getTableName(modelClass))
-    uriBuilder.fragment(action.name)
+    action?.let { uriBuilder.fragment(action.name) }
     if (conditions != null && conditions.isNotEmpty()) {
         for (condition in conditions) {
             uriBuilder.appendQueryParameter(Uri.encode(condition.columnName()),
@@ -81,7 +81,7 @@ fun getNotificationUri(modelClass: Class<*>,
  */
 @JvmOverloads
 fun getNotificationUri(modelClass: Class<*>,
-                       action: Action,
+                       action: Action?,
                        notifyKey: String = "",
                        notifyValue: Any? = null): Uri {
     var operator: Operator<Any>? = null
