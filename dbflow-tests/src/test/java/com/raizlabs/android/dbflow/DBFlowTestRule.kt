@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow
 
 import com.raizlabs.android.dbflow.config.DatabaseConfig
-import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowConfig
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.contentprovider.ContentDatabase
@@ -18,12 +17,8 @@ class DBFlowTestRule : TestRule {
             @Throws(Throwable::class)
             override fun evaluate() {
                 FlowManager.init(FlowConfig.Builder(RuntimeEnvironment.application)
-                        .addDatabaseConfig(DatabaseConfig.Builder(AppDatabase::class.java)
-                                .transactionManagerCreator(
-                                        object : DatabaseConfig.TransactionManagerCreator {
-                                            override fun createManager(databaseDefinition: DatabaseDefinition)
-                                                    = ImmediateTransactionManager2(databaseDefinition)
-                                        })
+                        .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+                                .transactionManagerCreator(::ImmediateTransactionManager2)
                                 .build())
                         .addDatabaseConfig(DatabaseConfig.builder(ContentDatabase::class.java)
                                 .databaseName("content")

@@ -29,9 +29,16 @@ class DatabaseConfigTest : BaseUnitTest() {
     fun test_databaseConfig() {
 
         val helperListener = mock<DatabaseHelperListener>()
+        val customOpenHelper = mock<OpenHelper>()
 
-        val openHelperCreator = CustomOpenHelperCreator()
-        val managerCreator = CustomTransactionManagerCreator()
+        val openHelperCreator: ((DatabaseDefinition, DatabaseHelperListener?) -> OpenHelper) = { _, _ ->
+            customOpenHelper
+        }
+        var testTransactionManager: TestTransactionManager? = null
+        val managerCreator: (DatabaseDefinition) -> BaseTransactionManager = { databaseDefinition ->
+            testTransactionManager = TestTransactionManager(databaseDefinition)
+            testTransactionManager!!
+        }
 
         FlowManager.init(builder
                 .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
@@ -56,9 +63,8 @@ class DatabaseConfigTest : BaseUnitTest() {
 
 
         val databaseDefinition = FlowManager.getDatabase(TestDatabase::class.java)
-        Assert.assertEquals(databaseDefinition.transactionManager,
-                managerCreator.testTransactionManager)
-        Assert.assertEquals(databaseDefinition.helper, openHelperCreator.customOpenHelper)
+        Assert.assertEquals(databaseDefinition.transactionManager, testTransactionManager)
+        Assert.assertEquals(databaseDefinition.helper, customOpenHelper)
     }
 
     @Test
@@ -73,24 +79,6 @@ class DatabaseConfigTest : BaseUnitTest() {
         val databaseConfig = FlowManager.getConfig().databaseConfigMap[TestDatabase::class.java]!!
         Assert.assertEquals("Test", databaseConfig.databaseName)
         Assert.assertEquals("", databaseConfig.databaseExtensionName)
-    }
-
-    class CustomTransactionManagerCreator : DatabaseConfig.TransactionManagerCreator {
-
-        lateinit var testTransactionManager: TestTransactionManager
-
-        override fun createManager(databaseDefinition: DatabaseDefinition): BaseTransactionManager {
-            testTransactionManager = TestTransactionManager(databaseDefinition)
-            return testTransactionManager
-        }
-    }
-
-    class CustomOpenHelperCreator : DatabaseConfig.OpenHelperCreator {
-
-        val customOpenHelper = mock<OpenHelper>()
-
-        override fun createHelper(databaseDefinition: DatabaseDefinition,
-                                  helperListener: DatabaseHelperListener?) = customOpenHelper
     }
 
 }

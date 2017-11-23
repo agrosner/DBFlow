@@ -34,17 +34,9 @@ class DatabaseConfig(
 
     internal constructor(builder: Builder) : this(
             // convert java interface to kotlin function.
-            openHelperCreator = builder.openHelperCreator?.let {
-                { databaseDefinition: DatabaseDefinition, helperListener: DatabaseHelperListener? ->
-                    it.createHelper(databaseDefinition, helperListener)
-                }
-            },
+            openHelperCreator = builder.openHelperCreator,
             databaseClass = builder.databaseClass,
-            transactionManagerCreator = builder.transactionManagerCreator?.let {
-                { databaseDefinition: DatabaseDefinition ->
-                    it.createManager(databaseDefinition)
-                }
-            },
+            transactionManagerCreator = builder.transactionManagerCreator,
             helperListener = builder.helperListener,
             tableConfigMap = builder.tableConfigMap,
             modelNotifier = builder.modelNotifier,
@@ -65,8 +57,8 @@ class DatabaseConfig(
      */
     class Builder(internal val databaseClass: Class<*>) {
 
-        internal var openHelperCreator: OpenHelperCreator? = null
-        internal var transactionManagerCreator: TransactionManagerCreator? = null
+        internal var openHelperCreator: ((DatabaseDefinition, DatabaseHelperListener?) -> OpenHelper)? = null
+        internal var transactionManagerCreator: ((DatabaseDefinition) -> BaseTransactionManager)? = null
         internal var helperListener: DatabaseHelperListener? = null
         internal val tableConfigMap: MutableMap<Class<*>, TableConfig<*>> = HashMap()
         internal var modelNotifier: ModelNotifier? = null
@@ -74,14 +66,27 @@ class DatabaseConfig(
         internal var databaseName: String? = null
         internal var databaseExtensionName: String? = null
 
-        fun transactionManagerCreator(transactionManager: TransactionManagerCreator) = apply {
-            this.transactionManagerCreator = transactionManager
+        fun transactionManagerCreator(transactionManager: TransactionManagerCreator) =
+                transactionManagerCreator { databaseDefinition -> transactionManager.createManager(databaseDefinition) }
+
+        fun transactionManagerCreator(creator: (DatabaseDefinition) -> BaseTransactionManager) = apply {
+            this.transactionManagerCreator = creator
         }
 
-        inline fun transactionManagerCreator(crossinline function: (DatabaseDefinition) -> BaseTransactionManager)
-                = transactionManagerCreator(object : TransactionManagerCreator {
-            override fun createManager(databaseDefinition: DatabaseDefinition) = function(databaseDefinition)
-        })
+        /**
+         * Overrides the default [OpenHelper] for a [DatabaseDefinition].
+         *
+         * @param openHelper The openhelper to use.
+         */
+        fun openHelper(openHelper: (DatabaseDefinition, DatabaseHelperListener?) -> OpenHelper) = apply {
+            openHelperCreator = openHelper
+        }
+
+        fun openHelper(openHelper: OpenHelperCreator) = apply {
+            openHelperCreator = { databaseDefinition, databaseHelperListener ->
+                openHelper.createHelper(databaseDefinition, databaseHelperListener)
+            }
+        }
 
 
         fun helperListener(helperListener: DatabaseHelperListener) = apply {
@@ -113,15 +118,6 @@ class DatabaseConfig(
          */
         fun extensionName(name: String) = apply {
             databaseExtensionName = name
-        }
-
-        /**
-         * Overrides the default [OpenHelper] for a [DatabaseDefinition].
-         *
-         * @param openHelper The openhelper to use.
-         */
-        fun openHelper(openHelper: OpenHelperCreator) = apply {
-            openHelperCreator = openHelper
         }
 
         fun build() = DatabaseConfig(this)

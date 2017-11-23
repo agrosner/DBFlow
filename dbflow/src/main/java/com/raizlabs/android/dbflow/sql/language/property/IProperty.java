@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.language.Join;
@@ -116,7 +117,7 @@ public interface IProperty<P extends IProperty> extends Query {
     /**
      * @return the table this property belongs to.
      */
-    @NonNull
+    @Nullable
     Class<?> getTable();
 
     @NonNull

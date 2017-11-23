@@ -150,14 +150,12 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
             operator.between(baseModelQueriable)
 
     override fun `in`(firstBaseModelQueriable: BaseModelQueriable<*>,
-                      vararg baseModelQueriables: BaseModelQueriable<*>): Operator.In<*> {
-        return operator.`in`(firstBaseModelQueriable, *baseModelQueriables)
-    }
+                      vararg baseModelQueriables: BaseModelQueriable<*>): Operator.In<*> =
+            operator.`in`(firstBaseModelQueriable, *baseModelQueriables)
 
     override fun notIn(firstBaseModelQueriable: BaseModelQueriable<*>,
-                       vararg baseModelQueriables: BaseModelQueriable<*>): Operator.In<*> {
-        return operator.notIn(firstBaseModelQueriable, *baseModelQueriables)
-    }
+                       vararg baseModelQueriables: BaseModelQueriable<*>): Operator.In<*> =
+            operator.notIn(firstBaseModelQueriable, *baseModelQueriables)
 
     override fun concatenate(conditional: IConditional): Operator<*> =
             operator.concatenate(conditional)
@@ -172,9 +170,7 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
 
     override fun rem(value: BaseModelQueriable<*>): Operator<*> = operator.rem(value)
 
-    override fun getTable(): Class<*> {
-        return table!!
-    }
+    override fun getTable(): Class<*>? = table
 
     override fun plus(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.PLUS,
@@ -275,9 +271,8 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
         val WILDCARD: Property<*> = Property<Any>(null, NameAlias.rawBuilder("?").build())
 
         @JvmStatic
-        fun allProperty(table: Class<*>): Property<String> {
-            return Property<String>(table, NameAlias.rawBuilder("*").build()).withTable()
-        }
+        fun allProperty(table: Class<*>): Property<String> =
+                Property<String>(table, NameAlias.rawBuilder("*").build()).withTable()
     }
 }
 
@@ -304,18 +299,14 @@ infix fun <T : Any> Property<T>.lessThanOrEq(value: T) = this.lessThanOrEq(value
 
 infix fun <T : Any> Property<T>.between(value: T) = this.between(value)
 
-infix fun <T : Any> Property<T>.`in`(values: Array<T>): Operator.In<T> {
-    return when (values.size) {
-        1 -> `in`(values[0])
-        else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
-    }
+infix fun <T : Any> Property<T>.`in`(values: Array<T>): Operator.In<T> = when (values.size) {
+    1 -> `in`(values[0])
+    else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
 }
 
-infix fun <T : Any> Property<T>.notIn(values: Array<T>): Operator.In<T> {
-    return when (values.size) {
-        1 -> notIn(values[0])
-        else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
-    }
+infix fun <T : Any> Property<T>.notIn(values: Array<T>): Operator.In<T> = when (values.size) {
+    1 -> notIn(values[0])
+    else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
 }
 
 infix fun <T : Any> Property<T>.`in`(values: Collection<T>) = this.`in`(values)

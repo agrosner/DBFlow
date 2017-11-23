@@ -207,7 +207,7 @@ abstract class BaseOperator internal constructor(
          * @return A joined string
          */
         @JvmStatic
-        fun joinArguments(delimiter: CharSequence, tokens: Array<Any>): String =
+        fun joinArguments(delimiter: CharSequence, tokens: Array<Any?>): String =
                 tokens.joinToString(separator = delimiter) {
                     convertValueToString(it, false, true) ?: ""
                 }
@@ -221,7 +221,7 @@ abstract class BaseOperator internal constructor(
          * @return A joined string
          */
         @JvmStatic
-        fun joinArguments(delimiter: CharSequence, tokens: Iterable<Any>): String =
+        fun joinArguments(delimiter: CharSequence, tokens: Iterable<Any?>): String =
                 tokens.joinToString(separator = delimiter) {
                     convertValueToString(it, false, true) ?: ""
                 }

@@ -101,7 +101,6 @@ class Method(methodName: String, vararg properties: IProperty<*>) : Property<Any
          * @return A new [Method] that represents the statement.
          */
         fun `as`(sqLiteType: SQLiteType): IProperty<*> {
-
             val newProperty = Property<Any?>(property.table,
                     property.nameAlias
                             .newBuilder()

@@ -30,7 +30,7 @@ class Insert<TModel : Any>
     /**
      * The values to specify in this query
      */
-    private var valuesList: MutableList<MutableList<Any>> = arrayListOf()
+    private var valuesList: MutableList<MutableList<Any?>> = arrayListOf()
 
     /**
      * The conflict algorithm to use to resolve inserts.
@@ -50,9 +50,9 @@ class Insert<TModel : Any>
                     .appendSpace()
                     .append(FlowManager.getTableName(table))
 
-            if (columns != null) {
+            columns?.let { columns ->
                 queryBuilder.append("(")
-                        .appendArray(columns?.toTypedArray())
+                        .appendArray(*columns.toTypedArray())
                         .append(")")
             }
             if (selectFrom != null) {
@@ -119,7 +119,7 @@ class Insert<TModel : Any>
     fun asColumnValues() = apply {
         asColumns()
         if (columns != null) {
-            val values = arrayListOf<Any>()
+            val values = arrayListOf<Any?>()
             for (i in columns!!.indices) {
                 values.add("?")
             }
@@ -143,7 +143,7 @@ class Insert<TModel : Any>
      *
      * @param values The non type-converted values
      */
-    fun values(values: Collection<Any>) = apply {
+    fun values(values: List<Any?>) = apply {
         valuesList.add(values.toMutableList())
     }
 

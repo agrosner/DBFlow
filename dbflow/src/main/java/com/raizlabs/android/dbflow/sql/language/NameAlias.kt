@@ -108,7 +108,7 @@ class NameAlias(private val name: String,
      * @return The `{tableName}`.`{name}`. If [.tableName] specified.
      */
     fun fullName(): String =
-            (if (StringUtils.isNotNullOrEmpty(tableName)) "$tableName." else "") + name
+            (if (StringUtils.isNotNullOrEmpty(tableName)) "$tableName." else "") + name()
 
     override fun toString(): String = fullQuery
 
