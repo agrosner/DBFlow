@@ -269,6 +269,13 @@ abstract class DatabaseDefinition {
     fun beginTransactionAsync(transaction: ITransaction): Transaction.Builder =
             Transaction.Builder(transaction, this)
 
+    fun beginTransactionAsync(transaction: (DatabaseWrapper) -> Unit): Transaction.Builder =
+            beginTransactionAsync(object : ITransaction {
+                override fun execute(databaseWrapper: DatabaseWrapper) {
+                    transaction(databaseWrapper)
+                }
+            })
+
     fun executeTransaction(transaction: ITransaction) {
         val database = writableDatabase
         try {

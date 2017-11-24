@@ -153,6 +153,17 @@ class Transaction(private val transaction: ITransaction,
         }
 
         /**
+         * Specify an error callback to return all and any [Throwable] that occured during a [Transaction].
+         */
+        fun error(errorCallback: (Transaction, Throwable) -> Unit) = apply {
+            this.errorCallback = object : Error {
+                override fun onError(transaction: Transaction, error: Throwable) {
+                    errorCallback(transaction, error)
+                }
+            }
+        }
+
+        /**
          * Specify a listener for successful transactions. This is called when the [ITransaction]
          * specified is finished and it is posted on the UI thread.
          *
@@ -160,6 +171,20 @@ class Transaction(private val transaction: ITransaction,
          */
         fun success(successCallback: Success?) = apply {
             this.successCallback = successCallback
+        }
+
+        /**
+         * Specify a listener for successful transactions. This is called when the [ITransaction]
+         * specified is finished and it is posted on the UI thread.
+         *
+         * @param successCallback The callback, invoked on the UI thread.
+         */
+        fun success(successCallback: (Transaction) -> Unit) = apply {
+            this.successCallback = object : Success {
+                override fun onSuccess(transaction: Transaction) {
+                    successCallback(transaction)
+                }
+            }
         }
 
         /**
