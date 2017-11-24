@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.sql.language
 import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.language.property.Property
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import kotlin.reflect.KClass
 
 /**
@@ -14,7 +15,8 @@ class Select
  *
  * @param properties The properties to select from.
  */
-(vararg properties: IProperty<*>) : Query {
+internal constructor(private val databaseWrapper: DatabaseWrapper,
+                     vararg properties: IProperty<*>) : Query {
     /**
      * The select qualifier to append to the SELECT statement
      */
@@ -54,7 +56,7 @@ class Select
      * @param [T] The class that implements [com.raizlabs.android.dbflow.structure.Model]
      * @return the From part of this query
      */
-    fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
+    infix fun <T : Any> from(table: Class<T>): From<T> = From(databaseWrapper,this, table)
 
     inline fun <reified T : Any> from() = from(T::class.java)
 
@@ -100,5 +102,5 @@ class Select
     }
 }
 
-inline val select: Select
-    get() = SQLite.select()
+inline val DatabaseWrapper.select: Select
+    get() = select()

@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.sql.language.property
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.quoteIfNeeded
 import com.raizlabs.android.dbflow.sql.language.Index
-import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 /**
@@ -11,31 +10,24 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
  * It gets generated from [Table.indexGroups], but also can be manually constructed. These are activated
  * and deactivated manually.
  */
-class IndexProperty<T>(indexName: String, unique: Boolean, table: Class<T>,
-                       vararg properties: IProperty<*>) {
+class IndexProperty<T : Any>(indexName: String,
+                             private val unique: Boolean,
+                             private val table: Class<T>,
+                             vararg properties: IProperty<*>) {
 
-    val index: Index<T> = SQLite.index(indexName)
+    @Suppress("UNCHECKED_CAST")
+    private val properties: Array<IProperty<*>> = properties as Array<IProperty<*>>
 
-    val indexName: String
-        get() = index.indexName.quoteIfNeeded() ?: ""
+    val DatabaseWrapper.index: Index<T>
+        get() = Index<T>(this, indexName).on(table, *properties).unique(unique)
 
-    init {
-        index.on(table, *properties).unique(unique)
-    }
+    val indexName = indexName.quoteIfNeeded() ?: ""
 
     fun createIfNotExists(wrapper: DatabaseWrapper) {
-        index.enable(wrapper)
+        wrapper.index.enable()
     }
 
-    fun createIfNotExists() {
-        index.enable()
-    }
-
-    fun drop() {
-        index.disable()
-    }
-
-    fun drop(writableDatabase: DatabaseWrapper) {
-        index.disable(writableDatabase)
+    fun drop(wrapper: DatabaseWrapper) {
+        wrapper.index.disable()
     }
 }

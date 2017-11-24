@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup
 import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.Model
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.FlowCursor
 
 /**
@@ -14,13 +15,13 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
  */
 abstract class BaseSyncableProviderModel : BaseModel(), ModelProvider {
 
-    override fun insert(): Long {
+    override fun DatabaseWrapper.insert(): Long {
         val rowId = super.insert()
         ContentUtils.insert(insertUri, this)
         return rowId
     }
 
-    override fun save(): Boolean {
+    override fun DatabaseWrapper.save(): Boolean {
         return if (exists()) {
             super.save() && ContentUtils.update(updateUri, this) > 0
         } else {
@@ -28,9 +29,9 @@ abstract class BaseSyncableProviderModel : BaseModel(), ModelProvider {
         }
     }
 
-    override fun delete(): Boolean = super.delete() && ContentUtils.delete(deleteUri, this) > 0
+    override fun DatabaseWrapper.delete(): Boolean = super.delete() && ContentUtils.delete(deleteUri, this) > 0
 
-    override fun update(): Boolean = super.update() && ContentUtils.update(updateUri, this) > 0
+    override fun DatabaseWrapper.update(): Boolean = super.update() && ContentUtils.update(updateUri, this) > 0
 
     override fun load(whereOperatorGroup: OperatorGroup,
                       orderBy: String?, vararg columns: String?) {

@@ -19,7 +19,7 @@ class FlowCursorListTest : BaseUnitTest() {
     @Test
     fun validateCursorPassed() {
         val cursor = (select from SimpleModel::class).cursor
-        val list = FlowCursorList.Builder(SimpleModel::class.java)
+        val list = FlowCursorList.Builder(select from SimpleModel::class)
                 .cursor(cursor)
                 .build()
 

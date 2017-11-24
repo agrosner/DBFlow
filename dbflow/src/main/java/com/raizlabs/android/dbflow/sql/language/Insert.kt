@@ -19,8 +19,9 @@ class Insert<TModel : Any>
  *
  * @param table The table to insert into
  */
-(table: Class<TModel>) : BaseQueriable<TModel>(table), Query {
-
+internal constructor(databaseWrapper: DatabaseWrapper,
+                     table: Class<TModel>)
+    : BaseQueriable<TModel>(databaseWrapper, table), Query {
 
     /**
      * The columns to specify in this query (optional)
@@ -263,18 +264,10 @@ class Insert<TModel : Any>
         return or(ConflictAction.IGNORE)
     }
 
-    override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long {
-        throw IllegalStateException("Cannot call executeUpdateDelete() from an Insert")
-    }
-
     override fun executeUpdateDelete(): Long {
         throw IllegalStateException("Cannot call executeUpdateDelete() from an Insert")
     }
 }
-
-inline fun <reified T : Any> insert() = Insert(T::class.java)
-
-fun <T : Any> insert(modelClass: KClass<T>) = SQLite.insert(modelClass.java)
 
 infix fun <T : Any> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().columnValues(*into)
 

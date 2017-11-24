@@ -1,111 +1,110 @@
+@file:JvmName("SQLite")
+
+
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.language.property.Property
 import com.raizlabs.android.dbflow.structure.Model
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import kotlin.reflect.KClass
+
 
 /**
- * Description: The main entry point into SQLite queries.
+ * @param properties The properties/columns to SELECT.
+ * @return A beginning of the SELECT statement.
  */
-object SQLite {
+fun DatabaseWrapper.select(vararg properties: IProperty<*>): Select = Select(this, *properties)
 
-    /**
-     * @param properties The properties/columns to SELECT.
-     * @return A beginning of the SELECT statement.
-     */
-    @JvmStatic
-    fun select(vararg properties: IProperty<*>): Select = Select(*properties)
+/**
+ * Starts a new SELECT COUNT(property1, property2, propertyn) (if properties specified) or
+ * SELECT COUNT(*).
+ *
+ * @param properties Optional, if specified returns the count of non-null ROWs from a specific single/group of columns.
+ * @return A new select statement SELECT COUNT(expression)
+ */
+fun DatabaseWrapper.selectCountOf(vararg properties: IProperty<*>): Select = Select(this, count(*properties))
 
-    /**
-     * Starts a new SELECT COUNT(property1, property2, propertyn) (if properties specified) or
-     * SELECT COUNT(*).
-     *
-     * @param properties Optional, if specified returns the count of non-null ROWs from a specific single/group of columns.
-     * @return A new select statement SELECT COUNT(expression)
-     */
-    @JvmStatic
-    fun selectCountOf(vararg properties: IProperty<*>): Select = Select(count(*properties))
+inline fun <reified T : Any> DatabaseWrapper.update() = update(T::class.java)
 
-    /**
-     * @param table    The tablet to update.
-     * @param [T] The class that implements [Model].
-     * @return A new UPDATE statement.
-     */
-    @JvmStatic
-    fun <T : Any> update(table: Class<T>): Update<T> = Update(table)
+/**
+ * @param table    The tablet to update.
+ * @return A new UPDATE statement.
+ */
+infix fun <T : Any> DatabaseWrapper.update(table: Class<T>): Update<T> = Update(this, table)
 
-    /**
-     * @param table    The table to insert.
-     * @param [T] The class that implements [Model].
-     * @return A new INSERT statement.
-     */
-    @JvmStatic
-    fun <T : Any> insert(table: Class<T>): Insert<T> = Insert(table)
+/**
+ * @param table    The table to update.
+ * @return A new UPDATE statement.
+ */
+infix fun <T : Any> DatabaseWrapper.update(modelClass: KClass<T>) = update(modelClass.java)
 
-    /**
-     * @return Begins a DELETE statement.
-     */
-    @JvmStatic
-    fun delete(): Delete = Delete()
+inline fun <reified T : Any> DatabaseWrapper.insert() = insert(T::class.java)
 
-    /**
-     * Starts a DELETE statement on the specified table.
-     *
-     * @param table    The table to delete from.
-     * @param [T] The class that implements [Model].
-     * @return A [From] with specified DELETE on table.
-     */
-    @JvmStatic
-    fun <T : Any> delete(table: Class<T>): From<T> = delete().from(table)
+/**
+ * @param table    The table to insert.
+ * @return A new INSERT statement.
+ */
+infix fun <T : Any> DatabaseWrapper.insert(table: Class<T>): Insert<T> = Insert(this, table)
 
-    /**
-     * Starts an INDEX statement on specified table.
-     *
-     * @param name     The name of the index.
-     * @param [T] The class that implements [Model].
-     * @return A new INDEX statement.
-     */
-    @JvmStatic
-    fun <T> index(name: String): Index<T> = Index(name)
+/**
+ * @param table    The table to insert.
+ * @return A new INSERT statement.
+ */
+infix fun <T : Any> DatabaseWrapper.insert(modelClass: KClass<T>) = insert(modelClass.java)
 
-    /**
-     * Starts a TRIGGER statement.
-     *
-     * @param name The name of the trigger.
-     * @return A new TRIGGER statement.
-     */
-    @JvmStatic
-    fun createTrigger(name: String): Trigger = Trigger.create(name)
+/**
+ * @return Begins a DELETE statement.
+ */
+fun DatabaseWrapper.delete(): Delete = Delete(this)
 
-    /**
-     * Starts a CASE statement.
-     *
-     * @param operator The condition to check for in the WHEN.
-     * @return A new [CaseCondition].
-     */
-    @JvmStatic
-    fun <TReturn> caseWhen(operator: SQLOperator): CaseCondition<TReturn> =
-            Case<TReturn>().whenever(operator)
+/**
+ * Starts a DELETE statement on the specified table.
+ *
+ * @param table    The table to delete from.
+ * @param [T] The class that implements [Model].
+ * @return A [From] with specified DELETE on table.
+ */
+infix fun <T : Any> DatabaseWrapper.delete(table: Class<T>): From<T> = delete().from(table)
 
-    /**
-     * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
-     * case statement will evaluate all of its [SQLOperator].
-     *
-     * @param caseColumn The value
-     */
-    @JvmStatic
-    fun <TReturn> _case(caseColumn: Property<TReturn>): Case<TReturn> = Case(caseColumn)
+/**
+ * Starts an INDEX statement on specified table.
+ *
+ * @param name     The name of the index.
+ * @param [T] The class that implements [Model].
+ * @return A new INDEX statement.
+ */
+fun <T> DatabaseWrapper.index(name: String): Index<T> = Index(this, name)
 
-    /**
-     * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
-     * case statement will evaluate all of its [SQLOperator].
-     *
-     * @param caseColumn The value
-     */
-    @JvmStatic
-    fun <TReturn> _case(caseColumn: IProperty<*>): Case<TReturn> = Case(caseColumn)
-}
+/**
+ * Starts a TRIGGER statement.
+ *
+ * @param name The name of the trigger.
+ * @return A new TRIGGER statement.
+ */
+fun createTrigger(name: String): Trigger = Trigger.create(name)
 
-fun <T : Any> case(caseColumn: IProperty<*>) = SQLite._case<T>(caseColumn)
+/**
+ * Starts a CASE statement.
+ *
+ * @param operator The condition to check for in the WHEN.
+ * @return A new [CaseCondition].
+ */
+fun <T> caseWhen(operator: SQLOperator): CaseCondition<T> = Case<T>().whenever(operator)
 
-fun <T : Any> caseWhen(operator: SQLOperator) = SQLite.caseWhen<T>(operator)
+/**
+ * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
+ * case statement will evaluate all of its [SQLOperator].
+ *
+ * @param caseColumn The value
+ */
+fun <TReturn> _case(caseColumn: Property<TReturn>): Case<TReturn> = Case(caseColumn)
+
+/**
+ * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
+ * case statement will evaluate all of its [SQLOperator].
+ *
+ * @param caseColumn The value
+ */
+@JvmName("_case")
+fun <TReturn> case(caseColumn: IProperty<*>): Case<TReturn> = Case(caseColumn)

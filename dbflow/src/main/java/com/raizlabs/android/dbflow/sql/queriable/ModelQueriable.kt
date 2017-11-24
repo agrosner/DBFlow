@@ -32,23 +32,9 @@ interface ModelQueriable<T : Any> : Queriable {
     fun queryList(): MutableList<T>
 
     /**
-     * Allows you to specify a DB, useful for migrations.
-     *
-     * @return a list of model converted items
-     */
-    fun queryList(wrapper: DatabaseWrapper): MutableList<T>
-
-    /**
      * @return Single model, the first of potentially many results
      */
     fun querySingle(): T?
-
-    /**
-     * Allows you to specify a DB, useful for migrations.
-     *
-     * @return Single model, the first of potentially many results
-     */
-    fun querySingle(wrapper: DatabaseWrapper): T?
 
     /**
      * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can

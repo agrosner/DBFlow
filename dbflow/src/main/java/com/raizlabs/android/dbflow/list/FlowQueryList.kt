@@ -9,7 +9,6 @@ import android.os.Handler
 import android.os.Looper
 import com.raizlabs.android.dbflow.list.FlowCursorList.OnCursorRefreshListener
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver
-import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.structure.InstanceAdapter
 import com.raizlabs.android.dbflow.structure.ModelAdapter
@@ -266,11 +265,6 @@ class FlowQueryList<T : Any>(
             table = cursorList.table
             cursor = cursorList.cursor()
             modelQueriable = cursorList.modelQueriable
-        }
-
-        constructor(table: Class<T>) {
-            this.table = table
-            modelQueriable = SQLite.select().from(table)
         }
 
         constructor(modelQueriable: ModelQueriable<T>) {

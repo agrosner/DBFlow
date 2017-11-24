@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.appendQuotedIfNeeded
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.quoteIfNeeded
 import com.raizlabs.android.dbflow.sql.SQLiteType
-import com.raizlabs.android.dbflow.sql.language.SQLite
+import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.stripQuotes
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
@@ -54,7 +54,7 @@ class AlterTableMigration<T : Any>(
         // We have column definitions to add here
         // ADD COLUMN columnName {type}
         if (internalColumnDefinitions.isNotEmpty()) {
-            SQLite.select().from(table).limit(0).query(database)?.use { cursor ->
+            (database.select from table limit 0).query()?.use { cursor ->
                 sql = "$sql$tableName"
                 for (i in internalColumnDefinitions.indices) {
                     val columnDefinition = internalColumnDefinitions[i]

@@ -4,7 +4,6 @@ import android.database.Cursor
 import android.widget.ListView
 import com.raizlabs.android.dbflow.config.FlowLog
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.sql.language.SQLite
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.structure.InstanceAdapter
 import com.raizlabs.android.dbflow.structure.ModelAdapter
@@ -183,27 +182,17 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
      *
      * @param [T]
      */
-    class Builder<T : Any> {
+    class Builder<T : Any>(internal var modelQueriable: ModelQueriable<T>) {
 
-        internal val modelClass: Class<T>
+        internal val modelClass: Class<T> = modelQueriable.table
         internal var cursor: FlowCursor? = null
-        internal var modelQueriable: ModelQueriable<T>
-
-        constructor(modelClass: Class<T>) {
-            this.modelClass = modelClass
-            this.modelQueriable = SQLite.select().from(modelClass)
-        }
-
-        constructor(modelQueriable: ModelQueriable<T>) {
-            this.modelClass = modelQueriable.table
-            this.modelQueriable = modelQueriable
-        }
 
         fun cursor(cursor: Cursor?) = apply {
             cursor?.let { this.cursor = FlowCursor.from(cursor) }
         }
 
         fun build() = FlowCursorList(this)
+
     }
 
     companion object {

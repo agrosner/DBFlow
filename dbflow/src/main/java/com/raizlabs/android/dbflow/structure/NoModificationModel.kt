@@ -11,17 +11,10 @@ abstract class NoModificationModel : ReadOnlyModel {
     @delegate:Transient
     private val retrievalAdapter: RetrievalAdapter<NoModificationModel> by lazy { FlowManager.getInstanceAdapter(javaClass) }
 
-    override fun exists(): Boolean = retrievalAdapter.exists(this)
+    override fun DatabaseWrapper.exists(): Boolean = retrievalAdapter.exists(this@NoModificationModel, this)
 
-    override fun exists(wrapper: DatabaseWrapper): Boolean =
-            retrievalAdapter.exists(this, wrapper)
-
-    override fun load() {
-        retrievalAdapter.load(this)
-    }
-
-    override fun load(wrapper: DatabaseWrapper) {
-        retrievalAdapter.load(this, wrapper)
+    override fun DatabaseWrapper.load() {
+        retrievalAdapter.load(this@NoModificationModel, this)
     }
 
     /**

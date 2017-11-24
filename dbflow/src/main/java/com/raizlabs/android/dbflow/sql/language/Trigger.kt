@@ -128,8 +128,6 @@ private constructor(
     }
 }
 
-fun createTrigger(name: String) = Trigger.create(name)
-
 infix fun <T : Any> Trigger.deleteOn(kClass: KClass<T>) = deleteOn(kClass.java)
 
 infix fun <T : Any> Trigger.insertOn(kClass: KClass<T>) = insertOn(kClass.java)

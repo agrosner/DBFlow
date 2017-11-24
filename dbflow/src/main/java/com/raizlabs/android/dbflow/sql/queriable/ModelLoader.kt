@@ -2,8 +2,6 @@ package com.raizlabs.android.dbflow.sql.queriable
 
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-
-import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.structure.InstanceAdapter
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
@@ -15,22 +13,7 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
  */
 abstract class ModelLoader<TModel : Any, TReturn : Any>(val modelClass: Class<TModel>) {
 
-    val databaseDefinition: DatabaseDefinition by lazy { FlowManager.getDatabaseForTable(modelClass) }
     val instanceAdapter: InstanceAdapter<TModel> by lazy { FlowManager.getInstanceAdapter(modelClass) }
-
-    /**
-     * Loads the data from a query and returns it as a [TReturn].
-     *
-     * @param query The query to call.
-     * @return The data loaded from the database.
-     */
-    open fun load(query: String): TReturn? {
-        return load(databaseDefinition.writableDatabase, query)
-    }
-
-    open fun load(query: String, data: TReturn?): TReturn? {
-        return load(databaseDefinition.writableDatabase, query, data)
-    }
 
     /**
      * Loads the data from a query and returns it as a [TReturn].
@@ -39,14 +22,11 @@ abstract class ModelLoader<TModel : Any, TReturn : Any>(val modelClass: Class<TM
      * @param query           The query to call.
      * @return The data loaded from the database.
      */
-    open fun load(databaseWrapper: DatabaseWrapper, query: String): TReturn? {
-        return load(databaseWrapper, query, null)
-    }
+    open fun load(databaseWrapper: DatabaseWrapper, query: String): TReturn?
+            = load(databaseWrapper, query, null)
 
-    open fun load(databaseWrapper: DatabaseWrapper, query: String,
-                  data: TReturn?): TReturn? {
-        return load(databaseWrapper.rawQuery(query, null), data)
-    }
+    open fun load(databaseWrapper: DatabaseWrapper, query: String, data: TReturn?): TReturn?
+            = load(databaseWrapper.rawQuery(query, null), data)
 
     open fun load(cursor: FlowCursor?): TReturn? = load(cursor, null)
 

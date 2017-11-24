@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.sql.migration
 import com.raizlabs.android.dbflow.sql.language.BaseQueriable
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup
 import com.raizlabs.android.dbflow.sql.language.SQLOperator
-import com.raizlabs.android.dbflow.sql.language.SQLite
+import com.raizlabs.android.dbflow.sql.language.update
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 /**
@@ -33,8 +33,8 @@ open class UpdateTableMigration<T : Any>
      */
     private val setOperatorGroup: OperatorGroup by lazy { OperatorGroup.nonGroupingClause() }
 
-    val updateStatement: BaseQueriable<T>
-        get() = SQLite.update(table)
+    val DatabaseWrapper.updateStatement: BaseQueriable<T>
+        get() = update(table)
                 .set(setOperatorGroup)
                 .where(whereOperatorGroup)
 
@@ -53,6 +53,6 @@ open class UpdateTableMigration<T : Any>
     }
 
     override fun migrate(database: DatabaseWrapper) {
-        updateStatement.execute(database)
+        database.updateStatement.execute()
     }
 }

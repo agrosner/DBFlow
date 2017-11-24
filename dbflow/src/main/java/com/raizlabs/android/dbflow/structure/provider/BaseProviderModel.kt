@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup
 import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.Model
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.FlowCursor
 
 /**
@@ -15,20 +16,20 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
  */
 abstract class BaseProviderModel : BaseModel(), ModelProvider {
 
-    override fun delete(): Boolean = ContentUtils.delete(deleteUri, this) > 0
+    override fun DatabaseWrapper.delete(): Boolean = ContentUtils.delete(deleteUri, this@BaseProviderModel) > 0
 
-    override fun save(): Boolean {
-        val count = ContentUtils.update(updateUri, this)
+    override fun DatabaseWrapper.save(): Boolean {
+        val count = ContentUtils.update(updateUri, this@BaseProviderModel)
         return if (count == 0) {
-            ContentUtils.insert(insertUri, this) != null
+            ContentUtils.insert(insertUri, this@BaseProviderModel) != null
         } else {
             count > 0
         }
     }
 
-    override fun update(): Boolean = ContentUtils.update(updateUri, this) > 0
+    override fun DatabaseWrapper.update(): Boolean = ContentUtils.update(updateUri, this@BaseProviderModel) > 0
 
-    override fun insert(): Long {
+    override fun DatabaseWrapper.insert(): Long {
         ContentUtils.insert(insertUri, this)
         return 0
     }
@@ -38,9 +39,9 @@ abstract class BaseProviderModel : BaseModel(), ModelProvider {
      *
      * @return true if this model exists in the [ContentProvider] based on its primary keys.
      */
-    override fun exists(): Boolean {
+    override fun DatabaseWrapper.exists(): Boolean {
         val cursor = ContentUtils.query(FlowManager.context.contentResolver,
-                queryUri, modelAdapter.getPrimaryConditionClause(this), "")
+                queryUri, modelAdapter.getPrimaryConditionClause(this@BaseProviderModel), "")
         val exists = cursor != null && cursor.count > 0
         cursor?.close()
         return exists

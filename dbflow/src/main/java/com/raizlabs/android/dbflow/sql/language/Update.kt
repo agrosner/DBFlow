@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.sql.language
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.Query
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 /**
  * Description: The SQLite UPDATE query. Will update rows in the DB.
@@ -13,7 +14,8 @@ class Update<T : Any>
  *
  * @param table The table to use.
  */
-internal constructor(val table: Class<T>) : Query {
+internal constructor(private val databaseWrapper: DatabaseWrapper,
+                     val table: Class<T>) : Query {
 
     /**
      * The conflict action to resolve updates.
@@ -74,10 +76,9 @@ internal constructor(val table: Class<T>) : Query {
      * @param conditions The array of conditions that define this SET statement
      * @return A SET query piece of this statement
      */
-    fun set(vararg conditions: SQLOperator): Set<T> = Set(this, table).conditions(*conditions)
+    fun set(vararg conditions: SQLOperator): Set<T> = Set(databaseWrapper, this, table)
+            .conditions(*conditions)
 }
 
-
-inline fun <reified T : Any> update() = SQLite.update(T::class.java)
 
 infix fun <T : Any> Update<T>.set(sqlOperator: SQLOperator) = set(sqlOperator)

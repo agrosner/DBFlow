@@ -51,41 +51,18 @@ open class BaseModel : Model {
         CHANGE
     }
 
-    override fun load() {
-        modelAdapter.load(this)
+    override fun DatabaseWrapper.load() {
+        modelAdapter.load(this@BaseModel, this)
     }
 
-    override fun load(wrapper: DatabaseWrapper) {
-        modelAdapter.load(this, wrapper)
-    }
+    override fun DatabaseWrapper.save(): Boolean = modelAdapter.save(this@BaseModel, this)
 
-    override fun save(): Boolean = modelAdapter.save(this)
+    override fun DatabaseWrapper.delete(): Boolean = modelAdapter.delete(this@BaseModel, this)
 
+    override fun DatabaseWrapper.update(): Boolean = modelAdapter.update(this@BaseModel, this)
 
-    override fun save(wrapper: DatabaseWrapper): Boolean =
-            modelAdapter.save(this, wrapper)
+    override fun DatabaseWrapper.insert(): Long = modelAdapter.insert(this@BaseModel, this)
 
-    override fun delete(): Boolean = modelAdapter.delete(this)
-
-    override fun delete(wrapper: DatabaseWrapper): Boolean =
-            modelAdapter.delete(this, wrapper)
-
-    override fun update(): Boolean = modelAdapter.update(this)
-
-    override fun update(wrapper: DatabaseWrapper): Boolean =
-            modelAdapter.update(this, wrapper)
-
-    override fun insert(): Long = modelAdapter.insert(this)
-
-    override fun insert(wrapper: DatabaseWrapper): Long =
-            modelAdapter.insert(this, wrapper)
-
-    override fun exists(): Boolean = modelAdapter.exists(this)
-
-    override fun exists(wrapper: DatabaseWrapper): Boolean =
-            modelAdapter.exists(this, wrapper)
-
-    override fun async(): AsyncModel<out Model> = AsyncModel(this)
-
+    override fun DatabaseWrapper.exists(): Boolean = modelAdapter.exists(this@BaseModel, this)
 
 }

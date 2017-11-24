@@ -13,18 +13,15 @@ abstract class BaseTransformable<TModel : Any>
  *
  * @param table the table that belongs to this query.
  */
-protected constructor(table: Class<TModel>)
-    : BaseModelQueriable<TModel>(table), Transformable<TModel>, WhereBase<TModel> {
-
+protected constructor(databaseWrapper: DatabaseWrapper,
+                      table: Class<TModel>)
+    : BaseModelQueriable<TModel>(databaseWrapper, table), Transformable<TModel>, WhereBase<TModel> {
 
     infix fun <T : Any> whereExists(where: Where<T>) = where().exists(where)
 
     fun where(vararg conditions: SQLOperator): Where<TModel> = Where(this, *conditions)
 
     override fun query(): FlowCursor? = where().query()
-
-    override fun query(databaseWrapper: DatabaseWrapper): FlowCursor? =
-            where().query(databaseWrapper)
 
     override fun groupBy(vararg nameAliases: NameAlias): Where<TModel> =
             where().groupBy(*nameAliases)

@@ -3,11 +3,9 @@ package com.raizlabs.android.dbflow.sql.language
 import android.database.Cursor
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
 import com.raizlabs.android.dbflow.appendQualifier
-import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.structure.BaseModel
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.FlowCursor
 import java.util.*
 
@@ -21,12 +19,13 @@ class Where<T : Any>
  *
  * @param whereBase The FROM or SET statement chunk
  */
-(
+internal constructor(
         /**
          * The first chunk of the SQL statement before this query.
          */
         val whereBase: WhereBase<T>, vararg conditions: SQLOperator)
-    : BaseModelQueriable<T>(whereBase.table), ModelQueriable<T>, Transformable<T> {
+    : BaseModelQueriable<T>(whereBase.databaseWrapper, whereBase.table),
+        ModelQueriable<T>, Transformable<T> {
 
     /**
      * Helps to build the where statement easily
@@ -160,13 +159,11 @@ class Where<T : Any>
     /**
      * @return the result of the query as a [Cursor].
      */
-    override fun query(databaseWrapper: DatabaseWrapper): FlowCursor? =// Query the sql here
+    override fun query(): FlowCursor? =// Query the sql here
             when {
                 whereBase.queryBuilderBase is Select -> databaseWrapper.rawQuery(query, null)
-                else -> super.query(databaseWrapper)
+                else -> super.query()
             }
-
-    override fun query(): FlowCursor? = query(FlowManager.getDatabaseForTable(table).writableDatabase)
 
     /**
      * Queries for all of the results this statement returns from a DB cursor in the form of the [T]

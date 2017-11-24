@@ -6,6 +6,7 @@ import com.raizlabs.android.dbflow.sql.language.Join.JoinType
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import java.util.*
 import kotlin.collections.Set as KSet
 
@@ -19,14 +20,14 @@ class From<TModel : Any>
  * @param querybase The base query we append this query to
  * @param table     The table this corresponds to
  */
-(
-        /**
-         * The base such as [Delete], [Select] and more!
-         */
+internal constructor(
+        databaseWrapper: DatabaseWrapper,
+
         /**
          * @return The base query, usually a [Delete], [Select], or [Update]
          */
-        override val queryBuilderBase: Query, table: Class<TModel>) : BaseTransformable<TModel>(table) {
+        override val queryBuilderBase: Query, table: Class<TModel>)
+    : BaseTransformable<TModel>(databaseWrapper, table) {
 
     /**
      * An alias for the table

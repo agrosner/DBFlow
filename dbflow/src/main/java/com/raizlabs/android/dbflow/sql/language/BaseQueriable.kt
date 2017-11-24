@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.sql.language
 
 import android.database.sqlite.SQLiteDoneException
 import com.raizlabs.android.dbflow.config.FlowLog
-import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor
 import com.raizlabs.android.dbflow.sql.longForQuery
 import com.raizlabs.android.dbflow.sql.queriable.Queriable
@@ -16,6 +15,7 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
  * Description: Base implementation of something that can be queried from the database.
  */
 abstract class BaseQueriable<TModel : Any> protected constructor(
+        private val databaseWrapper: DatabaseWrapper,
         /**
          * @return The table associated with this INSERT
          */
@@ -23,9 +23,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
 
     abstract override val primaryAction: BaseModel.Action
 
-    override fun longValue(): Long = longValue(FlowManager.getWritableDatabaseForTable(table))
-
-    override fun longValue(databaseWrapper: DatabaseWrapper): Long {
+    override fun longValue(): Long {
         try {
             val query = query
             FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
@@ -40,17 +38,10 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
 
     override fun hasData(): Boolean = longValue() > 0
 
-    override fun hasData(databaseWrapper: DatabaseWrapper): Boolean = longValue(databaseWrapper) > 0
-
     override fun query(): FlowCursor? {
-        query(FlowManager.getWritableDatabaseForTable(table))
-        return null
-    }
-
-    override fun query(databaseWrapper: DatabaseWrapper): FlowCursor? {
         if (primaryAction == BaseModel.Action.INSERT) {
             // inserting, let's compile and insert
-            val databaseStatement = compileStatement(databaseWrapper)
+            val databaseStatement = compileStatement()
             databaseStatement.executeInsert()
             databaseStatement.close()
         } else {
@@ -62,9 +53,6 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
     }
 
     override fun executeInsert(): Long =
-            executeInsert(FlowManager.getWritableDatabaseForTable(table))
-
-    override fun executeInsert(databaseWrapper: DatabaseWrapper): Long =
             compileStatement().executeInsert()
 
     override fun execute() {
@@ -77,20 +65,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
         }
     }
 
-    override fun execute(databaseWrapper: DatabaseWrapper) {
-        val cursor = query(databaseWrapper)
-        if (cursor != null) {
-            cursor.close()
-        } else {
-            // we dont query, we're executing something here.
-            NotifyDistributor.get().notifyTableChanged(table, primaryAction)
-        }
-    }
-
-    override fun compileStatement(): DatabaseStatement =
-            compileStatement(FlowManager.getWritableDatabaseForTable(table))
-
-    override fun compileStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement {
+    override fun compileStatement(): DatabaseStatement {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Compiling Query Into Statement: " + query)
         return DatabaseStatementWrapper(databaseWrapper.compileStatement(query), this)

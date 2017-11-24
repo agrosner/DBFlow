@@ -19,6 +19,7 @@ class Index<TModel>
  * @param indexName The name of this index.
  */
 (
+        private val databaseWrapper: DatabaseWrapper,
         /**
          * @return The name of this index.
          */
@@ -105,8 +106,7 @@ class Index<TModel>
         }
     }
 
-    @JvmOverloads
-    fun enable(databaseWrapper: DatabaseWrapper = FlowManager.getDatabaseForTable(table!!).writableDatabase) {
+    fun enable() {
         if (table == null) {
             throw IllegalStateException("Please call on() to set a table to use this index on.")
         } else if (columns.isEmpty()) {
@@ -116,16 +116,16 @@ class Index<TModel>
     }
 
     fun disable() {
-        dropIndex(FlowManager.getDatabaseForTable(table!!).writableDatabase, indexName)
-    }
-
-    fun disable(databaseWrapper: DatabaseWrapper) {
         dropIndex(databaseWrapper, indexName)
     }
 }
 
 
-inline fun <reified T : Any> indexOn(indexName: String, vararg property: IProperty<*>) = Index<T>(indexName).on(T::class.java, *property)
+inline fun <reified T : Any> DatabaseWrapper.indexOn(indexName: String,
+                                                     vararg property: IProperty<*>)
+        = index<T>(indexName).on(T::class.java, *property)
 
-inline fun <reified T : Any> indexOn(indexName: String, firstNameAlias: NameAlias, vararg arrayOfNameAlias: NameAlias) = Index<T>(indexName).on(T::class.java, firstNameAlias, *arrayOfNameAlias)
+inline fun <reified T : Any> DatabaseWrapper.indexOn(indexName: String, firstNameAlias: NameAlias,
+                                                     vararg arrayOfNameAlias: NameAlias)
+        = index<T>(indexName).on(T::class.java, firstNameAlias, *arrayOfNameAlias)
 

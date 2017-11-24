@@ -16,11 +16,11 @@ interface Transformable<T : Any> {
 
     fun orderBy(property: IProperty<*>, ascending: Boolean): Where<T>
 
-    fun orderBy(orderBy: OrderBy): Where<T>
+    infix fun orderBy(orderBy: OrderBy): Where<T>
 
-    fun limit(count: Int): Where<T>
+    infix fun limit(count: Int): Where<T>
 
-    fun offset(offset: Int): Where<T>
+    infix fun offset(offset: Int): Where<T>
 
     fun having(vararg conditions: SQLOperator): Where<T>
 
@@ -31,11 +31,5 @@ interface Transformable<T : Any> {
 infix fun <T : Any> Transformable<T>.groupBy(nameAlias: NameAlias): Where<T> = groupBy(nameAlias)
 
 infix fun <T : Any> Transformable<T>.groupBy(property: IProperty<*>): Where<T> = groupBy(property)
-
-infix fun <T : Any> Transformable<T>.orderBy(orderBy: OrderBy): Where<T> = orderBy(orderBy)
-
-infix fun <T : Any> Transformable<T>.limit(limit: Int): Where<T> = limit(limit)
-
-infix fun <T : Any> Transformable<T>.offset(offset: Int): Where<T> = offset(offset)
 
 infix fun <T : Any> Transformable<T>.having(sqlOperator: SQLOperator): Where<T> = having(sqlOperator)

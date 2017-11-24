@@ -1,8 +1,10 @@
 package com.raizlabs.android.dbflow.structure.database.transaction
 
 import android.database.sqlite.SQLiteDatabaseLockedException
+import com.raizlabs.android.dbflow.config.database
 
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import kotlinx.coroutines.experimental.async
 
 /**
  * Description: Simplest form of a transaction. It represents an interface by which code is executed

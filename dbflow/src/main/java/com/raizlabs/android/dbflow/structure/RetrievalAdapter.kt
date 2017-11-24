@@ -5,7 +5,8 @@ import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.config.TableConfig
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup
-import com.raizlabs.android.dbflow.sql.language.SQLite
+import com.raizlabs.android.dbflow.sql.language.select
+import com.raizlabs.android.dbflow.sql.language.where
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
@@ -94,12 +95,11 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
     /**
      * Force loads the model from the DB. Even if caching is enabled it will requery the object.
      */
-    @JvmOverloads
-    open fun load(model: T, databaseWrapper: DatabaseWrapper = FlowManager.getDatabaseForTable(modelClass).writableDatabase) {
+    open fun load(model: T, databaseWrapper: DatabaseWrapper) {
         nonCacheableSingleModelLoader.load(databaseWrapper,
-                SQLite.select()
-                        .from(modelClass)
-                        .where(getPrimaryConditionClause(model)).query,
+                (databaseWrapper.select
+                        from modelClass
+                        where getPrimaryConditionClause(model)).query,
                 model)
     }
 
