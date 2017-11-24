@@ -435,6 +435,9 @@ inline fun <reified T : Any> database(): DatabaseDefinition
 inline fun <reified T : Any, R> database(kClass: KClass<T>, f: DatabaseDefinition.() -> R): R
         = FlowManager.getDatabase(kClass.java).f()
 
+fun <T : Any, R> writableDatabaseForTable(kClass: KClass<T>, f: DatabaseWrapper.() -> R): R
+        = FlowManager.getWritableDatabaseForTable(kClass.java).f()
+
 inline fun <reified T : Any> writableDatabaseForTable(f: DatabaseWrapper.() -> Unit): DatabaseWrapper
         = FlowManager.getWritableDatabaseForTable(T::class.java).apply(f)
 
@@ -443,6 +446,9 @@ inline fun <reified T : Any> writableDatabaseForTable(): DatabaseWrapper
 
 fun <T : Any, R> writableDatabase(kClass: KClass<T>, f: DatabaseWrapper.() -> R): R
         = FlowManager.getWritableDatabase(kClass.java).f()
+
+inline fun <reified T : Any, R> writableDatabase(f: DatabaseWrapper.() -> R): R
+        = FlowManager.getWritableDatabase(T::class.java).f()
 
 inline fun <reified T : Any> writableDatabase(): DatabaseWrapper
         = FlowManager.getWritableDatabase(T::class.java)

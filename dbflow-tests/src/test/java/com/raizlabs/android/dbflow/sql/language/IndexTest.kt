@@ -10,21 +10,27 @@ import org.junit.Test
 class IndexTest : BaseUnitTest() {
 
     @Test
-    fun validateBasicIndex() = writableDatabaseForTable<SimpleModel> {
-        assertEquals("CREATE INDEX IF NOT EXISTS `index` ON `SimpleModel`(`name`)",
-                indexOn<SimpleModel>("index", SimpleModel_Table.name).query)
+    fun validateBasicIndex() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("CREATE INDEX IF NOT EXISTS `index` ON `SimpleModel`(`name`)",
+                    indexOn<SimpleModel>("index", SimpleModel_Table.name).query)
+        }
     }
 
     @Test
-    fun validateUniqueIndex() = writableDatabaseForTable<SimpleModel> {
-        assertEquals("CREATE UNIQUE INDEX IF NOT EXISTS `index` ON `SimpleModel`(`name`, `test`)",
-                indexOn<SimpleModel>("index").unique(true).and(SimpleModel_Table.name)
-                        .and("test".nameAlias).query)
+    fun validateUniqueIndex() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("CREATE UNIQUE INDEX IF NOT EXISTS `index` ON `SimpleModel`(`name`, `test`)",
+                    indexOn<SimpleModel>("index").unique(true).and(SimpleModel_Table.name)
+                            .and("test".nameAlias).query)
+        }
     }
 
     @Test
-    fun validateBasicIndexNameAlias() = writableDatabaseForTable<SimpleModel> {
-        assertEquals("CREATE INDEX IF NOT EXISTS `index` ON `SimpleModel`(`name`, `test`)",
-                indexOn<SimpleModel>("index", "name".nameAlias, "test".nameAlias).query)
+    fun validateBasicIndexNameAlias() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("CREATE INDEX IF NOT EXISTS `index` ON `SimpleModel`(`name`, `test`)",
+                    indexOn<SimpleModel>("index", "name".nameAlias, "test".nameAlias).query)
+        }
     }
 }

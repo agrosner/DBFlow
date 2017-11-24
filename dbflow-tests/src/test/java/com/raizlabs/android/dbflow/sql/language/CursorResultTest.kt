@@ -16,9 +16,11 @@ class CursorResultTest : BaseUnitTest() {
     lateinit var result: CursorResult<SimpleModel>
 
     @Before
-    fun prepareList() = writableDatabaseForTable<SimpleModel> {
-        (0..9).forEach { SimpleModel("$it").save() }
-        result = (select from SimpleModel::class).cursorResult
+    fun prepareList() {
+        writableDatabaseForTable<SimpleModel> {
+            (0..9).forEach { SimpleModel("$it").save() }
+            result = (select from SimpleModel::class).cursorResult
+        }
     }
 
     @Test

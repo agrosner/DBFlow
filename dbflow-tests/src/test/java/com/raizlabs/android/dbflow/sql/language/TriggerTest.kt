@@ -17,38 +17,43 @@ import org.junit.Test
 class TriggerTest : BaseUnitTest() {
 
     @Test
-    fun validateBasicTrigger()= writableDatabaseForTable<SimpleModel> {
-        assertEquals("CREATE TRIGGER IF NOT EXISTS `MyTrigger` AFTER INSERT ON `SimpleModel` " +
-                "\nBEGIN" +
-                "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
-                "\nEND",
-                createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
-                        insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name")))
+    fun validateBasicTrigger() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("CREATE TRIGGER IF NOT EXISTS `MyTrigger` AFTER INSERT ON `SimpleModel` " +
+                    "\nBEGIN" +
+                    "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
+                    "\nEND",
+                    createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
+                            insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name")))
+        }
     }
 
     @Test
-    fun validateUpdateTriggerMultiline() = writableDatabaseForTable<SimpleModel> {
-        assertEquals("CREATE TEMP TRIGGER IF NOT EXISTS `MyTrigger` BEFORE UPDATE ON `SimpleModel` " +
-                "\nBEGIN" +
-                "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
-                "\nINSERT INTO `TwoColumnModel`(`id`) VALUES(CAST(`new`.`name` AS INTEGER));" +
-                "\nEND",
-                createTrigger("MyTrigger").temporary().before() updateOn SimpleModel::class begin
-                        insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name")) and
-                        insert(TwoColumnModel::class)
-                                .columnValues(id to cast(NameAlias.ofTable("new", "name").property)
-                                        .`as`(SQLiteType.INTEGER)))
-
+    fun validateUpdateTriggerMultiline() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("CREATE TEMP TRIGGER IF NOT EXISTS `MyTrigger` BEFORE UPDATE ON `SimpleModel` " +
+                    "\nBEGIN" +
+                    "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
+                    "\nINSERT INTO `TwoColumnModel`(`id`) VALUES(CAST(`new`.`name` AS INTEGER));" +
+                    "\nEND",
+                    createTrigger("MyTrigger").temporary().before() updateOn SimpleModel::class begin
+                            insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name")) and
+                            insert(TwoColumnModel::class)
+                                    .columnValues(id to cast(NameAlias.ofTable("new", "name").property)
+                                            .`as`(SQLiteType.INTEGER)))
+        }
     }
 
     @Test
-    fun validateTriggerWorks() = writableDatabaseForTable<SimpleModel>{
-        val trigger = createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
-                insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name"))
-        trigger.enable()
-        SimpleModel("Test").insert()
+    fun validateTriggerWorks() {
+        writableDatabaseForTable<SimpleModel> {
+            val trigger = createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
+                    insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name"))
+            trigger.enable()
+            SimpleModel("Test").insert()
 
-        val result = select from TwoColumnModel::class where (name eq "Test")
-        assertNotNull(result)
+            val result = select from TwoColumnModel::class where (name eq "Test")
+            assertNotNull(result)
+        }
     }
 }

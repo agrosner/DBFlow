@@ -15,40 +15,54 @@ import org.junit.Test
 class UpdateTest : BaseUnitTest() {
 
     @Test
-    fun validateUpdateRollback() = writableDatabaseForTable<SimpleModel>{
-        assertEquals("UPDATE OR ROLLBACK `SimpleModel`", update<SimpleModel>().orRollback())
+    fun validateUpdateRollback() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("UPDATE OR ROLLBACK `SimpleModel`", update<SimpleModel>().orRollback())
+        }
     }
 
     @Test
-    fun validateUpdateFail()= writableDatabaseForTable<SimpleModel> {
-        assertEquals("UPDATE OR FAIL `SimpleModel`", update<SimpleModel>().orFail())
+    fun validateUpdateFail() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("UPDATE OR FAIL `SimpleModel`", update<SimpleModel>().orFail())
+        }
     }
 
     @Test
-    fun validateUpdateIgnore()= writableDatabaseForTable<SimpleModel> {
-        assertEquals("UPDATE OR IGNORE `SimpleModel`", update<SimpleModel>().orIgnore())
+    fun validateUpdateIgnore() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("UPDATE OR IGNORE `SimpleModel`", update<SimpleModel>().orIgnore())
+        }
     }
 
     @Test
-    fun validateUpdateReplace()= writableDatabaseForTable<SimpleModel> {
-        assertEquals("UPDATE OR REPLACE `SimpleModel`", update<SimpleModel>().orReplace())
+    fun validateUpdateReplace() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("UPDATE OR REPLACE `SimpleModel`", update<SimpleModel>().orReplace())
+        }
     }
 
     @Test
-    fun validateUpdateAbort() = writableDatabaseForTable<SimpleModel>{
-        assertEquals("UPDATE OR ABORT `SimpleModel`", update<SimpleModel>().orAbort())
+    fun validateUpdateAbort() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("UPDATE OR ABORT `SimpleModel`", update<SimpleModel>().orAbort())
+        }
     }
 
     @Test
-    fun validateSetQuery() = writableDatabaseForTable<SimpleModel>{
-        assertEquals("UPDATE `SimpleModel` SET `name`='name'", update<SimpleModel>() set (name eq "name"))
+    fun validateSetQuery() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("UPDATE `SimpleModel` SET `name`='name'", update<SimpleModel>() set (name eq "name"))
+        }
     }
 
     @Test
-    fun validateWildcardQuery() = writableDatabaseForTable<SimpleModel>{
-        assertEquals("UPDATE OR FAIL `NumberModel` SET `id`=? WHERE `id`=?",
-                update<NumberModel>().or(ConflictAction.FAIL)
-                        .set(id.eq(Property.WILDCARD))
-                        .where(id.eq(Property.WILDCARD)))
+    fun validateWildcardQuery() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("UPDATE OR FAIL `NumberModel` SET `id`=? WHERE `id`=?",
+                    update<NumberModel>().or(ConflictAction.FAIL)
+                            .set(id.eq(Property.WILDCARD))
+                            .where(id.eq(Property.WILDCARD)))
+        }
     }
 }

@@ -11,9 +11,11 @@ import org.junit.Test
 class IndexedByTest : BaseUnitTest() {
 
     @Test
-    fun validateQuery() = writableDatabaseForTable<SimpleModel> {
-        val indexed = (select from SimpleModel::class)
-                .indexedBy(IndexProperty("Index", false, SimpleModel::class.java, SimpleModel_Table.name))
-        assertEquals("SELECT * FROM `SimpleModel` INDEXED BY `Index`", indexed.query.trim())
+    fun validateQuery() {
+        writableDatabaseForTable<SimpleModel> {
+            val indexed = (select from SimpleModel::class)
+                    .indexedBy(IndexProperty("Index", false, SimpleModel::class.java, SimpleModel_Table.name))
+            assertEquals("SELECT * FROM `SimpleModel` INDEXED BY `Index`", indexed.query.trim())
+        }
     }
 }

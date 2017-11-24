@@ -13,40 +13,46 @@ import org.junit.Test
 class AsyncQueryTest : BaseUnitTest() {
 
     @Test
-    fun testQueryResult() = writableDatabaseForTable<SimpleModel>{
-        SimpleModel("name").save()
+    fun testQueryResult() {
+        writableDatabaseForTable<SimpleModel> {
+            SimpleModel("name").save()
 
-        var model: SimpleModel? = null
-        (select from SimpleModel::class).async result { _, result ->
-            model = result
+            var model: SimpleModel? = null
+            (select from SimpleModel::class).async result { _, result ->
+                model = result
+            }
+            assertNotNull(model)
+            assertEquals("name", model?.name)
         }
-        assertNotNull(model)
-        assertEquals("name", model?.name)
     }
 
     @Test
-    fun testQueryListResult() = writableDatabaseForTable<SimpleModel>{
-        SimpleModel("name").save()
-        SimpleModel("name2").save()
+    fun testQueryListResult() {
+        writableDatabaseForTable<SimpleModel> {
+            SimpleModel("name").save()
+            SimpleModel("name2").save()
 
-        var list = mutableListOf<SimpleModel>()
-        (select from SimpleModel::class).async list { _, mutableList ->
-            list = mutableList.toMutableList()
+            var list = mutableListOf<SimpleModel>()
+            (select from SimpleModel::class).async list { _, mutableList ->
+                list = mutableList.toMutableList()
+            }
+            assertEquals(2, list.size)
         }
-        assertEquals(2, list.size)
     }
 
     @Test
-    fun testQueryListCursorResult() = writableDatabaseForTable<SimpleModel>{
-        SimpleModel("name").save()
-        SimpleModel("name2").save()
+    fun testQueryListCursorResult() {
+        writableDatabaseForTable<SimpleModel> {
+            SimpleModel("name").save()
+            SimpleModel("name2").save()
 
-        var result: CursorResult<SimpleModel>? = null
-        (select from SimpleModel::class).async cursorResult { _, cursorResult ->
-            result = cursorResult
+            var result: CursorResult<SimpleModel>? = null
+            (select from SimpleModel::class).async cursorResult { _, cursorResult ->
+                result = cursorResult
+            }
+            assertNotNull(result)
+            assertEquals(2L, result?.count)
+            result?.close()
         }
-        assertNotNull(result)
-        assertEquals(2L, result?.count)
-        result?.close()
     }
 }

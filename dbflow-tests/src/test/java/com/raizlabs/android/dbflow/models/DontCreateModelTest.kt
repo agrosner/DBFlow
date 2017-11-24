@@ -14,9 +14,11 @@ import org.junit.Test
 class DontCreateModelTest : BaseUnitTest() {
 
     @Test
-    fun testModelNotCreated() = writableDatabaseForTable<DontCreateModel> {
-        assertThrowsException(SQLiteException::class) {
-            (select from DontCreateModel::class).list
+    fun testModelNotCreated() {
+        writableDatabaseForTable<DontCreateModel> {
+            assertThrowsException(SQLiteException::class) {
+                (select from DontCreateModel::class).list
+            }
         }
     }
 }

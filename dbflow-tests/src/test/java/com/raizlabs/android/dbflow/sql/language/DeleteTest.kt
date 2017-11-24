@@ -13,26 +13,32 @@ import org.junit.Test
 class DeleteTest : BaseUnitTest() {
 
     @Test
-    fun validateQuery() = writableDatabaseForTable<SimpleModel> {
-        assertEquals("DELETE ", delete().query)
+    fun validateQuery() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("DELETE ", delete().query)
+        }
     }
 
     @Test
-    fun validateDeletion() = writableDatabaseForTable<SimpleModel> {
-        SimpleModel("name").save()
-        delete<SimpleModel>().execute()
-        assertFalse((select from SimpleModel::class).hasData())
+    fun validateDeletion() {
+        writableDatabaseForTable<SimpleModel> {
+            SimpleModel("name").save()
+            delete<SimpleModel>().execute()
+            assertFalse((select from SimpleModel::class).hasData())
+        }
     }
 
     @Test
-    fun validateDeletionWithQuery() = writableDatabaseForTable<SimpleModel> {
-        SimpleModel("name").save()
-        SimpleModel("another name").save()
+    fun validateDeletionWithQuery() {
+        writableDatabaseForTable<SimpleModel> {
+            SimpleModel("name").save()
+            SimpleModel("another name").save()
 
-        val where = delete<SimpleModel>().where(SimpleModel_Table.name.`is`("name"))
-        assertEquals("DELETE FROM `SimpleModel` WHERE `name`='name'", where.query.trim())
-        where.execute()
+            val where = delete<SimpleModel>().where(SimpleModel_Table.name.`is`("name"))
+            assertEquals("DELETE FROM `SimpleModel` WHERE `name`='name'", where.query.trim())
+            where.execute()
 
-        assertEquals(1, (select from SimpleModel::class).list.size)
+            assertEquals(1, (select from SimpleModel::class).list.size)
+        }
     }
 }

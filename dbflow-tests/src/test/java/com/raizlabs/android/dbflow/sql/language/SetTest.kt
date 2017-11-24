@@ -11,14 +11,18 @@ import org.junit.Test
 class SetTest : BaseUnitTest() {
 
     @Test
-    fun validateSetWithConditions() = writableDatabaseForTable<SimpleModel> {
-        assertEquals("UPDATE `SimpleModel` SET `name`='name'",
-                update<SimpleModel>() set name.`is`("name"))
+    fun validateSetWithConditions() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("UPDATE `SimpleModel` SET `name`='name'",
+                    update<SimpleModel>() set name.`is`("name"))
+        }
     }
 
     @Test
-    fun validateMultipleConditions() = writableDatabaseForTable<SimpleModel> {
-        assertEquals("SET `name`='name', `id`=0",
-                update<SimpleModel>() set name.eq("name") and id.eq(0))
+    fun validateMultipleConditions() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("UPDATE `SimpleModel` SET `name`='name', `id`=0",
+                    update<SimpleModel>() set name.eq("name") and id.eq(0))
+        }
     }
 }

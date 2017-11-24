@@ -9,7 +9,6 @@ import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.language.property.Property
-import java.util.*
 
 /**
  * Description: The class that contains a column name, Operator<T>, and value.
@@ -324,7 +323,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
     override fun concatenate(value: Any?): Operator<T> {
         var _value = value
-        operation = "${Operation.EQUALS} ${columnName()}"
+        operation = "${Operation.EQUALS}${columnName()}"
 
         var typeConverter: TypeConverter<*, Any>? = this.typeConverter as TypeConverter<*, Any>?
         if (typeConverter == null && _value != null) {
@@ -557,7 +556,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
      */
     class In<T> : BaseOperator, Query {
 
-        private val inArguments = ArrayList<T?>()
+        private val inArguments = arrayListOf<T?>()
 
         override val query: String
             get() = appendToQuery()
@@ -573,7 +572,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
         @SafeVarargs
         internal constructor(operator: Operator<T>, firstArgument: T?, isIn: Boolean, vararg arguments: T?) : super(operator.columnAlias()) {
             inArguments.add(firstArgument)
-            Collections.addAll(inArguments, *arguments)
+            inArguments.addAll(arguments)
             operation = " ${if (isIn) Operation.IN else Operation.NOT_IN} "
         }
 
@@ -621,7 +620,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
 fun <T : Any> NameAlias.op() = Operator.op<T>(this)
 
-fun <T : Any> String.op(): Operator<T> = nameAlias.op<T>()
+fun <T : Any> String.op(): Operator<T> = nameAlias.op()
 
 infix fun <T : Any> Operator<T>.collate(collation: Collate) = collate(collation)
 

@@ -68,21 +68,23 @@ class DirectNotifierTest {
     }
 
     @Test
-    fun validateCanNotifyWrapperClasses() = writableDatabaseForTable<SimpleModel> {
-        val modelChange = Mockito.mock(OnTableChangedListener::class.java)
-        DirectModelNotifier.get().registerForTableChanges(SimpleModel::class.java, modelChange)
+    fun validateCanNotifyWrapperClasses() {
+        writableDatabaseForTable<SimpleModel> {
+            val modelChange = Mockito.mock(OnTableChangedListener::class.java)
+            DirectModelNotifier.get().registerForTableChanges(SimpleModel::class.java, modelChange)
 
-        insert<SimpleModel>().columnValues(SimpleModel_Table.name to "name").executeInsert()
+            insert<SimpleModel>().columnValues(SimpleModel_Table.name to "name").executeInsert()
 
-        verify(modelChange).onTableChanged(SimpleModel::class.java, BaseModel.Action.INSERT)
+            verify(modelChange).onTableChanged(SimpleModel::class.java, BaseModel.Action.INSERT)
 
-        (update<SimpleModel>() set SimpleModel_Table.name.eq("name2")).executeUpdateDelete()
+            (update<SimpleModel>() set SimpleModel_Table.name.eq("name2")).executeUpdateDelete()
 
-        verify(modelChange).onTableChanged(SimpleModel::class.java, BaseModel.Action.UPDATE)
+            verify(modelChange).onTableChanged(SimpleModel::class.java, BaseModel.Action.UPDATE)
 
-        delete<SimpleModel>().executeUpdateDelete()
+            delete<SimpleModel>().executeUpdateDelete()
 
-        verify(modelChange).onTableChanged(SimpleModel::class.java, BaseModel.Action.DELETE)
+            verify(modelChange).onTableChanged(SimpleModel::class.java, BaseModel.Action.DELETE)
+        }
     }
 
     @After

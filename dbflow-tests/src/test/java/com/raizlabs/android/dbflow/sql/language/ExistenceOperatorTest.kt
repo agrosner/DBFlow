@@ -11,11 +11,13 @@ class ExistenceOperatorTest : BaseUnitTest() {
 
 
     @Test
-    fun validateQuery() = writableDatabaseForTable<SimpleModel> {
-        assertEquals("EXISTS (SELECT * FROM `SimpleModel` WHERE `name`='name')",
-                ExistenceOperator(
-                        (select from SimpleModel::class
-                                where SimpleModel_Table.name.eq("name")))
-                        .query.trim())
+    fun validateQuery() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("EXISTS (SELECT * FROM `SimpleModel` WHERE `name`='name')",
+                    ExistenceOperator(
+                            (select from SimpleModel::class
+                                    where SimpleModel_Table.name.eq("name")))
+                            .query.trim())
+        }
     }
 }

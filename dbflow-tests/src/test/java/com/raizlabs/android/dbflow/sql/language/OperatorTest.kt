@@ -54,9 +54,11 @@ class OperatorTest : BaseUnitTest() {
     }
 
     @Test
-    fun testIn() = writableDatabaseForTable<SimpleModel> {
-        assertEquals("`id` IN (5,6,7,8,9)", id.`in`(5, 6, 7, 8) and 9)
-        assertEquals("`id` NOT IN (SELECT * FROM `SimpleModel`)",
-                id.notIn(select from SimpleModel::class))
+    fun testIn() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("`id` IN (5,6,7,8,9)", id.`in`(5, 6, 7, 8) and 9)
+            assertEquals("`id` NOT IN (SELECT * FROM `SimpleModel`)",
+                    id.notIn(select from SimpleModel::class))
+        }
     }
 }

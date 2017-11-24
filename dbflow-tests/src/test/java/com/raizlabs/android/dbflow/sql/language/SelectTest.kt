@@ -12,14 +12,18 @@ import org.junit.Test
 class SelectTest : BaseUnitTest() {
 
     @Test
-    fun validateSelect() = writableDatabaseForTable<TwoColumnModel> {
-        assertEquals("SELECT `name`,`id` FROM `TwoColumnModel`",
-                select(name, id) from TwoColumnModel::class)
+    fun validateSelect() {
+        writableDatabaseForTable<TwoColumnModel> {
+            assertEquals("SELECT `name`,`id` FROM `TwoColumnModel`",
+                    select(name, id) from TwoColumnModel::class)
+        }
     }
 
     @Test
-    fun validateSelectDistinct() = writableDatabaseForTable<SimpleModel> {
-        assertEquals("SELECT DISTINCT `name` FROM `SimpleModel`",
-                select(name).distinct() from SimpleModel::class)
+    fun validateSelectDistinct() {
+        writableDatabaseForTable<SimpleModel> {
+            assertEquals("SELECT DISTINCT `name` FROM `SimpleModel`",
+                    select(name).distinct() from SimpleModel::class)
+        }
     }
 }
