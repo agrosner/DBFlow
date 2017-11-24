@@ -16,21 +16,21 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
  */
 abstract class BaseProviderModel : BaseModel(), ModelProvider {
 
-    override fun DatabaseWrapper.delete(): Boolean = ContentUtils.delete(deleteUri, this@BaseProviderModel) > 0
+    override fun delete(wrapper: DatabaseWrapper): Boolean = ContentUtils.delete(deleteUri, this) > 0
 
-    override fun DatabaseWrapper.save(): Boolean {
-        val count = ContentUtils.update(updateUri, this@BaseProviderModel)
+    override fun save(wrapper: DatabaseWrapper): Boolean {
+        val count = ContentUtils.update(updateUri, this)
         return if (count == 0) {
-            ContentUtils.insert(insertUri, this@BaseProviderModel) != null
+            ContentUtils.insert(insertUri, this) != null
         } else {
             count > 0
         }
     }
 
-    override fun DatabaseWrapper.update(): Boolean = ContentUtils.update(updateUri, this@BaseProviderModel) > 0
+    override fun update(wrapper: DatabaseWrapper): Boolean = ContentUtils.update(updateUri, this) > 0
 
-    override fun DatabaseWrapper.insert(): Long {
-        ContentUtils.insert(insertUri, this)
+    override fun insert(wrapper: DatabaseWrapper): Long {
+        ContentUtils.insert(insertUri, wrapper)
         return 0
     }
 
@@ -39,29 +39,31 @@ abstract class BaseProviderModel : BaseModel(), ModelProvider {
      *
      * @return true if this model exists in the [ContentProvider] based on its primary keys.
      */
-    override fun DatabaseWrapper.exists(): Boolean {
+    override fun exists(wrapper: DatabaseWrapper): Boolean {
         val cursor = ContentUtils.query(FlowManager.context.contentResolver,
-                queryUri, modelAdapter.getPrimaryConditionClause(this@BaseProviderModel), "")
+                queryUri, modelAdapter.getPrimaryConditionClause(this), "")
         val exists = cursor != null && cursor.count > 0
         cursor?.close()
         return exists
     }
 
     override fun load(whereOperatorGroup: OperatorGroup,
-                      orderBy: String?, vararg columns: String?) {
+                      orderBy: String?,
+                      wrapper: DatabaseWrapper,
+                      vararg columns: String?) {
         val cursor = ContentUtils.query(FlowManager.context.contentResolver,
                 queryUri, whereOperatorGroup, orderBy, *columns)
         if (cursor != null) {
             val flowCursor = FlowCursor.from(cursor)
             if (flowCursor.moveToFirst()) {
-                modelAdapter.loadFromCursor(flowCursor, this)
+                modelAdapter.loadFromCursor(flowCursor, this, wrapper)
                 flowCursor.close()
             }
         }
     }
 
-    override fun load() {
-        load(modelAdapter.getPrimaryConditionClause(this), "")
+    override fun load(wrapper: DatabaseWrapper) {
+        load(modelAdapter.getPrimaryConditionClause(this), "", wrapper)
     }
 
 }

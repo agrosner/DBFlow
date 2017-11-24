@@ -6,9 +6,10 @@ import com.raizlabs.android.dbflow.annotation.ColumnMap
 import com.raizlabs.android.dbflow.annotation.ModelView
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery
 import com.raizlabs.android.dbflow.models.Author_Table.*
-import com.raizlabs.android.dbflow.sql.language.SQLite.select
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.language.property.property
+import com.raizlabs.android.dbflow.sql.language.select
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 class AuthorName(var name: String = "", var age: Int = 0)
 
@@ -18,9 +19,9 @@ class AuthorView(@Column var authorId: Int = 0, @Column var authorName: String =
                  @ColumnMap var author: AuthorName? = null) {
 
     companion object {
-        @JvmField
+        @JvmStatic
         @ModelViewQuery
-        val query = (select(id.`as`("authorId"),
+        fun getQuery(wrapper: DatabaseWrapper) = (wrapper.select(id.`as`("authorId"),
                 first_name.concatenate(" ".property as IProperty<out IProperty<*>>)
                         .concatenate(last_name as IProperty<out IProperty<*>>)
                         .`as`("authorName"))
@@ -32,8 +33,9 @@ class AuthorView(@Column var authorId: Int = 0, @Column var authorName: String =
 class PriorityView(var name: String = "") {
 
     companion object {
-        @JvmField
+        @JvmStatic
         @ModelViewQuery
-        val query = select((first_name + last_name).`as`("name")) from Author::class
+        fun getQuery(wrapper: DatabaseWrapper) =
+                wrapper.select((first_name + last_name).`as`("name")) from Author::class
     }
 }

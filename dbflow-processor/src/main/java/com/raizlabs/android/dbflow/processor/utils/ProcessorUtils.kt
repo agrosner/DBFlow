@@ -108,3 +108,4 @@ fun ensureVisibleStatic(element: Element, typeElement: TypeElement,
         manager.logError("The $name must be final")
     }
 }
+

@@ -19,6 +19,7 @@ import com.raizlabs.android.dbflow.structure.QueryModelAdapter
 import com.raizlabs.android.dbflow.structure.RetrievalAdapter
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import java.util.*
+import kotlin.reflect.KClass
 
 /**
  * Description: The main entry point into the generated database code. It uses reflection to look up
@@ -425,19 +426,38 @@ object FlowManager {
 /**
  * Easily get access to its [DatabaseDefinition] directly.
  */
-inline fun <reified T : Any> database() = FlowManager.getDatabase(T::class.java)
-
-inline fun <reified T : Any> writableDatabaseForTable() = FlowManager.getWritableDatabaseForTable(T::class.java)
+inline fun <reified T : Any> database(): DatabaseDefinition
+        = FlowManager.getDatabase(T::class.java)
 
 /**
  * Easily get access to its [DatabaseDefinition] directly.
  */
-inline fun <reified T : Any> databaseForTable() = FlowManager.getDatabaseForTable(T::class.java)
+inline fun <reified T : Any, R> database(kClass: KClass<T>, f: DatabaseDefinition.() -> R): R
+        = FlowManager.getDatabase(kClass.java).f()
+
+inline fun <reified T : Any> writableDatabaseForTable(f: DatabaseWrapper.() -> Unit): DatabaseWrapper
+        = FlowManager.getWritableDatabaseForTable(T::class.java).apply(f)
+
+inline fun <reified T : Any> writableDatabaseForTable(): DatabaseWrapper
+        = FlowManager.getWritableDatabaseForTable(T::class.java)
+
+fun <T : Any, R> writableDatabase(kClass: KClass<T>, f: DatabaseWrapper.() -> R): R
+        = FlowManager.getWritableDatabase(kClass.java).f()
+
+inline fun <reified T : Any> writableDatabase(): DatabaseWrapper
+        = FlowManager.getWritableDatabase(T::class.java)
+
+/**
+ * Easily get access to its [DatabaseDefinition] directly.
+ */
+inline fun <reified T : Any> databaseForTable(): DatabaseDefinition
+        = FlowManager.getDatabaseForTable(T::class.java)
 
 /**
  * Easily get its table name.
  */
-inline fun <reified T : Any> tableName() = FlowManager.getTableName(T::class.java)
+inline fun <reified T : Any> tableName(): String
+        = FlowManager.getTableName(T::class.java)
 
 /**
  * Easily get its [ModelAdapter].

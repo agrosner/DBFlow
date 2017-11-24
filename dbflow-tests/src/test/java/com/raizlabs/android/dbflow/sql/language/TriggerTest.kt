@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.assertEquals
+import com.raizlabs.android.dbflow.config.writableDatabaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.models.TwoColumnModel
@@ -16,7 +17,7 @@ import org.junit.Test
 class TriggerTest : BaseUnitTest() {
 
     @Test
-    fun validateBasicTrigger() {
+    fun validateBasicTrigger()= writableDatabaseForTable<SimpleModel> {
         assertEquals("CREATE TRIGGER IF NOT EXISTS `MyTrigger` AFTER INSERT ON `SimpleModel` " +
                 "\nBEGIN" +
                 "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
@@ -26,7 +27,7 @@ class TriggerTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateUpdateTriggerMultiline() {
+    fun validateUpdateTriggerMultiline() = writableDatabaseForTable<SimpleModel> {
         assertEquals("CREATE TEMP TRIGGER IF NOT EXISTS `MyTrigger` BEFORE UPDATE ON `SimpleModel` " +
                 "\nBEGIN" +
                 "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
@@ -41,7 +42,7 @@ class TriggerTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateTriggerWorks() {
+    fun validateTriggerWorks() = writableDatabaseForTable<SimpleModel>{
         val trigger = createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
                 insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name"))
         trigger.enable()

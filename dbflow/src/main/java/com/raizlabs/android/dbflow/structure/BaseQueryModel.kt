@@ -9,8 +9,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 @Deprecated("No subclass needed. Use extension methods instead.")
 class BaseQueryModel : NoModificationModel() {
 
-    override fun DatabaseWrapper.exists(): Boolean {
-        throw NoModificationModel.InvalidSqlViewOperationException("Query " + javaClass.name +
+    override fun exists(wrapper: DatabaseWrapper): Boolean {
+        throw NoModificationModel.InvalidSqlViewOperationException("Query " + wrapper.javaClass.name +
                 " does not exist as a table." + "It's a convenient representation of a complex SQLite query.")
     }
 }

@@ -58,6 +58,8 @@ infix fun <T : Any> DatabaseWrapper.insert(modelClass: KClass<T>) = insert(model
  */
 fun DatabaseWrapper.delete(): Delete = Delete(this)
 
+inline fun <reified T : Any> DatabaseWrapper.delete() = delete(T::class.java)
+
 /**
  * Starts a DELETE statement on the specified table.
  *

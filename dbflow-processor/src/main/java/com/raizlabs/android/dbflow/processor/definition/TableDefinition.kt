@@ -174,15 +174,14 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 BindToStatementMethod(this, UPDATE), BindToStatementMethod(this, DELETE),
                 InsertStatementQueryMethod(this, true), InsertStatementQueryMethod(this, false),
                 UpdateStatementQueryMethod(this), DeleteStatementQueryMethod(this),
-                CreationQueryMethod(this), LoadFromCursorMethod(this), ExistenceMethod(this),
-                PrimaryConditionMethod(this), OneToManyDeleteMethod(this, false),
-                OneToManyDeleteMethod(this, true),
-                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_SAVE, false),
-                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_INSERT, false),
-                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_UPDATE, false),
-                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_SAVE, true),
-                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_INSERT, true),
-                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_UPDATE, true))
+                CreationQueryMethod(this),
+                LoadFromCursorMethod(this),
+                ExistenceMethod(this),
+                PrimaryConditionMethod(this),
+                OneToManyDeleteMethod(this),
+                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_SAVE),
+                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_INSERT),
+                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_UPDATE))
     }
 
     override fun prepareForWrite() {
@@ -624,7 +623,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 if (foreignKeyDefinitions.isNotEmpty()) {
                     `override fun`(TypeName.VOID, "reloadRelationships",
                             param(elementClassName!!, ModelUtils.variable),
-                            param(ClassNames.FLOW_CURSOR, LoadFromCursorMethod.PARAM_CURSOR)) {
+                            param(ClassNames.FLOW_CURSOR, LoadFromCursorMethod.PARAM_CURSOR),
+                            param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
                         modifiers(public, final)
                         code {
                             val noIndex = AtomicInteger(-1)

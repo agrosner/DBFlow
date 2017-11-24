@@ -10,6 +10,7 @@ import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.language.Operator
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup
 import com.raizlabs.android.dbflow.structure.ModelAdapter
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.FlowCursor
 
 /**
@@ -227,9 +228,11 @@ object ContentUtils {
      */
     @JvmStatic
     fun <TableClass : Any> queryList(queryUri: Uri, table: Class<TableClass>,
+                                     databaseWrapper: DatabaseWrapper,
                                      whereConditions: OperatorGroup,
                                      orderBy: String, vararg columns: String): List<TableClass>? =
-            queryList(FlowManager.context.contentResolver, queryUri, table, whereConditions, orderBy, *columns)
+            queryList(FlowManager.context.contentResolver, queryUri, table,
+                    databaseWrapper, whereConditions, orderBy, *columns)
 
 
     /**
@@ -247,12 +250,13 @@ object ContentUtils {
     @JvmStatic
     fun <TableClass : Any> queryList(contentResolver: ContentResolver, queryUri: Uri,
                                      table: Class<TableClass>,
+                                     databaseWrapper: DatabaseWrapper,
                                      whereConditions: OperatorGroup,
                                      orderBy: String, vararg columns: String): List<TableClass>? {
         val cursor = FlowCursor.from(contentResolver.query(queryUri, columns, whereConditions.query, null, orderBy)!!)
         return FlowManager.getModelAdapter(table)
                 .listModelLoader
-                .load(cursor)
+                .load(cursor, databaseWrapper)
     }
 
     /**
@@ -268,9 +272,11 @@ object ContentUtils {
      */
     @JvmStatic
     fun <TableClass : Any> querySingle(queryUri: Uri, table: Class<TableClass>,
+                                       databaseWrapper: DatabaseWrapper,
                                        whereConditions: OperatorGroup,
                                        orderBy: String, vararg columns: String): TableClass? =
-            querySingle(FlowManager.context.contentResolver, queryUri, table, whereConditions, orderBy, *columns)
+            querySingle(FlowManager.context.contentResolver, queryUri, table,
+                    databaseWrapper, whereConditions, orderBy, *columns)
 
     /**
      * Queries the [android.content.ContentResolver] with the specified queryUri. It will generate
@@ -285,10 +291,13 @@ object ContentUtils {
      * @return The first [TableClass] of the list query from the content provider.
      */
     @JvmStatic
-    fun <TableClass : Any> querySingle(contentResolver: ContentResolver, queryUri: Uri, table: Class<TableClass>,
+    fun <TableClass : Any> querySingle(contentResolver: ContentResolver,
+                                       queryUri: Uri, table: Class<TableClass>,
+                                       databaseWrapper: DatabaseWrapper,
                                        whereConditions: OperatorGroup,
                                        orderBy: String, vararg columns: String): TableClass? {
-        val list = queryList(contentResolver, queryUri, table, whereConditions, orderBy, *columns)
+        val list = queryList(contentResolver, queryUri, table,
+                databaseWrapper, whereConditions, orderBy, *columns)
         return list?.let { if (list.isNotEmpty()) list[0] else null }
     }
 

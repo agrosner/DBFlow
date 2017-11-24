@@ -4,12 +4,13 @@ import android.net.Uri
 import com.raizlabs.android.dbflow.BaseInstrumentedUnitTest
 import com.raizlabs.android.dbflow.DemoApp
 import com.raizlabs.android.dbflow.config.FlowManager
+import com.raizlabs.android.dbflow.config.writableDatabaseForTable
 import com.raizlabs.android.dbflow.contentobserver.User_Table.id
 import com.raizlabs.android.dbflow.contentobserver.User_Table.name
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver
 import com.raizlabs.android.dbflow.sql.getNotificationUri
-import com.raizlabs.android.dbflow.sql.language.Delete
 import com.raizlabs.android.dbflow.sql.language.SQLOperator
+import com.raizlabs.android.dbflow.sql.language.delete
 import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.delete
 import com.raizlabs.android.dbflow.structure.insert
@@ -27,7 +28,9 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
 
     @Before
     fun setupUser() {
-        Delete.table(User::class.java)
+        writableDatabaseForTable<User> {
+            (delete() from User::class).execute()
+        }
         user = User(5, "Something", 55)
     }
 

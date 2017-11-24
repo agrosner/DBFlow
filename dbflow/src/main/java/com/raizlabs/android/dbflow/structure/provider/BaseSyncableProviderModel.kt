@@ -15,38 +15,40 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
  */
 abstract class BaseSyncableProviderModel : BaseModel(), ModelProvider {
 
-    override fun DatabaseWrapper.insert(): Long {
-        val rowId = insertModel()
-        ContentUtils.insert(insertUri, this)
+    override fun insert(wrapper: DatabaseWrapper): Long {
+        val rowId = wrapper.insertModel()
+        ContentUtils.insert(insertUri, wrapper)
         return rowId
     }
 
-    override fun DatabaseWrapper.save(): Boolean {
-        return if (exists()) {
-            saveModel() && ContentUtils.update(updateUri, this) > 0
+    override fun save(wrapper: DatabaseWrapper): Boolean {
+        return if (exists(wrapper)) {
+            wrapper.saveModel() && ContentUtils.update(updateUri, wrapper) > 0
         } else {
-            saveModel() && ContentUtils.insert(insertUri, this) != null
+            wrapper.saveModel() && ContentUtils.insert(insertUri, wrapper) != null
         }
     }
 
-    override fun DatabaseWrapper.delete(): Boolean = deleteModel() && ContentUtils.delete(deleteUri, this) > 0
+    override fun delete(wrapper: DatabaseWrapper): Boolean = wrapper.deleteModel() && ContentUtils.delete(deleteUri, wrapper) > 0
 
-    override fun DatabaseWrapper.update(): Boolean = updateModel() && ContentUtils.update(updateUri, this) > 0
+    override fun update(wrapper: DatabaseWrapper): Boolean = wrapper.updateModel() && ContentUtils.update(updateUri, wrapper) > 0
 
     override fun load(whereOperatorGroup: OperatorGroup,
-                      orderBy: String?, vararg columns: String?) {
+                      orderBy: String?,
+                      wrapper: DatabaseWrapper,
+                      vararg columns: String?) {
         val cursor = ContentUtils.query(FlowManager.context.contentResolver,
                 queryUri, whereOperatorGroup, orderBy, *columns)
         cursor?.let {
             val flowCursor = FlowCursor.from(cursor)
             if (flowCursor.moveToFirst()) {
-                modelAdapter.loadFromCursor(flowCursor, this)
+                modelAdapter.loadFromCursor(flowCursor, this, wrapper)
                 flowCursor.close()
             }
         }
     }
 
-    override fun load() {
-        load(modelAdapter.getPrimaryConditionClause(this), "")
+    override fun load(wrapper: DatabaseWrapper) {
+        load(modelAdapter.getPrimaryConditionClause(this), "", wrapper)
     }
 }

@@ -442,7 +442,8 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
     override val methodSpec: MethodSpec
         get() = `override fun`(TypeName.VOID, "loadFromCursor",
                 param(ClassNames.FLOW_CURSOR, PARAM_CURSOR),
-                param(baseTableDefinition.parameterClassName!!, ModelUtils.variable)) {
+                param(baseTableDefinition.parameterClassName!!, ModelUtils.variable),
+                param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
             modifiers(public, final)
             val index = AtomicInteger(0)
             val nameAllocator = NameAllocator() // unique names
@@ -452,9 +453,6 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
             }
 
             if (baseTableDefinition is TableDefinition) {
-                val foundDef = baseTableDefinition.oneToManyDefinitions.find { it.hasWrapper }
-                foundDef?.let { foundDef.writeWrapperStatement(this) }
-
                 code {
                     baseTableDefinition.oneToManyDefinitions
                             .filter { it.isLoad }
@@ -479,8 +477,7 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
 /**
  * Description:
  */
-class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
-                            private val useWrapper: Boolean) : MethodDefinition {
+class OneToManyDeleteMethod(private val tableDefinition: TableDefinition) : MethodDefinition {
 
     override val methodSpec: MethodSpec?
         get() {
@@ -489,21 +486,14 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
                 return `override fun`(TypeName.BOOLEAN, "delete",
                         param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
                     modifiers(public, final)
-                    if (useWrapper) {
-                        addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
-                    }
+                    addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                     if (tableDefinition.cachingEnabled) {
                         statement("getModelCache().removeModel(getCachingId(${ModelUtils.variable}))")
                     }
 
-                    statement("boolean successful = super.delete(${ModelUtils.variable}${wrapperCommaIfBaseModel(useWrapper)})")
+                    statement("boolean successful = super.delete(${ModelUtils.variable}${wrapperCommaIfBaseModel(true)})")
 
-                    if (!useWrapper) {
-                        val foundDef = tableDefinition.oneToManyDefinitions.find { it.hasWrapper }
-                        foundDef?.let { foundDef.writeWrapperStatement(this) }
-                    }
-
-                    tableDefinition.oneToManyDefinitions.forEach { it.writeDelete(this, useWrapper) }
+                    tableDefinition.oneToManyDefinitions.forEach { it.writeDelete(this) }
 
                     `return`("successful")
                 }
@@ -516,8 +506,7 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
  * Description: Overrides the save, update, and insert methods if the [com.raizlabs.android.dbflow.annotation.OneToMany.Method.SAVE] is used.
  */
 class OneToManySaveMethod(private val tableDefinition: TableDefinition,
-                          private val methodName: String,
-                          private val useWrapper: Boolean) : MethodDefinition {
+                          private val methodName: String) : MethodDefinition {
 
     override val methodSpec: MethodSpec?
         get() {
@@ -534,17 +523,14 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                 return `override fun`(retType, methodName,
                         param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
                     modifiers(public, final)
-
-                    if (useWrapper) {
-                        addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
-                    }
+                    addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                     code {
                         if (methodName == METHOD_INSERT) {
                             add("long rowId = ")
                         } else if (methodName == METHOD_UPDATE || methodName == METHOD_SAVE) {
                             add("boolean successful = ")
                         }
-                        statement("super.$methodName(${ModelUtils.variable}${wrapperCommaIfBaseModel(useWrapper)})")
+                        statement("super.$methodName(${ModelUtils.variable}${wrapperCommaIfBaseModel(true)})")
 
                         if (tableDefinition.cachingEnabled) {
                             statement("getModelCache().addModel(getCachingId(${ModelUtils.variable}), ${ModelUtils.variable})")
@@ -552,17 +538,11 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                         this
                     }
 
-                    // need wrapper access if we have wrapper param here.
-                    if (!useWrapper) {
-                        val foundDef = tableDefinition.oneToManyDefinitions.find { it.hasWrapper }
-                        foundDef?.let { foundDef.writeWrapperStatement(this) }
-                    }
-
                     for (oneToManyDefinition in tableDefinition.oneToManyDefinitions) {
                         when (methodName) {
-                            METHOD_SAVE -> oneToManyDefinition.writeSave(this, useWrapper)
-                            METHOD_UPDATE -> oneToManyDefinition.writeUpdate(this, useWrapper)
-                            METHOD_INSERT -> oneToManyDefinition.writeInsert(this, useWrapper)
+                            METHOD_SAVE -> oneToManyDefinition.writeSave(this)
+                            METHOD_UPDATE -> oneToManyDefinition.writeUpdate(this)
+                            METHOD_INSERT -> oneToManyDefinition.writeInsert(this)
                         }
                     }
 

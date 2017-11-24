@@ -142,11 +142,6 @@ class OneToManyDefinition(executableElement: ExecutableElement,
 
     private val methodName = "${ModelUtils.variable}.$_methodName(${wrapperIfBaseModel(hasWrapper)})"
 
-    fun writeWrapperStatement(method: MethodSpec.Builder) {
-        method.statement("\$T ${ModelUtils.wrapper} = \$T.getWritableDatabaseForTable(\$T.class)",
-                ClassNames.DATABASE_WRAPPER, ClassNames.FLOW_MANAGER, referencedTableType)
-    }
-
     /**
      * Writes the method to the specified builder for loading from DB.
      */
@@ -159,26 +154,26 @@ class OneToManyDefinition(executableElement: ExecutableElement,
     /**
      * Writes a delete method that will delete all related objects.
      */
-    fun writeDelete(method: MethodSpec.Builder, useWrapper: Boolean) {
+    fun writeDelete(method: MethodSpec.Builder) {
         if (isDelete) {
-            writeLoopWithMethod(method, "delete", useWrapper)
+            writeLoopWithMethod(method, "delete")
             method.statement(columnAccessor.set(CodeBlock.of("null"), modelBlock))
         }
     }
 
-    fun writeSave(codeBuilder: MethodSpec.Builder, useWrapper: Boolean) {
-        if (isSave) writeLoopWithMethod(codeBuilder, "save", useWrapper)
+    fun writeSave(codeBuilder: MethodSpec.Builder) {
+        if (isSave) writeLoopWithMethod(codeBuilder, "save")
     }
 
-    fun writeUpdate(codeBuilder: MethodSpec.Builder, useWrapper: Boolean) {
-        if (isSave) writeLoopWithMethod(codeBuilder, "update", useWrapper)
+    fun writeUpdate(codeBuilder: MethodSpec.Builder) {
+        if (isSave) writeLoopWithMethod(codeBuilder, "update")
     }
 
-    fun writeInsert(codeBuilder: MethodSpec.Builder, useWrapper: Boolean) {
-        if (isSave) writeLoopWithMethod(codeBuilder, "insert", useWrapper)
+    fun writeInsert(codeBuilder: MethodSpec.Builder) {
+        if (isSave) writeLoopWithMethod(codeBuilder, "insert")
     }
 
-    private fun writeLoopWithMethod(codeBuilder: MethodSpec.Builder, methodName: String, useWrapper: Boolean) {
+    private fun writeLoopWithMethod(codeBuilder: MethodSpec.Builder, methodName: String) {
         val oneToManyMethodName = this@OneToManyDefinition.methodName
         codeBuilder.apply {
             `if`("$oneToManyMethodName != null") {
@@ -190,13 +185,13 @@ class OneToManyDefinition(executableElement: ExecutableElement,
                 }
 
                 if (efficientCodeMethods) {
-                    statement("adapter.${methodName}All($oneToManyMethodName${wrapperCommaIfBaseModel(useWrapper)})")
+                    statement("adapter.${methodName}All($oneToManyMethodName${wrapperCommaIfBaseModel(true)})")
                 } else {
                     `for`("\$T value: $oneToManyMethodName", ClassName.get(referencedType)) {
                         if (!extendsModel) {
-                            statement("adapter.$methodName(value${wrapperCommaIfBaseModel(useWrapper)})")
+                            statement("adapter.$methodName(value${wrapperCommaIfBaseModel(true)})")
                         } else {
-                            statement("value.$methodName(${wrapperIfBaseModel(useWrapper)})")
+                            statement("value.$methodName(${wrapperIfBaseModel(true)})")
                         }
                         this
                     }

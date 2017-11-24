@@ -76,7 +76,7 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
             val modelViews = databaseDefinition.modelViewAdapters
             modelViews
                     .asSequence()
-                    .map { "CREATE VIEW IF NOT EXISTS ${it.viewName} AS ${it.creationQuery}" }
+                    .map { "CREATE VIEW IF NOT EXISTS ${it.viewName} AS ${it.getCreationQuery(database)}" }
                     .forEach {
                         try {
                             database.execSQL(it)

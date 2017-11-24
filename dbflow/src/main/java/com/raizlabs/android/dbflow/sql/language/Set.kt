@@ -32,6 +32,16 @@ class Set<T : Any> internal constructor(
         operatorGroup.andAll(*conditions)
     }
 
+    /**
+     * Specifies a varg of conditions to append to this SET
+     *
+     * @param condition The varg of conditions
+     * @return This instance.
+     */
+    infix fun and(condition: SQLOperator) = apply {
+        operatorGroup.and(condition)
+    }
+
     fun conditionValues(contentValues: ContentValues) = apply {
         addContentValues(contentValues, operatorGroup)
     }

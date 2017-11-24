@@ -26,13 +26,13 @@ abstract class ModelLoader<TModel : Any, TReturn : Any>(val modelClass: Class<TM
             = load(databaseWrapper, query, null)
 
     open fun load(databaseWrapper: DatabaseWrapper, query: String, data: TReturn?): TReturn?
-            = load(databaseWrapper.rawQuery(query, null), data)
+            = load(databaseWrapper.rawQuery(query, null), data, databaseWrapper)
 
-    open fun load(cursor: FlowCursor?): TReturn? = load(cursor, null)
+    open fun load(cursor: FlowCursor?, databaseWrapper: DatabaseWrapper): TReturn? = load(cursor, null, databaseWrapper)
 
-    open fun load(cursor: FlowCursor?, data: TReturn?): TReturn? {
+    open fun load(cursor: FlowCursor?, data: TReturn?, databaseWrapper: DatabaseWrapper): TReturn? {
         var _data = data
-        cursor?.use { _data = convertToData(it, _data) }
+        cursor?.use { _data = convertToData(it, _data, databaseWrapper) }
         return _data
     }
 
@@ -43,5 +43,5 @@ abstract class ModelLoader<TModel : Any, TReturn : Any>(val modelClass: Class<TM
      * @param data   The data (if not null) that we can reuse without need to create new object.
      * @return A new (or reused) instance that represents the [Cursor].
      */
-    abstract fun convertToData(cursor: FlowCursor, data: TReturn?): TReturn?
+    abstract fun convertToData(cursor: FlowCursor, data: TReturn?, databaseWrapper: DatabaseWrapper): TReturn?
 }

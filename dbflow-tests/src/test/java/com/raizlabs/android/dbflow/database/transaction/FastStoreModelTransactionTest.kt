@@ -20,46 +20,46 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
     @Test
     fun testSaveBuilder() {
 
-        database<TestDatabase>()
-                .beginTransactionAsync((0..9)
-                        .map { SimpleModel("$it") }
-                        .fastSave().build())
-                .execute()
+        database(TestDatabase::class) {
+            beginTransactionAsync((0..9)
+                    .map { SimpleModel("$it") }
+                    .fastSave().build())
+                    .execute()
 
-        val list = (select from SimpleModel::class).list
-        assertEquals(10, list.size)
+            val list = (writableDatabase.select from SimpleModel::class).list
+            assertEquals(10, list.size)
+        }
     }
 
     @Test
     fun testInsertBuilder() {
+        database(TestDatabase::class) {
+            beginTransactionAsync((0..9)
+                    .map { SimpleModel("$it") }
+                    .fastInsert().build())
+                    .execute()
 
-        database<TestDatabase>()
-                .beginTransactionAsync((0..9)
-                        .map { SimpleModel("$it") }
-                        .fastInsert().build())
-                .execute()
-
-        val list = (select from SimpleModel::class).list
-        assertEquals(10, list.size)
+            val list = (writableDatabase.select from SimpleModel::class).list
+            assertEquals(10, list.size)
+        }
     }
 
     @Test
     fun testUpdateBuilder() {
+        database(TestDatabase::class) {
+            val oldList = (0..9).map { TwoColumnModel("$it", Random().nextInt()) }
+            beginTransactionAsync(oldList.fastInsert().build())
+                    .execute()
 
-        val oldList = (0..9).map { TwoColumnModel("$it", Random().nextInt()) }
-        database<TestDatabase>()
-                .beginTransactionAsync(oldList.fastInsert().build())
-                .execute()
+            beginTransactionAsync((0..9).map { TwoColumnModel("$it", Random().nextInt()) }
+                    .fastUpdate().build())
+                    .execute()
 
-        database<TestDatabase>()
-                .beginTransactionAsync((0..9).map { TwoColumnModel("$it", Random().nextInt()) }
-                        .fastUpdate().build())
-                .execute()
-
-        val list = (select from TwoColumnModel::class).list
-        assertEquals(10, list.size)
-        list.forEachIndexed { index, model ->
-            assertNotEquals(model, oldList[index])
+            val list = (writableDatabase.select from TwoColumnModel::class).list
+            assertEquals(10, list.size)
+            list.forEachIndexed { index, model ->
+                assertNotEquals(model, oldList[index])
+            }
         }
     }
 }

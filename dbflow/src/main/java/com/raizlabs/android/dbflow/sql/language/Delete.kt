@@ -19,7 +19,10 @@ class Delete internal constructor(private val databaseWrapper: DatabaseWrapper) 
      * @param [T] The table class
      * @return [T]
      **/
-    fun <T : Any> from(table: Class<T>): From<T> = From(databaseWrapper, this, table)
+    infix fun <T : Any> from(table: Class<T>): From<T> = From(databaseWrapper, this, table)
+
+    infix fun <T : Any> from(table: KClass<T>): From<T> = from(table.java)
+
 
     companion object {
 

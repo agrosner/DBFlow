@@ -11,28 +11,28 @@ interface Model : ReadOnlyModel {
      *
      * @return true if successful
      */
-    fun DatabaseWrapper.save(): Boolean
+    fun save(wrapper: DatabaseWrapper): Boolean
 
     /**
      * Deletes the object in the DB
      *
      * @return true if successful
      */
-    fun DatabaseWrapper.delete(): Boolean
+    fun delete(wrapper: DatabaseWrapper): Boolean
 
     /**
      * Updates an object in the DB. Does not insert on failure.
      *
      * @return true if successful
      */
-    fun DatabaseWrapper.update(): Boolean
+    fun update(wrapper: DatabaseWrapper): Boolean
 
     /**
      * Inserts the object into the DB
      *
      * @return the count of the rows affected, should only be 1 here, or -1 if failed.
      */
-    fun DatabaseWrapper.insert(): Long
+    fun insert(wrapper: DatabaseWrapper): Long
 
     companion object {
 
@@ -53,3 +53,6 @@ inline fun <reified T : Any> T.update(databaseWrapper: DatabaseWrapper = writabl
 inline fun <reified T : Any> T.delete(databaseWrapper: DatabaseWrapper = writableDatabaseForTable<T>()) = modelAdapter<T>().delete(this, databaseWrapper)
 
 inline fun <reified T : Any> T.exists(databaseWrapper: DatabaseWrapper = writableDatabaseForTable<T>()) = modelAdapter<T>().exists(this, databaseWrapper)
+
+inline fun <reified T : Any> T.load(databaseWrapper: DatabaseWrapper = writableDatabaseForTable<T>()) = modelAdapter<T>().load(this, databaseWrapper)
+

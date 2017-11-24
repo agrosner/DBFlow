@@ -3,11 +3,18 @@ package com.raizlabs.android.dbflow.contentprovider
 import android.content.ContentResolver
 import android.content.pm.ProviderInfo
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.sql.language.Delete
+import com.raizlabs.android.dbflow.config.writableDatabase
+import com.raizlabs.android.dbflow.sql.language.Delete.Companion.table
+import com.raizlabs.android.dbflow.sql.language.Delete.Companion.tables
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.sql.language.where
 import com.raizlabs.android.dbflow.sql.queriable.result
+import com.raizlabs.android.dbflow.structure.delete
+import com.raizlabs.android.dbflow.structure.exists
+import com.raizlabs.android.dbflow.structure.insert
 import com.raizlabs.android.dbflow.structure.provider.ContentUtils
+import com.raizlabs.android.dbflow.structure.save
+import com.raizlabs.android.dbflow.structure.update
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -29,8 +36,8 @@ class ContentProviderTests : BaseUnitTest() {
     }
 
     @Test
-    fun testContentProviderUtils() {
-        Delete.tables(NoteModel::class.java, ContentProviderModel::class.java)
+    fun testContentProviderUtils() = writableDatabase(ContentDatabase::class) {
+        tables(NoteModel::class.java, ContentProviderModel::class.java)
 
         val contentProviderModel = ContentProviderModel()
         contentProviderModel.notes = "Test"
@@ -42,7 +49,7 @@ class ContentProviderTests : BaseUnitTest() {
         val update = ContentUtils.update(mockContentResolver, TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel)
         assertEquals(update.toLong(), 1)
         assertTrue(contentProviderModel.exists())
-        contentProviderModel.load()
+        contentProviderModel.load(this)
         assertEquals("NewTest", contentProviderModel.notes)
 
         val noteModel = NoteModel()
@@ -58,12 +65,12 @@ class ContentProviderTests : BaseUnitTest() {
         assertTrue(ContentUtils.delete(mockContentResolver, TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel) > 0)
         assertTrue(!contentProviderModel.exists())
 
-        Delete.tables(NoteModel::class.java, ContentProviderModel::class.java)
+        tables(NoteModel::class.java, ContentProviderModel::class.java)
     }
 
     @Test
-    fun testContentProviderNative() {
-        Delete.tables(NoteModel::class.java, ContentProviderModel::class.java)
+    fun testContentProviderNative() = writableDatabase(ContentDatabase::class) {
+        tables(NoteModel::class.java, ContentProviderModel::class.java)
 
         val contentProviderModel = ContentProviderModel(notes = "Test")
         contentProviderModel.insert()
@@ -71,7 +78,7 @@ class ContentProviderTests : BaseUnitTest() {
 
         contentProviderModel.notes = "NewTest"
         contentProviderModel.update()
-        contentProviderModel.load()
+        contentProviderModel.load(this)
         assertEquals("NewTest", contentProviderModel.notes)
 
         val noteModel = NoteModel(note = "Test", contentProviderModel = contentProviderModel)
@@ -79,7 +86,7 @@ class ContentProviderTests : BaseUnitTest() {
 
         noteModel.note = "NewTest"
         noteModel.update()
-        noteModel.load()
+        noteModel.load(this)
         assertEquals("NewTest", noteModel.note)
 
         assertTrue(noteModel.exists())
@@ -90,12 +97,12 @@ class ContentProviderTests : BaseUnitTest() {
         contentProviderModel.delete()
         assertTrue(!contentProviderModel.exists())
 
-        Delete.tables(NoteModel::class.java, ContentProviderModel::class.java)
+        tables(NoteModel::class.java, ContentProviderModel::class.java)
     }
 
     @Test
-    fun testSyncableModel() {
-        Delete.table(TestSyncableModel::class.java)
+    fun testSyncableModel() = writableDatabase(ContentDatabase::class) {
+        table(TestSyncableModel::class.java)
 
         var testSyncableModel = TestSyncableModel(name = "Name")
         testSyncableModel.save()
@@ -110,7 +117,7 @@ class ContentProviderTests : BaseUnitTest() {
                 where (TestSyncableModel_Table.id.`is`(testSyncableModel.id))).result!!
 
         val fromContentProvider = TestSyncableModel(id = testSyncableModel.id)
-        fromContentProvider.load()
+        fromContentProvider.load(this)
 
         assertEquals(fromContentProvider.name, testSyncableModel.name)
         assertEquals(fromContentProvider.id, testSyncableModel.id)
@@ -118,7 +125,7 @@ class ContentProviderTests : BaseUnitTest() {
         testSyncableModel.delete()
         assertFalse(testSyncableModel.exists())
 
-        Delete.table(TestSyncableModel::class.java)
+        table(TestSyncableModel::class.java)
     }
 
 }

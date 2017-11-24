@@ -7,8 +7,11 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
+
+import static com.raizlabs.android.dbflow.sql.language.SQLite.select;
 
 /**
  * Description:
@@ -23,9 +26,9 @@ public class Issue extends BaseModel {
     List<SubIssue> subIssueList;
 
     @OneToMany(oneToManyMethods = {OneToManyMethod.SAVE, OneToManyMethod.DELETE}, variableName = "subIssueList")
-    public List<SubIssue> getDbSubIssueList() {
+    public List<SubIssue> getDbSubIssueList(DatabaseWrapper databaseWrapper) {
         if (subIssueList == null || subIssueList.isEmpty()) {
-            subIssueList = SQLite.INSTANCE.select()
+            subIssueList = select(databaseWrapper)
                     .from(SubIssue.class)
                     .where(SubIssue_Table.owningIssueId.eq(id))
                     .queryList();

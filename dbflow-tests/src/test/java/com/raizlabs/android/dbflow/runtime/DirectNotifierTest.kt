@@ -9,6 +9,7 @@ import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.config.DatabaseConfig
 import com.raizlabs.android.dbflow.config.FlowConfig
 import com.raizlabs.android.dbflow.config.FlowManager
+import com.raizlabs.android.dbflow.config.writableDatabaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table
 import com.raizlabs.android.dbflow.sql.language.columnValues
@@ -67,7 +68,7 @@ class DirectNotifierTest {
     }
 
     @Test
-    fun validateCanNotifyWrapperClasses() {
+    fun validateCanNotifyWrapperClasses() = writableDatabaseForTable<SimpleModel> {
         val modelChange = Mockito.mock(OnTableChangedListener::class.java)
         DirectModelNotifier.get().registerForTableChanges(SimpleModel::class.java, modelChange)
 

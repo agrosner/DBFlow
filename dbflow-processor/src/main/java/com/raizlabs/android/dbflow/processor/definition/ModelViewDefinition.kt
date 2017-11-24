@@ -6,6 +6,7 @@ import com.grosner.kpoet.`public static final field`
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.final
 import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.param
 import com.grosner.kpoet.public
 import com.raizlabs.android.dbflow.annotation.Column
 import com.raizlabs.android.dbflow.annotation.ColumnMap
@@ -17,17 +18,20 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
+import com.raizlabs.android.dbflow.processor.utils.ModelUtils
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.processor.utils.annotation
 import com.raizlabs.android.dbflow.processor.utils.ensureVisibleStatic
 import com.raizlabs.android.dbflow.processor.utils.implementsClass
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.utils.simpleString
+import com.raizlabs.android.dbflow.processor.utils.toTypeElement
 import com.raizlabs.android.dbflow.processor.utils.toTypeErasedElement
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
 
@@ -43,7 +47,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     private var name: String? = null
 
     private val methods: Array<MethodDefinition> =
-        arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
+            arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
 
     var allFields: Boolean = false
 
@@ -69,7 +73,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
         if (element is TypeElement) {
             implementsLoadFromCursorListener = element.implementsClass(manager.processingEnvironment,
-                ClassNames.LOAD_FROM_CURSOR_LISTENER)
+                    ClassNames.LOAD_FROM_CURSOR_LISTENER)
         } else {
             implementsLoadFromCursorListener = false
         }
@@ -106,7 +110,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
             val isColumnMap = variableElement.annotation<ColumnMap>() != null
 
             if (variableElement.annotation<Column>() != null || isValidAllFields
-                || isColumnMap) {
+                    || isColumnMap) {
 
                 // package private, will generate helper
                 val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
@@ -133,11 +137,14 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 if (!queryFieldName.isNullOrEmpty()) {
                     manager.logError("Found duplicate queryField name: $queryFieldName for $elementClassName")
                 }
-                ensureVisibleStatic(variableElement, typeElement, "ModelViewQuery")
 
-                val element = variableElement.toTypeErasedElement()
-                if (!element.implementsClass(manager.processingEnvironment, ClassNames.QUERY)) {
-                    manager.logError("The field ${variableElement.simpleName} must implement ${ClassNames.QUERY}")
+                val element = variableElement.toTypeErasedElement() as? ExecutableElement
+                if (element != null) {
+                    val returnElement = element.returnType.toTypeElement()
+                    ensureVisibleStatic(element, typeElement, "ModelViewQuery")
+                    if (!returnElement.implementsClass(manager.processingEnvironment, ClassNames.QUERY)) {
+                        manager.logError("The function ${variableElement.simpleName} must return ${ClassNames.QUERY} from $elementName")
+                    }
                 }
 
                 queryFieldName = variableElement.simpleString
@@ -167,9 +174,10 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
             writeGetModelClass(typeBuilder, elementClassName)
 
-            `override fun`(String::class, "getCreationQuery") {
+            `override fun`(String::class, "getCreationQuery",
+                    param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
                 modifiers(public, final)
-                `return`("\$T.\$L.getQuery()", elementClassName, queryFieldName)
+                `return`("\$T.\$L(${ModelUtils.wrapper}).getQuery()", elementClassName, queryFieldName)
             }
             `override fun`(String::class, "getViewName") {
                 modifiers(public, final)
@@ -183,7 +191,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         }
 
         methods.mapNotNull { it.methodSpec }
-            .forEach { typeBuilder.addMethod(it) }
+                .forEach { typeBuilder.addMethod(it) }
     }
 
 }

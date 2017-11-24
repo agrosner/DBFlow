@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.BaseUnitTest
+import com.raizlabs.android.dbflow.TestDatabase
+import com.raizlabs.android.dbflow.config.writableDatabase
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.sql.queriable.list
 import com.raizlabs.android.dbflow.sql.queriable.result
@@ -13,8 +15,7 @@ import org.junit.Test
 class OneToManyModelTest : BaseUnitTest() {
 
     @Test
-    fun testOneToManyModel() {
-
+    fun testOneToManyModel() = writableDatabase(TestDatabase::class) {
         var testModel2 = TwoColumnModel("Greater", 4)
         testModel2.save()
 
@@ -28,8 +29,8 @@ class OneToManyModelTest : BaseUnitTest() {
 
         // assert loading works as expected.
         oneToManyModel = (select from OneToManyModel::class).result!!
-        assertNotNull(oneToManyModel.getRelatedOrders())
-        assertTrue(!oneToManyModel.getRelatedOrders().isEmpty())
+        assertNotNull(oneToManyModel.getRelatedOrders(this))
+        assertTrue(!oneToManyModel.getRelatedOrders(this).isEmpty())
 
         // assert the deletion cleared the variable
         oneToManyModel.delete()
@@ -39,6 +40,5 @@ class OneToManyModelTest : BaseUnitTest() {
         // assert singular relationship was deleted.
         val list = (select from TwoColumnModel::class).list
         assertTrue(list.size == 1)
-
     }
 }

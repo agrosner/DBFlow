@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.sql.queriable
 
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.FlowCursor
 
 /**
@@ -8,17 +9,19 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
 open class ListModelLoader<T : Any>(modelClass: Class<T>)
     : ModelLoader<T, MutableList<T>>(modelClass) {
 
-    override fun load(cursor: FlowCursor?, data: MutableList<T>?): MutableList<T>? {
+    override fun load(cursor: FlowCursor?, data: MutableList<T>?,
+                      databaseWrapper: DatabaseWrapper): MutableList<T>? {
         var _data = data
         if (_data == null) {
             _data = arrayListOf()
         } else {
             _data.clear()
         }
-        return super.load(cursor, _data)
+        return super.load(cursor, _data, databaseWrapper)
     }
 
-    override fun convertToData(cursor: FlowCursor, data: MutableList<T>?): MutableList<T> {
+    override fun convertToData(cursor: FlowCursor, data: MutableList<T>?,
+                               databaseWrapper: DatabaseWrapper): MutableList<T> {
         var _data = data
         if (_data == null) {
             _data = arrayListOf()
@@ -29,7 +32,7 @@ open class ListModelLoader<T : Any>(modelClass: Class<T>)
         if (cursor.moveToFirst()) {
             do {
                 val model = instanceAdapter.newInstance()
-                instanceAdapter.loadFromCursor(cursor, model)
+                instanceAdapter.loadFromCursor(cursor, model, databaseWrapper)
                 _data.add(model)
             } while (cursor.moveToNext())
         }

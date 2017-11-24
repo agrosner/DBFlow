@@ -35,7 +35,7 @@ protected constructor(val databaseWrapper: DatabaseWrapper,
     private val singleModelLoader: SingleModelLoader<TModel>
         get() = retrievalAdapter.singleModelLoader
 
-    override fun queryResults(): CursorResult<TModel> = CursorResult(retrievalAdapter.modelClass, query())
+    override fun queryResults(): CursorResult<TModel> = CursorResult(retrievalAdapter.modelClass, query(), databaseWrapper)
 
     override fun queryList(): MutableList<TModel> {
         val query = query

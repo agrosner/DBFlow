@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language
 
 import android.database.StaleDataException
 import com.raizlabs.android.dbflow.BaseUnitTest
+import com.raizlabs.android.dbflow.config.writableDatabaseForTable
 import com.raizlabs.android.dbflow.models.SimpleCustomModel
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.sql.queriable.cursorResult
@@ -15,7 +16,7 @@ class CursorResultTest : BaseUnitTest() {
     lateinit var result: CursorResult<SimpleModel>
 
     @Before
-    fun prepareList() {
+    fun prepareList() = writableDatabaseForTable<SimpleModel> {
         (0..9).forEach { SimpleModel("$it").save() }
         result = (select from SimpleModel::class).cursorResult
     }

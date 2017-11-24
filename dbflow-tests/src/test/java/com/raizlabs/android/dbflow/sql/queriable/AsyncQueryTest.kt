@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.queriable
 
 import com.raizlabs.android.dbflow.BaseUnitTest
+import com.raizlabs.android.dbflow.config.writableDatabaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.sql.language.CursorResult
 import com.raizlabs.android.dbflow.sql.language.select
@@ -12,7 +13,7 @@ import org.junit.Test
 class AsyncQueryTest : BaseUnitTest() {
 
     @Test
-    fun testQueryResult() {
+    fun testQueryResult() = writableDatabaseForTable<SimpleModel>{
         SimpleModel("name").save()
 
         var model: SimpleModel? = null
@@ -24,7 +25,7 @@ class AsyncQueryTest : BaseUnitTest() {
     }
 
     @Test
-    fun testQueryListResult() {
+    fun testQueryListResult() = writableDatabaseForTable<SimpleModel>{
         SimpleModel("name").save()
         SimpleModel("name2").save()
 
@@ -36,7 +37,7 @@ class AsyncQueryTest : BaseUnitTest() {
     }
 
     @Test
-    fun testQueryListCursorResult() {
+    fun testQueryListCursorResult() = writableDatabaseForTable<SimpleModel>{
         SimpleModel("name").save()
         SimpleModel("name2").save()
 

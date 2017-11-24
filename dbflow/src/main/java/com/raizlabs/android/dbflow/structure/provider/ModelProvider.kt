@@ -5,6 +5,7 @@ import android.net.Uri
 
 import com.raizlabs.android.dbflow.sql.language.Operator
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 /**
  * Description: A base interface for Models that are connected to providers.
@@ -40,11 +41,13 @@ interface ModelProvider {
      * @param columns            The list of columns to select. Leave blank for *
      */
     fun load(whereOperatorGroup: OperatorGroup,
-             orderBy: String?, vararg columns: String?)
+             orderBy: String?,
+             wrapper: DatabaseWrapper,
+             vararg columns: String?)
 
     /**
      * Queries the [ContentResolver] of the app based on the primary keys of the object and populates
      * this object with the first row from the returned data.
      */
-    fun load()
+    fun load(wrapper: DatabaseWrapper)
 }

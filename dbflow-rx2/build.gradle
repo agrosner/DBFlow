@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
 
 project.ext.artifactId = bt_name
 
@@ -20,6 +21,7 @@ android {
 dependencies {
     api project("${dbflow_project_prefix}dbflow")
     api 'io.reactivex.rxjava2:rxjava:2.1.3'
+    api "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
 
 apply from: '../android-artifacts.gradle'

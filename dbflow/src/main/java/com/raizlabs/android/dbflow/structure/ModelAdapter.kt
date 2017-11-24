@@ -200,9 +200,9 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      * @param cursor The cursor to load
      * @return A new [T]
      */
-    fun loadFromCursor(cursor: FlowCursor): T {
+    fun loadFromCursor(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): T {
         val model = newInstance()
-        loadFromCursor(cursor, model)
+        loadFromCursor(cursor, model, databaseWrapper)
         return model
     }
 
@@ -404,7 +404,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      *
      * @param cursor The cursor to reload from.
      */
-    open fun reloadRelationships(model: T, cursor: FlowCursor) {
+    open fun reloadRelationships(model: T, cursor: FlowCursor, databaseWrapper: DatabaseWrapper) {
         if (!cachingEnabled()) {
             throwCachingError()
         }

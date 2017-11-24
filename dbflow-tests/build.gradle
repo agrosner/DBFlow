@@ -51,9 +51,7 @@ dependencies {
     implementation project("${dbflow_project_prefix}dbflow")
     implementation project("${dbflow_project_prefix}dbflow-sqlcipher")
     implementation project("${dbflow_project_prefix}dbflow-rx")
-    implementation project("${dbflow_project_prefix}dbflow-rx-kotlinextensions")
     implementation project("${dbflow_project_prefix}dbflow-rx2")
-    implementation project("${dbflow_project_prefix}dbflow-rx2-kotlinextensions")
 
     kaptTest project("${dbflow_project_prefix}dbflow-processor")
     kaptAndroidTest project("${dbflow_project_prefix}dbflow-processor")

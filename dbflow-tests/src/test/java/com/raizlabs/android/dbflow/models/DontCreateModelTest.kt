@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.models
 import android.database.sqlite.SQLiteException
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.assertThrowsException
+import com.raizlabs.android.dbflow.config.writableDatabaseForTable
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.sql.queriable.list
 import org.junit.Test
@@ -13,7 +14,7 @@ import org.junit.Test
 class DontCreateModelTest : BaseUnitTest() {
 
     @Test
-    fun testModelNotCreated() {
+    fun testModelNotCreated() = writableDatabaseForTable<DontCreateModel> {
         assertThrowsException(SQLiteException::class) {
             (select from DontCreateModel::class).list
         }

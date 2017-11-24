@@ -109,7 +109,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      * @param model  The model to assign cursor data to
      * @param cursor The cursor to load into the model
      */
-    abstract fun loadFromCursor(cursor: FlowCursor, model: T)
+    abstract fun loadFromCursor(cursor: FlowCursor, model: T, wrapper: DatabaseWrapper)
 
     /**
      * @param model The model to query values from

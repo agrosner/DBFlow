@@ -1,13 +1,15 @@
 package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.BaseUnitTest
+import com.raizlabs.android.dbflow.TestDatabase
+import com.raizlabs.android.dbflow.config.writableDatabase
 import com.raizlabs.android.dbflow.models.Author_Table.id
 import com.raizlabs.android.dbflow.models.Blog_Table.author_id
 import com.raizlabs.android.dbflow.models.Blog_Table.name
-import com.raizlabs.android.dbflow.sql.language.SQLite.select
 import com.raizlabs.android.dbflow.sql.language.eq
 import com.raizlabs.android.dbflow.sql.language.innerJoin
 import com.raizlabs.android.dbflow.sql.language.on
+import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.structure.exists
 import com.raizlabs.android.dbflow.structure.save
 import org.junit.Assert.assertEquals
@@ -20,7 +22,7 @@ class QueryModelTest : BaseUnitTest() {
 
 
     @Test
-    fun testCanLoadAuthorBlogs() {
+    fun testCanLoadAuthorBlogs() = writableDatabase(TestDatabase::class) {
         val author = Author(0, "Andrew", "Grosner")
         author.save()
         val blog = Blog(0, "My First Blog", author)

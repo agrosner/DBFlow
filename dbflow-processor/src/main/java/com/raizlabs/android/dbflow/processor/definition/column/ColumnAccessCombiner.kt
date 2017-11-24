@@ -110,9 +110,9 @@ class ExistenceAccessCombiner(combiner: Combiner,
                     add("return ")
                 }
 
-                add("\$T.selectCountOf()\n.from(\$T.class)\n" +
+                add("\$T.selectCountOf(wrapper)\n.from(\$T.class)\n" +
                         ".where(getPrimaryConditionClause(\$L))\n" +
-                        ".hasData(wrapper)",
+                        ".hasData()",
                         ClassNames.SQLITE, tableClassName, modelBlock)
             }
             add(";\n")

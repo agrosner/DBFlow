@@ -51,19 +51,19 @@ open class BaseModel : Model {
         CHANGE
     }
 
-    override fun DatabaseWrapper.load() {
-        modelAdapter.load(this@BaseModel, this)
+    override fun load(wrapper: DatabaseWrapper) {
+        modelAdapter.load(this, wrapper)
     }
 
-    override fun DatabaseWrapper.save(): Boolean = saveModel()
+    override fun save(wrapper: DatabaseWrapper): Boolean = wrapper.saveModel()
 
-    override fun DatabaseWrapper.delete(): Boolean = deleteModel()
+    override fun delete(wrapper: DatabaseWrapper): Boolean = wrapper.deleteModel()
 
-    override fun DatabaseWrapper.update(): Boolean = modelAdapter.update(this@BaseModel, this)
+    override fun update(wrapper: DatabaseWrapper): Boolean = modelAdapter.update(this, wrapper)
 
-    override fun DatabaseWrapper.insert(): Long = modelAdapter.insert(this@BaseModel, this)
+    override fun insert(wrapper: DatabaseWrapper): Long = modelAdapter.insert(this, wrapper)
 
-    override fun DatabaseWrapper.exists(): Boolean = modelAdapter.exists(this@BaseModel, this)
+    override fun exists(wrapper: DatabaseWrapper): Boolean = modelAdapter.exists(this, wrapper)
 
     protected fun DatabaseWrapper.saveModel(): Boolean = modelAdapter.save(this@BaseModel, this)
 

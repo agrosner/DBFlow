@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.sql.queriable
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.structure.cache.ModelCache
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.FlowCursor
 
 /**
@@ -31,18 +32,19 @@ open class CacheableModelLoader<T : Any>(modelClass: Class<T>)
      *
      * @return A model from cache.
      */
-    override fun convertToData(cursor: FlowCursor, data: T?, moveToFirst: Boolean): T? {
+    override fun convertToData(cursor: FlowCursor, data: T?, moveToFirst: Boolean,
+                               databaseWrapper: DatabaseWrapper): T? {
         if (!moveToFirst || cursor.moveToFirst()) {
             val values = modelAdapter.getCachingColumnValuesFromCursor(
                     arrayOfNulls(modelAdapter.cachingColumns.size), cursor)
             var model: T? = modelCache[modelAdapter.getCachingId(values)]
             if (model == null) {
                 model = (data ?: modelAdapter.newInstance()).apply {
-                    modelAdapter.loadFromCursor(cursor, this)
+                    modelAdapter.loadFromCursor(cursor, this, databaseWrapper)
                     modelCache.addModel(modelAdapter.getCachingId(values), this)
                 }
             } else {
-                modelAdapter.reloadRelationships(model, cursor)
+                modelAdapter.reloadRelationships(model, cursor, databaseWrapper)
             }
             return model
         } else {

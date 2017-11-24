@@ -1,8 +1,8 @@
 package com.raizlabs.android.dbflow.rx.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
+import com.raizlabs.android.dbflow.config.writableDatabaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
-import com.raizlabs.android.dbflow.rx.kotlinextensions.rx
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.structure.save
 import org.junit.Assert.assertEquals
@@ -12,7 +12,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
 
     @Test
-    fun testCanQueryStreamResults() {
+    fun testCanQueryStreamResults() = writableDatabaseForTable<SimpleModel> {
         (0..9).forEach { SimpleModel("$it").save() }
 
         var count = 0
