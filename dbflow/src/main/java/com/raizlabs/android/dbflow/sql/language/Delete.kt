@@ -1,6 +1,3 @@
-@file:JvmName("Delete")
-@file:JvmMultifileClass
-
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.sql.Query
@@ -24,29 +21,36 @@ class Delete internal constructor(private val databaseWrapper: DatabaseWrapper) 
      **/
     fun <T : Any> from(table: Class<T>): From<T> = From(databaseWrapper, this, table)
 
+    companion object {
+
+        @JvmStatic
+        fun <T : Any> DatabaseWrapper.delete(modelClass: KClass<T>) = delete(modelClass.java)
+
+        @JvmStatic
+        inline fun <reified T : Any> DatabaseWrapper.delete() = delete(T::class)
+
+        /**
+         * Deletes the specified table
+         *
+         * @param table      The table to delete
+         * @param conditions The list of conditions to use to delete from the specified table
+         * @param [T]   The class that implements [com.raizlabs.android.dbflow.structure.Model]
+         */
+        @JvmStatic
+        fun <T : Any> DatabaseWrapper.table(table: Class<T>, vararg conditions: SQLOperator) {
+            Delete(this).from(table).where(*conditions).executeUpdateDelete()
+        }
+
+        /**
+         * Deletes the list of tables specified.
+         * WARNING: this will completely clear all rows from each table.
+         *
+         * @param tables The list of tables to wipe.
+         */
+        @JvmStatic
+        fun DatabaseWrapper.tables(vararg tables: Class<*>) {
+            tables.forEach { table(it) }
+        }
+    }
 }
 
-fun <T : Any> DatabaseWrapper.delete(modelClass: KClass<T>) = delete(modelClass.java)
-
-inline fun <reified T : Any> DatabaseWrapper.delete() = delete(T::class)
-
-/**
- * Deletes the specified table
- *
- * @param table      The table to delete
- * @param conditions The list of conditions to use to delete from the specified table
- * @param [T]   The class that implements [com.raizlabs.android.dbflow.structure.Model]
- */
-fun <T : Any> DatabaseWrapper.table(table: Class<T>, vararg conditions: SQLOperator) {
-    Delete(this).from(table).where(*conditions).executeUpdateDelete()
-}
-
-/**
- * Deletes the list of tables specified.
- * WARNING: this will completely clear all rows from each table.
- *
- * @param tables The list of tables to wipe.
- */
-fun DatabaseWrapper.tables(vararg tables: Class<*>) {
-    tables.forEach { table(it) }
-}

@@ -1,8 +1,9 @@
 package com.raizlabs.android.dbflow.sql.migration
 
-import com.raizlabs.android.dbflow.sql.language.Index
+import com.raizlabs.android.dbflow.sql.language.index
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import java.util.*
 
 /**
  * Description: Defines and enables an Index structurally through a migration.
@@ -13,20 +14,14 @@ abstract class IndexMigration<TModel>(
          */
         private var onTable: Class<TModel>) : BaseMigration() {
 
-    /**
-     * The underlying index object.
-     */
-    val index: Index<TModel> by lazy { Index<TModel>(name).on(onTable) }
+    private var unique: Boolean = false
+    private val columns: ArrayList<IProperty<*>> = arrayListOf()
 
     abstract val name: String
 
-    /**
-     * @return the query backing this migration.
-     */
-    val indexQuery: String
-        get() = index.query
-
     override fun migrate(database: DatabaseWrapper) {
+        val index = database.index<TModel>(name).on(onTable).unique(unique)
+        columns.forEach { index.and(it) }
         database.execSQL(index.query)
     }
 
@@ -37,7 +32,7 @@ abstract class IndexMigration<TModel>(
      * @return This migration
      */
     fun addColumn(property: IProperty<*>) = apply {
-        index.and(property)
+        columns.add(property)
     }
 
     /**
@@ -46,7 +41,7 @@ abstract class IndexMigration<TModel>(
      * @return This migration.
      */
     fun unique() = apply {
-        index.unique(true)
+        unique = true
     }
 
 }
