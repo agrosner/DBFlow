@@ -92,3 +92,8 @@ dexcount {
     includeClasses = true
     orderByMethodCount = true
 }
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}

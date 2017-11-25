@@ -58,12 +58,12 @@ class DefaultTransactionQueue
     /**
      * Cancels the specified request.
      *
-     * @param runnable
+     * @param transaction
      */
-    override fun cancel(runnable: Transaction) {
+    override fun cancel(transaction: Transaction) {
         synchronized(queue) {
-            if (queue.contains(runnable)) {
-                queue.remove(runnable)
+            if (queue.contains(transaction)) {
+                queue.remove(transaction)
             }
         }
     }
@@ -71,14 +71,14 @@ class DefaultTransactionQueue
     /**
      * Cancels all requests by a specific tag
      *
-     * @param tag
+     * @param name
      */
-    override fun cancel(tag: String) {
+    override fun cancel(name: String) {
         synchronized(queue) {
             val it = queue.iterator()
             while (it.hasNext()) {
                 val next = it.next()
-                if (next.name() != null && next.name() == tag) {
+                if (next.name() != null && next.name() == name) {
                     it.remove()
                 }
             }

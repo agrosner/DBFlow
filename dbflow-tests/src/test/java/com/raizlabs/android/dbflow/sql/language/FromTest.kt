@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.config.writableDatabaseForTable
+import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.models.TwoColumnModel
@@ -15,21 +15,21 @@ class FromTest : BaseUnitTest() {
 
     @Test
     fun validateSimpleFrom() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel`", (select from SimpleModel::class).query.trim())
         }
     }
 
     @Test
     fun validateProjectionFrom() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT `name` FROM `SimpleModel`", (select(name) from SimpleModel::class).query.trim())
         }
     }
 
     @Test
     fun validateMultipleProjection() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT `name`,`name`,`id` FROM `SimpleModel`",
                     (select(name, TwoColumnModel_Table.name, id) from SimpleModel::class).query.trim())
         }
@@ -37,14 +37,14 @@ class FromTest : BaseUnitTest() {
 
     @Test
     fun validateAlias() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` AS `Simple`", (select from SimpleModel::class `as` "Simple").query.trim())
         }
     }
 
     @Test
     fun validateJoins() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             val from = (select from SimpleModel::class
                     innerJoin TwoColumnModel::class
                     on name.eq(TwoColumnModel_Table.name.withTable()))

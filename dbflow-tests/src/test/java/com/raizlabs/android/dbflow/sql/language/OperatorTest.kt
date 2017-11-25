@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.sql.language
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.annotation.Collate
 import com.raizlabs.android.dbflow.assertEquals
-import com.raizlabs.android.dbflow.config.writableDatabaseForTable
+import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import org.junit.Test
@@ -55,7 +55,7 @@ class OperatorTest : BaseUnitTest() {
 
     @Test
     fun testIn() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("`id` IN (5,6,7,8,9)", id.`in`(5, 6, 7, 8) and 9)
             assertEquals("`id` NOT IN (SELECT * FROM `SimpleModel`)",
                     id.notIn(select from SimpleModel::class))

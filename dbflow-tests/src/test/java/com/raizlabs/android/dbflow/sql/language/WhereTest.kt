@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.assertEquals
-import com.raizlabs.android.dbflow.config.writableDatabaseForTable
+import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.models.TwoColumnModel
@@ -17,7 +17,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateBasicWhere() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` WHERE `name`='name'",
                     select from SimpleModel::class where name.`is`("name"))
         }
@@ -25,7 +25,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateComplexQueryWhere() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` WHERE `name`='name' OR `id`=1 AND (`id`=0 OR `name`='hi')",
                     select from SimpleModel::class where name.`is`("name") or id.eq(1) and (id.`is`(0) or name.eq("hi")))
         }
@@ -33,7 +33,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateGroupBy() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` WHERE `name`='name' GROUP BY `name`",
                     select from SimpleModel::class where name.`is`("name") groupBy name)
         }
@@ -41,7 +41,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateGroupByNameAlias() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` WHERE `name`='name' GROUP BY `name`,`id`",
                     (select from SimpleModel::class where name.`is`("name")).groupBy("name".nameAlias, "id".nameAlias))
         }
@@ -49,7 +49,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateGroupByNameProps() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` WHERE `name`='name' GROUP BY `name`,`id`",
                     (select from SimpleModel::class where name.`is`("name")).groupBy(name, id))
         }
@@ -57,7 +57,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateHaving() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` WHERE `name`='name' HAVING `name` LIKE 'That'",
                     select from SimpleModel::class where name.`is`("name") having name.like("That"))
         }
@@ -65,7 +65,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateLimit() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` WHERE `name`='name' LIMIT 10",
                     select from SimpleModel::class where name.`is`("name") limit 10)
         }
@@ -73,7 +73,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOffset() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` WHERE `name`='name' OFFSET 10",
                     select from SimpleModel::class where name.`is`("name") offset 10)
         }
@@ -81,7 +81,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateWhereExists() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` " +
                     "WHERE EXISTS (SELECT `name` FROM `SimpleModel` WHERE `name` LIKE 'Andrew')",
                     select from SimpleModel::class
@@ -91,7 +91,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOrderByWhere() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` " +
                     "WHERE `name`='name' ORDER BY `name` ASC",
                     (select from SimpleModel::class
@@ -101,7 +101,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOrderByWhereAlias() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` " +
                     "WHERE `name`='name' ORDER BY `name` ASC",
                     (select from SimpleModel::class
@@ -111,7 +111,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOrderBy() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `SimpleModel` " +
                     "WHERE `name`='name' ORDER BY `name` ASC",
                     select from SimpleModel::class
@@ -121,7 +121,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOrderByAll() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("SELECT * FROM `TwoColumnModel` " +
                     "WHERE `name`='name' ORDER BY `name` ASC,`id` DESC",
                     (select from TwoColumnModel::class
@@ -134,7 +134,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateNonSelectThrowError() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             try {
                 update<SimpleModel>().set(name.`is`("name")).result
                 fail("Non select passed")

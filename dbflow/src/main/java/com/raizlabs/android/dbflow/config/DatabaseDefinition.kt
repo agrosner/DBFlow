@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.config
 
+import android.content.ContentValues
 import android.content.Context
 import com.raizlabs.android.dbflow.annotation.Database
 import com.raizlabs.android.dbflow.annotation.QueryModel
@@ -16,7 +17,9 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.structure.ModelViewAdapter
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter
 import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.structure.database.FlowCursor
 import com.raizlabs.android.dbflow.structure.database.FlowSQLiteOpenHelper
 import com.raizlabs.android.dbflow.structure.database.OpenHelper
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionManager
@@ -29,7 +32,7 @@ import java.util.*
  * Description: The main interface that all Database implementations extend from. This is for internal usage only
  * as it will be generated for every [Database].
  */
-abstract class DatabaseDefinition {
+abstract class DatabaseDefinition : DatabaseWrapper {
 
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
 
@@ -381,4 +384,47 @@ abstract class DatabaseDefinition {
         helper.backupDB()
     }
 
+    override val version: Int
+        get() = writableDatabase.version
+
+    override fun execSQL(query: String) = writableDatabase.execSQL(query)
+
+    override fun beginTransaction() = writableDatabase.beginTransaction()
+
+    override fun setTransactionSuccessful() = writableDatabase.setTransactionSuccessful()
+
+    override fun endTransaction() = writableDatabase.endTransaction()
+
+    override fun compileStatement(rawQuery: String): DatabaseStatement
+            = writableDatabase.compileStatement(rawQuery)
+
+    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor
+            = writableDatabase.rawQuery(query, selectionArgs)
+
+    override fun updateWithOnConflict(tableName: String,
+                                      contentValues: ContentValues,
+                                      where: String?,
+                                      whereArgs: Array<String>?,
+                                      conflictAlgorithm: Int): Long
+            = writableDatabase.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm)
+
+    override fun insertWithOnConflict(
+            tableName: String,
+            nullColumnHack: String?,
+            values: ContentValues,
+            sqLiteDatabaseAlgorithmInt: Int): Long
+            = writableDatabase.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt)
+
+    override fun query(
+            tableName: String,
+            columns: Array<String>?,
+            selection: String?,
+            selectionArgs: Array<String>?,
+            groupBy: String?,
+            having: String?,
+            orderBy: String?): FlowCursor
+            = writableDatabase.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy)
+
+    override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int
+            = writableDatabase.delete(tableName, whereClause, whereArgs)
 }

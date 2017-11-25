@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language.property
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.config.writableDatabaseForTable
+import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.sql.language.select
 import org.junit.Assert.assertEquals
@@ -20,7 +20,7 @@ class PropertyFactoryTest : BaseUnitTest() {
         assertEquals("5", 5.toByte().property.query)
         val nullable: Any? = null
         assertEquals("NULL", nullable.property.query)
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("(SELECT * FROM `SimpleModel`)", (select from SimpleModel::class).property.query)
         }
         assertEquals("SomethingCool", propertyString<String>("SomethingCool").query)

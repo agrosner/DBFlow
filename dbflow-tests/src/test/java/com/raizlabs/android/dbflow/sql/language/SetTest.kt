@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.assertEquals
-import com.raizlabs.android.dbflow.config.writableDatabaseForTable
+import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
@@ -12,7 +12,7 @@ class SetTest : BaseUnitTest() {
 
     @Test
     fun validateSetWithConditions() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("UPDATE `SimpleModel` SET `name`='name'",
                     update<SimpleModel>() set name.`is`("name"))
         }
@@ -20,7 +20,7 @@ class SetTest : BaseUnitTest() {
 
     @Test
     fun validateMultipleConditions() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("UPDATE `SimpleModel` SET `name`='name', `id`=0",
                     update<SimpleModel>() set name.eq("name") and id.eq(0))
         }

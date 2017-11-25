@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.config.writableDatabaseForTable
+import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table
 import com.raizlabs.android.dbflow.sql.queriable.list
@@ -14,14 +14,14 @@ class DeleteTest : BaseUnitTest() {
 
     @Test
     fun validateQuery() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("DELETE ", delete().query)
         }
     }
 
     @Test
     fun validateDeletion() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             SimpleModel("name").save()
             delete<SimpleModel>().execute()
             assertFalse((select from SimpleModel::class).hasData())
@@ -30,7 +30,7 @@ class DeleteTest : BaseUnitTest() {
 
     @Test
     fun validateDeletionWithQuery() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             SimpleModel("name").save()
             SimpleModel("another name").save()
 

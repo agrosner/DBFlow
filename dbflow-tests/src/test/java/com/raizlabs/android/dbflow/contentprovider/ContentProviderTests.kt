@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.contentprovider
 import android.content.ContentResolver
 import android.content.pm.ProviderInfo
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.config.writableDatabase
+import com.raizlabs.android.dbflow.config.database
 import com.raizlabs.android.dbflow.sql.language.Delete.Companion.table
 import com.raizlabs.android.dbflow.sql.language.Delete.Companion.tables
 import com.raizlabs.android.dbflow.sql.language.select
@@ -36,7 +36,7 @@ class ContentProviderTests : BaseUnitTest() {
     }
 
     @Test
-    fun testContentProviderUtils() = writableDatabase(ContentDatabase::class) {
+    fun testContentProviderUtils() = database(ContentDatabase::class) {
         tables(NoteModel::class.java, ContentProviderModel::class.java)
 
         val contentProviderModel = ContentProviderModel()
@@ -69,7 +69,7 @@ class ContentProviderTests : BaseUnitTest() {
     }
 
     @Test
-    fun testContentProviderNative() = writableDatabase(ContentDatabase::class) {
+    fun testContentProviderNative() = database(ContentDatabase::class) {
         tables(NoteModel::class.java, ContentProviderModel::class.java)
 
         val contentProviderModel = ContentProviderModel(notes = "Test")
@@ -101,7 +101,7 @@ class ContentProviderTests : BaseUnitTest() {
     }
 
     @Test
-    fun testSyncableModel() = writableDatabase(ContentDatabase::class) {
+    fun testSyncableModel() = database(ContentDatabase::class) {
         table(TestSyncableModel::class.java)
 
         var testSyncableModel = TestSyncableModel(name = "Name")

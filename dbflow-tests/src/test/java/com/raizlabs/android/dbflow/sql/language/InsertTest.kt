@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.sql.language
 
 import android.content.ContentValues
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.config.writableDatabaseForTable
+import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
@@ -15,7 +15,7 @@ class InsertTest : BaseUnitTest() {
 
     @Test
     fun validateInsert(){
-        writableDatabaseForTable<SimpleModel>{
+        databaseForTable<SimpleModel>{
             assertEquals("INSERT INTO `SimpleModel` VALUES('something')",
                     insert<SimpleModel>().values("something").query.trim())
         }
@@ -23,7 +23,7 @@ class InsertTest : BaseUnitTest() {
 
     @Test
     fun validateInsertOr(){
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("INSERT OR REPLACE INTO `SimpleModel` VALUES('something')",
                     insert<SimpleModel>().orReplace().values("something").query.trim())
             assertEquals("INSERT OR FAIL INTO `SimpleModel` VALUES('something')",
@@ -41,7 +41,7 @@ class InsertTest : BaseUnitTest() {
 
     @Test
     fun validateInsertProjection(){
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
                     insert<TwoColumnModel>().columns(name, id).values("name", "id").query.trim())
         }
@@ -49,7 +49,7 @@ class InsertTest : BaseUnitTest() {
 
     @Test
     fun validateSelect(){
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("INSERT INTO `TwoColumnModel` SELECT * FROM `SimpleModel`",
                     insert<TwoColumnModel>().select(select from SimpleModel::class).query.trim())
         }
@@ -57,7 +57,7 @@ class InsertTest : BaseUnitTest() {
 
     @Test
     fun validateColumns(){
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
                     insert<TwoColumnModel>().asColumns().values("name", "id").query.trim())
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
@@ -69,7 +69,7 @@ class InsertTest : BaseUnitTest() {
 
     @Test
     fun validateColumnValues(){
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
                     insert<TwoColumnModel>().columnValues(name.eq("name"), id.eq(0)).query.trim())
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",

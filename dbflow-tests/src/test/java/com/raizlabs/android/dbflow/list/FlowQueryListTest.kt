@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.list
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.config.writableDatabaseForTable
+import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.sql.language.select
 import org.junit.Assert.assertTrue
@@ -11,7 +11,7 @@ class FlowQueryListTest : BaseUnitTest() {
 
     @Test
     fun validateBuilder() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             val list = FlowQueryList.Builder(select from SimpleModel::class)
                     .transact(true)
                     .changeInTransaction(true)

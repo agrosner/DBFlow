@@ -80,7 +80,7 @@ object FlowManager {
     }
 
     /**
-     * @param databaseName The name of the database. Will throw an exception if the database doesn't exist.
+     * @param databaseName The name of the database. Will throw an exception if the databaseForTable doesn't exist.
      * @param tableName    The name of the table in the DB.
      * @return The associated table class for the specified name.
      */
@@ -94,7 +94,7 @@ object FlowManager {
     }
 
     /**
-     * @param databaseClass The class of the database. Will throw an exception if the database doesn't exist.
+     * @param databaseClass The class of the database. Will throw an exception if the databaseForTable doesn't exist.
      * @param tableName     The name of the table in the DB.
      * @return The associated table class for the specified name.
      */
@@ -135,7 +135,7 @@ object FlowManager {
             getDatabaseForTable(table).writableDatabase
 
     /**
-     * @param databaseName The name of the database. Will throw an exception if the database doesn't exist.
+     * @param databaseName The name of the database. Will throw an exception if the databaseForTable doesn't exist.
      * @return the [DatabaseDefinition] for the specified database
      */
     @JvmStatic
@@ -379,7 +379,7 @@ object FlowManager {
             FlowManager.getDatabaseForTable(modelClass).getQueryModelAdapterForQueryClass(modelClass)
 
     /**
-     * @param databaseName The name of the database. Will throw an exception if the database doesn't exist.
+     * @param databaseName The name of the database. Will throw an exception if the databaseForTable doesn't exist.
      * @return The map of migrations for the specified database.
      */
     @JvmStatic
@@ -400,15 +400,15 @@ object FlowManager {
 
     private fun checkDatabaseHolder() {
         if (!globalDatabaseHolder.isInitialized) {
-            throw IllegalStateException("The global database holder is not initialized. Ensure you call "
-                    + "FlowManager.init() before accessing the database.")
+            throw IllegalStateException("The global databaseForTable holder is not initialized. Ensure you call "
+                    + "FlowManager.init() before accessing the databaseForTable.")
         }
     }
 
     // endregion
 
     /**
-     * Exception thrown when a database holder cannot load the database holder
+     * Exception thrown when a database holder cannot load the databaseForTable holder
      * for a module.
      */
     class ModuleNotFoundException : RuntimeException {
@@ -435,23 +435,14 @@ inline fun <reified T : Any> database(): DatabaseDefinition
 inline fun <reified T : Any, R> database(kClass: KClass<T>, f: DatabaseDefinition.() -> R): R
         = FlowManager.getDatabase(kClass.java).f()
 
-fun <T : Any, R> writableDatabaseForTable(kClass: KClass<T>, f: DatabaseWrapper.() -> R): R
-        = FlowManager.getWritableDatabaseForTable(kClass.java).f()
+inline fun <reified T : Any> database(f: DatabaseDefinition.() -> Unit): DatabaseDefinition
+        = FlowManager.getDatabase(T::class.java).apply(f)
 
-inline fun <reified T : Any> writableDatabaseForTable(f: DatabaseWrapper.() -> Unit): DatabaseWrapper
-        = FlowManager.getWritableDatabaseForTable(T::class.java).apply(f)
+fun <T : Any, R> databaseForTable(kClass: KClass<T>, f: DatabaseDefinition.() -> R): R
+        = FlowManager.getDatabaseForTable(kClass.java).f()
 
-inline fun <reified T : Any> writableDatabaseForTable(): DatabaseWrapper
-        = FlowManager.getWritableDatabaseForTable(T::class.java)
-
-fun <T : Any, R> writableDatabase(kClass: KClass<T>, f: DatabaseWrapper.() -> R): R
-        = FlowManager.getWritableDatabase(kClass.java).f()
-
-inline fun <reified T : Any, R> writableDatabase(f: DatabaseWrapper.() -> R): R
-        = FlowManager.getWritableDatabase(T::class.java).f()
-
-inline fun <reified T : Any> writableDatabase(): DatabaseWrapper
-        = FlowManager.getWritableDatabase(T::class.java)
+inline fun <reified T : Any> databaseForTable(f: DatabaseDefinition.() -> Unit): DatabaseDefinition
+        = FlowManager.getDatabaseForTable(T::class.java).apply(f)
 
 /**
  * Easily get access to its [DatabaseDefinition] directly.

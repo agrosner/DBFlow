@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.structure.database
 import android.content.ContentValues
 
 /**
- * Description: Provides a base implementation that wraps a database, so other database engines potentially can
+ * Description: Provides a base implementation that wraps a database, so other databaseForTable engines potentially can
  * be used.
  */
 interface DatabaseWrapper {

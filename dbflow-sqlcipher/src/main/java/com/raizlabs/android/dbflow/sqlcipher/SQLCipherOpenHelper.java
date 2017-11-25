@@ -18,7 +18,7 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 
 /**
  * Description: The replacement {@link OpenHelper} for SQLCipher. Specify a subclass of this is {@link DatabaseConfig#getDatabaseClass()}
- * of your database to get it to work with specifying the secret you use for the database.
+ * of your database to get it to work with specifying the secret you use for the databaseForTable.
  */
 public abstract class SQLCipherOpenHelper extends SQLiteOpenHelper implements OpenHelper {
 

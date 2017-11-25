@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.config.writableDatabase
+import com.raizlabs.android.dbflow.config.database
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.sql.queriable.list
 import com.raizlabs.android.dbflow.sql.queriable.result
@@ -16,7 +16,7 @@ class OneToManyModelTest : BaseUnitTest() {
 
     @Test
     fun testOneToManyModel(){
-        writableDatabase(TestDatabase::class) {
+        database(TestDatabase::class) {
             var testModel2 = TwoColumnModel("Greater", 4)
             testModel2.save()
 

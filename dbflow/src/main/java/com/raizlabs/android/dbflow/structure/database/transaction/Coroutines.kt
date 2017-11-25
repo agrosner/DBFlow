@@ -1,20 +1,21 @@
 package com.raizlabs.android.dbflow.structure.database.transaction
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition
-import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
+import com.raizlabs.android.dbflow.sql.queriable.Queriable
+import kotlinx.coroutines.experimental.CancellableContinuation
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 
 /**
- * Description: Puts the [ModelQueriable] operation on the bg. inside the [queriableFunction] call
- *  the method you wish to execute within a transaction.
+ * Description: Puts this [Queriable] operation inside a coroutine. Inside the [queriableFunction]
+ * execute the db operation.
  */
-suspend fun <T : Any, R> DatabaseDefinition.transact(modelQueriable: ModelQueriable<T>,
-                                                     queriableFunction: (ModelQueriable<T>) -> R)
-        = suspendCancellableCoroutine<R?> { continuation ->
+suspend fun <Q : Queriable, R> Q.transact(databaseDefinition: DatabaseDefinition,
+                                          queriableFunction: Q.() -> R)
+        = suspendCancellableCoroutine { continuation: CancellableContinuation<R> ->
     var value: R? = null
-    val transaction = beginTransactionAsync { value = queriableFunction(modelQueriable) }
+    val transaction = databaseDefinition.beginTransactionAsync { value = queriableFunction() }
             .success {
-                continuation.resume(value)
+                continuation.resume(value!!)
             }
             .error { _, throwable ->
                 if (continuation.isCancelled) return@error

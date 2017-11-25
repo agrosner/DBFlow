@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.list
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.config.writableDatabaseForTable
+import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.structure.save
@@ -16,7 +16,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
 
     @Test
     fun testCanIterateFullList() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             (0..9).forEach {
                 SimpleModel("$it").save()
             }
@@ -32,7 +32,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
 
     @Test
     fun testCanIteratePartialList() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             (0..9).forEach {
                 SimpleModel("$it").save()
             }
@@ -48,7 +48,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
 
     @Test
     fun testCanSupplyBadMaximumValue() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             (0..9).forEach {
                 SimpleModel("$it").save()
             }

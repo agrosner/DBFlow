@@ -156,9 +156,9 @@ class Transaction(private val transaction: ITransaction,
          * Specify an error callback to return all and any [Throwable] that occured during a [Transaction].
          */
         fun error(errorCallback: (Transaction, Throwable) -> Unit) = apply {
-            this.errorCallback = object : Error {
+            this.errorCallback = object: Error {
                 override fun onError(transaction: Transaction, error: Throwable) {
-                    errorCallback(transaction, error)
+
                 }
             }
         }

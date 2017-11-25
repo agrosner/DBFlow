@@ -5,8 +5,7 @@ import com.raizlabs.android.dbflow.annotation.OneToMany
 import com.raizlabs.android.dbflow.annotation.OneToManyMethod
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
-import com.raizlabs.android.dbflow.config.writableDatabase
-import com.raizlabs.android.dbflow.config.writableDatabaseForTable
+import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.sql.language.where
@@ -23,7 +22,7 @@ class OneToManyModel(@PrimaryKey var name: String? = null) {
 
     @get:OneToMany(oneToManyMethods = arrayOf(OneToManyMethod.ALL))
     var simpleModels by oneToMany {
-        writableDatabaseForTable(OneToManyBaseModel::class) {
+        databaseForTable(OneToManyBaseModel::class) {
             select from OneToManyBaseModel::class
         }
     }

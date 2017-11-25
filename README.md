@@ -15,7 +15,7 @@ DBFlow is built from a collection of the best features of many database librarie
 - **SQLite Query Flow**: The queries in this library adhere as closely as possible to SQLite native queries. `select(name, screenSize).from(Android.class).where(name.is("Nexus 5x")).and(version.is(6.0)).querySingle()`
 - **Open Source**: This library is fully open source and contributions are not only welcomed, but encouraged.
 - **Robust**: We support `Trigger`, `ModelView`, `Index`, `Migration`, built-in ways to manage database access, and many more features. SQLCipher, RXJava, and more!
-- **Multiple Databases, Multiple Modules**: we seamlessly support multiple database files, database modules using DBFlow in other dependencies, simultaneously.
+- **Multiple Databases, Multiple Modules**: we seamlessly support multiple database files, databaseForTable modules using DBFlow in other dependencies, simultaneously.
 - **Built On SQLite**: SQLite is the most widely used database engine in world and using it as your base, you are not tied to a limited set of platforms or libraries.
 
 # Changelog

@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.config.writableDatabase
+import com.raizlabs.android.dbflow.config.database
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.sql.queriable.list
 import com.raizlabs.android.dbflow.sql.queriable.result
@@ -17,7 +17,7 @@ import org.junit.Test
 class CachingModelsTest : BaseUnitTest() {
 
     @Test
-    fun testSimpleCache() = writableDatabase(TestDatabase::class) {
+    fun testSimpleCache() = database(TestDatabase::class) {
         val list = arrayListOf<SimpleCacheObject>()
         (0..9).forEach {
             val simpleCacheObject = SimpleCacheObject("$it")
@@ -33,7 +33,7 @@ class CachingModelsTest : BaseUnitTest() {
     }
 
     @Test
-    fun testComplexObject() = writableDatabase(TestDatabase::class) {
+    fun testComplexObject() = database(TestDatabase::class) {
         val path = Path("1", "Path")
         path.save()
 

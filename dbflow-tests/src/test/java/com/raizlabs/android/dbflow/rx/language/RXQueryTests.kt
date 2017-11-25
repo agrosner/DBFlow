@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.rx.language
 
 import android.database.Cursor
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.config.writableDatabaseForTable
+import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.sql.language.insert
@@ -19,7 +19,7 @@ class RXQueryTests : BaseUnitTest() {
 
     @Test
     fun testCanQuery() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             SimpleModel("Name").save()
 
             var cursor: Cursor? = null
@@ -36,7 +36,7 @@ class RXQueryTests : BaseUnitTest() {
 
     @Test
     fun testCanCompileStatement() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             var databaseStatement: DatabaseStatement? = null
             (insert<SimpleModel>().columnValues(name.`is`("name")))
                     .rxBaseQueriable().compileStatement()
@@ -50,7 +50,7 @@ class RXQueryTests : BaseUnitTest() {
 
     @Test
     fun testCountMethod() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             SimpleModel("name").save()
             SimpleModel("name2").save()
             var count = 0L
@@ -65,7 +65,7 @@ class RXQueryTests : BaseUnitTest() {
 
     @Test
     fun testInsertMethod() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             var count = 0L
             (insert<SimpleModel>().columnValues(name.eq("name")))
                     .rxBaseQueriable()

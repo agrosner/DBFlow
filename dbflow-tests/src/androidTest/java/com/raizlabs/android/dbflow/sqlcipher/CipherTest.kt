@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.sqlcipher
 
 import com.raizlabs.android.dbflow.BaseInstrumentedUnitTest
-import com.raizlabs.android.dbflow.config.writableDatabase
+import com.raizlabs.android.dbflow.config.database
 import com.raizlabs.android.dbflow.sql.language.delete
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.sql.language.where
@@ -15,7 +15,7 @@ import org.junit.Test
 class CipherTest : BaseInstrumentedUnitTest() {
 
     @Test
-    fun testCipherModel() = writableDatabase(CipherDatabase::class) {
+    fun testCipherModel() = database(CipherDatabase::class) {
         (delete() from CipherModel::class).execute()
         val model = CipherModel(name = "name")
         model.save(this)

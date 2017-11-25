@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.config.writableDatabase
+import com.raizlabs.android.dbflow.config.database
 import com.raizlabs.android.dbflow.models.Author_Table.id
 import com.raizlabs.android.dbflow.models.Blog_Table.author_id
 import com.raizlabs.android.dbflow.models.Blog_Table.name
@@ -22,7 +22,7 @@ class QueryModelTest : BaseUnitTest() {
 
 
     @Test
-    fun testCanLoadAuthorBlogs() = writableDatabase(TestDatabase::class) {
+    fun testCanLoadAuthorBlogs() = database(TestDatabase::class) {
         val author = Author(0, "Andrew", "Grosner")
         author.save()
         val blog = Blog(0, "My First Blog", author)

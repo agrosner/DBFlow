@@ -4,7 +4,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.config.writableDatabaseForTable
+import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.sql.language.select
 import com.raizlabs.android.dbflow.sql.queriable.cursor
@@ -19,7 +19,7 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateCursorPassed() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             val cursor = (select from SimpleModel::class).cursor
             val list = FlowCursorList.Builder(select from SimpleModel::class)
                     .cursor(cursor)
@@ -31,7 +31,7 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateModelQueriable() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             val modelQueriable = (select from SimpleModel::class)
             val list = FlowCursorList.Builder(modelQueriable)
                     .build()
@@ -42,7 +42,7 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateGetAll() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             (0..9).forEach {
                 SimpleModel("$it").save()
             }
@@ -55,7 +55,7 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateCursorChange() {
-        writableDatabaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> {
             (0..9).forEach {
                 SimpleModel("$it").save()
             }
