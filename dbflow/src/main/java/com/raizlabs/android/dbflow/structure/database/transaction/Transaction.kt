@@ -16,7 +16,7 @@ import com.raizlabs.android.dbflow.runtime.BaseTransactionManager
  *
  * To create one, the recommended method is to use the [DatabaseDefinition.beginTransactionAsync].
  */
-class Transaction<R : Any>(private val transaction: ITransaction<R>,
+class Transaction<R : Any?>(private val transaction: ITransaction<R>,
                      private val databaseDefinition: DatabaseDefinition,
                      private val errorCallback: Error<R>? = null,
                      private val successCallback: Success<R>? = null,
@@ -28,7 +28,7 @@ class Transaction<R : Any>(private val transaction: ITransaction<R>,
     /**
      * Callback when a [ITransaction] failed because of an exception.
      */
-    interface Error<R : Any> {
+    interface Error<R : Any?> {
 
         /**
          * Called when transaction fails.
@@ -42,7 +42,7 @@ class Transaction<R : Any>(private val transaction: ITransaction<R>,
     /**
      * Interface callback when a [ITransaction] was successful.
      */
-    interface Success<R : Any> {
+    interface Success<R : Any?> {
 
         /**
          * Called when a transaction succeeded.
@@ -131,7 +131,7 @@ class Transaction<R : Any>(private val transaction: ITransaction<R>,
     /**
      * The main entry point into [Transaction], this provides an easy way to build up transactions.
      */
-    class Builder<R : Any>
+    class Builder<R : Any?>
     /**
      * @param transaction        The interface that actually executes the transaction.
      * @param databaseDefinition The database this transaction will run on. Should be the same
@@ -227,10 +227,10 @@ class Transaction<R : Any>(private val transaction: ITransaction<R>,
     }
 }
 
-inline fun <R: Any> transactionSuccess(crossinline function: (Transaction<R>, R) -> Unit) = object : Transaction.Success<R> {
+inline fun <R: Any?> transactionSuccess(crossinline function: (Transaction<R>, R) -> Unit) = object : Transaction.Success<R> {
     override fun onSuccess(transaction: Transaction<R>, result: R) = function(transaction, result)
 }
 
-inline fun <R: Any> transactionError(crossinline function: (Transaction<R>, Throwable) -> Unit) = object : Transaction.Error<R> {
+inline fun <R: Any?> transactionError(crossinline function: (Transaction<R>, Throwable) -> Unit) = object : Transaction.Error<R> {
     override fun onError(transaction: Transaction<R>, error: Throwable) = function(transaction, error)
 }

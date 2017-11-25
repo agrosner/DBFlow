@@ -17,14 +17,14 @@ class PriorityTransactionQueue
  */
 (name: String) : Thread(name), ITransactionQueue {
 
-    private val queue = PriorityBlockingQueue<PriorityEntry<Transaction<out Any>>>()
+    private val queue = PriorityBlockingQueue<PriorityEntry<Transaction<out Any?>>>()
 
     private var isQuitting = false
 
     override fun run() {
         Looper.prepare()
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND)
-        var transaction: PriorityEntry<Transaction<out Any>>
+        var transaction: PriorityEntry<Transaction<out Any?>>
         while (true) {
             try {
                 transaction = queue.take()
@@ -42,7 +42,7 @@ class PriorityTransactionQueue
         }
     }
 
-    override fun add(transaction: Transaction<out Any>) {
+    override fun add(transaction: Transaction<out Any?>) {
         synchronized(queue) {
             val priorityEntry = PriorityEntry(transaction)
             if (!queue.contains(priorityEntry)) {
@@ -56,7 +56,7 @@ class PriorityTransactionQueue
      *
      * @param transaction The transaction to cancel (if still in the queue).
      */
-    override fun cancel(transaction: Transaction<out Any>) {
+    override fun cancel(transaction: Transaction<out Any?>) {
         synchronized(queue) {
             val priorityEntry = PriorityEntry(transaction)
             if (queue.contains(priorityEntry)) {
@@ -104,8 +104,8 @@ class PriorityTransactionQueue
         interrupt()
     }
 
-    internal inner class PriorityEntry<out E : Transaction<out Any>>(val entry: E)
-        : Comparable<PriorityEntry<Transaction<Any>>> {
+    internal inner class PriorityEntry<out E : Transaction<out Any?>>(val entry: E)
+        : Comparable<PriorityEntry<Transaction<out Any?>>> {
         private val transactionWrapper: PriorityTransactionWrapper =
                 if (entry.transaction() is PriorityTransactionWrapper) {
                     entry.transaction() as PriorityTransactionWrapper
@@ -114,7 +114,7 @@ class PriorityTransactionQueue
                             .build()
                 }
 
-        override fun compareTo(other: PriorityEntry<Transaction<Any>>): Int =
+        override fun compareTo(other: PriorityEntry<Transaction<out Any?>>): Int =
                 transactionWrapper.compareTo(other.transactionWrapper)
 
         override fun equals(other: Any?): Boolean {

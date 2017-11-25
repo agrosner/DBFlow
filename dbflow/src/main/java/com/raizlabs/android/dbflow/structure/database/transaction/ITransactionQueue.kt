@@ -10,14 +10,14 @@ interface ITransactionQueue {
      *
      * @param transaction The transaction to run on the queue.
      */
-    fun add(transaction: Transaction<out Any>)
+    fun add(transaction: Transaction<out Any?>)
 
     /**
      * Cancels a transaction.
      *
      * @param transaction The transaction to cancel on the queue.
      */
-    fun cancel(transaction: Transaction<out Any>)
+    fun cancel(transaction: Transaction<out Any?>)
 
     /**
      * Starts if not alive.

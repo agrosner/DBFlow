@@ -269,10 +269,10 @@ abstract class DatabaseDefinition : DatabaseWrapper {
         return modelNotifier!!
     }
 
-    fun <R : Any> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
+    fun <R : Any?> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
             Transaction.Builder(transaction, this)
 
-    fun <R : Any> beginTransactionAsync(transaction: (DatabaseWrapper) -> R): Transaction.Builder<R> =
+    fun <R : Any?> beginTransactionAsync(transaction: (DatabaseWrapper) -> R): Transaction.Builder<R> =
             beginTransactionAsync(object : ITransaction<R> {
                 override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
             })

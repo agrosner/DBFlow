@@ -44,12 +44,12 @@ abstract class BaseTransactionManager(val queue: ITransactionQueue,
      *
      * @param transaction The transaction to add.
      */
-    fun addTransaction(transaction: Transaction<out Any>) = queue.add(transaction)
+    fun addTransaction(transaction: Transaction<out Any?>) = queue.add(transaction)
 
     /**
      * Cancels a transaction on the [ITransactionQueue].
      *
      * @param transaction
      */
-    fun cancelTransaction(transaction: Transaction<out Any>) = queue.cancel(transaction)
+    fun cancelTransaction(transaction: Transaction<out Any?>) = queue.cancel(transaction)
 }

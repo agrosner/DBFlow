@@ -14,14 +14,14 @@ class ImmediateTransactionManager2(databaseDefinition: DatabaseDefinition)
 
 class ImmediateTransactionQueue2 : ITransactionQueue {
 
-    override fun add(transaction: Transaction) {
+    override fun add(transaction: Transaction<out Any?>) {
         transaction.newBuilder()
                 .runCallbacksOnSameThread(true)
                 .build()
                 .executeSync()
     }
 
-    override fun cancel(transaction: Transaction) {
+    override fun cancel(transaction: Transaction<out Any?>) {
 
     }
 
