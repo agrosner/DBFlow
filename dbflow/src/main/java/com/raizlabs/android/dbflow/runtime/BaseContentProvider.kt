@@ -44,12 +44,14 @@ protected constructor(databaseHolderClass: Class<out DatabaseHolder>? = null) : 
     }
 
     override fun bulkInsert(uri: Uri, values: Array<ContentValues>): Int {
-        val count = intArrayOf(0)
-        database.executeTransaction(object : ITransaction {
-            override fun execute(databaseWrapper: DatabaseWrapper) {
+
+        val count = database.executeTransaction(object : ITransaction<IntArray> {
+            override fun execute(databaseWrapper: DatabaseWrapper) : IntArray {
+                val count = intArrayOf(0)
                 for (contentValues in values) {
                     count[0] += bulkInsert(uri, contentValues)
                 }
+                return count
             }
         })
 

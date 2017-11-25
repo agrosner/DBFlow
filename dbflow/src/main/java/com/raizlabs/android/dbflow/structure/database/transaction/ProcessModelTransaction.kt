@@ -12,7 +12,7 @@ class ProcessModelTransaction<TModel>(
         private val models: List<TModel> = arrayListOf(),
         private val processListener: OnModelProcessListener<TModel>? = null,
         private val processModel: ProcessModel<TModel>,
-        private val runProcessListenerOnSameThread: Boolean) : ITransaction {
+        private val runProcessListenerOnSameThread: Boolean) : ITransaction<Unit> {
 
 
     /**
@@ -166,8 +166,8 @@ inline fun <T> processModel(crossinline function: (T, DatabaseWrapper) -> Unit)
  */
 inline fun <reified T : Any> Collection<T>.processInTransactionAsync(
         crossinline processFunction: ProcessFunction<T>,
-        success: Transaction.Success? = null,
-        error: Transaction.Error? = null,
+        success: Transaction.Success<Unit>? = null,
+        error: Transaction.Error<Unit>? = null,
         processListener: ProcessModelTransaction.OnModelProcessListener<T>? = null) {
     val builder = this.processTransaction(processFunction)
     processListener?.let { builder.processListener(processListener) }

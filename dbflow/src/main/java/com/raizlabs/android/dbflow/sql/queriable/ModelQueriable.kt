@@ -1,14 +1,12 @@
 package com.raizlabs.android.dbflow.sql.queriable
 
 import android.database.Cursor
-
 import com.raizlabs.android.dbflow.list.FlowCursorList
 import com.raizlabs.android.dbflow.list.FlowQueryList
 import com.raizlabs.android.dbflow.sql.language.CursorResult
 import com.raizlabs.android.dbflow.sql.language.From
 import com.raizlabs.android.dbflow.sql.language.Where
 import com.raizlabs.android.dbflow.structure.BaseQueryModel
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 /**
  * Description: An interface for query objects to enable you to query from the database in a structured way.
@@ -49,11 +47,6 @@ interface ModelQueriable<T : Any> : Queriable {
     fun flowQueryList(): FlowQueryList<T>
 
     /**
-     * @return an async version of this query to run.
-     */
-    fun async(): AsyncQuery<T>
-
-    /**
      * Returns a [List] based on the custom [TQueryModel] you pass in.
      *
      * @param queryModelClass The query model class to use.
@@ -87,6 +80,3 @@ inline val <T : Any> ModelQueriable<T>.flowQueryList
 
 inline val <T : Any> ModelQueriable<T>.cursorList
     get() = cursorList()
-
-inline val <T : Any> ModelQueriable<T>.async
-    get() = async()

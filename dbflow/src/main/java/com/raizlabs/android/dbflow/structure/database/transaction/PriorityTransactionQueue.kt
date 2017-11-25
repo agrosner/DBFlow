@@ -17,14 +17,14 @@ class PriorityTransactionQueue
  */
 (name: String) : Thread(name), ITransactionQueue {
 
-    private val queue = PriorityBlockingQueue<PriorityEntry<Transaction>>()
+    private val queue = PriorityBlockingQueue<PriorityEntry<Transaction<out Any>>>()
 
     private var isQuitting = false
 
     override fun run() {
         Looper.prepare()
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND)
-        var transaction: PriorityEntry<Transaction>
+        var transaction: PriorityEntry<Transaction<out Any>>
         while (true) {
             try {
                 transaction = queue.take()
@@ -42,7 +42,7 @@ class PriorityTransactionQueue
         }
     }
 
-    override fun add(transaction: Transaction) {
+    override fun add(transaction: Transaction<out Any>) {
         synchronized(queue) {
             val priorityEntry = PriorityEntry(transaction)
             if (!queue.contains(priorityEntry)) {
@@ -56,7 +56,7 @@ class PriorityTransactionQueue
      *
      * @param transaction The transaction to cancel (if still in the queue).
      */
-    override fun cancel(transaction: Transaction) {
+    override fun cancel(transaction: Transaction<out Any>) {
         synchronized(queue) {
             val priorityEntry = PriorityEntry(transaction)
             if (queue.contains(priorityEntry)) {
@@ -68,14 +68,14 @@ class PriorityTransactionQueue
     /**
      * Cancels all requests by a specific tag
      *
-     * @param tag
+     * @param name
      */
-    override fun cancel(tag: String) {
+    override fun cancel(name: String) {
         synchronized(queue) {
             val it = queue.iterator()
             while (it.hasNext()) {
                 val next = it.next().entry
-                if (next.name() != null && next.name() == tag) {
+                if (next.name() != null && next.name() == name) {
                     it.remove()
                 }
             }
@@ -104,14 +104,9 @@ class PriorityTransactionQueue
         interrupt()
     }
 
-    private fun throwInvalidTransactionType(transaction: Transaction?) {
-        throw IllegalArgumentException("Transaction of type:" +
-                (transaction?.transaction()?.javaClass ?: "Unknown")
-                + " should be of type PriorityTransactionWrapper")
-    }
-
-    internal inner class PriorityEntry<out E : Transaction>(val entry: E) : Comparable<PriorityEntry<Transaction>> {
-        val transactionWrapper: PriorityTransactionWrapper? =
+    internal inner class PriorityEntry<out E : Transaction<out Any>>(val entry: E)
+        : Comparable<PriorityEntry<Transaction<Any>>> {
+        private val transactionWrapper: PriorityTransactionWrapper =
                 if (entry.transaction() is PriorityTransactionWrapper) {
                     entry.transaction() as PriorityTransactionWrapper
                 } else {
@@ -119,8 +114,8 @@ class PriorityTransactionQueue
                             .build()
                 }
 
-        override fun compareTo(other: PriorityEntry<Transaction>): Int =
-                transactionWrapper!!.compareTo(other.transactionWrapper!!)
+        override fun compareTo(other: PriorityEntry<Transaction<Any>>): Int =
+                transactionWrapper.compareTo(other.transactionWrapper)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -131,15 +126,11 @@ class PriorityTransactionQueue
             }
 
             val that = other as PriorityEntry<*>?
-
-            return if (transactionWrapper != null)
-                transactionWrapper == that!!.transactionWrapper
-            else
-                that!!.transactionWrapper == null
+            return transactionWrapper == that!!.transactionWrapper
 
         }
 
-        override fun hashCode(): Int = transactionWrapper?.hashCode() ?: 0
+        override fun hashCode(): Int = transactionWrapper.hashCode()
     }
 
 

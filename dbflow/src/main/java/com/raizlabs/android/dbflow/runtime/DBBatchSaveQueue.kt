@@ -43,8 +43,8 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
      */
     private var isQuitting = false
 
-    private var errorListener: Transaction.Error? = null
-    private var successListener: Transaction.Success? = null
+    private var errorListener: Transaction.Error<Unit>? = null
+    private var successListener: Transaction.Success<Unit>? = null
     private var emptyTransactionListener: Runnable? = null
 
     private val modelSaver = processModel<Any?> { model, _ ->
@@ -54,8 +54,8 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
         }
     }
 
-    private val successCallback = transactionSuccess { transaction -> successListener?.onSuccess(transaction) }
-    private val errorCallback = transactionError { transaction, error -> errorListener?.onError(transaction, error) }
+    private val successCallback = transactionSuccess<Unit> { transaction, result -> successListener?.onSuccess(transaction, result) }
+    private val errorCallback = transactionError<Unit> { transaction, error -> errorListener?.onError(transaction, error) }
 
     /**
      * Sets how many models to save at a time in this queue.
@@ -82,7 +82,7 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
      *
      * @param errorListener The listener to use.
      */
-    fun setErrorListener(errorListener: Transaction.Error?) {
+    fun setErrorListener(errorListener: Transaction.Error<Unit>?) {
         this.errorListener = errorListener
     }
 
@@ -91,7 +91,7 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
      *
      * @param successListener The listener to get notified when changes are successful.
      */
-    fun setSuccessListener(successListener: Transaction.Success?) {
+    fun setSuccessListener(successListener: Transaction.Success<Unit>?) {
         this.successListener = successListener
     }
 

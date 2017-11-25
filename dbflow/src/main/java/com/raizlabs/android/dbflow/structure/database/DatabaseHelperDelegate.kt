@@ -256,7 +256,7 @@ class DatabaseHelperDelegate(
                     "both backupEnabled and consistency checks enabled to the Database annotation")
         }
 
-        databaseDefinition.beginTransactionAsync(object : ITransaction {
+        databaseDefinition.beginTransactionAsync(object : ITransaction<Unit> {
             override fun execute(databaseWrapper: DatabaseWrapper) {
                 val context = FlowManager.context
                 val backup = context.getDatabasePath(tempDbFileName)

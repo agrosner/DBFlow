@@ -11,7 +11,7 @@ import java.util.*
  * [Model], except that it performs it as efficiently as possible. Also due to way the class operates,
  * only one kind of [TModel] is allowed.
  */
-class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TModel>) : ITransaction {
+class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TModel>) : ITransaction<Unit> {
 
     internal val models: List<TModel>?
     internal val processModelList: ProcessModelList<TModel>

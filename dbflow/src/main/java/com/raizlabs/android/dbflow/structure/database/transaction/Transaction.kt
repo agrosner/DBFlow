@@ -16,19 +16,19 @@ import com.raizlabs.android.dbflow.runtime.BaseTransactionManager
  *
  * To create one, the recommended method is to use the [DatabaseDefinition.beginTransactionAsync].
  */
-class Transaction(private val transaction: ITransaction,
-                  private val databaseDefinition: DatabaseDefinition,
-                  private val errorCallback: Error? = null,
-                  private val successCallback: Success? = null,
-                  private val name: String?,
-                  private val shouldRunInTransaction: Boolean = true,
-                  private val runCallbacksOnSameThread: Boolean = true) {
+class Transaction<R : Any>(private val transaction: ITransaction<R>,
+                     private val databaseDefinition: DatabaseDefinition,
+                     private val errorCallback: Error<R>? = null,
+                     private val successCallback: Success<R>? = null,
+                     private val name: String?,
+                     private val shouldRunInTransaction: Boolean = true,
+                     private val runCallbacksOnSameThread: Boolean = true) {
 
 
     /**
      * Callback when a [ITransaction] failed because of an exception.
      */
-    interface Error {
+    interface Error<R : Any> {
 
         /**
          * Called when transaction fails.
@@ -36,25 +36,24 @@ class Transaction(private val transaction: ITransaction,
          * @param transaction The transaction that failed.
          * @param error       The error that was thrown.
          */
-        fun onError(transaction: Transaction,
-                    error: Throwable)
+        fun onError(transaction: Transaction<R>, error: Throwable)
     }
 
     /**
      * Interface callback when a [ITransaction] was successful.
      */
-    interface Success {
+    interface Success<R : Any> {
 
         /**
          * Called when a transaction succeeded.
          *
          * @param transaction The transaction that succeeded.
          */
-        fun onSuccess(transaction: Transaction)
+        fun onSuccess(transaction: Transaction<R>, result: R)
     }
 
 
-    internal constructor(builder: Builder) : this(
+    internal constructor(builder: Builder<R>) : this(
             databaseDefinition = builder.databaseDefinition,
             errorCallback = builder.errorCallback,
             successCallback = builder.successCallback,
@@ -64,11 +63,11 @@ class Transaction(private val transaction: ITransaction,
             runCallbacksOnSameThread = builder.runCallbacksOnSameThread
     )
 
-    fun error(): Error? = errorCallback
+    fun error(): Error<R>? = errorCallback
 
-    fun success(): Success? = successCallback
+    fun success(): Success<R>? = successCallback
 
-    fun transaction(): ITransaction = transaction
+    fun transaction(): ITransaction<R> = transaction
 
     fun name(): String? = name
 
@@ -93,16 +92,16 @@ class Transaction(private val transaction: ITransaction,
      */
     fun executeSync() {
         try {
-            if (shouldRunInTransaction) {
+            val result = if (shouldRunInTransaction) {
                 databaseDefinition.executeTransaction(transaction)
             } else {
                 transaction.execute(databaseDefinition.writableDatabase)
             }
             if (successCallback != null) {
                 if (runCallbacksOnSameThread) {
-                    successCallback.onSuccess(this)
+                    successCallback.onSuccess(this, result)
                 } else {
-                    transactionHandler.post { successCallback.onSuccess(this@Transaction) }
+                    transactionHandler.post { successCallback.onSuccess(this@Transaction, result) }
                 }
             }
         } catch (throwable: Throwable) {
@@ -120,7 +119,7 @@ class Transaction(private val transaction: ITransaction,
 
     }
 
-    fun newBuilder(): Builder {
+    fun newBuilder(): Builder<R> {
         return Builder(transaction, databaseDefinition)
                 .error(errorCallback)
                 .success(successCallback)
@@ -132,15 +131,15 @@ class Transaction(private val transaction: ITransaction,
     /**
      * The main entry point into [Transaction], this provides an easy way to build up transactions.
      */
-    class Builder
+    class Builder<R : Any>
     /**
      * @param transaction        The interface that actually executes the transaction.
      * @param databaseDefinition The database this transaction will run on. Should be the same
      * DB as the code that the transaction runs in.
      */
-    (internal val transaction: ITransaction, internal val databaseDefinition: DatabaseDefinition) {
-        internal var errorCallback: Error? = null
-        internal var successCallback: Success? = null
+    (internal val transaction: ITransaction<R>, internal val databaseDefinition: DatabaseDefinition) {
+        internal var errorCallback: Error<R>? = null
+        internal var successCallback: Success<R>? = null
         internal var name: String? = null
         internal var shouldRunInTransaction = true
         internal var runCallbacksOnSameThread: Boolean = false
@@ -148,19 +147,15 @@ class Transaction(private val transaction: ITransaction,
         /**
          * Specify an error callback to return all and any [Throwable] that occured during a [Transaction].
          */
-        fun error(errorCallback: Error?) = apply {
+        fun error(errorCallback: Error<R>?) = apply {
             this.errorCallback = errorCallback
         }
 
         /**
          * Specify an error callback to return all and any [Throwable] that occured during a [Transaction].
          */
-        fun error(errorCallback: (Transaction, Throwable) -> Unit) = apply {
-            this.errorCallback = object: Error {
-                override fun onError(transaction: Transaction, error: Throwable) {
-
-                }
-            }
+        fun error(errorCallback: (Transaction<R>, Throwable) -> Unit) = apply {
+            this.errorCallback = transactionError { transaction, throwable -> errorCallback(transaction, throwable) }
         }
 
         /**
@@ -169,7 +164,7 @@ class Transaction(private val transaction: ITransaction,
          *
          * @param successCallback The callback, invoked on the UI thread.
          */
-        fun success(successCallback: Success?) = apply {
+        fun success(successCallback: Success<R>?) = apply {
             this.successCallback = successCallback
         }
 
@@ -179,12 +174,8 @@ class Transaction(private val transaction: ITransaction,
          *
          * @param successCallback The callback, invoked on the UI thread.
          */
-        fun success(successCallback: (Transaction) -> Unit) = apply {
-            this.successCallback = object : Success {
-                override fun onSuccess(transaction: Transaction) {
-                    successCallback(transaction)
-                }
-            }
+        fun success(successCallback: (Transaction<R>, R) -> Unit) = apply {
+            this.successCallback = transactionSuccess { transaction, r -> successCallback(transaction, r) }
         }
 
         /**
@@ -220,7 +211,7 @@ class Transaction(private val transaction: ITransaction,
          * @return A new instance of [Transaction]. Subsequent calls to this method produce
          * new instances.
          */
-        fun build(): Transaction = Transaction(this)
+        fun build(): Transaction<R> = Transaction(this)
 
         /**
          * Convenience method to simply execute a transaction.
@@ -236,10 +227,10 @@ class Transaction(private val transaction: ITransaction,
     }
 }
 
-inline fun transactionSuccess(crossinline function: (Transaction) -> Unit) = object : Transaction.Success {
-    override fun onSuccess(transaction: Transaction) = function(transaction)
+inline fun <R: Any> transactionSuccess(crossinline function: (Transaction<R>, R) -> Unit) = object : Transaction.Success<R> {
+    override fun onSuccess(transaction: Transaction<R>, result: R) = function(transaction, result)
 }
 
-inline fun transactionError(crossinline function: (Transaction, Throwable) -> Unit) = object : Transaction.Error {
-    override fun onError(transaction: Transaction, error: Throwable) = function(transaction, error)
+inline fun <R: Any> transactionError(crossinline function: (Transaction<R>, Throwable) -> Unit) = object : Transaction.Error<R> {
+    override fun onError(transaction: Transaction<R>, error: Throwable) = function(transaction, error)
 }

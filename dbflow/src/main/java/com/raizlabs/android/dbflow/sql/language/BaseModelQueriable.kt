@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.list.FlowCursorList
 import com.raizlabs.android.dbflow.list.FlowQueryList
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader
@@ -63,8 +62,6 @@ protected constructor(val databaseWrapper: DatabaseWrapper,
         }
         return affected
     }
-
-    override fun async(): AsyncQuery<TModel> = AsyncQuery(this)
 
     override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>): MutableList<QueryClass> {
         val query = query

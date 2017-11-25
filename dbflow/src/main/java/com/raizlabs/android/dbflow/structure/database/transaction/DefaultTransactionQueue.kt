@@ -18,14 +18,14 @@ class DefaultTransactionQueue
  */
 (name: String) : Thread(name), ITransactionQueue {
 
-    private val queue = LinkedBlockingQueue<Transaction>()
+    private val queue = LinkedBlockingQueue<Transaction<out Any>>()
 
     private var isQuitting = false
 
     override fun run() {
         Looper.prepare()
         android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND)
-        var transaction: Transaction
+        var transaction: Transaction<out Any>
         while (true) {
             try {
                 transaction = queue.take()
@@ -47,10 +47,10 @@ class DefaultTransactionQueue
         }
     }
 
-    override fun add(runnable: Transaction) {
+    override fun add(transaction: Transaction<out Any>) {
         synchronized(queue) {
-            if (!queue.contains(runnable)) {
-                queue.add(runnable)
+            if (!queue.contains(transaction)) {
+                queue.add(transaction)
             }
         }
     }
@@ -60,7 +60,7 @@ class DefaultTransactionQueue
      *
      * @param transaction
      */
-    override fun cancel(transaction: Transaction) {
+    override fun cancel(transaction: Transaction<out Any>) {
         synchronized(queue) {
             if (queue.contains(transaction)) {
                 queue.remove(transaction)

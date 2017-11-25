@@ -6,15 +6,15 @@ import java.util.*
 /**
  * Description: Wraps multiple transactions together.
  */
-class TransactionWrapper : ITransaction {
+class TransactionWrapper : ITransaction<Any> {
 
-    private val transactions = ArrayList<ITransaction>()
+    private val transactions = ArrayList<ITransaction<Any>>()
 
-    constructor(vararg transactions: ITransaction) {
+    constructor(vararg transactions: ITransaction<Any>) {
         this.transactions.addAll(Arrays.asList(*transactions))
     }
 
-    constructor(transactions: Collection<ITransaction>) {
+    constructor(transactions: Collection<ITransaction<Any>>) {
         this.transactions.addAll(transactions)
     }
 

@@ -7,8 +7,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 /**
  * Description: Provides transaction with priority. Meant to be used in a [PriorityTransactionQueue].
  */
-class PriorityTransactionWrapper(private val priority: Int, private val transaction: ITransaction)
-    : ITransaction, Comparable<PriorityTransactionWrapper> {
+class PriorityTransactionWrapper(private val priority: Int, private val transaction: ITransaction<*>)
+    : ITransaction<Unit>, Comparable<PriorityTransactionWrapper> {
 
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(PRIORITY_LOW.toLong(), PRIORITY_NORMAL.toLong(), PRIORITY_HIGH.toLong(), PRIORITY_UI.toLong())
@@ -28,7 +28,7 @@ class PriorityTransactionWrapper(private val priority: Int, private val transact
 
     override fun compareTo(other: PriorityTransactionWrapper): Int = other.priority - priority
 
-    class Builder(internal val transaction: ITransaction) {
+    class Builder(internal val transaction: ITransaction<*>) {
         internal var priority: Int = 0
 
         /**

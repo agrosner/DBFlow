@@ -269,29 +269,28 @@ abstract class DatabaseDefinition : DatabaseWrapper {
         return modelNotifier!!
     }
 
-    fun beginTransactionAsync(transaction: ITransaction): Transaction.Builder =
+    fun <R : Any> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
             Transaction.Builder(transaction, this)
 
-    fun beginTransactionAsync(transaction: (DatabaseWrapper) -> Unit): Transaction.Builder =
-            beginTransactionAsync(object : ITransaction {
-                override fun execute(databaseWrapper: DatabaseWrapper) {
-                    transaction(databaseWrapper)
-                }
+    fun <R : Any> beginTransactionAsync(transaction: (DatabaseWrapper) -> R): Transaction.Builder<R> =
+            beginTransactionAsync(object : ITransaction<R> {
+                override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
             })
 
-    fun executeTransaction(transaction: ITransaction) {
+    fun <R> executeTransaction(transaction: ITransaction<R>): R {
         val database = writableDatabase
         try {
             database.beginTransaction()
-            transaction.execute(database)
+            val result = transaction.execute(database)
             database.setTransactionSuccessful()
+            return result
         } finally {
             database.endTransaction()
         }
     }
 
-    inline fun executeTransaction(crossinline transaction: (DatabaseWrapper) -> Unit)
-            = executeTransaction(object : ITransaction {
+    inline fun <R> executeTransaction(crossinline transaction: (DatabaseWrapper) -> R)
+            = executeTransaction(object : ITransaction<R> {
         override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
     })
 
