@@ -43,9 +43,6 @@ class FlowQueryList<T : Any>(
     val copy: List<T>
         get() = internalCursorList.all
 
-    internal val modelAdapter: ModelAdapter<T>
-        get() = internalCursorList.modelAdapter
-
     internal val instanceAdapter: InstanceAdapter<T>
         get() = internalCursorList.instanceAdapter
 

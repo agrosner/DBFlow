@@ -6,7 +6,6 @@ import com.raizlabs.android.dbflow.config.FlowLog
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.structure.InstanceAdapter
-import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.structure.database.FlowCursor
 import java.util.*
 
@@ -38,9 +37,6 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
 
     private val cursorRefreshListenerSet = HashSet<OnCursorRefreshListener<T>>()
 
-    internal val modelAdapter: ModelAdapter<T>
-        get() = instanceAdapter as ModelAdapter<T>
-
     /**
      * @return the full, converted [T] list from the database on this list. For large
      * data sets that require a large conversion, consider calling this on a BG thread.
@@ -51,8 +47,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
             throwIfCursorClosed()
             warnEmptyCursor()
             return cursor?.let { cursor ->
-                FlowManager.getModelAdapter(table)
-                        .listModelLoader.convertToData(cursor, null,
+                instanceAdapter.listModelLoader.convertToData(cursor, null,
                         FlowManager.getWritableDatabaseForTable(table))
             } ?: listOf()
         }
@@ -198,18 +193,4 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
 
     }
 
-    companion object {
-
-        /**
-         * The default size of the cache if cache size is 0 or not specified.
-         */
-        @JvmStatic
-        val DEFAULT_CACHE_SIZE = 50
-
-        /**
-         * Minimum size that we make the cache (if size is supported in cache)
-         */
-        @JvmStatic
-        val MIN_CACHE_SIZE = 20
-    }
 }

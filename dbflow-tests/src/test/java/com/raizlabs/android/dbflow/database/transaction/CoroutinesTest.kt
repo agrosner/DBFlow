@@ -83,8 +83,8 @@ class CoroutinesTest : BaseUnitTest() {
                 assert(simpleModel.awaitUpdate(this))
 
                 val loadedModel = transact(select from SimpleModel::class
-                        where SimpleModel_Table.name.eq("NewName")) { querySingle() }!!
-                assert(loadedModel.name == "NewName")
+                        where SimpleModel_Table.name.eq("NewName")) { querySingle() }
+                assert(loadedModel?.name == "NewName")
             }
         }
     }
