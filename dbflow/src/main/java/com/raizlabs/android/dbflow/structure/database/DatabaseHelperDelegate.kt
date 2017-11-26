@@ -59,7 +59,7 @@ class DatabaseHelperDelegate(
      * @param databaseHelperListener Listens for operations the DB and allow you to provide extra
      * functionality.
      */
-    fun setDatabaseHelperListener(databaseHelperListener: DatabaseHelperListener) {
+    fun setDatabaseHelperListener(databaseHelperListener: DatabaseHelperListener?) {
         this.databaseHelperListener = databaseHelperListener
     }
 

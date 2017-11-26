@@ -59,10 +59,10 @@ class FlowSQLiteOpenHelper(
      * Set a listener to listen for specific DB events and perform an action before we execute this classes
      * specific methods.
      *
-     * @param listener
+     * @param helperListener
      */
-    override fun setDatabaseListener(listener: DatabaseHelperListener?) {
-        databaseHelperDelegate.setDatabaseHelperListener(listener!!)
+    override fun setDatabaseListener(helperListener: DatabaseHelperListener?) {
+        databaseHelperDelegate.setDatabaseHelperListener(helperListener)
     }
 
     override fun onCreate(db: SQLiteDatabase) {
