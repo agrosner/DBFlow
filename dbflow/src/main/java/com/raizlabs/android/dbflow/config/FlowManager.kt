@@ -180,7 +180,7 @@ object FlowManager {
      * that are part of a module. Building once will give you the ability to add the class.
      */
     @JvmStatic
-    fun initModule(generatedClassName: Class<out DatabaseHolder>) {
+    fun     initModule(generatedClassName: Class<out DatabaseHolder>) {
         loadDatabaseHolder(generatedClassName)
     }
 

@@ -1,30 +1,28 @@
 package com.raizlabs.android.dbflow
 
+import android.content.ContentProvider
 import android.content.ContentValues
 import android.database.Cursor
 import android.net.Uri
-import com.raizlabs.android.dbflow.runtime.BaseContentProvider
 
 /**
- * Description:
+ * Description: Used as a stub, include this in order to work around Android O changes to [ContentProvider]
  */
-class StubContentProvider : BaseContentProvider() {
-    override val databaseName: String
-        get() = TODO("not implemented")
-
-    override fun bulkInsert(uri: Uri, contentValues: ContentValues): Int {
-        TODO("not implemented")
-    }
+open class StubContentProvider : ContentProvider() {
 
     override fun insert(uri: Uri?, values: ContentValues?): Uri {
         TODO("not implemented")
     }
 
-    override fun query(uri: Uri?, projection: Array<out String>?, selection: String?, selectionArgs: Array<out String>?, sortOrder: String?): Cursor {
+    override fun query(uri: Uri?, projection: Array<out String>?, selection: String?,
+                       selectionArgs: Array<out String>?, sortOrder: String?): Cursor {
         TODO("not implemented")
     }
 
-    override fun update(uri: Uri?, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?): Int {
+    override fun onCreate(): Boolean = true
+
+    override fun update(uri: Uri?, values: ContentValues?, selection: String?,
+                        selectionArgs: Array<out String>?): Int {
         TODO("not implemented")
     }
 
