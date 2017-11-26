@@ -1,17 +1,11 @@
 package com.raizlabs.android.dbflow.list
 
-import android.annotation.TargetApi
-import android.content.Context
 import android.database.Cursor
-import android.net.Uri
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import com.raizlabs.android.dbflow.list.FlowCursorList.OnCursorRefreshListener
-import com.raizlabs.android.dbflow.runtime.FlowContentObserver
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
 import com.raizlabs.android.dbflow.structure.InstanceAdapter
-import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.structure.database.transaction.DefaultTransactionQueue
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
 
@@ -33,7 +27,7 @@ class FlowQueryList<T : Any>(
          * Holds the table cursor
          */
         val internalCursorList: FlowCursorList<T>)
-    : FlowContentObserver(), List<T>, IFlowCursorIterator<T> {
+    : List<T>, IFlowCursorIterator<T> {
 
     private var pendingRefresh = false
 
@@ -48,8 +42,6 @@ class FlowQueryList<T : Any>(
 
     override val count: Long
         get() = internalCursorList.count
-
-    fun changeInTransaction() = changeInTransaction
 
     private val refreshRunnable = object : Runnable {
         override fun run() {
@@ -68,46 +60,12 @@ class FlowQueryList<T : Any>(
                     .build()
     )
 
-    /**
-     * Registers the list for model change events. Internally this refreshes the underlying [FlowCursorList]. Call
-     * [.beginTransaction] to bunch up calls to model changes and then [.endTransactionAndNotify] to dispatch
-     * and refresh this list when completed.
-     */
-    fun registerForContentChanges(context: Context) {
-        super.registerForContentChanges(context, internalCursorList.table)
-    }
-
     fun addOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<T>) {
         internalCursorList.addOnCursorRefreshListener(onCursorRefreshListener)
     }
 
     fun removeOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<T>) {
         internalCursorList.removeOnCursorRefreshListener(onCursorRefreshListener)
-    }
-
-    override fun registerForContentChanges(context: Context, table: Class<*>) {
-        throw RuntimeException(
-                "This method is not to be used in the FlowQueryList. We should only ever receive"
-                        + " notifications for one class here. Call registerForContentChanges(Context) instead")
-    }
-
-    override fun onChange(selfChange: Boolean) {
-        super.onChange(selfChange)
-        if (!isInTransaction) {
-            refreshAsync()
-        } else {
-            changeInTransaction = true
-        }
-    }
-
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    override fun onChange(selfChange: Boolean, uri: Uri) {
-        super.onChange(selfChange, uri)
-        if (!isInTransaction) {
-            refreshAsync()
-        } else {
-            changeInTransaction = true
-        }
     }
 
     val cursorList: FlowCursorList<T>
@@ -142,14 +100,6 @@ class FlowQueryList<T : Any>(
             pendingRefresh = true
         }
         REFRESH_HANDLER.post(refreshRunnable)
-    }
-
-    override fun endTransactionAndNotify() {
-        if (changeInTransaction) {
-            changeInTransaction = false
-            refresh()
-        }
-        super.endTransactionAndNotify()
     }
 
     /**

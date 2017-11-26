@@ -28,7 +28,7 @@ private constructor() : ModelNotifier {
 
     }
 
-    interface ModelChangedListener<T> : OnModelStateChangedListener<T>, OnTableChangedListener
+    interface ModelChangedListener<in T> : OnModelStateChangedListener<T>, OnTableChangedListener
 
     init {
         if (instanceCount > 0) {

@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * tables with [.addModelChangeListener].
  * Provides ability to register and deregister listeners for when data is inserted, deleted, updated, and saved if the device is
  * above [VERSION_CODES.JELLY_BEAN]. If below it will only provide one callback. This is to be paired
- * with the [ContentResolverNotifier] specified in the [DatabaseConfig] by default.
+ * with the [ContentResolverNotifier] specified in the [DatabaseConfig].
  */
 open class FlowContentObserver(handler: Handler? = null) : ContentObserver(handler) {
 
@@ -190,13 +190,8 @@ open class FlowContentObserver(handler: Handler? = null) : ContentObserver(handl
     }
 
     override fun onChange(selfChange: Boolean) {
-        for (modelChangeListener in modelChangeListeners) {
-            modelChangeListener.onModelStateChanged(null, Action.CHANGE, arrayOf())
-        }
-
-        for (onTableChangedListener in onTableChangedListeners) {
-            onTableChangedListener.onTableChanged(null, Action.CHANGE)
-        }
+        modelChangeListeners.forEach { it.onModelStateChanged(null, Action.CHANGE, arrayOf()) }
+        onTableChangedListeners.forEach { it.onTableChanged(null, Action.CHANGE) }
     }
 
     @TargetApi(VERSION_CODES.JELLY_BEAN)
@@ -226,15 +221,10 @@ open class FlowContentObserver(handler: Handler? = null) : ContentObserver(handl
         val table = registeredTables[tableName]
         var action = Action.valueOf(fragment)
         if (!isInTransaction) {
-
-            for (modelChangeListener in modelChangeListeners) {
-                modelChangeListener.onModelStateChanged(table, action, columnsChanged.toTypedArray())
-            }
+            modelChangeListeners.forEach { it.onModelStateChanged(table, action, columnsChanged.toTypedArray()) }
 
             if (!calledInternally) {
-                for (onTableChangeListener in onTableChangedListeners) {
-                    onTableChangeListener.onTableChanged(table, action)
-                }
+                onTableChangedListeners.forEach { it.onTableChanged(table, action) }
             }
         } else {
             // convert this uri to a CHANGE op if we don't care about individual changes.
