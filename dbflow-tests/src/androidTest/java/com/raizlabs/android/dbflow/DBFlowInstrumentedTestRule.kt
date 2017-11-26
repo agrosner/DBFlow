@@ -5,6 +5,7 @@ import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowConfig
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.prepackaged.PrepackagedDB
+import com.raizlabs.android.dbflow.sqlcipher.CipherDatabase
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -17,16 +18,18 @@ class DBFlowInstrumentedTestRule : TestRule {
             @Throws(Throwable::class)
             override fun evaluate() {
                 FlowManager.init(FlowConfig.Builder(DemoApp.context)
-                        .addDatabaseConfig(DatabaseConfig.Builder(AppDatabase::class.java)
-                                .transactionManagerCreator(
-                                        object : DatabaseConfig.TransactionManagerCreator {
-                                            override fun createManager(databaseDefinition: DatabaseDefinition)
-                                                    = ImmediateTransactionManager(databaseDefinition)
-                                        })
-                                .build())
-                        .addDatabaseConfig(DatabaseConfig.builder(PrepackagedDB::class.java)
-                                .databaseName("prepackaged")
-                                .build())
+                        .addDatabaseConfig(DatabaseConfig(
+                                databaseClass = AppDatabase::class.java,
+                                contentAuthority = "com.grosner.content",
+                                transactionManagerCreator = { databaseDefinition: DatabaseDefinition ->
+                                    ImmediateTransactionManager(databaseDefinition)
+                                }))
+                        .addDatabaseConfig(DatabaseConfig(
+                                databaseClass = PrepackagedDB::class.java,
+                                databaseName = "prepackaged"))
+                        .addDatabaseConfig(DatabaseConfig(
+                                databaseClass = CipherDatabase::class.java,
+                                contentAuthority = "com.grosner.content"))
                         .build())
                 try {
                     base.evaluate()

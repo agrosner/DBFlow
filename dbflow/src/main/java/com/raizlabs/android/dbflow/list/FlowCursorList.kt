@@ -27,7 +27,6 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         fun onCursorRefreshed(cursorList: FlowCursorList<TModel>)
     }
 
-
     val table: Class<T>
     val modelQueriable: ModelQueriable<T>
     private var cursor: FlowCursor? = null
@@ -48,7 +47,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
             warnEmptyCursor()
             return cursor?.let { cursor ->
                 instanceAdapter.listModelLoader.convertToData(cursor, null,
-                        FlowManager.getWritableDatabaseForTable(table))
+                        FlowManager.getDatabaseForTable(table))
             } ?: listOf()
         }
 
@@ -116,7 +115,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         return if (cursor.moveToPosition(position.toInt())) {
             instanceAdapter.singleModelLoader.convertToData(
                     FlowCursor.from(cursor), null, false,
-                    FlowManager.getWritableDatabaseForTable(table))
+                    FlowManager.getDatabaseForTable(table))
                     ?: throw IndexOutOfBoundsException("Invalid item at position $position. Check your cursor data.")
         } else {
             throw IndexOutOfBoundsException("Invalid item at position $position. Check your cursor data.")

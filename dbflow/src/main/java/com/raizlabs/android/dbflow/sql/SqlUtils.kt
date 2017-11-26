@@ -22,6 +22,8 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
  */
 private val hexArray = "0123456789ABCDEF".toCharArray()
 
+val TABLE_QUERY_PARAM = "tableName"
+
 /**
  * Constructs a [Uri] from a set of [SQLOperator] for specific table.
  *
@@ -34,7 +36,8 @@ fun getNotificationUri(modelClass: Class<*>,
                        action: Action?,
                        conditions: Iterable<SQLOperator>?): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
-            .authority(FlowManager.getTableName(modelClass))
+            .authority(FlowManager.getContentAuthorityForTable(modelClass))
+            .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass))
     if (action != null) {
         uriBuilder.fragment(action.name)
     }
@@ -59,7 +62,8 @@ fun getNotificationUri(modelClass: Class<*>,
                        action: Action?,
                        conditions: Array<SQLOperator>?): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
-            .authority(FlowManager.getTableName(modelClass))
+            .authority(FlowManager.getContentAuthorityForTable(modelClass))
+            .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass))
     action?.let { uriBuilder.fragment(action.name) }
     if (conditions != null && conditions.isNotEmpty()) {
         for (condition in conditions) {

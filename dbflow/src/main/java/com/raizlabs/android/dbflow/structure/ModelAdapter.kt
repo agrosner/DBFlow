@@ -103,7 +103,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      */
     fun getInsertStatement(): DatabaseStatement {
         if (insertStatement == null) {
-            insertStatement = getInsertStatement(FlowManager.getWritableDatabaseForTable(modelClass))
+            insertStatement = getInsertStatement(FlowManager.getDatabaseForTable(modelClass))
         }
 
         return insertStatement!!
@@ -114,7 +114,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      */
     fun getUpdateStatement(): DatabaseStatement {
         if (updateStatement == null) {
-            updateStatement = getUpdateStatement(FlowManager.getWritableDatabaseForTable(modelClass))
+            updateStatement = getUpdateStatement(FlowManager.getDatabaseForTable(modelClass))
         }
 
         return updateStatement!!
@@ -125,7 +125,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      */
     fun getDeleteStatement(): DatabaseStatement {
         if (deleteStatement == null) {
-            deleteStatement = getDeleteStatement(FlowManager.getWritableDatabaseForTable(modelClass))
+            deleteStatement = getDeleteStatement(FlowManager.getDatabaseForTable(modelClass))
         }
 
         return deleteStatement!!
@@ -175,7 +175,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      */
     fun getCompiledStatement(): DatabaseStatement {
         if (compiledStatement == null) {
-            compiledStatement = getCompiledStatement(FlowManager.getWritableDatabaseForTable(modelClass))
+            compiledStatement = getCompiledStatement(FlowManager.getDatabaseForTable(modelClass))
         }
 
         return compiledStatement!!

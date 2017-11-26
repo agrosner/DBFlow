@@ -19,7 +19,8 @@ class DatabaseConfig(
         val modelNotifier: ModelNotifier? = null,
         val isInMemory: Boolean = false,
         val databaseName: String? = null,
-        val databaseExtensionName: String? = null) {
+        val databaseExtensionName: String? = null,
+        val contentAuthority: String? = null) {
 
 
     interface OpenHelperCreator {
@@ -46,7 +47,8 @@ class DatabaseConfig(
                 builder.databaseExtensionName == null -> ".db"
                 builder.databaseExtensionName.isNotNullOrEmpty() -> ".${builder.databaseExtensionName}"
                 else -> ""
-            })
+            },
+            contentAuthority = builder.contentAuthority)
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getTableConfigForTable(modelClass: Class<T>): TableConfig<T>? =
@@ -65,6 +67,7 @@ class DatabaseConfig(
         internal var inMemory = false
         internal var databaseName: String? = null
         internal var databaseExtensionName: String? = null
+        internal var contentAuthority: String? = null
 
         fun transactionManagerCreator(transactionManager: TransactionManagerCreator) =
                 transactionManagerCreator { databaseDefinition -> transactionManager.createManager(databaseDefinition) }
@@ -88,6 +91,9 @@ class DatabaseConfig(
             }
         }
 
+        fun contentUri(contentAuthority: String) = apply {
+            this.contentAuthority = contentAuthority
+        }
 
         fun helperListener(helperListener: DatabaseHelperListener) = apply {
             this.helperListener = helperListener

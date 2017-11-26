@@ -5,9 +5,11 @@ import com.raizlabs.android.dbflow.BaseInstrumentedUnitTest
 import com.raizlabs.android.dbflow.DemoApp
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.config.databaseForTable
+import com.raizlabs.android.dbflow.config.tableName
 import com.raizlabs.android.dbflow.contentobserver.User_Table.id
 import com.raizlabs.android.dbflow.contentobserver.User_Table.name
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver
+import com.raizlabs.android.dbflow.sql.TABLE_QUERY_PARAM
 import com.raizlabs.android.dbflow.sql.getNotificationUri
 import com.raizlabs.android.dbflow.sql.language.SQLOperator
 import com.raizlabs.android.dbflow.sql.language.delete
@@ -41,7 +43,8 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
         val uri = getNotificationUri(User::class.java, BaseModel.Action.DELETE,
                 conditionGroup.conditions.toTypedArray())
 
-        assertEquals(uri.authority, FlowManager.getTableName(User::class.java))
+        assertEquals(uri.authority, "com.grosner.content")
+        assertEquals(tableName<User>(), uri.getQueryParameter(TABLE_QUERY_PARAM))
         assertEquals(uri.fragment, BaseModel.Action.DELETE.name)
         assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(id.query))), "5")
         assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(name.query))), "Something")
@@ -82,7 +85,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
         countDownLatch.await()
 
         val ops = mockOnModelStateChangedListener.operators!!
-        assertTrue(ops.size == 2)
+        assertEquals(2, ops.size)
         assertEquals(ops[0].columnName(), id.query)
         assertEquals(ops[1].columnName(), name.query)
         assertEquals(ops[1].value(), "Something")

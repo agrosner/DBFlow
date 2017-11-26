@@ -3,12 +3,9 @@ package com.raizlabs.android.dbflow.runtime
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.net.Uri
-
 import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.DatabaseHolder
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.sql.language.property.IProperty
-import com.raizlabs.android.dbflow.sql.language.property.Property
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction
 
@@ -25,14 +22,6 @@ protected constructor(databaseHolderClass: Class<out DatabaseHolder>? = null) : 
 
     protected abstract val databaseName: String
 
-    /**
-     * Converts the column into a [Property]. This exists since the property method is static and cannot
-     * be referenced easily.
-     */
-    interface PropertyConverter {
-        fun fromName(columnName: String): IProperty<*>
-    }
-
     override fun onCreate(): Boolean {
         // If this is a module, then we need to initialize the module as part
         // of the creation process. We can assume the framework has been general
@@ -46,7 +35,7 @@ protected constructor(databaseHolderClass: Class<out DatabaseHolder>? = null) : 
     override fun bulkInsert(uri: Uri, values: Array<ContentValues>): Int {
 
         val count = database.executeTransaction(object : ITransaction<IntArray> {
-            override fun execute(databaseWrapper: DatabaseWrapper) : IntArray {
+            override fun execute(databaseWrapper: DatabaseWrapper): IntArray {
                 val count = intArrayOf(0)
                 for (contentValues in values) {
                     count[0] += bulkInsert(uri, contentValues)

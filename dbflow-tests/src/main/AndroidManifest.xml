@@ -5,6 +5,10 @@
     <application
         android:name="com.raizlabs.android.dbflow.DemoApp"
         android:label="DB Flow Compiler Test">
+        <provider
+            android:name="com.raizlabs.android.dbflow.StubContentProvider"
+            android:authorities="com.grosner.content"/>
+
         <activity
             android:name=".DemoActivity">
             <intent-filter>

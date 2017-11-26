@@ -130,10 +130,6 @@ object FlowManager {
     @JvmStatic
     fun getDatabaseName(database: Class<*>): String = getDatabase(database).databaseName
 
-    @JvmStatic
-    fun getWritableDatabaseForTable(table: Class<*>): DatabaseWrapper =
-            getDatabaseForTable(table).writableDatabase
-
     /**
      * @param databaseName The name of the database. Will throw an exception if the databaseForTable doesn't exist.
      * @return the [DatabaseDefinition] for the specified database
@@ -146,13 +142,34 @@ object FlowManager {
                         "Did you forget the @Database annotation?")
     }
 
+    @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabaseForTable(table)"),
+            message = "This method is no longer needed. DatabaseDefinition now delegates to the DatabaseWrapper.")
+    @JvmStatic
+    fun getWritableDatabaseForTable(table: Class<*>): DatabaseWrapper =
+            getDatabaseForTable(table).writableDatabase
+
+    @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabase(databaseName)"),
+            message = "This method is no longer needed. DatabaseDefinition now delegates to the DatabaseWrapper.")
     @JvmStatic
     fun getWritableDatabase(databaseName: String): DatabaseWrapper =
             getDatabase(databaseName).writableDatabase
 
+    @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabase(databaseClass)"),
+            message = "This method is no longer needed. DatabaseDefinition now delegates to the DatabaseWrapper.")
     @JvmStatic
     fun getWritableDatabase(databaseClass: Class<*>): DatabaseWrapper =
             getDatabase(databaseClass).writableDatabase
+
+    fun getContentAuthorityForDatabase(clazz: Class<*>): String {
+        val databaseConfig = getConfig().getConfigForDatabase(clazz)
+        if (databaseConfig?.contentAuthority == null) {
+            throw IllegalStateException("Please specify a valid content authority for database $clazz via ${DatabaseConfig::class}")
+        }
+        return databaseConfig.contentAuthority
+    }
+
+    fun getContentAuthorityForTable(table: Class<*>)
+            = getContentAuthorityForDatabase(getDatabaseForTable(table).associatedDatabaseClassFile)
 
     /**
      * Loading the module Database holder via reflection.

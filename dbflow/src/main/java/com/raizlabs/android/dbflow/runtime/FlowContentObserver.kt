@@ -10,6 +10,7 @@ import android.os.Build.VERSION_CODES
 import android.os.Handler
 import com.raizlabs.android.dbflow.config.DatabaseConfig
 import com.raizlabs.android.dbflow.config.FlowManager
+import com.raizlabs.android.dbflow.sql.TABLE_QUERY_PARAM
 import com.raizlabs.android.dbflow.sql.getNotificationUri
 import com.raizlabs.android.dbflow.sql.language.NameAlias
 import com.raizlabs.android.dbflow.sql.language.Operator
@@ -207,20 +208,20 @@ open class FlowContentObserver(handler: Handler? = null) : ContentObserver(handl
     private fun onChange(selfChanges: Boolean, uri: Uri, calledInternally: Boolean) {
         var uri = uri
         val fragment = uri.fragment
-        val tableName = uri.authority
+        val tableName = uri.getQueryParameter(TABLE_QUERY_PARAM)
 
         var columnName: String
         var param: String
 
         val queryNames = uri.queryParameterNames
         val columnsChanged = arrayListOf<SQLOperator>()
-        if (!queryNames.isEmpty()) {
-            for (key in queryNames) {
-                param = Uri.decode(uri.getQueryParameter(key))
-                columnName = Uri.decode(key)
-                columnsChanged += Operator.op<Any>(NameAlias.Builder(columnName).build()).eq(param)
-            }
-        }
+        queryNames.asSequence()
+                .filter { it != TABLE_QUERY_PARAM }
+                .forEach { key ->
+                    param = Uri.decode(uri.getQueryParameter(key))
+                    columnName = Uri.decode(key)
+                    columnsChanged += Operator.op<Any>(NameAlias.Builder(columnName).build()).eq(param)
+                }
 
         val table = registeredTables[tableName]
         var action = Action.valueOf(fragment)
