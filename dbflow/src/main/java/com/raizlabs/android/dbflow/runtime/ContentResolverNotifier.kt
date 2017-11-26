@@ -10,31 +10,36 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter
 
 /**
  * The default use case, it notifies via the [ContentResolver] system.
+ *
+ * @param [authority] Specify the content URI authority you wish to use here. This will get propagated
+ * everywhere that changes get called from in a specific database.
  */
-class ContentResolverNotifier : ModelNotifier {
+class ContentResolverNotifier(val authority: String) : ModelNotifier {
 
     override fun <T : Any> notifyModelChanged(model: T, adapter: ModelAdapter<T>,
                                               action: BaseModel.Action) {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.context.contentResolver
-                    .notifyChange(getNotificationUri(adapter.modelClass, action,
-                            adapter.getPrimaryConditionClause(model).conditions), null, true)
+                    .notifyChange(getNotificationUri(authority,
+                            adapter.modelClass, action,
+                            adapter.getPrimaryConditionClause(model).conditions),
+                            null, true)
         }
     }
 
     override fun <T : Any> notifyTableChanged(table: Class<T>, action: BaseModel.Action) {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.context.contentResolver
-                    .notifyChange(getNotificationUri(table, action,
+                    .notifyChange(getNotificationUri(authority, table, action,
                             null as Array<SQLOperator>?), null, true)
         }
     }
 
-    override fun newRegister(): TableNotifierRegister = FlowContentTableNotifierRegister()
+    override fun newRegister(): TableNotifierRegister = FlowContentTableNotifierRegister(authority)
 
-    class FlowContentTableNotifierRegister : TableNotifierRegister {
+    class FlowContentTableNotifierRegister(contentAuthority: String) : TableNotifierRegister {
 
-        private val flowContentObserver = FlowContentObserver()
+        private val flowContentObserver = FlowContentObserver(contentAuthority)
 
         private var tableChangedListener: OnTableChangedListener? = null
 

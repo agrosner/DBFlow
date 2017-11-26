@@ -27,8 +27,11 @@ import java.util.concurrent.atomic.AtomicInteger
  * Provides ability to register and deregister listeners for when data is inserted, deleted, updated, and saved if the device is
  * above [VERSION_CODES.JELLY_BEAN]. If below it will only provide one callback. This is to be paired
  * with the [ContentResolverNotifier] specified in the [DatabaseConfig].
+ *
+ * @param [contentAuthority] Reuse the same authority as defined in your manifest and [ContentResolverNotifier].
  */
-open class FlowContentObserver(handler: Handler? = null) : ContentObserver(handler) {
+open class FlowContentObserver(private val contentAuthority: String,
+                               handler: Handler? = null) : ContentObserver(handler) {
 
     private val modelChangeListeners = CopyOnWriteArraySet<OnModelStateChangedListener>()
     private val onTableChangedListeners = CopyOnWriteArraySet<OnTableChangedListener>()
@@ -173,7 +176,8 @@ open class FlowContentObserver(handler: Handler? = null) : ContentObserver(handl
      */
     fun registerForContentChanges(contentResolver: ContentResolver,
                                   table: Class<*>) {
-        contentResolver.registerContentObserver(getNotificationUri(table, null), true, this)
+        contentResolver.registerContentObserver(
+                getNotificationUri(contentAuthority, table, null), true, this)
         REGISTERED_COUNT.incrementAndGet()
         if (!registeredTables.containsValue(table)) {
             registeredTables.put(FlowManager.getTableName(table), table)
@@ -230,7 +234,7 @@ open class FlowContentObserver(handler: Handler? = null) : ContentObserver(handl
             // convert this uri to a CHANGE op if we don't care about individual changes.
             if (!notifyAllUris) {
                 action = Action.CHANGE
-                uri = getNotificationUri(table!!, action)
+                uri = getNotificationUri(contentAuthority, table!!, action)
             }
             synchronized(notificationUris) {
                 // add and keep track of unique notification uris for when transaction completes.
@@ -238,7 +242,7 @@ open class FlowContentObserver(handler: Handler? = null) : ContentObserver(handl
             }
 
             synchronized(tableUris) {
-                tableUris.add(getNotificationUri(table!!, action))
+                tableUris.add(getNotificationUri(contentAuthority, table!!, action))
             }
         }
     }

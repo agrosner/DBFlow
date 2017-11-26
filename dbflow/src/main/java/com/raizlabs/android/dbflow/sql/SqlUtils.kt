@@ -32,11 +32,12 @@ val TABLE_QUERY_PARAM = "tableName"
  * @param conditions The set of key-value [SQLOperator] to construct into a uri.
  * @return The [Uri].
  */
-fun getNotificationUri(modelClass: Class<*>,
+fun getNotificationUri(contentAuthority: String,
+                       modelClass: Class<*>,
                        action: Action?,
                        conditions: Iterable<SQLOperator>?): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
-            .authority(FlowManager.getContentAuthorityForTable(modelClass))
+            .authority(contentAuthority)
             .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass))
     if (action != null) {
         uriBuilder.fragment(action.name)
@@ -58,11 +59,12 @@ fun getNotificationUri(modelClass: Class<*>,
  * @param conditions The set of key-value [SQLOperator] to construct into a uri.
  * @return The [Uri].
  */
-fun getNotificationUri(modelClass: Class<*>,
+fun getNotificationUri(contentAuthority: String,
+                       modelClass: Class<*>,
                        action: Action?,
                        conditions: Array<SQLOperator>?): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
-            .authority(FlowManager.getContentAuthorityForTable(modelClass))
+            .authority(contentAuthority)
             .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass))
     action?.let { uriBuilder.fragment(action.name) }
     if (conditions != null && conditions.isNotEmpty()) {
@@ -84,7 +86,8 @@ fun getNotificationUri(modelClass: Class<*>,
  * @return Notification uri.
  */
 @JvmOverloads
-fun getNotificationUri(modelClass: Class<*>,
+fun getNotificationUri(contentAuthority: String,
+                       modelClass: Class<*>,
                        action: Action?,
                        notifyKey: String = "",
                        notifyValue: Any? = null): Uri {
@@ -92,7 +95,8 @@ fun getNotificationUri(modelClass: Class<*>,
     if (notifyKey.isNotNullOrEmpty()) {
         operator = Operator.op<Any>(NameAlias.Builder(notifyKey).build()).value(notifyValue)
     }
-    return getNotificationUri(modelClass, action, if (operator != null) arrayOf<SQLOperator>(operator) else null)
+    return getNotificationUri(contentAuthority, modelClass, action,
+            if (operator != null) arrayOf<SQLOperator>(operator) else null)
 }
 
 

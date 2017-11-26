@@ -19,12 +19,13 @@ import com.raizlabs.android.dbflow.structure.insert
 import com.raizlabs.android.dbflow.structure.save
 import com.raizlabs.android.dbflow.structure.update
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 
 class ContentObserverTest : BaseInstrumentedUnitTest() {
+
+    val contentUri = "com.grosner.content"
 
     private lateinit var user: User
 
@@ -40,10 +41,11 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
     fun testSpecificUris() {
         val conditionGroup = FlowManager.getModelAdapter(User::class.java)
                 .getPrimaryConditionClause(user)
-        val uri = getNotificationUri(User::class.java, BaseModel.Action.DELETE,
+        val uri = getNotificationUri(contentUri,
+                User::class.java, BaseModel.Action.DELETE,
                 conditionGroup.conditions.toTypedArray())
 
-        assertEquals(uri.authority, "com.grosner.content")
+        assertEquals(uri.authority, contentUri)
         assertEquals(tableName<User>(), uri.getQueryParameter(TABLE_QUERY_PARAM))
         assertEquals(uri.fragment, BaseModel.Action.DELETE.name)
         assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(id.query))), "5")
@@ -75,7 +77,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
     }
 
     private fun assertProperConditions(action: BaseModel.Action, userFunc: (User) -> Unit) {
-        val contentObserver = FlowContentObserver()
+        val contentObserver = FlowContentObserver(contentUri)
         val countDownLatch = CountDownLatch(1)
         val mockOnModelStateChangedListener = MockOnModelStateChangedListener(countDownLatch)
         contentObserver.addModelChangeListener(mockOnModelStateChangedListener)
@@ -96,7 +98,8 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
         contentObserver.unregisterForContentChanges(DemoApp.context)
     }
 
-    class MockOnModelStateChangedListener(val countDownLatch: CountDownLatch) : FlowContentObserver.OnModelStateChangedListener {
+    class MockOnModelStateChangedListener(val countDownLatch: CountDownLatch)
+        : FlowContentObserver.OnModelStateChangedListener {
 
         var action: BaseModel.Action? = null
         var operators: Array<SQLOperator>? = null

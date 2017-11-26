@@ -142,6 +142,8 @@ private constructor() : ModelNotifier {
 
         @JvmStatic
         fun get(): DirectModelNotifier = notifier
+
+        operator fun invoke() = get()
     }
 
 }

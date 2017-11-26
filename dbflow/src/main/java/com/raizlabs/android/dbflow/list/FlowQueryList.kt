@@ -18,12 +18,6 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
  */
 class FlowQueryList<T : Any>(
         /**
-         * If true, we will make all modifications on the [DefaultTransactionQueue], else
-         * we will run it on the main thread.
-         */
-        val transact: Boolean = false,
-        private var changeInTransaction: Boolean = false,
-        /**
          * Holds the table cursor
          */
         val internalCursorList: FlowCursorList<T>)
@@ -53,8 +47,6 @@ class FlowQueryList<T : Any>(
     }
 
     internal constructor(builder: Builder<T>) : this(
-            transact = builder.transact,
-            changeInTransaction = builder.changeInTransaction,
             internalCursorList = FlowCursorList.Builder(builder.modelQueriable)
                     .cursor(builder.cursor)
                     .build()
@@ -75,11 +67,7 @@ class FlowQueryList<T : Any>(
      * @return Constructs a new [Builder] that reuses the underlying [Cursor], cache,
      * callbacks, and other properties.
      */
-    fun newBuilder(): Builder<T> {
-        return Builder(internalCursorList)
-                .changeInTransaction(changeInTransaction)
-                .transact(transact)
-    }
+    fun newBuilder(): Builder<T> = Builder(internalCursorList)
 
     /**
      * Refreshes the content backing this list.
@@ -142,7 +130,7 @@ class FlowQueryList<T : Any>(
      * @return A model converted from the internal [FlowCursorList]. For
      * performance improvements, ensure caching is turned on.
      */
-    override operator fun get(index: Int): T = internalCursorList.get(index.toLong())
+    override operator fun get(index: Int): T = internalCursorList[index.toLong()]
 
     override fun indexOf(element: T): Int {
         throw UnsupportedOperationException(
@@ -203,8 +191,6 @@ class FlowQueryList<T : Any>(
 
         internal val table: Class<T>
 
-        internal var transact: Boolean = false
-        internal var changeInTransaction: Boolean = false
         internal var cursor: Cursor? = null
         internal var modelQueriable: ModelQueriable<T>
 
@@ -221,17 +207,6 @@ class FlowQueryList<T : Any>(
 
         fun cursor(cursor: Cursor) = apply {
             this.cursor = cursor
-        }
-
-        fun transact(transact: Boolean) = apply {
-            this.transact = transact
-        }
-
-        /**
-         * If true, when an operation occurs whenever we call endTransactionAndNotify, we refresh content.
-         */
-        fun changeInTransaction(changeInTransaction: Boolean) = apply {
-            this.changeInTransaction = changeInTransaction
         }
 
         fun build() = FlowQueryList(this)

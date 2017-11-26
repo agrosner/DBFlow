@@ -160,17 +160,6 @@ object FlowManager {
     fun getWritableDatabase(databaseClass: Class<*>): DatabaseWrapper =
             getDatabase(databaseClass).writableDatabase
 
-    fun getContentAuthorityForDatabase(clazz: Class<*>): String {
-        val databaseConfig = getConfig().getConfigForDatabase(clazz)
-        if (databaseConfig?.contentAuthority == null) {
-            throw IllegalStateException("Please specify a valid content authority for database $clazz via ${DatabaseConfig::class}")
-        }
-        return databaseConfig.contentAuthority
-    }
-
-    fun getContentAuthorityForTable(table: Class<*>)
-            = getContentAuthorityForDatabase(getDatabaseForTable(table).associatedDatabaseClassFile)
-
     /**
      * Loading the module Database holder via reflection.
      *

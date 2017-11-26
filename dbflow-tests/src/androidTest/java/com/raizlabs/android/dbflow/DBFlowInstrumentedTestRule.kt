@@ -20,7 +20,6 @@ class DBFlowInstrumentedTestRule : TestRule {
                 FlowManager.init(FlowConfig.Builder(DemoApp.context)
                         .addDatabaseConfig(DatabaseConfig(
                                 databaseClass = AppDatabase::class.java,
-                                contentAuthority = "com.grosner.content",
                                 transactionManagerCreator = { databaseDefinition: DatabaseDefinition ->
                                     ImmediateTransactionManager(databaseDefinition)
                                 }))
@@ -28,8 +27,7 @@ class DBFlowInstrumentedTestRule : TestRule {
                                 databaseClass = PrepackagedDB::class.java,
                                 databaseName = "prepackaged"))
                         .addDatabaseConfig(DatabaseConfig(
-                                databaseClass = CipherDatabase::class.java,
-                                contentAuthority = "com.grosner.content"))
+                                databaseClass = CipherDatabase::class.java))
                         .build())
                 try {
                     base.evaluate()

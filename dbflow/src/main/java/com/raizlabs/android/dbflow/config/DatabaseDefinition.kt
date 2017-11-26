@@ -6,7 +6,7 @@ import com.raizlabs.android.dbflow.annotation.Database
 import com.raizlabs.android.dbflow.annotation.QueryModel
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager
-import com.raizlabs.android.dbflow.runtime.ContentResolverNotifier
+import com.raizlabs.android.dbflow.runtime.DirectModelNotifier
 import com.raizlabs.android.dbflow.runtime.ModelNotifier
 import com.raizlabs.android.dbflow.sql.migration.Migration
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader
@@ -261,7 +261,7 @@ abstract class DatabaseDefinition : DatabaseWrapper {
         if (modelNotifier == null) {
             val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
             modelNotifier = if (config?.modelNotifier == null) {
-                ContentResolverNotifier()
+                DirectModelNotifier()
             } else {
                 config.modelNotifier
             }
@@ -304,8 +304,7 @@ abstract class DatabaseDefinition : DatabaseWrapper {
      */
     abstract fun backupEnabled(): Boolean
 
-
-    @Deprecated("use {@link #reset()}")
+    @Deprecated(message = "use {@link #reset()}", replaceWith = ReplaceWith("reset()"))
     fun reset(context: Context) {
         reset(databaseConfig)
     }
