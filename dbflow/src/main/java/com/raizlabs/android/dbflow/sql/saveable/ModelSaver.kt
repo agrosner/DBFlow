@@ -1,9 +1,7 @@
 package com.raizlabs.android.dbflow.sql.saveable
 
 import android.content.ContentValues
-
 import com.raizlabs.android.dbflow.annotation.ConflictAction
-import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor
 import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.ModelAdapter
@@ -17,15 +15,6 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 open class ModelSaver<T : Any> {
 
     lateinit var modelAdapter: ModelAdapter<T>
-
-    val writableDatabase: DatabaseWrapper
-        get() = FlowManager.getDatabaseForTable(modelAdapter.modelClass).writableDatabase
-
-    @Synchronized
-    fun save(model: T): Boolean {
-        return save(model, writableDatabase, modelAdapter.getInsertStatement(),
-                modelAdapter.getUpdateStatement())
-    }
 
     @Synchronized
     fun save(model: T,
@@ -58,10 +47,6 @@ open class ModelSaver<T : Any> {
     }
 
     @Synchronized
-    fun update(model: T): Boolean =
-            update(model, writableDatabase, modelAdapter.getUpdateStatement())
-
-    @Synchronized
     fun update(model: T, wrapper: DatabaseWrapper): Boolean {
         val updateStatement = modelAdapter.getUpdateStatement(wrapper)
         val success: Boolean
@@ -85,9 +70,6 @@ open class ModelSaver<T : Any> {
         }
         return successful
     }
-
-    @Synchronized open fun insert(model: T): Long =
-            insert(model, modelAdapter.getInsertStatement(), writableDatabase)
 
     @Synchronized open fun insert(model: T, wrapper: DatabaseWrapper): Long {
         val insertStatement = modelAdapter.getInsertStatement(wrapper)
@@ -113,9 +95,6 @@ open class ModelSaver<T : Any> {
         }
         return id
     }
-
-    @Synchronized
-    fun delete(model: T): Boolean = delete(model, modelAdapter.getDeleteStatement(), writableDatabase)
 
     @Synchronized
     fun delete(model: T, wrapper: DatabaseWrapper): Boolean {

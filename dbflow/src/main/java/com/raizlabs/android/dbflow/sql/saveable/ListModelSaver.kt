@@ -5,11 +5,6 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
 
     @Synchronized
-    open fun saveAll(tableCollection: Collection<T>) {
-        saveAll(tableCollection, modelSaver.writableDatabase)
-    }
-
-    @Synchronized
     open fun saveAll(tableCollection: Collection<T>,
                      wrapper: DatabaseWrapper) {
         // skip if empty.
@@ -30,11 +25,6 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
     }
 
     @Synchronized
-    open fun insertAll(tableCollection: Collection<T>) {
-        insertAll(tableCollection, modelSaver.writableDatabase)
-    }
-
-    @Synchronized
     open fun insertAll(tableCollection: Collection<T>,
                        wrapper: DatabaseWrapper) {
         // skip if empty.
@@ -51,11 +41,6 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
     }
 
     @Synchronized
-    open fun updateAll(tableCollection: Collection<T>) {
-        updateAll(tableCollection, modelSaver.writableDatabase)
-    }
-
-    @Synchronized
     open fun updateAll(tableCollection: Collection<T>,
                        wrapper: DatabaseWrapper) {
         // skip if empty.
@@ -69,11 +54,6 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
         } finally {
             updateStatement.close()
         }
-    }
-
-    @Synchronized
-    open fun deleteAll(tableCollection: Collection<T>) {
-        deleteAll(tableCollection, modelSaver.writableDatabase)
     }
 
     @Synchronized

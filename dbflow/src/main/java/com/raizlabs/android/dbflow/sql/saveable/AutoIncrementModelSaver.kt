@@ -11,8 +11,6 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
  */
 class AutoIncrementModelSaver<T : Any> : ModelSaver<T>() {
 
-    @Synchronized override fun insert(model: T): Long = insert(model, writableDatabase)
-
     @Synchronized override fun insert(model: T, wrapper: DatabaseWrapper): Long {
         val hasAutoIncrement = modelAdapter.hasAutoIncrement(model)
         val insertStatement = when {
