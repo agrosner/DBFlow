@@ -10,38 +10,36 @@ class CacheableListModelSaver<T : Any>(modelSaver: ModelSaver<T>) : ListModelSav
 
     @Synchronized override fun saveAll(tableCollection: Collection<T>,
                                        wrapper: DatabaseWrapper): Long {
-        val modelAdapter = modelSaver.modelAdapter
         val statement = modelAdapter.getInsertStatement(wrapper)
         val updateStatement = modelAdapter.getUpdateStatement(wrapper)
-        return applyAndCount(tableCollection, statement, updateStatement,
-                modelSaver.modelAdapter::storeModelInCache) {
+        return applyAndCount(tableCollection, statement, updateStatement, modelAdapter::storeModelInCache) {
             modelSaver.save(it, statement, updateStatement, wrapper)
         }
     }
 
     @Synchronized override fun insertAll(tableCollection: Collection<T>,
                                          wrapper: DatabaseWrapper): Long {
-        val statement = modelSaver.modelAdapter.getInsertStatement(wrapper)
+        val statement = modelAdapter.getInsertStatement(wrapper)
         return applyAndCount(tableCollection, statement,
-                cacheFn = modelSaver.modelAdapter::storeModelInCache) {
+                cacheFn = modelAdapter::storeModelInCache) {
             modelSaver.insert(it, statement, wrapper) > 0
         }
     }
 
     @Synchronized override fun updateAll(tableCollection: Collection<T>,
                                          wrapper: DatabaseWrapper): Long {
-        val statement = modelSaver.modelAdapter.getUpdateStatement(wrapper)
+        val statement = modelAdapter.getUpdateStatement(wrapper)
         return applyAndCount(tableCollection, statement,
-                cacheFn = modelSaver.modelAdapter::storeModelInCache) {
+                cacheFn = modelAdapter::storeModelInCache) {
             modelSaver.update(it, statement, wrapper)
         }
     }
 
     @Synchronized override fun deleteAll(tableCollection: Collection<T>,
                                          wrapper: DatabaseWrapper): Long {
-        val statement = modelSaver.modelAdapter.getDeleteStatement(wrapper)
+        val statement = modelAdapter.getDeleteStatement(wrapper)
         return applyAndCount(tableCollection, statement,
-                cacheFn = modelSaver.modelAdapter::removeModelFromCache) {
+                cacheFn = modelAdapter::removeModelFromCache) {
             modelSaver.delete(it, statement, wrapper)
         }
     }

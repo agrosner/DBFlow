@@ -5,37 +5,36 @@ import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
 
+    val modelAdapter = modelSaver.modelAdapter
+
     @Synchronized
     open fun saveAll(tableCollection: Collection<T>,
                      wrapper: DatabaseWrapper): Long {
-        // skip if empty.
-        if (tableCollection.isEmpty()) {
-            return 0L
+        val statement = modelAdapter.getInsertStatement(wrapper)
+        val updateStatement = modelAdapter.getUpdateStatement(wrapper)
+        return applyAndCount(tableCollection, statement, updateStatement) {
+            modelSaver.save(it, statement, updateStatement, wrapper)
         }
-
-        val statement = modelSaver.modelAdapter.getInsertStatement(wrapper)
-        val updateStatement = modelSaver.modelAdapter.getUpdateStatement(wrapper)
-        return applyAndCount(tableCollection, statement, updateStatement) { modelSaver.save(it, statement, updateStatement, wrapper) }
     }
 
     @Synchronized
     open fun insertAll(tableCollection: Collection<T>,
                        wrapper: DatabaseWrapper): Long {
-        val statement = modelSaver.modelAdapter.getInsertStatement(wrapper)
+        val statement = modelAdapter.getInsertStatement(wrapper)
         return applyAndCount(tableCollection, statement) { modelSaver.insert(it, statement, wrapper) > 0 }
     }
 
     @Synchronized
     open fun updateAll(tableCollection: Collection<T>,
                        wrapper: DatabaseWrapper): Long {
-        val statement = modelSaver.modelAdapter.getUpdateStatement(wrapper)
+        val statement = modelAdapter.getUpdateStatement(wrapper)
         return applyAndCount(tableCollection, statement) { modelSaver.update(it, statement, wrapper) }
     }
 
     @Synchronized
     open fun deleteAll(tableCollection: Collection<T>,
                        wrapper: DatabaseWrapper): Long {
-        val statement = modelSaver.modelAdapter.getDeleteStatement(wrapper)
+        val statement = modelAdapter.getDeleteStatement(wrapper)
         return applyAndCount(tableCollection, statement) { modelSaver.delete(it, statement, wrapper) }
     }
 
