@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.sql.saveable
 
 import android.content.ContentValues
-import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor
 import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.ModelAdapter
@@ -114,52 +113,6 @@ open class ModelSaver<T : Any> {
         }
         modelAdapter.updateAutoIncrement(model, 0)
         return success
-    }
-
-    /**
-     * Legacy save method. Uses [ContentValues] vs. the faster [DatabaseStatement] for updates.
-     *
-     * @see .save
-     */
-    @Deprecated("")
-    @Synchronized
-    fun save(model: T,
-             wrapper: DatabaseWrapper,
-             insertStatement: DatabaseStatement,
-             contentValues: ContentValues): Boolean {
-        var exists = modelAdapter.exists(model, wrapper)
-
-        if (exists) {
-            exists = update(model, wrapper, contentValues)
-        }
-
-        if (!exists) {
-            exists = insert(model, insertStatement, wrapper) > INSERT_FAILED
-        }
-
-        if (exists) {
-            NotifyDistributor().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE)
-        }
-
-        // return successful store into db.
-        return exists
-    }
-
-    /**
-     * @see .update
-     */
-    @Deprecated("")
-    @Synchronized
-    fun update(model: T, wrapper: DatabaseWrapper, contentValues: ContentValues): Boolean {
-        modelAdapter.saveForeignKeys(model, wrapper)
-        modelAdapter.bindToContentValues(contentValues, model)
-        val successful = wrapper.updateWithOnConflict(modelAdapter.tableName, contentValues,
-                modelAdapter.getPrimaryConditionClause(model).query, null,
-                ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.updateOnConflictAction)) != 0L
-        if (successful) {
-            NotifyDistributor().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE)
-        }
-        return successful
     }
 
     companion object {
