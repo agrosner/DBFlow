@@ -3,9 +3,9 @@ package com.raizlabs.android.dbflow.models
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.config.database
-import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.query.list
 import com.raizlabs.android.dbflow.query.result
+import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.structure.delete
 import com.raizlabs.android.dbflow.structure.exists
 import com.raizlabs.android.dbflow.structure.save
@@ -15,7 +15,7 @@ import org.junit.Test
 class OneToManyModelTest : BaseUnitTest() {
 
     @Test
-    fun testOneToManyModel(){
+    fun testOneToManyModel() {
         database(TestDatabase::class) {
             var testModel2 = TwoColumnModel("Greater", 4)
             testModel2.save()

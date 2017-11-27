@@ -6,11 +6,11 @@ import com.raizlabs.android.dbflow.annotation.OneToManyMethod
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.config.databaseForTable
+import com.raizlabs.android.dbflow.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.query.where
 import com.raizlabs.android.dbflow.structure.BaseModel
-import com.raizlabs.android.dbflow.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.oneToMany
 
 @Table(database = TestDatabase::class)

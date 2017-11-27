@@ -6,9 +6,9 @@ import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.config.database
 import com.raizlabs.android.dbflow.query.Delete.Companion.table
 import com.raizlabs.android.dbflow.query.Delete.Companion.tables
+import com.raizlabs.android.dbflow.query.result
 import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.query.where
-import com.raizlabs.android.dbflow.query.result
 import com.raizlabs.android.dbflow.structure.delete
 import com.raizlabs.android.dbflow.structure.exists
 import com.raizlabs.android.dbflow.structure.insert

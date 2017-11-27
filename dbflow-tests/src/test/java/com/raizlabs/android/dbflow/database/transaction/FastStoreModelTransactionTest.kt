@@ -5,8 +5,8 @@ import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.config.database
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel
-import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.query.list
+import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.transaction.fastInsert
 import com.raizlabs.android.dbflow.transaction.fastSave
 import com.raizlabs.android.dbflow.transaction.fastUpdate

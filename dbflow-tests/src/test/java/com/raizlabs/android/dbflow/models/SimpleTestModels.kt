@@ -11,9 +11,9 @@ import com.raizlabs.android.dbflow.annotation.QueryModel
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.data.Blob
-import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.database.DatabaseStatement
 import com.raizlabs.android.dbflow.query.SQLiteStatementListener
+import com.raizlabs.android.dbflow.structure.BaseModel
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.*

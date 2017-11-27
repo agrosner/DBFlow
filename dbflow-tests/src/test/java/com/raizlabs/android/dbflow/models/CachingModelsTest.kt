@@ -3,9 +3,9 @@ package com.raizlabs.android.dbflow.models
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.config.database
-import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.query.list
 import com.raizlabs.android.dbflow.query.result
+import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.structure.save
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals

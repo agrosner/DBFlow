@@ -4,8 +4,8 @@ import android.database.sqlite.SQLiteException
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.assertThrowsException
 import com.raizlabs.android.dbflow.config.databaseForTable
-import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.query.list
+import com.raizlabs.android.dbflow.query.select
 import org.junit.Test
 
 /**

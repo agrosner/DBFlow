@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.sql.language
 import android.content.ContentValues
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.config.databaseForTable
+import com.raizlabs.android.dbflow.database.set
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
@@ -12,22 +13,21 @@ import com.raizlabs.android.dbflow.query.Operator
 import com.raizlabs.android.dbflow.query.OperatorGroup
 import com.raizlabs.android.dbflow.query.insert
 import com.raizlabs.android.dbflow.query.select
-import com.raizlabs.android.dbflow.database.set
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class InsertTest : BaseUnitTest() {
 
     @Test
-    fun validateInsert(){
-        databaseForTable<SimpleModel>{
+    fun validateInsert() {
+        databaseForTable<SimpleModel> {
             assertEquals("INSERT INTO `SimpleModel` VALUES('something')",
                     insert<SimpleModel>().values("something").query.trim())
         }
     }
 
     @Test
-    fun validateInsertOr(){
+    fun validateInsertOr() {
         databaseForTable<SimpleModel> {
             assertEquals("INSERT OR REPLACE INTO `SimpleModel` VALUES('something')",
                     insert<SimpleModel>().orReplace().values("something").query.trim())
@@ -45,7 +45,7 @@ class InsertTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateInsertProjection(){
+    fun validateInsertProjection() {
         databaseForTable<SimpleModel> {
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
                     insert<TwoColumnModel>().columns(name, id).values("name", "id").query.trim())
@@ -53,7 +53,7 @@ class InsertTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateSelect(){
+    fun validateSelect() {
         databaseForTable<SimpleModel> {
             assertEquals("INSERT INTO `TwoColumnModel` SELECT * FROM `SimpleModel`",
                     insert<TwoColumnModel>().select(select from SimpleModel::class).query.trim())
@@ -61,7 +61,7 @@ class InsertTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateColumns(){
+    fun validateColumns() {
         databaseForTable<SimpleModel> {
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
                     insert<TwoColumnModel>().asColumns().values("name", "id").query.trim())
@@ -73,7 +73,7 @@ class InsertTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateColumnValues(){
+    fun validateColumnValues() {
         databaseForTable<SimpleModel> {
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
                     insert<TwoColumnModel>().columnValues(name.eq("name"), id.eq(0)).query.trim())

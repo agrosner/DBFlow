@@ -15,11 +15,11 @@ import com.raizlabs.android.dbflow.query.columnValues
 import com.raizlabs.android.dbflow.query.createTrigger
 import com.raizlabs.android.dbflow.query.insert
 import com.raizlabs.android.dbflow.query.insertOn
+import com.raizlabs.android.dbflow.query.property.property
 import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.query.updateOn
 import com.raizlabs.android.dbflow.query.where
 import com.raizlabs.android.dbflow.sql.SQLiteType
-import com.raizlabs.android.dbflow.query.property.property
 import com.raizlabs.android.dbflow.structure.insert
 import org.junit.Assert.assertNotNull
 import org.junit.Test

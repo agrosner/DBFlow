@@ -10,13 +10,13 @@ import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import com.raizlabs.android.dbflow.query.OrderBy.Companion.fromNameAlias
 import com.raizlabs.android.dbflow.query.groupBy
 import com.raizlabs.android.dbflow.query.having
+import com.raizlabs.android.dbflow.query.list
 import com.raizlabs.android.dbflow.query.nameAlias
 import com.raizlabs.android.dbflow.query.or
+import com.raizlabs.android.dbflow.query.result
 import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.query.update
 import com.raizlabs.android.dbflow.query.where
-import com.raizlabs.android.dbflow.query.list
-import com.raizlabs.android.dbflow.query.result
 import org.junit.Assert.fail
 import org.junit.Test
 

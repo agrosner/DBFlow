@@ -6,15 +6,15 @@ import com.raizlabs.android.dbflow.config.database
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table
 import com.raizlabs.android.dbflow.query.delete
+import com.raizlabs.android.dbflow.query.list
 import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.query.where
-import com.raizlabs.android.dbflow.query.list
+import com.raizlabs.android.dbflow.structure.save
 import com.raizlabs.android.dbflow.transaction.awaitDelete
 import com.raizlabs.android.dbflow.transaction.awaitInsert
 import com.raizlabs.android.dbflow.transaction.awaitSave
 import com.raizlabs.android.dbflow.transaction.awaitUpdate
 import com.raizlabs.android.dbflow.transaction.transact
-import com.raizlabs.android.dbflow.structure.save
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
 

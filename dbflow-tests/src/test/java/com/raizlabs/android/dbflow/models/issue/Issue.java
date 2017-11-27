@@ -5,8 +5,8 @@ import com.raizlabs.android.dbflow.annotation.OneToMany;
 import com.raizlabs.android.dbflow.annotation.OneToManyMethod;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.util.List;
 

@@ -3,9 +3,9 @@ package com.raizlabs.android.dbflow.config
 import com.nhaarman.mockito_kotlin.mock
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.transaction.BaseTransactionManager
 import com.raizlabs.android.dbflow.database.DatabaseHelperListener
 import com.raizlabs.android.dbflow.database.OpenHelper
+import com.raizlabs.android.dbflow.transaction.BaseTransactionManager
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
