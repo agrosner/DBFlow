@@ -39,7 +39,7 @@ open class ModelSaver<T : Any> {
         }
 
         if (exists) {
-            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE)
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE)
         }
 
         // return successful store into db.
@@ -66,7 +66,7 @@ open class ModelSaver<T : Any> {
         modelAdapter.bindToUpdateStatement(databaseStatement, model)
         val successful = databaseStatement.executeUpdateDelete() != 0L
         if (successful) {
-            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE)
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE)
         }
         return successful
     }
@@ -91,7 +91,7 @@ open class ModelSaver<T : Any> {
         val id = insertStatement.executeInsert()
         if (id > INSERT_FAILED) {
             modelAdapter.updateAutoIncrement(model, id)
-            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.INSERT)
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, BaseModel.Action.INSERT)
         }
         return id
     }
@@ -118,7 +118,7 @@ open class ModelSaver<T : Any> {
 
         val success = deleteStatement.executeUpdateDelete() != 0L
         if (success) {
-            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.DELETE)
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, BaseModel.Action.DELETE)
         }
         modelAdapter.updateAutoIncrement(model, 0)
         return success
@@ -146,7 +146,7 @@ open class ModelSaver<T : Any> {
         }
 
         if (exists) {
-            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE)
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE)
         }
 
         // return successful store into db.
@@ -165,7 +165,7 @@ open class ModelSaver<T : Any> {
                 modelAdapter.getPrimaryConditionClause(model).query, null,
                 ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.updateOnConflictAction)) != 0L
         if (successful) {
-            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE)
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE)
         }
         return successful
     }

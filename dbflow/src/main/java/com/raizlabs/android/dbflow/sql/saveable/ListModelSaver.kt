@@ -15,9 +15,7 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
         val statement = modelSaver.modelAdapter.getInsertStatement(wrapper)
         val updateStatement = modelSaver.modelAdapter.getUpdateStatement(wrapper)
         try {
-            for (model in tableCollection) {
-                modelSaver.save(model, wrapper, statement, updateStatement)
-            }
+            tableCollection.forEach { modelSaver.save(it, wrapper, statement, updateStatement) }
         } finally {
             statement.close()
             updateStatement.close()

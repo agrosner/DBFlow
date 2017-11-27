@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.config.DatabaseDefinition
-import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.language.property.Property
 import com.raizlabs.android.dbflow.sql.saveable.ListModelSaver
@@ -42,9 +41,9 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      * if it has the field. This method is overridden when its specified for the [T]
      */
     open val autoIncrementingColumnName: String
-        get() = throw InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain " + "an autoincrementing or single int/long primary key (if used in a ModelCache, this method may be called)",
-                        modelClass))
+        get() = throw InvalidDBConfiguration("This method may have been called in error." +
+                " The model class $modelClass must contain an autoincrementing" +
+                " or single int/long primary key (if used in a ModelCache, this method may be called)")
 
     open val cacheSize: Int
         get() = DEFAULT_CACHE_SIZE
@@ -98,39 +97,6 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
         }
     }
 
-    /**
-     * @return The pre-compiled insert statement for this table model adapter. This is reused and cached.
-     */
-    fun getInsertStatement(): DatabaseStatement {
-        if (insertStatement == null) {
-            insertStatement = getInsertStatement(FlowManager.getDatabaseForTable(modelClass))
-        }
-
-        return insertStatement!!
-    }
-
-    /**
-     * @return The pre-compiled update statement for this table model adapter. This is reused and cached.
-     */
-    fun getUpdateStatement(): DatabaseStatement {
-        if (updateStatement == null) {
-            updateStatement = getUpdateStatement(FlowManager.getDatabaseForTable(modelClass))
-        }
-
-        return updateStatement!!
-    }
-
-    /**
-     * @return The pre-compiled delete statement for this table model adapter. This is reused and cached.
-     */
-    fun getDeleteStatement(): DatabaseStatement {
-        if (deleteStatement == null) {
-            deleteStatement = getDeleteStatement(FlowManager.getDatabaseForTable(modelClass))
-        }
-
-        return deleteStatement!!
-    }
-
     fun closeInsertStatement() {
         insertStatement?.close()
         insertStatement = null
@@ -170,17 +136,6 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
     fun getDeleteStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
             databaseWrapper.compileStatement(deleteStatementQuery)
 
-    /**
-     * @return The precompiled full statement for this table model adapter
-     */
-    fun getCompiledStatement(): DatabaseStatement {
-        if (compiledStatement == null) {
-            compiledStatement = getCompiledStatement(FlowManager.getDatabaseForTable(modelClass))
-        }
-
-        return compiledStatement!!
-    }
-
     fun closeCompiledStatement() {
         compiledStatement?.close()
         compiledStatement = null
@@ -200,11 +155,8 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      * @param cursor The cursor to load
      * @return A new [T]
      */
-    fun loadFromCursor(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): T {
-        val model = newInstance()
-        loadFromCursor(cursor, model, databaseWrapper)
-        return model
-    }
+    fun loadFromCursor(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): T =
+            newInstance().apply { loadFromCursor(cursor, this, databaseWrapper) }
 
     override fun save(model: T, databaseWrapper: DatabaseWrapper): Boolean =
             modelSaver.save(model, databaseWrapper)
@@ -262,9 +214,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      * if it has the field. This method is overridden when its specified for the [T]
      */
     override fun getAutoIncrementingId(model: T): Number? {
-        throw InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" + "a single primary key (if used in a ModelCache, this method may be called)",
-                        modelClass))
+        throwCachingError()
     }
 
     fun hasAutoIncrement(model: T): Boolean {
@@ -305,7 +255,6 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
     open fun getCachingColumnValuesFromCursor(inValues: Array<Any?>,
                                               cursor: FlowCursor): Array<Any>? {
         throwCachingError()
-        return null
     }
 
     /**
@@ -313,8 +262,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      * @return The single cache column from cursor (if single).
      */
     open fun getCachingColumnValueFromCursor(cursor: FlowCursor): Any? {
-        throwSingleCachingError()
-        return null
+        throwCachingError()
     }
 
     /**
@@ -328,7 +276,6 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      */
     open fun getCachingColumnValuesFromModel(inValues: Array<Any?>, TModel: T): Array<Any>? {
         throwCachingError()
-        return null
     }
 
     /**
@@ -336,8 +283,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      * @return The single cache column from model (if single).
      */
     open fun getCachingColumnValueFromModel(model: T): Any? {
-        throwSingleCachingError()
-        return null
+        throwCachingError()
     }
 
     fun storeModelInCache(model: T) {
@@ -405,16 +351,9 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      */
     open fun createWithDatabase(): Boolean = true
 
-    private fun throwCachingError() {
-        throw InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" + "an auto-incrementing or at least one primary key (if used in a ModelCache, this method may be called)",
-                        modelClass))
-    }
-
-    private fun throwSingleCachingError() {
-        throw InvalidDBConfiguration(
-                String.format("This method may have been called in error. The model class %1s must contain" + "an auto-incrementing or one primary key (if used in a ModelCache, this method may be called)",
-                        modelClass))
-    }
+    private fun throwCachingError(): Nothing = throw InvalidDBConfiguration("This method may have been called in error. " +
+            "The model class $modelClass must contain an auto-incrementing " +
+            "or at least one primary key (if used in a ModelCache, " +
+            "this method may be called)")
 
 }
