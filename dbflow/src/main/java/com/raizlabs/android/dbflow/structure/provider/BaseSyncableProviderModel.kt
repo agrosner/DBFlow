@@ -16,22 +16,24 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
 abstract class BaseSyncableProviderModel : BaseModel(), ModelProvider {
 
     override fun insert(wrapper: DatabaseWrapper): Long {
-        val rowId = wrapper.insertModel()
+        val rowId = super.insert(wrapper)
         ContentUtils.insert(insertUri, wrapper)
         return rowId
     }
 
     override fun save(wrapper: DatabaseWrapper): Boolean {
         return if (exists(wrapper)) {
-            wrapper.saveModel() && ContentUtils.update(updateUri, wrapper) > 0
+            super.save(wrapper) && ContentUtils.update(updateUri, wrapper) > 0
         } else {
-            wrapper.saveModel() && ContentUtils.insert(insertUri, wrapper) != null
+            super.save(wrapper) && ContentUtils.insert(insertUri, wrapper) != null
         }
     }
 
-    override fun delete(wrapper: DatabaseWrapper): Boolean = wrapper.deleteModel() && ContentUtils.delete(deleteUri, wrapper) > 0
+    override fun delete(wrapper: DatabaseWrapper): Boolean
+            = super.delete(wrapper) && ContentUtils.delete(deleteUri, wrapper) > 0
 
-    override fun update(wrapper: DatabaseWrapper): Boolean = wrapper.updateModel() && ContentUtils.update(updateUri, wrapper) > 0
+    override fun update(wrapper: DatabaseWrapper): Boolean
+            = super.update(wrapper) && ContentUtils.update(updateUri, wrapper) > 0
 
     override fun load(whereOperatorGroup: OperatorGroup,
                       orderBy: String?,

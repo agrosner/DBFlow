@@ -24,24 +24,13 @@ open class BaseModel : Model {
         modelAdapter.load(this, wrapper)
     }
 
-    override fun save(wrapper: DatabaseWrapper): Boolean = wrapper.saveModel()
+    override fun save(wrapper: DatabaseWrapper): Boolean = modelAdapter.save(this@BaseModel, wrapper)
 
-    override fun delete(wrapper: DatabaseWrapper): Boolean = wrapper.deleteModel()
+    override fun delete(wrapper: DatabaseWrapper): Boolean = modelAdapter.delete(this@BaseModel, wrapper)
 
     override fun update(wrapper: DatabaseWrapper): Boolean = modelAdapter.update(this, wrapper)
 
     override fun insert(wrapper: DatabaseWrapper): Long = modelAdapter.insert(this, wrapper)
 
     override fun exists(wrapper: DatabaseWrapper): Boolean = modelAdapter.exists(this, wrapper)
-
-    protected fun DatabaseWrapper.saveModel(): Boolean = modelAdapter.save(this@BaseModel, this)
-
-    protected fun DatabaseWrapper.deleteModel(): Boolean = modelAdapter.delete(this@BaseModel, this)
-
-    protected fun DatabaseWrapper.updateModel(): Boolean = modelAdapter.update(this@BaseModel, this)
-
-    protected fun DatabaseWrapper.insertModel(): Long = modelAdapter.insert(this@BaseModel, this)
-
-    protected fun DatabaseWrapper.existsModel(): Boolean = modelAdapter.exists(this@BaseModel, this)
-
 }
