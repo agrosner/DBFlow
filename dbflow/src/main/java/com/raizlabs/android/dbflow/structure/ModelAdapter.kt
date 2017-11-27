@@ -161,30 +161,26 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
     override fun save(model: T, databaseWrapper: DatabaseWrapper): Boolean =
             modelSaver.save(model, databaseWrapper)
 
-    override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper) {
-        listModelSaver.saveAll(models, databaseWrapper)
-    }
+    override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long
+            = listModelSaver.saveAll(models, databaseWrapper)
 
     override fun insert(model: T, databaseWrapper: DatabaseWrapper): Long =
             modelSaver.insert(model, databaseWrapper)
 
-    override fun insertAll(models: Collection<T>, databaseWrapper: DatabaseWrapper) {
-        listModelSaver.insertAll(models, databaseWrapper)
-    }
+    override fun insertAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long
+            = listModelSaver.insertAll(models, databaseWrapper)
 
     override fun update(model: T, databaseWrapper: DatabaseWrapper): Boolean =
             modelSaver.update(model, databaseWrapper)
 
-    override fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper) {
-        listModelSaver.updateAll(models, databaseWrapper)
-    }
+    override fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long
+            = listModelSaver.updateAll(models, databaseWrapper)
 
     override fun delete(model: T, databaseWrapper: DatabaseWrapper): Boolean =
             modelSaver.delete(model, databaseWrapper)
 
-    override fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper) {
-        listModelSaver.deleteAll(models, databaseWrapper)
-    }
+    override fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long
+            = listModelSaver.deleteAll(models, databaseWrapper)
 
     override fun bindToInsertStatement(sqLiteStatement: DatabaseStatement, model: T) {
         bindToInsertStatement(sqLiteStatement, model, 0)

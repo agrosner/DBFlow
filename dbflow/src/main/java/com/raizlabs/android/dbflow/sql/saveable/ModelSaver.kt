@@ -17,14 +17,14 @@ open class ModelSaver<T : Any> {
 
     @Synchronized
     fun save(model: T, wrapper: DatabaseWrapper): Boolean =
-            save(model, wrapper, modelAdapter.getInsertStatement(wrapper),
-                    modelAdapter.getUpdateStatement(wrapper))
+            save(model, modelAdapter.getInsertStatement(wrapper),
+                    modelAdapter.getUpdateStatement(wrapper), wrapper)
 
     @Synchronized
     fun save(model: T,
-             wrapper: DatabaseWrapper,
              insertStatement: DatabaseStatement,
-             updateStatement: DatabaseStatement): Boolean {
+             updateStatement: DatabaseStatement,
+             wrapper: DatabaseWrapper): Boolean {
         var exists = modelAdapter.exists(model, wrapper)
 
         if (exists) {

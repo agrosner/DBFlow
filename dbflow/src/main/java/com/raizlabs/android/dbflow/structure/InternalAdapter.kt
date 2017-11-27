@@ -31,8 +31,9 @@ interface InternalAdapter<TModel> {
      *
      * @param models          The [Collection] of models to save.
      * @param databaseWrapper The manually specified wrapper
+     * @return the count of models saved or updated.
      */
-    fun saveAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper)
+    fun saveAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Long
 
     /**
      * Inserts the specified model into the DB.
@@ -47,8 +48,9 @@ interface InternalAdapter<TModel> {
      *
      * @param models          The [Collection] of models to save.
      * @param databaseWrapper The manually specified wrapper
+     * @return the count inserted
      */
-    fun insertAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper)
+    fun insertAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Long
 
     /**
      * Updates the specified model into the DB.
@@ -63,8 +65,9 @@ interface InternalAdapter<TModel> {
      *
      * @param models          The [Collection] of models to save.
      * @param databaseWrapper The manually specified wrapper
+     * @return count of successful updates.
      */
-    fun updateAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper)
+    fun updateAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Long
 
     /**
      * Deletes the model from the DB
@@ -79,8 +82,9 @@ interface InternalAdapter<TModel> {
      *
      * @param models          The [Collection] of models to save.
      * @param databaseWrapper The manually specified wrapper
+     * @return count of successful deletions.
      */
-    fun deleteAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper)
+    fun deleteAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Long
 
     /**
      * Binds a [TModel] to the specified db statement
