@@ -21,24 +21,10 @@ interface InternalAdapter<TModel> {
     /**
      * Saves the specified model to the DB.
      *
-     * @param model The model to save/insert/update
-     */
-    fun save(model: TModel): Boolean
-
-    /**
-     * Saves the specified model to the DB.
-     *
      * @param model           The model to save/insert/update
      * @param databaseWrapper The manually specified wrapper.
      */
     fun save(model: TModel, databaseWrapper: DatabaseWrapper): Boolean
-
-    /**
-     * Saves a [Collection] of models to the DB.
-     *
-     * @param models The [Collection] of models to save.
-     */
-    fun saveAll(models: Collection<TModel>)
 
     /**
      * Saves a [Collection] of models to the DB.
@@ -51,24 +37,10 @@ interface InternalAdapter<TModel> {
     /**
      * Inserts the specified model into the DB.
      *
-     * @param model The model to insert.
-     */
-    fun insert(model: TModel): Long
-
-    /**
-     * Inserts the specified model into the DB.
-     *
      * @param model           The model to insert.
      * @param databaseWrapper The manually specified wrapper.
      */
     fun insert(model: TModel, databaseWrapper: DatabaseWrapper): Long
-
-    /**
-     * Inserts a [Collection] of models into the DB.
-     *
-     * @param models The [Collection] of models to save.
-     */
-    fun insertAll(models: Collection<TModel>)
 
     /**
      * Inserts a [Collection] of models into the DB.
@@ -81,24 +53,10 @@ interface InternalAdapter<TModel> {
     /**
      * Updates the specified model into the DB.
      *
-     * @param model The model to update.
-     */
-    fun update(model: TModel): Boolean
-
-    /**
-     * Updates the specified model into the DB.
-     *
      * @param model           The model to update.
      * @param databaseWrapper The manually specified wrapper.
      */
     fun update(model: TModel, databaseWrapper: DatabaseWrapper): Boolean
-
-    /**
-     * Updates a [Collection] of models in the DB.
-     *
-     * @param models The [Collection] of models to save.
-     */
-    fun updateAll(models: Collection<TModel>)
 
     /**
      * Updates a [Collection] of models in the DB.
@@ -111,24 +69,10 @@ interface InternalAdapter<TModel> {
     /**
      * Deletes the model from the DB
      *
-     * @param model The model to delete
-     */
-    fun delete(model: TModel): Boolean
-
-    /**
-     * Deletes the model from the DB
-     *
      * @param model           The model to delete
      * @param databaseWrapper The manually specified wrapper.
      */
     fun delete(model: TModel, databaseWrapper: DatabaseWrapper): Boolean
-
-    /**
-     * Updates a [Collection] of models in the DB.
-     *
-     * @param models The [Collection] of models to save.
-     */
-    fun deleteAll(models: Collection<TModel>)
 
     /**
      * Updates a [Collection] of models in the DB.

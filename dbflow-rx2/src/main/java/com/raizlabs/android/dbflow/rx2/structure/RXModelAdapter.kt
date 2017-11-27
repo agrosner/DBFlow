@@ -15,15 +15,8 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
 
     constructor(table: Class<T>) : this(FlowManager.getModelAdapter<T>(table))
 
-    fun save(model: T): Single<Boolean> = Single.fromCallable { modelAdapter.save(model) }
-
     fun save(model: T, databaseWrapper: DatabaseWrapper): Single<Boolean> =
             Single.fromCallable { modelAdapter.save(model, databaseWrapper) }
-
-    fun saveAll(models: Collection<T>): Completable = fromCallable {
-        modelAdapter.saveAll(models)
-        null
-    }
 
     fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Completable =
             fromCallable {
@@ -31,15 +24,8 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
                 null
             }
 
-    fun insert(model: T): Single<Long> = Single.fromCallable { modelAdapter.insert(model) }
-
     fun insert(model: T, databaseWrapper: DatabaseWrapper): Single<Long> =
             Single.fromCallable { modelAdapter.insert(model, databaseWrapper) }
-
-    fun insertAll(models: Collection<T>): Completable = fromCallable {
-        modelAdapter.insertAll(models)
-        null
-    }
 
     fun insertAll(models: Collection<T>,
                   databaseWrapper: DatabaseWrapper): Completable = fromCallable {
@@ -47,15 +33,8 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
         null
     }
 
-    fun update(model: T): Single<Boolean> = Single.fromCallable { modelAdapter.update(model) }
-
     fun update(model: T, databaseWrapper: DatabaseWrapper): Single<Boolean> =
             Single.fromCallable { modelAdapter.update(model, databaseWrapper) }
-
-    fun updateAll(models: Collection<T>): Completable = fromCallable {
-        modelAdapter.updateAll(models)
-        null
-    }
 
     fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Completable =
             fromCallable {
@@ -63,15 +42,8 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
                 null
             }
 
-    fun delete(model: T): Single<Boolean> = Single.fromCallable { modelAdapter.delete(model) }
-
     fun delete(model: T, databaseWrapper: DatabaseWrapper): Single<Boolean> =
             Single.fromCallable { modelAdapter.delete(model, databaseWrapper) }
-
-    fun deleteAll(models: Collection<T>): Completable = fromCallable {
-        modelAdapter.deleteAll(models)
-        null
-    }
 
     fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Completable =
             fromCallable {

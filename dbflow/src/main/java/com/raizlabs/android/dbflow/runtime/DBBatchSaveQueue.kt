@@ -3,7 +3,6 @@ package com.raizlabs.android.dbflow.runtime
 import android.os.Looper
 import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowLog
-import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.database.transaction.ProcessModelTransaction
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
@@ -48,10 +47,7 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
     private var emptyTransactionListener: Runnable? = null
 
     private val modelSaver = processModel<Any?> { model, _ ->
-        (model as? Model)?.save() ?: if (model != null) {
-            val modelClass = model.javaClass
-            FlowManager.getModelAdapter(modelClass).save(model)
-        }
+        (model as? Model)?.save(databaseDefinition) ?: model?.save(databaseDefinition)
     }
 
     private val successCallback = transactionSuccess<Unit> { transaction, result -> successListener?.onSuccess(transaction, result) }
