@@ -11,6 +11,7 @@ import com.raizlabs.android.dbflow.query.NameAlias
 import com.raizlabs.android.dbflow.query.and
 import com.raizlabs.android.dbflow.query.begin
 import com.raizlabs.android.dbflow.query.cast
+import com.raizlabs.android.dbflow.query.columnValues
 import com.raizlabs.android.dbflow.query.createTrigger
 import com.raizlabs.android.dbflow.query.insert
 import com.raizlabs.android.dbflow.query.insertOn

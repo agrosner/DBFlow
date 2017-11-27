@@ -326,13 +326,15 @@ constructor(processorManager: ProcessorManager, element: Element,
             if (isNonPrimitiveTypeConverter) {
                 val codeBlock = CodeBlock.builder()
                 codeBlock.add("new \$T(\$T.class, \$S, true,", propParam, tableClass, columnName)
-                codeBlock.add("\nnew \$T() {" +
-                        "\n@Override" +
-                        "\npublic \$T getTypeConverter(Class<?> modelClass) {" +
-                        "\n  \$T adapter = (\$T) \$T.getInstanceAdapter(modelClass);" +
-                        "\nreturn adapter.\$L;" +
-                        "\n}" +
-                        "\n})", ClassNames.TYPE_CONVERTER_GETTER, ClassNames.TYPE_CONVERTER,
+                codeBlock.add("""
+                    new ${"$"}T() {
+                    @Override
+                    public ${"$"}T getTypeConverter(Class<?> modelClass) {
+                        ${"$"}T adapter = (${"$"}T) ${"$"}T.getInstanceAdapter(modelClass);
+                        return adapter.${"$"}L;
+                    }
+                    })""",
+                        ClassNames.TYPE_CONVERTER_GETTER, ClassNames.TYPE_CONVERTER,
                         baseTableDefinition.outputClassName, baseTableDefinition.outputClassName,
                         ClassNames.FLOW_MANAGER,
                         (wrapperAccessor as TypeConverterScopeColumnAccessor).typeConverterFieldName)

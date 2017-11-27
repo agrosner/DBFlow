@@ -22,6 +22,7 @@ object ClassNames {
     val CONFIG = BASE_PACKAGE + ".config"
     val RUNTIME = BASE_PACKAGE + ".runtime"
     val SAVEABLE = ADAPTER + ".saveable"
+    val PROVIDER = BASE_PACKAGE + ".provider"
 
     val DATABASE_HOLDER = ClassName.get(CONFIG, "DatabaseHolder")
     val FLOW_MANAGER = ClassName.get(CONFIG, "FlowManager")
@@ -65,11 +66,11 @@ object ClassNames {
 
     val ICONDITIONAL = ClassName.get(QUERY_PACKAGE, "IConditional")
 
-    val BASE_CONTENT_PROVIDER = ClassName.get(RUNTIME, "BaseContentProvider")
+    val BASE_CONTENT_PROVIDER = ClassName.get(PROVIDER, "BaseContentProvider")
 
-    val BASE_MODEL = ClassName.get(ADAPTER, "BaseModel")
-    val MODEL_CACHE = ClassName.get(ADAPTER + ".cache", "ModelCache")
-    val MULTI_KEY_CACHE_CONVERTER = ClassName.get(ADAPTER + ".cache", "IMultiKeyCacheConverter")
+    val BASE_MODEL = ClassName.get(STRUCTURE, "BaseModel")
+    val MODEL_CACHE = ClassName.get(QUERY_PACKAGE + ".cache", "ModelCache")
+    val MULTI_KEY_CACHE_CONVERTER = ClassName.get(QUERY_PACKAGE + ".cache", "IMultiKeyCacheConverter")
 
     val CACHEABLE_MODEL_LOADER = ClassName.get(QUERIABLE, "CacheableModelLoader")
     val SINGLE_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleModelLoader")
