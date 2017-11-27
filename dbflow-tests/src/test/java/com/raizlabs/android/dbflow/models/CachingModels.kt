@@ -6,7 +6,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKey
 import com.raizlabs.android.dbflow.annotation.MultiCacheField
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
-import com.raizlabs.android.dbflow.structure.cache.IMultiKeyCacheConverter
+import com.raizlabs.android.dbflow.query.cache.IMultiKeyCacheConverter
 
 @Table(database = TestDatabase::class, cachingEnabled = true)
 class SimpleCacheObject(@PrimaryKey var id: String = "")

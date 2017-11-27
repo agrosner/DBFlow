@@ -4,6 +4,9 @@ import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.annotation.Collate
 import com.raizlabs.android.dbflow.assertEquals
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
+import com.raizlabs.android.dbflow.query.OrderBy
+import com.raizlabs.android.dbflow.query.collate
+import com.raizlabs.android.dbflow.query.nameAlias
 import org.junit.Test
 
 class OrderByTest : BaseUnitTest() {

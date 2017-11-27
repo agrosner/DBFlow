@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.rx.language
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
-import com.raizlabs.android.dbflow.sql.language.select
+import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.structure.save
 import org.junit.Assert.assertEquals
 import org.junit.Test

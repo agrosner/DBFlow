@@ -3,10 +3,10 @@ package com.raizlabs.android.dbflow.rx2.language
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.runtime.OnTableChangedListener
 import com.raizlabs.android.dbflow.runtime.TableNotifierRegister
-import com.raizlabs.android.dbflow.sql.language.From
-import com.raizlabs.android.dbflow.sql.language.Join
-import com.raizlabs.android.dbflow.sql.language.Where
-import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
+import com.raizlabs.android.dbflow.query.From
+import com.raizlabs.android.dbflow.query.Join
+import com.raizlabs.android.dbflow.query.Where
+import com.raizlabs.android.dbflow.query.ModelQueriable
 import com.raizlabs.android.dbflow.structure.ChangeAction
 
 import io.reactivex.FlowableEmitter

@@ -5,11 +5,11 @@ import android.content.Context
 import com.raizlabs.android.dbflow.config.DatabaseConfig
 import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.structure.database.BaseDatabaseHelper
-import com.raizlabs.android.dbflow.structure.database.DatabaseHelperDelegate
-import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
-import com.raizlabs.android.dbflow.structure.database.OpenHelper
+import com.raizlabs.android.dbflow.database.BaseDatabaseHelper
+import com.raizlabs.android.dbflow.database.DatabaseHelperDelegate
+import com.raizlabs.android.dbflow.database.DatabaseHelperListener
+import com.raizlabs.android.dbflow.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.database.OpenHelper
 
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteOpenHelper

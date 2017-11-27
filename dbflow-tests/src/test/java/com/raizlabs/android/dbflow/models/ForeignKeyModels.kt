@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.annotation.ForeignKeyReference
 import com.raizlabs.android.dbflow.annotation.NotNull
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
-import com.raizlabs.android.dbflow.structure.listener.LoadFromCursorListener
+import com.raizlabs.android.dbflow.query.LoadFromCursorListener
 
 /**
  * Example of simple foreign key object with one foreign key object.

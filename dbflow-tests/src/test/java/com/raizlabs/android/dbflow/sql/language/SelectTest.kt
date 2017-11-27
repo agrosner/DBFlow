@@ -7,6 +7,7 @@ import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.name
+import com.raizlabs.android.dbflow.query.select
 import org.junit.Test
 
 class SelectTest : BaseUnitTest() {

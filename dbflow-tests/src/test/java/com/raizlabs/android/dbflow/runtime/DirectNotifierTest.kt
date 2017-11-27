@@ -12,11 +12,11 @@ import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table
-import com.raizlabs.android.dbflow.sql.language.columnValues
-import com.raizlabs.android.dbflow.sql.language.delete
-import com.raizlabs.android.dbflow.sql.language.insert
-import com.raizlabs.android.dbflow.sql.language.set
-import com.raizlabs.android.dbflow.sql.language.update
+import com.raizlabs.android.dbflow.query.columnValues
+import com.raizlabs.android.dbflow.query.delete
+import com.raizlabs.android.dbflow.query.insert
+import com.raizlabs.android.dbflow.query.set
+import com.raizlabs.android.dbflow.query.update
 import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.delete
 import com.raizlabs.android.dbflow.structure.insert

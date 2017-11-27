@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.structure
 
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.database.DatabaseWrapper
 
 interface ReadOnlyModel {
 

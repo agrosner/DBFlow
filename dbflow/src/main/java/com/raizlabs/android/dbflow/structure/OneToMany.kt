@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.structure
 
-import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
-import com.raizlabs.android.dbflow.sql.queriable.list
+import com.raizlabs.android.dbflow.query.ModelQueriable
+import com.raizlabs.android.dbflow.query.list
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 

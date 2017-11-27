@@ -7,9 +7,16 @@ import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.models.TwoColumnModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
-import com.raizlabs.android.dbflow.sql.language.OrderBy.Companion.fromNameAlias
-import com.raizlabs.android.dbflow.sql.queriable.list
-import com.raizlabs.android.dbflow.sql.queriable.result
+import com.raizlabs.android.dbflow.query.OrderBy.Companion.fromNameAlias
+import com.raizlabs.android.dbflow.query.groupBy
+import com.raizlabs.android.dbflow.query.having
+import com.raizlabs.android.dbflow.query.nameAlias
+import com.raizlabs.android.dbflow.query.or
+import com.raizlabs.android.dbflow.query.select
+import com.raizlabs.android.dbflow.query.update
+import com.raizlabs.android.dbflow.query.where
+import com.raizlabs.android.dbflow.query.list
+import com.raizlabs.android.dbflow.query.result
 import org.junit.Assert.fail
 import org.junit.Test
 

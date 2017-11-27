@@ -2,10 +2,10 @@ package com.raizlabs.android.dbflow.sqlcipher
 
 import com.raizlabs.android.dbflow.BaseInstrumentedUnitTest
 import com.raizlabs.android.dbflow.config.database
-import com.raizlabs.android.dbflow.sql.language.delete
-import com.raizlabs.android.dbflow.sql.language.select
-import com.raizlabs.android.dbflow.sql.language.where
-import com.raizlabs.android.dbflow.sql.queriable.result
+import com.raizlabs.android.dbflow.query.delete
+import com.raizlabs.android.dbflow.query.select
+import com.raizlabs.android.dbflow.query.where
+import com.raizlabs.android.dbflow.query.result
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

@@ -1,12 +1,12 @@
 package com.raizlabs.android.dbflow.rx2.language
 
 import android.database.Cursor
-import com.raizlabs.android.dbflow.sql.language.Delete
-import com.raizlabs.android.dbflow.sql.language.Insert
-import com.raizlabs.android.dbflow.sql.language.Set
-import com.raizlabs.android.dbflow.sql.queriable.Queriable
+import com.raizlabs.android.dbflow.query.Delete
+import com.raizlabs.android.dbflow.query.Insert
+import com.raizlabs.android.dbflow.query.Set
+import com.raizlabs.android.dbflow.query.Queriable
 import com.raizlabs.android.dbflow.structure.Model
-import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
+import com.raizlabs.android.dbflow.database.DatabaseStatement
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single

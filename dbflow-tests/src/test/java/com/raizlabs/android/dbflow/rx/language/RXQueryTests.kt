@@ -5,11 +5,11 @@ import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
-import com.raizlabs.android.dbflow.sql.language.insert
-import com.raizlabs.android.dbflow.sql.language.property.Property
-import com.raizlabs.android.dbflow.sql.language.select
-import com.raizlabs.android.dbflow.sql.language.selectCountOf
-import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
+import com.raizlabs.android.dbflow.query.insert
+import com.raizlabs.android.dbflow.query.property.Property
+import com.raizlabs.android.dbflow.query.select
+import com.raizlabs.android.dbflow.query.selectCountOf
+import com.raizlabs.android.dbflow.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.save
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

@@ -1,10 +1,10 @@
 package com.raizlabs.android.dbflow.rx.language
 
-import com.raizlabs.android.dbflow.list.FlowCursorList
-import com.raizlabs.android.dbflow.list.FlowQueryList
-import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable
-import com.raizlabs.android.dbflow.sql.language.CursorResult
-import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
+import com.raizlabs.android.dbflow.query.list.FlowCursorList
+import com.raizlabs.android.dbflow.query.list.FlowQueryList
+import com.raizlabs.android.dbflow.query.BaseModelQueriable
+import com.raizlabs.android.dbflow.query.CursorResult
+import com.raizlabs.android.dbflow.query.ModelQueriable
 import rx.Emitter
 import rx.Observable
 import rx.Single

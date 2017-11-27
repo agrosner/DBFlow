@@ -1,7 +1,8 @@
 package com.raizlabs.android.dbflow.structure
 
+import com.raizlabs.android.dbflow.adapter.RetrievalAdapter
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.database.DatabaseWrapper
 
 /**
  * Description: A convenience class for [ReadOnlyModel].

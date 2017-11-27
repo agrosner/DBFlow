@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.structure
 
 import com.raizlabs.android.dbflow.annotation.QueryModel
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.database.DatabaseWrapper
 
 /**
  * Description: Provides a base class for objects that represent [QueryModel].

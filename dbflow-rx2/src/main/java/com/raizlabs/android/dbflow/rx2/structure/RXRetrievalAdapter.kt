@@ -1,8 +1,8 @@
 package com.raizlabs.android.dbflow.rx2.structure
 
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.structure.RetrievalAdapter
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.adapter.RetrievalAdapter
+import com.raizlabs.android.dbflow.database.DatabaseWrapper
 import io.reactivex.Completable
 import io.reactivex.Single
 

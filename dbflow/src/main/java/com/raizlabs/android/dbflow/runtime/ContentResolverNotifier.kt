@@ -3,10 +3,10 @@ package com.raizlabs.android.dbflow.runtime
 import android.content.ContentResolver
 
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.sql.getNotificationUri
-import com.raizlabs.android.dbflow.sql.language.SQLOperator
+import com.raizlabs.android.dbflow.getNotificationUri
+import com.raizlabs.android.dbflow.query.SQLOperator
 import com.raizlabs.android.dbflow.structure.ChangeAction
-import com.raizlabs.android.dbflow.structure.ModelAdapter
+import com.raizlabs.android.dbflow.adapter.ModelAdapter
 
 /**
  * The default use case, it notifies via the [ContentResolver] system.

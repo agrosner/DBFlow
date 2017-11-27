@@ -5,9 +5,9 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ModelView;
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery;
 import com.raizlabs.android.dbflow.models.Author_Table;
+import com.raizlabs.android.dbflow.query.SQLite;
 import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.language.SQLite;
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.database.DatabaseWrapper;
 
 @ModelView(database = TestDatabase.class)
 public class JavaModelView {

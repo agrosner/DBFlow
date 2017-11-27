@@ -7,7 +7,12 @@ import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.name
-import com.raizlabs.android.dbflow.structure.database.set
+import com.raizlabs.android.dbflow.query.NameAlias
+import com.raizlabs.android.dbflow.query.Operator
+import com.raizlabs.android.dbflow.query.OperatorGroup
+import com.raizlabs.android.dbflow.query.insert
+import com.raizlabs.android.dbflow.query.select
+import com.raizlabs.android.dbflow.database.set
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

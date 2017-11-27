@@ -6,6 +6,8 @@ import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
+import com.raizlabs.android.dbflow.query.set
+import com.raizlabs.android.dbflow.query.update
 import org.junit.Test
 
 class SetTest : BaseUnitTest() {

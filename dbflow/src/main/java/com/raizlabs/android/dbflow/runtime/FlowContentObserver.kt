@@ -10,11 +10,11 @@ import android.os.Build.VERSION_CODES
 import android.os.Handler
 import com.raizlabs.android.dbflow.config.DatabaseConfig
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.sql.TABLE_QUERY_PARAM
-import com.raizlabs.android.dbflow.sql.getNotificationUri
-import com.raizlabs.android.dbflow.sql.language.NameAlias
-import com.raizlabs.android.dbflow.sql.language.Operator
-import com.raizlabs.android.dbflow.sql.language.SQLOperator
+import com.raizlabs.android.dbflow.TABLE_QUERY_PARAM
+import com.raizlabs.android.dbflow.getNotificationUri
+import com.raizlabs.android.dbflow.query.NameAlias
+import com.raizlabs.android.dbflow.query.Operator
+import com.raizlabs.android.dbflow.query.SQLOperator
 import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.Model
 import java.util.*

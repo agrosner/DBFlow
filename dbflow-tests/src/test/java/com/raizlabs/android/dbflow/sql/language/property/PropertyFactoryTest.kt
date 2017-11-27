@@ -3,7 +3,9 @@ package com.raizlabs.android.dbflow.sql.language.property
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
-import com.raizlabs.android.dbflow.sql.language.select
+import com.raizlabs.android.dbflow.query.property.property
+import com.raizlabs.android.dbflow.query.property.propertyString
+import com.raizlabs.android.dbflow.query.select
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow
 import com.raizlabs.android.dbflow.annotation.Database
 import com.raizlabs.android.dbflow.annotation.Migration
 import com.raizlabs.android.dbflow.models.SimpleModel
-import com.raizlabs.android.dbflow.sql.migration.UpdateTableMigration
+import com.raizlabs.android.dbflow.migration.UpdateTableMigration
 
 /**
  * Description:

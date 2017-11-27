@@ -6,7 +6,8 @@ import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.models.Difficulty
 import com.raizlabs.android.dbflow.models.EnumTypeConverterModel_Table
 import com.raizlabs.android.dbflow.models.SimpleModel
-import com.raizlabs.android.dbflow.sql.language.NameAlias
+import com.raizlabs.android.dbflow.query.NameAlias
+import com.raizlabs.android.dbflow.query.property.TypeConvertedProperty
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.*

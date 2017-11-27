@@ -4,6 +4,7 @@ import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table
+import com.raizlabs.android.dbflow.query.property.IndexProperty
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

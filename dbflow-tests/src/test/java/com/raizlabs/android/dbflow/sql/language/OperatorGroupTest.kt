@@ -4,6 +4,11 @@ import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.assertEquals
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.name
+import com.raizlabs.android.dbflow.query.OperatorGroup
+import com.raizlabs.android.dbflow.query.and
+import com.raizlabs.android.dbflow.query.andAll
+import com.raizlabs.android.dbflow.query.or
+import com.raizlabs.android.dbflow.query.orAll
 import org.junit.Test
 
 class OperatorGroupTest : BaseUnitTest() {

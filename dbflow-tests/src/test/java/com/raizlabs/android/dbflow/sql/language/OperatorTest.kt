@@ -6,6 +6,10 @@ import com.raizlabs.android.dbflow.assertEquals
 import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
+import com.raizlabs.android.dbflow.query.and
+import com.raizlabs.android.dbflow.query.collate
+import com.raizlabs.android.dbflow.query.op
+import com.raizlabs.android.dbflow.query.select
 import org.junit.Test
 
 class OperatorTest : BaseUnitTest() {

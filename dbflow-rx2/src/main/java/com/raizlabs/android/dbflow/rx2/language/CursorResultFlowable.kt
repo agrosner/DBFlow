@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.rx2.language
 
 import com.raizlabs.android.dbflow.config.FlowLog
-import com.raizlabs.android.dbflow.sql.language.CursorResult
+import com.raizlabs.android.dbflow.query.CursorResult
 import io.reactivex.Flowable
 import io.reactivex.SingleObserver
 import io.reactivex.disposables.Disposable

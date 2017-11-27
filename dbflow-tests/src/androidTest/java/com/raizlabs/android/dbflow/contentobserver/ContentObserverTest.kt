@@ -9,10 +9,10 @@ import com.raizlabs.android.dbflow.config.tableName
 import com.raizlabs.android.dbflow.contentobserver.User_Table.id
 import com.raizlabs.android.dbflow.contentobserver.User_Table.name
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver
-import com.raizlabs.android.dbflow.sql.TABLE_QUERY_PARAM
-import com.raizlabs.android.dbflow.sql.getNotificationUri
-import com.raizlabs.android.dbflow.sql.language.SQLOperator
-import com.raizlabs.android.dbflow.sql.language.delete
+import com.raizlabs.android.dbflow.TABLE_QUERY_PARAM
+import com.raizlabs.android.dbflow.getNotificationUri
+import com.raizlabs.android.dbflow.query.SQLOperator
+import com.raizlabs.android.dbflow.query.delete
 import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.delete
 import com.raizlabs.android.dbflow.structure.insert
@@ -59,7 +59,6 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
 
     @Test
     fun testSpecificUrlUpdate() {
-        user.save()
         assertProperConditions(ChangeAction.UPDATE, { it.apply { age = 56 }.update() })
 
     }

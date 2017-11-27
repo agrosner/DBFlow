@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.rx.language
 
 import com.raizlabs.android.dbflow.config.FlowLog
-import com.raizlabs.android.dbflow.sql.language.CursorResult
+import com.raizlabs.android.dbflow.query.CursorResult
 import rx.Observable
 import rx.Producer
 import rx.Subscriber

@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.runtime
 
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.structure.ChangeAction
-import com.raizlabs.android.dbflow.structure.ModelAdapter
+import com.raizlabs.android.dbflow.adapter.ModelAdapter
 
 /**
  * Description: Distributes notifications to the [ModelNotifier].

@@ -6,6 +6,13 @@ import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table
 import com.raizlabs.android.dbflow.models.TwoColumnModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table
+import com.raizlabs.android.dbflow.query.crossJoin
+import com.raizlabs.android.dbflow.query.innerJoin
+import com.raizlabs.android.dbflow.query.leftOuterJoin
+import com.raizlabs.android.dbflow.query.naturalJoin
+import com.raizlabs.android.dbflow.query.on
+import com.raizlabs.android.dbflow.query.select
+import com.raizlabs.android.dbflow.query.using
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

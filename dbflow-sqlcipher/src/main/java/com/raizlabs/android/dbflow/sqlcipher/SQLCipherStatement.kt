@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.sqlcipher
 
-import com.raizlabs.android.dbflow.structure.database.BaseDatabaseStatement
-import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
+import com.raizlabs.android.dbflow.database.BaseDatabaseStatement
+import com.raizlabs.android.dbflow.database.DatabaseStatement
 
 import net.sqlcipher.database.SQLiteStatement
 

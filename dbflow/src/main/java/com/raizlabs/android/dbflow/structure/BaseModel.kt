@@ -1,8 +1,9 @@
 package com.raizlabs.android.dbflow.structure
 
+import com.raizlabs.android.dbflow.adapter.ModelAdapter
 import com.raizlabs.android.dbflow.annotation.ColumnIgnore
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.database.DatabaseWrapper
 
 /**
  * Description: The base implementation of [Model]. It is recommended to use this class as

@@ -1,9 +1,9 @@
 package com.raizlabs.android.dbflow.config
 
-import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader
-import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader
-import com.raizlabs.android.dbflow.sql.saveable.ModelSaver
-import com.raizlabs.android.dbflow.structure.ModelAdapter
+import com.raizlabs.android.dbflow.adapter.queriable.ListModelLoader
+import com.raizlabs.android.dbflow.adapter.queriable.SingleModelLoader
+import com.raizlabs.android.dbflow.adapter.saveable.ModelSaver
+import com.raizlabs.android.dbflow.adapter.ModelAdapter
 
 /**
  * Description: Represents certain table configuration options. This allows you to easily specify

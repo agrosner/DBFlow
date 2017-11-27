@@ -1,10 +1,10 @@
 package com.raizlabs.android.dbflow.config
 
 import com.raizlabs.android.dbflow.isNotNullOrEmpty
-import com.raizlabs.android.dbflow.runtime.BaseTransactionManager
+import com.raizlabs.android.dbflow.transaction.BaseTransactionManager
 import com.raizlabs.android.dbflow.runtime.ModelNotifier
-import com.raizlabs.android.dbflow.structure.database.DatabaseHelperListener
-import com.raizlabs.android.dbflow.structure.database.OpenHelper
+import com.raizlabs.android.dbflow.database.DatabaseHelperListener
+import com.raizlabs.android.dbflow.database.OpenHelper
 import java.util.*
 
 /**

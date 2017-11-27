@@ -1,9 +1,9 @@
 package com.raizlabs.android.dbflow
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition
-import com.raizlabs.android.dbflow.runtime.BaseTransactionManager
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransactionQueue
-import com.raizlabs.android.dbflow.structure.database.transaction.Transaction
+import com.raizlabs.android.dbflow.transaction.BaseTransactionManager
+import com.raizlabs.android.dbflow.transaction.ITransactionQueue
+import com.raizlabs.android.dbflow.transaction.Transaction
 
 /**
  * Description: Executes all transactions on same thread for testing.

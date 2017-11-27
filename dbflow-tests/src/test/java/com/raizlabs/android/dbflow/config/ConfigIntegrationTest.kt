@@ -3,9 +3,9 @@ package com.raizlabs.android.dbflow.config
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.models.SimpleModel
-import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader
-import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader
-import com.raizlabs.android.dbflow.sql.saveable.ModelSaver
+import com.raizlabs.android.dbflow.adapter.queriable.ListModelLoader
+import com.raizlabs.android.dbflow.adapter.queriable.SingleModelLoader
+import com.raizlabs.android.dbflow.adapter.saveable.ModelSaver
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test

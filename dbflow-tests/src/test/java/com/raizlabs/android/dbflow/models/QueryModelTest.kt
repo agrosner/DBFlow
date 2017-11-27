@@ -6,10 +6,10 @@ import com.raizlabs.android.dbflow.config.database
 import com.raizlabs.android.dbflow.models.Author_Table.id
 import com.raizlabs.android.dbflow.models.Blog_Table.author_id
 import com.raizlabs.android.dbflow.models.Blog_Table.name
-import com.raizlabs.android.dbflow.sql.language.eq
-import com.raizlabs.android.dbflow.sql.language.innerJoin
-import com.raizlabs.android.dbflow.sql.language.on
-import com.raizlabs.android.dbflow.sql.language.select
+import com.raizlabs.android.dbflow.query.eq
+import com.raizlabs.android.dbflow.query.innerJoin
+import com.raizlabs.android.dbflow.query.on
+import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.structure.exists
 import com.raizlabs.android.dbflow.structure.save
 import org.junit.Assert.assertEquals

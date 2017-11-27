@@ -6,18 +6,18 @@ import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.quote
 import com.raizlabs.android.dbflow.runtime.ModelNotifier
 import com.raizlabs.android.dbflow.runtime.TableNotifierRegister
-import com.raizlabs.android.dbflow.sql.migration.Migration
+import com.raizlabs.android.dbflow.migration.Migration
 import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.BaseModelView
 import com.raizlabs.android.dbflow.structure.BaseQueryModel
-import com.raizlabs.android.dbflow.structure.InstanceAdapter
+import com.raizlabs.android.dbflow.adapter.InstanceAdapter
 import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration
 import com.raizlabs.android.dbflow.structure.Model
-import com.raizlabs.android.dbflow.structure.ModelAdapter
-import com.raizlabs.android.dbflow.structure.ModelViewAdapter
-import com.raizlabs.android.dbflow.structure.QueryModelAdapter
-import com.raizlabs.android.dbflow.structure.RetrievalAdapter
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.adapter.ModelAdapter
+import com.raizlabs.android.dbflow.adapter.ModelViewAdapter
+import com.raizlabs.android.dbflow.adapter.QueryModelAdapter
+import com.raizlabs.android.dbflow.adapter.RetrievalAdapter
+import com.raizlabs.android.dbflow.database.DatabaseWrapper
 import java.util.*
 import kotlin.reflect.KClass
 

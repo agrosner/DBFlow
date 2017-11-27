@@ -5,7 +5,13 @@ import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.config.databaseForTable
 import com.raizlabs.android.dbflow.models.SimpleCustomModel
 import com.raizlabs.android.dbflow.models.SimpleModel
-import com.raizlabs.android.dbflow.sql.queriable.cursorResult
+import com.raizlabs.android.dbflow.query.CursorResult
+import com.raizlabs.android.dbflow.query.select
+import com.raizlabs.android.dbflow.query.toCustomList
+import com.raizlabs.android.dbflow.query.toCustomListClose
+import com.raizlabs.android.dbflow.query.toCustomModel
+import com.raizlabs.android.dbflow.query.toCustomModelClose
+import com.raizlabs.android.dbflow.query.cursorResult
 import com.raizlabs.android.dbflow.structure.save
 import org.junit.Assert.*
 import org.junit.Before

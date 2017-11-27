@@ -4,8 +4,8 @@ import com.raizlabs.android.dbflow.annotation.ColumnIgnore
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.structure.BaseModel
 import com.raizlabs.android.dbflow.structure.InvalidDBConfiguration
-import com.raizlabs.android.dbflow.structure.ModelAdapter
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.adapter.ModelAdapter
+import com.raizlabs.android.dbflow.database.DatabaseWrapper
 
 import rx.Completable
 import rx.Single

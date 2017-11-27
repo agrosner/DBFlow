@@ -8,8 +8,9 @@ import com.raizlabs.android.dbflow.models.NumberModel
 import com.raizlabs.android.dbflow.models.NumberModel_Table.id
 import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.SimpleModel_Table.name
-import com.raizlabs.android.dbflow.sql.language.property.Property
-import com.raizlabs.android.dbflow.sql.language.property.eq
+import com.raizlabs.android.dbflow.query.set
+import com.raizlabs.android.dbflow.query.update
+import com.raizlabs.android.dbflow.query.property.Property
 import org.junit.Test
 
 class UpdateTest : BaseUnitTest() {

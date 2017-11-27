@@ -1,6 +1,9 @@
 package com.raizlabs.android.dbflow.sql.language
 
 import com.raizlabs.android.dbflow.BaseUnitTest
+import com.raizlabs.android.dbflow.query.NameAlias
+import com.raizlabs.android.dbflow.query.`as`
+import com.raizlabs.android.dbflow.query.nameAlias
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test

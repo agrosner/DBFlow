@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.runtime
 
 import com.raizlabs.android.dbflow.structure.ChangeAction
-import com.raizlabs.android.dbflow.structure.ModelAdapter
+import com.raizlabs.android.dbflow.adapter.ModelAdapter
 
 /**
  * Interface for defining how we notify model changes.

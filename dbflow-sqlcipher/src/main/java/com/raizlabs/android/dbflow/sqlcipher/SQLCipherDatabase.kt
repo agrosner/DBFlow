@@ -2,9 +2,9 @@ package com.raizlabs.android.dbflow.sqlcipher
 
 import android.content.ContentValues
 
-import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
-import com.raizlabs.android.dbflow.structure.database.FlowCursor
+import com.raizlabs.android.dbflow.database.DatabaseStatement
+import com.raizlabs.android.dbflow.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.database.FlowCursor
 
 import net.sqlcipher.database.SQLiteDatabase
 
