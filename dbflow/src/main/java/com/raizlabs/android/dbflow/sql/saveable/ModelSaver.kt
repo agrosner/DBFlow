@@ -17,11 +17,9 @@ open class ModelSaver<T : Any> {
     lateinit var modelAdapter: ModelAdapter<T>
 
     @Synchronized
-    fun save(model: T,
-             wrapper: DatabaseWrapper): Boolean {
-        return save(model, wrapper, modelAdapter.getInsertStatement(wrapper),
-                modelAdapter.getUpdateStatement(wrapper))
-    }
+    fun save(model: T, wrapper: DatabaseWrapper): Boolean =
+            save(model, wrapper, modelAdapter.getInsertStatement(wrapper),
+                    modelAdapter.getUpdateStatement(wrapper))
 
     @Synchronized
     fun save(model: T,
@@ -49,14 +47,12 @@ open class ModelSaver<T : Any> {
     @Synchronized
     fun update(model: T, wrapper: DatabaseWrapper): Boolean {
         val updateStatement = modelAdapter.getUpdateStatement(wrapper)
-        val success: Boolean
-        try {
-            success = update(model, wrapper, updateStatement)
+        return try {
+            update(model, wrapper, updateStatement)
         } finally {
             // since we generate an insert every time, we can safely close the statement here.
             updateStatement.close()
         }
-        return success
     }
 
     @Synchronized
@@ -73,14 +69,12 @@ open class ModelSaver<T : Any> {
 
     @Synchronized open fun insert(model: T, wrapper: DatabaseWrapper): Long {
         val insertStatement = modelAdapter.getInsertStatement(wrapper)
-        var result: Long = 0
-        try {
-            result = insert(model, insertStatement, wrapper)
+        return try {
+            insert(model, insertStatement, wrapper)
         } finally {
             // since we generate an insert every time, we can safely close the statement here.
             insertStatement.close()
         }
-        return result
     }
 
     @Synchronized open fun insert(model: T,
@@ -99,14 +93,12 @@ open class ModelSaver<T : Any> {
     @Synchronized
     fun delete(model: T, wrapper: DatabaseWrapper): Boolean {
         val deleteStatement = modelAdapter.getDeleteStatement(wrapper)
-        var success = false
-        try {
-            success = delete(model, deleteStatement, wrapper)
+        return try {
+            delete(model, deleteStatement, wrapper)
         } finally {
             // since we generate an insert every time, we can safely close the statement here.
             deleteStatement.close()
         }
-        return success
     }
 
     @Synchronized
