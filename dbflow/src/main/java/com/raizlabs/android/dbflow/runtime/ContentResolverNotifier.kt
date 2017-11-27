@@ -5,7 +5,7 @@ import android.content.ContentResolver
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.getNotificationUri
 import com.raizlabs.android.dbflow.sql.language.SQLOperator
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.ModelAdapter
 
 /**
@@ -17,7 +17,7 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter
 class ContentResolverNotifier(val authority: String) : ModelNotifier {
 
     override fun <T : Any> notifyModelChanged(model: T, adapter: ModelAdapter<T>,
-                                              action: BaseModel.Action) {
+                                              action: ChangeAction) {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.context.contentResolver
                     .notifyChange(getNotificationUri(authority,
@@ -27,7 +27,7 @@ class ContentResolverNotifier(val authority: String) : ModelNotifier {
         }
     }
 
-    override fun <T : Any> notifyTableChanged(table: Class<T>, action: BaseModel.Action) {
+    override fun <T : Any> notifyTableChanged(table: Class<T>, action: ChangeAction) {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.context.contentResolver
                     .notifyChange(getNotificationUri(authority, table, action,
@@ -44,7 +44,7 @@ class ContentResolverNotifier(val authority: String) : ModelNotifier {
         private var tableChangedListener: OnTableChangedListener? = null
 
         private val internalContentChangeListener = object : OnTableChangedListener {
-            override fun onTableChanged(table: Class<*>?, action: BaseModel.Action) {
+            override fun onTableChanged(table: Class<*>?, action: ChangeAction) {
                 tableChangedListener?.onTableChanged(table, action)
             }
         }

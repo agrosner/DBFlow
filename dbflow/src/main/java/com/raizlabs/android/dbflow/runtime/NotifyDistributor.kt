@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.runtime
 
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.ModelAdapter
 
 /**
@@ -15,7 +15,7 @@ class NotifyDistributor : ModelNotifier {
 
     override fun <T : Any> notifyModelChanged(model: T,
                                               adapter: ModelAdapter<T>,
-                                              action: BaseModel.Action) {
+                                              action: ChangeAction) {
         FlowManager.getModelNotifierForTable(adapter.modelClass)
                 .notifyModelChanged(model, adapter, action)
     }
@@ -24,7 +24,7 @@ class NotifyDistributor : ModelNotifier {
      * Notifies listeners of table-level changes from the SQLite-wrapper language.
      */
     override fun <T : Any> notifyTableChanged(table: Class<T>,
-                                              action: BaseModel.Action) {
+                                              action: ChangeAction) {
         FlowManager.getModelNotifierForTable(table).notifyTableChanged(table, action)
     }
 

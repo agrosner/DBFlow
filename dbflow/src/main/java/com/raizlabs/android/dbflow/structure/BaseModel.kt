@@ -20,37 +20,6 @@ open class BaseModel : Model {
     @delegate:Transient
     val modelAdapter: ModelAdapter<BaseModel> by lazy { FlowManager.getModelAdapter(javaClass) }
 
-    /**
-     * Specifies the Action that was taken when data changes
-     */
-    enum class Action {
-
-        /**
-         * The model called [Model.save]
-         */
-        SAVE,
-
-        /**
-         * The model called [Model.insert]
-         */
-        INSERT,
-
-        /**
-         * The model called [Model.update]
-         */
-        UPDATE,
-
-        /**
-         * The model called [Model.delete]
-         */
-        DELETE,
-
-        /**
-         * The model was changed. used in prior to [android.os.Build.VERSION_CODES.JELLY_BEAN_MR1]
-         */
-        CHANGE
-    }
-
     override fun load(wrapper: DatabaseWrapper) {
         modelAdapter.load(this, wrapper)
     }

@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.runtime
 
 import android.os.Build
 
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 
 /**
  * Interface for when a generic change on a table occurs.
@@ -16,5 +16,5 @@ interface OnTableChangedListener {
      * or higher.
      * @param action       The action that occurred.
      */
-    fun onTableChanged(table: Class<*>?, action: BaseModel.Action)
+    fun onTableChanged(table: Class<*>?, action: ChangeAction)
 }

@@ -12,7 +12,7 @@ import com.raizlabs.android.dbflow.sql.language.Operator
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup
 import com.raizlabs.android.dbflow.sql.language.SQLOperator
 import com.raizlabs.android.dbflow.stripQuotes
-import com.raizlabs.android.dbflow.structure.BaseModel.Action
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
@@ -34,7 +34,7 @@ val TABLE_QUERY_PARAM = "tableName"
  */
 fun getNotificationUri(contentAuthority: String,
                        modelClass: Class<*>,
-                       action: Action?,
+                       action: ChangeAction?,
                        conditions: Iterable<SQLOperator>?): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
             .authority(contentAuthority)
@@ -61,7 +61,7 @@ fun getNotificationUri(contentAuthority: String,
  */
 fun getNotificationUri(contentAuthority: String,
                        modelClass: Class<*>,
-                       action: Action?,
+                       action: ChangeAction?,
                        conditions: Array<SQLOperator>?): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
             .authority(contentAuthority)
@@ -88,7 +88,7 @@ fun getNotificationUri(contentAuthority: String,
 @JvmOverloads
 fun getNotificationUri(contentAuthority: String,
                        modelClass: Class<*>,
-                       action: Action?,
+                       action: ChangeAction?,
                        notifyKey: String = "",
                        notifyValue: Any? = null): Uri {
     var operator: Operator<Any>? = null

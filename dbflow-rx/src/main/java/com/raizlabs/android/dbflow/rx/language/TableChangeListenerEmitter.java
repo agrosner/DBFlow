@@ -10,7 +10,7 @@ import com.raizlabs.android.dbflow.sql.language.From;
 import com.raizlabs.android.dbflow.sql.language.Join;
 import com.raizlabs.android.dbflow.sql.language.Where;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
-import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.android.dbflow.structure.ChangeAction;
 
 import rx.Emitter;
 import rx.Subscription;
@@ -80,7 +80,7 @@ public class TableChangeListenerEmitter<TModel> implements Action1<Emitter<Model
         private final OnTableChangedListener onTableChangedListener
             = new OnTableChangedListener() {
             @Override
-            public void onTableChanged(@Nullable Class<?> table, @NonNull BaseModel.Action action) {
+            public void onTableChanged(@Nullable Class<?> table, @NonNull ChangeAction action) {
                 if (modelQueriable.getTable().equals(table)) {
                     modelQueriableEmitter.onNext(modelQueriable);
                 }

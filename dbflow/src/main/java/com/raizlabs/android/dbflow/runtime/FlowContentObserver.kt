@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.sql.getNotificationUri
 import com.raizlabs.android.dbflow.sql.language.NameAlias
 import com.raizlabs.android.dbflow.sql.language.Operator
 import com.raizlabs.android.dbflow.sql.language.SQLOperator
-import com.raizlabs.android.dbflow.structure.BaseModel.Action
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.Model
 import java.util.*
 import java.util.concurrent.CopyOnWriteArraySet
@@ -62,7 +62,7 @@ open class FlowContentObserver(private val contentAuthority: String,
          * @param primaryKeyValues The array of primary [SQLOperator] of what changed. Call [SQLOperator.columnName]
          * and [SQLOperator.value] to get each information.
          */
-        fun onModelStateChanged(table: Class<*>?, action: Action, primaryKeyValues: Array<SQLOperator>)
+        fun onModelStateChanged(table: Class<*>?, action: ChangeAction, primaryKeyValues: Array<SQLOperator>)
     }
 
     interface ContentChangeListener : OnModelStateChangedListener, OnTableChangedListener
@@ -108,7 +108,7 @@ open class FlowContentObserver(private val contentAuthority: String,
                     for (uri in tableUris) {
                         for (onTableChangedListener in onTableChangedListeners) {
                             onTableChangedListener.onTableChanged(registeredTables[uri.authority],
-                                    Action.valueOf(uri.fragment))
+                                    ChangeAction.valueOf(uri.fragment))
                         }
                     }
                     tableUris.clear()
@@ -194,8 +194,8 @@ open class FlowContentObserver(private val contentAuthority: String,
     }
 
     override fun onChange(selfChange: Boolean) {
-        modelChangeListeners.forEach { it.onModelStateChanged(null, Action.CHANGE, arrayOf()) }
-        onTableChangedListeners.forEach { it.onTableChanged(null, Action.CHANGE) }
+        modelChangeListeners.forEach { it.onModelStateChanged(null, ChangeAction.CHANGE, arrayOf()) }
+        onTableChangedListeners.forEach { it.onTableChanged(null, ChangeAction.CHANGE) }
     }
 
     @TargetApi(VERSION_CODES.JELLY_BEAN)
@@ -223,7 +223,7 @@ open class FlowContentObserver(private val contentAuthority: String,
                 }
 
         val table = registeredTables[tableName]
-        var action = Action.valueOf(fragment)
+        var action = ChangeAction.valueOf(fragment)
         if (!isInTransaction) {
             modelChangeListeners.forEach { it.onModelStateChanged(table, action, columnsChanged.toTypedArray()) }
 
@@ -233,7 +233,7 @@ open class FlowContentObserver(private val contentAuthority: String,
         } else {
             // convert this uri to a CHANGE op if we don't care about individual changes.
             if (!notifyAllUris) {
-                action = Action.CHANGE
+                action = ChangeAction.CHANGE
                 uri = getNotificationUri(contentAuthority, table!!, action)
             }
             synchronized(notificationUris) {

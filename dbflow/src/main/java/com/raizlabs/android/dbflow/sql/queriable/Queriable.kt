@@ -4,7 +4,7 @@ import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.language.Delete
 import com.raizlabs.android.dbflow.sql.language.Insert
 import com.raizlabs.android.dbflow.sql.language.Set
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.database.FlowCursor
@@ -15,7 +15,7 @@ import com.raizlabs.android.dbflow.structure.database.FlowCursor
  */
 interface Queriable : Query {
 
-    val primaryAction: BaseModel.Action
+    val primaryAction: ChangeAction
 
     /**
      * @return A cursor from the DB based on this query

@@ -17,7 +17,7 @@ import com.raizlabs.android.dbflow.sql.language.delete
 import com.raizlabs.android.dbflow.sql.language.insert
 import com.raizlabs.android.dbflow.sql.language.set
 import com.raizlabs.android.dbflow.sql.language.update
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.delete
 import com.raizlabs.android.dbflow.structure.insert
 import com.raizlabs.android.dbflow.structure.save
@@ -54,16 +54,16 @@ class DirectNotifierTest {
         DirectModelNotifier.get().registerForModelStateChanges(SimpleModel::class.java, modelChange)
 
         simpleModel.insert()
-        verify(modelChange).onModelChanged(simpleModel, BaseModel.Action.INSERT)
+        verify(modelChange).onModelChanged(simpleModel, ChangeAction.INSERT)
 
         simpleModel.update()
-        verify(modelChange).onModelChanged(simpleModel, BaseModel.Action.UPDATE)
+        verify(modelChange).onModelChanged(simpleModel, ChangeAction.UPDATE)
 
         simpleModel.save()
-        verify(modelChange, times(2)).onModelChanged(simpleModel, BaseModel.Action.UPDATE)
+        verify(modelChange, times(2)).onModelChanged(simpleModel, ChangeAction.UPDATE)
 
         simpleModel.delete()
-        verify(modelChange).onModelChanged(simpleModel, BaseModel.Action.DELETE)
+        verify(modelChange).onModelChanged(simpleModel, ChangeAction.DELETE)
     }
 
     @Test
@@ -74,15 +74,15 @@ class DirectNotifierTest {
 
             insert<SimpleModel>().columnValues(SimpleModel_Table.name to "name").executeInsert()
 
-            verify(modelChange).onTableChanged(SimpleModel::class.java, BaseModel.Action.INSERT)
+            verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.INSERT)
 
             (update<SimpleModel>() set SimpleModel_Table.name.eq("name2")).executeUpdateDelete()
 
-            verify(modelChange).onTableChanged(SimpleModel::class.java, BaseModel.Action.UPDATE)
+            verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.UPDATE)
 
             delete<SimpleModel>().executeUpdateDelete()
 
-            verify(modelChange).onTableChanged(SimpleModel::class.java, BaseModel.Action.DELETE)
+            verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.DELETE)
         }
     }
 

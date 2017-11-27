@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.sql.language
 import com.raizlabs.android.dbflow.quoteIfNeeded
 import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 
 /**
  * Description: The INDEXED BY part of a SELECT/UPDATE/DELETE
@@ -30,6 +30,6 @@ class IndexedBy<TModel : Any>
             append(" ")
         }
 
-    override val primaryAction: BaseModel.Action
+    override val primaryAction: ChangeAction
         get() = whereBase.primaryAction
 }

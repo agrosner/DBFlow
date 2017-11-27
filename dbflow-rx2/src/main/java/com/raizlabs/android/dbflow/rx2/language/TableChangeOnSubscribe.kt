@@ -7,7 +7,7 @@ import com.raizlabs.android.dbflow.sql.language.From
 import com.raizlabs.android.dbflow.sql.language.Join
 import com.raizlabs.android.dbflow.sql.language.Where
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 
 import io.reactivex.FlowableEmitter
 import io.reactivex.FlowableOnSubscribe
@@ -24,7 +24,7 @@ class TableChangeOnSubscribe<T : Any>(private val modelQueriable: ModelQueriable
     private var flowableEmitter: FlowableEmitter<ModelQueriable<T>>? = null
 
     private val onTableChangedListener = object : OnTableChangedListener {
-        override fun onTableChanged(table: Class<*>?, action: BaseModel.Action) {
+        override fun onTableChanged(table: Class<*>?, action: ChangeAction) {
             if (modelQueriable.table == table) {
                 flowableEmitter!!.onNext(modelQueriable)
             }

@@ -6,9 +6,8 @@ import com.raizlabs.android.dbflow.appendArray
 import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
-import kotlin.reflect.KClass
 
 /**
  * Description: The SQLite INSERT command
@@ -85,8 +84,8 @@ internal constructor(databaseWrapper: DatabaseWrapper,
             return queryBuilder.toString()
         }
 
-    override val primaryAction: BaseModel.Action
-        get() = BaseModel.Action.INSERT
+    override val primaryAction: ChangeAction
+        get() = ChangeAction.INSERT
 
     /**
      * The optional columns to specify. If specified, the values length must correspond to these columns, and

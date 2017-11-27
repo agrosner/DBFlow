@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.sql.saveable
 
 import android.content.ContentValues
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.ModelAdapter
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
@@ -36,7 +36,7 @@ open class ModelSaver<T : Any> {
         }
 
         if (exists) {
-            NotifyDistributor().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE)
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.SAVE)
         }
 
         // return successful store into db.
@@ -60,7 +60,7 @@ open class ModelSaver<T : Any> {
         modelAdapter.bindToUpdateStatement(databaseStatement, model)
         val successful = databaseStatement.executeUpdateDelete() != 0L
         if (successful) {
-            NotifyDistributor().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE)
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.UPDATE)
         }
         return successful
     }
@@ -83,7 +83,7 @@ open class ModelSaver<T : Any> {
         val id = insertStatement.executeInsert()
         if (id > INSERT_FAILED) {
             modelAdapter.updateAutoIncrement(model, id)
-            NotifyDistributor().notifyModelChanged(model, modelAdapter, BaseModel.Action.INSERT)
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.INSERT)
         }
         return id
     }
@@ -108,7 +108,7 @@ open class ModelSaver<T : Any> {
 
         val success = deleteStatement.executeUpdateDelete() != 0L
         if (success) {
-            NotifyDistributor().notifyModelChanged(model, modelAdapter, BaseModel.Action.DELETE)
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.DELETE)
         }
         modelAdapter.updateAutoIncrement(model, 0)
         return success

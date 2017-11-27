@@ -13,7 +13,7 @@ import com.raizlabs.android.dbflow.sql.TABLE_QUERY_PARAM
 import com.raizlabs.android.dbflow.sql.getNotificationUri
 import com.raizlabs.android.dbflow.sql.language.SQLOperator
 import com.raizlabs.android.dbflow.sql.language.delete
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.delete
 import com.raizlabs.android.dbflow.structure.insert
 import com.raizlabs.android.dbflow.structure.save
@@ -42,41 +42,41 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
         val conditionGroup = FlowManager.getModelAdapter(User::class.java)
                 .getPrimaryConditionClause(user)
         val uri = getNotificationUri(contentUri,
-                User::class.java, BaseModel.Action.DELETE,
+                User::class.java, ChangeAction.DELETE,
                 conditionGroup.conditions.toTypedArray())
 
         assertEquals(uri.authority, contentUri)
         assertEquals(tableName<User>(), uri.getQueryParameter(TABLE_QUERY_PARAM))
-        assertEquals(uri.fragment, BaseModel.Action.DELETE.name)
+        assertEquals(uri.fragment, ChangeAction.DELETE.name)
         assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(id.query))), "5")
         assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(name.query))), "Something")
     }
 
     @Test
     fun testSpecificUrlInsert() {
-        assertProperConditions(BaseModel.Action.INSERT, { it.insert() })
+        assertProperConditions(ChangeAction.INSERT, { it.insert() })
     }
 
     @Test
     fun testSpecificUrlUpdate() {
         user.save()
-        assertProperConditions(BaseModel.Action.UPDATE, { it.apply { age = 56 }.update() })
+        assertProperConditions(ChangeAction.UPDATE, { it.apply { age = 56 }.update() })
 
     }
 
     @Test
     fun testSpecificUrlSave() {
         // insert on SAVE
-        assertProperConditions(BaseModel.Action.INSERT, { it.apply { age = 57 }.save() })
+        assertProperConditions(ChangeAction.INSERT, { it.apply { age = 57 }.save() })
     }
 
     @Test
     fun testSpecificUrlDelete() {
         user.save()
-        assertProperConditions(BaseModel.Action.DELETE, { it.delete() })
+        assertProperConditions(ChangeAction.DELETE, { it.delete() })
     }
 
-    private fun assertProperConditions(action: BaseModel.Action, userFunc: (User) -> Unit) {
+    private fun assertProperConditions(action: ChangeAction, userFunc: (User) -> Unit) {
         val contentObserver = FlowContentObserver(contentUri)
         val countDownLatch = CountDownLatch(1)
         val mockOnModelStateChangedListener = MockOnModelStateChangedListener(countDownLatch)
@@ -101,11 +101,11 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
     class MockOnModelStateChangedListener(val countDownLatch: CountDownLatch)
         : FlowContentObserver.OnModelStateChangedListener {
 
-        var action: BaseModel.Action? = null
+        var action: ChangeAction? = null
         var operators: Array<SQLOperator>? = null
 
 
-        override fun onModelStateChanged(table: Class<*>?, action: BaseModel.Action,
+        override fun onModelStateChanged(table: Class<*>?, action: ChangeAction,
                                          primaryKeyValues: Array<SQLOperator>) {
             this.action = action
             operators = primaryKeyValues

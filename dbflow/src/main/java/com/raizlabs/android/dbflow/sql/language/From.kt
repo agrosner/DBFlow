@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.language.Join.JoinType
 import com.raizlabs.android.dbflow.sql.language.property.IndexProperty
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import java.util.*
 import kotlin.collections.Set as KSet
@@ -39,8 +39,8 @@ internal constructor(
      */
     private val joins = ArrayList<Join<*, *>>()
 
-    override val primaryAction: BaseModel.Action
-        get() = if (queryBuilderBase is Delete) BaseModel.Action.DELETE else BaseModel.Action.CHANGE
+    override val primaryAction: ChangeAction
+        get() = if (queryBuilderBase is Delete) ChangeAction.DELETE else ChangeAction.CHANGE
 
     override val query: String
         get() {

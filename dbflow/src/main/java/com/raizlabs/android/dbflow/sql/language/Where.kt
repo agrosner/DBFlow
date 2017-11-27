@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
 import com.raizlabs.android.dbflow.appendQualifier
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.database.FlowCursor
 import java.util.*
 
@@ -44,7 +44,7 @@ internal constructor(
     private var limit = VALUE_UNSET
     private var offset = VALUE_UNSET
 
-    override val primaryAction: BaseModel.Action
+    override val primaryAction: ChangeAction
         get() = whereBase.primaryAction
 
     override val query: String

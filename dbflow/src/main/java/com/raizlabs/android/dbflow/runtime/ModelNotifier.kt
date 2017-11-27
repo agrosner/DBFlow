@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.runtime
 
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.ModelAdapter
 
 /**
@@ -8,9 +8,9 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter
  */
 interface ModelNotifier {
 
-    fun <T : Any> notifyModelChanged(model: T, adapter: ModelAdapter<T>, action: BaseModel.Action)
+    fun <T : Any> notifyModelChanged(model: T, adapter: ModelAdapter<T>, action: ChangeAction)
 
-    fun <T : Any> notifyTableChanged(table: Class<T>, action: BaseModel.Action)
+    fun <T : Any> notifyTableChanged(table: Class<T>, action: ChangeAction)
 
     fun newRegister(): TableNotifierRegister
 }

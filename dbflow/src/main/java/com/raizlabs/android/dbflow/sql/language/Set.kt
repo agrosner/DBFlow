@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.sql.language
 import android.content.ContentValues
 import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.addContentValues
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 /**
@@ -19,8 +19,8 @@ class Set<T : Any> internal constructor(
     override val query: String
         get() = " ${queryBuilderBase.query}SET ${operatorGroup.query} "
 
-    override val primaryAction: BaseModel.Action
-        get() = BaseModel.Action.UPDATE
+    override val primaryAction: ChangeAction
+        get() = ChangeAction.UPDATE
 
     /**
      * Specifies a varg of conditions to append to this SET

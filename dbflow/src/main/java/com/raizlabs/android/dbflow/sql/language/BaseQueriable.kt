@@ -5,7 +5,7 @@ import com.raizlabs.android.dbflow.config.FlowLog
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor
 import com.raizlabs.android.dbflow.sql.longForQuery
 import com.raizlabs.android.dbflow.sql.queriable.Queriable
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatementWrapper
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
@@ -21,7 +21,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
          */
         val table: Class<TModel>) : Queriable, Actionable {
 
-    abstract override val primaryAction: BaseModel.Action
+    abstract override val primaryAction: ChangeAction
 
     override fun longValue(): Long {
         try {
@@ -39,7 +39,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
     override fun hasData(): Boolean = longValue() > 0
 
     override fun query(): FlowCursor? {
-        if (primaryAction == BaseModel.Action.INSERT) {
+        if (primaryAction == ChangeAction.INSERT) {
             // inserting, let's compile and insert
             val databaseStatement = compileStatement()
             databaseStatement.executeInsert()

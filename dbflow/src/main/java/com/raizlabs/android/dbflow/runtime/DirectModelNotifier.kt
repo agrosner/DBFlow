@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.runtime
 
 import com.raizlabs.android.dbflow.config.DatabaseConfig
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.ModelAdapter
 import java.util.*
 
@@ -24,7 +24,7 @@ private constructor() : ModelNotifier {
 
     interface OnModelStateChangedListener<in T> {
 
-        fun onModelChanged(model: T, action: BaseModel.Action)
+        fun onModelChanged(model: T, action: ChangeAction)
 
     }
 
@@ -39,13 +39,13 @@ private constructor() : ModelNotifier {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> notifyModelChanged(model: T, adapter: ModelAdapter<T>,
-                                              action: BaseModel.Action) {
+                                              action: ChangeAction) {
         modelChangedListenerMap[adapter.modelClass]?.forEach { listener ->
             (listener as OnModelStateChangedListener<T>).onModelChanged(model, action)
         }
     }
 
-    override fun <T : Any> notifyTableChanged(table: Class<T>, action: BaseModel.Action) {
+    override fun <T : Any> notifyTableChanged(table: Class<T>, action: ChangeAction) {
         tableChangedListenerMap[table]?.forEach { listener -> listener.onTableChanged(table, action) }
     }
 
@@ -104,7 +104,7 @@ private constructor() : ModelNotifier {
         private var modelChangedListener: OnTableChangedListener? = null
 
         private val internalChangeListener = object : OnTableChangedListener {
-            override fun onTableChanged(table: Class<*>?, action: BaseModel.Action) {
+            override fun onTableChanged(table: Class<*>?, action: ChangeAction) {
                 modelChangedListener?.onTableChanged(table, action)
             }
         }

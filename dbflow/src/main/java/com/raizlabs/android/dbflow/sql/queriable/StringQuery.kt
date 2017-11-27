@@ -4,7 +4,7 @@ import android.database.sqlite.SQLiteDatabase
 import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable
 import com.raizlabs.android.dbflow.sql.language.Delete
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.database.FlowCursor
 
@@ -28,8 +28,8 @@ class StringQuery<T : Any>
     private var args: Array<String>? = null
 
     override// we don't explicitly know the change, but something changed.
-    val primaryAction: BaseModel.Action
-        get() = BaseModel.Action.CHANGE
+    val primaryAction: ChangeAction
+        get() = ChangeAction.CHANGE
 
     override fun query(): FlowCursor? = databaseWrapper.rawQuery(query, args)
 

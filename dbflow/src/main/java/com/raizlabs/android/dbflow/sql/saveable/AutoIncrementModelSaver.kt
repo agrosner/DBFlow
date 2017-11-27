@@ -2,7 +2,7 @@ package com.raizlabs.android.dbflow.sql.saveable
 
 import com.raizlabs.android.dbflow.config.FlowLog
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor
-import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
@@ -28,7 +28,7 @@ class AutoIncrementModelSaver<T : Any> : ModelSaver<T>() {
             id = insertStatement.executeInsert()
             if (id > ModelSaver.INSERT_FAILED) {
                 modelAdapter.updateAutoIncrement(model, id)
-                NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.INSERT)
+                NotifyDistributor.get().notifyModelChanged(model, modelAdapter, ChangeAction.INSERT)
             }
         } finally {
             // since we generate an insert every time, we can safely close the statement here.
