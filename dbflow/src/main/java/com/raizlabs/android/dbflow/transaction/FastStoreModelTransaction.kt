@@ -1,10 +1,15 @@
 package com.raizlabs.android.dbflow.transaction
 
-import com.raizlabs.android.dbflow.config.modelAdapter
 import com.raizlabs.android.dbflow.adapter.InternalAdapter
-import com.raizlabs.android.dbflow.structure.Model
+import com.raizlabs.android.dbflow.config.modelAdapter
 import com.raizlabs.android.dbflow.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.structure.Model
 import java.util.*
+
+/**
+ * Description: Simple interface for acting on a model in a Transaction or list of [Model]
+ */
+private typealias ProcessModelList<TModel> = (List<TModel>, InternalAdapter<TModel>, DatabaseWrapper) -> Unit
 
 /**
  * Description: Similiar to [ProcessModelTransaction] in that it allows you to store a [List] of
@@ -17,20 +22,6 @@ class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TM
     internal val processModelList: ProcessModelList<TModel>
     internal val internalAdapter: InternalAdapter<TModel>
 
-    /**
-     * Description: Simple interface for acting on a model in a Transaction or list of [Model]
-     */
-    internal interface ProcessModelList<TModel> {
-
-        /**
-         * Called when processing models
-         *
-         * @param modelList The model list to process
-         */
-        fun processModel(modelList: List<TModel>, adapter: InternalAdapter<TModel>,
-                         wrapper: DatabaseWrapper)
-    }
-
     init {
         models = builder.models
         processModelList = builder.processModelList
@@ -39,7 +30,7 @@ class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TM
 
     override fun execute(databaseWrapper: DatabaseWrapper) {
         if (models != null) {
-            processModelList.processModel(models, internalAdapter, databaseWrapper)
+            processModelList(models, internalAdapter, databaseWrapper)
         }
     }
 
@@ -48,8 +39,8 @@ class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TM
      *
      * @param <TModel>
     </TModel> */
-    class Builder<TModel> internal constructor(internal val processModelList: ProcessModelList<TModel>,
-                                               internal val internalAdapter: InternalAdapter<TModel>) {
+    class Builder<TModel> internal constructor(internal val internalAdapter: InternalAdapter<TModel>,
+                                               internal val processModelList: ProcessModelList<TModel>) {
         internal var models: MutableList<TModel> = ArrayList()
 
         fun add(model: TModel) = apply {
@@ -83,40 +74,21 @@ class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TM
     companion object {
 
         @JvmStatic
-        fun <TModel> saveBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> {
-            return Builder(object : ProcessModelList<TModel> {
-                override fun processModel(tModels: List<TModel>, adapter: InternalAdapter<TModel>, wrapper: DatabaseWrapper) {
-                    adapter.saveAll(tModels, wrapper)
-                }
-            }, internalAdapter)
-        }
+        fun <TModel> saveBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
+                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.saveAll(tModels, wrapper) }
 
         @JvmStatic
-        fun <TModel> insertBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> {
-            return Builder(object : ProcessModelList<TModel> {
-                override fun processModel(tModels: List<TModel>, adapter: InternalAdapter<TModel>, wrapper: DatabaseWrapper) {
-                    adapter.insertAll(tModels, wrapper)
-                }
-            }, internalAdapter)
-        }
+        fun <TModel> insertBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
+                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.insertAll(tModels, wrapper) }
+
 
         @JvmStatic
-        fun <TModel> updateBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> {
-            return Builder(object : ProcessModelList<TModel> {
-                override fun processModel(tModels: List<TModel>, adapter: InternalAdapter<TModel>, wrapper: DatabaseWrapper) {
-                    adapter.updateAll(tModels, wrapper)
-                }
-            }, internalAdapter)
-        }
+        fun <TModel> updateBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
+                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.updateAll(tModels, wrapper) }
 
         @JvmStatic
-        fun <TModel> deleteBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> {
-            return Builder(object : ProcessModelList<TModel> {
-                override fun processModel(tModels: List<TModel>, adapter: InternalAdapter<TModel>, wrapper: DatabaseWrapper) {
-                    adapter.deleteAll(tModels, wrapper)
-                }
-            }, internalAdapter)
-        }
+        fun <TModel> deleteBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
+                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.deleteAll(tModels, wrapper) }
     }
 }
 
@@ -125,3 +97,5 @@ inline fun <reified T : Any> Collection<T>.fastSave() = FastStoreModelTransactio
 inline fun <reified T : Any> Collection<T>.fastInsert() = FastStoreModelTransaction.insertBuilder(modelAdapter<T>()).addAll(this)
 
 inline fun <reified T : Any> Collection<T>.fastUpdate() = FastStoreModelTransaction.updateBuilder(modelAdapter<T>()).addAll(this)
+
+inline fun <reified T : Any> Collection<T>.fastDelete() = FastStoreModelTransaction.deleteBuilder(modelAdapter<T>()).addAll(this)
