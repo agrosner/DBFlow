@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.sql.saveable
 
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
@@ -24,49 +25,46 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
 
     @Synchronized
     open fun insertAll(tableCollection: Collection<T>,
-                       wrapper: DatabaseWrapper) {
-        // skip if empty.
-        if (tableCollection.isEmpty()) {
-            return
-        }
-
-        val statement = modelSaver.modelAdapter.getInsertStatement(wrapper)
-        try {
-            tableCollection.forEach { modelSaver.insert(it, statement, wrapper) }
-        } finally {
-            statement.close()
+                       wrapper: DatabaseWrapper): Long {
+        return applyAndCount(tableCollection, wrapper,
+                modelSaver.modelAdapter.getInsertStatement(wrapper)) { model, statement, databaseWrapper ->
+            modelSaver.insert(model, statement, databaseWrapper) > 0
         }
     }
 
     @Synchronized
     open fun updateAll(tableCollection: Collection<T>,
-                       wrapper: DatabaseWrapper) {
-        // skip if empty.
-        if (tableCollection.isEmpty()) {
-            return
-        }
-
-        val updateStatement = modelSaver.modelAdapter.getUpdateStatement(wrapper)
-        try {
-            tableCollection.forEach { modelSaver.update(it, wrapper, updateStatement) }
-        } finally {
-            updateStatement.close()
-        }
+                       wrapper: DatabaseWrapper): Long {
+        return applyAndCount(tableCollection, wrapper,
+                modelSaver.modelAdapter.getUpdateStatement(wrapper), modelSaver::update)
     }
 
     @Synchronized
     open fun deleteAll(tableCollection: Collection<T>,
-                       wrapper: DatabaseWrapper) {
+                       wrapper: DatabaseWrapper): Long {
+        return applyAndCount(tableCollection, wrapper,
+                modelSaver.modelAdapter.getDeleteStatement(wrapper), modelSaver::delete)
+    }
+
+    private inline fun applyAndCount(tableCollection: Collection<T>,
+                                     wrapper: DatabaseWrapper,
+                                     databaseStatement: DatabaseStatement,
+                                     crossinline fn: (T, DatabaseStatement, DatabaseWrapper) -> Boolean): Long {
         // skip if empty.
         if (tableCollection.isEmpty()) {
-            return
+            return 0L
         }
 
-        val deleteStatement = modelSaver.modelAdapter.getDeleteStatement(wrapper)
+        var count = 0L
         try {
-            tableCollection.forEach { modelSaver.delete(it, deleteStatement, wrapper) }
+            tableCollection.forEach {
+                if (fn(it, databaseStatement, wrapper)) {
+                    count++
+                }
+            }
         } finally {
-            deleteStatement.close()
+            databaseStatement.close()
         }
+        return count
     }
 }

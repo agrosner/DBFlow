@@ -1,5 +1,6 @@
 package com.raizlabs.android.dbflow.sql.saveable
 
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper
 
 /**
@@ -31,58 +32,51 @@ class CacheableListModelSaver<T : Any>(modelSaver: ModelSaver<T>) : ListModelSav
     }
 
     @Synchronized override fun insertAll(tableCollection: Collection<T>,
-                                         wrapper: DatabaseWrapper) {
-        // skip if empty.
-        if (tableCollection.isEmpty()) {
-            return
-        }
-
-        val modelSaver = modelSaver
-        val modelAdapter = modelSaver.modelAdapter
-        val statement = modelAdapter.getInsertStatement(wrapper)
-        try {
-            for (model in tableCollection) {
-                if (modelSaver.insert(model, statement, wrapper) > 0) {
-                    modelAdapter.storeModelInCache(model)
-                }
-            }
-        } finally {
-            statement.close()
+                                         wrapper: DatabaseWrapper): Long {
+        return applyAndCount(tableCollection, wrapper,
+                modelSaver.modelAdapter.getInsertStatement(wrapper),
+                modelSaver.modelAdapter::storeModelInCache) { model, statement, databaseWrapper ->
+            modelSaver.insert(model, statement, databaseWrapper) > 0
         }
     }
 
     @Synchronized override fun updateAll(tableCollection: Collection<T>,
-                                         wrapper: DatabaseWrapper) {
-        // skip if empty.
-        if (tableCollection.isEmpty()) {
-            return
-        }
-        val modelSaver = modelSaver
-        val modelAdapter = modelSaver.modelAdapter
-        val statement = modelAdapter.getUpdateStatement(wrapper)
-        try {
-            for (model in tableCollection) {
-                if (modelSaver.update(model, wrapper, statement)) {
-                    modelAdapter.storeModelInCache(model)
-                }
-            }
-        } finally {
-            statement.close()
-        }
+                                         wrapper: DatabaseWrapper): Long {
+        return applyAndCount(tableCollection, wrapper,
+                modelSaver.modelAdapter.getUpdateStatement(wrapper),
+                modelSaver.modelAdapter::storeModelInCache,
+                modelSaver::update)
     }
 
     @Synchronized override fun deleteAll(tableCollection: Collection<T>,
-                                         wrapper: DatabaseWrapper) {
+                                         wrapper: DatabaseWrapper): Long {
+        return applyAndCount(tableCollection, wrapper,
+                modelSaver.modelAdapter.getDeleteStatement(wrapper),
+                modelSaver.modelAdapter::removeModelFromCache,
+                modelSaver::delete)
+    }
+
+    private inline fun applyAndCount(tableCollection: Collection<T>,
+                                     wrapper: DatabaseWrapper,
+                                     databaseStatement: DatabaseStatement,
+                                     crossinline cacheFn: (T) -> Unit,
+                                     crossinline fn: (T, DatabaseStatement, DatabaseWrapper) -> Boolean): Long {
         // skip if empty.
         if (tableCollection.isEmpty()) {
-            return
+            return 0L
         }
 
-        val modelSaver = modelSaver
-        for (model in tableCollection) {
-            if (modelSaver.delete(model, wrapper)) {
-                modelSaver.modelAdapter.removeModelFromCache(model)
+        var count = 0L
+        try {
+            tableCollection.forEach {
+                if (fn(it, databaseStatement, wrapper)) {
+                    cacheFn(it)
+                    count++
+                }
             }
+        } finally {
+            databaseStatement.close()
         }
+        return count
     }
 }

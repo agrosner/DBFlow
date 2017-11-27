@@ -28,7 +28,7 @@ open class ModelSaver<T : Any> {
         var exists = modelAdapter.exists(model, wrapper)
 
         if (exists) {
-            exists = update(model, wrapper, updateStatement)
+            exists = update(model, updateStatement, wrapper)
         }
 
         if (!exists) {
@@ -47,7 +47,7 @@ open class ModelSaver<T : Any> {
     fun update(model: T, wrapper: DatabaseWrapper): Boolean {
         val updateStatement = modelAdapter.getUpdateStatement(wrapper)
         return try {
-            update(model, wrapper, updateStatement)
+            update(model, updateStatement, wrapper)
         } finally {
             // since we generate an insert every time, we can safely close the statement here.
             updateStatement.close()
@@ -55,8 +55,7 @@ open class ModelSaver<T : Any> {
     }
 
     @Synchronized
-    fun update(model: T, wrapper: DatabaseWrapper,
-               databaseStatement: DatabaseStatement): Boolean {
+    fun update(model: T, databaseStatement: DatabaseStatement, wrapper: DatabaseWrapper): Boolean {
         modelAdapter.saveForeignKeys(model, wrapper)
         modelAdapter.bindToUpdateStatement(databaseStatement, model)
         val successful = databaseStatement.executeUpdateDelete() != 0L
