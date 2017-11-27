@@ -84,3 +84,54 @@ inline suspend fun <reified M : Any> M.awaitLoad(databaseDefinition: DatabaseDef
         = suspendCancellableCoroutine<Unit> { continuation ->
     constructCoroutine(continuation, databaseDefinition) { load(databaseDefinition) }
 }
+
+/**
+ * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.
+ */
+inline suspend fun <reified T : Any, reified M : Collection<T>> M.awaitSave(databaseDefinition: DatabaseDefinition)
+        = suspendCancellableCoroutine<List<T>?> { continuation ->
+    constructFastCoroutine(continuation, databaseDefinition) { fastSave() }
+}
+
+/**
+ * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.
+ */
+inline suspend fun <reified T : Any, reified M : Collection<T>> M.awaitInsert(databaseDefinition: DatabaseDefinition)
+        = suspendCancellableCoroutine<List<T>?> { continuation ->
+    constructFastCoroutine(continuation, databaseDefinition) { fastInsert() }
+}
+
+/**
+ * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.
+ */
+inline suspend fun <reified T : Any, reified M : Collection<T>> M.awaitUpdate(databaseDefinition: DatabaseDefinition)
+        = suspendCancellableCoroutine<List<T>?> { continuation ->
+    constructFastCoroutine(continuation, databaseDefinition) { fastUpdate() }
+}
+
+/**
+ * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.
+ */
+inline suspend fun <reified T : Any, reified M : Collection<T>> M.awaitDelete(databaseDefinition: DatabaseDefinition)
+        = suspendCancellableCoroutine<List<T>?> { continuation ->
+    constructFastCoroutine(continuation, databaseDefinition) { fastDelete() }
+}
+
+
+inline fun <R : Any?> constructFastCoroutine(continuation: CancellableContinuation<List<R>?>,
+                                             databaseDefinition: DatabaseDefinition,
+                                             crossinline fn: () -> FastStoreModelTransaction.Builder<R>) {
+    val transaction = databaseDefinition.beginTransactionAsync(fn().build())
+            .success { _, result -> continuation.resume(result) }
+            .error { _, throwable ->
+                if (continuation.isCancelled) return@error
+                continuation.resumeWithException(throwable)
+            }.build()
+    transaction.execute()
+
+    continuation.invokeOnCompletion {
+        if (continuation.isCancelled) {
+            transaction.cancel()
+        }
+    }
+}
