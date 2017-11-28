@@ -54,7 +54,6 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
     var priority: Int = 0
 
     init {
-
         element.annotation<ModelView>()?.let { modelView ->
             try {
                 modelView.database

@@ -15,6 +15,7 @@ import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDe
 import com.raizlabs.android.dbflow.processor.utils.ElementUtility
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.processor.utils.annotation
+import com.raizlabs.android.dbflow.processor.utils.extractTypeNameFromAnnotation
 import com.raizlabs.android.dbflow.processor.utils.implementsClass
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -22,7 +23,6 @@ import com.squareup.javapoet.TypeSpec
 import java.util.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.MirroredTypeException
 
 /**
  * Description:
@@ -37,24 +37,14 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
     internal var methods: Array<MethodDefinition>
 
     init {
-
-        typeElement.annotation<QueryModel>()?.let { queryModel ->
-            try {
-                queryModel.database
-            } catch (mte: MirroredTypeException) {
-                databaseTypeName = TypeName.get(mte.typeMirror)
-            }
-        }
+        databaseTypeName = typeElement.extractTypeNameFromAnnotation<QueryModel> { it.database }
 
         elementClassName?.let { elementClassName -> databaseTypeName?.let { processorManager.addModelToDatabase(elementClassName, it) } }
 
-        if (element is TypeElement) {
-            implementsLoadFromCursorListener =
-                (element as TypeElement).implementsClass(manager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER)
-        }
+        implementsLoadFromCursorListener = (element as? TypeElement)
+                ?.implementsClass(manager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER) == true
 
-
-        methods = arrayOf<MethodDefinition>(LoadFromCursorMethod(this))
+        methods = arrayOf(LoadFromCursorMethod(this))
 
     }
 
@@ -94,7 +84,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         }
 
         methods.mapNotNull { it.methodSpec }
-            .forEach { typeBuilder.addMethod(it) }
+                .forEach { typeBuilder.addMethod(it) }
     }
 
     override fun createColumnDefinitions(typeElement: TypeElement) {

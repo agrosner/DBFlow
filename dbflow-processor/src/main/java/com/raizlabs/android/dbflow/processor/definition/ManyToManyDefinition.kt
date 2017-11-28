@@ -1,6 +1,16 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.grosner.kpoet.*
+import com.grosner.kpoet.L
+import com.grosner.kpoet.`@`
+import com.grosner.kpoet.`fun`
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.field
+import com.grosner.kpoet.final
+import com.grosner.kpoet.member
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.param
+import com.grosner.kpoet.public
+import com.grosner.kpoet.statement
 import com.raizlabs.android.dbflow.annotation.ForeignKey
 import com.raizlabs.android.dbflow.annotation.ManyToMany
 import com.raizlabs.android.dbflow.annotation.PrimaryKey
@@ -8,6 +18,7 @@ import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.annotation
+import com.raizlabs.android.dbflow.processor.utils.extractTypeNameFromAnnotation
 import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
 import com.raizlabs.android.dbflow.processor.utils.lower
 import com.raizlabs.android.dbflow.processor.utils.toTypeElement
@@ -48,14 +59,7 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
 
         sameTableReferenced = referencedTable == elementTypeName
 
-        element.annotation<Table>()?.let { table ->
-            try {
-                table.database
-            } catch (mte: MirroredTypeException) {
-                databaseTypeName = TypeName.get(mte.typeMirror)
-            }
-        }
-
+        databaseTypeName = element.extractTypeNameFromAnnotation<Table> { it.database }
         if (!thisColumnName.isNullOrEmpty() && !referencedColumnName.isNullOrEmpty()
                 && thisColumnName == referencedColumnName) {
             manager.logError(ManyToManyDefinition::class, "The thisTableColumnName and referenceTableColumnName cannot be the same")

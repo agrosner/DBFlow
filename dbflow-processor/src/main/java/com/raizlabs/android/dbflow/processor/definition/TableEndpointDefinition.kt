@@ -6,11 +6,11 @@ import com.raizlabs.android.dbflow.annotation.provider.NotifyMethod
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.utils.annotation
+import com.raizlabs.android.dbflow.processor.utils.extractTypeNameFromAnnotation
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.element.PackageElement
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.MirroredTypeException
 
 /**
  * Description:
@@ -35,16 +35,7 @@ class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorM
     var isTopLevel = false
 
     init {
-
-        typeElement.annotation<TableEndpoint>()?.let { endpoint ->
-            tableName = endpoint.name
-
-            try {
-                endpoint.contentProvider
-            } catch (mte: MirroredTypeException) {
-                contentProviderName = TypeName.get(mte.typeMirror)
-            }
-        }
+        contentProviderName = typeElement.extractTypeNameFromAnnotation<TableEndpoint> { it.contentProvider }
 
         isTopLevel = typeElement.enclosingElement is PackageElement
 

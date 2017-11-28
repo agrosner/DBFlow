@@ -375,9 +375,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
             UpdateMethod(this, manager))
 
     init {
-
-        val provider = element.annotation<ContentProvider>()
-        if (provider != null) {
+        element.annotation<ContentProvider>()?.let { provider ->
             try {
                 provider.database
             } catch (mte: MirroredTypeException) {

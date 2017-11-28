@@ -3,10 +3,12 @@ package com.raizlabs.android.dbflow.processor.utils
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.ProcessorManager.Companion.manager
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.MirroredTypeException
 import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
 
@@ -109,3 +111,26 @@ fun ensureVisibleStatic(element: Element, typeElement: TypeElement,
     }
 }
 
+inline fun <reified A : Annotation>
+        Element.extractTypeNameFromAnnotation(invoker: (A) -> Unit): TypeName?
+        = annotation<A>()?.let { a ->
+    return@let try {
+        invoker(a)
+        null
+    } catch (mte: MirroredTypeException) {
+        TypeName.get(mte.typeMirror)
+    }
+}
+
+inline fun <reified A : Annotation>
+        Element.extractTypeNameFromAnnotation(invoker: (A) -> Unit,
+                                              exceptionHandler: (MirroredTypeException) -> Unit): TypeName?
+        = annotation<A>()?.let { a ->
+    return@let try {
+        invoker(a)
+        null
+    } catch (mte: MirroredTypeException) {
+        exceptionHandler(mte)
+        TypeName.get(mte.typeMirror)
+    }
+}
