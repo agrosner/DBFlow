@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.processor.utils.lower
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
-import java.util.*
 
 val modelBlock: CodeBlock = CodeBlock.of("model")
 
@@ -61,14 +60,14 @@ class VisibleScopeColumnAccessor(propertyName: String) : ColumnAccessor(property
         val codeBlock: CodeBlock.Builder = CodeBlock.builder()
         baseVariableName?.let { codeBlock.add("\$L.", baseVariableName) }
         return codeBlock.add("\$L = \$L", propertyName, existingBlock)
-            .build()
+                .build()
     }
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
         val codeBlock: CodeBlock.Builder = CodeBlock.builder()
         existingBlock?.let { codeBlock.add("\$L.", existingBlock) }
         return codeBlock.add(propertyName)
-            .build()
+                .build()
     }
 }
 
@@ -128,7 +127,7 @@ class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSette
 }
 
 class PackagePrivateScopeColumnAccessor(
-    propertyName: String, packageName: String, separator: String?, tableClassName: String)
+        propertyName: String, packageName: String, separator: String?, tableClassName: String)
     : ColumnAccessor(propertyName) {
 
     val helperClassName: ClassName
@@ -141,16 +140,16 @@ class PackagePrivateScopeColumnAccessor(
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {
         return CodeBlock.of("\$T.get\$L(\$L)", internalHelperClassName,
-            propertyName.capitalizeFirstLetter(),
-            existingBlock)
+                propertyName.capitalizeFirstLetter(),
+                existingBlock)
     }
 
     override fun set(existingBlock: CodeBlock?, baseVariableName: CodeBlock?,
                      isDefault: Boolean): CodeBlock {
         return CodeBlock.of("\$T.set\$L(\$L, \$L)", helperClassName,
-            propertyName.capitalizeFirstLetter(),
-            baseVariableName,
-            existingBlock)
+                propertyName.capitalizeFirstLetter(),
+                baseVariableName,
+                existingBlock)
     }
 
     companion object {
@@ -167,11 +166,7 @@ class PackagePrivateScopeColumnAccessor(
          * Ensures we only map and use a package private field generated access method if its necessary.
          */
         fun putElement(className: ClassName, elementName: String) {
-            var list: MutableList<String>? = methodWrittenMap[className]
-            if (list == null) {
-                list = ArrayList<String>()
-                methodWrittenMap.put(className, list)
-            }
+            val list = methodWrittenMap.getOrPut(className) { arrayListOf() }
             if (!list.contains(elementName)) {
                 list.add(elementName)
             }

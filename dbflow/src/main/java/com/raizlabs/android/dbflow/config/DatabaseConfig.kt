@@ -1,11 +1,10 @@
 package com.raizlabs.android.dbflow.config
 
-import com.raizlabs.android.dbflow.isNotNullOrEmpty
-import com.raizlabs.android.dbflow.transaction.BaseTransactionManager
-import com.raizlabs.android.dbflow.runtime.ModelNotifier
 import com.raizlabs.android.dbflow.database.DatabaseHelperListener
 import com.raizlabs.android.dbflow.database.OpenHelper
-import java.util.*
+import com.raizlabs.android.dbflow.isNotNullOrEmpty
+import com.raizlabs.android.dbflow.runtime.ModelNotifier
+import com.raizlabs.android.dbflow.transaction.BaseTransactionManager
 
 /**
  * Description:
@@ -60,7 +59,7 @@ class DatabaseConfig(
         internal var openHelperCreator: ((DatabaseDefinition, DatabaseHelperListener?) -> OpenHelper)? = null
         internal var transactionManagerCreator: ((DatabaseDefinition) -> BaseTransactionManager)? = null
         internal var helperListener: DatabaseHelperListener? = null
-        internal val tableConfigMap: MutableMap<Class<*>, TableConfig<*>> = HashMap()
+        internal val tableConfigMap: MutableMap<Class<*>, TableConfig<*>> = hashMapOf()
         internal var modelNotifier: ModelNotifier? = null
         internal var inMemory = false
         internal var databaseName: String? = null

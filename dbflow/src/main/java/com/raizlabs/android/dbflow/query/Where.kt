@@ -3,10 +3,9 @@ package com.raizlabs.android.dbflow.query
 import android.database.Cursor
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
 import com.raizlabs.android.dbflow.appendQualifier
+import com.raizlabs.android.dbflow.database.FlowCursor
 import com.raizlabs.android.dbflow.query.property.IProperty
 import com.raizlabs.android.dbflow.structure.ChangeAction
-import com.raizlabs.android.dbflow.database.FlowCursor
-import java.util.*
 
 /**
  * Description: Defines the SQL WHERE statement of the query.
@@ -31,9 +30,9 @@ internal constructor(
      */
     private val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause()
 
-    private val groupByList = ArrayList<NameAlias>()
+    private val groupByList = arrayListOf<NameAlias>()
 
-    private val orderByList = ArrayList<OrderBy>()
+    private val orderByList = arrayListOf<OrderBy>()
 
     /**
      * The SQL HAVING statement

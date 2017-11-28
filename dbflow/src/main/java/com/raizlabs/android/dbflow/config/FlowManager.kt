@@ -18,7 +18,6 @@ import com.raizlabs.android.dbflow.adapter.ModelViewAdapter
 import com.raizlabs.android.dbflow.adapter.QueryModelAdapter
 import com.raizlabs.android.dbflow.adapter.RetrievalAdapter
 import com.raizlabs.android.dbflow.database.DatabaseWrapper
-import java.util.*
 import kotlin.reflect.KClass
 
 /**
@@ -32,7 +31,7 @@ object FlowManager {
 
     private var globalDatabaseHolder = GlobalDatabaseHolder()
 
-    private val loadedModules = HashSet<Class<out DatabaseHolder>>()
+    private val loadedModules = hashSetOf<Class<out DatabaseHolder>>()
 
     private val DEFAULT_DATABASE_HOLDER_NAME = "GeneratedDatabaseHolder"
 

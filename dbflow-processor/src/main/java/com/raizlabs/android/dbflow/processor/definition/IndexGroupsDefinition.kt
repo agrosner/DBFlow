@@ -1,11 +1,15 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.grosner.kpoet.*
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`=`
+import com.grosner.kpoet.field
+import com.grosner.kpoet.final
+import com.grosner.kpoet.public
+import com.grosner.kpoet.static
 import com.raizlabs.android.dbflow.annotation.IndexGroup
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.squareup.javapoet.ParameterizedTypeName
-import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -17,7 +21,7 @@ class IndexGroupsDefinition(private val tableDefinition: TableDefinition, indexG
     val indexNumber = indexGroup.number
     val isUnique = indexGroup.unique
 
-    val columnDefinitionList: MutableList<ColumnDefinition> = ArrayList()
+    val columnDefinitionList: MutableList<ColumnDefinition> = arrayListOf()
 
     val fieldSpec
         get() = field(ParameterizedTypeName.get(ClassNames.INDEX_PROPERTY, tableDefinition.elementClassName),

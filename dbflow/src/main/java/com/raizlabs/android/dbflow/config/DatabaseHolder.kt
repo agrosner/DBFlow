@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.config
 
 import com.raizlabs.android.dbflow.converter.TypeConverter
-import java.util.*
 
 /**
  * Description: The base interface for interacting with all of the database and top-level data that's shared
@@ -9,15 +8,15 @@ import java.util.*
  */
 abstract class DatabaseHolder {
 
-    val databaseDefinitionMap: MutableMap<Class<*>, DatabaseDefinition> = HashMap()
-    val databaseNameMap: MutableMap<String, DatabaseDefinition> = HashMap()
-    val databaseClassLookupMap: MutableMap<Class<*>, DatabaseDefinition> = HashMap()
+    val databaseDefinitionMap: MutableMap<Class<*>, DatabaseDefinition> = hashMapOf()
+    val databaseNameMap: MutableMap<String, DatabaseDefinition> = hashMapOf()
+    val databaseClassLookupMap: MutableMap<Class<*>, DatabaseDefinition> = hashMapOf()
 
     @JvmField
-    val typeConverters: MutableMap<Class<*>, TypeConverter<*, *>> = HashMap()
+    val typeConverters: MutableMap<Class<*>, TypeConverter<*, *>> = hashMapOf()
 
     val databaseDefinitions: List<DatabaseDefinition>
-        get() = ArrayList(databaseNameMap.values)
+        get() = databaseNameMap.values.toList()
 
     /**
      * @param clazz The model value class to get a [com.raizlabs.android.dbflow.converter.TypeConverter]

@@ -22,7 +22,6 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
-import java.util.*
 import java.util.regex.Pattern
 import javax.lang.model.element.Element
 
@@ -95,18 +94,18 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     private fun validateDefinitions() {
         elementClassName?.let {
-            val map = HashMap<TypeName, TableDefinition>()
+            val map = hashMapOf<TypeName, TableDefinition>()
             val tableValidator = TableValidator()
             manager.getTableDefinitions(it)
-                .filter { tableValidator.validate(ProcessorManager.manager, it) }
-                .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
+                    .filter { tableValidator.validate(ProcessorManager.manager, it) }
+                    .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
             manager.setTableDefinitions(map, it)
 
-            val modelViewDefinitionMap = HashMap<TypeName, ModelViewDefinition>()
+            val modelViewDefinitionMap = hashMapOf<TypeName, ModelViewDefinition>()
             val modelViewValidator = ModelViewValidator()
             manager.getModelViewDefinitions(it)
-                .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
-                .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
+                    .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
+                    .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
             manager.setModelViewDefinitions(modelViewDefinitionMap, it)
         }
     }
@@ -150,14 +149,14 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
                 val migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName)
                 migrationDefinitionMap.keys
-                    .sortedByDescending { it }
-                    .forEach { version ->
-                        migrationDefinitionMap[version]
-                            ?.sortedBy { it.priority }
-                            ?.forEach { migrationDefinition ->
-                                statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
-                            }
-                    }
+                        .sortedByDescending { it }
+                        .forEach { version ->
+                            migrationDefinitionMap[version]
+                                    ?.sortedBy { it.priority }
+                                    ?.forEach { migrationDefinition ->
+                                        statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
+                                    }
+                        }
             }
             this
         }
@@ -167,7 +166,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
     private fun writeGetters(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
             `override fun`(ParameterizedTypeName.get(ClassName.get(Class::class.java), WildcardTypeName.subtypeOf(Any::class.java)),
-                "getAssociatedDatabaseClassFile") {
+                    "getAssociatedDatabaseClassFile") {
                 modifiers(public, final)
                 `return`("\$T.class", elementTypeName)
             }

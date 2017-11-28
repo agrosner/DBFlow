@@ -7,7 +7,6 @@ import com.raizlabs.android.dbflow.config.FlowManager
 import com.raizlabs.android.dbflow.query.ModelQueriable
 import com.raizlabs.android.dbflow.adapter.InstanceAdapter
 import com.raizlabs.android.dbflow.database.FlowCursor
-import java.util.*
 
 /**
  * Description: A non-modifiable, cursor-backed list that you can use in [ListView] or other data sources.
@@ -34,7 +33,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
 
     internal val instanceAdapter: InstanceAdapter<T>
 
-    private val cursorRefreshListenerSet = HashSet<OnCursorRefreshListener<T>>()
+    private val cursorRefreshListenerSet = hashSetOf<OnCursorRefreshListener<T>>()
 
     /**
      * @return the full, converted [T] list from the database on this list. For large

@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.processor.definition
 
 import com.squareup.javapoet.TypeName
-import java.util.*
 
 /**
  * Description: Provides overarching holder for [DatabaseDefinition], [TableDefinition],
@@ -15,12 +14,12 @@ class DatabaseObjectHolder {
             field?.objectHolder = this
         }
 
-    var tableDefinitionMap: MutableMap<TypeName, TableDefinition> = HashMap()
-    var tableNameMap: MutableMap<String, TableDefinition> = HashMap()
+    var tableDefinitionMap: MutableMap<TypeName, TableDefinition> = hashMapOf()
+    var tableNameMap: MutableMap<String, TableDefinition> = hashMapOf()
 
-    var queryModelDefinitionMap: MutableMap<TypeName, QueryModelDefinition> = HashMap()
-    var modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition> = HashMap()
-    var manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> = HashMap()
+    var queryModelDefinitionMap: MutableMap<TypeName, QueryModelDefinition> = hashMapOf()
+    var modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition> = hashMapOf()
+    var manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> = hashMapOf()
     var providerMap = hashMapOf<TypeName, ContentProviderDefinition>()
 
     /**

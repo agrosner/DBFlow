@@ -50,9 +50,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
             queryBuilder.append(convertObjectToString(value(), true))
         }
 
-        if (postArgument() != null) {
-            queryBuilder.append(" ${postArgument()}")
-        }
+        postArgument()?.let { queryBuilder.append(" $it") }
     }
 
     override fun isNull() = apply {
@@ -88,7 +86,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
      * @return This condition
      */
     override fun like(value: String): Operator<T> {
-        operation = String.format(" %1s ", Operation.LIKE)
+        operation = " ${Operation.LIKE} "
         return value(value)
     }
 
@@ -103,7 +101,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
      * @return This condition
      */
     override fun notLike(value: String): Operator<T> {
-        operation = String.format(" %1s ", Operation.NOT_LIKE)
+        operation = " ${Operation.NOT_LIKE} "
         return value(value)
     }
 
@@ -118,7 +116,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
      * @return This condition
      */
     override fun glob(value: String): Operator<T> {
-        operation = String.format(" %1s ", Operation.GLOB)
+        operation = " ${Operation.GLOB} "
         return value(value)
     }
 
@@ -180,7 +178,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
      * @return This condition.
      */
     fun collate(collation: String) = apply {
-        postArg = "COLLATE " + collation
+        postArg = "COLLATE $collation"
     }
 
     /**
@@ -392,33 +390,33 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
         /**
          * Equals comparison
          */
-        val EQUALS = "="
+        const val EQUALS = "="
 
         /**
          * Not-equals comparison
          */
-        val NOT_EQUALS = "!="
+        const val NOT_EQUALS = "!="
 
         /**
          * String concatenation
          */
-        val CONCATENATE = "||"
+        const val CONCATENATE = "||"
 
         /**
          * Number addition
          */
-        val PLUS = "+"
+        const val PLUS = "+"
 
         /**
          * Number subtraction
          */
-        val MINUS = "-"
+        const val MINUS = "-"
 
-        val DIVISION = "/"
+        const val DIVISION = "/"
 
-        val MULTIPLY = "*"
+        const val MULTIPLY = "*"
 
-        val MOD = "%"
+        const val MOD = "%"
 
         /**
          * If something is LIKE another (a case insensitive search).
@@ -426,7 +424,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
          * % represents [0,many) numbers or characters.
          * The _ represents a single number or character.
          */
-        val LIKE = "LIKE"
+        const val LIKE = "LIKE"
 
         /**
          * If something is NOT LIKE another (a case insensitive search).
@@ -434,7 +432,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
          * % represents [0,many) numbers or characters.
          * The _ represents a single number or character.
          */
-        val NOT_LIKE = "NOT LIKE"
+        const val NOT_LIKE = "NOT LIKE"
 
         /**
          * If something is case sensitive like another.
@@ -443,71 +441,71 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
          * * represents [0,many) numbers or characters.
          * The ? represents a single number or character
          */
-        val GLOB = "GLOB"
+        const val GLOB = "GLOB"
 
         /**
          * Greater than some value comparison
          */
-        val GREATER_THAN = ">"
+        const val GREATER_THAN = ">"
 
         /**
          * Greater than or equals to some value comparison
          */
-        val GREATER_THAN_OR_EQUALS = ">="
+        const val GREATER_THAN_OR_EQUALS = ">="
 
         /**
          * Less than some value comparison
          */
-        val LESS_THAN = "<"
+        const val LESS_THAN = "<"
 
         /**
          * Less than or equals to some value comparison
          */
-        val LESS_THAN_OR_EQUALS = "<="
+        const val LESS_THAN_OR_EQUALS = "<="
 
         /**
          * Between comparison. A simplification of X&lt;Y AND Y&lt;Z to Y BETWEEN X AND Z
          */
-        val BETWEEN = "BETWEEN"
+        const val BETWEEN = "BETWEEN"
 
         /**
          * AND comparison separator
          */
-        val AND = "AND"
+        const val AND = "AND"
 
         /**
          * OR comparison separator
          */
-        val OR = "OR"
+        const val OR = "OR"
 
         /**
          * An empty value for the condition.
          */
-        val EMPTY_PARAM = "?"
+        const val EMPTY_PARAM = "?"
 
         /**
          * Special operation that specify if the column is not null for a specified row. Use of this as
          * an operator will ignore the value of the [Operator] for it.
          */
-        val IS_NOT_NULL = "IS NOT NULL"
+        const val IS_NOT_NULL = "IS NOT NULL"
 
         /**
          * Special operation that specify if the column is null for a specified row. Use of this as
          * an operator will ignore the value of the [Operator] for it.
          */
-        val IS_NULL = "IS NULL"
+        const val IS_NULL = "IS NULL"
 
         /**
          * The SQLite IN command that will select rows that are contained in a list of values.
          * EX: SELECT * from Table where column IN ('first', 'second', etc)
          */
-        val IN = "IN"
+        const val IN = "IN"
 
         /**
          * The reverse of the [.IN] command that selects rows that are not contained
          * in a list of values specified.
          */
-        val NOT_IN = "NOT IN"
+        const val NOT_IN = "NOT IN"
     }
 
     /**

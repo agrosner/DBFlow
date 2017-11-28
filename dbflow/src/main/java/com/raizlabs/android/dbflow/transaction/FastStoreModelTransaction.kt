@@ -4,7 +4,6 @@ import com.raizlabs.android.dbflow.adapter.InternalAdapter
 import com.raizlabs.android.dbflow.config.modelAdapter
 import com.raizlabs.android.dbflow.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.structure.Model
-import java.util.*
 
 /**
  * Description: Simple interface for acting on a model in a Transaction or list of [Model]
@@ -42,7 +41,7 @@ class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TM
     </TModel> */
     class Builder<TModel> internal constructor(internal val internalAdapter: InternalAdapter<TModel>,
                                                internal val processModelList: ProcessModelList<TModel>) {
-        internal var models: MutableList<TModel> = ArrayList()
+        internal var models: MutableList<TModel> = arrayListOf()
 
         fun add(model: TModel) = apply {
             models.add(model)

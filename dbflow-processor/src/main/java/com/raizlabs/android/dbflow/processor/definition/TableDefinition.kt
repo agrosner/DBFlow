@@ -31,7 +31,10 @@ import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.raizlabs.android.dbflow.processor.OneToManyValidator
 import com.raizlabs.android.dbflow.processor.ProcessorManager
-import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod.Mode.*
+import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod.Mode.DELETE
+import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod.Mode.INSERT
+import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod.Mode.NON_INSERT
+import com.raizlabs.android.dbflow.processor.definition.BindToStatementMethod.Mode.UPDATE
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.DefinitionUtils
 import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
@@ -54,7 +57,6 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
-import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
@@ -185,7 +187,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
     }
 
     override fun prepareForWrite() {
-        columnDefinitions = ArrayList<ColumnDefinition>()
+        columnDefinitions = arrayListOf()
         columnMap.clear()
         classElementLookUpMap.clear()
         _primaryColumnDefinitions.clear()
@@ -228,7 +230,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             typeElement?.let { createColumnDefinitions(it) }
 
             val groups = table.uniqueColumnGroups
-            var uniqueNumbersSet: MutableSet<Int> = HashSet()
+            var uniqueNumbersSet: MutableSet<Int> = hashSetOf()
             for (uniqueGroup in groups) {
                 if (uniqueNumbersSet.contains(uniqueGroup.groupNumber)) {
                     manager.logError("A duplicate unique group with number %1s was found for %1s", uniqueGroup.groupNumber, tableName)
@@ -241,7 +243,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             }
 
             val indexGroups = table.indexGroups
-            uniqueNumbersSet = HashSet<Int>()
+            uniqueNumbersSet = hashSetOf()
             for (indexGroup in indexGroups) {
                 if (uniqueNumbersSet.contains(indexGroup.number)) {
                     manager.logError(TableDefinition::class, "A duplicate unique index number %1s was found for %1s", indexGroup.number, elementName)

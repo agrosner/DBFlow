@@ -17,7 +17,6 @@ import com.raizlabs.android.dbflow.query.Operator
 import com.raizlabs.android.dbflow.query.SQLOperator
 import com.raizlabs.android.dbflow.structure.ChangeAction
 import com.raizlabs.android.dbflow.structure.Model
-import java.util.*
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -35,9 +34,9 @@ open class FlowContentObserver(private val contentAuthority: String,
 
     private val modelChangeListeners = CopyOnWriteArraySet<OnModelStateChangedListener>()
     private val onTableChangedListeners = CopyOnWriteArraySet<OnTableChangedListener>()
-    private val registeredTables = HashMap<String, Class<*>>()
-    private val notificationUris = HashSet<Uri>()
-    private val tableUris = HashSet<Uri>()
+    private val registeredTables = hashMapOf<String, Class<*>>()
+    private val notificationUris = hashSetOf<Uri>()
+    private val tableUris = hashSetOf<Uri>()
 
     protected var isInTransaction = false
     private var notifyAllUris = false

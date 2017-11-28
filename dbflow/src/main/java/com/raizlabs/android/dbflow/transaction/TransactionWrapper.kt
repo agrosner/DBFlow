@@ -1,17 +1,16 @@
 package com.raizlabs.android.dbflow.transaction
 
 import com.raizlabs.android.dbflow.database.DatabaseWrapper
-import java.util.*
 
 /**
  * Description: Wraps multiple transactions together.
  */
 class TransactionWrapper : ITransaction<Any> {
 
-    private val transactions = ArrayList<ITransaction<Any>>()
+    private val transactions = arrayListOf<ITransaction<Any>>()
 
     constructor(vararg transactions: ITransaction<Any>) {
-        this.transactions.addAll(Arrays.asList(*transactions))
+        this.transactions.addAll(transactions)
     }
 
     constructor(transactions: Collection<ITransaction<Any>>) {

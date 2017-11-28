@@ -1,9 +1,8 @@
 package com.raizlabs.android.dbflow.query
 
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.dropTrigger
-import java.util.*
+import com.raizlabs.android.dbflow.sql.Query
 
 /**
  * Description: The last piece of a TRIGGER statement, this class contains the BEGIN...END and the logic in between.
@@ -17,7 +16,7 @@ class CompletedTrigger<TModel> internal constructor(
     /**
      * The query to run between the BEGIN and END of this statement
      */
-    private val triggerLogicQuery = ArrayList<Query>()
+    private val triggerLogicQuery = arrayListOf<Query>()
 
     override val query: String
         get() =

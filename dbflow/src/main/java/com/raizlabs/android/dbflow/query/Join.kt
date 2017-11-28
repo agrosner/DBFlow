@@ -2,10 +2,9 @@ package com.raizlabs.android.dbflow.query
 
 import com.raizlabs.android.dbflow.appendList
 import com.raizlabs.android.dbflow.config.FlowManager
-import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.query.property.IProperty
 import com.raizlabs.android.dbflow.query.property.PropertyFactory
-import java.util.*
+import com.raizlabs.android.dbflow.sql.Query
 import kotlin.reflect.KClass
 
 /**
@@ -38,7 +37,7 @@ class Join<TModel : Any, TFromModel : Any> : Query {
     /**
      * What columns to use.
      */
-    private val using = ArrayList<IProperty<*>>()
+    private val using = arrayListOf<IProperty<*>>()
 
     override// natural joins do no have on or using clauses.
     val query: String

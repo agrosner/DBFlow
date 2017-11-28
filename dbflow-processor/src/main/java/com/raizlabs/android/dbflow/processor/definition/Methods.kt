@@ -23,7 +23,6 @@ import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Modifier
 
@@ -236,11 +235,11 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
             val codeBuilder = CodeBlock.builder()
                     .add("return ${creationBuilder.toString().S}")
 
-            val foreignKeyBlocks = ArrayList<CodeBlock>()
-            val tableNameBlocks = ArrayList<CodeBlock>()
-            val referenceKeyBlocks = ArrayList<CodeBlock>()
+            val foreignKeyBlocks = arrayListOf<CodeBlock>()
+            val tableNameBlocks = arrayListOf<CodeBlock>()
+            val referenceKeyBlocks = arrayListOf<CodeBlock>()
 
-            for (i in 0..foreignSize - 1) {
+            for (i in 0 until foreignSize) {
                 val foreignKeyBuilder = CodeBlock.builder()
                 val referenceBuilder = CodeBlock.builder()
                 val fk = tableDefinition.foreignKeyDefinitions[i]

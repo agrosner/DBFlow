@@ -20,7 +20,6 @@ import com.raizlabs.android.dbflow.processor.utils.implementsClass
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import java.util.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 
@@ -130,6 +129,6 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
 
     override // Shouldn't include any
     val primaryColumnDefinitions: List<ColumnDefinition>
-        get() = ArrayList()
+        get() = arrayListOf()
 
 }

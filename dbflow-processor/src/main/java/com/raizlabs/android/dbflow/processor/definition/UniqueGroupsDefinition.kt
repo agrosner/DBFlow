@@ -6,14 +6,13 @@ import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
 import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
 import com.raizlabs.android.dbflow.quote
 import com.squareup.javapoet.CodeBlock
-import java.util.*
 
 /**
  * Description:
  */
 class UniqueGroupsDefinition(uniqueGroup: UniqueGroup) {
 
-    var columnDefinitionList: MutableList<ColumnDefinition> = ArrayList()
+    var columnDefinitionList: MutableList<ColumnDefinition> = arrayListOf()
 
     var number: Int = uniqueGroup.groupNumber
 

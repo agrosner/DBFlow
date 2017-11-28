@@ -17,7 +17,6 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeName
 import java.io.IOException
-import java.util.*
 import javax.annotation.processing.FilerException
 import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
@@ -72,7 +71,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         holderDefinition?.databaseDefinition = databaseDefinition
     }
 
-    fun getDatabaseHolderDefinitionList() = ArrayList(databaseDefinitionMap.values)
+    fun getDatabaseHolderDefinitionList() = databaseDefinitionMap.values.toList()
 
     fun getDatabaseHolderDefinition(databaseName: TypeName?) = databaseDefinitionMap[databaseName]
 

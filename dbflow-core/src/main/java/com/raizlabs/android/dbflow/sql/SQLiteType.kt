@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.sql
 
 import com.raizlabs.android.dbflow.data.Blob
-import java.util.*
 
 /**
  * Description: Represents a type that SQLite understands.
@@ -31,31 +30,28 @@ enum class SQLiteType {
 
     companion object {
 
-        private val sTypeMap = object : HashMap<String, SQLiteType>() {
-            init {
-                put(Byte::class.javaPrimitiveType!!.name, SQLiteType.INTEGER)
-                put(Short::class.javaPrimitiveType!!.name, SQLiteType.INTEGER)
-                put(Int::class.javaPrimitiveType!!.name, SQLiteType.INTEGER)
-                put(Long::class.javaPrimitiveType!!.name, SQLiteType.INTEGER)
-                put(Float::class.javaPrimitiveType!!.name, SQLiteType.REAL)
-                put(Double::class.javaPrimitiveType!!.name, SQLiteType.REAL)
-                put(Boolean::class.javaPrimitiveType!!.name, SQLiteType.INTEGER)
-                put(Char::class.javaPrimitiveType!!.name, SQLiteType.TEXT)
-                put(ByteArray::class.java.name, SQLiteType.BLOB)
-                put(Byte::class.java.name, SQLiteType.INTEGER)
-                put(Short::class.java.name, SQLiteType.INTEGER)
-                put(Int::class.java.name, SQLiteType.INTEGER)
-                put(Long::class.java.name, SQLiteType.INTEGER)
-                put(Float::class.java.name, SQLiteType.REAL)
-                put(Double::class.java.name, SQLiteType.REAL)
-                put(Boolean::class.java.name, SQLiteType.INTEGER)
-                put(Char::class.java.name, SQLiteType.TEXT)
-                put(CharSequence::class.java.name, SQLiteType.TEXT)
-                put(String::class.java.name, SQLiteType.TEXT)
-                put(Array<Byte>::class.java.name, SQLiteType.BLOB)
-                put(Blob::class.java.name, SQLiteType.BLOB)
-            }
-        }
+        private val sTypeMap = hashMapOf<String, SQLiteType>(
+                Byte::class.javaPrimitiveType!!.name to SQLiteType.INTEGER,
+                Short::class.javaPrimitiveType!!.name to SQLiteType.INTEGER,
+                Int::class.javaPrimitiveType!!.name to SQLiteType.INTEGER,
+                Long::class.javaPrimitiveType!!.name to SQLiteType.INTEGER,
+                Float::class.javaPrimitiveType!!.name to SQLiteType.REAL,
+                Double::class.javaPrimitiveType!!.name to SQLiteType.REAL,
+                Boolean::class.javaPrimitiveType!!.name to SQLiteType.INTEGER,
+                Char::class.javaPrimitiveType!!.name to SQLiteType.TEXT,
+                ByteArray::class.java.name to SQLiteType.BLOB,
+                Byte::class.java.name to SQLiteType.INTEGER,
+                Short::class.java.name to SQLiteType.INTEGER,
+                Int::class.java.name to SQLiteType.INTEGER,
+                Long::class.java.name to SQLiteType.INTEGER,
+                Float::class.java.name to SQLiteType.REAL,
+                Double::class.java.name to SQLiteType.REAL,
+                Boolean::class.java.name to SQLiteType.INTEGER,
+                Char::class.java.name to SQLiteType.TEXT,
+                CharSequence::class.java.name to SQLiteType.TEXT,
+                String::class.java.name to SQLiteType.TEXT,
+                Array<Byte>::class.java.name to SQLiteType.BLOB,
+                Blob::class.java.name to SQLiteType.BLOB)
 
         /**
          * Returns the [SQLiteType] for this class
@@ -63,6 +59,7 @@ enum class SQLiteType {
          * @param className The fully qualified class name
          * @return The type from the class name
          */
+
         operator fun get(className: String): SQLiteType? = sTypeMap[className]
 
         fun containsClass(className: String): Boolean = sTypeMap.containsKey(className)

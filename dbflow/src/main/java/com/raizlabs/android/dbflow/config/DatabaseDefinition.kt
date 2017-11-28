@@ -2,31 +2,30 @@ package com.raizlabs.android.dbflow.config
 
 import android.content.ContentValues
 import android.content.Context
-import com.raizlabs.android.dbflow.annotation.Database
-import com.raizlabs.android.dbflow.annotation.QueryModel
-import com.raizlabs.android.dbflow.annotation.Table
-import com.raizlabs.android.dbflow.transaction.BaseTransactionManager
-import com.raizlabs.android.dbflow.runtime.DirectModelNotifier
-import com.raizlabs.android.dbflow.runtime.ModelNotifier
-import com.raizlabs.android.dbflow.migration.Migration
-import com.raizlabs.android.dbflow.adapter.queriable.ListModelLoader
-import com.raizlabs.android.dbflow.adapter.queriable.SingleModelLoader
-import com.raizlabs.android.dbflow.adapter.saveable.ModelSaver
-import com.raizlabs.android.dbflow.structure.BaseModelView
 import com.raizlabs.android.dbflow.adapter.ModelAdapter
 import com.raizlabs.android.dbflow.adapter.ModelViewAdapter
 import com.raizlabs.android.dbflow.adapter.QueryModelAdapter
+import com.raizlabs.android.dbflow.adapter.queriable.ListModelLoader
+import com.raizlabs.android.dbflow.adapter.queriable.SingleModelLoader
+import com.raizlabs.android.dbflow.adapter.saveable.ModelSaver
+import com.raizlabs.android.dbflow.annotation.Database
+import com.raizlabs.android.dbflow.annotation.QueryModel
+import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.database.DatabaseHelperListener
 import com.raizlabs.android.dbflow.database.DatabaseStatement
 import com.raizlabs.android.dbflow.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.database.FlowCursor
 import com.raizlabs.android.dbflow.database.FlowSQLiteOpenHelper
 import com.raizlabs.android.dbflow.database.OpenHelper
+import com.raizlabs.android.dbflow.migration.Migration
+import com.raizlabs.android.dbflow.runtime.DirectModelNotifier
+import com.raizlabs.android.dbflow.runtime.ModelNotifier
+import com.raizlabs.android.dbflow.structure.BaseModelView
+import com.raizlabs.android.dbflow.transaction.BaseTransactionManager
 import com.raizlabs.android.dbflow.transaction.DefaultTransactionManager
 import com.raizlabs.android.dbflow.transaction.DefaultTransactionQueue
 import com.raizlabs.android.dbflow.transaction.ITransaction
 import com.raizlabs.android.dbflow.transaction.Transaction
-import java.util.*
 
 /**
  * Description: The main interface that all Database implementations extend from. This is for internal usage only
@@ -70,13 +69,13 @@ abstract class DatabaseDefinition : DatabaseWrapper {
      * @return a list of all model classes in this database.
      */
     val modelClasses: List<Class<*>>
-        get() = ArrayList(modelAdapters.keys)
+        get() = modelAdapters.keys.toList()
 
     /**
      * @return the [BaseModelView] list for this database.
      */
     val modelViews: List<Class<*>>
-        get() = ArrayList(modelViewAdapterMap.keys)
+        get() = modelViewAdapterMap.keys.toList()
 
     /**
      * @return The list of [ModelViewAdapter]. Internal method for

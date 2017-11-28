@@ -2,7 +2,6 @@ package com.raizlabs.android.dbflow.query
 
 import com.raizlabs.android.dbflow.sql.Query
 import com.raizlabs.android.dbflow.query.Operator.Operation
-import java.util.*
 
 /**
  * Allows combining of [SQLOperator] into one condition.
@@ -11,7 +10,7 @@ class OperatorGroup
 @JvmOverloads
 constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, Iterable<SQLOperator> {
 
-    private val conditionsList = ArrayList<SQLOperator>()
+    private val conditionsList = arrayListOf<SQLOperator>()
 
     private var internalQuery: String? = null
     private var isChanged: Boolean = false

@@ -25,7 +25,6 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import java.io.IOException
-import java.util.*
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
@@ -64,7 +63,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
         get() = globalTypeConverters.isNotEmpty()
 
     init {
-        columnDefinitions = ArrayList<ColumnDefinition>()
+        columnDefinitions = arrayListOf()
     }
 
     protected abstract fun createColumnDefinitions(typeElement: TypeElement)

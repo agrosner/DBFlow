@@ -1,9 +1,8 @@
 package com.raizlabs.android.dbflow.runtime
 
+import com.raizlabs.android.dbflow.adapter.ModelAdapter
 import com.raizlabs.android.dbflow.config.DatabaseConfig
 import com.raizlabs.android.dbflow.structure.ChangeAction
-import com.raizlabs.android.dbflow.adapter.ModelAdapter
-import java.util.*
 
 /**
  * Description: Directly notifies about model changes. Users should use [.get] to use the shared
@@ -99,7 +98,7 @@ private constructor() : ModelNotifier {
     }
 
     private inner class DirectTableNotifierRegister : TableNotifierRegister {
-        private val registeredTables = ArrayList<Class<*>>()
+        private val registeredTables = arrayListOf<Class<*>>()
 
         private var modelChangedListener: OnTableChangedListener? = null
 
@@ -124,8 +123,8 @@ private constructor() : ModelNotifier {
             this.modelChangedListener = null
         }
 
-        override fun setListener(modelChangedListener: OnTableChangedListener?) {
-            this.modelChangedListener = modelChangedListener
+        override fun setListener(listener: OnTableChangedListener?) {
+            this.modelChangedListener = listener
         }
 
         override val isSubscribed: Boolean

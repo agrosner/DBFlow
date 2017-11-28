@@ -1,11 +1,10 @@
 package com.raizlabs.android.dbflow.query
 
 
-import com.raizlabs.android.dbflow.sql.SQLiteType
 import com.raizlabs.android.dbflow.query.property.IProperty
 import com.raizlabs.android.dbflow.query.property.Property
 import com.raizlabs.android.dbflow.query.property.PropertyFactory
-import java.util.*
+import com.raizlabs.android.dbflow.sql.SQLiteType
 
 /**
  * Represents SQLite methods on columns. These act as [Property] so we can use them in complex
@@ -13,8 +12,8 @@ import java.util.*
  */
 class Method(methodName: String, vararg properties: IProperty<*>) : Property<Any?>(null, null as String?) {
 
-    private val propertyList = ArrayList<IProperty<*>>()
-    private val operationsList = ArrayList<String>()
+    private val propertyList = arrayListOf<IProperty<*>>()
+    private val operationsList = arrayListOf<String>()
     private val methodProperty: IProperty<*>
     private var nameAlias: NameAlias? = null
 
@@ -172,12 +171,10 @@ fun replace(property: IProperty<*>, findString: String, replacement: String): Me
  */
 fun strftime(formatString: String,
              timeString: String, vararg modifiers: String): Method {
-    val propertyList = ArrayList<IProperty<*>>()
+    val propertyList = arrayListOf<IProperty<*>>()
     propertyList.add(PropertyFactory.from<Any>(formatString))
     propertyList.add(PropertyFactory.from<Any>(timeString))
-    for (modifier in modifiers) {
-        propertyList.add(PropertyFactory.from<Any>(modifier))
-    }
+    modifiers.mapTo(propertyList) { PropertyFactory.from<Any>(it) }
     return Method("strftime", *propertyList.toTypedArray())
 }
 
@@ -196,11 +193,9 @@ fun datetime(timeStamp: Long, vararg modifiers: String): Method {
  */
 fun date(timeString: String,
          vararg modifiers: String): Method {
-    val propertyList = ArrayList<IProperty<*>>()
+    val propertyList = arrayListOf<IProperty<*>>()
     propertyList.add(PropertyFactory.from<Any>(timeString))
-    for (modifier in modifiers) {
-        propertyList.add(PropertyFactory.from<Any>(modifier))
-    }
+    modifiers.mapTo(propertyList) { PropertyFactory.from<Any>(it) }
     return Method("date", *propertyList.toTypedArray())
 }
 

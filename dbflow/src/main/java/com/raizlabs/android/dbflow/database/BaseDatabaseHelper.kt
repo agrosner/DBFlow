@@ -8,7 +8,6 @@ import com.raizlabs.android.dbflow.config.NaturalOrderComparator
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
-import java.util.*
 
 /**
  * Description:
@@ -51,16 +50,16 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
         try {
             database.beginTransaction()
             val modelAdapters = databaseDefinition.getModelAdapters()
-            for (modelAdapter in modelAdapters) {
-                if (modelAdapter.createWithDatabase()) {
-                    try {
-                        database.execSQL(modelAdapter.creationQuery)
-                    } catch (e: SQLiteException) {
-                        FlowLog.logError(e)
+            modelAdapters
+                    .asSequence()
+                    .filter { it.createWithDatabase() }
+                    .forEach {
+                        try {
+                            database.execSQL(it.creationQuery)
+                        } catch (e: SQLiteException) {
+                            FlowLog.logError(e)
+                        }
                     }
-
-                }
-            }
             database.setTransactionSuccessful()
         } finally {
             database.endTransaction()
@@ -95,22 +94,18 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
 
         // will try migrations file or execute migrations from code
         try {
-            val files = Arrays.asList(*FlowManager.context.assets.list(
-                    MIGRATION_PATH + "/" + databaseDefinition.databaseName))
-            Collections.sort(files, NaturalOrderComparator())
+            val files = FlowManager.context.assets.list(
+                    "$MIGRATION_PATH/${databaseDefinition.databaseName}")
+                    .sortedWith(NaturalOrderComparator())
 
             val migrationFileMap = hashMapOf<Int, MutableList<String>>()
             for (file in files) {
                 try {
                     val version = Integer.valueOf(file.replace(".sql", ""))
-                    var fileList: MutableList<String>? = migrationFileMap[version]
-                    if (fileList == null) {
-                        fileList = arrayListOf()
-                        migrationFileMap.put(version, fileList)
-                    }
+                    val fileList = migrationFileMap.getOrPut(version) { arrayListOf() }
                     fileList.add(file)
                 } catch (e: NumberFormatException) {
-                    FlowLog.log(FlowLog.Level.W, "Skipping invalidly named file: " + file, e)
+                    FlowLog.log(FlowLog.Level.W, "Skipping invalidly named file: $file", e)
                 }
 
             }
@@ -128,7 +123,7 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
                     if (migrationFiles != null) {
                         for (migrationFile in migrationFiles) {
                             executeSqlScript(db, migrationFile)
-                            FlowLog.log(FlowLog.Level.I, migrationFile + " executed successfully.")
+                            FlowLog.log(FlowLog.Level.I, "$migrationFile executed successfully.")
                         }
                     }
 
@@ -143,7 +138,7 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
 
                             // after migration cleanup
                             migration.onPostMigrate()
-                            FlowLog.log(FlowLog.Level.I, migration.javaClass.toString() + " executed successfully.")
+                            FlowLog.log(FlowLog.Level.I, "${migration.javaClass} executed successfully.")
                         }
                     }
                 }
@@ -152,7 +147,7 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
                 db.endTransaction()
             }
         } catch (e: IOException) {
-            FlowLog.log(FlowLog.Level.E, "Failed to execute migrations.", e)
+            FlowLog.log(FlowLog.Level.E, "Failed to execute migrations. App might be in an inconsistent state.", e)
         }
 
     }
@@ -197,7 +192,7 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
                 db.execSQL(queryString)
             }
         } catch (e: IOException) {
-            FlowLog.log(FlowLog.Level.E, "Failed to execute " + file, e)
+            FlowLog.log(FlowLog.Level.E, "Failed to execute $file. App might be in an inconsistent state!!", e)
         }
     }
 

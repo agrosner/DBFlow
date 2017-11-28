@@ -1,9 +1,8 @@
 package com.raizlabs.android.dbflow.migration
 
+import com.raizlabs.android.dbflow.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.query.index
 import com.raizlabs.android.dbflow.query.property.IProperty
-import com.raizlabs.android.dbflow.database.DatabaseWrapper
-import java.util.*
 
 /**
  * Description: Defines and enables an Index structurally through a migration.
@@ -15,7 +14,7 @@ abstract class IndexMigration<TModel>(
         private var onTable: Class<TModel>) : BaseMigration() {
 
     private var unique: Boolean = false
-    private val columns: ArrayList<IProperty<*>> = arrayListOf()
+    private val columns = arrayListOf<IProperty<*>>()
 
     abstract val name: String
 

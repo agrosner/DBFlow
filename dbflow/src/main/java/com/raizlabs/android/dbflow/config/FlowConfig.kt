@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.config
 
 import android.content.Context
-import java.util.*
 
 /**
  * Description: The main configuration instance for DBFlow. This
@@ -12,7 +11,7 @@ class FlowConfig(val context: Context,
                  val openDatabasesOnInit: Boolean = false) {
 
     internal constructor(builder: Builder) : this(
-            databaseHolders = Collections.unmodifiableSet(builder.databaseHolders),
+            databaseHolders = builder.databaseHolders.toSet(),
             databaseConfigMap = builder.databaseConfigMap,
             context = builder.context,
             openDatabasesOnInit = builder.openDatabasesOnInit
@@ -25,8 +24,8 @@ class FlowConfig(val context: Context,
     class Builder(context: Context) {
 
         internal val context: Context = context.applicationContext
-        internal var databaseHolders: MutableSet<Class<out DatabaseHolder>> = HashSet()
-        internal val databaseConfigMap: MutableMap<Class<*>, DatabaseConfig> = HashMap()
+        internal var databaseHolders: MutableSet<Class<out DatabaseHolder>> = hashSetOf()
+        internal val databaseConfigMap: MutableMap<Class<*>, DatabaseConfig> = hashMapOf()
         internal var openDatabasesOnInit: Boolean = false
 
         fun addDatabaseHolder(databaseHolderClass: Class<out DatabaseHolder>) = apply {

@@ -4,13 +4,12 @@ import android.os.Looper
 import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.config.FlowLog
 import com.raizlabs.android.dbflow.structure.Model
+import com.raizlabs.android.dbflow.structure.save
 import com.raizlabs.android.dbflow.transaction.ProcessModelTransaction
 import com.raizlabs.android.dbflow.transaction.Transaction
 import com.raizlabs.android.dbflow.transaction.processModel
 import com.raizlabs.android.dbflow.transaction.transactionError
 import com.raizlabs.android.dbflow.transaction.transactionSuccess
-import com.raizlabs.android.dbflow.structure.save
-import java.util.*
 
 /**
  * Description: This queue will bulk save items added to it when it gets access to the DB. It should only exist as one entity.
@@ -35,7 +34,7 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
     /**
      * The list of DB objects that we will save here
      */
-    private val models: ArrayList<Any> = arrayListOf()
+    private val models = arrayListOf<Any>()
 
     /**
      * If true, this queue will quit.

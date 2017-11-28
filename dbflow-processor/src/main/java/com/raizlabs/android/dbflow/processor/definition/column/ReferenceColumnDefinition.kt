@@ -32,7 +32,6 @@ import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
@@ -46,7 +45,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                                 element: Element, isPackagePrivate: Boolean)
     : ColumnDefinition(manager, element, tableDefinition, isPackagePrivate) {
 
-    val _referenceDefinitionList: MutableList<ReferenceDefinition> = ArrayList()
+    val _referenceDefinitionList: MutableList<ReferenceDefinition> = arrayListOf()
 
     var referencedClassName: ClassName? = null
 
