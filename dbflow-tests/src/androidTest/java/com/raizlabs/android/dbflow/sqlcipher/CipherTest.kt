@@ -3,9 +3,9 @@ package com.raizlabs.android.dbflow.sqlcipher
 import com.raizlabs.android.dbflow.BaseInstrumentedUnitTest
 import com.raizlabs.android.dbflow.config.database
 import com.raizlabs.android.dbflow.query.delete
+import com.raizlabs.android.dbflow.query.result
 import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.query.where
-import com.raizlabs.android.dbflow.query.result
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

@@ -19,11 +19,11 @@ public class DemoActivity extends Activity {
         setContentView(R.layout.activity_demo);
 
         FlowManager.init(new FlowConfig.Builder(getApplicationContext())
-            .addDatabaseConfig(
-                DatabaseConfig.builder(PrepackagedDB.class)
-                    .databaseName("prepackaged")
-                    .build())
-            .build());
+                .addDatabaseConfig(
+                        DatabaseConfig.builder(PrepackagedDB.class)
+                                .databaseName("prepackaged")
+                                .build())
+                .build());
     }
 
 

@@ -50,8 +50,6 @@ class FlowConfig(val context: Context,
 
     companion object {
 
-        fun builder(context: Context): FlowConfig.Builder {
-            return FlowConfig.Builder(context)
-        }
+        fun builder(context: Context): FlowConfig.Builder = FlowConfig.Builder(context)
     }
 }
