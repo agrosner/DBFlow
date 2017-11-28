@@ -1,6 +1,6 @@
 @file:JvmName("RXSQLite")
 
-package com.raizlabs.android.dbflow.rx.language
+package com.raizlabs.android.dbflow.rx.query
 
 import com.raizlabs.android.dbflow.query.BaseQueriable
 import com.raizlabs.android.dbflow.query.ModelQueriable

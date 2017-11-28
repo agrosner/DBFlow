@@ -89,7 +89,7 @@ inline suspend fun <reified M : Any> M.awaitLoad(databaseDefinition: DatabaseDef
  * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.
  */
 inline suspend fun <reified T : Any, reified M : Collection<T>> M.awaitSave(databaseDefinition: DatabaseDefinition)
-        = suspendCancellableCoroutine<List<T>?> { continuation ->
+        = suspendCancellableCoroutine<Long> { continuation ->
     constructFastCoroutine(continuation, databaseDefinition) { fastSave() }
 }
 
@@ -97,7 +97,7 @@ inline suspend fun <reified T : Any, reified M : Collection<T>> M.awaitSave(data
  * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.
  */
 inline suspend fun <reified T : Any, reified M : Collection<T>> M.awaitInsert(databaseDefinition: DatabaseDefinition)
-        = suspendCancellableCoroutine<List<T>?> { continuation ->
+        = suspendCancellableCoroutine<Long> { continuation ->
     constructFastCoroutine(continuation, databaseDefinition) { fastInsert() }
 }
 
@@ -105,7 +105,7 @@ inline suspend fun <reified T : Any, reified M : Collection<T>> M.awaitInsert(da
  * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.
  */
 inline suspend fun <reified T : Any, reified M : Collection<T>> M.awaitUpdate(databaseDefinition: DatabaseDefinition)
-        = suspendCancellableCoroutine<List<T>?> { continuation ->
+        = suspendCancellableCoroutine<Long> { continuation ->
     constructFastCoroutine(continuation, databaseDefinition) { fastUpdate() }
 }
 
@@ -113,12 +113,12 @@ inline suspend fun <reified T : Any, reified M : Collection<T>> M.awaitUpdate(da
  * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.
  */
 inline suspend fun <reified T : Any, reified M : Collection<T>> M.awaitDelete(databaseDefinition: DatabaseDefinition)
-        = suspendCancellableCoroutine<List<T>?> { continuation ->
+        = suspendCancellableCoroutine<Long> { continuation ->
     constructFastCoroutine(continuation, databaseDefinition) { fastDelete() }
 }
 
 
-inline fun <R : Any?> constructFastCoroutine(continuation: CancellableContinuation<List<R>?>,
+inline fun <R : Any?> constructFastCoroutine(continuation: CancellableContinuation<Long>,
                                              databaseDefinition: DatabaseDefinition,
                                              crossinline fn: () -> FastStoreModelTransaction.Builder<R>) {
     val transaction = databaseDefinition.beginTransactionAsync(fn().build())

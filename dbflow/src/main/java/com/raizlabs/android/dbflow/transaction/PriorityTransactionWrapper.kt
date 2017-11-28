@@ -12,7 +12,7 @@ class PriorityTransactionWrapper(private val priority: Int, private val transact
 
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(PRIORITY_LOW.toLong(), PRIORITY_NORMAL.toLong(), PRIORITY_HIGH.toLong(), PRIORITY_UI.toLong())
-    annotation class Priority
+    annotation class Priority()
 
     internal constructor(builder: Builder) : this(
             priority = if (builder.priority == 0) {

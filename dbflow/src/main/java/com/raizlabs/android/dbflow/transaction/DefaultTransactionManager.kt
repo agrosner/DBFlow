@@ -3,8 +3,7 @@ package com.raizlabs.android.dbflow.transaction
 import com.raizlabs.android.dbflow.config.DatabaseDefinition
 
 /**
- * Description: This class manages batch database interactions. It is useful for retrieving, updating, saving,
- * and deleting lists of items. The bulk of DB operations should exist in this class.
+ * Description: This class manages batch database interactions. Places DB operations onto the same Thread.
  */
 class DefaultTransactionManager : BaseTransactionManager {
 

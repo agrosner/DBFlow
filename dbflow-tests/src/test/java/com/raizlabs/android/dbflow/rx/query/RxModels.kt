@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.rx.language
+package com.raizlabs.android.dbflow.rx.query
 
 import com.raizlabs.android.dbflow.TestDatabase
 import com.raizlabs.android.dbflow.annotation.PrimaryKey

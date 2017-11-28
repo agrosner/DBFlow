@@ -9,14 +9,14 @@ import java.util.*
 /**
  * Description: Simple interface for acting on a model in a Transaction or list of [Model]
  */
-private typealias ProcessModelList<TModel> = (List<TModel>, InternalAdapter<TModel>, DatabaseWrapper) -> Unit
+private typealias ProcessModelList<TModel> = (List<TModel>, InternalAdapter<TModel>, DatabaseWrapper) -> Long
 
 /**
  * Description: Similiar to [ProcessModelTransaction] in that it allows you to store a [List] of
  * [Model], except that it performs it as efficiently as possible. Also due to way the class operates,
  * only one kind of [TModel] is allowed.
  */
-class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TModel>) : ITransaction<List<TModel>?> {
+class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TModel>) : ITransaction<Long> {
 
     internal val models: List<TModel>?
     internal val processModelList: ProcessModelList<TModel>
@@ -28,11 +28,11 @@ class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TM
         internalAdapter = builder.internalAdapter
     }
 
-    override fun execute(databaseWrapper: DatabaseWrapper): List<TModel>? {
+    override fun execute(databaseWrapper: DatabaseWrapper): Long {
         if (models != null) {
-            processModelList(models, internalAdapter, databaseWrapper)
+            return processModelList(models, internalAdapter, databaseWrapper)
         }
-        return models
+        return 0L
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.rx.language
+package com.raizlabs.android.dbflow.rx.query
 
 import android.database.Cursor
 import com.raizlabs.android.dbflow.query.BaseQueriable

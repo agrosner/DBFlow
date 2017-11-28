@@ -1,8 +1,10 @@
 package com.raizlabs.android.dbflow.transaction
 
 import com.raizlabs.android.dbflow.config.databaseForTable
-import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.structure.Model
+
+typealias ProcessFunction<T> = (T, DatabaseWrapper) -> Unit
 
 /**
  * Description: Allows you to process a single or [List] of models in a transaction. You
@@ -145,11 +147,11 @@ class ProcessModelTransaction<TModel>(
 }
 
 
-typealias ProcessFunction<T> = (T, DatabaseWrapper) -> Unit
 
 /**
  * Enables a collection of T objects to easily operate on them within a synchronous database transaction.
  */
+@Deprecated(message = "Use the coroutines awaitSave, awaitInsert, awaitDelete, awaitUpdate")
 inline fun <reified T : Any> Collection<T>.processInTransaction(
         crossinline processFunction: ProcessFunction<T>) {
     databaseForTable<T>().executeTransaction { db -> forEach { processFunction(it, db) } }

@@ -7,9 +7,10 @@ import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel
 import com.raizlabs.android.dbflow.query.list
 import com.raizlabs.android.dbflow.query.select
-import com.raizlabs.android.dbflow.transaction.fastInsert
-import com.raizlabs.android.dbflow.transaction.fastSave
-import com.raizlabs.android.dbflow.transaction.fastUpdate
+import com.raizlabs.android.dbflow.transaction.awaitInsert
+import com.raizlabs.android.dbflow.transaction.awaitSave
+import com.raizlabs.android.dbflow.transaction.awaitUpdate
+import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
@@ -19,46 +20,44 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
 
     @Test
     fun testSaveBuilder() {
-
-        database(TestDatabase::class) {
-            beginTransactionAsync((0..9)
-                    .map { SimpleModel("$it") }
-                    .fastSave().build())
-                    .execute()
-
-            val list = (writableDatabase.select from SimpleModel::class).list
-            assertEquals(10, list.size)
+        runBlocking {
+            database(TestDatabase::class) {
+                val result = (0..9)
+                        .map { SimpleModel("$it") }.awaitSave(this)
+                val list = (writableDatabase.select from SimpleModel::class).list
+                assertEquals(10, list.size)
+                assertEquals(10L, result)
+            }
         }
     }
 
     @Test
     fun testInsertBuilder() {
-        database(TestDatabase::class) {
-            beginTransactionAsync((0..9)
-                    .map { SimpleModel("$it") }
-                    .fastInsert().build())
-                    .execute()
-
-            val list = (writableDatabase.select from SimpleModel::class).list
-            assertEquals(10, list.size)
+        runBlocking {
+            database(TestDatabase::class) {
+                val result = (0..9)
+                        .map { SimpleModel("$it") }.awaitInsert(this)
+                val list = (writableDatabase.select from SimpleModel::class).list
+                assertEquals(10, list.size)
+                assertEquals(10L, result)
+            }
         }
     }
 
     @Test
     fun testUpdateBuilder() {
-        database(TestDatabase::class) {
-            val oldList = (0..9).map { TwoColumnModel("$it", Random().nextInt()) }
-            beginTransactionAsync(oldList.fastInsert().build())
-                    .execute()
+        runBlocking {
+            database(TestDatabase::class) {
+                val oldList = (0..9).map { TwoColumnModel("$it", Random().nextInt()) }
+                oldList.awaitInsert(this)
 
-            beginTransactionAsync((0..9).map { TwoColumnModel("$it", Random().nextInt()) }
-                    .fastUpdate().build())
-                    .execute()
+                (0..9).map { TwoColumnModel("$it", Random().nextInt()) }.awaitUpdate(this)
 
-            val list = (writableDatabase.select from TwoColumnModel::class).list
-            assertEquals(10, list.size)
-            list.forEachIndexed { index, model ->
-                assertNotEquals(model, oldList[index])
+                val list = (writableDatabase.select from TwoColumnModel::class).list
+                assertEquals(10, list.size)
+                list.forEachIndexed { index, model ->
+                    assertNotEquals(model, oldList[index])
+                }
             }
         }
     }

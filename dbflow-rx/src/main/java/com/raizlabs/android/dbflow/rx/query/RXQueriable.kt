@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.rx2.language
+package com.raizlabs.android.dbflow.rx.query
 
 import android.database.Cursor
 import com.raizlabs.android.dbflow.query.Delete
@@ -7,9 +7,7 @@ import com.raizlabs.android.dbflow.query.Set
 import com.raizlabs.android.dbflow.query.Queriable
 import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.database.DatabaseStatement
-import io.reactivex.Completable
-import io.reactivex.Maybe
-import io.reactivex.Single
+import rx.Single
 
 /**
  * Description: Mirrors [Queriable] with RX constructs.
@@ -19,7 +17,7 @@ interface RXQueriable {
     /**
      * @return An [Single] from the DB based on this query
      */
-    fun query(): Maybe<Cursor>
+    fun query(): Single<Cursor>
 
     /**
      * @return An [Single] of [DatabaseStatement] from this query.
@@ -52,10 +50,9 @@ interface RXQueriable {
      * Will not return a result, rather simply will execute a SQL statement. Use this for non-SELECT statements or when
      * you're not interested in the result.
      */
-    fun execute(): Completable
+    fun execute(): Single<Void>
 
 }
-
 
 inline val RXQueriable.cursor
     get() = query()
