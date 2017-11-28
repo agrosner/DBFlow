@@ -1,10 +1,11 @@
 package com.raizlabs.android.dbflow.adapter.queriable
 
-import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.adapter.ModelAdapter
-import com.raizlabs.android.dbflow.query.cache.ModelCache
+import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.database.FlowCursor
+import com.raizlabs.android.dbflow.query.cache.ModelCache
+import com.raizlabs.android.dbflow.query.cache.addOrReload
 
 /**
  * Description: Loads a [List] of [T] with [Table.cachingEnabled] true.
@@ -33,16 +34,9 @@ open class CacheableListModelLoader<T : Any>(modelClass: Class<T>)
         if (cursor.moveToFirst()) {
             do {
                 val values = modelAdapter.getCachingColumnValuesFromCursor(cacheValues, cursor)
-                var model: T? = modelCache[modelAdapter.getCachingId(values)]
-                if (model != null) {
-                    modelAdapter.reloadRelationships(model, cursor, databaseWrapper)
-                    _data.add(model)
-                } else {
-                    model = modelAdapter.newInstance()
-                    modelAdapter.loadFromCursor(cursor, model, databaseWrapper)
-                    modelCache.addModel(modelAdapter.getCachingId(values), model)
-                    _data.add(model)
-                }
+                val model = modelCache.addOrReload(modelAdapter.getCachingId(values),
+                        modelAdapter, cursor, databaseWrapper)
+                _data.add(model)
             } while (cursor.moveToNext())
         }
         return _data

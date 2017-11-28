@@ -114,12 +114,12 @@ fun ensureVisibleStatic(element: Element, typeElement: TypeElement,
 inline fun <reified A : Annotation>
         Element.extractTypeNameFromAnnotation(invoker: (A) -> Unit): TypeName?
         = annotation<A>()?.let { a ->
-    return@let try {
+    try {
         invoker(a)
-        null
     } catch (mte: MirroredTypeException) {
-        TypeName.get(mte.typeMirror)
+        return@let TypeName.get(mte.typeMirror)
     }
+    return@let null
 }
 
 inline fun <reified A : Annotation>

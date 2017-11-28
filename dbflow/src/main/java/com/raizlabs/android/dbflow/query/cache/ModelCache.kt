@@ -1,5 +1,9 @@
 package com.raizlabs.android.dbflow.query.cache
 
+import com.raizlabs.android.dbflow.adapter.ModelAdapter
+import com.raizlabs.android.dbflow.database.DatabaseWrapper
+import com.raizlabs.android.dbflow.database.FlowCursor
+
 /**
  * Description: A generic cache for models that is implemented or can be implemented to your liking.
  */
@@ -47,4 +51,21 @@ abstract class ModelCache<TModel, out CacheClass>
      * @param size The size of cache to set to
      */
     abstract fun setCacheSize(size: Int)
+}
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T : Any, C> ModelCache<T, C>.addOrReload(cacheValue: Any?,
+                                                     modelAdapter: ModelAdapter<T>,
+                                                     cursor: FlowCursor,
+                                                     databaseWrapper: DatabaseWrapper,
+                                                     data: T? = null): T {
+    var model: T? = get(cacheValue)
+    if (model != null) {
+        modelAdapter.reloadRelationships(model, cursor, databaseWrapper)
+    } else {
+        model = data ?: modelAdapter.newInstance()
+        modelAdapter.loadFromCursor(cursor, model, databaseWrapper)
+        addModel(cacheValue, model)
+    }
+    return model
 }

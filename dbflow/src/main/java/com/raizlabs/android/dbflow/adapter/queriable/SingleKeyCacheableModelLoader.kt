@@ -1,8 +1,9 @@
 package com.raizlabs.android.dbflow.adapter.queriable
 
-import com.raizlabs.android.dbflow.structure.Model
 import com.raizlabs.android.dbflow.database.DatabaseWrapper
 import com.raizlabs.android.dbflow.database.FlowCursor
+import com.raizlabs.android.dbflow.query.cache.addOrReload
+import com.raizlabs.android.dbflow.structure.Model
 
 /**
  * Description: More optimized version of [CacheableModelLoader] which assumes that the [Model]
@@ -20,20 +21,10 @@ class SingleKeyCacheableModelLoader<T : Any>(modelClass: Class<T>)
     override fun convertToData(cursor: FlowCursor, data: T?,
                                moveToFirst: Boolean,
                                databaseWrapper: DatabaseWrapper): T? {
-        if (!moveToFirst || cursor.moveToFirst()) {
+        return if (!moveToFirst || cursor.moveToFirst()) {
             val value = modelAdapter.getCachingColumnValueFromCursor(cursor)
-            var model: T? = modelCache.get(value)
-            if (model == null) {
-                model = (data ?: modelAdapter.newInstance()).apply {
-                    modelAdapter.loadFromCursor(cursor, this, databaseWrapper)
-                    modelCache.addModel(value, this)
-                }
-            } else {
-                modelAdapter.reloadRelationships(model, cursor, databaseWrapper)
-            }
-            return model
-        } else {
-            return null
-        }
+            modelCache.addOrReload(value, modelAdapter,
+                    cursor, databaseWrapper, data)
+        } else null
     }
 }

@@ -35,7 +35,10 @@ class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorM
     var isTopLevel = false
 
     init {
-        contentProviderName = typeElement.extractTypeNameFromAnnotation<TableEndpoint> { it.contentProvider }
+        contentProviderName = typeElement.extractTypeNameFromAnnotation<TableEndpoint> {
+            tableName = it.name
+            it.contentProvider
+        }
 
         isTopLevel = typeElement.enclosingElement is PackageElement
 
@@ -50,19 +53,9 @@ class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorM
                 }
             } else if (innerElement.annotation<Notify>() != null) {
                 val notifyDefinition = NotifyDefinition(innerElement, processorManager)
-
                 for (path in notifyDefinition.paths) {
-                    var methodListMap = notifyDefinitionPathMap[path]
-                    if (methodListMap == null) {
-                        methodListMap = mutableMapOf()
-                        notifyDefinitionPathMap.put(path, methodListMap)
-                    }
-
-                    var notifyDefinitionList: MutableList<NotifyDefinition>? = methodListMap[notifyDefinition.method]
-                    if (notifyDefinitionList == null) {
-                        notifyDefinitionList = arrayListOf()
-                        methodListMap.put(notifyDefinition.method, notifyDefinitionList)
-                    }
+                    val methodListMap = notifyDefinitionPathMap.getOrPut(path) { mutableMapOf() }
+                    val notifyDefinitionList = methodListMap.getOrPut(notifyDefinition.method) { arrayListOf() }
                     notifyDefinitionList.add(notifyDefinition)
                 }
             }

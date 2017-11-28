@@ -45,32 +45,24 @@ class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
             val paramType = param.asType()
             val typeAsString = paramType.toString()
             paramsBuilder.append(
-                    if ("android.content.Context" == typeAsString) {
-                        "getContext()"
-                    } else if ("android.net.Uri" == typeAsString) {
-                        "uri"
-                    } else if ("android.content.ContentValues" == typeAsString) {
-                        "values"
-                    } else if ("long" == typeAsString) {
-                        "id"
-                    } else if ("java.lang.String" == typeAsString) {
-                        "where"
-                    } else if ("java.lang.String[]" == typeAsString) {
-                        "whereArgs"
-                    } else {
-                        ""
+                    when (typeAsString) {
+                        "android.content.Context" -> "getContext()"
+                        "android.net.Uri" -> "uri"
+                        "android.content.ContentValues" -> "values"
+                        "long" -> "id"
+                        "java.lang.String" -> "where"
+                        "java.lang.String[]" -> "whereArgs"
+                        else -> ""
                     })
         }
 
         params = paramsBuilder.toString()
 
         val typeMirror = executableElement.returnType
-        if (ClassNames.URI.toString() + "[]" == typeMirror.toString()) {
-            returnsArray = true
-        } else if (ClassNames.URI.toString() == typeMirror.toString()) {
-            returnsSingle = true
-        } else {
-            processorManager.logError("Notify method returns wrong type. It must return Uri or Uri[]")
+        when {
+            "${ClassNames.URI}[]" == typeMirror.toString() -> returnsArray = true
+            ClassNames.URI.toString() == typeMirror.toString() -> returnsSingle = true
+            else -> processorManager.logError("Notify method returns wrong type. It must return Uri or Uri[]")
         }
     }
 

@@ -357,14 +357,14 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             } else if (element.annotation<ModelCacheField>() != null) {
                 ensureVisibleStatic(element, typeElement, "ModelCacheField")
                 if (!customCacheFieldName.isNullOrEmpty()) {
-                    manager.logError("ModelCacheField can only be declared once from: " + typeElement)
+                    manager.logError("ModelCacheField can only be declared once from: $typeElement")
                 } else {
                     customCacheFieldName = element.simpleName.toString()
                 }
             } else if (element.annotation<MultiCacheField>() != null) {
                 ensureVisibleStatic(element, typeElement, "MultiCacheField")
                 if (!customMultiCacheFieldName.isNullOrEmpty()) {
-                    manager.logError("MultiCacheField can only be declared once from: " + typeElement)
+                    manager.logError("MultiCacheField can only be declared once from: $typeElement")
                 } else {
                     customMultiCacheFieldName = element.simpleName.toString()
                 }

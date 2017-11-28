@@ -11,31 +11,20 @@ open class ListModelLoader<T : Any>(modelClass: Class<T>)
 
     override fun load(cursor: FlowCursor?, data: MutableList<T>?,
                       databaseWrapper: DatabaseWrapper): MutableList<T>? {
-        var _data = data
-        if (_data == null) {
-            _data = arrayListOf()
-        } else {
-            _data.clear()
-        }
-        return super.load(cursor, _data, databaseWrapper)
+        val emptyData = data?.apply { clear() } ?: arrayListOf()
+        return super.load(cursor, emptyData, databaseWrapper)
     }
 
     override fun convertToData(cursor: FlowCursor, data: MutableList<T>?,
                                databaseWrapper: DatabaseWrapper): MutableList<T> {
-        var _data = data
-        if (_data == null) {
-            _data = arrayListOf()
-        } else {
-            _data.clear()
-        }
-
+        val retData = data?.apply { clear() } ?: arrayListOf()
         if (cursor.moveToFirst()) {
             do {
                 val model = instanceAdapter.newInstance()
                 instanceAdapter.loadFromCursor(cursor, model, databaseWrapper)
-                _data.add(model)
+                retData.add(model)
             } while (cursor.moveToNext())
         }
-        return _data
+        return retData
     }
 }
