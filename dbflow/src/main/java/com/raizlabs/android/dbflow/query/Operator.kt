@@ -177,7 +177,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
      * @param collation The SQLite collate function
      * @return This condition.
      */
-    fun collate(collation: String) = apply {
+    infix fun collate(collation: String) = apply {
         postArg = "COLLATE $collation"
     }
 
@@ -187,7 +187,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
      * @param collation The SQLite collate function
      * @return This condition.
      */
-    fun collate(collation: Collate) = apply {
+    infix fun collate(collation: Collate) = apply {
         if (collation == Collate.NONE) {
             postArg = null
         } else {
@@ -198,7 +198,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
     /**
      * Appends an optional SQL string to the end of this condition
      */
-    fun postfix(postfix: String) = apply {
+    infix fun postfix(postfix: String) = apply {
         postArg = postfix
     }
 
@@ -532,7 +532,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
             this.postArg = operator.postArgument()
         }
 
-        fun and(secondValue: T?) = apply {
+        infix fun and(secondValue: T?) = apply {
             this.secondValue = secondValue
         }
 
@@ -586,7 +586,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
          * in a [OperatorGroup].
          * @return
          */
-        fun and(argument: T?): In<T> {
+        infix fun and(argument: T?): In<T> {
             inArguments.add(argument)
             return this
         }
@@ -619,16 +619,6 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 fun <T : Any> NameAlias.op() = Operator.op<T>(this)
 
 fun <T : Any> String.op(): Operator<T> = nameAlias.op()
-
-infix fun <T : Any> Operator<T>.collate(collation: Collate): BaseOperator = collate(collation)
-
-infix fun <T : Any> Operator<T>.collate(collation: String): BaseOperator = collate(collation)
-
-infix fun <T : Any> Operator<T>.postfix(collation: String): BaseOperator = postfix(collation)
-
-infix fun <T : Any> Operator.Between<T>.and(value: T?): BaseOperator = and(value)
-
-infix fun <T : Any> Operator.In<T>.and(value: T?): BaseOperator = and(value)
 
 infix fun <T : Any> Operator<T>.and(sqlOperator: SQLOperator): OperatorGroup
         = OperatorGroup.clause(this).and(sqlOperator)
