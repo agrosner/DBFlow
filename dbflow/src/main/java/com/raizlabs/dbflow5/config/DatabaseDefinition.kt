@@ -268,6 +268,18 @@ abstract class DatabaseDefinition : DatabaseWrapper {
         return modelNotifier!!
     }
 
+    /**
+     * Executes and returns the executed transaction.
+     */
+    fun <R : Any?> executeTransactionAsync(transaction: ITransaction<R>,
+                                           success: ((Transaction<R>, R) -> Unit)? = null,
+                                           error: ((Transaction<R>, Throwable) -> Unit)? = null): Transaction<R>
+            = beginTransactionAsync(transaction)
+            .success(success)
+            .error(error)
+            .execute()
+
+
     fun <R : Any?> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
             Transaction.Builder(transaction, this)
 

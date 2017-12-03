@@ -73,7 +73,7 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
     /**
      * Runs the transaction in the [BaseTransactionManager] of the associated database.
      */
-    fun execute() {
+    fun execute() = apply {
         databaseDefinition.transactionManager.addTransaction(this)
     }
 
@@ -153,8 +153,10 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
         /**
          * Specify an error callback to return all and any [Throwable] that occured during a [Transaction].
          */
-        fun error(errorCallback: (Transaction<R>, Throwable) -> Unit) = apply {
-            this.errorCallback = transactionError { transaction, throwable -> errorCallback(transaction, throwable) }
+        fun error(errorCallback: ((Transaction<R>, Throwable) -> Unit)?) = apply {
+            if (errorCallback != null) {
+                this.errorCallback = transactionError { transaction, throwable -> errorCallback(transaction, throwable) }
+            }
         }
 
         /**
@@ -173,8 +175,10 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
          *
          * @param successCallback The callback, invoked on the UI thread.
          */
-        fun success(successCallback: (Transaction<R>, R) -> Unit) = apply {
-            this.successCallback = transactionSuccess { transaction, r -> successCallback(transaction, r) }
+        fun success(successCallback: ((Transaction<R>, R) -> Unit)?) = apply {
+            if (successCallback != null) {
+                this.successCallback = transactionSuccess { transaction, r -> successCallback(transaction, r) }
+            }
         }
 
         /**
@@ -215,9 +219,7 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
         /**
          * Convenience method to simply execute a transaction.
          */
-        fun execute() {
-            build().execute()
-        }
+        fun execute() = build().execute()
     }
 
     companion object {
@@ -226,10 +228,10 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
     }
 }
 
-inline fun <R: Any?> transactionSuccess(crossinline function: (Transaction<R>, R) -> Unit) = object : Transaction.Success<R> {
+inline fun <R : Any?> transactionSuccess(crossinline function: (Transaction<R>, R) -> Unit) = object : Transaction.Success<R> {
     override fun onSuccess(transaction: Transaction<R>, result: R) = function(transaction, result)
 }
 
-inline fun <R: Any?> transactionError(crossinline function: (Transaction<R>, Throwable) -> Unit) = object : Transaction.Error<R> {
+inline fun <R : Any?> transactionError(crossinline function: (Transaction<R>, Throwable) -> Unit) = object : Transaction.Error<R> {
     override fun onError(transaction: Transaction<R>, error: Throwable) = function(transaction, error)
 }
