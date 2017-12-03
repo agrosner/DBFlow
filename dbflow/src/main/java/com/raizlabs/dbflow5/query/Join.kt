@@ -140,9 +140,19 @@ class Join<TModel : Any, TFromModel : Any> : Query {
      */
     fun on(vararg onConditions: SQLOperator): From<TFromModel> {
         checkNatural()
-        onGroup = OperatorGroup.nonGroupingClause().apply {
-            andAll(*onConditions)
-        }
+        onGroup = OperatorGroup.nonGroupingClause().andAll(*onConditions)
+        return from
+    }
+
+    /**
+     * Specify the conditions that the JOIN is on
+     *
+     * @param onConditions The conditions it is on
+     * @return The FROM that this JOIN came from
+     */
+    fun on(onCondition: SQLOperator): From<TFromModel> {
+        checkNatural()
+        onGroup = OperatorGroup.nonGroupingClause().and(onCondition)
         return from
     }
 
@@ -155,6 +165,18 @@ class Join<TModel : Any, TFromModel : Any> : Query {
     fun using(vararg columns: IProperty<*>): From<TFromModel> {
         checkNatural()
         using.addAll(columns)
+        return from
+    }
+
+    /**
+     * The USING statement of the JOIN
+     *
+     * @param columns THe columns to use
+     * @return The FROM that this JOIN came from
+     */
+    infix fun using(property: IProperty<*>): From<TFromModel> {
+        checkNatural()
+        using.add(property)
         return from
     }
 
@@ -180,4 +202,3 @@ infix fun <T : Any, V : Any> From<V>.naturalJoin(joinTable: KClass<T>): Join<T, 
 
 infix fun <T : Any, V : Any> Join<T, V>.on(sqlOperator: SQLOperator): From<V> = on(sqlOperator)
 
-infix fun <T : Any, V : Any> Join<T, V>.using(property: IProperty<*>): From<V> = using(property)

@@ -27,7 +27,7 @@ This example creates a `TypeConverter` for a field that is `JSONObject` and conv
 
 ```java
 
-@com.raizlabs.dbflow5.dbflow.annotation.TypeConverter
+@com.raizlabs.dbflow5.annotation.TypeConverter
 public class JSONConverter extends TypeConverter<String, JSONObject> {
 
     @Override

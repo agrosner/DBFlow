@@ -230,7 +230,7 @@ A class can use both:
 @Table(database = TestDatabase.class)
 @ManyToMany(referencedTable = TestModel1.class)
 @MultipleManyToMany({@ManyToMany(referencedTable = TestModel2.class),
-    @ManyToMany(referencedTable = com.raizlabs.dbflow5.dbflow.test.sql.TestModel3.class)})
+    @ManyToMany(referencedTable = com.raizlabs.dbflow5.test.sql.TestModel3.class)})
 public class ManyToManyModel extends BaseModel {
 
     @PrimaryKey

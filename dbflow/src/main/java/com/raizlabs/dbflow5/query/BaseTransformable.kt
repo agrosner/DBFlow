@@ -21,6 +21,8 @@ protected constructor(databaseWrapper: DatabaseWrapper,
 
     fun where(vararg conditions: SQLOperator): Where<TModel> = Where(this, *conditions)
 
+    infix fun where(condition: SQLOperator) : Where<TModel> = Where(this, condition)
+
     override fun query(): FlowCursor? = where().query()
 
     override fun groupBy(vararg nameAliases: NameAlias): Where<TModel> =
@@ -62,5 +64,3 @@ protected constructor(databaseWrapper: DatabaseWrapper,
         }
     }
 }
-
-infix fun <T : Any> BaseTransformable<T>.where(sqlOperator: SQLOperator) = where(sqlOperator)

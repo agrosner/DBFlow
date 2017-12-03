@@ -29,7 +29,7 @@ class CompletedTrigger<TModel> internal constructor(
     /**
      * Appends the nextStatement to this query as another line to be executed by trigger.
      */
-    fun and(nextStatement: Query) = apply {
+    infix fun and(nextStatement: Query) = apply {
         this.triggerLogicQuery.add(nextStatement)
     }
 

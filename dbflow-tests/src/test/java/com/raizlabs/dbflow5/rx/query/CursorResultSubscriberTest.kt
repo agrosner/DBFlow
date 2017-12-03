@@ -1,8 +1,9 @@
 package com.raizlabs.dbflow5.rx.query
 
-import com.raizlabs.dbflow5.dbflow.BaseUnitTest
+import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.config.databaseForTable
-import com.raizlabs.dbflow5.dbflow.models.SimpleModel
+import com.raizlabs.dbflow5.models.SimpleModel
+import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.structure.save
 import org.junit.Assert.assertEquals
 import org.junit.Test

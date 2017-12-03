@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.rx.query
 
-import com.raizlabs.dbflow5.dbflow.TestDatabase
+import com.raizlabs.dbflow5.TestDatabase
 import com.raizlabs.dbflow5.annotation.PrimaryKey
 import com.raizlabs.dbflow5.annotation.Table
 import com.raizlabs.dbflow5.rx.structure.BaseRXModel

@@ -11,7 +11,6 @@ import com.raizlabs.dbflow5.adapter.saveable.ModelSaver
 import com.raizlabs.dbflow5.annotation.Database
 import com.raizlabs.dbflow5.annotation.QueryModel
 import com.raizlabs.dbflow5.annotation.Table
-import com.raizlabs.dbflow5.dbflow.config.DatabaseHolder
 import com.raizlabs.dbflow5.database.DatabaseHelperListener
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper

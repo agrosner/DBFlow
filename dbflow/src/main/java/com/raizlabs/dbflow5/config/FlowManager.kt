@@ -38,7 +38,7 @@ object FlowManager {
     private val DEFAULT_DATABASE_HOLDER_PACKAGE_NAME = FlowManager::class.java.`package`.name
 
     private val DEFAULT_DATABASE_HOLDER_CLASSNAME =
-            DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "" + DEFAULT_DATABASE_HOLDER_NAME
+            DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + DEFAULT_DATABASE_HOLDER_NAME
 
     /**
      * Will throw an exception if this class is not initialized yet in [.init]

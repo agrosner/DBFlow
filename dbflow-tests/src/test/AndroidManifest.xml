@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-    package="com.raizlabs.dbflow5.dbflow.test"
+    package="com.raizlabs.dbflow5.test"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -9,7 +9,7 @@
     <application android:name=".DBFlowTestApp">
         <provider
             android:name=".provider.TestContentProvider_Provider"
-            android:authorities="com.raizlabs.dbflow5.dbflow.test.provider"
+            android:authorities="com.raizlabs.dbflow5.test.provider"
             android:exported="true"/>
 
     </application>

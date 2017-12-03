@@ -15,7 +15,7 @@ In order to define a `ContentProvider`, you must define it in a placeholder clas
         baseContentUri = TestContentProvider.BASE_CONTENT_URI)
 public class TestContentProvider {
 
-    public static final String AUTHORITY = "com.raizlabs.dbflow5.dbflow.test.provider";
+    public static final String AUTHORITY = "com.raizlabs.dbflow5.test.provider";
 
     public static final String BASE_CONTENT_URI = "content://";
 
@@ -36,7 +36,7 @@ public class TestDatabase {
 
     public static final int VERSION = "1";
 
-    public static final String AUTHORITY = "com.raizlabs.dbflow5.dbflow.test.provider";
+    public static final String AUTHORITY = "com.raizlabs.dbflow5.test.provider";
 
     public static final String BASE_CONTENT_URI = "content://";
 
@@ -49,7 +49,7 @@ In other applications or your current's `AndroidManifest.xml` add the **generate
 ```xml
 
 <provider
-            android:authorities="com.raizlabs.dbflow5.dbflow.test.provider"
+            android:authorities="com.raizlabs.dbflow5.test.provider"
             android:exported="true|false"
             android:name=".provider.TestContentProvider_Provider"/>
 ```

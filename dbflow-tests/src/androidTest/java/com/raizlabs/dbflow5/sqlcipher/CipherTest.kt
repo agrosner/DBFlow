@@ -1,8 +1,11 @@
 package com.raizlabs.dbflow5.sqlcipher
 
-import com.raizlabs.dbflow5.dbflow.BaseInstrumentedUnitTest
+import com.raizlabs.dbflow5.BaseInstrumentedUnitTest
 import com.raizlabs.dbflow5.config.database
 import com.raizlabs.dbflow5.query.delete
+import com.raizlabs.dbflow5.query.result
+import com.raizlabs.dbflow5.query.select
+import com.raizlabs.dbflow5.query.where
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

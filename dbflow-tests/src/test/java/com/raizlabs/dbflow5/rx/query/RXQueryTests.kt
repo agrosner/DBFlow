@@ -1,13 +1,14 @@
 package com.raizlabs.dbflow5.rx.query
 
 import android.database.Cursor
-import com.raizlabs.dbflow5.dbflow.BaseUnitTest
+import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.database.DatabaseStatement
-import com.raizlabs.dbflow5.dbflow.models.SimpleModel
-import com.raizlabs.dbflow5.dbflow.models.SimpleModel_Table.name
+import com.raizlabs.dbflow5.models.SimpleModel
+import com.raizlabs.dbflow5.models.SimpleModel_Table.name
 import com.raizlabs.dbflow5.query.insert
 import com.raizlabs.dbflow5.query.property.Property
+import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.query.selectCountOf
 import com.raizlabs.dbflow5.structure.save
 import org.junit.Assert.assertEquals

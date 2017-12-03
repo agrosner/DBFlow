@@ -4,13 +4,13 @@ import android.content.ContentProvider
 import android.content.ContentValues
 import android.net.Uri
 import com.raizlabs.dbflow5.config.DatabaseDefinition
-import com.raizlabs.dbflow5.dbflow.config.DatabaseHolder
+import com.raizlabs.dbflow5.config.DatabaseHolder
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.transaction.ITransaction
 
 /**
- * Description: The base provider class that [com.raizlabs.android.dbflow.annotation.provider.ContentProvider]
+ * Description: The base provider class that [com.raizlabs.android.dbflow5.annotation.provider.ContentProvider]
  * extend when generated.
  */
 abstract class BaseContentProvider

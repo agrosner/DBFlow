@@ -11,7 +11,7 @@ import java.util.*
  * Description: This class is responsible for converting the stored database value into the field value in
  * a Model.
  */
-@com.raizlabs.dbflow5.dbflow.annotation.TypeConverter
+@com.raizlabs.dbflow5.annotation.TypeConverter
 abstract class TypeConverter<DataClass, ModelClass> {
 
     /**
@@ -61,7 +61,7 @@ class BooleanConverter : TypeConverter<Int, Boolean>() {
 /**
  * Description: Defines how we store and retrieve a [java.util.Calendar]
  */
-@com.raizlabs.dbflow5.dbflow.annotation.TypeConverter(allowedSubtypes = arrayOf(GregorianCalendar::class))
+@com.raizlabs.dbflow5.annotation.TypeConverter(allowedSubtypes = [(GregorianCalendar::class)])
 class CalendarConverter : TypeConverter<Long, Calendar>() {
 
     override fun getDBValue(model: Calendar?): Long? = model?.timeInMillis
@@ -94,7 +94,7 @@ class DateConverter : TypeConverter<Long, Date>() {
 /**
  * Description: Defines how we store and retrieve a [java.sql.Date]
  */
-@com.raizlabs.dbflow5.dbflow.annotation.TypeConverter(allowedSubtypes = arrayOf(Time::class, Timestamp::class))
+@com.raizlabs.dbflow5.annotation.TypeConverter(allowedSubtypes = [(Time::class), (Timestamp::class)])
 class SqlDateConverter : TypeConverter<Long, java.sql.Date>() {
 
     override fun getDBValue(model: java.sql.Date?): Long? = model?.time
