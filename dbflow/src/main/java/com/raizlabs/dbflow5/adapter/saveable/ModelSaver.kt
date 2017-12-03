@@ -1,11 +1,11 @@
 package com.raizlabs.dbflow5.adapter.saveable
 
 import android.content.ContentValues
-import com.raizlabs.dbflow5.runtime.NotifyDistributor
-import com.raizlabs.dbflow5.structure.ChangeAction
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.runtime.NotifyDistributor
+import com.raizlabs.dbflow5.structure.ChangeAction
 
 /**
  * Description: Defines how models get saved into the DB. It will bind values to [DatabaseStatement]
@@ -16,9 +16,24 @@ open class ModelSaver<T : Any> {
     lateinit var modelAdapter: ModelAdapter<T>
 
     @Synchronized
-    fun save(model: T, wrapper: DatabaseWrapper): Boolean =
-            save(model, modelAdapter.getInsertStatement(wrapper),
-                    modelAdapter.getUpdateStatement(wrapper), wrapper)
+    fun save(model: T, wrapper: DatabaseWrapper): Boolean {
+        var exists = modelAdapter.exists(model, wrapper)
+
+        if (exists) {
+            exists = update(model, wrapper)
+        }
+
+        if (!exists) {
+            exists = insert(model, wrapper) > INSERT_FAILED
+        }
+
+        if (exists) {
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.SAVE)
+        }
+
+        // return successful store into db.
+        return exists
+    }
 
     @Synchronized
     fun save(model: T,
