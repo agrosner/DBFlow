@@ -9,6 +9,14 @@ In DBFlow, creating a database is as simple as only a few lines of code. DBFlow
 supports any number of databases, however individual tables and other related files
 can only be associated with one database.
 
+```kotlin
+@Database(version = AppDatabase.VERSION)
+object AppDatabase {
+    const val VERSION = 1
+}
+```
+or in Java:
+
 ```java
 
 @Database(version = AppDatabase.VERSION)
@@ -18,16 +26,9 @@ public class AppDatabase {
 }
 
 ```
-
-```kotlin
-@Database(version = AppDatabase.VERSION)
-object AppDatabase {
-  const val VERSION = 1
-}
-```
 ## Initialization
 
-To specify a custom **name** to the database, in previous versions of DBFlow (< 4.1.0), you had to specify it in the `@Database` annotation. As of 4.1.0, that method is deprecated and now it's preferred to pass it in the initialization of the `FlowManager`:
+To specify a custom **name** to the database, in previous versions of DBFlow (< 4.1.0), you had to specify it in the `@Database` annotation. As of 5.0 now you pass it in the initialization of the `FlowManager`:
 
 ```java
 
@@ -40,18 +41,18 @@ FlowManager.init(FlowConfig.builder()
 ```
 
 To dynamically change the database name, call:
-```java
+```kotlin
 
-FlowManager.getDatabase(AppDatabase.class)
+database<AppDatabase>()
   .reset(DatabaseConfig.builder(AppDatabase.class)
     .databaseName("AppDatabase-2")
     .build())
 
 ```
+or in Java:
+```java
 
-```kotlin
-
-database<AppDatabase>()
+FlowManager.getDatabase(AppDatabase.class)
   .reset(DatabaseConfig.builder(AppDatabase.class)
     .databaseName("AppDatabase-2")
     .build())
@@ -62,7 +63,17 @@ This will close the open DB, reopen the DB, and replace previous `DatabaseConfig
 
 ### In Memory Databases
 
-As with **name**, in previous versions of DBFlow (< 4.1.0), you specified `inMemory` in the `@Database` annotation. Starting with 4.1.0 that is deprecated, and replaced with:
+As with **name**, in previous versions of DBFlow (< 5.0), you specified `inMemory` in the `@Database` annotation. Starting with 5.0 that is replaced with:
+```kotlin
+
+FlowManager.init(FlowConfig.builder()
+    .addDatabaseConfig(DatabaseConfig.inMemoryBuilder(AppDatabase::class.java)
+      .databaseName("AppDatabase")
+      .build())
+    .build())
+
+```
+
 ```java
 
 FlowManager.init(FlowConfig.builder()
@@ -83,6 +94,25 @@ the version number increases on an existing database.
 It is preferred that `Migration` files go in the same file as the database, for
 organizational purposes.
 An example migration:
+
+
+```kotlin
+
+@Database(version = AppDatabase.VERSION)
+object AppDatabase {
+
+  const val VERSION = 2
+
+  @Migration(version = 2, database = MigrationDatabase.class)
+  class AddEmailToUserMigration : AlterTableMigration<User>(User::class.java) {
+
+    override fun onPreMigrate() {
+        addColumn(SQLiteType.TEXT, "email")
+    }
+  }
+}
+
+```
 
 ```java
 
@@ -109,23 +139,6 @@ public class AppDatabase {
 
 ```
 
-```kotlin
-
-@Database(version = AppDatabase.VERSION)
-object AppDatabase {
-
-  const val VERSION = 2
-
-  @Migration(version = 2, database = MigrationDatabase.class)
-  class AddEmailToUserMigration : AlterTableMigration<User>(User::class.java) {
-
-    override fun onPreMigrate() {
-        addColumn(SQLiteType.TEXT, "email")
-    }
-  }
-}
-
-```
 
 This simple example adds a column to the `User` table named "email". In code, just add
 the column to the `Model` class and this migration runs only on existing dbs.
@@ -144,18 +157,17 @@ of the database for the app.
 ### Global Conflict Handling
 In DBFlow when an INSERT or UPDATE are performed, by default, we use `NONE`. If you wish to configure this globally, you can define it to apply for all tables from a given database:
 
+```kotlin
+@Database(version = AppDatabase.VERSION, insertConflict = ConflictAction.IGNORE, updateConflict= ConflictAction.REPLACE)
+object AppDatabase {
+}
+
+```
 
 ```java
 
 @Database(version = AppDatabase.VERSION, insertConflict = ConflictAction.IGNORE, updateConflict= ConflictAction.REPLACE)
 public class AppDatabase {
-}
-
-```
-
-```kotlin
-@Database(version = AppDatabase.VERSION, insertConflict = ConflictAction.IGNORE, updateConflict= ConflictAction.REPLACE)
-object AppDatabase {
 }
 
 ```
@@ -177,8 +189,14 @@ to manage database interactions. To do so, you must implement `OpenHelper`, but
 for convenience you should extend `FlowSQLiteOpenHelper` (for Android databases),
 or `SQLCipherOpenHelper` for SQLCipher. Read more [here](SQLCipherSupport.md)
 
-```java
 
+```kotlin
+
+class CustomFlowSQliteOpenHelper(databaseDefinition: DatabaseDefinition, listener: DatabaseHelperListener) : FlowSQLiteOpenHelper(databaseDefinition, listener)
+
+```
+
+```java
 
 public class CustomFlowSQliteOpenHelper extends FlowSQLiteOpenHelper {
 
@@ -187,16 +205,18 @@ public class CustomFlowSQliteOpenHelper extends FlowSQLiteOpenHelper {
     }
 }
 
-
 ```
 
+Then in your `DatabaseConfig`:
 
 ```kotlin
-
-class CustomFlowSQliteOpenHelper(databaseDefinition: DatabaseDefinition, listener: DatabaseHelperListener) : FlowSQLiteOpenHelper(databaseDefinition, listener)
+FlowManager.init(FlowConfig.builder(context)
+  .addDatabaseConfig(DatabaseConfig.Builder(CipherDatabase::class.java)
+      .openHelper(::CustomFlowSQliteOpenHelper)
+      .build())
+  .build())
 
 ```
-Then in your `DatabaseConfig`:
 
 ```java
 
@@ -211,15 +231,4 @@ FlowManager.init(FlowConfig.builder(context)
           })
       .build())
   .build());
-
-
-```
-
-```kotlin
-FlowManager.init(FlowConfig.builder(context)
-  .addDatabaseConfig(DatabaseConfig.Builder(CipherDatabase.class)
-      .openHelper(::CustomFlowSQliteOpenHelper)
-      .build())
-  .build())
-
 ```
