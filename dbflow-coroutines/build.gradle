@@ -14,11 +14,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-
 }
 
 dependencies {
     implementation project("${dbflow_project_prefix}dbflow")
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19.2"
 }
 
 kotlin {

@@ -1,0 +1,30 @@
+package com.raizlabs.dbflow5.adapter.queriable
+
+import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.database.FlowCursor
+import com.raizlabs.dbflow5.query.cache.addOrReload
+import com.raizlabs.dbflow5.structure.Model
+
+/**
+ * Description: More optimized version of [CacheableModelLoader] which assumes that the [Model]
+ * only utilizes a single primary key.
+ */
+class SingleKeyCacheableModelLoader<T : Any>(modelClass: Class<T>)
+    : CacheableModelLoader<T>(modelClass) {
+
+    /**
+     * Converts data by loading from cache based on its sequence of caching ids. Will reuse the passed
+     * [T] if it's not found in the cache and non-null.
+     *
+     * @return A model from cache.
+     */
+    override fun convertToData(cursor: FlowCursor, data: T?,
+                               moveToFirst: Boolean,
+                               databaseWrapper: DatabaseWrapper): T? {
+        return if (!moveToFirst || cursor.moveToFirst()) {
+            val value = modelAdapter.getCachingColumnValueFromCursor(cursor)
+            modelCache.addOrReload(value, modelAdapter,
+                    cursor, databaseWrapper, data)
+        } else null
+    }
+}

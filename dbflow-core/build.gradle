@@ -14,6 +14,6 @@ apply from: '../java-artifacts.gradle'
 
 compileKotlin {
     kotlinOptions {
-        apiVersion = "1.1"
+        apiVersion = "1.2"
     }
 }

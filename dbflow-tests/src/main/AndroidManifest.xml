@@ -1,16 +1,16 @@
 <manifest
-    package="com.raizlabs.android.dbflow.test"
+    package="com.raizlabs.dbflow5.dbflow.test"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-        android:name="com.raizlabs.android.dbflow.DemoApp"
+        android:name="com.raizlabs.dbflow5.dbflow.DemoApp"
         android:label="DB Flow Compiler Test">
         <provider
-            android:name="com.raizlabs.android.dbflow.StubContentProvider"
+            android:name="com.raizlabs.dbflow5.dbflow.StubContentProvider"
             android:authorities="com.grosner.content"/>
 
         <activity
-            android:name=".DemoActivity">
+            android:name="com.raizlabs.dbflow5.dbflow.test.DemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

@@ -1,5 +1,1 @@
-<manifest package="com.raizlabs.android.dbflow.rx2">
-
-    <application/>
-
-</manifest>
+<manifest package="com.raizlabs.dbflow5.rx2"/>

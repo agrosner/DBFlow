@@ -1,2 +1,1 @@
-<manifest package="com.raizlabs.dbflow.coroutines"
-          xmlns:android="http://schemas.android.com/apk/res/android"/>
+<manifest package="com.raizlabs.dbflow5.coroutines"/>

@@ -5,12 +5,10 @@ project.ext.artifactId = bt_name
 
 android {
     compileSdkVersion Integer.valueOf(dbflow_target_sdk)
-    buildToolsVersion dbflow_build_tools_version
 
     defaultConfig {
         minSdkVersion dbflow_min_sdk
         targetSdkVersion Integer.valueOf(dbflow_target_sdk)
-        versionCode = version_code
     }
 
     lintOptions {
@@ -28,7 +26,6 @@ dependencies {
     api project("${dbflow_project_prefix}dbflow-core")
     api "com.android.support:support-annotations:27.0.1"
     api "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19.2"
 }
 
 apply from: '../android-artifacts.gradle'

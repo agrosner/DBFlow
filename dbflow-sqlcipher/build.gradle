@@ -5,7 +5,6 @@ project.ext.artifactId = bt_name
 
 android {
     compileSdkVersion 26
-    buildToolsVersion dbflow_build_tools_version
 
     defaultConfig {
         minSdkVersion 7

@@ -63,7 +63,7 @@ Since DBFlow uses annotation processing, which is run pre-proguard phase,
 the configuration is highly minimal:
 
 ```
--keep class * extends com.raizlabs.android.dbflow.config.DatabaseHolder { *; }
+-keep class * extends com.raizlabs.dbflow5.dbflow.config.DatabaseHolder { *; }
 ```
 
 ## Sections
