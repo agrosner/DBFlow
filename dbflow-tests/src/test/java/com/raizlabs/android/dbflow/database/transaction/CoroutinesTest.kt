@@ -10,11 +10,11 @@ import com.raizlabs.android.dbflow.query.list
 import com.raizlabs.android.dbflow.query.select
 import com.raizlabs.android.dbflow.query.where
 import com.raizlabs.android.dbflow.structure.save
-import com.raizlabs.android.dbflow.transaction.awaitDelete
-import com.raizlabs.android.dbflow.transaction.awaitInsert
-import com.raizlabs.android.dbflow.transaction.awaitSave
-import com.raizlabs.android.dbflow.transaction.awaitUpdate
-import com.raizlabs.android.dbflow.transaction.transact
+import com.raizlabs.dbflow.coroutines.awaitDelete
+import com.raizlabs.dbflow.coroutines.awaitInsert
+import com.raizlabs.dbflow.coroutines.awaitSave
+import com.raizlabs.dbflow.coroutines.awaitUpdate
+import com.raizlabs.dbflow.coroutines.transact
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
 

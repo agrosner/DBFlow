@@ -31,11 +31,5 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19.2"
 }
 
-kotlin {
-    experimental {
-        coroutines 'enable'
-    }
-}
-
 apply from: '../android-artifacts.gradle'
 

@@ -7,9 +7,9 @@ import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.models.TwoColumnModel
 import com.raizlabs.android.dbflow.query.list
 import com.raizlabs.android.dbflow.query.select
-import com.raizlabs.android.dbflow.transaction.awaitInsert
-import com.raizlabs.android.dbflow.transaction.awaitSave
-import com.raizlabs.android.dbflow.transaction.awaitUpdate
+import com.raizlabs.dbflow.coroutines.awaitInsert
+import com.raizlabs.dbflow.coroutines.awaitSave
+import com.raizlabs.dbflow.coroutines.awaitUpdate
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals

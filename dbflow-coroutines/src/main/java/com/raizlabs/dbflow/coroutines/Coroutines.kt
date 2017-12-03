@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.transaction
+package com.raizlabs.dbflow.coroutines
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition
 import com.raizlabs.android.dbflow.query.Queriable
@@ -7,6 +7,11 @@ import com.raizlabs.android.dbflow.structure.insert
 import com.raizlabs.android.dbflow.structure.load
 import com.raizlabs.android.dbflow.structure.save
 import com.raizlabs.android.dbflow.structure.update
+import com.raizlabs.android.dbflow.transaction.FastStoreModelTransaction
+import com.raizlabs.android.dbflow.transaction.fastDelete
+import com.raizlabs.android.dbflow.transaction.fastInsert
+import com.raizlabs.android.dbflow.transaction.fastSave
+import com.raizlabs.android.dbflow.transaction.fastUpdate
 import kotlinx.coroutines.experimental.CancellableContinuation
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 
@@ -18,7 +23,7 @@ inline suspend fun <Q : Queriable, R : Any?> DatabaseDefinition.transact(
         modelQueriable: Q,
         crossinline queriableFunction: Q.() -> R)
         = suspendCancellableCoroutine<R> { continuation ->
-    constructCoroutine(continuation, this) { queriableFunction(modelQueriable) }
+    com.raizlabs.dbflow.coroutines.constructCoroutine(continuation, this) { queriableFunction(modelQueriable) }
 }
 
 inline fun <R : Any?> constructCoroutine(continuation: CancellableContinuation<R>,
