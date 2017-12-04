@@ -1,25 +1,27 @@
-package com.raizlabs.dbflow5.database
+package com.raizlabs.dbflow5.android.support
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-
 import com.raizlabs.dbflow5.config.DatabaseDefinition
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.database.AndroidDatabase
+import com.raizlabs.dbflow5.database.BaseDatabaseHelper
+import com.raizlabs.dbflow5.database.DatabaseHelperDelegate
+import com.raizlabs.dbflow5.database.DatabaseHelperListener
+import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.database.OpenHelper
 
 /**
- * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.
+ * Description:
  */
-class AndroidSQLiteOpenHelper(
+class SupportAndroidSQLiteOpenHelper(
     databaseDefinition: DatabaseDefinition,
     listener: DatabaseHelperListener?)
-    : SQLiteOpenHelper(FlowManager.context,
-    if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
-    null,
-    databaseDefinition.databaseVersion), OpenHelper {
+    : OpenHelper {
 
     private val databaseHelperDelegate: DatabaseHelperDelegate
-    private var androidDatabase: AndroidDatabase? = null
+    private var androidDatabase: SupportAndroidDatabase? = null
 
     init {
         var backupHelper: OpenHelper? = null
@@ -50,7 +52,7 @@ class AndroidSQLiteOpenHelper(
     override val database: DatabaseWrapper
         get() {
             if (androidDatabase == null || !androidDatabase!!.database.isOpen) {
-                androidDatabase = AndroidDatabase.from(writableDatabase)
+                androidDatabase = SupportAndroidDatabase.from(writableDatabase)
             }
             return androidDatabase!!
         }
@@ -93,13 +95,13 @@ class AndroidSQLiteOpenHelper(
                                      databaseDefinition: DatabaseDefinition)
         : SQLiteOpenHelper(context, name, null, version), OpenHelper {
 
-        private var androidDatabase: AndroidDatabase? = null
+        private var androidDatabase: SupportAndroidDatabase? = null
         private val baseDatabaseHelper: BaseDatabaseHelper = BaseDatabaseHelper(databaseDefinition)
 
         override val database: DatabaseWrapper
             get() {
                 if (androidDatabase == null) {
-                    androidDatabase = AndroidDatabase.from(writableDatabase)
+                    androidDatabase = SupportAndroidDatabase.from(writableDatabase)
                 }
                 return androidDatabase!!
             }
