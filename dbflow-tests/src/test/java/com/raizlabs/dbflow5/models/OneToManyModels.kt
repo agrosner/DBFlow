@@ -19,27 +19,27 @@ class OneToManyModel(@PrimaryKey var name: String? = null) {
 
     var models: List<OneToManyBaseModel>? = null
 
-    @get:OneToMany(oneToManyMethods = arrayOf(OneToManyMethod.ALL))
+    @get:OneToMany(oneToManyMethods = [OneToManyMethod.ALL])
     var simpleModels by oneToMany {
         databaseForTable(OneToManyBaseModel::class) {
             select from OneToManyBaseModel::class
         }
     }
 
-    @OneToMany(oneToManyMethods = arrayOf(OneToManyMethod.ALL), isVariablePrivate = true,
-            variableName = "orders", efficientMethods = false)
+    @OneToMany(oneToManyMethods = [OneToManyMethod.ALL], isVariablePrivate = true,
+        variableName = "orders", efficientMethods = false)
     fun getRelatedOrders(wrapper: DatabaseWrapper): List<TwoColumnModel> {
         var localOrders = orders
         if (localOrders == null) {
             localOrders = (wrapper.select from TwoColumnModel::class where id.greaterThan(3))
-                    .queryList()
+                .queryList()
         }
         orders = localOrders
         return localOrders
     }
 
-    @OneToMany(oneToManyMethods = arrayOf(OneToManyMethod.DELETE), isVariablePrivate = true,
-            variableName = "models")
+    @OneToMany(oneToManyMethods = [OneToManyMethod.DELETE], isVariablePrivate = true,
+        variableName = "models")
     fun getRelatedModels(wrapper: DatabaseWrapper): List<OneToManyBaseModel> {
         var localModels = models
         if (localModels == null) {

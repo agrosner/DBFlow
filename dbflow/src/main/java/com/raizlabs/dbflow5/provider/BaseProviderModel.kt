@@ -2,11 +2,11 @@ package com.raizlabs.dbflow5.provider
 
 import android.content.ContentProvider
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.OperatorGroup
 import com.raizlabs.dbflow5.structure.BaseModel
 import com.raizlabs.dbflow5.structure.Model
-import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.database.FlowCursor
 
 /**
  * Description: Provides a base implementation of a [Model] backed
@@ -41,29 +41,31 @@ abstract class BaseProviderModel : BaseModel(), ModelProvider {
      */
     override fun exists(wrapper: DatabaseWrapper): Boolean {
         val cursor = ContentUtils.query(FlowManager.context.contentResolver,
-                queryUri, modelAdapter.getPrimaryConditionClause(this), "")
+            queryUri, modelAdapter.getPrimaryConditionClause(this), "")
         val exists = cursor != null && cursor.count > 0
         cursor?.close()
         return exists
     }
 
-    override fun load(whereOperatorGroup: OperatorGroup,
-                      orderBy: String?,
-                      wrapper: DatabaseWrapper,
-                      vararg columns: String?) {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> load(whereOperatorGroup: OperatorGroup,
+                          orderBy: String?,
+                          wrapper: DatabaseWrapper,
+                          vararg columns: String?): T? {
         val cursor = ContentUtils.query(FlowManager.context.contentResolver,
-                queryUri, whereOperatorGroup, orderBy, *columns)
+            queryUri, whereOperatorGroup, orderBy, *columns)
         if (cursor != null) {
             val flowCursor = FlowCursor.from(cursor)
             if (flowCursor.moveToFirst()) {
-                modelAdapter.loadFromCursor(flowCursor, this, wrapper)
+                val model: T = modelAdapter.loadFromCursor(flowCursor, wrapper) as T
                 flowCursor.close()
+                return model
             }
         }
+        return null
     }
 
-    override fun load(wrapper: DatabaseWrapper) {
-        load(modelAdapter.getPrimaryConditionClause(this), "", wrapper)
-    }
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> load(wrapper: DatabaseWrapper): T? = load(modelAdapter.getPrimaryConditionClause(this), "", wrapper) as T?
 
 }

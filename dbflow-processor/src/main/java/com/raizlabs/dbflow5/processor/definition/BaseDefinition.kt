@@ -115,13 +115,13 @@ abstract class BaseDefinition : TypeDefinition {
     protected fun setOutputClassName(postfix: String) {
         val outputName: String
         if (elementClassName == null) {
-            if (elementTypeName is ClassName) {
-                outputName = (elementTypeName as ClassName).simpleName()
-            } else if (elementTypeName is ParameterizedTypeName) {
-                outputName = (elementTypeName as ParameterizedTypeName).rawType.simpleName()
-                elementClassName = (elementTypeName as ParameterizedTypeName).rawType
-            } else {
-                outputName = elementTypeName.toString()
+            when (elementTypeName) {
+                is ClassName -> outputName = (elementTypeName as ClassName).simpleName()
+                is ParameterizedTypeName -> {
+                    outputName = (elementTypeName as ParameterizedTypeName).rawType.simpleName()
+                    elementClassName = (elementTypeName as ParameterizedTypeName).rawType
+                }
+                else -> outputName = elementTypeName.toString()
             }
         } else {
             outputName = elementClassName!!.simpleName()

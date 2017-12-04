@@ -28,9 +28,8 @@ open class CacheableListModelLoader<T : Any>(modelClass: Class<T>,
 
     val modelCache: ModelCache<T, *> by lazy { cacheAdapter.modelCache }
 
-    override fun convertToData(cursor: FlowCursor, data: MutableList<T>?,
-                               databaseWrapper: DatabaseWrapper): MutableList<T> {
-        val _data = data ?: arrayListOf()
+    override fun convertToData(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): MutableList<T> {
+        val _data = mutableListOf<T>()
         val cacheValues = arrayOfNulls<Any>(cacheAdapter.cachingColumnSize)
         // Ensure that we aren't iterating over this cursor concurrently from different threads
         if (cursor.moveToFirst()) {

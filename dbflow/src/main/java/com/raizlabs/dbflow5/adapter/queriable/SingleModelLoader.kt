@@ -9,20 +9,17 @@ import com.raizlabs.dbflow5.database.FlowCursor
 open class SingleModelLoader<T : Any>(modelClass: Class<T>)
     : ModelLoader<T, T>(modelClass) {
 
-    open fun convertToData(cursor: FlowCursor, data: T?,
+    open fun convertToData(cursor: FlowCursor,
                            moveToFirst: Boolean,
                            databaseWrapper: DatabaseWrapper): T? {
-        var _data = data
+        var _data: T? = null
         if (!moveToFirst || cursor.moveToFirst()) {
-            if (_data == null) {
-                _data = instanceAdapter.newInstance()
-            }
-            instanceAdapter.loadFromCursor(cursor, _data, databaseWrapper)
+            _data = instanceAdapter.loadFromCursor(cursor, databaseWrapper)
         }
         return _data
     }
 
-    override fun convertToData(cursor: FlowCursor, data: T?, databaseWrapper: DatabaseWrapper): T? {
-        return convertToData(cursor, data, true, databaseWrapper)
+    override fun convertToData(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): T? {
+        return convertToData(cursor, true, databaseWrapper)
     }
 }

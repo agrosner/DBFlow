@@ -21,9 +21,8 @@ open class BaseModel : Model {
     @delegate:Transient
     val modelAdapter: ModelAdapter<BaseModel> by lazy { FlowManager.getModelAdapter(javaClass) }
 
-    override fun load(wrapper: DatabaseWrapper) {
-        modelAdapter.load(this, wrapper)
-    }
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> load(wrapper: DatabaseWrapper): T? = modelAdapter.load(this, wrapper) as T?
 
     override fun save(wrapper: DatabaseWrapper): Boolean = modelAdapter.save(this@BaseModel, wrapper)
 

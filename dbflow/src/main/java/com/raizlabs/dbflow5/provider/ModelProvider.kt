@@ -2,10 +2,9 @@ package com.raizlabs.dbflow5.provider
 
 import android.content.ContentResolver
 import android.net.Uri
-
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.Operator
 import com.raizlabs.dbflow5.query.OperatorGroup
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 
 /**
  * Description: A base interface for Models that are connected to providers.
@@ -40,14 +39,14 @@ interface ModelProvider {
      * @param orderBy            The order by without the ORDER BY
      * @param columns            The list of columns to select. Leave blank for *
      */
-    fun load(whereOperatorGroup: OperatorGroup,
+    fun <T> load(whereOperatorGroup: OperatorGroup,
              orderBy: String?,
              wrapper: DatabaseWrapper,
-             vararg columns: String?)
+             vararg columns: String?) : T?
 
     /**
-     * Queries the [ContentResolver] of the app based on the primary keys of the object and populates
-     * this object with the first row from the returned data.
+     * Queries the [ContentResolver] of the app based on the primary keys of the object and returns a
+     * new object with the first row from the returned data.
      */
-    fun load(wrapper: DatabaseWrapper)
+    fun <T> load(wrapper: DatabaseWrapper): T?
 }

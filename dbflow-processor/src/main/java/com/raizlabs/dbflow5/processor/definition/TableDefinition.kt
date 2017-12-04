@@ -643,11 +643,12 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     `return`(true.L)
                 }
 
-                `override fun`(TypeName.VOID, "load", param(elementClassName!!, "model"),
+                `override fun`(elementClassName!!, "load", param(elementClassName!!, "model"),
                     param(ClassNames.DATABASE_WRAPPER, wrapper)) {
                     modifiers(public, final)
-                    statement("super.load(model, $wrapper)")
+                    statement("\$T loaded = super.load(model, $wrapper)", elementClassName!!)
                     statement("cacheAdapter.storeModelInCache(model)")
+                    `return`("loaded")
                 }
 
             }

@@ -20,12 +20,10 @@ class SingleKeyCacheableModelLoader<T : Any>(modelClass: Class<T>,
      *
      * @return A model from cache.
      */
-    override fun convertToData(cursor: FlowCursor, data: T?,
-                               moveToFirst: Boolean,
-                               databaseWrapper: DatabaseWrapper): T? {
+    override fun convertToData(cursor: FlowCursor, moveToFirst: Boolean, databaseWrapper: DatabaseWrapper): T? {
         return if (!moveToFirst || cursor.moveToFirst()) {
             val value = cacheAdapter.getCachingColumnValueFromCursor(cursor)
-            modelCache.addOrReload(value, cacheAdapter, modelAdapter, cursor, databaseWrapper, data)
+            modelCache.addOrReload(value, cacheAdapter, modelAdapter, cursor, databaseWrapper)
         } else null
     }
 }

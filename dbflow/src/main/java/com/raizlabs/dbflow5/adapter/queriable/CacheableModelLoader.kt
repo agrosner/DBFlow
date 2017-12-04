@@ -39,13 +39,13 @@ open class CacheableModelLoader<T : Any>(modelClass: Class<T>,
      *
      * @return A model from cache.
      */
-    override fun convertToData(cursor: FlowCursor, data: T?, moveToFirst: Boolean,
+    override fun convertToData(cursor: FlowCursor, moveToFirst: Boolean,
                                databaseWrapper: DatabaseWrapper): T? {
         return if (!moveToFirst || cursor.moveToFirst()) {
             val values = cacheAdapter.getCachingColumnValuesFromCursor(
                     arrayOfNulls(cacheAdapter.cachingColumnSize), cursor)
             modelCache.addOrReload(cacheAdapter.getCachingId(values), cacheAdapter, modelAdapter,
-                    cursor, databaseWrapper, data)
+                    cursor, databaseWrapper)
         } else null
     }
 }

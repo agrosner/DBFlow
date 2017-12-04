@@ -1,12 +1,12 @@
 package com.raizlabs.dbflow5.query
 
 import android.database.Cursor
-import com.raizlabs.dbflow5.config.FlowManager
-import com.raizlabs.dbflow5.query.list.FlowCursorIterator
-import com.raizlabs.dbflow5.query.list.IFlowCursorIterator
 import com.raizlabs.dbflow5.adapter.InstanceAdapter
+import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
+import com.raizlabs.dbflow5.query.list.FlowCursorIterator
+import com.raizlabs.dbflow5.query.list.IFlowCursorIterator
 
 /**
  * Description: A class that contains a [Cursor] and handy methods for retrieving data from it.
@@ -46,7 +46,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
      * @return A [List] of items from this object. You must call [.close] when finished.
      */
     fun toList(): List<T> = cursor?.let { cursor ->
-        retrievalAdapter.listModelLoader.convertToData(cursor, null, databaseWrapper)
+        retrievalAdapter.listModelLoader.convertToData(cursor, databaseWrapper)
     } ?: arrayListOf()
 
     /**
@@ -64,7 +64,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
     fun <TCustom : Any> toCustomList(customClass: Class<TCustom>): List<TCustom> {
         return cursor?.let { cursor ->
             return@let FlowManager.getQueryModelAdapter(customClass)
-                    .listModelLoader.convertToData(cursor, null, databaseWrapper)
+                .listModelLoader.convertToData(cursor, databaseWrapper)
         } ?: arrayListOf()
     }
 
@@ -72,7 +72,8 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
      * @return Converts the [Cursor] to a [List] of [T] and then closes it.
      */
     fun <TCustom : Any> toCustomListClose(customClass: Class<TCustom>): List<TCustom> {
-        val customList = FlowManager.getQueryModelAdapter(customClass).listModelLoader.load(cursor, databaseWrapper) ?: arrayListOf()
+        val customList = FlowManager.getQueryModelAdapter(customClass).listModelLoader
+            .load(cursor, databaseWrapper) ?: arrayListOf()
         close()
         return customList
     }
@@ -80,7 +81,9 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
     /**
      * @return The first [T] of items from the contained [Cursor]. You must call [.close] when finished.
      */
-    fun toModel(): T? = cursor?.let { cursor -> retrievalAdapter.singleModelLoader.convertToData(cursor, null, databaseWrapper) }
+    fun toModel(): T? = cursor?.let { cursor ->
+        retrievalAdapter.singleModelLoader.convertToData(cursor, databaseWrapper)
+    }
 
     /**
      * @return Converts the [Cursor] into the first [T] from the cursor and then closes it.
@@ -97,7 +100,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
     fun <TCustom : Any> toCustomModel(customClass: Class<TCustom>): TCustom? {
         return if (cursor != null)
             FlowManager.getQueryModelAdapter(customClass)
-                    .singleModelLoader.convertToData(cursor!!, null, databaseWrapper)
+                .singleModelLoader.convertToData(cursor!!, databaseWrapper)
         else null
     }
 
@@ -114,7 +117,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
         var model: T? = null
         cursor?.let { cursor ->
             if (cursor.moveToPosition(position.toInt())) {
-                model = retrievalAdapter.singleModelLoader.convertToData(cursor, null, false, databaseWrapper)
+                model = retrievalAdapter.singleModelLoader.convertToData(cursor, false, databaseWrapper)
             }
         }
         return model!!
@@ -123,7 +126,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
     override fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(this)
 
     override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> =
-            FlowCursorIterator(this, startingLocation, limit)
+        FlowCursorIterator(this, startingLocation, limit)
 
     override fun cursor(): Cursor? = cursor
 

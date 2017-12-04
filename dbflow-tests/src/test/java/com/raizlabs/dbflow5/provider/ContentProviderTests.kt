@@ -39,7 +39,7 @@ class ContentProviderTests : BaseUnitTest() {
     fun testContentProviderUtils() = database(ContentDatabase::class) {
         tables(NoteModel::class.java, ContentProviderModel::class.java)
 
-        val contentProviderModel = ContentProviderModel()
+        var contentProviderModel = ContentProviderModel()
         contentProviderModel.notes = "Test"
         var uri = ContentUtils.insert(mockContentResolver, TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel)
         assertEquals(TestContentProvider.ContentProviderModel.CONTENT_URI.toString() + "/" + contentProviderModel.id, uri.toString())
@@ -49,7 +49,7 @@ class ContentProviderTests : BaseUnitTest() {
         val update = ContentUtils.update(mockContentResolver, TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel)
         assertEquals(update.toLong(), 1)
         assertTrue(contentProviderModel.exists())
-        contentProviderModel.load(this)
+        contentProviderModel = contentProviderModel.load(this)!!
         assertEquals("NewTest", contentProviderModel.notes)
 
         val noteModel = NoteModel()
@@ -72,21 +72,21 @@ class ContentProviderTests : BaseUnitTest() {
     fun testContentProviderNative() = database(ContentDatabase::class) {
         tables(NoteModel::class.java, ContentProviderModel::class.java)
 
-        val contentProviderModel = ContentProviderModel(notes = "Test")
+        var contentProviderModel = ContentProviderModel(notes = "Test")
         contentProviderModel.insert()
         assertTrue(contentProviderModel.exists())
 
         contentProviderModel.notes = "NewTest"
         contentProviderModel.update()
-        contentProviderModel.load(this)
+        contentProviderModel = contentProviderModel.load(this)!!
         assertEquals("NewTest", contentProviderModel.notes)
 
-        val noteModel = NoteModel(note = "Test", contentProviderModel = contentProviderModel)
+        var noteModel = NoteModel(note = "Test", contentProviderModel = contentProviderModel)
         noteModel.insert()
 
         noteModel.note = "NewTest"
         noteModel.update()
-        noteModel.load(this)
+        noteModel = noteModel.load(this)!!
         assertEquals("NewTest", noteModel.note)
 
         assertTrue(noteModel.exists())
@@ -114,10 +114,10 @@ class ContentProviderTests : BaseUnitTest() {
         assertEquals(testSyncableModel.name, "TestName")
 
         testSyncableModel = (select from TestSyncableModel::class
-                where (TestSyncableModel_Table.id.`is`(testSyncableModel.id))).result!!
+            where (TestSyncableModel_Table.id.`is`(testSyncableModel.id))).result!!
 
-        val fromContentProvider = TestSyncableModel(id = testSyncableModel.id)
-        fromContentProvider.load(this)
+        var fromContentProvider = TestSyncableModel(id = testSyncableModel.id)
+        fromContentProvider = fromContentProvider.load(this)!!
 
         assertEquals(fromContentProvider.name, testSyncableModel.name)
         assertEquals(fromContentProvider.id, testSyncableModel.id)

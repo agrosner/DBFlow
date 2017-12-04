@@ -12,9 +12,8 @@ class SingleKeyCacheableListModelLoader<T : Any>(tModelClass: Class<T>,
                                                  cacheAdapter: CacheAdapter<T>)
     : CacheableListModelLoader<T>(tModelClass, cacheAdapter) {
 
-    override fun convertToData(cursor: FlowCursor, data: MutableList<T>?,
-                               databaseWrapper: DatabaseWrapper): MutableList<T> {
-        val _data = data ?: arrayListOf()
+    override fun convertToData(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): MutableList<T> {
+        val _data = arrayListOf<T>()
         var cacheValue: Any?
         // Ensure that we aren't iterating over this cursor concurrently from different threads
         if (cursor.moveToFirst()) {

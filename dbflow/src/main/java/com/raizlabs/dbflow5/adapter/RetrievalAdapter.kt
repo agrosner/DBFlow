@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.adapter
 
-import android.database.Cursor
 import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
 import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.config.DatabaseDefinition
@@ -92,23 +91,21 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
     }
 
     /**
-     * Force loads the model from the DB. Even if caching is enabled it will requery the object.
+     * Returns a new [model] based on the object passed in. Will not overwrite existing object.
      */
-    open fun load(model: T, databaseWrapper: DatabaseWrapper) {
+    open fun load(model: T, databaseWrapper: DatabaseWrapper): T? =
         nonCacheableSingleModelLoader.load(databaseWrapper,
             (databaseWrapper.select
                 from table
-                where getPrimaryConditionClause(model)).query,
-            model)
-    }
+                where getPrimaryConditionClause(model)).query)
 
     /**
-     * Assigns the [Cursor] data into the specified [T]
+     * Converts the specified [FlowCursor] into a new [T]
      *
-     * @param model  The model to assign cursor data to
      * @param cursor The cursor to load into the model
+     * @param wrapper The database instance to use.
      */
-    abstract fun loadFromCursor(cursor: FlowCursor, model: T, wrapper: DatabaseWrapper)
+    abstract fun loadFromCursor(cursor: FlowCursor, wrapper: DatabaseWrapper): T
 
     /**
      * @param model The model to query values from

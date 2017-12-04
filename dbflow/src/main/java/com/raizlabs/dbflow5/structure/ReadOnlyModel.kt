@@ -7,7 +7,7 @@ interface ReadOnlyModel {
     /**
      * Loads from the database the most recent version of the model based on it's primary keys.
      */
-    fun load(wrapper: DatabaseWrapper)
+    fun <T> load(wrapper: DatabaseWrapper): T?
 
     /**
      * @return true if this object exists in the DB. It combines all of it's primary key fields

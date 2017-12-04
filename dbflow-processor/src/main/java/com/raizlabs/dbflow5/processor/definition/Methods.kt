@@ -439,11 +439,11 @@ class DeleteStatementQueryMethod(private val tableDefinition: TableDefinition) :
 class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition) : MethodDefinition {
 
     override val methodSpec: MethodSpec
-        get() = `override fun`(TypeName.VOID, "loadFromCursor",
+        get() = `override fun`(baseTableDefinition.parameterClassName!!, "loadFromCursor",
             param(ClassNames.FLOW_CURSOR, PARAM_CURSOR),
-            param(baseTableDefinition.parameterClassName!!, ModelUtils.variable),
             param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
             modifiers(public, final)
+            statement("\$1T ${ModelUtils.variable} = new \$1T()", baseTableDefinition.parameterClassName)
             val index = AtomicInteger(0)
             val nameAllocator = NameAllocator() // unique names
             baseTableDefinition.columnDefinitions.forEach {
@@ -463,7 +463,7 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
             if (baseTableDefinition is TableDefinition && baseTableDefinition.implementsLoadFromCursorListener) {
                 statement("${ModelUtils.variable}.onLoadFromCursor($PARAM_CURSOR)")
             }
-            this
+            `return`(ModelUtils.variable)
         }
 
 

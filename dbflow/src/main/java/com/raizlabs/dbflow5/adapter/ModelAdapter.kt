@@ -11,7 +11,6 @@ import com.raizlabs.dbflow5.annotation.Table
 import com.raizlabs.dbflow5.config.DatabaseDefinition
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.structure.InvalidDBConfiguration
@@ -135,15 +134,6 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      */
     fun getCompiledStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
         databaseWrapper.compileStatement(compiledStatementQuery)
-
-    /**
-     * Creates a new [T] and Loads the cursor into a the object.
-     *
-     * @param cursor The cursor to load
-     * @return A new [T]
-     */
-    fun loadFromCursor(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): T =
-        newInstance().apply { loadFromCursor(cursor, this, databaseWrapper) }
 
     override fun save(model: T, databaseWrapper: DatabaseWrapper): Boolean =
         modelSaver.save(model, databaseWrapper)

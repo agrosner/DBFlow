@@ -30,8 +30,8 @@ class ParentChildCachingTest : BaseUnitTest() {
         parent.save()
 
         parent = (select from TestModelParent::class).result!!
-        val parentChild = parent.child!!
-        parentChild.load()
+        var parentChild = parent.child!!
+        parentChild = parentChild.load()!!
 
         assertEquals(1, parentChild.id)
         assertEquals("Test child", parentChild.name)
