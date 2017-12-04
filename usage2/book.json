@@ -1,0 +1,8 @@
+{
+    "plugins": [ "versions" ],
+    "pluginsConfig": {
+        "versions": {
+            "type": "tags"
+        }
+    }
+}
