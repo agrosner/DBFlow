@@ -8,13 +8,13 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
     compile project("${dbflow_project_prefix}dbflow-core")
-    compile 'com.squareup:javapoet:1.9.0'
-    compile 'com.github.agrosner:KPoet:1.0.0'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile deps.javapoet
+    compile deps.kpoet
+    compile deps.kotlin
 
-    compileOnly 'org.glassfish:javax.annotation:10.0-b28'
+    compileOnly deps.javax_annotation
 
-    testImplementation 'junit:junit:4.12'
+    testImplementation deps.junit
 
 }
 

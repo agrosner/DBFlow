@@ -5,7 +5,6 @@ import com.raizlabs.dbflow5.config.database
 import com.raizlabs.dbflow5.query.delete
 import com.raizlabs.dbflow5.query.result
 import com.raizlabs.dbflow5.query.select
-import com.raizlabs.dbflow5.query.where
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -22,8 +21,8 @@ class CipherTest : BaseInstrumentedUnitTest() {
         assertTrue(model.exists(this))
 
         val retrieval = (select from CipherModel::class
-                where CipherModel_Table.name.eq("name"))
-                .result
+            where CipherModel_Table.name.eq("name"))
+            .result
         assertTrue(retrieval!!.id == model.id)
         (delete() from CipherModel::class).execute()
     }

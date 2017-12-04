@@ -4,12 +4,11 @@ apply plugin: 'kotlin-android'
 project.ext.artifactId = bt_name
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion target_sdk
 
     defaultConfig {
-        minSdkVersion 7
-        targetSdkVersion 26
-        versionCode = version_code
+        minSdkVersion sql_cipher_min
+        targetSdkVersion target_sdk
     }
 
     lintOptions {
@@ -23,9 +22,9 @@ android {
 }
 
 dependencies {
-    api "net.zetetic:android-database-sqlcipher:3.5.7@aar"
+    api deps.sql_cipher
     api project("${dbflow_project_prefix}dbflow")
-    api "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    api deps.kotlin
 }
 
 apply from: '../android-artifacts.gradle'

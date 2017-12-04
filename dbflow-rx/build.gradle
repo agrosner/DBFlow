@@ -4,12 +4,11 @@ apply plugin: 'kotlin-android'
 project.ext.artifactId = bt_name
 
 android {
-    compileSdkVersion Integer.valueOf(dbflow_target_sdk)
-    buildToolsVersion dbflow_build_tools_version
+    compileSdkVersion target_sdk
 
     defaultConfig {
-        minSdkVersion dbflow_min_sdk_rx
-        targetSdkVersion Integer.valueOf(dbflow_target_sdk)
+        minSdkVersion min_sdk_rx
+        targetSdkVersion target_sdk
     }
 
     compileOptions {
@@ -20,8 +19,8 @@ android {
 
 dependencies {
     api project("${dbflow_project_prefix}dbflow")
-    api 'io.reactivex:rxjava:1.2.7'
-    api "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    api deps.rx1
+    api deps.kotlin
 }
 
 apply from: '../android-artifacts.gradle'
