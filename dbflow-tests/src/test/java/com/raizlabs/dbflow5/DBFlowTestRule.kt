@@ -17,10 +17,10 @@ class DBFlowTestRule : TestRule {
             @Throws(Throwable::class)
             override fun evaluate() {
                 FlowManager.init(FlowConfig.Builder(RuntimeEnvironment.application)
-                        .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+                        .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class)
                                 .transactionManagerCreator(::ImmediateTransactionManager2)
                                 .build())
-                        .addDatabaseConfig(DatabaseConfig.builder(ContentDatabase::class.java)
+                        .addDatabaseConfig(DatabaseConfig.builder(ContentDatabase::class)
                                 .databaseName("content")
                                 .build())
                         .build())

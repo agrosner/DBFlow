@@ -5,6 +5,7 @@ import com.raizlabs.dbflow5.database.OpenHelper
 import com.raizlabs.dbflow5.isNotNullOrEmpty
 import com.raizlabs.dbflow5.runtime.ModelNotifier
 import com.raizlabs.dbflow5.transaction.BaseTransactionManager
+import kotlin.reflect.KClass
 
 /**
  * Description:
@@ -64,6 +65,8 @@ class DatabaseConfig(
         internal var inMemory = false
         internal var databaseName: String? = null
         internal var databaseExtensionName: String? = null
+
+        constructor(kClass: KClass<*>) : this(kClass.java)
 
         fun transactionManagerCreator(transactionManager: TransactionManagerCreator) =
                 transactionManagerCreator { databaseDefinition -> transactionManager.createManager(databaseDefinition) }
@@ -126,8 +129,13 @@ class DatabaseConfig(
         @JvmStatic
         fun builder(database: Class<*>): Builder = Builder(database)
 
+        fun builder(database: KClass<*>): Builder = Builder(database)
+
         @JvmStatic
         fun inMemoryBuilder(database: Class<*>): Builder =
+                Builder(database).inMemory()
+
+        fun inMemoryBuilder(database: KClass<*>): Builder =
                 Builder(database).inMemory()
     }
 }

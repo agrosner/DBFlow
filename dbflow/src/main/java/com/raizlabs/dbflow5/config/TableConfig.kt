@@ -1,9 +1,10 @@
 package com.raizlabs.dbflow5.config
 
+import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
 import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.adapter.saveable.ModelSaver
-import com.raizlabs.dbflow5.adapter.ModelAdapter
+import kotlin.reflect.KClass
 
 /**
  * Description: Represents certain table configuration options. This allows you to easily specify
@@ -28,6 +29,8 @@ class TableConfig<T : Any>(val tableClass: Class<T>,
         internal var modelAdapterModelSaver: ModelSaver<T>? = null
         internal var singleModelLoader: SingleModelLoader<T>? = null
         internal var listModelLoader: ListModelLoader<T>? = null
+
+        constructor(tableClass: KClass<T>) : this(tableClass.java)
 
         /**
          * Define how the [ModelAdapter] saves data into the DB from its associated [T]. This
@@ -62,6 +65,9 @@ class TableConfig<T : Any>(val tableClass: Class<T>,
 
         @JvmStatic
         fun <T : Any> builder(tableClass: Class<T>): Builder<T> =
+                Builder(tableClass)
+
+        fun <T : Any> builder(tableClass: KClass<T>): Builder<T> =
                 Builder(tableClass)
     }
 }
