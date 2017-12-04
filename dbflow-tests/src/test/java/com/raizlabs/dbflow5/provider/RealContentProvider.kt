@@ -15,7 +15,7 @@ class RealContentProvider : ContentProvider() {
 
     override fun onCreate(): Boolean {
         FlowManager.init(FlowConfig.Builder(context).build())
-        database = FlowManager.getDatabase(TestDatabase::class.java).writableDatabase
+        database = FlowManager.getDatabase(TestDatabase::class.java)
         return true
     }
 

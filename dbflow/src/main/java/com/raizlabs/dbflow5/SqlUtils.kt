@@ -5,13 +5,13 @@ package com.raizlabs.dbflow5
 import android.content.ContentValues
 import android.net.Uri
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.NameAlias
 import com.raizlabs.dbflow5.query.Operator
 import com.raizlabs.dbflow5.query.OperatorGroup
 import com.raizlabs.dbflow5.query.SQLOperator
 import com.raizlabs.dbflow5.structure.ChangeAction
 import com.raizlabs.dbflow5.structure.Model
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 
 /**
  * Description: Provides some handy methods for dealing with SQL statements. It's purpose is to move the
@@ -34,8 +34,8 @@ fun getNotificationUri(contentAuthority: String,
                        action: ChangeAction?,
                        conditions: Iterable<SQLOperator>?): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
-            .authority(contentAuthority)
-            .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass))
+        .authority(contentAuthority)
+        .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass))
     if (action != null) {
         uriBuilder.fragment(action.name)
     }
@@ -61,13 +61,13 @@ fun getNotificationUri(contentAuthority: String,
                        action: ChangeAction?,
                        conditions: Array<SQLOperator>?): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
-            .authority(contentAuthority)
-            .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass))
+        .authority(contentAuthority)
+        .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass))
     action?.let { uriBuilder.fragment(action.name) }
     if (conditions != null && conditions.isNotEmpty()) {
         for (condition in conditions) {
             uriBuilder.appendQueryParameter(Uri.encode(condition.columnName()),
-                    Uri.encode(condition.value().toString()))
+                Uri.encode(condition.value().toString()))
         }
     }
     return uriBuilder.build()
@@ -93,7 +93,7 @@ fun getNotificationUri(contentAuthority: String,
         operator = Operator.op<Any>(NameAlias.Builder(notifyKey).build()).value(notifyValue)
     }
     return getNotificationUri(contentAuthority, modelClass, action,
-            if (operator != null) arrayOf<SQLOperator>(operator) else null)
+        if (operator != null) arrayOf<SQLOperator>(operator) else null)
 }
 
 
@@ -104,8 +104,7 @@ fun getNotificationUri(contentAuthority: String,
  * @param triggerName The name of the trigger
  */
 fun dropTrigger(mOnTable: Class<*>, triggerName: String) {
-    FlowManager.getDatabaseForTable(mOnTable).writableDatabase
-            .execSQL("DROP TRIGGER IF EXISTS " + triggerName)
+    FlowManager.getDatabaseForTable(mOnTable).execSQL("DROP TRIGGER IF EXISTS " + triggerName)
 }
 
 /**
@@ -113,14 +112,12 @@ fun dropTrigger(mOnTable: Class<*>, triggerName: String) {
  *
  * @param indexName The name of the index.
  */
-fun dropIndex(databaseWrapper: DatabaseWrapper,
-              indexName: String) {
+fun dropIndex(databaseWrapper: DatabaseWrapper, indexName: String) {
     databaseWrapper.execSQL("DROP INDEX IF EXISTS " + indexName.quoteIfNeeded()!!)
 }
 
-fun dropIndex(onTable: Class<*>,
-              indexName: String) {
-    dropIndex(FlowManager.getDatabaseForTable(onTable).writableDatabase, indexName)
+fun dropIndex(onTable: Class<*>, indexName: String) {
+    dropIndex(FlowManager.getDatabaseForTable(onTable), indexName)
 }
 
 /**
@@ -134,7 +131,7 @@ fun addContentValues(contentValues: ContentValues, operatorGroup: OperatorGroup)
 
     for ((key) in entries) {
         operatorGroup.and(Operator.op<Any>(NameAlias.Builder(key).build())
-                .`is`(contentValues.get(key)))
+            .`is`(contentValues.get(key)))
     }
 }
 

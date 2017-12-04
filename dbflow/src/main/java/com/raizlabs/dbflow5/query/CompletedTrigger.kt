@@ -8,10 +8,10 @@ import com.raizlabs.dbflow5.sql.Query
  * Description: The last piece of a TRIGGER statement, this class contains the BEGIN...END and the logic in between.
  */
 class CompletedTrigger<TModel> internal constructor(
-        /**
-         * The first pieces of this TRIGGER statement
-         */
-        private val triggerMethod: TriggerMethod<TModel>, triggerLogicQuery: Query) : Query {
+    /**
+     * The first pieces of this TRIGGER statement
+     */
+    private val triggerMethod: TriggerMethod<TModel>, triggerLogicQuery: Query) : Query {
 
     /**
      * The query to run between the BEGIN and END of this statement
@@ -38,8 +38,7 @@ class CompletedTrigger<TModel> internal constructor(
      * Turns on this trigger
      */
     fun enable() {
-        val databaseDefinition = FlowManager.getDatabaseForTable(triggerMethod.onTable)
-        databaseDefinition.writableDatabase.execSQL(query)
+        FlowManager.getDatabaseForTable(triggerMethod.onTable).execSQL(query)
     }
 
     /**

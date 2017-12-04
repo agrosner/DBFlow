@@ -1,14 +1,14 @@
 package com.raizlabs.dbflow5.adapter
 
 import android.database.Cursor
+import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
+import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.config.DatabaseDefinition
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.TableConfig
-import com.raizlabs.dbflow5.query.OperatorGroup
-import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
-import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
+import com.raizlabs.dbflow5.query.OperatorGroup
 import com.raizlabs.dbflow5.query.select
 
 /**
@@ -81,7 +81,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
 
     init {
         val databaseConfig = FlowManager.getConfig()
-                .getConfigForDatabase(databaseDefinition.associatedDatabaseClassFile)
+            .getConfigForDatabase(databaseDefinition.associatedDatabaseClassFile)
         if (databaseConfig != null) {
             tableConfig = databaseConfig.getTableConfigForTable(table)
             if (tableConfig != null) {
@@ -96,10 +96,10 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      */
     open fun load(model: T, databaseWrapper: DatabaseWrapper) {
         nonCacheableSingleModelLoader.load(databaseWrapper,
-                (databaseWrapper.select
-                        from table
-                        where getPrimaryConditionClause(model)).query,
-                model)
+            (databaseWrapper.select
+                from table
+                where getPrimaryConditionClause(model)).query,
+            model)
     }
 
     /**
@@ -114,8 +114,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      * @param model The model to query values from
      * @return True if it exists as a row in the corresponding database table
      */
-    open fun exists(model: T): Boolean =
-            exists(model, FlowManager.getDatabaseForTable(table).writableDatabase)
+    open fun exists(model: T): Boolean = exists(model, FlowManager.getDatabaseForTable(table))
 
     /**
      * @param model The model to query values from

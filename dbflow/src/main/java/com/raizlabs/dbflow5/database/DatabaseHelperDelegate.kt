@@ -40,7 +40,7 @@ class DatabaseHelperDelegate(
         get() = isDatabaseIntegrityOk(writableDatabase)
 
     val writableDatabase: DatabaseWrapper
-        get() = databaseDefinition.writableDatabase
+        get() = databaseDefinition
 
     fun performRestoreFromBackup() {
         movePrepackagedDB(databaseDefinition.databaseFileName,

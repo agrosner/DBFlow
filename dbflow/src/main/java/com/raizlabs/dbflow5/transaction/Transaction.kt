@@ -94,7 +94,7 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
             val result = if (shouldRunInTransaction) {
                 databaseDefinition.executeTransaction(transaction)
             } else {
-                transaction.execute(databaseDefinition.writableDatabase)
+                transaction.execute(databaseDefinition)
             }
             if (successCallback != null) {
                 if (runCallbacksOnSameThread) {
