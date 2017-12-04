@@ -1,4 +1,4 @@
-include ':dbflow', ':dbflow-rx2', ':dbflow-coroutines',
+include ':dbflow', ':dbflow-rx2', ':dbflow-coroutines', ':dbflow-android-support',
     ':dbflow-processor',
     ':dbflow-core',
     ':dbflow-sqlcipher',

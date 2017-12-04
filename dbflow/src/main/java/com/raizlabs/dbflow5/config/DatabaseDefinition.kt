@@ -435,16 +435,6 @@ abstract class DatabaseDefinition : DatabaseWrapper {
         sqLiteDatabaseAlgorithmInt: Int): Long
         = writableDatabase.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt)
 
-    override fun query(
-        tableName: String,
-        columns: Array<String>?,
-        selection: String?,
-        selectionArgs: Array<String>?,
-        groupBy: String?,
-        having: String?,
-        orderBy: String?): FlowCursor
-        = writableDatabase.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy)
-
     override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int
         = writableDatabase.delete(tableName, whereClause, whereArgs)
 }

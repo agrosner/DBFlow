@@ -4,10 +4,16 @@ apply plugin: 'kotlin-android'
 project.ext.artifactId = bt_name
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion target_sdk
+
     defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 26
+        minSdkVersion 14
+        targetSdkVersion target_sdk
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     buildTypes {
@@ -16,16 +22,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {
     implementation project("${dbflow_project_prefix}dbflow")
-    api deps.coroutines
+    api deps.support_db
 }
-
-kotlin {
-    experimental {
-        coroutines 'enable'
-    }
-}
-

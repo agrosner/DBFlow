@@ -61,16 +61,6 @@ class AndroidDatabase internal constructor(val database: SQLiteDatabase) : Datab
         }
     }
 
-    override fun query(tableName: String,
-                       columns: Array<String>?,
-                       selection: String?,
-                       selectionArgs: Array<String>?,
-                       groupBy: String?,
-                       having: String?,
-                       orderBy: String?): FlowCursor = rethrowDBFlowException {
-        FlowCursor.from(database.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy))
-    }
-
     override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int = rethrowDBFlowException {
         database.delete(tableName, whereClause, whereArgs)
     }
