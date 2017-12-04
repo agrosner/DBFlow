@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.database
 
-import android.database.sqlite.SQLiteException
 import com.raizlabs.dbflow5.config.DatabaseDefinition
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager

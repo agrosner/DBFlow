@@ -1,12 +1,11 @@
 package com.raizlabs.dbflow5.sqlcipher
 
 import android.content.ContentValues
-
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
-
 import net.sqlcipher.database.SQLiteDatabase
+import net.sqlcipher.database.SQLiteException
 
 /**
  * Description: Implements the code necessary to use a [SQLiteDatabase] in dbflow.
@@ -17,8 +16,10 @@ internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
     override val version: Int
         get() = database.version
 
-    override fun execSQL(query: String) {
+    override fun execSQL(query: String) = try {
         database.execSQL(query)
+    } catch (e: SQLiteException) {
+        throw e.toSqliteException()
     }
 
     override fun beginTransaction() {
@@ -34,20 +35,28 @@ internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
     }
 
     override fun compileStatement(rawQuery: String): DatabaseStatement =
-            SQLCipherStatement.from(database.compileStatement(rawQuery))
+        SQLCipherStatement.from(database.compileStatement(rawQuery))
 
-    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
-            FlowCursor.from(database.rawQuery(query, selectionArgs))
+    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor = try {
+        FlowCursor.from(database.rawQuery(query, selectionArgs))
+    } catch (e: SQLiteException) {
+        throw e.toSqliteException()
+    }
 
     override fun updateWithOnConflict(tableName: String,
                                       contentValues: ContentValues,
                                       where: String?, whereArgs: Array<String>?,
-                                      conflictAlgorithm: Int): Long =
-            database.updateWithOnConflict(tableName, contentValues,
-                    where, whereArgs, conflictAlgorithm).toLong()
+                                      conflictAlgorithm: Int): Long = try {
+        database.updateWithOnConflict(tableName, contentValues,
+            where, whereArgs, conflictAlgorithm).toLong()
+    } catch (e: SQLiteException) {
+        throw e.toSqliteException()
+    }
 
-    override fun insertWithOnConflict(tableName: String, nullColumnHack: String?, values: ContentValues, sqLiteDatabaseAlgorithmInt: Int): Long {
-        return database.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt)
+    override fun insertWithOnConflict(tableName: String, nullColumnHack: String?, values: ContentValues, sqLiteDatabaseAlgorithmInt: Int): Long = try {
+        database.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt)
+    } catch (e: SQLiteException) {
+        throw e.toSqliteException()
     }
 
     override fun query(tableName: String,
@@ -56,12 +65,16 @@ internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
                        selectionArgs: Array<String>?,
                        groupBy: String?,
                        having: String?,
-                       orderBy: String?): FlowCursor {
-        return FlowCursor.from(database.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy))
+                       orderBy: String?): FlowCursor = try {
+        FlowCursor.from(database.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy))
+    } catch (e: SQLiteException) {
+        throw e.toSqliteException()
     }
 
-    override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int {
-        return database.delete(tableName, whereClause, whereArgs)
+    override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int = try {
+        database.delete(tableName, whereClause, whereArgs)
+    } catch (e: SQLiteException) {
+        throw e.toSqliteException()
     }
 
     companion object {
@@ -70,3 +83,5 @@ internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
         fun from(database: SQLiteDatabase): SQLCipherDatabase = SQLCipherDatabase(database)
     }
 }
+
+fun SQLiteException.toSqliteException() = com.raizlabs.dbflow5.database.SQLiteException("A Database Error Occurred", this)

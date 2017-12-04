@@ -1,9 +1,9 @@
 package com.raizlabs.dbflow5.models
 
-import android.database.sqlite.SQLiteException
 import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.assertThrowsException
 import com.raizlabs.dbflow5.config.databaseForTable
+import com.raizlabs.dbflow5.database.SQLiteException
 import com.raizlabs.dbflow5.query.list
 import com.raizlabs.dbflow5.query.select
 import org.junit.Test

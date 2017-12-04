@@ -14,6 +14,7 @@ fun assertThrowsException(expectedException: KClass<out Exception>, function: ()
         fail("Expected call to fail. Unexpectedly passed")
     } catch (e: Exception) {
         if (e.javaClass != expectedException.java) {
+            e.printStackTrace()
             fail("Expected $expectedException but got ${e.javaClass}")
         }
     }
