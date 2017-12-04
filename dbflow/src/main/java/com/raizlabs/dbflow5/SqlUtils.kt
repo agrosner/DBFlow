@@ -187,9 +187,23 @@ fun byteArrayToHexString(bytes: ByteArray?): String {
     }
     return String(hexChars)
 }
-/**
- * @param modelClass The model class to use.
- * @param action     The [Action] to use.
- * @return The uri for updates to [Model], meant for general changes.
- */
 
+fun sqlEscapeString(value: String): String = buildString { appendEscapedSQLString(this, value) }
+
+fun appendEscapedSQLString(sb: StringBuilder, sqlString: String) {
+    sb.apply {
+        append('\'')
+        if (sqlString.indexOf('\'') != -1) {
+            val length = sqlString.length
+            for (i in 0 until length) {
+                val c = sqlString[i]
+                if (c == '\'') {
+                    append('\'')
+                }
+                append(c)
+            }
+        } else
+            append(sqlString)
+        append('\'')
+    }
+}

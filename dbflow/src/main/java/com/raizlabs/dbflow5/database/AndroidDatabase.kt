@@ -33,8 +33,11 @@ class AndroidDatabase internal constructor(val database: SQLiteDatabase) : Datab
     override val version: Int
         get() = database.version
 
-    override fun compileStatement(rawQuery: String): DatabaseStatement =
+    override fun compileStatement(rawQuery: String): DatabaseStatement = try {
         AndroidDatabaseStatement.from(database.compileStatement(rawQuery), database)
+    } catch (e: SQLiteException) {
+        throw e.toSqliteException()
+    }
 
     override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor = try {
         FlowCursor.from(database.rawQuery(query, selectionArgs))

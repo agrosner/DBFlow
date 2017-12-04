@@ -3,10 +3,11 @@ package com.raizlabs.dbflow5.query
 import com.raizlabs.dbflow5.appendList
 import com.raizlabs.dbflow5.appendQuotedIfNeeded
 import com.raizlabs.dbflow5.config.FlowManager
-import com.raizlabs.dbflow5.sql.Query
+import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.database.SQLiteException
 import com.raizlabs.dbflow5.dropIndex
 import com.raizlabs.dbflow5.query.property.IProperty
-import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.sql.Query
 
 /**
  * Description: an INDEX class that enables you to index a specific column from a table. This enables
@@ -19,11 +20,11 @@ class Index<TModel>
  * @param indexName The name of this index.
  */
 (
-        private val databaseWrapper: DatabaseWrapper,
-        /**
-         * @return The name of this index.
-         */
-        val indexName: String) : Query {
+    private val databaseWrapper: DatabaseWrapper,
+    /**
+     * @return The name of this index.
+     */
+    val indexName: String) : Query {
 
     /**
      * @return The table this INDEX belongs to.
@@ -50,7 +51,7 @@ class Index<TModel>
     /**
      * If true, will append the UNIQUE statement to this trigger.
      *
-     * @param unique true if unique. If created again, a [android.database.SQLException] is thrown.
+     * @param unique true if unique. If created again, a [SQLiteException] is thrown.
      * @return This instance.
      */
     fun unique(unique: Boolean) = apply {
@@ -123,9 +124,9 @@ class Index<TModel>
 
 inline fun <reified T : Any> DatabaseWrapper.indexOn(indexName: String,
                                                      vararg property: IProperty<*>)
-        = index<T>(indexName).on(T::class.java, *property)
+    = index<T>(indexName).on(T::class.java, *property)
 
 inline fun <reified T : Any> DatabaseWrapper.indexOn(indexName: String, firstNameAlias: NameAlias,
                                                      vararg arrayOfNameAlias: NameAlias)
-        = index<T>(indexName).on(T::class.java, firstNameAlias, *arrayOfNameAlias)
+    = index<T>(indexName).on(T::class.java, firstNameAlias, *arrayOfNameAlias)
 

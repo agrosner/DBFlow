@@ -1,7 +1,5 @@
 package com.raizlabs.dbflow5.transaction
 
-import android.database.sqlite.SQLiteDatabaseLockedException
-
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 
 /**
@@ -14,7 +12,7 @@ interface ITransaction<out R> {
      * Called within a database transaction.
      *
      * @param databaseWrapper The database to save data into. Use this access to operate on the DB
-     * without causing [SQLiteDatabaseLockedException].
+     * without causing an Android SQLiteDatabaseLockedException or other problems due to locking.
      */
     fun execute(databaseWrapper: DatabaseWrapper): R
 }

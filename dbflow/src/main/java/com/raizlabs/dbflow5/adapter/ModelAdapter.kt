@@ -1,7 +1,6 @@
 package com.raizlabs.dbflow5.adapter
 
 import android.content.ContentValues
-import android.database.sqlite.SQLiteStatement
 import com.raizlabs.dbflow5.adapter.saveable.ListModelSaver
 import com.raizlabs.dbflow5.adapter.saveable.ModelSaver
 import com.raizlabs.dbflow5.annotation.ConflictAction
@@ -50,13 +49,13 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
     abstract val allColumnProperties: Array<IProperty<*>>
 
     /**
-     * @return The query used to insert a model using a [SQLiteStatement]
+     * @return The query used to insert a model using a [DatabaseStatement]
      */
     protected open val insertStatementQuery: String
         get() = compiledStatementQuery
 
     /**
-     * @return The normal query used in saving a model if we use a [SQLiteStatement].
+     * @return The normal query used in saving a model if we use a [DatabaseStatement].
      */
     protected abstract val compiledStatementQuery: String
 

@@ -1,24 +1,24 @@
 package com.raizlabs.dbflow5.query
 
-import android.database.sqlite.SQLiteDoneException
 import com.raizlabs.dbflow5.config.FlowLog
-import com.raizlabs.dbflow5.runtime.NotifyDistributor
-import com.raizlabs.dbflow5.longForQuery
-import com.raizlabs.dbflow5.structure.ChangeAction
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseStatementWrapper
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
+import com.raizlabs.dbflow5.database.SQLiteException
+import com.raizlabs.dbflow5.longForQuery
+import com.raizlabs.dbflow5.runtime.NotifyDistributor
+import com.raizlabs.dbflow5.structure.ChangeAction
 
 /**
  * Description: Base implementation of something that can be queried from the database.
  */
 abstract class BaseQueriable<TModel : Any> protected constructor(
-        private val databaseWrapper: DatabaseWrapper,
-        /**
-         * @return The table associated with this INSERT
-         */
-        val table: Class<TModel>) : Queriable, Actionable {
+    private val databaseWrapper: DatabaseWrapper,
+    /**
+     * @return The table associated with this INSERT
+     */
+    val table: Class<TModel>) : Queriable, Actionable {
 
     abstract override val primaryAction: ChangeAction
 
@@ -27,7 +27,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
             val query = query
             FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
             return longForQuery(databaseWrapper, query)
-        } catch (sde: SQLiteDoneException) {
+        } catch (sde: SQLiteException) {
             // catch exception here, log it but return 0;
             FlowLog.logWarning(sde)
         }
@@ -52,7 +52,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
     }
 
     override fun executeInsert(): Long =
-            compileStatement().executeInsert()
+        compileStatement().executeInsert()
 
     override fun execute() {
         val cursor = query()

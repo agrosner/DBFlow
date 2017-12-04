@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.database
 
-import android.database.sqlite.SQLiteOpenHelper
 import com.raizlabs.dbflow5.config.DatabaseDefinition
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
@@ -13,13 +12,13 @@ import java.io.IOException
 import java.io.InputStream
 
 /**
- * Description: An abstraction from some parts of the [SQLiteOpenHelper] where this can be
+ * Description: An abstraction from some parts of the Android SQLiteOpenHelper where this can be
  * used in other helper class definitions.
  */
 class DatabaseHelperDelegate(
-        private var databaseHelperListener: DatabaseHelperListener?,
-        databaseDefinition: DatabaseDefinition,
-        private val backupHelper: OpenHelper?)
+    private var databaseHelperListener: DatabaseHelperListener?,
+    databaseDefinition: DatabaseDefinition,
+    private val backupHelper: OpenHelper?)
     : BaseDatabaseHelper(databaseDefinition) {
 
     /**
@@ -44,7 +43,7 @@ class DatabaseHelperDelegate(
 
     fun performRestoreFromBackup() {
         movePrepackagedDB(databaseDefinition.databaseFileName,
-                databaseDefinition.databaseFileName)
+            databaseDefinition.databaseFileName)
 
         if (databaseDefinition.backupEnabled()) {
             if (backupHelper == null) {
@@ -116,7 +115,7 @@ class DatabaseHelperDelegate(
             val inputStream: InputStream
             // if it exists and the integrity is ok we use backup as the main DB is no longer valid
             if (existingDb.exists() && (!databaseDefinition.backupEnabled() || (databaseDefinition.backupEnabled()
-                    && backupHelper != null && isDatabaseIntegrityOk(backupHelper.database)))) {
+                && backupHelper != null && isDatabaseIntegrityOk(backupHelper.database)))) {
                 inputStream = FileInputStream(existingDb)
             } else {
                 inputStream = FlowManager.context.assets.open(prepackagedName)
@@ -146,7 +145,7 @@ class DatabaseHelperDelegate(
             if (!result!!.equals("ok", ignoreCase = true)) {
                 // integrity_checker failed on main or attached databases
                 FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on " +
-                        databaseDefinition.databaseName + " returned: " + result)
+                    databaseDefinition.databaseName + " returned: " + result)
 
                 integrityOk = false
 
@@ -233,7 +232,7 @@ class DatabaseHelperDelegate(
             val inputStream: InputStream
             // if it exists and the integrity is ok
             if (existingDb.exists() && (databaseDefinition.backupEnabled()
-                    && backupHelper != null && isDatabaseIntegrityOk(backupHelper.database))) {
+                && backupHelper != null && isDatabaseIntegrityOk(backupHelper.database))) {
                 inputStream = FileInputStream(existingDb)
             } else {
                 inputStream = FlowManager.context.assets.open(prepackagedName)
@@ -253,7 +252,7 @@ class DatabaseHelperDelegate(
     fun backupDB() {
         if (!databaseDefinition.backupEnabled() || !databaseDefinition.areConsistencyChecksEnabled()) {
             throw IllegalStateException("Backups are not enabled for : " + databaseDefinition.databaseName + ". Please consider adding " +
-                    "both backupEnabled and consistency checks enabled to the Database annotation")
+                "both backupEnabled and consistency checks enabled to the Database annotation")
         }
 
         databaseDefinition.beginTransactionAsync(object : ITransaction<Unit> {

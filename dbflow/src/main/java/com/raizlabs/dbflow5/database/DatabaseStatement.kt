@@ -1,9 +1,7 @@
 package com.raizlabs.dbflow5.database
 
-import android.database.sqlite.SQLiteStatement
-
 /**
- * Description: Abstracts out a [SQLiteStatement].
+ * Description: Abstracts out an Android SQLiteStatement.
  */
 interface DatabaseStatement {
 

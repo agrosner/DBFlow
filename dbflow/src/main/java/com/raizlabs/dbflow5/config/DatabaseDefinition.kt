@@ -15,7 +15,7 @@ import com.raizlabs.dbflow5.database.DatabaseHelperListener
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
-import com.raizlabs.dbflow5.database.FlowSQLiteOpenHelper
+import com.raizlabs.dbflow5.database.AndroidSQLiteOpenHelper
 import com.raizlabs.dbflow5.database.OpenHelper
 import com.raizlabs.dbflow5.migration.Migration
 import com.raizlabs.dbflow5.runtime.DirectModelNotifier
@@ -103,7 +103,7 @@ abstract class DatabaseDefinition : DatabaseWrapper {
                 openHelper = if (config?.openHelperCreator != null) {
                     config.openHelperCreator.invoke(this, helperListener)
                 } else {
-                    FlowSQLiteOpenHelper(this, helperListener)
+                    AndroidSQLiteOpenHelper(this, helperListener)
                 }
                 openHelper?.performRestoreFromBackup()
             }
@@ -321,7 +321,7 @@ abstract class DatabaseDefinition : DatabaseWrapper {
     }
 
     /**
-     * Performs a full deletion of this database. Reopens the [FlowSQLiteOpenHelper] as well.
+     * Performs a full deletion of this database. Reopens the [AndroidSQLiteOpenHelper] as well.
      *
      * Reapplies the [DatabaseConfig] if we have one.
      * @param databaseConfig sets a new [DatabaseConfig] on this class.

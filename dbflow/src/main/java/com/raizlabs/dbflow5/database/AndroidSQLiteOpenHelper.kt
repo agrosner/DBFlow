@@ -10,7 +10,7 @@ import com.raizlabs.dbflow5.config.FlowManager
 /**
  * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.
  */
-class FlowSQLiteOpenHelper(
+class AndroidSQLiteOpenHelper(
         databaseDefinition: DatabaseDefinition,
         listener: DatabaseHelperListener?)
     : SQLiteOpenHelper(FlowManager.context,

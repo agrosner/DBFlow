@@ -34,8 +34,11 @@ internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
         database.endTransaction()
     }
 
-    override fun compileStatement(rawQuery: String): DatabaseStatement =
+    override fun compileStatement(rawQuery: String): DatabaseStatement = try {
         SQLCipherStatement.from(database.compileStatement(rawQuery))
+    } catch (e: SQLiteException) {
+        throw e.toSqliteException()
+    }
 
     override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor = try {
         FlowCursor.from(database.rawQuery(query, selectionArgs))

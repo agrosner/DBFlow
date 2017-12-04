@@ -1,9 +1,7 @@
 package com.raizlabs.dbflow5.adapter
 
 import android.content.ContentValues
-import android.database.sqlite.SQLiteStatement
 import android.support.annotation.IntRange
-
 import com.raizlabs.dbflow5.annotation.PrimaryKey
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
@@ -105,7 +103,7 @@ interface InternalAdapter<TModel> {
                               @IntRange(from = 0, to = 1) start: Int)
 
     /**
-     * Binds to a [SQLiteStatement]. It leaves out an autoincrementing primary key (if specified)
+     * Binds to a [DatabaseStatement]. It leaves out an autoincrementing primary key (if specified)
      * to keep the true nature of AI keys.
      *
      * @param sqLiteStatement The statement to bind to.

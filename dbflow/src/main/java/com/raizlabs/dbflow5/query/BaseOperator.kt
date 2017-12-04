@@ -1,20 +1,20 @@
 package com.raizlabs.dbflow5.query
 
-import android.database.DatabaseUtils
+import com.raizlabs.dbflow5.byteArrayToHexString
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.converter.TypeConverter
 import com.raizlabs.dbflow5.data.Blob
 import com.raizlabs.dbflow5.sql.Query
-import com.raizlabs.dbflow5.byteArrayToHexString
+import com.raizlabs.dbflow5.sqlEscapeString
 
 /**
  * Description: Base class for all kinds of [SQLOperator]
  */
 abstract class BaseOperator internal constructor(
-        /**
-         * The column name
-         */
-        protected var nameAlias: NameAlias?) : SQLOperator {
+    /**
+     * The column name
+     */
+    protected var nameAlias: NameAlias?) : SQLOperator {
 
     /**
      * The operation such as "=", "&lt;", and more
@@ -79,13 +79,13 @@ abstract class BaseOperator internal constructor(
     internal fun columnAlias(): NameAlias? = nameAlias
 
     open fun convertObjectToString(obj: Any?, appendInnerParenthesis: Boolean): String? =
-            convertValueToString(obj, appendInnerParenthesis)
+        convertValueToString(obj, appendInnerParenthesis)
 
     companion object {
 
         @JvmStatic
         fun convertValueToString(value: Any?, appendInnerQueryParenthesis: Boolean): String? =
-                convertValueToString(value, appendInnerQueryParenthesis, true)
+            convertValueToString(value, appendInnerQueryParenthesis, true)
 
         /**
          * Converts a value input into a String representation of that.
@@ -129,7 +129,7 @@ abstract class BaseOperator internal constructor(
                 var stringVal: String
                 if (typeConvert) {
                     val typeConverter: TypeConverter<*, Any?>?
-                            = FlowManager.getTypeConverterForClass(_value.javaClass) as TypeConverter<*, Any?>?
+                        = FlowManager.getTypeConverterForClass(_value.javaClass) as TypeConverter<*, Any?>?
                     if (typeConverter != null) {
                         _value = typeConverter.getDBValue(_value)
                     }
@@ -138,7 +138,7 @@ abstract class BaseOperator internal constructor(
                 if (_value is Number) {
                     stringVal = _value.toString()
                 } else if (_value is Enum<*>) {
-                    stringVal = DatabaseUtils.sqlEscapeString(_value.name)
+                    stringVal = sqlEscapeString(_value.name)
                 } else {
                     if (appendInnerQueryParenthesis && _value is BaseModelQueriable<*>) {
                         stringVal = String.format("(%1s)", _value.query.trim { it <= ' ' })
@@ -157,11 +157,11 @@ abstract class BaseOperator internal constructor(
                         } else {
                             bytes = _value as ByteArray?
                         }
-                        stringVal = "X" + DatabaseUtils.sqlEscapeString(byteArrayToHexString(bytes))
+                        stringVal = "X" + sqlEscapeString(byteArrayToHexString(bytes))
                     } else {
                         stringVal = _value.toString()
                         if (stringVal != Operator.Operation.EMPTY_PARAM) {
-                            stringVal = DatabaseUtils.sqlEscapeString(stringVal)
+                            stringVal = sqlEscapeString(stringVal)
                         }
                     }
                 }
@@ -206,9 +206,9 @@ abstract class BaseOperator internal constructor(
          */
         @JvmStatic
         fun joinArguments(delimiter: CharSequence, tokens: Array<Any?>): String =
-                tokens.joinToString(separator = delimiter) {
-                    convertValueToString(it, false, true) ?: ""
-                }
+            tokens.joinToString(separator = delimiter) {
+                convertValueToString(it, false, true) ?: ""
+            }
 
         /**
          * Returns a string containing the tokens converted into DBValues joined by delimiters.
@@ -220,9 +220,9 @@ abstract class BaseOperator internal constructor(
          */
         @JvmStatic
         fun joinArguments(delimiter: CharSequence, tokens: Iterable<Any?>): String =
-                tokens.joinToString(separator = delimiter) {
-                    convertValueToString(it, false, true) ?: ""
-                }
+            tokens.joinToString(separator = delimiter) {
+                convertValueToString(it, false, true) ?: ""
+            }
     }
 
 }

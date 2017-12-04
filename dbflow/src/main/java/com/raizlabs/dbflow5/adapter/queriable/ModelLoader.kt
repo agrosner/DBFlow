@@ -1,13 +1,12 @@
 package com.raizlabs.dbflow5.adapter.queriable
 
-import android.database.sqlite.SQLiteDatabase
 import com.raizlabs.dbflow5.adapter.InstanceAdapter
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
 
 /**
- * Description: Represents how models load from DB. It will query a [SQLiteDatabase]
+ * Description: Represents how models load from DB. It will query a [DatabaseWrapper]
  * and query for a [FlowCursor]. Then the cursor is used to convert itself into an object.
  */
 abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Class<TModel>) {

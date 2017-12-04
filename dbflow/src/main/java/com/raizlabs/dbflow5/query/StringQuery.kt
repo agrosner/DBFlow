@@ -1,10 +1,10 @@
 package com.raizlabs.dbflow5.query
 
 import android.database.sqlite.SQLiteDatabase
-import com.raizlabs.dbflow5.sql.Query
-import com.raizlabs.dbflow5.structure.ChangeAction
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
+import com.raizlabs.dbflow5.sql.Query
+import com.raizlabs.dbflow5.structure.ChangeAction
 
 /**
  * Description: Provides a very basic query mechanism for strings. Allows you to easily perform custom SQL query string
@@ -16,8 +16,8 @@ class StringQuery<T : Any>
  * Creates an instance of this class
  *
  * @param table The table to use
- * @param sql   The sql statement to query the DB with. Does not work with [Delete],
- * this must be done with [SQLiteDatabase.execSQL]
+ * @param query   The sql statement to query the DB with. Does not work with [Delete],
+ * this must be done with [DatabaseWrapper.execSQL]
  */
 (databaseWrapper: DatabaseWrapper,
  table: Class<T>,
