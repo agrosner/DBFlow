@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.query.cache
 
+import com.raizlabs.dbflow5.adapter.CacheAdapter
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
@@ -55,13 +56,14 @@ abstract class ModelCache<TModel, out CacheClass>
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun <T : Any, C> ModelCache<T, C>.addOrReload(cacheValue: Any?,
+                                                     cacheAdapter: CacheAdapter<T>,
                                                      modelAdapter: ModelAdapter<T>,
                                                      cursor: FlowCursor,
                                                      databaseWrapper: DatabaseWrapper,
                                                      data: T? = null): T {
     var model: T? = get(cacheValue)
     if (model != null) {
-        modelAdapter.reloadRelationships(model, cursor, databaseWrapper)
+        cacheAdapter.reloadRelationships(model, cursor, databaseWrapper)
     } else {
         model = data ?: modelAdapter.newInstance()
         modelAdapter.loadFromCursor(cursor, model, databaseWrapper)

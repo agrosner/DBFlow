@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.adapter.queriable
 
+import com.raizlabs.dbflow5.adapter.CacheAdapter
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.annotation.Table
 import com.raizlabs.dbflow5.database.DatabaseWrapper
@@ -11,7 +12,8 @@ import com.raizlabs.dbflow5.query.cache.addOrReload
  * Description: Loads model data that is backed by a [ModelCache]. Used when [Table.cachingEnabled]
  * is true.
  */
-open class CacheableModelLoader<T : Any>(modelClass: Class<T>)
+open class CacheableModelLoader<T : Any>(modelClass: Class<T>,
+                                         protected val cacheAdapter: CacheAdapter<T>)
     : SingleModelLoader<T>(modelClass) {
 
     val modelAdapter: ModelAdapter<T> by lazy {
@@ -29,7 +31,7 @@ open class CacheableModelLoader<T : Any>(modelClass: Class<T>)
         }
     }
 
-    val modelCache: ModelCache<T, *> by lazy { modelAdapter.modelCache }
+    val modelCache: ModelCache<T, *> by lazy { cacheAdapter.modelCache }
 
     /**
      * Converts data by loading from cache based on its sequence of caching ids. Will reuse the passed
@@ -40,9 +42,9 @@ open class CacheableModelLoader<T : Any>(modelClass: Class<T>)
     override fun convertToData(cursor: FlowCursor, data: T?, moveToFirst: Boolean,
                                databaseWrapper: DatabaseWrapper): T? {
         return if (!moveToFirst || cursor.moveToFirst()) {
-            val values = modelAdapter.getCachingColumnValuesFromCursor(
-                    arrayOfNulls(modelAdapter.cachingColumns.size), cursor)
-            modelCache.addOrReload(modelAdapter.getCachingId(values), modelAdapter,
+            val values = cacheAdapter.getCachingColumnValuesFromCursor(
+                    arrayOfNulls(cacheAdapter.cachingColumns.size), cursor)
+            modelCache.addOrReload(cacheAdapter.getCachingId(values), cacheAdapter, modelAdapter,
                     cursor, databaseWrapper, data)
         } else null
     }

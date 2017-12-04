@@ -47,7 +47,7 @@ object ClassNames {
 
     val TYPE_CONVERTER = ClassName.get(CONVERTER, "TypeConverter")
     val TYPE_CONVERTER_GETTER: ClassName = ClassName.get(PROPERTY_PACKAGE,
-            "TypeConvertedProperty.TypeConverterGetter")
+        "TypeConvertedProperty.TypeConverterGetter")
 
     val CONFLICT_ACTION = ClassName.get(ConflictAction::class.java)
 
@@ -76,6 +76,7 @@ object ClassNames {
     val SINGLE_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleModelLoader")
     val CACHEABLE_LIST_MODEL_LOADER = ClassName.get(QUERIABLE, "CacheableListModelLoader")
     val LIST_MODEL_LOADER = ClassName.get(QUERIABLE, "ListModelLoader")
+    val CACHE_ADAPTER = ClassName.get(ADAPTER, "CacheAdapter")
 
     val DATABASE_WRAPPER = ClassName.get(DATABASE, "DatabaseWrapper")
 

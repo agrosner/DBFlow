@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.adapter.queriable
 
+import com.raizlabs.dbflow5.adapter.CacheAdapter
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.annotation.Table
 import com.raizlabs.dbflow5.database.DatabaseWrapper
@@ -10,7 +11,8 @@ import com.raizlabs.dbflow5.query.cache.addOrReload
 /**
  * Description: Loads a [List] of [T] with [Table.cachingEnabled] true.
  */
-open class CacheableListModelLoader<T : Any>(modelClass: Class<T>)
+open class CacheableListModelLoader<T : Any>(modelClass: Class<T>,
+                                             protected val cacheAdapter: CacheAdapter<T>)
     : ListModelLoader<T>(modelClass) {
 
     val modelAdapter: ModelAdapter<T> by lazy {
@@ -24,18 +26,18 @@ open class CacheableListModelLoader<T : Any>(modelClass: Class<T>)
         return@lazy modelAdapter
     }
 
-    val modelCache: ModelCache<T, *> by lazy { modelAdapter.modelCache }
+    val modelCache: ModelCache<T, *> by lazy { cacheAdapter.modelCache }
 
     override fun convertToData(cursor: FlowCursor, data: MutableList<T>?,
                                databaseWrapper: DatabaseWrapper): MutableList<T> {
         val _data = data ?: arrayListOf()
-        val cacheValues = arrayOfNulls<Any>(modelAdapter.cachingColumns.size)
+        val cacheValues = arrayOfNulls<Any>(cacheAdapter.cachingColumns.size)
         // Ensure that we aren't iterating over this cursor concurrently from different threads
         if (cursor.moveToFirst()) {
             do {
-                val values = modelAdapter.getCachingColumnValuesFromCursor(cacheValues, cursor)
-                val model = modelCache.addOrReload(modelAdapter.getCachingId(values),
-                        modelAdapter, cursor, databaseWrapper)
+                val values = cacheAdapter.getCachingColumnValuesFromCursor(cacheValues, cursor)
+                val model = modelCache.addOrReload(cacheAdapter.getCachingId(values),
+                    cacheAdapter, modelAdapter, cursor, databaseWrapper)
                 _data.add(model)
             } while (cursor.moveToNext())
         }
