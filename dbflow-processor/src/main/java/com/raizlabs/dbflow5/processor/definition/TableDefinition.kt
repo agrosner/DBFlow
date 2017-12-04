@@ -48,10 +48,8 @@ import com.raizlabs.dbflow5.processor.utils.ensureVisibleStatic
 import com.raizlabs.dbflow5.processor.utils.implementsClass
 import com.raizlabs.dbflow5.processor.utils.isNullOrEmpty
 import com.raizlabs.dbflow5.quote
-import com.raizlabs.dbflow5.quoteIfNeeded
 import com.raizlabs.dbflow5.stripQuotes
 import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.ParameterizedTypeName
@@ -516,7 +514,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 `private final field`(ClassNames.CACHE_ADAPTER, "cacheAdapter") {
                     `=` {
                         addStatement("\$L",
-                            TypeSpec.anonymousClassBuilder("this")
+                            TypeSpec.anonymousClassBuilder("")
                                 .addSuperinterface(ParameterizedTypeName.get(ClassNames.CACHE_ADAPTER, elementTypeName))
                                 .apply {
                                     val primaryColumns = primaryColumnDefinitions
@@ -566,9 +564,9 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                                     }
 
 
-                                    `override fun`(ArrayTypeName.of(ClassName.get(String::class.java)), "createCachingColumns") {
+                                    `override fun`(TypeName.INT, "getCachingColumnSize") {
                                         modifiers(public, final)
-                                        `return`("new String[]{${primaryColumns.joinToString { it.columnName.quoteIfNeeded().S }}}")
+                                        `return`(primaryColumns.size.L)
                                     }
 
                                     if (cacheSize != DEFAULT_CACHE_SIZE) {

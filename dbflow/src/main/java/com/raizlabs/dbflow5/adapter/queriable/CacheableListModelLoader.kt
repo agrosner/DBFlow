@@ -31,7 +31,7 @@ open class CacheableListModelLoader<T : Any>(modelClass: Class<T>,
     override fun convertToData(cursor: FlowCursor, data: MutableList<T>?,
                                databaseWrapper: DatabaseWrapper): MutableList<T> {
         val _data = data ?: arrayListOf()
-        val cacheValues = arrayOfNulls<Any>(cacheAdapter.cachingColumns.size)
+        val cacheValues = arrayOfNulls<Any>(cacheAdapter.cachingColumnSize)
         // Ensure that we aren't iterating over this cursor concurrently from different threads
         if (cursor.moveToFirst()) {
             do {

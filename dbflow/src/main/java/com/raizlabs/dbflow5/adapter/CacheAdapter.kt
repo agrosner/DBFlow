@@ -11,13 +11,15 @@ import com.raizlabs.dbflow5.structure.InvalidDBConfiguration
 /**
  * Description:
  */
-abstract class CacheAdapter<T : Any>(private val modelAdapter: ModelAdapter<T>) {
+abstract class CacheAdapter<T : Any> {
 
     val modelCache: ModelCache<T, *> by lazy { createModelCache() }
-    val cachingColumns: Array<String> by lazy { createCachingColumns() }
 
     open val cacheSize: Int
         get() = DEFAULT_CACHE_SIZE
+
+    open val cachingColumnSize: Int
+        get() = 1
 
     open val cacheConverter: IMultiKeyCacheConverter<*>
         get() = throw InvalidDBConfiguration("For multiple primary keys, a public static IMultiKeyCacheConverter field must" +
@@ -36,11 +38,6 @@ abstract class CacheAdapter<T : Any>(private val modelAdapter: ModelAdapter<T>) 
      */
     open fun getCachingColumnValueFromModel(model: T): Any? = Unit
 
-
-    /**
-     * @return A set of columns that represent the caching columns.
-     */
-    open fun createCachingColumns(): Array<String> = arrayOf(modelAdapter.autoIncrementingColumnName)
 
     /**
      * Loads all primary keys from the [FlowCursor] into the inValues. The size of the array must
@@ -79,7 +76,7 @@ abstract class CacheAdapter<T : Any>(private val modelAdapter: ModelAdapter<T>) 
     }
 
     open fun getCachingId(model: T): Any? =
-        getCachingId(getCachingColumnValuesFromModel(arrayOfNulls(cachingColumns.size), model))
+        getCachingId(getCachingColumnValuesFromModel(arrayOfNulls(cachingColumnSize), model))
 
 
     open fun createModelCache(): ModelCache<T, *> = SimpleMapCache(cacheSize)
