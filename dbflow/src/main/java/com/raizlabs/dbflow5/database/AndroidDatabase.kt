@@ -82,10 +82,10 @@ class AndroidDatabase internal constructor(val database: SQLiteDatabase) : Datab
     }
 }
 
-fun SQLiteException.toSqliteException() = com.raizlabs.dbflow5.database.SQLiteException("A Database Error Occurred", this)
+fun SQLiteException.toDBFlowSQLiteException() = com.raizlabs.dbflow5.database.SQLiteException("A Database Error Occurred", this)
 
 inline fun <T> rethrowDBFlowException(fn: () -> T) = try {
     fn()
 } catch (e: SQLiteException) {
-    throw e.toSqliteException()
+    throw e.toDBFlowSQLiteException()
 }
