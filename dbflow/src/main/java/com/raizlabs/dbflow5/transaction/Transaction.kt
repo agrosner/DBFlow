@@ -53,13 +53,13 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
 
 
     internal constructor(builder: Builder<R>) : this(
-            databaseDefinition = builder.databaseDefinition,
-            errorCallback = builder.errorCallback,
-            successCallback = builder.successCallback,
-            transaction = builder.transaction,
-            name = builder.name,
-            shouldRunInTransaction = builder.shouldRunInTransaction,
-            runCallbacksOnSameThread = builder.runCallbacksOnSameThread
+        databaseDefinition = builder.databaseDefinition,
+        errorCallback = builder.errorCallback,
+        successCallback = builder.successCallback,
+        transaction = builder.transaction,
+        name = builder.name,
+        shouldRunInTransaction = builder.shouldRunInTransaction,
+        runCallbacksOnSameThread = builder.runCallbacksOnSameThread
     )
 
     fun error(): Error<R>? = errorCallback
@@ -120,11 +120,11 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
 
     fun newBuilder(): Builder<R> {
         return Builder(transaction, databaseDefinition)
-                .error(errorCallback)
-                .success(successCallback)
-                .name(name)
-                .shouldRunInTransaction(shouldRunInTransaction)
-                .runCallbacksOnSameThread(runCallbacksOnSameThread)
+            .error(errorCallback)
+            .success(successCallback)
+            .name(name)
+            .shouldRunInTransaction(shouldRunInTransaction)
+            .runCallbacksOnSameThread(runCallbacksOnSameThread)
     }
 
     /**

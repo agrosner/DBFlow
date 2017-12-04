@@ -107,15 +107,15 @@ class PriorityTransactionQueue
     internal inner class PriorityEntry<out E : Transaction<out Any?>>(val entry: E)
         : Comparable<PriorityEntry<Transaction<out Any?>>> {
         private val transactionWrapper: PriorityTransactionWrapper =
-                if (entry.transaction() is PriorityTransactionWrapper) {
-                    entry.transaction() as PriorityTransactionWrapper
-                } else {
-                    PriorityTransactionWrapper.Builder(entry.transaction())
-                            .build()
-                }
+            if (entry.transaction() is PriorityTransactionWrapper) {
+                entry.transaction() as PriorityTransactionWrapper
+            } else {
+                PriorityTransactionWrapper.Builder(entry.transaction())
+                    .build()
+            }
 
         override fun compareTo(other: PriorityEntry<Transaction<out Any?>>): Int =
-                transactionWrapper.compareTo(other.transactionWrapper)
+            transactionWrapper.compareTo(other.transactionWrapper)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

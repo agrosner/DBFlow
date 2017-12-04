@@ -2,8 +2,8 @@ package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.appendArray
 import com.raizlabs.dbflow5.config.FlowManager
-import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.query.property.IProperty
+import com.raizlabs.dbflow5.sql.Query
 
 /**
  * Description: Describes the method that the trigger uses.
@@ -18,10 +18,10 @@ internal constructor(internal val trigger: Trigger, private val methodName: Stri
     override val query: String
         get() {
             val queryBuilder = StringBuilder(trigger.query)
-                    .append(methodName)
+                .append(methodName)
             if (properties.isNotEmpty()) {
                 queryBuilder.append(" OF ")
-                        .appendArray(properties.toTypedArray())
+                    .appendArray(properties.toTypedArray())
             }
             queryBuilder.append(" ON ").append(FlowManager.getTableName(onTable))
 
@@ -73,7 +73,7 @@ internal constructor(internal val trigger: Trigger, private val methodName: Stri
      * @return This trigger
      */
     fun begin(triggerLogicQuery: Query): CompletedTrigger<TModel> =
-            CompletedTrigger(this, triggerLogicQuery)
+        CompletedTrigger(this, triggerLogicQuery)
 
     companion object {
 

@@ -11,10 +11,10 @@ typealias ProcessFunction<T> = (T, DatabaseWrapper) -> Unit
  * can operate on a set of [Model] to [Model.save], [Model.update], etc.
  */
 class ProcessModelTransaction<TModel>(
-        private val models: List<TModel> = arrayListOf(),
-        private val processListener: OnModelProcessListener<TModel>? = null,
-        private val processModel: ProcessModel<TModel>,
-        private val runProcessListenerOnSameThread: Boolean) : ITransaction<Unit> {
+    private val models: List<TModel> = arrayListOf(),
+    private val processListener: OnModelProcessListener<TModel>? = null,
+    private val processModel: ProcessModel<TModel>,
+    private val runProcessListenerOnSameThread: Boolean) : ITransaction<Unit> {
 
 
     /**
@@ -49,10 +49,10 @@ class ProcessModelTransaction<TModel>(
     }
 
     internal constructor(builder: Builder<TModel>) : this(
-            processListener = builder.processListener,
-            models = builder.models,
-            processModel = builder.processModel,
-            runProcessListenerOnSameThread = builder.runProcessListenerOnSameThread
+        processListener = builder.processListener,
+        models = builder.models,
+        processModel = builder.processModel,
+        runProcessListenerOnSameThread = builder.runProcessListenerOnSameThread
     )
 
     override fun execute(databaseWrapper: DatabaseWrapper) {
@@ -147,18 +147,17 @@ class ProcessModelTransaction<TModel>(
 }
 
 
-
 /**
  * Enables a collection of T objects to easily operate on them within a synchronous database transaction.
  */
 @Deprecated(message = "Use the coroutines awaitSave, awaitInsert, awaitDelete, awaitUpdate")
 inline fun <reified T : Any> Collection<T>.processInTransaction(
-        crossinline processFunction: ProcessFunction<T>) {
+    crossinline processFunction: ProcessFunction<T>) {
     databaseForTable<T>().executeTransaction { db -> forEach { processFunction(it, db) } }
 }
 
 inline fun <T> processModel(crossinline function: (T, DatabaseWrapper) -> Unit)
-        = object : ProcessModelTransaction.ProcessModel<T> {
+    = object : ProcessModelTransaction.ProcessModel<T> {
     override fun processModel(model: T, wrapper: DatabaseWrapper) = function(model, wrapper)
 }
 
@@ -167,19 +166,19 @@ inline fun <T> processModel(crossinline function: (T, DatabaseWrapper) -> Unit)
  * an action on each individual [Model]. This happens on a non-UI thread.
  */
 inline fun <reified T : Any> Collection<T>.processInTransactionAsync(
-        crossinline processFunction: ProcessFunction<T>,
-        success: Transaction.Success<Unit>? = null,
-        error: Transaction.Error<Unit>? = null,
-        processListener: ProcessModelTransaction.OnModelProcessListener<T>? = null) {
+    crossinline processFunction: ProcessFunction<T>,
+    success: Transaction.Success<Unit>? = null,
+    error: Transaction.Error<Unit>? = null,
+    processListener: ProcessModelTransaction.OnModelProcessListener<T>? = null) {
     val builder = this.processTransaction(processFunction)
     processListener?.let { builder.processListener(processListener) }
     databaseForTable<T>().beginTransactionAsync(builder.build())
-            .success(success)
-            .error(error)
-            .execute()
+        .success(success)
+        .error(error)
+        .execute()
 }
 
 inline fun <reified T : Any> Collection<T>.processTransaction(
-        crossinline processFunction: ProcessFunction<T>): ProcessModelTransaction.Builder<T> =
-        ProcessModelTransaction.Builder<T>(processModel { model, wrapper -> processFunction(model, wrapper) })
-                .addAll(this)
+    crossinline processFunction: ProcessFunction<T>): ProcessModelTransaction.Builder<T> =
+    ProcessModelTransaction.Builder<T>(processModel { model, wrapper -> processFunction(model, wrapper) })
+        .addAll(this)

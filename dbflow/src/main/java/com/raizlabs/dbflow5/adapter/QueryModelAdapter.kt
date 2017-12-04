@@ -2,8 +2,8 @@ package com.raizlabs.dbflow5.adapter
 
 import com.raizlabs.dbflow5.annotation.QueryModel
 import com.raizlabs.dbflow5.config.DatabaseDefinition
-import com.raizlabs.dbflow5.query.OperatorGroup
 import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.query.OperatorGroup
 
 /**
  * Description: The baseclass for adapters to [QueryModel] that defines how it interacts with the DB. The

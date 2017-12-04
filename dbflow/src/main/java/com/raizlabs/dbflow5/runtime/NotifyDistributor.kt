@@ -1,8 +1,8 @@
 package com.raizlabs.dbflow5.runtime
 
+import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.structure.ChangeAction
-import com.raizlabs.dbflow5.adapter.ModelAdapter
 
 /**
  * Description: Distributes notifications to the [ModelNotifier].
@@ -17,7 +17,7 @@ class NotifyDistributor : ModelNotifier {
                                               adapter: ModelAdapter<T>,
                                               action: ChangeAction) {
         FlowManager.getModelNotifierForTable(adapter.table)
-                .notifyModelChanged(model, adapter, action)
+            .notifyModelChanged(model, adapter, action)
     }
 
     /**

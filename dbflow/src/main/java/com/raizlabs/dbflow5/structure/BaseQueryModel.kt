@@ -11,6 +11,6 @@ class BaseQueryModel : NoModificationModel() {
 
     override fun exists(wrapper: DatabaseWrapper): Boolean {
         throw InvalidSqlViewOperationException("Query " + wrapper.javaClass.name +
-                " does not exist as a table." + "It's a convenient representation of a complex SQLite query.")
+            " does not exist as a table." + "It's a convenient representation of a complex SQLite query.")
     }
 }

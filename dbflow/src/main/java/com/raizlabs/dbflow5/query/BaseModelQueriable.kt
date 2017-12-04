@@ -1,15 +1,15 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.adapter.InstanceAdapter
+import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
+import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.list.FlowCursorList
 import com.raizlabs.dbflow5.query.list.FlowQueryList
 import com.raizlabs.dbflow5.runtime.NotifyDistributor
 import com.raizlabs.dbflow5.sql.Query
-import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
-import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
-import com.raizlabs.dbflow5.adapter.InstanceAdapter
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 
 /**
  * Description: Provides a base implementation of [ModelQueriable] to simplify a lot of code. It provides the
@@ -50,7 +50,7 @@ protected constructor(val databaseWrapper: DatabaseWrapper,
     override fun cursorList(): FlowCursorList<TModel> = FlowCursorList.Builder(this).build()
 
     override fun flowQueryList(): FlowQueryList<TModel> =
-            FlowQueryList.Builder(modelQueriable = this).build()
+        FlowQueryList.Builder(modelQueriable = this).build()
 
     override fun executeUpdateDelete(): Long {
         val affected = databaseWrapper.compileStatement(query).executeUpdateDelete()

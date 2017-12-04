@@ -1,8 +1,8 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.query.property.IndexProperty
 import com.raizlabs.dbflow5.quoteIfNeeded
 import com.raizlabs.dbflow5.sql.Query
-import com.raizlabs.dbflow5.query.property.IndexProperty
 import com.raizlabs.dbflow5.structure.ChangeAction
 
 /**

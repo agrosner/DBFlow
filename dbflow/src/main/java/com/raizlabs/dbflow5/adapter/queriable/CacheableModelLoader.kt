@@ -43,9 +43,9 @@ open class CacheableModelLoader<T : Any>(modelClass: Class<T>,
                                databaseWrapper: DatabaseWrapper): T? {
         return if (!moveToFirst || cursor.moveToFirst()) {
             val values = cacheAdapter.getCachingColumnValuesFromCursor(
-                    arrayOfNulls(cacheAdapter.cachingColumnSize), cursor)
+                arrayOfNulls(cacheAdapter.cachingColumnSize), cursor)
             modelCache.addOrReload(cacheAdapter.getCachingId(values), cacheAdapter, modelAdapter,
-                    cursor, databaseWrapper)
+                cursor, databaseWrapper)
         } else null
     }
 }

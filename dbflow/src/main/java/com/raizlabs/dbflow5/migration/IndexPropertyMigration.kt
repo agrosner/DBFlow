@@ -1,17 +1,16 @@
 package com.raizlabs.dbflow5.migration
 
-import com.raizlabs.dbflow5.query.property.IndexProperty
 import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.migration.BaseMigration
+import com.raizlabs.dbflow5.query.property.IndexProperty
 
 /**
  * Description: Allows you to specify if and when an [IndexProperty] gets used or created.
  */
 abstract class IndexPropertyMigration(
-        /**
-         * @return true if create the index, false to drop the index.
-         */
-        open val shouldCreate: Boolean = true) : BaseMigration() {
+    /**
+     * @return true if create the index, false to drop the index.
+     */
+    open val shouldCreate: Boolean = true) : BaseMigration() {
 
     abstract val indexProperty: IndexProperty<*>
 

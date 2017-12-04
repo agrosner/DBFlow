@@ -15,12 +15,12 @@ class PriorityTransactionWrapper(private val priority: Int, private val transact
     annotation class Priority()
 
     internal constructor(builder: Builder) : this(
-            priority = if (builder.priority == 0) {
-                PRIORITY_NORMAL
-            } else {
-                builder.priority
-            },
-            transaction = builder.transaction)
+        priority = if (builder.priority == 0) {
+            PRIORITY_NORMAL
+        } else {
+            builder.priority
+        },
+        transaction = builder.transaction)
 
     override fun execute(databaseWrapper: DatabaseWrapper) {
         transaction.execute(databaseWrapper)

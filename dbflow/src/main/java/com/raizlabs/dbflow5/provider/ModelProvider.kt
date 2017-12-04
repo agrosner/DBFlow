@@ -40,9 +40,9 @@ interface ModelProvider {
      * @param columns            The list of columns to select. Leave blank for *
      */
     fun <T> load(whereOperatorGroup: OperatorGroup,
-             orderBy: String?,
-             wrapper: DatabaseWrapper,
-             vararg columns: String?) : T?
+                 orderBy: String?,
+                 wrapper: DatabaseWrapper,
+                 vararg columns: String?): T?
 
     /**
      * Queries the [ContentResolver] of the app based on the primary keys of the object and returns a

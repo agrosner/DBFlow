@@ -1,8 +1,8 @@
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
+import com.raizlabs.dbflow5.query.property.IProperty
 
 /**
  * Description: Combines basic transformations and query ops into a base class.
@@ -21,21 +21,21 @@ protected constructor(databaseWrapper: DatabaseWrapper,
 
     fun where(vararg conditions: SQLOperator): Where<TModel> = Where(this, *conditions)
 
-    infix fun where(condition: SQLOperator) : Where<TModel> = Where(this, condition)
+    infix fun where(condition: SQLOperator): Where<TModel> = Where(this, condition)
 
     override fun query(): FlowCursor? = where().query()
 
     override fun groupBy(vararg nameAliases: NameAlias): Where<TModel> =
-            where().groupBy(*nameAliases)
+        where().groupBy(*nameAliases)
 
     override fun groupBy(vararg properties: IProperty<*>): Where<TModel> =
-            where().groupBy(*properties)
+        where().groupBy(*properties)
 
     override fun orderBy(nameAlias: NameAlias, ascending: Boolean): Where<TModel> =
-            where().orderBy(nameAlias, ascending)
+        where().orderBy(nameAlias, ascending)
 
     override fun orderBy(property: IProperty<*>, ascending: Boolean): Where<TModel> =
-            where().orderBy(property, ascending)
+        where().orderBy(property, ascending)
 
     override fun orderByAll(orderBies: List<OrderBy>): Where<TModel> = where().orderByAll(orderBies)
 

@@ -13,10 +13,10 @@ import com.raizlabs.dbflow5.stripQuotes
  * Description: Provides a very nice way to alter a single table quickly and easily.
  */
 class AlterTableMigration<T : Any>(
-        /**
-         * The table to ALTER
-         */
-        private val table: Class<T>) : BaseMigration() {
+    /**
+     * The table to ALTER
+     */
+    private val table: Class<T>) : BaseMigration() {
 
     /**
      * The query to rename the table with

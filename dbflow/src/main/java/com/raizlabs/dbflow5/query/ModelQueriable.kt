@@ -1,9 +1,9 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.list.FlowCursorList
 import com.raizlabs.dbflow5.query.list.FlowQueryList
 import com.raizlabs.dbflow5.structure.BaseQueryModel
-import com.raizlabs.dbflow5.database.FlowCursor
 
 /**
  * Description: An interface for query objects to enable you to query from the database in a structured way.

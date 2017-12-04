@@ -11,12 +11,12 @@ import com.raizlabs.dbflow5.config.FlowManager
  * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.
  */
 class AndroidSQLiteOpenHelper(
-        databaseDefinition: DatabaseDefinition,
-        listener: DatabaseHelperListener?)
+    databaseDefinition: DatabaseDefinition,
+    listener: DatabaseHelperListener?)
     : SQLiteOpenHelper(FlowManager.context,
-        if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
-        null,
-        databaseDefinition.databaseVersion), OpenHelper {
+    if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
+    null,
+    databaseDefinition.databaseVersion), OpenHelper {
 
     private val databaseHelperDelegate: DatabaseHelperDelegate
     private var androidDatabase: AndroidDatabase? = null
@@ -26,8 +26,8 @@ class AndroidSQLiteOpenHelper(
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = BackupHelper(FlowManager.context,
-                    DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                    databaseDefinition.databaseVersion, databaseDefinition)
+                DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
+                databaseDefinition.databaseVersion, databaseDefinition)
         }
 
         databaseHelperDelegate = DatabaseHelperDelegate(listener, databaseDefinition, backupHelper)

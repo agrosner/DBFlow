@@ -11,15 +11,15 @@ import kotlin.reflect.KClass
  * Description:
  */
 class DatabaseConfig(
-        val databaseClass: Class<*>,
-        val openHelperCreator: ((DatabaseDefinition, DatabaseHelperListener?) -> OpenHelper)? = null,
-        val transactionManagerCreator: ((DatabaseDefinition) -> BaseTransactionManager)? = null,
-        val helperListener: DatabaseHelperListener? = null,
-        val tableConfigMap: Map<Class<*>, TableConfig<*>> = mapOf(),
-        val modelNotifier: ModelNotifier? = null,
-        val isInMemory: Boolean = false,
-        val databaseName: String? = null,
-        val databaseExtensionName: String? = null) {
+    val databaseClass: Class<*>,
+    val openHelperCreator: ((DatabaseDefinition, DatabaseHelperListener?) -> OpenHelper)? = null,
+    val transactionManagerCreator: ((DatabaseDefinition) -> BaseTransactionManager)? = null,
+    val helperListener: DatabaseHelperListener? = null,
+    val tableConfigMap: Map<Class<*>, TableConfig<*>> = mapOf(),
+    val modelNotifier: ModelNotifier? = null,
+    val isInMemory: Boolean = false,
+    val databaseName: String? = null,
+    val databaseExtensionName: String? = null) {
 
 
     interface OpenHelperCreator {
@@ -33,24 +33,24 @@ class DatabaseConfig(
     }
 
     internal constructor(builder: Builder) : this(
-            // convert java interface to kotlin function.
-            openHelperCreator = builder.openHelperCreator,
-            databaseClass = builder.databaseClass,
-            transactionManagerCreator = builder.transactionManagerCreator,
-            helperListener = builder.helperListener,
-            tableConfigMap = builder.tableConfigMap,
-            modelNotifier = builder.modelNotifier,
-            isInMemory = builder.inMemory,
-            databaseName = builder.databaseName ?: builder.databaseClass.simpleName,
-            databaseExtensionName = when {
-                builder.databaseExtensionName == null -> ".db"
-                builder.databaseExtensionName.isNotNullOrEmpty() -> ".${builder.databaseExtensionName}"
-                else -> ""
-            })
+        // convert java interface to kotlin function.
+        openHelperCreator = builder.openHelperCreator,
+        databaseClass = builder.databaseClass,
+        transactionManagerCreator = builder.transactionManagerCreator,
+        helperListener = builder.helperListener,
+        tableConfigMap = builder.tableConfigMap,
+        modelNotifier = builder.modelNotifier,
+        isInMemory = builder.inMemory,
+        databaseName = builder.databaseName ?: builder.databaseClass.simpleName,
+        databaseExtensionName = when {
+            builder.databaseExtensionName == null -> ".db"
+            builder.databaseExtensionName.isNotNullOrEmpty() -> ".${builder.databaseExtensionName}"
+            else -> ""
+        })
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getTableConfigForTable(modelClass: Class<T>): TableConfig<T>? =
-            tableConfigMap[modelClass] as TableConfig<T>?
+        tableConfigMap[modelClass] as TableConfig<T>?
 
     /**
      * Build compatibility class for Java. Use the [DatabaseConfig] class directly if Kotlin consumer.
@@ -69,7 +69,7 @@ class DatabaseConfig(
         constructor(kClass: KClass<*>) : this(kClass.java)
 
         fun transactionManagerCreator(transactionManager: TransactionManagerCreator) =
-                transactionManagerCreator { databaseDefinition -> transactionManager.createManager(databaseDefinition) }
+            transactionManagerCreator { databaseDefinition -> transactionManager.createManager(databaseDefinition) }
 
         fun transactionManagerCreator(creator: (DatabaseDefinition) -> BaseTransactionManager) = apply {
             this.transactionManagerCreator = creator
@@ -133,9 +133,9 @@ class DatabaseConfig(
 
         @JvmStatic
         fun inMemoryBuilder(database: Class<*>): Builder =
-                Builder(database).inMemory()
+            Builder(database).inMemory()
 
         fun inMemoryBuilder(database: KClass<*>): Builder =
-                Builder(database).inMemory()
+            Builder(database).inMemory()
     }
 }

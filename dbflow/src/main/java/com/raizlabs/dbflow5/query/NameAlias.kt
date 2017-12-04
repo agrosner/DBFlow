@@ -55,26 +55,26 @@ class NameAlias(private val name: String,
         }
 
     private constructor(builder: Builder) : this(
-            name = if (builder.shouldStripIdentifier) {
-                builder.name.stripQuotes() ?: ""
-            } else {
-                builder.name
-            },
-            keyword = builder.keyword,
-            aliasName = if (builder.shouldStripAliasName) {
-                builder.aliasName.stripQuotes()
-            } else {
-                builder.aliasName
-            },
-            tableName = if (builder.tableName.isNotNullOrEmpty()) {
-                builder.tableName.quoteIfNeeded()
-            } else {
-                null
-            },
-            shouldStripIdentifier = builder.shouldStripIdentifier,
-            shouldStripAliasName = builder.shouldStripAliasName,
-            shouldAddIdentifierToQuery = builder.shouldAddIdentifierToQuery,
-            shouldAddIdentifierToAliasName = builder.shouldAddIdentifierToAliasName)
+        name = if (builder.shouldStripIdentifier) {
+            builder.name.stripQuotes() ?: ""
+        } else {
+            builder.name
+        },
+        keyword = builder.keyword,
+        aliasName = if (builder.shouldStripAliasName) {
+            builder.aliasName.stripQuotes()
+        } else {
+            builder.aliasName
+        },
+        tableName = if (builder.tableName.isNotNullOrEmpty()) {
+            builder.tableName.quoteIfNeeded()
+        } else {
+            null
+        },
+        shouldStripIdentifier = builder.shouldStripIdentifier,
+        shouldStripAliasName = builder.shouldStripAliasName,
+        shouldAddIdentifierToQuery = builder.shouldAddIdentifierToQuery,
+        shouldAddIdentifierToAliasName = builder.shouldAddIdentifierToAliasName)
 
     /**
      * @return The real column name.
@@ -103,13 +103,13 @@ class NameAlias(private val name: String,
      * @return The alias name, stripped from identifier syntax completely.
      */
     fun aliasNameRaw(): String? =
-            if (shouldStripAliasName) aliasName else aliasName.stripQuotes()
+        if (shouldStripAliasName) aliasName else aliasName.stripQuotes()
 
     /**
      * @return The `{tableName}`.`{name}`. If [.tableName] specified.
      */
     fun fullName(): String =
-            (if (tableName.isNotNullOrEmpty()) "$tableName." else "") + name()
+        (if (tableName.isNotNullOrEmpty()) "$tableName." else "") + name()
 
     override fun toString(): String = fullQuery
 
@@ -118,13 +118,13 @@ class NameAlias(private val name: String,
      */
     fun newBuilder(): Builder {
         return Builder(name)
-                .keyword(keyword)
-                .`as`(aliasName)
-                .shouldStripAliasName(shouldStripAliasName)
-                .shouldStripIdentifier(shouldStripIdentifier)
-                .shouldAddIdentifierToName(shouldAddIdentifierToQuery)
-                .shouldAddIdentifierToAliasName(shouldAddIdentifierToAliasName)
-                .withTable(tableName)
+            .keyword(keyword)
+            .`as`(aliasName)
+            .shouldStripAliasName(shouldStripAliasName)
+            .shouldStripIdentifier(shouldStripIdentifier)
+            .shouldAddIdentifierToName(shouldAddIdentifierToQuery)
+            .shouldAddIdentifierToAliasName(shouldAddIdentifierToAliasName)
+            .withTable(tableName)
     }
 
 
@@ -226,17 +226,17 @@ class NameAlias(private val name: String,
          */
         fun rawBuilder(name: String): Builder {
             return Builder(name)
-                    .shouldStripIdentifier(false)
-                    .shouldAddIdentifierToName(false)
+                .shouldStripIdentifier(false)
+                .shouldAddIdentifierToName(false)
         }
 
         fun of(name: String): NameAlias = builder(name).build()
 
         fun of(name: String, aliasName: String): NameAlias =
-                builder(name).`as`(aliasName).build()
+            builder(name).`as`(aliasName).build()
 
         fun ofTable(tableName: String, name: String): NameAlias =
-                builder(name).withTable(tableName).build()
+            builder(name).withTable(tableName).build()
     }
 }
 

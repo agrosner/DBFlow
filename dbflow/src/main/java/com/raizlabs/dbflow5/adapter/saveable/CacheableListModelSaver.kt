@@ -24,7 +24,7 @@ class CacheableListModelSaver<T : Any>(modelSaver: ModelSaver<T>,
                                          wrapper: DatabaseWrapper): Long {
         val statement = modelAdapter.getInsertStatement(wrapper)
         return applyAndCount(tableCollection, statement,
-                cacheFn = cacheAdapter::storeModelInCache) {
+            cacheFn = cacheAdapter::storeModelInCache) {
             modelSaver.insert(it, statement, wrapper) > 0
         }
     }
@@ -33,7 +33,7 @@ class CacheableListModelSaver<T : Any>(modelSaver: ModelSaver<T>,
                                          wrapper: DatabaseWrapper): Long {
         val statement = modelAdapter.getUpdateStatement(wrapper)
         return applyAndCount(tableCollection, statement,
-                cacheFn = cacheAdapter::storeModelInCache) {
+            cacheFn = cacheAdapter::storeModelInCache) {
             modelSaver.update(it, statement, wrapper)
         }
     }
@@ -42,7 +42,7 @@ class CacheableListModelSaver<T : Any>(modelSaver: ModelSaver<T>,
                                          wrapper: DatabaseWrapper): Long {
         val statement = modelAdapter.getDeleteStatement(wrapper)
         return applyAndCount(tableCollection, statement,
-                cacheFn = cacheAdapter::removeModelFromCache) {
+            cacheFn = cacheAdapter::removeModelFromCache) {
             modelSaver.delete(it, statement, wrapper)
         }
     }

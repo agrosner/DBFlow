@@ -75,20 +75,20 @@ class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TM
 
         @JvmStatic
         fun <TModel> saveBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
-                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.saveAll(tModels, wrapper) }
+            Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.saveAll(tModels, wrapper) }
 
         @JvmStatic
         fun <TModel> insertBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
-                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.insertAll(tModels, wrapper) }
+            Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.insertAll(tModels, wrapper) }
 
 
         @JvmStatic
         fun <TModel> updateBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
-                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.updateAll(tModels, wrapper) }
+            Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.updateAll(tModels, wrapper) }
 
         @JvmStatic
         fun <TModel> deleteBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
-                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.deleteAll(tModels, wrapper) }
+            Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.deleteAll(tModels, wrapper) }
     }
 }
 

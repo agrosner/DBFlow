@@ -1,10 +1,10 @@
 package com.raizlabs.dbflow5.migration
 
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.BaseQueriable
 import com.raizlabs.dbflow5.query.OperatorGroup
 import com.raizlabs.dbflow5.query.SQLOperator
 import com.raizlabs.dbflow5.query.update
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 
 /**
  * Description: Provides a simple way to update a table's field or fields quickly in a migration.
@@ -18,10 +18,10 @@ open class UpdateTableMigration<T : Any>
  * @param table The table to update
  */
 (
-        /**
-         * The table to update
-         */
-        private val table: Class<T>) : BaseMigration() {
+    /**
+     * The table to update
+     */
+    private val table: Class<T>) : BaseMigration() {
 
     /**
      * Builds the conditions for the WHERE part of our query
@@ -35,8 +35,8 @@ open class UpdateTableMigration<T : Any>
 
     val DatabaseWrapper.updateStatement: BaseQueriable<T>
         get() = update(table)
-                .set(setOperatorGroup)
-                .where(whereOperatorGroup)
+            .set(setOperatorGroup)
+            .where(whereOperatorGroup)
 
     /**
      * This will append a condition to this migration. It will execute each of these in succession with the order

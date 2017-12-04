@@ -1,9 +1,9 @@
 package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.adapter.InternalAdapter
-import com.raizlabs.dbflow5.structure.Model
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.database.DatabaseStatement
+import com.raizlabs.dbflow5.structure.Model
 
 /**
  * Description: Marks a [Model] as subscribing to the [DatabaseStatement]

@@ -1,8 +1,8 @@
 package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.annotation.Collate
-import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.query.property.IProperty
+import com.raizlabs.dbflow5.sql.Query
 
 /**
  * Description: Class that represents a SQL order-by.
@@ -19,8 +19,8 @@ constructor(private val column: NameAlias? = null,
         get() {
             if (orderByString == null) {
                 val query = StringBuilder()
-                        .append(column)
-                        .append(" ")
+                    .append(column)
+                    .append(" ")
                 if (collation != null) {
                     query.append("COLLATE").append(" ").append(collation).append(" ")
                 }

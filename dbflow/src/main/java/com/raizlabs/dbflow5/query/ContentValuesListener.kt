@@ -1,10 +1,9 @@
 package com.raizlabs.dbflow5.query
 
 import android.content.ContentValues
-
+import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.annotation.provider.ContentProvider
 import com.raizlabs.dbflow5.structure.Model
-import com.raizlabs.dbflow5.adapter.ModelAdapter
 
 /**
  * Description: Called after the declared [ContentValues] are binded. It enables

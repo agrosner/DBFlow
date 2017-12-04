@@ -1,21 +1,21 @@
 package com.raizlabs.dbflow5.database
 
-import com.raizlabs.dbflow5.runtime.NotifyDistributor
 import com.raizlabs.dbflow5.query.BaseQueriable
+import com.raizlabs.dbflow5.runtime.NotifyDistributor
 
 /**
  * Description: Delegates all of its calls to the contained [DatabaseStatement], while
  * providing notification methods for when operations occur.
  */
 class DatabaseStatementWrapper<T : Any>(
-        private val databaseStatement: DatabaseStatement,
-        private val modelQueriable: BaseQueriable<T>) : BaseDatabaseStatement() {
+    private val databaseStatement: DatabaseStatement,
+    private val modelQueriable: BaseQueriable<T>) : BaseDatabaseStatement() {
 
     override fun executeUpdateDelete(): Long {
         val affected = databaseStatement.executeUpdateDelete()
         if (affected > 0) {
             NotifyDistributor.get().notifyTableChanged(modelQueriable.table,
-                    modelQueriable.primaryAction)
+                modelQueriable.primaryAction)
         }
         return affected
     }
@@ -40,7 +40,7 @@ class DatabaseStatementWrapper<T : Any>(
         val affected = databaseStatement.executeInsert()
         if (affected > 0) {
             NotifyDistributor.get().notifyTableChanged(modelQueriable.table,
-                    modelQueriable.primaryAction)
+                modelQueriable.primaryAction)
         }
         return affected
     }

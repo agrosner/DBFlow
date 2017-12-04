@@ -8,10 +8,10 @@ import com.raizlabs.dbflow5.query.property.IProperty
  * Description: Defines and enables an Index structurally through a migration.
  */
 abstract class IndexMigration<TModel>(
-        /**
-         * The table to index on
-         */
-        private var onTable: Class<TModel>) : BaseMigration() {
+    /**
+     * The table to index on
+     */
+    private var onTable: Class<TModel>) : BaseMigration() {
 
     private var unique: Boolean = false
     private val columns = arrayListOf<IProperty<*>>()

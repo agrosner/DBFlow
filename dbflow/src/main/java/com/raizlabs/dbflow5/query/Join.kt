@@ -47,19 +47,19 @@ class Join<TModel : Any, TFromModel : Any> : Query {
             queryBuilder.append(type.name.replace("_", " ")).append(" ")
 
             queryBuilder.append("JOIN")
-                    .append(" ")
-                    .append(alias.fullQuery)
-                    .append(" ")
+                .append(" ")
+                .append(alias.fullQuery)
+                .append(" ")
             if (JoinType.NATURAL != type) {
                 onGroup?.let { onGroup ->
                     queryBuilder.append("ON")
-                            .append(" ")
-                            .append(onGroup.query)
-                            .append(" ")
+                        .append(" ")
+                        .append(onGroup.query)
+                        .append(" ")
                 } ?: if (!using.isEmpty()) {
                     queryBuilder.append("USING (")
-                            .appendList(using)
-                            .append(") ")
+                        .appendList(using)
+                        .append(") ")
                 }
             }
             return queryBuilder.toString()
@@ -127,9 +127,9 @@ class Join<TModel : Any, TFromModel : Any> : Query {
      */
     fun `as`(alias: String) = apply {
         this.alias = this.alias
-                .newBuilder()
-                .`as`(alias)
-                .build()
+            .newBuilder()
+            .`as`(alias)
+            .build()
     }
 
     /**

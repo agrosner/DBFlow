@@ -11,10 +11,10 @@ class FlowConfig(val context: Context,
                  val openDatabasesOnInit: Boolean = false) {
 
     internal constructor(builder: Builder) : this(
-            databaseHolders = builder.databaseHolders.toSet(),
-            databaseConfigMap = builder.databaseConfigMap,
-            context = builder.context,
-            openDatabasesOnInit = builder.openDatabasesOnInit
+        databaseHolders = builder.databaseHolders.toSet(),
+        databaseConfigMap = builder.databaseConfigMap,
+        context = builder.context,
+        openDatabasesOnInit = builder.openDatabasesOnInit
     )
 
     fun getConfigForDatabase(databaseClass: Class<*>): DatabaseConfig? {

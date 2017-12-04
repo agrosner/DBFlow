@@ -2,8 +2,8 @@ package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.annotation.ConflictAction
 import com.raizlabs.dbflow5.config.FlowManager
-import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.sql.Query
 
 /**
  * Description: The SQLite UPDATE query. Will update rows in the DB.
@@ -77,7 +77,7 @@ internal constructor(private val databaseWrapper: DatabaseWrapper,
      * @return A SET query piece of this statement
      */
     fun set(vararg conditions: SQLOperator): Set<T> = Set(databaseWrapper, this, table)
-            .conditions(*conditions)
+        .conditions(*conditions)
 }
 
 

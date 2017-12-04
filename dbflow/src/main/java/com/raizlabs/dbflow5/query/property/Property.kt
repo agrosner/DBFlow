@@ -36,9 +36,9 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
      */
     private val distinctAliasName: NameAlias
         get() = nameAlias
-                .newBuilder()
-                .distinct()
-                .build()
+            .newBuilder()
+            .distinct()
+            .build()
 
     protected open val operator: Operator<T>
         get() = Operator.op(nameAlias)
@@ -56,10 +56,10 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
     }
 
     constructor(table: Class<*>?, columnName: String, aliasName: String)
-            : this(table, NameAlias.builder(columnName).`as`(aliasName).build())
+        : this(table, NameAlias.builder(columnName).`as`(aliasName).build())
 
     override fun withTable(): Property<T> =
-            withTable(NameAlias.Builder(FlowManager.getTableName(table!!)).build())
+        withTable(NameAlias.Builder(FlowManager.getTableName(table!!)).build())
 
     override val nameAlias: NameAlias
         get() = internalNameAlias
@@ -91,77 +91,77 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
     override fun glob(value: String): Operator<T> = operator.glob(value)
 
     override fun greaterThan(conditional: IConditional): Operator<*> =
-            operator.greaterThan(conditional)
+        operator.greaterThan(conditional)
 
     override fun greaterThanOrEq(conditional: IConditional): Operator<*> =
-            operator.greaterThanOrEq(conditional)
+        operator.greaterThanOrEq(conditional)
 
     override fun lessThan(conditional: IConditional): Operator<*> = operator.lessThan(conditional)
 
     override fun lessThanOrEq(conditional: IConditional): Operator<*> =
-            operator.lessThanOrEq(conditional)
+        operator.lessThanOrEq(conditional)
 
     override fun between(conditional: IConditional): Operator.Between<*> =
-            operator.between(conditional)
+        operator.between(conditional)
 
     override fun `in`(firstConditional: IConditional, vararg conditionals: IConditional): Operator.In<*> =
-            operator.`in`(firstConditional, *conditionals)
+        operator.`in`(firstConditional, *conditionals)
 
     override fun notIn(firstConditional: IConditional, vararg conditionals: IConditional): Operator.In<*> =
-            operator.notIn(firstConditional, *conditionals)
+        operator.notIn(firstConditional, *conditionals)
 
     override fun `is`(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            operator.`is`(baseModelQueriable)
+        operator.`is`(baseModelQueriable)
 
     override fun isNull(): Operator<*> = operator.isNull()
 
     override fun eq(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            operator.eq(baseModelQueriable)
+        operator.eq(baseModelQueriable)
 
     override fun isNot(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            operator.isNot(baseModelQueriable)
+        operator.isNot(baseModelQueriable)
 
     override fun isNotNull(): Operator<*> = operator.isNotNull()
 
     override fun notEq(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            operator.notEq(baseModelQueriable)
+        operator.notEq(baseModelQueriable)
 
     override fun like(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            operator.like(baseModelQueriable)
+        operator.like(baseModelQueriable)
 
     override fun notLike(conditional: IConditional): Operator<*> = operator.notLike(conditional)
 
     override fun notLike(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            operator.notLike(baseModelQueriable)
+        operator.notLike(baseModelQueriable)
 
     override fun glob(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            operator.glob(baseModelQueriable)
+        operator.glob(baseModelQueriable)
 
     override fun greaterThan(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            operator.greaterThan(baseModelQueriable)
+        operator.greaterThan(baseModelQueriable)
 
     override fun greaterThanOrEq(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            operator.greaterThanOrEq(baseModelQueriable)
+        operator.greaterThanOrEq(baseModelQueriable)
 
     override fun lessThan(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            operator.lessThan(baseModelQueriable)
+        operator.lessThan(baseModelQueriable)
 
     override fun lessThanOrEq(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            operator.lessThanOrEq(baseModelQueriable)
+        operator.lessThanOrEq(baseModelQueriable)
 
     override fun between(baseModelQueriable: BaseModelQueriable<*>): Operator.Between<*> =
-            operator.between(baseModelQueriable)
+        operator.between(baseModelQueriable)
 
     override fun `in`(firstBaseModelQueriable: BaseModelQueriable<*>,
                       vararg baseModelQueriables: BaseModelQueriable<*>): Operator.In<*> =
-            operator.`in`(firstBaseModelQueriable, *baseModelQueriables)
+        operator.`in`(firstBaseModelQueriable, *baseModelQueriables)
 
     override fun notIn(firstBaseModelQueriable: BaseModelQueriable<*>,
                        vararg baseModelQueriables: BaseModelQueriable<*>): Operator.In<*> =
-            operator.notIn(firstBaseModelQueriable, *baseModelQueriables)
+        operator.notIn(firstBaseModelQueriable, *baseModelQueriables)
 
     override fun concatenate(conditional: IConditional): Operator<*> =
-            operator.concatenate(conditional)
+        operator.concatenate(conditional)
 
     override fun plus(value: BaseModelQueriable<*>): Operator<*> = operator.plus(value)
 
@@ -175,48 +175,48 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
 
     override fun plus(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.PLUS,
-                internalNameAlias.fullName(), property.toString()))
+            internalNameAlias.fullName(), property.toString()))
     }
 
     override fun minus(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.MINUS,
-                internalNameAlias.fullName(), property.toString()))
+            internalNameAlias.fullName(), property.toString()))
     }
 
     override fun div(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.DIVISION,
-                internalNameAlias.fullName(), property.toString()))
+            internalNameAlias.fullName(), property.toString()))
     }
 
     override fun times(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.MULTIPLY,
-                internalNameAlias.fullName(), property.toString()))
+            internalNameAlias.fullName(), property.toString()))
     }
 
     override fun rem(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.MOD,
-                internalNameAlias.fullName(), property.toString()))
+            internalNameAlias.fullName(), property.toString()))
     }
 
     override fun concatenate(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.CONCATENATE,
-                internalNameAlias.fullName(), property.toString()))
+            internalNameAlias.fullName(), property.toString()))
     }
 
     override fun `as`(aliasName: String): Property<T> {
         return Property(table, nameAlias
-                .newBuilder()
-                .`as`(aliasName)
-                .build())
+            .newBuilder()
+            .`as`(aliasName)
+            .build())
     }
 
     override fun distinct(): Property<T> = Property(table, distinctAliasName)
 
     override fun withTable(tableNameAlias: NameAlias): Property<T> {
         return Property(table, nameAlias
-                .newBuilder()
-                .withTable(tableNameAlias.query)
-                .build())
+            .newBuilder()
+            .withTable(tableNameAlias.query)
+            .build())
     }
 
     override fun `is`(value: T?): Operator<T> = operator.`is`(value)
@@ -238,10 +238,10 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
     override fun between(value: T): Operator.Between<T> = operator.between(value)
 
     override fun `in`(firstValue: T, vararg values: T): Operator.In<T> =
-            operator.`in`(firstValue, *values)
+        operator.`in`(firstValue, *values)
 
     override fun notIn(firstValue: T, vararg values: T): Operator.In<T> =
-            operator.notIn(firstValue, *values)
+        operator.notIn(firstValue, *values)
 
     override fun `in`(values: Collection<T>): Operator.In<T> = operator.`in`(values)
 
@@ -273,7 +273,7 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
 
         @JvmStatic
         fun allProperty(table: Class<*>): Property<String> =
-                Property<String>(table, NameAlias.rawBuilder("*").build()).withTable()
+            Property<String>(table, NameAlias.rawBuilder("*").build()).withTable()
     }
 }
 

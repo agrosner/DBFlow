@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.query.property.IProperty
+import com.raizlabs.dbflow5.sql.Query
 
 /**
  * Description: Represents an individual condition inside a CASE.
@@ -26,7 +26,7 @@ class CaseCondition<TReturn> : Query {
             }
             append(" THEN ")
             append(BaseOperator.convertValueToString(
-                    if (isThenPropertySet) thenProperty else thenValue, false))
+                if (isThenPropertySet) thenProperty else thenValue, false))
         }
 
     internal constructor(caze: Case<TReturn>, sqlOperator: SQLOperator) {

@@ -31,7 +31,7 @@ abstract class DatabaseHolder {
     fun getDatabaseForTable(table: Class<*>): DatabaseDefinition? = databaseDefinitionMap[table]
 
     fun getDatabase(databaseClass: Class<*>): DatabaseDefinition? =
-            databaseClassLookupMap[databaseClass]
+        databaseClassLookupMap[databaseClass]
 
     /**
      * @param databaseName The name of the database to retrieve

@@ -8,10 +8,10 @@ import com.raizlabs.dbflow5.config.DatabaseDefinition
 class DefaultTransactionManager : BaseTransactionManager {
 
     constructor(databaseDefinition: DatabaseDefinition)
-            : super(DefaultTransactionQueue("DBFlow Transaction Queue"), databaseDefinition)
+        : super(DefaultTransactionQueue("DBFlow Transaction Queue"), databaseDefinition)
 
     constructor(transactionQueue: ITransactionQueue,
                 databaseDefinition: DatabaseDefinition)
-            : super(transactionQueue, databaseDefinition)
+        : super(transactionQueue, databaseDefinition)
 
 }

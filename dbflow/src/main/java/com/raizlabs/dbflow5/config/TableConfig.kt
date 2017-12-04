@@ -16,10 +16,10 @@ class TableConfig<T : Any>(val tableClass: Class<T>,
                            val listModelLoader: ListModelLoader<T>? = null) {
 
     internal constructor(builder: Builder<T>) : this(
-            tableClass = builder.tableClass,
-            modelSaver = builder.modelAdapterModelSaver,
-            singleModelLoader = builder.singleModelLoader,
-            listModelLoader = builder.listModelLoader
+        tableClass = builder.tableClass,
+        modelSaver = builder.modelAdapterModelSaver,
+        singleModelLoader = builder.singleModelLoader,
+        listModelLoader = builder.listModelLoader
     )
 
     /**
@@ -65,9 +65,9 @@ class TableConfig<T : Any>(val tableClass: Class<T>,
 
         @JvmStatic
         fun <T : Any> builder(tableClass: Class<T>): Builder<T> =
-                Builder(tableClass)
+            Builder(tableClass)
 
         fun <T : Any> builder(tableClass: KClass<T>): Builder<T> =
-                Builder(tableClass)
+            Builder(tableClass)
     }
 }

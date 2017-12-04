@@ -1,9 +1,9 @@
 package com.raizlabs.dbflow5.query.property
 
 import com.raizlabs.dbflow5.annotation.Table
-import com.raizlabs.dbflow5.quoteIfNeeded
-import com.raizlabs.dbflow5.query.Index
 import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.query.Index
+import com.raizlabs.dbflow5.quoteIfNeeded
 
 /**
  * Description: Defines an INDEX in Sqlite. It basically speeds up data retrieval over large datasets.

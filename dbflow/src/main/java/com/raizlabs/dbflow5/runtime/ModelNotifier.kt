@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.runtime
 
-import com.raizlabs.dbflow5.structure.ChangeAction
 import com.raizlabs.dbflow5.adapter.ModelAdapter
+import com.raizlabs.dbflow5.structure.ChangeAction
 
 /**
  * Interface for defining how we notify model changes.

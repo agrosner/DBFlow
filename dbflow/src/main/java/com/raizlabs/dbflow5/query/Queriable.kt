@@ -1,10 +1,10 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.database.DatabaseStatement
+import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.structure.ChangeAction
 import com.raizlabs.dbflow5.structure.Model
-import com.raizlabs.dbflow5.database.DatabaseStatement
-import com.raizlabs.dbflow5.database.FlowCursor
 
 /**
  * Description: The most basic interface that some of the classes such as [Insert], [ModelQueriable],

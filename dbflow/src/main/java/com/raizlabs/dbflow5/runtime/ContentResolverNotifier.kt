@@ -1,12 +1,11 @@
 package com.raizlabs.dbflow5.runtime
 
 import android.content.ContentResolver
-
+import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.getNotificationUri
 import com.raizlabs.dbflow5.query.SQLOperator
 import com.raizlabs.dbflow5.structure.ChangeAction
-import com.raizlabs.dbflow5.adapter.ModelAdapter
 
 /**
  * The default use case, it notifies via the [ContentResolver] system.
@@ -20,18 +19,18 @@ class ContentResolverNotifier(val authority: String) : ModelNotifier {
                                               action: ChangeAction) {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.context.contentResolver
-                    .notifyChange(getNotificationUri(authority,
-                            adapter.table, action,
-                            adapter.getPrimaryConditionClause(model).conditions),
-                            null, true)
+                .notifyChange(getNotificationUri(authority,
+                    adapter.table, action,
+                    adapter.getPrimaryConditionClause(model).conditions),
+                    null, true)
         }
     }
 
     override fun <T : Any> notifyTableChanged(table: Class<T>, action: ChangeAction) {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.context.contentResolver
-                    .notifyChange(getNotificationUri(authority, table, action,
-                            null as Array<SQLOperator>?), null, true)
+                .notifyChange(getNotificationUri(authority, table, action,
+                    null as Array<SQLOperator>?), null, true)
         }
     }
 

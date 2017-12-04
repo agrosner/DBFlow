@@ -3,10 +3,10 @@
 
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.structure.Model
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 import kotlin.reflect.KClass
 
 

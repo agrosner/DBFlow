@@ -1,10 +1,10 @@
 package com.raizlabs.dbflow5.adapter.saveable
 
 import com.raizlabs.dbflow5.config.FlowLog
-import com.raizlabs.dbflow5.runtime.NotifyDistributor
-import com.raizlabs.dbflow5.structure.ChangeAction
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.runtime.NotifyDistributor
+import com.raizlabs.dbflow5.structure.ChangeAction
 
 /**
  * Description: Used to properly handle autoincrementing fields.

@@ -1,9 +1,9 @@
 package com.raizlabs.dbflow5.query.property
 
+import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.converter.TypeConverter
 import com.raizlabs.dbflow5.query.NameAlias
 import com.raizlabs.dbflow5.query.Operator
-import com.raizlabs.dbflow5.adapter.ModelAdapter
 
 /**
  * Description: Provides convenience methods for [TypeConverter] when constructing queries.
@@ -52,9 +52,9 @@ class TypeConvertedProperty<T, V> : Property<V> {
     fun invertProperty(): Property<T> {
         if (databaseProperty == null) {
             databaseProperty = TypeConvertedProperty(table!!, nameAlias,
-                    !convertToDB, object : TypeConverterGetter {
+                !convertToDB, object : TypeConverterGetter {
                 override fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *> =
-                        getter.getTypeConverter(modelClass)
+                    getter.getTypeConverter(modelClass)
             })
         }
         return databaseProperty!!
@@ -62,9 +62,9 @@ class TypeConvertedProperty<T, V> : Property<V> {
 
     override fun withTable(tableNameAlias: NameAlias): Property<V> {
         val nameAlias = this.nameAlias
-                .newBuilder()
-                .withTable(tableNameAlias.query)
-                .build()
+            .newBuilder()
+            .withTable(tableNameAlias.query)
+            .build()
         return TypeConvertedProperty<Any, V>(this.table!!, nameAlias, this.convertToDB, this.getter)
     }
 }

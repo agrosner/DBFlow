@@ -45,20 +45,20 @@ interface Model : ReadOnlyModel {
 }
 
 inline fun <reified T : Any> T.save(databaseWrapper: DatabaseWrapper = databaseForTable<T>()): Boolean
-        = modelAdapter<T>().save(this, databaseWrapper)
+    = modelAdapter<T>().save(this, databaseWrapper)
 
 inline fun <reified T : Any> T.insert(databaseWrapper: DatabaseWrapper = databaseForTable<T>()): Long
-        = modelAdapter<T>().insert(this, databaseWrapper)
+    = modelAdapter<T>().insert(this, databaseWrapper)
 
 inline fun <reified T : Any> T.update(databaseWrapper: DatabaseWrapper = databaseForTable<T>()): Boolean
-        = modelAdapter<T>().update(this, databaseWrapper)
+    = modelAdapter<T>().update(this, databaseWrapper)
 
 inline fun <reified T : Any> T.delete(databaseWrapper: DatabaseWrapper = databaseForTable<T>()): Boolean
-        = modelAdapter<T>().delete(this, databaseWrapper)
+    = modelAdapter<T>().delete(this, databaseWrapper)
 
 inline fun <reified T : Any> T.exists(databaseWrapper: DatabaseWrapper = databaseForTable<T>()): Boolean
-        = modelAdapter<T>().exists(this, databaseWrapper)
+    = modelAdapter<T>().exists(this, databaseWrapper)
 
 inline fun <reified T : Any> T.load(databaseWrapper: DatabaseWrapper = databaseForTable<T>())
-        = modelAdapter<T>().load(this, databaseWrapper)
+    = modelAdapter<T>().load(this, databaseWrapper)
 

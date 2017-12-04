@@ -27,8 +27,8 @@ protected constructor(databaseHolderClass: Class<out DatabaseHolder>? = null) : 
         // of the creation process. We can assume the framework has been general
         // framework has been initialized.
         moduleClass
-                ?.let { FlowManager.initModule(it) }
-                ?: context?.let { FlowManager.init(it) }
+            ?.let { FlowManager.initModule(it) }
+            ?: context?.let { FlowManager.init(it) }
         return true
     }
 
