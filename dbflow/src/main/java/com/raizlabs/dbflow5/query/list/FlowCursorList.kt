@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.query.list
 
-import android.database.Cursor
 import android.widget.ListView
 import com.raizlabs.dbflow5.adapter.InstanceAdapter
 import com.raizlabs.dbflow5.config.FlowLog
@@ -103,7 +102,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
      * Returns a model at the specified position. If we are using the cache and it does not contain a model
      * at that position, we move the cursor to the specified position and construct the [T].
      *
-     * @param position The row number in the [android.database.Cursor] to look at
+     * @param position The row number in the [FlowCursor] to look at
      * @return The [T] converted from the cursor
      */
     override fun get(position: Long): T {
@@ -121,7 +120,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     }
 
     /**
-     * @return the count of the rows in the [android.database.Cursor] backed by this list.
+     * @return the count of the rows in the [FlowCursor] backed by this list.
      */
     override val count: Long
         get() {
@@ -140,7 +139,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         _cursor = null
     }
 
-    override val cursor: Cursor?
+    override val cursor: FlowCursor?
         get() {
             unpackCursor()
             throwIfCursorClosed()
@@ -148,7 +147,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
             return _cursor
         }
 
-    private fun unpackCursor(): Cursor {
+    private fun unpackCursor(): FlowCursor {
         if (_cursor == null) {
             _cursor = cursorFunc()
         }
@@ -183,8 +182,8 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         internal val modelClass: Class<T> = modelQueriable.table
         internal var cursor: FlowCursor? = null
 
-        fun cursor(cursor: Cursor?) = apply {
-            cursor?.let { this.cursor = FlowCursor.from(cursor) }
+        fun cursor(cursor: FlowCursor?) = apply {
+            this.cursor = cursor
         }
 
         fun build() = FlowCursorList(this)

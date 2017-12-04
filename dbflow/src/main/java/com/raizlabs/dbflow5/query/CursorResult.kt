@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.query
 
-import android.database.Cursor
 import com.raizlabs.dbflow5.adapter.InstanceAdapter
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
@@ -9,10 +8,10 @@ import com.raizlabs.dbflow5.query.list.FlowCursorIterator
 import com.raizlabs.dbflow5.query.list.IFlowCursorIterator
 
 /**
- * Description: A class that contains a [Cursor] and handy methods for retrieving data from it.
+ * Description: A class that contains a [FlowCursor] and handy methods for retrieving data from it.
  * You must close this object post use via [.close].
  */
-class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: Cursor?,
+class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: FlowCursor?,
                                                  private val databaseWrapper: DatabaseWrapper)
     : IFlowCursorIterator<T> {
 
@@ -50,7 +49,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
     } ?: arrayListOf()
 
     /**
-     * @return Converts the [Cursor] to a [List] of [T] and then closes it.
+     * @return Converts the [FlowCursor] to a [List] of [T] and then closes it.
      */
     fun toListClose(): List<T> {
         val list = retrievalAdapter.listModelLoader.load(_cursor, databaseWrapper) ?: arrayListOf()
@@ -69,7 +68,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
     }
 
     /**
-     * @return Converts the [Cursor] to a [List] of [T] and then closes it.
+     * @return Converts the [FlowCursor] to a [List] of [T] and then closes it.
      */
     fun <TCustom : Any> toCustomListClose(customClass: Class<TCustom>): List<TCustom> {
         val customList = FlowManager.getQueryModelAdapter(customClass).listModelLoader
@@ -79,14 +78,14 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
     }
 
     /**
-     * @return The first [T] of items from the contained [Cursor]. You must call [.close] when finished.
+     * @return The first [T] of items from the contained [FlowCursor]. You must call [.close] when finished.
      */
     fun toModel(): T? = _cursor?.let { cursor ->
         retrievalAdapter.singleModelLoader.convertToData(cursor, databaseWrapper)
     }
 
     /**
-     * @return Converts the [Cursor] into the first [T] from the cursor and then closes it.
+     * @return Converts the [FlowCursor] into the first [T] from the cursor and then closes it.
      */
     fun toModelClose(): T? {
         val model = retrievalAdapter.singleModelLoader.load(_cursor, databaseWrapper)
@@ -95,7 +94,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
     }
 
     /**
-     * @return The first [T] of items from the contained [Cursor]. You must call [.close] when finished.
+     * @return The first [T] of items from the contained [FlowCursor]. You must call [.close] when finished.
      */
     fun <TCustom : Any> toCustomModel(customClass: Class<TCustom>): TCustom? {
         return if (_cursor != null)
@@ -105,7 +104,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
     }
 
     /**
-     * @return Converts the [Cursor] to a [T] and then closes it.
+     * @return Converts the [FlowCursor] to a [T] and then closes it.
      */
     fun <TCustom : Any> toCustomModelClose(customClass: Class<TCustom>): TCustom? {
         val customList = FlowManager.getQueryModelAdapter(customClass).singleModelLoader.load(_cursor, databaseWrapper)
@@ -128,7 +127,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
     override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> =
         FlowCursorIterator(this, startingLocation, limit)
 
-    override val cursor: Cursor?
+    override val cursor: FlowCursor?
         get() = _cursor
 
     override fun close() {

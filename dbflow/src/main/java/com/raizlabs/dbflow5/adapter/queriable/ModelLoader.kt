@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.adapter.queriable
 
-import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import com.raizlabs.dbflow5.adapter.InstanceAdapter
 import com.raizlabs.dbflow5.config.FlowManager
@@ -9,7 +8,7 @@ import com.raizlabs.dbflow5.database.FlowCursor
 
 /**
  * Description: Represents how models load from DB. It will query a [SQLiteDatabase]
- * and query for a [Cursor]. Then the cursor is used to convert itself into an object.
+ * and query for a [FlowCursor]. Then the cursor is used to convert itself into an object.
  */
 abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Class<TModel>) {
 
@@ -32,11 +31,10 @@ abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Clas
     }
 
     /**
-     * Specify how to convert the [Cursor] data into a [TReturn]. Can be null.
+     * Specify how to convert the [FlowCursor] data into a [TReturn]. Can be null.
      *
      * @param cursor The cursor resulting from a query passed into [.load]
-     * @param data   The data (if not null) that we can reuse without need to create new object.
-     * @return A new (or reused) instance that represents the [Cursor].
+     * @return A new (or reused) instance that represents the [FlowCursor].
      */
     abstract fun convertToData(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): TReturn?
 }

@@ -1,20 +1,16 @@
 package com.raizlabs.dbflow5.query.list
 
-import android.database.Cursor
 import android.os.Handler
 import android.os.Looper
 import com.raizlabs.dbflow5.adapter.InstanceAdapter
+import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.list.FlowCursorList.OnCursorRefreshListener
-import com.raizlabs.dbflow5.transaction.DefaultTransactionQueue
-import com.raizlabs.dbflow5.transaction.Transaction
 
 /**
- * Description: Operates very similiar to a [java.util.List] except its backed by a table cursor. All of
- * the [java.util.List] modifications default to the main thread, but it can be set to
- * run on the [DefaultTransactionQueue]. Register a [Transaction.Success]
- * on this list to know when the results complete. NOTE: any modifications to this list will be reflected
- * on the underlying table.
+ * Description: A query-backed immutable [List]. Represents the results of a query without loading
+ * the full query out into an actual [List]. Avoid keeping this class around without calling [close] as
+ * it leaves a [FlowCursor] object active.
  */
 class FlowQueryList<T : Any>(
     /**
@@ -36,6 +32,12 @@ class FlowQueryList<T : Any>(
 
     override val count: Long
         get() = internalCursorList.count
+
+    override val cursor: FlowCursor?
+        get() = internalCursorList.cursor
+
+    override val size: Int
+        get() = internalCursorList.count.toInt()
 
     private val refreshRunnable = object : Runnable {
         override fun run() {
@@ -64,7 +66,7 @@ class FlowQueryList<T : Any>(
         get() = internalCursorList
 
     /**
-     * @return Constructs a new [Builder] that reuses the underlying [Cursor], cache,
+     * @return Constructs a new [Builder] that reuses the underlying [FlowCursor], cache,
      * callbacks, and other properties.
      */
     fun newBuilder(): Builder<T> = Builder(internalCursorList)
@@ -117,8 +119,6 @@ class FlowQueryList<T : Any>(
 
     override fun get(position: Long): T = internalCursorList[position]
 
-    override val cursor: Cursor?
-        get() = internalCursorList.cursor
 
     /**
      * Returns the item from the backing [FlowCursorList]. First call
@@ -173,9 +173,6 @@ class FlowQueryList<T : Any>(
         return FlowCursorIterator(this, location)
     }
 
-    override val size: Int
-        get() = internalCursorList.count.toInt()
-
     override fun subList(fromIndex: Int, toIndex: Int): List<T> {
         val tableList = internalCursorList.all
         return tableList.subList(fromIndex, toIndex)
@@ -189,7 +186,7 @@ class FlowQueryList<T : Any>(
 
         internal val table: Class<T>
 
-        internal var cursor: Cursor? = null
+        internal var cursor: FlowCursor? = null
         internal var modelQueriable: ModelQueriable<T>
 
         internal constructor(cursorList: FlowCursorList<T>) {
@@ -203,7 +200,7 @@ class FlowQueryList<T : Any>(
             this.modelQueriable = modelQueriable
         }
 
-        fun cursor(cursor: Cursor) = apply {
+        fun cursor(cursor: FlowCursor) = apply {
             this.cursor = cursor
         }
 

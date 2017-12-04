@@ -1,9 +1,9 @@
 package com.raizlabs.dbflow5.rx.query
 
-import android.database.Cursor
 import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.database.DatabaseStatement
+import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.models.SimpleModel
 import com.raizlabs.dbflow5.models.SimpleModel_Table.name
 import com.raizlabs.dbflow5.query.insert
@@ -22,12 +22,12 @@ class RXQueryTests : BaseUnitTest() {
         databaseForTable<SimpleModel> {
             SimpleModel("Name").save()
 
-            var cursor: Cursor? = null
+            var cursor: FlowCursor? = null
             (select from SimpleModel::class).rx()
-                    .query()
-                    .subscribe {
-                        cursor = it
-                    }
+                .query()
+                .subscribe {
+                    cursor = it
+                }
 
             assertEquals(1, cursor!!.count)
             cursor!!.close()
@@ -39,10 +39,10 @@ class RXQueryTests : BaseUnitTest() {
         databaseForTable<SimpleModel> {
             var databaseStatement: DatabaseStatement? = null
             (insert<SimpleModel>().columnValues(name.`is`("name")))
-                    .rxBaseQueriable().compileStatement()
-                    .subscribe {
-                        databaseStatement = it
-                    }
+                .rxBaseQueriable().compileStatement()
+                .subscribe {
+                    databaseStatement = it
+                }
             assertNotNull(databaseStatement)
             databaseStatement!!.close()
         }
@@ -55,7 +55,7 @@ class RXQueryTests : BaseUnitTest() {
             SimpleModel("name2").save()
             var count = 0L
             (selectCountOf(Property.ALL_PROPERTY) from SimpleModel::class).rx()
-                    .longValue().subscribe {
+                .longValue().subscribe {
                 count = it
             }
 
@@ -68,11 +68,11 @@ class RXQueryTests : BaseUnitTest() {
         databaseForTable<SimpleModel> {
             var count = 0L
             (insert<SimpleModel>().columnValues(name.eq("name")))
-                    .rxBaseQueriable()
-                    .executeInsert()
-                    .subscribe {
-                        count = it
-                    }
+                .rxBaseQueriable()
+                .executeInsert()
+                .subscribe {
+                    count = it
+                }
 
             assertEquals(1, count)
         }

@@ -1,12 +1,12 @@
 package com.raizlabs.dbflow5.rx2.query
 
-import android.database.Cursor
+import com.raizlabs.dbflow5.database.DatabaseStatement
+import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.Delete
 import com.raizlabs.dbflow5.query.Insert
-import com.raizlabs.dbflow5.query.Set
 import com.raizlabs.dbflow5.query.Queriable
+import com.raizlabs.dbflow5.query.Set
 import com.raizlabs.dbflow5.structure.Model
-import com.raizlabs.dbflow5.database.DatabaseStatement
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
@@ -19,7 +19,7 @@ interface RXQueriable {
     /**
      * @return An [Single] from the DB based on this query
      */
-    fun query(): Maybe<Cursor>
+    fun query(): Maybe<FlowCursor>
 
     /**
      * @return An [Single] of [DatabaseStatement] from this query.

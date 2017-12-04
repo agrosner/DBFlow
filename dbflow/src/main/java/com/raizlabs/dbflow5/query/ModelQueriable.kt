@@ -1,9 +1,9 @@
 package com.raizlabs.dbflow5.query
 
-import android.database.Cursor
 import com.raizlabs.dbflow5.query.list.FlowCursorList
 import com.raizlabs.dbflow5.query.list.FlowQueryList
 import com.raizlabs.dbflow5.structure.BaseQueryModel
+import com.raizlabs.dbflow5.database.FlowCursor
 
 /**
  * Description: An interface for query objects to enable you to query from the database in a structured way.
@@ -17,7 +17,7 @@ interface ModelQueriable<T : Any> : Queriable {
     val table: Class<T>
 
     /**
-     * @return A wrapper class around [Cursor] that allows you to convert its data into results.
+     * @return A wrapper class around [FlowCursor] that allows you to convert its data into results.
      */
     fun queryResults(): CursorResult<T>
 

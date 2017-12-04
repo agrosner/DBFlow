@@ -1,34 +1,33 @@
 package com.raizlabs.dbflow5.query.list
 
-import android.database.Cursor
-
+import com.raizlabs.dbflow5.database.FlowCursor
 import java.io.Closeable
 import java.io.IOException
 
 /**
- * Description: Simple interface that allows you to iterate a [Cursor].
+ * Description: Simple interface that allows you to iterate a [FlowCursor].
  */
 interface IFlowCursorIterator<TModel> : Closeable, Iterable<TModel> {
 
     /**
-     * @return Count of the [Cursor].
+     * @return Count of the [FlowCursor].
      */
     val count: Long
 
     /**
-     * @param position The position within the [Cursor] to retrieve and convert into a [TModel]
+     * @param position The position within the [FlowCursor] to retrieve and convert into a [TModel]
      */
     operator fun get(position: Long): TModel
 
     /**
      * @return The cursor.
      */
-    val cursor: Cursor?
+    val cursor: FlowCursor?
 
     override fun iterator(): FlowCursorIterator<TModel>
 
     /**
-     * @return Can iterate the [Cursor]. Specifies a starting location + count limit of results.
+     * @return Can iterate the [FlowCursor]. Specifies a starting location + count limit of results.
      */
     fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<TModel>
 

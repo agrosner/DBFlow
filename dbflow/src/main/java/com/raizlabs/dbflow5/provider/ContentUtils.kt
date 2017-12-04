@@ -2,16 +2,15 @@ package com.raizlabs.dbflow5.provider
 
 import android.content.ContentResolver
 import android.content.ContentValues
-import android.database.Cursor
 import android.net.Uri
+import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.annotation.provider.ContentProvider
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
-import com.raizlabs.dbflow5.query.Operator
-import com.raizlabs.dbflow5.query.OperatorGroup
-import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
+import com.raizlabs.dbflow5.query.Operator
+import com.raizlabs.dbflow5.query.OperatorGroup
 
 /**
  * Description: Provides handy wrapper mechanisms for [android.content.ContentProvider]
@@ -32,7 +31,7 @@ object ContentUtils {
      */
     @JvmStatic
     fun buildUriWithAuthority(authority: String, vararg paths: String): Uri =
-            buildUri(BASE_CONTENT_URI, authority, *paths)
+        buildUri(BASE_CONTENT_URI, authority, *paths)
 
     /**
      * Constructs an Uri with the specified baseContent uri and authority. Add paths to append to the Uri.
@@ -61,7 +60,7 @@ object ContentUtils {
      */
     @JvmStatic
     fun <TableClass : Any> insert(insertUri: Uri, model: TableClass): Uri? =
-            insert(FlowManager.context.contentResolver, insertUri, model)
+        insert(FlowManager.context.contentResolver, insertUri, model)
 
     /**
      * Inserts the model into the [android.content.ContentResolver]. Uses the insertUri to resolve
@@ -126,7 +125,7 @@ object ContentUtils {
      */
     @JvmStatic
     fun <TableClass : Any> bulkInsert(bulkInsertUri: Uri, table: Class<TableClass>, models: List<TableClass>): Int =
-            bulkInsert(FlowManager.context.contentResolver, bulkInsertUri, table, models)
+        bulkInsert(FlowManager.context.contentResolver, bulkInsertUri, table, models)
 
     /**
      * Updates the model through the [android.content.ContentResolver]. Uses the updateUri to
@@ -138,7 +137,7 @@ object ContentUtils {
      */
     @JvmStatic
     fun <TableClass : Any> update(updateUri: Uri, model: TableClass): Int =
-            update(FlowManager.context.contentResolver, updateUri, model)
+        update(FlowManager.context.contentResolver, updateUri, model)
 
     /**
      * Updates the model through the [android.content.ContentResolver]. Uses the updateUri to
@@ -172,7 +171,7 @@ object ContentUtils {
      */
     @JvmStatic
     fun <TableClass : Any> delete(deleteUri: Uri, model: TableClass): Int =
-            delete(FlowManager.context.contentResolver, deleteUri, model)
+        delete(FlowManager.context.contentResolver, deleteUri, model)
 
     /**
      * Deletes the specified model through the [android.content.ContentResolver]. Uses the deleteUri
@@ -212,8 +211,8 @@ object ContentUtils {
     @JvmStatic
     fun query(contentResolver: ContentResolver, queryUri: Uri,
               whereConditions: OperatorGroup,
-              orderBy: String?, vararg columns: String?): Cursor? =
-            contentResolver.query(queryUri, columns, whereConditions.query, null, orderBy)
+              orderBy: String?, vararg columns: String?): FlowCursor? =
+        FlowCursor.from(contentResolver.query(queryUri, columns, whereConditions.query, null, orderBy))
 
     /**
      * Queries the [android.content.ContentResolver] with the specified queryUri. It will generate
@@ -231,8 +230,8 @@ object ContentUtils {
                                      databaseWrapper: DatabaseWrapper,
                                      whereConditions: OperatorGroup,
                                      orderBy: String, vararg columns: String): List<TableClass>? =
-            queryList(FlowManager.context.contentResolver, queryUri, table,
-                    databaseWrapper, whereConditions, orderBy, *columns)
+        queryList(FlowManager.context.contentResolver, queryUri, table,
+            databaseWrapper, whereConditions, orderBy, *columns)
 
 
     /**
@@ -255,8 +254,8 @@ object ContentUtils {
                                      orderBy: String, vararg columns: String): List<TableClass>? {
         val cursor = FlowCursor.from(contentResolver.query(queryUri, columns, whereConditions.query, null, orderBy)!!)
         return FlowManager.getModelAdapter(table)
-                .listModelLoader
-                .load(cursor, databaseWrapper)
+            .listModelLoader
+            .load(cursor, databaseWrapper)
     }
 
     /**
@@ -275,8 +274,8 @@ object ContentUtils {
                                        databaseWrapper: DatabaseWrapper,
                                        whereConditions: OperatorGroup,
                                        orderBy: String, vararg columns: String): TableClass? =
-            querySingle(FlowManager.context.contentResolver, queryUri, table,
-                    databaseWrapper, whereConditions, orderBy, *columns)
+        querySingle(FlowManager.context.contentResolver, queryUri, table,
+            databaseWrapper, whereConditions, orderBy, *columns)
 
     /**
      * Queries the [android.content.ContentResolver] with the specified queryUri. It will generate
@@ -297,7 +296,7 @@ object ContentUtils {
                                        whereConditions: OperatorGroup,
                                        orderBy: String, vararg columns: String): TableClass? {
         val list = queryList(contentResolver, queryUri, table,
-                databaseWrapper, whereConditions, orderBy, *columns)
+            databaseWrapper, whereConditions, orderBy, *columns)
         return list?.let { if (list.isNotEmpty()) list[0] else null }
     }
 
