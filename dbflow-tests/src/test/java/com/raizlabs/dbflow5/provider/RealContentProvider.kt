@@ -7,6 +7,7 @@ import android.net.Uri
 import com.raizlabs.dbflow5.TestDatabase
 import com.raizlabs.dbflow5.config.FlowConfig
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.config.database
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 
 class RealContentProvider : ContentProvider() {
@@ -15,7 +16,7 @@ class RealContentProvider : ContentProvider() {
 
     override fun onCreate(): Boolean {
         FlowManager.init(FlowConfig.Builder(context).build())
-        database = FlowManager.getDatabase(TestDatabase::class.java)
+        database = database<TestDatabase>()
         return true
     }
 

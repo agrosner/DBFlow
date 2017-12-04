@@ -41,13 +41,13 @@ class DatabaseConfigTest : BaseUnitTest() {
         }
 
         FlowManager.init(builder
-                .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
-                        .databaseName("Test")
-                        .helperListener(helperListener)
-                        .openHelper(openHelperCreator)
-                        .transactionManagerCreator(managerCreator)
-                        .build())
+            .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+                .databaseName("Test")
+                .helperListener(helperListener)
+                .openHelper(openHelperCreator)
+                .transactionManagerCreator(managerCreator)
                 .build())
+            .build())
 
         val flowConfig = FlowManager.getConfig()
         Assert.assertNotNull(flowConfig)
@@ -62,7 +62,7 @@ class DatabaseConfigTest : BaseUnitTest() {
         Assert.assertTrue(databaseConfig.tableConfigMap.isEmpty())
 
 
-        val databaseDefinition = FlowManager.getDatabase(TestDatabase::class.java)
+        val databaseDefinition = database<TestDatabase>()
         Assert.assertEquals(databaseDefinition.transactionManager, testTransactionManager)
         Assert.assertEquals(databaseDefinition.helper, customOpenHelper)
     }
@@ -70,11 +70,11 @@ class DatabaseConfigTest : BaseUnitTest() {
     @Test
     fun test_EmptyName() {
         FlowManager.init(builder
-                .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
-                        .databaseName("Test")
-                        .extensionName("")
-                        .build())
+            .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+                .databaseName("Test")
+                .extensionName("")
                 .build())
+            .build())
 
         val databaseConfig = FlowManager.getConfig().databaseConfigMap[TestDatabase::class.java]!!
         Assert.assertEquals("Test", databaseConfig.databaseName)
