@@ -21,7 +21,7 @@ class WrapperProperty<T, V> : Property<V> {
      */
     fun invertProperty(): Property<T> {
         if (databaseProperty == null) {
-            databaseProperty = WrapperProperty(getTable()!!, nameAlias)
+            databaseProperty = WrapperProperty(table!!, nameAlias)
         }
         return databaseProperty!!
     }

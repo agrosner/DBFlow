@@ -15,7 +15,7 @@ class Method(methodName: String, vararg properties: IProperty<*>) : Property<Any
     private val propertyList = arrayListOf<IProperty<*>>()
     private val operationsList = arrayListOf<String>()
     private val methodProperty: IProperty<*>
-    private var nameAlias: NameAlias? = null
+    private var _nameAlias: NameAlias? = null
 
     constructor(vararg properties: IProperty<*>) : this("", *properties)
 
@@ -68,27 +68,28 @@ class Method(methodName: String, vararg properties: IProperty<*>) : Property<Any
 
     protected fun getPropertyList(): List<IProperty<*>> = propertyList
 
-    override fun getNameAlias(): NameAlias {
-        if (this.nameAlias == null) {
-            var query: String? = methodProperty.query
-            if (query == null) {
-                query = ""
-            }
-            query += "("
-            val propertyList = getPropertyList()
-            for (i in propertyList.indices) {
-                val property = propertyList[i]
-                if (i > 0) {
-                    query += operationsList[i] + " "
+    override val nameAlias: NameAlias
+        get() {
+            if (this._nameAlias == null) {
+                var query: String? = methodProperty.query
+                if (query == null) {
+                    query = ""
                 }
-                query += property.toString()
+                query += "("
+                val propertyList = getPropertyList()
+                for (i in propertyList.indices) {
+                    val property = propertyList[i]
+                    if (i > 0) {
+                        query += operationsList[i] + " "
+                    }
+                    query += property.toString()
 
+                }
+                query += ")"
+                this._nameAlias = NameAlias.rawBuilder(query).build()
             }
-            query += ")"
-            this.nameAlias = NameAlias.rawBuilder(query).build()
+            return this._nameAlias!!
         }
-        return this.nameAlias!!
-    }
 
     /**
      * Represents the SQLite CAST operator.

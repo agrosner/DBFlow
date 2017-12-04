@@ -24,7 +24,7 @@ import com.raizlabs.dbflow5.query.OrderBy
  */
 open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
 
-    internal val table: Class<*>?
+    override val table: Class<*>?
 
     private lateinit var internalNameAlias: NameAlias
 
@@ -55,17 +55,20 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
         }
     }
 
-    constructor(table: Class<*>?, columnName: String, aliasName: String) : this(table, NameAlias.builder(columnName).`as`(aliasName).build())
+    constructor(table: Class<*>?, columnName: String, aliasName: String)
+            : this(table, NameAlias.builder(columnName).`as`(aliasName).build())
 
     override fun withTable(): Property<T> =
             withTable(NameAlias.Builder(FlowManager.getTableName(table!!)).build())
 
-    override fun getNameAlias(): NameAlias = internalNameAlias
+    override val nameAlias: NameAlias
+        get() = internalNameAlias
 
     override val query: String
         get() = nameAlias.query
 
-    override fun getCursorKey(): String = nameAlias.query
+    override val cursorKey: String
+        get() = nameAlias.query
 
     override fun toString(): String = nameAlias.toString()
 
@@ -169,8 +172,6 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
     override fun times(value: BaseModelQueriable<*>): Operator<*> = operator.times(value)
 
     override fun rem(value: BaseModelQueriable<*>): Operator<*> = operator.rem(value)
-
-    override fun getTable(): Class<*>? = table
 
     override fun plus(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.PLUS,
