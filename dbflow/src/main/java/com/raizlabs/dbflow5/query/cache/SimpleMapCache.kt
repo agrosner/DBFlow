@@ -2,7 +2,7 @@ package com.raizlabs.dbflow5.query.cache
 
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.structure.Model
-import java.util.*
+import java.util.HashMap
 
 /**
  * Description: A simple implementation that keeps [Model] you interact with in memory.
@@ -36,6 +36,6 @@ class SimpleMapCache<TModel> : ModelCache<TModel, MutableMap<Any?, TModel>> {
     override fun get(id: Any?): TModel? = cache[id]
 
     override fun setCacheSize(size: Int) {
-        FlowLog.log(FlowLog.Level.W, "The cache size for ${SimpleMapCache::class.java.simpleName} is not re-configurable.")
+        FlowLog.log(FlowLog.Level.W, "The cache size for SimpleMapCache is not re-configurable.")
     }
 }

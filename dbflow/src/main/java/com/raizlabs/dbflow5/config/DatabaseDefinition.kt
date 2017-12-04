@@ -279,6 +279,17 @@ abstract class DatabaseDefinition : DatabaseWrapper {
             .error(error)
             .execute()
 
+    /**
+     * Executes and returns the executed transaction.
+     */
+    fun <R : Any?> executeTransactionAsync(transaction: (DatabaseWrapper) -> R,
+                                           success: ((Transaction<R>, R) -> Unit)? = null,
+                                           error: ((Transaction<R>, Throwable) -> Unit)? = null): Transaction<R>
+        = beginTransactionAsync(transaction)
+        .success(success)
+        .error(error)
+        .execute()
+
 
     fun <R : Any?> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
             Transaction.Builder(transaction, this)

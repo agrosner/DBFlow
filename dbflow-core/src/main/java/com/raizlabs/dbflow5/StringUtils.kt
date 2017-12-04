@@ -10,13 +10,13 @@ import java.util.regex.Pattern
  * @return true if the string is not null, empty string "", or the length is greater than 0
  */
 fun String?.isNullOrEmpty(): Boolean =
-        this == null || this == "" || isEmpty()
+    this == null || this == "" || isEmpty()
 
 /**
  * @return true if the string is null, empty string "", or the length is less than equal to 0
  */
 fun String?.isNotNullOrEmpty(): Boolean =
-        this != null && this != "" && isNotEmpty()
+    this != null && this != "" && isNotEmpty()
 
 fun StringBuilder.appendQuotedIfNeeded(string: String?) = apply {
     if (string == "*")
@@ -27,7 +27,7 @@ fun StringBuilder.appendQuotedIfNeeded(string: String?) = apply {
 }
 
 private val QUOTE = '`'
-private val QUOTE_PATTERN = Pattern.compile(QUOTE + ".*" + QUOTE)
+private val QUOTE_PATTERN: Pattern = (QUOTE + ".*" + QUOTE).toPattern()
 
 /**
  * Helper method to check if name is quoted.

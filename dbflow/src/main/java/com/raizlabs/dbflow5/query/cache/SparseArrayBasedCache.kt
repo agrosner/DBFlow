@@ -10,7 +10,7 @@ import com.raizlabs.dbflow5.config.FlowLog
 class SparseArrayBasedCache<TModel> : ModelCache<TModel, SparseArray<TModel>> {
 
     /**
-     * Constructs new instance with a [android.util.SparseArray] cache
+     * Constructs new instance with a [SparseArray] cache
      */
     constructor() : super(SparseArray<TModel>()) {}
 
@@ -21,11 +21,6 @@ class SparseArrayBasedCache<TModel> : ModelCache<TModel, SparseArray<TModel>> {
      */
     constructor(initialCapacity: Int) : super(SparseArray<TModel>(initialCapacity)) {}
 
-    /**
-     * Constructs new instance with the specified [java.util.List]
-     *
-     * @param sparseArray The sparse array to use.
-     */
     constructor(sparseArray: SparseArray<TModel>) : super(sparseArray) {}
 
     override fun addModel(id: Any?, model: TModel) {
@@ -53,7 +48,7 @@ class SparseArrayBasedCache<TModel> : ModelCache<TModel, SparseArray<TModel>> {
     }
 
     override fun setCacheSize(size: Int) {
-        FlowLog.log(FlowLog.Level.I, "The cache size for ${SparseArrayBasedCache::class.java.simpleName} is not re-configurable.")
+        FlowLog.log(FlowLog.Level.I, "The cache size for SparseArrayBasedCache is not re-configurable.")
     }
 
     override fun get(id: Any?): TModel? {
@@ -61,7 +56,7 @@ class SparseArrayBasedCache<TModel> : ModelCache<TModel, SparseArray<TModel>> {
             cache.get(id.toInt())
         } else {
             throw IllegalArgumentException("A SparseArrayBasedCache uses an id that can cast to "
-                    + "a Number to convert it into a int")
+                + "a Number to convert it into a int")
         }
     }
 }

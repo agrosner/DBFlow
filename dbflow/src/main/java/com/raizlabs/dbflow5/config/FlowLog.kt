@@ -9,7 +9,7 @@ import com.raizlabs.dbflow5.config.FlowLog.Level
  */
 object FlowLog {
 
-    val TAG = FlowLog::class.java.simpleName
+    val TAG = "FlowLog"
     private var level = Level.E
 
     /**
@@ -59,7 +59,7 @@ object FlowLog {
     fun isEnabled(level: Level) = level.ordinal >= FlowLog.level.ordinal
 
     /**
-     * Logs a [java.lang.Throwable] as an error.
+     * Logs a [Throwable] as an error.
      *
      * @param throwable The stack trace to print
      */
@@ -69,7 +69,7 @@ object FlowLog {
     }
 
     /**
-     * Logs a [java.lang.Throwable] as a warning.
+     * Logs a [Throwable] as a warning.
      *
      * @param throwable The stack trace to print
      */

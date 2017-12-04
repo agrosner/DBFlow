@@ -12,7 +12,7 @@ import net.sqlcipher.database.SQLiteStatement
 class SQLCipherStatement
 internal constructor(val statement: SQLiteStatement) : BaseDatabaseStatement() {
 
-    override fun executeUpdateDelete(): Long = statement.executeUpdateDelete().toLong()
+    override fun executeUpdateDelete(): Long = rethrowDBFlowException { statement.executeUpdateDelete().toLong() }
 
     override fun execute() {
         statement.execute()
@@ -22,17 +22,11 @@ internal constructor(val statement: SQLiteStatement) : BaseDatabaseStatement() {
         statement.close()
     }
 
-    override fun simpleQueryForLong(): Long {
-        return statement.simpleQueryForLong()
-    }
+    override fun simpleQueryForLong(): Long = rethrowDBFlowException { statement.simpleQueryForLong() }
 
-    override fun simpleQueryForString(): String? {
-        return statement.simpleQueryForString()
-    }
+    override fun simpleQueryForString(): String? = rethrowDBFlowException { statement.simpleQueryForString() }
 
-    override fun executeInsert(): Long {
-        return statement.executeInsert()
-    }
+    override fun executeInsert(): Long = rethrowDBFlowException { statement.executeInsert() }
 
     override fun bindString(index: Int, s: String) {
         statement.bindString(index, s)

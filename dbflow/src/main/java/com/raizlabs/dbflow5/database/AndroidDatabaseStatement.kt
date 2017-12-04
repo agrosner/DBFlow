@@ -45,11 +45,11 @@ internal constructor(val statement: SQLiteStatement,
         statement.close()
     }
 
-    override fun simpleQueryForLong(): Long = statement.simpleQueryForLong()
+    override fun simpleQueryForLong(): Long = rethrowDBFlowException { statement.simpleQueryForLong() }
 
-    override fun simpleQueryForString(): String? = statement.simpleQueryForString()
+    override fun simpleQueryForString(): String? = rethrowDBFlowException { statement.simpleQueryForString() }
 
-    override fun executeInsert(): Long = statement.executeInsert()
+    override fun executeInsert(): Long = rethrowDBFlowException { statement.executeInsert() }
 
     override fun bindString(index: Int, s: String) {
         statement.bindString(index, s)
@@ -76,6 +76,6 @@ internal constructor(val statement: SQLiteStatement,
         @JvmStatic
         fun from(sqLiteStatement: SQLiteStatement,
                  database: SQLiteDatabase): AndroidDatabaseStatement =
-                AndroidDatabaseStatement(sqLiteStatement, database)
+            AndroidDatabaseStatement(sqLiteStatement, database)
     }
 }

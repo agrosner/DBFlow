@@ -16,10 +16,8 @@ internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
     override val version: Int
         get() = database.version
 
-    override fun execSQL(query: String) = try {
+    override fun execSQL(query: String) = rethrowDBFlowException {
         database.execSQL(query)
-    } catch (e: SQLiteException) {
-        throw e.toSqliteException()
     }
 
     override fun beginTransaction() {
@@ -34,32 +32,26 @@ internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
         database.endTransaction()
     }
 
-    override fun compileStatement(rawQuery: String): DatabaseStatement = try {
+    override fun compileStatement(rawQuery: String): DatabaseStatement = rethrowDBFlowException {
         SQLCipherStatement.from(database.compileStatement(rawQuery))
-    } catch (e: SQLiteException) {
-        throw e.toSqliteException()
     }
 
-    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor = try {
+    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor = rethrowDBFlowException {
         FlowCursor.from(database.rawQuery(query, selectionArgs))
-    } catch (e: SQLiteException) {
-        throw e.toSqliteException()
     }
 
     override fun updateWithOnConflict(tableName: String,
                                       contentValues: ContentValues,
                                       where: String?, whereArgs: Array<String>?,
-                                      conflictAlgorithm: Int): Long = try {
-        database.updateWithOnConflict(tableName, contentValues,
-            where, whereArgs, conflictAlgorithm).toLong()
-    } catch (e: SQLiteException) {
-        throw e.toSqliteException()
+                                      conflictAlgorithm: Int): Long = rethrowDBFlowException {
+        database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm).toLong()
     }
 
-    override fun insertWithOnConflict(tableName: String, nullColumnHack: String?, values: ContentValues, sqLiteDatabaseAlgorithmInt: Int): Long = try {
+    override fun insertWithOnConflict(tableName: String,
+                                      nullColumnHack: String?,
+                                      values: ContentValues,
+                                      sqLiteDatabaseAlgorithmInt: Int): Long = rethrowDBFlowException {
         database.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt)
-    } catch (e: SQLiteException) {
-        throw e.toSqliteException()
     }
 
     override fun query(tableName: String,
@@ -68,16 +60,14 @@ internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
                        selectionArgs: Array<String>?,
                        groupBy: String?,
                        having: String?,
-                       orderBy: String?): FlowCursor = try {
+                       orderBy: String?): FlowCursor = rethrowDBFlowException {
         FlowCursor.from(database.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy))
-    } catch (e: SQLiteException) {
-        throw e.toSqliteException()
     }
 
-    override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int = try {
+    override fun delete(tableName: String,
+                        whereClause: String?,
+                        whereArgs: Array<String>?): Int = rethrowDBFlowException {
         database.delete(tableName, whereClause, whereArgs)
-    } catch (e: SQLiteException) {
-        throw e.toSqliteException()
     }
 
     companion object {
@@ -88,3 +78,9 @@ internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
 }
 
 fun SQLiteException.toSqliteException() = com.raizlabs.dbflow5.database.SQLiteException("A Database Error Occurred", this)
+
+inline fun <T> rethrowDBFlowException(fn: () -> T) = try {
+    fn()
+} catch (e: SQLiteException) {
+    throw e.toSqliteException()
+}

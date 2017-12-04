@@ -4,10 +4,10 @@ import android.content.ContentValues
 import com.raizlabs.dbflow5.annotation.ConflictAction
 import com.raizlabs.dbflow5.appendArray
 import com.raizlabs.dbflow5.config.FlowManager
-import com.raizlabs.dbflow5.sql.Query
-import com.raizlabs.dbflow5.query.property.IProperty
-import com.raizlabs.dbflow5.structure.ChangeAction
 import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.query.property.IProperty
+import com.raizlabs.dbflow5.sql.Query
+import com.raizlabs.dbflow5.structure.ChangeAction
 
 /**
  * Description: The SQLite INSERT command
@@ -47,29 +47,29 @@ internal constructor(databaseWrapper: DatabaseWrapper,
                 queryBuilder.append("OR").append(" $conflictAction ")
             }
             queryBuilder.append("INTO")
-                    .append(" ")
-                    .append(FlowManager.getTableName(table))
+                .append(" ")
+                .append(FlowManager.getTableName(table))
 
             columns?.let { columns ->
                 queryBuilder.append("(")
-                        .appendArray(*columns.toTypedArray())
-                        .append(")")
+                    .appendArray(*columns.toTypedArray())
+                    .append(")")
             }
             if (selectFrom != null) {
                 queryBuilder.append(" ").append(selectFrom!!.query)
             } else {
                 if (valuesList.size < 1) {
                     throw IllegalStateException("The insert of " + FlowManager.getTableName(table) + " should have" +
-                            "at least one value specified for the insert")
+                        "at least one value specified for the insert")
                 } else columns?.let { columns ->
                     valuesList.asSequence()
-                            .filter { it.size != columns.size }
-                            .forEach {
-                                throw IllegalStateException(
-                                        """The Insert of ${FlowManager.getTableName(table)}
+                        .filter { it.size != columns.size }
+                        .forEach {
+                            throw IllegalStateException(
+                                """The Insert of ${FlowManager.getTableName(table)}
                                             |when specifyingcolumns needs to have the same amount
                                             |of values and columns""".trimMargin())
-                            }
+                        }
                 }
 
                 queryBuilder.append(" VALUES(")
@@ -283,8 +283,8 @@ infix fun <T : Any> Insert<T>.select(from: From<*>): Insert<T> = select(from)
 fun columnValues(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> = pairs
 
 fun <T : Any> Insert<T>.columnValues(vararg pairs: Pair<IProperty<*>, *>): Insert<T> {
-    val columns: MutableList<IProperty<*>> = java.util.ArrayList()
-    val values = java.util.ArrayList<Any?>()
+    val columns: MutableList<IProperty<*>> = mutableListOf()
+    val values = mutableListOf<Any?>()
     pairs.forEach {
         columns.add(it.first)
         values.add(it.second)

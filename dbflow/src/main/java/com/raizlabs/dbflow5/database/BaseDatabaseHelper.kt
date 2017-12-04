@@ -4,9 +4,8 @@ import com.raizlabs.dbflow5.config.DatabaseDefinition
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.NaturalOrderComparator
-import java.io.BufferedReader
 import java.io.IOException
-import java.io.InputStreamReader
+import java.io.InputStream
 
 /**
  * Description:
@@ -50,15 +49,15 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
             database.beginTransaction()
             val modelAdapters = databaseDefinition.getModelAdapters()
             modelAdapters
-                    .asSequence()
-                    .filter { it.createWithDatabase() }
-                    .forEach {
-                        try {
-                            database.execSQL(it.creationQuery)
-                        } catch (e: SQLiteException) {
-                            FlowLog.logError(e)
-                        }
+                .asSequence()
+                .filter { it.createWithDatabase() }
+                .forEach {
+                    try {
+                        database.execSQL(it.creationQuery)
+                    } catch (e: SQLiteException) {
+                        FlowLog.logError(e)
                     }
+                }
             database.setTransactionSuccessful()
         } finally {
             database.endTransaction()
@@ -73,15 +72,15 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
             database.beginTransaction()
             val modelViews = databaseDefinition.modelViewAdapters
             modelViews
-                    .asSequence()
-                    .map { "CREATE VIEW IF NOT EXISTS ${it.viewName} AS ${it.getCreationQuery(database)}" }
-                    .forEach {
-                        try {
-                            database.execSQL(it)
-                        } catch (e: SQLiteException) {
-                            FlowLog.logError(e)
-                        }
+                .asSequence()
+                .map { "CREATE VIEW IF NOT EXISTS ${it.viewName} AS ${it.getCreationQuery(database)}" }
+                .forEach {
+                    try {
+                        database.execSQL(it)
+                    } catch (e: SQLiteException) {
+                        FlowLog.logError(e)
                     }
+                }
             database.setTransactionSuccessful()
         } finally {
             database.endTransaction()
@@ -93,9 +92,9 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
 
         // will try migrations file or execute migrations from code
         try {
-            val files = FlowManager.context.assets.list(
-                    "${MIGRATION_PATH}/${databaseDefinition.databaseName}")
-                    .sortedWith(NaturalOrderComparator())
+            val files: List<String> = FlowManager.context.assets.list(
+                "$MIGRATION_PATH/${databaseDefinition.databaseName}")
+                .sortedWith(NaturalOrderComparator())
 
             val migrationFileMap = hashMapOf<Int, MutableList<String>>()
             for (file in files) {
@@ -160,8 +159,7 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
     private fun executeSqlScript(db: DatabaseWrapper,
                                  file: String) {
         try {
-            val input = FlowManager.context.assets.open("${MIGRATION_PATH}/${databaseDefinition.databaseName}/$file")
-            val reader = BufferedReader(InputStreamReader(input))
+            val input: InputStream = FlowManager.context.assets.open("$MIGRATION_PATH/${databaseDefinition.databaseName}/$file")
 
             // ends line with SQL
             val querySuffix = ";"
@@ -170,7 +168,7 @@ open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
             val queryCommentPrefix = "--"
             var query = StringBuffer()
 
-            reader.forEachLine { fileLine ->
+            input.reader().buffered().forEachLine { fileLine ->
                 var line = fileLine.trim { it <= ' ' }
                 val isEndOfQuery = line.endsWith(querySuffix)
                 if (line.startsWith(queryCommentPrefix)) {

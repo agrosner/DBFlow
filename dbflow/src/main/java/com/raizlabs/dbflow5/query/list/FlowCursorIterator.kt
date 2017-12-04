@@ -1,15 +1,13 @@
 package com.raizlabs.dbflow5.query.list
 
-import java.util.*
-
 /**
  * Description: Provides iteration capabilities to a [FlowCursorList].
  */
 class FlowCursorIterator<TModel>
 @JvmOverloads constructor(
-        private val cursorList: IFlowCursorIterator<TModel>,
-        startingLocation: Int,
-        private var count: Long = cursorList.count - startingLocation)
+    private val cursorList: IFlowCursorIterator<TModel>,
+    startingLocation: Int,
+    private var count: Long = cursorList.count - startingLocation)
     : ListIterator<TModel>, AutoCloseable {
     private var reverseIndex: Long = 0
     private var startingCount: Long = 0
@@ -69,7 +67,7 @@ class FlowCursorIterator<TModel>
 
     private fun checkSizes() {
         if (startingCount != cursorList.count) {
-            throw ConcurrentModificationException("Cannot change Cursor data during iteration.")
+            throw RuntimeException("Concurrent Modification: Cannot change Cursor data during iteration.")
         }
     }
 }

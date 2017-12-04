@@ -4,7 +4,6 @@ import com.raizlabs.dbflow5.config.DatabaseDefinition
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.transaction.DefaultTransactionQueue
-import com.raizlabs.dbflow5.transaction.ITransaction
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -255,35 +254,31 @@ class DatabaseHelperDelegate(
                 "both backupEnabled and consistency checks enabled to the Database annotation")
         }
 
-        databaseDefinition.beginTransactionAsync(object : ITransaction<Unit> {
-            override fun execute(databaseWrapper: DatabaseWrapper) {
-                val context = FlowManager.context
-                val backup = context.getDatabasePath(tempDbFileName)
-                val temp = context.getDatabasePath(TEMP_DB_NAME + "-2-" + databaseDefinition.databaseFileName)
+        databaseDefinition.executeTransactionAsync({
+            val context = FlowManager.context
+            val backup = context.getDatabasePath(tempDbFileName)
+            val temp = context.getDatabasePath(TEMP_DB_NAME + "-2-" + databaseDefinition.databaseFileName)
 
-                // if exists we want to delete it before rename
-                if (temp.exists()) {
-                    temp.delete()
-                }
+            // if exists we want to delete it before rename
+            if (temp.exists()) {
+                temp.delete()
+            }
 
-                backup.renameTo(temp)
-                if (backup.exists()) {
-                    backup.delete()
-                }
-                val existing = context.getDatabasePath(databaseDefinition.databaseFileName)
+            backup.renameTo(temp)
+            if (backup.exists()) {
+                backup.delete()
+            }
+            val existing = context.getDatabasePath(databaseDefinition.databaseFileName)
 
-                try {
-                    backup.parentFile.mkdirs()
-                    writeDB(backup, FileInputStream(existing))
-
-                    temp.delete()
-                } catch (e: Exception) {
-                    FlowLog.logError(e)
-
-                }
+            try {
+                backup.parentFile.mkdirs()
+                writeDB(backup, FileInputStream(existing))
+                temp.delete()
+            } catch (e: Exception) {
+                FlowLog.logError(e)
 
             }
-        }).build().execute()
+        })
 
     }
 

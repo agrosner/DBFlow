@@ -113,10 +113,10 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
                 val builder = ProcessModelTransaction.Builder(modelSaver)
                 tmpModels.forEach { builder.add(it) }
                 databaseDefinition.beginTransactionAsync(builder.build())
-                        .success(successCallback)
-                        .error(errorCallback)
-                        .build()
-                        .execute()
+                    .success(successCallback)
+                    .error(errorCallback)
+                    .build()
+                    .execute()
             } else {
                 emptyTransactionListener?.run()
             }
@@ -155,7 +155,7 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
     }
 
     /**
-     * Adds a [java.util.Collection] of DB objects to this queue
+     * Adds a [Collection] of DB objects to this queue
      */
     fun addAll(list: MutableCollection<Any>) {
         synchronized(models) {
@@ -168,7 +168,7 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
     }
 
     /**
-     * Adds a [java.util.Collection] of class that extend Object to this queue
+     * Adds a [Collection] of class that extend Object to this queue
      */
     fun addAll2(list: Collection<Any>) {
         synchronized(models) {
@@ -190,7 +190,7 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
     }
 
     /**
-     * Removes a [java.util.Collection] of DB object from this queue
+     * Removes a [Collection] of DB object from this queue
      * before it is processed.
      */
     fun removeAll(outCollection: Collection<Any>) {
@@ -200,7 +200,7 @@ internal constructor(private val databaseDefinition: DatabaseDefinition) : Threa
     }
 
     /**
-     * Removes a [java.util.Collection] of DB objects from this queue
+     * Removes a [Collection] of DB objects from this queue
      * before it is processed.
      */
     fun removeAll2(outCollection: Collection<*>) {
