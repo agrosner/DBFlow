@@ -23,7 +23,7 @@ interface IFlowCursorIterator<TModel> : Closeable, Iterable<TModel> {
     /**
      * @return The cursor.
      */
-    fun cursor(): Cursor?
+    val cursor: Cursor?
 
     override fun iterator(): FlowCursorIterator<TModel>
 

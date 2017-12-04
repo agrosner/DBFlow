@@ -18,14 +18,14 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
 
     private val retrievalAdapter: InstanceAdapter<T>
 
-    private var cursor: FlowCursor? = null
+    private var _cursor: FlowCursor? = null
 
     override val count: Long
-        get() = cursor?.count?.toLong() ?: 0
+        get() = _cursor?.count?.toLong() ?: 0
 
     init {
         if (cursor != null) {
-            this.cursor = FlowCursor.from(cursor)
+            this._cursor = FlowCursor.from(cursor)
         }
         retrievalAdapter = FlowManager.getInstanceAdapter(modelClass)
     }
@@ -34,18 +34,18 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
      * Swaps the current cursor and will close existing one.
      */
     fun swapCursor(cursor: FlowCursor?) {
-        this.cursor?.let { _cursor ->
+        this._cursor?.let { _cursor ->
             if (!_cursor.isClosed) {
                 _cursor.close()
             }
         }
-        this.cursor = cursor
+        this._cursor = cursor
     }
 
     /**
      * @return A [List] of items from this object. You must call [.close] when finished.
      */
-    fun toList(): List<T> = cursor?.let { cursor ->
+    fun toList(): List<T> = _cursor?.let { cursor ->
         retrievalAdapter.listModelLoader.convertToData(cursor, databaseWrapper)
     } ?: arrayListOf()
 
@@ -53,7 +53,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
      * @return Converts the [Cursor] to a [List] of [T] and then closes it.
      */
     fun toListClose(): List<T> {
-        val list = retrievalAdapter.listModelLoader.load(cursor, databaseWrapper) ?: arrayListOf()
+        val list = retrievalAdapter.listModelLoader.load(_cursor, databaseWrapper) ?: arrayListOf()
         close()
         return list
     }
@@ -62,7 +62,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
      * @return A [List] of items from this object. You must call [.close] when finished.
      */
     fun <TCustom : Any> toCustomList(customClass: Class<TCustom>): List<TCustom> {
-        return cursor?.let { cursor ->
+        return _cursor?.let { cursor ->
             return@let FlowManager.getQueryModelAdapter(customClass)
                 .listModelLoader.convertToData(cursor, databaseWrapper)
         } ?: arrayListOf()
@@ -73,7 +73,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
      */
     fun <TCustom : Any> toCustomListClose(customClass: Class<TCustom>): List<TCustom> {
         val customList = FlowManager.getQueryModelAdapter(customClass).listModelLoader
-            .load(cursor, databaseWrapper) ?: arrayListOf()
+            .load(_cursor, databaseWrapper) ?: arrayListOf()
         close()
         return customList
     }
@@ -81,7 +81,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
     /**
      * @return The first [T] of items from the contained [Cursor]. You must call [.close] when finished.
      */
-    fun toModel(): T? = cursor?.let { cursor ->
+    fun toModel(): T? = _cursor?.let { cursor ->
         retrievalAdapter.singleModelLoader.convertToData(cursor, databaseWrapper)
     }
 
@@ -89,7 +89,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
      * @return Converts the [Cursor] into the first [T] from the cursor and then closes it.
      */
     fun toModelClose(): T? {
-        val model = retrievalAdapter.singleModelLoader.load(cursor, databaseWrapper)
+        val model = retrievalAdapter.singleModelLoader.load(_cursor, databaseWrapper)
         close()
         return model
     }
@@ -98,9 +98,9 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
      * @return The first [T] of items from the contained [Cursor]. You must call [.close] when finished.
      */
     fun <TCustom : Any> toCustomModel(customClass: Class<TCustom>): TCustom? {
-        return if (cursor != null)
+        return if (_cursor != null)
             FlowManager.getQueryModelAdapter(customClass)
-                .singleModelLoader.convertToData(cursor!!, databaseWrapper)
+                .singleModelLoader.convertToData(_cursor!!, databaseWrapper)
         else null
     }
 
@@ -108,14 +108,14 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
      * @return Converts the [Cursor] to a [T] and then closes it.
      */
     fun <TCustom : Any> toCustomModelClose(customClass: Class<TCustom>): TCustom? {
-        val customList = FlowManager.getQueryModelAdapter(customClass).singleModelLoader.load(cursor, databaseWrapper)
+        val customList = FlowManager.getQueryModelAdapter(customClass).singleModelLoader.load(_cursor, databaseWrapper)
         close()
         return customList
     }
 
     override fun get(position: Long): T {
         var model: T? = null
-        cursor?.let { cursor ->
+        _cursor?.let { cursor ->
             if (cursor.moveToPosition(position.toInt())) {
                 model = retrievalAdapter.singleModelLoader.convertToData(cursor, false, databaseWrapper)
             }
@@ -128,10 +128,11 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: C
     override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> =
         FlowCursorIterator(this, startingLocation, limit)
 
-    override fun cursor(): Cursor? = cursor
+    override val cursor: Cursor?
+        get() = _cursor
 
     override fun close() {
-        cursor?.close()
+        _cursor?.close()
     }
 }
 

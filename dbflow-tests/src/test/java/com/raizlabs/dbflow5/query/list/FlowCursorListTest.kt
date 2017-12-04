@@ -25,7 +25,7 @@ class FlowCursorListTest : BaseUnitTest() {
                     .cursor(cursor)
                     .build()
 
-            assertEquals(cursor, list.cursor())
+            assertEquals(cursor, list.cursor)
         }
     }
 

@@ -28,7 +28,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
 
     val table: Class<T>
     val modelQueriable: ModelQueriable<T>
-    private var cursor: FlowCursor? = null
+    private var _cursor: FlowCursor? = null
     private val cursorFunc: () -> FlowCursor
 
     internal val instanceAdapter: InstanceAdapter<T>
@@ -44,7 +44,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
             unpackCursor()
             throwIfCursorClosed()
             warnEmptyCursor()
-            return cursor?.let { cursor ->
+            return _cursor?.let { cursor ->
                 instanceAdapter.listModelLoader.convertToData(cursor, FlowManager.getDatabaseForTable(table))
             } ?: listOf()
         }
@@ -93,7 +93,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     fun refresh() {
         val cursor = unpackCursor()
         cursor.close()
-        this.cursor = modelQueriable.query()
+        this._cursor = modelQueriable.query()
         synchronized(cursorRefreshListenerSet) {
             cursorRefreshListenerSet.forEach { listener -> listener.onCursorRefreshed(this) }
         }
@@ -128,7 +128,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
             unpackCursor()
             throwIfCursorClosed()
             warnEmptyCursor()
-            return (cursor?.count ?: 0).toLong()
+            return (_cursor?.count ?: 0).toLong()
         }
 
     /**
@@ -136,32 +136,33 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
      */
     override fun close() {
         warnEmptyCursor()
-        cursor?.close()
-        cursor = null
+        _cursor?.close()
+        _cursor = null
     }
 
-    override fun cursor(): Cursor? {
-        unpackCursor()
-        throwIfCursorClosed()
-        warnEmptyCursor()
-        return cursor
-    }
+    override val cursor: Cursor?
+        get() {
+            unpackCursor()
+            throwIfCursorClosed()
+            warnEmptyCursor()
+            return _cursor
+        }
 
     private fun unpackCursor(): Cursor {
-        if (cursor == null) {
-            cursor = cursorFunc()
+        if (_cursor == null) {
+            _cursor = cursorFunc()
         }
-        return cursor!!
+        return _cursor!!
     }
 
     private fun throwIfCursorClosed() {
-        if (cursor?.isClosed == true) {
+        if (_cursor?.isClosed == true) {
             throw IllegalStateException("Cursor has been closed for FlowCursorList")
         }
     }
 
     private fun warnEmptyCursor() {
-        if (cursor == null) {
+        if (_cursor == null) {
             FlowLog.log(FlowLog.Level.W, "Cursor was null for FlowCursorList")
         }
     }
@@ -170,7 +171,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
      * @return A new [Builder] that contains the same cache, query statement, and other
      * underlying data, but allows for modification.
      */
-    fun newBuilder(): Builder<T> = Builder(modelQueriable).cursor(cursor())
+    fun newBuilder(): Builder<T> = Builder(modelQueriable).cursor(_cursor)
 
     /**
      * Provides easy way to construct a [FlowCursorList].

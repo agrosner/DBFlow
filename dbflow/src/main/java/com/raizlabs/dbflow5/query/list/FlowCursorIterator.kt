@@ -17,7 +17,7 @@ class FlowCursorIterator<TModel>
     constructor(cursorList: IFlowCursorIterator<TModel>) : this(cursorList, 0, cursorList.count)
 
     init {
-        cursorList.cursor()?.let { cursor ->
+        cursorList.cursor?.let { cursor ->
             // request larger than actual count.
             if (this.count > cursor.count - startingLocation) {
                 this.count = (cursor.count - startingLocation).toLong()

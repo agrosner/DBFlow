@@ -3,9 +3,9 @@ package com.raizlabs.dbflow5.query.list
 import android.database.Cursor
 import android.os.Handler
 import android.os.Looper
-import com.raizlabs.dbflow5.query.list.FlowCursorList.OnCursorRefreshListener
-import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.adapter.InstanceAdapter
+import com.raizlabs.dbflow5.query.ModelQueriable
+import com.raizlabs.dbflow5.query.list.FlowCursorList.OnCursorRefreshListener
 import com.raizlabs.dbflow5.transaction.DefaultTransactionQueue
 import com.raizlabs.dbflow5.transaction.Transaction
 
@@ -17,10 +17,10 @@ import com.raizlabs.dbflow5.transaction.Transaction
  * on the underlying table.
  */
 class FlowQueryList<T : Any>(
-        /**
-         * Holds the table cursor
-         */
-        val internalCursorList: FlowCursorList<T>)
+    /**
+     * Holds the table cursor
+     */
+    val internalCursorList: FlowCursorList<T>)
     : List<T>, IFlowCursorIterator<T> {
 
     private var pendingRefresh = false
@@ -47,9 +47,9 @@ class FlowQueryList<T : Any>(
     }
 
     internal constructor(builder: Builder<T>) : this(
-            internalCursorList = FlowCursorList.Builder(builder.modelQueriable)
-                    .cursor(builder.cursor)
-                    .build()
+        internalCursorList = FlowCursorList.Builder(builder.modelQueriable)
+            .cursor(builder.cursor)
+            .build()
     )
 
     fun addOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<T>) {
@@ -90,6 +90,7 @@ class FlowQueryList<T : Any>(
         REFRESH_HANDLER.post(refreshRunnable)
     }
 
+
     /**
      * Checks to see if the table contains the object only if its a [T]
      *
@@ -114,13 +115,10 @@ class FlowQueryList<T : Any>(
         return contains
     }
 
-    override fun get(position: Long): T {
-        return internalCursorList.get(position)
-    }
+    override fun get(position: Long): T = internalCursorList[position]
 
-    override fun cursor(): Cursor? {
-        return internalCursorList.cursor()
-    }
+    override val cursor: Cursor?
+        get() = internalCursorList.cursor
 
     /**
      * Returns the item from the backing [FlowCursorList]. First call
@@ -134,7 +132,7 @@ class FlowQueryList<T : Any>(
 
     override fun indexOf(element: T): Int {
         throw UnsupportedOperationException(
-                "We cannot determine which index in the table this item exists at efficiently")
+            "We cannot determine which index in the table this item exists at efficiently")
     }
 
     override fun isEmpty(): Boolean {
@@ -155,7 +153,7 @@ class FlowQueryList<T : Any>(
 
     override fun lastIndexOf(element: T): Int {
         throw UnsupportedOperationException(
-                "We cannot determine which index in the table this item exists at efficiently")
+            "We cannot determine which index in the table this item exists at efficiently")
     }
 
     /**
@@ -196,7 +194,7 @@ class FlowQueryList<T : Any>(
 
         internal constructor(cursorList: FlowCursorList<T>) {
             table = cursorList.table
-            cursor = cursorList.cursor()
+            cursor = cursorList.cursor
             modelQueriable = cursorList.modelQueriable
         }
 
