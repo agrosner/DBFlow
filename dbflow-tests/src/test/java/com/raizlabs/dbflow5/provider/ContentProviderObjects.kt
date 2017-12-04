@@ -16,7 +16,7 @@ import com.raizlabs.dbflow5.annotation.provider.TableEndpoint
  * Description:
  */
 @ContentProvider(authority = ContentDatabase.AUTHORITY, database = ContentDatabase::class,
-        baseContentUri = ContentDatabase.BASE_CONTENT_URI)
+    baseContentUri = ContentDatabase.BASE_CONTENT_URI)
 @Database(version = ContentDatabase.VERSION)
 object ContentDatabase {
 
@@ -29,7 +29,7 @@ object ContentDatabase {
 }
 
 @TableEndpoint(name = ContentProviderModel.NAME, contentProvider = ContentDatabase::class)
-@Table(database = ContentDatabase::class, name = ContentProviderModel.NAME)
+@Table(database = ContentDatabase::class, name = ContentProviderModel.NAME, generateContentValues = true)
 class ContentProviderModel(@PrimaryKey(autoincrement = true)
                            var id: Long = 0,
                            @Column
@@ -54,12 +54,12 @@ class ContentProviderModel(@PrimaryKey(autoincrement = true)
     }
 }
 
-@Table(database = ContentDatabase::class)
+@Table(database = ContentDatabase::class, generateContentValues = true)
 class NoteModel(@PrimaryKey(autoincrement = true)
                 var id: Long = 0,
 
                 @ForeignKey(references = arrayOf(ForeignKeyReference(columnName = "providerModel",
-                        foreignKeyColumnName = "id")))
+                    foreignKeyColumnName = "id")))
                 var contentProviderModel: ContentProviderModel? = null,
 
                 @Column

@@ -63,27 +63,27 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
     /**
      * @return the model class this adapter corresponds to
      */
-    abstract val modelClass: Class<T>
+    abstract val table: Class<T>
 
     /**
      * @return A new instance of a [SingleModelLoader]. Subsequent calls do not cache
      * this object so it's recommended only calling this in bulk if possible.
      */
     val nonCacheableSingleModelLoader: SingleModelLoader<T>
-        get() = SingleModelLoader(modelClass)
+        get() = SingleModelLoader(table)
 
     /**
      * @return A new instance of a [ListModelLoader]. Subsequent calls do not cache
      * this object so it's recommended only calling this in bulk if possible.
      */
     val nonCacheableListModelLoader: ListModelLoader<T>
-        get() = ListModelLoader(modelClass)
+        get() = ListModelLoader(table)
 
     init {
         val databaseConfig = FlowManager.getConfig()
                 .getConfigForDatabase(databaseDefinition.associatedDatabaseClassFile)
         if (databaseConfig != null) {
-            tableConfig = databaseConfig.getTableConfigForTable(modelClass)
+            tableConfig = databaseConfig.getTableConfigForTable(table)
             if (tableConfig != null) {
                 tableConfig?.singleModelLoader?.let { _singleModelLoader = it }
                 tableConfig?.listModelLoader?.let { _listModelLoader = it }
@@ -97,7 +97,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
     open fun load(model: T, databaseWrapper: DatabaseWrapper) {
         nonCacheableSingleModelLoader.load(databaseWrapper,
                 (databaseWrapper.select
-                        from modelClass
+                        from table
                         where getPrimaryConditionClause(model)).query,
                 model)
     }
@@ -115,7 +115,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      * @return True if it exists as a row in the corresponding database table
      */
     open fun exists(model: T): Boolean =
-            exists(model, FlowManager.getDatabaseForTable(modelClass).writableDatabase)
+            exists(model, FlowManager.getDatabaseForTable(table).writableDatabase)
 
     /**
      * @param model The model to query values from
@@ -132,12 +132,12 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
     /**
      * @return A new [ListModelLoader], caching will override this loader instance.
      */
-    protected open fun createListModelLoader(): ListModelLoader<T> = ListModelLoader(modelClass)
+    protected open fun createListModelLoader(): ListModelLoader<T> = ListModelLoader(table)
 
     /**
      * @return A new [SingleModelLoader], caching will override this loader instance.
      */
-    protected open fun createSingleModelLoader(): SingleModelLoader<T> = SingleModelLoader(modelClass)
+    protected open fun createSingleModelLoader(): SingleModelLoader<T> = SingleModelLoader(table)
 
 }
 /**

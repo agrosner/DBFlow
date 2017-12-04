@@ -189,19 +189,19 @@ abstract class DatabaseDefinition : DatabaseWrapper {
     }
 
     protected fun <T : Any> addModelAdapter(modelAdapter: ModelAdapter<T>, holder: DatabaseHolder) {
-        holder.putDatabaseForTable(modelAdapter.modelClass, this)
-        modelTableNames.put(modelAdapter.tableName, modelAdapter.modelClass)
-        modelAdapters.put(modelAdapter.modelClass, modelAdapter)
+        holder.putDatabaseForTable(modelAdapter.table, this)
+        modelTableNames.put(modelAdapter.tableName, modelAdapter.table)
+        modelAdapters.put(modelAdapter.table, modelAdapter)
     }
 
     protected fun <T : Any> addModelViewAdapter(modelViewAdapter: ModelViewAdapter<T>, holder: DatabaseHolder) {
-        holder.putDatabaseForTable(modelViewAdapter.modelClass, this)
-        modelViewAdapterMap.put(modelViewAdapter.modelClass, modelViewAdapter)
+        holder.putDatabaseForTable(modelViewAdapter.table, this)
+        modelViewAdapterMap.put(modelViewAdapter.table, modelViewAdapter)
     }
 
     protected fun <T : Any> addQueryModelAdapter(queryModelAdapter: QueryModelAdapter<T>, holder: DatabaseHolder) {
-        holder.putDatabaseForTable(queryModelAdapter.modelClass, this)
-        queryModelAdapterMap.put(queryModelAdapter.modelClass, queryModelAdapter)
+        holder.putDatabaseForTable(queryModelAdapter.table, this)
+        queryModelAdapterMap.put(queryModelAdapter.table, queryModelAdapter)
     }
 
     protected fun addMigration(version: Int, migration: Migration) {

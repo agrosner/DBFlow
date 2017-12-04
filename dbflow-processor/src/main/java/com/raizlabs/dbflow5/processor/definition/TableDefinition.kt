@@ -87,6 +87,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
     var implementsLoadFromCursorListener = false
 
     private val methods: Array<MethodDefinition>
+    private val contentValueMethods: Array<MethodDefinition>
 
     var cachingEnabled = false
     var cacheSize: Int = 0
@@ -97,6 +98,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
     var allFields = false
     var useIsForPrivateBooleans: Boolean = false
+    var generateContentValues = false
 
     val columnMap = mutableMapOf<String, ColumnDefinition>()
 
@@ -125,6 +127,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 databaseTypeName = TypeName.get(mte.typeMirror)
             }
 
+            generateContentValues = table.generateContentValues
             cachingEnabled = table.cachingEnabled
             cacheSize = table.cacheSize
 
@@ -169,8 +172,10 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 ClassNames.SQLITE_STATEMENT_LISTENER)
         }
 
-        methods = arrayOf(BindToContentValuesMethod(this, true, implementsContentValuesListener),
-            BindToContentValuesMethod(this, false, implementsContentValuesListener),
+        contentValueMethods = arrayOf(BindToContentValuesMethod(this, true, implementsContentValuesListener),
+            BindToContentValuesMethod(this, false, implementsContentValuesListener))
+
+        methods = arrayOf(
             BindToStatementMethod(this, INSERT), BindToStatementMethod(this, NON_INSERT),
             BindToStatementMethod(this, UPDATE), BindToStatementMethod(this, DELETE),
             InsertStatementQueryMethod(this, true), InsertStatementQueryMethod(this, false),
@@ -513,7 +518,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             if (cachingEnabled) {
                 `private final field`(ClassNames.CACHE_ADAPTER, "cacheAdapter") {
                     `=` {
-                        addStatement("\$L",
+                        add("\$L",
                             TypeSpec.anonymousClassBuilder("")
                                 .addSuperinterface(ParameterizedTypeName.get(ClassNames.CACHE_ADAPTER, elementTypeName))
                                 .apply {
@@ -614,7 +619,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
                 `override fun`(ClassNames.SINGLE_MODEL_LOADER, "createSingleModelLoader") {
                     modifiers(public, final)
-                    addStatement("return new \$T<>(getModelClass(), cacheAdapter)",
+                    addStatement("return new \$T<>(getTable(), cacheAdapter)",
                         if (singlePrimaryKey)
                             ClassNames.SINGLE_KEY_CACHEABLE_MODEL_LOADER
                         else
@@ -622,7 +627,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 }
                 `override fun`(ClassNames.LIST_MODEL_LOADER, "createListModelLoader") {
                     modifiers(public, final)
-                    `return`("new \$T<>(getModelClass(), cacheAdapter)",
+                    `return`("new \$T<>(getTable(), cacheAdapter)",
                         if (singlePrimaryKey)
                             ClassNames.SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER
                         else
@@ -650,5 +655,9 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
         methods.mapNotNull { it.methodSpec }
             .forEach { typeBuilder.addMethod(it) }
+        if (generateContentValues) {
+            contentValueMethods.mapNotNull { it.methodSpec }
+                .forEach { typeBuilder.addMethod(it) }
+        }
     }
 }

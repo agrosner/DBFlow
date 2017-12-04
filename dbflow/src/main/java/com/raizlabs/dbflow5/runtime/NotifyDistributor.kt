@@ -16,7 +16,7 @@ class NotifyDistributor : ModelNotifier {
     override fun <T : Any> notifyModelChanged(model: T,
                                               adapter: ModelAdapter<T>,
                                               action: ChangeAction) {
-        FlowManager.getModelNotifierForTable(adapter.modelClass)
+        FlowManager.getModelNotifierForTable(adapter.table)
                 .notifyModelChanged(model, adapter, action)
     }
 

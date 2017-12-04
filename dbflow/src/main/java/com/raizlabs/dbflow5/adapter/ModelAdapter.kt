@@ -37,7 +37,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      */
     open val autoIncrementingColumnName: String
         get() = throw InvalidDBConfiguration("This method may have been called in error." +
-            " The model class $modelClass must contain an autoincrementing" +
+            " The model class $table must contain an autoincrementing" +
             " or single int/long primary key (if used in a ModelCache, this method may be called)")
 
     /**
@@ -177,6 +177,11 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
         bindToInsertValues(contentValues, model)
     }
 
+    override fun bindToInsertValues(contentValues: ContentValues, model: T) {
+        throw RuntimeException("ContentValues are no longer generated automatically. To enable it," +
+            " set generateContentValues = true in @Table for $table.")
+    }
+
     override fun bindToStatement(sqLiteStatement: DatabaseStatement, model: T) {
         bindToInsertStatement(sqLiteStatement, model, 0)
     }
@@ -197,7 +202,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
      * if it has the field. This method is overridden when its specified for the [T]
      */
     override fun getAutoIncrementingId(model: T): Number? {
-        throw RuntimeException("Table $modelClass does not have an auto-incrementing id.")
+        throw RuntimeException("Table $table does not have an auto-incrementing id.")
     }
 
     fun hasAutoIncrement(model: T): Boolean {

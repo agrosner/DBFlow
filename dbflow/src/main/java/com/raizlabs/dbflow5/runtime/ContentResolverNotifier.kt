@@ -21,7 +21,7 @@ class ContentResolverNotifier(val authority: String) : ModelNotifier {
         if (FlowContentObserver.shouldNotify()) {
             FlowManager.context.contentResolver
                     .notifyChange(getNotificationUri(authority,
-                            adapter.modelClass, action,
+                            adapter.table, action,
                             adapter.getPrimaryConditionClause(model).conditions),
                             null, true)
         }
