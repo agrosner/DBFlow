@@ -21,6 +21,19 @@ class FlowConfig(val context: Context,
         return databaseConfigMap[databaseClass]
     }
 
+    /**
+     * Merges two [FlowConfig] together by combining an existing config. Any new specified [DatabaseConfig]
+     * will override existing ones.
+     */
+    internal fun merge(flowConfig: FlowConfig): FlowConfig = FlowConfig(
+        context = flowConfig.context,
+        databaseConfigMap = databaseConfigMap.entries
+            .map { (key, value) ->
+                key to (flowConfig.databaseConfigMap[key] ?: value)
+            }.toMap(),
+        databaseHolders = databaseHolders.plus(flowConfig.databaseHolders),
+        openDatabasesOnInit = flowConfig.openDatabasesOnInit)
+
     class Builder(context: Context) {
 
         internal val context: Context = context.applicationContext

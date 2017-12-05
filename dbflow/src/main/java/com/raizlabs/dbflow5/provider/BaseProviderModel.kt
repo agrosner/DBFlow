@@ -16,10 +16,10 @@ import com.raizlabs.dbflow5.structure.Model
  */
 abstract class BaseProviderModel : BaseModel(), ModelProvider {
 
-    override fun delete(wrapper: DatabaseWrapper): Boolean = ContentUtils.delete(deleteUri, this) > 0
+    override fun delete(wrapper: DatabaseWrapper): Boolean = ContentUtils.delete(FlowManager.context, deleteUri, this) > 0
 
     override fun save(wrapper: DatabaseWrapper): Boolean {
-        val count = ContentUtils.update(updateUri, this)
+        val count = ContentUtils.update(FlowManager.context, updateUri, this)
         return if (count == 0) {
             insert(wrapper) > 0
         } else {
@@ -28,10 +28,10 @@ abstract class BaseProviderModel : BaseModel(), ModelProvider {
     }
 
     override fun update(wrapper: DatabaseWrapper): Boolean
-        = ContentUtils.update(updateUri, this) > 0
+        = ContentUtils.update(FlowManager.context, updateUri, this) > 0
 
     override fun insert(wrapper: DatabaseWrapper): Long
-        = if (ContentUtils.insert(insertUri, wrapper) != null) 1 else 0
+        = if (ContentUtils.insert(FlowManager.context, insertUri, this) != null) 1 else 0
 
     /**
      * Runs a query on the [ContentProvider] to see if it returns data.

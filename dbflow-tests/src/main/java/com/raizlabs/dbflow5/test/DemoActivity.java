@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import com.raizlabs.dbflow5.config.DatabaseConfig;
 import com.raizlabs.dbflow5.config.FlowConfig;
 import com.raizlabs.dbflow5.config.FlowManager;
+import com.raizlabs.dbflow5.database.AndroidSQLiteOpenHelper;
 import com.raizlabs.dbflow5.prepackaged.PrepackagedDB;
 
 
@@ -19,11 +20,12 @@ public class DemoActivity extends Activity {
         setContentView(R.layout.activity_demo);
 
         FlowManager.init(new FlowConfig.Builder(getApplicationContext())
-                .database(
-                        DatabaseConfig.builder(PrepackagedDB.class)
-                                .databaseName("prepackaged")
-                                .build())
-                .build());
+            .database(
+                DatabaseConfig.builder(PrepackagedDB.class,
+                    (dbFlowDatabase, databaseHelperListener) -> new AndroidSQLiteOpenHelper(getApplicationContext(), dbFlowDatabase, databaseHelperListener))
+                    .databaseName("prepackaged")
+                    .build())
+            .build());
     }
 
 

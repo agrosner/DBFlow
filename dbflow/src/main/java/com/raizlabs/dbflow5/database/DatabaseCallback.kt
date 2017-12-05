@@ -3,7 +3,7 @@ package com.raizlabs.dbflow5.database
 /**
  * Description: Provides callbacks for [OpenHelper] methods
  */
-interface DatabaseHelperListener {
+interface DatabaseCallback {
 
     /**
      * Called when the DB is opened

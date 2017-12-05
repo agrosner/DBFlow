@@ -3,7 +3,8 @@ package com.raizlabs.dbflow5.config
 import com.nhaarman.mockito_kotlin.mock
 import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.TestDatabase
-import com.raizlabs.dbflow5.database.DatabaseHelperListener
+import com.raizlabs.dbflow5.database.AndroidSQLiteOpenHelper
+import com.raizlabs.dbflow5.database.DatabaseCallback
 import com.raizlabs.dbflow5.database.OpenHelper
 import com.raizlabs.dbflow5.transaction.BaseTransactionManager
 import org.junit.Assert
@@ -28,10 +29,10 @@ class DatabaseConfigTest : BaseUnitTest() {
     @Test
     fun test_databaseConfig() {
 
-        val helperListener = mock<DatabaseHelperListener>()
+        val helperListener = mock<DatabaseCallback>()
         val customOpenHelper = mock<OpenHelper>()
 
-        val openHelperCreator: ((DBFlowDatabase, DatabaseHelperListener?) -> OpenHelper) = { _, _ ->
+        val openHelperCreator: ((DBFlowDatabase, DatabaseCallback?) -> OpenHelper) = { _, _ ->
             customOpenHelper
         }
         var testTransactionManager: TestTransactionManager? = null
@@ -41,10 +42,9 @@ class DatabaseConfigTest : BaseUnitTest() {
         }
 
         FlowManager.init(builder
-            .database(DatabaseConfig.Builder(TestDatabase::class.java)
+            .database(DatabaseConfig.Builder(TestDatabase::class.java, openHelperCreator)
                 .databaseName("Test")
                 .helperListener(helperListener)
-                .openHelper(openHelperCreator)
                 .transactionManagerCreator(managerCreator)
                 .build())
             .build())
@@ -58,19 +58,20 @@ class DatabaseConfigTest : BaseUnitTest() {
         Assert.assertEquals(databaseConfig.transactionManagerCreator, managerCreator)
         Assert.assertEquals(databaseConfig.databaseClass, TestDatabase::class.java)
         Assert.assertEquals(databaseConfig.openHelperCreator, openHelperCreator)
-        Assert.assertEquals(databaseConfig.helperListener, helperListener)
+        Assert.assertEquals(databaseConfig.callback, helperListener)
         Assert.assertTrue(databaseConfig.tableConfigMap.isEmpty())
 
 
         val databaseDefinition = database<TestDatabase>()
         Assert.assertEquals(databaseDefinition.transactionManager, testTransactionManager)
-        Assert.assertEquals(databaseDefinition.helper, customOpenHelper)
+        Assert.assertEquals(databaseDefinition.openHelper, customOpenHelper)
     }
 
     @Test
     fun test_EmptyName() {
         FlowManager.init(builder
-            .database(DatabaseConfig.Builder(TestDatabase::class.java)
+            .database(DatabaseConfig.Builder(TestDatabase::class.java,
+                AndroidSQLiteOpenHelper.createHelperCreator(context))
                 .databaseName("Test")
                 .extensionName("")
                 .build())

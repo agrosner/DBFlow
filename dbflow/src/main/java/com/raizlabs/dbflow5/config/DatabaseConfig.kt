@@ -1,43 +1,35 @@
 package com.raizlabs.dbflow5.config
 
-import com.raizlabs.dbflow5.database.DatabaseHelperListener
+import com.raizlabs.dbflow5.database.DatabaseCallback
 import com.raizlabs.dbflow5.database.OpenHelper
 import com.raizlabs.dbflow5.isNotNullOrEmpty
 import com.raizlabs.dbflow5.runtime.ModelNotifier
 import com.raizlabs.dbflow5.transaction.BaseTransactionManager
 import kotlin.reflect.KClass
 
+typealias OpenHelperCreator = (DBFlowDatabase, DatabaseCallback?) -> OpenHelper
+typealias TransactionManagerCreator = (DBFlowDatabase) -> BaseTransactionManager
+
 /**
  * Description:
  */
 class DatabaseConfig(
     val databaseClass: Class<*>,
-    val openHelperCreator: ((DBFlowDatabase, DatabaseHelperListener?) -> OpenHelper)? = null,
-    val transactionManagerCreator: ((DBFlowDatabase) -> BaseTransactionManager)? = null,
-    val helperListener: DatabaseHelperListener? = null,
+    val openHelperCreator: OpenHelperCreator,
+    val transactionManagerCreator: TransactionManagerCreator? = null,
+    val callback: DatabaseCallback? = null,
     val tableConfigMap: Map<Class<*>, TableConfig<*>> = mapOf(),
     val modelNotifier: ModelNotifier? = null,
     val isInMemory: Boolean = false,
     val databaseName: String? = null,
     val databaseExtensionName: String? = null) {
 
-
-    interface OpenHelperCreator {
-
-        fun createHelper(databaseDefinition: DBFlowDatabase, helperListener: DatabaseHelperListener?): OpenHelper
-    }
-
-    interface TransactionManagerCreator {
-
-        fun createManager(databaseDefinition: DBFlowDatabase): BaseTransactionManager
-    }
-
     internal constructor(builder: Builder) : this(
         // convert java interface to kotlin function.
         openHelperCreator = builder.openHelperCreator,
         databaseClass = builder.databaseClass,
         transactionManagerCreator = builder.transactionManagerCreator,
-        helperListener = builder.helperListener,
+        callback = builder.callback,
         tableConfigMap = builder.tableConfigMap,
         modelNotifier = builder.modelNotifier,
         isInMemory = builder.inMemory,
@@ -55,43 +47,26 @@ class DatabaseConfig(
     /**
      * Build compatibility class for Java. Use the [DatabaseConfig] class directly if Kotlin consumer.
      */
-    class Builder(internal val databaseClass: Class<*>) {
+    class Builder(internal val databaseClass: Class<*>,
+                  internal val openHelperCreator: OpenHelperCreator) {
 
-        internal var openHelperCreator: ((DBFlowDatabase, DatabaseHelperListener?) -> OpenHelper)? = null
-        internal var transactionManagerCreator: ((DBFlowDatabase) -> BaseTransactionManager)? = null
-        internal var helperListener: DatabaseHelperListener? = null
+        internal var transactionManagerCreator: TransactionManagerCreator? = null
+        internal var callback: DatabaseCallback? = null
         internal val tableConfigMap: MutableMap<Class<*>, TableConfig<*>> = hashMapOf()
         internal var modelNotifier: ModelNotifier? = null
         internal var inMemory = false
         internal var databaseName: String? = null
         internal var databaseExtensionName: String? = null
 
-        constructor(kClass: KClass<*>) : this(kClass.java)
+        constructor(kClass: KClass<*>, openHelperCreator: OpenHelperCreator)
+            : this(kClass.java, openHelperCreator)
 
-        fun transactionManagerCreator(transactionManager: TransactionManagerCreator) =
-            transactionManagerCreator { databaseDefinition -> transactionManager.createManager(databaseDefinition) }
-
-        fun transactionManagerCreator(creator: (DBFlowDatabase) -> BaseTransactionManager) = apply {
+        fun transactionManagerCreator(creator: TransactionManagerCreator) = apply {
             this.transactionManagerCreator = creator
         }
 
-        /**
-         * Overrides the default [OpenHelper] for a [DBFlowDatabase].
-         *
-         * @param openHelper The openhelper to use.
-         */
-        fun openHelper(openHelper: (DBFlowDatabase, DatabaseHelperListener?) -> OpenHelper) = apply {
-            openHelperCreator = openHelper
-        }
-
-        fun openHelper(openHelper: OpenHelperCreator) = apply {
-            openHelperCreator = { databaseDefinition, databaseHelperListener ->
-                openHelper.createHelper(databaseDefinition, databaseHelperListener)
-            }
-        }
-
-        fun helperListener(helperListener: DatabaseHelperListener) = apply {
-            this.helperListener = helperListener
+        fun helperListener(callback: DatabaseCallback) = apply {
+            this.callback = callback
         }
 
         fun addTableConfig(tableConfig: TableConfig<*>) = apply {
@@ -127,15 +102,17 @@ class DatabaseConfig(
     companion object {
 
         @JvmStatic
-        fun builder(database: Class<*>): Builder = Builder(database)
+        fun builder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
+            Builder(database, openHelperCreator)
 
-        fun builder(database: KClass<*>): Builder = Builder(database)
+        fun builder(database: KClass<*>, openHelperCreator: OpenHelperCreator): Builder =
+            Builder(database, openHelperCreator)
 
         @JvmStatic
-        fun inMemoryBuilder(database: Class<*>): Builder =
-            Builder(database).inMemory()
+        fun inMemoryBuilder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
+            Builder(database, openHelperCreator).inMemory()
 
-        fun inMemoryBuilder(database: KClass<*>): Builder =
-            Builder(database).inMemory()
+        fun inMemoryBuilder(database: KClass<*>, openHelperCreator: OpenHelperCreator): Builder =
+            Builder(database, openHelperCreator).inMemory()
     }
 }

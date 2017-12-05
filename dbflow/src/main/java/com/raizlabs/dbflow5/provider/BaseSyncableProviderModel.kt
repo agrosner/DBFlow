@@ -16,23 +16,23 @@ abstract class BaseSyncableProviderModel : BaseModel(), ModelProvider {
 
     override fun insert(wrapper: DatabaseWrapper): Long {
         val rowId = super.insert(wrapper)
-        ContentUtils.insert(insertUri, wrapper)
+        ContentUtils.insert(FlowManager.context, insertUri, this)
         return rowId
     }
 
     override fun save(wrapper: DatabaseWrapper): Boolean {
         return if (exists(wrapper)) {
-            super.save(wrapper) && ContentUtils.update(updateUri, wrapper) > 0
+            super.save(wrapper) && ContentUtils.update(FlowManager.context, updateUri, this) > 0
         } else {
-            super.save(wrapper) && ContentUtils.insert(insertUri, wrapper) != null
+            super.save(wrapper) && ContentUtils.insert(FlowManager.context, insertUri, this) != null
         }
     }
 
     override fun delete(wrapper: DatabaseWrapper): Boolean
-        = super.delete(wrapper) && ContentUtils.delete(deleteUri, wrapper) > 0
+        = super.delete(wrapper) && ContentUtils.delete(FlowManager.context, deleteUri, wrapper) > 0
 
     override fun update(wrapper: DatabaseWrapper): Boolean
-        = super.update(wrapper) && ContentUtils.update(updateUri, wrapper) > 0
+        = super.update(wrapper) && ContentUtils.update(FlowManager.context, updateUri, wrapper) > 0
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> load(whereOperatorGroup: OperatorGroup,

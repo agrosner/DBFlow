@@ -225,8 +225,8 @@ FlowManager.init(FlowConfig.builder(context)
       DatabaseConfig.builder(CipherDatabase.class)
           .openHelper(new DatabaseConfig.OpenHelperCreator() {
               @Override
-              public OpenHelper createHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener helperListener) {
-                  return new CustomFlowSQliteOpenHelper(databaseDefinition, helperListener);
+              public OpenHelper createHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener callback) {
+                  return new CustomFlowSQliteOpenHelper(databaseDefinition, callback);
               }
           })
       .build())

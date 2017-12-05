@@ -6,7 +6,6 @@ import com.raizlabs.dbflow5.database.DatabaseWrapper
 /**
  * Description: Provides a base class for objects that represent [QueryModel].
  */
-@Deprecated("No subclass needed. Use extension methods instead.")
 class BaseQueryModel : NoModificationModel() {
 
     override fun exists(wrapper: DatabaseWrapper): Boolean {

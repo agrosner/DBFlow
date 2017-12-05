@@ -1,16 +1,13 @@
 package com.raizlabs.dbflow5.sqlcipher
 
 import android.content.Context
-
-import com.raizlabs.dbflow5.config.DatabaseConfig
 import com.raizlabs.dbflow5.config.DBFlowDatabase
-import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.config.DatabaseConfig
 import com.raizlabs.dbflow5.database.BaseDatabaseHelper
+import com.raizlabs.dbflow5.database.DatabaseCallback
 import com.raizlabs.dbflow5.database.DatabaseHelperDelegate
-import com.raizlabs.dbflow5.database.DatabaseHelperListener
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.OpenHelper
-
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteOpenHelper
 
@@ -18,8 +15,10 @@ import net.sqlcipher.database.SQLiteOpenHelper
  * Description: The replacement [OpenHelper] for SQLCipher. Specify a subclass of this is [DatabaseConfig.getDatabaseClass]
  * of your database to get it to work with specifying the secret you use for the databaseForTable.
  */
-abstract class SQLCipherOpenHelper(databaseDefinition: DBFlowDatabase, listener: DatabaseHelperListener?)
-    : SQLiteOpenHelper(FlowManager.context,
+abstract class SQLCipherOpenHelper(
+    context: Context,
+    databaseDefinition: DBFlowDatabase, listener: DatabaseCallback?)
+    : SQLiteOpenHelper(context,
     if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
     null, databaseDefinition.databaseVersion), OpenHelper {
 
@@ -43,17 +42,17 @@ abstract class SQLCipherOpenHelper(databaseDefinition: DBFlowDatabase, listener:
     protected abstract val cipherSecret: String
 
     init {
-        SQLiteDatabase.loadLibs(FlowManager.context)
+        SQLiteDatabase.loadLibs(context)
 
         var backupHelper: OpenHelper? = null
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
-            backupHelper = BackupHelper(FlowManager.context,
+            backupHelper = BackupHelper(context,
                 DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
                 databaseDefinition.databaseVersion, databaseDefinition)
         }
 
-        delegate = DatabaseHelperDelegate(listener, databaseDefinition, backupHelper)
+        delegate = DatabaseHelperDelegate(context, listener, databaseDefinition, backupHelper)
     }
 
     override fun performRestoreFromBackup() {
@@ -68,10 +67,10 @@ abstract class SQLCipherOpenHelper(databaseDefinition: DBFlowDatabase, listener:
      * Set a listener to listen for specific DB events and perform an action before we execute this classes
      * specific methods.
      *
-     * @param helperListener
+     * @param callback
      */
-    override fun setDatabaseListener(helperListener: DatabaseHelperListener?) {
-        delegate.setDatabaseHelperListener(helperListener)
+    override fun setDatabaseListener(callback: DatabaseCallback?) {
+        delegate.setDatabaseHelperListener(callback)
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -105,7 +104,7 @@ abstract class SQLCipherOpenHelper(databaseDefinition: DBFlowDatabase, listener:
         : SQLiteOpenHelper(context, name, null, version), OpenHelper {
 
         private var sqlCipherDatabase: SQLCipherDatabase? = null
-        private val baseDatabaseHelper: BaseDatabaseHelper = BaseDatabaseHelper(databaseDefinition)
+        private val baseDatabaseHelper: BaseDatabaseHelper = BaseDatabaseHelper(context, databaseDefinition)
 
         override val database: DatabaseWrapper
             get() {
@@ -127,7 +126,7 @@ abstract class SQLCipherOpenHelper(databaseDefinition: DBFlowDatabase, listener:
 
         override fun closeDB() = Unit
 
-        override fun setDatabaseListener(helperListener: DatabaseHelperListener?) = Unit
+        override fun setDatabaseListener(callback: DatabaseCallback?) = Unit
 
         override fun onCreate(db: SQLiteDatabase) {
             baseDatabaseHelper.onCreate(SQLCipherDatabase.from(db))
@@ -143,4 +142,5 @@ abstract class SQLCipherOpenHelper(databaseDefinition: DBFlowDatabase, listener:
 
         override fun setWriteAheadLoggingEnabled(enabled: Boolean) = Unit
     }
+
 }

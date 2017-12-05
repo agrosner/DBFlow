@@ -45,8 +45,8 @@ FlowManager.init(new FlowConfig.Builder(this)
       new DatabaseConfig.Builder(CipherDatabase.class)
           .openHelper(new DatabaseConfig.OpenHelperCreator() {
               @Override
-              public OpenHelper createHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener helperListener) {
-                  return new SQLCipherHelperImpl(databaseDefinition, helperListener);
+              public OpenHelper createHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener callback) {
+                  return new SQLCipherHelperImpl(databaseDefinition, callback);
               }
           })
       .build())

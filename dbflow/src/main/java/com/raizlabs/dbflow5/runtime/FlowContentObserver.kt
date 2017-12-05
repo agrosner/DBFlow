@@ -10,6 +10,7 @@ import android.os.Build.VERSION_CODES
 import android.os.Handler
 import com.raizlabs.dbflow5.TABLE_QUERY_PARAM
 import com.raizlabs.dbflow5.config.DatabaseConfig
+import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.getNotificationUri
 import com.raizlabs.dbflow5.query.NameAlias
@@ -222,27 +223,33 @@ open class FlowContentObserver(private val contentAuthority: String,
             }
 
         val table = registeredTables[tableName]
-        var action = ChangeAction.valueOf(fragment)
-        if (!isInTransaction) {
-            modelChangeListeners.forEach { it.onModelStateChanged(table, action, columnsChanged.toTypedArray()) }
+        if (table != null) {
+            var action = ChangeAction.valueOf(fragment)
+            if (!isInTransaction) {
+                modelChangeListeners.forEach {
+                    it.onModelStateChanged(table, action, columnsChanged.toTypedArray())
+                }
 
-            if (!calledInternally) {
-                onTableChangedListeners.forEach { it.onTableChanged(table, action) }
+                if (!calledInternally) {
+                    onTableChangedListeners.forEach { it.onTableChanged(table, action) }
+                }
+            } else {
+                // convert this uri to a CHANGE op if we don't care about individual changes.
+                if (!notifyAllUris) {
+                    action = ChangeAction.CHANGE
+                    uri = getNotificationUri(contentAuthority, table, action)
+                }
+                synchronized(notificationUris) {
+                    // add and keep track of unique notification uris for when transaction completes.
+                    notificationUris.add(uri)
+                }
+
+                synchronized(tableUris) {
+                    tableUris.add(getNotificationUri(contentAuthority, table, action))
+                }
             }
         } else {
-            // convert this uri to a CHANGE op if we don't care about individual changes.
-            if (!notifyAllUris) {
-                action = ChangeAction.CHANGE
-                uri = getNotificationUri(contentAuthority, table!!, action)
-            }
-            synchronized(notificationUris) {
-                // add and keep track of unique notification uris for when transaction completes.
-                notificationUris.add(uri)
-            }
-
-            synchronized(tableUris) {
-                tableUris.add(getNotificationUri(contentAuthority, table!!, action))
-            }
+            FlowLog.log(FlowLog.Level.W, "Received URI change for unregistered table $tableName . URI ignored.")
         }
     }
 

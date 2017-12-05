@@ -1,8 +1,8 @@
 package com.raizlabs.dbflow5.database
 
+import android.content.Context
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
-import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.NaturalOrderComparator
 import java.io.IOException
 import java.io.InputStream
@@ -10,7 +10,8 @@ import java.io.InputStream
 /**
  * Description:
  */
-open class BaseDatabaseHelper(val databaseDefinition: DBFlowDatabase) {
+open class BaseDatabaseHelper(protected val context: Context,
+                              val databaseDefinition: DBFlowDatabase) {
 
     open fun onCreate(db: DatabaseWrapper) {
         checkForeignKeySupport(db)
@@ -92,7 +93,7 @@ open class BaseDatabaseHelper(val databaseDefinition: DBFlowDatabase) {
 
         // will try migrations file or execute migrations from code
         try {
-            val files: List<String> = FlowManager.context.assets.list(
+            val files: List<String> = context.assets.list(
                 "$MIGRATION_PATH/${databaseDefinition.databaseName}")
                 .sortedWith(NaturalOrderComparator())
 
@@ -159,7 +160,7 @@ open class BaseDatabaseHelper(val databaseDefinition: DBFlowDatabase) {
     private fun executeSqlScript(db: DatabaseWrapper,
                                  file: String) {
         try {
-            val input: InputStream = FlowManager.context.assets.open("$MIGRATION_PATH/${databaseDefinition.databaseName}/$file")
+            val input: InputStream = context.assets.open("$MIGRATION_PATH/${databaseDefinition.databaseName}/$file")
 
             // ends line with SQL
             val querySuffix = ";"

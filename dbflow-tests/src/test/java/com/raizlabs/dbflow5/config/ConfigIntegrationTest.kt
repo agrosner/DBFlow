@@ -5,8 +5,11 @@ import com.raizlabs.dbflow5.TestDatabase
 import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
 import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.adapter.saveable.ModelSaver
+import com.raizlabs.dbflow5.database.AndroidSQLiteOpenHelper
 import com.raizlabs.dbflow5.models.SimpleModel
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -27,12 +30,9 @@ class ConfigIntegrationTest : BaseUnitTest() {
 
     @Test
     fun test_flowConfig() {
-        FlowManager.init(builder
-                .openDatabasesOnInit(true)
-                .build())
-
-        val config = FlowManager.getConfig()
-        assertNotNull(config)
+        val config = builder
+            .openDatabasesOnInit(true)
+            .build()
         assertEquals(config.openDatabasesOnInit, true)
         assertTrue(config.databaseConfigMap.isEmpty())
         assertTrue(config.databaseHolders.isEmpty())
@@ -46,14 +46,15 @@ class ConfigIntegrationTest : BaseUnitTest() {
         val modelSaver = ModelSaver<SimpleModel>()
 
         FlowManager.init(builder
-                .database(DatabaseConfig.Builder(TestDatabase::class.java)
-                        .addTableConfig(TableConfig.Builder(SimpleModel::class.java)
-                                .singleModelLoader(singleModelLoader)
-                                .listModelLoader(customListModelLoader)
-                                .modelAdapterModelSaver(modelSaver)
-                                .build())
-                        .build())
+            .database(DatabaseConfig.Builder(TestDatabase::class.java,
+                AndroidSQLiteOpenHelper.createHelperCreator(context))
+                .addTableConfig(TableConfig.Builder(SimpleModel::class.java)
+                    .singleModelLoader(singleModelLoader)
+                    .listModelLoader(customListModelLoader)
+                    .modelAdapterModelSaver(modelSaver)
+                    .build())
                 .build())
+            .build())
 
         val flowConfig = FlowManager.getConfig()
         assertNotNull(flowConfig)

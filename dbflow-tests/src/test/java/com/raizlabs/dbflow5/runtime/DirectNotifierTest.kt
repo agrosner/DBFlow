@@ -10,6 +10,7 @@ import com.raizlabs.dbflow5.config.DatabaseConfig
 import com.raizlabs.dbflow5.config.FlowConfig
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.databaseForTable
+import com.raizlabs.dbflow5.database.AndroidSQLiteOpenHelper
 import com.raizlabs.dbflow5.models.SimpleModel
 import com.raizlabs.dbflow5.models.SimpleModel_Table
 import com.raizlabs.dbflow5.query.columnValues
@@ -41,9 +42,10 @@ class DirectNotifierTest {
     @Before
     fun setupTest() {
         FlowManager.init(FlowConfig.Builder(context)
-                .database(DatabaseConfig.Builder(TestDatabase::class.java)
-                        .transactionManagerCreator(::ImmediateTransactionManager2)
-                        .build()).build())
+            .database(DatabaseConfig.Builder(TestDatabase::class.java,
+                AndroidSQLiteOpenHelper.createHelperCreator(context))
+                .transactionManagerCreator(::ImmediateTransactionManager2)
+                .build()).build())
     }
 
     @Test

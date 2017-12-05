@@ -3,34 +3,35 @@ package com.raizlabs.dbflow5.database
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-
 import com.raizlabs.dbflow5.config.DBFlowDatabase
-import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.config.OpenHelperCreator
 
 /**
  * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.
  */
 open class AndroidSQLiteOpenHelper(
+    private val context: Context,
     databaseDefinition: DBFlowDatabase,
-    listener: DatabaseHelperListener?)
-    : SQLiteOpenHelper(FlowManager.context,
+    listener: DatabaseCallback?)
+    : SQLiteOpenHelper(context,
     if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
     null,
     databaseDefinition.databaseVersion), OpenHelper {
 
     private val databaseHelperDelegate: DatabaseHelperDelegate
     private var androidDatabase: AndroidDatabase? = null
+    private val _databaseName = databaseDefinition.databaseFileName
 
     init {
         var backupHelper: OpenHelper? = null
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
-            backupHelper = BackupHelper(FlowManager.context,
+            backupHelper = BackupHelper(context,
                 DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
                 databaseDefinition.databaseVersion, databaseDefinition)
         }
 
-        databaseHelperDelegate = DatabaseHelperDelegate(listener, databaseDefinition, backupHelper)
+        databaseHelperDelegate = DatabaseHelperDelegate(context, listener, databaseDefinition, backupHelper)
     }
 
     override fun performRestoreFromBackup() {
@@ -59,10 +60,10 @@ open class AndroidSQLiteOpenHelper(
      * Set a listener to listen for specific DB events and perform an action before we execute this classes
      * specific methods.
      *
-     * @param helperListener
+     * @param callback
      */
-    override fun setDatabaseListener(helperListener: DatabaseHelperListener?) {
-        databaseHelperDelegate.setDatabaseHelperListener(helperListener)
+    override fun setDatabaseListener(callback: DatabaseCallback?) {
+        databaseHelperDelegate.setDatabaseHelperListener(callback)
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -85,6 +86,10 @@ open class AndroidSQLiteOpenHelper(
         androidDatabase?.database?.close()
     }
 
+    override fun deleteDB() {
+        context.deleteDatabase(_databaseName)
+    }
+
     /**
      * Simple helper to manage backup.
      */
@@ -94,7 +99,8 @@ open class AndroidSQLiteOpenHelper(
         : SQLiteOpenHelper(context, name, null, version), OpenHelper {
 
         private var androidDatabase: AndroidDatabase? = null
-        private val baseDatabaseHelper: BaseDatabaseHelper = BaseDatabaseHelper(databaseDefinition)
+        private val baseDatabaseHelper: BaseDatabaseHelper = BaseDatabaseHelper(context, databaseDefinition)
+        private val _databaseName = databaseDefinition.databaseFileName
 
         override val database: DatabaseWrapper
             get() {
@@ -114,7 +120,7 @@ open class AndroidSQLiteOpenHelper(
 
         override fun backupDB() {}
 
-        override fun setDatabaseListener(helperListener: DatabaseHelperListener?) {}
+        override fun setDatabaseListener(callback: DatabaseCallback?) {}
 
         override fun onCreate(db: SQLiteDatabase) {
             baseDatabaseHelper.onCreate(AndroidDatabase.from(db))
@@ -133,6 +139,19 @@ open class AndroidSQLiteOpenHelper(
         }
 
         override fun closeDB() = Unit
+
+        override fun deleteDB() {
+            context.deleteDatabase(_databaseName)
+        }
+    }
+
+    companion object {
+        @JvmStatic
+        fun createHelperCreator(context: Context): OpenHelperCreator =
+            { db: DBFlowDatabase, databaseCallback: DatabaseCallback? ->
+                AndroidSQLiteOpenHelper(context, db, databaseCallback)
+            }
     }
 
 }
+

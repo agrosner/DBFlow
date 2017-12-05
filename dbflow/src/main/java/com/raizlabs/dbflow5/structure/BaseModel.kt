@@ -9,7 +9,6 @@ import com.raizlabs.dbflow5.database.DatabaseWrapper
  * Description: The base implementation of [Model]. It is recommended to use this class as
  * the base for your [Model], but it is not required.
  */
-@Deprecated("No subclass needed. Use extension methods instead")
 open class BaseModel : Model {
 
     /**
@@ -24,9 +23,9 @@ open class BaseModel : Model {
     @Suppress("UNCHECKED_CAST")
     override fun <T> load(wrapper: DatabaseWrapper): T? = modelAdapter.load(this, wrapper) as T?
 
-    override fun save(wrapper: DatabaseWrapper): Boolean = modelAdapter.save(this@BaseModel, wrapper)
+    override fun save(wrapper: DatabaseWrapper): Boolean = modelAdapter.save(this, wrapper)
 
-    override fun delete(wrapper: DatabaseWrapper): Boolean = modelAdapter.delete(this@BaseModel, wrapper)
+    override fun delete(wrapper: DatabaseWrapper): Boolean = modelAdapter.delete(this, wrapper)
 
     override fun update(wrapper: DatabaseWrapper): Boolean = modelAdapter.update(this, wrapper)
 

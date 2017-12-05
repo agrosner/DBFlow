@@ -1,8 +1,8 @@
 package com.raizlabs.dbflow5.runtime
 
 import android.content.ContentResolver
+import android.content.Context
 import com.raizlabs.dbflow5.adapter.ModelAdapter
-import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.getNotificationUri
 import com.raizlabs.dbflow5.query.SQLOperator
 import com.raizlabs.dbflow5.structure.ChangeAction
@@ -13,30 +13,28 @@ import com.raizlabs.dbflow5.structure.ChangeAction
  * @param [authority] Specify the content URI authority you wish to use here. This will get propagated
  * everywhere that changes get called from in a specific database.
  */
-class ContentResolverNotifier(val authority: String) : ModelNotifier {
+class ContentResolverNotifier(private val context: Context,
+                              val authority: String) : ModelNotifier {
 
     override fun <T : Any> notifyModelChanged(model: T, adapter: ModelAdapter<T>,
                                               action: ChangeAction) {
         if (FlowContentObserver.shouldNotify()) {
-            FlowManager.context.contentResolver
-                .notifyChange(getNotificationUri(authority,
-                    adapter.table, action,
-                    adapter.getPrimaryConditionClause(model).conditions),
-                    null, true)
+            context.contentResolver.notifyChange(
+                getNotificationUri(authority, adapter.table, action,
+                    adapter.getPrimaryConditionClause(model).conditions), null, true)
         }
     }
 
     override fun <T : Any> notifyTableChanged(table: Class<T>, action: ChangeAction) {
         if (FlowContentObserver.shouldNotify()) {
-            FlowManager.context.contentResolver
-                .notifyChange(getNotificationUri(authority, table, action,
-                    null as Array<SQLOperator>?), null, true)
+            context.contentResolver.notifyChange(
+                getNotificationUri(authority, table, action, null as Array<SQLOperator>?), null, true)
         }
     }
 
-    override fun newRegister(): TableNotifierRegister = FlowContentTableNotifierRegister(authority)
+    override fun newRegister(): TableNotifierRegister = FlowContentTableNotifierRegister(context, authority)
 
-    class FlowContentTableNotifierRegister(contentAuthority: String) : TableNotifierRegister {
+    class FlowContentTableNotifierRegister(private val context: Context, contentAuthority: String) : TableNotifierRegister {
 
         private val flowContentObserver = FlowContentObserver(contentAuthority)
 
@@ -53,11 +51,11 @@ class ContentResolverNotifier(val authority: String) : ModelNotifier {
         }
 
         override fun <T> register(tClass: Class<T>) {
-            flowContentObserver.registerForContentChanges(FlowManager.context, tClass)
+            flowContentObserver.registerForContentChanges(context, tClass)
         }
 
         override fun <T> unregister(tClass: Class<T>) {
-            flowContentObserver.unregisterForContentChanges(FlowManager.context)
+            flowContentObserver.unregisterForContentChanges(context)
         }
 
         override fun unregisterAll() {

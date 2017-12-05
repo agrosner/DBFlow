@@ -12,7 +12,7 @@ import com.raizlabs.dbflow5.annotation.Database
 import com.raizlabs.dbflow5.annotation.QueryModel
 import com.raizlabs.dbflow5.annotation.Table
 import com.raizlabs.dbflow5.database.AndroidSQLiteOpenHelper
-import com.raizlabs.dbflow5.database.DatabaseHelperListener
+import com.raizlabs.dbflow5.database.DatabaseCallback
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
@@ -21,6 +21,7 @@ import com.raizlabs.dbflow5.migration.Migration
 import com.raizlabs.dbflow5.runtime.DirectModelNotifier
 import com.raizlabs.dbflow5.runtime.ModelNotifier
 import com.raizlabs.dbflow5.structure.BaseModelView
+import com.raizlabs.dbflow5.structure.InvalidDBConfiguration
 import com.raizlabs.dbflow5.transaction.BaseTransactionManager
 import com.raizlabs.dbflow5.transaction.DefaultTransactionManager
 import com.raizlabs.dbflow5.transaction.DefaultTransactionQueue
@@ -46,12 +47,12 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * The helper that manages database changes and initialization
      */
-    private var openHelper: OpenHelper? = null
+    private var _openHelper: OpenHelper? = null
 
     /**
      * Allows for the app to listen for database changes.
      */
-    private var helperListener: DatabaseHelperListener? = null
+    private var callback: DatabaseCallback? = null
 
     /**
      * Used when resetting the DB
@@ -96,22 +97,27 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     val migrations: Map<Int, List<Migration>>
         get() = migrationMap
 
-    val helper: OpenHelper
+    /**
+     * Returns true if the [openHelper] has been created.
+     */
+    var isOpened: Boolean = false
+
+    val openHelper: OpenHelper
         @Synchronized get() {
-            if (openHelper == null) {
+            if (_openHelper == null) {
                 val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
-                openHelper = if (config?.openHelperCreator != null) {
-                    config.openHelperCreator.invoke(this, helperListener)
-                } else {
-                    AndroidSQLiteOpenHelper(this, helperListener)
-                }
-                openHelper?.performRestoreFromBackup()
+                    ?: throw InvalidDBConfiguration("" +
+                    "Missing Database Configuration for $associatedDatabaseClassFile." +
+                    " Please specify it in FlowManager.init()")
+                _openHelper = config.openHelperCreator(this, callback)
+                _openHelper?.performRestoreFromBackup()
+                isOpened = true
             }
-            return openHelper!!
+            return _openHelper!!
         }
 
     val writableDatabase: DatabaseWrapper
-        get() = helper.database
+        get() = openHelper.database
 
     /**
      * @return The name of this database as defined in [Database]
@@ -157,7 +163,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * override the return value if it replaces the main DB.
      */
     val isDatabaseIntegrityOk: Boolean
-        get() = helper.isDatabaseIntegrityOk
+        get() = openHelper.isDatabaseIntegrityOk
 
     init {
         @Suppress("LeakingThis")
@@ -179,7 +185,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
                 tableConfig.singleModelLoader?.let { modelAdapter.singleModelLoader = it as SingleModelLoader<Any> }
                 tableConfig.modelSaver?.let { modelAdapter.modelSaver = it as ModelSaver<Any> }
             }
-            helperListener = databaseConfig.helperListener
+            callback = databaseConfig.callback
         }
         transactionManager = if (databaseConfig?.transactionManagerCreator == null) {
             DefaultTransactionManager(this)
@@ -343,7 +349,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             destroy()
             // reapply configuration before opening it.
             applyDatabaseConfig(databaseConfig)
-            helper.database
+            openHelper.database
         }
     }
 
@@ -357,9 +363,10 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     fun reopen(databaseConfig: DatabaseConfig? = this.databaseConfig) {
         if (!isResetting) {
             close()
-            openHelper = null
+            _openHelper = null
+            isOpened = false
             applyDatabaseConfig(databaseConfig)
-            helper.database
+            openHelper.database
             isResetting = false
         }
     }
@@ -371,8 +378,9 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         if (!isResetting) {
             isResetting = true
             close()
-            FlowManager.context.deleteDatabase(databaseFileName)
-            openHelper = null
+            openHelper.deleteDB()
+            _openHelper = null
+            isOpened = false
             isResetting = false
         }
     }
@@ -390,7 +398,10 @@ abstract class DBFlowDatabase : DatabaseWrapper {
                 closeUpdateStatement()
             }
         }
-        helper.closeDB()
+        if (isOpened) {
+            openHelper.closeDB()
+            isOpened = false
+        }
     }
 
     /**
@@ -401,7 +412,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * or [Database.consistencyCheckEnabled] is not enabled.
      */
     fun backupDatabase() {
-        helper.backupDB()
+        openHelper.backupDB()
     }
 
     override val version: Int

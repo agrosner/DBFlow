@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.database
 
+import android.content.Context
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
@@ -15,10 +16,11 @@ import java.io.InputStream
  * used in other helper class definitions.
  */
 class DatabaseHelperDelegate(
-    private var databaseHelperListener: DatabaseHelperListener?,
+    context: Context,
+    private var databaseCallback: DatabaseCallback?,
     databaseDefinition: DBFlowDatabase,
     private val backupHelper: OpenHelper?)
-    : BaseDatabaseHelper(databaseDefinition) {
+    : BaseDatabaseHelper(context, databaseDefinition) {
 
     /**
      * @return the temporary database file name for when we have backups enabled
@@ -54,37 +56,37 @@ class DatabaseHelperDelegate(
     }
 
     /**
-     * @param databaseHelperListener Listens for operations the DB and allow you to provide extra
+     * @param databaseCallback Listens for operations the DB and allow you to provide extra
      * functionality.
      */
-    fun setDatabaseHelperListener(databaseHelperListener: DatabaseHelperListener?) {
-        this.databaseHelperListener = databaseHelperListener
+    fun setDatabaseHelperListener(databaseCallback: DatabaseCallback?) {
+        this.databaseCallback = databaseCallback
     }
 
     override fun onCreate(db: DatabaseWrapper) {
-        if (databaseHelperListener != null) {
-            databaseHelperListener!!.onCreate(db)
+        if (databaseCallback != null) {
+            databaseCallback!!.onCreate(db)
         }
         super.onCreate(db)
     }
 
     override fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
-        if (databaseHelperListener != null) {
-            databaseHelperListener!!.onUpgrade(db, oldVersion, newVersion)
+        if (databaseCallback != null) {
+            databaseCallback!!.onUpgrade(db, oldVersion, newVersion)
         }
         super.onUpgrade(db, oldVersion, newVersion)
     }
 
     override fun onOpen(db: DatabaseWrapper) {
-        if (databaseHelperListener != null) {
-            databaseHelperListener!!.onOpen(db)
+        if (databaseCallback != null) {
+            databaseCallback!!.onOpen(db)
         }
         super.onOpen(db)
     }
 
     override fun onDowngrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
-        if (databaseHelperListener != null) {
-            databaseHelperListener!!.onDowngrade(db, oldVersion, newVersion)
+        if (databaseCallback != null) {
+            databaseCallback!!.onDowngrade(db, oldVersion, newVersion)
         }
         super.onDowngrade(db, oldVersion, newVersion)
     }
@@ -97,7 +99,7 @@ class DatabaseHelperDelegate(
      * @param prepackagedName The name of the prepackaged db file
      */
     fun movePrepackagedDB(databaseName: String, prepackagedName: String) {
-        val dbPath = FlowManager.context.getDatabasePath(databaseName)
+        val dbPath = context.getDatabasePath(databaseName)
 
         // If the database already exists, and is ok return
         if (dbPath.exists() && (!databaseDefinition.areConsistencyChecksEnabled() || databaseDefinition.areConsistencyChecksEnabled() && isDatabaseIntegrityOk(writableDatabase))) {
@@ -110,14 +112,14 @@ class DatabaseHelperDelegate(
         // Try to copy database file
         try {
             // check existing and use that as backup
-            val existingDb = FlowManager.context.getDatabasePath(tempDbFileName)
+            val existingDb = context.getDatabasePath(tempDbFileName)
             val inputStream: InputStream
             // if it exists and the integrity is ok we use backup as the main DB is no longer valid
             if (existingDb.exists() && (!databaseDefinition.backupEnabled() || (databaseDefinition.backupEnabled()
                 && backupHelper != null && isDatabaseIntegrityOk(backupHelper.database)))) {
                 inputStream = FileInputStream(existingDb)
             } else {
-                inputStream = FlowManager.context.assets.open(prepackagedName)
+                inputStream = context.assets.open(prepackagedName)
             }
             writeDB(dbPath, inputStream)
 
@@ -164,8 +166,8 @@ class DatabaseHelperDelegate(
     fun restoreBackUp(): Boolean {
         var success = true
 
-        val db = FlowManager.context.getDatabasePath(TEMP_DB_NAME + databaseDefinition.databaseName)
-        val corrupt = FlowManager.context.getDatabasePath(databaseDefinition.databaseName)
+        val db = context.getDatabasePath(TEMP_DB_NAME + databaseDefinition.databaseName)
+        val corrupt = context.getDatabasePath(databaseDefinition.databaseName)
         if (corrupt.delete()) {
             try {
                 writeDB(corrupt, FileInputStream(db))
@@ -211,7 +213,7 @@ class DatabaseHelperDelegate(
      * @param prepackagedName The name of the prepackaged db file
      */
     fun restoreDatabase(databaseName: String, prepackagedName: String) {
-        val dbPath = FlowManager.context.getDatabasePath(databaseName)
+        val dbPath = context.getDatabasePath(databaseName)
 
         // If the database already exists, return
         if (dbPath.exists()) {
@@ -224,14 +226,14 @@ class DatabaseHelperDelegate(
         // Try to copy database file
         try {
             // check existing and use that as backup
-            val existingDb = FlowManager.context.getDatabasePath(databaseDefinition.databaseFileName)
+            val existingDb = context.getDatabasePath(databaseDefinition.databaseFileName)
             val inputStream: InputStream
             // if it exists and the integrity is ok
             if (existingDb.exists() && (databaseDefinition.backupEnabled()
                 && backupHelper != null && isDatabaseIntegrityOk(backupHelper.database))) {
                 inputStream = FileInputStream(existingDb)
             } else {
-                inputStream = FlowManager.context.assets.open(prepackagedName)
+                inputStream = context.assets.open(prepackagedName)
             }
             writeDB(dbPath, inputStream)
         } catch (e: IOException) {
@@ -252,7 +254,6 @@ class DatabaseHelperDelegate(
         }
 
         databaseDefinition.executeTransactionAsync({
-            val context = FlowManager.context
             val backup = context.getDatabasePath(tempDbFileName)
             val temp = context.getDatabasePath(TEMP_DB_NAME + "-2-" + databaseDefinition.databaseFileName)
 

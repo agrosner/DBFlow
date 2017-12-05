@@ -2,6 +2,7 @@
 
 package com.raizlabs.dbflow5.config
 
+import android.annotation.SuppressLint
 import android.content.Context
 import com.raizlabs.dbflow5.adapter.InstanceAdapter
 import com.raizlabs.dbflow5.adapter.ModelAdapter
@@ -29,6 +30,7 @@ import kotlin.reflect.KClass
  */
 object FlowManager {
 
+    @SuppressLint("StaticFieldLeak")
     internal var config: FlowConfig? = null
 
     private var globalDatabaseHolder = GlobalDatabaseHolder()
@@ -248,7 +250,7 @@ object FlowManager {
      */
     @JvmStatic
     fun init(flowConfig: FlowConfig) {
-        config = flowConfig
+        config = config?.merge(flowConfig) ?: flowConfig
 
         @Suppress("UNCHECKED_CAST")
         try {
@@ -401,7 +403,7 @@ object FlowManager {
      * @return true if it's integrity is OK.
      */
     @JvmStatic
-    fun isDatabaseIntegrityOk(databaseName: String) = getDatabase(databaseName).helper.isDatabaseIntegrityOk
+    fun isDatabaseIntegrityOk(databaseName: String) = getDatabase(databaseName).openHelper.isDatabaseIntegrityOk
 
     private fun throwCannotFindAdapter(type: String, clazz: Class<*>): Nothing =
         throw IllegalArgumentException("Cannot find $type for $clazz. Ensure the class is annotated with proper annotation.")

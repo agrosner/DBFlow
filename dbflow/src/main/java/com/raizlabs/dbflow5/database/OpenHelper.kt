@@ -1,8 +1,5 @@
 package com.raizlabs.dbflow5.database
 
-import android.os.Build
-import android.support.annotation.RequiresApi
-
 /**
  * Description: Abstracts out the [DatabaseHelperDelegate] into the one used in this library.
  */
@@ -20,7 +17,9 @@ interface OpenHelper {
 
     fun backupDB()
 
-    fun setDatabaseListener(helperListener: DatabaseHelperListener?)
+    fun setDatabaseListener(callback: DatabaseCallback?)
 
     fun closeDB()
+
+    fun deleteDB()
 }

@@ -2,6 +2,7 @@ package com.raizlabs.dbflow5.provider
 
 import android.content.ContentResolver
 import android.content.ContentValues
+import android.content.Context
 import android.net.Uri
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.annotation.provider.ContentProvider
@@ -59,14 +60,14 @@ object ContentUtils {
      * @return A Uri of the inserted data.
      */
     @JvmStatic
-    fun <TableClass : Any> insert(insertUri: Uri, model: TableClass): Uri? =
-        insert(FlowManager.context.contentResolver, insertUri, model)
+    fun <TableClass : Any> insert(context: Context, insertUri: Uri, model: TableClass): Uri? =
+        insert(context.contentResolver, insertUri, model)
 
     /**
      * Inserts the model into the [android.content.ContentResolver]. Uses the insertUri to resolve
      * the reference and the model to convert its data into [android.content.ContentValues]
      *
-     * @param contentResolver The content resolver to use (if different from [FlowManager.getContext])
+     * @param contentResolver The content resolver to use
      * @param insertUri       A [android.net.Uri] from the [ContentProvider] class definition.
      * @param model           The model to insert.
      * @return The Uri of the inserted data.
@@ -90,7 +91,7 @@ object ContentUtils {
      * autoIncrementing primary keys the ROWID will not be properly updated from this method. If you care
      * use [.insert] instead.
      *
-     * @param contentResolver The content resolver to use (if different from [FlowManager.getContext])
+     * @param contentResolver The content resolver to use
      * @param bulkInsertUri   The URI to bulk insert with
      * @param table           The table to insert into
      * @param models          The models to insert.
@@ -124,8 +125,11 @@ object ContentUtils {
      * @return The count of the rows affected by the insert.
      */
     @JvmStatic
-    fun <TableClass : Any> bulkInsert(bulkInsertUri: Uri, table: Class<TableClass>, models: List<TableClass>): Int =
-        bulkInsert(FlowManager.context.contentResolver, bulkInsertUri, table, models)
+    fun <TableClass : Any> bulkInsert(context: Context,
+                                      bulkInsertUri: Uri,
+                                      table: Class<TableClass>,
+                                      models: List<TableClass>): Int =
+        bulkInsert(context.contentResolver, bulkInsertUri, table, models)
 
     /**
      * Updates the model through the [android.content.ContentResolver]. Uses the updateUri to
@@ -136,25 +140,29 @@ object ContentUtils {
      * @return The number of rows updated.
      */
     @JvmStatic
-    fun <TableClass : Any> update(updateUri: Uri, model: TableClass): Int =
-        update(FlowManager.context.contentResolver, updateUri, model)
+    fun <TableClass : Any> update(context: Context,
+                                  updateUri: Uri,
+                                  model: TableClass): Int =
+        update(context.contentResolver, updateUri, model)
 
     /**
      * Updates the model through the [android.content.ContentResolver]. Uses the updateUri to
      * resolve the reference and the model to convert its data in [android.content.ContentValues]
      *
-     * @param contentResolver The content resolver to use (if different from [FlowManager.getContext])
+     * @param contentResolver The content resolver to use
      * @param updateUri       A [android.net.Uri] from the [ContentProvider]
      * @param model           The model to update
      * @return The number of rows updated.
      */
     @JvmStatic
-    fun <TableClass : Any> update(contentResolver: ContentResolver, updateUri: Uri, model: TableClass): Int {
+    fun <TableClass : Any> update(contentResolver: ContentResolver,
+                                  updateUri: Uri, model: TableClass): Int {
         val adapter = FlowManager.getModelAdapter(model.javaClass)
 
         val contentValues = ContentValues()
         adapter.bindToContentValues(contentValues, model)
-        val count = contentResolver.update(updateUri, contentValues, adapter.getPrimaryConditionClause(model).query, null)
+        val count = contentResolver.update(updateUri, contentValues,
+            adapter.getPrimaryConditionClause(model).query, null)
         if (count == 0) {
             FlowLog.log(FlowLog.Level.W, "Updated failed of: " + model.javaClass)
         }
@@ -170,14 +178,14 @@ object ContentUtils {
      * @return The number of rows deleted.
      */
     @JvmStatic
-    fun <TableClass : Any> delete(deleteUri: Uri, model: TableClass): Int =
-        delete(FlowManager.context.contentResolver, deleteUri, model)
+    fun <TableClass : Any> delete(context: Context, deleteUri: Uri, model: TableClass): Int =
+        delete(context.contentResolver, deleteUri, model)
 
     /**
      * Deletes the specified model through the [android.content.ContentResolver]. Uses the deleteUri
      * to resolve the reference and the model to [ModelAdapter.getPrimaryConditionClause]
      *
-     * @param contentResolver The content resolver to use (if different from [FlowManager.getContext])
+     * @param contentResolver The content resolver to use
      * @param deleteUri       A [android.net.Uri] from the [ContentProvider]
      * @param model           The model to delete
      * @return The number of rows deleted.
@@ -201,7 +209,7 @@ object ContentUtils {
      * Queries the [android.content.ContentResolver] with the specified query uri. It generates
      * the correct query and returns a [android.database.Cursor]
      *
-     * @param contentResolver The content resolver to use (if different from [FlowManager.getContext])
+     * @param contentResolver The content resolver to use
      * @param queryUri        The URI of the query
      * @param whereConditions The set of [Operator] to query the content provider.
      * @param orderBy         The order by clause without the ORDER BY
@@ -226,11 +234,12 @@ object ContentUtils {
      * @return A list of [TableClass]
      */
     @JvmStatic
-    fun <TableClass : Any> queryList(queryUri: Uri, table: Class<TableClass>,
+    fun <TableClass : Any> queryList(context: Context,
+                                     queryUri: Uri, table: Class<TableClass>,
                                      databaseWrapper: DatabaseWrapper,
                                      whereConditions: OperatorGroup,
                                      orderBy: String, vararg columns: String): List<TableClass>? =
-        queryList(FlowManager.context.contentResolver, queryUri, table,
+        queryList(context.contentResolver, queryUri, table,
             databaseWrapper, whereConditions, orderBy, *columns)
 
 
@@ -238,7 +247,7 @@ object ContentUtils {
      * Queries the [android.content.ContentResolver] with the specified queryUri. It will generate
      * the correct query and return a list of [TableClass]
      *
-     * @param contentResolver The content resolver to use (if different from [FlowManager.getContext])
+     * @param contentResolver The content resolver to use
      * @param queryUri        The URI of the query
      * @param table           The table to get from.
      * @param whereConditions The set of [Operator] to query the content provider.
@@ -270,18 +279,19 @@ object ContentUtils {
      * @return The first [TableClass] of the list query from the content provider.
      */
     @JvmStatic
-    fun <TableClass : Any> querySingle(queryUri: Uri, table: Class<TableClass>,
+    fun <TableClass : Any> querySingle(context: Context,
+                                       queryUri: Uri, table: Class<TableClass>,
                                        databaseWrapper: DatabaseWrapper,
                                        whereConditions: OperatorGroup,
                                        orderBy: String, vararg columns: String): TableClass? =
-        querySingle(FlowManager.context.contentResolver, queryUri, table,
+        querySingle(context.contentResolver, queryUri, table,
             databaseWrapper, whereConditions, orderBy, *columns)
 
     /**
      * Queries the [android.content.ContentResolver] with the specified queryUri. It will generate
      * the correct query and return a the first item from the list of [TableClass]
      *
-     * @param contentResolver The content resolver to use (if different from [FlowManager.getContext])
+     * @param contentResolver The content resolver to use
      * @param queryUri        The URI of the query
      * @param table           The table to get from
      * @param whereConditions The set of [Operator] to query the content provider.
