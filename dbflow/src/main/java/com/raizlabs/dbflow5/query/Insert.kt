@@ -4,6 +4,7 @@ import android.content.ContentValues
 import com.raizlabs.dbflow5.annotation.ConflictAction
 import com.raizlabs.dbflow5.appendArray
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.config.modelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.sql.Query
@@ -94,7 +95,7 @@ internal constructor(databaseWrapper: DatabaseWrapper,
      * @param columns The columns to use
      */
     fun columns(vararg columns: String) = apply {
-        val modelClassModelAdapter = FlowManager.getModelAdapter(table)
+        val modelClassModelAdapter = table.modelAdapter
         this.columns = columns.map { modelClassModelAdapter.getProperty(it) }
     }
 
@@ -110,7 +111,7 @@ internal constructor(databaseWrapper: DatabaseWrapper,
      * @return Appends a list of columns to this INSERT statement from the associated [TModel].
      */
     fun asColumns() = apply {
-        columns(*FlowManager.getModelAdapter(table).allColumnProperties)
+        columns(*table.modelAdapter.allColumnProperties)
     }
 
     /**

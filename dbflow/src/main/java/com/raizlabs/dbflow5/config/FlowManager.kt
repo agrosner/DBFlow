@@ -472,12 +472,31 @@ inline fun <reified T : Any> tableName(): String
  */
 inline fun <reified T : Any> modelAdapter() = FlowManager.getModelAdapter(T::class.java)
 
+inline val <T : Any> KClass<T>.modelAdapter
+    get() = FlowManager.getModelAdapter(this.java)
+
+
+inline val <T : Any> Class<T>.modelAdapter
+    get() = FlowManager.getModelAdapter(this)
+
 /**
  * Easily get its [QueryModelAdapter].
  */
 inline fun <reified T : Any> queryModelAdapter() = FlowManager.getQueryModelAdapter(T::class.java)
 
+inline val <T : Any> KClass<T>.queryModelAdapter
+    get() = FlowManager.getQueryModelAdapter(this.java)
+
+inline val <T : Any> Class<T>.queryModelAdapter
+    get() = FlowManager.getQueryModelAdapter(this)
+
 /**
  * Easily get its [ModelViewAdapter]
  */
 inline fun <reified T : Any> modelViewAdapter() = FlowManager.getModelViewAdapter(T::class.java)
+
+inline val <T : Any> KClass<T>.modelViewAdapter
+    get() = FlowManager.getModelViewAdapter(this.java)
+
+inline val <T : Any> Class<T>.modelViewAdapter
+    get() = FlowManager.getModelViewAdapter(this)

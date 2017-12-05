@@ -2,6 +2,7 @@ package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.adapter.InstanceAdapter
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.config.queryModelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.list.FlowCursorIterator
@@ -62,7 +63,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
      */
     fun <TCustom : Any> toCustomList(customClass: Class<TCustom>): List<TCustom> {
         return _cursor?.let { cursor ->
-            return@let FlowManager.getQueryModelAdapter(customClass)
+            return@let customClass.queryModelAdapter
                 .listModelLoader.convertToData(cursor, databaseWrapper)
         } ?: arrayListOf()
     }
@@ -71,7 +72,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
      * @return Converts the [FlowCursor] to a [List] of [T] and then closes it.
      */
     fun <TCustom : Any> toCustomListClose(customClass: Class<TCustom>): List<TCustom> {
-        val customList = FlowManager.getQueryModelAdapter(customClass).listModelLoader
+        val customList = customClass.queryModelAdapter.listModelLoader
             .load(_cursor, databaseWrapper) ?: arrayListOf()
         close()
         return customList
@@ -97,17 +98,16 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
      * @return The first [T] of items from the contained [FlowCursor]. You must call [.close] when finished.
      */
     fun <TCustom : Any> toCustomModel(customClass: Class<TCustom>): TCustom? {
-        return if (_cursor != null)
-            FlowManager.getQueryModelAdapter(customClass)
-                .singleModelLoader.convertToData(_cursor!!, databaseWrapper)
-        else null
+        return _cursor?.let { _cursor ->
+            customClass.queryModelAdapter.singleModelLoader.convertToData(_cursor, databaseWrapper)
+        }
     }
 
     /**
      * @return Converts the [FlowCursor] to a [T] and then closes it.
      */
     fun <TCustom : Any> toCustomModelClose(customClass: Class<TCustom>): TCustom? {
-        val customList = FlowManager.getQueryModelAdapter(customClass).singleModelLoader.load(_cursor, databaseWrapper)
+        val customList = customClass.queryModelAdapter.singleModelLoader.load(_cursor, databaseWrapper)
         close()
         return customList
     }

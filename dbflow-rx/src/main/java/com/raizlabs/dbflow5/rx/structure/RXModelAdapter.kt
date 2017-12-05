@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.rx.structure
 
-import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.adapter.ModelAdapter
+import com.raizlabs.dbflow5.config.modelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import rx.Completable
 import rx.Single
@@ -12,19 +12,19 @@ import rx.Single
 class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: ModelAdapter<T>)
     : RXRetrievalAdapter<T>(modelAdapter) {
 
-    constructor(table: Class<T>) : this(FlowManager.getModelAdapter<T>(table))
+    constructor(table: Class<T>) : this(table.modelAdapter)
 
     fun save(model: T, databaseWrapper: DatabaseWrapper): Single<Boolean> =
-            Single.fromCallable { modelAdapter.save(model, databaseWrapper) }
+        Single.fromCallable { modelAdapter.save(model, databaseWrapper) }
 
     fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Completable =
-            Completable.fromCallable {
-                modelAdapter.saveAll(models, databaseWrapper)
-                null
-            }
+        Completable.fromCallable {
+            modelAdapter.saveAll(models, databaseWrapper)
+            null
+        }
 
     fun insert(model: T, databaseWrapper: DatabaseWrapper): Single<Long> =
-            Single.fromCallable { modelAdapter.insert(model, databaseWrapper) }
+        Single.fromCallable { modelAdapter.insert(model, databaseWrapper) }
 
     fun insertAll(models: Collection<T>,
                   databaseWrapper: DatabaseWrapper): Completable = Completable.fromCallable {
@@ -33,28 +33,28 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
     }
 
     fun update(model: T, databaseWrapper: DatabaseWrapper): Single<Boolean> =
-            Single.fromCallable { modelAdapter.update(model, databaseWrapper) }
+        Single.fromCallable { modelAdapter.update(model, databaseWrapper) }
 
     fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Completable =
-            Completable.fromCallable {
-                modelAdapter.updateAll(models, databaseWrapper)
-                null
-            }
+        Completable.fromCallable {
+            modelAdapter.updateAll(models, databaseWrapper)
+            null
+        }
 
     fun delete(model: T, databaseWrapper: DatabaseWrapper): Single<Boolean> =
-            Single.fromCallable { modelAdapter.delete(model, databaseWrapper) }
+        Single.fromCallable { modelAdapter.delete(model, databaseWrapper) }
 
     fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Completable =
-            Completable.fromCallable {
-                modelAdapter.deleteAll(models, databaseWrapper)
-                null
-            }
+        Completable.fromCallable {
+            modelAdapter.deleteAll(models, databaseWrapper)
+            null
+        }
 
     companion object {
 
         @JvmStatic
         fun <T : Any> from(modelAdapter: ModelAdapter<T>): RXModelAdapter<T> =
-                RXModelAdapter(modelAdapter)
+            RXModelAdapter(modelAdapter)
 
         @JvmStatic
         fun <T : Any> from(table: Class<T>): RXModelAdapter<T> = RXModelAdapter(table)

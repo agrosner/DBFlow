@@ -4,8 +4,8 @@ import android.net.Uri
 import com.raizlabs.dbflow5.BaseInstrumentedUnitTest
 import com.raizlabs.dbflow5.DemoApp
 import com.raizlabs.dbflow5.TABLE_QUERY_PARAM
-import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.databaseForTable
+import com.raizlabs.dbflow5.config.modelAdapter
 import com.raizlabs.dbflow5.config.tableName
 import com.raizlabs.dbflow5.contentobserver.User_Table.id
 import com.raizlabs.dbflow5.contentobserver.User_Table.name
@@ -39,11 +39,11 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
 
     @Test
     fun testSpecificUris() {
-        val conditionGroup = FlowManager.getModelAdapter(User::class.java)
-                .getPrimaryConditionClause(user)
+        val conditionGroup = User::class.modelAdapter
+            .getPrimaryConditionClause(user)
         val uri = getNotificationUri(contentUri,
-                User::class.java, ChangeAction.DELETE,
-                conditionGroup.conditions.toTypedArray())
+            User::class.java, ChangeAction.DELETE,
+            conditionGroup.conditions.toTypedArray())
 
         assertEquals(uri.authority, contentUri)
         assertEquals(tableName<User>(), uri.getQueryParameter(TABLE_QUERY_PARAM))

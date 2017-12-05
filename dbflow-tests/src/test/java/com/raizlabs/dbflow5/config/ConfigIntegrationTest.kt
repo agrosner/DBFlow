@@ -69,7 +69,7 @@ class ConfigIntegrationTest : BaseUnitTest() {
         assertEquals(config.listModelLoader, customListModelLoader)
         assertEquals(config.singleModelLoader, singleModelLoader)
 
-        val modelAdapter = FlowManager.getModelAdapter(SimpleModel::class.java)
+        val modelAdapter = SimpleModel::class.modelAdapter
         assertEquals(modelAdapter.listModelLoader, customListModelLoader)
         assertEquals(modelAdapter.singleModelLoader, singleModelLoader)
         assertEquals(modelAdapter.modelSaver, modelSaver)

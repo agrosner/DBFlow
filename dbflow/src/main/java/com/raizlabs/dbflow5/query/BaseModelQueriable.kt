@@ -5,6 +5,7 @@ import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
 import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.config.queryModelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.list.FlowCursorList
 import com.raizlabs.dbflow5.query.list.FlowQueryList
@@ -65,15 +66,13 @@ protected constructor(val databaseWrapper: DatabaseWrapper,
     override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>): MutableList<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
-        val adapter = FlowManager.getQueryModelAdapter(queryModelClass)
-        return adapter.listModelLoader.load(databaseWrapper, query)!!
+        return queryModelClass.queryModelAdapter.listModelLoader.load(databaseWrapper, query)!!
     }
 
     override fun <QueryClass : Any> queryCustomSingle(queryModelClass: Class<QueryClass>): QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
-        val adapter = FlowManager.getQueryModelAdapter(queryModelClass)
-        return adapter.singleModelLoader.load(databaseWrapper, query)
+        return queryModelClass.queryModelAdapter.singleModelLoader.load(databaseWrapper, query)
     }
 
 }
