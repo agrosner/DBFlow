@@ -141,13 +141,10 @@ class DatabaseHelperDelegate(
         try {
             statement = databaseWrapper.compileStatement("PRAGMA quick_check(1)")
             val result = statement.simpleQueryForString()
-            if (!result!!.equals("ok", ignoreCase = true)) {
+            if (result == null || !result.equals("ok", ignoreCase = true)) {
                 // integrity_checker failed on main or attached databases
-                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on " +
-                    databaseDefinition.databaseName + " returned: " + result)
-
+                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on ${databaseDefinition.databaseName} returned: $result")
                 integrityOk = false
-
                 if (databaseDefinition.backupEnabled()) {
                     integrityOk = restoreBackUp()
                 }

@@ -14,7 +14,6 @@ interface OpenHelper {
 
     val isDatabaseIntegrityOk: Boolean
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     fun setWriteAheadLoggingEnabled(enabled: Boolean)
 
     fun performRestoreFromBackup()
