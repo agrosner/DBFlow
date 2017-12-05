@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.runtime
 
 import android.os.Looper
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.structure.Model
 import com.raizlabs.dbflow5.structure.save
@@ -19,7 +19,7 @@ class DBBatchSaveQueue
 /**
  * Creates a new instance of this class to batch save DB object classes.
  */
-internal constructor(private val databaseDefinition: DatabaseDefinition) : Thread("DBBatchSaveQueue") {
+internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("DBBatchSaveQueue") {
 
     /**
      * Tells how many items to save at a time. This can be set using [.setModelSaveSize]

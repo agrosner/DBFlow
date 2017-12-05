@@ -32,7 +32,7 @@ class FlowConfig(val context: Context,
             databaseHolders.add(databaseHolderClass)
         }
 
-        fun addDatabaseConfig(databaseConfig: DatabaseConfig) = apply {
+        fun database(databaseConfig: DatabaseConfig) = apply {
             databaseConfigMap.put(databaseConfig.databaseClass, databaseConfig)
         }
 

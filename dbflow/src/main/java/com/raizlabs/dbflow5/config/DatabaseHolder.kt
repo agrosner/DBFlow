@@ -8,14 +8,14 @@ import com.raizlabs.dbflow5.converter.TypeConverter
  */
 abstract class DatabaseHolder {
 
-    val databaseDefinitionMap: MutableMap<Class<*>, DatabaseDefinition> = hashMapOf()
-    val databaseNameMap: MutableMap<String, DatabaseDefinition> = hashMapOf()
-    val databaseClassLookupMap: MutableMap<Class<*>, DatabaseDefinition> = hashMapOf()
+    val databaseDefinitionMap: MutableMap<Class<*>, DBFlowDatabase> = hashMapOf()
+    val databaseNameMap: MutableMap<String, DBFlowDatabase> = hashMapOf()
+    val databaseClassLookupMap: MutableMap<Class<*>, DBFlowDatabase> = hashMapOf()
 
     @JvmField
     val typeConverters: MutableMap<Class<*>, TypeConverter<*, *>> = hashMapOf()
 
-    val databaseDefinitions: List<DatabaseDefinition>
+    val databaseDefinitions: List<DBFlowDatabase>
         get() = databaseNameMap.values.toList()
 
     /**
@@ -28,16 +28,16 @@ abstract class DatabaseHolder {
      * @param table The model class
      * @return The database that the table belongs in
      */
-    fun getDatabaseForTable(table: Class<*>): DatabaseDefinition? = databaseDefinitionMap[table]
+    fun getDatabaseForTable(table: Class<*>): DBFlowDatabase? = databaseDefinitionMap[table]
 
-    fun getDatabase(databaseClass: Class<*>): DatabaseDefinition? =
+    fun getDatabase(databaseClass: Class<*>): DBFlowDatabase? =
         databaseClassLookupMap[databaseClass]
 
     /**
      * @param databaseName The name of the database to retrieve
      * @return The database that has the specified name
      */
-    fun getDatabase(databaseName: String): DatabaseDefinition? = databaseNameMap[databaseName]
+    fun getDatabase(databaseName: String): DBFlowDatabase? = databaseNameMap[databaseName]
 
     /**
      * Helper method used to store a database for the specified table.
@@ -45,7 +45,7 @@ abstract class DatabaseHolder {
      * @param table              The model table
      * @param databaseDefinition The database definition
      */
-    fun putDatabaseForTable(table: Class<*>, databaseDefinition: DatabaseDefinition) {
+    fun putDatabaseForTable(table: Class<*>, databaseDefinition: DBFlowDatabase) {
         databaseDefinitionMap.put(table, databaseDefinition)
         databaseNameMap.put(databaseDefinition.databaseName, databaseDefinition)
         databaseClassLookupMap.put(databaseDefinition.associatedDatabaseClassFile, databaseDefinition)

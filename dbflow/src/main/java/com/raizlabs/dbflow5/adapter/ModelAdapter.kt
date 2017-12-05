@@ -7,7 +7,7 @@ import com.raizlabs.dbflow5.annotation.ConflictAction
 import com.raizlabs.dbflow5.annotation.ForeignKey
 import com.raizlabs.dbflow5.annotation.PrimaryKey
 import com.raizlabs.dbflow5.annotation.Table
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.property.IProperty
@@ -17,7 +17,7 @@ import com.raizlabs.dbflow5.structure.InvalidDBConfiguration
 /**
  * Description: Used for generated classes from the combination of [Table] and [Model].
  */
-abstract class ModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
+abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     : InstanceAdapter<T>(databaseDefinition), InternalAdapter<T> {
 
     private var insertStatement: DatabaseStatement? = null

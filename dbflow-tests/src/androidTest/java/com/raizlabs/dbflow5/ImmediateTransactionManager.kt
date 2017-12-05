@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5
 
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.transaction.BaseTransactionManager
 import com.raizlabs.dbflow5.transaction.ITransactionQueue
 import com.raizlabs.dbflow5.transaction.Transaction
@@ -8,7 +8,7 @@ import com.raizlabs.dbflow5.transaction.Transaction
 /**
  * Description: Executes all transactions on same thread for testing.
  */
-class ImmediateTransactionManager(databaseDefinition: DatabaseDefinition)
+class ImmediateTransactionManager(databaseDefinition: DBFlowDatabase)
     : BaseTransactionManager(ImmediateTransactionQueue(), databaseDefinition)
 
 

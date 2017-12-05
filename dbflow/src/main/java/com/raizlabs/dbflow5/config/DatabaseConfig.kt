@@ -12,8 +12,8 @@ import kotlin.reflect.KClass
  */
 class DatabaseConfig(
     val databaseClass: Class<*>,
-    val openHelperCreator: ((DatabaseDefinition, DatabaseHelperListener?) -> OpenHelper)? = null,
-    val transactionManagerCreator: ((DatabaseDefinition) -> BaseTransactionManager)? = null,
+    val openHelperCreator: ((DBFlowDatabase, DatabaseHelperListener?) -> OpenHelper)? = null,
+    val transactionManagerCreator: ((DBFlowDatabase) -> BaseTransactionManager)? = null,
     val helperListener: DatabaseHelperListener? = null,
     val tableConfigMap: Map<Class<*>, TableConfig<*>> = mapOf(),
     val modelNotifier: ModelNotifier? = null,
@@ -24,12 +24,12 @@ class DatabaseConfig(
 
     interface OpenHelperCreator {
 
-        fun createHelper(databaseDefinition: DatabaseDefinition, helperListener: DatabaseHelperListener?): OpenHelper
+        fun createHelper(databaseDefinition: DBFlowDatabase, helperListener: DatabaseHelperListener?): OpenHelper
     }
 
     interface TransactionManagerCreator {
 
-        fun createManager(databaseDefinition: DatabaseDefinition): BaseTransactionManager
+        fun createManager(databaseDefinition: DBFlowDatabase): BaseTransactionManager
     }
 
     internal constructor(builder: Builder) : this(
@@ -57,8 +57,8 @@ class DatabaseConfig(
      */
     class Builder(internal val databaseClass: Class<*>) {
 
-        internal var openHelperCreator: ((DatabaseDefinition, DatabaseHelperListener?) -> OpenHelper)? = null
-        internal var transactionManagerCreator: ((DatabaseDefinition) -> BaseTransactionManager)? = null
+        internal var openHelperCreator: ((DBFlowDatabase, DatabaseHelperListener?) -> OpenHelper)? = null
+        internal var transactionManagerCreator: ((DBFlowDatabase) -> BaseTransactionManager)? = null
         internal var helperListener: DatabaseHelperListener? = null
         internal val tableConfigMap: MutableMap<Class<*>, TableConfig<*>> = hashMapOf()
         internal var modelNotifier: ModelNotifier? = null
@@ -71,16 +71,16 @@ class DatabaseConfig(
         fun transactionManagerCreator(transactionManager: TransactionManagerCreator) =
             transactionManagerCreator { databaseDefinition -> transactionManager.createManager(databaseDefinition) }
 
-        fun transactionManagerCreator(creator: (DatabaseDefinition) -> BaseTransactionManager) = apply {
+        fun transactionManagerCreator(creator: (DBFlowDatabase) -> BaseTransactionManager) = apply {
             this.transactionManagerCreator = creator
         }
 
         /**
-         * Overrides the default [OpenHelper] for a [DatabaseDefinition].
+         * Overrides the default [OpenHelper] for a [DBFlowDatabase].
          *
          * @param openHelper The openhelper to use.
          */
-        fun openHelper(openHelper: (DatabaseDefinition, DatabaseHelperListener?) -> OpenHelper) = apply {
+        fun openHelper(openHelper: (DBFlowDatabase, DatabaseHelperListener?) -> OpenHelper) = apply {
             openHelperCreator = openHelper
         }
 

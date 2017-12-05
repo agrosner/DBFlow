@@ -1,11 +1,11 @@
 package com.raizlabs.dbflow5.adapter
 
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 
 /**
  * Description: Provides a [.newInstance] method to a [RetrievalAdapter]
  */
-abstract class InstanceAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
+abstract class InstanceAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     : RetrievalAdapter<T>(databaseDefinition) {
 
     /**

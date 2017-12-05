@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.database
 
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.NaturalOrderComparator
@@ -10,7 +10,7 @@ import java.io.InputStream
 /**
  * Description:
  */
-open class BaseDatabaseHelper(val databaseDefinition: DatabaseDefinition) {
+open class BaseDatabaseHelper(val databaseDefinition: DBFlowDatabase) {
 
     open fun onCreate(db: DatabaseWrapper) {
         checkForeignKeySupport(db)

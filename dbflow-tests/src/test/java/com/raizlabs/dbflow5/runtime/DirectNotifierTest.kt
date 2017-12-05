@@ -41,7 +41,7 @@ class DirectNotifierTest {
     @Before
     fun setupTest() {
         FlowManager.init(FlowConfig.Builder(context)
-                .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+                .database(DatabaseConfig.Builder(TestDatabase::class.java)
                         .transactionManagerCreator(::ImmediateTransactionManager2)
                         .build()).build())
     }

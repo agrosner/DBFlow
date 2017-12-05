@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.adapter
 
 import com.raizlabs.dbflow5.annotation.QueryModel
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.OperatorGroup
 
@@ -9,7 +9,7 @@ import com.raizlabs.dbflow5.query.OperatorGroup
  * Description: The baseclass for adapters to [QueryModel] that defines how it interacts with the DB. The
  * where query is not defined here, rather its determined by the query used.
  */
-abstract class QueryModelAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
+abstract class QueryModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     : InstanceAdapter<T>(databaseDefinition) {
 
     override fun getPrimaryConditionClause(model: T): OperatorGroup {

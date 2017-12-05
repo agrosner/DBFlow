@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.database
 
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.transaction.DefaultTransactionQueue
@@ -16,13 +16,13 @@ import java.io.InputStream
  */
 class DatabaseHelperDelegate(
     private var databaseHelperListener: DatabaseHelperListener?,
-    databaseDefinition: DatabaseDefinition,
+    databaseDefinition: DBFlowDatabase,
     private val backupHelper: OpenHelper?)
     : BaseDatabaseHelper(databaseDefinition) {
 
     /**
      * @return the temporary database file name for when we have backups enabled
-     * [DatabaseDefinition.backupEnabled]
+     * [DBFlowDatabase.backupEnabled]
      */
     private val tempDbFileName: String
         get() = getTempDbFileName(databaseDefinition)
@@ -204,7 +204,7 @@ class DatabaseHelperDelegate(
     }
 
     /**
-     * Will use the already existing app database if [DatabaseDefinition.backupEnabled] is true. If the existing
+     * Will use the already existing app database if [DBFlowDatabase.backupEnabled] is true. If the existing
      * is not there we will try to use the prepackaged database for that purpose.
      *
      * @param databaseName    The name of the database to restore
@@ -283,7 +283,7 @@ class DatabaseHelperDelegate(
 
         val TEMP_DB_NAME = "temp-"
 
-        fun getTempDbFileName(databaseDefinition: DatabaseDefinition): String {
+        fun getTempDbFileName(databaseDefinition: DBFlowDatabase): String {
             return TEMP_DB_NAME + databaseDefinition.databaseName + ".db"
         }
     }

@@ -2,7 +2,7 @@ package com.raizlabs.dbflow5.adapter
 
 import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
 import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.TableConfig
 import com.raizlabs.dbflow5.database.DatabaseWrapper
@@ -14,7 +14,7 @@ import com.raizlabs.dbflow5.query.select
  * Description: Provides a base retrieval class for all [Model] backed
  * adapters.
  */
-abstract class RetrievalAdapter<T : Any>(databaseDefinition: DatabaseDefinition) {
+abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
 
     /**
      * Overrides the default implementation and allows you to provide your own implementation. Defines

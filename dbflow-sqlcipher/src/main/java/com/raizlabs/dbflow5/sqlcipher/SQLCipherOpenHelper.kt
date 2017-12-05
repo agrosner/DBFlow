@@ -3,7 +3,7 @@ package com.raizlabs.dbflow5.sqlcipher
 import android.content.Context
 
 import com.raizlabs.dbflow5.config.DatabaseConfig
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.BaseDatabaseHelper
 import com.raizlabs.dbflow5.database.DatabaseHelperDelegate
@@ -18,7 +18,7 @@ import net.sqlcipher.database.SQLiteOpenHelper
  * Description: The replacement [OpenHelper] for SQLCipher. Specify a subclass of this is [DatabaseConfig.getDatabaseClass]
  * of your database to get it to work with specifying the secret you use for the databaseForTable.
  */
-abstract class SQLCipherOpenHelper(databaseDefinition: DatabaseDefinition, listener: DatabaseHelperListener?)
+abstract class SQLCipherOpenHelper(databaseDefinition: DBFlowDatabase, listener: DatabaseHelperListener?)
     : SQLiteOpenHelper(FlowManager.context,
     if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
     null, databaseDefinition.databaseVersion), OpenHelper {
@@ -101,7 +101,7 @@ abstract class SQLCipherOpenHelper(databaseDefinition: DatabaseDefinition, liste
     private inner class BackupHelper(context: Context,
                                      name: String,
                                      version: Int,
-                                     databaseDefinition: DatabaseDefinition)
+                                     databaseDefinition: DBFlowDatabase)
         : SQLiteOpenHelper(context, name, null, version), OpenHelper {
 
         private var sqlCipherDatabase: SQLCipherDatabase? = null

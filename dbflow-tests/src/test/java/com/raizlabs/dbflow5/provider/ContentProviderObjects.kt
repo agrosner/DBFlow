@@ -10,6 +10,7 @@ import com.raizlabs.dbflow5.annotation.provider.ContentProvider
 import com.raizlabs.dbflow5.annotation.provider.ContentType
 import com.raizlabs.dbflow5.annotation.provider.ContentUri
 import com.raizlabs.dbflow5.annotation.provider.TableEndpoint
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 
 
 /**
@@ -18,14 +19,14 @@ import com.raizlabs.dbflow5.annotation.provider.TableEndpoint
 @ContentProvider(authority = ContentDatabase.AUTHORITY, database = ContentDatabase::class,
     baseContentUri = ContentDatabase.BASE_CONTENT_URI)
 @Database(version = ContentDatabase.VERSION)
-object ContentDatabase {
+abstract class ContentDatabase : DBFlowDatabase() {
+    companion object {
+        const val BASE_CONTENT_URI = "content://"
 
-    const val BASE_CONTENT_URI = "content://"
+        const val AUTHORITY = "com.raizlabs.android.content.test.ContentDatabase"
 
-    const val AUTHORITY = "com.raizlabs.android.content.test.ContentDatabase"
-
-    const val VERSION = 1
-
+        const val VERSION = 1
+    }
 }
 
 @TableEndpoint(name = ContentProviderModel.NAME, contentProvider = ContentDatabase::class)

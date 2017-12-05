@@ -41,7 +41,7 @@ Then in your application class when initializing DBFlow:
 ```java
 
 FlowManager.init(new FlowConfig.Builder(this)
-  .addDatabaseConfig(
+  .database(
       new DatabaseConfig.Builder(CipherDatabase.class)
           .openHelper(new DatabaseConfig.OpenHelperCreator() {
               @Override

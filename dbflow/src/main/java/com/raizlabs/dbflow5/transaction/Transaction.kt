@@ -3,7 +3,7 @@ package com.raizlabs.dbflow5.transaction
 import android.os.Handler
 import android.os.Looper
 
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 
 /**
@@ -13,10 +13,10 @@ import com.raizlabs.dbflow5.config.FlowLog
  * and synchronization issues when trying to read and write from the database at the same time.
  *
  *
- * To create one, the recommended method is to use the [DatabaseDefinition.beginTransactionAsync].
+ * To create one, the recommended method is to use the [DBFlowDatabase.beginTransactionAsync].
  */
 class Transaction<R : Any?>(private val transaction: ITransaction<R>,
-                            private val databaseDefinition: DatabaseDefinition,
+                            private val databaseDefinition: DBFlowDatabase,
                             private val errorCallback: Error<R>? = null,
                             private val successCallback: Success<R>? = null,
                             private val name: String?,
@@ -86,7 +86,7 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
 
     /**
      * Executes the transaction immediately on the same thread from which it is called. This calls
-     * the [DatabaseDefinition.executeTransaction] method, which runs the
+     * the [DBFlowDatabase.executeTransaction] method, which runs the
      * [.transaction] in a database transaction.
      */
     fun executeSync() {
@@ -136,7 +136,7 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
      * @param databaseDefinition The database this transaction will run on. Should be the same
      * DB as the code that the transaction runs in.
      */
-    (internal val transaction: ITransaction<R>, internal val databaseDefinition: DatabaseDefinition) {
+    (internal val transaction: ITransaction<R>, internal val databaseDefinition: DBFlowDatabase) {
         internal var errorCallback: Error<R>? = null
         internal var successCallback: Success<R>? = null
         internal var name: String? = null

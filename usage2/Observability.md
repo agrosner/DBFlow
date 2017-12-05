@@ -121,7 +121,7 @@ To set up direct changes we override the default `ModelNotifier`:
 ```java
 
 FlowManager.init(FlowConfig.Builder(context)
-            .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase.class)
+            .database(DatabaseConfig.Builder(TestDatabase.class)
                 .modelNotifier(DirectModelNotifier.get())
                 .build()).build());
 

@@ -106,7 +106,7 @@ If you do not like the built-in `DefaultTransactionManager`, or just want to rol
 ```java
 
 FlowManager.init(FlowConfig.builder(this)
-    .addDatabaseConfig(DatabaseConfig.builder(AppDatabase.class)
+    .database(DatabaseConfig.builder(AppDatabase.class)
             .transactionManager(new CustomTransactionManager())
           .build()));
 

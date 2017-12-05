@@ -4,14 +4,14 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowManager
 
 /**
  * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.
  */
 open class AndroidSQLiteOpenHelper(
-    databaseDefinition: DatabaseDefinition,
+    databaseDefinition: DBFlowDatabase,
     listener: DatabaseHelperListener?)
     : SQLiteOpenHelper(FlowManager.context,
     if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
@@ -90,7 +90,7 @@ open class AndroidSQLiteOpenHelper(
      */
     private inner class BackupHelper(context: Context,
                                      name: String, version: Int,
-                                     databaseDefinition: DatabaseDefinition)
+                                     databaseDefinition: DBFlowDatabase)
         : SQLiteOpenHelper(context, name, null, version), OpenHelper {
 
         private var androidDatabase: AndroidDatabase? = null

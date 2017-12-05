@@ -17,6 +17,7 @@ import com.raizlabs.dbflow5.processor.ProcessorManager
 import com.raizlabs.dbflow5.processor.TableValidator
 import com.raizlabs.dbflow5.processor.utils.`override fun`
 import com.raizlabs.dbflow5.processor.utils.annotation
+import com.raizlabs.dbflow5.processor.utils.isSubclass
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -24,6 +25,7 @@ import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
 import java.util.regex.Pattern
 import javax.lang.model.element.Element
+import javax.lang.model.element.Modifier
 
 /**
  * Description: Writes [Database] definitions,
@@ -78,9 +80,16 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             insertConflict = database.insertConflict
             updateConflict = database.updateConflict
         }
+
+        if (!element.modifiers.contains(Modifier.ABSTRACT)
+            || element.modifiers.contains(Modifier.PRIVATE)
+            || !typeElement.isSubclass(manager.processingEnvironment, ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME)) {
+            manager.logError("${elementClassName} must be a visible abstract class that " +
+                "extends ${ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME}")
+        }
     }
 
-    override val extendsClass: TypeName? = ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME
+    override val extendsClass: TypeName? = elementClassName
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         writeConstructor(typeBuilder)
@@ -97,15 +106,15 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             val map = hashMapOf<TypeName, TableDefinition>()
             val tableValidator = TableValidator()
             manager.getTableDefinitions(it)
-                    .filter { tableValidator.validate(ProcessorManager.manager, it) }
-                    .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
+                .filter { tableValidator.validate(ProcessorManager.manager, it) }
+                .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
             manager.setTableDefinitions(map, it)
 
             val modelViewDefinitionMap = hashMapOf<TypeName, ModelViewDefinition>()
             val modelViewValidator = ModelViewValidator()
             manager.getModelViewDefinitions(it)
-                    .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
-                    .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
+                .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
+                .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
             manager.setModelViewDefinitions(modelViewDefinitionMap, it)
         }
     }
@@ -149,14 +158,14 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
                 val migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName)
                 migrationDefinitionMap.keys
-                        .sortedByDescending { it }
-                        .forEach { version ->
-                            migrationDefinitionMap[version]
-                                    ?.sortedBy { it.priority }
-                                    ?.forEach { migrationDefinition ->
-                                        statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
-                                    }
-                        }
+                    .sortedByDescending { it }
+                    .forEach { version ->
+                        migrationDefinitionMap[version]
+                            ?.sortedBy { it.priority }
+                            ?.forEach { migrationDefinition ->
+                                statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
+                            }
+                    }
             }
             this
         }
@@ -166,7 +175,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
     private fun writeGetters(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
             `override fun`(ParameterizedTypeName.get(ClassName.get(Class::class.java), WildcardTypeName.subtypeOf(Any::class.java)),
-                    "getAssociatedDatabaseClassFile") {
+                "getAssociatedDatabaseClassFile") {
                 modifiers(public, final)
                 `return`("\$T.class", elementTypeName)
             }

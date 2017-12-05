@@ -31,7 +31,7 @@ import com.raizlabs.dbflow5.transaction.Transaction
  * Description: The main interface that all Database implementations extend from. This is for internal usage only
  * as it will be generated for every [Database].
  */
-abstract class DatabaseDefinition : DatabaseWrapper {
+abstract class DBFlowDatabase : DatabaseWrapper {
 
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
 

@@ -100,7 +100,7 @@ object FlowManager {
      * @return The associated table class for the specified name.
      */
     @JvmStatic
-    fun getTableClassForName(databaseClass: Class<*>, tableName: String): Class<*> {
+    fun getTableClassForName(databaseClass: Class<out DBFlowDatabase>, tableName: String): Class<*> {
         val databaseDefinition = getDatabase(databaseClass)
         return databaseDefinition.getModelClassForName(tableName)
             ?: databaseDefinition.getModelClassForName(tableName.quote())
@@ -110,33 +110,34 @@ object FlowManager {
 
     /**
      * @param table The table to lookup the database for.
-     * @return the corresponding [DatabaseDefinition] for the specified model
+     * @return the corresponding [DBFlowDatabase] for the specified model
      */
     @JvmStatic
-    fun getDatabaseForTable(table: Class<*>): DatabaseDefinition {
+    fun getDatabaseForTable(table: Class<*>): DBFlowDatabase {
         checkDatabaseHolder()
         return globalDatabaseHolder.getDatabaseForTable(table) ?:
             throw InvalidDBConfiguration("Model object: ${table.name} is not registered with a Database." +
                 " Did you forget an annotation?")
     }
 
+    @Suppress("UNCHECKED_CAST")
     @JvmStatic
-    fun getDatabase(databaseClass: Class<*>): DatabaseDefinition {
+    fun <T : DBFlowDatabase> getDatabase(databaseClass: Class<T>): T {
         checkDatabaseHolder()
-        return globalDatabaseHolder.getDatabase(databaseClass) ?:
+        return globalDatabaseHolder.getDatabase(databaseClass) as? T ?:
             throw InvalidDBConfiguration("Database: ${databaseClass.name} is not a registered Database. " +
                 "Did you forget the @Database annotation?")
     }
 
     @JvmStatic
-    fun getDatabaseName(database: Class<*>): String = getDatabase(database).databaseName
+    fun getDatabaseName(database: Class<out DBFlowDatabase>): String = getDatabase(database).databaseName
 
     /**
      * @param databaseName The name of the database. Will throw an exception if the databaseForTable doesn't exist.
-     * @return the [DatabaseDefinition] for the specified database
+     * @return the [DBFlowDatabase] for the specified database
      */
     @JvmStatic
-    fun getDatabase(databaseName: String): DatabaseDefinition {
+    fun getDatabase(databaseName: String): DBFlowDatabase {
         checkDatabaseHolder()
         return globalDatabaseHolder.getDatabase(databaseName) ?:
             throw InvalidDBConfiguration("The specified database $databaseName was not found. " +
@@ -144,21 +145,21 @@ object FlowManager {
     }
 
     @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabaseForTable(table)"),
-        message = "This method is no longer needed. DatabaseDefinition now delegates to the DatabaseWrapper.")
+        message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
     @JvmStatic
     fun getWritableDatabaseForTable(table: Class<*>): DatabaseWrapper =
         getDatabaseForTable(table).writableDatabase
 
     @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabase(databaseName)"),
-        message = "This method is no longer needed. DatabaseDefinition now delegates to the DatabaseWrapper.")
+        message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
     @JvmStatic
     fun getWritableDatabase(databaseName: String): DatabaseWrapper =
         getDatabase(databaseName).writableDatabase
 
     @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabase(databaseClass)"),
-        message = "This method is no longer needed. DatabaseDefinition now delegates to the DatabaseWrapper.")
+        message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
     @JvmStatic
-    fun getWritableDatabase(databaseClass: Class<*>): DatabaseWrapper =
+    fun getWritableDatabase(databaseClass: Class<out DBFlowDatabase>): DatabaseWrapper =
         getDatabase(databaseClass).writableDatabase
 
     /**
@@ -431,32 +432,32 @@ object FlowManager {
 }
 
 /**
- * Easily get access to its [DatabaseDefinition] directly.
+ * Easily get access to its [DBFlowDatabase] directly.
  */
-inline fun <reified T : Any> database(): DatabaseDefinition = database(T::class)
+inline fun <reified T : DBFlowDatabase> database(): T = database(T::class)
 
-inline fun <T : Any> database(kClass: KClass<T>): DatabaseDefinition = FlowManager.getDatabase(kClass.java)
+inline fun <T : DBFlowDatabase> database(kClass: KClass<T>): T = FlowManager.getDatabase(kClass.java)
 
 /**
- * Easily get access to its [DatabaseDefinition] directly.
+ * Easily get access to its [DBFlowDatabase] directly.
  */
-inline fun <T : Any, R> database(kClass: KClass<T>, f: DatabaseDefinition.() -> R): R = database(kClass).f()
+inline fun <T : DBFlowDatabase, R> database(kClass: KClass<T>, f: T.() -> R): R = database(kClass).f()
 
-inline fun <reified T : Any> database(f: DatabaseDefinition.() -> Unit): DatabaseDefinition
+inline fun <reified T : DBFlowDatabase> database(f: T.() -> Unit): T
     = database(T::class).apply(f)
 
-inline fun <T : Any, R> databaseForTable(kClass: KClass<T>, f: DatabaseDefinition.() -> R): R
+inline fun <T : Any, R> databaseForTable(kClass: KClass<T>, f: DBFlowDatabase.() -> R): R
     = databaseForTable(kClass).f()
 
-inline fun <T : Any> databaseForTable(kClass: KClass<T>): DatabaseDefinition = FlowManager.getDatabaseForTable(kClass.java)
+inline fun <T : Any> databaseForTable(kClass: KClass<T>): DBFlowDatabase = FlowManager.getDatabaseForTable(kClass.java)
 
-inline fun <reified T : Any> databaseForTable(f: DatabaseDefinition.() -> Unit): DatabaseDefinition
+inline fun <reified T : Any> databaseForTable(f: DBFlowDatabase.() -> Unit): DBFlowDatabase
     = databaseForTable(T::class).apply(f)
 
 /**
- * Easily get access to its [DatabaseDefinition] directly.
+ * Easily get access to its [DBFlowDatabase] directly.
  */
-inline fun <reified T : Any> databaseForTable(): DatabaseDefinition = databaseForTable(T::class)
+inline fun <reified T : Any> databaseForTable(): DBFlowDatabase = databaseForTable(T::class)
 
 /**
  * Easily get its table name.

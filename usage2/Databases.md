@@ -33,7 +33,7 @@ To specify a custom **name** to the database, in previous versions of DBFlow (< 
 ```java
 
 FlowManager.init(FlowConfig.builder()
-    .addDatabaseConfig(DatabaseConfig.builder(AppDatabase.class)
+    .database(DatabaseConfig.builder(AppDatabase.class)
       .databaseName("AppDatabase")
       .build())
     .build())
@@ -67,7 +67,7 @@ As with **name**, in previous versions of DBFlow (< 5.0), you specified `inMemor
 ```kotlin
 
 FlowManager.init(FlowConfig.builder()
-    .addDatabaseConfig(DatabaseConfig.inMemoryBuilder(AppDatabase::class.java)
+    .database(DatabaseConfig.inMemoryBuilder(AppDatabase::class.java)
       .databaseName("AppDatabase")
       .build())
     .build())
@@ -77,7 +77,7 @@ FlowManager.init(FlowConfig.builder()
 ```java
 
 FlowManager.init(FlowConfig.builder()
-    .addDatabaseConfig(DatabaseConfig.inMemoryBuilder(AppDatabase.class)
+    .database(DatabaseConfig.inMemoryBuilder(AppDatabase.class)
       .databaseName("AppDatabase")
       .build())
     .build())
@@ -211,7 +211,7 @@ Then in your `DatabaseConfig`:
 
 ```kotlin
 FlowManager.init(FlowConfig.builder(context)
-  .addDatabaseConfig(DatabaseConfig.Builder(CipherDatabase::class.java)
+  .database(DatabaseConfig.Builder(CipherDatabase::class.java)
       .openHelper(::CustomFlowSQliteOpenHelper)
       .build())
   .build())
@@ -221,7 +221,7 @@ FlowManager.init(FlowConfig.builder(context)
 ```java
 
 FlowManager.init(FlowConfig.builder(context)
-  .addDatabaseConfig(
+  .database(
       DatabaseConfig.builder(CipherDatabase.class)
           .openHelper(new DatabaseConfig.OpenHelperCreator() {
               @Override

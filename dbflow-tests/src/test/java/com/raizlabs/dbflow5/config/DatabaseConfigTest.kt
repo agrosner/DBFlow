@@ -31,17 +31,17 @@ class DatabaseConfigTest : BaseUnitTest() {
         val helperListener = mock<DatabaseHelperListener>()
         val customOpenHelper = mock<OpenHelper>()
 
-        val openHelperCreator: ((DatabaseDefinition, DatabaseHelperListener?) -> OpenHelper) = { _, _ ->
+        val openHelperCreator: ((DBFlowDatabase, DatabaseHelperListener?) -> OpenHelper) = { _, _ ->
             customOpenHelper
         }
         var testTransactionManager: TestTransactionManager? = null
-        val managerCreator: (DatabaseDefinition) -> BaseTransactionManager = { databaseDefinition ->
+        val managerCreator: (DBFlowDatabase) -> BaseTransactionManager = { databaseDefinition ->
             testTransactionManager = TestTransactionManager(databaseDefinition)
             testTransactionManager!!
         }
 
         FlowManager.init(builder
-            .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+            .database(DatabaseConfig.Builder(TestDatabase::class.java)
                 .databaseName("Test")
                 .helperListener(helperListener)
                 .openHelper(openHelperCreator)
@@ -70,7 +70,7 @@ class DatabaseConfigTest : BaseUnitTest() {
     @Test
     fun test_EmptyName() {
         FlowManager.init(builder
-            .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+            .database(DatabaseConfig.Builder(TestDatabase::class.java)
                 .databaseName("Test")
                 .extensionName("")
                 .build())
@@ -83,5 +83,5 @@ class DatabaseConfigTest : BaseUnitTest() {
 
 }
 
-class TestTransactionManager(databaseDefinition: DatabaseDefinition)
+class TestTransactionManager(databaseDefinition: DBFlowDatabase)
     : BaseTransactionManager(mock(), databaseDefinition)

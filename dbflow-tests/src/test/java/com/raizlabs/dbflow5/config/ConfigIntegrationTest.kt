@@ -46,7 +46,7 @@ class ConfigIntegrationTest : BaseUnitTest() {
         val modelSaver = ModelSaver<SimpleModel>()
 
         FlowManager.init(builder
-                .addDatabaseConfig(DatabaseConfig.Builder(TestDatabase::class.java)
+                .database(DatabaseConfig.Builder(TestDatabase::class.java)
                         .addTableConfig(TableConfig.Builder(SimpleModel::class.java)
                                 .singleModelLoader(singleModelLoader)
                                 .listModelLoader(customListModelLoader)

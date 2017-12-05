@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5
 
 import com.raizlabs.dbflow5.config.DatabaseConfig
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowConfig
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.prepackaged.PrepackagedDB
@@ -19,16 +19,16 @@ class DBFlowInstrumentedTestRule : TestRule {
             @Throws(Throwable::class)
             override fun evaluate() {
                 FlowManager.init(FlowConfig.Builder(DemoApp.context)
-                        .addDatabaseConfig(DatabaseConfig(
+                        .database(DatabaseConfig(
                                 databaseClass = AppDatabase::class.java,
                                 modelNotifier = ContentResolverNotifier("com.grosner.content"),
-                                transactionManagerCreator = { databaseDefinition: DatabaseDefinition ->
+                                transactionManagerCreator = { databaseDefinition: DBFlowDatabase ->
                                     ImmediateTransactionManager(databaseDefinition)
                                 }))
-                        .addDatabaseConfig(DatabaseConfig(
+                        .database(DatabaseConfig(
                                 databaseClass = PrepackagedDB::class.java,
                                 databaseName = "prepackaged"))
-                        .addDatabaseConfig(DatabaseConfig(
+                        .database(DatabaseConfig(
                                 databaseClass = CipherDatabase::class.java))
                         .build())
                 try {

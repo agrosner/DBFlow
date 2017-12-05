@@ -252,7 +252,7 @@ To register it with DBFlow, in your `FlowConfig`, you must:
 ```java
 
 FlowManager.init(builder
-    .addDatabaseConfig(new DatabaseConfig.Builder(AppDatabase.class)
+    .database(new DatabaseConfig.Builder(AppDatabase.class)
        .transactionManagerCreator(new DatabaseConfig.TransactionManagerCreator() {
                         @Override
                         public BaseTransactionManager createManager(DatabaseDefinition databaseDefinition) {
@@ -280,7 +280,7 @@ we provide a custom instance of the  `DefaultTransactionManager` with the `Prior
 ```java
 
 FlowManager.init(builder
-    .addDatabaseConfig(new DatabaseConfig.Builder(AppDatabase.class)
+    .database(new DatabaseConfig.Builder(AppDatabase.class)
        .transactionManagerCreator(new DatabaseConfig.TransactionManagerCreator() {
                         @Override
                         public BaseTransactionManager createManager(DatabaseDefinition databaseDefinition) {

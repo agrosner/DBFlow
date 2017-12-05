@@ -1,12 +1,12 @@
 package com.raizlabs.dbflow5.adapter
 
-import com.raizlabs.dbflow5.config.DatabaseDefinition
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 
 /**
  * Description: The base class for a [T] adapter that defines how it interacts with the DB.
  */
-abstract class ModelViewAdapter<T : Any>(databaseDefinition: DatabaseDefinition)
+abstract class ModelViewAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     : InstanceAdapter<T>(databaseDefinition) {
 
     /**
