@@ -16,7 +16,6 @@ buildscript {
             kpoet           : 'com.github.agrosner:KPoet:1.0.0',
             javax_annotation: 'org.glassfish:javax.annotation:10.0-b28',
             junit           : 'junit:junit:4.12',
-            support_db      : "android.arch.persistence:db:1.0.0"
         ]
     }
     repositories {

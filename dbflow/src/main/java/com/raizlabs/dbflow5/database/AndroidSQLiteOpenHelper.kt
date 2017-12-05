@@ -10,7 +10,7 @@ import com.raizlabs.dbflow5.config.FlowManager
 /**
  * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.
  */
-class AndroidSQLiteOpenHelper(
+open class AndroidSQLiteOpenHelper(
     databaseDefinition: DatabaseDefinition,
     listener: DatabaseHelperListener?)
     : SQLiteOpenHelper(FlowManager.context,
@@ -104,7 +104,7 @@ class AndroidSQLiteOpenHelper(
                 return androidDatabase!!
             }
 
-        override fun performRestoreFromBackup() {}
+        override fun performRestoreFromBackup() = Unit
 
         override val delegate: DatabaseHelperDelegate?
             get() = null
@@ -132,7 +132,7 @@ class AndroidSQLiteOpenHelper(
             baseDatabaseHelper.onDowngrade(AndroidDatabase.from(db), oldVersion, newVersion)
         }
 
-        override fun closeDB() {}
+        override fun closeDB() = Unit
     }
 
 }

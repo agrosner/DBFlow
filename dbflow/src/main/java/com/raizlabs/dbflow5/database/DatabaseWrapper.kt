@@ -32,5 +32,9 @@ interface DatabaseWrapper {
                              values: ContentValues,
                              sqLiteDatabaseAlgorithmInt: Int): Long
 
+    fun query(tableName: String, columns: Array<String>?, selection: String?,
+              selectionArgs: Array<String>?, groupBy: String?,
+              having: String?, orderBy: String?): FlowCursor
+
     fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int
 }

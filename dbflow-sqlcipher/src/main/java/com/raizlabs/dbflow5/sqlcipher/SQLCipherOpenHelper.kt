@@ -19,7 +19,9 @@ import net.sqlcipher.database.SQLiteOpenHelper
  * of your database to get it to work with specifying the secret you use for the databaseForTable.
  */
 abstract class SQLCipherOpenHelper(databaseDefinition: DatabaseDefinition, listener: DatabaseHelperListener?)
-    : SQLiteOpenHelper(FlowManager.context, if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName, null, databaseDefinition.databaseVersion), OpenHelper {
+    : SQLiteOpenHelper(FlowManager.context,
+    if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
+    null, databaseDefinition.databaseVersion), OpenHelper {
 
     final override val delegate: DatabaseHelperDelegate
     private var cipherDatabase: SQLCipherDatabase? = null
@@ -47,8 +49,8 @@ abstract class SQLCipherOpenHelper(databaseDefinition: DatabaseDefinition, liste
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = BackupHelper(FlowManager.context,
-                    DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                    databaseDefinition.databaseVersion, databaseDefinition)
+                DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
+                databaseDefinition.databaseVersion, databaseDefinition)
         }
 
         delegate = DatabaseHelperDelegate(listener, databaseDefinition, backupHelper)
@@ -115,13 +117,13 @@ abstract class SQLCipherOpenHelper(databaseDefinition: DatabaseDefinition, liste
             this.baseDatabaseHelper = BaseDatabaseHelper(databaseDefinition)
         }
 
-        override fun performRestoreFromBackup() {}
+        override fun performRestoreFromBackup() = Unit
 
-        override fun backupDB() {}
+        override fun backupDB() = Unit
 
-        override fun closeDB() {}
+        override fun closeDB() = Unit
 
-        override fun setDatabaseListener(helperListener: DatabaseHelperListener?) {}
+        override fun setDatabaseListener(helperListener: DatabaseHelperListener?) = Unit
 
         override fun onCreate(db: SQLiteDatabase) {
             baseDatabaseHelper.onCreate(SQLCipherDatabase.from(db))
@@ -134,5 +136,7 @@ abstract class SQLCipherOpenHelper(databaseDefinition: DatabaseDefinition, liste
         override fun onOpen(db: SQLiteDatabase) {
             baseDatabaseHelper.onOpen(SQLCipherDatabase.from(db))
         }
+
+        override fun setWriteAheadLoggingEnabled(enabled: Boolean) = Unit
     }
 }
