@@ -16,7 +16,7 @@ import net.sqlcipher.database.SQLiteOpenHelper
  * of your database to get it to work with specifying the secret you use for the databaseForTable.
  */
 abstract class SQLCipherOpenHelper(
-    context: Context,
+    private val context: Context,
     databaseDefinition: DBFlowDatabase, listener: DatabaseCallback?)
     : SQLiteOpenHelper(context,
     if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
@@ -24,6 +24,7 @@ abstract class SQLCipherOpenHelper(
 
     final override val delegate: DatabaseHelperDelegate
     private var cipherDatabase: SQLCipherDatabase? = null
+    private val _databaseName = databaseDefinition.databaseFileName
 
     override val isDatabaseIntegrityOk: Boolean
         get() = delegate.isDatabaseIntegrityOk
@@ -94,10 +95,14 @@ abstract class SQLCipherOpenHelper(
         cipherDatabase?.database?.close()
     }
 
+    override fun deleteDB() {
+        context.deleteDatabase(_databaseName)
+    }
+
     /**
      * Simple helper to manage backup.
      */
-    private inner class BackupHelper(context: Context,
+    private inner class BackupHelper(private val context: Context,
                                      name: String,
                                      version: Int,
                                      databaseDefinition: DBFlowDatabase)
@@ -105,6 +110,7 @@ abstract class SQLCipherOpenHelper(
 
         private var sqlCipherDatabase: SQLCipherDatabase? = null
         private val baseDatabaseHelper: BaseDatabaseHelper = BaseDatabaseHelper(context, databaseDefinition)
+        private val _databaseName = databaseDefinition.databaseFileName
 
         override val database: DatabaseWrapper
             get() {
@@ -141,6 +147,10 @@ abstract class SQLCipherOpenHelper(
         }
 
         override fun setWriteAheadLoggingEnabled(enabled: Boolean) = Unit
+
+        override fun deleteDB() {
+            context.deleteDatabase(_databaseName)
+        }
     }
 
 }
