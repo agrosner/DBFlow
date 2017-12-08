@@ -15,7 +15,7 @@ typealias TransactionManagerCreator = (DBFlowDatabase) -> BaseTransactionManager
  */
 class DatabaseConfig(
     val databaseClass: Class<*>,
-    val openHelperCreator: OpenHelperCreator,
+    val openHelperCreator: OpenHelperCreator? = null,
     val transactionManagerCreator: TransactionManagerCreator? = null,
     val callback: DatabaseCallback? = null,
     val tableConfigMap: Map<Class<*>, TableConfig<*>> = mapOf(),
@@ -48,7 +48,7 @@ class DatabaseConfig(
      * Build compatibility class for Java. Use the [DatabaseConfig] class directly if Kotlin consumer.
      */
     class Builder(internal val databaseClass: Class<*>,
-                  internal val openHelperCreator: OpenHelperCreator) {
+                  internal val openHelperCreator: OpenHelperCreator? = null) {
 
         internal var transactionManagerCreator: TransactionManagerCreator? = null
         internal var callback: DatabaseCallback? = null
