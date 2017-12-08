@@ -1,4 +1,4 @@
-package com.raizlabs.dbflow5.processor.definition.content
+package com.raizlabs.dbflow5.processor.definition.provider
 
 import com.grosner.kpoet.L
 import com.grosner.kpoet.`=`

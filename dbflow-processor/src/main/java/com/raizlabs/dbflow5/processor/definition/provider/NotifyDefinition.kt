@@ -1,4 +1,4 @@
-package com.raizlabs.dbflow5.processor.definition.content
+package com.raizlabs.dbflow5.processor.definition.provider
 
 import com.raizlabs.dbflow5.annotation.provider.Notify
 import com.raizlabs.dbflow5.annotation.provider.NotifyMethod

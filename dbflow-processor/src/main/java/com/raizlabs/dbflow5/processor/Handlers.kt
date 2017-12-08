@@ -18,14 +18,14 @@ import com.raizlabs.dbflow5.converter.CharConverter
 import com.raizlabs.dbflow5.converter.DateConverter
 import com.raizlabs.dbflow5.converter.SqlDateConverter
 import com.raizlabs.dbflow5.converter.UUIDConverter
-import com.raizlabs.dbflow5.processor.definition.content.ContentProviderDefinition
+import com.raizlabs.dbflow5.processor.definition.provider.ContentProviderDefinition
 import com.raizlabs.dbflow5.processor.definition.DatabaseDefinition
 import com.raizlabs.dbflow5.processor.definition.ManyToManyDefinition
 import com.raizlabs.dbflow5.processor.definition.MigrationDefinition
 import com.raizlabs.dbflow5.processor.definition.ModelViewDefinition
 import com.raizlabs.dbflow5.processor.definition.QueryModelDefinition
 import com.raizlabs.dbflow5.processor.definition.TableDefinition
-import com.raizlabs.dbflow5.processor.definition.content.TableEndpointDefinition
+import com.raizlabs.dbflow5.processor.definition.provider.TableEndpointDefinition
 import com.raizlabs.dbflow5.processor.definition.TypeConverterDefinition
 import com.raizlabs.dbflow5.processor.utils.annotation
 import javax.annotation.processing.RoundEnvironment
