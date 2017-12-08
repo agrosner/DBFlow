@@ -1,4 +1,3 @@
-apply plugin: 'java'
 apply plugin: 'kotlin'
 
 project.ext.artifactId = bt_name
@@ -13,9 +12,7 @@ dependencies {
     compile deps.kotlin
 
     compileOnly deps.javax_annotation
-
     testImplementation deps.junit
-
 }
 
-apply from: '../java-artifacts.gradle'
+apply from: '../kotlin-artifacts.gradle'
