@@ -10,7 +10,7 @@ import com.raizlabs.dbflow5.query.OperatorGroup
  * where query is not defined here, rather its determined by the query used.
  */
 abstract class QueryModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
-    : InstanceAdapter<T>(databaseDefinition) {
+    : RetrievalAdapter<T>(databaseDefinition) {
 
     override fun getPrimaryConditionClause(model: T): OperatorGroup {
         throw UnsupportedOperationException("QueryModels cannot check for existence")

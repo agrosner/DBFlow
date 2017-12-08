@@ -38,16 +38,19 @@ import javax.lang.model.type.MirroredTypeException
 /**
  * Description: Used in writing ModelViewAdapters
  */
-class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTableDefinition(element, manager) {
+class ModelViewDefinition(manager: ProcessorManager, element: Element)
+    : BaseTableDefinition(element, manager) {
 
-    internal val implementsLoadFromCursorListener: Boolean
+    private val implementsLoadFromCursorListener: Boolean
 
     private var queryFieldName: String? = null
 
     private var name: String? = null
 
-    private val methods: Array<MethodDefinition> =
-            arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
+    private val methods: Array<MethodDefinition> = arrayOf(
+            LoadFromCursorMethod(this),
+            ExistenceMethod(this),
+            PrimaryConditionMethod(this))
 
     var allFields: Boolean = false
 
@@ -182,11 +185,6 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
                 modifiers(public, final)
                 `return`(name.S)
             }
-            `override fun`(elementClassName!!, "newInstance") {
-                modifiers(public, final)
-                `return`("new \$T()", elementClassName)
-            }
-
         }
 
         methods.mapNotNull { it.methodSpec }

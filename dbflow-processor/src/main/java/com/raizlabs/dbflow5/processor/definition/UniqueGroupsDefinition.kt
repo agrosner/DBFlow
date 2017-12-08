@@ -25,19 +25,17 @@ class UniqueGroupsDefinition(uniqueGroup: UniqueGroup) {
     val creationName: CodeBlock
         get() {
             val codeBuilder = CodeBlock.builder().add(", UNIQUE(")
-            var count = 0
-            columnDefinitionList.forEach {
-                if (count > 0) {
+            columnDefinitionList.forEachIndexed { index, columnDefinition ->
+                if (index > 0) {
                     codeBuilder.add(",")
                 }
-                if (it is ReferenceColumnDefinition) {
-                    for (reference in it._referenceDefinitionList) {
+                if (columnDefinition is ReferenceColumnDefinition) {
+                    for (reference in columnDefinition._referenceDefinitionList) {
                         codeBuilder.add(reference.columnName.quote())
                     }
                 } else {
-                    codeBuilder.add(it.columnName.quote())
+                    codeBuilder.add(columnDefinition.columnName.quote())
                 }
-                count++
             }
             codeBuilder.add(") ON CONFLICT \$L", uniqueConflict)
             return codeBuilder.build()

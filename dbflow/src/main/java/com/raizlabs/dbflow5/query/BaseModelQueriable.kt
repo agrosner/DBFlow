@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.adapter.InstanceAdapter
+import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
 import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.config.FlowLog
@@ -26,7 +26,7 @@ protected constructor(val databaseWrapper: DatabaseWrapper,
                       table: Class<TModel>)
     : BaseQueriable<TModel>(databaseWrapper, table), ModelQueriable<TModel>, Query {
 
-    private val retrievalAdapter: InstanceAdapter<TModel> by lazy { FlowManager.getInstanceAdapter(table) }
+    private val retrievalAdapter: RetrievalAdapter<TModel> by lazy { FlowManager.getRetrievalAdapter(table) }
 
     private val listModelLoader: ListModelLoader<TModel>
         get() = retrievalAdapter.listModelLoader

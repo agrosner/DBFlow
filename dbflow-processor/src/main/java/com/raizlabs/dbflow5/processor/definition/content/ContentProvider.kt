@@ -1,4 +1,4 @@
-package com.raizlabs.dbflow5.processor.definition
+package com.raizlabs.dbflow5.processor.definition.content
 
 import com.grosner.kpoet.L
 import com.grosner.kpoet.`=`
@@ -22,6 +22,9 @@ import com.raizlabs.dbflow5.annotation.provider.TableEndpoint
 import com.raizlabs.dbflow5.processor.ClassNames
 import com.raizlabs.dbflow5.processor.ProcessorManager
 import com.raizlabs.dbflow5.processor.TableEndpointValidator
+import com.raizlabs.dbflow5.processor.definition.BaseDefinition
+import com.raizlabs.dbflow5.processor.definition.CodeAdder
+import com.raizlabs.dbflow5.processor.definition.MethodDefinition
 import com.raizlabs.dbflow5.processor.utils.`override fun`
 import com.raizlabs.dbflow5.processor.utils.annotation
 import com.raizlabs.dbflow5.processor.utils.controlFlow
@@ -327,7 +330,7 @@ class UpdateMethod(private val contentProviderDefinition: ContentProviderDefinit
                                 "long count = \$T.getDatabase(\$T.class).updateWithOnConflict(\$S, \$L, ",
                                 ClassNames.FLOW_MANAGER, contentProviderDefinition.databaseTypeName,
                                 tableEndpointDefinition.tableName,
-                                Constants.PARAM_CONTENT_VALUES)
+                                    Constants.PARAM_CONTENT_VALUES)
                             addCode(uriDefinition.getSelectionAndSelectionArgs())
                             addCode(
                                 ", \$T.getSQLiteDatabaseAlgorithmInt(adapter.getUpdateOnConflictAction()));\n",
@@ -335,7 +338,7 @@ class UpdateMethod(private val contentProviderDefinition: ContentProviderDefinit
 
                             val code = CodeBlock.builder()
                             NotifyMethod(tableEndpointDefinition, uriDefinition,
-                                NotifyMethod.UPDATE).addCode(code)
+                                    NotifyMethod.UPDATE).addCode(code)
                             addCode(code.build())
 
                             addStatement("return (int) count")
@@ -369,10 +372,10 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
     var endpointDefinitions = arrayListOf<TableEndpointDefinition>()
 
     private val methods: Array<MethodDefinition> = arrayOf(QueryMethod(this, manager),
-        InsertMethod(this, false),
-        InsertMethod(this, true),
-        DeleteMethod(this, manager),
-        UpdateMethod(this, manager))
+            InsertMethod(this, false),
+            InsertMethod(this, true),
+            DeleteMethod(this, manager),
+            UpdateMethod(this, manager))
 
     init {
         element.annotation<ContentProvider>()?.let { provider ->
@@ -422,7 +425,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
 
             `override fun`(TypeName.BOOLEAN, "onCreate") {
                 modifiers(public, final)
-                addStatement("final \$T $AUTHORITY = \$L", String::class.java,
+                addStatement("final \$T ${AUTHORITY} = \$L", String::class.java,
                     if (authority.contains("R.string."))
                         "getContext().getString($authority)"
                     else

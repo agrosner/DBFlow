@@ -104,12 +104,11 @@ abstract class BaseDefinition : TypeDefinition {
     }
 
     protected open fun getElementClassName(element: Element?): ClassName? {
-        try {
-            return ElementUtility.getClassName(element?.asType().toString(), manager)
+        return try {
+            ElementUtility.getClassName(element?.asType().toString(), manager)
         } catch (e: Exception) {
-            return null
+            null
         }
-
     }
 
     protected fun setOutputClassName(postfix: String) {

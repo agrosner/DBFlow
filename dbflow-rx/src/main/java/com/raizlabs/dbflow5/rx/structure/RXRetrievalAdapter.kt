@@ -13,7 +13,7 @@ import rx.Single
 open class RXRetrievalAdapter<T : Any>
 internal constructor(private val retrievalAdapter: RetrievalAdapter<T>) {
 
-    internal constructor(table: Class<T>) : this(FlowManager.getInstanceAdapter<T>(table))
+    internal constructor(table: Class<T>) : this(FlowManager.getRetrievalAdapter<T>(table))
 
     fun load(model: T, databaseWrapper: DatabaseWrapper): Completable = Completable.fromCallable {
         retrievalAdapter.load(model, databaseWrapper)

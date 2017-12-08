@@ -1,9 +1,5 @@
 package com.raizlabs.dbflow5.processor.definition
 
-import com.grosner.kpoet.`return`
-import com.grosner.kpoet.final
-import com.grosner.kpoet.modifiers
-import com.grosner.kpoet.public
 import com.raizlabs.dbflow5.annotation.Column
 import com.raizlabs.dbflow5.annotation.ColumnMap
 import com.raizlabs.dbflow5.annotation.QueryModel
@@ -13,7 +9,6 @@ import com.raizlabs.dbflow5.processor.ProcessorManager
 import com.raizlabs.dbflow5.processor.definition.column.ColumnDefinition
 import com.raizlabs.dbflow5.processor.definition.column.ReferenceColumnDefinition
 import com.raizlabs.dbflow5.processor.utils.ElementUtility
-import com.raizlabs.dbflow5.processor.utils.`override fun`
 import com.raizlabs.dbflow5.processor.utils.annotation
 import com.raizlabs.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.raizlabs.dbflow5.processor.utils.implementsClass
@@ -38,7 +33,9 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
     init {
         databaseTypeName = typeElement.extractTypeNameFromAnnotation<QueryModel> { it.database }
 
-        elementClassName?.let { elementClassName -> databaseTypeName?.let { processorManager.addModelToDatabase(elementClassName, it) } }
+        elementClassName?.let { elementClassName ->
+            databaseTypeName?.let { processorManager.addModelToDatabase(elementClassName, it) }
+        }
 
         implementsLoadFromCursorListener = (element as? TypeElement)
                 ?.implementsClass(manager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER) == true
@@ -53,11 +50,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         packagePrivateList.clear()
 
         val queryModel = typeElement.annotation<QueryModel>()
-        if (queryModel != null) {
-            allFields = queryModel.allFields
-        } else {
-            allFields = true
-        }
+        allFields = queryModel?.allFields ?: true
 
         databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
         setOutputClassName("${databaseDefinition?.classSeparator}QueryTable")
@@ -70,16 +63,12 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
-            elementClassName?.let { className -> columnDefinitions.forEach { it.addPropertyDefinition(this, className) } }
+            elementClassName?.let { elementClassName ->
+                columnDefinitions.forEach { it.addPropertyDefinition(this, elementClassName) }
+            }
 
             writeGetModelClass(typeBuilder, elementClassName)
-
             writeConstructor(this)
-
-            `override fun`(elementClassName!!, "newInstance") {
-                modifiers(public, final)
-                `return`("new \$T()", elementClassName)
-            }
         }
 
         methods.mapNotNull { it.methodSpec }
@@ -88,10 +77,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
 
     override fun createColumnDefinitions(typeElement: TypeElement) {
         val variableElements = ElementUtility.getAllElements(typeElement, manager)
-
-        for (element in variableElements) {
-            classElementLookUpMap.put(element.simpleName.toString(), element)
-        }
+        variableElements.forEach { classElementLookUpMap.put(it.simpleName.toString(), it) }
 
         val columnValidator = ColumnValidator()
         for (variableElement in variableElements) {
@@ -120,7 +106,9 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
                     }
                 }
 
-                if (columnDefinition.isPrimaryKey || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
+                if (columnDefinition.isPrimaryKey
+                        || columnDefinition.isPrimaryKeyAutoIncrement
+                        || columnDefinition.isRowId) {
                     manager.logError("QueryModel $elementName cannot have primary keys")
                 }
             }

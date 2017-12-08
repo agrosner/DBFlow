@@ -5,6 +5,8 @@ import com.raizlabs.dbflow5.processor.definition.column.ColumnDefinition
 import com.raizlabs.dbflow5.processor.definition.column.EnumColumnAccessor
 import com.raizlabs.dbflow5.processor.definition.column.ReferenceColumnDefinition
 import com.raizlabs.dbflow5.processor.definition.column.PrivateScopeColumnAccessor
+import com.raizlabs.dbflow5.processor.definition.content.ContentProviderDefinition
+import com.raizlabs.dbflow5.processor.definition.content.TableEndpointDefinition
 import com.raizlabs.dbflow5.processor.utils.isNullOrEmpty
 
 

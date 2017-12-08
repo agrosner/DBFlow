@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.processor
 
 import com.raizlabs.dbflow5.processor.definition.BaseTableDefinition
-import com.raizlabs.dbflow5.processor.definition.ContentProviderDefinition
+import com.raizlabs.dbflow5.processor.definition.content.ContentProviderDefinition
 import com.raizlabs.dbflow5.processor.definition.DatabaseDefinition
 import com.raizlabs.dbflow5.processor.definition.DatabaseHolderDefinition
 import com.raizlabs.dbflow5.processor.definition.DatabaseObjectHolder
@@ -10,7 +10,7 @@ import com.raizlabs.dbflow5.processor.definition.MigrationDefinition
 import com.raizlabs.dbflow5.processor.definition.ModelViewDefinition
 import com.raizlabs.dbflow5.processor.definition.QueryModelDefinition
 import com.raizlabs.dbflow5.processor.definition.TableDefinition
-import com.raizlabs.dbflow5.processor.definition.TableEndpointDefinition
+import com.raizlabs.dbflow5.processor.definition.content.TableEndpointDefinition
 import com.raizlabs.dbflow5.processor.definition.TypeConverterDefinition
 import com.raizlabs.dbflow5.processor.utils.WriterUtils
 import com.squareup.javapoet.ClassName

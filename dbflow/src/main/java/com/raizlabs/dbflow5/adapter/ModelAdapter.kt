@@ -18,7 +18,7 @@ import com.raizlabs.dbflow5.structure.InvalidDBConfiguration
  * Description: Used for generated classes from the combination of [Table] and [Model].
  */
 abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
-    : InstanceAdapter<T>(databaseDefinition), InternalAdapter<T> {
+    : RetrievalAdapter<T>(databaseDefinition), InternalAdapter<T> {
 
     private var insertStatement: DatabaseStatement? = null
     private var compiledStatement: DatabaseStatement? = null
@@ -35,8 +35,8 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      */
     open val autoIncrementingColumnName: String
         get() = throw InvalidDBConfiguration("This method may have been called in error." +
-            " The model class $table must contain an autoincrementing" +
-            " or single int/long primary key (if used in a ModelCache, this method may be called)")
+                " The model class $table must contain an autoincrementing" +
+                " or single int/long primary key (if used in a ModelCache, this method may be called)")
 
     /**
      * @return The query used to create this table.
@@ -103,7 +103,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      * To bind values use [.bindToInsertStatement].
      */
     fun getInsertStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-        databaseWrapper.compileStatement(insertStatementQuery)
+            databaseWrapper.compileStatement(insertStatementQuery)
 
     /**
      * @param databaseWrapper The database used to do an update statement.
@@ -111,7 +111,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      * To bind values use [.bindToUpdateStatement].
      */
     fun getUpdateStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-        databaseWrapper.compileStatement(updateStatementQuery)
+            databaseWrapper.compileStatement(updateStatementQuery)
 
     /**
      * @param databaseWrapper The database used to do a delete statement.
@@ -119,7 +119,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      * To bind values use [.bindToDeleteStatement].
      */
     fun getDeleteStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-        databaseWrapper.compileStatement(deleteStatementQuery)
+            databaseWrapper.compileStatement(deleteStatementQuery)
 
     fun closeCompiledStatement() {
         compiledStatement?.close()
@@ -132,31 +132,31 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      * To bind values use [.bindToInsertStatement].
      */
     fun getCompiledStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-        databaseWrapper.compileStatement(compiledStatementQuery)
+            databaseWrapper.compileStatement(compiledStatementQuery)
 
     override fun save(model: T, databaseWrapper: DatabaseWrapper): Boolean =
-        modelSaver.save(model, databaseWrapper)
+            modelSaver.save(model, databaseWrapper)
 
     override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long
-        = listModelSaver.saveAll(models, databaseWrapper)
+            = listModelSaver.saveAll(models, databaseWrapper)
 
     override fun insert(model: T, databaseWrapper: DatabaseWrapper): Long =
-        modelSaver.insert(model, databaseWrapper)
+            modelSaver.insert(model, databaseWrapper)
 
     override fun insertAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long
-        = listModelSaver.insertAll(models, databaseWrapper)
+            = listModelSaver.insertAll(models, databaseWrapper)
 
     override fun update(model: T, databaseWrapper: DatabaseWrapper): Boolean =
-        modelSaver.update(model, databaseWrapper)
+            modelSaver.update(model, databaseWrapper)
 
     override fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long
-        = listModelSaver.updateAll(models, databaseWrapper)
+            = listModelSaver.updateAll(models, databaseWrapper)
 
     override fun delete(model: T, databaseWrapper: DatabaseWrapper): Boolean =
-        modelSaver.delete(model, databaseWrapper)
+            modelSaver.delete(model, databaseWrapper)
 
     override fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long
-        = listModelSaver.deleteAll(models, databaseWrapper)
+            = listModelSaver.deleteAll(models, databaseWrapper)
 
     override fun bindToInsertStatement(sqLiteStatement: DatabaseStatement, model: T) {
         bindToInsertStatement(sqLiteStatement, model, 0)
@@ -168,7 +168,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
 
     override fun bindToInsertValues(contentValues: ContentValues, model: T) {
         throw RuntimeException("ContentValues are no longer generated automatically. To enable it," +
-            " set generateContentValues = true in @Table for $table.")
+                " set generateContentValues = true in @Table for $table.")
     }
 
     override fun bindToStatement(sqLiteStatement: DatabaseStatement, model: T) {

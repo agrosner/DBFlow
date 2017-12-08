@@ -4,7 +4,6 @@ package com.raizlabs.dbflow5.config
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.raizlabs.dbflow5.adapter.InstanceAdapter
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.adapter.ModelViewAdapter
 import com.raizlabs.dbflow5.adapter.QueryModelAdapter
@@ -300,24 +299,6 @@ object FlowManager {
         // Reset the global database holder.
         globalDatabaseHolder = GlobalDatabaseHolder()
         loadedModules.clear()
-    }
-
-    /**
-     * @param modelClass The class that implements [Model] to find an adapter for.
-     * @return The adapter associated with the class. If its not a [ModelAdapter],
-     * it checks both the [ModelViewAdapter] and [QueryModelAdapter].
-     */
-    @Suppress("UNCHECKED_CAST")
-    @JvmStatic
-    fun <T : Any> getInstanceAdapter(modelClass: Class<T>): InstanceAdapter<T> {
-        var internalAdapter: InstanceAdapter<*>? = getModelAdapterOrNull(modelClass)
-        if (internalAdapter == null) {
-            internalAdapter = getModelViewAdapterOrNull(modelClass)
-            if (internalAdapter == null) {
-                internalAdapter = getQueryModelAdapterOrNull(modelClass)
-            }
-        }
-        return internalAdapter as InstanceAdapter<T>? ?: throwCannotFindAdapter("InstanceAdapter", modelClass)
     }
 
     /**

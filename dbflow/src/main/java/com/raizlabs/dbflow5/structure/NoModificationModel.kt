@@ -10,7 +10,7 @@ import com.raizlabs.dbflow5.database.DatabaseWrapper
 abstract class NoModificationModel : ReadOnlyModel {
 
     @delegate:Transient
-    private val retrievalAdapter: RetrievalAdapter<NoModificationModel> by lazy { FlowManager.getInstanceAdapter(javaClass) }
+    private val retrievalAdapter: RetrievalAdapter<NoModificationModel> by lazy { FlowManager.getRetrievalAdapter(javaClass) }
 
     override fun exists(wrapper: DatabaseWrapper): Boolean = retrievalAdapter.exists(this, wrapper)
 

@@ -330,7 +330,7 @@ constructor(processorManager: ProcessorManager, element: Element,
                     new ${"$"}T() {
                     @Override
                     public ${"$"}T getTypeConverter(Class<?> modelClass) {
-                        ${"$"}T adapter = (${"$"}T) ${"$"}T.getInstanceAdapter(modelClass);
+                        ${"$"}T adapter = (${"$"}T) ${"$"}T.getRetrievalAdapter(modelClass);
                         return adapter.${"$"}L;
                     }
                     })""",

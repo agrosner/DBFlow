@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.adapter.InstanceAdapter
+import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.queryModelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
@@ -16,7 +16,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
                                                  private val databaseWrapper: DatabaseWrapper)
     : IFlowCursorIterator<T> {
 
-    private val retrievalAdapter: InstanceAdapter<T>
+    private val retrievalAdapter: RetrievalAdapter<T>
 
     private var _cursor: FlowCursor? = null
 
@@ -27,7 +27,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
         if (cursor != null) {
             this._cursor = FlowCursor.from(cursor)
         }
-        retrievalAdapter = FlowManager.getInstanceAdapter(modelClass)
+        retrievalAdapter = FlowManager.getRetrievalAdapter(modelClass)
     }
 
     /**
@@ -64,7 +64,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
     fun <TCustom : Any> toCustomList(customClass: Class<TCustom>): List<TCustom> {
         return _cursor?.let { cursor ->
             return@let customClass.queryModelAdapter
-                .listModelLoader.convertToData(cursor, databaseWrapper)
+                    .listModelLoader.convertToData(cursor, databaseWrapper)
         } ?: arrayListOf()
     }
 
@@ -73,7 +73,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
      */
     fun <TCustom : Any> toCustomListClose(customClass: Class<TCustom>): List<TCustom> {
         val customList = customClass.queryModelAdapter.listModelLoader
-            .load(_cursor, databaseWrapper) ?: arrayListOf()
+                .load(_cursor, databaseWrapper) ?: arrayListOf()
         close()
         return customList
     }
@@ -125,7 +125,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
     override fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(this)
 
     override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> =
-        FlowCursorIterator(this, startingLocation, limit)
+            FlowCursorIterator(this, startingLocation, limit)
 
     override val cursor: FlowCursor?
         get() = _cursor

@@ -1,6 +1,11 @@
 package com.raizlabs.dbflow5.processor.definition
 
-import com.grosner.kpoet.*
+import com.grosner.kpoet.`public final class`
+import com.grosner.kpoet.constructor
+import com.grosner.kpoet.extends
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.public
+import com.grosner.kpoet.statement
 import com.raizlabs.dbflow5.processor.ClassNames
 import com.raizlabs.dbflow5.processor.DatabaseHandler
 import com.raizlabs.dbflow5.processor.ProcessorManager
@@ -52,7 +57,7 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
      * If none of the database holder databases exist, don't generate a holder.
      */
     fun isGarbage() = processorManager.getDatabaseHolderDefinitionList()
-            .filter { it.databaseDefinition?.outputClassName != null }.isEmpty()
+            .none { it.databaseDefinition?.outputClassName != null }
 
     companion object {
 

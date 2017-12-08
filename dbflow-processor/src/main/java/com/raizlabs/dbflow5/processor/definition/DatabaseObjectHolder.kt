@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.processor.definition
 
+import com.raizlabs.dbflow5.processor.definition.content.ContentProviderDefinition
 import com.squareup.javapoet.TypeName
 
 /**

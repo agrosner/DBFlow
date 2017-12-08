@@ -2,7 +2,7 @@ package com.raizlabs.dbflow5.query.list
 
 import android.os.Handler
 import android.os.Looper
-import com.raizlabs.dbflow5.adapter.InstanceAdapter
+import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.list.FlowCursorList.OnCursorRefreshListener
@@ -13,10 +13,10 @@ import com.raizlabs.dbflow5.query.list.FlowCursorList.OnCursorRefreshListener
  * it leaves a [FlowCursor] object active.
  */
 class FlowQueryList<T : Any>(
-    /**
-     * Holds the table cursor
-     */
-    val internalCursorList: FlowCursorList<T>)
+        /**
+         * Holds the table cursor
+         */
+        val internalCursorList: FlowCursorList<T>)
     : List<T>, IFlowCursorIterator<T> {
 
     private var pendingRefresh = false
@@ -27,7 +27,7 @@ class FlowQueryList<T : Any>(
     val copy: List<T>
         get() = internalCursorList.all
 
-    internal val instanceAdapter: InstanceAdapter<T>
+    internal val retrievalAdapter: RetrievalAdapter<T>
         get() = internalCursorList.instanceAdapter
 
     override val count: Long
@@ -49,9 +49,9 @@ class FlowQueryList<T : Any>(
     }
 
     internal constructor(builder: Builder<T>) : this(
-        internalCursorList = FlowCursorList.Builder(builder.modelQueriable)
-            .cursor(builder.cursor)
-            .build()
+            internalCursorList = FlowCursorList.Builder(builder.modelQueriable)
+                    .cursor(builder.cursor)
+                    .build()
     )
 
     fun addOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<T>) {
@@ -132,7 +132,7 @@ class FlowQueryList<T : Any>(
 
     override fun indexOf(element: T): Int {
         throw UnsupportedOperationException(
-            "We cannot determine which index in the table this item exists at efficiently")
+                "We cannot determine which index in the table this item exists at efficiently")
     }
 
     override fun isEmpty(): Boolean {
@@ -153,7 +153,7 @@ class FlowQueryList<T : Any>(
 
     override fun lastIndexOf(element: T): Int {
         throw UnsupportedOperationException(
-            "We cannot determine which index in the table this item exists at efficiently")
+                "We cannot determine which index in the table this item exists at efficiently")
     }
 
     /**

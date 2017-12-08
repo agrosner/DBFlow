@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.adapter.queriable
 
-import com.raizlabs.dbflow5.adapter.InstanceAdapter
+import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
@@ -11,7 +11,7 @@ import com.raizlabs.dbflow5.database.FlowCursor
  */
 abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Class<TModel>) {
 
-    val instanceAdapter: InstanceAdapter<TModel> by lazy { FlowManager.getInstanceAdapter(modelClass) }
+    val instanceAdapter: RetrievalAdapter<TModel> by lazy { FlowManager.getRetrievalAdapter(modelClass) }
 
     /**
      * Loads the data from a query and returns it as a [TReturn].
@@ -21,7 +21,7 @@ abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Clas
      * @return The data loaded from the database.
      */
     open fun load(databaseWrapper: DatabaseWrapper, query: String): TReturn?
-        = load(databaseWrapper.rawQuery(query, null), databaseWrapper)
+            = load(databaseWrapper.rawQuery(query, null), databaseWrapper)
 
     open fun load(cursor: FlowCursor?, databaseWrapper: DatabaseWrapper): TReturn? {
         var _data: TReturn? = null

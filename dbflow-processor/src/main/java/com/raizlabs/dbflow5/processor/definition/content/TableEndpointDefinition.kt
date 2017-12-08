@@ -1,10 +1,11 @@
-package com.raizlabs.dbflow5.processor.definition
+package com.raizlabs.dbflow5.processor.definition.content
 
 import com.raizlabs.dbflow5.annotation.provider.ContentUri
 import com.raizlabs.dbflow5.annotation.provider.Notify
 import com.raizlabs.dbflow5.annotation.provider.NotifyMethod
 import com.raizlabs.dbflow5.annotation.provider.TableEndpoint
 import com.raizlabs.dbflow5.processor.ProcessorManager
+import com.raizlabs.dbflow5.processor.definition.BaseDefinition
 import com.raizlabs.dbflow5.processor.utils.annotation
 import com.raizlabs.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.squareup.javapoet.TypeName

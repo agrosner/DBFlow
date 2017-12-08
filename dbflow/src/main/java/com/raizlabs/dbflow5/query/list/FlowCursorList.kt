@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.query.list
 
 import android.widget.ListView
-import com.raizlabs.dbflow5.adapter.InstanceAdapter
+import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.FlowCursor
@@ -30,7 +30,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     private var _cursor: FlowCursor? = null
     private val cursorFunc: () -> FlowCursor
 
-    internal val instanceAdapter: InstanceAdapter<T>
+    internal val instanceAdapter: RetrievalAdapter<T>
 
     private val cursorRefreshListenerSet = hashSetOf<OnCursorRefreshListener<T>>()
 
@@ -62,13 +62,13 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         table = builder.modelClass
         this.modelQueriable = builder.modelQueriable
         cursorFunc = { builder.cursor ?: modelQueriable.query() ?: throw IllegalStateException("The query must evaluate to a cursor") }
-        instanceAdapter = FlowManager.getInstanceAdapter(builder.modelClass)
+        instanceAdapter = FlowManager.getRetrievalAdapter(builder.modelClass)
     }
 
     override operator fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(this)
 
     override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> =
-        FlowCursorIterator(this, startingLocation, limit)
+            FlowCursorIterator(this, startingLocation, limit)
 
     /**
      * Register listener for when cursor refreshes.
@@ -111,9 +111,9 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         val cursor = unpackCursor()
         return if (cursor.moveToPosition(position.toInt())) {
             instanceAdapter.singleModelLoader.convertToData(
-                FlowCursor.from(cursor), false,
-                FlowManager.getDatabaseForTable(table))
-                ?: throw IndexOutOfBoundsException("Invalid item at position $position. Check your cursor data.")
+                    FlowCursor.from(cursor), false,
+                    FlowManager.getDatabaseForTable(table))
+                    ?: throw IndexOutOfBoundsException("Invalid item at position $position. Check your cursor data.")
         } else {
             throw IndexOutOfBoundsException("Invalid item at position $position. Check your cursor data.")
         }
