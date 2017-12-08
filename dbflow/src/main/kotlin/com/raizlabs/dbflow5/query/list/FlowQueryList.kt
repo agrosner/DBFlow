@@ -165,12 +165,12 @@ class FlowQueryList<T : Any>(
     }
 
     /**
-     * @param location The index to start the iterator.
+     * @param index The index to start the iterator.
      * @return A list iterator from the [FlowCursorList.getAll].
      * Be careful as this method will convert all data under this table into a list of [T] in the UI thread.
      */
-    override fun listIterator(location: Int): ListIterator<T> {
-        return FlowCursorIterator(this, location)
+    override fun listIterator(index: Int): ListIterator<T> {
+        return FlowCursorIterator(this, index)
     }
 
     override fun subList(fromIndex: Int, toIndex: Int): List<T> {

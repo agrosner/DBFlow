@@ -31,4 +31,4 @@ dependencies {
     api deps.kotlin
 }
 
-apply from: '../android-artifacts.gradle'
+apply from: '../kotlin-artifacts.gradle'

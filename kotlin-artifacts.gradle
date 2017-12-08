@@ -24,10 +24,10 @@ install {
 }
 
 // restore when found.
-/*task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}*/
+task sourcesJar(type: Jar) {
+    from "src"
+    classifier = "sources"
+}
 
 /*task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
@@ -35,6 +35,6 @@ install {
 }*/
 
 artifacts {
-    //archives sourcesJar
+    archives sourcesJar
     //archives javadocJar
 }

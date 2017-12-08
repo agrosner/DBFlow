@@ -8,7 +8,6 @@ import com.raizlabs.dbflow5.models.SimpleModel_Table.name
 import com.raizlabs.dbflow5.models.TwoColumnModel
 import com.raizlabs.dbflow5.models.TwoColumnModel_Table.id
 import com.raizlabs.dbflow5.query.NameAlias
-import com.raizlabs.dbflow5.query.begin
 import com.raizlabs.dbflow5.query.cast
 import com.raizlabs.dbflow5.query.columnValues
 import com.raizlabs.dbflow5.query.createTrigger

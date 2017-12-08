@@ -1,10 +1,10 @@
 package com.raizlabs.dbflow5.rx.query
 
-import com.raizlabs.dbflow5.query.list.FlowCursorList
-import com.raizlabs.dbflow5.query.list.FlowQueryList
 import com.raizlabs.dbflow5.query.BaseModelQueriable
 import com.raizlabs.dbflow5.query.CursorResult
 import com.raizlabs.dbflow5.query.ModelQueriable
+import com.raizlabs.dbflow5.query.list.FlowCursorList
+import com.raizlabs.dbflow5.query.list.FlowQueryList
 import rx.Emitter
 import rx.Observable
 import rx.Single
@@ -18,7 +18,7 @@ constructor(private val innerModelQueriable: ModelQueriable<T>)
     : RXQueriableImpl(innerModelQueriable), RXModelQueriable<T> {
 
     override fun queryStreamResults(): Observable<T> =
-            Observable.create(CursorResultSubscriber(this))
+            Observable.unsafeCreate(CursorResultSubscriber(this))
 
     override fun queryResults(): Single<CursorResult<T>> =
             fromCallable { innerModelQueriable.queryResults() }

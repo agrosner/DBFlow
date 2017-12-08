@@ -72,7 +72,7 @@ internal constructor(internal val trigger: Trigger, private val methodName: Stri
      * @param triggerLogicQuery The query to run for the BEGIN..END of the trigger
      * @return This trigger
      */
-    fun begin(triggerLogicQuery: Query): CompletedTrigger<TModel> =
+    infix fun begin(triggerLogicQuery: Query): CompletedTrigger<TModel> =
         CompletedTrigger(this, triggerLogicQuery)
 
     companion object {

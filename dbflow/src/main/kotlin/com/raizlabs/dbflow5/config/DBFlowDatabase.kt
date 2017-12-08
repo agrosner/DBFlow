@@ -1,7 +1,6 @@
 package com.raizlabs.dbflow5.config
 
 import android.content.ContentValues
-import android.content.Context
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.adapter.ModelViewAdapter
 import com.raizlabs.dbflow5.adapter.QueryModelAdapter
@@ -331,11 +330,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * @return True if the [Database.backupEnabled] annotation is true.
      */
     abstract fun backupEnabled(): Boolean
-
-    @Deprecated(message = "use {@link #reset()}", replaceWith = ReplaceWith("reset()"))
-    fun reset(context: Context) {
-        reset(databaseConfig)
-    }
 
     /**
      * Performs a full deletion of this database. Reopens the [AndroidSQLiteOpenHelper] as well.
