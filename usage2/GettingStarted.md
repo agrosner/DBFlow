@@ -11,17 +11,14 @@ can only be associated with one database.
 
 ```kotlin
 
-@Database(version = AppDatabase.VERSION)
-object AppDatabase {
-  const val VERSION = 1
-}
+@Database(version = 1)
+abstract class AppDatabase : DBFlowDatabase()
 ```
 
 ```java
 
-@Database(version = AppDatabase.VERSION)
-public class AppDatabase {
-  public static final int VERSION = 1;
+@Database(version = 1)
+public abstract class AppDatabase extends DBFlowDatabase {
 }
 
 ```
@@ -67,7 +64,9 @@ public class ExampleApplication extends Application {
 
 ```
 
-Finally, add the definition to the manifest (with the name that you chose for your custom application):
+By default without passing in a `DatabaseConfig`, we construct an `AndroidSQLiteOpenHelper` database instance. To learn more about what you can configure in a database, read [here](Databases.md), including providing own database instances.
+
+Finally, add the custom `Application` definition to the manifest (with the name that you chose for the class):
 ```xml
 <application
   android:name="{packageName}.ExampleApplication"
@@ -75,7 +74,7 @@ Finally, add the definition to the manifest (with the name that you chose for yo
 </application>
 ```
 
-A database within DBFlow is only initialized once you call `FlowManager.getDatabase(SomeDatabase.class).getWritableDatabase()`. If you
+A database within DBFlow is only initialized once you call `database<SomeDatabase>()`. If you
 don't want this behavior or prefer it to happen immediately, modify your `FlowConfig`:
 
 ```kotlin
@@ -103,11 +102,11 @@ public void onCreate() {
 
 If you do not like the built-in `DefaultTransactionManager`, or just want to roll your own existing system:
 
-```java
+```kotlin
 
 FlowManager.init(FlowConfig.builder(this)
-    .database(DatabaseConfig.builder(AppDatabase.class)
-            .transactionManager(new CustomTransactionManager())
+    .database(DatabaseConfig.builder(AppDatabase::class)
+            .transactionManager(CustomTransactionManager())
           .build()));
 
 ```
@@ -120,8 +119,8 @@ To read more on transactions and subclassing `BaseTransactionManager` go [here](
 Creating models are as simple as defining the model class, and adding the `@Table` annotation.
 To read more on this, read [here](Models.md).
 
+**For now**: Models must provide a default, parameterless constructor.
 An example:
-
 
 ```kotlin
 
@@ -132,6 +131,8 @@ An example:
                    @Column @Unique var name: String = "") // nullability of fields are respected. We will not assign a null value to this field.
 
 ```
+
+or with Java:
 
 ```java
 
@@ -176,11 +177,19 @@ SELECT * FROM Currency WHERE symbol='$';
 
 ```
 
-Can be represented by:
+DBFlow Kotlin (by using our `dbflow-coroutines` module):
 
 ```kotlin
 
-(select from Currency::class where (symbol eq "$"))
+async {
+  database<AppDatabase>{
+    val list = awaitTransact(
+      select from Currency::class
+      where (symbol eq "$")) { list }
+
+    // use the objects here
+  }
+}
 
 ```
 
@@ -188,7 +197,7 @@ or in Java with fluent syntax
 
 ```java
 
-SQLite.select()
+SQLite.select(FlowManager.getDatabase(AppDatabase.class))
   .from(Currency.class)
   .where(Currency_Table.symbol.eq("$"));
 

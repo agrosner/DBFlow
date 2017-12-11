@@ -19,7 +19,7 @@ import kotlinx.coroutines.experimental.suspendCancellableCoroutine
  * Description: Puts this [Queriable] operation inside a coroutine. Inside the [queriableFunction]
  * execute the db operation.
  */
-inline suspend fun <Q : Queriable, R : Any?> DBFlowDatabase.transact(
+inline suspend fun <Q : Queriable, R : Any?> DBFlowDatabase.awaitTransact(
         modelQueriable: Q,
         crossinline queriableFunction: Q.() -> R)
         = suspendCancellableCoroutine<R> { continuation ->

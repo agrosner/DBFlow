@@ -11,7 +11,7 @@ import com.raizlabs.dbflow5.coroutines.awaitDelete
 import com.raizlabs.dbflow5.coroutines.awaitInsert
 import com.raizlabs.dbflow5.coroutines.awaitSave
 import com.raizlabs.dbflow5.coroutines.awaitUpdate
-import com.raizlabs.dbflow5.coroutines.transact
+import com.raizlabs.dbflow5.coroutines.awaitTransact
 import com.raizlabs.dbflow5.query.list
 import com.raizlabs.dbflow5.query.select
 import kotlinx.coroutines.experimental.runBlocking
@@ -30,14 +30,14 @@ class CoroutinesTest : BaseUnitTest() {
                     SimpleModel("$it").save()
                 }
 
-                val query = transact(
+                val query = awaitTransact(
                         select from SimpleModel::class
                                 where SimpleModel_Table.name.eq("5")) { list }
 
                 assert(query.size == 1)
 
 
-                val result = transact(
+                val result = awaitTransact(
                         delete<SimpleModel>()
                                 where SimpleModel_Table.name.eq("5")) { executeUpdateDelete() }
                 assert(result == 1L)
@@ -81,7 +81,7 @@ class CoroutinesTest : BaseUnitTest() {
                 simpleModel.name = "NewName"
                 assert(simpleModel.awaitUpdate(this))
 
-                val loadedModel = transact(select from SimpleModel::class
+                val loadedModel = awaitTransact(select from SimpleModel::class
                         where SimpleModel_Table.name.eq("NewName")) { querySingle() }
                 assert(loadedModel?.name == "NewName")
             }

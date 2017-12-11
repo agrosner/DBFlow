@@ -7,22 +7,18 @@ advanced features.
 
 In DBFlow, creating a database is as simple as only a few lines of code. DBFlow
 supports any number of databases, however individual tables and other related files
-can only be associated with one database.
+can only be associated with one database. **Note**: Starting with DBFlow 5.0, databases are required to extend `DBFlowDatabase`.
 
 ```kotlin
-@Database(version = AppDatabase.VERSION)
-object AppDatabase {
-    const val VERSION = 1
-}
+@Database(version = 1)
+abstract class AppDatabase : DBFlowDatabase()
 ```
 or in Java:
 
 ```java
 
-@Database(version = AppDatabase.VERSION)
-public class AppDatabase {
-
-  public static final int VERSION = 1;
+@Database(version = 1)
+public abstract class AppDatabase extends DBFlowDatabase() {
 }
 
 ```
@@ -30,10 +26,10 @@ public class AppDatabase {
 
 To specify a custom **name** to the database, in previous versions of DBFlow (< 4.1.0), you had to specify it in the `@Database` annotation. As of 5.0 now you pass it in the initialization of the `FlowManager`:
 
-```java
+```kotlin
 
 FlowManager.init(FlowConfig.builder()
-    .database(DatabaseConfig.builder(AppDatabase.class)
+    .database(DatabaseConfig.builder(AppDatabase::class)
       .databaseName("AppDatabase")
       .build())
     .build())
@@ -44,7 +40,7 @@ To dynamically change the database name, call:
 ```kotlin
 
 database<AppDatabase>()
-  .reset(DatabaseConfig.builder(AppDatabase.class)
+  .reopen(DatabaseConfig.builder(AppDatabase::class)
     .databaseName("AppDatabase-2")
     .build())
 
@@ -53,7 +49,7 @@ or in Java:
 ```java
 
 FlowManager.getDatabase(AppDatabase.class)
-  .reset(DatabaseConfig.builder(AppDatabase.class)
+  .reopen(DatabaseConfig.builder(AppDatabase.class)
     .databaseName("AppDatabase-2")
     .build())
 
@@ -77,14 +73,14 @@ FlowManager.init(FlowConfig.builder()
 ```java
 
 FlowManager.init(FlowConfig.builder()
-    .database(DatabaseConfig.inMemoryBuilder(AppDatabase.class)
+    .database(DatabaseConfig.inMemoryBuilder(AppDatabase::class)
       .databaseName("AppDatabase")
       .build())
     .build())
 
 ```
 
-This will allow you to use in-memory databases in your tests, while writing to disk in your apps. Also if your device the app is running on is low on memory, you could also swap the DB into memory by calling `reset(DatabaseConfig)` as explained above.
+This will allow you to use in-memory databases in your tests, while writing to disk in your apps. Also if your device the app is running on is low on memory, you could also swap the DB into memory by calling `reopen(DatabaseConfig)` as explained above.
 
 ## Database Migrations
 
@@ -98,12 +94,10 @@ An example migration:
 
 ```kotlin
 
-@Database(version = AppDatabase.VERSION)
-object AppDatabase {
+@Database(version = 2)
+abstract class AppDatabase : DBFlowDatabase() {
 
-  const val VERSION = 2
-
-  @Migration(version = 2, database = MigrationDatabase.class)
+  @Migration(version = 2, database = MigrationDatabase::class)
   class AddEmailToUserMigration : AlterTableMigration<User>(User::class.java) {
 
     override fun onPreMigrate() {
@@ -116,12 +110,8 @@ object AppDatabase {
 
 ```java
 
-@Database(name = AppDatabase.NAME, version = AppDatabase.VERSION)
-public class AppDatabase {
-
-  public static final String NAME = "AppDatabase"; // we will add the .db extension
-
-  public static final int VERSION = 2;
+@Database(version = 2)
+public abstract class AppDatabase extends DBFlowDatabase {
 
   @Migration(version = 2, database = MigrationDatabase.class)
   public static class AddEmailToUserMigration extends AlterTableMigration<User> {
@@ -158,16 +148,15 @@ of the database for the app.
 In DBFlow when an INSERT or UPDATE are performed, by default, we use `NONE`. If you wish to configure this globally, you can define it to apply for all tables from a given database:
 
 ```kotlin
-@Database(version = AppDatabase.VERSION, insertConflict = ConflictAction.IGNORE, updateConflict= ConflictAction.REPLACE)
-object AppDatabase {
-}
+@Database(version = 2, insertConflict = ConflictAction.IGNORE, updateConflict= ConflictAction.REPLACE)
+abstract class AppDatabase : DBFlowDatabase()
 
 ```
 
 ```java
 
-@Database(version = AppDatabase.VERSION, insertConflict = ConflictAction.IGNORE, updateConflict= ConflictAction.REPLACE)
-public class AppDatabase {
+@Database(version = 2, insertConflict = ConflictAction.IGNORE, updateConflict= ConflictAction.REPLACE)
+public abstract class AppDatabase extends DBFlowDatabase {
 }
 
 ```
@@ -186,13 +175,13 @@ time in case of failure we create a **third copy of the database** in case trans
 
 For variety of reasons, you may want to provide your own `FlowSQLiteOpenHelper`
 to manage database interactions. To do so, you must implement `OpenHelper`, but
-for convenience you should extend `FlowSQLiteOpenHelper` (for Android databases),
+for convenience you should extend `AndroidSQLiteOpenHelper` (for Android databases),
 or `SQLCipherOpenHelper` for SQLCipher. Read more [here](SQLCipherSupport.md)
 
 
 ```kotlin
 
-class CustomFlowSQliteOpenHelper(databaseDefinition: DatabaseDefinition, listener: DatabaseHelperListener) : FlowSQLiteOpenHelper(databaseDefinition, listener)
+class CustomFlowSQliteOpenHelper(context: Contect, databaseDefinition: DatabaseDefinition, listener: DatabaseHelperListener) : FlowSQLiteOpenHelper(context, databaseDefinition, listener)
 
 ```
 
@@ -200,8 +189,8 @@ class CustomFlowSQliteOpenHelper(databaseDefinition: DatabaseDefinition, listene
 
 public class CustomFlowSQliteOpenHelper extends FlowSQLiteOpenHelper {
 
-    public CustomFlowSQliteOpenHelper(BaseDatabaseDefinition databaseDefinition, DatabaseHelperListener listener) {
-        super(databaseDefinition, listener);
+    public CustomFlowSQliteOpenHelper(Context context, BaseDatabaseDefinition databaseDefinition, @Nullable DatabaseCallback callback) {
+        super(context, databaseDefinition, callback);
     }
 }
 
@@ -225,8 +214,8 @@ FlowManager.init(FlowConfig.builder(context)
       DatabaseConfig.builder(CipherDatabase.class)
           .openHelper(new DatabaseConfig.OpenHelperCreator() {
               @Override
-              public OpenHelper createHelper(DatabaseDefinition databaseDefinition, DatabaseHelperListener callback) {
-                  return new CustomFlowSQliteOpenHelper(databaseDefinition, callback);
+              public OpenHelper createHelper(@NonNull DatabaseDefinition databaseDefinition, @Nullable DatabaseCallback callback) {
+                  return new CustomFlowSQliteOpenHelper(context, databaseDefinition, callback);
               }
           })
       .build())
