@@ -2,11 +2,12 @@ package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.sql.Query
+import com.raizlabs.dbflow5.sql.QueryCloneable
 
 /**
  * Description: The base for a [Where] statement.
  */
-interface WhereBase<TModel> : Query, Actionable {
+interface WhereBase<TModel> : Query, Actionable, QueryCloneable<WhereBase<TModel>> {
 
     /**
      * @return The table of this query.

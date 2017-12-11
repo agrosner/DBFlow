@@ -3,9 +3,13 @@ package com.raizlabs.dbflow5.paging
 import android.arch.paging.PagedList
 import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.TestDatabase
+import com.raizlabs.dbflow5.assertThrowsException
 import com.raizlabs.dbflow5.config.database
 import com.raizlabs.dbflow5.models.SimpleModel
+import com.raizlabs.dbflow5.models.SimpleModel_Table
 import com.raizlabs.dbflow5.query.select
+import com.raizlabs.dbflow5.query.set
+import com.raizlabs.dbflow5.query.update
 import com.raizlabs.dbflow5.structure.save
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -14,7 +18,7 @@ import org.junit.Test
 /**
  * Description:
  */
-class ModelQueriableDataSourceTest : BaseUnitTest() {
+class QueryDataSourceTest : BaseUnitTest() {
 
     @Test
     fun testLoadInitialParams() {
@@ -39,6 +43,17 @@ class ModelQueriableDataSourceTest : BaseUnitTest() {
 
                 // assert we don't run over somehow.
                 assertTrue(index < 100)
+            }
+        }
+    }
+
+    @Test
+    fun testThrowsErrorOnInvalidType() {
+        database<TestDatabase> {
+            assertThrowsException(IllegalArgumentException::class) {
+                (update<SimpleModel>() set (SimpleModel_Table.name.eq("name")))
+                    .toDataSourceFactory(this)
+                    .create()
             }
         }
     }

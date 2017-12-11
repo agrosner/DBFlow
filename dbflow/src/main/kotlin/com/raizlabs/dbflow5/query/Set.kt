@@ -45,4 +45,14 @@ class Set<T : Any> internal constructor(
     fun conditionValues(contentValues: ContentValues) = apply {
         addContentValues(contentValues, operatorGroup)
     }
+
+    override fun cloneSelf(): Set<T> {
+        val set = Set(databaseWrapper,
+            when (queryBuilderBase) {
+                is Update<*> -> queryBuilderBase.cloneSelf()
+                else -> queryBuilderBase
+            }, table)
+        set.operatorGroup.andAll(operatorGroup.conditions)
+        return set
+    }
 }

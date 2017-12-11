@@ -141,7 +141,7 @@ abstract class BaseOperator internal constructor(
                     stringVal = sqlEscapeString(_value.name)
                 } else {
                     if (appendInnerQueryParenthesis && _value is BaseModelQueriable<*>) {
-                        stringVal = String.format("(%1s)", _value.query.trim { it <= ' ' })
+                        stringVal = _value.enclosedQuery
                     } else if (_value is NameAlias) {
                         stringVal = _value.query
                     } else if (_value is SQLOperator) {

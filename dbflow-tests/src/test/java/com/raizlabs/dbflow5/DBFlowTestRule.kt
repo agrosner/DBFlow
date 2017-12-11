@@ -3,6 +3,7 @@ package com.raizlabs.dbflow5
 import android.content.Context
 import com.raizlabs.dbflow5.config.DatabaseConfig
 import com.raizlabs.dbflow5.config.FlowConfig
+import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.AndroidSQLiteOpenHelper
 import com.raizlabs.dbflow5.provider.ContentDatabase
@@ -21,6 +22,7 @@ class DBFlowTestRule : TestRule {
 
             @Throws(Throwable::class)
             override fun evaluate() {
+                FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
                 FlowManager.init(FlowConfig.Builder(RuntimeEnvironment.application)
                     .database(DatabaseConfig.Builder(TestDatabase::class, AndroidSQLiteOpenHelper.createHelperCreator(context))
                         .transactionManagerCreator(::ImmediateTransactionManager2)

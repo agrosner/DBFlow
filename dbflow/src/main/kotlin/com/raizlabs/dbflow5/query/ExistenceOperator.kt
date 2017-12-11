@@ -12,7 +12,7 @@ class ExistenceOperator(private val innerWhere: Where<*>) : SQLOperator, Query {
         get() = appendToQuery()
 
     override fun appendConditionToQuery(queryBuilder: StringBuilder) {
-        queryBuilder.appendQualifier("EXISTS", "(" + innerWhere.query.trim({ it <= ' ' }) + ")")
+        queryBuilder.appendQualifier("EXISTS", innerWhere.enclosedQuery)
     }
 
     override fun columnName(): String {

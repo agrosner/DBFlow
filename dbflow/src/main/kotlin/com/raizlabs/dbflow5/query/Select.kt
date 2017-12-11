@@ -4,6 +4,7 @@ import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.sql.Query
+import com.raizlabs.dbflow5.sql.QueryCloneable
 import kotlin.reflect.KClass
 
 /**
@@ -16,7 +17,7 @@ class Select
  * @param properties The properties to select from.
  */
 internal constructor(private val databaseWrapper: DatabaseWrapper,
-                     vararg properties: IProperty<*>) : Query {
+                     vararg properties: IProperty<*>) : Query, QueryCloneable<Select> {
     /**
      * The select qualifier to append to the SELECT statement
      */
@@ -63,6 +64,11 @@ internal constructor(private val databaseWrapper: DatabaseWrapper,
     infix fun <T : Any> from(table: KClass<T>) = from(table.java)
 
     /**
+     * Constructs a [From] with a [ModelQueriable] expression.
+     */
+    fun <T : Any> from(modelQueriable: ModelQueriable<T>) = From(databaseWrapper, this, modelQueriable.table, modelQueriable)
+
+    /**
      * appends [.DISTINCT] to the query
      *
      * @return
@@ -71,6 +77,7 @@ internal constructor(private val databaseWrapper: DatabaseWrapper,
 
     override fun toString(): String = query
 
+    override fun cloneSelf(): Select = Select(databaseWrapper, *propertyList.toTypedArray())
 
     /**
      * Helper method to pick the correct qualifier for a SELECT query

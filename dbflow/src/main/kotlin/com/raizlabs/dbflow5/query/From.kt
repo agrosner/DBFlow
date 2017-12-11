@@ -24,7 +24,13 @@ internal constructor(
     /**
      * @return The base query, usually a [Delete], [Select], or [Update]
      */
-    override val queryBuilderBase: Query, table: Class<TModel>)
+    override val queryBuilderBase: Query,
+    table: Class<TModel>,
+
+    /**
+     * If specified, we use this as the subquery for the FROM statement.
+     */
+    private val modelQueriable: ModelQueriable<TModel>? = null)
     : BaseTransformable<TModel>(databaseWrapper, table) {
 
     /**
@@ -48,7 +54,8 @@ internal constructor(
                 queryBuilder.append("FROM ")
             }
 
-            queryBuilder.append(getTableAlias())
+            modelQueriable?.let { queryBuilder.append(it.enclosedQuery) }
+                ?: queryBuilder.append(getTableAlias())
 
             if (queryBuilderBase is Select) {
                 if (!joins.isEmpty()) {
@@ -61,6 +68,18 @@ internal constructor(
 
             return queryBuilder.toString()
         }
+
+    override fun cloneSelf(): From<TModel> {
+        val from = From(databaseWrapper,
+            when (queryBuilderBase) {
+                is Select -> queryBuilderBase.cloneSelf()
+                else -> queryBuilderBase
+            },
+            table)
+        from.joins.addAll(joins)
+        from.tableAlias = tableAlias
+        return from
+    }
 
     /**
      * @return A list of [Class] that represents tables represented in this query. For every

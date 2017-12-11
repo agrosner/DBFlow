@@ -14,9 +14,8 @@ class UnsafeStringOperatorTest : BaseUnitTest() {
     fun testCanIncludeInQuery() {
         databaseForTable<SimpleModel> {
             val op = UnSafeStringOperator("name = ?, id = ?, test = ?", arrayOf("'name'", "0", "'test'"))
-            assertEquals("name = 'name', id = 0, test = 'test'", op)
-            assertEquals("SELECT * FROM `SimpleModel` WHERE name = 'name', id = 0, test = 'test'",
-                    select from SimpleModel::class where op)
+            "name = 'name', id = 0, test = 'test'".assertEquals(op)
+            "SELECT * FROM `SimpleModel` WHERE name = 'name', id = 0, test = 'test'".assertEquals(select from SimpleModel::class where op)
         }
     }
 }

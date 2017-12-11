@@ -11,12 +11,11 @@ class ModelViewTest : BaseUnitTest() {
 
     @Test
     fun validateModelViewQuery() = database(TestDatabase::class) {
-        assertEquals("SELECT `id` AS `authorId`,`first_name` || ' ' || `last_name` AS `authorName` FROM `Author`",
-                AuthorView.getQuery(this))
+        "SELECT `id` AS `authorId`,`first_name` || ' ' || `last_name` AS `authorName` FROM `Author`".assertEquals(AuthorView.getQuery(this))
     }
 
     @Test
     fun validateJavaModelViewQuery() = database(TestDatabase::class) {
-        assertEquals("SELECT `first_name` AS `firstName`,`id` AS `id`", JavaModelView.getQuery(this))
+        "SELECT `first_name` AS `firstName`,`id` AS `id`".assertEquals(JavaModelView.getQuery(this))
     }
 }

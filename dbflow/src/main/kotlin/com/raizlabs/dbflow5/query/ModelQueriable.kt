@@ -63,6 +63,9 @@ interface ModelQueriable<T : Any> : Queriable {
 
 }
 
+internal inline val <T : Any> ModelQueriable<T>.enclosedQuery
+    get() = "(${query.trim({ it <= ' ' })})"
+
 inline val <T : Any> ModelQueriable<T>.list
     get() = queryList()
 

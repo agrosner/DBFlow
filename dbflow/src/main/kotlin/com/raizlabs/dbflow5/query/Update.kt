@@ -4,6 +4,7 @@ import com.raizlabs.dbflow5.annotation.ConflictAction
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.sql.Query
+import com.raizlabs.dbflow5.sql.QueryCloneable
 
 /**
  * Description: The SQLite UPDATE query. Will update rows in the DB.
@@ -15,24 +16,25 @@ class Update<T : Any>
  * @param table The table to use.
  */
 internal constructor(private val databaseWrapper: DatabaseWrapper,
-                     val table: Class<T>) : Query {
+                     val table: Class<T>) : Query, QueryCloneable<Update<T>> {
 
     /**
      * The conflict action to resolve updates.
      */
-    private var conflictAction: ConflictAction? = ConflictAction.NONE
+    private var conflictAction: ConflictAction = ConflictAction.NONE
 
     override val query: String
         get() {
             val queryBuilder = StringBuilder("UPDATE ")
-            conflictAction?.let { conflictAction ->
-                if (conflictAction != ConflictAction.NONE) {
-                    queryBuilder.append("OR").append(" ${conflictAction.name} ")
-                }
+            if (conflictAction != ConflictAction.NONE) {
+                queryBuilder.append("OR").append(" ${conflictAction.name} ")
             }
             queryBuilder.append(FlowManager.getTableName(table)).append(" ")
             return queryBuilder.toString()
         }
+
+    override fun cloneSelf(): Update<T> = Update(databaseWrapper, table)
+        .conflictAction(conflictAction)
 
     fun conflictAction(conflictAction: ConflictAction) = apply {
         this.conflictAction = conflictAction

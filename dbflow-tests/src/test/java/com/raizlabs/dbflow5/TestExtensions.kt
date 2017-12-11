@@ -6,7 +6,9 @@ import org.junit.Assert.fail
 import kotlin.reflect.KClass
 
 
-fun assertEquals(string: String, query: Query) = assertEquals(string, query.query.trim())
+fun String.assertEquals(query: Query) = assertEquals(this, query.query.trim())
+
+fun Query.assertEquals(actual: Query) = assertEquals(query.trim(), actual.query.trim())
 
 fun assertThrowsException(expectedException: KClass<out Exception>, function: () -> Unit) {
     try {

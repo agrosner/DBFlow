@@ -32,4 +32,6 @@ class IndexedBy<TModel : Any>
 
     override val primaryAction: ChangeAction
         get() = whereBase.primaryAction
+
+    override fun cloneSelf(): IndexedBy<TModel> = IndexedBy(indexProperty, whereBase.cloneSelf())
 }

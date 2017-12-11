@@ -15,16 +15,14 @@ class SelectTest : BaseUnitTest() {
     @Test
     fun validateSelect() {
         databaseForTable<TwoColumnModel> {
-            assertEquals("SELECT `name`,`id` FROM `TwoColumnModel`",
-                    select(name, id) from TwoColumnModel::class)
+            "SELECT `name`,`id` FROM `TwoColumnModel`".assertEquals(select(name, id) from TwoColumnModel::class)
         }
     }
 
     @Test
     fun validateSelectDistinct() {
         databaseForTable<SimpleModel> {
-            assertEquals("SELECT DISTINCT `name` FROM `SimpleModel`",
-                    select(name).distinct() from SimpleModel::class)
+            "SELECT DISTINCT `name` FROM `SimpleModel`".assertEquals(select(name).distinct() from SimpleModel::class)
         }
     }
 }

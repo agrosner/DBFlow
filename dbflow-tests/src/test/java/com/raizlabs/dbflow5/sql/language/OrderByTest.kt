@@ -14,21 +14,21 @@ class OrderByTest : BaseUnitTest() {
 
     @Test
     fun validateBasicOrderBy() {
-        assertEquals("`name` ASC", OrderBy.fromProperty(name).ascending())
+        "`name` ASC".assertEquals(OrderBy.fromProperty(name).ascending())
     }
 
     @Test
     fun validateDescendingOrderBy() {
-        assertEquals("`name` DESC", OrderBy.fromNameAlias("name".nameAlias).descending())
+        "`name` DESC".assertEquals(OrderBy.fromNameAlias("name".nameAlias).descending())
     }
 
     @Test
     fun validateCollate() {
-        assertEquals("`name` COLLATE RTRIM ASC", OrderBy.fromProperty(name).ascending() collate Collate.RTRIM)
+        "`name` COLLATE RTRIM ASC".assertEquals(OrderBy.fromProperty(name).ascending() collate Collate.RTRIM)
     }
 
     @Test
     fun validateCustomOrdrBy() {
-        assertEquals("`name` ASC This is custom", OrderBy.fromString("`name` ASC This is custom"))
+        "`name` ASC This is custom".assertEquals(OrderBy.fromString("`name` ASC This is custom"))
     }
 }

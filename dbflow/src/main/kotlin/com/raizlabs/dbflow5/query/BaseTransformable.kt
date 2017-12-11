@@ -47,6 +47,8 @@ protected constructor(databaseWrapper: DatabaseWrapper,
 
     override fun having(vararg conditions: SQLOperator): Where<TModel> = where().having(*conditions)
 
+    abstract override fun cloneSelf(): BaseTransformable<TModel>
+
     override fun queryList(): MutableList<TModel> {
         checkSelect("query")
         return super.queryList()

@@ -14,53 +14,52 @@ class OperatorTest : BaseUnitTest() {
 
     @Test
     fun testEquals() {
-        assertEquals("`name`='name'", "name".op<String>().eq("name"))
-        assertEquals("`name`='name'", "name".op<String>().`is`("name"))
+        "`name`='name'".assertEquals("name".op<String>().eq("name"))
+        "`name`='name'".assertEquals("name".op<String>().`is`("name"))
     }
 
     @Test
     fun testNotEquals() {
-        assertEquals("`name`!='name'", "name".op<String>().notEq("name"))
-        assertEquals("`name`!='name'", "name".op<String>().isNot("name"))
+        "`name`!='name'".assertEquals("name".op<String>().notEq("name"))
+        "`name`!='name'".assertEquals("name".op<String>().isNot("name"))
     }
 
     @Test
     fun testLike() {
-        assertEquals("`name` LIKE 'name'", "name".op<String>().like("name"))
-        assertEquals("`name` NOT LIKE 'name'", "name".op<String>().notLike("name"))
-        assertEquals("`name` GLOB 'name'", "name".op<String>().glob("name"))
+        "`name` LIKE 'name'".assertEquals("name".op<String>().like("name"))
+        "`name` NOT LIKE 'name'".assertEquals("name".op<String>().notLike("name"))
+        "`name` GLOB 'name'".assertEquals("name".op<String>().glob("name"))
     }
 
     @Test
     fun testMath() {
-        assertEquals("`name`>'name'", "name".op<String>().greaterThan("name"))
-        assertEquals("`name`>='name'", "name".op<String>().greaterThanOrEq("name"))
-        assertEquals("`name`<'name'", "name".op<String>().lessThan("name"))
-        assertEquals("`name`<='name'", "name".op<String>().lessThanOrEq("name"))
-        assertEquals("`name`+'name'", "name".op<String>() + "name")
-        assertEquals("`name`-'name'", "name".op<String>() - "name")
-        assertEquals("`name`/'name'", "name".op<String>() / "name")
-        assertEquals("`name`*'name'", "name".op<String>() * "name")
-        assertEquals("`name`%'name'", "name".op<String>() % "name")
+        "`name`>'name'".assertEquals("name".op<String>().greaterThan("name"))
+        "`name`>='name'".assertEquals("name".op<String>().greaterThanOrEq("name"))
+        "`name`<'name'".assertEquals("name".op<String>().lessThan("name"))
+        "`name`<='name'".assertEquals("name".op<String>().lessThanOrEq("name"))
+        "`name`+'name'".assertEquals("name".op<String>() + "name")
+        "`name`-'name'".assertEquals("name".op<String>() - "name")
+        "`name`/'name'".assertEquals("name".op<String>() / "name")
+        "`name`*'name'".assertEquals("name".op<String>() * "name")
+        "`name`%'name'".assertEquals("name".op<String>() % "name")
     }
 
     @Test
     fun testCollate() {
-        assertEquals("`name` COLLATE NOCASE", "name".op<String>() collate Collate.NOCASE)
-        assertEquals("`name` COLLATE NOCASE", "name".op<String>() collate "NOCASE")
+        "`name` COLLATE NOCASE".assertEquals("name".op<String>() collate Collate.NOCASE)
+        "`name` COLLATE NOCASE".assertEquals("name".op<String>() collate "NOCASE")
     }
 
     @Test
     fun testBetween() {
-        assertEquals("`id` BETWEEN 6 AND 7", id.between(6) and 7)
+        "`id` BETWEEN 6 AND 7".assertEquals(id.between(6) and 7)
     }
 
     @Test
     fun testIn() {
         databaseForTable<SimpleModel> {
-            assertEquals("`id` IN (5,6,7,8,9)", id.`in`(5, 6, 7, 8) and 9)
-            assertEquals("`id` NOT IN (SELECT * FROM `SimpleModel`)",
-                    id.notIn(select from SimpleModel::class))
+            "`id` IN (5,6,7,8,9)".assertEquals(id.`in`(5, 6, 7, 8) and 9)
+            "`id` NOT IN (SELECT * FROM `SimpleModel`)".assertEquals(id.notIn(select from SimpleModel::class))
         }
     }
 }

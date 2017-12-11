@@ -45,7 +45,10 @@ internal constructor(val statement: SQLiteStatement,
         statement.close()
     }
 
-    override fun simpleQueryForLong(): Long = rethrowDBFlowException { statement.simpleQueryForLong() }
+    override fun simpleQueryForLong(): Long = rethrowDBFlowException {
+        val simpleQueryForLong = statement.simpleQueryForLong()
+        simpleQueryForLong
+    }
 
     override fun simpleQueryForString(): String? = rethrowDBFlowException { statement.simpleQueryForString() }
 

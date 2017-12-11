@@ -4,6 +4,7 @@ import com.raizlabs.dbflow5.annotation.provider.ContentProvider
 import com.raizlabs.dbflow5.appendQualifier
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.property.IProperty
+import com.raizlabs.dbflow5.sql.QueryCloneable
 import com.raizlabs.dbflow5.structure.ChangeAction
 
 /**
@@ -22,7 +23,7 @@ internal constructor(
      */
     val whereBase: WhereBase<T>, vararg conditions: SQLOperator)
     : BaseModelQueriable<T>(whereBase.databaseWrapper, whereBase.table),
-    ModelQueriable<T>, Transformable<T> {
+    ModelQueriable<T>, Transformable<T>, QueryCloneable<Where<T>> {
 
     /**
      * Helps to build the where statement easily
@@ -43,6 +44,16 @@ internal constructor(
 
     override val primaryAction: ChangeAction
         get() = whereBase.primaryAction
+
+    override fun cloneSelf(): Where<T> {
+        val where = Where(whereBase, *operatorGroup.conditions.toTypedArray())
+        where.groupByList.addAll(groupByList)
+        where.orderByList.addAll(orderByList)
+        where.havingGroup.andAll(havingGroup.conditions)
+        where.limit = limit
+        where.offset = offset
+        return where
+    }
 
     override val query: String
         get() {

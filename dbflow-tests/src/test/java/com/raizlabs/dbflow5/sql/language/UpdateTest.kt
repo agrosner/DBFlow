@@ -18,52 +18,51 @@ class UpdateTest : BaseUnitTest() {
     @Test
     fun validateUpdateRollback() {
         databaseForTable<SimpleModel> {
-            assertEquals("UPDATE OR ROLLBACK `SimpleModel`", update<SimpleModel>().orRollback())
+            "UPDATE OR ROLLBACK `SimpleModel`".assertEquals(update<SimpleModel>().orRollback())
         }
     }
 
     @Test
     fun validateUpdateFail() {
         databaseForTable<SimpleModel> {
-            assertEquals("UPDATE OR FAIL `SimpleModel`", update<SimpleModel>().orFail())
+            "UPDATE OR FAIL `SimpleModel`".assertEquals(update<SimpleModel>().orFail())
         }
     }
 
     @Test
     fun validateUpdateIgnore() {
         databaseForTable<SimpleModel> {
-            assertEquals("UPDATE OR IGNORE `SimpleModel`", update<SimpleModel>().orIgnore())
+            "UPDATE OR IGNORE `SimpleModel`".assertEquals(update<SimpleModel>().orIgnore())
         }
     }
 
     @Test
     fun validateUpdateReplace() {
         databaseForTable<SimpleModel> {
-            assertEquals("UPDATE OR REPLACE `SimpleModel`", update<SimpleModel>().orReplace())
+            "UPDATE OR REPLACE `SimpleModel`".assertEquals(update<SimpleModel>().orReplace())
         }
     }
 
     @Test
     fun validateUpdateAbort() {
         databaseForTable<SimpleModel> {
-            assertEquals("UPDATE OR ABORT `SimpleModel`", update<SimpleModel>().orAbort())
+            "UPDATE OR ABORT `SimpleModel`".assertEquals(update<SimpleModel>().orAbort())
         }
     }
 
     @Test
     fun validateSetQuery() {
         databaseForTable<SimpleModel> {
-            assertEquals("UPDATE `SimpleModel` SET `name`='name'", update<SimpleModel>() set (name eq "name"))
+            "UPDATE `SimpleModel` SET `name`='name'".assertEquals(update<SimpleModel>() set (name eq "name"))
         }
     }
 
     @Test
     fun validateWildcardQuery() {
         databaseForTable<SimpleModel> {
-            assertEquals("UPDATE OR FAIL `NumberModel` SET `id`=? WHERE `id`=?",
-                    update<NumberModel>().or(ConflictAction.FAIL)
-                            .set(id.eq(Property.WILDCARD))
-                            .where(id.eq(Property.WILDCARD)))
+            "UPDATE OR FAIL `NumberModel` SET `id`=? WHERE `id`=?".assertEquals(update<NumberModel>().or(ConflictAction.FAIL)
+                .set(id.eq(Property.WILDCARD))
+                .where(id.eq(Property.WILDCARD)))
         }
     }
 }

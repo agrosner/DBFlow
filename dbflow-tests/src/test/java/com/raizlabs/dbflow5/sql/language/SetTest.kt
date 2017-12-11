@@ -15,16 +15,14 @@ class SetTest : BaseUnitTest() {
     @Test
     fun validateSetWithConditions() {
         databaseForTable<SimpleModel> {
-            assertEquals("UPDATE `SimpleModel` SET `name`='name'",
-                    update<SimpleModel>() set name.`is`("name"))
+            "UPDATE `SimpleModel` SET `name`='name'".assertEquals(update<SimpleModel>() set name.`is`("name"))
         }
     }
 
     @Test
     fun validateMultipleConditions() {
         databaseForTable<SimpleModel> {
-            assertEquals("UPDATE `SimpleModel` SET `name`='name', `id`=0",
-                    update<SimpleModel>() set name.eq("name") and id.eq(0))
+            "UPDATE `SimpleModel` SET `name`='name', `id`=0".assertEquals(update<SimpleModel>() set name.eq("name") and id.eq(0))
         }
     }
 }
