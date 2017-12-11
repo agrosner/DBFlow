@@ -15,9 +15,14 @@ interface IFlowCursorIterator<TModel> : Closeable, Iterable<TModel> {
     val count: Long
 
     /**
-     * @param position The position within the [FlowCursor] to retrieve and convert into a [TModel]
+     * @param index The index within the [FlowCursor] to retrieve and convert into a [TModel]
      */
-    operator fun get(position: Long): TModel
+    operator fun get(index: Long): TModel
+
+    /**
+     * @param index The index within the [FlowCursor] to retrieve and convert into a [TModel]
+     */
+    operator fun get(index: Int): TModel = get(index.toLong())
 
     /**
      * @return The cursor.

@@ -117,9 +117,6 @@ class FlowQueryList<T : Any>(
         return contains
     }
 
-    override fun get(position: Long): T = internalCursorList[position]
-
-
     /**
      * Returns the item from the backing [FlowCursorList]. First call
      * will load the model from the cursor, while subsequent calls will use the cache.
@@ -128,6 +125,8 @@ class FlowQueryList<T : Any>(
      * @return A model converted from the internal [FlowCursorList]. For
      * performance improvements, ensure caching is turned on.
      */
+    override fun get(index: Long): T = internalCursorList[index]
+
     override operator fun get(index: Int): T = internalCursorList[index.toLong()]
 
     override fun indexOf(element: T): Int {

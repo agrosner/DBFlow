@@ -99,23 +99,23 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     }
 
     /**
-     * Returns a model at the specified position. If we are using the cache and it does not contain a model
-     * at that position, we move the cursor to the specified position and construct the [T].
+     * Returns a model at the specified index. If we are using the cache and it does not contain a model
+     * at that index, we move the cursor to the specified index and construct the [T].
      *
-     * @param position The row number in the [FlowCursor] to look at
+     * @param index The row number in the [FlowCursor] to look at
      * @return The [T] converted from the cursor
      */
-    override fun get(position: Long): T {
+    override fun get(index: Long): T {
         throwIfCursorClosed()
 
         val cursor = unpackCursor()
-        return if (cursor.moveToPosition(position.toInt())) {
+        return if (cursor.moveToPosition(index.toInt())) {
             instanceAdapter.singleModelLoader.convertToData(
                     FlowCursor.from(cursor), false,
                     FlowManager.getDatabaseForTable(table))
-                    ?: throw IndexOutOfBoundsException("Invalid item at position $position. Check your cursor data.")
+                    ?: throw IndexOutOfBoundsException("Invalid item at index $index. Check your cursor data.")
         } else {
-            throw IndexOutOfBoundsException("Invalid item at position $position. Check your cursor data.")
+            throw IndexOutOfBoundsException("Invalid item at index $index. Check your cursor data.")
         }
     }
 

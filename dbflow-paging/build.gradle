@@ -1,0 +1,35 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+project.ext.artifactId = bt_name
+
+android {
+    compileSdkVersion target_sdk
+
+    defaultConfig {
+        minSdkVersion arch_min
+        targetSdkVersion target_sdk
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+}
+
+dependencies {
+    implementation project("${dbflow_project_prefix}dbflow")
+    api "android.arch.paging:runtime:1.0.0-alpha4"
+    api "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
+}
+
+apply from: '../kotlin-artifacts.gradle'
+

@@ -112,10 +112,10 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
         return customList
     }
 
-    override fun get(position: Long): T {
+    override fun get(index: Long): T {
         var model: T? = null
         _cursor?.let { cursor ->
-            if (cursor.moveToPosition(position.toInt())) {
+            if (cursor.moveToPosition(index.toInt())) {
                 model = retrievalAdapter.singleModelLoader.convertToData(cursor, false, databaseWrapper)
             }
         }

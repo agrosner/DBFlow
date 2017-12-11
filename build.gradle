@@ -5,6 +5,7 @@ buildscript {
         min_sdk = 7
         min_sdk_rx = 15
         sql_cipher_min = 7
+        arch_min = 14
 
         deps = [
             kotlin          : "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}",

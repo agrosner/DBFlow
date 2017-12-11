@@ -53,6 +53,7 @@ dependencies {
     implementation project("${dbflow_project_prefix}dbflow-rx")
     implementation project("${dbflow_project_prefix}dbflow-rx2")
     implementation project("${dbflow_project_prefix}dbflow-coroutines")
+    implementation project("${dbflow_project_prefix}dbflow-paging")
 
     kaptTest project("${dbflow_project_prefix}dbflow-processor")
     kaptAndroidTest project("${dbflow_project_prefix}dbflow-processor")
