@@ -8,6 +8,7 @@ import com.raizlabs.dbflow5.models.SimpleModel
 import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.structure.save
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -20,12 +21,11 @@ class ModelQueriableDataSourceTest : BaseUnitTest() {
         database<TestDatabase> {
             (0 until 100).forEach { SimpleModel("$it").save(this) }
 
-
             val factory = (select from SimpleModel::class).toDataSourceFactory(this)
             val list = PagedList.Builder(factory.create(),
                 PagedList.Config.Builder()
-                    .setPageSize(5)
-                    .setPrefetchDistance(10)
+                    .setPageSize(3)
+                    .setPrefetchDistance(6)
                     .setEnablePlaceholders(true).build())
                 .setBackgroundThreadExecutor { it.run() } // run on main
                 .setMainThreadExecutor { it.run() }
@@ -36,6 +36,9 @@ class ModelQueriableDataSourceTest : BaseUnitTest() {
             list.forEachIndexed { index, simpleModel ->
                 list.loadAround(index)
                 assertEquals(index, simpleModel.name?.toInt())
+
+                // assert we don't run over somehow.
+                assertTrue(index < 100)
             }
         }
     }

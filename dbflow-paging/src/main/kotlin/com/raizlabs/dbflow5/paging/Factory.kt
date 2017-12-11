@@ -16,11 +16,11 @@ internal constructor(private val modelQueriable: ModelQueriable<T>,
         database.executeTransactionAsync({ modelQueriable.cursorList() },
             success = { _, paramCursorList ->
                 paramCursorList.use { cursorList ->
-                    val list = mutableListOf<T>()
                     val max = when {
                         params.loadSize >= cursorList.count - 1 -> cursorList.count.toInt()
                         else -> params.loadSize
                     }
+                    val list = mutableListOf<T>()
                     (params.startPosition until params.startPosition + max).mapTo(list) { cursorList[it] }
                     callback.onResult(list)
                     cursorList.close()
