@@ -28,11 +28,25 @@ protected constructor(val databaseWrapper: DatabaseWrapper,
 
     private val retrievalAdapter: RetrievalAdapter<TModel> by lazy { FlowManager.getRetrievalAdapter(table) }
 
+    private var cachingEnabled = true
+
     private val listModelLoader: ListModelLoader<TModel>
-        get() = retrievalAdapter.listModelLoader
+        get() = if (cachingEnabled) {
+            retrievalAdapter.listModelLoader
+        } else {
+            retrievalAdapter.nonCacheableListModelLoader
+        }
 
     private val singleModelLoader: SingleModelLoader<TModel>
-        get() = retrievalAdapter.singleModelLoader
+        get() = if (cachingEnabled) {
+            retrievalAdapter.singleModelLoader
+        } else {
+            retrievalAdapter.nonCacheableSingleModelLoader
+        }
+
+    override fun disableCaching() = apply {
+        cachingEnabled = false
+    }
 
     override fun queryResults(): CursorResult<TModel> = CursorResult(retrievalAdapter.table, query(), databaseWrapper)
 
@@ -66,13 +80,25 @@ protected constructor(val databaseWrapper: DatabaseWrapper,
     override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>): MutableList<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
-        return queryModelClass.queryModelAdapter.listModelLoader.load(databaseWrapper, query)!!
+        return getListQueryModelLoader(queryModelClass).load(databaseWrapper, query)!!
     }
 
     override fun <QueryClass : Any> queryCustomSingle(queryModelClass: Class<QueryClass>): QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
-        return queryModelClass.queryModelAdapter.singleModelLoader.load(databaseWrapper, query)
+        return getSingleQueryModelLoader(queryModelClass).load(databaseWrapper, query)
     }
 
+
+    private fun <T : Any> getListQueryModelLoader(table: Class<T>): ListModelLoader<T> = if (cachingEnabled) {
+        table.queryModelAdapter.listModelLoader
+    } else {
+        table.queryModelAdapter.nonCacheableListModelLoader
+    }
+
+    private fun <T : Any> getSingleQueryModelLoader(table: Class<T>): SingleModelLoader<T> = if (cachingEnabled) {
+        table.queryModelAdapter.singleModelLoader
+    } else {
+        table.queryModelAdapter.nonCacheableSingleModelLoader
+    }
 }

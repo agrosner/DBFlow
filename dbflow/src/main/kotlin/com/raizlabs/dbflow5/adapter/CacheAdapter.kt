@@ -68,6 +68,10 @@ abstract class CacheAdapter<T : Any> {
         getCachingId(model)?.let { modelCache.removeModel(it) }
     }
 
+    fun clearCache() {
+        modelCache.clear()
+    }
+
     fun getCachingId(inValues: Array<Any>?): Any? = when {
         inValues?.size == 1 -> // if it exists in cache no matter the query we will use that one
             inValues.getOrNull(0)

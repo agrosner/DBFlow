@@ -5,6 +5,7 @@ import com.raizlabs.dbflow5.query.list.FlowCursorList
 import com.raizlabs.dbflow5.query.list.FlowQueryList
 import com.raizlabs.dbflow5.structure.BaseQueryModel
 
+
 /**
  * Description: An interface for query objects to enable you to query from the database in a structured way.
  * Examples of such statements are: [From], [Where], [StringQuery]
@@ -60,6 +61,13 @@ interface ModelQueriable<T : Any> : Queriable {
      * @return A single model from the query.
     </TQueryModel> */
     fun <TQueryModel : Any> queryCustomSingle(queryModelClass: Class<TQueryModel>): TQueryModel?
+
+    /**
+     * Disables caching on this query for the object retrieved from DB (if caching enabled). If
+     * caching is not enabled, this method is ignored. This also disables caching in a [FlowCursorList]
+     * or [FlowQueryList] if you [.flowQueryList] or [.cursorList]
+     */
+    fun disableCaching(): ModelQueriable<T>
 
 }
 
