@@ -14,27 +14,32 @@ internal constructor(private val modelQueriable: ModelQueriable<T>,
     : PositionalDataSource<T>() {
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>) {
         database.executeTransactionAsync({ modelQueriable.cursorList() },
-            success = { _, cursorList ->
-                val list = mutableListOf<T>()
-                val max = when {
-                    params.loadSize >= cursorList.count - 1 -> cursorList.count.toInt()
-                    else -> params.loadSize
+            success = { _, paramCursorList ->
+                paramCursorList.use { cursorList ->
+                    val list = mutableListOf<T>()
+                    val max = when {
+                        params.loadSize >= cursorList.count - 1 -> cursorList.count.toInt()
+                        else -> params.loadSize
+                    }
+                    (params.startPosition until params.startPosition + max).mapTo(list) { cursorList[it] }
+                    callback.onResult(list)
+                    cursorList.close()
                 }
-                (params.startPosition until params.startPosition + max).mapTo(list) { cursorList[it] }
-                callback.onResult(list)
             })
     }
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
         database.executeTransactionAsync({ modelQueriable.cursorList() },
-            success = { _, cursorList ->
-                val max = when {
-                    params.requestedLoadSize >= cursorList.count - 1 -> cursorList.count.toInt()
-                    else -> params.requestedLoadSize
+            success = { _, paramCursorList ->
+                paramCursorList.use { cursorList ->
+                    val max = when {
+                        params.requestedLoadSize >= cursorList.count - 1 -> cursorList.count.toInt()
+                        else -> params.requestedLoadSize
+                    }
+                    val list = mutableListOf<T>()
+                    (params.requestedStartPosition until params.requestedStartPosition + max).mapTo(list) { cursorList[it] }
+                    callback.onResult(list, params.requestedStartPosition, cursorList.count.toInt())
                 }
-                val list = mutableListOf<T>()
-                (params.requestedStartPosition until params.requestedStartPosition + max).mapTo(list) { cursorList[it] }
-                callback.onResult(list, params.requestedStartPosition, cursorList.count.toInt())
             })
     }
 
