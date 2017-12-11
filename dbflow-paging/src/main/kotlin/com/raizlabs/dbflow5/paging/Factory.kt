@@ -8,33 +8,34 @@ import com.raizlabs.dbflow5.query.ModelQueriable
 /**
  * Bridges the [ModelQueriable] into a [PositionalDataSource] that loads a [ModelQueriable].
  */
-class ModelQueriableDataSource<T : Any>(private val modelQueriable: ModelQueriable<T>,
-                                        private val database: DBFlowDatabase)
+class ModelQueriableDataSource<T : Any>
+internal constructor(private val modelQueriable: ModelQueriable<T>,
+                     private val database: DBFlowDatabase)
     : PositionalDataSource<T>() {
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>) {
         database.executeTransactionAsync({ modelQueriable.cursorList() },
-                success = { _, cursorList ->
-                    val list = mutableListOf<T>()
-                    val max = when {
-                        params.loadSize >= cursorList.count - 1 -> cursorList.count.toInt()
-                        else -> params.loadSize
-                    }
-                    (params.startPosition until max).mapTo(list) { cursorList[it] }
-                    callback.onResult(list)
-                })
+            success = { _, cursorList ->
+                val list = mutableListOf<T>()
+                val max = when {
+                    params.loadSize >= cursorList.count - 1 -> cursorList.count.toInt()
+                    else -> params.loadSize
+                }
+                (params.startPosition until params.startPosition + max).mapTo(list) { cursorList[it] }
+                callback.onResult(list)
+            })
     }
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
         database.executeTransactionAsync({ modelQueriable.cursorList() },
-                success = { _, cursorList ->
-                    val max = when {
-                        params.requestedLoadSize >= cursorList.count - 1 -> cursorList.count.toInt()
-                        else -> params.requestedLoadSize
-                    }
-                    val list = mutableListOf<T>()
-                    (params.requestedStartPosition until max).mapTo(list) { cursorList[it] }
-                    callback.onResult(list, params.requestedStartPosition, cursorList.count.toInt())
-                })
+            success = { _, cursorList ->
+                val max = when {
+                    params.requestedLoadSize >= cursorList.count - 1 -> cursorList.count.toInt()
+                    else -> params.requestedLoadSize
+                }
+                val list = mutableListOf<T>()
+                (params.requestedStartPosition until params.requestedStartPosition + max).mapTo(list) { cursorList[it] }
+                callback.onResult(list, params.requestedStartPosition, cursorList.count.toInt())
+            })
     }
 
     class Factory<T : Any>
@@ -47,9 +48,9 @@ class ModelQueriableDataSource<T : Any>(private val modelQueriable: ModelQueriab
         @JvmStatic
         fun <T : Any> newFactory(modelQueriable: ModelQueriable<T>,
                                  database: DBFlowDatabase) =
-                Factory(modelQueriable, database)
+            Factory(modelQueriable, database)
     }
 }
 
 fun <T : Any> ModelQueriable<T>.toDataSourceFactory(database: DBFlowDatabase) =
-        ModelQueriableDataSource.newFactory(this, database)
+    ModelQueriableDataSource.newFactory(this, database)
