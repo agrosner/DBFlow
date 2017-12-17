@@ -38,6 +38,7 @@ public class FlowContentObserver extends ContentObserver {
 
     private static final AtomicInteger REGISTERED_COUNT = new AtomicInteger(0);
     private static boolean forceNotify = false;
+    @NonNull private final String contentAuthority;
 
     /**
      * @return true if we have registered for content changes. Otherwise we do not notify
@@ -96,12 +97,14 @@ public class FlowContentObserver extends ContentObserver {
     protected boolean isInTransaction = false;
     private boolean notifyAllUris = false;
 
-    public FlowContentObserver() {
+    public FlowContentObserver(@NonNull String contentAuthority) {
         super(null);
+        this.contentAuthority = contentAuthority;
     }
 
-    public FlowContentObserver(@Nullable Handler handler) {
+    public FlowContentObserver(@Nullable Handler handler, @NonNull String contentAuthority) {
         super(handler);
+        this.contentAuthority = contentAuthority;
     }
 
     /**
@@ -145,7 +148,7 @@ public class FlowContentObserver extends ContentObserver {
                     for (Uri uri : tableUris) {
                         for (OnTableChangedListener onTableChangedListener : onTableChangedListeners) {
                             onTableChangedListener.onTableChanged(registeredTables.get(uri.getAuthority()),
-                                Action.valueOf(uri.getFragment()));
+                                    Action.valueOf(uri.getFragment()));
                         }
                     }
                     tableUris.clear();
@@ -213,7 +216,8 @@ public class FlowContentObserver extends ContentObserver {
      */
     public void registerForContentChanges(@NonNull ContentResolver contentResolver,
                                           @NonNull Class<?> table) {
-        contentResolver.registerContentObserver(SqlUtils.getNotificationUri(table, null), true, this);
+        contentResolver.registerContentObserver(
+                SqlUtils.getNotificationUri(contentAuthority, table, null), true, this);
         REGISTERED_COUNT.incrementAndGet();
         if (!registeredTables.containsValue(table)) {
             registeredTables.put(FlowManager.getTableName(table), table);
@@ -253,21 +257,23 @@ public class FlowContentObserver extends ContentObserver {
     @TargetApi(VERSION_CODES.JELLY_BEAN)
     private void onChange(boolean selfChanges, Uri uri, boolean calledInternally) {
         String fragment = uri.getFragment();
-        String tableName = uri.getAuthority();
+        String tableName = uri.getQueryParameter(SqlUtils.TABLE_QUERY_PARAM);
 
         String columnName;
         String param;
 
         Set<String> queryNames = uri.getQueryParameterNames();
-        SQLOperator[] columnsChanged = new SQLOperator[queryNames.size()];
+        SQLOperator[] columnsChanged = new SQLOperator[queryNames.size() - 1];
         if (!queryNames.isEmpty()) {
             int index = 0;
             for (String key : queryNames) {
-                param = Uri.decode(uri.getQueryParameter(key));
-                columnName = Uri.decode(key);
-                columnsChanged[index] = Operator.op(new NameAlias.Builder(columnName).build())
-                    .eq(param);
-                index++;
+                if (!SqlUtils.TABLE_QUERY_PARAM.equals(key)) {
+                    param = Uri.decode(uri.getQueryParameter(key));
+                    columnName = Uri.decode(key);
+                    columnsChanged[index] = Operator.op(new NameAlias.Builder(columnName).build())
+                            .eq(param);
+                    index++;
+                }
             }
         }
 
@@ -288,7 +294,7 @@ public class FlowContentObserver extends ContentObserver {
             // convert this uri to a CHANGE op if we don't care about individual changes.
             if (!notifyAllUris) {
                 action = Action.CHANGE;
-                uri = SqlUtils.getNotificationUri(table, action);
+                uri = SqlUtils.getNotificationUri(contentAuthority, table, action);
             }
             synchronized (notificationUris) {
                 // add and keep track of unique notification uris for when transaction completes.
@@ -296,7 +302,7 @@ public class FlowContentObserver extends ContentObserver {
             }
 
             synchronized (tableUris) {
-                tableUris.add(SqlUtils.getNotificationUri(table, action));
+                tableUris.add(SqlUtils.getNotificationUri(contentAuthority, table, action));
             }
         }
     }

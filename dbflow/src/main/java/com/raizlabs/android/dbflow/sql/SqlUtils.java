@@ -27,16 +27,19 @@ import java.util.Map;
  */
 public class SqlUtils {
 
+    public static final String TABLE_QUERY_PARAM = "tableName";
+
     private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
 
     /**
      * Notifies the {@link ContentObserver} that the model has changed.
      */
     @Deprecated
-    public static void notifyModelChanged(Class<?> table, Action action,
+    public static void notifyModelChanged(@NonNull String contentAuthority,
+                                          Class<?> table, Action action,
                                           Iterable<SQLOperator> sqlOperators) {
         FlowManager.getContext().getContentResolver().notifyChange(
-            getNotificationUri(table, action, sqlOperators), null, true);
+                getNotificationUri(contentAuthority, table, action, sqlOperators), null, true);
     }
 
     /**
@@ -71,11 +74,13 @@ public class SqlUtils {
      * @param conditions The set of key-value {@link SQLOperator} to construct into a uri.
      * @return The {@link Uri}.
      */
-    public static Uri getNotificationUri(@NonNull Class<?> modelClass,
+    public static Uri getNotificationUri(@NonNull String contentAuthority,
+                                         @NonNull Class<?> modelClass,
                                          @Nullable Action action,
                                          @Nullable Iterable<SQLOperator> conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
-            .authority(FlowManager.getTableName(modelClass));
+                .authority(contentAuthority)
+                .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
@@ -96,11 +101,13 @@ public class SqlUtils {
      * @param conditions The set of key-value {@link SQLOperator} to construct into a uri.
      * @return The {@link Uri}.
      */
-    public static Uri getNotificationUri(@NonNull Class<?> modelClass,
+    public static Uri getNotificationUri(@NonNull String contentAuthority,
+                                         @NonNull Class<?> modelClass,
                                          @NonNull Action action,
                                          @Nullable SQLOperator[] conditions) {
         Uri.Builder uriBuilder = new Uri.Builder().scheme("dbflow")
-            .authority(FlowManager.getTableName(modelClass));
+                .authority(contentAuthority)
+                .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass));
         if (action != null) {
             uriBuilder.fragment(action.name());
         }
@@ -124,7 +131,8 @@ public class SqlUtils {
      * @return Notification uri.
      */
 
-    public static Uri getNotificationUri(@NonNull Class<?> modelClass,
+    public static Uri getNotificationUri(@NonNull String contentAuthority,
+                                         @NonNull Class<?> modelClass,
                                          @NonNull Action action,
                                          @NonNull String notifyKey,
                                          @Nullable Object notifyValue) {
@@ -132,7 +140,7 @@ public class SqlUtils {
         if (StringUtils.isNotNullOrEmpty(notifyKey)) {
             operator = Operator.op(new NameAlias.Builder(notifyKey).build()).value(notifyValue);
         }
-        return getNotificationUri(modelClass, action, new SQLOperator[]{operator});
+        return getNotificationUri(contentAuthority, modelClass, action, new SQLOperator[]{operator});
     }
 
     /**
@@ -140,8 +148,10 @@ public class SqlUtils {
      * @param action     The {@link Action} to use.
      * @return The uri for updates to {@link Model}, meant for general changes.
      */
-    public static Uri getNotificationUri(@NonNull Class<?> modelClass, @NonNull Action action) {
-        return getNotificationUri(modelClass, action, null, null);
+    public static Uri getNotificationUri(@NonNull String contentAuthority,
+                                         @NonNull Class<?> modelClass,
+                                         @NonNull Action action) {
+        return getNotificationUri(contentAuthority, modelClass, action, "", null);
     }
 
 
@@ -153,7 +163,7 @@ public class SqlUtils {
      */
     public static void dropTrigger(@NonNull Class<?> mOnTable, @NonNull String triggerName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP TRIGGER IF EXISTS ")
-            .append(triggerName);
+                .append(triggerName);
         FlowManager.getDatabaseForTable(mOnTable).getWritableDatabase().execSQL(queryBuilder.getQuery());
     }
 
@@ -165,7 +175,7 @@ public class SqlUtils {
     public static void dropIndex(@NonNull DatabaseWrapper databaseWrapper,
                                  @NonNull String indexName) {
         QueryBuilder queryBuilder = new QueryBuilder("DROP INDEX IF EXISTS ")
-            .append(QueryBuilder.quoteIfNeeded(indexName));
+                .append(QueryBuilder.quoteIfNeeded(indexName));
         databaseWrapper.execSQL(queryBuilder.getQuery());
     }
 
@@ -186,7 +196,7 @@ public class SqlUtils {
         for (Map.Entry<String, Object> entry : entries) {
             String key = entry.getKey();
             operatorGroup.and(Operator.op(new NameAlias.Builder(key).build())
-                .is(contentValues.get(key)));
+                    .is(contentValues.get(key)));
         }
     }
 
@@ -221,7 +231,7 @@ public class SqlUtils {
     }
 
     public static double doubleForQuery(@NonNull DatabaseWrapper wrapper,
-                                    @NonNull String query) {
+                                        @NonNull String query) {
         DatabaseStatement statement = wrapper.compileStatement(query);
         try {
             return statement.simpleQueryForLong();

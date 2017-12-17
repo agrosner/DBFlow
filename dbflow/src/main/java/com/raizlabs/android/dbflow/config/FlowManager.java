@@ -65,6 +65,8 @@ public class FlowManager {
     private static final String DEFAULT_DATABASE_HOLDER_CLASSNAME =
             DEFAULT_DATABASE_HOLDER_PACKAGE_NAME + "." + DEFAULT_DATABASE_HOLDER_NAME;
 
+    public static final String DEFAULT_AUTHORITY = "com.dbflow.authority";
+
     /**
      * Returns the table name for the specific model class
      *
