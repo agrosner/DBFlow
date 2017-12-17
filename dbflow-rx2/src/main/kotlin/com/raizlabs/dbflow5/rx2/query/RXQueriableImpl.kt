@@ -1,6 +1,7 @@
 package com.raizlabs.dbflow5.rx2.query
 
 import com.raizlabs.dbflow5.database.DatabaseStatement
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.BaseQueriable
 import com.raizlabs.dbflow5.query.Queriable
@@ -14,21 +15,29 @@ import io.reactivex.Single.fromCallable
  */
 open class RXQueriableImpl(private val innerQueriable: Queriable) : RXQueriable {
 
-    override fun query(): Maybe<FlowCursor> = Maybe.fromCallable { innerQueriable.query() }
+    override fun cursor(databaseWrapper: DatabaseWrapper): Maybe<FlowCursor> = Maybe.fromCallable {
+        innerQueriable.cursor(databaseWrapper)
+    }
 
-    override fun compileStatement(): Single<DatabaseStatement> =
-        fromCallable { innerQueriable.compileStatement() }
+    override fun compileStatement(databaseWrapper: DatabaseWrapper): Single<DatabaseStatement> =
+            fromCallable { innerQueriable.compileStatement(databaseWrapper) }
 
-    override fun longValue(): Single<Long> = fromCallable { innerQueriable.longValue() }
+    override fun longValue(databaseWrapper: DatabaseWrapper): Single<Long> = fromCallable {
+        innerQueriable.longValue(databaseWrapper)
+    }
 
-    override fun executeInsert(): Single<Long> =
-        fromCallable { innerQueriable.executeInsert() }
+    override fun executeInsert(databaseWrapper: DatabaseWrapper): Single<Long> =
+            fromCallable { innerQueriable.executeInsert(databaseWrapper) }
 
-    override fun executeUpdateDelete(): Single<Long> =
-        fromCallable { innerQueriable.executeUpdateDelete() }
+    override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Single<Long> =
+            fromCallable { innerQueriable.executeUpdateDelete(databaseWrapper) }
 
-    override fun hasData(): Single<Boolean> = fromCallable { innerQueriable.hasData() }
+    override fun hasData(databaseWrapper: DatabaseWrapper): Single<Boolean> = fromCallable {
+        innerQueriable.hasData(databaseWrapper)
+    }
 
-    override fun execute(): Completable = Completable.fromRunnable { innerQueriable.execute() }
+    override fun execute(databaseWrapper: DatabaseWrapper): Completable = Completable.fromRunnable {
+        innerQueriable.execute(databaseWrapper)
+    }
 
 }

@@ -33,7 +33,7 @@ open class UpdateTableMigration<T : Any>
      */
     private val setOperatorGroup: OperatorGroup by lazy { OperatorGroup.nonGroupingClause() }
 
-    val DatabaseWrapper.updateStatement: BaseQueriable<T>
+    val updateStatement: BaseQueriable<T>
         get() = update(table)
             .set(setOperatorGroup)
             .where(whereOperatorGroup)
@@ -53,6 +53,6 @@ open class UpdateTableMigration<T : Any>
     }
 
     override fun migrate(database: DatabaseWrapper) {
-        database.updateStatement.execute()
+        updateStatement.execute(database)
     }
 }

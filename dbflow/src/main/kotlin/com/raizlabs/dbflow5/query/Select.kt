@@ -16,8 +16,7 @@ class Select
  *
  * @param properties The properties to select from.
  */
-internal constructor(private val databaseWrapper: DatabaseWrapper,
-                     vararg properties: IProperty<*>) : Query, QueryCloneable<Select> {
+internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Select> {
     /**
      * The select qualifier to append to the SELECT statement
      */
@@ -57,7 +56,7 @@ internal constructor(private val databaseWrapper: DatabaseWrapper,
      * @param [T] The class that implements [com.raizlabs.android.dbflow.structure.Model]
      * @return the From part of this query
      */
-    infix fun <T : Any> from(table: Class<T>): From<T> = From(databaseWrapper, this, table)
+    infix fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
 
     inline fun <reified T : Any> from() = from(T::class.java)
 
@@ -66,7 +65,7 @@ internal constructor(private val databaseWrapper: DatabaseWrapper,
     /**
      * Constructs a [From] with a [ModelQueriable] expression.
      */
-    fun <T : Any> from(modelQueriable: ModelQueriable<T>) = From(databaseWrapper, this, modelQueriable.table, modelQueriable)
+    fun <T : Any> from(modelQueriable: ModelQueriable<T>) = From(this, modelQueriable.table, modelQueriable)
 
     /**
      * appends [.DISTINCT] to the query
@@ -77,7 +76,7 @@ internal constructor(private val databaseWrapper: DatabaseWrapper,
 
     override fun toString(): String = query
 
-    override fun cloneSelf(): Select = Select(databaseWrapper, *propertyList.toTypedArray())
+    override fun cloneSelf(): Select = Select(*propertyList.toTypedArray())
 
     /**
      * Helper method to pick the correct qualifier for a SELECT query
@@ -109,5 +108,5 @@ internal constructor(private val databaseWrapper: DatabaseWrapper,
     }
 }
 
-inline val DatabaseWrapper.select: Select
+inline val select: Select
     get() = select()

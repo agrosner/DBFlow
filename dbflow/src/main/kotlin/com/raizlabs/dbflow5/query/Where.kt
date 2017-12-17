@@ -2,6 +2,7 @@ package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.annotation.provider.ContentProvider
 import com.raizlabs.dbflow5.appendQualifier
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.sql.QueryCloneable
@@ -22,7 +23,7 @@ internal constructor(
      * The first chunk of the SQL statement before this query.
      */
     val whereBase: WhereBase<T>, vararg conditions: SQLOperator)
-    : BaseModelQueriable<T>(whereBase.databaseWrapper, whereBase.table),
+    : BaseModelQueriable<T>(whereBase.table),
     ModelQueriable<T>, Transformable<T>, QueryCloneable<Where<T>> {
 
     /**
@@ -167,10 +168,10 @@ internal constructor(
     /**
      * @return the result of the query as a [FlowCursor].
      */
-    override fun query(): FlowCursor? =// Query the sql here
+    override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? =// Query the sql here
         when {
             whereBase.queryBuilderBase is Select -> databaseWrapper.rawQuery(query, null)
-            else -> super.query()
+            else -> super.cursor(databaseWrapper)
         }
 
     /**
@@ -178,21 +179,21 @@ internal constructor(
      *
      * @return All of the entries in the DB converted into [T]
      */
-    override fun queryList(): MutableList<T> {
-        checkSelect("query")
-        return super.queryList()
+    override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<T> {
+        checkSelect("cursor")
+        return super.queryList(databaseWrapper)
     }
 
     /**
      * Queries and returns only the first [T] result from the DB. Will enforce a limit of 1 item
      * returned from the database.
      *
-     * @return The first result of this query. Note: this query forces a limit of 1 from the database.
+     * @return The first result of this query. Note: this cursor forces a limit of 1 from the database.
      */
-    override fun querySingle(): T? {
-        checkSelect("query")
+    override fun querySingle(databaseWrapper: DatabaseWrapper): T? {
+        checkSelect("cursor")
         limit(1)
-        return super.querySingle()
+        return super.querySingle(databaseWrapper)
     }
 
     private fun checkSelect(methodName: String) {

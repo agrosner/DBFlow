@@ -69,7 +69,7 @@ class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
         val setterBlock = CodeBlock.builder()
 
         if (!isStubbed) {
-            setterBlock.add("\$T.select(wrapper).from(\$T.class).where()",
+            setterBlock.add("\$T.select().from(\$T.class).where()",
                     ClassNames.SQLITE, referencedTypeName)
         } else {
             setterBlock.statement(
@@ -86,7 +86,7 @@ class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
             }
         }
 
-        if (!isStubbed) setterBlock.add("\n.querySingle()")
+        if (!isStubbed) setterBlock.add("\n.querySingle(wrapper)")
 
         code.beginControlFlow("if (\$L)", ifChecker.build())
         if (!isStubbed) {

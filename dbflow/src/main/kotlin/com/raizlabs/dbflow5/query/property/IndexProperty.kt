@@ -18,16 +18,16 @@ class IndexProperty<T : Any>(indexName: String,
     @Suppress("UNCHECKED_CAST")
     private val properties: Array<IProperty<*>> = properties as Array<IProperty<*>>
 
-    val DatabaseWrapper.index: Index<T>
-        get() = Index<T>(this, indexName).on(table, *properties).unique(unique)
+    val index: Index<T>
+        get() = Index<T>(indexName).on(table, *properties).unique(unique)
 
     val indexName = indexName.quoteIfNeeded() ?: ""
 
     fun createIfNotExists(wrapper: DatabaseWrapper) {
-        wrapper.index.enable()
+        index.enable(wrapper)
     }
 
     fun drop(wrapper: DatabaseWrapper) {
-        wrapper.index.disable()
+        index.disable(wrapper)
     }
 }

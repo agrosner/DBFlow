@@ -27,10 +27,10 @@ public class Issue extends BaseModel {
     @OneToMany(oneToManyMethods = {OneToManyMethod.SAVE, OneToManyMethod.DELETE}, variableName = "subIssueList")
     public List<SubIssue> getDbSubIssueList(DatabaseWrapper databaseWrapper) {
         if (subIssueList == null || subIssueList.isEmpty()) {
-            subIssueList = select(databaseWrapper)
+            subIssueList = select()
                     .from(SubIssue.class)
                     .where(SubIssue_Table.owningIssueId.eq(id))
-                    .queryList();
+                    .queryList(databaseWrapper);
         }
         return subIssueList;
     }

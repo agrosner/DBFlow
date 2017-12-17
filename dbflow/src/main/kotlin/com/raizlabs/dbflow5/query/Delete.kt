@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 /**
  * Description: Constructs the beginning of a SQL DELETE query
  */
-class Delete internal constructor(private val databaseWrapper: DatabaseWrapper) : Query {
+class Delete internal constructor() : Query {
 
     override val query: String
         get() = "DELETE "
@@ -19,7 +19,7 @@ class Delete internal constructor(private val databaseWrapper: DatabaseWrapper) 
      * @param [T] The table class
      * @return [T]
      **/
-    infix fun <T : Any> from(table: Class<T>): From<T> = From(databaseWrapper, this, table)
+    infix fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
 
     infix fun <T : Any> from(table: KClass<T>): From<T> = from(table.java)
 
@@ -27,10 +27,10 @@ class Delete internal constructor(private val databaseWrapper: DatabaseWrapper) 
     companion object {
 
         @JvmStatic
-        fun <T : Any> DatabaseWrapper.delete(modelClass: KClass<T>) = delete(modelClass.java)
+        fun <T : Any> delete(modelClass: KClass<T>) = delete(modelClass.java)
 
         @JvmStatic
-        inline fun <reified T : Any> DatabaseWrapper.delete() = delete(T::class)
+        inline fun <reified T : Any> delete() = delete(T::class)
 
         /**
          * Deletes the specified table
@@ -41,7 +41,7 @@ class Delete internal constructor(private val databaseWrapper: DatabaseWrapper) 
          */
         @JvmStatic
         fun <T : Any> DatabaseWrapper.table(table: Class<T>, vararg conditions: SQLOperator) {
-            Delete(this).from(table).where(*conditions).executeUpdateDelete()
+            Delete().from(table).where(*conditions).executeUpdateDelete(this)
         }
 
         /**

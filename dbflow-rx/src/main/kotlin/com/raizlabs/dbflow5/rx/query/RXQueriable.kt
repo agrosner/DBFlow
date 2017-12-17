@@ -1,6 +1,8 @@
 package com.raizlabs.dbflow5.rx.query
 
+import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.database.DatabaseStatement
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.Delete
 import com.raizlabs.dbflow5.query.Insert
@@ -17,48 +19,48 @@ interface RXQueriable {
     /**
      * @return An [Single] from the DB based on this query
      */
-    fun query(): Single<FlowCursor>
+    fun query(databaseWrapper: DatabaseWrapper): Single<FlowCursor>
 
     /**
      * @return An [Single] of [DatabaseStatement] from this query.
      */
-    fun compileStatement(): Single<DatabaseStatement>
+    fun compileStatement(databaseWrapper: DatabaseWrapper): Single<DatabaseStatement>
 
     /**
      * @return the long value of this query.
      */
-    fun longValue(): Single<Long>
+    fun longValue(databaseWrapper: DatabaseWrapper): Single<Long>
 
     /**
      * @return This may return the number of rows affected from a [Insert]  statement.
      * If not, returns [Model.INVALID_ROW_ID]
      */
-    fun executeInsert(): Single<Long>
+    fun executeInsert(databaseWrapper: DatabaseWrapper): Single<Long>
 
     /**
      * @return This may return the number of rows affected from a [Set] or [Delete] statement.
      * If not, returns [Model.INVALID_ROW_ID]
      */
-    fun executeUpdateDelete(): Single<Long>
+    fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Single<Long>
 
     /**
      * @return True if this query has data. It will run a [.count] greater than 0.
      */
-    fun hasData(): Single<Boolean>
+    fun hasData(databaseWrapper: DatabaseWrapper): Single<Boolean>
 
     /**
      * Will not return a result, rather simply will execute a SQL statement. Use this for non-SELECT statements or when
      * you're not interested in the result.
      */
-    fun execute(): Single<Void>
+    fun execute(databaseWrapper: DatabaseWrapper): Single<Void>
 
 }
 
-inline val RXQueriable.cursor
-    get() = query()
+inline val <reified T : Any> RXModelQueriable<T>.cursor
+    get() = query(databaseForTable<T>())
 
-inline val RXQueriable.hasData
-    get() = hasData()
+inline val <reified T : Any> RXModelQueriable<T>.hasData
+    get() = hasData(databaseForTable<T>())
 
-inline val RXQueriable.statement
-    get() = compileStatement()
+inline val <reified T : Any> RXModelQueriable<T>.statement
+    get() = compileStatement(databaseForTable<T>())

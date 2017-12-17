@@ -24,10 +24,10 @@ class RXQueryTests : BaseUnitTest() {
 
             var cursor: FlowCursor? = null
             (select from SimpleModel::class).rx()
-                .query()
-                .subscribe {
-                    cursor = it
-                }
+                    .query(this)
+                    .subscribe {
+                        cursor = it
+                    }
 
             assertEquals(1, cursor!!.count)
             cursor!!.close()
@@ -39,10 +39,10 @@ class RXQueryTests : BaseUnitTest() {
         databaseForTable<SimpleModel> {
             var databaseStatement: DatabaseStatement? = null
             (insert<SimpleModel>().columnValues(name.`is`("name")))
-                .rxBaseQueriable().compileStatement()
-                .subscribe {
-                    databaseStatement = it
-                }
+                    .rx().compileStatement(this)
+                    .subscribe {
+                        databaseStatement = it
+                    }
             assertNotNull(databaseStatement)
             databaseStatement!!.close()
         }
@@ -55,7 +55,7 @@ class RXQueryTests : BaseUnitTest() {
             SimpleModel("name2").save()
             var count = 0L
             (selectCountOf(Property.ALL_PROPERTY) from SimpleModel::class).rx()
-                .longValue().subscribe {
+                    .longValue(this).subscribe {
                 count = it
             }
 
@@ -68,11 +68,11 @@ class RXQueryTests : BaseUnitTest() {
         databaseForTable<SimpleModel> {
             var count = 0L
             (insert<SimpleModel>().columnValues(name.eq("name")))
-                .rxBaseQueriable()
-                .executeInsert()
-                .subscribe {
-                    count = it
-                }
+                    .rx()
+                    .executeInsert(this)
+                    .subscribe {
+                        count = it
+                    }
 
             assertEquals(1, count)
         }

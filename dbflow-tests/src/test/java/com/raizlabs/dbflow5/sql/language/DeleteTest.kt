@@ -25,8 +25,8 @@ class DeleteTest : BaseUnitTest() {
     fun validateDeletion() {
         databaseForTable<SimpleModel> {
             SimpleModel("name").save()
-            delete<SimpleModel>().execute()
-            assertFalse((select from SimpleModel::class).hasData())
+            delete<SimpleModel>().execute(this)
+            assertFalse((select from SimpleModel::class).hasData(this))
         }
     }
 
@@ -38,7 +38,7 @@ class DeleteTest : BaseUnitTest() {
 
             val where = delete<SimpleModel>().where(SimpleModel_Table.name.`is`("name"))
             assertEquals("DELETE FROM `SimpleModel` WHERE `name`='name'", where.query.trim())
-            where.execute()
+            where.execute(this)
 
             assertEquals(1, (select from SimpleModel::class).list.size)
         }

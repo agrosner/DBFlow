@@ -74,15 +74,15 @@ class DirectNotifierTest {
             val modelChange = Mockito.mock(OnTableChangedListener::class.java)
             DirectModelNotifier.get().registerForTableChanges(SimpleModel::class.java, modelChange)
 
-            insert<SimpleModel>().columnValues(SimpleModel_Table.name to "name").executeInsert()
+            insert<SimpleModel>().columnValues(SimpleModel_Table.name to "name").executeInsert(this)
 
             verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.INSERT)
 
-            (update<SimpleModel>() set SimpleModel_Table.name.eq("name2")).executeUpdateDelete()
+            (update<SimpleModel>() set SimpleModel_Table.name.eq("name2")).executeUpdateDelete(this)
 
             verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.UPDATE)
 
-            delete<SimpleModel>().executeUpdateDelete()
+            delete<SimpleModel>().executeUpdateDelete(this)
 
             verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.DELETE)
         }

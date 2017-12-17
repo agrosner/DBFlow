@@ -7,7 +7,7 @@ import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.structure.ChangeAction
 
 /**
- * Description: Provides a very basic query mechanism for strings. Allows you to easily perform custom SQL query string
+ * Description: Provides a very basic query mechanism for strings. Allows you to easily perform custom SQL cursor string
  * code where this library does not provide. It only runs a
  * [SQLiteDatabase.rawQuery].
  */
@@ -19,17 +19,16 @@ class StringQuery<T : Any>
  * @param query   The sql statement to query the DB with. Does not work with [Delete],
  * this must be done with [DatabaseWrapper.execSQL]
  */
-(databaseWrapper: DatabaseWrapper,
- table: Class<T>,
+(table: Class<T>,
  override val query: String)
-    : BaseModelQueriable<T>(databaseWrapper, table), Query, ModelQueriable<T> {
+    : BaseModelQueriable<T>(table), Query, ModelQueriable<T> {
     private var args: Array<String>? = null
 
     override// we don't explicitly know the change, but something changed.
     val primaryAction: ChangeAction
         get() = ChangeAction.CHANGE
 
-    override fun query(): FlowCursor? = databaseWrapper.rawQuery(query, args)
+    override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? = databaseWrapper.rawQuery(query, args)
 
     /**
      * Set selection arguments to execute on this raw query.

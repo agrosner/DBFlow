@@ -3,12 +3,13 @@ package com.raizlabs.dbflow5.query.list
 import android.os.Handler
 import android.os.Looper
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.list.FlowCursorList.OnCursorRefreshListener
 
 /**
- * Description: A query-backed immutable [List]. Represents the results of a query without loading
+ * Description: A query-backed immutable [List]. Represents the results of a cursor without loading
  * the full query out into an actual [List]. Avoid keeping this class around without calling [close] as
  * it leaves a [FlowCursor] object active.
  */
@@ -49,7 +50,7 @@ class FlowQueryList<T : Any>(
     }
 
     internal constructor(builder: Builder<T>) : this(
-            internalCursorList = FlowCursorList.Builder(builder.modelQueriable)
+            internalCursorList = FlowCursorList.Builder(builder.modelQueriable, builder.databaseWrapper)
                     .cursor(builder.cursor)
                     .build()
     )
@@ -187,14 +188,18 @@ class FlowQueryList<T : Any>(
 
         internal var cursor: FlowCursor? = null
         internal var modelQueriable: ModelQueriable<T>
+        internal val databaseWrapper: DatabaseWrapper
 
         internal constructor(cursorList: FlowCursorList<T>) {
+            this.databaseWrapper = cursorList.databaseWrapper
             table = cursorList.table
             cursor = cursorList.cursor
             modelQueriable = cursorList.modelQueriable
         }
 
-        constructor(modelQueriable: ModelQueriable<T>) {
+        constructor(modelQueriable: ModelQueriable<T>,
+                    databaseWrapper: DatabaseWrapper) {
+            this.databaseWrapper = databaseWrapper
             this.table = modelQueriable.table
             this.modelQueriable = modelQueriable
         }

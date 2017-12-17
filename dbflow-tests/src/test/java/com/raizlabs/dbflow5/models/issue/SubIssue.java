@@ -34,10 +34,10 @@ public class SubIssue extends BaseModel {
             pageList = new ArrayList<>();
         }
         if (pageList.isEmpty()) {
-            pageList = select(databaseWrapper)
+            pageList = select()
                     .from(Page.class)
                     .where(Page_Table.owningIssueId.eq(owningIssueId), Page_Table.subIssue_id.eq(id))
-                    .queryList();
+                    .queryList(databaseWrapper);
         }
         return pageList;
     }

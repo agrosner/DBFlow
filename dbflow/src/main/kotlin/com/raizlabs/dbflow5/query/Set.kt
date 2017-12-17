@@ -10,9 +10,8 @@ import com.raizlabs.dbflow5.structure.ChangeAction
  * Description: Used to specify the SET part of an [com.raizlabs.android.dbflow.sql.language.Update] query.
  */
 class Set<T : Any> internal constructor(
-    databaseWrapper: DatabaseWrapper,
     override val queryBuilderBase: Query, table: Class<T>)
-    : BaseTransformable<T>(databaseWrapper, table), WhereBase<T> {
+    : BaseTransformable<T>(table), WhereBase<T> {
 
     private val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause().setAllCommaSeparated(true)
 
@@ -47,7 +46,7 @@ class Set<T : Any> internal constructor(
     }
 
     override fun cloneSelf(): Set<T> {
-        val set = Set(databaseWrapper,
+        val set = Set(
             when (queryBuilderBase) {
                 is Update<*> -> queryBuilderBase.cloneSelf()
                 else -> queryBuilderBase

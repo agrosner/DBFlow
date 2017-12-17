@@ -20,7 +20,6 @@ class Index<TModel>
  * @param indexName The name of this index.
  */
 (
-    private val databaseWrapper: DatabaseWrapper,
     /**
      * @return The name of this index.
      */
@@ -107,7 +106,7 @@ class Index<TModel>
         }
     }
 
-    fun enable() {
+    fun enable(databaseWrapper: DatabaseWrapper) {
         if (table == null) {
             throw IllegalStateException("Please call on() to set a table to use this index on.")
         } else if (columns.isEmpty()) {
@@ -116,7 +115,7 @@ class Index<TModel>
         databaseWrapper.execSQL(query)
     }
 
-    fun disable() {
+    fun disable(databaseWrapper: DatabaseWrapper) {
         dropIndex(databaseWrapper, indexName)
     }
 }

@@ -14,18 +14,17 @@ import com.raizlabs.dbflow5.structure.ChangeAction
  * Description: Base implementation of something that can be queried from the database.
  */
 abstract class BaseQueriable<TModel : Any> protected constructor(
-    private val databaseWrapper: DatabaseWrapper,
-    /**
-     * @return The table associated with this INSERT
-     */
-    val table: Class<TModel>) : Queriable, Actionable {
+        /**
+         * @return The table associated with this INSERT
+         */
+        val table: Class<TModel>) : Queriable, Actionable {
 
     abstract override val primaryAction: ChangeAction
 
-    override fun longValue(): Long {
+    override fun longValue(databaseWrapper: DatabaseWrapper): Long {
         try {
             val query = query
-            FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
+            FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
             return longForQuery(databaseWrapper, query)
         } catch (sde: SQLiteException) {
             // catch exception here, log it but return 0;
@@ -35,27 +34,27 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
         return 0
     }
 
-    override fun hasData(): Boolean = longValue() > 0
+    override fun hasData(databaseWrapper: DatabaseWrapper): Boolean = longValue(databaseWrapper) > 0
 
-    override fun query(): FlowCursor? {
+    override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? {
         if (primaryAction == ChangeAction.INSERT) {
             // inserting, let's compile and insert
-            val databaseStatement = compileStatement()
+            val databaseStatement = compileStatement(databaseWrapper)
             databaseStatement.executeInsert()
             databaseStatement.close()
         } else {
             val query = query
-            FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
+            FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
             databaseWrapper.execSQL(query)
         }
         return null
     }
 
-    override fun executeInsert(): Long =
-        compileStatement().executeInsert()
+    override fun executeInsert(databaseWrapper: DatabaseWrapper): Long =
+            compileStatement(databaseWrapper).executeInsert()
 
-    override fun execute() {
-        val cursor = query()
+    override fun execute(databaseWrapper: DatabaseWrapper) {
+        val cursor = cursor(databaseWrapper)
         if (cursor != null) {
             cursor.close()
         } else {
@@ -64,7 +63,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
         }
     }
 
-    override fun compileStatement(): DatabaseStatement {
+    override fun compileStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Compiling Query Into Statement: " + query)
         return DatabaseStatementWrapper(databaseWrapper.compileStatement(query), this)

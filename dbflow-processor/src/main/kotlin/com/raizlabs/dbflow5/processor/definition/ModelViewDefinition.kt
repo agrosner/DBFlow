@@ -179,7 +179,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
             `override fun`(String::class, "getCreationQuery",
                     param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
                 modifiers(public, final)
-                `return`("\$T.\$L(${ModelUtils.wrapper}).getQuery()", elementClassName, queryFieldName)
+                `return`("\$T.\$L().getQuery()", elementClassName, queryFieldName)
             }
             `override fun`(String::class, "getViewName") {
                 modifiers(public, final)

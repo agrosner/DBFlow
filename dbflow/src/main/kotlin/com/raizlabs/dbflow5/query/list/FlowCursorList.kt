@@ -4,6 +4,7 @@ import android.widget.ListView
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.ModelQueriable
 
@@ -29,6 +30,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     val modelQueriable: ModelQueriable<T>
     private var _cursor: FlowCursor? = null
     private val cursorFunc: () -> FlowCursor
+    val databaseWrapper: DatabaseWrapper
 
     internal val instanceAdapter: RetrievalAdapter<T>
 
@@ -44,7 +46,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
             throwIfCursorClosed()
             warnEmptyCursor()
             return _cursor?.let { cursor ->
-                instanceAdapter.listModelLoader.convertToData(cursor, FlowManager.getDatabaseForTable(table))
+                instanceAdapter.listModelLoader.convertToData(cursor, databaseWrapper)
             } ?: listOf()
         }
 
@@ -61,7 +63,12 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     init {
         table = builder.modelClass
         this.modelQueriable = builder.modelQueriable
-        cursorFunc = { builder.cursor ?: modelQueriable.query() ?: throw IllegalStateException("The query must evaluate to a cursor") }
+        this.databaseWrapper = builder.databaseWrapper
+        cursorFunc = {
+            builder.cursor
+                    ?: modelQueriable.cursor(databaseWrapper)
+                    ?: throw IllegalStateException("The cursor must evaluate to a cursor")
+        }
         instanceAdapter = FlowManager.getRetrievalAdapter(builder.modelClass)
     }
 
@@ -92,7 +99,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     fun refresh() {
         val cursor = unpackCursor()
         cursor.close()
-        this._cursor = modelQueriable.query()
+        this._cursor = modelQueriable.cursor(databaseWrapper)
         synchronized(cursorRefreshListenerSet) {
             cursorRefreshListenerSet.forEach { listener -> listener.onCursorRefreshed(this) }
         }
@@ -112,7 +119,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         return if (cursor.moveToPosition(index.toInt())) {
             instanceAdapter.singleModelLoader.convertToData(
                     FlowCursor.from(cursor), false,
-                    FlowManager.getDatabaseForTable(table))
+                    databaseWrapper)
                     ?: throw IndexOutOfBoundsException("Invalid item at index $index. Check your cursor data.")
         } else {
             throw IndexOutOfBoundsException("Invalid item at index $index. Check your cursor data.")
@@ -170,14 +177,15 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
      * @return A new [Builder] that contains the same cache, query statement, and other
      * underlying data, but allows for modification.
      */
-    fun newBuilder(): Builder<T> = Builder(modelQueriable).cursor(_cursor)
+    fun newBuilder(): Builder<T> = Builder(modelQueriable, databaseWrapper).cursor(_cursor)
 
     /**
      * Provides easy way to construct a [FlowCursorList].
      *
      * @param [T]
      */
-    class Builder<T : Any>(internal var modelQueriable: ModelQueriable<T>) {
+    class Builder<T : Any>(internal var modelQueriable: ModelQueriable<T>,
+                           internal val databaseWrapper: DatabaseWrapper) {
 
         internal val modelClass: Class<T> = modelQueriable.table
         internal var cursor: FlowCursor? = null

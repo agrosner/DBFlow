@@ -15,8 +15,7 @@ class Update<T : Any>
  *
  * @param table The table to use.
  */
-internal constructor(private val databaseWrapper: DatabaseWrapper,
-                     val table: Class<T>) : Query, QueryCloneable<Update<T>> {
+internal constructor(val table: Class<T>) : Query, QueryCloneable<Update<T>> {
 
     /**
      * The conflict action to resolve updates.
@@ -33,7 +32,7 @@ internal constructor(private val databaseWrapper: DatabaseWrapper,
             return queryBuilder.toString()
         }
 
-    override fun cloneSelf(): Update<T> = Update(databaseWrapper, table)
+    override fun cloneSelf(): Update<T> = Update(table)
         .conflictAction(conflictAction)
 
     fun conflictAction(conflictAction: ConflictAction) = apply {
@@ -78,7 +77,7 @@ internal constructor(private val databaseWrapper: DatabaseWrapper,
      * @param conditions The array of conditions that define this SET statement
      * @return A SET query piece of this statement
      */
-    fun set(vararg conditions: SQLOperator): Set<T> = Set(databaseWrapper, this, table)
+    fun set(vararg conditions: SQLOperator): Set<T> = Set( this, table)
         .conditions(*conditions)
 }
 

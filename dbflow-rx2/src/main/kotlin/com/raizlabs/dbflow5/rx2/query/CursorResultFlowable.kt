@@ -1,6 +1,7 @@
 package com.raizlabs.dbflow5.rx2.query
 
 import com.raizlabs.dbflow5.config.FlowLog
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.CursorResult
 import io.reactivex.Flowable
 import io.reactivex.SingleObserver
@@ -13,13 +14,15 @@ import java.util.concurrent.atomic.AtomicLong
  * Description: Wraps a [RXModelQueriable] into a [Flowable]
  * for each element represented by the query.
  */
-class CursorResultFlowable<T : Any>(private val modelQueriable: RXModelQueriable<T>)
+class CursorResultFlowable<T : Any>(private val modelQueriable: RXModelQueriable<T>,
+                                    private val databaseWrapper: DatabaseWrapper)
     : Flowable<T>() {
 
     override fun subscribeActual(subscriber: Subscriber<in T>) {
         subscriber.onSubscribe(object : Subscription {
             override fun request(n: Long) {
-                modelQueriable.queryResults().subscribe(CursorResultObserver(subscriber, n))
+                modelQueriable.queryResults(databaseWrapper)
+                        .subscribe(CursorResultObserver(subscriber, n))
             }
 
             override fun cancel() {

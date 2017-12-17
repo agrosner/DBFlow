@@ -13,8 +13,8 @@ import com.raizlabs.dbflow5.sql.Query;
 public class JavaModelView {
 
     @ModelViewQuery
-    public static Query getQuery(DatabaseWrapper databaseWrapper) {
-        return SQLite.select(databaseWrapper, Author_Table.first_name.as("firstName"), Author_Table.id.as("id"));
+    public static Query getQuery() {
+        return SQLite.select(Author_Table.first_name.as("firstName"), Author_Table.id.as("id"));
     }
 
     @Column

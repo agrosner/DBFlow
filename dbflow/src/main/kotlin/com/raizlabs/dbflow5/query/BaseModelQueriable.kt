@@ -22,9 +22,8 @@ abstract class BaseModelQueriable<TModel : Any>
  *
  * @param table the table that belongs to this query.
  */
-protected constructor(val databaseWrapper: DatabaseWrapper,
-                      table: Class<TModel>)
-    : BaseQueriable<TModel>(databaseWrapper, table), ModelQueriable<TModel>, Query {
+protected constructor(table: Class<TModel>)
+    : BaseQueriable<TModel>(table), ModelQueriable<TModel>, Query {
 
     private val retrievalAdapter: RetrievalAdapter<TModel> by lazy { FlowManager.getRetrievalAdapter(table) }
 
@@ -48,26 +47,28 @@ protected constructor(val databaseWrapper: DatabaseWrapper,
         cachingEnabled = false
     }
 
-    override fun queryResults(): CursorResult<TModel> = CursorResult(retrievalAdapter.table, query(), databaseWrapper)
+    override fun queryResults(databaseWrapper: DatabaseWrapper): CursorResult<TModel> =
+            CursorResult(retrievalAdapter.table, cursor(databaseWrapper), databaseWrapper)
 
-    override fun queryList(): MutableList<TModel> {
+    override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<TModel> {
         val query = query
-        FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
+        FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
         return listModelLoader.load(databaseWrapper, query)!!
     }
 
-    override fun querySingle(): TModel? {
+    override fun querySingle(databaseWrapper: DatabaseWrapper): TModel? {
         val query = query
-        FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
+        FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
         return singleModelLoader.load(databaseWrapper, query)
     }
 
-    override fun cursorList(): FlowCursorList<TModel> = FlowCursorList.Builder(this).build()
+    override fun cursorList(databaseWrapper: DatabaseWrapper): FlowCursorList<TModel> =
+            FlowCursorList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
 
-    override fun flowQueryList(): FlowQueryList<TModel> =
-        FlowQueryList.Builder(modelQueriable = this).build()
+    override fun flowQueryList(databaseWrapper: DatabaseWrapper): FlowQueryList<TModel> =
+            FlowQueryList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
 
-    override fun executeUpdateDelete(): Long {
+    override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long {
         val affected = databaseWrapper.compileStatement(query).executeUpdateDelete()
 
         // only notify for affected.
@@ -77,15 +78,19 @@ protected constructor(val databaseWrapper: DatabaseWrapper,
         return affected
     }
 
-    override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>): MutableList<QueryClass> {
+    override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>,
+                                                    databaseWrapper: DatabaseWrapper)
+            : MutableList<QueryClass> {
         val query = query
-        FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
+        FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
         return getListQueryModelLoader(queryModelClass).load(databaseWrapper, query)!!
     }
 
-    override fun <QueryClass : Any> queryCustomSingle(queryModelClass: Class<QueryClass>): QueryClass? {
+    override fun <QueryClass : Any> queryCustomSingle(queryModelClass: Class<QueryClass>,
+                                                      databaseWrapper: DatabaseWrapper)
+            : QueryClass? {
         val query = query
-        FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
+        FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
         return getSingleQueryModelLoader(queryModelClass).load(databaseWrapper, query)
     }
 

@@ -3,7 +3,6 @@
 
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.structure.Model
@@ -14,7 +13,7 @@ import kotlin.reflect.KClass
  * @param properties The properties/columns to SELECT.
  * @return A beginning of the SELECT statement.
  */
-fun DatabaseWrapper.select(vararg properties: IProperty<*>): Select = Select(this, *properties)
+fun select(vararg properties: IProperty<*>): Select = Select(*properties)
 
 /**
  * Starts a new SELECT COUNT(property1, property2, propertyn) (if properties specified) or
@@ -23,42 +22,42 @@ fun DatabaseWrapper.select(vararg properties: IProperty<*>): Select = Select(thi
  * @param properties Optional, if specified returns the count of non-null ROWs from a specific single/group of columns.
  * @return A new select statement SELECT COUNT(expression)
  */
-fun DatabaseWrapper.selectCountOf(vararg properties: IProperty<*>): Select = Select(this, count(*properties))
+fun selectCountOf(vararg properties: IProperty<*>): Select = Select(count(*properties))
 
-inline fun <reified T : Any> DatabaseWrapper.update() = update(T::class.java)
+inline fun <reified T : Any> update() = update(T::class.java)
 
 /**
  * @param table    The tablet to update.
  * @return A new UPDATE statement.
  */
-infix fun <T : Any> DatabaseWrapper.update(table: Class<T>): Update<T> = Update(this, table)
+fun <T : Any> update(table: Class<T>): Update<T> = Update(table)
 
 /**
  * @param table    The table to update.
  * @return A new UPDATE statement.
  */
-infix fun <T : Any> DatabaseWrapper.update(modelClass: KClass<T>) = update(modelClass.java)
+fun <T : Any> update(modelClass: KClass<T>) = update(modelClass.java)
 
-inline fun <reified T : Any> DatabaseWrapper.insert() = insert(T::class.java)
-
-/**
- * @param table    The table to insert.
- * @return A new INSERT statement.
- */
-infix fun <T : Any> DatabaseWrapper.insert(table: Class<T>): Insert<T> = Insert(this, table)
+inline fun <reified T : Any> insert() = insert(T::class.java)
 
 /**
  * @param table    The table to insert.
  * @return A new INSERT statement.
  */
-infix fun <T : Any> DatabaseWrapper.insert(modelClass: KClass<T>) = insert(modelClass.java)
+fun <T : Any> insert(table: Class<T>): Insert<T> = Insert(table)
+
+/**
+ * @param table    The table to insert.
+ * @return A new INSERT statement.
+ */
+fun <T : Any> insert(modelClass: KClass<T>) = insert(modelClass.java)
 
 /**
  * @return Begins a DELETE statement.
  */
-fun DatabaseWrapper.delete(): Delete = Delete(this)
+fun delete(): Delete = Delete()
 
-inline fun <reified T : Any> DatabaseWrapper.delete() = delete(T::class.java)
+inline fun <reified T : Any> delete() = delete(T::class.java)
 
 /**
  * Starts a DELETE statement on the specified table.
@@ -67,7 +66,7 @@ inline fun <reified T : Any> DatabaseWrapper.delete() = delete(T::class.java)
  * @param [T] The class that implements [Model].
  * @return A [From] with specified DELETE on table.
  */
-infix fun <T : Any> DatabaseWrapper.delete(table: Class<T>): From<T> = delete().from(table)
+fun <T : Any> delete(table: Class<T>): From<T> = delete().from(table)
 
 /**
  * Starts an INDEX statement on specified table.
@@ -76,7 +75,7 @@ infix fun <T : Any> DatabaseWrapper.delete(table: Class<T>): From<T> = delete().
  * @param [T] The class that implements [Model].
  * @return A new INDEX statement.
  */
-fun <T> DatabaseWrapper.index(name: String): Index<T> = Index(this, name)
+fun <T> index(name: String): Index<T> = Index(name)
 
 /**
  * Starts a TRIGGER statement.

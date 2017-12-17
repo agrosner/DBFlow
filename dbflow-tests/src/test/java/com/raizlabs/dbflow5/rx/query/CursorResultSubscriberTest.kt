@@ -17,7 +17,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
             var count = 0
             (select from SimpleModel::class).rx()
-                    .queryStreamResults()
+                    .queryStreamResults(this)
                     .toBlocking()
                     .subscribe {
                         count++

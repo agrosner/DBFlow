@@ -21,7 +21,7 @@ class FlowCursorListTest : BaseUnitTest() {
     fun validateCursorPassed() {
         databaseForTable<SimpleModel> {
             val cursor = (select from SimpleModel::class).cursor
-            val list = FlowCursorList.Builder(select from SimpleModel::class)
+            val list = FlowCursorList.Builder(select from SimpleModel::class, this)
                     .cursor(cursor)
                     .build()
 
@@ -33,7 +33,7 @@ class FlowCursorListTest : BaseUnitTest() {
     fun validateModelQueriable() {
         databaseForTable<SimpleModel> {
             val modelQueriable = (select from SimpleModel::class)
-            val list = FlowCursorList.Builder(modelQueriable)
+            val list = FlowCursorList.Builder(modelQueriable, this)
                     .build()
 
             assertEquals(modelQueriable, list.modelQueriable)
@@ -47,7 +47,7 @@ class FlowCursorListTest : BaseUnitTest() {
                 SimpleModel("$it").save()
             }
 
-            val list = (select from SimpleModel::class).cursorList()
+            val list = (select from SimpleModel::class).cursorList(this)
             val all = list.all
             assertEquals(list.count, all.size.toLong())
         }
@@ -60,7 +60,7 @@ class FlowCursorListTest : BaseUnitTest() {
                 SimpleModel("$it").save()
             }
 
-            val list = (select from SimpleModel::class).cursorList()
+            val list = (select from SimpleModel::class).cursorList(this)
 
             val listener = mock<FlowCursorList.OnCursorRefreshListener<SimpleModel>>()
             list.addOnCursorRefreshListener(listener)

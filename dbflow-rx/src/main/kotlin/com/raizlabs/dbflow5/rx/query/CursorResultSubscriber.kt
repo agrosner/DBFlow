@@ -1,6 +1,7 @@
 package com.raizlabs.dbflow5.rx.query
 
 import com.raizlabs.dbflow5.config.FlowLog
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.CursorResult
 import rx.Observable
 import rx.Producer
@@ -13,7 +14,8 @@ import java.util.concurrent.atomic.AtomicLong
  * Description: Wraps a [RXModelQueriable] into a [Observable.OnSubscribe]
  * for each element represented by the query.
  */
-class CursorResultSubscriber<T : Any>(private val modelQueriable: RXModelQueriable<T>) : Observable.OnSubscribe<T> {
+class CursorResultSubscriber<T : Any>(private val modelQueriable: RXModelQueriable<T>,
+                                      private val databaseWrapper: DatabaseWrapper) : Observable.OnSubscribe<T> {
 
     override fun call(subscriber: Subscriber<in T>) {
         subscriber.setProducer(ElementProducer(subscriber))
@@ -28,7 +30,7 @@ class CursorResultSubscriber<T : Any>(private val modelQueriable: RXModelQueriab
                     && requested.compareAndSet(0, java.lang.Long.MAX_VALUE)
                     || n > 0 && BackpressureUtils.getAndAddRequest(requested, n) == 0L) {
                 // emitting all elements
-                modelQueriable.queryResults().subscribe(CursorResultAction(n))
+                modelQueriable.queryResults(databaseWrapper).subscribe(CursorResultAction(n))
             }
         }
 

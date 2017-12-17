@@ -7,7 +7,7 @@ import com.raizlabs.dbflow5.query.OperatorGroup
 
 /**
  * Description: The baseclass for adapters to [QueryModel] that defines how it interacts with the DB. The
- * where query is not defined here, rather its determined by the query used.
+ * where query is not defined here, rather its determined by the cursor used.
  */
 abstract class QueryModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     : RetrievalAdapter<T>(databaseDefinition) {

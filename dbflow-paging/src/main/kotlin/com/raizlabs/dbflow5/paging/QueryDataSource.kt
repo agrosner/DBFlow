@@ -7,7 +7,6 @@ import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.Select
 import com.raizlabs.dbflow5.query.Transformable
 import com.raizlabs.dbflow5.query.WhereBase
-import com.raizlabs.dbflow5.query.list
 import com.raizlabs.dbflow5.query.selectCountOf
 import com.raizlabs.dbflow5.sql.QueryCloneable
 
@@ -21,27 +20,30 @@ internal constructor(private val transformable: TQuery,
 
     init {
         if (transformable is WhereBase<*> && transformable.queryBuilderBase !is Select) {
-            throw IllegalArgumentException("Cannot pass a non-SELECT query into this data source.")
+            throw IllegalArgumentException("Cannot pass a non-SELECT cursor into this data source.")
         }
     }
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>) {
-        database.executeTransactionAsync({ getQueriableFromParams(params.startPosition, params.loadSize).list },
-            success = { _, list -> callback.onResult(list) })
+        database.executeTransactionAsync({
+            getQueriableFromParams(params.startPosition, params.loadSize).queryList(database)
+        },
+                success = { _, list -> callback.onResult(list) })
     }
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
-        database.executeTransactionAsync({ db -> db.selectCountOf().from(transformable).longValue() },
-            success = { _, count ->
-                val max = when {
-                    params.requestedLoadSize >= count - 1 -> count.toInt()
-                    else -> params.requestedLoadSize
-                }
-                database.executeTransactionAsync({ getQueriableFromParams(params.requestedStartPosition, max).list },
-                    success = { _, list ->
-                        callback.onResult(list, params.requestedStartPosition, count.toInt())
-                    })
-            })
+        database.executeTransactionAsync({ db -> selectCountOf().from(transformable).longValue(db) },
+                success = { _, count ->
+                    val max = when {
+                        params.requestedLoadSize >= count - 1 -> count.toInt()
+                        else -> params.requestedLoadSize
+                    }
+                    database.executeTransactionAsync({ db ->
+                        getQueriableFromParams(params.requestedStartPosition, max).queryList(db) },
+                            success = { _, list ->
+                                callback.onResult(list, params.requestedStartPosition, count.toInt())
+                            })
+                })
     }
 
     private fun getQueriableFromParams(startPosition: Int, max: Int): ModelQueriable<T> {
@@ -63,11 +65,11 @@ internal constructor(private val transformable: TQuery,
     companion object {
         @JvmStatic
         fun <T : Any, TQuery> newFactory(transformable: TQuery, database: DBFlowDatabase)
-            where TQuery : Transformable<T>, TQuery : ModelQueriable<T> =
-            Factory(transformable, database)
+                where TQuery : Transformable<T>, TQuery : ModelQueriable<T> =
+                Factory(transformable, database)
     }
 }
 
 fun <T : Any, TQuery> TQuery.toDataSourceFactory(database: DBFlowDatabase)
-    where TQuery : Transformable<T>, TQuery : ModelQueriable<T> =
-    QueryDataSource.newFactory(this, database)
+        where TQuery : Transformable<T>, TQuery : ModelQueriable<T> =
+        QueryDataSource.newFactory(this, database)

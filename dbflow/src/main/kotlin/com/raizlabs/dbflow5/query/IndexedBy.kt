@@ -17,7 +17,7 @@ class IndexedBy<TModel : Any>
  */
 (private val indexProperty: IndexProperty<TModel>,
  private val whereBase: WhereBase<TModel>)
-    : BaseTransformable<TModel>(whereBase.databaseWrapper, whereBase.table) {
+    : BaseTransformable<TModel>(whereBase.table) {
 
     override val queryBuilderBase: Query
         get() = whereBase.queryBuilderBase

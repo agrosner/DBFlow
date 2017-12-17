@@ -3,6 +3,7 @@ package com.raizlabs.dbflow5.query.list
 import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.models.SimpleModel
+import com.raizlabs.dbflow5.query.list
 import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.structure.save
 import org.junit.Assert.assertEquals
@@ -23,7 +24,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
 
 
             var count = 0
-            (select from SimpleModel::class).cursorList().iterator().forEach {
+            (select from SimpleModel::class).cursorList(this).iterator().forEach {
                 assertEquals("$count", it.name)
                 count++
             }
@@ -38,7 +39,8 @@ class FlowCursorIteratorTest : BaseUnitTest() {
             }
 
             var count = 2
-            (select from SimpleModel::class).cursorList().iterator(2, 7).forEach {
+            (select from SimpleModel::class).cursorList(this)
+                    .iterator(2, 7).forEach {
                 assertEquals("$count", it.name)
                 count++
             }
@@ -54,7 +56,8 @@ class FlowCursorIteratorTest : BaseUnitTest() {
             }
 
             var count = 2
-            (select from SimpleModel::class).cursorList().iterator(2, Long.MAX_VALUE).forEach {
+            (select from SimpleModel::class).cursorList(this)
+                    .iterator(2, Long.MAX_VALUE).forEach {
                 assertEquals("$count", it.name)
                 count++
             }

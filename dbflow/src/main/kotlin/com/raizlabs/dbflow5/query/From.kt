@@ -15,11 +15,10 @@ class From<TModel : Any>
 /**
  * The SQL from statement constructed.
  *
- * @param querybase The base query we append this query to
+ * @param querybase The base query we append this cursor to
  * @param table     The table this corresponds to
  */
 internal constructor(
-    databaseWrapper: DatabaseWrapper,
 
     /**
      * @return The base query, usually a [Delete], [Select], or [Update]
@@ -31,7 +30,7 @@ internal constructor(
      * If specified, we use this as the subquery for the FROM statement.
      */
     private val modelQueriable: ModelQueriable<TModel>? = null)
-    : BaseTransformable<TModel>(databaseWrapper, table) {
+    : BaseTransformable<TModel>(table) {
 
     /**
      * An alias for the table
@@ -70,7 +69,7 @@ internal constructor(
         }
 
     override fun cloneSelf(): From<TModel> {
-        val from = From(databaseWrapper,
+        val from = From(
             when (queryBuilderBase) {
                 is Select -> queryBuilderBase.cloneSelf()
                 else -> queryBuilderBase

@@ -342,11 +342,11 @@ object FlowManager {
         getModelViewAdapterOrNull(modelViewClass) ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
 
     /**
-     * Returns the query model adapter for an undefined query. These are only created with the [T] annotation.
+     * Returns the query model adapter for an undefined cursor. These are only created with the [T] annotation.
      *
      * @param queryModelClass The class of the query
      * @param [T]  The class that extends [BaseQueryModel]
-     * @return The query model adapter for the specified model query.
+     * @return The query model adapter for the specified model cursor.
      */
     @JvmStatic
     fun <T : Any> getQueryModelAdapter(queryModelClass: Class<T>): QueryModelAdapter<T> =

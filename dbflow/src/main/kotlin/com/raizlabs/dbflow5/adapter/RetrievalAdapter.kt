@@ -95,7 +95,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
      */
     open fun load(model: T, databaseWrapper: DatabaseWrapper): T? =
         nonCacheableSingleModelLoader.load(databaseWrapper,
-            (databaseWrapper.select
+            (select
                 from table
                 where getPrimaryConditionClause(model)).query)
 

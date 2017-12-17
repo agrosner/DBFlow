@@ -19,9 +19,8 @@ class Insert<TModel : Any>
  *
  * @param table The table to insert into
  */
-internal constructor(databaseWrapper: DatabaseWrapper,
-                     table: Class<TModel>)
-    : BaseQueriable<TModel>(databaseWrapper, table), Query {
+internal constructor(table: Class<TModel>)
+    : BaseQueriable<TModel>(table), Query {
 
     /**
      * The columns to specify in this query (optional)
@@ -48,29 +47,29 @@ internal constructor(databaseWrapper: DatabaseWrapper,
                 queryBuilder.append("OR").append(" $conflictAction ")
             }
             queryBuilder.append("INTO")
-                .append(" ")
-                .append(FlowManager.getTableName(table))
+                    .append(" ")
+                    .append(FlowManager.getTableName(table))
 
             columns?.let { columns ->
                 queryBuilder.append("(")
-                    .appendArray(*columns.toTypedArray())
-                    .append(")")
+                        .appendArray(*columns.toTypedArray())
+                        .append(")")
             }
             if (selectFrom != null) {
                 queryBuilder.append(" ").append(selectFrom!!.query)
             } else {
                 if (valuesList.size < 1) {
                     throw IllegalStateException("The insert of " + FlowManager.getTableName(table) + " should have" +
-                        "at least one value specified for the insert")
+                            "at least one value specified for the insert")
                 } else columns?.let { columns ->
                     valuesList.asSequence()
-                        .filter { it.size != columns.size }
-                        .forEach {
-                            throw IllegalStateException(
-                                """The Insert of ${FlowManager.getTableName(table)}
+                            .filter { it.size != columns.size }
+                            .forEach {
+                                throw IllegalStateException(
+                                        """The Insert of ${FlowManager.getTableName(table)}
                                             |when specifyingcolumns needs to have the same amount
                                             |of values and columns""".trimMargin())
-                        }
+                            }
                 }
 
                 queryBuilder.append(" VALUES(")
@@ -264,7 +263,7 @@ internal constructor(databaseWrapper: DatabaseWrapper,
         return or(ConflictAction.IGNORE)
     }
 
-    override fun executeUpdateDelete(): Long {
+    override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long {
         throw IllegalStateException("Cannot call executeUpdateDelete() from an Insert")
     }
 }

@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.structure
 
+import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.query.ModelQueriable
-import com.raizlabs.dbflow5.query.list
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -19,7 +19,7 @@ class OneToMany<T : Any>(private val query: () -> ModelQueriable<T>) : ReadWrite
 
     override fun getValue(thisRef: Any, property: KProperty<*>): List<T>? {
         if (list?.isEmpty() != false) {
-            list = query().list
+            list = query().queryList(databaseForTable(thisRef::class))
         }
         return list
     }

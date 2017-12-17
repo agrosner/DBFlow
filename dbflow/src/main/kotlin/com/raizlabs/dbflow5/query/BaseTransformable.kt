@@ -13,9 +13,8 @@ abstract class BaseTransformable<TModel : Any>
  *
  * @param table the table that belongs to this query.
  */
-protected constructor(databaseWrapper: DatabaseWrapper,
-                      table: Class<TModel>)
-    : BaseModelQueriable<TModel>(databaseWrapper, table), Transformable<TModel>, WhereBase<TModel> {
+protected constructor(table: Class<TModel>)
+    : BaseModelQueriable<TModel>(table), Transformable<TModel>, WhereBase<TModel> {
 
     infix fun <T : Any> whereExists(where: Where<T>) = where().exists(where)
 
@@ -23,19 +22,19 @@ protected constructor(databaseWrapper: DatabaseWrapper,
 
     infix fun where(condition: SQLOperator): Where<TModel> = Where(this, condition)
 
-    override fun query(): FlowCursor? = where().query()
+    override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? = where().cursor(databaseWrapper)
 
     override fun groupBy(vararg nameAliases: NameAlias): Where<TModel> =
-        where().groupBy(*nameAliases)
+            where().groupBy(*nameAliases)
 
     override fun groupBy(vararg properties: IProperty<*>): Where<TModel> =
-        where().groupBy(*properties)
+            where().groupBy(*properties)
 
     override fun orderBy(nameAlias: NameAlias, ascending: Boolean): Where<TModel> =
-        where().orderBy(nameAlias, ascending)
+            where().orderBy(nameAlias, ascending)
 
     override fun orderBy(property: IProperty<*>, ascending: Boolean): Where<TModel> =
-        where().orderBy(property, ascending)
+            where().orderBy(property, ascending)
 
     override fun orderByAll(orderBies: List<OrderBy>): Where<TModel> = where().orderByAll(orderBies)
 
@@ -49,15 +48,15 @@ protected constructor(databaseWrapper: DatabaseWrapper,
 
     abstract override fun cloneSelf(): BaseTransformable<TModel>
 
-    override fun queryList(): MutableList<TModel> {
-        checkSelect("query")
-        return super.queryList()
+    override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<TModel> {
+        checkSelect("cursor")
+        return super.queryList(databaseWrapper)
     }
 
-    override fun querySingle(): TModel? {
-        checkSelect("query")
+    override fun querySingle(databaseWrapper: DatabaseWrapper): TModel? {
+        checkSelect("cursor")
         limit(1)
-        return super.querySingle()
+        return super.querySingle(databaseWrapper)
     }
 
     private fun checkSelect(methodName: String) {

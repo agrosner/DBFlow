@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.sql.QueryCloneable
 
@@ -18,7 +17,5 @@ interface WhereBase<TModel> : Query, Actionable, QueryCloneable<WhereBase<TModel
      * @return The base Query object.
      */
     val queryBuilderBase: Query
-
-    val databaseWrapper: DatabaseWrapper
 
 }

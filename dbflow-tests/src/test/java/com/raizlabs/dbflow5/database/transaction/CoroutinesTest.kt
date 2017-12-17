@@ -3,17 +3,17 @@ package com.raizlabs.dbflow5.database.transaction
 import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.TestDatabase
 import com.raizlabs.dbflow5.config.database
-import com.raizlabs.dbflow5.models.SimpleModel
-import com.raizlabs.dbflow5.models.SimpleModel_Table
-import com.raizlabs.dbflow5.query.delete
-import com.raizlabs.dbflow5.structure.save
 import com.raizlabs.dbflow5.coroutines.awaitDelete
 import com.raizlabs.dbflow5.coroutines.awaitInsert
 import com.raizlabs.dbflow5.coroutines.awaitSave
-import com.raizlabs.dbflow5.coroutines.awaitUpdate
 import com.raizlabs.dbflow5.coroutines.awaitTransact
+import com.raizlabs.dbflow5.coroutines.awaitUpdate
+import com.raizlabs.dbflow5.models.SimpleModel
+import com.raizlabs.dbflow5.models.SimpleModel_Table
+import com.raizlabs.dbflow5.query.delete
 import com.raizlabs.dbflow5.query.list
 import com.raizlabs.dbflow5.query.select
+import com.raizlabs.dbflow5.structure.save
 import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
 
@@ -39,7 +39,7 @@ class CoroutinesTest : BaseUnitTest() {
 
                 val result = awaitTransact(
                         delete<SimpleModel>()
-                                where SimpleModel_Table.name.eq("5")) { executeUpdateDelete() }
+                                where SimpleModel_Table.name.eq("5")) { executeUpdateDelete(this@database) }
                 assert(result == 1L)
             }
         }
@@ -82,7 +82,7 @@ class CoroutinesTest : BaseUnitTest() {
                 assert(simpleModel.awaitUpdate(this))
 
                 val loadedModel = awaitTransact(select from SimpleModel::class
-                        where SimpleModel_Table.name.eq("NewName")) { querySingle() }
+                        where SimpleModel_Table.name.eq("NewName")) { querySingle(this@database) }
                 assert(loadedModel?.name == "NewName")
             }
         }
