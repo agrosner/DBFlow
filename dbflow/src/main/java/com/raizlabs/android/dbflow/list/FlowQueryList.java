@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.list.FlowCursorList.OnCursorRefreshListener;
 import com.raizlabs.android.dbflow.runtime.FlowContentObserver;
@@ -60,7 +61,9 @@ public class FlowQueryList<TModel> extends FlowContentObserver
 
 
     private FlowQueryList(Builder<TModel> builder) {
-        super(FlowManager.DEFAULT_AUTHORITY);
+        super(StringUtils.isNotNullOrEmpty(builder.contentAuthority)
+                ? builder.contentAuthority
+                : FlowManager.DEFAULT_AUTHORITY);
         transact = builder.transact;
         changeInTransaction = builder.changeInTransaction;
         successCallback = builder.success;
@@ -671,6 +674,8 @@ public class FlowQueryList<TModel> extends FlowContentObserver
         private Transaction.Success success;
         private Transaction.Error error;
 
+        private String contentAuthority;
+
         private Builder(FlowCursorList<TModel> cursorList) {
             table = cursorList.table();
             cursor = cursorList.cursor();
@@ -705,6 +710,11 @@ public class FlowQueryList<TModel> extends FlowContentObserver
 
         public Builder<TModel> modelCache(ModelCache<TModel, ?> modelCache) {
             this.modelCache = modelCache;
+            return this;
+        }
+
+        public Builder<TModel> contentAuthority(String contentAuthority) {
+            this.contentAuthority = contentAuthority;
             return this;
         }
 
