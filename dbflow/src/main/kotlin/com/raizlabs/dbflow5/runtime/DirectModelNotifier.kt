@@ -18,13 +18,10 @@ private constructor() : ModelNotifier {
 
     private val tableChangedListenerMap = linkedMapOf<Class<*>, MutableSet<OnTableChangedListener>>()
 
-
-    private val singleRegister = DirectTableNotifierRegister()
+    private val singleRegister = DirectTableNotifierRegister(this)
 
     interface OnModelStateChangedListener<in T> {
-
         fun onModelChanged(model: T, action: ChangeAction)
-
     }
 
     interface ModelChangedListener<in T> : OnModelStateChangedListener<T>, OnTableChangedListener
@@ -97,7 +94,8 @@ private constructor() : ModelNotifier {
         listeners?.remove(listener)
     }
 
-    private inner class DirectTableNotifierRegister : TableNotifierRegister {
+    private class DirectTableNotifierRegister(private val directModelNotifier: DirectModelNotifier)
+        : TableNotifierRegister {
         private val registeredTables = arrayListOf<Class<*>>()
 
         private var modelChangedListener: OnTableChangedListener? = null
@@ -110,16 +108,18 @@ private constructor() : ModelNotifier {
 
         override fun <T> register(tClass: Class<T>) {
             registeredTables.add(tClass)
-            registerForTableChanges(tClass, internalChangeListener)
+            directModelNotifier.registerForTableChanges(tClass, internalChangeListener)
         }
 
         override fun <T> unregister(tClass: Class<T>) {
             registeredTables.remove(tClass)
-            unregisterForTableChanges(tClass, internalChangeListener)
+            directModelNotifier.unregisterForTableChanges(tClass, internalChangeListener)
         }
 
         override fun unregisterAll() {
-            registeredTables.forEach { table -> unregisterForTableChanges(table, internalChangeListener) }
+            registeredTables.forEach { table ->
+                directModelNotifier.unregisterForTableChanges(table, internalChangeListener)
+            }
             this.modelChangedListener = null
         }
 
