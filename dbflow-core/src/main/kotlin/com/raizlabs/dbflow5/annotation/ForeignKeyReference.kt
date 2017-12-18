@@ -20,6 +20,11 @@ annotation class ForeignKeyReference(
          */
         val foreignKeyColumnName: String,
         /**
+         * @return The default value for the reference column. Same as [Column.defaultValue]
+         */
+        val defaultValue: String = "",
+
+        /**
          * @return Specify the [NotNull] annotation here and it will get pasted into the reference definition.
          */
         val notNull: NotNull = NotNull(onNullConflict = ConflictAction.NONE))

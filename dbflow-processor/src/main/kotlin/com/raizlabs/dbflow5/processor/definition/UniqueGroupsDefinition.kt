@@ -30,7 +30,7 @@ class UniqueGroupsDefinition(uniqueGroup: UniqueGroup) {
                     codeBuilder.add(",")
                 }
                 if (columnDefinition is ReferenceColumnDefinition) {
-                    for (reference in columnDefinition._referenceDefinitionList) {
+                    for (reference in columnDefinition.referenceDefinitionList) {
                         codeBuilder.add(reference.columnName.quote())
                     }
                 } else {

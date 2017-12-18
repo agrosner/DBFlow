@@ -41,7 +41,9 @@ class BlogDeferred(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column va
  */
 @Table(database = TestDatabase::class)
 class BlogRef(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
-              @ForeignKey(references = arrayOf(ForeignKeyReference(columnName = "authorId", foreignKeyColumnName = "id")))
+              @ForeignKey(references = arrayOf(
+                  ForeignKeyReference(columnName = "authorId", foreignKeyColumnName = "id",
+                      defaultValue = "5")))
               var author: Author? = null)
 
 /**

@@ -246,7 +246,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
 
                 foreignKeyBlocks.add(foreignKeyBuilder.apply {
                     add(", FOREIGN KEY(")
-                    add(fk._referenceDefinitionList.joinToString { it.columnName.quote() })
+                    add(fk.referenceDefinitionList.joinToString { it.columnName.quote() })
                     add(") REFERENCES ")
                 }.build())
 
@@ -254,7 +254,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
 
                 referenceKeyBlocks.add(referenceBuilder.apply {
                     add("(")
-                    add(fk._referenceDefinitionList.joinToString { it.foreignColumnName.quote() })
+                    add(fk.referenceDefinitionList.joinToString { it.foreignColumnName.quote() })
                     add(") ON UPDATE ${fk.onUpdate.name.replace("_", " ")} ON DELETE ${fk.onDelete.name.replace("_", " ")}")
                     if (fk.deferred) {
                         add(" DEFERRABLE INITIALLY DEFERRED")
@@ -263,7 +263,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
             }
 
             if (foreignSize > 0) {
-                for (i in 0..foreignSize - 1) {
+                for (i in 0 until foreignSize) {
                     codeBuilder.add("+ ${foreignKeyBlocks[i].S} + ${tableNameBlocks[i]} + ${referenceKeyBlocks[i].S}")
                 }
                 codeBuilder.add(" + ${");".S};\n")
