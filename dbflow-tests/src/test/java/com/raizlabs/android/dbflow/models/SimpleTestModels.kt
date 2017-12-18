@@ -97,18 +97,18 @@ class FeedEntry(@PrimaryKey var id: Int = 0,
 
 @Table(database = TestDatabase::class)
 @ManyToMany(
-        generatedTableClassName = "Refund", referencedTable = Transfer::class,
-        referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
-        saveForeignKeyModels = true
+    generatedTableClassName = "Refund", referencedTable = Transfer::class,
+    referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
+    saveForeignKeyModels = true
 )
 data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
 data class Transfer2(
-        @PrimaryKey
-        var id: UUID = UUID.randomUUID(),
-        @ForeignKey(stubbedRelationship = true)
-        var origin: Account? = null
+    @PrimaryKey
+    var id: UUID = UUID.randomUUID(),
+    @ForeignKey(stubbedRelationship = true)
+    var origin: Account? = null
 )
 
 @Table(database = TestDatabase::class)
@@ -133,12 +133,12 @@ class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener {
     }
 }
 
-class CustomType(var name: String? = "")
+class CustomType(var name: Int? = 0)
 
-class CustomTypeConverter : TypeConverter<String, CustomType>() {
+class CustomTypeConverter : TypeConverter<Int, CustomType>() {
     override fun getDBValue(model: CustomType?) = model?.name
 
-    override fun getModelValue(data: String?) = if (data == null) {
+    override fun getModelValue(data: Int?) = if (data == null) {
         null
     } else {
         CustomType(data)
