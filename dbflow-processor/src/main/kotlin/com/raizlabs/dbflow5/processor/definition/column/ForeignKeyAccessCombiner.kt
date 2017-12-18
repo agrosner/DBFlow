@@ -24,9 +24,9 @@ class ForeignKeyAccessCombiner(val fieldAccessor: ColumnAccessor) {
         val modelAccessBlock = fieldAccessor.get(modelBlock)
         code.beginControlFlow("if (\$L != null)", modelAccessBlock)
         val nullAccessBlock = CodeBlock.builder()
-        for ((i, it) in fieldAccesses.withIndex()) {
-            it.addCode(code, index.get(), modelAccessBlock, useStart, defineProperty)
-            it.addNull(nullAccessBlock, index.get(), useStart)
+        for ((i, field) in fieldAccesses.withIndex()) {
+            field.addCode(code, index.get(), modelAccessBlock, useStart, defineProperty)
+            field.addNull(nullAccessBlock, index.get(), useStart)
 
             // do not increment last
             if (i < fieldAccesses.size - 1) {
@@ -139,7 +139,6 @@ class PartialLoadFromCursorAccessCombiner(
         } else if (fieldLevelAccessor != null) {
             code.statement(fieldLevelAccessor.set(fieldAccessBlock, parentAccessor.get(modelBlock)))
         }
-
     }
 
     fun addColumnIndex(code: CodeBlock.Builder, index: Int,

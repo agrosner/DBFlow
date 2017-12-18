@@ -41,19 +41,23 @@ abstract class ColumnAccessCombiner(val combiner: Combiner) {
                     val fieldAccessorBlock = fieldLevelAccessor.get(modelBlock)
                     val wrapperAccessorBlock = wrapperLevelAccessor.get(fieldAccessorBlock)
                     // if same, don't extra null check.
-                    if (fieldLevelAccessor.toString() != wrapperLevelAccessor.toString()) {
+                    if (fieldLevelAccessor.toString() != wrapperLevelAccessor.toString()
+                            && wrapperLevelAccessor !is TypeConverterScopeColumnAccessor) {
                         existingBuilder.addStatement("\$T \$L = \$L != null ? \$L : null",
                                 wrapperFieldTypeName, fieldAccess, fieldAccessorBlock, wrapperAccessorBlock)
+                    } else if (wrapperLevelAccessor is TypeConverterScopeColumnAccessor) {
+                        existingBuilder.addStatement("\$T \$L = \$L", wrapperFieldTypeName,
+                                fieldAccess, wrapperAccessorBlock)
                     } else {
                         existingBuilder.addStatement("\$T \$L = \$L", wrapperFieldTypeName,
                                 fieldAccess, fieldAccessorBlock)
                     }
                 }
             } else {
-                if (useWrapper && wrapperLevelAccessor != null) {
-                    fieldAccess = wrapperLevelAccessor.get(fieldLevelAccessor.get(modelBlock))
+                fieldAccess = if (useWrapper && wrapperLevelAccessor != null) {
+                    wrapperLevelAccessor.get(fieldLevelAccessor.get(modelBlock))
                 } else {
-                    fieldAccess = fieldLevelAccessor.get(modelBlock)
+                    fieldLevelAccessor.get(modelBlock)
                 }
             }
         }
@@ -133,19 +137,18 @@ class ContentValuesCombiner(combiner: Combiner)
                 statement("values.put(\$1S, \$2L)", columnRepresentation.quote(), fieldAccess)
             } else {
                 if (defaultValue != null) {
-                    val storedFieldAccess = fieldAccess
-                    var subWrapperFieldAccess = storedFieldAccess
+                    var subWrapperFieldAccess = fieldAccess
                     if (subWrapperAccessor != null) {
-                        subWrapperFieldAccess = subWrapperAccessor.get(storedFieldAccess)
+                        subWrapperFieldAccess = subWrapperAccessor.get(fieldAccess)
                     }
-                    if (storedFieldAccess.toString() != subWrapperFieldAccess.toString()
+                    if (fieldAccess.toString() != subWrapperFieldAccess.toString()
                             || defaultValue.toString() != "null") {
                         statement("values.put(\$S, \$L != null ? \$L : \$L)",
-                                columnRepresentation.quote(), storedFieldAccess, subWrapperFieldAccess, defaultValue)
+                                columnRepresentation.quote(), fieldAccess, subWrapperFieldAccess, defaultValue)
                     } else {
                         // if same default value is null and object reference is same as subwrapper.
                         statement("values.put(\$S, \$L)",
-                                columnRepresentation.quote(), storedFieldAccess)
+                                columnRepresentation.quote(), fieldAccess)
                     }
                 } else {
                     statement("values.put(\$S, \$L)",
