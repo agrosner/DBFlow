@@ -11,6 +11,7 @@ import com.raizlabs.dbflow5.annotation.ForeignKeyReference
 import com.raizlabs.dbflow5.annotation.NotNull
 import com.raizlabs.dbflow5.annotation.PrimaryKey
 import com.raizlabs.dbflow5.annotation.Table
+import com.raizlabs.dbflow5.annotation.TypeConverter
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.LoadFromCursorListener
 
@@ -76,7 +77,16 @@ class BlogStubbed(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var
     }
 }
 
-class Location(var latitude: Double? = 0.0, var longitude: Double? = 0.0)
+class DoubleToDouble(val double: Double)
+
+@TypeConverter
+class DoubleConverter : com.raizlabs.dbflow5.converter.TypeConverter<Double, DoubleToDouble>() {
+    override fun getDBValue(model: DoubleToDouble?) = model?.double
+
+    override fun getModelValue(data: Double?): DoubleToDouble? = data?.let { DoubleToDouble(data) }
+}
+
+class Location(var latitude: DoubleToDouble? = DoubleToDouble(0.0), var longitude: DoubleToDouble? = DoubleToDouble(0.0))
 
 @Table(database = TestDatabase::class)
 class Position(@PrimaryKey var id: Int = 0, @ColumnMap var location: Location? = null)

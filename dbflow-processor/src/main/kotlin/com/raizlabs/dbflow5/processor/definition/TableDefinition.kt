@@ -76,6 +76,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
     val _primaryColumnDefinitions = mutableListOf<ColumnDefinition>()
     val foreignKeyDefinitions = mutableListOf<ReferenceColumnDefinition>()
+    val columnMapDefinitions = mutableListOf<ReferenceColumnDefinition>()
     val uniqueGroupsDefinitions = mutableListOf<UniqueGroupsDefinition>()
     val indexGroupsDefinitions = mutableListOf<IndexGroupsDefinition>()
 
@@ -197,6 +198,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
         uniqueGroupsDefinitions.clear()
         indexGroupsDefinitions.clear()
         foreignKeyDefinitions.clear()
+        columnMapDefinitions.clear()
         columnUniqueMap.clear()
         oneToManyDefinitions.clear()
         customCacheFieldName = null
@@ -336,8 +338,12 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                         }
                     }
 
-                    if (columnDefinition is ReferenceColumnDefinition && !columnDefinition.isColumnMap) {
-                        foreignKeyDefinitions.add(columnDefinition)
+                    if (columnDefinition is ReferenceColumnDefinition) {
+                        if (!columnDefinition.isColumnMap) {
+                            foreignKeyDefinitions.add(columnDefinition)
+                        } else if (columnDefinition.isColumnMap) {
+                            columnMapDefinitions.add(columnDefinition)
+                        }
                     }
 
                     if (!columnDefinition.uniqueGroups.isEmpty()) {
@@ -388,10 +394,11 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         // check references to properly set them up.
         foreignKeyDefinitions.forEach { it.checkNeedsReferences() }
+        columnMapDefinitions.forEach { it.checkNeedsReferences() }
         typeBuilder.apply {
 
             writeGetModelClass(this, elementClassName)
-            writeConstructor(this)
+            this.writeConstructor()
 
             `override fun`(String::class, "getTableName") {
                 modifiers(public, final)

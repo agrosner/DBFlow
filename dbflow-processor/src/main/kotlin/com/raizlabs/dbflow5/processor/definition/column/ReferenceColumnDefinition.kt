@@ -78,7 +78,11 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
     var isColumnMap = false
 
     override val typeConverterElementNames: List<TypeName?>
-        get() = referenceDefinitionList.filter { it.hasTypeConverter }.map { it.columnClassName }
+        get() {
+            val uniqueTypes = mutableSetOf<TypeName?>()
+            referenceDefinitionList.filter { it.hasTypeConverter }.mapTo(uniqueTypes) { it.columnClassName }
+            return uniqueTypes.toList()
+        }
 
     init {
 

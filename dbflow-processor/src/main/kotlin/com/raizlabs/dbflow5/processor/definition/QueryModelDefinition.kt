@@ -68,7 +68,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
             }
 
             writeGetModelClass(typeBuilder, elementClassName)
-            writeConstructor(this)
+            this.writeConstructor()
         }
 
         methods.mapNotNull { it.methodSpec }

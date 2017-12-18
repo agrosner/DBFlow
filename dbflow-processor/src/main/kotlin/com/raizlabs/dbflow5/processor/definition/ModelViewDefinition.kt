@@ -172,7 +172,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
                 columnDefinitions.forEach { it.addPropertyDefinition(typeBuilder, elementClassName) }
             }
 
-            writeConstructor(this)
+            this.writeConstructor()
 
             writeGetModelClass(typeBuilder, elementClassName)
 

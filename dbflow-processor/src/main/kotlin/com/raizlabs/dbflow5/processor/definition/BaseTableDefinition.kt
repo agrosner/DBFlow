@@ -87,21 +87,19 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
         return "global_typeConverter${typeConverterName.simpleName()}"
     }
 
-    fun writeConstructor(typeBuilder: TypeSpec.Builder) {
-        typeBuilder.apply {
-            val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@BaseTableDefinition)
-            customTypeConverterPropertyMethod.addToType(this)
+    fun TypeSpec.Builder.writeConstructor() {
+        val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@BaseTableDefinition)
+        customTypeConverterPropertyMethod.addToType(this)
 
-            constructor {
-                if (hasGlobalTypeConverters) {
-                    addParameter(param(ClassNames.DATABASE_HOLDER, "holder").build())
-                }
-                addParameter(param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition").build())
-                modifiers(public)
-                statement("super(databaseDefinition)")
-                code {
-                    customTypeConverterPropertyMethod.addCode(this)
-                }
+        constructor {
+            if (hasGlobalTypeConverters) {
+                addParameter(param(ClassNames.DATABASE_HOLDER, "holder").build())
+            }
+            addParameter(param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition").build())
+            modifiers(public)
+            statement("super(databaseDefinition)")
+            code {
+                customTypeConverterPropertyMethod.addCode(this)
             }
         }
     }
