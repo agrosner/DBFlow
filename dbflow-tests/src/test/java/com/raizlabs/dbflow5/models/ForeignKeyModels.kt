@@ -43,7 +43,7 @@ class BlogDeferred(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column va
 class BlogRef(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
               @ForeignKey(references = arrayOf(
                   ForeignKeyReference(columnName = "authorId", foreignKeyColumnName = "id",
-                      defaultValue = "5")))
+                      defaultValue = "not gonna work")))
               var author: Author? = null)
 
 /**
@@ -76,7 +76,7 @@ class BlogStubbed(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var
     }
 }
 
-class Location(var latitude: Double = 0.0, var longitude: Double = 0.0)
+class Location(var latitude: Double? = 0.0, var longitude: Double? = 0.0)
 
 @Table(database = TestDatabase::class)
 class Position(@PrimaryKey var id: Int = 0, @ColumnMap var location: Location? = null)
@@ -84,6 +84,8 @@ class Position(@PrimaryKey var id: Int = 0, @ColumnMap var location: Location? =
 @Table(database = TestDatabase::class)
 class Position2(@PrimaryKey var id: Int = 0,
                 @ColumnMap(references = arrayOf(
-                    ColumnMapReference(columnName = "latitude", columnMapFieldName = "latitude"),
-                    ColumnMapReference(columnName = "longitude", columnMapFieldName = "longitude")))
+                    ColumnMapReference(columnName = "latitude", columnMapFieldName = "latitude",
+                        defaultValue = "40.6"),
+                    ColumnMapReference(columnName = "longitude", columnMapFieldName = "longitude",
+                        defaultValue = "55.5")))
                 var location: Location? = null)

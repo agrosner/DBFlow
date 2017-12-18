@@ -11,6 +11,7 @@ import com.raizlabs.dbflow5.annotation.ForeignKeyReference
 import com.raizlabs.dbflow5.annotation.QueryModel
 import com.raizlabs.dbflow5.annotation.Table
 import com.raizlabs.dbflow5.processor.ClassNames
+import com.raizlabs.dbflow5.processor.ColumnValidator
 import com.raizlabs.dbflow5.processor.ProcessorManager
 import com.raizlabs.dbflow5.processor.definition.BaseTableDefinition
 import com.raizlabs.dbflow5.processor.definition.QueryModelDefinition
@@ -397,7 +398,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                     val foreignKeyReferenceDefinition = ReferenceDefinition(manager,
                         elementName, it.elementName, it, this, primaryColumns.size,
                         if (isColumnMap) it.elementName else "",
-                        defaultValue = getDefaultValueBlock(it.defaultValue, it.elementTypeName))
+                        defaultValue = it.defaultValue)
                     _referenceDefinitionList.add(foreignKeyReferenceDefinition)
                 }
                 needsReferences = false
@@ -414,7 +415,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                                 foundDefinition.elementName, foundDefinition, this,
                                 primaryColumns.size, reference.columnName,
                                 reference.onNullConflictAction,
-                                getDefaultValueBlock(reference.defaultValue, foundDefinition.elementTypeName)))
+                                reference.defaultValue))
                     }
                 }
                 needsReferences = false
@@ -422,6 +423,15 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
 
             if (nonModelColumn && _referenceDefinitionList.size == 1) {
                 columnName = _referenceDefinitionList[0].columnName
+            }
+
+            _referenceDefinitionList.forEach {
+                if (it.columnClassName?.isPrimitive == true
+                    && !it.defaultValue.isNullOrEmpty()) {
+                    manager.logWarning(ColumnValidator::class.java,
+                        "Default value of \"${it.defaultValue}\" from " +
+                            "${tableDefinition.elementName}.$elementName is ignored for primitive columns.")
+                }
             }
         }
     }

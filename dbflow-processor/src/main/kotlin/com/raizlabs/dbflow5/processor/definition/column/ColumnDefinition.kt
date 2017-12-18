@@ -192,13 +192,13 @@ constructor(processorManager: ProcessorManager, element: Element,
         }
 
         if (primaryKey != null) {
-            if (primaryKey.rowID) {
-                isRowId = true
-            } else if (primaryKey.autoincrement) {
-                isPrimaryKeyAutoIncrement = true
-                isQuickCheckPrimaryKeyAutoIncrement = primaryKey.quickCheckAutoIncrement
-            } else {
-                isPrimaryKey = true
+            when {
+                primaryKey.rowID -> isRowId = true
+                primaryKey.autoincrement -> {
+                    isPrimaryKeyAutoIncrement = true
+                    isQuickCheckPrimaryKeyAutoIncrement = primaryKey.quickCheckAutoIncrement
+                }
+                else -> isPrimaryKey = true
             }
         }
 
@@ -227,12 +227,22 @@ constructor(processorManager: ProcessorManager, element: Element,
         }
 
         hasCustomConverter = false
+        handleSpecifiedTypeConverter(typeConverterClassName, typeMirror)
+        evaluateIfWrappingNecessary(element, processorManager)
+
+        combiner = Combiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
+            subWrapperAccessor)
+    }
+
+    private fun handleSpecifiedTypeConverter(typeConverterClassName: ClassName?, typeMirror: TypeMirror?) {
         if (typeConverterClassName != null && typeMirror != null &&
             typeConverterClassName != ClassNames.TYPE_CONVERTER) {
             typeConverterDefinition = TypeConverterDefinition(typeConverterClassName, typeMirror, manager)
             evaluateTypeConverter(typeConverterDefinition, true)
         }
+    }
 
+    private fun evaluateIfWrappingNecessary(element: Element, processorManager: ProcessorManager) {
         if (!hasCustomConverter) {
             val typeElement = getTypeElement(element)
             if (typeElement != null && typeElement.kind == ElementKind.ENUM) {
@@ -265,9 +275,6 @@ constructor(processorManager: ProcessorManager, element: Element,
                 }
             }
         }
-
-        combiner = Combiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
-            subWrapperAccessor)
     }
 
     private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?,

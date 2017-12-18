@@ -21,7 +21,7 @@ class ReferenceDefinition(private val manager: ProcessorManager,
                           private val referenceColumnDefinition: ReferenceColumnDefinition,
                           referenceCount: Int, localColumnName: String = "",
                           var onNullConflict: ConflictAction = ConflictAction.NONE,
-                          private val defaultValue: CodeBlock) {
+                          val defaultValue: String?) {
 
     val columnName: String
     val foreignColumnName: String
@@ -79,6 +79,7 @@ class ReferenceDefinition(private val manager: ProcessorManager,
             columnClassName, referenceColumnDefinition.baseTableDefinition.orderedCursorLookUp,
             columnAccessor, wrapperAccessor, wrapperTypeName)
 
+        val defaultValue = referenceColumnDefinition.getDefaultValueBlock(this.defaultValue, columnClassName)
         primaryReferenceField = ForeignKeyAccessField(columnName,
             PrimaryReferenceAccessCombiner(combiner), defaultValue)
 
