@@ -133,12 +133,12 @@ class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener {
     }
 }
 
-class CustomType(var name: String? = "")
+class CustomType(var name: Int? = 0)
 
-class CustomTypeConverter : TypeConverter<String, CustomType>() {
+class CustomTypeConverter : TypeConverter<Int, CustomType>() {
     override fun getDBValue(model: CustomType?) = model?.name
 
-    override fun getModelValue(data: String?) = if (data == null) {
+    override fun getModelValue(data: Int?) = if (data == null) {
         null
     } else {
         CustomType(data)

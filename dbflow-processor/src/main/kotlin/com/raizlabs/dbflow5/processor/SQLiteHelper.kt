@@ -79,12 +79,14 @@ enum class SQLiteHelper {
         private val sNumberMethodList = hashSetOf(TypeName.BYTE, TypeName.DOUBLE, TypeName.FLOAT,
             TypeName.LONG, TypeName.SHORT, TypeName.INT)
 
-        operator fun get(typeName: TypeName?): SQLiteHelper = sTypeMap[typeName] ?: SQLiteHelper.TEXT
+        operator fun get(typeName: TypeName?): SQLiteHelper = sTypeMap[typeName]
+            ?: throw IllegalArgumentException("Cannot map $typeName to a SQLite Type. If this is a " +
+            "TypeConverter, ensure it maps to a primitive type.")
 
         fun getWrapperMethod(typeName: TypeName?): String {
             var sqLiteHelper = get(typeName).sqliteStatementWrapperMethod
             if (typeName == TypeName.FLOAT.box()) {
-                sqLiteHelper = "Float";
+                sqLiteHelper = "Float"
             }
             return sqLiteHelper;
         }

@@ -16,7 +16,7 @@ object DefinitionUtils {
         var statement: String? = null
 
         if (SQLiteHelper.containsType(wrapperTypeName ?: elementTypeName)) {
-            statement = SQLiteHelper[elementTypeName].toString()
+            statement = SQLiteHelper[wrapperTypeName ?: elementTypeName].toString()
         }
 
         return CodeBlock.builder().add("\$L \$L", columnName.quote(), statement)

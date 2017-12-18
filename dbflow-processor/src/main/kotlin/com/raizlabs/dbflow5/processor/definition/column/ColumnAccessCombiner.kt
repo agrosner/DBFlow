@@ -172,7 +172,7 @@ class SqliteStatementAccessCombiner(combiner: Combiner)
             val fieldAccess: CodeBlock = getFieldAccessBlock(this@addCode, modelBlock,
                     defineProperty = defineProperty)
             val wrapperMethod = SQLiteHelper.getWrapperMethod(wrapperFieldTypeName ?: fieldTypeName)
-            val statementMethod = SQLiteHelper[fieldTypeName].sqLiteStatementMethod
+            val statementMethod = SQLiteHelper[wrapperFieldTypeName ?: fieldTypeName].sqLiteStatementMethod
 
             var offset = "$index + $columnRepresentation"
             if (columnRepresentation.isNullOrEmpty()) {
