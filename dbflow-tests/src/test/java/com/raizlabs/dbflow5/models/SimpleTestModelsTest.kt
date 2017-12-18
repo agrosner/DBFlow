@@ -1,7 +1,7 @@
-package com.raizlabs.android.dbflow.models
+package com.raizlabs.dbflow5.models
 
-import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.kotlinextensions.modelAdapter
+import com.raizlabs.dbflow5.BaseUnitTest
+import com.raizlabs.dbflow5.config.modelAdapter
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
