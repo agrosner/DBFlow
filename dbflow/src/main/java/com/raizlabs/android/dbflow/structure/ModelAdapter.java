@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow.structure;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
@@ -291,7 +292,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
      * @return The value for the {@link PrimaryKey#autoincrement()}
      * if it has the field. This method is overridden when its specified for the {@link TModel}
      */
-    @NonNull
+    @Nullable
     @Override
     public Number getAutoIncrementingId(@NonNull TModel model) {
         throw new InvalidDBConfiguration(
@@ -314,11 +315,7 @@ public abstract class ModelAdapter<TModel> extends InstanceAdapter<TModel>
 
     public boolean hasAutoIncrement(TModel model) {
         Number id = getAutoIncrementingId(model);
-        //noinspection ConstantConditions
-        if (id == null) {
-            throw new IllegalStateException("An autoincrementing column field cannot be null.");
-        }
-        return id.longValue() > 0;
+        return id != null && id.longValue() > 0;
     }
 
     /**

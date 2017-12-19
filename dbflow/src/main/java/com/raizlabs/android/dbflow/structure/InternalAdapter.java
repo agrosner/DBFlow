@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteStatement;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
@@ -211,7 +212,7 @@ public interface InternalAdapter<TModel> {
      * @return The value for the {@link PrimaryKey#autoincrement()}
      * if it has the field. This method is overridden when its specified for the {@link TModel}
      */
-    @NonNull
+    @Nullable
     Number getAutoIncrementingId(@NonNull TModel model);
 
     /**
