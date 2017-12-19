@@ -86,7 +86,8 @@ class DoubleConverter : com.raizlabs.dbflow5.converter.TypeConverter<Double, Dou
     override fun getModelValue(data: Double?): DoubleToDouble? = data?.let { DoubleToDouble(data) }
 }
 
-class Location(var latitude: DoubleToDouble? = DoubleToDouble(0.0), var longitude: DoubleToDouble? = DoubleToDouble(0.0))
+class Location(var latitude: DoubleToDouble? = DoubleToDouble(0.0),
+               var longitude: DoubleToDouble? = DoubleToDouble(0.0))
 
 @Table(database = TestDatabase::class)
 class Position(@PrimaryKey var id: Int = 0, @ColumnMap var location: Location? = null)
@@ -99,3 +100,13 @@ class Position2(@PrimaryKey var id: Int = 0,
                     ColumnMapReference(columnName = "longitude", columnMapFieldName = "longitude",
                         defaultValue = "55.5")))
                 var location: Location? = null)
+
+class Location2(var latitude: DoubleToDouble? = DoubleToDouble(0.0),
+                var longitude: Double? = 0.0)
+
+@Table(database = TestDatabase::class)
+class PositionWithTypeConverter(@PrimaryKey var id: Int = 0,
+                                @ColumnMap(references = arrayOf(ColumnMapReference(columnName = "latitude",
+                                    columnMapFieldName = "latitude", typeConverter = DoubleConverter::class),
+                                    ColumnMapReference(columnName = "longitude", columnMapFieldName = "longitude")))
+                                var location: Location2? = null)

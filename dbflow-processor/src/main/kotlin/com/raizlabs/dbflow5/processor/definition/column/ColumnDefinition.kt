@@ -86,8 +86,6 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     var hasCustomConverter: Boolean = false
 
-    var typeConverterDefinition: TypeConverterDefinition? = null
-
     open val updateStatementBlock: CodeBlock
         get() = CodeBlock.of("${columnName.quote()}=?")
 
@@ -237,8 +235,7 @@ constructor(processorManager: ProcessorManager, element: Element,
     private fun handleSpecifiedTypeConverter(typeConverterClassName: ClassName?, typeMirror: TypeMirror?) {
         if (typeConverterClassName != null && typeMirror != null &&
             typeConverterClassName != ClassNames.TYPE_CONVERTER) {
-            typeConverterDefinition = TypeConverterDefinition(typeConverterClassName, typeMirror, manager)
-            evaluateTypeConverter(typeConverterDefinition, true)
+            evaluateTypeConverter(TypeConverterDefinition(typeConverterClassName, typeMirror, manager), true)
         }
     }
 
@@ -269,8 +266,9 @@ constructor(processorManager: ProcessorManager, element: Element,
                         wrapperAccessor = ByteColumnAccessor()
                         wrapperTypeName = TypeName.BYTE
                     } else {
-                        typeConverterDefinition = elementTypeName?.let { processorManager.getTypeConverterDefinition(it) }
-                        evaluateTypeConverter(typeConverterDefinition, false)
+                        evaluateTypeConverter(elementTypeName?.let {
+                            processorManager.getTypeConverterDefinition(it)
+                        }, false)
                     }
                 }
             }

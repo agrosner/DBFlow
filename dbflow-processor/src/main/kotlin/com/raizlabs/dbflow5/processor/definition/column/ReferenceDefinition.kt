@@ -2,6 +2,7 @@ package com.raizlabs.dbflow5.processor.definition.column
 
 import com.raizlabs.dbflow5.annotation.ConflictAction
 import com.raizlabs.dbflow5.data.Blob
+import com.raizlabs.dbflow5.processor.ClassNames
 import com.raizlabs.dbflow5.processor.ProcessorManager
 import com.raizlabs.dbflow5.processor.definition.TypeConverterDefinition
 import com.raizlabs.dbflow5.processor.utils.ElementUtility
@@ -11,6 +12,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.TypeMirror
 
 /**
  * Description:
@@ -21,11 +23,15 @@ class ReferenceDefinition(private val manager: ProcessorManager,
                           private val referenceColumnDefinition: ReferenceColumnDefinition,
                           referenceCount: Int, localColumnName: String = "",
                           var onNullConflict: ConflictAction = ConflictAction.NONE,
-                          val defaultValue: String?) {
+                          val defaultValue: String?,
+                          typeConverterClassName: ClassName? = null,
+                          typeConverterTypeMirror: TypeMirror? = null) {
 
     val columnName: String
     val foreignColumnName: String
     val columnClassName: TypeName?
+
+    var hasCustomConverter: Boolean = false
 
     var notNull = false
 
@@ -69,9 +75,18 @@ class ReferenceDefinition(private val manager: ProcessorManager,
     }
 
 
-    private fun createForeignKeyFields(columnClassName: TypeName?, referenceColumnDefinition: ReferenceColumnDefinition, manager: ProcessorManager) {
-        val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
-        evaluateTypeConverter(typeConverterDefinition)
+    private fun createForeignKeyFields(columnClassName: TypeName?,
+                                       referenceColumnDefinition: ReferenceColumnDefinition,
+                                       typeConverterClassName: ClassName?,
+                                       typeConverterTypeMirror: TypeMirror?,
+                                       manager: ProcessorManager) {
+        hasCustomConverter = false
+
+        handleSpecifiedTypeConverter(typeConverterClassName, typeConverterTypeMirror)
+        if (!hasCustomConverter) {
+            val typeConverterDefinition = columnClassName?.let { manager.getTypeConverterDefinition(it) }
+            evaluateTypeConverter(typeConverterDefinition, false)
+        }
 
         val combiner = Combiner(columnAccessor, columnClassName!!, wrapperAccessor,
             wrapperTypeName, subWrapperAccessor, referenceColumnDefinition.elementName)
@@ -91,7 +106,15 @@ class ReferenceDefinition(private val manager: ProcessorManager,
 
     }
 
-    private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?) {
+    private fun handleSpecifiedTypeConverter(typeConverterClassName: ClassName?, typeMirror: TypeMirror?) {
+        if (typeConverterClassName != null && typeMirror != null &&
+            typeConverterClassName != ClassNames.TYPE_CONVERTER) {
+            evaluateTypeConverter(TypeConverterDefinition(typeConverterClassName, typeMirror, manager), true)
+        }
+    }
+
+    private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?,
+                                      isCustom: Boolean) {
         // Any annotated members, otherwise we will use the scanner to find other ones
         typeConverterDefinition?.let {
 
@@ -100,9 +123,16 @@ class ReferenceDefinition(private val manager: ProcessorManager,
                     it.modelTypeName, it.className, columnClassName)
             } else {
                 hasTypeConverter = true
+                hasCustomConverter = isCustom
 
-                val fieldName = referenceColumnDefinition.baseTableDefinition
-                    .addColumnForTypeConverter(referenceColumnDefinition, it.className)
+                val fieldName = if (hasCustomConverter) {
+                    referenceColumnDefinition.baseTableDefinition
+                        .addColumnForCustomTypeConverter(referenceColumnDefinition, it.className)
+                } else {
+                    referenceColumnDefinition.baseTableDefinition
+                        .addColumnForTypeConverter(referenceColumnDefinition, it.className)
+                }
+
                 wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
                 wrapperTypeName = it.dbTypeName
 
@@ -138,7 +168,8 @@ class ReferenceDefinition(private val manager: ProcessorManager,
             override val getterName: String = referencedColumn.column?.getterName ?: ""
             override val setterName: String = referencedColumn.column?.setterName ?: ""
         }, name, packageName)
-        createForeignKeyFields(columnClassName, referenceColumnDefinition, manager)
+        createForeignKeyFields(columnClassName, referenceColumnDefinition,
+            typeConverterClassName, typeConverterTypeMirror, manager)
 
         notNull = onNullConflict != ConflictAction.NONE
     }

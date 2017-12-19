@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.type.MirroredTypeException
+import javax.lang.model.type.TypeMirror
 
 /**
  * Description: Represents both a [ForeignKey] and [ColumnMap]. Builds up the model of fields
@@ -100,10 +101,21 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             }
 
             references = it.references.map {
+                var typeConverterClassName: ClassName? = null
+                var typeMirror: TypeMirror? = null
+                try {
+                    it.typeConverter
+                } catch (mte: MirroredTypeException) {
+                    typeMirror = mte.typeMirror
+                    typeConverterClassName = fromTypeMirror(typeMirror, manager)
+                }
+
                 ReferenceSpecificationDefinition(columnName = it.columnName,
                     referenceName = it.columnMapFieldName,
                     onNullConflictAction = it.notNull.onNullConflict,
-                    defaultValue = it.defaultValue)
+                    defaultValue = it.defaultValue,
+                    typeConverterClassName = typeConverterClassName,
+                    typeConverterTypeMirror = typeMirror)
             }
         }
 
@@ -419,7 +431,9 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                                 foundDefinition.elementName, foundDefinition, this,
                                 primaryColumns.size, reference.columnName,
                                 reference.onNullConflictAction,
-                                reference.defaultValue))
+                                reference.defaultValue,
+                                reference.typeConverterClassName,
+                                reference.typeConverterTypeMirror))
                     }
                 }
                 needsReferences = false
@@ -447,4 +461,6 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
 class ReferenceSpecificationDefinition(val columnName: String,
                                        val referenceName: String,
                                        val onNullConflictAction: ConflictAction,
-                                       val defaultValue: String)
+                                       val defaultValue: String,
+                                       val typeConverterClassName: ClassName? = null,
+                                       val typeConverterTypeMirror: TypeMirror? = null)
