@@ -9,24 +9,18 @@ package com.raizlabs.dbflow5.annotation
 @Retention(AnnotationRetention.SOURCE)
 annotation class OneToMany(
     /**
-         * @return The methods you wish to call it from. By default it's loaded out of the DB.
-         */
-        val oneToManyMethods: Array<OneToManyMethod> = [(OneToManyMethod.LOAD)],
+     * @return The methods you wish to call it from. By default it's loaded out of the DB.
+     */
+    val oneToManyMethods: Array<OneToManyMethod> = [(OneToManyMethod.LOAD)],
     /**
-         * @return The name of the list variable to use. If is left blank, we will remove the "get" and then decapitalize the remaining name.
-         */
-        val variableName: String = "",
+     * @return The name of the list variable to use. If is left blank, we will remove the "get" and then decapitalize the remaining name.
+     */
+    val variableName: String = "",
     /**
-         * @return If true, the underlying variable that we use is private, requiring us to provide
-         * a setter for it.
-         */
-        @Deprecated("has no effect on the visibility of the call since we now autodetect visibility.")
-        val isVariablePrivate: Boolean = false,
-    /**
-         * @return If true, the code generated for this relationship done as efficiently as possible.
-         * It will not work on nested relationships, caching, and other code that requires overriding of BaseModel or Model operations.
-         */
-        val efficientMethods: Boolean = true)
+     * @return If true, the code generated for this relationship done as efficiently as possible.
+     * It will not work on nested relationships, caching, and other code that requires overriding of BaseModel or Model operations.
+     */
+    val efficientMethods: Boolean = true)
 
 /**
  * The method to apply the OneToMany to.
