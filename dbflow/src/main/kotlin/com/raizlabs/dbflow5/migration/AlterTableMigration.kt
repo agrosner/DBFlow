@@ -128,7 +128,7 @@ class AlterTableMigration<T : Any>(
      * @return A List of column definitions that add op to a table in the DB.
      */
     fun getColumnDefinitions(): List<String> {
-        val sql = "${ALTER_TABLE}${FlowManager.getTableName(table)}"
+        val sql = "$ALTER_TABLE ${FlowManager.getTableName(table)}"
         return internalColumnDefinitions.map { "$sql ADD COLUMN $it" }
     }
 

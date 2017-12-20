@@ -14,10 +14,10 @@ import com.raizlabs.dbflow5.query.list.FlowCursorList.OnCursorRefreshListener
  * it leaves a [FlowCursor] object active.
  */
 class FlowQueryList<T : Any>(
-        /**
-         * Holds the table cursor
-         */
-        val internalCursorList: FlowCursorList<T>)
+    /**
+     * Holds the table cursor
+     */
+    val internalCursorList: FlowCursorList<T>)
     : List<T>, IFlowCursorIterator<T> {
 
     private var pendingRefresh = false
@@ -50,9 +50,9 @@ class FlowQueryList<T : Any>(
     }
 
     internal constructor(builder: Builder<T>) : this(
-            internalCursorList = FlowCursorList.Builder(builder.modelQueriable, builder.databaseWrapper)
-                    .cursor(builder.cursor)
-                    .build()
+        internalCursorList = FlowCursorList.Builder(builder.modelQueriable, builder.databaseWrapper)
+            .cursor(builder.cursor)
+            .build()
     )
 
     fun addOnCursorRefreshListener(onCursorRefreshListener: OnCursorRefreshListener<T>) {
@@ -98,7 +98,7 @@ class FlowQueryList<T : Any>(
      * Checks to see if the table contains the object only if its a [T]
      *
      * @param element A model class. For interface purposes, this must be an Object.
-     * @return always false if its anything other than the current table. True if [com.raizlabs.android.dbflow.structure.Model.exists] passes.
+     * @return always false if its anything other than the current table. True if [com.raizlabs.dbflow5.structure.Model.exists] passes.
      */
     override operator fun contains(element: T): Boolean {
         return internalCursorList.instanceAdapter.exists(element)
@@ -132,7 +132,7 @@ class FlowQueryList<T : Any>(
 
     override fun indexOf(element: T): Int {
         throw UnsupportedOperationException(
-                "We cannot determine which index in the table this item exists at efficiently")
+            "We cannot determine which index in the table this item exists at efficiently")
     }
 
     override fun isEmpty(): Boolean {
@@ -140,7 +140,7 @@ class FlowQueryList<T : Any>(
     }
 
     /**
-     * @return An iterator from [FlowCursorList.getAll].
+     * @return An iterator that loops through all items in the list.
      * Be careful as this method will convert all data under this table into a list of [T] in the UI thread.
      */
     override fun iterator(): FlowCursorIterator<T> {
@@ -153,11 +153,11 @@ class FlowQueryList<T : Any>(
 
     override fun lastIndexOf(element: T): Int {
         throw UnsupportedOperationException(
-                "We cannot determine which index in the table this item exists at efficiently")
+            "We cannot determine which index in the table this item exists at efficiently")
     }
 
     /**
-     * @return A list iterator from the [FlowCursorList.getAll].
+     * @return A list iterator that loops through all items in the list.
      * Be careful as this method will convert all data under this table into a list of [T] in the UI thread.
      */
     override fun listIterator(): ListIterator<T> {
@@ -166,7 +166,7 @@ class FlowQueryList<T : Any>(
 
     /**
      * @param index The index to start the iterator.
-     * @return A list iterator from the [FlowCursorList.getAll].
+     * @return A list iterator that loops through all items in the list.
      * Be careful as this method will convert all data under this table into a list of [T] in the UI thread.
      */
     override fun listIterator(index: Int): ListIterator<T> {

@@ -10,4 +10,4 @@ annotation class Index(
         /**
          * @return The set of index groups that this index belongs to.
          */
-        val indexGroups: IntArray = intArrayOf())
+        val indexGroups: IntArray = [])

@@ -121,11 +121,11 @@ class Index<TModel>
 }
 
 
-inline fun <reified T : Any> DatabaseWrapper.indexOn(indexName: String,
-                                                     vararg property: IProperty<*>)
+inline fun <reified T : Any> indexOn(indexName: String,
+                                     vararg property: IProperty<*>)
     = index<T>(indexName).on(T::class.java, *property)
 
-inline fun <reified T : Any> DatabaseWrapper.indexOn(indexName: String, firstNameAlias: NameAlias,
-                                                     vararg arrayOfNameAlias: NameAlias)
+inline fun <reified T : Any> indexOn(indexName: String, firstNameAlias: NameAlias,
+                                     vararg arrayOfNameAlias: NameAlias)
     = index<T>(indexName).on(T::class.java, firstNameAlias, *arrayOfNameAlias)
 

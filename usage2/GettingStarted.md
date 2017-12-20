@@ -83,7 +83,7 @@ override fun onCreate() {
     super.onCreate()
     FlowManager.init(FlowConfig.builder(this)
         .openDatabasesOnInit(true)
-        .build());
+        .build())
 }
 
 ```
@@ -107,7 +107,7 @@ If you do not like the built-in `DefaultTransactionManager`, or just want to rol
 FlowManager.init(FlowConfig.builder(this)
     .database(DatabaseConfig.builder(AppDatabase::class)
             .transactionManager(CustomTransactionManager())
-          .build()));
+          .build()))
 
 ```
 

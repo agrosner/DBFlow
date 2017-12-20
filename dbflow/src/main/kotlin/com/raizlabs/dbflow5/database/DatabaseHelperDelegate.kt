@@ -3,7 +3,6 @@ package com.raizlabs.dbflow5.database
 import android.content.Context
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
-import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.transaction.DefaultTransactionQueue
 import java.io.File
 import java.io.FileInputStream

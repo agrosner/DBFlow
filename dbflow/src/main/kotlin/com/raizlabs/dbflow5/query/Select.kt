@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.sql.Query
@@ -12,7 +11,7 @@ import kotlin.reflect.KClass
  */
 class Select
 /**
- * Creates this instance with the specified columns from the specified [com.raizlabs.android.dbflow.config.FlowManager]
+ * Creates this instance with the specified columns from the specified [com.raizlabs.dbflow5.config.FlowManager]
  *
  * @param properties The properties to select from.
  */
@@ -53,7 +52,7 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
      * Passes this statement to the [From]
      *
      * @param table    The model table to run this query on
-     * @param [T] The class that implements [com.raizlabs.android.dbflow.structure.Model]
+     * @param [T] The class that implements [com.raizlabs.dbflow5.structure.Model]
      * @return the From part of this query
      */
     infix fun <T : Any> from(table: Class<T>): From<T> = From(this, table)

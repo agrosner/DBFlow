@@ -14,4 +14,4 @@ annotation class TypeConverter(
          * @return Specify a set of subclasses by which the [TypeConverter] registers for. For
          * each one, this will create a new instance of the converter.
          */
-        val allowedSubtypes: Array<KClass<*>> = arrayOf())
+        val allowedSubtypes: Array<KClass<*>> = [])

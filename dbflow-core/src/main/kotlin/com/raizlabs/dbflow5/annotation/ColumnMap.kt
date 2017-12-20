@@ -12,4 +12,4 @@ annotation class ColumnMap(
          *
          * @return override explicit usage of all fields and provide custom references.
          */
-        val references: Array<ColumnMapReference> = arrayOf())
+        val references: Array<ColumnMapReference> = [])

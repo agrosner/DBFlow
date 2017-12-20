@@ -8,7 +8,7 @@ import com.raizlabs.dbflow5.query.cast
 import com.raizlabs.dbflow5.query.count
 import com.raizlabs.dbflow5.query.date
 import com.raizlabs.dbflow5.query.datetime
-import com.raizlabs.dbflow5.query.group_concat
+import com.raizlabs.dbflow5.query.groupConcat
 import com.raizlabs.dbflow5.query.ifNull
 import com.raizlabs.dbflow5.query.max
 import com.raizlabs.dbflow5.query.min
@@ -27,7 +27,7 @@ class MethodTest : BaseUnitTest() {
     fun testMainMethods() {
         assertEquals("AVG(`name`, `id`)", avg(name, id).query)
         assertEquals("COUNT(`name`, `id`)", count(name, id).query)
-        assertEquals("GROUP_CONCAT(`name`, `id`)", group_concat(name, id).query)
+        assertEquals("GROUP_CONCAT(`name`, `id`)", groupConcat(name, id).query)
         assertEquals("MAX(`name`, `id`)", max(name, id).query)
         assertEquals("MIN(`name`, `id`)", min(name, id).query)
         assertEquals("SUM(`name`, `id`)", sum(name, id).query)

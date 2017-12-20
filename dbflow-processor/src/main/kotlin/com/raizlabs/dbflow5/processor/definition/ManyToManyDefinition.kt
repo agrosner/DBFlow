@@ -33,7 +33,7 @@ import javax.lang.model.type.TypeMirror
  * Description: Generates the Model class that is used in a many to many.
  */
 class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorManager,
-                           manyToMany: ManyToMany = element.annotation<ManyToMany>()!!)
+                           manyToMany: ManyToMany = element.annotation()!!)
     : BaseDefinition(element, processorManager) {
 
     internal var referencedTable: TypeName

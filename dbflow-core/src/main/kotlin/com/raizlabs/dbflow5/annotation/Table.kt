@@ -77,19 +77,19 @@ annotation class Table(
      * @return Declares a set of UNIQUE columns with the corresponding [ConflictAction]. A [Column]
      * will point to this group using [Unique.uniqueGroups]
      */
-    val uniqueColumnGroups: Array<UniqueGroup> = arrayOf(),
+    val uniqueColumnGroups: Array<UniqueGroup> = [],
     /**
      * @return The set of INDEX clauses that specific columns can define to belong to, using the [Index] annotation.
      * The generated Index properties belong to the corresponding property class to this table.
      */
-    val indexGroups: Array<IndexGroup> = arrayOf(),
+    val indexGroups: Array<IndexGroup> = [],
     /**
      * @return A set of inherited accessible fields not necessarily defined as columns in the super class of this table.
      * Each must be accessible via: public, package private, or protected or getter/setters.
      */
-    val inheritedColumns: Array<InheritedColumn> = arrayOf(),
+    val inheritedColumns: Array<InheritedColumn> = [],
     /**
      * @return A set of inherited accessible fields not necessarily defined as columns in the super class of this table.
      * Each must be accessible via: public, package private, or protected or getter/setters.
      */
-    val inheritedPrimaryKeys: Array<InheritedPrimaryKey> = arrayOf())
+    val inheritedPrimaryKeys: Array<InheritedPrimaryKey> = [])

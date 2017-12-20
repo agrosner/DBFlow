@@ -153,7 +153,7 @@ public final class TestModel2_Table {
 
   public static final IntProperty model_order = new IntProperty(TestModel2.class, "model_order");
 
-  public static final IProperty[] getAllColumnProperties() {
+  public static IProperty[] getAllColumnProperties() {
    return new IProperty[]{name,model_order};
   }
 

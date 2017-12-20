@@ -54,11 +54,11 @@ class ModelLruCache<TModel>(size: Int)
          * @param size The size, if less than or equal to 0 we set it to [DEFAULT_CACHE_SIZE].
          */
         fun <TModel> newInstance(size: Int): ModelLruCache<TModel> {
-            var _size = size
-            if (_size <= 0) {
-                _size = DEFAULT_CACHE_SIZE
+            var locSize = size
+            if (locSize <= 0) {
+                locSize = DEFAULT_CACHE_SIZE
             }
-            return ModelLruCache(_size)
+            return ModelLruCache(locSize)
         }
     }
 }

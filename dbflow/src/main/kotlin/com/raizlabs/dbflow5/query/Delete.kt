@@ -37,7 +37,7 @@ class Delete internal constructor() : Query {
          *
          * @param table      The table to delete
          * @param conditions The list of conditions to use to delete from the specified table
-         * @param [T]   The class that implements [com.raizlabs.android.dbflow.structure.Model]
+         * @param [T]   The class that implements [com.raizlabs.dbflow5.structure.Model]
          */
         @JvmStatic
         fun <T : Any> DatabaseWrapper.table(table: Class<T>, vararg conditions: SQLOperator) {

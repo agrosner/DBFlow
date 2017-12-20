@@ -205,19 +205,19 @@ open class FlowContentObserver(private val contentAuthority: String,
 
     @TargetApi(VERSION_CODES.JELLY_BEAN)
     private fun onChange(uri: Uri, calledInternally: Boolean) {
-        var _uri = uri
-        val fragment = _uri.fragment
-        val tableName = _uri.getQueryParameter(TABLE_QUERY_PARAM)
+        var locUri = uri
+        val fragment = locUri.fragment
+        val tableName = locUri.getQueryParameter(TABLE_QUERY_PARAM)
 
         var columnName: String
         var param: String
 
-        val queryNames = _uri.queryParameterNames
+        val queryNames = locUri.queryParameterNames
         val columnsChanged = arrayListOf<SQLOperator>()
         queryNames.asSequence()
                 .filter { it != TABLE_QUERY_PARAM }
                 .forEach { key ->
-                    param = Uri.decode(_uri.getQueryParameter(key))
+                    param = Uri.decode(locUri.getQueryParameter(key))
                     columnName = Uri.decode(key)
                     columnsChanged += Operator.op<Any>(NameAlias.Builder(columnName).build()).eq(param)
                 }
@@ -237,11 +237,11 @@ open class FlowContentObserver(private val contentAuthority: String,
                 // convert this uri to a CHANGE op if we don't care about individual changes.
                 if (!notifyAllUris) {
                     action = ChangeAction.CHANGE
-                    _uri = getNotificationUri(contentAuthority, table, action)
+                    locUri = getNotificationUri(contentAuthority, table, action)
                 }
                 synchronized(notificationUris) {
                     // add and keep track of unique notification uris for when transaction completes.
-                    notificationUris.add(_uri)
+                    notificationUris.add(locUri)
                 }
 
                 synchronized(tableUris) {

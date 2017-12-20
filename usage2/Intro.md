@@ -16,8 +16,8 @@ class Automobile(@PrimaryKey var vin: String? = null,
 val venza = new Automobile(vin = "499499449",
                            make = "Toyota",
                            model = "Venza",
-                           year = 2013);
-venza.save();
+                           year = 2013)
+venza.save()
 // inserts if not exists by primary key, updates if exists.
 // Kotlin extensions add methods found in BaseModel
 

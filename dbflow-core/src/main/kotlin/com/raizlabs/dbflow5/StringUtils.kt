@@ -41,7 +41,7 @@ fun String?.isQuoted(): Boolean = QUOTE_PATTERN.matcher(this).find()
  * @return A name in quotes. E.G. index =&gt; `index` so we can use keywords as column names without fear
  * of clashing.
  */
-fun String?.quote(): String = "${QUOTE}${this?.replace(".", "`.`")}${QUOTE}"
+fun String?.quote(): String = "$QUOTE${this?.replace(".", "`.`")}$QUOTE"
 
 fun String?.quoteIfNeeded() = if (this != null && !isQuoted()) {
     quote()

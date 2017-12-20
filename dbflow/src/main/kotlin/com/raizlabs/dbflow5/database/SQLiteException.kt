@@ -4,7 +4,7 @@ package com.raizlabs.dbflow5.database
  * Description: DBFlow mirror to an Android SQLiteException.
  */
 class SQLiteException : RuntimeException {
-    constructor() {}
+    constructor()
 
     constructor(error: String) : super(error)
 

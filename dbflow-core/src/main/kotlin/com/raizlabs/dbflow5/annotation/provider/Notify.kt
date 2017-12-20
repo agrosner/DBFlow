@@ -16,7 +16,7 @@ annotation class Notify(
          * @return Registers itself for the following paths. If a specific path is called for the specified
          * method, the method this annotation corresponds to will be called.
          */
-        val paths: Array<String> = arrayOf())
+        val paths: Array<String> = [])
 
 enum class NotifyMethod {
     INSERT,

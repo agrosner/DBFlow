@@ -239,7 +239,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             for (uniqueGroup in groups) {
                 if (uniqueNumbersSet.contains(uniqueGroup.groupNumber)) {
                     manager.logError("A duplicate unique group with number" +
-                        " ${uniqueGroup.groupNumber} was found for ${tableName}")
+                        " ${uniqueGroup.groupNumber} was found for $tableName")
                 }
                 val definition = UniqueGroupsDefinition(uniqueGroup)
                 columnDefinitions.filter { it.uniqueGroups.contains(definition.number) }
@@ -253,7 +253,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             for (indexGroup in indexGroups) {
                 if (uniqueNumbersSet.contains(indexGroup.number)) {
                     manager.logError(TableDefinition::class, "A duplicate unique index number" +
-                        " ${indexGroup.number} was found for ${elementName}")
+                        " ${indexGroup.number} was found for $elementName")
                 }
                 val definition = IndexGroupsDefinition(this, indexGroup)
                 columnDefinitions.filter { it.indexGroups.contains(definition.indexNumber) }

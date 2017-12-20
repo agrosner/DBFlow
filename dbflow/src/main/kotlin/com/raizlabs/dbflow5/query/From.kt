@@ -1,7 +1,6 @@
 package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.config.FlowManager
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.Join.JoinType
 import com.raizlabs.dbflow5.query.property.IndexProperty
 import com.raizlabs.dbflow5.sql.Query
@@ -15,7 +14,7 @@ class From<TModel : Any>
 /**
  * The SQL from statement constructed.
  *
- * @param querybase The base query we append this cursor to
+ * @param queryBuilderBase The base query we append this cursor to
  * @param table     The table this corresponds to
  */
 internal constructor(

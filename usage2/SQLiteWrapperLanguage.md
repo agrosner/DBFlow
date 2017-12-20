@@ -359,7 +359,7 @@ The simple CASE query in DBFlow:
 SQLite.select(CaseModel_Table.customerId,
         CaseModel_Table.firstName,
         CaseModel_Table.lastName,
-        SQLite._case(CaseModel_Table.country)
+        SQLite.case(CaseModel_Table.country)
                 .when("USA").then("Domestic")
                   ._else("Foreign")
                 .end("CustomerGroup")).from(CaseModel.class)

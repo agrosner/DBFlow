@@ -36,7 +36,7 @@ fun <T : Any> update(table: Class<T>): Update<T> = Update(table)
  * @param table    The table to update.
  * @return A new UPDATE statement.
  */
-fun <T : Any> update(modelClass: KClass<T>) = update(modelClass.java)
+fun <T : Any> update(table: KClass<T>) = update(table.java)
 
 inline fun <reified T : Any> insert() = insert(T::class.java)
 
@@ -50,7 +50,7 @@ fun <T : Any> insert(table: Class<T>): Insert<T> = Insert(table)
  * @param table    The table to insert.
  * @return A new INSERT statement.
  */
-fun <T : Any> insert(modelClass: KClass<T>) = insert(modelClass.java)
+fun <T : Any> insert(table: KClass<T>) = insert(table.java)
 
 /**
  * @return Begins a DELETE statement.
@@ -99,7 +99,8 @@ fun <T> caseWhen(operator: SQLOperator): CaseCondition<T> = Case<T>().whenever(o
  *
  * @param caseColumn The value
  */
-fun <TReturn> _case(caseColumn: Property<TReturn>): Case<TReturn> = Case(caseColumn)
+@JvmName("_case")
+fun <TReturn> case(caseColumn: Property<TReturn>): Case<TReturn> = Case(caseColumn)
 
 /**
  * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient

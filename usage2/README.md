@@ -69,11 +69,12 @@ val users = database<AppDatabase>()
               .list
 
 // or asynchronous retrieval
-database<AppDatabase>().executeTransactionAsync({ (select from User::class where User_Table.age.greaterThan(18)).list }),
+database<AppDatabase>().executeTransactionAsync(
+{ (select from User::class where User_Table.age.greaterThan(18)).list },
 success = { transaction, result ->
   // use result here
 },
 error = { transaction, error ->
   // handle any errors
-});
+})
 ```

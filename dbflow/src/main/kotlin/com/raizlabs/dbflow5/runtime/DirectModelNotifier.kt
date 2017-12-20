@@ -133,7 +133,7 @@ private constructor() : ModelNotifier {
 
     companion object {
 
-        internal var instanceCount = 0;
+        internal var instanceCount = 0
 
         private val notifier: DirectModelNotifier by lazy {
             DirectModelNotifier()

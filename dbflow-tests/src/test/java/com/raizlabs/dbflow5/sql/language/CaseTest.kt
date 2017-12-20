@@ -12,7 +12,7 @@ class CaseTest : BaseUnitTest() {
 
     @Test
     fun simpleCaseTest() {
-        val case = case<String>(propertyString<String>("country"))
+        val case = case(propertyString<String>("country"))
                 .whenever("USA")
                 .then("Domestic")
                 .`else`("Foreign")

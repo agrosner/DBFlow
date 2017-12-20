@@ -147,12 +147,12 @@ class Join<TModel : Any, TFromModel : Any> : Query {
     /**
      * Specify the conditions that the JOIN is on
      *
-     * @param onConditions The conditions it is on
+     * @param sqlOperator The operator that the JOIN is ON.
      * @return The FROM that this JOIN came from
      */
-    fun on(onCondition: SQLOperator): From<TFromModel> {
+    fun on(sqlOperator: SQLOperator): From<TFromModel> {
         checkNatural()
-        onGroup = OperatorGroup.nonGroupingClause().and(onCondition)
+        onGroup = OperatorGroup.nonGroupingClause().and(sqlOperator)
         return from
     }
 
@@ -171,7 +171,7 @@ class Join<TModel : Any, TFromModel : Any> : Query {
     /**
      * The USING statement of the JOIN
      *
-     * @param columns THe columns to use
+     * @param property The property its using (singular).
      * @return The FROM that this JOIN came from
      */
     infix fun using(property: IProperty<*>): From<TFromModel> {

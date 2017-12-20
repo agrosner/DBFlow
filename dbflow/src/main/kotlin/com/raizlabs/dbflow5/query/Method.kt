@@ -131,7 +131,7 @@ fun count(vararg properties: IProperty<*>): Method = Method("COUNT", *properties
  * @param properties Set of properties that the method acts on.
  * @return A string which is the concatenation of all non-NULL values of the properties.
  */
-fun group_concat(vararg properties: IProperty<*>): Method =
+fun groupConcat(vararg properties: IProperty<*>): Method =
     Method("GROUP_CONCAT", *properties)
 
 /**

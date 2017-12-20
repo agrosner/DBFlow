@@ -24,9 +24,9 @@ abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Clas
             = load(databaseWrapper.rawQuery(query, null), databaseWrapper)
 
     open fun load(cursor: FlowCursor?, databaseWrapper: DatabaseWrapper): TReturn? {
-        var _data: TReturn? = null
-        cursor?.use { _data = convertToData(it, databaseWrapper) }
-        return _data
+        var data: TReturn? = null
+        cursor?.use { data = convertToData(it, databaseWrapper) }
+        return data
     }
 
     /**

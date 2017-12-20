@@ -31,7 +31,7 @@ class TypeConverterDefinition(val className: ClassName,
         typeElement.annotation<TypeConverter>()?.let { annotation ->
             val allowedSubTypes: MutableList<TypeName> = mutableListOf()
             try {
-                annotation.allowedSubtypes;
+                annotation.allowedSubtypes
             } catch (e: MirroredTypesException) {
                 val types = e.typeMirrors
                 types.forEach { allowedSubTypes.add(TypeName.get(it)) }

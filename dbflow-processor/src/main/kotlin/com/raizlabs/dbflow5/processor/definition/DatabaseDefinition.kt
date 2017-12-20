@@ -84,7 +84,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
         if (!element.modifiers.contains(Modifier.ABSTRACT)
             || element.modifiers.contains(Modifier.PRIVATE)
             || !typeElement.isSubclass(manager.processingEnvironment, ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME)) {
-            manager.logError("${elementClassName} must be a visible abstract class that " +
+            manager.logError("$elementClassName must be a visible abstract class that " +
                 "extends ${ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME}")
         }
     }
@@ -195,13 +195,13 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                 modifiers(public, final)
                 `return`(databaseVersion.L)
             }
-            if (!databaseExtensionName.isNullOrBlank()) {
+            if (!databaseExtensionName.isBlank()) {
                 `override fun`(String::class, "getDatabaseExtensionName") {
                     modifiers(public, final)
                     `return`(databaseExtensionName.S)
                 }
             }
-            if (!databaseName.isNullOrBlank()) {
+            if (!databaseName.isBlank()) {
                 `override fun`(String::class, "getDatabaseName") {
                     modifiers(public, final)
                     `return`(databaseName.S)

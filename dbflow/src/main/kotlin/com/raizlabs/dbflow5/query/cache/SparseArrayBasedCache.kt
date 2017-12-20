@@ -12,16 +12,16 @@ class SparseArrayBasedCache<TModel> : ModelCache<TModel, SparseArray<TModel>> {
     /**
      * Constructs new instance with a [SparseArray] cache
      */
-    constructor() : super(SparseArray<TModel>()) {}
+    constructor() : super(SparseArray<TModel>())
 
     /**
      * Constructs new instance with a [android.util.SparseArray] cache
      *
      * @param initialCapacity The initial capacity of the sparse array
      */
-    constructor(initialCapacity: Int) : super(SparseArray<TModel>(initialCapacity)) {}
+    constructor(initialCapacity: Int) : super(SparseArray<TModel>(initialCapacity))
 
-    constructor(sparseArray: SparseArray<TModel>) : super(sparseArray) {}
+    constructor(sparseArray: SparseArray<TModel>) : super(sparseArray)
 
     override fun addModel(id: Any?, model: TModel) {
         if (id is Number) {

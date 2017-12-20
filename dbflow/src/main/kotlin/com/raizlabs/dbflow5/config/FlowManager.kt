@@ -41,7 +41,7 @@ object FlowManager {
     private val DEFAULT_DATABASE_HOLDER_PACKAGE_NAME = FlowManager::class.java.`package`.name
 
     private val DEFAULT_DATABASE_HOLDER_CLASSNAME =
-            "$DEFAULT_DATABASE_HOLDER_PACKAGE_NAME.$DEFAULT_DATABASE_HOLDER_NAME"
+        "$DEFAULT_DATABASE_HOLDER_PACKAGE_NAME.$DEFAULT_DATABASE_HOLDER_NAME"
 
     /**
      * Will throw an exception if this class is not initialized yet in [.init]
@@ -402,15 +402,8 @@ object FlowManager {
      * Exception thrown when a database holder cannot load the databaseForTable holder
      * for a module.
      */
-    class ModuleNotFoundException : RuntimeException {
-        constructor() {}
-
-        constructor(detailMessage: String) : super(detailMessage) {}
-
-        constructor(detailMessage: String, throwable: Throwable) : super(detailMessage, throwable) {}
-
-        constructor(throwable: Throwable) : super(throwable) {}
-    }
+    class ModuleNotFoundException(detailMessage: String, throwable: Throwable)
+        : RuntimeException(detailMessage, throwable)
 
 }
 

@@ -88,7 +88,7 @@ enum class SQLiteHelper {
             if (typeName == TypeName.FLOAT.box()) {
                 sqLiteHelper = "Float"
             }
-            return sqLiteHelper;
+            return sqLiteHelper
         }
 
         fun containsType(typeName: TypeName?): Boolean = sTypeMap.containsKey(typeName)

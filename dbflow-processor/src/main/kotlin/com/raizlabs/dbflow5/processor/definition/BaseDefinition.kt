@@ -135,7 +135,7 @@ abstract class BaseDefinition : TypeDefinition {
     override val typeSpec: TypeSpec
         get() {
             if (outputClassName == null) {
-                manager.logError("Found error for ${elementTypeName} ${outputClassName} ${(this as QueryModelDefinition).databaseTypeName}")
+                manager.logError("Found error for $elementTypeName $outputClassName ${(this as QueryModelDefinition).databaseTypeName}")
             }
             return `public final class`(outputClassName?.simpleName() ?: "") {
                 if (hasJavaX()) {

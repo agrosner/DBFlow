@@ -425,7 +425,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
 
             `override fun`(TypeName.BOOLEAN, "onCreate") {
                 modifiers(public, final)
-                addStatement("final \$T ${AUTHORITY} = \$L", String::class.java,
+                addStatement("final \$T $AUTHORITY = \$L", String::class.java,
                     if (authority.contains("R.string."))
                         "getContext().getString($authority)"
                     else

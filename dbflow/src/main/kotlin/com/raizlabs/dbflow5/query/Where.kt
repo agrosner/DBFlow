@@ -13,7 +13,7 @@ import com.raizlabs.dbflow5.structure.ChangeAction
  */
 class Where<T : Any>
 /**
- * Constructs this class with the specified [com.raizlabs.android.dbflow.config.FlowManager]
+ * Constructs this class with the specified [com.raizlabs.dbflow5.config.FlowManager]
  * and [From] chunk
  *
  * @param whereBase The FROM or SET statement chunk

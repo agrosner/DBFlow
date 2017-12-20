@@ -54,7 +54,7 @@ class CacheableModel {
     var id: Long = 0L
 
     @Column
-    var name: String? = null;
+    var name: String? = null
 }
 
 ```
@@ -117,7 +117,7 @@ database<AppDatabase> {
   select(My_Table.column, My_Table.column2)
     .from(My::class)
     .disableCaching()
-    .list;
+    .list
 }
 ```
 
