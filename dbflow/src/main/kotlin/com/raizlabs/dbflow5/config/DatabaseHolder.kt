@@ -19,7 +19,7 @@ abstract class DatabaseHolder {
         get() = databaseNameMap.values.toList()
 
     /**
-     * @param clazz The model value class to get a [com.raizlabs.android.dbflow.converter.TypeConverter]
+     * @param clazz The model value class to get a [TypeConverter]
      * @return Type converter for the specified model value.
      */
     fun getTypeConverterForClass(clazz: Class<*>): TypeConverter<*, *>? = typeConverters[clazz]

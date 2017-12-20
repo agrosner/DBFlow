@@ -17,7 +17,8 @@ enum class ChangeAction {
     DELETE,
 
     /**
-     * The model was changed. used in prior to [android.os.Build.VERSION_CODES.JELLY_BEAN_MR1]
+     * The model was changed. used in prior to Android JellyBean and in generic change
+     * actions like [com.raizlabs.dbflow5.query.StringQuery]
      */
     CHANGE
 }

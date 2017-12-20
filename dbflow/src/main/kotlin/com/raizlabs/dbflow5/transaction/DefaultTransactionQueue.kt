@@ -1,6 +1,8 @@
 package com.raizlabs.dbflow5.transaction
 
 import android.os.Looper
+import android.os.Process
+import android.os.Process.*
 
 import com.raizlabs.dbflow5.config.FlowLog
 import java.util.concurrent.LinkedBlockingQueue
@@ -24,7 +26,7 @@ class DefaultTransactionQueue
 
     override fun run() {
         Looper.prepare()
-        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND)
+        Process.setThreadPriority(THREAD_PRIORITY_BACKGROUND)
         var transaction: Transaction<out Any?>
         while (true) {
             try {

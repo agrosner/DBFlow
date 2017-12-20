@@ -2,7 +2,6 @@ package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.annotation.ConflictAction
 import com.raizlabs.dbflow5.config.FlowManager
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.sql.QueryCloneable
 
@@ -77,7 +76,7 @@ internal constructor(val table: Class<T>) : Query, QueryCloneable<Update<T>> {
      * @param conditions The array of conditions that define this SET statement
      * @return A SET query piece of this statement
      */
-    fun set(vararg conditions: SQLOperator): Set<T> = Set( this, table)
+    fun set(vararg conditions: SQLOperator): Set<T> = Set(this, table)
         .conditions(*conditions)
 }
 

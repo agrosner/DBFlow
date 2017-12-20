@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.adapter.saveable
 
-import android.content.ContentValues
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
@@ -9,7 +8,7 @@ import com.raizlabs.dbflow5.structure.ChangeAction
 
 /**
  * Description: Defines how models get saved into the DB. It will bind values to [DatabaseStatement]
- * for all CRUD operations as they are wildly faster and more efficient than [ContentValues].
+ * for all CRUD operations as they are wildly faster and more efficient than ContentValues.
  */
 open class ModelSaver<T : Any> {
 

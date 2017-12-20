@@ -182,7 +182,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
     }
 
     /**
-     * Adds a COLLATE to the end of this condition using the [com.raizlabs.android.dbflow.annotation.Collate] enum.
+     * Adds a COLLATE to the end of this condition using the [Collate] enum.
      *
      * @param collation The SQLite collate function
      * @return This condition.

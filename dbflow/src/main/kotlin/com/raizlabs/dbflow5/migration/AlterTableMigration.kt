@@ -13,10 +13,10 @@ import com.raizlabs.dbflow5.stripQuotes
  * Description: Provides a very nice way to alter a single table quickly and easily.
  */
 class AlterTableMigration<T : Any>(
-        /**
-         * The table to ALTER
-         */
-        private val table: Class<T>) : BaseMigration() {
+    /**
+     * The table to ALTER
+     */
+    private val table: Class<T>) : BaseMigration() {
 
     /**
      * The query to rename the table with
@@ -76,8 +76,7 @@ class AlterTableMigration<T : Any>(
     }
 
     /**
-     * Call this to rename a table to a new name, such as changing either the [com.raizlabs.android.dbflow.structure.Model] class name
-     * or by changing the name through a [com.raizlabs.android.dbflow.annotation.Table]
+     * Call this to rename a table to a new name.
      *
      * @param oldName The new name to call the table.
      * @return This instance

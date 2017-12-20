@@ -1,7 +1,5 @@
 package com.raizlabs.dbflow5.annotation
 
-import com.raizlabs.dbflow5.annotation.ConflictAction
-
 /**
  * Description: Allows [Table] to inherit fields from other objects to make it part of the DB table.
  */

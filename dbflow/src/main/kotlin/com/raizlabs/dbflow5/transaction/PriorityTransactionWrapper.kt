@@ -10,9 +10,10 @@ import com.raizlabs.dbflow5.database.DatabaseWrapper
 class PriorityTransactionWrapper(private val priority: Int, private val transaction: ITransaction<*>)
     : ITransaction<Unit>, Comparable<PriorityTransactionWrapper> {
 
+    @Suppress("RemoveEmptyPrimaryConstructor")
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(PRIORITY_LOW.toLong(), PRIORITY_NORMAL.toLong(), PRIORITY_HIGH.toLong(), PRIORITY_UI.toLong())
-    annotation class Priority
+    annotation class Priority()
 
     internal constructor(builder: Builder) : this(
         priority = if (builder.priority == 0) {

@@ -1,6 +1,8 @@
 package com.raizlabs.dbflow5.runtime
 
 import android.os.Looper
+import android.os.Process
+import android.os.Process.THREAD_PRIORITY_BACKGROUND
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.structure.Model
@@ -102,7 +104,7 @@ internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("D
     override fun run() {
         super.run()
         Looper.prepare()
-        android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND)
+        Process.setThreadPriority(THREAD_PRIORITY_BACKGROUND)
         while (true) {
             var tmpModels = listOf<Any>()
             synchronized(models) {
