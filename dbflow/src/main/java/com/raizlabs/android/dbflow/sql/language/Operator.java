@@ -551,13 +551,13 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
             value = typeConverter.getDBValue(value);
         }
         if (value instanceof String || value instanceof IOperator
-            || value instanceof Character) {
+                || value instanceof Character) {
             operation = String.format("%1s %1s ", operation, Operation.CONCATENATE);
         } else if (value instanceof Number) {
             operation = String.format("%1s %1s ", operation, Operation.PLUS);
         } else {
             throw new IllegalArgumentException(
-                String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
+                    String.format("Cannot concatenate the %1s", value != null ? value.getClass() : "null"));
         }
         this.value = value;
         isValueSet = true;
@@ -617,7 +617,8 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
                 converted = convertToDB ? typeConverter.getDBValue(object) : object;
             } catch (ClassCastException c) {
                 // if object type is not valid converted type, just use type as is here.
-                FlowLog.log(FlowLog.Level.W, c);
+                FlowLog.log(FlowLog.Level.I, "Value passed to operation is not valid type for TypeConverter in the column. " +
+                        "Preserving value " + object + " to be used as is.");
             }
             return BaseOperator.convertValueToString(converted, appendInnerParenthesis, false);
         } else {
@@ -792,10 +793,10 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
         @Override
         public void appendConditionToQuery(@NonNull QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                .append(convertObjectToString(value(), true))
-                .appendSpaceSeparated(Operation.AND)
-                .append(convertObjectToString(secondValue(), true))
-                .appendSpace().appendOptional(postArgument());
+                    .append(convertObjectToString(value(), true))
+                    .appendSpaceSeparated(Operation.AND)
+                    .append(convertObjectToString(secondValue(), true))
+                    .appendSpace().appendOptional(postArgument());
         }
 
         @Override
@@ -852,7 +853,7 @@ public class Operator<T> extends BaseOperator implements IOperator<T> {
         @Override
         public void appendConditionToQuery(@NonNull QueryBuilder queryBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                .append("(").append(OperatorGroup.joinArguments(",", inArguments, this)).append(")");
+                    .append("(").append(OperatorGroup.joinArguments(",", inArguments, this)).append(")");
         }
 
         @Override
