@@ -114,14 +114,16 @@ class DatabaseHelperDelegate(
             val existingDb = context.getDatabasePath(tempDbFileName)
             val inputStream: InputStream
             // if it exists and the integrity is ok we use backup as the main DB is no longer valid
-            if (existingDb.exists() && (!databaseDefinition.backupEnabled() || (databaseDefinition.backupEnabled()
-                && backupHelper != null && isDatabaseIntegrityOk(backupHelper.database)))) {
-                inputStream = FileInputStream(existingDb)
+            inputStream = if (existingDb.exists()
+                && (!databaseDefinition.backupEnabled() ||
+                (databaseDefinition.backupEnabled()
+                    && backupHelper != null
+                    && isDatabaseIntegrityOk(backupHelper.database)))) {
+                FileInputStream(existingDb)
             } else {
-                inputStream = context.assets.open(prepackagedName)
+                context.assets.open(prepackagedName)
             }
             writeDB(dbPath, inputStream)
-
         } catch (e: IOException) {
             FlowLog.log(FlowLog.Level.W, "Failed to open file", e)
         }
@@ -228,11 +230,12 @@ class DatabaseHelperDelegate(
             val existingDb = context.getDatabasePath(databaseDefinition.databaseFileName)
             val inputStream: InputStream
             // if it exists and the integrity is ok
-            if (existingDb.exists() && (databaseDefinition.backupEnabled()
-                && backupHelper != null && isDatabaseIntegrityOk(backupHelper.database))) {
-                inputStream = FileInputStream(existingDb)
+            inputStream = if (existingDb.exists()
+                && (databaseDefinition.backupEnabled() && backupHelper != null
+                && isDatabaseIntegrityOk(backupHelper.database))) {
+                FileInputStream(existingDb)
             } else {
-                inputStream = context.assets.open(prepackagedName)
+                context.assets.open(prepackagedName)
             }
             writeDB(dbPath, inputStream)
         } catch (e: IOException) {

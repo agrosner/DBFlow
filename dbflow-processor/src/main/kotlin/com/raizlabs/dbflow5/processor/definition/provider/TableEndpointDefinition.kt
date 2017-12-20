@@ -27,7 +27,7 @@ class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorM
     internal var pathValidationMap: Map<String, ContentUriDefinition> = mutableMapOf()
 
     var notifyDefinitionPathMap: MutableMap<String, MutableMap<NotifyMethod, MutableList<NotifyDefinition>>>
-            = mutableMapOf()
+        = mutableMapOf()
 
     var tableName: String? = null
 
@@ -54,6 +54,7 @@ class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorM
                 }
             } else if (innerElement.annotation<Notify>() != null) {
                 val notifyDefinition = NotifyDefinition(innerElement, processorManager)
+                @Suppress("LoopToCallChain")
                 for (path in notifyDefinition.paths) {
                     val methodListMap = notifyDefinitionPathMap.getOrPut(path) { mutableMapOf() }
                     val notifyDefinitionList = methodListMap.getOrPut(notifyDefinition.method) { arrayListOf() }

@@ -154,25 +154,23 @@ fun getContentValuesKey(contentValues: ContentValues, key: String): String {
     }
 }
 
-fun longForQuery(wrapper: DatabaseWrapper,
-                 query: String): Long {
-    val statement = wrapper.compileStatement(query)
-    try {
-        return statement.simpleQueryForLong()
-    } finally {
-        statement.close()
+fun longForQuery(wrapper: DatabaseWrapper, query: String): Long =
+    wrapper.compileStatement(query).let { statement ->
+        try {
+            statement.simpleQueryForLong()
+        } finally {
+            statement.close()
+        }
     }
-}
 
-fun doubleForQuery(wrapper: DatabaseWrapper,
-                   query: String): Double {
-    val statement = wrapper.compileStatement(query)
-    try {
-        return statement.simpleQueryForLong().toDouble()
-    } finally {
-        statement.close()
+fun doubleForQuery(wrapper: DatabaseWrapper, query: String): Double =
+    wrapper.compileStatement(query).let { statement ->
+        try {
+            statement.simpleQueryForLong().toDouble()
+        } finally {
+            statement.close()
+        }
     }
-}
 
 /**
  * Converts a byte[] to a String hex representation for within wrapper queries.

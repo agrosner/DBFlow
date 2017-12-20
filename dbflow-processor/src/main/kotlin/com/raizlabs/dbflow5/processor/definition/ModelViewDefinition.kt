@@ -48,9 +48,9 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
     private var name: String? = null
 
     private val methods: Array<MethodDefinition> = arrayOf(
-            LoadFromCursorMethod(this),
-            ExistenceMethod(this),
-            PrimaryConditionMethod(this))
+        LoadFromCursorMethod(this),
+        ExistenceMethod(this),
+        PrimaryConditionMethod(this))
 
     var allFields: Boolean = false
 
@@ -73,12 +73,8 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
             this.priority = modelView.priority
         }
 
-        if (element is TypeElement) {
-            implementsLoadFromCursorListener = element.implementsClass(manager.processingEnvironment,
-                    ClassNames.LOAD_FROM_CURSOR_LISTENER)
-        } else {
-            implementsLoadFromCursorListener = false
-        }
+        implementsLoadFromCursorListener = (element as? TypeElement)
+            ?.implementsClass(manager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER) ?: false
 
     }
 
@@ -112,7 +108,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
             val isColumnMap = variableElement.annotation<ColumnMap>() != null
 
             if (variableElement.annotation<Column>() != null || isValidAllFields
-                    || isColumnMap) {
+                || isColumnMap) {
 
                 // package private, will generate helper
                 val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
@@ -177,7 +173,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
             writeGetModelClass(typeBuilder, elementClassName)
 
             `override fun`(String::class, "getCreationQuery",
-                    param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+                param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
                 modifiers(public, final)
                 `return`("\$T.\$L().getQuery()", elementClassName, queryFieldName)
             }
@@ -188,7 +184,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
         }
 
         methods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
+            .forEach { typeBuilder.addMethod(it) }
     }
 
 }

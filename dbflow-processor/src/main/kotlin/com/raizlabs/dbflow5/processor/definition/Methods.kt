@@ -263,6 +263,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
             }
 
             if (foreignSize > 0) {
+                @Suppress("LoopToCallChain")
                 for (i in 0 until foreignSize) {
                     codeBuilder.add("+ ${foreignKeyBlocks[i].S} + ${tableNameBlocks[i]} + ${referenceKeyBlocks[i].S}")
                 }

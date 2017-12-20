@@ -10,7 +10,7 @@ import com.raizlabs.dbflow5.sql.SQLiteType
  * Represents SQLite methods on columns. These act as [Property] so we can use them in complex
  * scenarios.
  */
-class Method(methodName: String, vararg properties: IProperty<*>) : Property<Any?>(null, null as String?) {
+open class Method(methodName: String, vararg properties: IProperty<*>) : Property<Any?>(null, null as String?) {
 
     private val propertyList = arrayListOf<IProperty<*>>()
     private val operationsList = arrayListOf<String>()

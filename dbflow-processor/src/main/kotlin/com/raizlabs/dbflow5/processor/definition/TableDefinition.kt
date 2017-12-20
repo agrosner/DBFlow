@@ -317,14 +317,17 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition)
                     columnMap.put(columnDefinition.columnName, columnDefinition)
-                    if (columnDefinition.isPrimaryKey) {
-                        _primaryColumnDefinitions.add(columnDefinition)
-                    } else if (columnDefinition.isPrimaryKeyAutoIncrement) {
-                        autoIncrementColumn = columnDefinition
-                        hasAutoIncrement = true
-                    } else if (columnDefinition.isRowId) {
-                        autoIncrementColumn = columnDefinition
-                        hasRowID = true
+                    // check to ensure not null.
+                    when {
+                        columnDefinition.isPrimaryKey -> _primaryColumnDefinitions.add(columnDefinition)
+                        columnDefinition.isPrimaryKeyAutoIncrement -> {
+                            autoIncrementColumn = columnDefinition
+                            hasAutoIncrement = true
+                        }
+                        columnDefinition.isRowId -> {
+                            autoIncrementColumn = columnDefinition
+                            hasRowID = true
+                        }
                     }
 
                     autoIncrementColumn?.let {

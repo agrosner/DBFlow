@@ -17,7 +17,7 @@ constructor(private val column: NameAlias? = null,
 
     override val query: String
         get() {
-            if (orderByString == null) {
+            return if (orderByString == null) {
                 val query = StringBuilder()
                     .append(column)
                     .append(" ")
@@ -25,9 +25,9 @@ constructor(private val column: NameAlias? = null,
                     query.append("COLLATE").append(" ").append(collation).append(" ")
                 }
                 query.append(if (isAscending) ASCENDING else DESCENDING)
-                return query.toString()
+                query.toString()
             } else {
-                return orderByString!!
+                orderByString!!
             }
         }
 

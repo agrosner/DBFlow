@@ -91,7 +91,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
             // check on setter. if setter exists, we can reference it safely since a getter has already been defined.
             if (!parentElements.any { it.simpleString == privateAccessor.setterNameElement }) {
                 manager.logError(OneToManyDefinition::class,
-                        "@OneToMany definition $elementName Cannot find referenced variable $_variableName.")
+                    "@OneToMany definition $elementName Cannot find referenced variable $_variableName.")
             } else {
                 isVariablePrivate = true
             }
@@ -116,11 +116,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
             }
         }
 
-        if (isVariablePrivate) {
-            columnAccessor = privateAccessor
-        } else {
-            columnAccessor = VisibleScopeColumnAccessor(_variableName)
-        }
+        columnAccessor = if (isVariablePrivate) privateAccessor else VisibleScopeColumnAccessor(_variableName)
 
         val returnType = executableElement.returnType
         val typeName = TypeName.get(returnType)
@@ -180,8 +176,8 @@ class OneToManyDefinition(executableElement: ExecutableElement,
                 // need to load adapter for non-model classes
                 if (!extendsModel || efficientCodeMethods) {
                     statement("\$T adapter = \$T.getModelAdapter(\$T.class)",
-                            ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
-                            ClassNames.FLOW_MANAGER, referencedTableType)
+                        ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
+                        ClassNames.FLOW_MANAGER, referencedTableType)
                 }
 
                 if (efficientCodeMethods) {

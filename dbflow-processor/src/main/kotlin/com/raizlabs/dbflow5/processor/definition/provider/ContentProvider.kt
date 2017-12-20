@@ -271,21 +271,22 @@ class QueryMethod(private val contentProviderDefinition: ContentProviderDefiniti
             method.addStatement("\$L cursor = null", ClassNames.CURSOR)
             method.beginControlFlow("switch(\$L.match(uri))", ContentProviderDefinition.URI_MATCHER)
             for (tableEndpointDefinition in contentProviderDefinition.endpointDefinitions) {
-                for (uriDefinition in tableEndpointDefinition.contentUriDefinitions) {
-                    if (uriDefinition.queryEnabled) {
+                tableEndpointDefinition.contentUriDefinitions
+                    .asSequence()
+                    .filter { it.queryEnabled }
+                    .forEach {
                         method.apply {
-                            beginControlFlow("case \$L:", uriDefinition.name)
-                            addCode(uriDefinition.getSegmentsPreparation())
+                            beginControlFlow("case \$L:", it.name)
+                            addCode(it.getSegmentsPreparation())
                             addCode("cursor = \$T.getDatabase(\$T.class).query(\$S, projection, ",
                                 ClassNames.FLOW_MANAGER, contentProviderDefinition.databaseTypeName,
                                 tableEndpointDefinition.tableName)
-                            addCode(uriDefinition.getSelectionAndSelectionArgs())
+                            addCode(it.getSelectionAndSelectionArgs())
                             addCode(", null, null, sortOrder);\n")
                             addStatement("break")
                             endControlFlow()
                         }
                     }
-                }
             }
             method.endControlFlow()
 
@@ -317,35 +318,36 @@ class UpdateMethod(private val contentProviderDefinition: ContentProviderDefinit
 
             method.beginControlFlow("switch(MATCHER.match(\$L))", Constants.PARAM_URI)
             for (tableEndpointDefinition in contentProviderDefinition.endpointDefinitions) {
-                for (uriDefinition in tableEndpointDefinition.contentUriDefinitions) {
-                    if (uriDefinition.updateEnabled) {
+                tableEndpointDefinition.contentUriDefinitions
+                    .asSequence()
+                    .filter { it.updateEnabled }
+                    .forEach {
                         method.apply {
-                            beginControlFlow("case \$L:", uriDefinition.name)
+                            beginControlFlow("case \$L:", it.name)
                             addStatement("\$T adapter = \$T.getModelAdapter(\$T.getTableClassForName(\$T.class, \$S))",
                                 ClassNames.MODEL_ADAPTER, ClassNames.FLOW_MANAGER, ClassNames.FLOW_MANAGER,
                                 contentProviderDefinition.databaseTypeName,
                                 tableEndpointDefinition.tableName)
-                            addCode(uriDefinition.getSegmentsPreparation())
+                            addCode(it.getSegmentsPreparation())
                             addCode(
                                 "long count = \$T.getDatabase(\$T.class).updateWithOnConflict(\$S, \$L, ",
                                 ClassNames.FLOW_MANAGER, contentProviderDefinition.databaseTypeName,
                                 tableEndpointDefinition.tableName,
-                                    Constants.PARAM_CONTENT_VALUES)
-                            addCode(uriDefinition.getSelectionAndSelectionArgs())
+                                Constants.PARAM_CONTENT_VALUES)
+                            addCode(it.getSelectionAndSelectionArgs())
                             addCode(
                                 ", \$T.getSQLiteDatabaseAlgorithmInt(adapter.getUpdateOnConflictAction()));\n",
                                 ClassNames.CONFLICT_ACTION)
 
                             val code = CodeBlock.builder()
-                            NotifyMethod(tableEndpointDefinition, uriDefinition,
-                                    NotifyMethod.UPDATE).addCode(code)
+                            NotifyMethod(tableEndpointDefinition, it,
+                                NotifyMethod.UPDATE).addCode(code)
                             addCode(code.build())
 
                             addStatement("return (int) count")
                             endControlFlow()
                         }
                     }
-                }
 
             }
 
@@ -372,10 +374,10 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
     var endpointDefinitions = arrayListOf<TableEndpointDefinition>()
 
     private val methods: Array<MethodDefinition> = arrayOf(QueryMethod(this, manager),
-            InsertMethod(this, false),
-            InsertMethod(this, true),
-            DeleteMethod(this, manager),
-            UpdateMethod(this, manager))
+        InsertMethod(this, false),
+        InsertMethod(this, true),
+        DeleteMethod(this, manager),
+        UpdateMethod(this, manager))
 
     init {
         element.annotation<ContentProvider>()?.let { provider ->
@@ -433,11 +435,10 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
 
                 for (endpointDefinition in endpointDefinitions) {
                     endpointDefinition.contentUriDefinitions.forEach {
-                        val path: String
-                        if (!it.path.isNullOrEmpty()) {
-                            path = "\"" + it.path + "\""
+                        val path = if (!it.path.isNullOrEmpty()) {
+                            "\"${it.path}\""
                         } else {
-                            path = CodeBlock.builder().add("\$L.\$L.getPath()", it.elementClassName,
+                            CodeBlock.builder().add("\$L.\$L.getPath()", it.elementClassName,
                                 it.name).build().toString()
                         }
                         addStatement("\$L.addURI(\$L, \$L, \$L)", URI_MATCHER, AUTHORITY, path, it.name)

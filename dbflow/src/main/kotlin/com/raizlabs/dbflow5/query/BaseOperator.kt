@@ -61,7 +61,7 @@ abstract class BaseOperator internal constructor(
     /**
      * @return true if has a separator defined for this condition.
      */
-    override fun hasSeparator(): Boolean = separator != null && separator!!.length > 0
+    override fun hasSeparator(): Boolean = separator?.isNotEmpty() ?: false
 
     /**
      * @return the operator such as "&lt;", "&gt;", or "="
@@ -151,13 +151,12 @@ abstract class BaseOperator internal constructor(
                     } else if (locVal is Query) {
                         stringVal = locVal.query
                     } else if (locVal is Blob || locVal is ByteArray) {
-                        val bytes: ByteArray?
-                        if (locVal is Blob) {
-                            bytes = locVal.blob
+                        val bytes: ByteArray? = if (locVal is Blob) {
+                            locVal.blob
                         } else {
-                            bytes = locVal as ByteArray?
+                            locVal as ByteArray?
                         }
-                        stringVal = "X" + sqlEscapeString(byteArrayToHexString(bytes))
+                        stringVal = "X${sqlEscapeString(byteArrayToHexString(bytes))}"
                     } else {
                         stringVal = locVal.toString()
                         if (stringVal != Operator.Operation.EMPTY_PARAM) {

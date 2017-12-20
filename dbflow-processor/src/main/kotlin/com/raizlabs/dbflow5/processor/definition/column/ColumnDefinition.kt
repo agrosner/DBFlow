@@ -256,17 +256,20 @@ constructor(processorManager: ProcessorManager, element: Element,
                     processorManager.messager.printMessage(Diagnostic.Kind.ERROR,
                         "Columns cannot be of array type. Found $elementTypeName")
                 } else {
-                    if (elementTypeName == TypeName.BOOLEAN) {
-                        wrapperAccessor = BooleanColumnAccessor()
-                        wrapperTypeName = TypeName.BOOLEAN
-                    } else if (elementTypeName == TypeName.CHAR) {
-                        wrapperAccessor = CharColumnAccessor()
-                        wrapperTypeName = TypeName.CHAR
-                    } else if (elementTypeName == TypeName.BYTE) {
-                        wrapperAccessor = ByteColumnAccessor()
-                        wrapperTypeName = TypeName.BYTE
-                    } else {
-                        evaluateTypeConverter(elementTypeName?.let {
+                    when (elementTypeName) {
+                        TypeName.BOOLEAN -> {
+                            wrapperAccessor = BooleanColumnAccessor()
+                            wrapperTypeName = TypeName.BOOLEAN
+                        }
+                        TypeName.CHAR -> {
+                            wrapperAccessor = CharColumnAccessor()
+                            wrapperTypeName = TypeName.CHAR
+                        }
+                        TypeName.BYTE -> {
+                            wrapperAccessor = ByteColumnAccessor()
+                            wrapperTypeName = TypeName.BYTE
+                        }
+                        else -> evaluateTypeConverter(elementTypeName?.let {
                             processorManager.getTypeConverterDefinition(it)
                         }, false)
                     }
@@ -314,15 +317,13 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
         elementTypeName?.let { elementTypeName ->
-            val propParam: TypeName
-
             val isNonPrimitiveTypeConverter = !wrapperAccessor.isPrimitiveTarget() && wrapperAccessor is TypeConverterScopeColumnAccessor
-            if (isNonPrimitiveTypeConverter) {
-                propParam = ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, wrapperTypeName, elementTypeName.box())
+            val propParam: TypeName = if (isNonPrimitiveTypeConverter) {
+                ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, wrapperTypeName, elementTypeName.box())
             } else if (!wrapperAccessor.isPrimitiveTarget()) {
-                propParam = ParameterizedTypeName.get(ClassNames.WRAPPER_PROPERTY, wrapperTypeName, elementTypeName.box())
+                ParameterizedTypeName.get(ClassNames.WRAPPER_PROPERTY, wrapperTypeName, elementTypeName.box())
             } else {
-                propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box())
+                ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box())
             }
 
             val fieldBuilder = FieldSpec.builder(propParam,

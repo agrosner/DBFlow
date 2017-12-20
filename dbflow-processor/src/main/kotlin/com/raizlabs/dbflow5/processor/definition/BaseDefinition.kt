@@ -86,11 +86,7 @@ abstract class BaseDefinition : TypeDefinition {
             if (!it.isPrimitive) elementClassName = getElementClassName(element)
         }
 
-        if (element is TypeElement) {
-            typeElement = element
-        } else {
-            typeElement = element.toTypeElement()
-        }
+        typeElement = element as? TypeElement ?: element.toTypeElement()
     }
 
     constructor(element: TypeElement, processorManager: ProcessorManager) {

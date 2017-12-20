@@ -59,18 +59,18 @@ class ReferenceDefinition(private val manager: ProcessorManager,
     private fun createScopes(referenceColumnDefinition: ReferenceColumnDefinition,
                              foreignKeyFieldName: String, getterSetter: GetterSetter,
                              name: String, packageName: String) {
-        if (isReferencedFieldPrivate) {
-            columnAccessor = PrivateScopeColumnAccessor(foreignKeyFieldName, getterSetter, false)
-        } else if (isReferencedFieldPackagePrivate) {
-            columnAccessor = PackagePrivateScopeColumnAccessor(foreignKeyFieldName, packageName,
-                referenceColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
-                name)
+        when {
+            isReferencedFieldPrivate -> columnAccessor = PrivateScopeColumnAccessor(foreignKeyFieldName, getterSetter, false)
+            isReferencedFieldPackagePrivate -> {
+                columnAccessor = PackagePrivateScopeColumnAccessor(foreignKeyFieldName, packageName,
+                    referenceColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
+                    name)
 
-            PackagePrivateScopeColumnAccessor.putElement(
-                (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
-                foreignKeyFieldName)
-        } else {
-            columnAccessor = VisibleScopeColumnAccessor(foreignKeyFieldName)
+                PackagePrivateScopeColumnAccessor.putElement(
+                    (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
+                    foreignKeyFieldName)
+            }
+            else -> columnAccessor = VisibleScopeColumnAccessor(foreignKeyFieldName)
         }
     }
 

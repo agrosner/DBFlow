@@ -9,7 +9,7 @@ import com.raizlabs.dbflow5.database.DatabaseWrapper
 /**
  * Description: Used for our internal Adapter classes such as generated [ModelAdapter].
  */
-interface InternalAdapter<TModel> {
+interface InternalAdapter<in TModel> {
 
     /**
      * @return The table name of this adapter.
