@@ -371,7 +371,9 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
                 converted = if (convertToDB) typeConverter.getDBValue(obj) else obj
             } catch (c: ClassCastException) {
                 // if object type is not valid converted type, just use type as is here.
-                FlowLog.log(FlowLog.Level.W, throwable = c)
+                // if object type is not valid converted type, just use type as is here.
+                FlowLog.log(FlowLog.Level.I, "Value passed to operation is not valid type" +
+                    " for TypeConverter in the column. Preserving value $obj to be used as is.")
             }
 
             convertValueToString(converted, appendInnerParenthesis, false)
