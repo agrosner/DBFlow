@@ -21,7 +21,7 @@ abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Clas
      * @return The data loaded from the database.
      */
     open fun load(databaseWrapper: DatabaseWrapper, query: String): TReturn?
-            = load(databaseWrapper.rawQuery(query, null), databaseWrapper)
+        = load(databaseWrapper.rawQuery(query, null), databaseWrapper)
 
     open fun load(cursor: FlowCursor?, databaseWrapper: DatabaseWrapper): TReturn? {
         var data: TReturn? = null

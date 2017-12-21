@@ -27,6 +27,14 @@ package com.raizlabs.dbflow5.config;
 import java.util.Comparator;
 
 public class NaturalOrderComparator implements Comparator<Object> {
+    static char charAt(String s, int i) {
+        if (i >= s.length()) {
+            return 0;
+        } else {
+            return s.charAt(i);
+        }
+    }
+
     public int compare(Object o1, Object o2) {
         String a = o1.toString();
         String b = o2.toString();
@@ -87,14 +95,6 @@ public class NaturalOrderComparator implements Comparator<Object> {
 
             ++ia;
             ++ib;
-        }
-    }
-
-    static char charAt(String s, int i) {
-        if (i >= s.length()) {
-            return 0;
-        } else {
-            return s.charAt(i);
         }
     }
 

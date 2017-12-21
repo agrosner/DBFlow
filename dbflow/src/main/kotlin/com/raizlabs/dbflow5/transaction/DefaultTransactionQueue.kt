@@ -2,8 +2,7 @@ package com.raizlabs.dbflow5.transaction
 
 import android.os.Looper
 import android.os.Process
-import android.os.Process.*
-
+import android.os.Process.THREAD_PRIORITY_BACKGROUND
 import com.raizlabs.dbflow5.config.FlowLog
 import java.util.concurrent.LinkedBlockingQueue
 

@@ -14,10 +14,10 @@ import com.raizlabs.dbflow5.structure.ChangeAction
  * Description: Base implementation of something that can be queried from the database.
  */
 abstract class BaseQueriable<TModel : Any> protected constructor(
-        /**
-         * @return The table associated with this INSERT
-         */
-        val table: Class<TModel>) : Queriable, Actionable {
+    /**
+     * @return The table associated with this INSERT
+     */
+    val table: Class<TModel>) : Queriable, Actionable {
 
     abstract override val primaryAction: ChangeAction
 
@@ -51,7 +51,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
     }
 
     override fun executeInsert(databaseWrapper: DatabaseWrapper): Long =
-            compileStatement(databaseWrapper).executeInsert()
+        compileStatement(databaseWrapper).executeInsert()
 
     override fun execute(databaseWrapper: DatabaseWrapper) {
         val cursor = cursor(databaseWrapper)

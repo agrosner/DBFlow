@@ -48,7 +48,7 @@ protected constructor(table: Class<TModel>)
     }
 
     override fun queryResults(databaseWrapper: DatabaseWrapper): CursorResult<TModel> =
-            CursorResult(retrievalAdapter.table, cursor(databaseWrapper), databaseWrapper)
+        CursorResult(retrievalAdapter.table, cursor(databaseWrapper), databaseWrapper)
 
     override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<TModel> {
         val query = query
@@ -63,10 +63,10 @@ protected constructor(table: Class<TModel>)
     }
 
     override fun cursorList(databaseWrapper: DatabaseWrapper): FlowCursorList<TModel> =
-            FlowCursorList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
+        FlowCursorList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
 
     override fun flowQueryList(databaseWrapper: DatabaseWrapper): FlowQueryList<TModel> =
-            FlowQueryList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
+        FlowQueryList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
 
     override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long {
         val affected = databaseWrapper.compileStatement(query).executeUpdateDelete()
@@ -80,7 +80,7 @@ protected constructor(table: Class<TModel>)
 
     override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>,
                                                     databaseWrapper: DatabaseWrapper)
-            : MutableList<QueryClass> {
+        : MutableList<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
         return getListQueryModelLoader(queryModelClass).load(databaseWrapper, query)!!
@@ -88,7 +88,7 @@ protected constructor(table: Class<TModel>)
 
     override fun <QueryClass : Any> queryCustomSingle(queryModelClass: Class<QueryClass>,
                                                       databaseWrapper: DatabaseWrapper)
-            : QueryClass? {
+        : QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
         return getSingleQueryModelLoader(queryModelClass).load(databaseWrapper, query)

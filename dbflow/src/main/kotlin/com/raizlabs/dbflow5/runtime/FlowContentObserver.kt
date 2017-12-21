@@ -108,7 +108,7 @@ open class FlowContentObserver(private val contentAuthority: String,
                     for (uri in tableUris) {
                         for (onTableChangedListener in onTableChangedListeners) {
                             onTableChangedListener.onTableChanged(registeredTables[uri.authority],
-                                    ChangeAction.valueOf(uri.fragment))
+                                ChangeAction.valueOf(uri.fragment))
                         }
                     }
                     tableUris.clear()
@@ -177,7 +177,7 @@ open class FlowContentObserver(private val contentAuthority: String,
     fun registerForContentChanges(contentResolver: ContentResolver,
                                   table: Class<*>) {
         contentResolver.registerContentObserver(
-                getNotificationUri(contentAuthority, table, null), true, this)
+            getNotificationUri(contentAuthority, table, null), true, this)
         REGISTERED_COUNT.incrementAndGet()
         if (!registeredTables.containsValue(table)) {
             registeredTables.put(FlowManager.getTableName(table), table)
@@ -215,12 +215,12 @@ open class FlowContentObserver(private val contentAuthority: String,
         val queryNames = locUri.queryParameterNames
         val columnsChanged = arrayListOf<SQLOperator>()
         queryNames.asSequence()
-                .filter { it != TABLE_QUERY_PARAM }
-                .forEach { key ->
-                    param = Uri.decode(locUri.getQueryParameter(key))
-                    columnName = Uri.decode(key)
-                    columnsChanged += Operator.op<Any>(NameAlias.Builder(columnName).build()).eq(param)
-                }
+            .filter { it != TABLE_QUERY_PARAM }
+            .forEach { key ->
+                param = Uri.decode(locUri.getQueryParameter(key))
+                columnName = Uri.decode(key)
+                columnsChanged += Operator.op<Any>(NameAlias.Builder(columnName).build()).eq(param)
+            }
 
         val table = registeredTables[tableName]
         if (table != null) {
