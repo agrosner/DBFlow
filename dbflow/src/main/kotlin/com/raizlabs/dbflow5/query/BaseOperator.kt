@@ -49,7 +49,7 @@ abstract class BaseOperator internal constructor(
     /**
      * @return the column name
      */
-    override fun columnName(): String = nameAlias!!.query
+    override fun columnName(): String = nameAlias?.query ?: ""
 
     override fun separator(separator: String): SQLOperator {
         this.separator = separator

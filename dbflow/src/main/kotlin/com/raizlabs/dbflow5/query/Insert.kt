@@ -47,29 +47,30 @@ internal constructor(table: Class<TModel>)
                 queryBuilder.append("OR").append(" $conflictAction ")
             }
             queryBuilder.append("INTO")
-                    .append(" ")
-                    .append(FlowManager.getTableName(table))
+                .append(" ")
+                .append(FlowManager.getTableName(table))
 
             columns?.let { columns ->
                 queryBuilder.append("(")
-                        .appendArray(*columns.toTypedArray())
-                        .append(")")
+                    .appendArray(*columns.toTypedArray())
+                    .append(")")
             }
+            val selectFrom = this.selectFrom
             if (selectFrom != null) {
-                queryBuilder.append(" ").append(selectFrom!!.query)
+                queryBuilder.append(" ").append(selectFrom.query)
             } else {
                 if (valuesList.size < 1) {
                     throw IllegalStateException("The insert of " + FlowManager.getTableName(table) + " should have" +
-                            "at least one value specified for the insert")
+                        "at least one value specified for the insert")
                 } else columns?.let { columns ->
                     valuesList.asSequence()
-                            .filter { it.size != columns.size }
-                            .forEach {
-                                throw IllegalStateException(
-                                        """The Insert of ${FlowManager.getTableName(table)}
+                        .filter { it.size != columns.size }
+                        .forEach {
+                            throw IllegalStateException(
+                                """The Insert of ${FlowManager.getTableName(table)}
                                             |when specifyingcolumns needs to have the same amount
                                             |of values and columns""".trimMargin())
-                            }
+                        }
                 }
 
                 queryBuilder.append(" VALUES(")
@@ -118,11 +119,9 @@ internal constructor(table: Class<TModel>)
      */
     fun asColumnValues() = apply {
         asColumns()
-        if (columns != null) {
+        columns?.let { columns ->
             val values = arrayListOf<Any?>()
-            for (i in columns!!.indices) {
-                values.add("?")
-            }
+            columns.indices.forEach { values.add("?") }
             valuesList.add(values)
         }
     }

@@ -19,7 +19,7 @@ class IndexProperty<T : Any>(indexName: String,
     private val properties: Array<IProperty<*>> = properties as Array<IProperty<*>>
 
     val index: Index<T>
-        get() = Index<T>(indexName).on(table, *properties).unique(unique)
+        get() = Index(indexName, table).on(*properties).unique(unique)
 
     val indexName = indexName.quoteIfNeeded() ?: ""
 

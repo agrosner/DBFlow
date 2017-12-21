@@ -23,13 +23,11 @@ class Index<TModel>
     /**
      * @return The name of this index.
      */
-    val indexName: String) : Query {
-
+    val indexName: String,
     /**
      * @return The table this INDEX belongs to.
      */
-    var table: Class<TModel>? = null
-        private set
+    val table: Class<TModel>) : Query {
     private val columns: MutableList<NameAlias> = arrayListOf()
     /**
      * @return true if the index is unique
@@ -43,7 +41,7 @@ class Index<TModel>
             append(if (isUnique) "UNIQUE " else "")
             append("INDEX IF NOT EXISTS ")
             appendQuotedIfNeeded(indexName)
-            append(" ON ").append(FlowManager.getTableName(table!!))
+            append(" ON ").append(FlowManager.getTableName(table))
             append("(").appendList(columns).append(")")
         }
 
@@ -64,8 +62,7 @@ class Index<TModel>
      * @param properties The properties to create an index for.
      * @return This instance.
      */
-    fun on(table: Class<TModel>, vararg properties: IProperty<*>) = apply {
-        this.table = table
+    fun on(vararg properties: IProperty<*>) = apply {
         properties.forEach { and(it) }
     }
 
@@ -76,8 +73,7 @@ class Index<TModel>
      * @param columns The columns to create an index for.
      * @return This instance.
      */
-    fun on(table: Class<TModel>, firstAlias: NameAlias, vararg columns: NameAlias) = apply {
-        this.table = table
+    fun on(firstAlias: NameAlias, vararg columns: NameAlias) = apply {
         and(firstAlias)
         columns.forEach { and(it) }
     }
@@ -123,9 +119,9 @@ class Index<TModel>
 
 inline fun <reified T : Any> indexOn(indexName: String,
                                      vararg property: IProperty<*>)
-    = index<T>(indexName).on(T::class.java, *property)
+    = index(indexName, T::class).on(*property)
 
 inline fun <reified T : Any> indexOn(indexName: String, firstNameAlias: NameAlias,
                                      vararg arrayOfNameAlias: NameAlias)
-    = index<T>(indexName).on(T::class.java, firstNameAlias, *arrayOfNameAlias)
+    = index(indexName, T::class).on(firstNameAlias, *arrayOfNameAlias)
 

@@ -66,8 +66,8 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         this.databaseWrapper = builder.databaseWrapper
         cursorFunc = {
             builder.cursor
-                    ?: modelQueriable.cursor(databaseWrapper)
-                    ?: throw IllegalStateException("The cursor must evaluate to a cursor")
+                ?: modelQueriable.cursor(databaseWrapper)
+                ?: throw IllegalStateException("The cursor must evaluate to a cursor")
         }
         instanceAdapter = FlowManager.getRetrievalAdapter(builder.modelClass)
     }
@@ -75,7 +75,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     override operator fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(this)
 
     override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> =
-            FlowCursorIterator(this, startingLocation, limit)
+        FlowCursorIterator(this, startingLocation, limit)
 
     /**
      * Register listener for when cursor refreshes.
@@ -118,9 +118,9 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         val cursor = unpackCursor()
         return if (cursor.moveToPosition(index.toInt())) {
             instanceAdapter.singleModelLoader.convertToData(
-                    FlowCursor.from(cursor), false,
-                    databaseWrapper)
-                    ?: throw IndexOutOfBoundsException("Invalid item at index $index. Check your cursor data.")
+                FlowCursor.from(cursor), false,
+                databaseWrapper)
+                ?: throw IndexOutOfBoundsException("Invalid item at index $index. Check your cursor data.")
         } else {
             throw IndexOutOfBoundsException("Invalid item at index $index. Check your cursor data.")
         }
@@ -154,12 +154,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
             return _cursor
         }
 
-    private fun unpackCursor(): FlowCursor {
-        if (_cursor == null) {
-            _cursor = cursorFunc()
-        }
-        return _cursor!!
-    }
+    private fun unpackCursor(): FlowCursor = _cursor ?: cursorFunc().also { _cursor = it }
 
     private fun throwIfCursorClosed() {
         if (_cursor?.isClosed == true) {

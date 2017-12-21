@@ -19,7 +19,7 @@ abstract class IndexMigration<TModel>(
     abstract val name: String
 
     override fun migrate(database: DatabaseWrapper) {
-        val index = index<TModel>(name).on(onTable).unique(unique)
+        val index = index(name, onTable).unique(unique)
         columns.forEach { index.and(it) }
         database.execSQL(index.query)
     }

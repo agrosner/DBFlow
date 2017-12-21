@@ -63,30 +63,22 @@ class DatabaseHelperDelegate(
     }
 
     override fun onCreate(db: DatabaseWrapper) {
-        if (databaseCallback != null) {
-            databaseCallback!!.onCreate(db)
-        }
+        databaseCallback?.onCreate(db)
         super.onCreate(db)
     }
 
     override fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
-        if (databaseCallback != null) {
-            databaseCallback!!.onUpgrade(db, oldVersion, newVersion)
-        }
+        databaseCallback?.onUpgrade(db, oldVersion, newVersion)
         super.onUpgrade(db, oldVersion, newVersion)
     }
 
     override fun onOpen(db: DatabaseWrapper) {
-        if (databaseCallback != null) {
-            databaseCallback!!.onOpen(db)
-        }
+        databaseCallback?.onOpen(db)
         super.onOpen(db)
     }
 
     override fun onDowngrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
-        if (databaseCallback != null) {
-            databaseCallback!!.onDowngrade(db, oldVersion, newVersion)
-        }
+        databaseCallback?.onDowngrade(db, oldVersion, newVersion)
         super.onDowngrade(db, oldVersion, newVersion)
     }
 

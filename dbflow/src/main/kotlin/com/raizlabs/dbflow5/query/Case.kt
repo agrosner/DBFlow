@@ -25,16 +25,17 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
         get() {
             val queryBuilder = StringBuilder(" CASE")
             if (isEfficientCase) {
-                queryBuilder.append(" " + BaseOperator.convertValueToString(caseColumn, false)!!)
+                queryBuilder.append(" ${BaseOperator.convertValueToString(caseColumn, false)}")
             }
 
             queryBuilder.append(caseConditions.joinToString(separator = ""))
 
             if (elseSpecified) {
-                queryBuilder.append(" ELSE ").append(BaseOperator.convertValueToString(elseValue, false))
+                queryBuilder.append(" ELSE ")
+                    .append(BaseOperator.convertValueToString(elseValue, false))
             }
             if (endSpecified) {
-                queryBuilder.append(" END " + if (columnName != null) columnName else "")
+                queryBuilder.append(" END ${if (columnName != null) columnName else ""}")
             }
             return queryBuilder.toString()
         }

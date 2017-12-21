@@ -25,12 +25,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     private var _singleModelLoader: SingleModelLoader<T>? = null
 
     var singleModelLoader: SingleModelLoader<T>
-        get() {
-            if (_singleModelLoader == null) {
-                _singleModelLoader = createSingleModelLoader()
-            }
-            return _singleModelLoader!!
-        }
+        get() = _singleModelLoader ?: createSingleModelLoader().also { _singleModelLoader = it }
         set(value) {
             this._singleModelLoader = value
         }
@@ -46,12 +41,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     private var _listModelLoader: ListModelLoader<T>? = null
 
     var listModelLoader: ListModelLoader<T>
-        get() {
-            if (_listModelLoader == null) {
-                _listModelLoader = createListModelLoader()
-            }
-            return _listModelLoader!!
-        }
+        get() = _listModelLoader ?: createListModelLoader().also { _listModelLoader = it }
         set(value) {
             this._listModelLoader = value
         }

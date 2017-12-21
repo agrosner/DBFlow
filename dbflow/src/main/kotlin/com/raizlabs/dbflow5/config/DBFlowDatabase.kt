@@ -102,17 +102,19 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     val openHelper: OpenHelper
         @Synchronized get() {
-            if (_openHelper == null) {
+            var helper = _openHelper
+            if (helper == null) {
                 val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
-                _openHelper = if (config?.openHelperCreator != null) {
+                helper = if (config?.openHelperCreator != null) {
                     config.openHelperCreator.invoke(this, callback)
                 } else {
                     AndroidSQLiteOpenHelper(FlowManager.context, this, callback)
                 }
-                _openHelper?.performRestoreFromBackup()
+                helper.performRestoreFromBackup()
                 isOpened = true
             }
-            return _openHelper!!
+            _openHelper = helper
+            return helper
         }
 
     val writableDatabase: DatabaseWrapper
@@ -251,7 +253,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getModelViewAdapterForTable(table: Class<T>): ModelViewAdapter<T>? =
-            modelViewAdapterMap[table] as ModelViewAdapter<T>?
+        modelViewAdapterMap[table] as ModelViewAdapter<T>?
 
     /**
      * @param queryModel The [QueryModel] class
@@ -259,18 +261,20 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getQueryModelAdapterForQueryClass(queryModel: Class<T>): QueryModelAdapter<T>? =
-            queryModelAdapterMap[queryModel] as QueryModelAdapter<T>?
+        queryModelAdapterMap[queryModel] as QueryModelAdapter<T>?
 
     fun getModelNotifier(): ModelNotifier {
-        if (modelNotifier == null) {
+        var notifier = modelNotifier
+        if (notifier == null) {
             val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
-            modelNotifier = if (config?.modelNotifier == null) {
+            notifier = if (config?.modelNotifier == null) {
                 DirectModelNotifier()
             } else {
                 config.modelNotifier
             }
         }
-        return modelNotifier!!
+        modelNotifier = notifier
+        return notifier
     }
 
     /**
@@ -279,10 +283,10 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     fun <R : Any?> executeTransactionAsync(transaction: ITransaction<R>,
                                            success: ((Transaction<R>, R) -> Unit)? = null,
                                            error: ((Transaction<R>, Throwable) -> Unit)? = null): Transaction<R>
-            = beginTransactionAsync(transaction)
-            .success(success)
-            .error(error)
-            .execute()
+        = beginTransactionAsync(transaction)
+        .success(success)
+        .error(error)
+        .execute()
 
     /**
      * Executes and returns the executed transaction.
@@ -290,19 +294,19 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     fun <R : Any?> executeTransactionAsync(transaction: (DatabaseWrapper) -> R,
                                            success: ((Transaction<R>, R) -> Unit)? = null,
                                            error: ((Transaction<R>, Throwable) -> Unit)? = null): Transaction<R>
-            = beginTransactionAsync(transaction)
-            .success(success)
-            .error(error)
-            .execute()
+        = beginTransactionAsync(transaction)
+        .success(success)
+        .error(error)
+        .execute()
 
 
     fun <R : Any?> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
-            Transaction.Builder(transaction, this)
+        Transaction.Builder(transaction, this)
 
     fun <R : Any?> beginTransactionAsync(transaction: (DatabaseWrapper) -> R): Transaction.Builder<R> =
-            beginTransactionAsync(object : ITransaction<R> {
-                override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
-            })
+        beginTransactionAsync(object : ITransaction<R> {
+            override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
+        })
 
     fun <R> executeTransaction(transaction: ITransaction<R>): R {
         val database = writableDatabase
@@ -317,7 +321,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     }
 
     inline fun <R> executeTransaction(crossinline transaction: (DatabaseWrapper) -> R)
-            = executeTransaction(object : ITransaction<R> {
+        = executeTransaction(object : ITransaction<R> {
         override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
     })
 
@@ -423,27 +427,27 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     override fun endTransaction() = writableDatabase.endTransaction()
 
     override fun compileStatement(rawQuery: String): DatabaseStatement
-            = writableDatabase.compileStatement(rawQuery)
+        = writableDatabase.compileStatement(rawQuery)
 
     override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor
-            = writableDatabase.rawQuery(query, selectionArgs)
+        = writableDatabase.rawQuery(query, selectionArgs)
 
     override fun updateWithOnConflict(tableName: String,
                                       contentValues: ContentValues,
                                       where: String?,
                                       whereArgs: Array<String>?,
                                       conflictAlgorithm: Int): Long
-            = writableDatabase.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm)
+        = writableDatabase.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm)
 
     override fun insertWithOnConflict(
-            tableName: String,
-            nullColumnHack: String?,
-            values: ContentValues,
-            sqLiteDatabaseAlgorithmInt: Int): Long
-            = writableDatabase.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt)
+        tableName: String,
+        nullColumnHack: String?,
+        values: ContentValues,
+        sqLiteDatabaseAlgorithmInt: Int): Long
+        = writableDatabase.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt)
 
     override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int
-            = writableDatabase.delete(tableName, whereClause, whereArgs)
+        = writableDatabase.delete(tableName, whereClause, whereArgs)
 
     override fun query(tableName: String,
                        columns: Array<String>?,
@@ -451,5 +455,5 @@ abstract class DBFlowDatabase : DatabaseWrapper {
                        selectionArgs: Array<String>?,
                        groupBy: String?, having: String?,
                        orderBy: String?): FlowCursor
-            = writableDatabase.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy)
+        = writableDatabase.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy)
 }

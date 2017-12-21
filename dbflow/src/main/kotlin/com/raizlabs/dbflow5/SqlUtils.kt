@@ -113,7 +113,7 @@ fun dropTrigger(mOnTable: Class<*>, triggerName: String) {
  * @param indexName The name of the index.
  */
 fun dropIndex(databaseWrapper: DatabaseWrapper, indexName: String) {
-    databaseWrapper.execSQL("DROP INDEX IF EXISTS " + indexName.quoteIfNeeded()!!)
+    databaseWrapper.execSQL("DROP INDEX IF EXISTS ${indexName.quoteIfNeeded()}")
 }
 
 fun dropIndex(onTable: Class<*>, indexName: String) {

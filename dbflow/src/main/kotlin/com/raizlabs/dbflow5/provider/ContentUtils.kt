@@ -261,7 +261,7 @@ object ContentUtils {
                                      databaseWrapper: DatabaseWrapper,
                                      whereConditions: OperatorGroup,
                                      orderBy: String, vararg columns: String): List<TableClass>? {
-        val cursor = FlowCursor.from(contentResolver.query(queryUri, columns, whereConditions.query, null, orderBy)!!)
+        val cursor = FlowCursor.from(contentResolver.query(queryUri, columns, whereConditions.query, null, orderBy))
         return table.modelAdapter
             .listModelLoader
             .load(cursor, databaseWrapper)

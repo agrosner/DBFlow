@@ -50,7 +50,7 @@ open class AndroidSQLiteOpenHelper(
 
     override val database: DatabaseWrapper
         get() {
-            if (androidDatabase == null || !androidDatabase!!.database.isOpen) {
+            if (androidDatabase == null || androidDatabase?.database?.isOpen == false) {
                 androidDatabase = AndroidDatabase.from(writableDatabase)
             }
             return androidDatabase!!

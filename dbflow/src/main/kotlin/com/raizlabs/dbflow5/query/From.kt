@@ -90,12 +90,8 @@ internal constructor(
             return tables
         }
 
-    private fun getTableAlias(): NameAlias {
-        if (tableAlias == null) {
-            tableAlias = NameAlias.Builder(FlowManager.getTableName(table)).build()
-        }
-        return tableAlias!!
-    }
+    private fun getTableAlias(): NameAlias = tableAlias
+        ?: NameAlias.Builder(FlowManager.getTableName(table)).build().also { tableAlias = it }
 
     /**
      * Set an alias to the table name of this [From].

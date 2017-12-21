@@ -19,10 +19,6 @@ class WrapperProperty<T, V> : Property<V> {
      * @return A new [Property] that corresponds to the inverted type of the [WrapperProperty]. Convenience
      * for types that have different DB representations.
      */
-    fun invertProperty(): Property<T> {
-        if (databaseProperty == null) {
-            databaseProperty = WrapperProperty(table!!, nameAlias)
-        }
-        return databaseProperty!!
-    }
+    fun invertProperty(): Property<T> = databaseProperty
+        ?: WrapperProperty<V, T>(table!!, nameAlias).also { databaseProperty = it }
 }

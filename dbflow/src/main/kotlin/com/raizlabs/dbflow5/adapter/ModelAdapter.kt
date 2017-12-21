@@ -218,12 +218,10 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     override fun cachingEnabled(): Boolean = false
 
     var modelSaver: ModelSaver<T>
-        get() {
-            if (_modelSaver == null) {
-                _modelSaver = createSingleModelSaver().apply { modelAdapter = this@ModelAdapter }
-            }
-            return _modelSaver!!
-        }
+        get() = _modelSaver
+            ?: createSingleModelSaver()
+            .apply { modelAdapter = this@ModelAdapter }
+            .also { _modelSaver = it }
         set(value) {
             this._modelSaver = value
             value.modelAdapter = this

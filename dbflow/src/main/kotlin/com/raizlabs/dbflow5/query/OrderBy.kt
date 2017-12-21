@@ -17,17 +17,18 @@ constructor(private val column: NameAlias? = null,
 
     override val query: String
         get() {
-            return if (orderByString == null) {
+            val locOrderByString = orderByString
+            return if (locOrderByString == null) {
                 val query = StringBuilder()
                     .append(column)
                     .append(" ")
                 if (collation != null) {
-                    query.append("COLLATE").append(" ").append(collation).append(" ")
+                    query.append("COLLATE $collation ")
                 }
                 query.append(if (isAscending) ASCENDING else DESCENDING)
                 query.toString()
             } else {
-                orderByString!!
+                locOrderByString
             }
         }
 

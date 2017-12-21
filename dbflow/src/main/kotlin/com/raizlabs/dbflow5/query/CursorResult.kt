@@ -64,7 +64,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
     fun <TCustom : Any> toCustomList(customClass: Class<TCustom>): List<TCustom> {
         return _cursor?.let { cursor ->
             return@let customClass.queryModelAdapter
-                    .listModelLoader.convertToData(cursor, databaseWrapper)
+                .listModelLoader.convertToData(cursor, databaseWrapper)
         } ?: arrayListOf()
     }
 
@@ -73,7 +73,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
      */
     fun <TCustom : Any> toCustomListClose(customClass: Class<TCustom>): List<TCustom> {
         val customList = customClass.queryModelAdapter.listModelLoader
-                .load(_cursor, databaseWrapper) ?: arrayListOf()
+            .load(_cursor, databaseWrapper) ?: arrayListOf()
         close()
         return customList
     }
@@ -117,21 +117,24 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
         _cursor?.let { cursor ->
             if (cursor.moveToPosition(index.toInt())) {
                 model = retrievalAdapter.singleModelLoader.convertToData(cursor, false, databaseWrapper)
+            } else {
+                throw IndexOutOfBoundsException("Cursor failed to move to position $index")
             }
-        }
-        return model!!
+        } ?: throw IllegalStateException("Cursor is no longer open on this CursorResult or no Cursor found.")
+        return model ?: throw IllegalStateException("RetrievalAdapter did not return a model for index $index")
     }
 
     override fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(this)
 
     override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> =
-            FlowCursorIterator(this, startingLocation, limit)
+        FlowCursorIterator(this, startingLocation, limit)
 
     override val cursor: FlowCursor?
         get() = _cursor
 
     override fun close() {
         _cursor?.close()
+        _cursor = null
     }
 }
 

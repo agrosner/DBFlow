@@ -23,7 +23,7 @@ class NameAlias(private val name: String,
      */
     override val query: String
         get() = when {
-            aliasName.isNotNullOrEmpty() -> aliasName!!
+            aliasName.isNotNullOrEmpty() -> aliasName ?: ""
             name.isNotNullOrEmpty() -> fullName()
             else -> ""
         }

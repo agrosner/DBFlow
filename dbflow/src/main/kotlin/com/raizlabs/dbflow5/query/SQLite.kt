@@ -75,7 +75,17 @@ fun <T : Any> delete(table: Class<T>): From<T> = delete().from(table)
  * @param [T] The class that implements [Model].
  * @return A new INDEX statement.
  */
-fun <T> index(name: String): Index<T> = Index(name)
+fun <T> index(name: String, table: Class<T>): Index<T> = Index(name, table)
+
+
+/**
+ * Starts an INDEX statement on specified table.
+ *
+ * @param name     The name of the index.
+ * @param [T] The class that implements [Model].
+ * @return A new INDEX statement.
+ */
+fun <T : Any> index(name: String, table: KClass<T>): Index<T> = Index(name, table.java)
 
 /**
  * Starts a TRIGGER statement.

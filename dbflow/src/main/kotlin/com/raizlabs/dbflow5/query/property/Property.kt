@@ -24,7 +24,7 @@ import com.raizlabs.dbflow5.query.OrderBy
  */
 open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
 
-    final override val table: Class<*>?
+    override val table: Class<*>?
 
     private lateinit var internalNameAlias: NameAlias
 

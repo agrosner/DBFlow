@@ -190,7 +190,7 @@ open class BaseDatabaseHelper(protected val context: Context,
                 db.execSQL(queryString)
             }
         } catch (e: IOException) {
-            FlowLog.log(FlowLog.Level.E, "Failed to execute $file. App might be in an inconsistent state!!", e)
+            FlowLog.log(FlowLog.Level.E, "Failed to execute $file. App might be in an inconsistent state!", e)
         }
     }
 

@@ -70,7 +70,8 @@ open class Method(methodName: String, vararg properties: IProperty<*>) : Propert
 
     override val nameAlias: NameAlias
         get() {
-            if (this._nameAlias == null) {
+            var alias = _nameAlias
+            if (alias == null) {
                 var query: String? = methodProperty.query
                 if (query == null) {
                     query = ""
@@ -86,9 +87,10 @@ open class Method(methodName: String, vararg properties: IProperty<*>) : Propert
 
                 }
                 query += ")"
-                this._nameAlias = NameAlias.rawBuilder(query).build()
+                alias = NameAlias.rawBuilder(query).build()
             }
-            return this._nameAlias!!
+            this._nameAlias = alias
+            return alias
         }
 
     /**
