@@ -48,6 +48,14 @@ internal constructor(val statement: SQLiteStatement) : BaseDatabaseStatement() {
         statement.bindBlob(index, bytes)
     }
 
+    override fun bindAllArgsAsStrings(selectionArgs: Array<String>?) {
+        if (selectionArgs != null) {
+            for (i in selectionArgs.size downTo 1) {
+                bindString(i, selectionArgs[i - 1])
+            }
+        }
+    }
+
     companion object {
 
         @JvmStatic

@@ -74,6 +74,10 @@ internal constructor(val statement: SQLiteStatement,
         statement.bindBlob(index, bytes)
     }
 
+    override fun bindAllArgsAsStrings(selectionArgs: Array<String>?) {
+        statement.bindAllArgsAsStrings(selectionArgs)
+    }
+
     companion object {
 
         @JvmStatic

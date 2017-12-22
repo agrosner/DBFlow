@@ -29,14 +29,14 @@ protected constructor(table: Class<TModel>)
 
     private var cachingEnabled = true
 
-    private val listModelLoader: ListModelLoader<TModel>
+    protected val listModelLoader: ListModelLoader<TModel>
         get() = if (cachingEnabled) {
             retrievalAdapter.listModelLoader
         } else {
             retrievalAdapter.nonCacheableListModelLoader
         }
 
-    private val singleModelLoader: SingleModelLoader<TModel>
+    protected val singleModelLoader: SingleModelLoader<TModel>
         get() = if (cachingEnabled) {
             retrievalAdapter.singleModelLoader
         } else {
@@ -52,13 +52,13 @@ protected constructor(table: Class<TModel>)
 
     override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<TModel> {
         val query = query
-        FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
+        FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
         return listModelLoader.load(databaseWrapper, query)!!
     }
 
     override fun querySingle(databaseWrapper: DatabaseWrapper): TModel? {
         val query = query
-        FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
+        FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
         return singleModelLoader.load(databaseWrapper, query)
     }
 
@@ -69,7 +69,7 @@ protected constructor(table: Class<TModel>)
         FlowQueryList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
 
     override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long {
-        val affected = databaseWrapper.compileStatement(query).executeUpdateDelete()
+        val affected = compileStatement(databaseWrapper).executeUpdateDelete()
 
         // only notify for affected.
         if (affected > 0) {
@@ -82,7 +82,7 @@ protected constructor(table: Class<TModel>)
                                                     databaseWrapper: DatabaseWrapper)
         : MutableList<QueryClass> {
         val query = query
-        FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
+        FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
         return getListQueryModelLoader(queryModelClass).load(databaseWrapper, query)!!
     }
 
@@ -90,18 +90,18 @@ protected constructor(table: Class<TModel>)
                                                       databaseWrapper: DatabaseWrapper)
         : QueryClass? {
         val query = query
-        FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
+        FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
         return getSingleQueryModelLoader(queryModelClass).load(databaseWrapper, query)
     }
 
 
-    private fun <T : Any> getListQueryModelLoader(table: Class<T>): ListModelLoader<T> = if (cachingEnabled) {
+    protected fun <T : Any> getListQueryModelLoader(table: Class<T>): ListModelLoader<T> = if (cachingEnabled) {
         table.queryModelAdapter.listModelLoader
     } else {
         table.queryModelAdapter.nonCacheableListModelLoader
     }
 
-    private fun <T : Any> getSingleQueryModelLoader(table: Class<T>): SingleModelLoader<T> = if (cachingEnabled) {
+    protected fun <T : Any> getSingleQueryModelLoader(table: Class<T>): SingleModelLoader<T> = if (cachingEnabled) {
         table.queryModelAdapter.singleModelLoader
     } else {
         table.queryModelAdapter.nonCacheableSingleModelLoader

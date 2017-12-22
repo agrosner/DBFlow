@@ -64,4 +64,8 @@ class DatabaseStatementWrapper<T : Any>(
     override fun bindBlob(index: Int, bytes: ByteArray) {
         databaseStatement.bindBlob(index, bytes)
     }
+
+    override fun bindAllArgsAsStrings(selectionArgs: Array<String>?) {
+        databaseStatement.bindAllArgsAsStrings(selectionArgs)
+    }
 }

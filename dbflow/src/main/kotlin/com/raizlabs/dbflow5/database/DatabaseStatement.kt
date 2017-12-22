@@ -39,4 +39,5 @@ interface DatabaseStatement {
 
     fun bindBlobOrNull(index: Int, bytes: ByteArray?)
 
+    fun bindAllArgsAsStrings(selectionArgs: Array<String>?)
 }

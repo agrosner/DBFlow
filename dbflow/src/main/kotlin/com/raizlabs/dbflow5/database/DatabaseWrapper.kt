@@ -20,6 +20,10 @@ interface DatabaseWrapper {
 
     fun compileStatement(rawQuery: String): DatabaseStatement
 
+    fun compileStatement(rawQuery: String, selectionArgs: Array<String>?): DatabaseStatement {
+        return compileStatement(rawQuery).apply { bindAllArgsAsStrings(selectionArgs) }
+    }
+
     fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor
 
     fun updateWithOnConflict(tableName: String,
