@@ -134,7 +134,6 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
 
     override fun close() {
         _cursor?.close()
-        _cursor = null
     }
 }
 
