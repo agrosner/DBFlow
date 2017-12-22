@@ -27,8 +27,8 @@ import com.raizlabs.dbflow5.transaction.ITransaction
 import com.raizlabs.dbflow5.transaction.Transaction
 
 /**
- * Description: The main interface that all Database implementations extend from. This is for internal usage only
- * as it will be generated for every [Database].
+ * Description: The main interface that all Database implementations extend from. Use this to
+ * pass in for operations and [Transaction].
  */
 abstract class DBFlowDatabase : DatabaseWrapper {
 
@@ -175,7 +175,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * Applies a database configuration object to this class.
      */
     @Suppress("UNCHECKED_CAST")
-    internal fun applyDatabaseConfig(databaseConfig: DatabaseConfig?) {
+    private fun applyDatabaseConfig(databaseConfig: DatabaseConfig?) {
         this.databaseConfig = databaseConfig
         if (databaseConfig != null) {
             // initialize configuration if exists.
@@ -298,7 +298,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         .success(success)
         .error(error)
         .execute()
-
 
     fun <R : Any?> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
         Transaction.Builder(transaction, this)

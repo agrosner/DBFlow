@@ -7,11 +7,11 @@ import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.structure.Model
 import com.raizlabs.dbflow5.structure.save
+import com.raizlabs.dbflow5.transaction.Error
 import com.raizlabs.dbflow5.transaction.ProcessModelTransaction
+import com.raizlabs.dbflow5.transaction.Success
 import com.raizlabs.dbflow5.transaction.Transaction
 import com.raizlabs.dbflow5.transaction.processModel
-import com.raizlabs.dbflow5.transaction.transactionError
-import com.raizlabs.dbflow5.transaction.transactionSuccess
 
 /**
  * Description: This queue will bulk save items added to it when it gets access to the DB. It should only exist as one entity.
@@ -43,16 +43,20 @@ internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("D
      */
     private var isQuitting = false
 
-    private var errorListener: Transaction.Error<Unit>? = null
-    private var successListener: Transaction.Success<Unit>? = null
+    private var errorListener: Error<Unit>? = null
+    private var successListener: Success<Unit>? = null
     private var emptyTransactionListener: Runnable? = null
 
     private val modelSaver = processModel<Any?> { model, _ ->
         (model as? Model)?.save(databaseDefinition) ?: model?.save(databaseDefinition)
     }
 
-    private val successCallback = transactionSuccess<Unit> { transaction, result -> successListener?.onSuccess(transaction, result) }
-    private val errorCallback = transactionError<Unit> { transaction, error -> errorListener?.onError(transaction, error) }
+    private val successCallback: Success<Unit> = { transaction: Transaction<Unit>, result: Unit ->
+        successListener?.invoke(transaction, result)
+    }
+    private val errorCallback: Error<Unit> = { transaction: Transaction<Unit>, error: Throwable ->
+        errorListener?.invoke(transaction, error)
+    }
 
     /**
      * Sets how many models to save at a time in this queue.
@@ -73,13 +77,12 @@ internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("D
         this.modelSaveCheckTime = time
     }
 
-
     /**
      * Listener for errors in each batch [Transaction]. Called from the DBBatchSaveQueue thread.
      *
      * @param errorListener The listener to use.
      */
-    fun setErrorListener(errorListener: Transaction.Error<Unit>?) {
+    fun setErrorListener(errorListener: Error<Unit>?) {
         this.errorListener = errorListener
     }
 
@@ -88,7 +91,7 @@ internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("D
      *
      * @param successListener The listener to get notified when changes are successful.
      */
-    fun setSuccessListener(successListener: Transaction.Success<Unit>?) {
+    fun setSuccessListener(successListener: Success<Unit>?) {
         this.successListener = successListener
     }
 

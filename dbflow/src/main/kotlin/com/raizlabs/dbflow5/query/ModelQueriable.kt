@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
@@ -72,6 +73,10 @@ interface ModelQueriable<T : Any> : Queriable {
      * or [FlowQueryList] if you [.flowQueryList] or [.cursorList]
      */
     fun disableCaching(): ModelQueriable<T>
+
+    fun <R : Any?> async(databaseWrapper: DBFlowDatabase,
+                         modelQueriableFn: ModelQueriable<T>.(DatabaseWrapper) -> R) =
+        databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
 
 }
 

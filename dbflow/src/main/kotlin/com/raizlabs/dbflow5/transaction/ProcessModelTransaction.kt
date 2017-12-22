@@ -167,8 +167,8 @@ inline fun <T> processModel(crossinline function: (T, DatabaseWrapper) -> Unit)
  */
 inline fun <reified T : Any> Collection<T>.processInTransactionAsync(
     crossinline processFunction: ProcessFunction<T>,
-    success: Transaction.Success<Unit>? = null,
-    error: Transaction.Error<Unit>? = null,
+    noinline success: Success<Unit>? = null,
+    noinline error: Error<Unit>? = null,
     processListener: ProcessModelTransaction.OnModelProcessListener<T>? = null) {
     val builder = this.processTransaction(processFunction)
     processListener?.let { builder.processListener(processListener) }

@@ -6,6 +6,10 @@ import android.os.Looper
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 
+
+typealias Success<R> = (Transaction<R>, R) -> Unit
+typealias Error<R> = (Transaction<R>, Throwable) -> Unit
+
 /**
  * Description: The main transaction class. It represents a transaction that occurs in the database.
  * This is a handy class that allows you to wrap up a set of database modification (or queries) into
@@ -22,34 +26,6 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
                             private val name: String?,
                             private val shouldRunInTransaction: Boolean = true,
                             private val runCallbacksOnSameThread: Boolean = true) {
-
-
-    /**
-     * Callback when a [ITransaction] failed because of an exception.
-     */
-    interface Error<R : Any?> {
-
-        /**
-         * Called when transaction fails.
-         *
-         * @param transaction The transaction that failed.
-         * @param error       The error that was thrown.
-         */
-        fun onError(transaction: Transaction<R>, error: Throwable)
-    }
-
-    /**
-     * Interface callback when a [ITransaction] was successful.
-     */
-    interface Success<R : Any?> {
-
-        /**
-         * Called when a transaction succeeded.
-         *
-         * @param transaction The transaction that succeeded.
-         */
-        fun onSuccess(transaction: Transaction<R>, result: R)
-    }
 
 
     internal constructor(builder: Builder<R>) : this(
@@ -98,18 +74,18 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
             }
             if (successCallback != null) {
                 if (runCallbacksOnSameThread) {
-                    successCallback.onSuccess(this, result)
+                    successCallback.invoke(this, result)
                 } else {
-                    transactionHandler.post { successCallback.onSuccess(this@Transaction, result) }
+                    transactionHandler.post { successCallback.invoke(this@Transaction, result) }
                 }
             }
         } catch (throwable: Throwable) {
             FlowLog.logError(throwable)
             if (errorCallback != null) {
                 if (runCallbacksOnSameThread) {
-                    errorCallback.onError(this, throwable)
+                    errorCallback.invoke(this, throwable)
                 } else {
-                    transactionHandler.post { errorCallback.onError(this@Transaction, throwable) }
+                    transactionHandler.post { errorCallback.invoke(this@Transaction, throwable) }
                 }
             } else {
                 throw RuntimeException("An exception occurred while executing a transaction", throwable)
@@ -151,15 +127,6 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
         }
 
         /**
-         * Specify an error callback to return all and any [Throwable] that occured during a [Transaction].
-         */
-        fun error(errorCallback: ((Transaction<R>, Throwable) -> Unit)?) = apply {
-            if (errorCallback != null) {
-                this.errorCallback = transactionError { transaction, throwable -> errorCallback(transaction, throwable) }
-            }
-        }
-
-        /**
          * Specify a listener for successful transactions. This is called when the [ITransaction]
          * specified is finished and it is posted on the UI thread.
          *
@@ -167,18 +134,6 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
          */
         fun success(successCallback: Success<R>?) = apply {
             this.successCallback = successCallback
-        }
-
-        /**
-         * Specify a listener for successful transactions. This is called when the [ITransaction]
-         * specified is finished and it is posted on the UI thread.
-         *
-         * @param successCallback The callback, invoked on the UI thread.
-         */
-        fun success(successCallback: ((Transaction<R>, R) -> Unit)?) = apply {
-            if (successCallback != null) {
-                this.successCallback = transactionSuccess { transaction, r -> successCallback(transaction, r) }
-            }
         }
 
         /**
@@ -228,10 +183,3 @@ class Transaction<R : Any?>(private val transaction: ITransaction<R>,
     }
 }
 
-inline fun <R : Any?> transactionSuccess(crossinline function: (Transaction<R>, R) -> Unit) = object : Transaction.Success<R> {
-    override fun onSuccess(transaction: Transaction<R>, result: R) = function(transaction, result)
-}
-
-inline fun <R : Any?> transactionError(crossinline function: (Transaction<R>, Throwable) -> Unit) = object : Transaction.Error<R> {
-    override fun onError(transaction: Transaction<R>, error: Throwable) = function(transaction, error)
-}
