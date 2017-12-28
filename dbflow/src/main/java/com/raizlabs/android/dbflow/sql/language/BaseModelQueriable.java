@@ -9,13 +9,13 @@ import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
@@ -108,11 +108,17 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
 
     @Override
     public long executeUpdateDelete(@NonNull DatabaseWrapper databaseWrapper) {
-        long affected = databaseWrapper.compileStatement(getQuery()).executeUpdateDelete();
+        final DatabaseStatement statement = databaseWrapper.compileStatement(getQuery());
+        long affected;
+        try {
+            affected = statement.executeUpdateDelete();
 
-        // only notify for affected.
-        if (affected > 0) {
-            NotifyDistributor.get().notifyTableChanged(getTable(), getPrimaryAction());
+            // only notify for affected.
+            if (affected > 0) {
+                NotifyDistributor.get().notifyTableChanged(getTable(), getPrimaryAction());
+            }
+        } finally {
+            statement.close();
         }
         return affected;
     }

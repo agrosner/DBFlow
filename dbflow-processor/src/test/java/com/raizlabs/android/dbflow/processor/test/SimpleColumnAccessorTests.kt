@@ -150,8 +150,8 @@ class BooleanTypeColumnAccessorTest() {
     @Test
     fun test_canSetBoolean() {
         val access = BooleanColumnAccessor()
-        assertEquals("cursor.getInt(index) == 1 ? true : false",
-                access.set(CodeBlock.of("cursor.getInt(index)")).toString())
+        assertEquals("cursor.getBoolean(index)",
+                access.set(CodeBlock.of("cursor.getBoolean(index)")).toString())
     }
 }
 
