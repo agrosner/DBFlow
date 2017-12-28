@@ -69,11 +69,15 @@ protected constructor(table: Class<TModel>)
         FlowQueryList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
 
     override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long {
-        val affected = compileStatement(databaseWrapper).executeUpdateDelete()
+        val statement = compileStatement(databaseWrapper)
+        var affected = 0L
+        statement.use {
+            affected = statement.executeUpdateDelete()
 
-        // only notify for affected.
-        if (affected > 0) {
-            NotifyDistributor.get().notifyTableChanged(table, primaryAction)
+            // only notify for affected.
+            if (affected > 0) {
+                NotifyDistributor.get().notifyTableChanged(table, primaryAction)
+            }
         }
         return affected
     }

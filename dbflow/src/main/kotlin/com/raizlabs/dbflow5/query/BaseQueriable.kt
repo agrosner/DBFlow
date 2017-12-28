@@ -39,9 +39,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
     override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? {
         if (primaryAction == ChangeAction.INSERT) {
             // inserting, let's compile and insert
-            val databaseStatement = compileStatement(databaseWrapper)
-            databaseStatement.executeInsert()
-            databaseStatement.close()
+            compileStatement(databaseWrapper).use { it.executeInsert() }
         } else {
             val query = query
             FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
@@ -51,7 +49,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
     }
 
     override fun executeInsert(databaseWrapper: DatabaseWrapper): Long =
-        compileStatement(databaseWrapper).executeInsert()
+        compileStatement(databaseWrapper).use { it.executeInsert()}
 
     override fun execute(databaseWrapper: DatabaseWrapper) {
         val cursor = cursor(databaseWrapper)
