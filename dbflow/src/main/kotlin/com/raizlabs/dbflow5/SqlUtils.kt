@@ -103,8 +103,8 @@ fun getNotificationUri(contentAuthority: String,
  * @param mOnTable    The table that this trigger runs on
  * @param triggerName The name of the trigger
  */
-fun dropTrigger(mOnTable: Class<*>, triggerName: String) {
-    FlowManager.getDatabaseForTable(mOnTable).execSQL("DROP TRIGGER IF EXISTS " + triggerName)
+fun dropTrigger(databaseWrapper: DatabaseWrapper, triggerName: String) {
+    databaseWrapper.execSQL("DROP TRIGGER IF EXISTS " + triggerName)
 }
 
 /**
@@ -114,10 +114,6 @@ fun dropTrigger(mOnTable: Class<*>, triggerName: String) {
  */
 fun dropIndex(databaseWrapper: DatabaseWrapper, indexName: String) {
     databaseWrapper.execSQL("DROP INDEX IF EXISTS ${indexName.quoteIfNeeded()}")
-}
-
-fun dropIndex(onTable: Class<*>, indexName: String) {
-    dropIndex(FlowManager.getDatabaseForTable(onTable), indexName)
 }
 
 /**

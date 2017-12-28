@@ -1,11 +1,11 @@
-package com.raizlabs.android.dbflow.models.ants;
+package com.raizlabs.dbflow5.models.ants;
 
-import com.raizlabs.android.dbflow.TestDatabase;
-import com.raizlabs.android.dbflow.annotation.ForeignKey;
-import com.raizlabs.android.dbflow.annotation.ForeignKeyReference;
-import com.raizlabs.android.dbflow.annotation.PrimaryKey;
-import com.raizlabs.android.dbflow.annotation.Table;
-import com.raizlabs.android.dbflow.structure.BaseModel;
+import com.raizlabs.dbflow5.TestDatabase;
+import com.raizlabs.dbflow5.annotation.ForeignKey;
+import com.raizlabs.dbflow5.annotation.ForeignKeyReference;
+import com.raizlabs.dbflow5.annotation.PrimaryKey;
+import com.raizlabs.dbflow5.annotation.Table;
+import com.raizlabs.dbflow5.structure.BaseModel;
 
 @Table(database = TestDatabase.class)
 public class Ants extends BaseModel {

@@ -1,6 +1,7 @@
 package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.dropTrigger
 import com.raizlabs.dbflow5.sql.Query
 
@@ -37,14 +38,14 @@ class CompletedTrigger<TModel> internal constructor(
     /**
      * Turns on this trigger
      */
-    fun enable() {
-        FlowManager.getDatabaseForTable(triggerMethod.onTable).execSQL(query)
+    fun enable(databaseWrapper: DatabaseWrapper) {
+        databaseWrapper.execSQL(query)
     }
 
     /**
      * Disables this trigger
      */
-    fun disable() {
-        dropTrigger(triggerMethod.onTable, triggerMethod.trigger.name)
+    fun disable(databaseWrapper: DatabaseWrapper) {
+        dropTrigger(databaseWrapper, triggerMethod.trigger.name)
     }
 }
