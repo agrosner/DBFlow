@@ -114,7 +114,14 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
 
     @Override
     public long executeInsert(@NonNull DatabaseWrapper databaseWrapper) {
-        return compileStatement().executeInsert();
+        DatabaseStatement statement = compileStatement(databaseWrapper);
+        long rows;
+        try {
+            rows = statement.executeInsert();
+        } finally {
+            statement.close();
+        }
+        return rows;
     }
 
     @Override
