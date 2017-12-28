@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.dropTrigger
 import com.raizlabs.dbflow5.sql.Query

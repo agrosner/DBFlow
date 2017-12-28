@@ -2,6 +2,7 @@ package com.raizlabs.dbflow5.query
 
 import android.content.ContentValues
 import com.raizlabs.dbflow5.adapter.ModelAdapter
+import com.raizlabs.dbflow5.annotation.Table
 import com.raizlabs.dbflow5.annotation.provider.ContentProvider
 import com.raizlabs.dbflow5.structure.Model
 
@@ -13,7 +14,7 @@ import com.raizlabs.dbflow5.structure.Model
  *
  * This class will no longer get called during updates unless explicit call to
  * [ModelAdapter.bindToContentValues]
- * or [ModelAdapter.bindToInsertValues]
+ * or [ModelAdapter.bindToInsertValues] with setting [Table.generateContentValues] to true.
  *
  * @see SQLiteStatementListener
  */
