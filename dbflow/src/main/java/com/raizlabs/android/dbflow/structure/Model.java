@@ -72,6 +72,6 @@ public interface Model extends ReadOnlyModel {
      * @return An async instance of this model where all transactions are on the {@link DefaultTransactionQueue}
      */
     @NonNull
-    AsyncModel<? extends Model> async();
+    <TModel extends Model> AsyncModel<TModel> async();
 
 }

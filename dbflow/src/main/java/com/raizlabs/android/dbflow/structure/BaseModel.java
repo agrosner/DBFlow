@@ -110,8 +110,8 @@ public class BaseModel implements Model {
 
     @NonNull
     @Override
-    public AsyncModel<? extends Model> async() {
-        return new AsyncModel<>(this);
+    public <TModel extends Model> AsyncModel<TModel> async() {
+        return new AsyncModel<>((TModel) this);
     }
 
     /**
