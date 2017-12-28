@@ -31,7 +31,7 @@ import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import java.util.*
+import java.util.ArrayList
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
@@ -345,11 +345,13 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
     }
 
     override fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
-        if (nonModelColumn || columnAccessor is TypeConverterScopeColumnAccessor) {
-            super.appendPropertyComparisonAccessStatement(codeBuilder)
-        } else {
-
-            referencedClassName?.let {
+        when {
+            nonModelColumn -> PrimaryReferenceAccessCombiner(combiner).apply {
+                checkNeedsReferences()
+                codeBuilder.addCode(references!![0].columnName, getDefaultValueBlock(), 0, modelBlock)
+            }
+            columnAccessor is TypeConverterScopeColumnAccessor -> super.appendPropertyComparisonAccessStatement(codeBuilder)
+            else -> referencedClassName?.let {
                 val foreignKeyCombiner = ForeignKeyAccessCombiner(columnAccessor)
                 _referenceDefinitionList.forEach {
                     foreignKeyCombiner.fieldAccesses += it.primaryReferenceField
@@ -402,7 +404,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                 primaryColumns.forEach {
                     val foreignKeyReferenceDefinition = ReferenceDefinition(manager,
                         elementName, it.elementName, it, this, primaryColumns.size,
-                            if (isColumnMap) it.elementName else "")
+                        if (isColumnMap) it.elementName else "")
                     _referenceDefinitionList.add(foreignKeyReferenceDefinition)
                 }
                 needsReferences = false
