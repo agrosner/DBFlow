@@ -356,11 +356,13 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
     }
 
     override fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
-        if (nonModelColumn || columnAccessor is TypeConverterScopeColumnAccessor) {
-            super.appendPropertyComparisonAccessStatement(codeBuilder)
-        } else {
-
-            referencedClassName?.let {
+        when {
+            nonModelColumn -> PrimaryReferenceAccessCombiner(combiner).apply {
+                checkNeedsReferences()
+                codeBuilder.addCode(references!![0].columnName, getDefaultValueBlock(), 0, modelBlock)
+            }
+            columnAccessor is TypeConverterScopeColumnAccessor -> super.appendPropertyComparisonAccessStatement(codeBuilder)
+            else -> referencedClassName?.let {
                 val foreignKeyCombiner = ForeignKeyAccessCombiner(columnAccessor)
                 referenceDefinitionList.forEach {
                     foreignKeyCombiner.fieldAccesses += it.primaryReferenceField

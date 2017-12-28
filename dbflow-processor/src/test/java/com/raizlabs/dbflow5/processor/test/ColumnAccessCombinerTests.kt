@@ -1,8 +1,8 @@
-package com.raizlabs.dbflow5.processor.test
+package com.raizlabs.android.dbflow.processor.test
 
-import com.raizlabs.dbflow5.processor.definition.column.*
-import com.raizlabs.dbflow5.processor.definition.column.PrimaryReferenceAccessCombiner
+import com.raizlabs.android.dbflow.processor.definition.column.*
 import com.squareup.javapoet.CodeBlock
+import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.TypeName
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -21,9 +21,11 @@ class ContentValuesCombinerTest {
                 TypeName.get(String::class.java)))
 
         val codeBuilder = CodeBlock.builder()
-        combiner.addCode(codeBuilder, "columnName", CodeBlock.of("\$S", "nonNull"), -1)
+        combiner.apply {
+            codeBuilder.addCode("columnName", CodeBlock.of("\$S", "nonNull"), -1)
+        }
 
-        assertEquals("values.put(\"columnName\", model.name != null ? model.name : \"nonNull\");",
+        assertEquals("values.put(\"`columnName`\", model.name != null ? model.name : \"nonNull\");",
                 codeBuilder.build().toString().trim())
     }
 
@@ -33,9 +35,11 @@ class ContentValuesCombinerTest {
                 TypeName.get(Boolean::class.java)))
 
         val codeBuilder = CodeBlock.builder()
-        combiner.addCode(codeBuilder, "columnName", index = -1)
+        combiner.apply {
+            codeBuilder.addCode("columnName", index = -1)
+        }
 
-        assertEquals("values.put(\"columnName\", model.name);",
+            assertEquals("values.put(\"`columnName`\", model.name);",
                 codeBuilder.build().toString().trim())
     }
 
@@ -48,10 +52,12 @@ class ContentValuesCombinerTest {
                         TypeName.get(String::class.java)))
 
         val codeBuilder = CodeBlock.builder()
-        combiner.addCode(codeBuilder, "columnName", CodeBlock.of("\$S", "nonNull"), -1)
+        combiner.apply {
+            codeBuilder.addCode("columnName", CodeBlock.of("\$S", "nonNull"), -1)
+        }
 
         assertEquals("java.lang.String refname = com.fuzz.android.TestType_Helper.getName(model) != null ? global_converter.getDBValue(com.fuzz.android.TestType_Helper.getName(model)) : null;"
-                + "\nvalues.put(\"columnName\", refname != null ? refname : \"nonNull\");",
+                + "\nvalues.put(\"`columnName`\", refname != null ? refname : \"nonNull\");",
                 codeBuilder.build().toString().trim())
     }
 
@@ -64,10 +70,12 @@ class ContentValuesCombinerTest {
                         TypeName.get(String::class.java)))
 
         val codeBuilder = CodeBlock.builder()
-        combiner.addCode(codeBuilder, "columnName", CodeBlock.of("\$S", "nonNull"), -1)
+        combiner.apply {
+            codeBuilder.addCode("columnName", CodeBlock.of("\$S", "nonNull"), -1)
+        }
 
-        assertEquals("java.lang.String refname = model.getName() != null ? global_converter.getDBValue(model.getName()) : null;"
-                + "\nvalues.put(\"columnName\", refname != null ? refname : \"nonNull\");",
+            assertEquals("java.lang.String refname = model.getName() != null ? global_converter.getDBValue(model.getName()) : null;"
+                + "\nvalues.put(\"`columnName`\", refname != null ? refname : \"nonNull\");",
                 codeBuilder.build().toString().trim())
     }
 
@@ -82,9 +90,11 @@ class SqliteStatementAccessCombinerTest {
                 Combiner(VisibleScopeColumnAccessor("name"), TypeName.get(String::class.java)))
 
         val codeBuilder = CodeBlock.builder()
-        combiner.addCode(codeBuilder, "start", CodeBlock.of("\$S", "nonNull"), 0)
+        combiner.apply {
+            codeBuilder.addCode("start", CodeBlock.of("\$S", "nonNull"), 0)
+        }
 
-        assertEquals("if (model.name != null)  {" +
+            assertEquals("if (model.name != null) {" +
                 "\n  statement.bindString(0 + start, model.name);" +
                 "\n} else {" +
                 "\n  statement.bindString(0 + start, \"nonNull\");" +
@@ -100,9 +110,11 @@ class SqliteStatementAccessCombinerTest {
                         TypeName.get(Boolean::class.java)))
 
         val codeBuilder = CodeBlock.builder()
-        combiner.addCode(codeBuilder, "start", index = 0)
+        combiner.apply {
+            codeBuilder.addCode("start", index = 0)
+        }
 
-        assertEquals("statement.bindLong(0 + start, model.name ? 1 : 0);",
+            assertEquals("statement.bindLong(0 + start, model.name ? 1 : 0);",
                 codeBuilder.build().toString().trim())
     }
 
@@ -115,10 +127,12 @@ class SqliteStatementAccessCombinerTest {
                         TypeName.get(String::class.java)))
 
         val codeBuilder = CodeBlock.builder()
-        combiner.addCode(codeBuilder, "start", CodeBlock.of("\$S", "nonNull"), 1)
+        combiner.apply {
+            codeBuilder.addCode("start", CodeBlock.of("\$S", "nonNull"), 1)
+        }
 
-        assertEquals("java.lang.String refname = com.fuzz.android.TestType_Helper.getName(model) != null ? global_converter.getDBValue(com.fuzz.android.TestType_Helper.getName(model)) : null;" +
-                "\nif (refname != null)  {" +
+            assertEquals("java.lang.String refname = com.fuzz.android.TestType_Helper.getName(model) != null ? global_converter.getDBValue(com.fuzz.android.TestType_Helper.getName(model)) : null;" +
+                "\nif (refname != null) {" +
                 "\n  statement.bindString(1 + start, refname);" +
                 "\n} else {" +
                 "\n  statement.bindString(1 + start, \"nonNull\");" +
@@ -134,10 +148,11 @@ class SqliteStatementAccessCombinerTest {
                         TypeName.get(String::class.java)))
 
         val codeBuilder = CodeBlock.builder()
-        combiner.addCode(codeBuilder, "start", CodeBlock.of("\$S", "nonNull"), 1)
-
-        assertEquals("java.lang.String refname = model.getName() != null ? global_converter.getDBValue(model.getName()) : null;" +
-                "\nif (refname != null)  {" +
+        combiner.apply {
+            codeBuilder.addCode("start", CodeBlock.of("\$S", "nonNull"), 1)
+        }
+            assertEquals("java.lang.String refname = model.getName() != null ? global_converter.getDBValue(model.getName()) : null;" +
+                "\nif (refname != null) {" +
                 "\n  statement.bindString(1 + start, refname);" +
                 "\n} else {" +
                 "\n  statement.bindString(1 + start, \"nonNull\");" +
@@ -151,16 +166,13 @@ class LoadFromCursorAccessCombinerTest {
     @Test
     fun test_simpleCase() {
         val combiner = LoadFromCursorAccessCombiner(
-                Combiner(VisibleScopeColumnAccessor("name"), TypeName.get(String::class.java)))
+                Combiner(VisibleScopeColumnAccessor("name"), TypeName.get(String::class.java)), false, NameAllocator())
         val codeBuilder = CodeBlock.builder()
-        combiner.addCode(codeBuilder, "columnName", CodeBlock.of("\$S", "nonNull"))
+        combiner.apply {
+            codeBuilder.addCode("columnName", CodeBlock.of("\$S", "nonNull"))
+        }
 
-        assertEquals("int index_columnName = cursor.getColumnIndex(\"columnName\");" +
-                "\nif (index_columnName != -1 && !cursor.isNull(index_columnName)) {" +
-                "\n  model.name = cursor.getString(index_columnName);" +
-                "\n} else {" +
-                "\n  model.name = \"nonNull\";" +
-                "\n}", codeBuilder.build().toString().trim())
+        assertEquals("model.name = cursor.getStringOrDefault(\"columnName\");", codeBuilder.build().toString().trim())
     }
 
     @Test
@@ -169,9 +181,11 @@ class LoadFromCursorAccessCombinerTest {
                 Combiner(VisibleScopeColumnAccessor("name"),
                         TypeName.get(Date::class.java),
                         wrapperLevelAccessor = TypeConverterScopeColumnAccessor("global_converter"),
-                        wrapperFieldTypeName = TypeName.get(String::class.java)))
+                        wrapperFieldTypeName = TypeName.get(String::class.java)),false, NameAllocator())
         val codeBuilder = CodeBlock.builder()
-        combiner.addCode(codeBuilder, "columnName", CodeBlock.of("\$S", "nonNull"))
+        combiner.apply {
+            codeBuilder.addCode("columnName", CodeBlock.of("\$S", "nonNull"))
+        }
 
         assertEquals("int index_columnName = cursor.getColumnIndex(\"columnName\");" +
                 "\nif (index_columnName != -1 && !cursor.isNull(index_columnName)) {" +
@@ -191,7 +205,9 @@ class PrimaryReferenceAccessCombiner {
                 Combiner(VisibleScopeColumnAccessor("id"), TypeName.get(Long::class.java)))
 
         val codeBuilder = CodeBlock.builder()
-        combiner.addCode(codeBuilder, "id")
+        combiner.apply {
+            codeBuilder.addCode("id")
+        }
 
         assertEquals("clause.and(id.eq(model.id));", codeBuilder.build().toString().trim())
     }
@@ -205,7 +221,9 @@ class PrimaryReferenceAccessCombiner {
                         TypeName.get(Date::class.java)))
 
         val codeBuilder = CodeBlock.builder()
-        combiner.addCode(codeBuilder, "id")
+        combiner.apply {
+            codeBuilder.addCode("id")
+        }
 
         assertEquals("java.util.Date refid = model.id != null ? global_converter.getDBValue(model.id) : null;\n" +
                 "clause.and(id.invertProperty().eq(refid));",
