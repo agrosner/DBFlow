@@ -23,6 +23,11 @@ public @interface Table {
     String name() default "";
 
     /**
+     * @return the alias that will be used for all queries, unless overridden by withTable()
+     */
+    String tableAlias() default "";
+
+    /**
      * @return Specify the database class that this table belongs to. It must have the {@link Database} annotation.
      */
     Class<?> database();

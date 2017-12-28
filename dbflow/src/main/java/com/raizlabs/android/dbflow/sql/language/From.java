@@ -54,6 +54,11 @@ public class From<TModel> extends BaseTransformable<TModel> {
     public From(@NonNull Query querybase, @NonNull Class<TModel> table) {
         super(table);
         queryBase = querybase;
+        String tableAlias = FlowManager.getModelAdapter(table).getTableAlias().trim();
+        if (tableAlias.length() > 0) {
+            as(tableAlias);
+        }
+
     }
 
     /**

@@ -70,6 +70,7 @@ object ClassNames {
     val OPERATOR_GROUP = ClassName.get(LANGUAGE, "OperatorGroup")
 
     val ICONDITIONAL = ClassName.get(LANGUAGE, "IConditional")
+    val NAMEALIAS = ClassName.get(LANGUAGE, "NameAlias")
 
     val BASE_CONTENT_PROVIDER = ClassName.get(RUNTIME, "BaseContentProvider")
 

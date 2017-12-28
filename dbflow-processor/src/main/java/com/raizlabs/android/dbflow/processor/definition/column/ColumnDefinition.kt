@@ -324,9 +324,17 @@ constructor(processorManager: ProcessorManager, element: Element,
             val fieldBuilder = FieldSpec.builder(propParam,
                     propertyFieldName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
 
+            val tableAlias = (baseTableDefinition as? TableDefinition)?.tableAlias
+            val codeBlock = CodeBlock.builder()
+            codeBlock.add("new \$T(\$T.class, ", propParam, tableClass)
+            if (tableAlias != null && tableAlias.isNotBlank()) {
+                codeBlock.add("\$T.builder(\$S).withTable(\$T.of(\$S).getQuery()).build()", ClassNames.NAMEALIAS, columnName, ClassNames.NAMEALIAS, tableAlias)
+            } else {
+                codeBlock.add("\$S", columnName)
+            }
+
             if (isNonPrimitiveTypeConverter) {
-                val codeBlock = CodeBlock.builder()
-                codeBlock.add("new \$T(\$T.class, \$S, true,", propParam, tableClass, columnName)
+                codeBlock.add(", true,")
                 codeBlock.add("\nnew \$T() {" +
                         "\n@Override" +
                         "\npublic \$T getTypeConverter(Class<?> modelClass) {" +
@@ -337,10 +345,10 @@ constructor(processorManager: ProcessorManager, element: Element,
                         baseTableDefinition.outputClassName, baseTableDefinition.outputClassName,
                         ClassNames.FLOW_MANAGER,
                         (wrapperAccessor as TypeConverterScopeColumnAccessor).typeConverterFieldName)
-                fieldBuilder.initializer(codeBlock.build())
             } else {
-                fieldBuilder.initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
+                codeBlock.add(")")
             }
+            fieldBuilder.initializer(codeBlock.build())
             if (isPrimaryKey) {
                 fieldBuilder.addJavadoc("Primary Key")
             } else if (isPrimaryKeyAutoIncrement) {
