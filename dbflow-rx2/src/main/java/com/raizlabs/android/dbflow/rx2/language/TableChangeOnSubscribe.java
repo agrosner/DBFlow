@@ -34,7 +34,7 @@ public class TableChangeOnSubscribe<TModel> implements FlowableOnSubscribe<Model
 
     @Override
     public void subscribe(FlowableEmitter<ModelQueriable<TModel>> e) throws Exception {
-        flowableEmitter = e;
+        flowableEmitter = e.serialize();
         flowableEmitter.setDisposable(Disposables.fromRunnable(new Runnable() {
             @Override
             public void run() {

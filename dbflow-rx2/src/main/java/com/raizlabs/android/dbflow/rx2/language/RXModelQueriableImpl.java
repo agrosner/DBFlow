@@ -2,6 +2,8 @@ package com.raizlabs.android.dbflow.rx2.language;
 
 import android.support.annotation.NonNull;
 
+import com.raizlabs.android.dbflow.config.FlowLog;
+import com.raizlabs.android.dbflow.list.FlowCursorIterator;
 import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable;
@@ -14,6 +16,8 @@ import java.util.concurrent.Callable;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
+import io.reactivex.FlowableEmitter;
+import io.reactivex.FlowableOnSubscribe;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 
@@ -38,7 +42,29 @@ public class RXModelQueriableImpl<T> extends RXQueriableImpl implements RXModelQ
     @NonNull
     @Override
     public Flowable<T> queryStreamResults() {
-        return new CursorResultFlowable<>(this);
+        return Flowable.create(new FlowableOnSubscribe<T>() {
+            @Override
+            public void subscribe(@io.reactivex.annotations.NonNull final FlowableEmitter<T> emitter)
+                throws Exception {
+                final CursorResult<T> cursorResult = modelQueriable.queryResults();
+                final FlowCursorIterator<T> iterator = cursorResult.iterator();
+                try {
+                    while (!emitter.isCancelled() && iterator.hasNext()) {
+                        emitter.onNext(iterator.next());
+                    }
+                    emitter.onComplete();
+                } catch (final Exception e) {
+                    FlowLog.logError(e);
+                    emitter.onError(e);
+                } finally {
+                    try {
+                        iterator.close();
+                    } catch (final Exception e) {
+                        FlowLog.logError(e);
+                    }
+                }
+            }
+        }, BackpressureStrategy.MISSING);
     }
 
     @NonNull

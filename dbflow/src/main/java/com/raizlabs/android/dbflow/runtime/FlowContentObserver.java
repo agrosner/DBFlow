@@ -72,7 +72,7 @@ public class FlowContentObserver extends ContentObserver {
 
         /**
          * Notifies that the state of a {@link Model}
-         * has changed for the table this is registered for.
+         * has changed for the table this is registered for. This method can be called from the thread another then main thread.
          *
          * @param table            The table that this change occurred on. This is ONLY available on {@link VERSION_CODES#JELLY_BEAN}
          *                         and up.
