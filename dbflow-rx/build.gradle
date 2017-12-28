@@ -18,8 +18,8 @@ android {
 }
 
 dependencies {
-    compile project("${dbflow_project_prefix}dbflow")
-    compile 'io.reactivex:rxjava:1.2.7'
+    api project("${dbflow_project_prefix}dbflow")
+    api 'io.reactivex:rxjava:1.2.7'
 }
 
 apply from: '../android-artifacts.gradle'

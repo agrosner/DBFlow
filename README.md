@@ -1,6 +1,6 @@
 ![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
 
-[![JitPack.io](https://img.shields.io/badge/JitPack.io-4.0.0-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
+[![JitPack.io](https://img.shields.io/badge/JitPack.io-4.2.3-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 
 A robust, powerful, and very simple ORM android database library with **annotation processing**.
 
@@ -41,14 +41,18 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
 ```groovy
 
-  def dbflow_version = "4.0.1"
+  apply plugin: 'kotlin-kapt' // required for kotlin.
+
+  def dbflow_version = "4.2.4"
   // or dbflow_version = "develop-SNAPSHOT" for grabbing latest dependency in your project on the develop branch
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
   dependencies {
+
+    // if Java use this. If using Kotlin do NOT use this.
     annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
 
-    // use kapt for kotlin apt if you're a Kotlin user
+    // Use if Kotlin user.
     kapt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
 
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
@@ -75,15 +79,11 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
   }
 
-// if you're building with Kotlin
-  kapt {
-    generateStubs = true
-  }
 ```
 
 # Pull Requests
-I welcome and encourage all pull requests. It usually will take me within 24-48 hours to respond to any issue or request. Here are some basic rules to follow to ensure timely addition of your request:
-  1. Match coding style (braces, spacing, etc.) This is best achieved using CMD+Option+L (Reformat code) on Mac (not sure for Windows) with Android Studio defaults.
+I welcome and encourage all pull requests. Please read over these guidelines to ensure smooth PR attention:
+  1. Match coding style (braces, spacing, etc.) This is best achieved using **Reformat Code** shortcut, <kbd>command</kbd>+<kbd>option</kbd>+<kbd>L</kbd> on Mac and <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd> on Windows, with Android Studio defaults.
   2. If its a feature, bugfix, or anything please only change code to what you specify.
   3. Please keep PR titles easy to read and descriptive of changes, this will make them easier to merge :)
   4. Pull requests _must_ be made against `develop` branch. Any other branch (unless specified by the maintainers) will get rejected.

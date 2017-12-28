@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.config;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
@@ -15,6 +16,10 @@ import java.util.List;
  */
 public final class TableConfig<TModel> {
 
+    public static <TModel> TableConfig.Builder<TModel> builder(Class<TModel> tableClass) {
+        return new TableConfig.Builder<>(tableClass);
+    }
+
     private final Class<TModel> tableClass;
     private final ModelSaver<TModel> modelSaver;
     private final SingleModelLoader<TModel> singleModelLoader;
@@ -27,18 +32,22 @@ public final class TableConfig<TModel> {
         listModelLoader = builder.listModelLoader;
     }
 
+    @NonNull
     public Class<?> tableClass() {
         return tableClass;
     }
 
+    @Nullable
     public ModelSaver<TModel> modelSaver() {
         return modelSaver;
     }
 
+    @Nullable
     public ListModelLoader<TModel> listModelLoader() {
         return listModelLoader;
     }
 
+    @Nullable
     public SingleModelLoader<TModel> singleModelLoader() {
         return singleModelLoader;
     }
@@ -50,7 +59,7 @@ public final class TableConfig<TModel> {
         SingleModelLoader<TModel> singleModelLoader;
         ListModelLoader<TModel> listModelLoader;
 
-        public Builder(Class<TModel> tableClass) {
+        public Builder(@NonNull Class<TModel> tableClass) {
             this.tableClass = tableClass;
         }
 
@@ -58,6 +67,7 @@ public final class TableConfig<TModel> {
          * Define how the {@link ModelAdapter} saves data into the DB from its associated {@link TModel}. This
          * will override the default.
          */
+        @NonNull
         public Builder<TModel> modelAdapterModelSaver(@NonNull ModelSaver<TModel> modelSaver) {
             this.modelAdapterModelSaver = modelSaver;
             return this;
@@ -66,6 +76,7 @@ public final class TableConfig<TModel> {
         /**
          * Define how the table loads single models. This will override the default.
          */
+        @NonNull
         public Builder<TModel> singleModelLoader(@NonNull SingleModelLoader<TModel> singleModelLoader) {
             this.singleModelLoader = singleModelLoader;
             return this;
@@ -74,6 +85,7 @@ public final class TableConfig<TModel> {
         /**
          * Define how the table loads a {@link List} of items. This will override the default.
          */
+        @NonNull
         public Builder<TModel> listModelLoader(@NonNull ListModelLoader<TModel> listModelLoader) {
             this.listModelLoader = listModelLoader;
             return this;
@@ -83,6 +95,7 @@ public final class TableConfig<TModel> {
          * @return A new {@link TableConfig}. Subsequent calls to this method produce a new instance
          * of {@link TableConfig}.
          */
+        @NonNull
         public TableConfig build() {
             return new TableConfig<>(this);
         }

@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
@@ -15,7 +17,7 @@ public abstract class BaseMigration implements Migration {
     }
 
     @Override
-    public abstract void migrate(DatabaseWrapper database);
+    public abstract void migrate(@NonNull DatabaseWrapper database);
 
     @Override
     public void onPostMigrate() {

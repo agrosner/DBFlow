@@ -1,6 +1,5 @@
 package com.raizlabs.android.dbflow.sql.saveable;
 
-import android.content.ContentValues;
 import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -15,13 +14,13 @@ import java.util.Collection;
 public class CacheableListModelSaver<TModel>
     extends ListModelSaver<TModel> {
 
-    public CacheableListModelSaver(ModelSaver<TModel> modelSaver) {
+    public CacheableListModelSaver(@NonNull ModelSaver<TModel> modelSaver) {
         super(modelSaver);
     }
 
     @Override
     public synchronized void saveAll(@NonNull Collection<TModel> tableCollection,
-                                     DatabaseWrapper wrapper) {
+                                     @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
@@ -30,21 +29,22 @@ public class CacheableListModelSaver<TModel>
         ModelSaver<TModel> modelSaver = getModelSaver();
         ModelAdapter<TModel> modelAdapter = modelSaver.getModelAdapter();
         DatabaseStatement statement = modelAdapter.getInsertStatement(wrapper);
-        ContentValues contentValues = new ContentValues();
+        DatabaseStatement updateStatement = modelAdapter.getUpdateStatement(wrapper);
         try {
             for (TModel model : tableCollection) {
-                if (modelSaver.save(model, wrapper, statement, contentValues)) {
+                if (modelSaver.save(model, wrapper, statement, updateStatement)) {
                     modelAdapter.storeModelInCache(model);
                 }
             }
         } finally {
+            updateStatement.close();
             statement.close();
         }
     }
 
     @Override
     public synchronized void insertAll(@NonNull Collection<TModel> tableCollection,
-                                       DatabaseWrapper wrapper) {
+                                       @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
@@ -66,17 +66,37 @@ public class CacheableListModelSaver<TModel>
 
     @Override
     public synchronized void updateAll(@NonNull Collection<TModel> tableCollection,
-                                       DatabaseWrapper wrapper) {
+                                       @NonNull DatabaseWrapper wrapper) {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return;
         }
         ModelSaver<TModel> modelSaver = getModelSaver();
         ModelAdapter<TModel> modelAdapter = modelSaver.getModelAdapter();
-        ContentValues contentValues = new ContentValues();
+        DatabaseStatement statement = modelAdapter.getUpdateStatement(wrapper);
+        try {
+            for (TModel model : tableCollection) {
+                if (modelSaver.update(model, wrapper, statement)) {
+                    modelAdapter.storeModelInCache(model);
+                }
+            }
+        } finally {
+            statement.close();
+        }
+    }
+
+    @Override
+    public synchronized void deleteAll(@NonNull Collection<TModel> tableCollection,
+                                       @NonNull DatabaseWrapper wrapper) {
+        // skip if empty.
+        if (tableCollection.isEmpty()) {
+            return;
+        }
+
+        ModelSaver<TModel> modelSaver = getModelSaver();
         for (TModel model : tableCollection) {
-            if (modelSaver.update(model, wrapper, contentValues)) {
-                modelAdapter.storeModelInCache(model);
+            if (modelSaver.delete(model, wrapper)) {
+                getModelSaver().getModelAdapter().removeModelFromCache(model);
             }
         }
     }

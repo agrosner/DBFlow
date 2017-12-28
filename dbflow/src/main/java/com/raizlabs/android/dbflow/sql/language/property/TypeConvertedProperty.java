@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;
 import com.raizlabs.android.dbflow.sql.language.Operator;
@@ -46,6 +48,7 @@ public class TypeConvertedProperty<T, V> extends Property<V> {
         this.getter = getter;
     }
 
+    @NonNull
     @Override
     protected Operator<V> getCondition() {
         return op(getNameAlias(), getter.getTypeConverter(table), convertToDB);
@@ -55,6 +58,7 @@ public class TypeConvertedProperty<T, V> extends Property<V> {
      * @return A new {@link Property} that corresponds to the inverted type of the {@link TypeConvertedProperty}.
      * Provides a convenience for supplying type converted methods within the DataClass of the {@link TypeConverter}
      */
+    @NonNull
     public Property<T> invertProperty() {
         if (databaseProperty == null) {
             databaseProperty = new TypeConvertedProperty<>(table, nameAlias,
@@ -68,4 +72,13 @@ public class TypeConvertedProperty<T, V> extends Property<V> {
         return databaseProperty;
     }
 
+    @NonNull
+    @Override
+    public Property<V> withTable(@NonNull NameAlias tableNameAlias) {
+        NameAlias nameAlias = this.getNameAlias()
+                                  .newBuilder()
+                                  .withTable(tableNameAlias.getQuery())
+                                  .build();
+        return new TypeConvertedProperty<>(this.getTable(), nameAlias, this.convertToDB, this.getter);
+    }
 }

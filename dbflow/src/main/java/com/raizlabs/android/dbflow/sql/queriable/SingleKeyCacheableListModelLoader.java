@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class SingleKeyCacheableListModelLoader<TModel> extends CacheableListModelLoader<TModel> {
 
-    public SingleKeyCacheableListModelLoader(Class<TModel> tModelClass) {
+    public SingleKeyCacheableListModelLoader(@NonNull Class<TModel> tModelClass) {
         super(tModelClass);
     }
 

@@ -6,15 +6,12 @@ import com.raizlabs.android.dbflow.annotation.PrimaryKey
 import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.structure.BaseModel
 
-@Database(name = PrepackagedDB.NAME, version = PrepackagedDB.VERSION)
+@Database(version = PrepackagedDB.VERSION)
 object PrepackagedDB {
-
-    const val NAME = "prepackaged"
-
     const val VERSION = 1
 }
 
-@Table(database = PrepackagedDB::class)
+@Table(database = PrepackagedDB::class, allFields = true)
 class Dog : BaseModel() {
 
     @PrimaryKey

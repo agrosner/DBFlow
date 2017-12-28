@@ -1,5 +1,8 @@
 package com.raizlabs.android.dbflow.structure.cache;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.structure.Model;
 
@@ -25,17 +28,17 @@ public class SimpleMapCache<TModel> extends ModelCache<TModel, Map<Object, TMode
      *
      * @param cache The arbitrary underlying cache class.
      */
-    public SimpleMapCache(Map<Object, TModel> cache) {
+    public SimpleMapCache(@NonNull Map<Object, TModel> cache) {
         super(cache);
     }
 
     @Override
-    public void addModel(Object id, TModel model) {
+    public void addModel(@Nullable Object id, @NonNull TModel model) {
         getCache().put(id, model);
     }
 
     @Override
-    public TModel removeModel(Object id) {
+    public TModel removeModel(@NonNull Object id) {
         return getCache().remove(id);
     }
 
@@ -45,7 +48,7 @@ public class SimpleMapCache<TModel> extends ModelCache<TModel, Map<Object, TMode
     }
 
     @Override
-    public TModel get(Object id) {
+    public TModel get(@Nullable Object id) {
         return getCache().get(id);
     }
 

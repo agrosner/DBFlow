@@ -2,6 +2,8 @@ package com.raizlabs.android.dbflow.structure.provider;
 
 import android.content.ContentProvider;
 import android.database.Cursor;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
@@ -63,8 +65,8 @@ public abstract class BaseProviderModel
 
     @Override
     @SuppressWarnings("unchecked")
-    public void load(OperatorGroup whereConditions,
-                     String orderBy, String... columns) {
+    public void load(@NonNull OperatorGroup whereConditions,
+                     @Nullable String orderBy, String... columns) {
         FlowCursor cursor = FlowCursor.from(ContentUtils.query(FlowManager.getContext().getContentResolver(),
             getQueryUri(), whereConditions, orderBy, columns));
         if (cursor != null && cursor.moveToFirst()) {

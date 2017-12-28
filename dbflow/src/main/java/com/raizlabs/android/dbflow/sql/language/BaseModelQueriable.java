@@ -9,13 +9,13 @@ import com.raizlabs.android.dbflow.list.FlowCursorList;
 import com.raizlabs.android.dbflow.list.FlowQueryList;
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.Query;
-import com.raizlabs.android.dbflow.sql.SqlUtils;
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery;
 import com.raizlabs.android.dbflow.sql.queriable.ListModelLoader;
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.queriable.SingleModelLoader;
 import com.raizlabs.android.dbflow.structure.InstanceAdapter;
 import com.raizlabs.android.dbflow.structure.QueryModelAdapter;
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 import java.util.List;
@@ -70,7 +70,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
     }
 
     @Override
-    public TModel querySingle(DatabaseWrapper wrapper) {
+    public TModel querySingle(@NonNull DatabaseWrapper wrapper) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         return getSingleModelLoader().load(wrapper, query);
@@ -78,7 +78,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
 
     @NonNull
     @Override
-    public List<TModel> queryList(DatabaseWrapper wrapper) {
+    public List<TModel> queryList(@NonNull DatabaseWrapper wrapper) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         return getListModelLoader().load(wrapper, query);
@@ -107,12 +107,18 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
     }
 
     @Override
-    public long executeUpdateDelete(DatabaseWrapper databaseWrapper) {
-        long affected = databaseWrapper.compileStatement(getQuery()).executeUpdateDelete();
+    public long executeUpdateDelete(@NonNull DatabaseWrapper databaseWrapper) {
+        final DatabaseStatement statement = databaseWrapper.compileStatement(getQuery());
+        long affected;
+        try {
+            affected = statement.executeUpdateDelete();
 
-        // only notify for affected.
-        if (affected > 0) {
-            NotifyDistributor.get().notifyTableChanged(getTable(), getPrimaryAction());
+            // only notify for affected.
+            if (affected > 0) {
+                NotifyDistributor.get().notifyTableChanged(getTable(), getPrimaryAction());
+            }
+        } finally {
+            statement.close();
         }
         return affected;
     }
@@ -125,7 +131,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
 
     @NonNull
     @Override
-    public <QueryClass> List<QueryClass> queryCustomList(Class<QueryClass> queryModelClass) {
+    public <QueryClass> List<QueryClass> queryCustomList(@NonNull Class<QueryClass> queryModelClass) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         QueryModelAdapter<QueryClass> adapter = FlowManager.getQueryModelAdapter(queryModelClass);
@@ -136,7 +142,7 @@ public abstract class BaseModelQueriable<TModel> extends BaseQueriable<TModel>
 
     @Nullable
     @Override
-    public <QueryClass> QueryClass queryCustomSingle(Class<QueryClass> queryModelClass) {
+    public <QueryClass> QueryClass queryCustomSingle(@NonNull Class<QueryClass> queryModelClass) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
         QueryModelAdapter<QueryClass> adapter = FlowManager.getQueryModelAdapter(queryModelClass);

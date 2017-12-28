@@ -4,6 +4,9 @@ import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.BaseAsyncObject;
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction.QueryResultCallback;
+import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction.QueryResultListCallback;
+import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction.QueryResultSingleCallback;
 
 /**
  * Description: Adds async methods to a {@link ModelQueriable}
@@ -11,9 +14,9 @@ import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransacti
 public class AsyncQuery<TModel> extends BaseAsyncObject<AsyncQuery<TModel>> {
 
     private final ModelQueriable<TModel> modelQueriable;
-    private QueryTransaction.QueryResultCallback<TModel> queryResultCallback;
-    private QueryTransaction.QueryResultListCallback<TModel> queryResultListCallback;
-    private QueryTransaction.QueryResultSingleCallback<TModel> queryResultSingleCallback;
+    private QueryResultCallback<TModel> queryResultCallback;
+    private QueryResultListCallback<TModel> queryResultListCallback;
+    private QueryResultSingleCallback<TModel> queryResultSingleCallback;
 
     /**
      * Constructs an instance of this async query.
@@ -28,7 +31,7 @@ public class AsyncQuery<TModel> extends BaseAsyncObject<AsyncQuery<TModel>> {
     /**
      * @param queryResultCallback Called when query is executed and has a result.
      */
-    public AsyncQuery<TModel> queryResultCallback(QueryTransaction.QueryResultCallback<TModel> queryResultCallback) {
+    public AsyncQuery<TModel> queryResultCallback(@NonNull QueryResultCallback<TModel> queryResultCallback) {
         this.queryResultCallback = queryResultCallback;
         return this;
     }
@@ -36,7 +39,7 @@ public class AsyncQuery<TModel> extends BaseAsyncObject<AsyncQuery<TModel>> {
     /**
      * @param queryResultSingleCallback Called when query is executed and has a result.
      */
-    public AsyncQuery<TModel> querySingleResultCallback(QueryTransaction.QueryResultSingleCallback<TModel> queryResultSingleCallback) {
+    public AsyncQuery<TModel> querySingleResultCallback(@NonNull QueryResultSingleCallback<TModel> queryResultSingleCallback) {
         this.queryResultSingleCallback = queryResultSingleCallback;
         return this;
     }
@@ -44,7 +47,7 @@ public class AsyncQuery<TModel> extends BaseAsyncObject<AsyncQuery<TModel>> {
     /**
      * @param queryResultListCallback Called when query is executed and has a result.
      */
-    public AsyncQuery<TModel> queryListResultCallback(QueryTransaction.QueryResultListCallback<TModel> queryResultListCallback) {
+    public AsyncQuery<TModel> queryListResultCallback(@NonNull QueryResultListCallback<TModel> queryResultListCallback) {
         this.queryResultListCallback = queryResultListCallback;
         return this;
     }
@@ -54,10 +57,10 @@ public class AsyncQuery<TModel> extends BaseAsyncObject<AsyncQuery<TModel>> {
      */
     public void execute() {
         executeTransaction(new QueryTransaction.Builder<>(modelQueriable)
-                .queryResult(queryResultCallback)
-                .queryListResult(queryResultListCallback)
-                .querySingleResult(queryResultSingleCallback)
-                .build());
+            .queryResult(queryResultCallback)
+            .queryListResult(queryResultListCallback)
+            .querySingleResult(queryResultSingleCallback)
+            .build());
     }
 
     /**

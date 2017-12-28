@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.contentprovider
 
 import android.content.ContentResolver
+import android.content.pm.ProviderInfo
 import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.kotlinextensions.from
 import com.raizlabs.android.dbflow.kotlinextensions.result
@@ -8,11 +9,13 @@ import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.kotlinextensions.where
 import com.raizlabs.android.dbflow.sql.language.Delete
 import com.raizlabs.android.dbflow.structure.provider.ContentUtils
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.robolectric.Robolectric
 import org.robolectric.RuntimeEnvironment
-import org.robolectric.shadows.ShadowContentResolver
 
 /**
  * Description:
@@ -23,10 +26,9 @@ class ContentProviderTests : BaseUnitTest() {
 
     @Before
     fun setUp() {
-        val provider = TestContentProvider_Provider()
-        provider.onCreate()
-
-        ShadowContentResolver.registerProvider(TestContentProvider.AUTHORITY, provider)
+        val info = ProviderInfo()
+        info.authority = TestContentProvider.AUTHORITY
+        Robolectric.buildContentProvider(TestContentProvider_Provider::class.java).create(info)
     }
 
     @Test

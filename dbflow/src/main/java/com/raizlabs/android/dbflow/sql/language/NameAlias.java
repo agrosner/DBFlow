@@ -19,10 +19,7 @@ public class NameAlias implements Query {
      * @return The new namealias object.
      */
     @NonNull
-    public static NameAlias joinNames(String operation, String... names) {
-        if (names.length == 0) {
-            return null;
-        }
+    public static NameAlias joinNames(@NonNull String operation, String... names) {
         String newName = "";
         for (int i = 0; i < names.length; i++) {
             if (i > 0) {

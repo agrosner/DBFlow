@@ -11,6 +11,8 @@ import com.raizlabs.android.dbflow.structure.Model;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
 import io.reactivex.Single;
 
 /**
@@ -22,7 +24,7 @@ public interface RXQueriable {
      * @return An {@link Single} from the DB based on this query
      */
     @NonNull
-    Single<Cursor> query();
+    Maybe<Cursor> query();
 
     /**
      * Allows you to pass in a {@link DatabaseWrapper} manually.
@@ -31,7 +33,7 @@ public interface RXQueriable {
      * @return An {@link Single} from the DB based on this query
      */
     @NonNull
-    Single<Cursor> query(DatabaseWrapper databaseWrapper);
+    Maybe<Cursor> query(DatabaseWrapper databaseWrapper);
 
 
     /**
@@ -49,6 +51,7 @@ public interface RXQueriable {
 
     /**
      * @return the count of the results of the query.
+     * @deprecated use {@link #longValue()}
      */
     @NonNull
     Single<Long> count();
@@ -57,9 +60,22 @@ public interface RXQueriable {
      * Allows you to pass in a {@link DatabaseWrapper} manually.
      *
      * @return the count of the results of the query.
+     * @deprecated use {@link #longValue(DatabaseWrapper)}
      */
     @NonNull
     Single<Long> count(DatabaseWrapper databaseWrapper);
+
+    /**
+     * @return the long value of this query.
+     **/
+    @NonNull
+    Single<Long> longValue();
+
+    /**
+     * @return the long value of this query.
+     **/
+    @NonNull
+    Single<Long> longValue(DatabaseWrapper databaseWrapper);
 
     /**
      * @return This may return the number of rows affected from a {@link Insert}  statement.
@@ -108,12 +124,12 @@ public interface RXQueriable {
      * you're not interested in the result.
      */
     @NonNull
-    Single<Void> execute();
+    Completable execute();
 
     /**
      * Will not return a result, rather simply will execute a SQL statement. Use this for non-SELECT statements or when
      * you're not interested in the result.
      */
     @NonNull
-    Single<Void> execute(DatabaseWrapper databaseWrapper);
+    Completable execute(DatabaseWrapper databaseWrapper);
 }

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure.database.transaction;
 
 import android.os.Looper;
+import android.support.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 
@@ -56,7 +57,7 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
     }
 
     @Override
-    public void add(Transaction runnable) {
+    public void add(@NonNull Transaction runnable) {
         synchronized (queue) {
             if (!queue.contains(runnable)) {
                 queue.add(runnable);
@@ -70,7 +71,7 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
      * @param runnable
      */
     @Override
-    public void cancel(Transaction runnable) {
+    public void cancel(@NonNull Transaction runnable) {
         synchronized (queue) {
             if (queue.contains(runnable)) {
                 queue.remove(runnable);
@@ -84,7 +85,7 @@ public class DefaultTransactionQueue extends Thread implements ITransactionQueue
      * @param tag
      */
     @Override
-    public void cancel(String tag) {
+    public void cancel(@NonNull String tag) {
         synchronized (queue) {
             Iterator<Transaction> it = queue.iterator();
             while (it.hasNext()) {

@@ -21,7 +21,7 @@ public abstract class IndexPropertyMigration extends BaseMigration {
     }
 
     @Override
-    public void migrate(DatabaseWrapper database) {
+    public void migrate(@NonNull DatabaseWrapper database) {
         if (shouldCreate()) {
             getIndexProperty().createIfNotExists(database);
         } else {

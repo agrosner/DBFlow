@@ -82,15 +82,15 @@ public class Join<TModel, TFromModel> implements Query {
      */
     private List<IProperty> using = new ArrayList<>();
 
-    public Join(From<TFromModel> from, Class<TModel> table, @NonNull JoinType joinType) {
+    public Join(@NonNull From<TFromModel> from, @NonNull Class<TModel> table, @NonNull JoinType joinType) {
         this.from = from;
         this.table = table;
         type = joinType;
         alias = new NameAlias.Builder(FlowManager.getTableName(table)).build();
     }
 
-    public Join(From<TFromModel> from, @NonNull JoinType joinType,
-                ModelQueriable<TModel> modelQueriable) {
+    public Join(@NonNull From<TFromModel> from, @NonNull JoinType joinType,
+                @NonNull ModelQueriable<TModel> modelQueriable) {
         table = modelQueriable.getTable();
         this.from = from;
         type = joinType;
@@ -104,7 +104,7 @@ public class Join<TModel, TFromModel> implements Query {
      * @return This instance
      */
     @NonNull
-    public Join<TModel, TFromModel> as(String alias) {
+    public Join<TModel, TFromModel> as(@NonNull String alias) {
         this.alias = this.alias
             .newBuilder()
             .as(alias)
@@ -174,6 +174,7 @@ public class Join<TModel, TFromModel> implements Query {
         return queryBuilder.getQuery();
     }
 
+    @NonNull
     public Class<TModel> getTable() {
         return table;
     }

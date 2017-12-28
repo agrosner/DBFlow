@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.Query;
 
@@ -18,7 +19,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @return A {@link Operator} that represents equality between this and the parameter.
      */
     @NonNull
-    Operator<T> is(T value);
+    Operator<T> is(@Nullable T value);
 
     /**
      * Assigns the operation to "=". Identical to {@link #is(T)}
@@ -28,7 +29,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @see #is(T)
      */
     @NonNull
-    Operator<T> eq(T value);
+    Operator<T> eq(@Nullable T value);
 
     /**
      * Generates a {@link Operator} that concatenates this {@link IOperator} with the {@link T} via "||"
@@ -38,7 +39,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @return A {@link Operator<T>} that represents concatenation.
      */
     @NonNull
-    Operator<T> concatenate(T value);
+    Operator<T> concatenate(@Nullable T value);
 
     /**
      * Assigns the operation to "!="
@@ -47,7 +48,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @return A {@link Operator<T>} that represents inequality between this and the parameter.
      */
     @NonNull
-    Operator<T> isNot(T value);
+    Operator<T> isNot(@Nullable T value);
 
     /**
      * Assigns the operation to "!="
@@ -57,7 +58,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @see #notEq(T)
      */
     @NonNull
-    Operator<T> notEq(T value);
+    Operator<T> notEq(@Nullable T value);
 
     /**
      * Assigns operation to "&gt;"
@@ -66,7 +67,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @return A {@link Operator<T>} that represents greater than between this and the parameter.
      */
     @NonNull
-    Operator<T> greaterThan(T value);
+    Operator<T> greaterThan(@NonNull T value);
 
     /**
      * Assigns operation to "&gt;="
@@ -75,7 +76,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @return A {@link Operator<T>} that represents greater than or equal between this and the parameter.
      */
     @NonNull
-    Operator<T> greaterThanOrEq(T value);
+    Operator<T> greaterThanOrEq(@NonNull T value);
 
 
     /**
@@ -85,7 +86,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @return A {@link Operator<T>} that represents less than between this and the parameter.
      */
     @NonNull
-    Operator<T> lessThan(T value);
+    Operator<T> lessThan(@NonNull T value);
 
 
     /**
@@ -95,10 +96,10 @@ public interface IOperator<T> extends Query, IConditional {
      * @return A {@link Operator<T>} that represents less than or equal to between this and the parameter.
      */
     @NonNull
-    Operator<T> lessThanOrEq(T value);
+    Operator<T> lessThanOrEq(@NonNull T value);
 
     @NonNull
-    Operator.Between<T> between(T value);
+    Operator.Between<T> between(@NonNull T value);
 
     /**
      * Turns this {@link IOperator} into an {@link Operator<T>.In}. It means that this object should
@@ -110,7 +111,7 @@ public interface IOperator<T> extends Query, IConditional {
      */
     @NonNull
     @SuppressWarnings("unchecked")
-    Operator.In<T> in(T firstValue, T... values);
+    Operator.In<T> in(@NonNull T firstValue, T... values);
 
     /**
      * Turns this {@link IOperator} into an {@link Operator<T>.In} (not). It means that this object should NOT
@@ -122,7 +123,7 @@ public interface IOperator<T> extends Query, IConditional {
      */
     @NonNull
     @SuppressWarnings("unchecked")
-    Operator.In<T> notIn(T firstValue, T... values);
+    Operator.In<T> notIn(@NonNull T firstValue, T... values);
 
     /**
      * Turns this {@link IOperator} into an {@link Operator<T>.In}. It means that this object should
@@ -132,7 +133,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @return A new {@link Operator<T>.In} built from this {@link IOperator}.
      */
     @NonNull
-    Operator.In<T> in(Collection<T> values);
+    Operator.In<T> in(@NonNull Collection<T> values);
 
     /**
      * Turns this {@link IOperator} into an {@link Operator<T>.In} (not). It means that this object should NOT
@@ -142,7 +143,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @return A new {@link Operator<T>.In} (not) built from this {@link IOperator}.
      */
     @NonNull
-    Operator.In<T> notIn(Collection<T> values);
+    Operator.In<T> notIn(@NonNull Collection<T> values);
 
     /**
      * Adds another value and returns the operator. i.e p1 + p2
@@ -150,7 +151,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @param value the value to add.
      */
     @NonNull
-    Operator<T> plus(T value);
+    Operator<T> plus(@NonNull T value);
 
     /**
      * Subtracts another value and returns the operator. i.e p1 - p2
@@ -158,7 +159,7 @@ public interface IOperator<T> extends Query, IConditional {
      * @param value the value to subtract.
      */
     @NonNull
-    Operator<T> minus(T value);
+    Operator<T> minus(@NonNull T value);
 
     /**
      * Divides another value and returns as the operator. i.e p1 / p2
@@ -167,14 +168,14 @@ public interface IOperator<T> extends Query, IConditional {
      * @return A new instance.
      */
     @NonNull
-    Operator<T> div(T value);
+    Operator<T> div(@NonNull T value);
 
     /**
      * Multiplies another value and returns as the operator. i.e p1 * p2
      *
      * @param value the value to multiply.
      */
-    Operator<T> times(T value);
+    Operator<T> times(@NonNull T value);
 
     /**
      * Modulous another value and returns as the operator. i.e p1 % p2
@@ -182,5 +183,5 @@ public interface IOperator<T> extends Query, IConditional {
      * @param value the value to calculate remainder of.
      */
     @NonNull
-    Operator<T> rem(T value);
+    Operator<T> rem(@NonNull T value);
 }

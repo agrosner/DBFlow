@@ -50,7 +50,7 @@ object ClassNames {
 
     val TYPE_CONVERTER = ClassName.get(CONVERTER, "TypeConverter")
     val TYPE_CONVERTER_GETTER: ClassName = ClassName.get(PROPERTY_PACKAGE,
-            "TypeConvertedProperty.TypeConverterGetter")
+        "TypeConvertedProperty.TypeConverterGetter")
 
     val MIGRATION = ClassName.get(MIGRATION_PACKAGE, "Migration")
 
@@ -87,7 +87,13 @@ object ClassNames {
     val SQLITE = ClassName.get(LANGUAGE, "SQLite")
 
     val CACHEABLE_LIST_MODEL_SAVER = ClassName.get(SAVEABLE, "CacheableListModelSaver")
+    val SINGLE_MODEL_SAVER = ClassName.get(SAVEABLE, "ModelSaver")
+    val AUTOINCREMENT_MODEL_SAVER = ClassName.get(SAVEABLE, "AutoIncrementModelSaver")
 
     val SINGLE_KEY_CACHEABLE_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleKeyCacheableModelLoader")
     val SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleKeyCacheableListModelLoader")
+
+    val NON_NULL = ClassName.get("android.support.annotation", "NonNull")
+
+    val GENERATED = ClassName.get("javax.annotation", "Generated")
 }

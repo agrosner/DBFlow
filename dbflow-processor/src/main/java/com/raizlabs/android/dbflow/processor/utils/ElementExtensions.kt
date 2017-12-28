@@ -32,4 +32,4 @@ inline fun <reified T : Annotation> Element?.annotation() = this?.getAnnotation(
 
 fun Element?.getPackage(manager: ProcessorManager = ProcessorManager.manager) = manager.elements.getPackageOf(this)
 
-fun Element?.toClassName() = ClassName.get(this as TypeElement)
+fun Element?.toClassName(): ClassName? = this?.let { ClassName.get(this as TypeElement) }

@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.structure;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
@@ -15,7 +17,7 @@ public class BaseQueryModel extends NoModificationModel {
     }
 
     @Override
-    public boolean exists(DatabaseWrapper databaseWrapper) {
+    public boolean exists(@NonNull DatabaseWrapper databaseWrapper) {
         return exists();
     }
 

@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
  */
 public class FlowCursor extends CursorWrapper {
 
-    public static FlowCursor from(Cursor cursor) {
+    public static FlowCursor from(@NonNull Cursor cursor) {
         if (cursor instanceof FlowCursor) {
             return (FlowCursor) cursor;
         } else {
@@ -39,6 +39,7 @@ public class FlowCursor extends CursorWrapper {
         }
     }
 
+    @Nullable
     public String getStringOrDefault(String columnName) {
         return getStringOrDefault(cursor.getColumnIndex(columnName));
     }
@@ -234,6 +235,18 @@ public class FlowCursor extends CursorWrapper {
 
     public Short getShortOrDefault(String columnName, Short defValue) {
         return getShortOrDefault(cursor.getColumnIndex(columnName), defValue);
+    }
+
+    public byte[] getBlobOrDefault(String columnName) {
+        return getBlobOrDefault(cursor.getColumnIndex(columnName));
+    }
+
+    public byte[] getBlobOrDefault(int index) {
+        if (index != -1 && !cursor.isNull(index)) {
+            return cursor.getBlob(index);
+        } else {
+            return null;
+        }
     }
 
     public byte[] getBlobOrDefault(int index, byte[] defValue) {

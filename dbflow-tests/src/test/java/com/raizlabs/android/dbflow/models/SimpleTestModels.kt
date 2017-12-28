@@ -1,9 +1,23 @@
 package com.raizlabs.android.dbflow.models
 
 import com.raizlabs.android.dbflow.TestDatabase
-import com.raizlabs.android.dbflow.annotation.*
+import com.raizlabs.android.dbflow.annotation.Column
+import com.raizlabs.android.dbflow.annotation.ColumnIgnore
+import com.raizlabs.android.dbflow.annotation.ConflictAction
+import com.raizlabs.android.dbflow.annotation.ForeignKey
+import com.raizlabs.android.dbflow.annotation.ManyToMany
+import com.raizlabs.android.dbflow.annotation.PrimaryKey
+import com.raizlabs.android.dbflow.annotation.QueryModel
+import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.converter.TypeConverter
 import com.raizlabs.android.dbflow.data.Blob
+import com.raizlabs.android.dbflow.structure.BaseModel
+import com.raizlabs.android.dbflow.structure.database.DatabaseStatement
+import com.raizlabs.android.dbflow.structure.listener.SQLiteStatementListener
+import java.math.BigDecimal
+import java.math.BigInteger
+import java.util.*
+
 
 /**
  * Description:
@@ -22,6 +36,9 @@ class CharModel(@PrimaryKey var id: Int = 0, @Column var exampleChar: Char? = nu
 
 @Table(database = TestDatabase::class)
 class TwoColumnModel(@PrimaryKey var name: String? = "", @Column var id: Int = 0)
+
+@Table(database = TestDatabase::class, createWithDatabase = false)
+class DontCreateModel(@PrimaryKey var id: Int = 0)
 
 enum class Difficulty {
     EASY,
@@ -61,15 +78,67 @@ class OrderCursorModel(@PrimaryKey var id: Int = 0, @Column var name: String? = 
 
 @Table(database = TestDatabase::class)
 class TypeConverterModel(@PrimaryKey var id: Int = 0,
+                         @Column(typeConverter = BlobConverter::class) var opaqueData: ByteArray? = null,
                          @Column var blob: Blob? = null,
-                         @Column(typeConverter = CustomTypeConverter::class) var customType: CustomType? = null)
+                         @Column(typeConverter = CustomTypeConverter::class)
+                         @PrimaryKey var customType: CustomType? = null)
 
-class CustomType(var name: String? = "")
+@Table(database = TestDatabase::class)
+class EnumTypeConverterModel(@PrimaryKey var id: Int = 0,
+                             @Column var blob: Blob? = null,
+                             @Column var byteArray: ByteArray? = null,
+                             @Column(typeConverter = CustomEnumTypeConverter::class)
+                             var difficulty: Difficulty = Difficulty.EASY)
 
-class CustomTypeConverter : TypeConverter<String, CustomType>() {
+@Table(database = TestDatabase::class, allFields = true)
+class FeedEntry(@PrimaryKey var id: Int = 0,
+                var title: String? = null,
+                var subtitle: String? = null)
+
+@Table(database = TestDatabase::class)
+@ManyToMany(
+    generatedTableClassName = "Refund", referencedTable = Transfer::class,
+    referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
+    saveForeignKeyModels = true
+)
+data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
+
+@Table(database = TestDatabase::class)
+data class Transfer2(
+    @PrimaryKey
+    var id: UUID = UUID.randomUUID(),
+    @ForeignKey(stubbedRelationship = true)
+    var origin: Account? = null
+)
+
+@Table(database = TestDatabase::class)
+data class Account(@PrimaryKey var id: UUID = UUID.randomUUID())
+
+@Table(database = TestDatabase::class)
+class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener {
+    override fun onBindToStatement(databaseStatement: DatabaseStatement) {
+        TODO("not implemented")
+    }
+
+    override fun onBindToInsertStatement(databaseStatement: DatabaseStatement) {
+        TODO("not implemented")
+    }
+
+    override fun onBindToUpdateStatement(databaseStatement: DatabaseStatement) {
+        TODO("not implemented")
+    }
+
+    override fun onBindToDeleteStatement(databaseStatement: DatabaseStatement) {
+        TODO("not implemented")
+    }
+}
+
+class CustomType(var name: Int? = 0)
+
+class CustomTypeConverter : TypeConverter<Int, CustomType>() {
     override fun getDBValue(model: CustomType?) = model?.name
 
-    override fun getModelValue(data: String?) = if (data == null) {
+    override fun getModelValue(data: Int?) = if (data == null) {
         null
     } else {
         CustomType(data)
@@ -77,7 +146,66 @@ class CustomTypeConverter : TypeConverter<String, CustomType>() {
 
 }
 
+class CustomEnumTypeConverter : TypeConverter<String, Difficulty>() {
+    override fun getDBValue(model: Difficulty) = model.name.substring(0..0)
+
+    override fun getModelValue(data: String) = when (data) {
+        "E" -> Difficulty.EASY
+        "M" -> Difficulty.MEDIUM
+        "H" -> Difficulty.HARD
+        else -> Difficulty.HARD
+    }
+
+}
+
+@com.raizlabs.android.dbflow.annotation.TypeConverter
+class BlobConverter : TypeConverter<Blob, ByteArray>() {
+
+    override fun getDBValue(model: ByteArray?): Blob? {
+        return if (model == null) null else Blob(model)
+    }
+
+    override fun getModelValue(data: Blob?): ByteArray? {
+        return data?.blob
+    }
+}
+
 @Table(database = TestDatabase::class)
 class DefaultModel(@PrimaryKey @Column(defaultValue = "5") var id: Int? = 0,
                    @Column(defaultValue = "5.0") var location: Double? = 0.0,
                    @Column(defaultValue = "\"String\"") var name: String? = "")
+
+@Table(database = TestDatabase::class, cachingEnabled = true)
+class TestModelChild : BaseModel() {
+    @PrimaryKey
+    var id: Long = 0
+
+    @Column
+    var name: String? = null
+}
+
+@Table(database = TestDatabase::class)
+class TestModelParent : BaseModel() {
+    @PrimaryKey
+    var id: Long = 0
+
+    @Column
+    var name: String? = null
+
+    @ForeignKey(stubbedRelationship = true)
+    var child: TestModelChild? = null
+}
+
+@Table(database = TestDatabase::class)
+class NullableNumbers(@PrimaryKey var id: Int = 0,
+                      @Column var f: Float? = null,
+                      @Column var d: Double? = null,
+                      @Column var l: Long? = null,
+                      @Column var i: Int? = null,
+                      @Column var bigDecimal: BigDecimal? = null,
+                      @Column var bigInteger: BigInteger? = null)
+
+@Table(database = TestDatabase::class)
+class NonNullKotlinModel(@PrimaryKey var name: String = "",
+                         @Column var date: Date = Date(),
+                         @Column var numb: Int = 0)

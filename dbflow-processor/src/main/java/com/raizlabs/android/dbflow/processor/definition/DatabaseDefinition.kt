@@ -1,6 +1,14 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.grosner.kpoet.*
+import com.grosner.kpoet.L
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.constructor
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.param
+import com.grosner.kpoet.public
+import com.grosner.kpoet.statement
 import com.raizlabs.android.dbflow.annotation.ConflictAction
 import com.raizlabs.android.dbflow.annotation.Database
 import com.raizlabs.android.dbflow.processor.ClassNames
@@ -9,8 +17,11 @@ import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.TableValidator
 import com.raizlabs.android.dbflow.processor.utils.`override fun`
 import com.raizlabs.android.dbflow.processor.utils.annotation
-import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
-import com.squareup.javapoet.*
+import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.WildcardTypeName
 import java.util.*
 import java.util.regex.Pattern
 import javax.lang.model.element.Element
@@ -21,7 +32,7 @@ import javax.lang.model.element.Element
  */
 class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefinition(element, manager), TypeDefinition {
 
-    var databaseName: String? = null
+    var databaseClassName: String? = null
 
     var databaseVersion: Int = 0
 
@@ -38,11 +49,13 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
     var classSeparator: String = ""
     var fieldRefSeparator: String = "" // safe field for javapoet
 
-    var isInMemory: Boolean = false
-
     var objectHolder: DatabaseObjectHolder? = null
 
     var databaseExtensionName = ""
+
+    var databaseName = ""
+
+    var inMemory = false
 
     init {
         packageName = ClassNames.FLOW_MANAGER_PACKAGE
@@ -50,28 +63,21 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
         element.annotation<Database>()?.let { database ->
             databaseName = database.name
             databaseExtensionName = database.databaseExtension
-            if (databaseName.isNullOrEmpty()) {
-                databaseName = element.simpleName.toString()
-            }
-            if (!isValidDatabaseName(databaseName)) {
-                throw Error("Database name [ " + databaseName + " ] is not valid. It must pass [A-Za-z_$]+[a-zA-Z0-9_$]* " +
-                    "regex so it can't start with a number or contain any special character except '$'. Especially a dot character is not allowed!")
-            }
-
+            inMemory = database.inMemory
+            databaseClassName = element.simpleName.toString()
             consistencyChecksEnabled = database.consistencyCheckEnabled
             backupEnabled = database.backupEnabled
 
             classSeparator = database.generatedClassSeparator
             fieldRefSeparator = classSeparator
 
-            setOutputClassName(databaseName + classSeparator + "Database")
+            setOutputClassName(databaseClassName + classSeparator + "Database")
 
             databaseVersion = database.version
             foreignKeysSupported = database.foreignKeyConstraintsEnforced
 
             insertConflict = database.insertConflict
             updateConflict = database.updateConflict
-            isInMemory = database.inMemory
         }
     }
 
@@ -143,19 +149,15 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                 }
 
                 val migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName)
-                if (!migrationDefinitionMap.isEmpty()) {
-                    val versionSet = ArrayList<Int>(migrationDefinitionMap.keys)
-                    Collections.sort<Int>(versionSet)
-                    for (version in versionSet) {
-                        val migrationDefinitions = migrationDefinitionMap[version]
-                        migrationDefinitions?.let {
-                            Collections.sort(migrationDefinitions, { o1, o2 -> Integer.valueOf(o2.priority)!!.compareTo(o1.priority) })
-                            for (migrationDefinition in migrationDefinitions) {
+                migrationDefinitionMap.keys
+                    .sortedByDescending { it }
+                    .forEach { version ->
+                        migrationDefinitionMap[version]
+                            ?.sortedBy { it.priority }
+                            ?.forEach { migrationDefinition ->
                                 statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
                             }
-                        }
                     }
-                }
             }
             this
         }
@@ -173,10 +175,6 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                 modifiers(public, final)
                 `return`(foreignKeysSupported.L)
             }
-            `override fun`(TypeName.BOOLEAN, "isInMemory") {
-                modifiers(public, final)
-                `return`(isInMemory.L)
-            }
             `override fun`(TypeName.BOOLEAN, "backupEnabled") {
                 modifiers(public, final)
                 `return`(backupEnabled.L)
@@ -189,14 +187,22 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                 modifiers(public, final)
                 `return`(databaseVersion.L)
             }
-            `override fun`(String::class, "getDatabaseName") {
-                modifiers(public, final)
-                `return`(databaseName.S)
-            }
             if (!databaseExtensionName.isNullOrBlank()) {
                 `override fun`(String::class, "getDatabaseExtensionName") {
                     modifiers(public, final)
                     `return`(databaseExtensionName.S)
+                }
+            }
+            if (!databaseName.isNullOrBlank()) {
+                `override fun`(String::class, "getDatabaseName") {
+                    modifiers(public, final)
+                    `return`(databaseName.S)
+                }
+            }
+            if (inMemory) {
+                `override fun`(TypeName.BOOLEAN, "isInMemory") {
+                    modifiers(public, final)
+                    `return`(true.L)
                 }
             }
         }

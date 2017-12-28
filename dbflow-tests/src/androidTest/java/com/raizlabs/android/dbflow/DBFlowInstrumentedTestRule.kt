@@ -3,6 +3,7 @@ package com.raizlabs.android.dbflow
 import com.raizlabs.android.dbflow.config.DatabaseConfig
 import com.raizlabs.android.dbflow.config.FlowConfig
 import com.raizlabs.android.dbflow.config.FlowManager
+import com.raizlabs.android.dbflow.prepackaged.PrepackagedDB
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -17,7 +18,11 @@ class DBFlowInstrumentedTestRule : TestRule {
                 FlowManager.init(FlowConfig.Builder(DemoApp.context)
                     .addDatabaseConfig(DatabaseConfig.Builder(AppDatabase::class.java)
                         .transactionManagerCreator(::ImmediateTransactionManager)
-                        .build()).build())
+                        .build())
+                    .addDatabaseConfig(DatabaseConfig.builder(PrepackagedDB::class.java)
+                        .databaseName("prepackaged")
+                        .build())
+                    .build())
                 try {
                     base.evaluate()
                 } finally {

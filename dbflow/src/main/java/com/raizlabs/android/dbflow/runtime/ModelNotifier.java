@@ -1,7 +1,6 @@
 package com.raizlabs.android.dbflow.runtime;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
@@ -11,9 +10,10 @@ import com.raizlabs.android.dbflow.structure.ModelAdapter;
  */
 public interface ModelNotifier {
 
-    <T> void notifyModelChanged(@Nullable T model, @NonNull ModelAdapter<T> adapter,
+    <T> void notifyModelChanged(@NonNull T model, @NonNull ModelAdapter<T> adapter,
                                 @NonNull BaseModel.Action action);
 
     <T> void notifyTableChanged(@NonNull Class<T> table, @NonNull BaseModel.Action action);
 
+    TableNotifierRegister newRegister();
 }

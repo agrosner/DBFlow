@@ -1,6 +1,8 @@
 package com.raizlabs.android.dbflow.structure.provider;
 
 import android.content.ContentProvider;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.OperatorGroup;
@@ -42,8 +44,8 @@ public abstract class BaseSyncableProviderModel extends BaseModel implements Mod
 
     @Override
     @SuppressWarnings("unchecked")
-    public void load(OperatorGroup whereOperatorGroup,
-                     String orderBy, String... columns) {
+    public void load(@NonNull OperatorGroup whereOperatorGroup,
+                     @Nullable String orderBy, String... columns) {
         FlowCursor cursor = FlowCursor.from(ContentUtils.query(FlowManager.getContext().getContentResolver(),
             getQueryUri(), whereOperatorGroup, orderBy, columns));
         if (cursor != null && cursor.moveToFirst()) {

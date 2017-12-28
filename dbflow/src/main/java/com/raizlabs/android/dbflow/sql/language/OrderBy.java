@@ -23,17 +23,17 @@ public class OrderBy implements Query {
     private String orderByString;
 
     @NonNull
-    public static OrderBy fromProperty(IProperty property) {
+    public static OrderBy fromProperty(@NonNull IProperty property) {
         return new OrderBy(property.getNameAlias());
     }
 
     @NonNull
-    public static OrderBy fromNameAlias(NameAlias nameAlias) {
+    public static OrderBy fromNameAlias(@NonNull NameAlias nameAlias) {
         return new OrderBy(nameAlias);
     }
 
     @NonNull
-    public static OrderBy fromString(String orderByString) {
+    public static OrderBy fromString(@NonNull String orderByString) {
         return new OrderBy(orderByString);
     }
 

@@ -6,41 +6,58 @@ import android.support.annotation.NonNull;
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
-import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
 /**
- * Description: Defines how models get saved into the DB. It will bind values to {@link android.content.ContentValues} for
- * an update, execute a {@link DatabaseStatement}, or delete an object via the {@link Delete} wrapper.
+ * Description: Defines how models get saved into the DB. It will bind values to {@link DatabaseStatement}
+ * for all CRUD operations as they are wildly faster and more efficient than {@link ContentValues}.
  */
 public class ModelSaver<TModel> {
 
-    private static final int INSERT_FAILED = -1;
+    public static final int INSERT_FAILED = -1;
 
     private ModelAdapter<TModel> modelAdapter;
 
-    public void setModelAdapter(ModelAdapter<TModel> modelAdapter) {
+    public void setModelAdapter(@NonNull ModelAdapter<TModel> modelAdapter) {
         this.modelAdapter = modelAdapter;
     }
 
     public synchronized boolean save(@NonNull TModel model) {
-        return save(model, getWritableDatabase(), modelAdapter.getInsertStatement(), new ContentValues());
+        return save(model, getWritableDatabase(), modelAdapter.getInsertStatement(),
+                modelAdapter.getUpdateStatement());
     }
 
-    public synchronized boolean save(@NonNull TModel model, DatabaseWrapper wrapper) {
-        return save(model, wrapper, modelAdapter.getInsertStatement(wrapper), new ContentValues());
+    public synchronized boolean save(@NonNull TModel model, @NonNull DatabaseWrapper wrapper) {
+        boolean exists = getModelAdapter().exists(model, wrapper);
+
+        if (exists) {
+            exists = update(model, wrapper);
+        }
+
+        if (!exists) {
+            exists = insert(model, wrapper) > INSERT_FAILED;
+        }
+
+        if (exists) {
+            NotifyDistributor.get().notifyModelChanged(model, getModelAdapter(), BaseModel.Action.SAVE);
+        }
+
+        // return successful store into db.
+        return exists;
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized boolean save(@NonNull TModel model, DatabaseWrapper wrapper,
-                                     DatabaseStatement insertStatement, ContentValues contentValues) {
+    public synchronized boolean save(@NonNull TModel model,
+                                     @NonNull DatabaseWrapper wrapper,
+                                     @NonNull DatabaseStatement insertStatement,
+                                     @NonNull DatabaseStatement updateStatement) {
         boolean exists = modelAdapter.exists(model, wrapper);
 
         if (exists) {
-            exists = update(model, wrapper, contentValues);
+            exists = update(model, wrapper, updateStatement);
         }
 
         if (!exists) {
@@ -56,21 +73,27 @@ public class ModelSaver<TModel> {
     }
 
     public synchronized boolean update(@NonNull TModel model) {
-        return update(model, getWritableDatabase(), new ContentValues());
+        return update(model, getWritableDatabase(), modelAdapter.getUpdateStatement());
     }
 
     public synchronized boolean update(@NonNull TModel model, @NonNull DatabaseWrapper wrapper) {
-        return update(model, wrapper, new ContentValues());
+        DatabaseStatement updateStatement = modelAdapter.getUpdateStatement(wrapper);
+        boolean success = false;
+        try {
+            success = update(model, wrapper, updateStatement);
+        } finally {
+            // since we generate an insert every time, we can safely close the statement here.
+            updateStatement.close();
+        }
+        return success;
     }
 
     @SuppressWarnings("unchecked")
     public synchronized boolean update(@NonNull TModel model, @NonNull DatabaseWrapper wrapper,
-                                       @NonNull ContentValues contentValues) {
+                                       @NonNull DatabaseStatement databaseStatement) {
         modelAdapter.saveForeignKeys(model, wrapper);
-        modelAdapter.bindToContentValues(contentValues, model);
-        boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
-            modelAdapter.getPrimaryConditionClause(model).getQuery(), null,
-            ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
+        modelAdapter.bindToUpdateStatement(databaseStatement, model);
+        boolean successful = databaseStatement.executeUpdateDelete() != 0;
         if (successful) {
             NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE);
         }
@@ -96,8 +119,9 @@ public class ModelSaver<TModel> {
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized long insert(@NonNull TModel model, @NonNull DatabaseStatement insertStatement,
-                                    DatabaseWrapper wrapper) {
+    public synchronized long insert(@NonNull TModel model,
+                                    @NonNull DatabaseStatement insertStatement,
+                                    @NonNull DatabaseWrapper wrapper) {
         modelAdapter.saveForeignKeys(model, wrapper);
         modelAdapter.bindToInsertStatement(insertStatement, model);
         long id = insertStatement.executeInsert();
@@ -109,12 +133,12 @@ public class ModelSaver<TModel> {
     }
 
     public synchronized boolean delete(@NonNull TModel model) {
-        return delete(model, getWritableDatabase());
+        return delete(model, modelAdapter.getDeleteStatement(), getWritableDatabase());
     }
 
     @SuppressWarnings("unchecked")
     public synchronized boolean delete(@NonNull TModel model, @NonNull DatabaseWrapper wrapper) {
-        DatabaseStatement deleteStatement = modelAdapter.getDeleteStatement(model, wrapper);
+        DatabaseStatement deleteStatement = modelAdapter.getDeleteStatement(wrapper);
         boolean success = false;
         try {
             success = delete(model, deleteStatement, wrapper);
@@ -126,11 +150,13 @@ public class ModelSaver<TModel> {
     }
 
     @SuppressWarnings("unchecked")
-    public synchronized boolean delete(@NonNull TModel model, @NonNull DatabaseStatement databaseStatement,
+    public synchronized boolean delete(@NonNull TModel model,
+                                       @NonNull DatabaseStatement deleteStatement,
                                        @NonNull DatabaseWrapper wrapper) {
         modelAdapter.deleteForeignKeys(model, wrapper);
+        modelAdapter.bindToDeleteStatement(deleteStatement, model);
 
-        boolean success = databaseStatement.executeUpdateDelete() != 0;
+        boolean success = deleteStatement.executeUpdateDelete() != 0;
         if (success) {
             NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.DELETE);
         }
@@ -138,13 +164,62 @@ public class ModelSaver<TModel> {
         return success;
     }
 
+    @NonNull
     protected DatabaseWrapper getWritableDatabase() {
         return FlowManager.getDatabaseForTable(modelAdapter.getModelClass()).getWritableDatabase();
     }
 
+    @NonNull
     public ModelAdapter<TModel> getModelAdapter() {
         return modelAdapter;
     }
 
+    /**
+     * Legacy save method. Uses {@link ContentValues} vs. the faster {@link DatabaseStatement} for updates.
+     *
+     * @see #save(Object, DatabaseWrapper, DatabaseStatement, DatabaseStatement)
+     */
+    @Deprecated
+    @SuppressWarnings({"unchecked", "deprecation"})
+    public synchronized boolean save(@NonNull TModel model,
+                                     @NonNull DatabaseWrapper wrapper,
+                                     @NonNull DatabaseStatement insertStatement,
+                                     @NonNull ContentValues contentValues) {
+        boolean exists = modelAdapter.exists(model, wrapper);
+
+        if (exists) {
+            exists = update(model, wrapper, contentValues);
+        }
+
+        if (!exists) {
+            exists = insert(model, insertStatement, wrapper) > INSERT_FAILED;
+        }
+
+        if (exists) {
+            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.SAVE);
+        }
+
+        // return successful store into db.
+        return exists;
+    }
+
+    /**
+     * @see #update(Object, DatabaseWrapper, DatabaseStatement)
+     */
+    @Deprecated
+    @SuppressWarnings("unchecked")
+    public synchronized boolean update(@NonNull TModel model,
+                                       @NonNull DatabaseWrapper wrapper,
+                                       @NonNull ContentValues contentValues) {
+        modelAdapter.saveForeignKeys(model, wrapper);
+        modelAdapter.bindToContentValues(contentValues, model);
+        boolean successful = wrapper.updateWithOnConflict(modelAdapter.getTableName(), contentValues,
+                modelAdapter.getPrimaryConditionClause(model).getQuery(), null,
+                ConflictAction.getSQLiteDatabaseAlgorithmInt(modelAdapter.getUpdateOnConflictAction())) != 0;
+        if (successful) {
+            NotifyDistributor.get().notifyModelChanged(model, modelAdapter, BaseModel.Action.UPDATE);
+        }
+        return successful;
+    }
 }
 

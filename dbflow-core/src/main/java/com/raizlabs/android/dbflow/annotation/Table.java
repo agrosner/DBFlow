@@ -74,6 +74,12 @@ public @interface Table {
     boolean assignDefaultValuesFromCursor() default true;
 
     /**
+     * @return When false, this table gets generated and associated with database, however it will not immediately
+     * get created upon startup. This is useful for keeping around legacy tables for migrations.
+     */
+    boolean createWithDatabase() default true;
+
+    /**
      * @return The cache size for this Table.
      */
     int cacheSize() default 25;

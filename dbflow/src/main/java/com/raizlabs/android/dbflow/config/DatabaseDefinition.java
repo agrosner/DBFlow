@@ -1,8 +1,9 @@
 package com.raizlabs.android.dbflow.config;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
-import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.annotation.Database;
 import com.raizlabs.android.dbflow.annotation.QueryModel;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -34,6 +35,7 @@ import java.util.Map;
  * Description: The main interface that all Database implementations extend from. This is for internal usage only
  * as it will be generated for every {@link Database}.
  */
+@SuppressWarnings("NullableProblems")
 public abstract class DatabaseDefinition {
 
     private final Map<Integer, List<Migration>> migrationMap = new HashMap<>();
@@ -61,18 +63,25 @@ public abstract class DatabaseDefinition {
      */
     private boolean isResetting = false;
 
+    @NonNull
     private BaseTransactionManager transactionManager;
 
+    @Nullable
     private DatabaseConfig databaseConfig;
 
+    @Nullable
     private ModelNotifier modelNotifier;
 
-    @SuppressWarnings("unchecked")
     public DatabaseDefinition() {
-        databaseConfig = FlowManager.getConfig()
-            .databaseConfigMap().get(getAssociatedDatabaseClassFile());
+        applyDatabaseConfig(FlowManager.getConfig().databaseConfigMap().get(getAssociatedDatabaseClassFile()));
+    }
 
-
+    /**
+     * Applies a database configuration object to this class.
+     */
+    @SuppressWarnings({"unchecked", "ConstantConditions"})
+    void applyDatabaseConfig(@Nullable DatabaseConfig databaseConfig) {
+        this.databaseConfig = databaseConfig;
         if (databaseConfig != null) {
             // initialize configuration if exists.
             Collection<TableConfig> tableConfigCollection = databaseConfig.tableConfigMap().values();
@@ -131,10 +140,12 @@ public abstract class DatabaseDefinition {
     /**
      * @return a list of all model classes in this database.
      */
+    @NonNull
     public List<Class<?>> getModelClasses() {
         return new ArrayList<>(modelAdapters.keySet());
     }
 
+    @NonNull
     public BaseTransactionManager getTransactionManager() {
         return transactionManager;
     }
@@ -144,6 +155,7 @@ public abstract class DatabaseDefinition {
      *
      * @return List of Model Adapters
      */
+    @NonNull
     public List<ModelAdapter> getModelAdapters() {
         return new ArrayList<>(modelAdapters.values());
     }
@@ -157,6 +169,7 @@ public abstract class DatabaseDefinition {
      * @return The ModelAdapter for the table.
      */
     @SuppressWarnings("unchecked")
+    @Nullable
     public <T> ModelAdapter<T> getModelAdapterForTable(Class<T> table) {
         return modelAdapters.get(table);
     }
@@ -166,6 +179,7 @@ public abstract class DatabaseDefinition {
      * @return The associated {@link ModelAdapter} within this database for the specified table name.
      * If the Model is missing the {@link Table} annotation, this will return null.
      */
+    @Nullable
     public Class<?> getModelClassForName(String tableName) {
         return modelTableNames.get(tableName);
     }
@@ -173,6 +187,7 @@ public abstract class DatabaseDefinition {
     /**
      * @return the {@link BaseModelView} list for this database.
      */
+    @NonNull
     public List<Class<?>> getModelViews() {
         return new ArrayList<>(modelViewAdapterMap.keySet());
     }
@@ -182,6 +197,7 @@ public abstract class DatabaseDefinition {
      * @return the associated {@link ModelViewAdapter} for the specified table.
      */
     @SuppressWarnings("unchecked")
+    @Nullable
     public <T> ModelViewAdapter<T> getModelViewAdapterForTable(Class<T> table) {
         return modelViewAdapterMap.get(table);
     }
@@ -190,6 +206,7 @@ public abstract class DatabaseDefinition {
      * @return The list of {@link ModelViewAdapter}. Internal method for
      * creating model views in the DB.
      */
+    @NonNull
     public List<ModelViewAdapter> getModelViewAdapters() {
         return new ArrayList<>(modelViewAdapterMap.values());
     }
@@ -197,6 +214,7 @@ public abstract class DatabaseDefinition {
     /**
      * @return The list of {@link QueryModelAdapter}. Internal method for creating query models in the DB.
      */
+    @NonNull
     public List<QueryModelAdapter> getModelQueryAdapters() {
         return new ArrayList<>(queryModelAdapterMap.values());
     }
@@ -206,6 +224,7 @@ public abstract class DatabaseDefinition {
      * @return The adapter that corresponds to the specified class.
      */
     @SuppressWarnings("unchecked")
+    @Nullable
     public <T> QueryModelAdapter<T> getQueryModelAdapterForQueryClass(Class<T> queryModel) {
         return queryModelAdapterMap.get(queryModel);
     }
@@ -213,14 +232,16 @@ public abstract class DatabaseDefinition {
     /**
      * @return The map of migrations to DB version
      */
+    @NonNull
     public Map<Integer, List<Migration>> getMigrations() {
         return migrationMap;
     }
 
+    @NonNull
     public synchronized OpenHelper getHelper() {
         if (openHelper == null) {
             DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
-                .get(getAssociatedDatabaseClassFile());
+                    .get(getAssociatedDatabaseClassFile());
             if (config == null || config.helperCreator() == null) {
                 openHelper = new FlowSQLiteOpenHelper(this, helperListener);
             } else {
@@ -231,16 +252,18 @@ public abstract class DatabaseDefinition {
         return openHelper;
     }
 
+    @NonNull
     public DatabaseWrapper getWritableDatabase() {
         return getHelper().getDatabase();
     }
 
+    @NonNull
     public ModelNotifier getModelNotifier() {
         if (modelNotifier == null) {
             DatabaseConfig config = FlowManager.getConfig().databaseConfigMap()
-                .get(getAssociatedDatabaseClassFile());
+                    .get(getAssociatedDatabaseClassFile());
             if (config == null || config.modelNotifier() == null) {
-                modelNotifier = new ContentResolverNotifier();
+                modelNotifier = new ContentResolverNotifier(FlowManager.DEFAULT_AUTHORITY);
             } else {
                 modelNotifier = config.modelNotifier();
             }
@@ -248,11 +271,12 @@ public abstract class DatabaseDefinition {
         return modelNotifier;
     }
 
-    public Transaction.Builder beginTransactionAsync(ITransaction transaction) {
+    @NonNull
+    public Transaction.Builder beginTransactionAsync(@NonNull ITransaction transaction) {
         return new Transaction.Builder(transaction, this);
     }
 
-    public void executeTransaction(ITransaction transaction) {
+    public void executeTransaction(@NonNull ITransaction transaction) {
         DatabaseWrapper database = getWritableDatabase();
         try {
             database.beginTransaction();
@@ -266,27 +290,33 @@ public abstract class DatabaseDefinition {
     /**
      * @return The name of this database as defined in {@link Database}
      */
-    public abstract String getDatabaseName();
+    @NonNull
+    public String getDatabaseName() {
+        return databaseConfig != null ? databaseConfig.getDatabaseName() : getAssociatedDatabaseClassFile().getSimpleName();
+    }
 
     /**
      * @return The file name that this database points to
      */
+    @NonNull
     public String getDatabaseFileName() {
-        return getDatabaseName() + (StringUtils.isNotNullOrEmpty(getDatabaseExtensionName()) ?
-            "." + getDatabaseExtensionName() : "");
+        return getDatabaseName() + getDatabaseExtensionName();
     }
 
     /**
      * @return the extension for the file name.
      */
+    @NonNull
     public String getDatabaseExtensionName() {
-        return "db";
+        return databaseConfig != null ? databaseConfig.getDatabaseExtensionName() : ".db";
     }
 
     /**
      * @return True if the database will reside in memory.
      */
-    public abstract boolean isInMemory();
+    public boolean isInMemory() {
+        return databaseConfig != null && databaseConfig.isInMemory();
+    }
 
     /**
      * @return The version of the database currently.
@@ -311,46 +341,85 @@ public abstract class DatabaseDefinition {
     /**
      * @return The class that defines the {@link Database} annotation.
      */
+    @NonNull
     public abstract Class<?> getAssociatedDatabaseClassFile();
+
+
+    /**
+     * @deprecated use {@link #reset()}
+     */
+    @Deprecated
+    public void reset(Context context) {
+        reset(databaseConfig);
+    }
+
+    /**
+     * Performs a full deletion of this database. Reopens the {@link FlowSQLiteOpenHelper} as well.
+     * Reapplies the {@link DatabaseConfig} if we have one.
+     */
+    public void reset() {
+        reset(databaseConfig);
+    }
 
     /**
      * Performs a full deletion of this database. Reopens the {@link FlowSQLiteOpenHelper} as well.
      *
-     * @param context Where the database resides
+     * @param databaseConfig sets a new {@link DatabaseConfig} on this class.
      */
-    public void reset(Context context) {
+    public void reset(@Nullable DatabaseConfig databaseConfig) {
         if (!isResetting) {
-            isResetting = true;
-            getTransactionManager().stopQueue();
-            getHelper().closeDB();
-            for (ModelAdapter modelAdapter : modelAdapters.values()) {
-                modelAdapter.closeInsertStatement();
-                modelAdapter.closeCompiledStatement();
-            }
-            context.deleteDatabase(getDatabaseFileName());
-
-            // recreate queue after interrupting it.
-            if (databaseConfig == null || databaseConfig.transactionManagerCreator() == null) {
-                transactionManager = new DefaultTransactionManager(this);
-            } else {
-                transactionManager = databaseConfig.transactionManagerCreator().createManager(this);
-            }
-            openHelper = null;
-            isResetting = false;
+            destroy();
+            // reapply configuration before opening it.
+            applyDatabaseConfig(databaseConfig);
             getHelper().getDatabase();
         }
     }
 
-    public void destroy(Context context) {
+    /**
+     * Reopens the DB with the new {@link DatabaseConfig} specified.
+     */
+    public void reopen(@Nullable DatabaseConfig databaseConfig) {
+        if (!isResetting) {
+            close();
+            openHelper = null;
+            applyDatabaseConfig(databaseConfig);
+            getHelper().getDatabase();
+            isResetting = false;
+        }
+    }
+
+    /**
+     * Closes and reopens the database.
+     */
+    public void reopen() {
+        reopen(databaseConfig);
+    }
+
+    /**
+     * Deletes the underlying database and destroys it.
+     */
+    public void destroy() {
         if (!isResetting) {
             isResetting = true;
-            getTransactionManager().stopQueue();
-            getHelper().closeDB();
-            context.deleteDatabase(getDatabaseFileName());
-
+            close();
+            FlowManager.getContext().deleteDatabase(getDatabaseFileName());
             openHelper = null;
             isResetting = false;
         }
+    }
+
+    /**
+     * Closes the DB and stops the {@link BaseTransactionManager}
+     */
+    public void close() {
+        getTransactionManager().stopQueue();
+        for (ModelAdapter modelAdapter : modelAdapters.values()) {
+            modelAdapter.closeInsertStatement();
+            modelAdapter.closeCompiledStatement();
+            modelAdapter.closeDeleteStatement();
+            modelAdapter.closeUpdateStatement();
+        }
+        getHelper().closeDB();
     }
 
     /**

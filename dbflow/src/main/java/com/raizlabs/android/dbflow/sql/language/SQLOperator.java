@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.sql.QueryBuilder;
 
@@ -14,13 +15,14 @@ public interface SQLOperator {
      *
      * @param queryBuilder The builder to append to.
      */
-    void appendConditionToQuery(QueryBuilder queryBuilder);
+    void appendConditionToQuery(@NonNull QueryBuilder queryBuilder);
 
     /**
      * The name of the column.
      *
      * @return The column name.
      */
+    @NonNull
     String columnName();
 
     /**
@@ -28,6 +30,7 @@ public interface SQLOperator {
      *
      * @return The separator, an AND, OR, or other kinds.
      */
+    @Nullable
     String separator();
 
     /**
@@ -37,7 +40,7 @@ public interface SQLOperator {
      * @return This instance.
      */
     @NonNull
-    SQLOperator separator(String separator);
+    SQLOperator separator(@NonNull String separator);
 
     /**
      * @return true if it has a separator, false if not.
@@ -47,11 +50,13 @@ public interface SQLOperator {
     /**
      * @return the operation that is used.
      */
+    @NonNull
     String operation();
 
     /**
      * @return The raw value of the condition.
      */
+    @Nullable
     Object value();
 
 }

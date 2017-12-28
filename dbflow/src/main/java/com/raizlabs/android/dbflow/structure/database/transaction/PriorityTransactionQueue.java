@@ -52,7 +52,7 @@ public class PriorityTransactionQueue extends Thread implements ITransactionQueu
     }
 
     @Override
-    public void add(Transaction transaction) {
+    public void add(@NonNull Transaction transaction) {
         synchronized (queue) {
             PriorityEntry<Transaction> priorityEntry = new PriorityEntry<>(transaction);
             if (!queue.contains(priorityEntry)) {
@@ -67,7 +67,7 @@ public class PriorityTransactionQueue extends Thread implements ITransactionQueu
      * @param transaction The transaction to cancel (if still in the queue).
      */
     @Override
-    public void cancel(Transaction transaction) {
+    public void cancel(@NonNull Transaction transaction) {
         synchronized (queue) {
             PriorityEntry<Transaction> priorityEntry = new PriorityEntry<>(transaction);
             if (queue.contains(priorityEntry)) {
@@ -82,7 +82,7 @@ public class PriorityTransactionQueue extends Thread implements ITransactionQueu
      * @param tag
      */
     @Override
-    public void cancel(String tag) {
+    public void cancel(@NonNull String tag) {
         synchronized (queue) {
             Iterator<PriorityEntry<Transaction>> it = queue.iterator();
             while (it.hasNext()) {

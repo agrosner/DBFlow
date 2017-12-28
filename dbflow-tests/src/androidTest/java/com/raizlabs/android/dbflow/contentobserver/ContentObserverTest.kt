@@ -16,7 +16,6 @@ import com.raizlabs.android.dbflow.sql.language.Delete
 import com.raizlabs.android.dbflow.sql.language.SQLOperator
 import com.raizlabs.android.dbflow.structure.BaseModel
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
@@ -34,11 +33,12 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
     @Test
     fun testSpecificUris() {
         val conditionGroup = FlowManager.getModelAdapter(User::class.java)
-            .getPrimaryConditionClause(user)
-        val uri = SqlUtils.getNotificationUri(User::class.java, BaseModel.Action.DELETE,
-            conditionGroup.conditions.toTypedArray())
+                .getPrimaryConditionClause(user)
+        val uri = SqlUtils.getNotificationUri(FlowManager.DEFAULT_AUTHORITY,
+                User::class.java, BaseModel.Action.DELETE,
+                conditionGroup.conditions.toTypedArray())
 
-        assertEquals(uri.authority, FlowManager.getTableName(User::class.java))
+        assertEquals(uri.authority, FlowManager.DEFAULT_AUTHORITY)
         assertEquals(uri.fragment, BaseModel.Action.DELETE.name)
         assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(id.query))), "5")
         assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(name.query))), "Something")
@@ -69,7 +69,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
     }
 
     private fun assertProperConditions(action: BaseModel.Action, userFunc: (User) -> Unit) {
-        val contentObserver = FlowContentObserver()
+        val contentObserver = FlowContentObserver(FlowManager.DEFAULT_AUTHORITY)
         val countDownLatch = CountDownLatch(1)
         val mockOnModelStateChangedListener = MockOnModelStateChangedListener(countDownLatch)
         contentObserver.addModelChangeListener(mockOnModelStateChangedListener)
@@ -79,7 +79,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
         countDownLatch.await()
 
         val ops = mockOnModelStateChangedListener.operators!!
-        assertTrue(ops.size == 2)
+        assertEquals(2, ops.size)
         assertEquals(ops[0].columnName(), id.query)
         assertEquals(ops[1].columnName(), name.query)
         assertEquals(ops[1].value(), "Something")

@@ -36,11 +36,11 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
     override val methodSpec: MethodSpec?
         get() {
             val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "bindToInsertValues" else "bindToContentValues")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
-                .addParameter(baseTableDefinition.parameterClassName, ModelUtils.variable)
-                .returns(TypeName.VOID)
+                    .addAnnotation(Override::class.java)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
+                    .addParameter(baseTableDefinition.parameterClassName, ModelUtils.variable)
+                    .returns(TypeName.VOID)
 
             var retMethodBuilder: MethodSpec.Builder? = methodBuilder
 
@@ -53,7 +53,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
 
                 if (implementsContentValuesListener) {
                     methodBuilder.addStatement("\$L.onBindTo\$LValues(\$L)",
-                        ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
+                            ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
                 }
             } else {
                 if (baseTableDefinition.hasAutoIncrement || baseTableDefinition.hasRowID) {
@@ -68,7 +68,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                 methodBuilder.addStatement("bindToInsertValues(\$L, \$L)", PARAM_CONTENT_VALUES, ModelUtils.variable)
                 if (implementsContentValuesListener) {
                     methodBuilder.addStatement("\$L.onBindTo\$LValues(\$L)",
-                        ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
+                            ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
                 }
             }
 
@@ -83,49 +83,97 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
 /**
  * Description:
  */
-class BindToStatementMethod(private val tableDefinition: TableDefinition, private val isInsert: Boolean) : MethodDefinition {
+class BindToStatementMethod(private val tableDefinition: TableDefinition, private val mode: Mode) : MethodDefinition {
+
+    enum class Mode {
+        INSERT {
+            override val methodName = "bindToInsertStatement"
+
+            override val sqlListenerName = "onBindToInsertStatement"
+        },
+        UPDATE {
+            override val methodName = "bindToUpdateStatement"
+
+            override val sqlListenerName = "onBindToUpdateStatement"
+        },
+        DELETE {
+            override val methodName = "bindToDeleteStatement"
+
+            override val sqlListenerName = "onBindToDeleteStatement"
+        },
+        NON_INSERT {
+            override val methodName = "bindToStatement"
+
+            override val sqlListenerName = "onBindToStatement"
+        };
+
+        abstract val methodName: String
+
+        abstract val sqlListenerName: String
+    }
 
     override val methodSpec: MethodSpec?
         get() {
-            val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "bindToInsertStatement" else "bindToStatement")
-                .addAnnotation(Override::class.java)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
-                .addParameter(tableDefinition.parameterClassName,
-                    ModelUtils.variable).returns(TypeName.VOID)
+            val methodBuilder = MethodSpec.methodBuilder(mode.methodName)
+                    .addAnnotation(Override::class.java)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
+                    .addParameter(tableDefinition.parameterClassName,
+                            ModelUtils.variable).returns(TypeName.VOID)
 
             // write the reference method
-            if (isInsert) {
+            if (mode == Mode.INSERT) {
                 methodBuilder.addParameter(TypeName.INT, PARAM_START)
                 val realCount = AtomicInteger(1)
-                tableDefinition.columnDefinitions.forEach {
-                    if (!it.isPrimaryKeyAutoIncrement && !it.isRowId) {
-                        methodBuilder.addCode(it.getSQLiteStatementMethod(realCount))
+                tableDefinition.columnDefinitions
+                        .filter { !it.isPrimaryKeyAutoIncrement && !it.isRowId }
+                        .forEach {
+                            methodBuilder.addCode(it.getSQLiteStatementMethod(realCount, true))
+                            realCount.incrementAndGet()
+                        }
+
+            } else {
+                if (mode == Mode.UPDATE) {
+                    val realCount = AtomicInteger(1)
+                    // attach non rowid first, then go onto the WHERE clause
+                    tableDefinition.columnDefinitions
+                            .filter { !it.isRowId }
+                            .forEach {
+                                methodBuilder.addCode(it.getSQLiteStatementMethod(realCount,
+                                        useStart = false))
+                                realCount.incrementAndGet()
+                            }
+                    tableDefinition.primaryColumnDefinitions.forEach {
+                        methodBuilder.addCode(it.getSQLiteStatementMethod(realCount,
+                                useStart = false, defineProperty = false))
                         realCount.incrementAndGet()
                     }
-                }
-
-                if (tableDefinition.implementsSqlStatementListener) {
-                    methodBuilder.addStatement("${ModelUtils.variable}.onBindTo\$LStatement($PARAM_STATEMENT)",
-                        if (isInsert) "Insert" else "")
-                }
-            } else {
-                var start = 0
-                if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
-                    val autoIncrement = tableDefinition.autoIncrementColumn
-                    autoIncrement?.let {
-                        methodBuilder.addStatement("int start = 0")
-                        methodBuilder.addCode(it.getSQLiteStatementMethod(AtomicInteger(++start)))
+                } else if (mode == Mode.DELETE) {
+                    val realCount = AtomicInteger(1)
+                    tableDefinition.primaryColumnDefinitions.forEach {
+                        methodBuilder.addCode(it.getSQLiteStatementMethod(realCount, useStart = false))
+                        realCount.incrementAndGet()
                     }
-                    methodBuilder.addStatement("bindToInsertStatement($PARAM_STATEMENT, ${ModelUtils.variable}, $start)")
-                } else if (tableDefinition.implementsSqlStatementListener) {
-                    methodBuilder.addStatement("bindToInsertStatement($PARAM_STATEMENT, ${ModelUtils.variable}, $start)")
-                    methodBuilder.addStatement("${ModelUtils.variable}.onBindTo\$LStatement($PARAM_STATEMENT)",
-                        if (isInsert) "Insert" else "")
                 } else {
-                    // don't generate method
-                    return null
+                    var start = 0
+                    if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
+                        val autoIncrement = tableDefinition.autoIncrementColumn
+                        autoIncrement?.let {
+                            methodBuilder.addStatement("int start = 0")
+                            methodBuilder.addCode(it.getSQLiteStatementMethod(AtomicInteger(++start), true))
+                        }
+                        methodBuilder.addStatement("bindToInsertStatement($PARAM_STATEMENT, ${ModelUtils.variable}, $start)")
+                    } else if (tableDefinition.implementsSqlStatementListener) {
+                        methodBuilder.addStatement("bindToInsertStatement($PARAM_STATEMENT, ${ModelUtils.variable}, $start)")
+                    } else {
+                        // don't generate method
+                        return null
+                    }
                 }
+            }
+
+            if (tableDefinition.implementsSqlStatementListener) {
+                methodBuilder.addStatement("${ModelUtils.variable}.${mode.sqlListenerName}($PARAM_STATEMENT)")
             }
 
             return methodBuilder.build()
@@ -172,7 +220,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
             }
 
             val codeBuilder = CodeBlock.builder()
-                .add("return ${creationBuilder.toString().S}")
+                    .add("return ${creationBuilder.toString().S}")
 
             val foreignKeyBlocks = ArrayList<CodeBlock>()
             val tableNameBlocks = ArrayList<CodeBlock>()
@@ -185,15 +233,15 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
 
                 foreignKeyBlocks.add(foreignKeyBuilder.apply {
                     add(", FOREIGN KEY(")
-                    add(fk._foreignKeyReferenceDefinitionList.joinToString { QueryBuilder.quote(it.columnName) })
+                    add(fk._referenceDefinitionList.joinToString { QueryBuilder.quote(it.columnName) })
                     add(") REFERENCES ")
                 }.build())
 
-                tableNameBlocks.add(codeBlock { add("\$T.getTableName(\$T.class)", ClassNames.FLOW_MANAGER, fk.referencedTableClassName) })
+                tableNameBlocks.add(codeBlock { add("\$T.getTableName(\$T.class)", ClassNames.FLOW_MANAGER, fk.referencedClassName) })
 
                 referenceKeyBlocks.add(referenceBuilder.apply {
                     add("(")
-                    add(fk._foreignKeyReferenceDefinitionList.joinToString { QueryBuilder.quote(it.foreignColumnName) })
+                    add(fk._referenceDefinitionList.joinToString { QueryBuilder.quote(it.foreignColumnName) })
                     add(") ON UPDATE ${fk.onUpdate.name.replace("_", " ")} ON DELETE ${fk.onDelete.name.replace("_", " ")}")
                     if (fk.deferred) {
                         add(" DEFERRABLE INITIALLY DEFERRED")
@@ -240,7 +288,7 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
             val firstDef = def?.get(0)
             firstDef?.typeConverterElementNames?.forEach { elementName ->
                 code.statement("global_typeConverter${it.simpleName()} " +
-                    "= (\$T) holder.getTypeConverterForClass(\$T.class)", it, elementName)
+                        "= (\$T) holder.getTypeConverterForClass(\$T.class)", it, elementName)
             }
         }
         return code
@@ -254,8 +302,8 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
 
     override val methodSpec
         get() = `override fun`(TypeName.BOOLEAN, "exists",
-            param(tableDefinition.parameterClassName!!, ModelUtils.variable),
-            param(ClassNames.DATABASE_WRAPPER, "wrapper")) {
+                param(tableDefinition.parameterClassName!!, ModelUtils.variable),
+                param(ClassNames.DATABASE_WRAPPER, "wrapper")) {
             modifiers(public, final)
             code {
                 // only quick check if enabled.
@@ -280,10 +328,10 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, p
                 return null // dont write method here because we reuse the compiled statement query method
             }
             return `override fun`(String::class,
-                if (isInsert) "getInsertStatementQuery" else "getCompiledStatementQuery") {
+                    if (isInsert) "getInsertStatementQuery" else "getCompiledStatementQuery") {
                 modifiers(public, final)
                 val isSingleAutoincrement = tableDefinition.hasAutoIncrement
-                    && tableDefinition.columnDefinitions.size == 1 && isInsert
+                        && tableDefinition.columnDefinitions.size == 1 && isInsert
                 `return`(codeBlock {
                     add("INSERT ")
                     if (!tableDefinition.insertConflictActionName.isEmpty()) {
@@ -301,14 +349,72 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, p
                     add(") VALUES (")
 
                     tableDefinition.columnDefinitions.filter { !it.isPrimaryKeyAutoIncrement && !it.isRowId || !isInsert }
-                        .forEachIndexed { index, columnDefinition ->
-                            if (index > 0) add(",")
-                            add(columnDefinition.insertStatementValuesString)
-                        }
+                            .forEachIndexed { index, columnDefinition ->
+                                if (index > 0) add(",")
+                                add(columnDefinition.insertStatementValuesString)
+                            }
 
                     if (isSingleAutoincrement) add("NULL")
 
                     add(")")
+                }.S)
+            }
+        }
+}
+
+class UpdateStatementQueryMethod(private val tableDefinition: TableDefinition) : MethodDefinition {
+
+    override val methodSpec: MethodSpec?
+        get() {
+            return `override fun`(String::class, "getUpdateStatementQuery") {
+                modifiers(public, final)
+                `return`(codeBlock {
+                    add("UPDATE")
+                    if (!tableDefinition.updateConflictActionName.isEmpty()) {
+                        add(" OR ${tableDefinition.updateConflictActionName}")
+                    }
+                    add(" ${QueryBuilder.quote(tableDefinition.tableName)} SET ")
+
+                    // can only change non primary key values.
+                    tableDefinition.columnDefinitions.filter {
+                        !it.isRowId
+                    }.forEachIndexed { index, columnDefinition ->
+                        if (index > 0) add(",")
+                        add(columnDefinition.updateStatementBlock)
+
+                    }
+                    add(" WHERE ")
+
+                    // primary key values used as WHERE
+                    tableDefinition.columnDefinitions.filter {
+                        it.isPrimaryKey || it.isPrimaryKeyAutoIncrement || it.isRowId
+                    }.forEachIndexed { index, columnDefinition ->
+                        if (index > 0) add(" AND ")
+                        add(columnDefinition.updateStatementBlock)
+                    }
+                    this
+                }.S)
+            }
+        }
+}
+
+class DeleteStatementQueryMethod(private val tableDefinition: TableDefinition) : MethodDefinition {
+
+    override val methodSpec: MethodSpec?
+        get() {
+            return `override fun`(String::class, "getDeleteStatementQuery") {
+                modifiers(public, final)
+                `return`(codeBlock {
+                    add("DELETE FROM ${QueryBuilder.quote(tableDefinition.tableName)} WHERE ")
+
+                    // primary key values used as WHERE
+                    tableDefinition.columnDefinitions.filter {
+                        it.isPrimaryKey || it.isPrimaryKeyAutoIncrement || it.isRowId
+                    }.forEachIndexed { index, columnDefinition ->
+                        if (index > 0) add(" AND ")
+                        add(columnDefinition.updateStatementBlock)
+                    }
+                    this
                 }.S)
             }
         }
@@ -321,8 +427,8 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
 
     override val methodSpec: MethodSpec
         get() = `override fun`(TypeName.VOID, "loadFromCursor",
-            param(ClassNames.FLOW_CURSOR, PARAM_CURSOR),
-            param(baseTableDefinition.parameterClassName!!, ModelUtils.variable)) {
+                param(ClassNames.FLOW_CURSOR, PARAM_CURSOR),
+                param(baseTableDefinition.parameterClassName!!, ModelUtils.variable)) {
             modifiers(public, final)
             val index = AtomicInteger(0)
             val nameAllocator = NameAllocator() // unique names
@@ -337,8 +443,8 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
 
                 code {
                     baseTableDefinition.oneToManyDefinitions
-                        .filter { it.isLoad }
-                        .forEach { it.writeLoad(this) }
+                            .filter { it.isLoad }
+                            .forEach { it.writeLoad(this) }
                     this
                 }
             }
@@ -367,7 +473,7 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
             val shouldWrite = tableDefinition.oneToManyDefinitions.any { it.isDelete }
             if (shouldWrite || tableDefinition.cachingEnabled) {
                 return `override fun`(TypeName.BOOLEAN, "delete",
-                    param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
+                        param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
                     modifiers(public, final)
                     if (useWrapper) {
                         addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
@@ -412,7 +518,7 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                 }
 
                 return `override fun`(retType, methodName,
-                    param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
+                        param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
                     modifiers(public, final)
 
                     if (useWrapper) {
@@ -468,7 +574,7 @@ class PrimaryConditionMethod(private val tableDefinition: BaseTableDefinition) :
 
     override val methodSpec: MethodSpec?
         get() = `override fun`(ClassNames.OPERATOR_GROUP, "getPrimaryConditionClause",
-            param(tableDefinition.parameterClassName!!, ModelUtils.variable)) {
+                param(tableDefinition.parameterClassName!!, ModelUtils.variable)) {
             modifiers(public, final)
             code {
                 statement("\$T clause = \$T.clause()", ClassNames.OPERATOR_GROUP, ClassNames.OPERATOR_GROUP)

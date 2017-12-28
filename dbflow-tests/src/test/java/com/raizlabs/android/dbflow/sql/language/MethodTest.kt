@@ -4,8 +4,21 @@ import com.raizlabs.android.dbflow.BaseUnitTest
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.id
 import com.raizlabs.android.dbflow.models.TwoColumnModel_Table.name
 import com.raizlabs.android.dbflow.sql.SQLiteType
-import com.raizlabs.android.dbflow.sql.language.Method.*
-import junit.framework.Assert.assertEquals
+import com.raizlabs.android.dbflow.sql.language.Method.avg
+import com.raizlabs.android.dbflow.sql.language.Method.cast
+import com.raizlabs.android.dbflow.sql.language.Method.count
+import com.raizlabs.android.dbflow.sql.language.Method.date
+import com.raizlabs.android.dbflow.sql.language.Method.datetime
+import com.raizlabs.android.dbflow.sql.language.Method.group_concat
+import com.raizlabs.android.dbflow.sql.language.Method.ifNull
+import com.raizlabs.android.dbflow.sql.language.Method.max
+import com.raizlabs.android.dbflow.sql.language.Method.min
+import com.raizlabs.android.dbflow.sql.language.Method.nullIf
+import com.raizlabs.android.dbflow.sql.language.Method.replace
+import com.raizlabs.android.dbflow.sql.language.Method.strftime
+import com.raizlabs.android.dbflow.sql.language.Method.sum
+import com.raizlabs.android.dbflow.sql.language.Method.total
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class MethodTest : BaseUnitTest() {

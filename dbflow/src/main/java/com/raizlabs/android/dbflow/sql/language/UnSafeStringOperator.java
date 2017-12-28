@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.sql.Query;
@@ -27,15 +28,17 @@ public class UnSafeStringOperator implements SQLOperator, Query {
     }
 
     @Override
-    public void appendConditionToQuery(QueryBuilder queryBuilder) {
+    public void appendConditionToQuery(@NonNull QueryBuilder queryBuilder) {
         queryBuilder.append(conditionString);
     }
 
+    @NonNull
     @Override
     public String columnName() {
         return "";
     }
 
+    @Nullable
     @Override
     public String separator() {
         return separator;
@@ -43,7 +46,7 @@ public class UnSafeStringOperator implements SQLOperator, Query {
 
     @NonNull
     @Override
-    public SQLOperator separator(String separator) {
+    public SQLOperator separator(@NonNull String separator) {
         this.separator = separator;
         return this;
     }
@@ -53,6 +56,7 @@ public class UnSafeStringOperator implements SQLOperator, Query {
         return StringUtils.isNotNullOrEmpty(separator);
     }
 
+    @NonNull
     @Override
     public String operation() {
         return "";

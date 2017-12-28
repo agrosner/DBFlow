@@ -2,6 +2,7 @@ package com.raizlabs.android.dbflow.sql.language;
 
 import android.content.ContentValues;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -46,7 +47,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
      *
      * @param table The table to insert into
      */
-    public Insert(Class<TModel> table) {
+    public Insert(@NonNull Class<TModel> table) {
         super(table);
     }
 
@@ -57,7 +58,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
      * @param columns The columns to use
      */
     @NonNull
-    public Insert<TModel> columns(String... columns) {
+    public Insert<TModel> columns(@NonNull String... columns) {
         this.columns = new IProperty[columns.length];
         ModelAdapter<TModel> modelClassModelAdapter = FlowManager.getModelAdapter(getTable());
         for (int i = 0; i < columns.length; i++) {
@@ -68,7 +69,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
     }
 
     @NonNull
-    public Insert<TModel> columns(IProperty... properties) {
+    public Insert<TModel> columns(@NonNull IProperty... properties) {
         this.columns = new IProperty[properties.length];
         for (int i = 0; i < properties.length; i++) {
             columns[i] = properties[i];
@@ -113,7 +114,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
      * @param values The non type-converted values
      */
     @NonNull
-    public Insert<TModel> values(Object... values) {
+    public Insert<TModel> values(@Nullable Object... values) {
         if (this.valuesList == null) {
             this.valuesList = new ArrayList<>();
         }
@@ -128,7 +129,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
      * @param values The non type-converted values
      */
     @NonNull
-    public Insert<TModel> values(Collection<Object> values) {
+    public Insert<TModel> values(@NonNull Collection<Object> values) {
         if (this.valuesList == null) {
             this.valuesList = new ArrayList<>();
         }
@@ -142,7 +143,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      */
     @NonNull
-    public Insert<TModel> columnValues(SQLOperator... conditions) {
+    public Insert<TModel> columnValues(@NonNull SQLOperator... conditions) {
 
         String[] columns = new String[conditions.length];
         Object[] values = new Object[conditions.length];
@@ -162,7 +163,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
      * @param operatorGroup The OperatorGroup to use
      */
     @NonNull
-    public Insert<TModel> columnValues(OperatorGroup operatorGroup) {
+    public Insert<TModel> columnValues(@NonNull OperatorGroup operatorGroup) {
 
         int size = operatorGroup.size();
         String[] columns = new String[size];
@@ -178,7 +179,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
     }
 
     @NonNull
-    public Insert<TModel> columnValues(ContentValues contentValues) {
+    public Insert<TModel> columnValues(@NonNull ContentValues contentValues) {
         java.util.Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
         int count = 0;
         String[] columns = new String[contentValues.size()];
@@ -199,7 +200,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
      * @param selectFrom The from that is continuation of {@link Select}.
      */
     @NonNull
-    public Insert<TModel> select(From<?> selectFrom) {
+    public Insert<TModel> select(@NonNull From<?> selectFrom) {
         this.selectFrom = selectFrom;
         return this;
     }
@@ -212,7 +213,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
      * @return
      */
     @NonNull
-    public Insert<TModel> or(ConflictAction action) {
+    public Insert<TModel> or(@NonNull ConflictAction action) {
         conflictAction = action;
         return this;
     }
@@ -270,7 +271,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
     }
 
     @Override
-    public long executeUpdateDelete(DatabaseWrapper databaseWrapper) {
+    public long executeUpdateDelete(@NonNull DatabaseWrapper databaseWrapper) {
         throw new IllegalStateException("Cannot call executeUpdateDelete() from an Insert");
     }
 
@@ -323,6 +324,7 @@ public class Insert<TModel> extends BaseQueriable<TModel> implements Query {
         return queryBuilder.getQuery();
     }
 
+    @NonNull
     @Override
     public BaseModel.Action getPrimaryAction() {
         return BaseModel.Action.INSERT;

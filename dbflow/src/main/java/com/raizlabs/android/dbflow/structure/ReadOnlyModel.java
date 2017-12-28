@@ -1,5 +1,7 @@
 package com.raizlabs.android.dbflow.structure;
 
+import android.support.annotation.NonNull;
+
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 
@@ -15,7 +17,7 @@ public interface ReadOnlyModel {
      *
      * @param wrapper Database object to use. Useful for {@link Migration} classes.
      */
-    void load(DatabaseWrapper wrapper);
+    void load(@NonNull DatabaseWrapper wrapper);
 
     /**
      * @return true if this object exists in the DB. It combines all of it's primary key fields
@@ -24,9 +26,9 @@ public interface ReadOnlyModel {
     boolean exists();
 
     /**
+     * @param wrapper Database object to use. Useful for {@link Migration} classes.
      * @return true if this object exists in the DB. It combines all of it's primary key fields
      * into a SELECT query and checks to see if any results occur.
-     * @param wrapper Database object to use. Useful for {@link Migration} classes.
      */
-    boolean exists(DatabaseWrapper wrapper);
+    boolean exists(@NonNull DatabaseWrapper wrapper);
 }

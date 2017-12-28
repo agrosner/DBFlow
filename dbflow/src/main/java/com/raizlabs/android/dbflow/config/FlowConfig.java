@@ -15,6 +15,10 @@ import java.util.Set;
  */
 public final class FlowConfig {
 
+    public static FlowConfig.Builder builder(Context context) {
+        return new FlowConfig.Builder(context);
+    }
+
     private final Set<Class<? extends DatabaseHolder>> databaseHolders;
     private final Map<Class<?>, DatabaseConfig> databaseConfigMap;
     private final Context context;
@@ -27,16 +31,18 @@ public final class FlowConfig {
         openDatabasesOnInit = builder.openDatabasesOnInit;
     }
 
+    @NonNull
     public Set<Class<? extends DatabaseHolder>> databaseHolders() {
         return databaseHolders;
     }
 
+    @NonNull
     public Map<Class<?>, DatabaseConfig> databaseConfigMap() {
         return databaseConfigMap;
     }
 
     @Nullable
-    public DatabaseConfig getConfigForDatabase(Class<?> databaseClass) {
+    public DatabaseConfig getConfigForDatabase(@NonNull Class<?> databaseClass) {
         return databaseConfigMap().get(databaseClass);
     }
 
@@ -60,12 +66,14 @@ public final class FlowConfig {
             this.context = context.getApplicationContext();
         }
 
-        public Builder addDatabaseHolder(Class<? extends DatabaseHolder> databaseHolderClass) {
+        @NonNull
+        public Builder addDatabaseHolder(@NonNull Class<? extends DatabaseHolder> databaseHolderClass) {
             databaseHolders.add(databaseHolderClass);
             return this;
         }
 
-        public Builder addDatabaseConfig(DatabaseConfig databaseConfig) {
+        @NonNull
+        public Builder addDatabaseConfig(@NonNull DatabaseConfig databaseConfig) {
             databaseConfigMap.put(databaseConfig.databaseClass(), databaseConfig);
             return this;
         }
@@ -74,11 +82,13 @@ public final class FlowConfig {
          * @param openDatabasesOnInit true if we want all databases open.
          * @return True to open all associated databases in DBFlow on calling of {@link FlowManager#init(FlowConfig)}
          */
+        @NonNull
         public Builder openDatabasesOnInit(boolean openDatabasesOnInit) {
             this.openDatabasesOnInit = openDatabasesOnInit;
             return this;
         }
 
+        @NonNull
         public FlowConfig build() {
             return new FlowConfig(this);
         }

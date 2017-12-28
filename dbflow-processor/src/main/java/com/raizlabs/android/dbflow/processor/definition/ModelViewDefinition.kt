@@ -1,15 +1,29 @@
 package com.raizlabs.android.dbflow.processor.definition
 
-import com.grosner.kpoet.*
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`=`
+import com.grosner.kpoet.`public static final field`
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.public
 import com.raizlabs.android.dbflow.annotation.Column
+import com.raizlabs.android.dbflow.annotation.ColumnMap
 import com.raizlabs.android.dbflow.annotation.ModelView
 import com.raizlabs.android.dbflow.annotation.ModelViewQuery
 import com.raizlabs.android.dbflow.processor.ClassNames
 import com.raizlabs.android.dbflow.processor.ColumnValidator
 import com.raizlabs.android.dbflow.processor.ProcessorManager
 import com.raizlabs.android.dbflow.processor.definition.column.ColumnDefinition
-import com.raizlabs.android.dbflow.processor.definition.column.ForeignKeyColumnDefinition
-import com.raizlabs.android.dbflow.processor.utils.*
+import com.raizlabs.android.dbflow.processor.definition.column.ReferenceColumnDefinition
+import com.raizlabs.android.dbflow.processor.utils.ElementUtility
+import com.raizlabs.android.dbflow.processor.utils.`override fun`
+import com.raizlabs.android.dbflow.processor.utils.annotation
+import com.raizlabs.android.dbflow.processor.utils.ensureVisibleStatic
+import com.raizlabs.android.dbflow.processor.utils.implementsClass
+import com.raizlabs.android.dbflow.processor.utils.isNullOrEmpty
+import com.raizlabs.android.dbflow.processor.utils.simpleString
+import com.raizlabs.android.dbflow.processor.utils.toTypeErasedElement
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
@@ -20,18 +34,16 @@ import javax.lang.model.type.MirroredTypeException
 /**
  * Description: Used in writing ModelViewAdapters
  */
-class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTableDefinition(element, manager), Comparable<ModelViewDefinition> {
+class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTableDefinition(element, manager) {
 
     internal val implementsLoadFromCursorListener: Boolean
-
-    var databaseName: TypeName? = null
 
     private var queryFieldName: String? = null
 
     private var name: String? = null
 
     private val methods: Array<MethodDefinition> =
-            arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
+        arrayOf(LoadFromCursorMethod(this), ExistenceMethod(this), PrimaryConditionMethod(this))
 
     var allFields: Boolean = false
 
@@ -43,7 +55,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
             try {
                 modelView.database
             } catch (mte: MirroredTypeException) {
-                this.databaseName = TypeName.get(mte.typeMirror)
+                this.databaseTypeName = TypeName.get(mte.typeMirror)
             }
 
             allFields = modelView.allFields
@@ -57,7 +69,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
         if (element is TypeElement) {
             implementsLoadFromCursorListener = element.implementsClass(manager.processingEnvironment,
-                    ClassNames.LOAD_FROM_CURSOR_LISTENER)
+                ClassNames.LOAD_FROM_CURSOR_LISTENER)
         } else {
             implementsLoadFromCursorListener = false
         }
@@ -71,7 +83,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
 
         val modelView = element.getAnnotation(ModelView::class.java)
         if (modelView != null) {
-            databaseDefinition = manager.getDatabaseHolderDefinition(databaseName)?.databaseDefinition
+            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
             setOutputClassName("${databaseDefinition?.classSeparator}ViewTable")
 
             typeElement?.let { createColumnDefinitions(it) }
@@ -91,25 +103,31 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         for (variableElement in variableElements) {
 
             val isValidAllFields = ElementUtility.isValidAllFields(allFields, variableElement)
+            val isColumnMap = variableElement.annotation<ColumnMap>() != null
 
-            if (variableElement.annotation<Column>() != null || isValidAllFields) {
+            if (variableElement.annotation<Column>() != null || isValidAllFields
+                || isColumnMap) {
 
                 // package private, will generate helper
                 val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
                 val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, variableElement, this.element)
 
-                val columnDefinition = ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
+                if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, variableElement)) return
+
+                val columnDefinition = if (isColumnMap) {
+                    ReferenceColumnDefinition(manager, this, variableElement, isPackagePrivateNotInSamePackage)
+                } else {
+                    ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
+                }
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition)
-
                     if (isPackagePrivate) {
-                        columnDefinitions.add(columnDefinition)
+                        packagePrivateList.add(columnDefinition)
                     }
                 }
 
-                if (columnDefinition.isPrimaryKey || columnDefinition is ForeignKeyColumnDefinition
-                        || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
-                    manager.logError("ModelViews cannot have primary or foreign keys")
+                if (columnDefinition.isPrimaryKey || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
+                    manager.logError("ModelView $elementName cannot have primary keys")
                 }
             } else if (variableElement.annotation<ModelViewQuery>() != null) {
                 if (!queryFieldName.isNullOrEmpty()) {
@@ -165,10 +183,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element) : BaseTab
         }
 
         methods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
+            .forEach { typeBuilder.addMethod(it) }
     }
 
-    override fun compareTo(other: ModelViewDefinition): Int {
-        return Integer.valueOf(priority)!!.compareTo(other.priority)
-    }
 }

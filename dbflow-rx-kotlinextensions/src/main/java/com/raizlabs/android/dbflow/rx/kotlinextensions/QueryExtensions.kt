@@ -15,7 +15,7 @@ import rx.Subscription
 
 fun <T : Any> ModelQueriable<T>.rx() = RXSQLite.rx<T>(this)
 
-fun <T : Any> BaseQueriable<T>.rxBaseQueriable() = RXSQLite.rx<T>(table, this)
+fun <T : Any> BaseQueriable<T>.rxBaseQueriable() = RXSQLite.rx(table, this)
 
 inline fun <reified T : Any> Queriable.rx() = RXSQLite.rx(T::class.java, this)
 

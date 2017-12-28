@@ -1,11 +1,11 @@
 package com.raizlabs.android.dbflow.sql.language.property
 
 import com.raizlabs.android.dbflow.BaseUnitTest
-import com.raizlabs.android.dbflow.models.SimpleModel
 import com.raizlabs.android.dbflow.kotlinextensions.from
 import com.raizlabs.android.dbflow.kotlinextensions.property
 import com.raizlabs.android.dbflow.kotlinextensions.propertyString
 import com.raizlabs.android.dbflow.kotlinextensions.select
+import com.raizlabs.android.dbflow.models.SimpleModel
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.sql;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
@@ -19,11 +20,12 @@ public class BaseAsyncObject<TAsync> {
     private final Class<?> table;
     private final DatabaseDefinition databaseDefinition;
 
-    public BaseAsyncObject(Class<?> table) {
+    public BaseAsyncObject(@NonNull Class<?> table) {
         this.table = table;
         databaseDefinition = FlowManager.getDatabaseForTable(table);
     }
 
+    @NonNull
     public Class<?> getTable() {
         return table;
     }
@@ -32,7 +34,7 @@ public class BaseAsyncObject<TAsync> {
      * Listen for any errors that occur during operations on this {@link TAsync}.
      */
     @SuppressWarnings("unchecked")
-    public TAsync error(Transaction.Error errorCallback) {
+    public TAsync error(@Nullable Transaction.Error errorCallback) {
         this.errorCallback = errorCallback;
         return (TAsync) this;
     }
@@ -41,7 +43,7 @@ public class BaseAsyncObject<TAsync> {
      * Listens for successes on this {@link TAsync}. Will return the {@link Transaction}.
      */
     @SuppressWarnings("unchecked")
-    public TAsync success(Transaction.Success success) {
+    public TAsync success(@Nullable Transaction.Success success) {
         this.successCallback = success;
         return (TAsync) this;
     }
@@ -75,7 +77,7 @@ public class BaseAsyncObject<TAsync> {
 
     private final Transaction.Error error = new Transaction.Error() {
         @Override
-        public void onError(Transaction transaction, Throwable error) {
+        public void onError(@NonNull Transaction transaction, @NonNull Throwable error) {
             if (errorCallback != null) {
                 errorCallback.onError(transaction, error);
             }
@@ -86,7 +88,7 @@ public class BaseAsyncObject<TAsync> {
 
     private final Transaction.Success success = new Transaction.Success() {
         @Override
-        public void onSuccess(Transaction transaction) {
+        public void onSuccess(@NonNull Transaction transaction) {
             if (successCallback != null) {
                 successCallback.onSuccess(transaction);
             }

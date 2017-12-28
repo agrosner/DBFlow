@@ -44,7 +44,27 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
      * catches a {@link SQLiteDoneException} if result is not found and returns 0. The error can safely be ignored.
      */
     @Override
-    public long count(DatabaseWrapper databaseWrapper) {
+    public long count(@NonNull DatabaseWrapper databaseWrapper) {
+        return longValue(databaseWrapper);
+    }
+
+    /**
+     * Execute a statement that returns a 1 by 1 table with a numeric value.
+     * For example, SELECT COUNT(*) FROM table.
+     * Please see {@link SQLiteStatement#simpleQueryForLong()}.
+     */
+    @Override
+    public long count() {
+        return longValue();
+    }
+
+    @Override
+    public long longValue() {
+        return longValue(FlowManager.getWritableDatabaseForTable(table));
+    }
+
+    @Override
+    public long longValue(DatabaseWrapper databaseWrapper) {
         try {
             String query = getQuery();
             FlowLog.log(FlowLog.Level.V, "Executing query: " + query);
@@ -56,23 +76,13 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
         return 0;
     }
 
-    /**
-     * Execute a statement that returns a 1 by 1 table with a numeric value.
-     * For example, SELECT COUNT(*) FROM table.
-     * Please see {@link SQLiteStatement#simpleQueryForLong()}.
-     */
-    @Override
-    public long count() {
-        return count(FlowManager.getWritableDatabaseForTable(table));
-    }
-
     @Override
     public boolean hasData() {
         return count() > 0;
     }
 
     @Override
-    public boolean hasData(DatabaseWrapper databaseWrapper) {
+    public boolean hasData(@NonNull DatabaseWrapper databaseWrapper) {
         return count(databaseWrapper) > 0;
     }
 
@@ -83,7 +93,7 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
     }
 
     @Override
-    public FlowCursor query(DatabaseWrapper databaseWrapper) {
+    public FlowCursor query(@NonNull DatabaseWrapper databaseWrapper) {
         if (getPrimaryAction().equals(BaseModel.Action.INSERT)) {
             // inserting, let's compile and insert
             DatabaseStatement databaseStatement = compileStatement(databaseWrapper);
@@ -103,8 +113,15 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
     }
 
     @Override
-    public long executeInsert(DatabaseWrapper databaseWrapper) {
-        return compileStatement().executeInsert();
+    public long executeInsert(@NonNull DatabaseWrapper databaseWrapper) {
+        DatabaseStatement statement = compileStatement(databaseWrapper);
+        long rows;
+        try {
+            rows = statement.executeInsert();
+        } finally {
+            statement.close();
+        }
+        return rows;
     }
 
     @Override
@@ -119,7 +136,7 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
     }
 
     @Override
-    public void execute(DatabaseWrapper databaseWrapper) {
+    public void execute(@NonNull DatabaseWrapper databaseWrapper) {
         Cursor cursor = query(databaseWrapper);
         if (cursor != null) {
             cursor.close();
@@ -129,13 +146,15 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
         }
     }
 
+    @NonNull
     @Override
     public DatabaseStatement compileStatement() {
         return compileStatement(FlowManager.getWritableDatabaseForTable(table));
     }
 
+    @NonNull
     @Override
-    public DatabaseStatement compileStatement(DatabaseWrapper databaseWrapper) {
+    public DatabaseStatement compileStatement(@NonNull DatabaseWrapper databaseWrapper) {
         String query = getQuery();
         FlowLog.log(FlowLog.Level.V, "Compiling Query Into Statement: " + query);
         return new DatabaseStatementWrapper<>(databaseWrapper.compileStatement(query), this);
@@ -146,5 +165,6 @@ public abstract class BaseQueriable<TModel> implements Queriable, Actionable {
         return getQuery();
     }
 
+    @NonNull
     public abstract BaseModel.Action getPrimaryAction();
 }

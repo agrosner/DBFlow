@@ -53,7 +53,7 @@ public class BaseModel implements Model {
     }
 
     @Override
-    public void load(DatabaseWrapper wrapper) {
+    public void load(@NonNull DatabaseWrapper wrapper) {
         getModelAdapter().load(this, wrapper);
     }
 
@@ -104,7 +104,7 @@ public class BaseModel implements Model {
     }
 
     @Override
-    public boolean exists(DatabaseWrapper databaseWrapper) {
+    public boolean exists(@NonNull DatabaseWrapper databaseWrapper) {
         return getModelAdapter().exists(this, databaseWrapper);
     }
 

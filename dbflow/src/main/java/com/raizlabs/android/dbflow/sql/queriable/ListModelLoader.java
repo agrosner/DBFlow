@@ -15,7 +15,7 @@ import java.util.List;
 @SuppressWarnings("ConstantConditions")
 public class ListModelLoader<TModel> extends ModelLoader<TModel, List<TModel>> {
 
-    public ListModelLoader(Class<TModel> modelClass) {
+    public ListModelLoader(@NonNull Class<TModel> modelClass) {
         super(modelClass);
     }
 

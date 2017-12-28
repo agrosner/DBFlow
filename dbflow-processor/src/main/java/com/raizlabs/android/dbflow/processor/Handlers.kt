@@ -1,12 +1,32 @@
 package com.raizlabs.android.dbflow.processor
 
-import com.google.common.collect.Sets
-import com.raizlabs.android.dbflow.annotation.*
+import com.raizlabs.android.dbflow.annotation.Database
+import com.raizlabs.android.dbflow.annotation.ManyToMany
+import com.raizlabs.android.dbflow.annotation.Migration
+import com.raizlabs.android.dbflow.annotation.ModelView
+import com.raizlabs.android.dbflow.annotation.MultipleManyToMany
+import com.raizlabs.android.dbflow.annotation.QueryModel
+import com.raizlabs.android.dbflow.annotation.Table
 import com.raizlabs.android.dbflow.annotation.TypeConverter
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider
 import com.raizlabs.android.dbflow.annotation.provider.TableEndpoint
-import com.raizlabs.android.dbflow.converter.*
-import com.raizlabs.android.dbflow.processor.definition.*
+import com.raizlabs.android.dbflow.converter.BigDecimalConverter
+import com.raizlabs.android.dbflow.converter.BigIntegerConverter
+import com.raizlabs.android.dbflow.converter.BooleanConverter
+import com.raizlabs.android.dbflow.converter.CalendarConverter
+import com.raizlabs.android.dbflow.converter.CharConverter
+import com.raizlabs.android.dbflow.converter.DateConverter
+import com.raizlabs.android.dbflow.converter.SqlDateConverter
+import com.raizlabs.android.dbflow.converter.UUIDConverter
+import com.raizlabs.android.dbflow.processor.definition.ContentProviderDefinition
+import com.raizlabs.android.dbflow.processor.definition.DatabaseDefinition
+import com.raizlabs.android.dbflow.processor.definition.ManyToManyDefinition
+import com.raizlabs.android.dbflow.processor.definition.MigrationDefinition
+import com.raizlabs.android.dbflow.processor.definition.ModelViewDefinition
+import com.raizlabs.android.dbflow.processor.definition.QueryModelDefinition
+import com.raizlabs.android.dbflow.processor.definition.TableDefinition
+import com.raizlabs.android.dbflow.processor.definition.TableEndpointDefinition
+import com.raizlabs.android.dbflow.processor.definition.TypeConverterDefinition
 import com.raizlabs.android.dbflow.processor.utils.annotation
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
@@ -143,8 +163,8 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
                     // Check here if user already placed definition of same type, since default converters
                     // are added last.
                     if (processorManager.typeConverters
-                            .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
-                            .isEmpty()) {
+                        .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
+                        .isEmpty()) {
                         processorManager.addTypeConverterDefinition(converterDefinition)
                     }
                 }
@@ -155,10 +175,10 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
     companion object {
         private val VALIDATOR = TypeConverterValidator()
         private val DEFAULT_TYPE_CONVERTERS = arrayOf<Class<*>>(CalendarConverter::class.java,
-                BigDecimalConverter::class.java,
-                DateConverter::class.java, SqlDateConverter::class.java,
-                BooleanConverter::class.java, UUIDConverter::class.java,
-                CharConverter::class.java)
+            BigDecimalConverter::class.java, BigIntegerConverter::class.java,
+            DateConverter::class.java, SqlDateConverter::class.java,
+            BooleanConverter::class.java, UUIDConverter::class.java,
+            CharConverter::class.java)
     }
 }
 
@@ -168,7 +188,7 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
 abstract class BaseContainerHandler<AnnotationClass : Annotation> : Handler {
 
     override fun handle(processorManager: ProcessorManager, roundEnvironment: RoundEnvironment) {
-        val annotatedElements = Sets.newLinkedHashSet(roundEnvironment.getElementsAnnotatedWith(annotationClass))
+        val annotatedElements = roundEnvironment.getElementsAnnotatedWith(annotationClass).toMutableSet()
         processElements(processorManager, annotatedElements)
         if (annotatedElements.size > 0) {
             annotatedElements.forEach { onProcessElement(processorManager, it) }

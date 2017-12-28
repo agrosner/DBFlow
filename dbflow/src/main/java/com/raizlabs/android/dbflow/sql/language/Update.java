@@ -29,9 +29,14 @@ public class Update<TModel> implements Query {
     }
 
     @NonNull
-    public Update<TModel> conflictAction(ConflictAction conflictAction) {
+    public Update<TModel> conflictAction(@NonNull ConflictAction conflictAction) {
         this.conflictAction = conflictAction;
         return this;
+    }
+
+    @NonNull
+    public Update<TModel> or(@NonNull ConflictAction conflictAction) {
+        return conflictAction(conflictAction);
     }
 
     /**

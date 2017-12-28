@@ -2,8 +2,26 @@ package com.raizlabs.android.dbflow.kotlinextensions
 
 import com.raizlabs.android.dbflow.annotation.Collate
 import com.raizlabs.android.dbflow.sql.Query
-import com.raizlabs.android.dbflow.sql.language.*
+import com.raizlabs.android.dbflow.sql.language.BaseModelQueriable
+import com.raizlabs.android.dbflow.sql.language.Case
+import com.raizlabs.android.dbflow.sql.language.CaseCondition
+import com.raizlabs.android.dbflow.sql.language.CompletedTrigger
+import com.raizlabs.android.dbflow.sql.language.CursorResult
+import com.raizlabs.android.dbflow.sql.language.From
+import com.raizlabs.android.dbflow.sql.language.Index
+import com.raizlabs.android.dbflow.sql.language.Insert
+import com.raizlabs.android.dbflow.sql.language.Join
+import com.raizlabs.android.dbflow.sql.language.NameAlias
+import com.raizlabs.android.dbflow.sql.language.OrderBy
+import com.raizlabs.android.dbflow.sql.language.SQLOperator
+import com.raizlabs.android.dbflow.sql.language.SQLite
+import com.raizlabs.android.dbflow.sql.language.Select
 import com.raizlabs.android.dbflow.sql.language.Set
+import com.raizlabs.android.dbflow.sql.language.Transformable
+import com.raizlabs.android.dbflow.sql.language.Trigger
+import com.raizlabs.android.dbflow.sql.language.TriggerMethod
+import com.raizlabs.android.dbflow.sql.language.Update
+import com.raizlabs.android.dbflow.sql.language.Where
 import com.raizlabs.android.dbflow.sql.language.property.IProperty
 import com.raizlabs.android.dbflow.sql.queriable.AsyncQuery
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable
@@ -52,7 +70,7 @@ infix fun <T : Any> Case<T>.`else`(value: T?) = _else(value)
 
 infix fun <T : Any> Case<T>.end(columnName: String) = end(columnName)
 
-fun <T : Any> case(caseColumn: IProperty<*>? = null) = SQLite._case<T>(caseColumn)
+fun <T : Any> case(caseColumn: IProperty<*>) = SQLite._case<T>(caseColumn)
 
 fun <T : Any> caseWhen(operator: SQLOperator) = SQLite.caseWhen<T>(operator)
 
@@ -84,6 +102,12 @@ inline val <T : Any> ModelQueriable<T>.result
 
 inline val <T : Any> ModelQueriable<T>.cursorResult
     get() = queryResults()
+
+inline val <T : Any> ModelQueriable<T>.flowQueryList
+    get() = flowQueryList()
+
+inline val <T : Any> ModelQueriable<T>.cursorList
+    get() = cursorList()
 
 // cursor result extensions
 inline fun <reified T : Any> CursorResult<*>.toCustomList() = toCustomList(T::class.java)
