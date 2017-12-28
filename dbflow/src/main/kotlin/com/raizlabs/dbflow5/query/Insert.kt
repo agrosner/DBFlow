@@ -7,6 +7,7 @@ import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.modelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.property.IProperty
+import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.structure.ChangeAction
 
@@ -19,7 +20,7 @@ class Insert<TModel : Any>
  *
  * @param table The table to insert into
  */
-internal constructor(table: Class<TModel>)
+internal constructor(table: Class<TModel>, vararg columns: Property<*>)
     : BaseQueriable<TModel>(table), Query {
 
     /**
@@ -84,6 +85,10 @@ internal constructor(table: Class<TModel>)
 
             return queryBuilder.toString()
         }
+
+    init {
+        columns(*columns)
+    }
 
     override val primaryAction: ChangeAction
         get() = ChangeAction.INSERT

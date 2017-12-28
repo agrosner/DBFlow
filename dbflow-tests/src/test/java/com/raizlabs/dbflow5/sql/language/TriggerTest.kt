@@ -10,6 +10,7 @@ import com.raizlabs.dbflow5.models.TwoColumnModel_Table.id
 import com.raizlabs.dbflow5.query.NameAlias
 import com.raizlabs.dbflow5.query.cast
 import com.raizlabs.dbflow5.query.columnValues
+import com.raizlabs.dbflow5.query.createTempTrigger
 import com.raizlabs.dbflow5.query.createTrigger
 import com.raizlabs.dbflow5.query.insert
 import com.raizlabs.dbflow5.query.insertOn
@@ -41,11 +42,15 @@ class TriggerTest : BaseUnitTest() {
                 "\nBEGIN" +
                 "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
                 "\nINSERT INTO `TwoColumnModel`(`id`) VALUES(CAST(`new`.`name` AS INTEGER));" +
-                "\nEND").assertEquals(createTrigger("MyTrigger").temporary().before() updateOn SimpleModel::class begin
-                insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name")) and
-                insert(TwoColumnModel::class)
-                    .columnValues(id to cast(NameAlias.ofTable("new", "name").property)
-                        .`as`(SQLiteType.INTEGER)))
+                "\nEND")
+                .assertEquals(
+                    (
+                        createTempTrigger("MyTrigger").before() updateOn SimpleModel::class
+                            begin
+                            insert(TwoColumnModel::class, name).values(NameAlias.ofTable("new", "name"))
+                            and
+                            insert(TwoColumnModel::class, id).values(
+                                cast(NameAlias.ofTable("new", "name").property).`as`(SQLiteType.INTEGER))))
         }
     }
 
@@ -53,7 +58,7 @@ class TriggerTest : BaseUnitTest() {
     fun validateTriggerWorks() {
         databaseForTable<SimpleModel> {
             val trigger = createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
-                    insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name"))
+                insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name"))
             trigger.enable(this)
             SimpleModel("Test").insert()
 

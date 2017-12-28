@@ -44,13 +44,13 @@ inline fun <reified T : Any> insert() = insert(T::class.java)
  * @param table    The table to insert.
  * @return A new INSERT statement.
  */
-fun <T : Any> insert(table: Class<T>): Insert<T> = Insert(table)
+fun <T : Any> insert(table: Class<T>, vararg columns: Property<*>): Insert<T> = Insert(table, *columns)
 
 /**
  * @param table    The table to insert.
  * @return A new INSERT statement.
  */
-fun <T : Any> insert(table: KClass<T>) = insert(table.java)
+fun <T : Any> insert(table: KClass<T>, vararg columns: Property<*>) = insert(table.java, *columns)
 
 /**
  * @return Begins a DELETE statement.
@@ -94,6 +94,14 @@ fun <T : Any> index(name: String, table: KClass<T>): Index<T> = Index(name, tabl
  * @return A new TRIGGER statement.
  */
 fun createTrigger(name: String): Trigger = Trigger.create(name)
+
+/**
+ * Starts a temporary TRIGGER statement.
+ *
+ * @param name The name of the trigger.
+ * @return A new TEMPORARY TRIGGER statement.
+ */
+fun createTempTrigger(name: String): Trigger = Trigger.create(name).temporary()
 
 /**
  * Starts a CASE statement.
