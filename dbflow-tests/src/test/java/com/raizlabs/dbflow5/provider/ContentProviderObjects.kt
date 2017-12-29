@@ -78,7 +78,7 @@ class NoteModel(@PrimaryKey(autoincrement = true)
     override val queryUri get() = TestContentProvider.NoteModel.CONTENT_URI
 }
 
-@Table(database = ContentDatabase::class)
+@Table(database = ContentDatabase::class, generateContentValues = true)
 class TestSyncableModel(@PrimaryKey(autoincrement = true)
                         var id: Long = 0,
                         @Column

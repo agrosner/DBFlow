@@ -38,7 +38,7 @@ annotation class Table(
      * The only required annotated field becomes The [PrimaryKey]
      * or [PrimaryKey.autoincrement].
      */
-    val allFields: Boolean = false,
+    val allFields: Boolean = true,
     /**
      * @return If true, all private boolean fields will use "is" instead of "get" for its getter and
      * "set" without the "is" if it starts with "is"

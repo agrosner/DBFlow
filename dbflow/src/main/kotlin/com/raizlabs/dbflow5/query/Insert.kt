@@ -52,9 +52,11 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
                 .append(FlowManager.getTableName(table))
 
             columns?.let { columns ->
-                queryBuilder.append("(")
-                    .appendArray(*columns.toTypedArray())
-                    .append(")")
+                if (columns.isNotEmpty()) {
+                    queryBuilder.append("(")
+                        .appendArray(*columns.toTypedArray())
+                        .append(")")
+                }
             }
             val selectFrom = this.selectFrom
             if (selectFrom != null) {

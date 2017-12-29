@@ -11,7 +11,7 @@ annotation class OneToMany(
     /**
      * @return The methods you wish to call it from. By default it's loaded out of the DB.
      */
-    val oneToManyMethods: Array<OneToManyMethod> = [(OneToManyMethod.LOAD)],
+    val oneToManyMethods: Array<OneToManyMethod> = [OneToManyMethod.LOAD],
     /**
      * @return The name of the list variable to use. If is left blank, we will remove the "get" and then decapitalize the remaining name.
      */

@@ -5,8 +5,10 @@ import com.raizlabs.dbflow5.annotation.Column
 import com.raizlabs.dbflow5.annotation.ColumnMap
 import com.raizlabs.dbflow5.annotation.ModelView
 import com.raizlabs.dbflow5.annotation.ModelViewQuery
-import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.models.Author_Table.*
+import com.raizlabs.dbflow5.models.Author_Table.first_name
+import com.raizlabs.dbflow5.models.Author_Table.id
+import com.raizlabs.dbflow5.models.Author_Table.last_name
+import com.raizlabs.dbflow5.query.From
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.property
 import com.raizlabs.dbflow5.query.select
@@ -21,11 +23,11 @@ class AuthorView(@Column var authorId: Int = 0, @Column var authorName: String =
     companion object {
         @JvmStatic
         @ModelViewQuery
-        fun getQuery() = (select(id.`as`("authorId"),
-                first_name.concatenate(" ".property as IProperty<out IProperty<*>>)
-                        .concatenate(last_name as IProperty<out IProperty<*>>)
-                        .`as`("authorName"))
-                from Author::class)
+        fun getQuery(): From<Author> = (select(id.`as`("authorId"),
+            first_name.concatenate(" ".property as IProperty<out IProperty<*>>)
+                .concatenate(last_name as IProperty<out IProperty<*>>)
+                .`as`("authorName"))
+            from Author::class)
     }
 }
 
@@ -35,6 +37,6 @@ class PriorityView(var name: String = "") {
     companion object {
         @JvmStatic
         @ModelViewQuery
-        fun getQuery() = select((first_name + last_name).`as`("name")) from Author::class
+        fun getQuery(): From<Author> = select((first_name + last_name).`as`("name")) from Author::class
     }
 }
