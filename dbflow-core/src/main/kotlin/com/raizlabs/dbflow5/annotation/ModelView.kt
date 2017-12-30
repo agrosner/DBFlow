@@ -24,7 +24,7 @@ annotation class ModelView(
          * The only required annotated field becomes The [PrimaryKey]
          * or [PrimaryKey.autoincrement].
          */
-        val allFields: Boolean = false,
+        val allFields: Boolean = true,
         /**
          * @return The higher the number, the order by which the creation of this class gets called.
          * Useful for creating ones that depend on another [ModelView].

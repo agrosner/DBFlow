@@ -17,4 +17,4 @@ annotation class QueryModel(
          * @return If true, all accessible, non-static, and non-final fields are treated as valid fields.
          * @see Table.allFields
          */
-        val allFields: Boolean = false)
+        val allFields: Boolean = true)
