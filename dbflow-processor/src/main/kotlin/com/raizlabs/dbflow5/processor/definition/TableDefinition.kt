@@ -352,12 +352,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     if (!columnDefinition.uniqueGroups.isEmpty()) {
                         val groups = columnDefinition.uniqueGroups
                         for (group in groups) {
-                            var groupList = columnUniqueMap[group]
-                            if (groupList == null) {
-                                groupList = mutableSetOf()
-                                columnUniqueMap.put(group, groupList)
-                            }
-                            groupList.add(columnDefinition)
+                            columnUniqueMap.getOrPut(group) { mutableSetOf() }
+                                .add(columnDefinition)
                         }
                     }
 
@@ -385,6 +381,11 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     customMultiCacheFieldName = element.simpleName.toString()
                 }
             }
+        }
+
+        // ignore any referenced one to many field definitions from all fields.
+        columnDefinitions = columnDefinitions.filterTo(mutableListOf()) { column ->
+            oneToManyDefinitions.isEmpty() || oneToManyDefinitions.all { it.variableName != column.elementName }
         }
     }
 

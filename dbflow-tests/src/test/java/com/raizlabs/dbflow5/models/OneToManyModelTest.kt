@@ -9,7 +9,10 @@ import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.structure.delete
 import com.raizlabs.dbflow5.structure.exists
 import com.raizlabs.dbflow5.structure.save
-import org.junit.Assert.*
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class OneToManyModelTest : BaseUnitTest() {

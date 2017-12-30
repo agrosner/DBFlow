@@ -65,14 +65,14 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
                 if (valuesList.size < 1) {
                     throw IllegalStateException("The insert of " + FlowManager.getTableName(table) + " should have" +
                         "at least one value specified for the insert")
-                } else columns?.let { columns ->
+                } else columns?.takeIf { it.isNotEmpty() }?.let { columns ->
                     valuesList.asSequence()
                         .filter { it.size != columns.size }
                         .forEach {
                             throw IllegalStateException(
                                 """The Insert of ${FlowManager.getTableName(table)}
                                             |when specifyingcolumns needs to have the same amount
-                                            |of values and columns""".trimMargin())
+                                            |of values and columns. found ${it.size} != ${columns.size}""".trimMargin())
                         }
                 }
 

@@ -42,7 +42,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
 
     private var _methodName: String
 
-    private var _variableName: String
+    var variableName: String
 
     var methods = mutableListOf<OneToManyMethod>()
 
@@ -74,24 +74,24 @@ class OneToManyDefinition(executableElement: ExecutableElement,
         efficientCodeMethods = oneToMany.efficientMethods
 
         _methodName = executableElement.simpleName.toString()
-        _variableName = oneToMany.variableName
-        if (_variableName.isEmpty()) {
-            _variableName = _methodName.replace("get", "")
-            _variableName = _variableName.substring(0, 1).toLowerCase() + _variableName.substring(1)
+        variableName = oneToMany.variableName
+        if (variableName.isEmpty()) {
+            variableName = _methodName.replace("get", "")
+            variableName = variableName.substring(0, 1).toLowerCase() + variableName.substring(1)
         }
 
-        val privateAccessor = PrivateScopeColumnAccessor(_variableName, object : GetterSetter {
+        val privateAccessor = PrivateScopeColumnAccessor(variableName, object : GetterSetter {
             override val getterName: String = ""
             override val setterName: String = ""
         }, optionalGetterParam = if (hasWrapper) ModelUtils.wrapper else "")
 
         var isVariablePrivate = false
-        val referencedElement = parentElements.firstOrNull { it.simpleString == _variableName }
+        val referencedElement = parentElements.firstOrNull { it.simpleString == variableName }
         if (referencedElement == null) {
             // check on setter. if setter exists, we can reference it safely since a getter has already been defined.
             if (!parentElements.any { it.simpleString == privateAccessor.setterNameElement }) {
                 manager.logError(OneToManyDefinition::class,
-                    "@OneToMany definition $elementName Cannot find referenced variable $_variableName.")
+                    "@OneToMany definition $elementName Cannot find referenced variable $variableName.")
             } else {
                 isVariablePrivate = true
             }
@@ -116,7 +116,7 @@ class OneToManyDefinition(executableElement: ExecutableElement,
             }
         }
 
-        columnAccessor = if (isVariablePrivate) privateAccessor else VisibleScopeColumnAccessor(_variableName)
+        columnAccessor = if (isVariablePrivate) privateAccessor else VisibleScopeColumnAccessor(variableName)
 
         val returnType = executableElement.returnType
         val typeName = TypeName.get(returnType)

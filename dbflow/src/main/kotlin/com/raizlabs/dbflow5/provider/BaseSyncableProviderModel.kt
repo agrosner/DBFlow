@@ -29,10 +29,10 @@ abstract class BaseSyncableProviderModel : BaseModel(), ModelProvider {
     }
 
     override fun delete(wrapper: DatabaseWrapper): Boolean
-        = super.delete(wrapper) && ContentUtils.delete(FlowManager.context, deleteUri, wrapper) > 0
+        = super.delete(wrapper) && ContentUtils.delete(FlowManager.context, deleteUri, this) > 0
 
     override fun update(wrapper: DatabaseWrapper): Boolean
-        = super.update(wrapper) && ContentUtils.update(FlowManager.context, updateUri, wrapper) > 0
+        = super.update(wrapper) && ContentUtils.update(FlowManager.context, updateUri, this) > 0
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> load(whereOperatorGroup: OperatorGroup,
