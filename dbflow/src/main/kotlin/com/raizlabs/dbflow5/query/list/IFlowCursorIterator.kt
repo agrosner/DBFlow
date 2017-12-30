@@ -39,5 +39,3 @@ interface IFlowCursorIterator<TModel> : Closeable, Iterable<TModel> {
     @Throws(IOException::class)
     override fun close()
 }
-
-operator fun <TModel> IFlowCursorIterator<TModel>.get(i: Int): TModel = this[i.toLong()] ?: throw IndexOutOfBoundsException("Could not find item at index $i from the cursor.")

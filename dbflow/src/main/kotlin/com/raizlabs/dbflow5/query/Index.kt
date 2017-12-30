@@ -103,9 +103,7 @@ class Index<TModel>
     }
 
     fun enable(databaseWrapper: DatabaseWrapper) {
-        if (table == null) {
-            throw IllegalStateException("Please call on() to set a table to use this index on.")
-        } else if (columns.isEmpty()) {
+        if (columns.isEmpty()) {
             throw IllegalStateException("There should be at least one column in this index")
         }
         databaseWrapper.execSQL(query)
