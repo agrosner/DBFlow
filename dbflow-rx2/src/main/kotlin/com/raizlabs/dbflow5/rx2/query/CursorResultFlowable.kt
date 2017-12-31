@@ -1,8 +1,10 @@
 package com.raizlabs.dbflow5.rx2.query
 
+import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.CursorResult
+import com.raizlabs.dbflow5.query.ModelQueriable
+import com.raizlabs.dbflow5.rx2.transaction.asSingle
 import io.reactivex.Flowable
 import io.reactivex.SingleObserver
 import io.reactivex.disposables.Disposable
@@ -11,17 +13,19 @@ import org.reactivestreams.Subscription
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Description: Wraps a [RXModelQueriable] into a [Flowable]
+ * Description: Wraps a [ModelQueriable] into a [Flowable]
  * for each element represented by the query.
  */
-class CursorResultFlowable<T : Any>(private val modelQueriable: RXModelQueriable<T>,
-                                    private val databaseWrapper: DatabaseWrapper)
+class CursorResultFlowable<T : Any>(private val modelQueriable: ModelQueriable<T>,
+                                    private val database: DBFlowDatabase)
     : Flowable<T>() {
 
     override fun subscribeActual(subscriber: Subscriber<in T>) {
         subscriber.onSubscribe(object : Subscription {
             override fun request(n: Long) {
-                modelQueriable.queryResults(databaseWrapper)
+                database
+                    .beginTransactionAsync { modelQueriable.queryResults(it) }
+                    .asSingle()
                     .subscribe(CursorResultObserver(subscriber, n))
             }
 

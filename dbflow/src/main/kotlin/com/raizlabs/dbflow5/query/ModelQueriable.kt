@@ -89,6 +89,9 @@ inline val <reified T : Any> ModelQueriable<T>.list
 inline val <reified T : Any> ModelQueriable<T>.result
     get() = querySingle(databaseForTable<T>())
 
+inline val <reified T : Any> ModelQueriable<T>.requireResult
+    get() = result!!
+
 inline val <reified T : Any> ModelQueriable<T>.cursorResult
     get() = queryResults(databaseForTable<T>())
 

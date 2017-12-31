@@ -36,9 +36,12 @@ private constructor() : ModelNotifier {
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> notifyModelChanged(model: T, adapter: ModelAdapter<T>,
                                               action: ChangeAction) {
-        modelChangedListenerMap[adapter.table]?.forEach { listener ->
-            (listener as OnModelStateChangedListener<T>).onModelChanged(model, action)
-        }
+        modelChangedListenerMap[adapter.table]
+            ?.forEach { listener ->
+                (listener as OnModelStateChangedListener<T>).onModelChanged(model, action)
+            }
+        tableChangedListenerMap[adapter.table]
+            ?.forEach { listener -> listener.onTableChanged(adapter.table, action) }
     }
 
     override fun <T : Any> notifyTableChanged(table: Class<T>, action: ChangeAction) {

@@ -5,11 +5,6 @@ package com.raizlabs.dbflow5.structure
  */
 enum class ChangeAction {
 
-    /**
-     * Save called. Is paired with [UPDATE] or [INSERT] depending on action taken.
-     */
-    SAVE,
-
     INSERT,
 
     UPDATE,

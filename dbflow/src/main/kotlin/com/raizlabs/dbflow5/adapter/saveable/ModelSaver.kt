@@ -26,10 +26,6 @@ open class ModelSaver<T : Any> {
             exists = insert(model, wrapper) > INSERT_FAILED
         }
 
-        if (exists) {
-            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.SAVE)
-        }
-
         // return successful store into db.
         return exists
     }
@@ -47,10 +43,6 @@ open class ModelSaver<T : Any> {
 
         if (!exists) {
             exists = insert(model, insertStatement, wrapper) > INSERT_FAILED
-        }
-
-        if (exists) {
-            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.SAVE)
         }
 
         // return successful store into db.
