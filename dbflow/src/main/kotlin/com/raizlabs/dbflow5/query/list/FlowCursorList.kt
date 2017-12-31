@@ -71,10 +71,13 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         cursorFunc = {
             builder.cursor
                 ?: modelQueriable.cursor(databaseWrapper)
-                ?: throw IllegalStateException("The cursor must evaluate to a cursor")
+                ?: throw IllegalStateException("The object must evaluate to a cursor")
         }
         instanceAdapter = FlowManager.getRetrievalAdapter(builder.modelClass)
     }
+
+    override val isClosed: Boolean
+        get() = _cursor?.isClosed ?: true
 
     override operator fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(databaseWrapper, this)
 

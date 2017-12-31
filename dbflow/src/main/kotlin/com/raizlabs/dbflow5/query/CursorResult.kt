@@ -43,6 +43,7 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
             }
         }
         this._cursor = cursor
+        isClosed = _cursor?.isClosed ?: true
     }
 
     /**
@@ -137,7 +138,11 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
 
     override fun close() {
         _cursor?.close()
+        isClosed = true
     }
+
+    override var isClosed: Boolean = false
+        private set
 }
 
 inline fun <reified T : Any> CursorResult<*>.toCustomList() = toCustomList(T::class.java)

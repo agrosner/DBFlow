@@ -18,7 +18,7 @@ class FlowQueryList<T : Any>(
      * Holds the table cursor
      */
     val internalCursorList: FlowCursorList<T>)
-    : List<T>, IFlowCursorIterator<T> {
+    : List<T>, IFlowCursorIterator<T> by internalCursorList {
 
     private var pendingRefresh = false
 
@@ -30,15 +30,6 @@ class FlowQueryList<T : Any>(
 
     internal val retrievalAdapter: RetrievalAdapter<T>
         get() = internalCursorList.instanceAdapter
-
-    override val count: Long
-        get() = internalCursorList.count
-
-    override val cursor: FlowCursor?
-        get() = internalCursorList.cursor
-
-    override val trackingCursor: Boolean
-        get() = internalCursorList.trackingCursor
 
     override val size: Int
         get() = internalCursorList.count.toInt()
@@ -179,10 +170,6 @@ class FlowQueryList<T : Any>(
     override fun subList(fromIndex: Int, toIndex: Int): List<T> {
         val tableList = internalCursorList.all
         return tableList.subList(fromIndex, toIndex)
-    }
-
-    override fun close() {
-        internalCursorList.close()
     }
 
     class Builder<T : Any> {

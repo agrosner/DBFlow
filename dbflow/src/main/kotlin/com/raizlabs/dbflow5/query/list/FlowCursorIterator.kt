@@ -4,6 +4,7 @@ import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.Transformable
 import com.raizlabs.dbflow5.sql.QueryCloneable
+import java.io.Closeable
 
 /**
  * Description: Provides iteration capabilities to a [FlowCursorList].
@@ -14,7 +15,7 @@ class FlowCursorIterator<T : Any>
     cursorList: IFlowCursorIterator<T>,
     startingLocation: Long,
     private var count: Long = cursorList.count - startingLocation)
-    : ListIterator<T>, AutoCloseable {
+    : ListIterator<T>, AutoCloseable, Closeable {
     private var reverseIndex: Long = 0
     private var startingCount: Long = 0
     private val cursorList: IFlowCursorIterator<T>
@@ -61,6 +62,9 @@ class FlowCursorIterator<T : Any>
         }
         this.cursorList = newCursorList
     }
+
+    val isClosed
+        get() = cursorList.isClosed
 
     @Throws(Exception::class)
     override fun close() {

@@ -34,6 +34,11 @@ interface IFlowCursorIterator<T : Any> : Closeable, Iterable<T> {
      */
     val trackingCursor: Boolean
 
+    /**
+     * If true, [FlowCursor] is closed and this object should be discarded.
+     */
+    val isClosed: Boolean
+
     override fun iterator(): FlowCursorIterator<T>
 
     /**
