@@ -30,6 +30,9 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
         retrievalAdapter = FlowManager.getRetrievalAdapter(modelClass)
     }
 
+    override val trackingCursor: Boolean
+        get() = true
+
     /**
      * Swaps the current cursor and will close existing one.
      */
@@ -124,10 +127,10 @@ class CursorResult<T : Any> internal constructor(modelClass: Class<T>, cursor: F
         return model ?: throw IllegalStateException("RetrievalAdapter did not return a model for index $index")
     }
 
-    override fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(this)
+    override fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(databaseWrapper, this)
 
-    override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> =
-        FlowCursorIterator(this, startingLocation, limit)
+    override fun iterator(startingLocation: Long, limit: Long): FlowCursorIterator<T> =
+        FlowCursorIterator(databaseWrapper, this, startingLocation, limit)
 
     override val cursor: FlowCursor?
         get() = _cursor

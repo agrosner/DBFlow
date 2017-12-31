@@ -7,7 +7,7 @@ import java.io.IOException
 /**
  * Description: Simple interface that allows you to iterate a [FlowCursor].
  */
-interface IFlowCursorIterator<TModel> : Closeable, Iterable<TModel> {
+interface IFlowCursorIterator<T : Any> : Closeable, Iterable<T> {
 
     /**
      * @return Count of the [FlowCursor].
@@ -15,26 +15,31 @@ interface IFlowCursorIterator<TModel> : Closeable, Iterable<TModel> {
     val count: Long
 
     /**
-     * @param index The index within the [FlowCursor] to retrieve and convert into a [TModel]
+     * @param index The index within the [FlowCursor] to retrieve and convert into a [T]
      */
-    operator fun get(index: Long): TModel
+    operator fun get(index: Long): T
 
     /**
-     * @param index The index within the [FlowCursor] to retrieve and convert into a [TModel]
+     * @param index The index within the [FlowCursor] to retrieve and convert into a [T]
      */
-    operator fun get(index: Int): TModel = get(index.toLong())
+    operator fun get(index: Int): T = get(index.toLong())
 
     /**
      * @return The cursor.
      */
     val cursor: FlowCursor?
 
-    override fun iterator(): FlowCursorIterator<TModel>
+    /**
+     * If true, we are tracking a passed cursor. If not, we are using new cursor constructed within this class.
+     */
+    val trackingCursor: Boolean
+
+    override fun iterator(): FlowCursorIterator<T>
 
     /**
      * @return Can iterate the [FlowCursor]. Specifies a starting location + count limit of results.
      */
-    fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<TModel>
+    fun iterator(startingLocation: Long, limit: Long): FlowCursorIterator<T>
 
     @Throws(IOException::class)
     override fun close()

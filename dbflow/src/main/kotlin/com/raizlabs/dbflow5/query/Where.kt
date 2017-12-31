@@ -147,11 +147,11 @@ internal constructor(
         orderByList.addAll(orderBies)
     }
 
-    override fun limit(count: Int) = apply {
+    override fun limit(count: Long) = apply {
         this.limit = count
     }
 
-    override fun offset(offset: Int) = apply {
+    override fun offset(offset: Long) = apply {
         this.offset = offset
     }
 
@@ -204,6 +204,6 @@ internal constructor(
 
     companion object {
 
-        private val VALUE_UNSET = -1
+        private val VALUE_UNSET = -1L
     }
 }

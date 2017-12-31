@@ -40,9 +40,9 @@ protected constructor(table: Class<TModel>)
 
     override fun orderBy(orderBy: OrderBy): Where<TModel> = where().orderBy(orderBy)
 
-    override fun limit(count: Int): Where<TModel> = where().limit(count)
+    override fun limit(count: Long): Where<TModel> = where().limit(count)
 
-    override fun offset(offset: Int): Where<TModel> = where().offset(offset)
+    override fun offset(offset: Long): Where<TModel> = where().offset(offset)
 
     override fun having(vararg conditions: SQLOperator): Where<TModel> = where().having(*conditions)
 

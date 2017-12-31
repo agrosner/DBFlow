@@ -22,7 +22,7 @@ class CursorResultFlowable<T : Any>(private val modelQueriable: RXModelQueriable
         subscriber.onSubscribe(object : Subscription {
             override fun request(n: Long) {
                 modelQueriable.queryResults(databaseWrapper)
-                        .subscribe(CursorResultObserver(subscriber, n))
+                    .subscribe(CursorResultObserver(subscriber, n))
             }
 
             override fun cancel() {
@@ -32,7 +32,7 @@ class CursorResultFlowable<T : Any>(private val modelQueriable: RXModelQueriable
     }
 
     internal class CursorResultObserver<T : Any>(
-            private val subscriber: Subscriber<in T>, private val count: Long)
+        private val subscriber: Subscriber<in T>, private val count: Long)
         : SingleObserver<CursorResult<T>> {
         private val emitted: AtomicLong = AtomicLong()
         private val requested: AtomicLong = AtomicLong()
@@ -44,9 +44,9 @@ class CursorResultFlowable<T : Any>(private val modelQueriable: RXModelQueriable
 
         override fun onSuccess(ts: CursorResult<T>) {
             val starting = when {
-                this.count == java.lang.Long.MAX_VALUE
-                        && requested.compareAndSet(0, java.lang.Long.MAX_VALUE) -> 0
-                else -> emitted.toInt()
+                this.count == Long.MAX_VALUE
+                    && requested.compareAndSet(0, Long.MAX_VALUE) -> 0
+                else -> emitted.toLong()
             }
             var limit = this.count + starting
 

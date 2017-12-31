@@ -28,22 +28,23 @@ internal constructor(private val transformable: TQuery,
         database.executeTransactionAsync({
             getQueriableFromParams(params.startPosition, params.loadSize).queryList(database)
         },
-                success = { _, list -> callback.onResult(list) })
+            success = { _, list -> callback.onResult(list) })
     }
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
         database.executeTransactionAsync({ db -> selectCountOf().from(transformable).longValue(db) },
-                success = { _, count ->
-                    val max = when {
-                        params.requestedLoadSize >= count - 1 -> count.toInt()
-                        else -> params.requestedLoadSize
-                    }
-                    database.executeTransactionAsync({ db ->
-                        getQueriableFromParams(params.requestedStartPosition, max).queryList(db) },
-                            success = { _, list ->
-                                callback.onResult(list, params.requestedStartPosition, count.toInt())
-                            })
-                })
+            success = { _, count ->
+                val max = when {
+                    params.requestedLoadSize >= count - 1 -> count.toInt()
+                    else -> params.requestedLoadSize
+                }
+                database.executeTransactionAsync({ db ->
+                    getQueriableFromParams(params.requestedStartPosition, max).queryList(db)
+                },
+                    success = { _, list ->
+                        callback.onResult(list, params.requestedStartPosition, count.toInt())
+                    })
+            })
     }
 
     private fun getQueriableFromParams(startPosition: Int, max: Int): ModelQueriable<T> {
@@ -52,7 +53,7 @@ internal constructor(private val transformable: TQuery,
         if (tr is QueryCloneable<*>) {
             tr = tr.cloneSelf() as Transformable<T>
         }
-        return tr.offset(startPosition).limit(max)
+        return tr.offset(startPosition.toLong()).limit(max.toLong())
     }
 
     class Factory<T : Any, TQuery>
@@ -65,11 +66,11 @@ internal constructor(private val transformable: TQuery,
     companion object {
         @JvmStatic
         fun <T : Any, TQuery> newFactory(transformable: TQuery, database: DBFlowDatabase)
-                where TQuery : Transformable<T>, TQuery : ModelQueriable<T> =
-                Factory(transformable, database)
+            where TQuery : Transformable<T>, TQuery : ModelQueriable<T> =
+            Factory(transformable, database)
     }
 }
 
 fun <T : Any, TQuery> TQuery.toDataSourceFactory(database: DBFlowDatabase)
-        where TQuery : Transformable<T>, TQuery : ModelQueriable<T> =
-        QueryDataSource.newFactory(this, database)
+    where TQuery : Transformable<T>, TQuery : ModelQueriable<T> =
+    QueryDataSource.newFactory(this, database)

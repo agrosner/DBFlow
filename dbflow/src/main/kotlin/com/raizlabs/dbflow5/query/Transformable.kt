@@ -18,9 +18,9 @@ interface Transformable<T : Any> {
 
     infix fun orderBy(orderBy: OrderBy): Where<T>
 
-    infix fun limit(count: Int): Where<T>
+    infix fun limit(count: Long): Where<T>
 
-    infix fun offset(offset: Int): Where<T>
+    infix fun offset(offset: Long): Where<T>
 
     fun having(vararg conditions: SQLOperator): Where<T>
 

@@ -14,7 +14,6 @@ import com.raizlabs.dbflow5.rx2.transaction.asMaybe
 import com.raizlabs.dbflow5.rx2.transaction.asSingle
 import com.raizlabs.dbflow5.structure.save
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Test
 
 class RXQueryTests : BaseUnitTest() {
@@ -45,7 +44,6 @@ class RXQueryTests : BaseUnitTest() {
             .subscribe { statement ->
                 databaseStatement = statement
             }
-        assertNotNull(databaseStatement)
         databaseStatement!!.close()
     }
 
@@ -80,8 +78,4 @@ class RXQueryTests : BaseUnitTest() {
         assertEquals(1, count)
     }
 
-    @Test
-    fun testExecuteUpdateDelete() {
-
-    }
 }

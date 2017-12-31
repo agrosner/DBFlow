@@ -26,9 +26,9 @@ class CursorResultSubscriber<T : Any>(private val modelQueriable: RXModelQueriab
         private val requested: AtomicLong = AtomicLong()
 
         override fun request(n: Long) {
-            if (n == java.lang.Long.MAX_VALUE
-                    && requested.compareAndSet(0, java.lang.Long.MAX_VALUE)
-                    || n > 0 && BackpressureUtils.getAndAddRequest(requested, n) == 0L) {
+            if (n == Long.MAX_VALUE
+                && requested.compareAndSet(0, Long.MAX_VALUE)
+                || n > 0 && BackpressureUtils.getAndAddRequest(requested, n) == 0L) {
                 // emitting all elements
                 modelQueriable.queryResults(databaseWrapper).subscribe(CursorResultAction(n))
             }
@@ -38,10 +38,10 @@ class CursorResultSubscriber<T : Any>(private val modelQueriable: RXModelQueriab
         internal constructor(private val limit: Long) : Action1<CursorResult<T>> {
 
             override fun call(ts: CursorResult<T>) {
-                val starting = when {
-                    limit == java.lang.Long.MAX_VALUE
-                            && requested.compareAndSet(0, java.lang.Long.MAX_VALUE) -> 0
-                    else -> emitted.toInt()
+                val starting: Long = when {
+                    limit == Long.MAX_VALUE
+                        && requested.compareAndSet(0, Long.MAX_VALUE) -> 0
+                    else -> emitted.toLong()
                 }
                 var limit = this.limit + starting
 

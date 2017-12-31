@@ -37,6 +37,9 @@ class FlowQueryList<T : Any>(
     override val cursor: FlowCursor?
         get() = internalCursorList.cursor
 
+    override val trackingCursor: Boolean
+        get() = internalCursorList.trackingCursor
+
     override val size: Int
         get() = internalCursorList.count.toInt()
 
@@ -144,11 +147,11 @@ class FlowQueryList<T : Any>(
      * Be careful as this method will convert all data under this table into a list of [T] in the UI thread.
      */
     override fun iterator(): FlowCursorIterator<T> {
-        return FlowCursorIterator(this)
+        return FlowCursorIterator(internalCursorList.databaseWrapper, this)
     }
 
-    override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> {
-        return FlowCursorIterator(this, startingLocation, limit)
+    override fun iterator(startingLocation: Long, limit: Long): FlowCursorIterator<T> {
+        return FlowCursorIterator(internalCursorList.databaseWrapper, this, startingLocation, limit)
     }
 
     override fun lastIndexOf(element: T): Int {
@@ -161,7 +164,7 @@ class FlowQueryList<T : Any>(
      * Be careful as this method will convert all data under this table into a list of [T] in the UI thread.
      */
     override fun listIterator(): ListIterator<T> {
-        return FlowCursorIterator(this)
+        return FlowCursorIterator(internalCursorList.databaseWrapper, this)
     }
 
     /**
@@ -170,7 +173,7 @@ class FlowQueryList<T : Any>(
      * Be careful as this method will convert all data under this table into a list of [T] in the UI thread.
      */
     override fun listIterator(index: Int): ListIterator<T> {
-        return FlowCursorIterator(this, index)
+        return FlowCursorIterator(internalCursorList.databaseWrapper, this, index.toLong())
     }
 
     override fun subList(fromIndex: Int, toIndex: Int): List<T> {

@@ -32,6 +32,9 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     private val cursorFunc: () -> FlowCursor
     val databaseWrapper: DatabaseWrapper
 
+    override var trackingCursor: Boolean = false
+        private set
+
     internal val instanceAdapter: RetrievalAdapter<T>
 
     private val cursorRefreshListenerSet = hashSetOf<OnCursorRefreshListener<T>>()
@@ -64,6 +67,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         table = builder.modelClass
         this.modelQueriable = builder.modelQueriable
         this.databaseWrapper = builder.databaseWrapper
+        trackingCursor = builder.cursor != null
         cursorFunc = {
             builder.cursor
                 ?: modelQueriable.cursor(databaseWrapper)
@@ -72,10 +76,10 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         instanceAdapter = FlowManager.getRetrievalAdapter(builder.modelClass)
     }
 
-    override operator fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(this)
+    override operator fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(databaseWrapper, this)
 
-    override fun iterator(startingLocation: Int, limit: Long): FlowCursorIterator<T> =
-        FlowCursorIterator(this, startingLocation, limit)
+    override fun iterator(startingLocation: Long, limit: Long): FlowCursorIterator<T> =
+        FlowCursorIterator(databaseWrapper, this, startingLocation, limit)
 
     /**
      * Register listener for when cursor refreshes.
@@ -100,6 +104,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         val cursor = unpackCursor()
         cursor.close()
         this._cursor = modelQueriable.cursor(databaseWrapper)
+        trackingCursor = false
         synchronized(cursorRefreshListenerSet) {
             cursorRefreshListenerSet.forEach { listener -> listener.onCursorRefreshed(this) }
         }

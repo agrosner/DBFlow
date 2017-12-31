@@ -22,8 +22,8 @@ class FlowCursorListTest : BaseUnitTest() {
         databaseForTable<SimpleModel> {
             val cursor = (select from SimpleModel::class).cursor
             val list = FlowCursorList.Builder(select from SimpleModel::class, this)
-                    .cursor(cursor)
-                    .build()
+                .cursor(cursor)
+                .build()
 
             assertEquals(cursor, list.cursor)
         }
@@ -34,7 +34,7 @@ class FlowCursorListTest : BaseUnitTest() {
         databaseForTable<SimpleModel> {
             val modelQueriable = (select from SimpleModel::class)
             val list = FlowCursorList.Builder(modelQueriable, this)
-                    .build()
+                .build()
 
             assertEquals(modelQueriable, list.modelQueriable)
         }
