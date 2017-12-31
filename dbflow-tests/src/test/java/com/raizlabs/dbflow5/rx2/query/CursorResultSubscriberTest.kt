@@ -36,8 +36,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     fun testCanObserveOnTableChangesWithModelOps() {
         var count = 0
         (select from SimpleModel::class)
-            .observeOnTableChanges()
-            .map { it.queryList(databaseForTable<SimpleModel>()) }
+            .observeOnTableChanges { databaseWrapper, modelQueriable -> modelQueriable.queryList(databaseWrapper) }
             .subscribe {
                 count++
             }
@@ -56,8 +55,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
         var count = 0
         var curList: MutableList<SimpleModel> = arrayListOf()
         (select from SimpleModel::class)
-            .observeOnTableChanges()
-            .map { it.queryList(databaseForTable<SimpleModel>()) }
+            .observeOnTableChanges { databaseWrapper, modelQueriable -> modelQueriable.queryList(databaseWrapper) }
             .subscribe {
                 curList = it
                 count++

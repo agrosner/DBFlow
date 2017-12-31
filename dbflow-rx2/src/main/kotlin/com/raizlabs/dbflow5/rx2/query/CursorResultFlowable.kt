@@ -5,6 +5,7 @@ import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.query.CursorResult
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.rx2.transaction.asSingle
+import com.raizlabs.dbflow5.transaction.Transaction
 import io.reactivex.Flowable
 import io.reactivex.SingleObserver
 import io.reactivex.disposables.Disposable
@@ -13,8 +14,8 @@ import org.reactivestreams.Subscription
 import java.util.concurrent.atomic.AtomicLong
 
 /**
- * Description: Wraps a [ModelQueriable] into a [Flowable]
- * for each element represented by the query.
+ * Description: Wraps a [ModelQueriable] into a [Flowable] that emits each item from the
+ * result of the [ModelQueriable] one at a time.
  */
 class CursorResultFlowable<T : Any>(private val modelQueriable: ModelQueriable<T>,
                                     private val database: DBFlowDatabase)
@@ -22,15 +23,18 @@ class CursorResultFlowable<T : Any>(private val modelQueriable: ModelQueriable<T
 
     override fun subscribeActual(subscriber: Subscriber<in T>) {
         subscriber.onSubscribe(object : Subscription {
+            private var transaction: Transaction<CursorResult<T>>? = null
+
             override fun request(n: Long) {
-                database
+                val single = database
                     .beginTransactionAsync { modelQueriable.queryResults(it) }
                     .asSingle()
-                    .subscribe(CursorResultObserver(subscriber, n))
+                transaction = single.transaction
+                single.subscribe(CursorResultObserver(subscriber, n))
             }
 
             override fun cancel() {
-
+                transaction?.cancel()
             }
         })
     }
@@ -78,7 +82,6 @@ class CursorResultFlowable<T : Any>(private val modelQueriable: ModelQueriable<T
                         FlowLog.logError(e)
                         subscriber.onError(e)
                     }
-
                 }
             }
         }
