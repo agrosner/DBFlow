@@ -1,4 +1,4 @@
-package com.raizlabs.dbflow5.rx.query
+package com.raizlabs.dbflow5.rx2.query
 
 import com.raizlabs.dbflow5.TestDatabase
 import com.raizlabs.dbflow5.annotation.PrimaryKey

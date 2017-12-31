@@ -1,4 +1,4 @@
-package com.raizlabs.dbflow5.rx.query
+package com.raizlabs.dbflow5.rx2.query
 
 import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.config.databaseForTable
@@ -17,12 +17,11 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
             var count = 0
             (select from SimpleModel::class).rx()
-                    .queryStreamResults(this)
-                    .toBlocking()
-                    .subscribe {
-                        count++
-                        assert(it != null)
-                    }
+                .queryStreamResults(this)
+                .subscribe {
+                    count++
+                    assert(it != null)
+                }
 
             assertEquals(10, count)
         }

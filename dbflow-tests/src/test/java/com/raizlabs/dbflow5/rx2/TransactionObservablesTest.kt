@@ -1,4 +1,4 @@
-package com.raizlabs.dbflow5.rx
+package com.raizlabs.dbflow5.rx2
 
 import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.TestDatabase
