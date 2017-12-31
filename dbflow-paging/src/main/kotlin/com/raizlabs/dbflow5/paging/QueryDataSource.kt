@@ -7,8 +7,8 @@ import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.Select
 import com.raizlabs.dbflow5.query.Transformable
 import com.raizlabs.dbflow5.query.WhereBase
+import com.raizlabs.dbflow5.query.constrain
 import com.raizlabs.dbflow5.query.selectCountOf
-import com.raizlabs.dbflow5.sql.QueryCloneable
 
 /**
  * Bridges the [ModelQueriable] into a [PositionalDataSource] that loads a [ModelQueriable].
@@ -26,7 +26,8 @@ internal constructor(private val transformable: TQuery,
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>) {
         database.executeTransactionAsync({
-            getQueriableFromParams(params.startPosition, params.loadSize).queryList(database)
+            transformable.constrain(params.startPosition.toLong(), params.loadSize.toLong())
+                .queryList(database)
         },
             success = { _, list -> callback.onResult(list) })
     }
@@ -39,21 +40,12 @@ internal constructor(private val transformable: TQuery,
                     else -> params.requestedLoadSize
                 }
                 database.executeTransactionAsync({ db ->
-                    getQueriableFromParams(params.requestedStartPosition, max).queryList(db)
+                    transformable.constrain(params.requestedStartPosition.toLong(), max.toLong()).queryList(db)
                 },
                     success = { _, list ->
                         callback.onResult(list, params.requestedStartPosition, count.toInt())
                     })
             })
-    }
-
-    private fun getQueriableFromParams(startPosition: Int, max: Int): ModelQueriable<T> {
-        var tr: Transformable<T> = transformable
-        @Suppress("UNCHECKED_CAST")
-        if (tr is QueryCloneable<*>) {
-            tr = tr.cloneSelf() as Transformable<T>
-        }
-        return tr.offset(startPosition.toLong()).limit(max.toLong())
     }
 
     class Factory<T : Any, TQuery>

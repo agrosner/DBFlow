@@ -140,11 +140,11 @@ internal constructor(
     /**
      * For use in [ContentProvider] generation. Appends all ORDER BY here.
      *
-     * @param orderBies The order by.
+     * @param orderByList The order by.
      * @return this instance.
      */
-    override fun orderByAll(orderBies: List<OrderBy>) = apply {
-        orderByList.addAll(orderBies)
+    override fun orderByAll(orderByList: List<OrderBy>) = apply {
+        this.orderByList.addAll(orderByList)
     }
 
     override fun limit(count: Long) = apply {

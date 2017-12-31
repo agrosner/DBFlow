@@ -3,6 +3,7 @@ package com.raizlabs.dbflow5.query.list
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.Transformable
+import com.raizlabs.dbflow5.query.constrain
 import com.raizlabs.dbflow5.sql.QueryCloneable
 import java.io.Closeable
 
@@ -38,8 +39,8 @@ class FlowCursorIterator<T : Any>
             val modelQueriable = _cursorList.modelQueriable
             if (modelQueriable is Transformable<*>) {
                 @Suppress("UNCHECKED_CAST")
-                newCursorList = getQueriableFromParams(modelQueriable as Transformable<T>,
-                    startingLocation, count)
+                newCursorList = (modelQueriable as Transformable<T>)
+                    .constrain(startingLocation, count)
                     .cursorList(databaseWrapper)
                 this.count = newCursorList.count
                 newStartingLocation = 0

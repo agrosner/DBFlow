@@ -36,7 +36,7 @@ protected constructor(table: Class<TModel>)
     override fun orderBy(property: IProperty<*>, ascending: Boolean): Where<TModel> =
         where().orderBy(property, ascending)
 
-    override fun orderByAll(orderBies: List<OrderBy>): Where<TModel> = where().orderByAll(orderBies)
+    override fun orderByAll(orderByList: List<OrderBy>): Where<TModel> = where().orderByAll(orderByList)
 
     override fun orderBy(orderBy: OrderBy): Where<TModel> = where().orderBy(orderBy)
 
