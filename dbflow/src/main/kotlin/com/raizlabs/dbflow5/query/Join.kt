@@ -187,7 +187,8 @@ class Join<TModel : Any, TFromModel : Any> : Query {
 
     private fun checkNatural() {
         if (JoinType.NATURAL == type) {
-            throw IllegalArgumentException("Cannot specify a clause for this join if its NATURAL." + " Specifying a clause would have no effect. Call end() to continue the query.")
+            throw IllegalArgumentException("Cannot specify a clause for this join if its NATURAL."
+                + " Specifying a clause would have no effect. Call end() to continue the query.")
         }
     }
 }

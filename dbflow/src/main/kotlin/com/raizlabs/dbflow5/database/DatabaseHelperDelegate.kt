@@ -47,7 +47,8 @@ class DatabaseHelperDelegate(
 
         if (databaseDefinition.backupEnabled()) {
             if (backupHelper == null) {
-                throw IllegalStateException("the passed backup helper was null, even though backup is enabled. " + "Ensure that its passed in.")
+                throw IllegalStateException("the passed backup helper was null, even though backup" +
+                    " is enabled. Ensure that its passed in.")
             }
             restoreDatabase(tempDbFileName, databaseDefinition.databaseFileName)
             backupHelper.database
@@ -243,13 +244,14 @@ class DatabaseHelperDelegate(
      */
     fun backupDB() {
         if (!databaseDefinition.backupEnabled() || !databaseDefinition.areConsistencyChecksEnabled()) {
-            throw IllegalStateException("Backups are not enabled for : " + databaseDefinition.databaseName + ". Please consider adding " +
-                "both backupEnabled and consistency checks enabled to the Database annotation")
+            throw IllegalStateException("Backups are not enabled for : " +
+                "${databaseDefinition.databaseName}. Please consider adding both backupEnabled " +
+                "and consistency checks enabled to the Database annotation")
         }
 
         databaseDefinition.executeTransactionAsync({
             val backup = context.getDatabasePath(tempDbFileName)
-            val temp = context.getDatabasePath(TEMP_DB_NAME + "-2-" + databaseDefinition.databaseFileName)
+            val temp = context.getDatabasePath("$TEMP_DB_NAME-2-${databaseDefinition.databaseFileName}")
 
             // if exists we want to delete it before rename
             if (temp.exists()) {
@@ -278,8 +280,7 @@ class DatabaseHelperDelegate(
 
         val TEMP_DB_NAME = "temp-"
 
-        fun getTempDbFileName(databaseDefinition: DBFlowDatabase): String {
-            return TEMP_DB_NAME + databaseDefinition.databaseName + ".db"
-        }
+        fun getTempDbFileName(databaseDefinition: DBFlowDatabase): String =
+            "$TEMP_DB_NAME${databaseDefinition.databaseName}.db"
     }
 }

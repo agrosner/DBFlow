@@ -391,8 +391,8 @@ object FlowManager {
 
     private fun checkDatabaseHolder() {
         if (!globalDatabaseHolder.isInitialized) {
-            throw IllegalStateException("The global databaseForTable holder is not initialized. Ensure you call "
-                + "FlowManager.init() before accessing the databaseForTable.")
+            throw IllegalStateException("The global databaseForTable holder is not initialized. " +
+                "Ensure you call FlowManager.init() before accessing the databaseForTable.")
         }
     }
 

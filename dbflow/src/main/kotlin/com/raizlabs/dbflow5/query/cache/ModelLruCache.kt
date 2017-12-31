@@ -10,23 +10,16 @@ import com.raizlabs.dbflow5.annotation.DEFAULT_CACHE_SIZE
 class ModelLruCache<TModel>(size: Int)
     : ModelCache<TModel, LruCache<Long, TModel>>(LruCache<Long, TModel>(size)) {
 
-    override fun addModel(id: Any?, model: TModel) {
-        if (id is Number) {
-            synchronized(cache) {
-                cache.put(id.toLong(), model)
-            }
-        } else {
-            throw IllegalArgumentException("A ModelLruCache must use an id that can cast to" + "a Number to convert it into a long")
+    override fun addModel(id: Any?, model: TModel) = throwIfNotNumber(id) {
+        synchronized(cache) {
+            cache.put(it.toLong(), model)
         }
+        Unit
     }
 
-    override fun removeModel(id: Any): TModel? {
-        if (id is Number) {
-            synchronized(cache) {
-                return cache.remove(id.toLong())
-            }
-        } else {
-            throw IllegalArgumentException("A ModelLruCache uses an id that can cast to" + "a Number to convert it into a long")
+    override fun removeModel(id: Any): TModel? = throwIfNotNumber(id) {
+        synchronized(cache) {
+            cache.remove(it.toLong())
         }
     }
 
@@ -40,13 +33,15 @@ class ModelLruCache<TModel>(size: Int)
         cache.resize(size)
     }
 
-    override fun get(id: Any?): TModel? {
-        return if (id is Number) {
-            cache.get(id.toLong())
+    override fun get(id: Any?): TModel? = throwIfNotNumber(id) { cache[it.toLong()] }
+
+    private inline fun <R> throwIfNotNumber(id: Any?, fn: (Number) -> R) =
+        if (id is Number) {
+            fn(id)
         } else {
-            throw IllegalArgumentException("A ModelLruCache must use an id that can cast to" + "a Number to convert it into a long")
+            throw IllegalArgumentException("A ModelLruCache must use an id that can cast to"
+                + "a Number to convert it into a long")
         }
-    }
 
     companion object {
 
