@@ -8,6 +8,7 @@ import com.raizlabs.dbflow5.models.SimpleModel
 import com.raizlabs.dbflow5.models.SimpleModel_Table.name
 import com.raizlabs.dbflow5.query.insert
 import com.raizlabs.dbflow5.query.property.Property
+import com.raizlabs.dbflow5.query.result
 import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.query.selectCountOf
 import com.raizlabs.dbflow5.structure.save
@@ -67,6 +68,8 @@ class RXQueryTests : BaseUnitTest() {
     fun testInsertMethod() {
         databaseForTable<SimpleModel> {
             var count = 0L
+            val res = (select from SimpleModel::class where name.eq("name")).result
+
             (insert<SimpleModel>().columnValues(name.eq("name")))
                     .rx()
                     .executeInsert(this)

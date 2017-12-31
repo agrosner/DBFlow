@@ -9,7 +9,7 @@ import com.raizlabs.dbflow5.query.list
 import com.raizlabs.dbflow5.query.result
 import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.rx2.transaction.asMaybe
-import com.raizlabs.dbflow5.rx2.transaction.asObservable
+import com.raizlabs.dbflow5.rx2.transaction.asSingle
 import com.raizlabs.dbflow5.structure.save
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -31,13 +31,13 @@ class TransactionObservablesTest : BaseUnitTest() {
                     SimpleModel("$it").save(db)
                 }
             }
-            .asObservable()
-            .doOnNext {
+            .asSingle()
+            .doAfterSuccess {
                 database<TestDatabase>()
                     .beginTransactionAsync { (select from SimpleModel::class).list }
-                    .asObservable()
-                    .subscribe {
-                        list = it
+                    .asSingle()
+                    .subscribe { loadedList: MutableList<SimpleModel> ->
+                        list = loadedList
                         successCalled = true
                     }
             }.subscribe()

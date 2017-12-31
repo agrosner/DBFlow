@@ -375,9 +375,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         if (!isResetting) {
             isResetting = true
             close()
-            if (isOpened) {
-                openHelper.deleteDB()
-            }
+            openHelper.deleteDB()
             _openHelper = null
             isOpened = false
             isResetting = false

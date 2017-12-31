@@ -26,7 +26,7 @@ class DatabaseStatementWrapper<T : Any>(
             NotifyDistributor.get().notifyTableChanged(modelQueriable.table,
                 modelQueriable.primaryAction)
         }
-        return databaseStatement.executeInsert()
+        return affected
     }
 
     override fun execute() = databaseStatement.execute()

@@ -10,11 +10,12 @@ import com.raizlabs.dbflow5.annotation.DEFAULT_CACHE_SIZE
 class ModelLruCache<TModel>(size: Int)
     : ModelCache<TModel, LruCache<Long, TModel>>(LruCache<Long, TModel>(size)) {
 
-    override fun addModel(id: Any?, model: TModel) = throwIfNotNumber(id) {
-        synchronized(cache) {
-            cache.put(it.toLong(), model)
+    override fun addModel(id: Any?, model: TModel) {
+        throwIfNotNumber(id) {
+            synchronized(cache) {
+                cache.put(it.toLong(), model)
+            }
         }
-        Unit
     }
 
     override fun removeModel(id: Any): TModel? = throwIfNotNumber(id) {
