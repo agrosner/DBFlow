@@ -8,11 +8,7 @@ import com.raizlabs.dbflow5.query.Delete.Companion.table
 import com.raizlabs.dbflow5.query.Delete.Companion.tables
 import com.raizlabs.dbflow5.query.result
 import com.raizlabs.dbflow5.query.select
-import com.raizlabs.dbflow5.structure.delete
 import com.raizlabs.dbflow5.structure.exists
-import com.raizlabs.dbflow5.structure.insert
-import com.raizlabs.dbflow5.structure.save
-import com.raizlabs.dbflow5.structure.update
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -102,7 +98,7 @@ class ContentProviderTests : BaseUnitTest() {
 
     @Test
     fun testSyncableModel() = database(ContentDatabase::class) {
-        table(TestSyncableModel::class.java)
+        table(this, TestSyncableModel::class.java)
 
         var testSyncableModel = TestSyncableModel(name = "Name")
         testSyncableModel.save()
@@ -125,7 +121,7 @@ class ContentProviderTests : BaseUnitTest() {
         testSyncableModel.delete()
         assertFalse(testSyncableModel.exists())
 
-        table(TestSyncableModel::class.java)
+        table(this, TestSyncableModel::class.java)
     }
 
 }

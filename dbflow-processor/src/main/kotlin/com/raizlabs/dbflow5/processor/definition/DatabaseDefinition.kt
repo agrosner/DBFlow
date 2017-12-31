@@ -47,8 +47,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     var updateConflict: ConflictAction? = null
 
-    var classSeparator: String = ""
-    var fieldRefSeparator: String = "" // safe field for javapoet
+    val classSeparator: String = "_"
 
     var objectHolder: DatabaseObjectHolder? = null
 
@@ -69,10 +68,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             consistencyChecksEnabled = database.consistencyCheckEnabled
             backupEnabled = database.backupEnabled
 
-            classSeparator = database.generatedClassSeparator
-            fieldRefSeparator = classSeparator
-
-            setOutputClassName(databaseClassName + classSeparator + "Database")
+            setOutputClassName("$databaseClassName${classSeparator}Database")
 
             databaseVersion = database.version
             foreignKeysSupported = database.foreignKeyConstraintsEnforced

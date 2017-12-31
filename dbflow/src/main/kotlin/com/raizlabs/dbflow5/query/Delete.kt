@@ -23,7 +23,6 @@ class Delete internal constructor() : Query {
 
     infix fun <T : Any> from(table: KClass<T>): From<T> = from(table.java)
 
-
     companion object {
 
         @JvmStatic
@@ -40,9 +39,10 @@ class Delete internal constructor() : Query {
          * @param [T]   The class that implements [com.raizlabs.dbflow5.structure.Model]
          */
         @JvmStatic
-        fun <T : Any> DatabaseWrapper.table(table: Class<T>, vararg conditions: SQLOperator) {
-            Delete().from(table).where(*conditions).executeUpdateDelete(this)
-        }
+        fun <T : Any> table(databaseWrapper: DatabaseWrapper,
+                            table: Class<T>,
+                            vararg conditions: SQLOperator): Long =
+            delete(table).where(*conditions).executeUpdateDelete(databaseWrapper)
 
         /**
          * Deletes the list of tables specified.
@@ -52,7 +52,7 @@ class Delete internal constructor() : Query {
          */
         @JvmStatic
         fun DatabaseWrapper.tables(vararg tables: Class<*>) {
-            tables.forEach { table(it) }
+            tables.forEach { table(this, it) }
         }
     }
 }

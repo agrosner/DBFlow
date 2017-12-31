@@ -49,12 +49,12 @@ protected constructor(table: Class<TModel>)
     abstract override fun cloneSelf(): BaseTransformable<TModel>
 
     override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<TModel> {
-        checkSelect("cursor")
+        checkSelect("query")
         return super.queryList(databaseWrapper)
     }
 
     override fun querySingle(databaseWrapper: DatabaseWrapper): TModel? {
-        checkSelect("cursor")
+        checkSelect("query")
         limit(1)
         return super.querySingle(databaseWrapper)
     }

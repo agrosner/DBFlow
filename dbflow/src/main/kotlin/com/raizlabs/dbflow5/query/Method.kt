@@ -30,19 +30,19 @@ open class Method(methodName: String, vararg properties: IProperty<*>) : Propert
     }
 
     override fun plus(property: IProperty<*>): Method =
-        append(property, " " + Operator.Operation.PLUS)
+        append(property, " ${Operator.Operation.PLUS}")
 
     override fun minus(property: IProperty<*>): Method =
-        append(property, " " + Operator.Operation.MINUS)
+        append(property, " ${Operator.Operation.MINUS}")
 
     override fun div(property: IProperty<*>): Property<Any?> =
-        append(property, " " + Operator.Operation.DIVISION)
+        append(property, " ${Operator.Operation.DIVISION}")
 
     override fun times(property: IProperty<*>): Property<Any?> =
-        append(property, " " + Operator.Operation.MULTIPLY)
+        append(property, " ${Operator.Operation.MULTIPLY}")
 
     override fun rem(property: IProperty<*>): Property<Any?> =
-        append(property, " " + Operator.Operation.MOD)
+        append(property, " ${Operator.Operation.MOD}")
 
     /**
      * Allows adding a property to the [Method]. Will remove the [Property.ALL_PROPERTY]
@@ -81,7 +81,7 @@ open class Method(methodName: String, vararg properties: IProperty<*>) : Propert
                 for (i in propertyList.indices) {
                     val property = propertyList[i]
                     if (i > 0) {
-                        query += operationsList[i] + " "
+                        query += "${operationsList[i]} "
                     }
                     query += property.toString()
 

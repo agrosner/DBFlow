@@ -20,52 +20,34 @@ class DatabaseStatementWrapper<T : Any>(
         return affected
     }
 
-    override fun execute() {
-        databaseStatement.execute()
-    }
-
-    override fun close() {
-        databaseStatement.close()
-    }
-
-    override fun simpleQueryForLong(): Long {
-        return databaseStatement.simpleQueryForLong()
-    }
-
-    override fun simpleQueryForString(): String? {
-        return databaseStatement.simpleQueryForString()
-    }
-
     override fun executeInsert(): Long {
         val affected = databaseStatement.executeInsert()
         if (affected > 0) {
             NotifyDistributor.get().notifyTableChanged(modelQueriable.table,
                 modelQueriable.primaryAction)
         }
-        return affected
+        return databaseStatement.executeInsert()
     }
 
-    override fun bindString(index: Int, s: String) {
-        databaseStatement.bindString(index, s)
-    }
+    override fun execute() = databaseStatement.execute()
 
-    override fun bindNull(index: Int) {
-        databaseStatement.bindNull(index)
-    }
+    override fun close() = databaseStatement.close()
 
-    override fun bindLong(index: Int, aLong: Long) {
-        databaseStatement.bindLong(index, aLong)
-    }
+    override fun simpleQueryForLong(): Long = databaseStatement.simpleQueryForLong()
 
-    override fun bindDouble(index: Int, aDouble: Double) {
+    override fun simpleQueryForString(): String? = databaseStatement.simpleQueryForString()
+
+    override fun bindString(index: Int, s: String) = databaseStatement.bindString(index, s)
+
+    override fun bindNull(index: Int) = databaseStatement.bindNull(index)
+
+    override fun bindLong(index: Int, aLong: Long) = databaseStatement.bindLong(index, aLong)
+
+    override fun bindDouble(index: Int, aDouble: Double) =
         databaseStatement.bindDouble(index, aDouble)
-    }
 
-    override fun bindBlob(index: Int, bytes: ByteArray) {
-        databaseStatement.bindBlob(index, bytes)
-    }
+    override fun bindBlob(index: Int, bytes: ByteArray) = databaseStatement.bindBlob(index, bytes)
 
-    override fun bindAllArgsAsStrings(selectionArgs: Array<String>?) {
+    override fun bindAllArgsAsStrings(selectionArgs: Array<String>?) =
         databaseStatement.bindAllArgsAsStrings(selectionArgs)
-    }
 }

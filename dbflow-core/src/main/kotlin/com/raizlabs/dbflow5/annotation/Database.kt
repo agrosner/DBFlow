@@ -49,10 +49,4 @@ annotation class Database(
      * @return Global update conflict that can be applied to any table when it leaves its
      * [ConflictAction] as NONE
      */
-    val updateConflict: ConflictAction = ConflictAction.NONE,
-    /**
-     * @return Marks all generated classes within this database with this character. For example
-     * "TestTable" becomes "TestTable$Table" for a "$" separator.
-     */
-    @Deprecated("Generated class files will become '_' only in next major release.")
-    val generatedClassSeparator: String = "_")
+    val updateConflict: ConflictAction = ConflictAction.NONE)

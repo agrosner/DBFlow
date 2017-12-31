@@ -51,7 +51,8 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
     @JvmName("when")
     infix fun whenever(sqlOperator: SQLOperator): CaseCondition<TReturn> {
         if (isEfficientCase) {
-            throw IllegalStateException("When using the efficient CASE method," + "you must pass in value only, not condition.")
+            throw IllegalStateException("When using the efficient CASE method,"
+                + "you must pass in value only, not condition.")
         }
         val caseCondition = CaseCondition(this, sqlOperator)
         caseConditions.add(caseCondition)
@@ -61,7 +62,8 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
     @JvmName("when")
     infix fun whenever(whenValue: TReturn?): CaseCondition<TReturn> {
         if (!isEfficientCase) {
-            throw IllegalStateException("When not using the efficient CASE method, " + "you must pass in the SQLOperator as a parameter")
+            throw IllegalStateException("When not using the efficient CASE method, "
+                + "you must pass in the SQLOperator as a parameter")
         }
         val caseCondition = CaseCondition(this, whenValue)
         caseConditions.add(caseCondition)
@@ -71,7 +73,8 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
     @JvmName("when")
     infix fun whenever(property: IProperty<*>): CaseCondition<TReturn> {
         if (!isEfficientCase) {
-            throw IllegalStateException("When not using the efficient CASE method, " + "you must pass in the SQLOperator as a parameter")
+            throw IllegalStateException("When not using the efficient CASE method, "
+                + "you must pass in the SQLOperator as a parameter")
         }
         val caseCondition = CaseCondition(this, property)
         caseConditions.add(caseCondition)

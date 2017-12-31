@@ -200,7 +200,7 @@ object ContentUtils {
         if (count > 0) {
             adapter.updateAutoIncrement(model, 0)
         } else {
-            FlowLog.log(FlowLog.Level.W, "A delete on " + model.javaClass + " within the ContentResolver appeared to fail.")
+            FlowLog.log(FlowLog.Level.W, "A delete on ${model.javaClass} within the ContentResolver appeared to fail.")
         }
         return count
     }

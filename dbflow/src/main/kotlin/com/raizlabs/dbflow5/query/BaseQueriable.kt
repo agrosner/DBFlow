@@ -24,7 +24,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
     override fun longValue(databaseWrapper: DatabaseWrapper): Long {
         try {
             val query = query
-            FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
+                FlowLog.log(FlowLog.Level.V, "Executing query: $query")
             return longForQuery(databaseWrapper, query)
         } catch (sde: SQLiteException) {
             // catch exception here, log it but return 0;
@@ -42,14 +42,14 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
             compileStatement(databaseWrapper).use { it.executeInsert() }
         } else {
             val query = query
-            FlowLog.log(FlowLog.Level.V, "Executing cursor: " + query)
+            FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
             databaseWrapper.execSQL(query)
         }
         return null
     }
 
     override fun executeInsert(databaseWrapper: DatabaseWrapper): Long =
-        compileStatement(databaseWrapper).use { it.executeInsert()}
+        compileStatement(databaseWrapper).use { it.executeInsert() }
 
     override fun execute(databaseWrapper: DatabaseWrapper) {
         val cursor = cursor(databaseWrapper)

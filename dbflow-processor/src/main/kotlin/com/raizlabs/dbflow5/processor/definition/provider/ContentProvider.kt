@@ -489,7 +489,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
  */
 class ContentUriDefinition(typeElement: Element, processorManager: ProcessorManager) : BaseDefinition(typeElement, processorManager) {
 
-    var name = typeElement.enclosingElement.simpleName.toString() + "_" + typeElement.simpleName.toString()
+    var name = "${typeElement.enclosingElement.simpleName}_${typeElement.simpleName}"
 
     var path = ""
 

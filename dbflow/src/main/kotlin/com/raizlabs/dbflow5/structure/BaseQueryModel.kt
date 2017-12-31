@@ -9,7 +9,7 @@ import com.raizlabs.dbflow5.database.DatabaseWrapper
 class BaseQueryModel : NoModificationModel() {
 
     override fun exists(wrapper: DatabaseWrapper): Boolean {
-        throw InvalidSqlViewOperationException("Query " + wrapper.javaClass.name +
-            " does not exist as a table." + "It's a convenient representation of a complex SQLite cursor.")
+        throw InvalidSqlViewOperationException("Query ${wrapper.javaClass.name} does not exist as a table." +
+            "It's a convenient representation of a complex SQLite cursor.")
     }
 }

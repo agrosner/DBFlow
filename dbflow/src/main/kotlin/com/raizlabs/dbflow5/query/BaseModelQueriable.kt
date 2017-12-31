@@ -9,7 +9,6 @@ import com.raizlabs.dbflow5.config.queryModelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.list.FlowCursorList
 import com.raizlabs.dbflow5.query.list.FlowQueryList
-import com.raizlabs.dbflow5.runtime.NotifyDistributor
 import com.raizlabs.dbflow5.sql.Query
 
 /**
@@ -68,19 +67,8 @@ protected constructor(table: Class<TModel>)
     override fun flowQueryList(databaseWrapper: DatabaseWrapper): FlowQueryList<TModel> =
         FlowQueryList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
 
-    override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long {
-        val statement = compileStatement(databaseWrapper)
-        var affected = 0L
-        statement.use {
-            affected = statement.executeUpdateDelete()
-
-            // only notify for affected.
-            if (affected > 0) {
-                NotifyDistributor.get().notifyTableChanged(table, primaryAction)
-            }
-        }
-        return affected
-    }
+    override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long =
+        compileStatement(databaseWrapper).use { it.executeUpdateDelete() }
 
     override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>,
                                                     databaseWrapper: DatabaseWrapper)

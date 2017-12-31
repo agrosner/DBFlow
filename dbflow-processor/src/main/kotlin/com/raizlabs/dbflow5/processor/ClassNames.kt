@@ -10,19 +10,19 @@ object ClassNames {
 
 
     val BASE_PACKAGE = "com.raizlabs.dbflow5"
-    val FLOW_MANAGER_PACKAGE = BASE_PACKAGE + ".config"
+    val FLOW_MANAGER_PACKAGE = "$BASE_PACKAGE.config"
     val DATABASE_HOLDER_STATIC_CLASS_NAME = "GeneratedDatabaseHolder"
-    val CONVERTER = BASE_PACKAGE + ".converter"
-    val ADAPTER = BASE_PACKAGE + ".adapter"
-    val QUERY_PACKAGE = BASE_PACKAGE + ".query"
-    val STRUCTURE = BASE_PACKAGE + ".structure"
-    val DATABASE = BASE_PACKAGE + ".database"
-    val QUERIABLE = ADAPTER + ".queriable"
-    val PROPERTY_PACKAGE = QUERY_PACKAGE + ".property"
-    val CONFIG = BASE_PACKAGE + ".config"
-    val RUNTIME = BASE_PACKAGE + ".runtime"
-    val SAVEABLE = ADAPTER + ".saveable"
-    val PROVIDER = BASE_PACKAGE + ".provider"
+    val CONVERTER = "$BASE_PACKAGE.converter"
+    val ADAPTER = "$BASE_PACKAGE.adapter"
+    val QUERY_PACKAGE = "$BASE_PACKAGE.query"
+    val STRUCTURE = "$BASE_PACKAGE.structure"
+    val DATABASE = "$BASE_PACKAGE.database"
+    val QUERIABLE = "$ADAPTER.queriable"
+    val PROPERTY_PACKAGE = "$QUERY_PACKAGE.property"
+    val CONFIG = "$BASE_PACKAGE.config"
+    val RUNTIME = "$BASE_PACKAGE.runtime"
+    val SAVEABLE = "$ADAPTER.saveable"
+    val PROVIDER = "$BASE_PACKAGE.provider"
 
     val DATABASE_HOLDER = ClassName.get(CONFIG, "DatabaseHolder")
     val FLOW_MANAGER = ClassName.get(CONFIG, "FlowManager")
@@ -69,8 +69,8 @@ object ClassNames {
     val BASE_CONTENT_PROVIDER = ClassName.get(PROVIDER, "BaseContentProvider")
 
     val BASE_MODEL = ClassName.get(STRUCTURE, "BaseModel")
-    val MODEL_CACHE = ClassName.get(QUERY_PACKAGE + ".cache", "ModelCache")
-    val MULTI_KEY_CACHE_CONVERTER = ClassName.get(QUERY_PACKAGE + ".cache", "IMultiKeyCacheConverter")
+    val MODEL_CACHE = ClassName.get("$QUERY_PACKAGE.cache", "ModelCache")
+    val MULTI_KEY_CACHE_CONVERTER = ClassName.get("$QUERY_PACKAGE.cache", "IMultiKeyCacheConverter")
 
     val CACHEABLE_MODEL_LOADER = ClassName.get(QUERIABLE, "CacheableModelLoader")
     val SINGLE_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleModelLoader")

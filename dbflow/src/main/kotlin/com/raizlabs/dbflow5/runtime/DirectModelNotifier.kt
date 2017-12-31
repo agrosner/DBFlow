@@ -94,6 +94,11 @@ private constructor() : ModelNotifier {
         listeners?.remove(listener)
     }
 
+    /**
+     * Clears all listeners.
+     */
+    fun clearListeners() = tableChangedListenerMap.clear()
+
     private class DirectTableNotifierRegister(private val directModelNotifier: DirectModelNotifier)
         : TableNotifierRegister {
         private val registeredTables = arrayListOf<Class<*>>()

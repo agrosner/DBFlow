@@ -21,7 +21,8 @@ open class CacheableListModelLoader<T : Any>(modelClass: Class<T>,
         }
         val modelAdapter = instanceAdapter as ModelAdapter<T>
         if (!modelAdapter.cachingEnabled()) {
-            throw IllegalArgumentException("You cannot call this method for a table that has no caching id. Either" + "use one Primary Key or use the MultiCacheKeyConverter")
+            throw IllegalArgumentException("You cannot call this method for a table that has" +
+                " no caching id. Either use one Primary Key or use the MultiCacheKeyConverter")
         }
         return@lazy modelAdapter
     }

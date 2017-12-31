@@ -152,7 +152,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         if (defaultValue != null
             && isString
             && !QUOTE_PATTERN.matcher(defaultValue).find()) {
-            defaultValue = "\"" + defaultValue + "\""
+            defaultValue = "\"$defaultValue\""
         }
 
         if (isNotNullType && defaultValue == null
