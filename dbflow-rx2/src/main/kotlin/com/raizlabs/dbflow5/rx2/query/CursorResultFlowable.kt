@@ -62,7 +62,7 @@ class CursorResultFlowable<T : Any>(private val modelQueriable: ModelQueriable<T
                 val iterator = ts.iterator(starting, limit)
                 try {
                     var i: Long = 0
-                    while (!disposable!!.isDisposed && iterator.hasNext() && i++ < limit) {
+                    while (disposable?.isDisposed == false && iterator.hasNext() && i++ < limit) {
                         subscriber.onNext(iterator.next())
                     }
                     emitted.addAndGet(i)
