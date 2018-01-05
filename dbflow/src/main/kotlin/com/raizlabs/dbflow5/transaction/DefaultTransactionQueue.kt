@@ -79,7 +79,7 @@ class DefaultTransactionQueue
             val it = queue.iterator()
             while (it.hasNext()) {
                 val next = it.next()
-                if (next.name() != null && next.name() == name) {
+                if (next.name != null && next.name == name) {
                     it.remove()
                 }
             }

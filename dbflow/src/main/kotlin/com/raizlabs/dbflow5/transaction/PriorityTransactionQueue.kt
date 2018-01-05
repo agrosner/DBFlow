@@ -76,7 +76,7 @@ class PriorityTransactionQueue
             val it = queue.iterator()
             while (it.hasNext()) {
                 val next = it.next().entry
-                if (next.name() != null && next.name() == name) {
+                if (next.name != null && next.name == name) {
                     it.remove()
                 }
             }
@@ -108,10 +108,10 @@ class PriorityTransactionQueue
     internal data class PriorityEntry<out E : Transaction<out Any?>>(val entry: E)
         : Comparable<PriorityEntry<Transaction<out Any?>>> {
         private val transactionWrapper: PriorityTransactionWrapper =
-            if (entry.transaction() is PriorityTransactionWrapper) {
-                entry.transaction() as PriorityTransactionWrapper
+            if (entry.transaction is PriorityTransactionWrapper) {
+                entry.transaction
             } else {
-                PriorityTransactionWrapper.Builder(entry.transaction())
+                PriorityTransactionWrapper.Builder(entry.transaction)
                     .build()
             }
 
