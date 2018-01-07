@@ -67,11 +67,11 @@ class MaybeTransaction<R : Any?>(private val builder: Transaction.Builder<R>)
     var transaction: Transaction<R>? = null
 
     override fun subscribeActual(observer: MaybeObserver<in R>) {
-        val transaction = builder.success { _, r ->
-            observer.onSuccess(r)
-            observer.onComplete()
-        }
-            .completion { transaction = null }
+        val transaction = builder.success { _, r -> observer.onSuccess(r) }
+            .completion {
+                transaction = null
+                observer.onComplete()
+            }
             .error { _, throwable -> observer.onError(throwable) }
             .build()
         observer.onSubscribe(TransactionDisposable(transaction))
