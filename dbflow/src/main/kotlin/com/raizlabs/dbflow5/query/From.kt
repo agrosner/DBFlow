@@ -208,3 +208,17 @@ internal constructor(
         IndexedBy(indexProperty, this)
 
 }
+
+/**
+ * Extracts the [From] from a [ModelQueriable] if possible to get [From.associatedTables]
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T : Any> ModelQueriable<T>.extractFrom(): From<T>? {
+    return if (this is From<*>) {
+        this as From<T>
+    } else if (this is Where<*> && whereBase is From<*>) {
+        whereBase as From<T>
+    } else {
+        null
+    }
+}

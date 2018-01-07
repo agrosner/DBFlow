@@ -339,14 +339,14 @@ constructor(processorManager: ProcessorManager, element: Element,
                         ${"$"}T adapter = (${"$"}T) ${"$"}T.getRetrievalAdapter(modelClass);
                         return adapter.${"$"}L;
                     }
-                    })""",
+                    }).withTable()""",
                     ClassNames.TYPE_CONVERTER_GETTER, ClassNames.TYPE_CONVERTER,
                     baseTableDefinition.outputClassName, baseTableDefinition.outputClassName,
                     ClassNames.FLOW_MANAGER,
                     (wrapperAccessor as TypeConverterScopeColumnAccessor).typeConverterFieldName)
                 fieldBuilder.initializer(codeBlock.build())
             } else {
-                fieldBuilder.initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
+                fieldBuilder.initializer("new \$T(\$T.class, \$S).withTable()", propParam, tableClass, columnName)
             }
             if (isPrimaryKey) {
                 fieldBuilder.addJavadoc("Primary Key")

@@ -7,6 +7,7 @@ import com.raizlabs.dbflow5.models.SimpleModel_Table
 import com.raizlabs.dbflow5.query.insert
 import com.raizlabs.dbflow5.query.requireResult
 import com.raizlabs.dbflow5.query.select
+import com.raizlabs.dbflow5.rx2.transaction.asFlowable
 import com.raizlabs.dbflow5.structure.delete
 import com.raizlabs.dbflow5.structure.insert
 import com.raizlabs.dbflow5.structure.save
@@ -36,7 +37,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     fun testCanObserveOnTableChangesWithModelOps() {
         var count = 0
         (select from SimpleModel::class)
-            .observeOnTableChanges { databaseWrapper, modelQueriable -> modelQueriable.queryList(databaseWrapper) }
+            .asFlowable { databaseWrapper, modelQueriable -> modelQueriable.queryList(databaseWrapper) }
             .subscribe {
                 count++
             }
@@ -55,7 +56,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
         var count = 0
         var curList: MutableList<SimpleModel> = arrayListOf()
         (select from SimpleModel::class)
-            .observeOnTableChanges { databaseWrapper, modelQueriable -> modelQueriable.queryList(databaseWrapper) }
+            .asFlowable { databaseWrapper, modelQueriable -> modelQueriable.queryList(databaseWrapper) }
             .subscribe {
                 curList = it
                 count++

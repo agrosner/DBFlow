@@ -48,6 +48,10 @@ class TypeConvertedProperty<T, V> : Property<V> {
         this.getter = getter
     }
 
+    override fun withTable(): TypeConvertedProperty<T, V> {
+        return withTable(nameAlias)
+    }
+
     /**
      * @return A new [Property] that corresponds to the inverted type of the [TypeConvertedProperty].
      * Provides a convenience for supplying type converted methods within the DataClass of the [TypeConverter]
@@ -59,11 +63,11 @@ class TypeConvertedProperty<T, V> : Property<V> {
             getter.getTypeConverter(modelClass)
     }).also { databaseProperty = it }
 
-    override fun withTable(tableNameAlias: NameAlias): Property<V> {
+    override fun withTable(tableNameAlias: NameAlias): TypeConvertedProperty<T, V> {
         val nameAlias = this.nameAlias
             .newBuilder()
             .withTable(tableNameAlias.query)
             .build()
-        return TypeConvertedProperty<Any, V>(this.table, nameAlias, this.convertToDB, this.getter)
+        return TypeConvertedProperty(this.table, nameAlias, this.convertToDB, this.getter)
     }
 }

@@ -11,14 +11,29 @@ class WrapperProperty<T, V> : Property<V> {
 
     private var databaseProperty: WrapperProperty<V, T>? = null
 
+    override val table: Class<*>
+        get() = super.table!!
+
     constructor(table: Class<*>, nameAlias: NameAlias) : super(table, nameAlias)
 
     constructor(table: Class<*>, columnName: String) : super(table, columnName)
+
+    override fun withTable(): WrapperProperty<T, V> {
+        return withTable(nameAlias)
+    }
+
+    override fun withTable(tableNameAlias: NameAlias): WrapperProperty<T, V> {
+        val nameAlias = this.nameAlias
+            .newBuilder()
+            .withTable(tableNameAlias.query)
+            .build()
+        return WrapperProperty(this.table, nameAlias)
+    }
 
     /**
      * @return A new [Property] that corresponds to the inverted type of the [WrapperProperty]. Convenience
      * for types that have different DB representations.
      */
-    fun invertProperty(): Property<T> = databaseProperty
+    fun invertProperty(): WrapperProperty<V, T> = databaseProperty
         ?: WrapperProperty<V, T>(table!!, nameAlias).also { databaseProperty = it }
 }

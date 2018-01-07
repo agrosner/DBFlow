@@ -102,7 +102,7 @@ open class Method(methodName: String, vararg properties: IProperty<*>) : Propert
          * @param sqLiteType The type of column to cast it to.
          * @return A new [Method] that represents the statement.
          */
-        fun `as`(sqLiteType: SQLiteType): IProperty<*> {
+        fun `as`(sqLiteType: SQLiteType): Property<Any?> {
             val newProperty = Property<Any?>(property.table,
                 property.nameAlias
                     .newBuilder()
@@ -111,6 +111,24 @@ open class Method(methodName: String, vararg properties: IProperty<*>) : Propert
                     .build())
             return Method("CAST", newProperty)
         }
+
+        /**
+         * Returns a [Property] of [Int] so it can accept [Int] values.
+         */
+        @Suppress("UNCHECKED_CAST")
+        fun asInteger(): Property<Int> = `as`(SQLiteType.INTEGER) as Property<Int>
+
+        /**
+         * Returns a [Property] of [Double] so it can accept [Double] values.
+         */
+        @Suppress("UNCHECKED_CAST")
+        fun asReal(): Property<Double> = `as`(SQLiteType.REAL) as Property<Double>
+
+        /**
+         * Returns a [Property] of [String] so it can accept [String] values.
+         */
+        @Suppress("UNCHECKED_CAST")
+        fun asText(): Property<String> = `as`(SQLiteType.TEXT) as Property<String>
     }
 
 }
