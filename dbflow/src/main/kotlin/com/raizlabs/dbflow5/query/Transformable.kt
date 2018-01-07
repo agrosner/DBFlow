@@ -48,3 +48,15 @@ fun <T : Any> Transformable<T>.constrain(offset: Long, limit: Long): ModelQueria
     }
     return tr.offset(offset).limit(limit)
 }
+
+/**
+ * Attempt to constrain this [ModelQueriable] if it supports it via [Transformable] methods. Otherwise,
+ * we just return itself.
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T : Any> ModelQueriable<T>.attemptConstrain(offset: Long, limit: Long): ModelQueriable<T> {
+    return when {
+        this is Transformable<*> -> (this as Transformable<T>).constrain(offset, limit)
+        else -> this
+    }
+}

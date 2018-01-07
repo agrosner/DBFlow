@@ -3,7 +3,6 @@ package com.raizlabs.dbflow5.query
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.list.FlowCursorList
 import com.raizlabs.dbflow5.query.list.FlowQueryList
 import com.raizlabs.dbflow5.structure.BaseQueryModel
@@ -19,11 +18,6 @@ interface ModelQueriable<T : Any> : Queriable {
      * @return the table that this query comes from.
      */
     val table: Class<T>
-
-    /**
-     * @return A wrapper class around [FlowCursor] that allows you to convert its data into results.
-     */
-    fun queryResults(databaseWrapper: DatabaseWrapper): CursorResult<T>
 
     /**
      * @return a list of model converted items
@@ -91,9 +85,6 @@ inline val <reified T : Any> ModelQueriable<T>.result
 
 inline val <reified T : Any> ModelQueriable<T>.requireResult
     get() = result!!
-
-inline val <reified T : Any> ModelQueriable<T>.cursorResult
-    get() = queryResults(databaseForTable<T>())
 
 inline val <reified T : Any> ModelQueriable<T>.flowQueryList
     get() = flowQueryList(databaseForTable<T>())

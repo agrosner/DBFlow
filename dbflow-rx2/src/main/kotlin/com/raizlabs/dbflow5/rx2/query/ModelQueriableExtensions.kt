@@ -9,8 +9,12 @@ import com.raizlabs.dbflow5.transaction.ITransactionQueue
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 
+/**
+ * Streams the results of this [ModelQueriable] through the [ITransactionQueue] and emitted one at
+ * time.
+ */
 fun <T : Any> ModelQueriable<T>.queryStreamResults(dbFlowDatabase: DBFlowDatabase): Flowable<T> =
-    CursorResultFlowable(this, dbFlowDatabase)
+    CursorListFlowable(this, dbFlowDatabase)
 
 /**
  * Observes any kind of table change from this [ModelQueriable], including individual model and global

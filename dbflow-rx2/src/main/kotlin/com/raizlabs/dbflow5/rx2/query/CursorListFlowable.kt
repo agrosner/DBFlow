@@ -2,8 +2,8 @@ package com.raizlabs.dbflow5.rx2.query
 
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
-import com.raizlabs.dbflow5.query.CursorResult
 import com.raizlabs.dbflow5.query.ModelQueriable
+import com.raizlabs.dbflow5.query.list.FlowCursorList
 import com.raizlabs.dbflow5.rx2.transaction.asSingle
 import com.raizlabs.dbflow5.transaction.Transaction
 import io.reactivex.Flowable
@@ -17,17 +17,17 @@ import java.util.concurrent.atomic.AtomicLong
  * Description: Wraps a [ModelQueriable] into a [Flowable] that emits each item from the
  * result of the [ModelQueriable] one at a time.
  */
-class CursorResultFlowable<T : Any>(private val modelQueriable: ModelQueriable<T>,
-                                    private val database: DBFlowDatabase)
+class CursorListFlowable<T : Any>(private val modelQueriable: ModelQueriable<T>,
+                                  private val database: DBFlowDatabase)
     : Flowable<T>() {
 
     override fun subscribeActual(subscriber: Subscriber<in T>) {
         subscriber.onSubscribe(object : Subscription {
-            private var transaction: Transaction<CursorResult<T>>? = null
+            private var transaction: Transaction<FlowCursorList<T>>? = null
 
             override fun request(n: Long) {
                 val single = database
-                    .beginTransactionAsync { modelQueriable.queryResults(it) }
+                    .beginTransactionAsync { modelQueriable.cursorList(it) }
                     .asSingle()
                 transaction = single.transaction
                 single.subscribe(CursorResultObserver(subscriber, n))
@@ -41,7 +41,7 @@ class CursorResultFlowable<T : Any>(private val modelQueriable: ModelQueriable<T
 
     internal class CursorResultObserver<T : Any>(
         private val subscriber: Subscriber<in T>, private val count: Long)
-        : SingleObserver<CursorResult<T>> {
+        : SingleObserver<FlowCursorList<T>> {
         private val emitted: AtomicLong = AtomicLong()
         private val requested: AtomicLong = AtomicLong()
         private var disposable: Disposable? = null
@@ -50,7 +50,7 @@ class CursorResultFlowable<T : Any>(private val modelQueriable: ModelQueriable<T
             this.disposable = disposable
         }
 
-        override fun onSuccess(ts: CursorResult<T>) {
+        override fun onSuccess(ts: FlowCursorList<T>) {
             val starting = when {
                 this.count == Long.MAX_VALUE
                     && requested.compareAndSet(0, Long.MAX_VALUE) -> 0

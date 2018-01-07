@@ -46,9 +46,6 @@ protected constructor(table: Class<TModel>)
         cachingEnabled = false
     }
 
-    override fun queryResults(databaseWrapper: DatabaseWrapper): CursorResult<TModel> =
-        CursorResult(retrievalAdapter.table, cursor(databaseWrapper), databaseWrapper)
-
     override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<TModel> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
