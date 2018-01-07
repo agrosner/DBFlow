@@ -2,7 +2,6 @@ package com.raizlabs.dbflow5.rx.query
 
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.query.CursorResult
 import com.raizlabs.dbflow5.query.Join
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.list.FlowCursorList
@@ -15,8 +14,6 @@ import rx.Single
  * Description: Mirrors [ModelQueriable] with RX constructs.
  */
 interface RXModelQueriable<T : Any> : RXQueriable {
-
-    fun queryResults(databaseWrapper: DatabaseWrapper): Single<CursorResult<T>>
 
     fun queryList(databaseWrapper: DatabaseWrapper): Single<List<T>>
 
@@ -74,9 +71,6 @@ inline val <reified T : Any> RXModelQueriable<T>.list
 
 inline val <reified T : Any> RXModelQueriable<T>.result
     get() = querySingle(databaseForTable<T>())
-
-inline val <reified T : Any> RXModelQueriable<T>.cursorResult
-    get() = queryResults(databaseForTable<T>())
 
 inline val <reified T : Any> RXModelQueriable<T>.streamResults
     get() = queryStreamResults(databaseForTable<T>())

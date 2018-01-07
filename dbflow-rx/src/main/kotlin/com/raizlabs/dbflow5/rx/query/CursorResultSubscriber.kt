@@ -2,7 +2,7 @@ package com.raizlabs.dbflow5.rx.query
 
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.query.CursorResult
+import com.raizlabs.dbflow5.query.list.FlowCursorList
 import rx.Observable
 import rx.Producer
 import rx.Subscriber
@@ -30,14 +30,14 @@ class CursorResultSubscriber<T : Any>(private val modelQueriable: RXModelQueriab
                 && requested.compareAndSet(0, Long.MAX_VALUE)
                 || n > 0 && BackpressureUtils.getAndAddRequest(requested, n) == 0L) {
                 // emitting all elements
-                modelQueriable.queryResults(databaseWrapper).subscribe(CursorResultAction(n))
+                modelQueriable.cursorList(databaseWrapper).subscribe(CursorListAction(n))
             }
         }
 
-        private inner class CursorResultAction
-        internal constructor(private val limit: Long) : Action1<CursorResult<T>> {
+        private inner class CursorListAction
+        internal constructor(private val limit: Long) : Action1<FlowCursorList<T>> {
 
-            override fun call(ts: CursorResult<T>) {
+            override fun call(ts: FlowCursorList<T>) {
                 val starting: Long = when {
                     limit == Long.MAX_VALUE
                         && requested.compareAndSet(0, Long.MAX_VALUE) -> 0
