@@ -67,11 +67,12 @@ public abstract class BaseProviderModel
     @SuppressWarnings("unchecked")
     public void load(@NonNull OperatorGroup whereConditions,
                      @Nullable String orderBy, String... columns) {
-        FlowCursor cursor = FlowCursor.from(ContentUtils.query(FlowManager.getContext().getContentResolver(),
-            getQueryUri(), whereConditions, orderBy, columns));
-        if (cursor != null && cursor.moveToFirst()) {
-            getModelAdapter().loadFromCursor(cursor, this);
-            cursor.close();
+        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(),
+            getQueryUri(), whereConditions, orderBy, columns);
+        FlowCursor flowCursor = cursor == null ? null : FlowCursor.from(cursor);
+        if (flowCursor != null && flowCursor.moveToFirst()) {
+            getModelAdapter().loadFromCursor(flowCursor, this);
+            flowCursor.close();
         }
     }
 
