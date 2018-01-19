@@ -1,6 +1,7 @@
 package com.raizlabs.android.dbflow.structure.provider;
 
 import android.content.ContentProvider;
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -46,11 +47,12 @@ public abstract class BaseSyncableProviderModel extends BaseModel implements Mod
     @SuppressWarnings("unchecked")
     public void load(@NonNull OperatorGroup whereOperatorGroup,
                      @Nullable String orderBy, String... columns) {
-        FlowCursor cursor = FlowCursor.from(ContentUtils.query(FlowManager.getContext().getContentResolver(),
-            getQueryUri(), whereOperatorGroup, orderBy, columns));
-        if (cursor != null && cursor.moveToFirst()) {
-            getModelAdapter().loadFromCursor(cursor, this);
-            cursor.close();
+        Cursor cursor = ContentUtils.query(FlowManager.getContext().getContentResolver(),
+            getQueryUri(), whereOperatorGroup, orderBy, columns);
+        FlowCursor flowCursor = cursor == null ? null : FlowCursor.from(cursor);
+        if (flowCursor != null && flowCursor.moveToFirst()) {
+            getModelAdapter().loadFromCursor(flowCursor, this);
+            flowCursor.close();
         }
     }
 

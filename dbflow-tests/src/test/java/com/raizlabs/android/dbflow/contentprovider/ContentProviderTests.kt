@@ -8,9 +8,12 @@ import com.raizlabs.android.dbflow.kotlinextensions.result
 import com.raizlabs.android.dbflow.kotlinextensions.select
 import com.raizlabs.android.dbflow.kotlinextensions.where
 import com.raizlabs.android.dbflow.sql.language.Delete
+import com.raizlabs.android.dbflow.sql.language.OperatorGroup
 import com.raizlabs.android.dbflow.structure.provider.ContentUtils
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -26,6 +29,9 @@ class ContentProviderTests : BaseUnitTest() {
 
     @Before
     fun setUp() {
+    }
+
+    private fun setupProvider() {
         val info = ProviderInfo()
         info.authority = TestContentProvider.AUTHORITY
         Robolectric.buildContentProvider(TestContentProvider_Provider::class.java).create(info)
@@ -35,12 +41,42 @@ class ContentProviderTests : BaseUnitTest() {
     fun testContentProviderUtils() {
         Delete.tables(NoteModel::class.java, ContentProviderModel::class.java)
 
+        // query from non exist content provider
+        val nonExistProvider = ContentUtils.querySingle(mockContentResolver,
+            TestContentProvider.ContentProviderModel.CONTENT_URI,
+            ContentProviderModel::class.java,
+            OperatorGroup.clause(),
+            null)
+        assertNull(nonExistProvider)
+
+        setupProvider()
+
+        // query from content provider before any model inserted
+        val nonExistProviderModel = ContentUtils.querySingle(mockContentResolver,
+            TestContentProvider.ContentProviderModel.CONTENT_URI,
+            ContentProviderModel::class.java,
+            OperatorGroup.clause(ContentProviderModel_Table.notes.eq("Test")),
+            null)
+        assertNull(nonExistProviderModel)
+
+        // insert model
         val contentProviderModel = ContentProviderModel()
         contentProviderModel.notes = "Test"
         var uri = ContentUtils.insert(mockContentResolver, TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel)
         assertEquals(TestContentProvider.ContentProviderModel.CONTENT_URI.toString() + "/" + contentProviderModel.id, uri.toString())
         assertTrue(contentProviderModel.exists())
 
+        // query inserted model
+        val queryProviderModel = ContentUtils.querySingle(mockContentResolver,
+            TestContentProvider.ContentProviderModel.CONTENT_URI,
+            ContentProviderModel::class.java,
+            OperatorGroup.clause(ContentProviderModel_Table.notes.eq("Test")),
+            null)
+        assertNotNull(queryProviderModel)
+        assertEquals(contentProviderModel.notes, queryProviderModel.notes)
+        assertEquals(contentProviderModel.id, queryProviderModel.id)
+
+        // update model
         contentProviderModel.notes = "NewTest"
         val update = ContentUtils.update(mockContentResolver, TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel)
         assertEquals(update.toLong(), 1)
@@ -48,12 +84,23 @@ class ContentProviderTests : BaseUnitTest() {
         contentProviderModel.load()
         assertEquals("NewTest", contentProviderModel.notes)
 
+        // insert model with foreign key
         val noteModel = NoteModel()
         noteModel.note = "Test"
         noteModel.contentProviderModel = contentProviderModel
         uri = ContentUtils.insert(mockContentResolver, TestContentProvider.NoteModel.CONTENT_URI, noteModel)
         assertEquals(TestContentProvider.NoteModel.CONTENT_URI.toString() + "/" + noteModel.id, uri.toString())
         assertTrue(noteModel.exists())
+
+        // query inserted model with foreign key
+        val queryNote = ContentUtils.querySingle(mockContentResolver, TestContentProvider.NoteModel.CONTENT_URI,
+            NoteModel::class.java,
+            OperatorGroup.clause(NoteModel_Table.note.eq("Test")),
+            null)
+        assertNotNull(queryNote)
+        assertEquals("Test", queryNote.note)
+        assertNotNull(queryNote.contentProviderModel)
+        assertEquals(contentProviderModel.id, queryNote.contentProviderModel!!.id)
 
         assertTrue(ContentUtils.delete(mockContentResolver, TestContentProvider.NoteModel.CONTENT_URI, noteModel) > 0)
         assertTrue(!noteModel.exists())
@@ -67,6 +114,13 @@ class ContentProviderTests : BaseUnitTest() {
     @Test
     fun testContentProviderNative() {
         Delete.tables(NoteModel::class.java, ContentProviderModel::class.java)
+
+        // load model before provider setup, this may happen when load across process
+        val nonExistProvider = ContentProviderModel(id = 0)
+        nonExistProvider.load()
+        assertNull(nonExistProvider.notes)
+
+        setupProvider()
 
         val contentProviderModel = ContentProviderModel(notes = "Test")
         contentProviderModel.insert()
@@ -99,6 +153,13 @@ class ContentProviderTests : BaseUnitTest() {
     @Test
     fun testSyncableModel() {
         Delete.table(TestSyncableModel::class.java)
+
+        // load model before provider setup, this may happen when load across process
+        val nonExistProvider = TestSyncableModel(id = 0)
+        nonExistProvider.load()
+        assertNull(nonExistProvider.name)
+
+        setupProvider()
 
         var testSyncableModel = TestSyncableModel(name = "Name")
         testSyncableModel.save()
