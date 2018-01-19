@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.annotation.provider.ContentProvider;
 import com.raizlabs.android.dbflow.config.FlowLog;
@@ -208,6 +209,7 @@ public class ContentUtils {
      * @param columns         The list of columns to query.
      * @return A {@link android.database.Cursor}
      */
+    @Nullable
     public static Cursor query(ContentResolver contentResolver, Uri queryUri,
                                OperatorGroup whereConditions,
                                String orderBy, String... columns) {
@@ -248,11 +250,12 @@ public class ContentUtils {
                                                           Class<TableClass> table,
                                                           OperatorGroup whereConditions,
                                                           String orderBy, String... columns) {
-        FlowCursor cursor = FlowCursor.from(contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy));
-        if (cursor != null) {
+        Cursor cursor = contentResolver.query(queryUri, columns, whereConditions.getQuery(), null, orderBy);
+        FlowCursor flowCursor = cursor == null ? null : FlowCursor.from(cursor);
+        if (flowCursor != null) {
             return FlowManager.getModelAdapter(table)
                 .getListModelLoader()
-                .load(cursor);
+                .load(flowCursor);
         }
         return new ArrayList<>();
     }
