@@ -8,7 +8,6 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     compileSdkVersion target_sdk
-    buildToolsVersion dbflow_build_tools_version
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -43,7 +42,7 @@ android {
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
     kapt project("${dbflow_project_prefix}dbflow-processor")
     implementation project(':dbflow')
