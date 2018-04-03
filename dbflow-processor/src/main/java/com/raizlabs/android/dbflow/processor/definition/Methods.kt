@@ -12,6 +12,10 @@ import com.squareup.javapoet.*
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Modifier
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.ClassName
+
 
 /**
  * Description:
@@ -36,11 +40,11 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
     override val methodSpec: MethodSpec?
         get() {
             val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "bindToInsertValues" else "bindToContentValues")
-                    .addAnnotation(Override::class.java)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
-                    .addParameter(baseTableDefinition.parameterClassName, ModelUtils.variable)
-                    .returns(TypeName.VOID)
+                .addAnnotation(Override::class.java)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
+                .addParameter(baseTableDefinition.parameterClassName, ModelUtils.variable)
+                .returns(TypeName.VOID)
 
             var retMethodBuilder: MethodSpec.Builder? = methodBuilder
 
@@ -53,7 +57,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
 
                 if (implementsContentValuesListener) {
                     methodBuilder.addStatement("\$L.onBindTo\$LValues(\$L)",
-                            ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
+                        ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
                 }
             } else {
                 if (baseTableDefinition.hasAutoIncrement || baseTableDefinition.hasRowID) {
@@ -68,7 +72,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                 methodBuilder.addStatement("bindToInsertValues(\$L, \$L)", PARAM_CONTENT_VALUES, ModelUtils.variable)
                 if (implementsContentValuesListener) {
                     methodBuilder.addStatement("\$L.onBindTo\$LValues(\$L)",
-                            ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
+                        ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
                 }
             }
 
@@ -115,37 +119,37 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
     override val methodSpec: MethodSpec?
         get() {
             val methodBuilder = MethodSpec.methodBuilder(mode.methodName)
-                    .addAnnotation(Override::class.java)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
-                    .addParameter(tableDefinition.parameterClassName,
-                            ModelUtils.variable).returns(TypeName.VOID)
+                .addAnnotation(Override::class.java)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
+                .addParameter(tableDefinition.parameterClassName,
+                    ModelUtils.variable).returns(TypeName.VOID)
 
             // write the reference method
             if (mode == Mode.INSERT) {
                 methodBuilder.addParameter(TypeName.INT, PARAM_START)
                 val realCount = AtomicInteger(1)
                 tableDefinition.columnDefinitions
-                        .filter { !it.isPrimaryKeyAutoIncrement && !it.isRowId }
-                        .forEach {
-                            methodBuilder.addCode(it.getSQLiteStatementMethod(realCount, true))
-                            realCount.incrementAndGet()
-                        }
+                    .filter { !it.isPrimaryKeyAutoIncrement && !it.isRowId }
+                    .forEach {
+                        methodBuilder.addCode(it.getSQLiteStatementMethod(realCount, true))
+                        realCount.incrementAndGet()
+                    }
 
             } else {
                 if (mode == Mode.UPDATE) {
                     val realCount = AtomicInteger(1)
                     // attach non rowid first, then go onto the WHERE clause
                     tableDefinition.columnDefinitions
-                            .filter { !it.isRowId }
-                            .forEach {
-                                methodBuilder.addCode(it.getSQLiteStatementMethod(realCount,
-                                        useStart = false))
-                                realCount.incrementAndGet()
-                            }
+                        .filter { !it.isRowId }
+                        .forEach {
+                            methodBuilder.addCode(it.getSQLiteStatementMethod(realCount,
+                                useStart = false))
+                            realCount.incrementAndGet()
+                        }
                     tableDefinition.primaryColumnDefinitions.forEach {
                         methodBuilder.addCode(it.getSQLiteStatementMethod(realCount,
-                                useStart = false, defineProperty = false))
+                            useStart = false, defineProperty = false))
                         realCount.incrementAndGet()
                     }
                 } else if (mode == Mode.DELETE) {
@@ -220,7 +224,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
             }
 
             val codeBuilder = CodeBlock.builder()
-                    .add("return ${creationBuilder.toString().S}")
+                .add("return ${creationBuilder.toString().S}")
 
             val foreignKeyBlocks = ArrayList<CodeBlock>()
             val tableNameBlocks = ArrayList<CodeBlock>()
@@ -288,7 +292,7 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
             val firstDef = def?.get(0)
             firstDef?.typeConverterElementNames?.forEach { elementName ->
                 code.statement("global_typeConverter${it.simpleName()} " +
-                        "= (\$T) holder.getTypeConverterForClass(\$T.class)", it, elementName)
+                    "= (\$T) holder.getTypeConverterForClass(\$T.class)", it, elementName)
             }
         }
         return code
@@ -302,8 +306,8 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
 
     override val methodSpec
         get() = `override fun`(TypeName.BOOLEAN, "exists",
-                param(tableDefinition.parameterClassName!!, ModelUtils.variable),
-                param(ClassNames.DATABASE_WRAPPER, "wrapper")) {
+            param(tableDefinition.parameterClassName!!, ModelUtils.variable),
+            param(ClassNames.DATABASE_WRAPPER, "wrapper")) {
             modifiers(public, final)
             code {
                 // only quick check if enabled.
@@ -320,6 +324,131 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
 /**
  * Description:
  */
+class FindAllAsyncMethod(private val tableDefinition: BaseTableDefinition) : MethodDefinition {
+
+    override val methodSpec
+        get() = `fun`(TypeName.VOID, "findAllAsync",
+            param(ClassNames.SQL_OPERATOR, "operators"),
+            param(ClassNames.QUERY_LIST_CALLBACK, "callback")) {
+            modifiers(public, static)
+            code {
+
+                add("\$T.select()\n.from(\$T.class)\n" +
+                    ".where(operators)\n" +
+                    ".async()\n" +
+                    ".queryListResultCallback(callback)\n" +
+                    ".execute();\n",
+                    ClassNames.SQLITE, tableDefinition.parameterClassName!!)
+                this
+            }
+        }
+}
+
+/**
+ * Description:
+ */
+class FindAllAsyncMethodOverload(private val tableDefinition: BaseTableDefinition) : MethodDefinition {
+
+    override val methodSpec
+        get() = `fun`(TypeName.VOID, "findAllAsync",
+            param(ClassNames.QUERY_LIST_CALLBACK, "callback")) {
+            modifiers(public, static)
+            code {
+
+                add("\$T.select()\n.from(\$T.class)\n" +
+                    ".async()\n" +
+                    ".queryListResultCallback(callback)\n" +
+                    ".execute();\n",
+                    ClassNames.SQLITE, tableDefinition.parameterClassName!!)
+                this
+            }
+        }
+}
+
+/**
+ * Description:
+ */
+class FindAllMethod(private val tableDefinition: BaseTableDefinition) : MethodDefinition {
+
+    override val methodSpec
+        get() = `fun`(ParameterizedTypeName.get(ClassName.get("java.util", "List"), tableDefinition.parameterClassName!!), "findAll",
+            param(ClassNames.SQL_OPERATOR, "operators")) {
+            modifiers(public, static)
+            code {
+                add("return \$T.select()\n" +
+                    ".from(\$T.class)\n" +
+                    ".where(operators)\n" +
+                    ".queryList();\n",
+                    ClassNames.SQLITE, tableDefinition.parameterClassName!!)
+                this
+            }
+        }
+}
+
+/**
+ * Description:
+ */
+class FindAllMethodOverload(private val tableDefinition: BaseTableDefinition) : MethodDefinition {
+
+    override val methodSpec
+        get() = `fun`(ParameterizedTypeName.get(ClassName.get("java.util", "List"), tableDefinition.parameterClassName!!), "findAll") {
+            modifiers(public, static)
+            code {
+                add("return \$T.select()\n" +
+                    ".from(\$T.class)\n" +
+                    ".queryList();\n",
+                    ClassNames.SQLITE, tableDefinition.parameterClassName!!)
+                this
+            }
+        }
+}
+
+/**
+ * Description:
+ */
+class FindOneAsyncMethod(private val tableDefinition: BaseTableDefinition) : MethodDefinition {
+
+    override val methodSpec
+        get() = `fun`(TypeName.VOID, "findOneAsync",
+            param(ClassNames.SQL_OPERATOR, "operators"),
+            param(ClassNames.QUERY_SINGLE_CALLBACK, "callback")) {
+            modifiers(public, static)
+            code {
+
+                add("\$T.select()\n.from(\$T.class)\n" +
+                    ".where(operators)\n" +
+                    ".async()\n" +
+                    ".querySingleResultCallback(callback)\n" +
+                    ".execute();\n",
+                    ClassNames.SQLITE, tableDefinition.parameterClassName!!)
+                this
+            }
+        }
+}
+
+/**
+ * Description:
+ */
+class FindOneMethod(private val tableDefinition: BaseTableDefinition) : MethodDefinition {
+
+    override val methodSpec
+        get() = `fun`(tableDefinition.parameterClassName!!, "findOne",
+            param(ClassNames.SQL_OPERATOR, "operators")) {
+            modifiers(public, static)
+            code {
+                add("return \$T.select()\n" +
+                    ".from(\$T.class)\n" +
+                    ".where(operators)\n" +
+                    ".querySingle();\n",
+                    ClassNames.SQLITE, tableDefinition.parameterClassName!!)
+                this
+            }
+        }
+}
+
+/**
+ * Description:
+ */
 class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, private val isInsert: Boolean) : MethodDefinition {
 
     override val methodSpec: MethodSpec?
@@ -328,10 +457,10 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, p
                 return null // dont write method here because we reuse the compiled statement query method
             }
             return `override fun`(String::class,
-                    if (isInsert) "getInsertStatementQuery" else "getCompiledStatementQuery") {
+                if (isInsert) "getInsertStatementQuery" else "getCompiledStatementQuery") {
                 modifiers(public, final)
                 val isSingleAutoincrement = tableDefinition.hasAutoIncrement
-                        && tableDefinition.columnDefinitions.size == 1 && isInsert
+                    && tableDefinition.columnDefinitions.size == 1 && isInsert
                 `return`(codeBlock {
                     add("INSERT ")
                     if (!tableDefinition.insertConflictActionName.isEmpty()) {
@@ -349,10 +478,10 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition, p
                     add(") VALUES (")
 
                     tableDefinition.columnDefinitions.filter { !it.isPrimaryKeyAutoIncrement && !it.isRowId || !isInsert }
-                            .forEachIndexed { index, columnDefinition ->
-                                if (index > 0) add(",")
-                                add(columnDefinition.insertStatementValuesString)
-                            }
+                        .forEachIndexed { index, columnDefinition ->
+                            if (index > 0) add(",")
+                            add(columnDefinition.insertStatementValuesString)
+                        }
 
                     if (isSingleAutoincrement) add("NULL")
 
@@ -427,8 +556,8 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
 
     override val methodSpec: MethodSpec
         get() = `override fun`(TypeName.VOID, "loadFromCursor",
-                param(ClassNames.FLOW_CURSOR, PARAM_CURSOR),
-                param(baseTableDefinition.parameterClassName!!, ModelUtils.variable)) {
+            param(ClassNames.FLOW_CURSOR, PARAM_CURSOR),
+            param(baseTableDefinition.parameterClassName!!, ModelUtils.variable)) {
             modifiers(public, final)
             val index = AtomicInteger(0)
             val nameAllocator = NameAllocator() // unique names
@@ -443,8 +572,8 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
 
                 code {
                     baseTableDefinition.oneToManyDefinitions
-                            .filter { it.isLoad }
-                            .forEach { it.writeLoad(this) }
+                        .filter { it.isLoad }
+                        .forEach { it.writeLoad(this) }
                     this
                 }
             }
@@ -473,7 +602,7 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
             val shouldWrite = tableDefinition.oneToManyDefinitions.any { it.isDelete }
             if (shouldWrite || tableDefinition.cachingEnabled) {
                 return `override fun`(TypeName.BOOLEAN, "delete",
-                        param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
+                    param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
                     modifiers(public, final)
                     if (useWrapper) {
                         addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
@@ -518,7 +647,7 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                 }
 
                 return `override fun`(retType, methodName,
-                        param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
+                    param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
                     modifiers(public, final)
 
                     if (useWrapper) {
@@ -574,7 +703,7 @@ class PrimaryConditionMethod(private val tableDefinition: BaseTableDefinition) :
 
     override val methodSpec: MethodSpec?
         get() = `override fun`(ClassNames.OPERATOR_GROUP, "getPrimaryConditionClause",
-                param(tableDefinition.parameterClassName!!, ModelUtils.variable)) {
+            param(tableDefinition.parameterClassName!!, ModelUtils.variable)) {
             modifiers(public, final)
             code {
                 statement("\$T clause = \$T.clause()", ClassNames.OPERATOR_GROUP, ClassNames.OPERATOR_GROUP)

@@ -24,6 +24,7 @@ object ClassNames {
     val LISTENER = STRUCTURE + ".listener"
     val RUNTIME = BASE_PACKAGE + ".runtime"
     val TRANSACTION = RUNTIME + ".transaction"
+    val DB_TRANSACTION = DATABASE + ".transaction"
     val SAVEABLE = SQL + ".saveable"
 
     val DATABASE_HOLDER = ClassName.get(CONFIG, "DatabaseHolder")
@@ -68,6 +69,11 @@ object ClassNames {
     val IPROPERTY = ClassName.get(PROPERTY_PACKAGE, "IProperty")
     val INDEX_PROPERTY = ClassName.get(PROPERTY_PACKAGE, "IndexProperty")
     val OPERATOR_GROUP = ClassName.get(LANGUAGE, "OperatorGroup")
+    val SQL_OPERATOR = ClassName.get(LANGUAGE, "SQLOperator")
+
+    // com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction
+    val QUERY_LIST_CALLBACK = ClassName.get("$DB_TRANSACTION.QueryTransaction", "QueryResultListCallback")
+    val QUERY_SINGLE_CALLBACK = ClassName.get("$DB_TRANSACTION.QueryTransaction", "QueryResultSingleCallback")
 
     val ICONDITIONAL = ClassName.get(LANGUAGE, "IConditional")
 
