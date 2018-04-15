@@ -5,7 +5,6 @@ import com.raizlabs.dbflow5.adapter.saveable.ListModelSaver
 import com.raizlabs.dbflow5.adapter.saveable.ModelSaver
 import com.raizlabs.dbflow5.annotation.ConflictAction
 import com.raizlabs.dbflow5.annotation.ForeignKey
-import com.raizlabs.dbflow5.annotation.PrimaryKey
 import com.raizlabs.dbflow5.annotation.Table
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.database.DatabaseStatement
@@ -18,10 +17,6 @@ import com.raizlabs.dbflow5.query.property.Property
  */
 abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     : RetrievalAdapter<T>(databaseDefinition), InternalAdapter<T> {
-
-    private var insertStatement: DatabaseStatement? = null
-    private var updateStatement: DatabaseStatement? = null
-    private var deleteStatement: DatabaseStatement? = null
 
     private var _modelSaver: ModelSaver<T>? = null
 
@@ -46,6 +41,8 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
 
     protected abstract val deleteStatementQuery: String
 
+    protected abstract val saveStatementQuery: String
+
     /**
      * @return The conflict algorithm to use when updating a row in this table.
      */
@@ -63,27 +60,6 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
             modelSaver.modelAdapter = this
             _modelSaver = modelSaver
         }
-    }
-
-    fun close() {
-        closeInsertStatement()
-        closeUpdateStatement()
-        closeDeleteStatement()
-    }
-
-    fun closeInsertStatement() {
-        insertStatement?.close()
-        insertStatement = null
-    }
-
-    fun closeUpdateStatement() {
-        updateStatement?.close()
-        updateStatement = null
-    }
-
-    fun closeDeleteStatement() {
-        deleteStatement?.close()
-        deleteStatement = null
     }
 
     /**
@@ -110,25 +86,37 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     fun getDeleteStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
             databaseWrapper.compileStatement(deleteStatementQuery)
 
+    /**
+     * @param databaseWrapper The database used to do a save (insert or replace) statement.
+     * @return a new compiled [DatabaseStatement] representing insert or replace. Not cached, always generated.
+     * To bind values use [bindToInsertStatement].
+     */
+    fun getSaveStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
+            databaseWrapper.compileStatement(saveStatementQuery)
+
     override fun save(model: T, databaseWrapper: DatabaseWrapper): Boolean =
             modelSaver.save(model, databaseWrapper)
 
-    override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long = listModelSaver.saveAll(models, databaseWrapper)
+    override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long =
+            listModelSaver.saveAll(models, databaseWrapper)
 
     override fun insert(model: T, databaseWrapper: DatabaseWrapper): Long =
             modelSaver.insert(model, databaseWrapper)
 
-    override fun insertAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long = listModelSaver.insertAll(models, databaseWrapper)
+    override fun insertAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long =
+            listModelSaver.insertAll(models, databaseWrapper)
 
     override fun update(model: T, databaseWrapper: DatabaseWrapper): Boolean =
             modelSaver.update(model, databaseWrapper)
 
-    override fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long = listModelSaver.updateAll(models, databaseWrapper)
+    override fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long =
+            listModelSaver.updateAll(models, databaseWrapper)
 
     override fun delete(model: T, databaseWrapper: DatabaseWrapper): Boolean =
             modelSaver.delete(model, databaseWrapper)
 
-    override fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long = listModelSaver.deleteAll(models, databaseWrapper)
+    override fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long =
+            listModelSaver.deleteAll(models, databaseWrapper)
 
     override fun bindToContentValues(contentValues: ContentValues, model: T) {
         bindToInsertValues(contentValues, model)

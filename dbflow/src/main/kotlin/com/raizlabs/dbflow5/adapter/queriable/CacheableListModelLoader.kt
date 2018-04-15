@@ -15,19 +15,19 @@ open class CacheableListModelLoader<T : Any>(modelClass: Class<T>,
                                              protected val cacheAdapter: CacheAdapter<T>)
     : ListModelLoader<T>(modelClass) {
 
-    val modelAdapter: ModelAdapter<T> by lazy {
+    protected val modelAdapter: ModelAdapter<T> by lazy {
         if (instanceAdapter !is ModelAdapter<*>) {
             throw IllegalArgumentException("A non-Table type was used.")
         }
         val modelAdapter = instanceAdapter as ModelAdapter<T>
         if (!modelAdapter.cachingEnabled()) {
             throw IllegalArgumentException("You cannot call this method for a table that has" +
-                " no caching id. Either use one Primary Key or use the MultiCacheKeyConverter")
+                    " no caching id. Either use one Primary Key or use the MultiCacheKeyConverter")
         }
         return@lazy modelAdapter
     }
 
-    val modelCache: ModelCache<T, *> by lazy { cacheAdapter.modelCache }
+    protected val modelCache: ModelCache<T, *> by lazy { cacheAdapter.modelCache }
 
     override fun convertToData(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): MutableList<T> {
         val data = mutableListOf<T>()
@@ -37,7 +37,7 @@ open class CacheableListModelLoader<T : Any>(modelClass: Class<T>,
             do {
                 val values = cacheAdapter.getCachingColumnValuesFromCursor(cacheValues, cursor)
                 val model = modelCache.addOrReload(cacheAdapter.getCachingId(values),
-                    cacheAdapter, modelAdapter, cursor, databaseWrapper)
+                        cacheAdapter, modelAdapter, cursor, databaseWrapper)
                 data.add(model)
             } while (cursor.moveToNext())
         }

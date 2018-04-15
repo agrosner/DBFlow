@@ -11,63 +11,63 @@ class CacheableListModelSaver<T : Any>(modelSaver: ModelSaver<T>,
                                        private val cacheAdapter: CacheAdapter<T>)
     : ListModelSaver<T>(modelSaver) {
 
-    @Synchronized override fun saveAll(tableCollection: Collection<T>,
-                                       wrapper: DatabaseWrapper): Long {
-        val statement = modelAdapter.getInsertStatement(wrapper)
-        val updateStatement = modelAdapter.getUpdateStatement(wrapper)
-        return applyAndCount(tableCollection, statement, updateStatement, cacheAdapter::storeModelInCache) {
-            modelSaver.save(it, statement, updateStatement, wrapper)
+    @Synchronized
+    override fun saveAll(tableCollection: Collection<T>,
+                         wrapper: DatabaseWrapper): Long {
+        return applyAndCount(
+                tableCollection = tableCollection,
+                databaseStatement = modelAdapter.getSaveStatement(wrapper),
+                cacheFn = cacheAdapter::storeModelInCache) { model, statement ->
+            modelSaver.save(model, statement, wrapper)
         }
     }
 
-    @Synchronized override fun insertAll(tableCollection: Collection<T>,
-                                         wrapper: DatabaseWrapper): Long {
-        val statement = modelAdapter.getInsertStatement(wrapper)
-        return applyAndCount(tableCollection, statement,
-            cacheFn = cacheAdapter::storeModelInCache) {
-            modelSaver.insert(it, statement, wrapper) > 0
+    @Synchronized
+    override fun insertAll(tableCollection: Collection<T>,
+                           wrapper: DatabaseWrapper): Long {
+        return applyAndCount(
+                tableCollection = tableCollection,
+                databaseStatement = modelAdapter.getInsertStatement(wrapper),
+                cacheFn = cacheAdapter::storeModelInCache) { model, statement ->
+            modelSaver.insert(model, statement, wrapper) > 0
         }
     }
 
-    @Synchronized override fun updateAll(tableCollection: Collection<T>,
-                                         wrapper: DatabaseWrapper): Long {
-        val statement = modelAdapter.getUpdateStatement(wrapper)
-        return applyAndCount(tableCollection, statement,
-            cacheFn = cacheAdapter::storeModelInCache) {
-            modelSaver.update(it, statement, wrapper)
+    @Synchronized
+    override fun updateAll(tableCollection: Collection<T>,
+                           wrapper: DatabaseWrapper): Long {
+        return applyAndCount(tableCollection, modelAdapter.getUpdateStatement(wrapper),
+                cacheFn = cacheAdapter::storeModelInCache) { model, statement ->
+            modelSaver.update(model, statement, wrapper)
         }
     }
 
-    @Synchronized override fun deleteAll(tableCollection: Collection<T>,
-                                         wrapper: DatabaseWrapper): Long {
-        val statement = modelAdapter.getDeleteStatement(wrapper)
-        return applyAndCount(tableCollection, statement,
-            cacheFn = cacheAdapter::removeModelFromCache) {
-            modelSaver.delete(it, statement, wrapper)
+    @Synchronized
+    override fun deleteAll(tableCollection: Collection<T>,
+                           wrapper: DatabaseWrapper): Long {
+        return applyAndCount(tableCollection, modelAdapter.getDeleteStatement(wrapper),
+                cacheFn = cacheAdapter::removeModelFromCache) { model, statement ->
+            modelSaver.delete(model, statement, wrapper)
         }
     }
 
     private inline fun applyAndCount(tableCollection: Collection<T>,
                                      databaseStatement: DatabaseStatement,
-                                     otherStatement: DatabaseStatement? = null,
                                      crossinline cacheFn: (T) -> Unit,
-                                     crossinline fn: (T) -> Boolean): Long {
+                                     crossinline fn: (T, DatabaseStatement) -> Boolean): Long {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return 0L
         }
 
         var count = 0L
-        try {
-            tableCollection.forEach {
-                if (fn(it)) {
-                    cacheFn(it)
+        databaseStatement.use { statement ->
+            tableCollection.forEach { model ->
+                if (fn(model, statement)) {
+                    cacheFn(model)
                     count++
                 }
             }
-        } finally {
-            databaseStatement.close()
-            otherStatement?.close()
         }
         return count
     }

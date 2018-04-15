@@ -10,53 +10,50 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
     @Synchronized
     open fun saveAll(tableCollection: Collection<T>,
                      wrapper: DatabaseWrapper): Long {
-        val statement = modelAdapter.getInsertStatement(wrapper)
-        val updateStatement = modelAdapter.getUpdateStatement(wrapper)
-        return applyAndCount(tableCollection, statement, updateStatement) {
-            modelSaver.save(it, statement, updateStatement, wrapper)
+        return applyAndCount(tableCollection, modelAdapter.getSaveStatement(wrapper)) { model, statement ->
+            modelSaver.save(model, statement, wrapper)
         }
     }
 
     @Synchronized
     open fun insertAll(tableCollection: Collection<T>,
                        wrapper: DatabaseWrapper): Long {
-        val statement = modelAdapter.getInsertStatement(wrapper)
-        return applyAndCount(tableCollection, statement) { modelSaver.insert(it, statement, wrapper) > 0 }
+        return applyAndCount(tableCollection, modelAdapter.getInsertStatement(wrapper)) { model, statement ->
+            modelSaver.insert(model, statement, wrapper) > ModelSaver.INSERT_FAILED
+        }
     }
 
     @Synchronized
     open fun updateAll(tableCollection: Collection<T>,
                        wrapper: DatabaseWrapper): Long {
-        val statement = modelAdapter.getUpdateStatement(wrapper)
-        return applyAndCount(tableCollection, statement) { modelSaver.update(it, statement, wrapper) }
+        return applyAndCount(tableCollection, modelAdapter.getUpdateStatement(wrapper)) { model, statement ->
+            modelSaver.update(model, statement, wrapper)
+        }
     }
 
     @Synchronized
     open fun deleteAll(tableCollection: Collection<T>,
                        wrapper: DatabaseWrapper): Long {
-        val statement = modelAdapter.getDeleteStatement(wrapper)
-        return applyAndCount(tableCollection, statement) { modelSaver.delete(it, statement, wrapper) }
+        return applyAndCount(tableCollection, modelAdapter.getDeleteStatement(wrapper)) { model, statement ->
+            modelSaver.delete(model, statement, wrapper)
+        }
     }
 
     private inline fun applyAndCount(tableCollection: Collection<T>,
                                      databaseStatement: DatabaseStatement,
-                                     otherStatement: DatabaseStatement? = null,
-                                     crossinline fn: (T) -> Boolean): Long {
+                                     crossinline fn: (T, DatabaseStatement) -> Boolean): Long {
         // skip if empty.
         if (tableCollection.isEmpty()) {
             return 0L
         }
 
         var count = 0L
-        try {
+        databaseStatement.use { statement ->
             tableCollection.forEach {
-                if (fn(it)) {
+                if (fn(it, statement)) {
                     count++
                 }
             }
-        } finally {
-            databaseStatement.close()
-            otherStatement?.close()
         }
         return count
     }

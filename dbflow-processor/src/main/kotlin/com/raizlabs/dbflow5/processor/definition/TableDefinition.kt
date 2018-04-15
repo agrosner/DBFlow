@@ -177,6 +177,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 BindToStatementMethod(this, UPDATE),
                 BindToStatementMethod(this, DELETE),
                 InsertStatementQueryMethod(this, InsertStatementQueryMethod.Mode.INSERT),
+                InsertStatementQueryMethod(this, InsertStatementQueryMethod.Mode.SAVE),
                 UpdateStatementQueryMethod(this),
                 DeleteStatementQueryMethod(this),
                 CreationQueryMethod(this),

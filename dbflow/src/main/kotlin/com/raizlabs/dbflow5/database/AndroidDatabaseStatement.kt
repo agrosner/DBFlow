@@ -11,7 +11,7 @@ import android.os.Build
  */
 class AndroidDatabaseStatement
 internal constructor(val statement: SQLiteStatement,
-                     private val database: SQLiteDatabase) : BaseDatabaseStatement() {
+                     private val database: SQLiteDatabase) : BaseDatabaseStatement(), DatabaseStatement {
 
     override fun executeUpdateDelete(): Long {
         var count: Long = 0
@@ -29,9 +29,7 @@ internal constructor(val statement: SQLiteStatement,
             } catch (e: SQLException) {
                 // Handle exception here.
             } finally {
-                if (cursor != null) {
-                    cursor.close()
-                }
+                cursor?.close()
             }
         }
         return count
@@ -83,6 +81,6 @@ internal constructor(val statement: SQLiteStatement,
         @JvmStatic
         fun from(sqLiteStatement: SQLiteStatement,
                  database: SQLiteDatabase): AndroidDatabaseStatement =
-            AndroidDatabaseStatement(sqLiteStatement, database)
+                AndroidDatabaseStatement(sqLiteStatement, database)
     }
 }

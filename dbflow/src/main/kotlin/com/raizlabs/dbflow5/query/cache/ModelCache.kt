@@ -15,10 +15,10 @@ abstract class ModelCache<TModel, out CacheClass>
  * @param cache The arbitrary underlying cache class.
  */
 (
-    /**
-     * @return The cache that's backing this cache.
-     */
-    val cache: CacheClass) {
+        /**
+         * @return The cache that's backing this cache.
+         */
+        val cache: CacheClass) {
 
     /**
      * Adds a model to this cache.
@@ -55,11 +55,12 @@ abstract class ModelCache<TModel, out CacheClass>
 }
 
 @Suppress("NOTHING_TO_INLINE")
-inline fun <T : Any, C> ModelCache<T, C>.addOrReload(cacheValue: Any?,
-                                                     cacheAdapter: CacheAdapter<T>,
-                                                     modelAdapter: ModelAdapter<T>,
-                                                     cursor: FlowCursor,
-                                                     databaseWrapper: DatabaseWrapper): T {
+internal inline fun <T : Any, C> ModelCache<T, C>.addOrReload(
+        cacheValue: Any?,
+        cacheAdapter: CacheAdapter<T>,
+        modelAdapter: ModelAdapter<T>,
+        cursor: FlowCursor,
+        databaseWrapper: DatabaseWrapper): T {
     var model: T? = get(cacheValue)
     if (model != null) {
         cacheAdapter.reloadRelationships(model, cursor, databaseWrapper)

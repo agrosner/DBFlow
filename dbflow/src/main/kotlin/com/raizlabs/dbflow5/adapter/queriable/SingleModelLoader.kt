@@ -11,13 +11,10 @@ open class SingleModelLoader<T : Any>(modelClass: Class<T>)
 
     open fun convertToData(cursor: FlowCursor,
                            moveToFirst: Boolean,
-                           databaseWrapper: DatabaseWrapper): T? {
-        var data: T? = null
-        if (!moveToFirst || cursor.moveToFirst()) {
-            data = instanceAdapter.loadFromCursor(cursor, databaseWrapper)
-        }
-        return data
-    }
+                           databaseWrapper: DatabaseWrapper): T? =
+            if (!moveToFirst || cursor.moveToFirst()) {
+                instanceAdapter.loadFromCursor(cursor, databaseWrapper)
+            } else null
 
     override fun convertToData(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): T? {
         return convertToData(cursor, true, databaseWrapper)

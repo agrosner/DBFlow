@@ -11,7 +11,7 @@ import com.raizlabs.dbflow5.database.FlowCursor
  */
 abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Class<TModel>) {
 
-    val instanceAdapter: RetrievalAdapter<TModel> by lazy { FlowManager.getRetrievalAdapter(modelClass) }
+    protected val instanceAdapter: RetrievalAdapter<TModel> by lazy { FlowManager.getRetrievalAdapter(modelClass) }
 
     /**
      * Loads the data from a query and returns it as a [TReturn].
@@ -20,8 +20,8 @@ abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Clas
      * @param query           The query to call.
      * @return The data loaded from the database.
      */
-    open fun load(databaseWrapper: DatabaseWrapper, query: String): TReturn?
-        = load(databaseWrapper.rawQuery(query, null), databaseWrapper)
+    open fun load(databaseWrapper: DatabaseWrapper, query: String): TReturn? =
+            load(databaseWrapper.rawQuery(query, null), databaseWrapper)
 
     open fun load(cursor: FlowCursor?, databaseWrapper: DatabaseWrapper): TReturn? {
         var data: TReturn? = null

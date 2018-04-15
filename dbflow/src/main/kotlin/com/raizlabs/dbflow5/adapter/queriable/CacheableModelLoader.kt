@@ -16,7 +16,7 @@ open class CacheableModelLoader<T : Any>(modelClass: Class<T>,
                                          protected val cacheAdapter: CacheAdapter<T>)
     : SingleModelLoader<T>(modelClass) {
 
-    val modelAdapter: ModelAdapter<T> by lazy {
+    protected val modelAdapter: ModelAdapter<T> by lazy {
         when (instanceAdapter) {
             !is ModelAdapter<*> -> throw IllegalArgumentException("A non-Table type was used.")
             else -> {
@@ -31,7 +31,7 @@ open class CacheableModelLoader<T : Any>(modelClass: Class<T>,
         }
     }
 
-    val modelCache: ModelCache<T, *> by lazy { cacheAdapter.modelCache }
+    protected val modelCache: ModelCache<T, *> by lazy { cacheAdapter.modelCache }
 
     /**
      * Converts data by loading from cache based on its sequence of caching ids. Will reuse the passed
@@ -43,9 +43,9 @@ open class CacheableModelLoader<T : Any>(modelClass: Class<T>,
                                databaseWrapper: DatabaseWrapper): T? {
         return if (!moveToFirst || cursor.moveToFirst()) {
             val values = cacheAdapter.getCachingColumnValuesFromCursor(
-                arrayOfNulls(cacheAdapter.cachingColumnSize), cursor)
+                    arrayOfNulls(cacheAdapter.cachingColumnSize), cursor)
             modelCache.addOrReload(cacheAdapter.getCachingId(values), cacheAdapter, modelAdapter,
-                cursor, databaseWrapper)
+                    cursor, databaseWrapper)
         } else null
     }
 }

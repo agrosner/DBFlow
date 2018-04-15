@@ -385,7 +385,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     fun close() {
         transactionManager.stopQueue()
-        modelAdapters.values.forEach { it.close() }
         if (isOpened) {
             openHelper.closeDB()
             isOpened = false

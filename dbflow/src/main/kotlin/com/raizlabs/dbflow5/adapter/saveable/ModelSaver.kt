@@ -16,37 +16,22 @@ open class ModelSaver<T : Any> {
 
     @Synchronized
     fun save(model: T, wrapper: DatabaseWrapper): Boolean {
-        var exists = modelAdapter.exists(model, wrapper)
-
-        if (exists) {
-            exists = update(model, wrapper)
-        }
-
-        if (!exists) {
-            exists = insert(model, wrapper) > INSERT_FAILED
-        }
-
-        // return successful store into db.
-        return exists
+        val insertStatement = modelAdapter.getSaveStatement(wrapper)
+        return insertStatement.use { save(model, insertStatement, wrapper) }
     }
 
     @Synchronized
     fun save(model: T,
              insertStatement: DatabaseStatement,
-             updateStatement: DatabaseStatement,
              wrapper: DatabaseWrapper): Boolean {
-        var exists = modelAdapter.exists(model, wrapper)
-
-        if (exists) {
-            exists = update(model, updateStatement, wrapper)
+        modelAdapter.saveForeignKeys(model, wrapper)
+        modelAdapter.bindToInsertStatement(insertStatement, model)
+        val id = insertStatement.executeInsert()
+        val success = id > INSERT_FAILED
+        if (success) {
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.CHANGE)
         }
-
-        if (!exists) {
-            exists = insert(model, insertStatement, wrapper) > INSERT_FAILED
-        }
-
-        // return successful store into db.
-        return exists
+        return success
     }
 
     @Synchronized
