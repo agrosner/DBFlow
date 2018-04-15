@@ -65,6 +65,12 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
         }
     }
 
+    fun close() {
+        closeInsertStatement()
+        closeUpdateStatement()
+        closeDeleteStatement()
+    }
+
     fun closeInsertStatement() {
         insertStatement?.close()
         insertStatement = null

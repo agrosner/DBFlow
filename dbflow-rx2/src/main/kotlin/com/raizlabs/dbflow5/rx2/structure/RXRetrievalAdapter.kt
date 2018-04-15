@@ -24,8 +24,6 @@ internal constructor(private val retrievalAdapter: RetrievalAdapter<T>) {
      * @param model The model to query values from
      * @return True if it exists as a row in the corresponding database table
      */
-    fun exists(model: T): Single<Boolean> = Single.fromCallable { retrievalAdapter.exists(model) }
-
     fun exists(model: T, wrapper: DatabaseWrapper): Single<Boolean> =
             Single.fromCallable { retrievalAdapter.exists(model, wrapper) }
 

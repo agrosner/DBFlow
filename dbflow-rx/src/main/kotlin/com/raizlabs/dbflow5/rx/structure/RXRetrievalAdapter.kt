@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.rx.structure
 
-import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
+import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import rx.Completable
 import rx.Single
@@ -24,8 +24,6 @@ internal constructor(private val retrievalAdapter: RetrievalAdapter<T>) {
      * @param model The model to query values from
      * @return True if it exists as a row in the corresponding database table
      */
-    fun exists(model: T): Single<Boolean> = Single.fromCallable { retrievalAdapter.exists(model) }
-
     fun exists(model: T, wrapper: DatabaseWrapper): Single<Boolean> =
             Single.fromCallable { retrievalAdapter.exists(model, wrapper) }
 

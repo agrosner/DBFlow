@@ -95,7 +95,7 @@ class FlowQueryList<T : Any>(
      * @return always false if its anything other than the current table. True if [com.raizlabs.dbflow5.structure.Model.exists] passes.
      */
     override operator fun contains(element: T): Boolean {
-        return internalCursorList.instanceAdapter.exists(element)
+        return internalCursorList.instanceAdapter.exists(element, internalCursorList.databaseWrapper)
     }
 
     /**

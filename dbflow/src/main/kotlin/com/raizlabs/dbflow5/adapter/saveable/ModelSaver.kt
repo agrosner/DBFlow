@@ -52,12 +52,7 @@ open class ModelSaver<T : Any> {
     @Synchronized
     fun update(model: T, wrapper: DatabaseWrapper): Boolean {
         val updateStatement = modelAdapter.getUpdateStatement(wrapper)
-        return try {
-            update(model, updateStatement, wrapper)
-        } finally {
-            // since we generate an insert every time, we can safely close the statement here.
-            updateStatement.close()
-        }
+        return updateStatement.use { update(model, it, wrapper) }
     }
 
     @Synchronized
@@ -71,19 +66,16 @@ open class ModelSaver<T : Any> {
         return successful
     }
 
-    @Synchronized open fun insert(model: T, wrapper: DatabaseWrapper): Long {
+    @Synchronized
+    open fun insert(model: T, wrapper: DatabaseWrapper): Long {
         val insertStatement = modelAdapter.getInsertStatement(wrapper)
-        return try {
-            insert(model, insertStatement, wrapper)
-        } finally {
-            // since we generate an insert every time, we can safely close the statement here.
-            insertStatement.close()
-        }
+        return insertStatement.use { insert(model, it, wrapper) }
     }
 
-    @Synchronized open fun insert(model: T,
-                                  insertStatement: DatabaseStatement,
-                                  wrapper: DatabaseWrapper): Long {
+    @Synchronized
+    open fun insert(model: T,
+                    insertStatement: DatabaseStatement,
+                    wrapper: DatabaseWrapper): Long {
         modelAdapter.saveForeignKeys(model, wrapper)
         modelAdapter.bindToInsertStatement(insertStatement, model)
         val id = insertStatement.executeInsert()
@@ -97,12 +89,7 @@ open class ModelSaver<T : Any> {
     @Synchronized
     fun delete(model: T, wrapper: DatabaseWrapper): Boolean {
         val deleteStatement = modelAdapter.getDeleteStatement(wrapper)
-        return try {
-            delete(model, deleteStatement, wrapper)
-        } finally {
-            // since we generate an insert every time, we can safely close the statement here.
-            deleteStatement.close()
-        }
+        return deleteStatement.use { delete(model, it, wrapper) }
     }
 
     @Synchronized
@@ -122,7 +109,7 @@ open class ModelSaver<T : Any> {
 
     companion object {
 
-        val INSERT_FAILED = -1
+        const val INSERT_FAILED = -1
     }
 }
 

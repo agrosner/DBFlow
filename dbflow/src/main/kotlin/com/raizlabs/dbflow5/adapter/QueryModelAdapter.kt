@@ -16,10 +16,6 @@ abstract class QueryModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
         throw UnsupportedOperationException("QueryModels cannot check for existence")
     }
 
-    override fun exists(model: T): Boolean {
-        throw UnsupportedOperationException("QueryModels cannot check for existence")
-    }
-
     override fun exists(model: T, databaseWrapper: DatabaseWrapper): Boolean {
         throw UnsupportedOperationException("QueryModels cannot check for existence")
     }

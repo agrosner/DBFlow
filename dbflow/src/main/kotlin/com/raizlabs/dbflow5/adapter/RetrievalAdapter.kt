@@ -70,7 +70,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
 
     init {
         val databaseConfig = FlowManager.getConfig()
-            .getConfigForDatabase(databaseDefinition.associatedDatabaseClassFile)
+                .getConfigForDatabase(databaseDefinition.associatedDatabaseClassFile)
         if (databaseConfig != null) {
             tableConfig = databaseConfig.getTableConfigForTable(table)
             if (tableConfig != null) {
@@ -84,10 +84,10 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
      * Returns a new [model] based on the object passed in. Will not overwrite existing object.
      */
     open fun load(model: T, databaseWrapper: DatabaseWrapper): T? =
-        nonCacheableSingleModelLoader.load(databaseWrapper,
-            (select
-                from table
-                where getPrimaryConditionClause(model)).query)
+            nonCacheableSingleModelLoader.load(databaseWrapper,
+                    (select
+                            from table
+                            where getPrimaryConditionClause(model)).query)
 
     /**
      * Converts the specified [FlowCursor] into a new [T]
@@ -96,12 +96,6 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
      * @param wrapper The database instance to use.
      */
     abstract fun loadFromCursor(cursor: FlowCursor, wrapper: DatabaseWrapper): T
-
-    /**
-     * @param model The model to query values from
-     * @return True if it exists as a row in the corresponding database table
-     */
-    open fun exists(model: T): Boolean = exists(model, FlowManager.getDatabaseForTable(table))
 
     /**
      * @param model The model to query values from
