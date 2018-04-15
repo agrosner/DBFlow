@@ -12,14 +12,6 @@ import com.raizlabs.dbflow5.structure.Model
 interface SQLiteStatementListener {
 
     /**
-     * Called at the end of [InternalAdapter.bindToStatement]
-     * Perform a custom manipulation of the statement as willed.
-     *
-     * @param databaseStatement The statement from the [ModelAdapter]
-     */
-    fun onBindToStatement(databaseStatement: DatabaseStatement)
-
-    /**
      * Called at the end of [InternalAdapter.bindToInsertStatement]
      * Perform a custom manipulation of the statement as willed.
      *

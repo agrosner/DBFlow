@@ -1,7 +1,6 @@
 package com.raizlabs.dbflow5.adapter
 
 import android.content.ContentValues
-import android.support.annotation.IntRange
 import com.raizlabs.dbflow5.annotation.PrimaryKey
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
@@ -85,26 +84,7 @@ interface InternalAdapter<in TModel> {
     fun deleteAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Long
 
     /**
-     * Binds a [TModel] to the specified db statement
-     *
-     * @param sqLiteStatement The statement to fill
-     */
-    fun bindToStatement(sqLiteStatement: DatabaseStatement, model: TModel)
-
-    /**
-     * Provides common logic and a starting value for insert statements. So we can property compile
-     * and bind statements without generating duplicate code.
-     *
-     * @param sqLiteStatement The statement to bind.
-     * @param model           The model to retrieve data from.
-     * @param start           The starting index for this bind.
-     */
-    fun bindToInsertStatement(sqLiteStatement: DatabaseStatement, model: TModel,
-                              @IntRange(from = 0, to = 1) start: Int)
-
-    /**
-     * Binds to a [DatabaseStatement]. It leaves out an autoincrementing primary key (if specified)
-     * to keep the true nature of AI keys.
+     * Binds to a [DatabaseStatement] for insert.
      *
      * @param sqLiteStatement The statement to bind to.
      * @param model           The model to read from.
@@ -147,12 +127,6 @@ interface InternalAdapter<in TModel> {
      * @param id    The key to store
      */
     fun updateAutoIncrement(model: TModel, id: Number)
-
-    /**
-     * @return The value for the [PrimaryKey.autoincrement]
-     * if it has the field. This method is overridden when its specified for the [TModel]
-     */
-    fun getAutoIncrementingId(model: TModel): Number?
 
     /**
      * @return true if the [InternalAdapter] can be cached.

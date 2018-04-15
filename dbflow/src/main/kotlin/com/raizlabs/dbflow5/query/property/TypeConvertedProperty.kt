@@ -1,6 +1,7 @@
 package com.raizlabs.dbflow5.query.property
 
 import com.raizlabs.dbflow5.adapter.ModelAdapter
+import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.converter.TypeConverter
 import com.raizlabs.dbflow5.query.NameAlias
 import com.raizlabs.dbflow5.query.Operator
@@ -49,7 +50,11 @@ class TypeConvertedProperty<T, V> : Property<V> {
     }
 
     override fun withTable(): TypeConvertedProperty<T, V> {
-        return withTable(nameAlias)
+        val nameAlias = this.nameAlias
+                .newBuilder()
+                .withTable(FlowManager.getTableName(table))
+                .build()
+        return TypeConvertedProperty(this.table, nameAlias, this.convertToDB, this.getter)
     }
 
     /**
@@ -57,17 +62,17 @@ class TypeConvertedProperty<T, V> : Property<V> {
      * Provides a convenience for supplying type converted methods within the DataClass of the [TypeConverter]
      */
     fun invertProperty(): Property<T> = databaseProperty
-        ?: TypeConvertedProperty<V, T>(table, nameAlias,
-        !convertToDB, object : TypeConverterGetter {
-        override fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *> =
-            getter.getTypeConverter(modelClass)
-    }).also { databaseProperty = it }
+            ?: TypeConvertedProperty<V, T>(table, nameAlias,
+                    !convertToDB, object : TypeConverterGetter {
+                override fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *> =
+                        getter.getTypeConverter(modelClass)
+            }).also { databaseProperty = it }
 
     override fun withTable(tableNameAlias: NameAlias): TypeConvertedProperty<T, V> {
         val nameAlias = this.nameAlias
-            .newBuilder()
-            .withTable(tableNameAlias.query)
-            .build()
+                .newBuilder()
+                .withTable(tableNameAlias.tableName)
+                .build()
         return TypeConvertedProperty(this.table, nameAlias, this.convertToDB, this.getter)
     }
 }

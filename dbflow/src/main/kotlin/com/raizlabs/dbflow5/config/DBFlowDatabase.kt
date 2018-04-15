@@ -390,7 +390,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         modelAdapters.values.forEach {
             with(it) {
                 closeInsertStatement()
-                closeCompiledStatement()
                 closeDeleteStatement()
                 closeUpdateStatement()
             }

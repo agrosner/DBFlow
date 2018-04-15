@@ -116,9 +116,6 @@ data class Account(@PrimaryKey var id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
 class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener {
-    override fun onBindToStatement(databaseStatement: DatabaseStatement) {
-        TODO("not implemented")
-    }
 
     override fun onBindToInsertStatement(databaseStatement: DatabaseStatement) {
         TODO("not implemented")

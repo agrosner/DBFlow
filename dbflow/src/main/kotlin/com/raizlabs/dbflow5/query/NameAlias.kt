@@ -220,6 +220,9 @@ class NameAlias(private val name: String,
 
         fun builder(name: String): Builder = Builder(name)
 
+        fun tableNameBuilder(tableName: String): Builder = Builder("")
+                .withTable(tableName)
+
         /**
          * @param name The raw name of this alias.
          * @return A new instance without adding identifier `` to any part of the query.

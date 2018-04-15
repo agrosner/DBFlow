@@ -12,7 +12,6 @@ import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
-import com.raizlabs.dbflow5.structure.InvalidDBConfiguration
 
 /**
  * Description: Used for generated classes from the combination of [Table] and [Model].
@@ -21,22 +20,12 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     : RetrievalAdapter<T>(databaseDefinition), InternalAdapter<T> {
 
     private var insertStatement: DatabaseStatement? = null
-    private var compiledStatement: DatabaseStatement? = null
     private var updateStatement: DatabaseStatement? = null
     private var deleteStatement: DatabaseStatement? = null
 
     private var _modelSaver: ModelSaver<T>? = null
 
     val listModelSaver: ListModelSaver<T> by lazy { createListModelSaver() }
-
-    /**
-     * @return The autoincrement column name for the [PrimaryKey.autoincrement]
-     * if it has the field. This method is overridden when its specified for the [T]
-     */
-    open val autoIncrementingColumnName: String
-        get() = throw InvalidDBConfiguration("This method may have been called in error." +
-            " The model class $table must contain an autoincrementing" +
-            " or single int/long primary key (if used in a ModelCache, this method may be called)")
 
     /**
      * @return The query used to create this table.
@@ -51,13 +40,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     /**
      * @return The query used to insert a model using a [DatabaseStatement]
      */
-    protected open val insertStatementQuery: String
-        get() = compiledStatementQuery
-
-    /**
-     * @return The normal query used in saving a model if we use a [DatabaseStatement].
-     */
-    protected abstract val compiledStatementQuery: String
+    protected abstract val insertStatementQuery: String
 
     protected abstract val updateStatementQuery: String
 
@@ -100,67 +83,46 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     /**
      * @param databaseWrapper The database used to do an insert statement.
      * @return a new compiled [DatabaseStatement] representing insert. Not cached, always generated.
-     * To bind values use [.bindToInsertStatement].
+     * To bind values use [bindToInsertStatement].
      */
     fun getInsertStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-        databaseWrapper.compileStatement(insertStatementQuery)
+            databaseWrapper.compileStatement(insertStatementQuery)
 
     /**
      * @param databaseWrapper The database used to do an update statement.
      * @return a new compiled [DatabaseStatement] representing update. Not cached, always generated.
-     * To bind values use [.bindToUpdateStatement].
+     * To bind values use [bindToUpdateStatement].
      */
     fun getUpdateStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-        databaseWrapper.compileStatement(updateStatementQuery)
+            databaseWrapper.compileStatement(updateStatementQuery)
 
     /**
      * @param databaseWrapper The database used to do a delete statement.
      * @return a new compiled [DatabaseStatement] representing delete. Not cached, always generated.
-     * To bind values use [.bindToDeleteStatement].
+     * To bind values use [bindToDeleteStatement].
      */
     fun getDeleteStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-        databaseWrapper.compileStatement(deleteStatementQuery)
-
-    fun closeCompiledStatement() {
-        compiledStatement?.close()
-        compiledStatement = null
-    }
-
-    /**
-     * @param databaseWrapper The database used to do an insert statement.
-     * @return a new compiled [DatabaseStatement] representing insert.
-     * To bind values use [.bindToInsertStatement].
-     */
-    fun getCompiledStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-        databaseWrapper.compileStatement(compiledStatementQuery)
+            databaseWrapper.compileStatement(deleteStatementQuery)
 
     override fun save(model: T, databaseWrapper: DatabaseWrapper): Boolean =
-        modelSaver.save(model, databaseWrapper)
+            modelSaver.save(model, databaseWrapper)
 
-    override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long
-        = listModelSaver.saveAll(models, databaseWrapper)
+    override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long = listModelSaver.saveAll(models, databaseWrapper)
 
     override fun insert(model: T, databaseWrapper: DatabaseWrapper): Long =
-        modelSaver.insert(model, databaseWrapper)
+            modelSaver.insert(model, databaseWrapper)
 
-    override fun insertAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long
-        = listModelSaver.insertAll(models, databaseWrapper)
+    override fun insertAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long = listModelSaver.insertAll(models, databaseWrapper)
 
     override fun update(model: T, databaseWrapper: DatabaseWrapper): Boolean =
-        modelSaver.update(model, databaseWrapper)
+            modelSaver.update(model, databaseWrapper)
 
-    override fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long
-        = listModelSaver.updateAll(models, databaseWrapper)
+    override fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long = listModelSaver.updateAll(models, databaseWrapper)
 
     override fun delete(model: T, databaseWrapper: DatabaseWrapper): Boolean =
-        modelSaver.delete(model, databaseWrapper)
+            modelSaver.delete(model, databaseWrapper)
 
-    override fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long
-        = listModelSaver.deleteAll(models, databaseWrapper)
-
-    override fun bindToInsertStatement(sqLiteStatement: DatabaseStatement, model: T) {
-        bindToInsertStatement(sqLiteStatement, model, 0)
-    }
+    override fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long = listModelSaver.deleteAll(models, databaseWrapper)
 
     override fun bindToContentValues(contentValues: ContentValues, model: T) {
         bindToInsertValues(contentValues, model)
@@ -168,11 +130,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
 
     override fun bindToInsertValues(contentValues: ContentValues, model: T) {
         throw RuntimeException("ContentValues are no longer generated automatically. To enable it," +
-            " set generateContentValues = true in @Table for $table.")
-    }
-
-    override fun bindToStatement(sqLiteStatement: DatabaseStatement, model: T) {
-        bindToInsertStatement(sqLiteStatement, model, 0)
+                " set generateContentValues = true in @Table for $table.")
     }
 
     /**
@@ -184,19 +142,6 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      */
     override fun updateAutoIncrement(model: T, id: Number) {
 
-    }
-
-    /**
-     * @return The value for the [PrimaryKey.autoincrement]
-     * if it has the field. This method is overridden when its specified for the [T]
-     */
-    override fun getAutoIncrementingId(model: T): Number? {
-        throw RuntimeException("Table $table does not have an auto-incrementing id.")
-    }
-
-    fun hasAutoIncrement(model: T): Boolean {
-        val id = getAutoIncrementingId(model)
-        return id != null && id.toLong() > 0
     }
 
     /**
@@ -219,9 +164,9 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
 
     var modelSaver: ModelSaver<T>
         get() = _modelSaver
-            ?: createSingleModelSaver()
-            .apply { modelAdapter = this@ModelAdapter }
-            .also { _modelSaver = it }
+                ?: createSingleModelSaver()
+                        .apply { modelAdapter = this@ModelAdapter }
+                        .also { _modelSaver = it }
         set(value) {
             this._modelSaver = value
             value.modelAdapter = this

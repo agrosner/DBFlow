@@ -63,12 +63,12 @@ class ReferenceDefinition(private val manager: ProcessorManager,
             isReferencedFieldPrivate -> columnAccessor = PrivateScopeColumnAccessor(foreignKeyFieldName, getterSetter, false)
             isReferencedFieldPackagePrivate -> {
                 columnAccessor = PackagePrivateScopeColumnAccessor(foreignKeyFieldName, packageName,
-                    referenceColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
-                    name)
+                        referenceColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
+                        name)
 
                 PackagePrivateScopeColumnAccessor.putElement(
-                    (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
-                    foreignKeyFieldName)
+                        (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
+                        foreignKeyFieldName)
             }
             else -> columnAccessor = VisibleScopeColumnAccessor(foreignKeyFieldName)
         }
@@ -89,26 +89,26 @@ class ReferenceDefinition(private val manager: ProcessorManager,
         }
 
         val combiner = Combiner(columnAccessor, columnClassName!!, wrapperAccessor,
-            wrapperTypeName, subWrapperAccessor, referenceColumnDefinition.elementName)
+                wrapperTypeName, subWrapperAccessor, referenceColumnDefinition.elementName)
         partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, foreignColumnName,
-            columnClassName, referenceColumnDefinition.baseTableDefinition.orderedCursorLookUp,
-            columnAccessor, wrapperAccessor, wrapperTypeName)
+                columnClassName, referenceColumnDefinition.baseTableDefinition.orderedCursorLookUp,
+                columnAccessor, wrapperAccessor, wrapperTypeName)
 
         val defaultValue = referenceColumnDefinition.getDefaultValueBlock(this.defaultValue, columnClassName)
         primaryReferenceField = ForeignKeyAccessField(columnName,
-            PrimaryReferenceAccessCombiner(combiner), defaultValue)
+                PrimaryReferenceAccessCombiner(combiner), defaultValue)
 
         contentValuesField = ForeignKeyAccessField(columnName,
-            ContentValuesCombiner(combiner), defaultValue)
+                ContentValuesCombiner(combiner), defaultValue)
 
-        sqliteStatementField = ForeignKeyAccessField("start",
-            SqliteStatementAccessCombiner(combiner), defaultValue)
+        sqliteStatementField = ForeignKeyAccessField("",
+                SqliteStatementAccessCombiner(combiner), defaultValue)
 
     }
 
     private fun handleSpecifiedTypeConverter(typeConverterClassName: ClassName?, typeMirror: TypeMirror?) {
         if (typeConverterClassName != null && typeMirror != null &&
-            typeConverterClassName != ClassNames.TYPE_CONVERTER) {
+                typeConverterClassName != ClassNames.TYPE_CONVERTER) {
             evaluateTypeConverter(TypeConverterDefinition(typeConverterClassName, typeMirror, manager), true)
         }
     }
@@ -120,17 +120,17 @@ class ReferenceDefinition(private val manager: ProcessorManager,
 
             if (it.modelTypeName != columnClassName) {
                 manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
-                    it.modelTypeName, it.className, columnClassName)
+                        it.modelTypeName, it.className, columnClassName)
             } else {
                 hasTypeConverter = true
                 hasCustomConverter = isCustom
 
                 val fieldName = if (hasCustomConverter) {
                     referenceColumnDefinition.baseTableDefinition
-                        .addColumnForCustomTypeConverter(referenceColumnDefinition, it.className)
+                            .addColumnForCustomTypeConverter(referenceColumnDefinition, it.className)
                 } else {
                     referenceColumnDefinition.baseTableDefinition
-                        .addColumnForTypeConverter(referenceColumnDefinition, it.className)
+                            .addColumnForTypeConverter(referenceColumnDefinition, it.className)
                 }
 
                 wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
@@ -148,7 +148,7 @@ class ReferenceDefinition(private val manager: ProcessorManager,
         if (!localColumnName.isNullOrEmpty()) {
             this.columnName = localColumnName
         } else if (!referenceColumnDefinition.isPrimaryKey && !referenceColumnDefinition.isPrimaryKeyAutoIncrement
-            && !referenceColumnDefinition.isRowId || referenceCount > 0) {
+                && !referenceColumnDefinition.isRowId || referenceCount > 0) {
             this.columnName = "${foreignKeyFieldName}_${referencedColumn.columnName}"
         } else {
             this.columnName = foreignKeyFieldName
@@ -159,8 +159,8 @@ class ReferenceDefinition(private val manager: ProcessorManager,
         isReferencedFieldPackagePrivate = referencedColumn.columnAccessor is PackagePrivateScopeColumnAccessor
         val isPackagePrivate = ElementUtility.isPackagePrivate(referencedColumn.element)
         val isPackagePrivateNotInSamePackage = isPackagePrivate &&
-            !ElementUtility.isInSamePackage(manager, referencedColumn.element,
-                referenceColumnDefinition.element)
+                !ElementUtility.isInSamePackage(manager, referencedColumn.element,
+                        referenceColumnDefinition.element)
         isReferencedFieldPackagePrivate = isReferencedFieldPackagePrivate || isPackagePrivateNotInSamePackage
         val packageName = referencedColumn.packageName
         val name = ClassName.get(referencedColumn.element.enclosingElement as TypeElement).simpleName()
@@ -169,7 +169,7 @@ class ReferenceDefinition(private val manager: ProcessorManager,
             override val setterName: String = referencedColumn.column?.setterName ?: ""
         }, name, packageName)
         createForeignKeyFields(columnClassName, referenceColumnDefinition,
-            typeConverterClassName, typeConverterTypeMirror, manager)
+                typeConverterClassName, typeConverterTypeMirror, manager)
 
         notNull = onNullConflict != ConflictAction.NONE
     }

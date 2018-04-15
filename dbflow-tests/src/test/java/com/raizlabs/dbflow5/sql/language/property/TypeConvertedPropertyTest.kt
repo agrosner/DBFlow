@@ -37,6 +37,6 @@ class TypeConvertedPropertyTest : BaseUnitTest() {
 
         assertEquals("`difficulty`='H'", EnumTypeConverterModel_Table.difficulty.eq(Difficulty.HARD).query)
         assertEquals("`EnumTypeConverterModel`.`difficulty`='H'", EnumTypeConverterModel_Table.difficulty.withTable().eq(Difficulty.HARD).query)
-        assertEquals("`et`.`difficulty`='H'", EnumTypeConverterModel_Table.difficulty.withTable(NameAlias.builder("et").build()).eq(Difficulty.HARD).query)
+        assertEquals("`et`.`difficulty`='H'", EnumTypeConverterModel_Table.difficulty.withTable(NameAlias.tableNameBuilder("et").build()).eq(Difficulty.HARD).query)
     }
 }

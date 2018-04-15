@@ -315,10 +315,9 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             codeBuilder.build()
         }
 
-    override fun getSQLiteStatementMethod(index: AtomicInteger, useStart: Boolean,
-                                          defineProperty: Boolean): CodeBlock {
+    override fun getSQLiteStatementMethod(index: AtomicInteger, defineProperty: Boolean): CodeBlock {
         if (nonModelColumn) {
-            return super.getSQLiteStatementMethod(index, useStart, defineProperty)
+            return super.getSQLiteStatementMethod(index, defineProperty)
         } else {
             val codeBuilder = CodeBlock.builder()
             referencedClassName?.let {
@@ -326,7 +325,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                 referenceDefinitionList.forEach {
                     foreignKeyCombiner.fieldAccesses += it.sqliteStatementField
                 }
-                foreignKeyCombiner.addCode(codeBuilder, index, useStart, defineProperty)
+                foreignKeyCombiner.addCode(codeBuilder, index, defineProperty)
             }
             return codeBuilder.build()
         }

@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.query.property
 
+import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.query.NameAlias
 
 /**
@@ -19,14 +20,18 @@ class WrapperProperty<T, V> : Property<V> {
     constructor(table: Class<*>, columnName: String) : super(table, columnName)
 
     override fun withTable(): WrapperProperty<T, V> {
-        return withTable(nameAlias)
+        val nameAlias = this.nameAlias
+                .newBuilder()
+                .withTable(FlowManager.getTableName(table))
+                .build()
+        return WrapperProperty(this.table, nameAlias)
     }
 
     override fun withTable(tableNameAlias: NameAlias): WrapperProperty<T, V> {
         val nameAlias = this.nameAlias
-            .newBuilder()
-            .withTable(tableNameAlias.query)
-            .build()
+                .newBuilder()
+                .withTable(tableNameAlias.tableName)
+                .build()
         return WrapperProperty(this.table, nameAlias)
     }
 
@@ -35,5 +40,5 @@ class WrapperProperty<T, V> : Property<V> {
      * for types that have different DB representations.
      */
     fun invertProperty(): WrapperProperty<V, T> = databaseProperty
-        ?: WrapperProperty<V, T>(table!!, nameAlias).also { databaseProperty = it }
+            ?: WrapperProperty<V, T>(table, nameAlias).also { databaseProperty = it }
 }

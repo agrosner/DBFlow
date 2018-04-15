@@ -1,7 +1,17 @@
 package com.raizlabs.android.dbflow.processor.test
 
-import com.raizlabs.android.dbflow.processor.definition.column.*
-import com.raizlabs.android.dbflow.processor.definition.column.PrimaryReferenceAccessCombiner
+import com.raizlabs.dbflow5.processor.definition.column.Combiner
+import com.raizlabs.dbflow5.processor.definition.column.ContentValuesCombiner
+import com.raizlabs.dbflow5.processor.definition.column.ForeignKeyAccessCombiner
+import com.raizlabs.dbflow5.processor.definition.column.ForeignKeyAccessField
+import com.raizlabs.dbflow5.processor.definition.column.ForeignKeyLoadFromCursorCombiner
+import com.raizlabs.dbflow5.processor.definition.column.PackagePrivateScopeColumnAccessor
+import com.raizlabs.dbflow5.processor.definition.column.PartialLoadFromCursorAccessCombiner
+import com.raizlabs.dbflow5.processor.definition.column.PrimaryReferenceAccessCombiner
+import com.raizlabs.dbflow5.processor.definition.column.PrivateScopeColumnAccessor
+import com.raizlabs.dbflow5.processor.definition.column.SqliteStatementAccessCombiner
+import com.raizlabs.dbflow5.processor.definition.column.TypeConverterScopeColumnAccessor
+import com.raizlabs.dbflow5.processor.definition.column.VisibleScopeColumnAccessor
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.NameAllocator
@@ -44,16 +54,16 @@ class ForeignKeyAccessCombinerTest {
     @Test
     fun test_canCombineSimplePrivateCase() {
         val foreignKeyAccessCombiner = ForeignKeyAccessCombiner(PrivateScopeColumnAccessor("name"))
-        foreignKeyAccessCombiner.fieldAccesses += ForeignKeyAccessField("start",
+        foreignKeyAccessCombiner.fieldAccesses += ForeignKeyAccessField("",
                 SqliteStatementAccessCombiner(Combiner(VisibleScopeColumnAccessor("test"), TypeName.get(String::class.java))))
 
         val builder = CodeBlock.builder()
         foreignKeyAccessCombiner.addCode(builder, AtomicInteger(4))
 
         assertEquals("if (model.getName() != null) {" +
-                "\n  statement.bindStringOrNull(4 + start, model.getName().test);" +
+                "\n  statement.bindStringOrNull(4, model.getName().test);" +
                 "\n} else {" +
-                "\n  statement.bindNull(4 + start);" +
+                "\n  statement.bindNull(4);" +
                 "\n}",
                 builder.build().toString().trim())
     }
