@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlin_version = '1.2.21'
+        kotlin_version = '1.2.31'
         target_sdk = 27
         min_sdk = 7
         min_sdk_rx = 15
@@ -8,15 +8,16 @@ buildscript {
         arch_min = 14
 
         deps = [
-            kotlin          : "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}",
-            sql_cipher      : "net.zetetic:android-database-sqlcipher:3.5.7@aar",
-            rx1             : 'io.reactivex:rxjava:1.3.4',
-            rx2             : 'io.reactivex.rxjava2:rxjava:2.1.7',
-            coroutines      : "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19.2",
-            javapoet        : 'com.squareup:javapoet:1.9.0',
-            kpoet           : 'com.github.agrosner:KPoet:1.0.0',
-            javax_annotation: 'org.glassfish:javax.annotation:10.0-b28',
-            junit           : 'junit:junit:4.12',
+                kotlin          : "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}",
+                sql_cipher      : "net.zetetic:android-database-sqlcipher:3.5.7@aar",
+                rx1             : 'io.reactivex:rxjava:1.3.4',
+                rx2             : 'io.reactivex.rxjava2:rxjava:2.1.12',
+                coroutines      : "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5",
+                javapoet        : 'com.squareup:javapoet:1.9.0',
+                kpoet           : 'com.github.agrosner:KPoet:1.0.0',
+                javax_annotation: 'org.glassfish:javax.annotation:10.0-b28',
+                junit           : 'junit:junit:4.12',
+                paging          : "android.arch.paging:runtime:1.0.0-beta1",
         ]
     }
     repositories {
@@ -24,7 +25,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.0-beta2'
+        classpath 'com.android.tools.build:gradle:3.1.1'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"

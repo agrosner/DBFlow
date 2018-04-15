@@ -23,7 +23,7 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: Mode
     : FlowableOnSubscribe<R> {
 
     private val register: TableNotifierRegister = FlowManager.newRegisterForTable(modelQueriable.table)
-    private var flowableEmitter: FlowableEmitter<R>? = null
+    private lateinit var flowableEmitter: FlowableEmitter<R>
 
     private val onTableChangedListener = object : OnTableChangedListener {
         override fun onTableChanged(table: Class<*>?, action: ChangeAction) {
@@ -34,7 +34,7 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: Mode
     }
 
     private fun evaluateEmission() {
-        flowableEmitter?.let { flowableEmitter ->
+        if (this::flowableEmitter.isInitialized) {
             databaseForTable(modelQueriable.table.kotlin)
                 .beginTransactionAsync { evalFn(it, modelQueriable) }
                 .asMaybe()

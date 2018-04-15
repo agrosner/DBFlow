@@ -20,7 +20,7 @@ import com.raizlabs.dbflow5.query.LoadFromCursorListener
  */
 @Table(database = TestDatabase::class)
 class Blog(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
-           @ForeignKey var author: Author? = null)
+           @ForeignKey(saveForeignKeyModel = true) var author: Author? = null)
 
 /**
  * Parent used as foreign key reference.

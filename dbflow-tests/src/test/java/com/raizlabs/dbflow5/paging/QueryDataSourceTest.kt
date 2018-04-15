@@ -31,8 +31,8 @@ class QueryDataSourceTest : BaseUnitTest() {
                     .setPageSize(3)
                     .setPrefetchDistance(6)
                     .setEnablePlaceholders(true).build())
-                .setBackgroundThreadExecutor { it.run() } // run on main
-                .setMainThreadExecutor { it.run() }
+                .setFetchExecutor { it.run() } // run on main
+                .setNotifyExecutor { it.run() }
                 .build()
 
             assertEquals(100, list.size)

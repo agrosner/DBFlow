@@ -51,7 +51,7 @@ internal constructor(private val transformable: TQuery,
     class Factory<T : Any, TQuery>
     internal constructor(private val transformable: TQuery,
                          private val database: DBFlowDatabase)
-        : DataSource.Factory<Int, T> where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
+        : DataSource.Factory<Int, T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
         override fun create(): DataSource<Int, T> = QueryDataSource(transformable, database)
     }
 

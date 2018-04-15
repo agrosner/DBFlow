@@ -21,30 +21,30 @@ typealias Completion<R> = (Transaction<R>) -> Unit
  * To create one, the recommended method is to use the [DBFlowDatabase.beginTransactionAsync].
  */
 class Transaction<R : Any?>(
-    @get:JvmName("transaction")
-    val transaction: ITransaction<R>,
-    private val databaseDefinition: DBFlowDatabase,
-    @get:JvmName("error")
-    val error: Error<R>? = null,
-    @get:JvmName("success")
-    val success: Success<R>? = null,
-    @get:JvmName("completion")
-    val completion: Completion<R>? = null,
-    @get:JvmName("name")
-    val name: String?,
-    private val shouldRunInTransaction: Boolean = true,
-    private val runCallbacksOnSameThread: Boolean = true) {
+        @get:JvmName("transaction")
+        val transaction: ITransaction<R>,
+        private val databaseDefinition: DBFlowDatabase,
+        @get:JvmName("error")
+        val error: Error<R>? = null,
+        @get:JvmName("success")
+        val success: Success<R>? = null,
+        @get:JvmName("completion")
+        val completion: Completion<R>? = null,
+        @get:JvmName("name")
+        val name: String?,
+        private val shouldRunInTransaction: Boolean = true,
+        private val runCallbacksOnSameThread: Boolean = true) {
 
 
     internal constructor(builder: Builder<R>) : this(
-        databaseDefinition = builder.databaseDefinition,
-        error = builder.errorCallback,
-        success = builder.successCallback,
-        completion = builder.completion,
-        transaction = builder.transaction,
-        name = builder.name,
-        shouldRunInTransaction = builder.shouldRunInTransaction,
-        runCallbacksOnSameThread = builder.runCallbacksOnSameThread
+            databaseDefinition = builder.databaseDefinition,
+            error = builder.errorCallback,
+            success = builder.successCallback,
+            completion = builder.completion,
+            transaction = builder.transaction,
+            name = builder.name,
+            shouldRunInTransaction = builder.shouldRunInTransaction,
+            runCallbacksOnSameThread = builder.runCallbacksOnSameThread
     )
 
     /**
@@ -68,7 +68,7 @@ class Transaction<R : Any?>(
      */
     fun executeSync() {
         try {
-            val result = if (shouldRunInTransaction) {
+            val result: R = if (shouldRunInTransaction) {
                 databaseDefinition.executeTransaction(transaction)
             } else {
                 transaction.execute(databaseDefinition)
@@ -106,11 +106,11 @@ class Transaction<R : Any?>(
 
     fun newBuilder(): Builder<R> {
         return Builder(transaction, databaseDefinition)
-            .error(error)
-            .success(success)
-            .name(name)
-            .shouldRunInTransaction(shouldRunInTransaction)
-            .runCallbacksOnSameThread(runCallbacksOnSameThread)
+                .error(error)
+                .success(success)
+                .name(name)
+                .shouldRunInTransaction(shouldRunInTransaction)
+                .runCallbacksOnSameThread(runCallbacksOnSameThread)
     }
 
     /**

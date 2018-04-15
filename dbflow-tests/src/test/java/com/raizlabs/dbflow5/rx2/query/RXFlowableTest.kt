@@ -46,25 +46,25 @@ class RXFlowableTest : BaseUnitTest() {
 
     @Test
     fun testObservesJoinTables() {
-        val authors = (0..10).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
-        (0..10).forEach { Blog(it, name = "${it}name ${it}last", author = authors[it]).save() }
-
         val joinOn = Blog_Table.name.withTable()
             .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
-        assertEquals("`Blog`.`name` = `Author`.`first_name` + `Author`.`last_name", joinOn.query)
+        assertEquals("`Blog`.`name`=`Author`.`first_name`+`Author`.`last_name`", joinOn.query)
 
         var list = mutableListOf<Blog>()
-        var mutations = 0
+        var calls = 0
         (select from Blog::class
             innerJoin Author::class
             on joinOn)
             .asFlowable { db, modelQueriable -> modelQueriable.queryList(db) }
             .subscribe {
-                mutations++
+                calls++
                 list = it
             }
 
+        val authors = (0 until 10).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
+        (0 until 10).forEach { Blog(it, name = "${it}name ${it}last", author = authors[it]).save() }
+
+        assertEquals(11, calls) // 1 for initial, 10 for each model object
         assertEquals(10, list.size)
-        assertEquals(1, mutations)
     }
 }

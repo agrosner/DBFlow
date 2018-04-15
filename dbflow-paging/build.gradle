@@ -27,8 +27,8 @@ android {
 
 dependencies {
     implementation project("${dbflow_project_prefix}dbflow")
-    api "android.arch.paging:runtime:1.0.0-alpha4"
-    api "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
+    api deps.paging
+    api deps.kotlin
 }
 
 apply from: '../kotlin-artifacts.gradle'

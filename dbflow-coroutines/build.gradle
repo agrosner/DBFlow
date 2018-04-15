@@ -4,10 +4,10 @@ apply plugin: 'kotlin-android'
 project.ext.artifactId = bt_name
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion target_sdk
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 26
+        targetSdkVersion target_sdk
     }
 
     buildTypes {
