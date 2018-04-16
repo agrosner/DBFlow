@@ -2,7 +2,6 @@ package com.raizlabs.dbflow5.runtime
 
 import android.content.Context
 import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.times
 import com.nhaarman.mockito_kotlin.verify
 import com.raizlabs.dbflow5.ImmediateTransactionManager2
 import com.raizlabs.dbflow5.TestDatabase
@@ -42,10 +41,10 @@ class DirectNotifierTest {
     @Before
     fun setupTest() {
         FlowManager.init(FlowConfig.Builder(context)
-            .database(DatabaseConfig.Builder(TestDatabase::class.java,
-                AndroidSQLiteOpenHelper.createHelperCreator(context))
-                .transactionManagerCreator(::ImmediateTransactionManager2)
-                .build()).build())
+                .database(DatabaseConfig.Builder(TestDatabase::class.java,
+                        AndroidSQLiteOpenHelper.createHelperCreator(context))
+                        .transactionManagerCreator(::ImmediateTransactionManager2)
+                        .build()).build())
     }
 
     @Test
@@ -62,7 +61,7 @@ class DirectNotifierTest {
         verify(modelChange).onModelChanged(simpleModel, ChangeAction.UPDATE)
 
         simpleModel.save()
-        verify(modelChange, times(2)).onModelChanged(simpleModel, ChangeAction.UPDATE)
+        verify(modelChange).onModelChanged(simpleModel, ChangeAction.CHANGE)
 
         simpleModel.delete()
         verify(modelChange).onModelChanged(simpleModel, ChangeAction.DELETE)

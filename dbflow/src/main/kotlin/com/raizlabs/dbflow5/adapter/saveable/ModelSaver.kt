@@ -29,6 +29,7 @@ open class ModelSaver<T : Any> {
         val id = insertStatement.executeInsert()
         val success = id > INSERT_FAILED
         if (success) {
+            modelAdapter.updateAutoIncrement(model, id)
             NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.CHANGE)
         }
         return success
