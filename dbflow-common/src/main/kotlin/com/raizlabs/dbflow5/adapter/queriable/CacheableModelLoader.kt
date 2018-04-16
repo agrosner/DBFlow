@@ -1,8 +1,8 @@
 package com.raizlabs.dbflow5.adapter.queriable
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.adapter.CacheAdapter
 import com.raizlabs.dbflow5.adapter.ModelAdapter
-import com.raizlabs.dbflow5.annotation.Table
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.cache.ModelCache
@@ -12,7 +12,7 @@ import com.raizlabs.dbflow5.query.cache.addOrReload
  * Description: Loads model data that is backed by a [ModelCache]. Used when [Table.cachingEnabled]
  * is true.
  */
-open class CacheableModelLoader<T : Any>(modelClass: Class<T>,
+open class CacheableModelLoader<T : Any>(modelClass: KClass<T>,
                                          protected val cacheAdapter: CacheAdapter<T>)
     : SingleModelLoader<T>(modelClass) {
 
@@ -43,9 +43,9 @@ open class CacheableModelLoader<T : Any>(modelClass: Class<T>,
                                databaseWrapper: DatabaseWrapper): T? {
         return if (!moveToFirst || cursor.moveToFirst()) {
             val values = cacheAdapter.getCachingColumnValuesFromCursor(
-                    arrayOfNulls(cacheAdapter.cachingColumnSize), cursor)
+                arrayOfNulls(cacheAdapter.cachingColumnSize), cursor)
             modelCache.addOrReload(cacheAdapter.getCachingId(values), cacheAdapter, modelAdapter,
-                    cursor, databaseWrapper)
+                cursor, databaseWrapper)
         } else null
     }
 }

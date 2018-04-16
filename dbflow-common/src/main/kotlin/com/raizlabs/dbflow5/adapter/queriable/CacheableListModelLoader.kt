@@ -1,8 +1,8 @@
 package com.raizlabs.dbflow5.adapter.queriable
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.adapter.CacheAdapter
 import com.raizlabs.dbflow5.adapter.ModelAdapter
-import com.raizlabs.dbflow5.annotation.Table
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.cache.ModelCache
@@ -11,7 +11,7 @@ import com.raizlabs.dbflow5.query.cache.addOrReload
 /**
  * Description: Loads a [List] of [T] with [Table.cachingEnabled] true.
  */
-open class CacheableListModelLoader<T : Any>(modelClass: Class<T>,
+open class CacheableListModelLoader<T : Any>(modelClass: KClass<T>,
                                              protected val cacheAdapter: CacheAdapter<T>)
     : ListModelLoader<T>(modelClass) {
 
@@ -22,7 +22,7 @@ open class CacheableListModelLoader<T : Any>(modelClass: Class<T>,
         val modelAdapter = instanceAdapter as ModelAdapter<T>
         if (!modelAdapter.cachingEnabled()) {
             throw IllegalArgumentException("You cannot call this method for a table that has" +
-                    " no caching id. Either use one Primary Key or use the MultiCacheKeyConverter")
+                " no caching id. Either use one Primary Key or use the MultiCacheKeyConverter")
         }
         return@lazy modelAdapter
     }
@@ -37,7 +37,7 @@ open class CacheableListModelLoader<T : Any>(modelClass: Class<T>,
             do {
                 val values = cacheAdapter.getCachingColumnValuesFromCursor(cacheValues, cursor)
                 val model = modelCache.addOrReload(cacheAdapter.getCachingId(values),
-                        cacheAdapter, modelAdapter, cursor, databaseWrapper)
+                    cacheAdapter, modelAdapter, cursor, databaseWrapper)
                 data.add(model)
             } while (cursor.moveToNext())
         }

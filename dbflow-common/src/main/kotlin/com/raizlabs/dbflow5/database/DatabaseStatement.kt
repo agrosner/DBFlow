@@ -1,11 +1,11 @@
 package com.raizlabs.dbflow5.database
 
-import java.io.Closeable
+import com.raizlabs.dbflow5.AutoCloseable
 
 /**
  * Description: Abstracts out an Android SQLiteStatement.
  */
-interface DatabaseStatement : Closeable {
+interface DatabaseStatement : AutoCloseable {
 
     fun executeUpdateDelete(): Long
 

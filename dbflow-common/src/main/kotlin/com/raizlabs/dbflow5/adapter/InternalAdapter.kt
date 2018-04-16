@@ -1,7 +1,5 @@
 package com.raizlabs.dbflow5.adapter
 
-import android.content.ContentValues
-import com.raizlabs.dbflow5.annotation.PrimaryKey
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 
@@ -90,23 +88,6 @@ interface InternalAdapter<in TModel> {
      * @param model           The model to read from.
      */
     fun bindToInsertStatement(sqLiteStatement: DatabaseStatement, model: TModel)
-
-    /**
-     * Binds a [TModel] to the specified db statement
-     *
-     * @param contentValues The content values to fill.
-     * @param model         The model values to put on the contentvalues
-     */
-    fun bindToContentValues(contentValues: ContentValues, model: TModel)
-
-    /**
-     * Binds a [TModel] to the specified db statement, leaving out the [PrimaryKey.autoincrement]
-     * column.
-     *
-     * @param contentValues The content values to fill.
-     * @param model         The model values to put on the content values.
-     */
-    fun bindToInsertValues(contentValues: ContentValues, model: TModel)
 
     /**
      * Binds values of the model to an update [DatabaseStatement]. It repeats each primary

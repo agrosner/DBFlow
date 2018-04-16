@@ -1,6 +1,7 @@
 package com.raizlabs.dbflow5.config
 
 import com.raizlabs.dbflow5.KClass
+import kotlin.jvm.JvmField
 
 /**
  * Description: The base interface for interacting with all of the database and top-level data that's shared

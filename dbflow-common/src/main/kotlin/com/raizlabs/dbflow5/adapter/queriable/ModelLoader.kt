@@ -1,15 +1,17 @@
 package com.raizlabs.dbflow5.adapter.queriable
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
+import com.raizlabs.dbflow5.use
 
 /**
  * Description: Represents how models load from DB. It will query a [DatabaseWrapper]
  * and query for a [FlowCursor]. Then the cursor is used to convert itself into an object.
  */
-abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Class<TModel>) {
+abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: KClass<TModel>) {
 
     protected val instanceAdapter: RetrievalAdapter<TModel> by lazy { FlowManager.getRetrievalAdapter(modelClass) }
 
@@ -21,7 +23,7 @@ abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Clas
      * @return The data loaded from the database.
      */
     open fun load(databaseWrapper: DatabaseWrapper, query: String): TReturn? =
-            load(databaseWrapper.rawQuery(query, null), databaseWrapper)
+        load(databaseWrapper.rawQuery(query, null), databaseWrapper)
 
     open fun load(cursor: FlowCursor?, databaseWrapper: DatabaseWrapper): TReturn? {
         var data: TReturn? = null

@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.adapter
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
 import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.config.DBFlowDatabase
@@ -52,7 +53,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     /**
      * @return the model class this adapter corresponds to
      */
-    abstract val table: Class<T>
+    abstract val table: KClass<T>
 
     /**
      * @return A new instance of a [SingleModelLoader]. Subsequent calls do not cache
@@ -70,7 +71,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
 
     init {
         val databaseConfig = FlowManager.getConfig()
-                .getConfigForDatabase(databaseDefinition.associatedDatabaseClassFile)
+            .getConfigForDatabase(databaseDefinition.associatedDatabaseClassFile)
         if (databaseConfig != null) {
             tableConfig = databaseConfig.getTableConfigForTable(table)
             if (tableConfig != null) {
@@ -84,10 +85,10 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
      * Returns a new [model] based on the object passed in. Will not overwrite existing object.
      */
     open fun load(model: T, databaseWrapper: DatabaseWrapper): T? =
-            nonCacheableSingleModelLoader.load(databaseWrapper,
-                    (select
-                            from table
-                            where getPrimaryConditionClause(model)).query)
+        nonCacheableSingleModelLoader.load(databaseWrapper,
+            (select
+                from table
+                where getPrimaryConditionClause(model)).query)
 
     /**
      * Converts the specified [FlowCursor] into a new [T]

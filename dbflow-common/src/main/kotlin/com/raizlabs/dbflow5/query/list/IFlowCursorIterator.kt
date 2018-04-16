@@ -1,13 +1,12 @@
 package com.raizlabs.dbflow5.query.list
 
+import com.raizlabs.dbflow5.AutoCloseable
 import com.raizlabs.dbflow5.database.FlowCursor
-import java.io.Closeable
-import java.io.IOException
 
 /**
  * Description: Simple interface that allows you to iterate a [FlowCursor].
  */
-interface IFlowCursorIterator<T : Any> : Closeable, Iterable<T> {
+interface IFlowCursorIterator<T : Any> : AutoCloseable, Iterable<T> {
 
     /**
      * @return Count of the [FlowCursor].
@@ -46,6 +45,5 @@ interface IFlowCursorIterator<T : Any> : Closeable, Iterable<T> {
      */
     fun iterator(startingLocation: Long, limit: Long): FlowCursorIterator<T>
 
-    @Throws(IOException::class)
     override fun close()
 }

@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.query.property
 
+import com.raizlabs.dbflow5.JvmStatic
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.NameAlias
 import com.raizlabs.dbflow5.query.Operator
@@ -133,7 +134,7 @@ object PropertyFactory {
      */
     @Suppress("UNUSED_PARAMETER")
     @JvmStatic
-    fun <T> from(table: Class<T>, stringRepresentation: String?): Property<T> {
+    fun <T : Any> from(table: KClass<T>, stringRepresentation: String?): Property<T> {
         return Property(null, NameAlias.rawBuilder(stringRepresentation ?: "")
             .build())
     }
@@ -166,6 +167,6 @@ val <T : Any> T?.property
 val <T : Any> ModelQueriable<T>.property
     get() = PropertyFactory.from(this)
 
-inline fun <reified T : Any> propertyString(stringRepresentation: String?) = PropertyFactory.from(T::class.java, stringRepresentation)
+inline fun <reified T : Any> propertyString(stringRepresentation: String?) = PropertyFactory.from(T::class, stringRepresentation)
 
-inline fun <reified T : Any> KClass<T>.allProperty() = Property.allProperty(this.java)
+inline fun <reified T : Any> KClass<T>.allProperty() = Property.allProperty(this)

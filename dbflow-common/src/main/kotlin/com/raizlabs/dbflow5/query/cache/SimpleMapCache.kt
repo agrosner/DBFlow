@@ -2,7 +2,6 @@ package com.raizlabs.dbflow5.query.cache
 
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.structure.Model
-import java.util.HashMap
 
 /**
  * Description: A simple implementation that keeps [Model] you interact with in memory.

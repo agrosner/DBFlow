@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.migration
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.index
 import com.raizlabs.dbflow5.query.property.IProperty
@@ -7,11 +8,11 @@ import com.raizlabs.dbflow5.query.property.IProperty
 /**
  * Description: Defines and enables an Index structurally through a migration.
  */
-abstract class IndexMigration<TModel>(
+abstract class IndexMigration<TModel : Any>(
     /**
      * The table to index on
      */
-    private var onTable: Class<TModel>) : BaseMigration() {
+    private var onTable: KClass<TModel>) : BaseMigration() {
 
     private var unique: Boolean = false
     private val columns = arrayListOf<IProperty<*>>()

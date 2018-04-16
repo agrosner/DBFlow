@@ -1,11 +1,7 @@
 package com.raizlabs.dbflow5.adapter
 
-import android.content.ContentValues
 import com.raizlabs.dbflow5.adapter.saveable.ListModelSaver
 import com.raizlabs.dbflow5.adapter.saveable.ModelSaver
-import com.raizlabs.dbflow5.annotation.ConflictAction
-import com.raizlabs.dbflow5.annotation.ForeignKey
-import com.raizlabs.dbflow5.annotation.Table
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
@@ -68,7 +64,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      * To bind values use [bindToInsertStatement].
      */
     fun getInsertStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-            databaseWrapper.compileStatement(insertStatementQuery)
+        databaseWrapper.compileStatement(insertStatementQuery)
 
     /**
      * @param databaseWrapper The database used to do an update statement.
@@ -76,7 +72,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      * To bind values use [bindToUpdateStatement].
      */
     fun getUpdateStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-            databaseWrapper.compileStatement(updateStatementQuery)
+        databaseWrapper.compileStatement(updateStatementQuery)
 
     /**
      * @param databaseWrapper The database used to do a delete statement.
@@ -84,7 +80,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      * To bind values use [bindToDeleteStatement].
      */
     fun getDeleteStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-            databaseWrapper.compileStatement(deleteStatementQuery)
+        databaseWrapper.compileStatement(deleteStatementQuery)
 
     /**
      * @param databaseWrapper The database used to do a save (insert or replace) statement.
@@ -92,40 +88,31 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      * To bind values use [bindToInsertStatement].
      */
     fun getSaveStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-            databaseWrapper.compileStatement(saveStatementQuery)
+        databaseWrapper.compileStatement(saveStatementQuery)
 
     override fun save(model: T, databaseWrapper: DatabaseWrapper): Boolean =
-            modelSaver.save(model, databaseWrapper)
+        modelSaver.save(model, databaseWrapper)
 
     override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long =
-            listModelSaver.saveAll(models, databaseWrapper)
+        listModelSaver.saveAll(models, databaseWrapper)
 
     override fun insert(model: T, databaseWrapper: DatabaseWrapper): Long =
-            modelSaver.insert(model, databaseWrapper)
+        modelSaver.insert(model, databaseWrapper)
 
     override fun insertAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long =
-            listModelSaver.insertAll(models, databaseWrapper)
+        listModelSaver.insertAll(models, databaseWrapper)
 
     override fun update(model: T, databaseWrapper: DatabaseWrapper): Boolean =
-            modelSaver.update(model, databaseWrapper)
+        modelSaver.update(model, databaseWrapper)
 
     override fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long =
-            listModelSaver.updateAll(models, databaseWrapper)
+        listModelSaver.updateAll(models, databaseWrapper)
 
     override fun delete(model: T, databaseWrapper: DatabaseWrapper): Boolean =
-            modelSaver.delete(model, databaseWrapper)
+        modelSaver.delete(model, databaseWrapper)
 
     override fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long =
-            listModelSaver.deleteAll(models, databaseWrapper)
-
-    override fun bindToContentValues(contentValues: ContentValues, model: T) {
-        bindToInsertValues(contentValues, model)
-    }
-
-    override fun bindToInsertValues(contentValues: ContentValues, model: T) {
-        throw RuntimeException("ContentValues are no longer generated automatically. To enable it," +
-                " set generateContentValues = true in @Table for $table.")
-    }
+        listModelSaver.deleteAll(models, databaseWrapper)
 
     /**
      * If a [Model] has an auto-incrementing primary key, then
@@ -158,9 +145,9 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
 
     var modelSaver: ModelSaver<T>
         get() = _modelSaver
-                ?: createSingleModelSaver()
-                        .apply { modelAdapter = this@ModelAdapter }
-                        .also { _modelSaver = it }
+            ?: createSingleModelSaver()
+                .apply { modelAdapter = this@ModelAdapter }
+                .also { _modelSaver = it }
         set(value) {
             this._modelSaver = value
             value.modelAdapter = this

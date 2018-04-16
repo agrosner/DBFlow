@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.query.property
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.query.Join
 import com.raizlabs.dbflow5.query.Method
 import com.raizlabs.dbflow5.query.NameAlias
@@ -25,7 +26,7 @@ interface IProperty<P : IProperty<P>> : Query {
     /**
      * @return the table this property belongs to.
      */
-    val table: Class<*>?
+    val table: KClass<*>?
 
     /**
      * @param aliasName The name of the alias.

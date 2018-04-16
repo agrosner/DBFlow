@@ -1,23 +1,21 @@
 package com.raizlabs.dbflow5.config
 
-import android.content.Context
+import com.raizlabs.dbflow5.KClass
 
 /**
  * Description: The main configuration instance for DBFlow. This
  */
-class FlowConfig(val context: Context,
-                 val databaseHolders: Set<Class<out DatabaseHolder>> = setOf(),
-                 val databaseConfigMap: Map<Class<*>, DatabaseConfig> = mapOf(),
+class FlowConfig(val databaseHolders: Set<KClass<out DatabaseHolder>> = setOf(),
+                 val databaseConfigMap: Map<KClass<*>, DatabaseConfig> = mapOf(),
                  val openDatabasesOnInit: Boolean = false) {
 
     internal constructor(builder: Builder) : this(
         databaseHolders = builder.databaseHolders.toSet(),
         databaseConfigMap = builder.databaseConfigMap,
-        context = builder.context,
         openDatabasesOnInit = builder.openDatabasesOnInit
     )
 
-    fun getConfigForDatabase(databaseClass: Class<*>): DatabaseConfig? {
+    fun getConfigForDatabase(databaseClass: KClass<*>): DatabaseConfig? {
         return databaseConfigMap[databaseClass]
     }
 
@@ -26,7 +24,6 @@ class FlowConfig(val context: Context,
      * will override existing ones.
      */
     internal fun merge(flowConfig: FlowConfig): FlowConfig = FlowConfig(
-        context = flowConfig.context,
         databaseConfigMap = databaseConfigMap.entries
             .map { (key, value) ->
                 key to (flowConfig.databaseConfigMap[key] ?: value)
@@ -34,14 +31,13 @@ class FlowConfig(val context: Context,
         databaseHolders = databaseHolders.plus(flowConfig.databaseHolders),
         openDatabasesOnInit = flowConfig.openDatabasesOnInit)
 
-    class Builder(context: Context) {
+    class Builder {
 
-        internal val context: Context = context.applicationContext
-        internal var databaseHolders: MutableSet<Class<out DatabaseHolder>> = hashSetOf()
-        internal val databaseConfigMap: MutableMap<Class<*>, DatabaseConfig> = hashMapOf()
+        internal var databaseHolders: MutableSet<KClass<out DatabaseHolder>> = hashSetOf()
+        internal val databaseConfigMap: MutableMap<KClass<*>, DatabaseConfig> = hashMapOf()
         internal var openDatabasesOnInit: Boolean = false
 
-        fun addDatabaseHolder(databaseHolderClass: Class<out DatabaseHolder>) = apply {
+        fun addDatabaseHolder(databaseHolderClass: KClass<out DatabaseHolder>) = apply {
             databaseHolders.add(databaseHolderClass)
         }
 
@@ -62,6 +58,6 @@ class FlowConfig(val context: Context,
 
     companion object {
 
-        fun builder(context: Context): Builder = Builder(context)
+        fun builder(): Builder = Builder()
     }
 }

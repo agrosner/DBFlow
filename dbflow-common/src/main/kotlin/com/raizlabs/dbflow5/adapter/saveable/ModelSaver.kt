@@ -1,10 +1,12 @@
 package com.raizlabs.dbflow5.adapter.saveable
 
+import com.raizlabs.dbflow5.Synchronized
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.runtime.NotifyDistributor
 import com.raizlabs.dbflow5.structure.ChangeAction
+import com.raizlabs.dbflow5.use
 
 /**
  * Description: Defines how models get saved into the DB. It will bind values to [DatabaseStatement]

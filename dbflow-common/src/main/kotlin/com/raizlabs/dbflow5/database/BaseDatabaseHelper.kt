@@ -92,12 +92,12 @@ open class BaseDatabaseHelper(protected val context: Context,
         try {
             val files: List<String> = context.assets.list(
                 "$MIGRATION_PATH/${databaseDefinition.databaseName}")
-                .sortedWith(NaturalOrderComparator())
+                .sortedWith(naturalOrder<String>())
 
             val migrationFileMap = hashMapOf<Int, MutableList<String>>()
             for (file in files) {
                 try {
-                    val version = Integer.valueOf(file.replace(".sql", ""))
+                    val version = file.replace(".sql", "").toInt()
                     val fileList = migrationFileMap.getOrPut(version) { arrayListOf() }
                     fileList.add(file)
                 } catch (e: NumberFormatException) {
@@ -134,7 +134,7 @@ open class BaseDatabaseHelper(protected val context: Context,
 
                             // after migration cleanup
                             migration.onPostMigrate()
-                            FlowLog.log(FlowLog.Level.I, "${migration.javaClass} executed successfully.")
+                            FlowLog.log(FlowLog.Level.I, "$migration executed successfully.")
                         }
                     }
                 }

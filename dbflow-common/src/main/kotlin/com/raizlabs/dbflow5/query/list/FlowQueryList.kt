@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.query.list
 
-import android.os.Handler
-import android.os.Looper
+import com.raizlabs.dbflow5.KClass
+import com.raizlabs.dbflow5.Runnable
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
@@ -174,7 +174,7 @@ class FlowQueryList<T : Any>(
 
     class Builder<T : Any> {
 
-        internal val table: Class<T>
+        internal val table: KClass<T>
 
         internal var cursor: FlowCursor? = null
         internal var modelQueriable: ModelQueriable<T>

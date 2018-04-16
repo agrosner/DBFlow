@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.migration
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.BaseQueriable
 import com.raizlabs.dbflow5.query.OperatorGroup
@@ -21,7 +22,7 @@ open class UpdateTableMigration<T : Any>
     /**
      * The table to update
      */
-    private val table: Class<T>) : BaseMigration() {
+    private val table: KClass<T>) : BaseMigration() {
 
     /**
      * Builds the conditions for the WHERE part of our query

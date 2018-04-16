@@ -74,7 +74,7 @@ object ContentUtils {
      */
     @JvmStatic
     fun <TableClass : Any> insert(contentResolver: ContentResolver, insertUri: Uri, model: TableClass): Uri? {
-        val adapter = model.javaClass.modelAdapter
+        val adapter = model.javaClass.kotlin.modelAdapter
 
         val contentValues = ContentValues()
         adapter.bindToInsertValues(contentValues, model)
@@ -101,7 +101,7 @@ object ContentUtils {
     fun <TableClass : Any> bulkInsert(contentResolver: ContentResolver, bulkInsertUri: Uri,
                                       table: Class<TableClass>, models: List<TableClass>?): Int {
         val contentValues = arrayListOf<ContentValues>()
-        val adapter = table.modelAdapter
+        val adapter = table.kotlin.modelAdapter
 
         if (models != null) {
             for (i in contentValues.indices) {
@@ -157,7 +157,7 @@ object ContentUtils {
     @JvmStatic
     fun <TableClass : Any> update(contentResolver: ContentResolver,
                                   updateUri: Uri, model: TableClass): Int {
-        val adapter = model.javaClass.modelAdapter
+        val adapter = model.javaClass.kotlin.modelAdapter
 
         val contentValues = ContentValues()
         adapter.bindToContentValues(contentValues, model)
@@ -192,7 +192,7 @@ object ContentUtils {
      */
     @JvmStatic
     fun <TableClass : Any> delete(contentResolver: ContentResolver, deleteUri: Uri, model: TableClass): Int {
-        val adapter = model.javaClass.modelAdapter
+        val adapter = model.javaClass.kotlin.modelAdapter
 
         val count = contentResolver.delete(deleteUri, adapter.getPrimaryConditionClause(model).query, null)
 
@@ -262,7 +262,7 @@ object ContentUtils {
                                      whereConditions: OperatorGroup,
                                      orderBy: String, vararg columns: String): List<TableClass>? {
         val cursor = FlowCursor.from(contentResolver.query(queryUri, columns, whereConditions.query, null, orderBy))
-        return table.modelAdapter
+        return table.kotlin.modelAdapter
             .listModelLoader
             .load(cursor, databaseWrapper)
     }

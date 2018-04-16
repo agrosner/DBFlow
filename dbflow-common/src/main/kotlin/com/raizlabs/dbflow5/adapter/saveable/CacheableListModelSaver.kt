@@ -1,8 +1,10 @@
 package com.raizlabs.dbflow5.adapter.saveable
 
+import com.raizlabs.dbflow5.Synchronized
 import com.raizlabs.dbflow5.adapter.CacheAdapter
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.use
 
 /**
  * Description: Used for model caching, enables caching models when saving in list.
@@ -15,9 +17,9 @@ class CacheableListModelSaver<T : Any>(modelSaver: ModelSaver<T>,
     override fun saveAll(tableCollection: Collection<T>,
                          wrapper: DatabaseWrapper): Long {
         return applyAndCount(
-                tableCollection = tableCollection,
-                databaseStatement = modelAdapter.getSaveStatement(wrapper),
-                cacheFn = cacheAdapter::storeModelInCache) { model, statement ->
+            tableCollection = tableCollection,
+            databaseStatement = modelAdapter.getSaveStatement(wrapper),
+            cacheFn = cacheAdapter::storeModelInCache) { model, statement ->
             modelSaver.save(model, statement, wrapper)
         }
     }
@@ -26,9 +28,9 @@ class CacheableListModelSaver<T : Any>(modelSaver: ModelSaver<T>,
     override fun insertAll(tableCollection: Collection<T>,
                            wrapper: DatabaseWrapper): Long {
         return applyAndCount(
-                tableCollection = tableCollection,
-                databaseStatement = modelAdapter.getInsertStatement(wrapper),
-                cacheFn = cacheAdapter::storeModelInCache) { model, statement ->
+            tableCollection = tableCollection,
+            databaseStatement = modelAdapter.getInsertStatement(wrapper),
+            cacheFn = cacheAdapter::storeModelInCache) { model, statement ->
             modelSaver.insert(model, statement, wrapper) > 0
         }
     }
@@ -37,7 +39,7 @@ class CacheableListModelSaver<T : Any>(modelSaver: ModelSaver<T>,
     override fun updateAll(tableCollection: Collection<T>,
                            wrapper: DatabaseWrapper): Long {
         return applyAndCount(tableCollection, modelAdapter.getUpdateStatement(wrapper),
-                cacheFn = cacheAdapter::storeModelInCache) { model, statement ->
+            cacheFn = cacheAdapter::storeModelInCache) { model, statement ->
             modelSaver.update(model, statement, wrapper)
         }
     }
@@ -46,7 +48,7 @@ class CacheableListModelSaver<T : Any>(modelSaver: ModelSaver<T>,
     override fun deleteAll(tableCollection: Collection<T>,
                            wrapper: DatabaseWrapper): Long {
         return applyAndCount(tableCollection, modelAdapter.getDeleteStatement(wrapper),
-                cacheFn = cacheAdapter::removeModelFromCache) { model, statement ->
+            cacheFn = cacheAdapter::removeModelFromCache) { model, statement ->
             modelSaver.delete(model, statement, wrapper)
         }
     }

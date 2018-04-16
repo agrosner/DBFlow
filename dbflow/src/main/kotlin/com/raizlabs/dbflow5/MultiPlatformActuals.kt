@@ -1,11 +1,35 @@
 package com.raizlabs.dbflow5
 
-import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmStatic
-import kotlin.jvm.Synchronized
-import kotlin.reflect.KClass
+actual typealias JvmStatic = kotlin.jvm.JvmStatic
+actual typealias JvmOverloads = kotlin.jvm.JvmOverloads
+actual typealias KClass<T> = kotlin.reflect.KClass<T>
+actual typealias Synchronized = kotlin.jvm.Synchronized
 
-actual typealias JvmStatic = JvmStatic
-actual typealias JvmOverloads = JvmOverloads
-actual typealias KClass<T> = KClass<T>
-actual typealias Synchronized = Synchronized
+actual typealias Closeable = java.io.Closeable
+actual typealias AutoCloseable = java.lang.AutoCloseable
+
+actual inline fun <T : AutoCloseable?, R> T.use(block: (T) -> R): R {
+    var exception: Throwable? = null
+    try {
+        return block(this)
+    } catch (e: Throwable) {
+        exception = e
+        throw e
+    } finally {
+        this.closeFinally(exception)
+    }
+}
+
+fun AutoCloseable?.closeFinally(cause: Throwable?) = when {
+    this == null -> {
+    }
+    cause == null -> close()
+    else ->
+        try {
+            close()
+        } catch (closeException: Throwable) {
+            cause.addSuppressed(closeException)
+        }
+}
+
+actual typealias Runnable = java.lang.Runnable

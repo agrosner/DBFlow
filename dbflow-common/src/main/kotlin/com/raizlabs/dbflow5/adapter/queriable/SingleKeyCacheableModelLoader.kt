@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.adapter.queriable
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.adapter.CacheAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
@@ -10,7 +11,7 @@ import com.raizlabs.dbflow5.structure.Model
  * Description: More optimized version of [CacheableModelLoader] which assumes that the [Model]
  * only utilizes a single primary key.
  */
-class SingleKeyCacheableModelLoader<T : Any>(modelClass: Class<T>,
+class SingleKeyCacheableModelLoader<T : Any>(modelClass: KClass<T>,
                                              cacheAdapter: CacheAdapter<T>)
     : CacheableModelLoader<T>(modelClass, cacheAdapter) {
 

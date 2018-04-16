@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.adapter.queriable
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.adapter.CacheAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
@@ -8,7 +9,7 @@ import com.raizlabs.dbflow5.query.cache.addOrReload
 /**
  * Description:
  */
-class SingleKeyCacheableListModelLoader<T : Any>(tModelClass: Class<T>,
+class SingleKeyCacheableListModelLoader<T : Any>(tModelClass: KClass<T>,
                                                  cacheAdapter: CacheAdapter<T>)
     : CacheableListModelLoader<T>(tModelClass, cacheAdapter) {
 

@@ -1,6 +1,7 @@
 package com.raizlabs.dbflow5.query.list
 
-import android.widget.ListView
+import com.raizlabs.dbflow5.KClass
+import com.raizlabs.dbflow5.Synchronized
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
@@ -26,7 +27,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         fun onCursorRefreshed(cursorList: FlowCursorList<TModel>)
     }
 
-    val table: Class<T>
+    val table: KClass<T>
     val modelQueriable: ModelQueriable<T>
     private var _cursor: FlowCursor? = null
     private val cursorFunc: () -> FlowCursor
@@ -190,7 +191,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     class Builder<T : Any>(internal var modelQueriable: ModelQueriable<T>,
                            internal val databaseWrapper: DatabaseWrapper) {
 
-        internal val modelClass: Class<T> = modelQueriable.table
+        internal val modelClass: KClass<T> = modelQueriable.table
         internal var cursor: FlowCursor? = null
 
         fun cursor(cursor: FlowCursor?) = apply {

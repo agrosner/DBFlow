@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
 import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
@@ -9,7 +10,7 @@ import com.raizlabs.dbflow5.config.queryModelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.list.FlowCursorList
 import com.raizlabs.dbflow5.query.list.FlowQueryList
-import com.raizlabs.dbflow5.sql.Query
+import com.raizlabs.dbflow5.use
 
 /**
  * Description: Provides a base implementation of [ModelQueriable] to simplify a lot of code. It provides the
@@ -21,7 +22,7 @@ abstract class BaseModelQueriable<TModel : Any>
  *
  * @param table the table that belongs to this query.
  */
-protected constructor(table: Class<TModel>)
+protected constructor(table: KClass<TModel>)
     : BaseQueriable<TModel>(table), ModelQueriable<TModel>, Query {
 
     private val retrievalAdapter: RetrievalAdapter<TModel> by lazy { FlowManager.getRetrievalAdapter(table) }
@@ -67,7 +68,7 @@ protected constructor(table: Class<TModel>)
     override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long =
         compileStatement(databaseWrapper).use { it.executeUpdateDelete() }
 
-    override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>,
+    override fun <QueryClass : Any> queryCustomList(queryModelClass: KClass<QueryClass>,
                                                     databaseWrapper: DatabaseWrapper)
         : MutableList<QueryClass> {
         val query = query
@@ -75,7 +76,7 @@ protected constructor(table: Class<TModel>)
         return getListQueryModelLoader(queryModelClass).load(databaseWrapper, query)!!
     }
 
-    override fun <QueryClass : Any> queryCustomSingle(queryModelClass: Class<QueryClass>,
+    override fun <QueryClass : Any> queryCustomSingle(queryModelClass: KClass<QueryClass>,
                                                       databaseWrapper: DatabaseWrapper)
         : QueryClass? {
         val query = query
@@ -84,14 +85,14 @@ protected constructor(table: Class<TModel>)
     }
 
 
-    protected fun <T : Any> getListQueryModelLoader(table: Class<T>): ListModelLoader<T> =
+    protected fun <T : Any> getListQueryModelLoader(table: KClass<T>): ListModelLoader<T> =
         if (cachingEnabled) {
             table.queryModelAdapter.listModelLoader
         } else {
             table.queryModelAdapter.nonCacheableListModelLoader
         }
 
-    protected fun <T : Any> getSingleQueryModelLoader(table: Class<T>): SingleModelLoader<T> =
+    protected fun <T : Any> getSingleQueryModelLoader(table: KClass<T>): SingleModelLoader<T> =
         if (cachingEnabled) {
             table.queryModelAdapter.singleModelLoader
         } else {

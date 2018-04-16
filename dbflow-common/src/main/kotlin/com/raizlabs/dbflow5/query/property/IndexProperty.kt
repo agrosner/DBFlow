@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.query.property
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.annotation.Table
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.Index
@@ -12,7 +13,7 @@ import com.raizlabs.dbflow5.quoteIfNeeded
  */
 class IndexProperty<T : Any>(indexName: String,
                              private val unique: Boolean,
-                             private val table: Class<T>,
+                             private val table: KClass<T>,
                              vararg properties: IProperty<*>) {
 
     @Suppress("UNCHECKED_CAST")

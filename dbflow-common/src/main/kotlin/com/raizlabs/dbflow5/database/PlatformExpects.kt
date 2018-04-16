@@ -1,6 +1,8 @@
 package com.raizlabs.dbflow5.database
 
-expect interface Cursor {
+import com.raizlabs.dbflow5.Closeable
+
+expect interface Cursor : Closeable {
 
     fun isNull(index: Int): Boolean
 
@@ -19,6 +21,16 @@ expect interface Cursor {
     fun getShort(index: Int): Short
 
     fun getBlob(index: Int): ByteArray
+
+    fun moveToFirst(): Boolean
+
+    fun moveToNext(): Boolean
+
+    val count: Int
+
+    fun moveToPosition(index: Int): Boolean
+
+    val isClosed: Boolean
 }
 
 open class CursorWrapper(private val cursor: Cursor) : Cursor by cursor {
