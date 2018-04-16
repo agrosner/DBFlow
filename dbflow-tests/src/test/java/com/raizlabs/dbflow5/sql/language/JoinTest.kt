@@ -6,11 +6,6 @@ import com.raizlabs.dbflow5.models.SimpleModel
 import com.raizlabs.dbflow5.models.SimpleModel_Table
 import com.raizlabs.dbflow5.models.TwoColumnModel
 import com.raizlabs.dbflow5.models.TwoColumnModel_Table
-import com.raizlabs.dbflow5.query.crossJoin
-import com.raizlabs.dbflow5.query.innerJoin
-import com.raizlabs.dbflow5.query.leftOuterJoin
-import com.raizlabs.dbflow5.query.naturalJoin
-import com.raizlabs.dbflow5.query.on
 import com.raizlabs.dbflow5.query.select
 import org.junit.Assert.assertEquals
 import org.junit.Test

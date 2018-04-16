@@ -5,7 +5,6 @@ import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.PropertyFactory
 import com.raizlabs.dbflow5.sql.Query
-import kotlin.reflect.KClass
 
 /**
  * Description: Specifies a SQLite JOIN statement
@@ -47,19 +46,19 @@ class Join<TModel : Any, TFromModel : Any> : Query {
             queryBuilder.append(type.name.replace("_", " ")).append(" ")
 
             queryBuilder.append("JOIN")
-                .append(" ")
-                .append(alias.fullQuery)
-                .append(" ")
+                    .append(" ")
+                    .append(alias.fullQuery)
+                    .append(" ")
             if (JoinType.NATURAL != type) {
                 onGroup?.let { onGroup ->
                     queryBuilder.append("ON")
-                        .append(" ")
-                        .append(onGroup.query)
-                        .append(" ")
+                            .append(" ")
+                            .append(onGroup.query)
+                            .append(" ")
                 } ?: if (!using.isEmpty()) {
                     queryBuilder.append("USING (")
-                        .appendList(using)
-                        .append(") ")
+                            .appendList(using)
+                            .append(") ")
                 }
             }
             return queryBuilder.toString()
@@ -127,9 +126,9 @@ class Join<TModel : Any, TFromModel : Any> : Query {
      */
     fun `as`(alias: String) = apply {
         this.alias = this.alias
-            .newBuilder()
-            .`as`(alias)
-            .build()
+                .newBuilder()
+                .`as`(alias)
+                .build()
     }
 
     /**
@@ -150,7 +149,7 @@ class Join<TModel : Any, TFromModel : Any> : Query {
      * @param sqlOperator The operator that the JOIN is ON.
      * @return The FROM that this JOIN came from
      */
-    fun on(sqlOperator: SQLOperator): From<TFromModel> {
+    infix fun on(sqlOperator: SQLOperator): From<TFromModel> {
         checkNatural()
         onGroup = OperatorGroup.nonGroupingClause().and(sqlOperator)
         return from
@@ -188,18 +187,7 @@ class Join<TModel : Any, TFromModel : Any> : Query {
     private fun checkNatural() {
         if (JoinType.NATURAL == type) {
             throw IllegalArgumentException("Cannot specify a clause for this join if its NATURAL."
-                + " Specifying a clause would have no effect. Call end() to continue the query.")
+                    + " Specifying a clause would have no effect. Call end() to continue the query.")
         }
     }
 }
-
-infix fun <T : Any, V : Any> From<V>.innerJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.INNER)
-
-infix fun <T : Any, V : Any> From<V>.crossJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.CROSS)
-
-infix fun <T : Any, V : Any> From<V>.leftOuterJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.LEFT_OUTER)
-
-infix fun <T : Any, V : Any> From<V>.naturalJoin(joinTable: KClass<T>): Join<T, V> = join(joinTable.java, Join.JoinType.NATURAL)
-
-infix fun <T : Any, V : Any> Join<T, V>.on(sqlOperator: SQLOperator): From<V> = on(sqlOperator)
-

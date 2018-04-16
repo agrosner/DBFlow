@@ -8,8 +8,6 @@ import com.raizlabs.dbflow5.models.Blog_Table
 import com.raizlabs.dbflow5.models.SimpleModel
 import com.raizlabs.dbflow5.models.SimpleModel_Table
 import com.raizlabs.dbflow5.query.cast
-import com.raizlabs.dbflow5.query.innerJoin
-import com.raizlabs.dbflow5.query.on
 import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.rx2.transaction.asFlowable
 import com.raizlabs.dbflow5.structure.save

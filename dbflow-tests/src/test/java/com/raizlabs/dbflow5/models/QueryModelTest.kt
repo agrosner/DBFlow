@@ -6,8 +6,6 @@ import com.raizlabs.dbflow5.config.database
 import com.raizlabs.dbflow5.models.Author_Table.id
 import com.raizlabs.dbflow5.models.Blog_Table.author_id
 import com.raizlabs.dbflow5.models.Blog_Table.name
-import com.raizlabs.dbflow5.query.innerJoin
-import com.raizlabs.dbflow5.query.on
 import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.structure.exists
 import com.raizlabs.dbflow5.structure.save
