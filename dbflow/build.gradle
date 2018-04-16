@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-platform-android'
 
 project.ext.artifactId = bt_name
 
@@ -29,6 +29,8 @@ dependencies {
     api project("${dbflow_project_prefix}dbflow-core")
     api "com.android.support:support-annotations:27.0.2"
     api "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
+
+    expectedBy project(':dbflow-common')
 }
 
 apply from: '../kotlin-artifacts.gradle'
