@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.database
 
-import android.database.Cursor
 import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteStatement
@@ -81,6 +80,6 @@ internal constructor(val statement: SQLiteStatement,
         @JvmStatic
         fun from(sqLiteStatement: SQLiteStatement,
                  database: SQLiteDatabase): AndroidDatabaseStatement =
-                AndroidDatabaseStatement(sqLiteStatement, database)
+            AndroidDatabaseStatement(sqLiteStatement, database)
     }
 }

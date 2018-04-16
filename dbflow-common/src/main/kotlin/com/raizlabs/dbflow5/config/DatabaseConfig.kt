@@ -2,7 +2,6 @@ package com.raizlabs.dbflow5.config
 
 import com.raizlabs.dbflow5.database.DatabaseCallback
 import com.raizlabs.dbflow5.database.OpenHelper
-import com.raizlabs.dbflow5.isNotNullOrEmpty
 import com.raizlabs.dbflow5.runtime.ModelNotifier
 import com.raizlabs.dbflow5.transaction.BaseTransactionManager
 import kotlin.reflect.KClass
@@ -14,11 +13,11 @@ typealias TransactionManagerCreator = (DBFlowDatabase) -> BaseTransactionManager
  * Description:
  */
 class DatabaseConfig(
-    val databaseClass: Class<*>,
+    val databaseClass: KClass<*>,
     val openHelperCreator: OpenHelperCreator? = null,
     val transactionManagerCreator: TransactionManagerCreator? = null,
     val callback: DatabaseCallback? = null,
-    val tableConfigMap: Map<Class<*>, TableConfig<*>> = mapOf(),
+    val tableConfigMap: Map<KClass<*>, TableConfig<*>> = mapOf(),
     val modelNotifier: ModelNotifier? = null,
     val isInMemory: Boolean = false,
     val databaseName: String? = null,
@@ -36,30 +35,27 @@ class DatabaseConfig(
         databaseName = builder.databaseName ?: builder.databaseClass.simpleName,
         databaseExtensionName = when {
             builder.databaseExtensionName == null -> ".db"
-            builder.databaseExtensionName.isNotNullOrEmpty() -> ".${builder.databaseExtensionName}"
+            builder.databaseExtensionName.isNullOrEmpty().not() -> ".${builder.databaseExtensionName}"
             else -> ""
         })
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getTableConfigForTable(modelClass: Class<T>): TableConfig<T>? =
+    fun <T : Any> getTableConfigForTable(modelClass: KClass<T>): TableConfig<T>? =
         tableConfigMap[modelClass] as TableConfig<T>?
 
     /**
      * Build compatibility class for Java. Use the [DatabaseConfig] class directly if Kotlin consumer.
      */
-    class Builder(internal val databaseClass: Class<*>,
+    class Builder(internal val databaseClass: KClass<*>,
                   internal val openHelperCreator: OpenHelperCreator? = null) {
 
         internal var transactionManagerCreator: TransactionManagerCreator? = null
         internal var callback: DatabaseCallback? = null
-        internal val tableConfigMap: MutableMap<Class<*>, TableConfig<*>> = hashMapOf()
+        internal val tableConfigMap: MutableMap<KClass<*>, TableConfig<*>> = hashMapOf()
         internal var modelNotifier: ModelNotifier? = null
         internal var inMemory = false
         internal var databaseName: String? = null
         internal var databaseExtensionName: String? = null
-
-        constructor(kClass: KClass<*>, openHelperCreator: OpenHelperCreator)
-            : this(kClass.java, openHelperCreator)
 
         fun transactionManagerCreator(creator: TransactionManagerCreator) = apply {
             this.transactionManagerCreator = creator
@@ -101,16 +97,16 @@ class DatabaseConfig(
 
     companion object {
 
-        @JvmStatic
-        fun builder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
-            Builder(database, openHelperCreator)
+        /* @JvmStatic
+         fun builder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
+             Builder(database, openHelperCreator)*/
 
         fun builder(database: KClass<*>, openHelperCreator: OpenHelperCreator): Builder =
             Builder(database, openHelperCreator)
 
-        @JvmStatic
-        fun inMemoryBuilder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
-            Builder(database, openHelperCreator).inMemory()
+        /* @JvmStatic
+         fun inMemoryBuilder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
+             Builder(database, openHelperCreator).inMemory()*/
 
         fun inMemoryBuilder(database: KClass<*>, openHelperCreator: OpenHelperCreator): Builder =
             Builder(database, openHelperCreator).inMemory()

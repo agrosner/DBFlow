@@ -1,21 +1,20 @@
 package com.raizlabs.dbflow5.config
 
-import android.content.ContentValues
+import com.raizlabs.dbflow5.JvmOverloads
+import com.raizlabs.dbflow5.KClass
+import com.raizlabs.dbflow5.Synchronized
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.adapter.ModelViewAdapter
 import com.raizlabs.dbflow5.adapter.QueryModelAdapter
 import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
 import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.adapter.saveable.ModelSaver
-import com.raizlabs.dbflow5.annotation.Database
-import com.raizlabs.dbflow5.annotation.QueryModel
-import com.raizlabs.dbflow5.annotation.Table
-import com.raizlabs.dbflow5.database.AndroidSQLiteOpenHelper
 import com.raizlabs.dbflow5.database.DatabaseCallback
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.database.OpenHelper
+import com.raizlabs.dbflow5.database.PlatformOpenHelper
 import com.raizlabs.dbflow5.migration.Migration
 import com.raizlabs.dbflow5.runtime.DirectModelNotifier
 import com.raizlabs.dbflow5.runtime.ModelNotifier
@@ -34,13 +33,13 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
 
-    private val modelAdapters = hashMapOf<Class<*>, ModelAdapter<*>>()
+    private val modelAdapters = hashMapOf<KClass<*>, ModelAdapter<*>>()
 
-    private val modelTableNames = hashMapOf<String, Class<*>>()
+    private val modelTableNames = hashMapOf<String, KClass<*>>()
 
-    private val modelViewAdapterMap = linkedMapOf<Class<*>, ModelViewAdapter<*>>()
+    private val modelViewAdapterMap = linkedMapOf<KClass<*>, ModelViewAdapter<*>>()
 
-    private val queryModelAdapterMap = linkedMapOf<Class<*>, QueryModelAdapter<*>>()
+    private val queryModelAdapterMap = linkedMapOf<KClass<*>, QueryModelAdapter<*>>()
 
     /**
      * The helper that manages database changes and initialization
@@ -67,13 +66,13 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * @return a list of all model classes in this database.
      */
-    val modelClasses: List<Class<*>>
+    val modelClasses: List<KClass<*>>
         get() = modelAdapters.keys.toList()
 
     /**
      * @return the [BaseModelView] list for this database.
      */
-    val modelViews: List<Class<*>>
+    val modelViews: List<KClass<*>>
         get() = modelViewAdapterMap.keys.toList()
 
     /**
@@ -101,14 +100,15 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     var isOpened: Boolean = false
 
     val openHelper: OpenHelper
-        @Synchronized get() {
+        @Synchronized
+        get() {
             var helper = _openHelper
             if (helper == null) {
                 val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
                 helper = if (config?.openHelperCreator != null) {
                     config.openHelperCreator.invoke(this, callback)
                 } else {
-                    AndroidSQLiteOpenHelper(FlowManager.context, this, callback)
+                    PlatformOpenHelper(this, callback)
                 }
                 helper.performRestoreFromBackup()
                 isOpened = true
@@ -157,7 +157,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * @return The class that defines the [Database] annotation.
      */
-    abstract val associatedDatabaseClassFile: Class<*>
+    abstract val associatedDatabaseClassFile: KClass<*>
 
     /**
      * @return True if the database is ok. If backups are enabled, we restore from backup and will
@@ -182,7 +182,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             val tableConfigCollection = databaseConfig.tableConfigMap.values
             for (tableConfig in tableConfigCollection) {
                 val modelAdapter: ModelAdapter<Any> = modelAdapters[tableConfig.tableClass] as ModelAdapter<Any>?
-                        ?: continue
+                    ?: continue
                 tableConfig.listModelLoader?.let { modelAdapter.listModelLoader = it as ListModelLoader<Any> }
                 tableConfig.singleModelLoader?.let { modelAdapter.singleModelLoader = it as SingleModelLoader<Any> }
                 tableConfig.modelSaver?.let { modelAdapter.modelSaver = it as ModelSaver<Any> }
@@ -236,7 +236,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * @param table The model that exists in this database.
      * @return The ModelAdapter for the table.
      */
-    fun <T : Any> getModelAdapterForTable(table: Class<T>): ModelAdapter<T>? {
+    fun <T : Any> getModelAdapterForTable(table: KClass<T>): ModelAdapter<T>? {
         @Suppress("UNCHECKED_CAST")
         return modelAdapters[table] as ModelAdapter<T>?
     }
@@ -246,23 +246,23 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * @return The associated [ModelAdapter] within this database for the specified table name.
      * If the Model is missing the [Table] annotation, this will return null.
      */
-    fun getModelClassForName(tableName: String): Class<*>? = modelTableNames[tableName]
+    fun getModelClassForName(tableName: String): KClass<*>? = modelTableNames[tableName]
 
     /**
      * @param table the VIEW class to retrieve the ModelViewAdapter from.
      * @return the associated [ModelViewAdapter] for the specified table.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getModelViewAdapterForTable(table: Class<T>): ModelViewAdapter<T>? =
-            modelViewAdapterMap[table] as ModelViewAdapter<T>?
+    fun <T : Any> getModelViewAdapterForTable(table: KClass<T>): ModelViewAdapter<T>? =
+        modelViewAdapterMap[table] as ModelViewAdapter<T>?
 
     /**
      * @param queryModel The [QueryModel] class
      * @return The adapter that corresponds to the specified class.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getQueryModelAdapterForQueryClass(queryModel: Class<T>): QueryModelAdapter<T>? =
-            queryModelAdapterMap[queryModel] as QueryModelAdapter<T>?
+    fun <T : Any> getQueryModelAdapterForQueryClass(queryModel: KClass<T>): QueryModelAdapter<T>? =
+        queryModelAdapterMap[queryModel] as QueryModelAdapter<T>?
 
     fun getModelNotifier(): ModelNotifier {
         var notifier = modelNotifier
@@ -284,9 +284,9 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     fun <R : Any?> executeTransactionAsync(transaction: ITransaction<R>,
                                            success: ((Transaction<R>, R) -> Unit)? = null,
                                            error: ((Transaction<R>, Throwable) -> Unit)? = null): Transaction<R> = beginTransactionAsync(transaction)
-            .success(success)
-            .error(error)
-            .execute()
+        .success(success)
+        .error(error)
+        .execute()
 
     /**
      * Executes and returns the executed transaction.
@@ -294,17 +294,17 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     fun <R : Any?> executeTransactionAsync(transaction: (DatabaseWrapper) -> R,
                                            success: ((Transaction<R>, R) -> Unit)? = null,
                                            error: ((Transaction<R>, Throwable) -> Unit)? = null): Transaction<R> = beginTransactionAsync(transaction)
-            .success(success)
-            .error(error)
-            .execute()
+        .success(success)
+        .error(error)
+        .execute()
 
     fun <R : Any?> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
-            Transaction.Builder(transaction, this)
+        Transaction.Builder(transaction, this)
 
     fun <R : Any?> beginTransactionAsync(transaction: (DatabaseWrapper) -> R): Transaction.Builder<R> =
-            beginTransactionAsync(object : ITransaction<R> {
-                override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
-            })
+        beginTransactionAsync(object : ITransaction<R> {
+            override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
+        })
 
     fun <R> executeTransaction(transaction: ITransaction<R>): R {
         val database = writableDatabase
@@ -416,18 +416,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     override fun compileStatement(rawQuery: String): DatabaseStatement = writableDatabase.compileStatement(rawQuery)
 
     override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor = writableDatabase.rawQuery(query, selectionArgs)
-
-    override fun updateWithOnConflict(tableName: String,
-                                      contentValues: ContentValues,
-                                      where: String?,
-                                      whereArgs: Array<String>?,
-                                      conflictAlgorithm: Int): Long = writableDatabase.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm)
-
-    override fun insertWithOnConflict(
-            tableName: String,
-            nullColumnHack: String?,
-            values: ContentValues,
-            sqLiteDatabaseAlgorithmInt: Int): Long = writableDatabase.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt)
 
     override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int = writableDatabase.delete(tableName, whereClause, whereArgs)
 

@@ -1,7 +1,6 @@
 package com.raizlabs.dbflow5.database
 
-import android.database.Cursor
-import android.database.CursorWrapper
+import com.raizlabs.dbflow5.JvmStatic
 
 /**
  * Common [Cursor] class that wraps cursors we use in this library with convenience loading methods.

@@ -1,11 +1,8 @@
 package com.raizlabs.dbflow5.database
 
-import android.content.Context
+import com.raizlabs.dbflow5.JvmStatic
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
-import com.raizlabs.dbflow5.config.NaturalOrderComparator
-import java.io.IOException
-import java.io.InputStream
 
 /**
  * Description:
