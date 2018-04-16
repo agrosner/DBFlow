@@ -10,6 +10,8 @@ import com.raizlabs.dbflow5.coroutines.awaitTransact
 import com.raizlabs.dbflow5.coroutines.awaitUpdate
 import com.raizlabs.dbflow5.models.SimpleModel
 import com.raizlabs.dbflow5.models.SimpleModel_Table
+import com.raizlabs.dbflow5.models.TwoColumnModel
+import com.raizlabs.dbflow5.models.TwoColumnModel_Table
 import com.raizlabs.dbflow5.query.delete
 import com.raizlabs.dbflow5.query.list
 import com.raizlabs.dbflow5.query.select
@@ -74,16 +76,17 @@ class CoroutinesTest : BaseUnitTest() {
     fun testAwaitUpdate() {
         runBlocking {
             database<TestDatabase> {
-                val simpleModel = SimpleModel("Name")
+                val simpleModel = TwoColumnModel(name = "Name", id = 5)
                 val result = simpleModel.awaitSave(this)
                 assert(result)
 
-                simpleModel.name = "NewName"
-                assert(simpleModel.awaitUpdate(this))
+                simpleModel.id = 5
+                val updated = simpleModel.awaitUpdate(this)
+                assert(updated)
 
-                val loadedModel = awaitTransact(select from SimpleModel::class
-                        where SimpleModel_Table.name.eq("NewName")) { querySingle(this@database) }
-                assert(loadedModel?.name == "NewName")
+                val loadedModel = awaitTransact(select from TwoColumnModel::class
+                        where TwoColumnModel_Table.id.eq(5)) { querySingle(this@database) }
+                assert(loadedModel?.id == 5)
             }
         }
     }
