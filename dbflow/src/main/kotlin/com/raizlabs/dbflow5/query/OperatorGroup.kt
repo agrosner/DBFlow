@@ -100,7 +100,7 @@ constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, It
     /**
      * Appends the [SQLOperator] with the specified operator string.
      */
-    private fun operator(operator: String, sqlOperator: SQLOperator?) = apply {
+    fun operator(operator: String, sqlOperator: SQLOperator?) = apply {
         if (sqlOperator != null) {
             setPreviousSeparator(operator)
             conditionsList.add(sqlOperator)
@@ -167,7 +167,7 @@ constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, It
          */
         @JvmStatic
         fun clause(vararg condition: SQLOperator): OperatorGroup =
-            OperatorGroup().andAll(*condition)
+                OperatorGroup().andAll(*condition)
 
         /**
          * @return Starts an arbitrary clause of conditions to use, that when included in other [SQLOperator],
@@ -181,7 +181,7 @@ constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, It
          */
         @JvmStatic
         fun nonGroupingClause(vararg condition: SQLOperator): OperatorGroup =
-            OperatorGroup().setUseParenthesis(false).andAll(*condition)
+                OperatorGroup().setUseParenthesis(false).andAll(*condition)
     }
 }
 

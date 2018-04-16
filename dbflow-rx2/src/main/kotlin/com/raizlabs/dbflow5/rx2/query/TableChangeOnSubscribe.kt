@@ -13,6 +13,7 @@ import com.raizlabs.dbflow5.structure.ChangeAction
 import io.reactivex.FlowableEmitter
 import io.reactivex.FlowableOnSubscribe
 import io.reactivex.disposables.Disposables
+import kotlin.reflect.KClass
 
 /**
  * Description: Emits when table changes occur for the related table on the [ModelQueriable].
@@ -25,22 +26,25 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: Mode
     private val register: TableNotifierRegister = FlowManager.newRegisterForTable(modelQueriable.table)
     private lateinit var flowableEmitter: FlowableEmitter<R>
 
+    private val associatedTables: Set<Class<*>> = modelQueriable.extractFrom()?.associatedTables
+            ?: setOf(modelQueriable.table)
+
     private val onTableChangedListener = object : OnTableChangedListener {
         override fun onTableChanged(table: Class<*>?, action: ChangeAction) {
-            if (modelQueriable.table == table) {
-                evaluateEmission()
+            if (table != null && associatedTables.contains(table)) {
+                evaluateEmission(table.kotlin)
             }
         }
     }
 
-    private fun evaluateEmission() {
+    private fun evaluateEmission(table: KClass<*> = modelQueriable.table.kotlin) {
         if (this::flowableEmitter.isInitialized) {
-            databaseForTable(modelQueriable.table.kotlin)
-                .beginTransactionAsync { evalFn(it, modelQueriable) }
-                .asMaybe()
-                .subscribe {
-                    flowableEmitter.onNext(it)
-                }
+            databaseForTable(table)
+                    .beginTransactionAsync { evalFn(it, modelQueriable) }
+                    .asMaybe()
+                    .subscribe {
+                        flowableEmitter.onNext(it)
+                    }
         }
     }
 
@@ -51,14 +55,8 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: Mode
         e.setDisposable(Disposables.fromRunnable { register.unregisterAll() })
 
         // From could be part of many joins, so we register for all affected tables here.
-        val from = modelQueriable.extractFrom()
-        if (from != null) {
-            val associatedTables = from.associatedTables
-            for (table in associatedTables) {
-                register.register(table)
-            }
-        } else {
-            register.register(modelQueriable.table)
+        for (table in associatedTables) {
+            register.register(table)
         }
 
         register.setListener(onTableChangedListener)
