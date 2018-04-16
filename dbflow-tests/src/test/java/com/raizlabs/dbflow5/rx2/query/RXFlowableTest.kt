@@ -51,7 +51,7 @@ class RXFlowableTest : BaseUnitTest() {
         var list = mutableListOf<Blog>()
         var calls = 0
         (select from Blog::class
-                innerJoin Author::class
+                leftOuterJoin  Author::class
                 on joinOn)
                 .asFlowable { db, modelQueriable -> modelQueriable.queryList(db) }
                 .subscribe {
