@@ -5,6 +5,7 @@ import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import io.reactivex.Completable
 import io.reactivex.Single
+import kotlin.reflect.KClass
 
 /**
  * Description: Mirrors the [RetrievalAdapter] with subset of exposed methods, mostly for
@@ -13,7 +14,7 @@ import io.reactivex.Single
 open class RXRetrievalAdapter<T : Any>
 internal constructor(private val retrievalAdapter: RetrievalAdapter<T>) {
 
-    internal constructor(table: Class<T>) : this(FlowManager.getRetrievalAdapter<T>(table))
+    internal constructor(table: KClass<T>) : this(FlowManager.getRetrievalAdapter<T>(table))
 
     fun load(model: T, databaseWrapper: DatabaseWrapper): Completable = Completable.fromCallable {
         retrievalAdapter.load(model, databaseWrapper)
@@ -34,6 +35,6 @@ internal constructor(private val retrievalAdapter: RetrievalAdapter<T>) {
                 RXRetrievalAdapter(modelAdapter)
 
         @JvmStatic
-        fun <T : Any> from(table: Class<T>): RXRetrievalAdapter<T> = RXRetrievalAdapter(table)
+        fun <T : Any> from(table: KClass<T>): RXRetrievalAdapter<T> = RXRetrievalAdapter(table)
     }
 }

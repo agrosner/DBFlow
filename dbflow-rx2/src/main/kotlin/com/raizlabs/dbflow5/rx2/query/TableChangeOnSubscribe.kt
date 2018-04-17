@@ -2,9 +2,7 @@ package com.raizlabs.dbflow5.rx2.query
 
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.databaseForTable
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.Join
-import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.extractFrom
 import com.raizlabs.dbflow5.runtime.OnTableChangedListener
 import com.raizlabs.dbflow5.runtime.TableNotifierRegister
@@ -14,6 +12,8 @@ import io.reactivex.FlowableEmitter
 import io.reactivex.FlowableOnSubscribe
 import io.reactivex.disposables.Disposables
 import kotlin.reflect.KClass
+import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.query.ModelQueriable
 
 /**
  * Description: Emits when table changes occur for the related table on the [ModelQueriable].
@@ -26,25 +26,25 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: Mode
     private val register: TableNotifierRegister = FlowManager.newRegisterForTable(modelQueriable.table)
     private lateinit var flowableEmitter: FlowableEmitter<R>
 
-    private val associatedTables: Set<Class<*>> = modelQueriable.extractFrom()?.associatedTables
-            ?: setOf(modelQueriable.table)
+    private val associatedTables: Set<KClass<*>> = modelQueriable.extractFrom()?.associatedTables
+        ?: setOf(modelQueriable.table)
 
     private val onTableChangedListener = object : OnTableChangedListener {
-        override fun onTableChanged(table: Class<*>?, action: ChangeAction) {
+        override fun onTableChanged(table: KClass<*>?, action: ChangeAction) {
             if (table != null && associatedTables.contains(table)) {
-                evaluateEmission(table.kotlin)
+                evaluateEmission(table)
             }
         }
     }
 
-    private fun evaluateEmission(table: KClass<*> = modelQueriable.table.kotlin) {
+    private fun evaluateEmission(table: KClass<*> = modelQueriable.table) {
         if (this::flowableEmitter.isInitialized) {
             databaseForTable(table)
-                    .beginTransactionAsync { evalFn(it, modelQueriable) }
-                    .asMaybe()
-                    .subscribe {
-                        flowableEmitter.onNext(it)
-                    }
+                .beginTransactionAsync { evalFn(it, modelQueriable) }
+                .asMaybe()
+                .subscribe {
+                    flowableEmitter.onNext(it)
+                }
         }
     }
 

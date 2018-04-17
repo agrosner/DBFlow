@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.database
 
-import com.raizlabs.dbflow5.JvmOverloads
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.transaction.ITransaction
 
@@ -52,7 +51,6 @@ interface DatabaseWrapper {
      *
      * @return true if the database is ok, false if the consistency has been compromised.
      */
-    @JvmOverloads
     fun isDatabaseIntegrityOk(onIntegrityFailed: () -> Boolean = { false }): Boolean {
         var integrityOk = true
 

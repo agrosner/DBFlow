@@ -3,6 +3,7 @@ apply plugin: 'kotlin-platform-jvm'
 project.ext.artifactId = bt_name
 
 dependencies {
+    compile project("${dbflow_project_prefix}dbflow-core")
     compile deps.kotlin
 }
 

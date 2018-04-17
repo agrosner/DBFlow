@@ -20,9 +20,10 @@ open class BaseRXModel {
      * may throw a [InvalidDBConfiguration] for this call if this class
      * is not associated with a table, so be careful when using this method.
      */
+    @Suppress("UNCHECKED_CAST")
     @delegate:ColumnIgnore
     @delegate:Transient
-    private val rxModelAdapter: RXModelAdapter<BaseRXModel> by lazy { RXModelAdapter(javaClass) }
+    private val rxModelAdapter: RXModelAdapter<BaseRXModel> by lazy { RXModelAdapter(this::class) as RXModelAdapter<BaseRXModel> }
 
     fun DatabaseWrapper.save(): Single<Boolean> =
             rxModelAdapter.save(this@BaseRXModel, this)
