@@ -8,7 +8,7 @@ import com.raizlabs.dbflow5.config.FlowLog
  * Description:
  */
 open class BaseDatabaseHelper(protected val migrationHelper: MigrationHelper,
-                              val databaseDefinition: DBFlowDatabase) {
+                              val database: DBFlowDatabase) {
 
     open fun onCreate(db: DatabaseWrapper) {
         checkForeignKeySupport(db)
@@ -36,7 +36,7 @@ open class BaseDatabaseHelper(protected val migrationHelper: MigrationHelper,
      * If foreign keys are supported, we turn it on the DB specified.
      */
     protected fun checkForeignKeySupport(database: DatabaseWrapper) {
-        if (databaseDefinition.isForeignKeysSupported) {
+        if (this.database.isForeignKeysSupported) {
             database.execSQL("PRAGMA foreign_keys=ON;")
             FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.")
         }
@@ -45,7 +45,7 @@ open class BaseDatabaseHelper(protected val migrationHelper: MigrationHelper,
     protected fun executeTableCreations(database: DatabaseWrapper) {
         try {
             database.beginTransaction()
-            val modelAdapters = databaseDefinition.getModelAdapters()
+            val modelAdapters = this.database.getModelAdapters()
             modelAdapters
                 .asSequence()
                 .filter { it.createWithDatabase() }
@@ -68,7 +68,7 @@ open class BaseDatabaseHelper(protected val migrationHelper: MigrationHelper,
     protected fun executeViewCreations(database: DatabaseWrapper) {
         try {
             database.beginTransaction()
-            val modelViews = databaseDefinition.modelViewAdapters
+            val modelViews = this.database.modelViewAdapters
             modelViews
                 .asSequence()
                 .map { "CREATE VIEW IF NOT EXISTS ${it.viewName} AS ${it.getCreationQuery(database)}" }
@@ -89,7 +89,7 @@ open class BaseDatabaseHelper(protected val migrationHelper: MigrationHelper,
                                     oldVersion: Int, newVersion: Int) {
 
         // will try migrations file or execute migrations from code
-        val migrationMap = databaseDefinition.migrations
+        val migrationMap = database.migrations
 
         val curVersion = oldVersion + 1
         db.executeTransaction {

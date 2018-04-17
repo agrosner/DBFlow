@@ -1,5 +1,7 @@
 package com.raizlabs.dbflow5.database
 
+import com.raizlabs.dbflow5.JvmOverloads
+import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.transaction.ITransaction
 
 /**
@@ -41,6 +43,32 @@ interface DatabaseWrapper {
         } finally {
             endTransaction()
         }
+    }
+
+    /**
+     * Pulled partially from code, it runs a "PRAGMA quick_check(1)" to see if the database is ok.
+     * This method will [.restoreBackUp] if they are enabled on the database if this check fails. So
+     * use with caution and ensure that you backup the database often!
+     *
+     * @return true if the database is ok, false if the consistency has been compromised.
+     */
+    @JvmOverloads
+    fun isDatabaseIntegrityOk(onIntegrityFailed: () -> Boolean = { false }): Boolean {
+        var integrityOk = true
+
+        var statement: DatabaseStatement? = null
+        try {
+            statement = compileStatement("PRAGMA quick_check(1)")
+            val result = statement.simpleQueryForString()
+            if (result == null || !result.equals("ok", ignoreCase = true)) {
+                // integrity_checker failed on main or attached databases
+                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on database returned: $result")
+                integrityOk = onIntegrityFailed()
+            }
+        } finally {
+            statement?.close()
+        }
+        return integrityOk
     }
 }
 

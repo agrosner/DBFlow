@@ -30,15 +30,17 @@ open class AndroidSQLiteOpenHelper(
     private val _databaseName = databaseDefinition.databaseFileName
 
     init {
+        val restoreHelper = PlatformDatabaseRestoreHelper(context)
+        val migrationHelper = PlatformMigrationHelper(context, databaseDefinition)
         var backupHelper: OpenHelper? = null
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
-            backupHelper = BackupHelper(context,
+            backupHelper = BackupHelper(migrationHelper,
                 DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
                 databaseDefinition.databaseVersion, databaseDefinition)
         }
 
-        databaseHelperDelegate = DatabaseHelperDelegate(context, listener, databaseDefinition, backupHelper)
+        databaseHelperDelegate = DatabaseHelperDelegate(migrationHelper, restoreHelper, listener, databaseDefinition, backupHelper)
     }
 
     override fun performRestoreFromBackup() {
@@ -100,13 +102,13 @@ open class AndroidSQLiteOpenHelper(
     /**
      * Simple helper to manage backup.
      */
-    private inner class BackupHelper(context: Context,
+    private inner class BackupHelper(migrationHelper: MigrationHelper,
                                      name: String, version: Int,
                                      databaseDefinition: DBFlowDatabase)
         : SQLiteOpenHelper(context, name, null, version), OpenHelper {
 
         private var androidDatabase: AndroidDatabase? = null
-        private val baseDatabaseHelper: BaseDatabaseHelper = BaseDatabaseHelper(context, databaseDefinition)
+        private val baseDatabaseHelper: BaseDatabaseHelper = BaseDatabaseHelper(migrationHelper, databaseDefinition)
         private val _databaseName = databaseDefinition.databaseFileName
 
         override val database: DatabaseWrapper

@@ -35,7 +35,7 @@ class FlowCursorIterator<T : Any>
             val _cursorList = when (cursorList) {
                 is FlowCursorList<*> -> cursorList as FlowCursorList<T>
                 is FlowQueryList<*> -> cursorList.internalCursorList as FlowCursorList<T>
-                else -> throw IllegalArgumentException("The specified ${IFlowCursorIterator::class.java.simpleName} " +
+                else -> throw IllegalArgumentException("The specified ${IFlowCursorIterator::class} " +
                     "must track cursor unless it is a FlowCursorList or FlowQueryList")
             }
             val modelQueriable = _cursorList.modelQueriable

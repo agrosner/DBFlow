@@ -1,10 +1,10 @@
 package com.raizlabs.dbflow5.query.property
 
 import com.raizlabs.dbflow5.JvmStatic
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.NameAlias
 import com.raizlabs.dbflow5.query.Operator
-import kotlin.reflect.KClass
 
 /**
  * Description: Provides some useful methods for creating [IProperty] from non-property types.
