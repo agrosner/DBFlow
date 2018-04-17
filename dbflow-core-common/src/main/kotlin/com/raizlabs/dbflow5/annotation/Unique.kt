@@ -1,5 +1,7 @@
 package com.raizlabs.dbflow5.annotation
 
+import com.raizlabs.dbflow5.sql.ConflictAction
+
 /**
  * Description: Marks the field as unique, meaning its value cannot be repeated. It is, however,
  * NOT a primary key.

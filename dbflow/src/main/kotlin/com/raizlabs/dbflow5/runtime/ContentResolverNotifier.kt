@@ -2,6 +2,7 @@ package com.raizlabs.dbflow5.runtime
 
 import android.content.ContentResolver
 import android.content.Context
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.getNotificationUri
 import com.raizlabs.dbflow5.query.SQLOperator
@@ -25,7 +26,7 @@ class ContentResolverNotifier(private val context: Context,
         }
     }
 
-    override fun <T : Any> notifyTableChanged(table: Class<T>, action: ChangeAction) {
+    override fun <T : Any> notifyTableChanged(table: KClass<T>, action: ChangeAction) {
         if (FlowContentObserver.shouldNotify()) {
             context.contentResolver.notifyChange(
                 getNotificationUri(authority, table, action, null as Array<SQLOperator>?), null, true)
@@ -41,7 +42,7 @@ class ContentResolverNotifier(private val context: Context,
         private var tableChangedListener: OnTableChangedListener? = null
 
         private val internalContentChangeListener = object : OnTableChangedListener {
-            override fun onTableChanged(table: Class<*>?, action: ChangeAction) {
+            override fun onTableChanged(table: KClass<*>?, action: ChangeAction) {
                 tableChangedListener?.onTableChanged(table, action)
             }
         }
@@ -50,11 +51,11 @@ class ContentResolverNotifier(private val context: Context,
             flowContentObserver.addOnTableChangedListener(internalContentChangeListener)
         }
 
-        override fun <T> register(tClass: Class<T>) {
+        override fun <T : Any> register(tClass: KClass<T>) {
             flowContentObserver.registerForContentChanges(context, tClass)
         }
 
-        override fun <T> unregister(tClass: Class<T>) {
+        override fun <T : Any> unregister(tClass: KClass<T>) {
             flowContentObserver.unregisterForContentChanges(context)
         }
 

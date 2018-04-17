@@ -7,7 +7,7 @@ import com.raizlabs.dbflow5.config.FlowLog
 /**
  * Description:
  */
-open class BaseDatabaseHelper(protected val context: Context,
+open class BaseDatabaseHelper(protected val migrationHelper: MigrationHelper,
                               val databaseDefinition: DBFlowDatabase) {
 
     open fun onCreate(db: DatabaseWrapper) {
@@ -89,105 +89,29 @@ open class BaseDatabaseHelper(protected val context: Context,
                                     oldVersion: Int, newVersion: Int) {
 
         // will try migrations file or execute migrations from code
-        try {
-            val files: List<String> = context.assets.list(
-                "$MIGRATION_PATH/${databaseDefinition.databaseName}")
-                .sortedWith(naturalOrder<String>())
+        val migrationMap = databaseDefinition.migrations
 
-            val migrationFileMap = hashMapOf<Int, MutableList<String>>()
-            for (file in files) {
-                try {
-                    val version = file.replace(".sql", "").toInt()
-                    val fileList = migrationFileMap.getOrPut(version) { arrayListOf() }
-                    fileList.add(file)
-                } catch (e: NumberFormatException) {
-                    FlowLog.log(FlowLog.Level.W, "Skipping invalidly named file: $file", e)
-                }
+        val curVersion = oldVersion + 1
+        db.executeTransaction {
+            // execute migrations in order, migration file first before wrapped migration classes.
+            for (i in curVersion..newVersion) {
+                migrationHelper.executeMigration(db, i)
 
-            }
+                val migrationsList = migrationMap[i]
+                if (migrationsList != null) {
+                    for (migration in migrationsList) {
+                        // before migration
+                        migration.onPreMigrate()
 
-            val migrationMap = databaseDefinition.migrations
+                        // migrate
+                        migration.migrate(db)
 
-            val curVersion = oldVersion + 1
-
-            try {
-                db.beginTransaction()
-
-                // execute migrations in order, migration file first before wrapped migration classes.
-                for (i in curVersion..newVersion) {
-                    val migrationFiles = migrationFileMap[i]
-                    if (migrationFiles != null) {
-                        for (migrationFile in migrationFiles) {
-                            executeSqlScript(db, migrationFile)
-                            FlowLog.log(FlowLog.Level.I, "$migrationFile executed successfully.")
-                        }
-                    }
-
-                    val migrationsList = migrationMap[i]
-                    if (migrationsList != null) {
-                        for (migration in migrationsList) {
-                            // before migration
-                            migration.onPreMigrate()
-
-                            // migrate
-                            migration.migrate(db)
-
-                            // after migration cleanup
-                            migration.onPostMigrate()
-                            FlowLog.log(FlowLog.Level.I, "$migration executed successfully.")
-                        }
+                        // after migration cleanup
+                        migration.onPostMigrate()
+                        FlowLog.log(FlowLog.Level.I, "$migration executed successfully.")
                     }
                 }
-                db.setTransactionSuccessful()
-            } finally {
-                db.endTransaction()
             }
-        } catch (e: IOException) {
-            FlowLog.log(FlowLog.Level.E, "Failed to execute migrations. App might be in an inconsistent state.", e)
-        }
-
-    }
-
-    /**
-     * Supports multiline sql statements with ended with the standard ";"
-     *
-     * @param db   The database to run it on
-     * @param file the file name in assets/migrations that we read from
-     */
-    private fun executeSqlScript(db: DatabaseWrapper,
-                                 file: String) {
-        try {
-            val input: InputStream = context.assets.open("$MIGRATION_PATH/${databaseDefinition.databaseName}/$file")
-
-            // ends line with SQL
-            val querySuffix = ";"
-
-            // standard java comments
-            val queryCommentPrefix = "--"
-            var query = StringBuffer()
-
-            input.reader().buffered().forEachLine { fileLine ->
-                var line = fileLine.trim { it <= ' ' }
-                val isEndOfQuery = line.endsWith(querySuffix)
-                if (line.startsWith(queryCommentPrefix)) {
-                    return@forEachLine
-                }
-                if (isEndOfQuery) {
-                    line = line.substring(0, line.length - querySuffix.length)
-                }
-                query.append(" ").append(line)
-                if (isEndOfQuery) {
-                    db.execSQL(query.toString())
-                    query = StringBuffer()
-                }
-            }
-
-            val queryString = query.toString()
-            if (queryString.trim { it <= ' ' }.isNotEmpty()) {
-                db.execSQL(queryString)
-            }
-        } catch (e: IOException) {
-            FlowLog.log(FlowLog.Level.E, "Failed to execute $file. App might be in an inconsistent state!", e)
         }
     }
 

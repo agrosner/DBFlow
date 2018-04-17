@@ -1,27 +1,29 @@
 package com.raizlabs.dbflow5.query
 
-import android.content.ContentValues
-import com.raizlabs.dbflow5.annotation.ConflictAction
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.appendArray
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.modelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
+import com.raizlabs.dbflow5.sql.ConflictAction
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.structure.ChangeAction
+
+expect class Insert<T : Any> internal constructor(table: KClass<T>, vararg columns: Property<*>) : InternalInsert<T>
 
 /**
  * Description: The SQLite INSERT command
  */
-class Insert<TModel : Any>
+abstract class InternalInsert<T : Any>
 /**
  * Constructs a new INSERT command
  *
  * @param table The table to insert into
  */
-internal constructor(table: Class<TModel>, vararg columns: Property<*>)
-    : BaseQueriable<TModel>(table), Query {
+internal constructor(table: KClass<T>, vararg columns: Property<*>)
+    : BaseQueriable<T>(table), Query {
 
     /**
      * The columns to specify in this query (optional)
@@ -101,30 +103,30 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      *
      * @param columns The columns to use
      */
-    fun columns(vararg columns: String) = apply {
+    fun columns(vararg columns: String) = applyInsert {
         val modelClassModelAdapter = table.modelAdapter
         this.columns = columns.map { modelClassModelAdapter.getProperty(it) }
     }
 
-    fun columns(vararg properties: IProperty<*>) = apply {
+    fun columns(vararg properties: IProperty<*>) = applyInsert {
         this.columns = properties.toList()
     }
 
-    fun columns(properties: List<IProperty<*>>) = apply {
+    fun columns(properties: List<IProperty<*>>) = applyInsert {
         this.columns = properties
     }
 
     /**
-     * @return Appends a list of columns to this INSERT statement from the associated [TModel].
+     * @return Appends a list of columns to this INSERT statement from the associated [T].
      */
-    fun asColumns() = apply {
+    fun asColumns() = applyInsert {
         columns(*table.modelAdapter.allColumnProperties)
     }
 
     /**
      * @return Appends a list of columns to this INSERT and ? as the values.
      */
-    fun asColumnValues() = apply {
+    fun asColumnValues() = applyInsert {
         asColumns()
         columns?.let { columns ->
             val values = arrayListOf<Any?>()
@@ -139,7 +141,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      *
      * @param values The non type-converted values
      */
-    fun values(vararg values: Any) = apply {
+    fun values(vararg values: Any) = applyInsert {
         valuesList.add(values.toMutableList())
     }
 
@@ -149,7 +151,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      *
      * @param values The non type-converted values
      */
-    fun values(values: List<Any?>) = apply {
+    fun values(values: List<Any?>) = applyInsert {
         valuesList.add(values.toMutableList())
     }
 
@@ -158,7 +160,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      *
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      */
-    fun columnValues(vararg conditions: SQLOperator) = apply {
+    fun columnValues(vararg conditions: SQLOperator) = applyInsert {
         val columns = arrayListOf<String>()
         val values = arrayListOf<Any?>()
 
@@ -168,7 +170,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
             values += condition.value()
         }
 
-        return columns(*columns.toTypedArray()).values(values)
+        columns(*columns.toTypedArray()).values(values)
     }
 
     /**
@@ -176,7 +178,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      *
      * @param operatorGroup The OperatorGroup to use
      */
-    fun columnValues(operatorGroup: OperatorGroup) = apply {
+    fun columnValues(operatorGroup: OperatorGroup) = applyInsert {
         val size = operatorGroup.size
         val columns = arrayListOf<String>()
         val values = arrayListOf<Any?>()
@@ -187,19 +189,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
             values += condition.value()
         }
 
-        return columns(*columns.toTypedArray()).values(values)
-    }
-
-    fun columnValues(contentValues: ContentValues) = apply {
-        val entries = contentValues.valueSet()
-        val columns = arrayListOf<String>()
-        val values = arrayListOf<Any?>()
-        for ((key) in entries) {
-            columns += key
-            values += contentValues.get(key)
-        }
-
-        return columns(*columns.toTypedArray()).values(values)
+        columns(*columns.toTypedArray()).values(values)
     }
 
     /**
@@ -207,7 +197,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      *
      * @param selectFrom The from that is continuation of [Select].
      */
-    fun select(selectFrom: From<*>) = apply {
+    fun select(selectFrom: From<*>) = applyInsert {
         this.selectFrom = selectFrom
     }
 
@@ -218,7 +208,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      * @param action The conflict action to use
      * @return
      */
-    fun or(action: ConflictAction) = apply {
+    fun or(action: ConflictAction) = applyInsert {
         conflictAction = action
     }
 
@@ -227,18 +217,14 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      *
      * @return
      */
-    fun orReplace() = apply {
-        return or(ConflictAction.REPLACE)
-    }
+    fun orReplace() = applyInsert { or(ConflictAction.REPLACE) }
 
     /**
      * Specifies OR ROLLBACK, which will cancel the current transaction or ABORT the current statement.
      *
      * @return
      */
-    fun orRollback() = apply {
-        return or(ConflictAction.ROLLBACK)
-    }
+    fun orRollback() = applyInsert { or(ConflictAction.ROLLBACK) }
 
     /**
      * Specifies OR ABORT, which will cancel the current INSERT, but all other operations will be preserved in
@@ -246,9 +232,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      *
      * @return
      */
-    fun orAbort() = apply {
-        return or(ConflictAction.ABORT)
-    }
+    fun orAbort() = applyInsert { or(ConflictAction.ABORT) }
 
     /**
      * Specifies OR FAIL, which does not back out of the previous statements. Anything else in the current
@@ -256,22 +240,20 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      *
      * @return
      */
-    fun orFail() = apply {
-        return or(ConflictAction.FAIL)
-    }
+    fun orFail() = applyInsert { or(ConflictAction.FAIL) }
 
     /**
      * Specifies OR IGNORE, which ignores any kind of error and proceeds as normal.
      *
      * @return
      */
-    fun orIgnore() = apply {
-        return or(ConflictAction.IGNORE)
-    }
+    fun orIgnore() = applyInsert { or(ConflictAction.IGNORE) }
 
     override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long {
         throw IllegalStateException("Cannot call executeUpdateDelete() from an Insert")
     }
+
+    private inline fun applyInsert(fn: InternalInsert<T>.() -> Unit): Insert<T> = apply(fn) as Insert<T>
 }
 
 infix fun <T : Any> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().columnValues(*into)

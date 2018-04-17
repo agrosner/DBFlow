@@ -1,14 +1,12 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.config.FlowLog
-import com.raizlabs.dbflow5.database.DatabaseStatement
-import com.raizlabs.dbflow5.database.DatabaseStatementWrapper
-import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.database.FlowCursor
-import com.raizlabs.dbflow5.database.SQLiteException
+import com.raizlabs.dbflow5.database.*
 import com.raizlabs.dbflow5.longForQuery
 import com.raizlabs.dbflow5.runtime.NotifyDistributor
 import com.raizlabs.dbflow5.structure.ChangeAction
+import com.raizlabs.dbflow5.use
 
 /**
  * Description: Base implementation of something that can be queried from the database.
@@ -17,14 +15,14 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
     /**
      * @return The table associated with this INSERT
      */
-    val table: Class<TModel>) : Queriable, Actionable {
+    val table: KClass<TModel>) : Queriable, Actionable {
 
     abstract override val primaryAction: ChangeAction
 
     override fun longValue(databaseWrapper: DatabaseWrapper): Long {
         try {
             val query = query
-                FlowLog.log(FlowLog.Level.V, "Executing query: $query")
+            FlowLog.log(FlowLog.Level.V, "Executing query: $query")
             return longForQuery(databaseWrapper, query)
         } catch (sde: SQLiteException) {
             // catch exception here, log it but return 0;

@@ -7,6 +7,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
     compile project("${dbflow_project_prefix}dbflow-core")
+    compile project("${dbflow_project_prefix}dbflow-core-android")
     compile deps.javapoet
     compile deps.kpoet
     compile deps.kotlin

@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.appendArray
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.query.property.IProperty
@@ -10,7 +11,7 @@ import com.raizlabs.dbflow5.sql.Query
  */
 class TriggerMethod<TModel>
 internal constructor(internal val trigger: Trigger, private val methodName: String,
-                     internal var onTable: Class<TModel>, vararg properties: IProperty<*>) : Query {
+                     internal var onTable: KClass<TModel>, vararg properties: IProperty<*>) : Query {
     private var properties: List<IProperty<*>> = arrayListOf()
     private var forEachRow = false
     private var whenCondition: SQLOperator? = null

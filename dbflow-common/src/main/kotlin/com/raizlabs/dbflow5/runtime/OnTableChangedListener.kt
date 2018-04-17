@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.runtime
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.structure.ChangeAction
 
 /**
@@ -14,5 +15,5 @@ interface OnTableChangedListener {
      * or higher.
      * @param action       The action that occurred.
      */
-    fun onTableChanged(table: Class<*>?, action: ChangeAction)
+    fun onTableChanged(table: KClass<*>?, action: ChangeAction)
 }

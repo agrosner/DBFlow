@@ -7,6 +7,7 @@ import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
+import com.raizlabs.dbflow5.database.count
 import com.raizlabs.dbflow5.query.ModelQueriable
 
 /**
@@ -78,7 +79,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     }
 
     override val isClosed: Boolean
-        get() = _cursor?.isClosed ?: true
+        get() = _cursor?.isClosed() ?: true
 
     override operator fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(databaseWrapper, this)
 
@@ -166,7 +167,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     private fun unpackCursor(): FlowCursor = _cursor ?: cursorFunc().also { _cursor = it }
 
     private fun throwIfCursorClosed() {
-        if (_cursor?.isClosed == true) {
+        if (_cursor?.isClosed() == true) {
             throw IllegalStateException("Cursor has been closed for FlowCursorList")
         }
     }

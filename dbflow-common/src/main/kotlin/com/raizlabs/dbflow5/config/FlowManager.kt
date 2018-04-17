@@ -2,15 +2,16 @@
 
 package com.raizlabs.dbflow5.config
 
-import com.raizlabs.dbflow5.JvmStatic
 import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.Synchronized
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.adapter.ModelViewAdapter
 import com.raizlabs.dbflow5.adapter.QueryModelAdapter
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
+import com.raizlabs.dbflow5.converter.TypeConverter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.migration.Migration
+import com.raizlabs.dbflow5.quote
 import com.raizlabs.dbflow5.runtime.ModelNotifier
 import com.raizlabs.dbflow5.runtime.TableNotifierRegister
 import com.raizlabs.dbflow5.structure.*
@@ -57,7 +58,6 @@ abstract class FlowCommonManager internal constructor() {
      * @param table The class that implements [Model]
      * @return The table name, which can be different than the [Model] class name
      */
-    @JvmStatic
     fun getTableName(table: KClass<*>): String {
         return getModelAdapterOrNull(table)?.tableName
             ?: getModelViewAdapterOrNull(table)?.viewName
@@ -69,7 +69,6 @@ abstract class FlowCommonManager internal constructor() {
      * @param tableName    The name of the table in the DB.
      * @return The associated table class for the specified name.
      */
-    @JvmStatic
     fun getTableClassForName(databaseName: String, tableName: String): KClass<*> {
         val databaseDefinition = getDatabase(databaseName)
         return databaseDefinition.getModelClassForName(tableName)
@@ -83,7 +82,7 @@ abstract class FlowCommonManager internal constructor() {
      * @param tableName     The name of the table in the DB.
      * @return The associated table class for the specified name.
      */
-    @JvmStatic
+
     fun getTableClassForName(databaseClass: KClass<out DBFlowDatabase>, tableName: String): KClass<*> {
         val databaseDefinition = getDatabase(databaseClass)
         return databaseDefinition.getModelClassForName(tableName)
@@ -96,7 +95,7 @@ abstract class FlowCommonManager internal constructor() {
      * @param table The table to lookup the database for.
      * @return the corresponding [DBFlowDatabase] for the specified model
      */
-    @JvmStatic
+
     fun getDatabaseForTable(table: KClass<*>): DBFlowDatabase {
         checkDatabaseHolder()
         return globalDatabaseHolder.getDatabaseForTable(table)
@@ -105,7 +104,7 @@ abstract class FlowCommonManager internal constructor() {
     }
 
     @Suppress("UNCHECKED_CAST")
-    @JvmStatic
+
     fun <T : DBFlowDatabase> getDatabase(databaseClass: KClass<T>): T {
         checkDatabaseHolder()
         return globalDatabaseHolder.getDatabase(databaseClass) as? T
@@ -113,14 +112,14 @@ abstract class FlowCommonManager internal constructor() {
                 "Did you forget the @Database annotation?")
     }
 
-    @JvmStatic
+
     fun getDatabaseName(database: KClass<out DBFlowDatabase>): String = getDatabase(database).databaseName
 
     /**
      * @param databaseName The name of the database. Will throw an exception if the databaseForTable doesn't exist.
      * @return the [DBFlowDatabase] for the specified database
      */
-    @JvmStatic
+
     fun getDatabase(databaseName: String): DBFlowDatabase {
         checkDatabaseHolder()
         return globalDatabaseHolder.getDatabase(databaseName)
@@ -130,19 +129,19 @@ abstract class FlowCommonManager internal constructor() {
 
     @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabaseForTable(table)"),
         message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
-    @JvmStatic
+
     fun getWritableDatabaseForTable(table: KClass<*>): DatabaseWrapper =
         getDatabaseForTable(table).writableDatabase
 
     @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabase(databaseName)"),
         message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
-    @JvmStatic
+
     fun getWritableDatabase(databaseName: String): DatabaseWrapper =
         getDatabase(databaseName).writableDatabase
 
     @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabase(databaseClass)"),
         message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
-    @JvmStatic
+
     fun getWritableDatabase(databaseClass: KClass<out DBFlowDatabase>): DatabaseWrapper =
         getDatabase(databaseClass).writableDatabase
 
@@ -154,26 +153,26 @@ abstract class FlowCommonManager internal constructor() {
      * module database. This method should only be called if you need to load databases
      * that are part of a module. Building once will give you the ability to add the class.
      */
-    @JvmStatic
+
     fun initModule(generatedClassName: KClass<out DatabaseHolder>) {
         loadDatabaseHolder(generatedClassName)
     }
 
-    @JvmStatic
+
     fun getConfig(): FlowConfig = config ?: throw IllegalStateException("Configuration is not initialized. " +
         "Please call init(FlowConfig) in your application class.")
 
     /**
      * @return The database holder, creating if necessary using reflection.
      */
-    @JvmStatic
+
     internal abstract fun loadDatabaseHolder(holderClass: KClass<out DatabaseHolder>)
 
     /**
      * Resets all databases and associated files.
      */
     @Synchronized
-    @JvmStatic
+
     fun reset() {
         globalDatabaseHolder.databaseClassLookupMap.values.forEach { it.reset() }
         globalDatabaseHolder.reset()
@@ -185,7 +184,7 @@ abstract class FlowCommonManager internal constructor() {
      * DBFlow back to initial application state.
      */
     @Synchronized
-    @JvmStatic
+
     fun close() {
         globalDatabaseHolder.databaseClassLookupMap.values.forEach { it.close() }
         config = null
@@ -199,7 +198,7 @@ abstract class FlowCommonManager internal constructor() {
      *
      * @param flowConfig The configuration instance that will help shape how DBFlow gets constructed.
      */
-    @JvmStatic
+
     fun init(flowConfig: FlowConfig) {
         config = config?.merge(flowConfig) ?: flowConfig
 
@@ -222,7 +221,7 @@ abstract class FlowCommonManager internal constructor() {
      * @return The specific [TypeConverter] for the specified class. It defines
      * how the custom datatype is handled going into and out of the DB.
      */
-    @JvmStatic
+
     fun getTypeConverterForClass(objectClass: KClass<*>): TypeConverter<*, *>? {
         checkDatabaseHolder()
         return globalDatabaseHolder.getTypeConverterForClass(objectClass)
@@ -233,7 +232,7 @@ abstract class FlowCommonManager internal constructor() {
     /**
      * Release reference to context and [FlowConfig]
      */
-    @JvmStatic
+
     @Synchronized
     fun destroy() {
         globalDatabaseHolder.databaseClassLookupMap.values.forEach { it.destroy() }
@@ -248,7 +247,7 @@ abstract class FlowCommonManager internal constructor() {
      * @return The adapter associated with the class. If its not a [ModelAdapter],
      * it checks both the [ModelViewAdapter] and [QueryModelAdapter].
      */
-    @JvmStatic
+
     fun <T : Any> getRetrievalAdapter(modelClass: KClass<T>): RetrievalAdapter<T> {
         var retrievalAdapter: RetrievalAdapter<T>? = getModelAdapterOrNull(modelClass)
         if (retrievalAdapter == null) {
@@ -268,7 +267,7 @@ abstract class FlowCommonManager internal constructor() {
      * interactions with the database. This method is meant for internal usage only.
      * We strongly prefer you use the built-in methods associated with [Model] and [BaseModel].
      */
-    @JvmStatic
+
     fun <T : Any> getModelAdapter(modelClass: KClass<T>): ModelAdapter<T> =
         getModelAdapterOrNull(modelClass) ?: throwCannotFindAdapter("ModelAdapter", modelClass)
 
@@ -279,7 +278,7 @@ abstract class FlowCommonManager internal constructor() {
      * @param [T]  The class that extends [BaseModelView]
      * @return The model view adapter for the specified model view.
      */
-    @JvmStatic
+
     fun <T : Any> getModelViewAdapter(modelViewClass: KClass<T>): ModelViewAdapter<T> =
         getModelViewAdapterOrNull(modelViewClass) ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
 
@@ -290,15 +289,15 @@ abstract class FlowCommonManager internal constructor() {
      * @param [T]  The class that extends [BaseQueryModel]
      * @return The query model adapter for the specified model cursor.
      */
-    @JvmStatic
+
     fun <T : Any> getQueryModelAdapter(queryModelClass: KClass<T>): QueryModelAdapter<T> =
         getQueryModelAdapterOrNull(queryModelClass) ?: throwCannotFindAdapter("QueryModelAdapter", queryModelClass)
 
-    @JvmStatic
+
     fun getModelNotifierForTable(table: KClass<*>): ModelNotifier =
         getDatabaseForTable(table).getModelNotifier()
 
-    @JvmStatic
+
     fun newRegisterForTable(table: KClass<*>): TableNotifierRegister =
         getModelNotifierForTable(table).newRegister()
 
@@ -315,7 +314,7 @@ abstract class FlowCommonManager internal constructor() {
      * @param databaseName The name of the database. Will throw an exception if the databaseForTable doesn't exist.
      * @return The map of migrations for the specified database.
      */
-    @JvmStatic
+
     internal fun getMigrations(databaseName: String): Map<Int, List<Migration>> =
         getDatabase(databaseName).migrations
 
@@ -325,7 +324,6 @@ abstract class FlowCommonManager internal constructor() {
      * @param databaseName The name of the database to check. Will thrown an exception if it does not exist.
      * @return true if it's integrity is OK.
      */
-    @JvmStatic
     fun isDatabaseIntegrityOk(databaseName: String) = getDatabase(databaseName).openHelper.isDatabaseIntegrityOk
 
     private fun throwCannotFindAdapter(type: String, clazz: KClass<*>): Nothing =
@@ -387,6 +385,8 @@ inline fun <reified T : Any> modelAdapter() = FlowManager.getModelAdapter(T::cla
 inline val <T : Any> KClass<T>.modelAdapter
     get() = FlowManager.getModelAdapter(this)
 
+inline val <T : Any> KClass<T>.retrievalAdapter
+    get() = FlowManager.getRetrievalAdapter(this)
 
 /**
  * Easily get its [QueryModelAdapter].

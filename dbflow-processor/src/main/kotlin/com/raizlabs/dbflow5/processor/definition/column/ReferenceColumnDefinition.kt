@@ -4,7 +4,7 @@ import com.grosner.kpoet.S
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.case
 import com.raizlabs.dbflow5.annotation.ColumnMap
-import com.raizlabs.dbflow5.annotation.ConflictAction
+import com.raizlabs.dbflow5.sql.ConflictAction
 import com.raizlabs.dbflow5.annotation.ForeignKey
 import com.raizlabs.dbflow5.annotation.ForeignKeyAction
 import com.raizlabs.dbflow5.annotation.ForeignKeyReference

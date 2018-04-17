@@ -1,7 +1,5 @@
 package com.raizlabs.dbflow5.sql
 
-import com.raizlabs.dbflow5.data.Blob
-
 /**
  * Description: Represents a type that SQLite understands.
  */
@@ -30,28 +28,7 @@ enum class SQLiteType {
 
     companion object {
 
-        private val sTypeMap = hashMapOf<String, SQLiteType>(
-                Byte::class.javaPrimitiveType!!.name to INTEGER,
-                Short::class.javaPrimitiveType!!.name to INTEGER,
-                Int::class.javaPrimitiveType!!.name to INTEGER,
-                Long::class.javaPrimitiveType!!.name to INTEGER,
-                Float::class.javaPrimitiveType!!.name to REAL,
-                Double::class.javaPrimitiveType!!.name to REAL,
-                Boolean::class.javaPrimitiveType!!.name to INTEGER,
-                Char::class.javaPrimitiveType!!.name to TEXT,
-                ByteArray::class.java.name to BLOB,
-                Byte::class.java.name to INTEGER,
-                Short::class.java.name to INTEGER,
-                Int::class.java.name to INTEGER,
-                Long::class.java.name to INTEGER,
-                Float::class.java.name to REAL,
-                Double::class.java.name to REAL,
-                Boolean::class.java.name to INTEGER,
-                Char::class.java.name to TEXT,
-                CharSequence::class.java.name to TEXT,
-                String::class.java.name to TEXT,
-                Array<Byte>::class.java.name to BLOB,
-                Blob::class.java.name to BLOB)
+        private val typeMap = platformTypeMap
 
         /**
          * Returns the [SQLiteType] for this class
@@ -60,8 +37,13 @@ enum class SQLiteType {
          * @return The type from the class name
          */
 
-        operator fun get(className: String): SQLiteType? = sTypeMap[className]
+        operator fun get(className: String): SQLiteType? = typeMap[className]
 
-        fun containsClass(className: String): Boolean = sTypeMap.containsKey(className)
+        fun containsClass(className: String): Boolean = typeMap.containsKey(className)
     }
 }
+
+/**
+ * The type map that we add to the contained type map specific to a platform.
+ */
+expect val platformTypeMap: Map<String, SQLiteType>

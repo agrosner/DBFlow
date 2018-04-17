@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.database.DatabaseWrapper
@@ -17,7 +18,7 @@ interface ModelQueriable<T : Any> : Queriable {
     /**
      * @return the table that this query comes from.
      */
-    val table: Class<T>
+    val table: KClass<T>
 
     /**
      * @return a list of model converted items
@@ -48,7 +49,7 @@ interface ModelQueriable<T : Any> : Queriable {
      * @param <TQueryModel>   The class that extends [BaseQueryModel]
      * @return A list of custom models that are not tied to a table.
     </TQueryModel> */
-    fun <TQueryModel : Any> queryCustomList(queryModelClass: Class<TQueryModel>,
+    fun <TQueryModel : Any> queryCustomList(queryModelClass: KClass<TQueryModel>,
                                             databaseWrapper: DatabaseWrapper): MutableList<TQueryModel>
 
     /**
@@ -58,7 +59,7 @@ interface ModelQueriable<T : Any> : Queriable {
      * @param <TQueryModel>   The class that extends [BaseQueryModel]
      * @return A single model from the query.
     </TQueryModel> */
-    fun <TQueryModel : Any> queryCustomSingle(queryModelClass: Class<TQueryModel>,
+    fun <TQueryModel : Any> queryCustomSingle(queryModelClass: KClass<TQueryModel>,
                                               databaseWrapper: DatabaseWrapper): TQueryModel?
 
     /**

@@ -1,0 +1,15 @@
+apply plugin: 'kotlin-platform-jvm'
+
+project.ext.artifactId = bt_name
+
+dependencies {
+    compile deps.kotlin
+}
+
+apply from: '../kotlin-artifacts.gradle'
+
+compileKotlin {
+    kotlinOptions {
+        apiVersion = "1.2"
+    }
+}

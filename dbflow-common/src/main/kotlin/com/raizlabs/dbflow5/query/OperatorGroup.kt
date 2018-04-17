@@ -1,5 +1,7 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.JvmOverloads
+import com.raizlabs.dbflow5.JvmStatic
 import com.raizlabs.dbflow5.query.Operator.Operation
 import com.raizlabs.dbflow5.sql.Query
 
@@ -167,7 +169,7 @@ constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, It
          */
         @JvmStatic
         fun clause(vararg condition: SQLOperator): OperatorGroup =
-                OperatorGroup().andAll(*condition)
+            OperatorGroup().andAll(*condition)
 
         /**
          * @return Starts an arbitrary clause of conditions to use, that when included in other [SQLOperator],
@@ -181,7 +183,7 @@ constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, It
          */
         @JvmStatic
         fun nonGroupingClause(vararg condition: SQLOperator): OperatorGroup =
-                OperatorGroup().setUseParenthesis(false).andAll(*condition)
+            OperatorGroup().setUseParenthesis(false).andAll(*condition)
     }
 }
 

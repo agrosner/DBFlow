@@ -9,21 +9,13 @@ import com.raizlabs.dbflow5.adapter.QueryModelAdapter
 import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
 import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.adapter.saveable.ModelSaver
-import com.raizlabs.dbflow5.database.DatabaseCallback
-import com.raizlabs.dbflow5.database.DatabaseStatement
-import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.database.FlowCursor
-import com.raizlabs.dbflow5.database.OpenHelper
-import com.raizlabs.dbflow5.database.PlatformOpenHelper
+import com.raizlabs.dbflow5.database.*
 import com.raizlabs.dbflow5.migration.Migration
 import com.raizlabs.dbflow5.runtime.DirectModelNotifier
 import com.raizlabs.dbflow5.runtime.ModelNotifier
 import com.raizlabs.dbflow5.structure.BaseModelView
-import com.raizlabs.dbflow5.transaction.BaseTransactionManager
-import com.raizlabs.dbflow5.transaction.DefaultTransactionManager
-import com.raizlabs.dbflow5.transaction.DefaultTransactionQueue
-import com.raizlabs.dbflow5.transaction.ITransaction
-import com.raizlabs.dbflow5.transaction.Transaction
+import com.raizlabs.dbflow5.structure.InvalidDBConfiguration
+import com.raizlabs.dbflow5.transaction.*
 
 /**
  * Description: The main interface that all Database implementations extend from. Use this to
@@ -124,7 +116,8 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * @return The name of this database as defined in [Database]
      */
     val databaseName: String
-        get() = databaseConfig?.databaseName ?: associatedDatabaseClassFile.simpleName
+        get() = databaseConfig?.databaseName
+            ?: throw InvalidDBConfiguration("Database name must be specified in the DatabaseConfig.")
 
     /**
      * @return The file name that this database points to
@@ -305,22 +298,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         beginTransactionAsync(object : ITransaction<R> {
             override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
         })
-
-    fun <R> executeTransaction(transaction: ITransaction<R>): R {
-        val database = writableDatabase
-        try {
-            database.beginTransaction()
-            val result = transaction.execute(database)
-            database.setTransactionSuccessful()
-            return result
-        } finally {
-            database.endTransaction()
-        }
-    }
-
-    inline fun <R> executeTransaction(crossinline transaction: (DatabaseWrapper) -> R) = executeTransaction(object : ITransaction<R> {
-        override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
-    })
 
     /**
      * @return True if the [Database.consistencyCheckEnabled] annotation is true.

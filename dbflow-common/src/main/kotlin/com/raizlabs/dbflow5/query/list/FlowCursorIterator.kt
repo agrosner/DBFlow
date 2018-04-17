@@ -3,9 +3,11 @@ package com.raizlabs.dbflow5.query.list
 import com.raizlabs.dbflow5.AutoCloseable
 import com.raizlabs.dbflow5.JvmOverloads
 import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.database.count
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.Transformable
 import com.raizlabs.dbflow5.query.constrain
+import com.raizlabs.dbflow5.sql.QueryCloneable
 
 /**
  * Description: Provides iteration capabilities to a [FlowCursorList].

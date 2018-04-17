@@ -2,11 +2,14 @@
 
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.JvmStatic
+import com.raizlabs.dbflow5.SafeVarargs
 import com.raizlabs.dbflow5.annotation.Collate
 import com.raizlabs.dbflow5.appendOptional
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.converter.TypeConverter
+import com.raizlabs.dbflow5.kClass
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.sql.Query
 
@@ -215,80 +218,80 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
     }
 
     override fun `is`(conditional: IConditional): Operator<*> =
-            assignValueOp(conditional, Operation.EQUALS)
+        assignValueOp(conditional, Operation.EQUALS)
 
     override fun eq(conditional: IConditional): Operator<*> =
-            assignValueOp(conditional, Operation.EQUALS)
+        assignValueOp(conditional, Operation.EQUALS)
 
     override fun isNot(conditional: IConditional): Operator<*> =
-            assignValueOp(conditional, Operation.NOT_EQUALS)
+        assignValueOp(conditional, Operation.NOT_EQUALS)
 
     override fun notEq(conditional: IConditional): Operator<*> =
-            assignValueOp(conditional, Operation.NOT_EQUALS)
+        assignValueOp(conditional, Operation.NOT_EQUALS)
 
     override fun like(conditional: IConditional): Operator<T> = like(conditional.query)
 
     override fun glob(conditional: IConditional): Operator<T> = glob(conditional.query)
 
     override fun greaterThan(conditional: IConditional): Operator<T> =
-            assignValueOp(conditional, Operation.GREATER_THAN)
+        assignValueOp(conditional, Operation.GREATER_THAN)
 
     override fun greaterThanOrEq(conditional: IConditional): Operator<T> =
-            assignValueOp(conditional, Operation.GREATER_THAN_OR_EQUALS)
+        assignValueOp(conditional, Operation.GREATER_THAN_OR_EQUALS)
 
     override fun lessThan(conditional: IConditional): Operator<T> =
-            assignValueOp(conditional, Operation.LESS_THAN)
+        assignValueOp(conditional, Operation.LESS_THAN)
 
     override fun lessThanOrEq(conditional: IConditional): Operator<T> =
-            assignValueOp(conditional, Operation.LESS_THAN_OR_EQUALS)
+        assignValueOp(conditional, Operation.LESS_THAN_OR_EQUALS)
 
     override fun between(conditional: IConditional): Between<*> = Between(this as Operator<Any>, conditional)
 
     override fun `in`(firstConditional: IConditional, vararg conditionals: IConditional): In<*> =
-            In(this as Operator<Any>, firstConditional, true, *conditionals)
+        In(this as Operator<Any>, firstConditional, true, *conditionals)
 
     override fun notIn(firstConditional: IConditional, vararg conditionals: IConditional): In<*> =
-            In(this as Operator<Any>, firstConditional, false, *conditionals)
+        In(this as Operator<Any>, firstConditional, false, *conditionals)
 
     override fun notIn(firstBaseModelQueriable: BaseModelQueriable<*>,
                        vararg baseModelQueriables: BaseModelQueriable<*>): In<*> =
-            In(this as Operator<Any>, firstBaseModelQueriable, false, *baseModelQueriables)
+        In(this as Operator<Any>, firstBaseModelQueriable, false, *baseModelQueriables)
 
     override fun `is`(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(baseModelQueriable, Operation.EQUALS)
+        assignValueOp(baseModelQueriable, Operation.EQUALS)
 
     override fun eq(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(baseModelQueriable, Operation.EQUALS)
+        assignValueOp(baseModelQueriable, Operation.EQUALS)
 
     override fun isNot(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(baseModelQueriable, Operation.NOT_EQUALS)
+        assignValueOp(baseModelQueriable, Operation.NOT_EQUALS)
 
     override fun notEq(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(baseModelQueriable, Operation.NOT_EQUALS)
+        assignValueOp(baseModelQueriable, Operation.NOT_EQUALS)
 
     override fun like(baseModelQueriable: BaseModelQueriable<*>): Operator<T> =
-            assignValueOp(baseModelQueriable, Operation.LIKE)
+        assignValueOp(baseModelQueriable, Operation.LIKE)
 
     override fun notLike(conditional: IConditional): Operator<*> =
-            assignValueOp(conditional, Operation.NOT_LIKE)
+        assignValueOp(conditional, Operation.NOT_LIKE)
 
     override fun notLike(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(baseModelQueriable, Operation.NOT_LIKE)
+        assignValueOp(baseModelQueriable, Operation.NOT_LIKE)
 
     override fun glob(baseModelQueriable: BaseModelQueriable<*>): Operator<T> =
-            assignValueOp(baseModelQueriable, Operation.GLOB)
+        assignValueOp(baseModelQueriable, Operation.GLOB)
 
     override fun greaterThan(baseModelQueriable: BaseModelQueriable<*>): Operator<T> =
-            assignValueOp(baseModelQueriable, Operation.GREATER_THAN)
+        assignValueOp(baseModelQueriable, Operation.GREATER_THAN)
 
     override fun greaterThanOrEq(baseModelQueriable: BaseModelQueriable<*>): Operator<T> =
-            assignValueOp(baseModelQueriable, Operation.GREATER_THAN_OR_EQUALS)
+        assignValueOp(baseModelQueriable, Operation.GREATER_THAN_OR_EQUALS)
 
     override fun lessThan(baseModelQueriable: BaseModelQueriable<*>): Operator<T> =
-            assignValueOp(baseModelQueriable, Operation.LESS_THAN)
+        assignValueOp(baseModelQueriable, Operation.LESS_THAN)
 
     override fun lessThanOrEq(baseModelQueriable: BaseModelQueriable<*>): Operator<T> =
-            assignValueOp(baseModelQueriable, Operation.LESS_THAN_OR_EQUALS)
+        assignValueOp(baseModelQueriable, Operation.LESS_THAN_OR_EQUALS)
 
     operator fun plus(value: IConditional): Operator<*> = assignValueOp(value, Operation.PLUS)
 
@@ -301,25 +304,25 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
     operator fun rem(value: IConditional): Operator<*> = assignValueOp(value, Operation.MOD)
 
     override fun plus(value: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(value, Operation.PLUS)
+        assignValueOp(value, Operation.PLUS)
 
     override fun minus(value: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(value, Operation.MINUS)
+        assignValueOp(value, Operation.MINUS)
 
     override fun div(value: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(value, Operation.DIVISION)
+        assignValueOp(value, Operation.DIVISION)
 
     override fun times(value: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(value, Operation.MULTIPLY)
+        assignValueOp(value, Operation.MULTIPLY)
 
     override fun rem(value: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(value, Operation.MOD)
+        assignValueOp(value, Operation.MOD)
 
     override fun between(baseModelQueriable: BaseModelQueriable<*>): Between<*> =
-            Between(this as Operator<Any>, baseModelQueriable)
+        Between(this as Operator<Any>, baseModelQueriable)
 
     override fun `in`(firstBaseModelQueriable: BaseModelQueriable<*>, vararg baseModelQueriables: BaseModelQueriable<*>): In<*> =
-            In(this as Operator<Any>, firstBaseModelQueriable, true, *baseModelQueriables)
+        In(this as Operator<Any>, firstBaseModelQueriable, true, *baseModelQueriables)
 
     override fun concatenate(value: Any?): Operator<T> {
         var _value = value
@@ -327,7 +330,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
         var typeConverter: TypeConverter<*, Any>? = this.typeConverter as TypeConverter<*, Any>?
         if (typeConverter == null && _value != null) {
-            typeConverter = FlowManager.getTypeConverterForClass(_value.javaClass) as TypeConverter<*, Any>?
+            typeConverter = FlowManager.getTypeConverterForClass(_value.kClass) as TypeConverter<*, Any>?
         }
         if (typeConverter != null && convertToDB) {
             _value = typeConverter.getDBValue(_value)
@@ -336,7 +339,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
             is String, is IOperator<*>, is Char -> "$operation ${Operation.CONCATENATE} "
             is Number -> "$operation ${Operation.PLUS} "
             else -> throw IllegalArgumentException(
-                    "Cannot concatenate the ${if (_value != null) _value.javaClass else "null"}")
+                "Cannot concatenate the ${_value?.kClass}")
         }
         this.value = _value
         isValueSet = true
@@ -344,7 +347,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
     }
 
     override fun concatenate(conditional: IConditional): Operator<T> =
-            concatenate(conditional as Any)
+        concatenate(conditional as Any)
 
     /**
      * Turns this condition into a SQL BETWEEN operation
@@ -356,30 +359,30 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
     @SafeVarargs
     override fun `in`(firstValue: T, vararg values: T): In<T> =
-            In(this, firstValue, true, *values)
+        In(this, firstValue, true, *values)
 
     @SafeVarargs
     override fun notIn(firstValue: T, vararg values: T): In<T> =
-            In(this, firstValue, false, *values)
+        In(this, firstValue, false, *values)
 
     override fun `in`(values: Collection<T>): In<T> = In(this, values, true)
 
     override fun notIn(values: Collection<T>): In<T> = In(this, values, false)
 
     override fun convertObjectToString(obj: Any?, appendInnerParenthesis: Boolean): String? =
-            (typeConverter as? TypeConverter<*, Any>?)?.let { typeConverter ->
-                var converted = obj
-                try {
-                    converted = if (convertToDB) typeConverter.getDBValue(obj) else obj
-                } catch (c: ClassCastException) {
-                    // if object type is not valid converted type, just use type as is here.
-                    // if object type is not valid converted type, just use type as is here.
-                    FlowLog.log(FlowLog.Level.I, "Value passed to operation is not valid type" +
-                            " for TypeConverter in the column. Preserving value $obj to be used as is.")
-                }
+        (typeConverter as? TypeConverter<*, Any>?)?.let { typeConverter ->
+            var converted = obj
+            try {
+                converted = if (convertToDB) typeConverter.getDBValue(obj) else obj
+            } catch (c: ClassCastException) {
+                // if object type is not valid converted type, just use type as is here.
+                // if object type is not valid converted type, just use type as is here.
+                FlowLog.log(FlowLog.Level.I, "Value passed to operation is not valid type" +
+                    " for TypeConverter in the column. Preserving value $obj to be used as is.")
+            }
 
-                convertValueToString(converted, appendInnerParenthesis, false)
-            } ?: super.convertObjectToString(obj, appendInnerParenthesis)
+            convertValueToString(converted, appendInnerParenthesis, false)
+        } ?: super.convertObjectToString(obj, appendInnerParenthesis)
 
     private fun assignValueOp(value: Any?, operation: String): Operator<T> {
         return if (!isValueSet) {
@@ -550,11 +553,11 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
         override fun appendConditionToQuery(queryBuilder: StringBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                    .append(convertObjectToString(value(), true))
-                    .append(" ${Operation.AND} ")
-                    .append(convertObjectToString(secondValue(), true))
-                    .append(" ")
-                    .appendOptional(postArgument())
+                .append(convertObjectToString(value(), true))
+                .append(" ${Operation.AND} ")
+                .append(convertObjectToString(secondValue(), true))
+                .append(" ")
+                .appendOptional(postArgument())
         }
     }
 
@@ -603,10 +606,10 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
         override fun appendConditionToQuery(queryBuilder: StringBuilder) {
             queryBuilder.append(columnName())
-                    .append(operation())
-                    .append("(")
-                    .append(joinArguments(",", inArguments, this))
-                    .append(")")
+                .append(operation())
+                .append("(")
+                .append(joinArguments(",", inArguments, this))
+                .append(")")
         }
     }
 
@@ -614,14 +617,14 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
         @JvmStatic
         fun convertValueToString(value: Any?): String? =
-                convertValueToString(value, false)
+            convertValueToString(value, false)
 
         @JvmStatic
         fun <T> op(column: NameAlias): Operator<T> = Operator(column)
 
         @JvmStatic
         fun <T> op(alias: NameAlias, typeConverter: TypeConverter<*, *>, convertToDB: Boolean): Operator<T> =
-                Operator(alias, typeConverter, convertToDB)
+            Operator(alias, typeConverter, convertToDB)
     }
 
 }

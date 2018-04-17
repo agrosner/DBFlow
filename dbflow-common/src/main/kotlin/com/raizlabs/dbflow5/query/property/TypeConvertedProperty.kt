@@ -3,6 +3,7 @@ package com.raizlabs.dbflow5.query.property
 import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.converter.TypeConverter
 import com.raizlabs.dbflow5.query.NameAlias
 import com.raizlabs.dbflow5.query.Operator
 

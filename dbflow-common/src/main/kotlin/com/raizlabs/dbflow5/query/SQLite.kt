@@ -3,10 +3,10 @@
 
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.structure.Model
-import kotlin.reflect.KClass
 
 
 /**
@@ -24,19 +24,13 @@ fun select(vararg properties: IProperty<*>): Select = Select(*properties)
  */
 fun selectCountOf(vararg properties: IProperty<*>): Select = Select(count(*properties))
 
-inline fun <reified T : Any> update() = update(T::class.java)
-
-/**
- * @param table    The tablet to update.
- * @return A new UPDATE statement.
- */
-fun <T : Any> update(table: Class<T>): Update<T> = Update(table)
+inline fun <reified T : Any> update() = update(T::class)
 
 /**
  * @param table    The table to update.
  * @return A new UPDATE statement.
  */
-fun <T : Any> update(table: KClass<T>) = update(table.java)
+fun <T : Any> update(table: KClass<T>) = update(table)
 
 inline fun <reified T : Any> insert(vararg columns: Property<*>) = insert(T::class, *columns)
 
@@ -44,20 +38,14 @@ inline fun <reified T : Any> insert(vararg columns: Property<*>) = insert(T::cla
  * @param table    The table to insert.
  * @return A new INSERT statement.
  */
-fun <T : Any> insert(table: Class<T>, vararg columns: Property<*>): Insert<T> = Insert(table, *columns)
-
-/**
- * @param table    The table to insert.
- * @return A new INSERT statement.
- */
-fun <T : Any> insert(table: KClass<T>, vararg columns: Property<*>) = insert(table.java, *columns)
+fun <T : Any> insert(table: KClass<T>, vararg columns: Property<*>) = insert(table, *columns)
 
 /**
  * @return Begins a DELETE statement.
  */
 fun delete(): Delete = Delete()
 
-inline fun <reified T : Any> delete() = delete(T::class.java)
+inline fun <reified T : Any> delete() = delete(T::class)
 
 /**
  * Starts a DELETE statement on the specified table.
@@ -66,7 +54,7 @@ inline fun <reified T : Any> delete() = delete(T::class.java)
  * @param [T] The class that implements [Model].
  * @return A [From] with specified DELETE on table.
  */
-fun <T : Any> delete(table: Class<T>): From<T> = delete().from(table)
+fun <T : Any> delete(table: KClass<T>): From<T> = delete().from(table)
 
 /**
  * Starts an INDEX statement on specified table.
@@ -75,17 +63,7 @@ fun <T : Any> delete(table: Class<T>): From<T> = delete().from(table)
  * @param [T] The class that implements [Model].
  * @return A new INDEX statement.
  */
-fun <T> index(name: String, table: Class<T>): Index<T> = Index(name, table)
-
-
-/**
- * Starts an INDEX statement on specified table.
- *
- * @param name     The name of the index.
- * @param [T] The class that implements [Model].
- * @return A new INDEX statement.
- */
-fun <T : Any> index(name: String, table: KClass<T>): Index<T> = Index(name, table.java)
+fun <T : Any> index(name: String, table: KClass<T>): Index<T> = Index(name, table)
 
 /**
  * Starts a TRIGGER statement.

@@ -7,11 +7,12 @@ import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
+import com.raizlabs.dbflow5.sql.ConflictAction
 
 /**
  * Description: Used for generated classes from the combination of [Table] and [Model].
  */
-abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
+abstract class InternalModelAdapter<T : Any> internal constructor(databaseDefinition: DBFlowDatabase)
     : RetrievalAdapter<T>(databaseDefinition), InternalAdapter<T> {
 
     private var _modelSaver: ModelSaver<T>? = null
@@ -53,7 +54,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
 
     init {
         tableConfig?.modelSaver?.let { modelSaver ->
-            modelSaver.modelAdapter = this
+            modelSaver.modelAdapter = this as ModelAdapter<T>
             _modelSaver = modelSaver
         }
     }
@@ -146,11 +147,11 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     var modelSaver: ModelSaver<T>
         get() = _modelSaver
             ?: createSingleModelSaver()
-                .apply { modelAdapter = this@ModelAdapter }
+                .apply { modelAdapter = this@InternalModelAdapter as ModelAdapter<T> }
                 .also { _modelSaver = it }
         set(value) {
             this._modelSaver = value
-            value.modelAdapter = this
+            value.modelAdapter = this as ModelAdapter<T>
         }
 
     protected open fun createSingleModelSaver(): ModelSaver<T> = ModelSaver()
@@ -173,3 +174,5 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     open fun createWithDatabase(): Boolean = true
 
 }
+
+expect abstract class ModelAdapter<T : Any>(database: DBFlowDatabase) : InternalModelAdapter<T>

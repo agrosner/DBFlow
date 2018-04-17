@@ -1,10 +1,11 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.sql.QueryCloneable
-import kotlin.reflect.KClass
+import kotlin.jvm.JvmField
 
 /**
  * Description: A SQL SELECT statement generator. It generates the SELECT part of the statement.
@@ -48,6 +49,8 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
         }
     }
 
+    inline fun <reified T : Any> from() = from(T::class)
+
     /**
      * Passes this statement to the [From]
      *
@@ -55,11 +58,7 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
      * @param [T] The class that implements [com.raizlabs.dbflow5.structure.Model]
      * @return the From part of this query
      */
-    infix fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
-
-    inline fun <reified T : Any> from() = from(T::class.java)
-
-    infix fun <T : Any> from(table: KClass<T>) = from(table.java)
+    infix fun <T : Any> from(table: KClass<T>): From<T> = From(this, table)
 
     /**
      * Constructs a [From] with a [ModelQueriable] expression.

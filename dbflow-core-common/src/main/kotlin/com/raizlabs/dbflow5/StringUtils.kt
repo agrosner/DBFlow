@@ -3,8 +3,7 @@
 package com.raizlabs.dbflow5
 
 import com.raizlabs.dbflow5.sql.SQLiteType
-import java.util.regex.Pattern
-
+import kotlin.jvm.JvmName
 
 /**
  * @return true if the string is not null, empty string "", or the length is greater than 0
@@ -27,14 +26,14 @@ fun StringBuilder.appendQuotedIfNeeded(string: String?) = apply {
 }
 
 private val QUOTE = '`'
-private val QUOTE_PATTERN: Pattern = (QUOTE + ".*" + QUOTE).toPattern()
+private val QUOTE_PATTERN: Regex = "$QUOTE.*$QUOTE".toRegex()
 
 /**
  * Helper method to check if name is quoted.
  *
  * @return true if the name is quoted. We may not want to quote something if its already so.
  */
-fun String?.isQuoted(): Boolean = QUOTE_PATTERN.matcher(this).find()
+fun String?.isQuoted(): Boolean = this?.let { QUOTE_PATTERN.find(this) != null } ?: false
 
 /**
  * @param columnName The column name to use.
@@ -116,3 +115,5 @@ fun StringBuilder.appendArray(vararg objects: Any): StringBuilder = append(objec
  * @return This instance
  */
 fun StringBuilder.appendList(objects: List<*>): StringBuilder = append(objects.joinToString())
+
+fun String?.nonNull() = this ?: ""

@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.appendList
 import com.raizlabs.dbflow5.appendQuotedIfNeeded
 import com.raizlabs.dbflow5.config.FlowManager
@@ -27,7 +28,7 @@ class Index<TModel>
     /**
      * @return The table this INDEX belongs to.
      */
-    val table: Class<TModel>) : Query {
+    val table: KClass<TModel>) : Query {
     private val columns: MutableList<NameAlias> = arrayListOf()
     /**
      * @return true if the index is unique
@@ -116,10 +117,8 @@ class Index<TModel>
 
 
 inline fun <reified T : Any> indexOn(indexName: String,
-                                     vararg property: IProperty<*>)
-    = index(indexName, T::class).on(*property)
+                                     vararg property: IProperty<*>) = index(indexName, T::class).on(*property)
 
 inline fun <reified T : Any> indexOn(indexName: String, firstNameAlias: NameAlias,
-                                     vararg arrayOfNameAlias: NameAlias)
-    = index(indexName, T::class).on(firstNameAlias, *arrayOfNameAlias)
+                                     vararg arrayOfNameAlias: NameAlias) = index(indexName, T::class).on(firstNameAlias, *arrayOfNameAlias)
 

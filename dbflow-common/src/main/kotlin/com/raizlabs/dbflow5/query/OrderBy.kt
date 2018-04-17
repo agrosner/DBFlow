@@ -1,8 +1,11 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.JvmOverloads
+import com.raizlabs.dbflow5.JvmStatic
 import com.raizlabs.dbflow5.annotation.Collate
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.sql.Query
+import kotlin.jvm.JvmField
 
 /**
  * Description: Class that represents a SQL order-by.

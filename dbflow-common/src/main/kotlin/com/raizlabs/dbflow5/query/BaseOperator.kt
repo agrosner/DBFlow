@@ -3,6 +3,10 @@ package com.raizlabs.dbflow5.query
 import com.raizlabs.dbflow5.JvmStatic
 import com.raizlabs.dbflow5.byteArrayToHexString
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.converter.TypeConverter
+import com.raizlabs.dbflow5.data.Blob
+import com.raizlabs.dbflow5.kClass
+import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.sqlEscapeString
 
 /**
@@ -126,7 +130,7 @@ abstract class BaseOperator internal constructor(
             } else {
                 var stringVal: String
                 if (typeConvert) {
-                    val typeConverter: TypeConverter<*, Any?>? = FlowManager.getTypeConverterForClass(locVal.javaClass) as TypeConverter<*, Any?>?
+                    val typeConverter: TypeConverter<*, Any?>? = FlowManager.getTypeConverterForClass(locVal.kClass) as TypeConverter<*, Any?>?
                     if (typeConverter != null) {
                         locVal = typeConverter.getDBValue(locVal)
                     }

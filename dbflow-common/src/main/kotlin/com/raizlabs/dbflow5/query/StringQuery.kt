@@ -1,12 +1,11 @@
 package com.raizlabs.dbflow5.query
 
-import android.database.sqlite.SQLiteDatabase
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseStatementWrapper
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
-import com.raizlabs.dbflow5.runtime.NotifyDistributor
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.structure.ChangeAction
 
@@ -23,7 +22,7 @@ class StringQuery<T : Any>
  * @param query   The sql statement to query the DB with. Does not work with [Delete],
  * this must be done with [DatabaseWrapper.execSQL]
  */
-(table: Class<T>,
+(table: KClass<T>,
  override val query: String)
     : BaseModelQueriable<T>(table), Query, ModelQueriable<T> {
     private var args: Array<String>? = null
@@ -35,29 +34,29 @@ class StringQuery<T : Any>
     override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? = databaseWrapper.rawQuery(query, args)
 
     override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<T> {
-        FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
+        FlowLog.log(FlowLog.Level.V, "Executing query: $query")
         return listModelLoader.load(cursor(databaseWrapper), databaseWrapper)!!
     }
 
     override fun querySingle(databaseWrapper: DatabaseWrapper): T? {
-        FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
+        FlowLog.log(FlowLog.Level.V, "Executing query: $query")
         return singleModelLoader.load(cursor(databaseWrapper), databaseWrapper)!!
     }
 
-    override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>,
+    override fun <QueryClass : Any> queryCustomList(queryModelClass: KClass<QueryClass>,
                                                     databaseWrapper: DatabaseWrapper)
         : MutableList<QueryClass> {
         val query = query
-        FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
+        FlowLog.log(FlowLog.Level.V, "Executing query: $query")
         return getListQueryModelLoader(queryModelClass)
             .load(cursor(databaseWrapper), databaseWrapper)!!
     }
 
-    override fun <QueryClass : Any> queryCustomSingle(queryModelClass: Class<QueryClass>,
+    override fun <QueryClass : Any> queryCustomSingle(queryModelClass: KClass<QueryClass>,
                                                       databaseWrapper: DatabaseWrapper)
         : QueryClass? {
         val query = query
-        FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
+        FlowLog.log(FlowLog.Level.V, "Executing query: $query")
         return getSingleQueryModelLoader(queryModelClass)
             .load(cursor(databaseWrapper), databaseWrapper)
     }

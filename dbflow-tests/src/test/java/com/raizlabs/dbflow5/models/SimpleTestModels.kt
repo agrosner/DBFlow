@@ -3,7 +3,7 @@ package com.raizlabs.dbflow5.models
 import com.raizlabs.dbflow5.TestDatabase
 import com.raizlabs.dbflow5.annotation.Column
 import com.raizlabs.dbflow5.annotation.ColumnIgnore
-import com.raizlabs.dbflow5.annotation.ConflictAction
+import com.raizlabs.dbflow5.sql.ConflictAction
 import com.raizlabs.dbflow5.annotation.ForeignKey
 import com.raizlabs.dbflow5.annotation.ManyToMany
 import com.raizlabs.dbflow5.annotation.PrimaryKey

@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.annotation.provider.ContentProvider
 import com.raizlabs.dbflow5.appendQualifier
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor

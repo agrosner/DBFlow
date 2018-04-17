@@ -1,6 +1,7 @@
 package com.raizlabs.dbflow5.config
 
 import com.raizlabs.dbflow5.KClass
+import com.raizlabs.dbflow5.converter.TypeConverter
 import kotlin.jvm.JvmField
 
 /**
@@ -47,9 +48,9 @@ abstract class DatabaseHolder {
      * @param databaseDefinition The database definition
      */
     fun putDatabaseForTable(table: KClass<*>, databaseDefinition: DBFlowDatabase) {
-        databaseDefinitionMap.put(table, databaseDefinition)
-        databaseNameMap.put(databaseDefinition.databaseName, databaseDefinition)
-        databaseClassLookupMap.put(databaseDefinition.associatedDatabaseClassFile, databaseDefinition)
+        databaseDefinitionMap[table] = databaseDefinition
+        databaseNameMap[databaseDefinition.databaseName] = databaseDefinition
+        databaseClassLookupMap[databaseDefinition.associatedDatabaseClassFile] = databaseDefinition
     }
 
     fun reset() {

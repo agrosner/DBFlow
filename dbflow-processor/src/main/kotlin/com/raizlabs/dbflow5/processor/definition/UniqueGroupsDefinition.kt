@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.processor.definition
 
-import com.raizlabs.dbflow5.annotation.ConflictAction
+import com.raizlabs.dbflow5.sql.ConflictAction
 import com.raizlabs.dbflow5.annotation.UniqueGroup
 import com.raizlabs.dbflow5.processor.definition.column.ColumnDefinition
 import com.raizlabs.dbflow5.processor.definition.column.ReferenceColumnDefinition

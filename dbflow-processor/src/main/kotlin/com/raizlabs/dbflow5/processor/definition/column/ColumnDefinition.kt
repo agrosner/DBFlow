@@ -3,7 +3,7 @@ package com.raizlabs.dbflow5.processor.definition.column
 import com.grosner.kpoet.code
 import com.raizlabs.dbflow5.annotation.Collate
 import com.raizlabs.dbflow5.annotation.Column
-import com.raizlabs.dbflow5.annotation.ConflictAction
+import com.raizlabs.dbflow5.sql.ConflictAction
 import com.raizlabs.dbflow5.annotation.INDEX_GENERIC
 import com.raizlabs.dbflow5.annotation.Index
 import com.raizlabs.dbflow5.annotation.NotNull

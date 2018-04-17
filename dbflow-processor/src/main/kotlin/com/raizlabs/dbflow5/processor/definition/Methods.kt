@@ -10,7 +10,7 @@ import com.grosner.kpoet.modifiers
 import com.grosner.kpoet.param
 import com.grosner.kpoet.public
 import com.grosner.kpoet.statement
-import com.raizlabs.dbflow5.annotation.ConflictAction
+import com.raizlabs.dbflow5.sql.ConflictAction
 import com.raizlabs.dbflow5.processor.ClassNames
 import com.raizlabs.dbflow5.processor.definition.column.wrapperCommaIfBaseModel
 import com.raizlabs.dbflow5.processor.utils.ModelUtils

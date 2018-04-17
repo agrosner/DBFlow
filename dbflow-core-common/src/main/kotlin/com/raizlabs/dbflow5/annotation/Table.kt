@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.annotation
 
+import com.raizlabs.dbflow5.sql.ConflictAction
 import kotlin.reflect.KClass
 
 val DEFAULT_CACHE_SIZE = 25

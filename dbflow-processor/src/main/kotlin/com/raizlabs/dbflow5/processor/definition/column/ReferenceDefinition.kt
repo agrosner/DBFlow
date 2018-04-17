@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.processor.definition.column
 
-import com.raizlabs.dbflow5.annotation.ConflictAction
+import com.raizlabs.dbflow5.sql.ConflictAction
 import com.raizlabs.dbflow5.data.Blob
 import com.raizlabs.dbflow5.processor.ClassNames
 import com.raizlabs.dbflow5.processor.ProcessorManager

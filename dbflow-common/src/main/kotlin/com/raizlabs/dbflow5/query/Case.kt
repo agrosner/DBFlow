@@ -1,9 +1,11 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.JvmOverloads
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.quoteIfNeeded
 import com.raizlabs.dbflow5.sql.Query
+import kotlin.jvm.JvmName
 
 /**
  * Description: Represents a SQLITE CASE argument.

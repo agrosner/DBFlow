@@ -82,7 +82,7 @@ object TestContentProvider {
         @ContentUri(path = ENDPOINT + "/#/#",
                 type = ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
                 segments = arrayOf(PathSegment(column = "id", segment = 1),
-                        PathSegment(column = "isOpen", segment = 2)))
+                    PathSegment(column = "isOpen", segment = 2)))
         fun withOpenId(id: Long, isOpen: Boolean): Uri {
             return buildUri(ENDPOINT, id.toString(), isOpen.toString())
         }

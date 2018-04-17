@@ -1,5 +1,7 @@
 package com.raizlabs.dbflow5.annotation
 
+import com.raizlabs.dbflow5.sql.ConflictAction
+
 /**
  * Description: Creates a new database to use in the application.
  *

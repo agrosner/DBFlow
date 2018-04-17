@@ -26,12 +26,12 @@ expect interface Cursor : Closeable {
 
     fun moveToNext(): Boolean
 
-    val count: Int
-
     fun moveToPosition(index: Int): Boolean
 
-    val isClosed: Boolean
+    fun isClosed(): Boolean
 }
+
+expect val Cursor.count: Int
 
 open class CursorWrapper(private val cursor: Cursor) : Cursor by cursor {
 

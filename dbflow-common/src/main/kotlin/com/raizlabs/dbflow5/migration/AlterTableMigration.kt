@@ -1,13 +1,10 @@
 package com.raizlabs.dbflow5.migration
 
-import android.support.annotation.CallSuper
-import com.raizlabs.dbflow5.appendQuotedIfNeeded
+import com.raizlabs.dbflow5.*
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.select
-import com.raizlabs.dbflow5.quoteIfNeeded
 import com.raizlabs.dbflow5.sql.SQLiteType
-import com.raizlabs.dbflow5.stripQuotes
 
 /**
  * Description: Provides a very nice way to alter a single table quickly and easily.
@@ -16,7 +13,7 @@ class AlterTableMigration<T : Any>(
     /**
      * The table to ALTER
      */
-    private val table: Class<T>) : BaseMigration() {
+    private val table: KClass<T>) : BaseMigration() {
 
     /**
      * The query to rename the table with
@@ -58,7 +55,7 @@ class AlterTableMigration<T : Any>(
                 sql = "$sql$tableName"
                 for (i in internalColumnDefinitions.indices) {
                     val columnDefinition = internalColumnDefinitions[i]
-                    val columnName = columnNames[i].stripQuotes()
+                    val columnName = columnNames[i].stripQuotes().nonNull()
                     if (cursor.getColumnIndex(columnName) == -1) {
                         database.execSQL("$sql ADD COLUMN $columnDefinition")
                     }

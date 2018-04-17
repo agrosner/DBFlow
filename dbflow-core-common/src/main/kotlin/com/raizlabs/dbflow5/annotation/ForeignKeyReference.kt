@@ -1,5 +1,7 @@
 package com.raizlabs.dbflow5.annotation
 
+import com.raizlabs.dbflow5.sql.ConflictAction
+
 /**
  * Description: Used inside of [ForeignKey.references], describes the
  * local column name, type, and referencing table column name.

@@ -18,7 +18,7 @@ import com.grosner.kpoet.statement
 import com.grosner.kpoet.switch
 import com.raizlabs.dbflow5.annotation.Column
 import com.raizlabs.dbflow5.annotation.ColumnMap
-import com.raizlabs.dbflow5.annotation.ConflictAction
+import com.raizlabs.dbflow5.sql.ConflictAction
 import com.raizlabs.dbflow5.annotation.DEFAULT_CACHE_SIZE
 import com.raizlabs.dbflow5.annotation.ForeignKey
 import com.raizlabs.dbflow5.annotation.InheritedColumn

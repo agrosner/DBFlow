@@ -5,7 +5,6 @@ import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
-import com.raizlabs.dbflow5.use
 
 /**
  * Description: Represents how models load from DB. It will query a [DatabaseWrapper]

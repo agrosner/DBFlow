@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.sql.language
 
 import com.raizlabs.dbflow5.BaseUnitTest
-import com.raizlabs.dbflow5.annotation.ConflictAction
+import com.raizlabs.dbflow5.sql.ConflictAction
 import com.raizlabs.dbflow5.assertEquals
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.models.NumberModel

@@ -4,6 +4,7 @@ import android.content.ContentProvider
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
+import com.raizlabs.dbflow5.database.count
 import com.raizlabs.dbflow5.query.OperatorGroup
 import com.raizlabs.dbflow5.structure.BaseModel
 import com.raizlabs.dbflow5.structure.Model

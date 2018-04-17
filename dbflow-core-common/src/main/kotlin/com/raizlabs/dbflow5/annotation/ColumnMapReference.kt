@@ -1,6 +1,7 @@
 package com.raizlabs.dbflow5.annotation
 
 import com.raizlabs.dbflow5.converter.TypeConverter
+import com.raizlabs.dbflow5.sql.ConflictAction
 import kotlin.reflect.KClass
 
 /**

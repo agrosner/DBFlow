@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.processor
 
-import com.raizlabs.dbflow5.annotation.ConflictAction
+import com.raizlabs.dbflow5.sql.ConflictAction
 import com.squareup.javapoet.ClassName
 
 /**

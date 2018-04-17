@@ -3,6 +3,7 @@ package com.raizlabs.dbflow5.provider
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.net.Uri
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.DatabaseHolder
 import com.raizlabs.dbflow5.config.FlowManager
@@ -14,9 +15,9 @@ import com.raizlabs.dbflow5.transaction.ITransaction
  * extend when generated.
  */
 abstract class BaseContentProvider
-protected constructor(databaseHolderClass: Class<out DatabaseHolder>? = null) : ContentProvider() {
+protected constructor(databaseHolderClass: KClass<out DatabaseHolder>? = null) : ContentProvider() {
 
-    protected open var moduleClass: Class<out DatabaseHolder>? = databaseHolderClass
+    protected open var moduleClass: KClass<out DatabaseHolder>? = databaseHolderClass
 
     protected val database: DBFlowDatabase by lazy { FlowManager.getDatabase(databaseName) }
 

@@ -1,5 +1,7 @@
 package com.raizlabs.dbflow5.runtime
 
+import com.raizlabs.dbflow5.JvmStatic
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.structure.ChangeAction
@@ -23,7 +25,7 @@ class NotifyDistributor : ModelNotifier {
     /**
      * Notifies listeners of table-level changes from the SQLite-wrapper language.
      */
-    override fun <T : Any> notifyTableChanged(table: Class<T>,
+    override fun <T : Any> notifyTableChanged(table: KClass<T>,
                                               action: ChangeAction) {
         FlowManager.getModelNotifierForTable(table).notifyTableChanged(table, action)
     }

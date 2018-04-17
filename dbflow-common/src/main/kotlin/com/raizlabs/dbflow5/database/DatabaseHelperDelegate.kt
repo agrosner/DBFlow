@@ -1,25 +1,19 @@
 package com.raizlabs.dbflow5.database
 
-import android.content.Context
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.transaction.DefaultTransactionQueue
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
 
 /**
  * Description: An abstraction from some parts of the Android SQLiteOpenHelper where this can be
  * used in other helper class definitions.
  */
 class DatabaseHelperDelegate(
-    context: Context,
+    migrationHelper: MigrationHelper,
     private var databaseCallback: DatabaseCallback?,
     databaseDefinition: DBFlowDatabase,
     private val backupHelper: OpenHelper?)
-    : BaseDatabaseHelper(context, databaseDefinition) {
+    : BaseDatabaseHelper(migrationHelper, databaseDefinition) {
 
     /**
      * @return the temporary database file name for when we have backups enabled
@@ -109,9 +103,9 @@ class DatabaseHelperDelegate(
             // if it exists and the integrity is ok we use backup as the main DB is no longer valid
             inputStream = if (existingDb.exists()
                 && (!databaseDefinition.backupEnabled() ||
-                (databaseDefinition.backupEnabled()
-                    && backupHelper != null
-                    && isDatabaseIntegrityOk(backupHelper.database)))) {
+                    (databaseDefinition.backupEnabled()
+                        && backupHelper != null
+                        && isDatabaseIntegrityOk(backupHelper.database)))) {
                 FileInputStream(existingDb)
             } else {
                 context.assets.open(prepackagedName)
@@ -225,7 +219,7 @@ class DatabaseHelperDelegate(
             // if it exists and the integrity is ok
             inputStream = if (existingDb.exists()
                 && (databaseDefinition.backupEnabled() && backupHelper != null
-                && isDatabaseIntegrityOk(backupHelper.database))) {
+                    && isDatabaseIntegrityOk(backupHelper.database))) {
                 FileInputStream(existingDb)
             } else {
                 context.assets.open(prepackagedName)

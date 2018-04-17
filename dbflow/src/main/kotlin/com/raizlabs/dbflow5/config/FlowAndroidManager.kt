@@ -3,7 +3,7 @@ package com.raizlabs.dbflow5.config
 import android.annotation.SuppressLint
 import android.content.Context
 import com.raizlabs.dbflow5.JvmStatic
-import kotlin.reflect.KClass
+import com.raizlabs.dbflow5.KClass
 
 @SuppressLint("StaticFieldLeak")
 actual object FlowManager : FlowCommonManager() {

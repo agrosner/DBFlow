@@ -66,7 +66,7 @@ class DatabaseConfig(
         }
 
         fun addTableConfig(tableConfig: TableConfig<*>) = apply {
-            tableConfigMap.put(tableConfig.tableClass, tableConfig)
+            tableConfigMap[tableConfig.tableClass] = tableConfig
         }
 
         fun modelNotifier(modelNotifier: ModelNotifier) = apply {

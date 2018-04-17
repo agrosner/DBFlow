@@ -10,6 +10,7 @@ import com.raizlabs.dbflow5.config.queryModelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.list.FlowCursorList
 import com.raizlabs.dbflow5.query.list.FlowQueryList
+import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.use
 
 /**

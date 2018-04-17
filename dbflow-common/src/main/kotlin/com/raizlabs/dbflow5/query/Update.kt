@@ -1,7 +1,8 @@
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.annotation.ConflictAction
+import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.config.FlowManager
+import com.raizlabs.dbflow5.sql.ConflictAction
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.sql.QueryCloneable
 
@@ -14,7 +15,7 @@ class Update<T : Any>
  *
  * @param table The table to use.
  */
-internal constructor(val table: Class<T>) : Query, QueryCloneable<Update<T>> {
+internal constructor(val table: KClass<T>) : Query, QueryCloneable<Update<T>> {
 
     /**
      * The conflict action to resolve updates.

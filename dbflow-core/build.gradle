@@ -1,9 +1,11 @@
-apply plugin: 'kotlin'
+apply plugin: 'kotlin-platform-jvm'
 
 project.ext.artifactId = bt_name
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
+    compile deps.kotlin
+    compile "com.android.support:support-annotations:27.1.1"
+    expectedBy project(':dbflow-core-common')
 }
 
 apply from: '../kotlin-artifacts.gradle'

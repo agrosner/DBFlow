@@ -1,4 +1,6 @@
-package com.raizlabs.dbflow5.annotation
+package com.raizlabs.dbflow5.sql
+
+import com.raizlabs.dbflow5.JvmStatic
 
 /**
  * This is how to resolve null or unique conflicts with a field marked as [NotNull]
