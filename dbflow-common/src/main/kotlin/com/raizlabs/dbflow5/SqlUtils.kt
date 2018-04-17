@@ -10,7 +10,7 @@ import kotlin.jvm.JvmName
  * Description: Provides some handy methods for dealing with SQL statements. It's purpose is to move the
  * methods away from the [Model] class and let any class use these.
  */
-private val hexArray: CharArray = "0123456789ABCDEF".toCharArray()
+private val hexArray: CharArray = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F')
 
 val TABLE_QUERY_PARAM = "tableName"
 
