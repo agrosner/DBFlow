@@ -4,7 +4,7 @@ import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.config.modelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.kClass
+import kotlin.reflect.KClass
 
 interface Model : ReadOnlyModel {
 
@@ -13,28 +13,28 @@ interface Model : ReadOnlyModel {
      *
      * @return true if successful
      */
-    fun save(wrapper: DatabaseWrapper = FlowManager.getDatabaseForTable(this.kClass)): Boolean
+    fun save(wrapper: DatabaseWrapper = FlowManager.getDatabaseForTable(this::class)): Boolean
 
     /**
      * Deletes the object in the DB
      *
      * @return true if successful
      */
-    fun delete(wrapper: DatabaseWrapper = FlowManager.getDatabaseForTable(this.kClass)): Boolean
+    fun delete(wrapper: DatabaseWrapper = FlowManager.getDatabaseForTable(this::class)): Boolean
 
     /**
      * Updates an object in the DB. Does not insert on failure.
      *
      * @return true if successful
      */
-    fun update(wrapper: DatabaseWrapper = FlowManager.getDatabaseForTable(this.kClass)): Boolean
+    fun update(wrapper: DatabaseWrapper = FlowManager.getDatabaseForTable(this::class)): Boolean
 
     /**
      * Inserts the object into the DB
      *
      * @return the count of the rows affected, should only be 1 here, or -1 if failed.
      */
-    fun insert(wrapper: DatabaseWrapper = FlowManager.getDatabaseForTable(this.kClass)): Long
+    fun insert(wrapper: DatabaseWrapper = FlowManager.getDatabaseForTable(this::class)): Long
 
     companion object {
 

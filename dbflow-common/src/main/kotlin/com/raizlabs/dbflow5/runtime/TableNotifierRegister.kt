@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.runtime
 
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 
 /**
  * Description: Defines how [ModelNotifier] registers listeners. Abstracts that away.

@@ -4,6 +4,7 @@ package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.sql.QueryCloneable
+import kotlin.jvm.JvmName
 
 /**
  * Description: Provides a standard set of methods for ending a SQLite query method. These include

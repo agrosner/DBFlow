@@ -1,7 +1,9 @@
 package com.raizlabs.dbflow5.transaction
 
+import com.raizlabs.dbflow5.SafeVarargs
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.raizlabs.dbflow5.database.executeTransaction
 import com.raizlabs.dbflow5.structure.Model
 
 typealias ProcessFunction<T> = (T, DatabaseWrapper) -> Unit
@@ -156,8 +158,7 @@ inline fun <reified T : Any> Collection<T>.processInTransaction(
     databaseForTable<T>().executeTransaction { db -> forEach { processFunction(it, db) } }
 }
 
-inline fun <T> processModel(crossinline function: (T, DatabaseWrapper) -> Unit)
-    = object : ProcessModelTransaction.ProcessModel<T> {
+inline fun <T> processModel(crossinline function: (T, DatabaseWrapper) -> Unit) = object : ProcessModelTransaction.ProcessModel<T> {
     override fun processModel(model: T, wrapper: DatabaseWrapper) = function(model, wrapper)
 }
 

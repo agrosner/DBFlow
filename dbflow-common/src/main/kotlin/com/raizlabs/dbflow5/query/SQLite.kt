@@ -3,10 +3,11 @@
 
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.structure.Model
+import kotlin.jvm.JvmName
+import kotlin.reflect.KClass
 
 
 /**
@@ -26,11 +27,7 @@ fun selectCountOf(vararg properties: IProperty<*>): Select = Select(count(*prope
 
 inline fun <reified T : Any> update() = update(T::class)
 
-/**
- * @param table    The table to update.
- * @return A new UPDATE statement.
- */
-fun <T : Any> update(table: KClass<T>) = update(table)
+fun <T : Any> update(table: KClass<T>) = Update(table)
 
 inline fun <reified T : Any> insert(vararg columns: Property<*>) = insert(T::class, *columns)
 
@@ -38,7 +35,7 @@ inline fun <reified T : Any> insert(vararg columns: Property<*>) = insert(T::cla
  * @param table    The table to insert.
  * @return A new INSERT statement.
  */
-fun <T : Any> insert(table: KClass<T>, vararg columns: Property<*>) = insert(table, *columns)
+fun <T : Any> insert(table: KClass<T>, vararg columns: Property<*>) = Insert(table, *columns)
 
 /**
  * @return Begins a DELETE statement.

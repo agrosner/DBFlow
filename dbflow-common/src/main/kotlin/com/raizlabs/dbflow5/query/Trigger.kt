@@ -1,9 +1,11 @@
 package com.raizlabs.dbflow5.query
 
+import com.raizlabs.dbflow5.JvmStatic
 import com.raizlabs.dbflow5.appendOptional
 import com.raizlabs.dbflow5.appendQuotedIfNeeded
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.sql.Query
+import kotlin.jvm.JvmField
 import kotlin.reflect.KClass
 
 /**
@@ -78,7 +80,7 @@ private constructor(
      *
      * @param onTable The table ON
      */
-    infix fun <TModel> deleteOn(onTable: Class<TModel>): TriggerMethod<TModel> =
+    infix fun <TModel : Any> deleteOn(onTable: KClass<TModel>): TriggerMethod<TModel> =
         TriggerMethod(this, TriggerMethod.DELETE, onTable)
 
     /**
@@ -86,7 +88,7 @@ private constructor(
      *
      * @param onTable The table ON
      */
-    infix fun <TModel> insertOn(onTable: Class<TModel>): TriggerMethod<TModel> =
+    infix fun <TModel : Any> insertOn(onTable: KClass<TModel>): TriggerMethod<TModel> =
         TriggerMethod(this, TriggerMethod.INSERT, onTable)
 
     /**
@@ -96,7 +98,7 @@ private constructor(
      * @param properties if empty, will not execute an OF command. If you specify columns,
      * the UPDATE OF column1, column2,... will be used.
      */
-    fun <TModel> updateOn(onTable: Class<TModel>, vararg properties: IProperty<*>): TriggerMethod<TModel> =
+    fun <TModel : Any> updateOn(onTable: KClass<TModel>, vararg properties: IProperty<*>): TriggerMethod<TModel> =
         TriggerMethod(this, TriggerMethod.UPDATE, onTable, *properties)
 
     companion object {
@@ -128,8 +130,8 @@ private constructor(
     }
 }
 
-infix fun <T : Any> Trigger.deleteOn(kClass: KClass<T>) = deleteOn(kClass.java)
+infix fun <T : Any> Trigger.deleteOn(kClass: KClass<T>) = deleteOn(kClass)
 
-infix fun <T : Any> Trigger.insertOn(kClass: KClass<T>) = insertOn(kClass.java)
+infix fun <T : Any> Trigger.insertOn(kClass: KClass<T>) = insertOn(kClass)
 
-infix fun <T : Any> Trigger.updateOn(kClass: KClass<T>) = updateOn(kClass.java)
+infix fun <T : Any> Trigger.updateOn(kClass: KClass<T>) = updateOn(kClass)

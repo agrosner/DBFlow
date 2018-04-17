@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.query.property
 
 import com.raizlabs.dbflow5.JvmStatic
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.NameAlias
 import com.raizlabs.dbflow5.query.Operator
@@ -134,7 +134,7 @@ object PropertyFactory {
      */
     @Suppress("UNUSED_PARAMETER")
     @JvmStatic
-    fun <T : Any> from(table: KClass<T>, stringRepresentation: String?): Property<T> {
+    fun <T : Any> from(table: kotlin.reflect.KClass<T>, stringRepresentation: String?): Property<T> {
         return Property(null, NameAlias.rawBuilder(stringRepresentation ?: "")
             .build())
     }

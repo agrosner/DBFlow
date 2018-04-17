@@ -9,7 +9,6 @@ import com.raizlabs.dbflow5.appendOptional
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.converter.TypeConverter
-import com.raizlabs.dbflow5.kClass
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.sql.Query
 
@@ -330,7 +329,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
         var typeConverter: TypeConverter<*, Any>? = this.typeConverter as TypeConverter<*, Any>?
         if (typeConverter == null && _value != null) {
-            typeConverter = FlowManager.getTypeConverterForClass(_value.kClass) as TypeConverter<*, Any>?
+            typeConverter = FlowManager.getTypeConverterForClass(_value::class) as TypeConverter<*, Any>?
         }
         if (typeConverter != null && convertToDB) {
             _value = typeConverter.getDBValue(_value)
@@ -339,7 +338,7 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
             is String, is IOperator<*>, is Char -> "$operation ${Operation.CONCATENATE} "
             is Number -> "$operation ${Operation.PLUS} "
             else -> throw IllegalArgumentException(
-                "Cannot concatenate the ${_value?.kClass}")
+                "Cannot concatenate the ${_value?.let { _value::class }}")
         }
         this.value = _value
         isValueSet = true

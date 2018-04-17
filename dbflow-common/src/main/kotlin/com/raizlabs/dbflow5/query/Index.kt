@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.appendList
 import com.raizlabs.dbflow5.appendQuotedIfNeeded
 import com.raizlabs.dbflow5.config.FlowManager
@@ -9,12 +8,13 @@ import com.raizlabs.dbflow5.database.SQLiteException
 import com.raizlabs.dbflow5.dropIndex
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.sql.Query
+import kotlin.reflect.KClass
 
 /**
  * Description: an INDEX class that enables you to index a specific column from a table. This enables
  * faster retrieval on tables, while increasing the database file size. So enable/disable these as necessary.
  */
-class Index<TModel>
+class Index<TModel : Any>
 /**
  * Creates a new index with the specified name
  *

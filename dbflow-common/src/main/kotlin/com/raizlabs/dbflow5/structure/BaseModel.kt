@@ -1,13 +1,12 @@
 package com.raizlabs.dbflow5.structure
 
-import com.raizlabs.dbflow5.KClass
 import com.raizlabs.dbflow5.Transient
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.annotation.ColumnIgnore
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.modelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.kClass
+import kotlin.reflect.KClass
 
 /**
  * Description: The base implementation of [Model]. It is recommended to use this class as
@@ -23,7 +22,7 @@ open class BaseModel : Model {
     @Suppress("UNCHECKED_CAST")
     @delegate:ColumnIgnore
     @delegate:Transient
-    val modelAdapter: ModelAdapter<BaseModel> by lazy { (this.kClass as KClass<BaseModel>).modelAdapter }
+    val modelAdapter: ModelAdapter<BaseModel> by lazy { (this::class as KClass<BaseModel>).modelAdapter }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> load(wrapper: DatabaseWrapper): T? = modelAdapter.load(this, wrapper) as T?

@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.runtime
 
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.config.DatabaseConfig
 import com.raizlabs.dbflow5.structure.ChangeAction

@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.raizlabs.dbflow5.provider
 
 import android.content.ContentResolver
@@ -11,7 +13,6 @@ import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.modelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
-import com.raizlabs.dbflow5.kClass
 import com.raizlabs.dbflow5.query.Operator
 import com.raizlabs.dbflow5.query.OperatorGroup
 
@@ -76,7 +77,7 @@ object ContentUtils {
      */
     @JvmStatic
     fun <TableClass : Any> insert(contentResolver: ContentResolver, insertUri: Uri, model: TableClass): Uri? {
-        val adapter: ModelAdapter<TableClass> = FlowManager.getModelAdapter(model.kClass)
+        val adapter: ModelAdapter<TableClass> = FlowManager.getModelAdapter(model::class) as ModelAdapter<TableClass>
         val contentValues = ContentValues()
         adapter.bindToInsertValues(contentValues, model)
         val uri: Uri? = contentResolver.insert(insertUri, contentValues)
@@ -157,7 +158,7 @@ object ContentUtils {
     @JvmStatic
     fun <TableClass : Any> update(contentResolver: ContentResolver,
                                   updateUri: Uri, model: TableClass): Int {
-        val adapter: ModelAdapter<TableClass> = model.kClass.modelAdapter
+        val adapter: ModelAdapter<TableClass> = model::class.modelAdapter as ModelAdapter<TableClass>
 
         val contentValues = ContentValues()
         adapter.bindToContentValues(contentValues, model)
@@ -192,7 +193,7 @@ object ContentUtils {
      */
     @JvmStatic
     fun <TableClass : Any> delete(contentResolver: ContentResolver, deleteUri: Uri, model: TableClass): Int {
-        val adapter: ModelAdapter<TableClass> = FlowManager.getModelAdapter(model.kClass)
+        val adapter: ModelAdapter<TableClass> = FlowManager.getModelAdapter(model::class) as ModelAdapter<TableClass>
 
         val count = contentResolver.delete(deleteUri, adapter.getPrimaryConditionClause(model).query, null)
 
@@ -262,7 +263,7 @@ object ContentUtils {
                                      whereConditions: OperatorGroup,
                                      orderBy: String, vararg columns: String): List<TableClass>? {
         val cursor = FlowCursor.from(contentResolver.query(queryUri, columns, whereConditions.query, null, orderBy))
-        return FlowManager.getModelAdapter(table.kClass)
+        return FlowManager.getModelAdapter(table.kotlin)
             .listModelLoader
             .load(cursor, databaseWrapper)
     }

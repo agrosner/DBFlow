@@ -2,7 +2,6 @@ package com.raizlabs.dbflow5
 
 actual typealias JvmStatic = kotlin.jvm.JvmStatic
 actual typealias JvmOverloads = kotlin.jvm.JvmOverloads
-actual typealias KClass<T> = kotlin.reflect.KClass<T>
 actual typealias Synchronized = kotlin.jvm.Synchronized
 actual typealias SafeVarargs = java.lang.SafeVarargs
 
@@ -34,9 +33,6 @@ fun AutoCloseable?.closeFinally(cause: Throwable?) = when {
 }
 
 actual typealias Runnable = java.lang.Runnable
-
-actual val <T : Any> T.kClass: KClass<out T>
-    get() = this::class
 
 actual typealias Transient = kotlin.jvm.Transient
 

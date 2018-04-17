@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseStatementWrapper

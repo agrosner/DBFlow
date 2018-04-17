@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.config
 
 import com.raizlabs.dbflow5.JvmOverloads
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.Synchronized
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.adapter.ModelViewAdapter

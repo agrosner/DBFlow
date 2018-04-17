@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.query.list
 
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.Runnable
 import com.raizlabs.dbflow5.RunnableHandler
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter

@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.config
 
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 
 /**
  * Description: The main configuration instance for DBFlow. This

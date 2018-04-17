@@ -3,7 +3,7 @@ package com.raizlabs.dbflow5.provider
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.net.Uri
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.DatabaseHolder
 import com.raizlabs.dbflow5.config.FlowManager

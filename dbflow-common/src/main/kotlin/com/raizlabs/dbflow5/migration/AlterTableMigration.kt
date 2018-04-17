@@ -5,6 +5,7 @@ import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.sql.SQLiteType
+import kotlin.reflect.KClass
 
 /**
  * Description: Provides a very nice way to alter a single table quickly and easily.

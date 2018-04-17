@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.query
 
 import android.content.ContentValues
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.addContentValues
 import com.raizlabs.dbflow5.sql.Query
 

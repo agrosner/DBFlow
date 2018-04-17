@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.JvmStatic
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.sql.Query
 
@@ -25,7 +25,7 @@ class Delete internal constructor() : Query {
     companion object {
 
         @JvmStatic
-        fun <T : Any> delete(modelClass: KClass<T>) = delete(modelClass.java)
+        fun <T : Any> delete(modelClass: KClass<T>) = Delete().from(modelClass)
 
         @JvmStatic
         inline fun <reified T : Any> delete() = delete(T::class)

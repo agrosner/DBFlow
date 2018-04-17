@@ -7,7 +7,7 @@ import com.raizlabs.dbflow5.sql.Query
 /**
  * Description: The last piece of a TRIGGER statement, this class contains the BEGIN...END and the logic in between.
  */
-class CompletedTrigger<TModel> internal constructor(
+class CompletedTrigger<TModel: Any> internal constructor(
     /**
      * The first pieces of this TRIGGER statement
      */

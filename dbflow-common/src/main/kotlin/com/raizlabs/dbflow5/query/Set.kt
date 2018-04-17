@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.query
 
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.structure.ChangeAction
 

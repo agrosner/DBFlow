@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.adapter
 
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
 import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.config.DBFlowDatabase

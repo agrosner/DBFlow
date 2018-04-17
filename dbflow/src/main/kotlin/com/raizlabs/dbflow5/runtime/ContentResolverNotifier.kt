@@ -2,7 +2,7 @@ package com.raizlabs.dbflow5.runtime
 
 import android.content.ContentResolver
 import android.content.Context
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.getNotificationUri
 import com.raizlabs.dbflow5.query.SQLOperator

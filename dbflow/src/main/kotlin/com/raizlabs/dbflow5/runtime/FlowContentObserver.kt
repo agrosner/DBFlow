@@ -8,7 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.Handler
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.TABLE_QUERY_PARAM
 import com.raizlabs.dbflow5.config.DatabaseConfig
 import com.raizlabs.dbflow5.config.FlowLog

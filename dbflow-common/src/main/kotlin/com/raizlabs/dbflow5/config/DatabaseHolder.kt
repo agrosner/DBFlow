@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.config
 
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.converter.TypeConverter
 import kotlin.jvm.JvmField
 

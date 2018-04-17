@@ -8,6 +8,7 @@ import com.raizlabs.dbflow5.query.Operator
 import com.raizlabs.dbflow5.query.OperatorGroup
 import com.raizlabs.dbflow5.query.SQLOperator
 import com.raizlabs.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 
 /**
  * Constructs a [Uri] from a set of [SQLOperator] for specific table.

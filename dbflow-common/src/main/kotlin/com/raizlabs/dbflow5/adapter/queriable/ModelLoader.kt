@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.adapter.queriable
 
-import com.raizlabs.dbflow5.KClass
+import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
