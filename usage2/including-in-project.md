@@ -50,12 +50,6 @@ allProjects {
     // kotlin extensions
     compile "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}"
 
-    // RXJava 1 support
-    compile "com.github.Raizlabs.DBFlow:dbflow-rx:${dbflow_version}"
-
-    // RXJava 1 Kotlin Extensions Support
-    compile "com.github.Raizlabs.DBFlow:dbflow-rx-kotlinextensions:${dbflow_version}"
-
     // RXJava 2 support
     compile "com.github.Raizlabs.DBFlow:dbflow-rx2:${dbflow_version}"
 

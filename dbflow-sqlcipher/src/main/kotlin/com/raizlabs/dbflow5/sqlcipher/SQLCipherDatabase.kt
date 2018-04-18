@@ -40,20 +40,6 @@ internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
         FlowCursor.from(database.rawQuery(query, selectionArgs))
     }
 
-    override fun updateWithOnConflict(tableName: String,
-                                      contentValues: ContentValues,
-                                      where: String?, whereArgs: Array<String>?,
-                                      conflictAlgorithm: Int): Long = rethrowDBFlowException {
-        database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm).toLong()
-    }
-
-    override fun insertWithOnConflict(tableName: String,
-                                      nullColumnHack: String?,
-                                      values: ContentValues,
-                                      sqLiteDatabaseAlgorithmInt: Int): Long = rethrowDBFlowException {
-        database.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt)
-    }
-
     override fun query(tableName: String,
                        columns: Array<String>?,
                        selection: String?,

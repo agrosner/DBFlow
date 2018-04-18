@@ -3,11 +3,7 @@ package com.raizlabs.dbflow5.sqlcipher
 import android.content.Context
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.DatabaseConfig
-import com.raizlabs.dbflow5.database.BaseDatabaseHelper
-import com.raizlabs.dbflow5.database.DatabaseCallback
-import com.raizlabs.dbflow5.database.DatabaseHelperDelegate
-import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.database.OpenHelper
+import com.raizlabs.dbflow5.database.*
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteOpenHelper
 
@@ -45,15 +41,17 @@ abstract class SQLCipherOpenHelper(
     init {
         SQLiteDatabase.loadLibs(context)
 
+        val restoreHelper = PlatformDatabaseRestoreHelper(context)
+        val migrationHelper = PlatformMigrationHelper(context, databaseDefinition)
         var backupHelper: OpenHelper? = null
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
-            backupHelper = BackupHelper(context,
+            backupHelper = BackupHelper(migrationHelper,
                 DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
                 databaseDefinition.databaseVersion, databaseDefinition)
         }
 
-        delegate = DatabaseHelperDelegate(context, listener, databaseDefinition, backupHelper)
+        delegate = DatabaseHelperDelegate(migrationHelper, restoreHelper, listener, databaseDefinition, backupHelper)
     }
 
     override fun performRestoreFromBackup() {
@@ -102,14 +100,14 @@ abstract class SQLCipherOpenHelper(
     /**
      * Simple helper to manage backup.
      */
-    private inner class BackupHelper(private val context: Context,
+    private inner class BackupHelper(migrationHelper: MigrationHelper,
                                      name: String,
                                      version: Int,
                                      databaseDefinition: DBFlowDatabase)
         : SQLiteOpenHelper(context, name, null, version), OpenHelper {
 
         private var sqlCipherDatabase: SQLCipherDatabase? = null
-        private val baseDatabaseHelper: BaseDatabaseHelper = BaseDatabaseHelper(context, databaseDefinition)
+        private val baseDatabaseHelper: BaseDatabaseHelper = BaseDatabaseHelper(migrationHelper, databaseDefinition)
         private val _databaseName = databaseDefinition.databaseFileName
 
         override val database: DatabaseWrapper

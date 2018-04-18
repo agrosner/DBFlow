@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.config
 
+import com.raizlabs.dbflow5.JvmStatic
 import com.raizlabs.dbflow5.database.DatabaseCallback
 import com.raizlabs.dbflow5.database.OpenHelper
 import com.raizlabs.dbflow5.runtime.ModelNotifier
@@ -101,6 +102,7 @@ class DatabaseConfig(
          fun builder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
              Builder(database, openHelperCreator)*/
 
+        @JvmStatic
         fun builder(database: KClass<*>, openHelperCreator: OpenHelperCreator): Builder =
             Builder(database, openHelperCreator)
 
@@ -108,6 +110,7 @@ class DatabaseConfig(
          fun inMemoryBuilder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
              Builder(database, openHelperCreator).inMemory()*/
 
+        @JvmStatic
         fun inMemoryBuilder(database: KClass<*>, openHelperCreator: OpenHelperCreator): Builder =
             Builder(database, openHelperCreator).inMemory()
     }
