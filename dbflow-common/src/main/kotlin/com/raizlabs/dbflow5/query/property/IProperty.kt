@@ -1,12 +1,12 @@
 package com.raizlabs.dbflow5.query.property
 
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.query.Join
 import com.raizlabs.dbflow5.query.Method
 import com.raizlabs.dbflow5.query.NameAlias
 import com.raizlabs.dbflow5.query.OrderBy
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.structure.Model
+import kotlin.reflect.KClass
 
 /**
  * Description: Defines the base interface all property classes implement.
@@ -27,6 +27,11 @@ interface IProperty<P : IProperty<P>> : Query {
      * @return the table this property belongs to.
      */
     val table: KClass<*>?
+
+    /**
+     * Null-safe variant of [table]
+     */
+    fun requireTable(): KClass<*> = table!!
 
     /**
      * @param aliasName The name of the alias.

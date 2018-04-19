@@ -42,7 +42,7 @@ private constructor(
             }
             queryBuilder.append("TRIGGER IF NOT EXISTS ")
                 .appendQuotedIfNeeded(name).append(" ")
-                .appendOptional(beforeOrAfter + " ")
+                .appendOptional("$beforeOrAfter ")
 
             return queryBuilder.toString()
         }
@@ -106,20 +106,17 @@ private constructor(
         /**
          * Specifies that we should do this TRIGGER before some event
          */
-        @JvmField
-        val BEFORE = "BEFORE"
+        const val BEFORE = "BEFORE"
 
         /**
          * Specifies that we should do this TRIGGER after some event
          */
-        @JvmField
-        val AFTER = "AFTER"
+        const val AFTER = "AFTER"
 
         /**
          * Specifies that we should do this TRIGGER instead of the specified events
          */
-        @JvmField
-        val INSTEAD_OF = "INSTEAD OF"
+        const val INSTEAD_OF = "INSTEAD OF"
 
         /**
          * @param triggerName The name of the trigger to use.

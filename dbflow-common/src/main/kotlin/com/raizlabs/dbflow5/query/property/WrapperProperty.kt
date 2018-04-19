@@ -13,9 +13,6 @@ class WrapperProperty<T, V> : Property<V> {
 
     private var databaseProperty: WrapperProperty<V, T>? = null
 
-    override val table: KClass<*>
-        get() = super.table!!
-
     constructor(table: KClass<*>, nameAlias: NameAlias) : super(table, nameAlias)
 
     constructor(table: KClass<*>, columnName: String) : super(table, columnName)
@@ -23,9 +20,9 @@ class WrapperProperty<T, V> : Property<V> {
     override fun withTable(): WrapperProperty<T, V> {
         val nameAlias = this.nameAlias
             .newBuilder()
-            .withTable(FlowManager.getTableName(table))
+            .withTable(FlowManager.getTableName(requireTable()))
             .build()
-        return WrapperProperty(this.table, nameAlias)
+        return WrapperProperty(this.requireTable(), nameAlias)
     }
 
     override fun withTable(tableNameAlias: NameAlias): WrapperProperty<T, V> {
@@ -33,7 +30,7 @@ class WrapperProperty<T, V> : Property<V> {
             .newBuilder()
             .withTable(tableNameAlias.tableName)
             .build()
-        return WrapperProperty(this.table, nameAlias)
+        return WrapperProperty(this.requireTable(), nameAlias)
     }
 
     /**
@@ -41,5 +38,5 @@ class WrapperProperty<T, V> : Property<V> {
      * for types that have different DB representations.
      */
     fun invertProperty(): WrapperProperty<V, T> = databaseProperty
-        ?: WrapperProperty<V, T>(table, nameAlias).also { databaseProperty = it }
+        ?: WrapperProperty<V, T>(requireTable(), nameAlias).also { databaseProperty = it }
 }

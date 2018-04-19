@@ -9,7 +9,7 @@ import com.raizlabs.dbflow5.config.FlowLog.Level
  */
 object FlowLog {
 
-    val TAG = "FlowLog"
+    const val TAG = "FlowLog"
     private var level = Level.E
 
     private val actualLogger = PlatformLogger()

@@ -59,11 +59,9 @@ constructor(private val column: NameAlias? = null,
 
     companion object {
 
-        @JvmField
-        val ASCENDING = "ASC"
+        const val ASCENDING = "ASC"
 
-        @JvmField
-        val DESCENDING = "DESC"
+        const val DESCENDING = "DESC"
 
         @JvmStatic
         fun fromProperty(property: IProperty<*>): OrderBy = OrderBy(property.nameAlias)

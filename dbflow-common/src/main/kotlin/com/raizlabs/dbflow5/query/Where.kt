@@ -203,6 +203,6 @@ internal constructor(
 
     companion object {
 
-        private val VALUE_UNSET = -1L
+        private const val VALUE_UNSET = -1L
     }
 }

@@ -1,11 +1,10 @@
 package com.raizlabs.dbflow5.query
 
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.sql.QueryCloneable
-import kotlin.jvm.JvmField
+import kotlin.reflect.KClass
 
 /**
  * Description: A SQL SELECT statement generator. It generates the SELECT part of the statement.
@@ -91,18 +90,15 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
         /**
          * Default does not include the qualifier
          */
-        @JvmField
-        val NONE = -1
+        const val NONE = -1
         /**
          * SELECT DISTINCT call
          */
-        @JvmField
-        val DISTINCT = 0
+        const val DISTINCT = 0
         /**
          * SELECT ALL call
          */
-        @JvmField
-        val ALL = 1
+        const val ALL = 1
     }
 }
 

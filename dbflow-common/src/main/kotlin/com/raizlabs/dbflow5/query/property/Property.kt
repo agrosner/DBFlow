@@ -1,9 +1,9 @@
 package com.raizlabs.dbflow5.query.property
 
 import com.raizlabs.dbflow5.JvmStatic
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.query.*
+import kotlin.reflect.KClass
 
 /**
  * Description: The main, immutable property class that gets generated from a table definition.
@@ -21,7 +21,7 @@ import com.raizlabs.dbflow5.query.*
  */
 open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
 
-    override val table: KClass<*>?
+    final override val table: KClass<*>?
 
     private lateinit var internalNameAlias: NameAlias
 

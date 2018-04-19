@@ -127,7 +127,7 @@ class DatabaseHelperDelegate(
 
     companion object {
 
-        val TEMP_DB_NAME = "temp-"
+        const val TEMP_DB_NAME = "temp-"
 
         fun getTempDbFileName(databaseDefinition: DBFlowDatabase): String =
             "$TEMP_DB_NAME${databaseDefinition.databaseName}.db"

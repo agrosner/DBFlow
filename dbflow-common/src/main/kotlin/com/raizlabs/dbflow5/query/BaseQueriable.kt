@@ -40,7 +40,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
             compileStatement(databaseWrapper).use { it.executeInsert() }
         } else {
             val query = query
-            FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
+            FlowLog.log(FlowLog.Level.V, "Executing query: $query")
             databaseWrapper.execSQL(query)
         }
         return null
@@ -61,7 +61,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
 
     override fun compileStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement {
         val query = query
-        FlowLog.log(FlowLog.Level.V, "Compiling Query Into Statement: " + query)
+        FlowLog.log(FlowLog.Level.V, "Compiling Query Into Statement: $query")
         return DatabaseStatementWrapper(databaseWrapper.compileStatement(query), this)
     }
 
