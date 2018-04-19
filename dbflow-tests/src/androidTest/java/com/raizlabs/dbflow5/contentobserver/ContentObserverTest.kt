@@ -11,7 +11,6 @@ import com.raizlabs.dbflow5.contentobserver.User_Table.id
 import com.raizlabs.dbflow5.contentobserver.User_Table.name
 import com.raizlabs.dbflow5.getNotificationUri
 import com.raizlabs.dbflow5.query.SQLOperator
-import com.raizlabs.dbflow5.query.delete
 import com.raizlabs.dbflow5.runtime.FlowContentObserver
 import com.raizlabs.dbflow5.structure.ChangeAction
 import com.raizlabs.dbflow5.structure.delete
@@ -33,7 +32,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
     @Before
     fun setupUser() {
         databaseForTable<User> {
-            (delete() from User::class).execute()
+            (com.raizlabs.dbflow5.query.delete() from User::class).execute()
         }
         user = User(5, "Something", 55)
     }
@@ -43,7 +42,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
         val conditionGroup = User::class.modelAdapter
             .getPrimaryConditionClause(user)
         val uri = getNotificationUri(contentUri,
-            User::class.java, ChangeAction.DELETE,
+            User::class, ChangeAction.DELETE,
             conditionGroup.conditions.toTypedArray())
 
         assertEquals(uri.authority, contentUri)
@@ -81,7 +80,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
         val countDownLatch = CountDownLatch(1)
         val mockOnModelStateChangedListener = MockOnModelStateChangedListener(countDownLatch)
         contentObserver.addModelChangeListener(mockOnModelStateChangedListener)
-        contentObserver.registerForContentChanges(DemoApp.context, User::class.java)
+        contentObserver.registerForContentChanges(DemoApp.context, User::class)
 
         userFunc(user)
         countDownLatch.await()

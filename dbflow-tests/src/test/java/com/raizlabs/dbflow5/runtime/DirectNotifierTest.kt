@@ -41,7 +41,7 @@ class DirectNotifierTest {
     @Before
     fun setupTest() {
         FlowManager.init(FlowConfig.Builder(context)
-                .database(DatabaseConfig.Builder(TestDatabase::class.java,
+                .database(DatabaseConfig.Builder(TestDatabase::class,
                         AndroidSQLiteOpenHelper.createHelperCreator(context))
                         .transactionManagerCreator(::ImmediateTransactionManager2)
                         .build()).build())
@@ -52,7 +52,7 @@ class DirectNotifierTest {
         val simpleModel = SimpleModel("Name")
 
         val modelChange = mock<DirectModelNotifier.OnModelStateChangedListener<SimpleModel>>()
-        DirectModelNotifier.get().registerForModelStateChanges(SimpleModel::class.java, modelChange)
+        DirectModelNotifier.get().registerForModelStateChanges(SimpleModel::class, modelChange)
 
         simpleModel.insert()
         verify(modelChange).onModelChanged(simpleModel, ChangeAction.INSERT)
@@ -71,19 +71,19 @@ class DirectNotifierTest {
     fun validateCanNotifyWrapperClasses() {
         databaseForTable<SimpleModel> {
             val modelChange = Mockito.mock(OnTableChangedListener::class.java)
-            DirectModelNotifier.get().registerForTableChanges(SimpleModel::class.java, modelChange)
+            DirectModelNotifier.get().registerForTableChanges(SimpleModel::class, modelChange)
 
             insert<SimpleModel>().columnValues(SimpleModel_Table.name to "name").executeInsert(this)
 
-            verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.INSERT)
+            verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.INSERT)
 
             (update<SimpleModel>() set SimpleModel_Table.name.eq("name2")).executeUpdateDelete(this)
 
-            verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.UPDATE)
+            verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.UPDATE)
 
             delete<SimpleModel>().executeUpdateDelete(this)
 
-            verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.DELETE)
+            verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.DELETE)
         }
     }
 

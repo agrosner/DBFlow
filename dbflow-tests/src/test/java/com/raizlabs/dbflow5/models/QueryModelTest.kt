@@ -30,7 +30,7 @@ class QueryModelTest : BaseUnitTest() {
         val result = (select(name.withTable().`as`("blogName"), id.withTable().`as`("authorId"),
                 Blog_Table.id.withTable().`as`("blogId")) from Blog::class innerJoin
                 Author::class on (author_id.withTable() eq id.withTable()))
-                .queryCustomSingle(AuthorNameQuery::class.java, this)!!
+                .queryCustomSingle(AuthorNameQuery::class, this)!!
         assertEquals(author.id, result.authorId)
         assertEquals(blog.id, result.blogId)
     }

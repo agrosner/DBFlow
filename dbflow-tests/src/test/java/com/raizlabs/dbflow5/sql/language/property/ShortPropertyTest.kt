@@ -11,7 +11,7 @@ class ShortPropertyTest : BaseUnitTest() {
 
     @Test
     fun testOperators() {
-        val prop = Property<Short>(SimpleModel::class.java, "Prop")
+        val prop = Property<Short>(SimpleModel::class, "Prop")
         assertEquals("`Prop`=5", prop.`is`(5).query.trim())
         assertEquals("`Prop`=5", prop.eq(5).query.trim())
         assertEquals("`Prop`!=5", prop.notEq(5).query.trim())
@@ -28,10 +28,10 @@ class ShortPropertyTest : BaseUnitTest() {
 
     @Test
     fun testAlias() {
-        val prop = Property<Short>(SimpleModel::class.java, "Prop", "Alias")
+        val prop = Property<Short>(SimpleModel::class, "Prop", "Alias")
         assertEquals("`Prop` AS `Alias`", prop.toString().trim())
 
-        val prop2 = Property<Short>(SimpleModel::class.java,
+        val prop2 = Property<Short>(SimpleModel::class,
                 NameAlias.builder("Prop")
                         .shouldAddIdentifierToName(false)
                         .`as`("Alias")

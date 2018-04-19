@@ -7,9 +7,7 @@ import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.adapter.saveable.ModelSaver
 import com.raizlabs.dbflow5.database.AndroidSQLiteOpenHelper
 import com.raizlabs.dbflow5.models.SimpleModel
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 
@@ -24,7 +22,7 @@ class ConfigIntegrationTest : BaseUnitTest() {
     fun setup() {
         FlowManager.reset()
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
-        builder = FlowConfig.Builder(context)
+        builder = FlowConfig.Builder()
     }
 
 
@@ -41,14 +39,14 @@ class ConfigIntegrationTest : BaseUnitTest() {
     @Test
     fun test_tableConfig() {
 
-        val customListModelLoader = ListModelLoader(SimpleModel::class.java)
-        val singleModelLoader = SingleModelLoader(SimpleModel::class.java)
+        val customListModelLoader = ListModelLoader(SimpleModel::class)
+        val singleModelLoader = SingleModelLoader(SimpleModel::class)
         val modelSaver = ModelSaver<SimpleModel>()
 
         FlowManager.init(builder
-            .database(DatabaseConfig.Builder(TestDatabase::class.java,
+            .database(DatabaseConfig.Builder(TestDatabase::class,
                 AndroidSQLiteOpenHelper.createHelperCreator(context))
-                .addTableConfig(TableConfig.Builder(SimpleModel::class.java)
+                .addTableConfig(TableConfig.Builder(SimpleModel::class)
                     .singleModelLoader(singleModelLoader)
                     .listModelLoader(customListModelLoader)
                     .modelAdapterModelSaver(modelSaver)
@@ -59,11 +57,11 @@ class ConfigIntegrationTest : BaseUnitTest() {
         val flowConfig = FlowManager.getConfig()
         assertNotNull(flowConfig)
 
-        val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class.java] as DatabaseConfig
+        val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class] as DatabaseConfig
         assertNotNull(databaseConfig)
 
 
-        val config = databaseConfig.tableConfigMap[SimpleModel::class.java] as TableConfig
+        val config = databaseConfig.tableConfigMap[SimpleModel::class] as TableConfig
         assertNotNull(config)
 
         assertEquals(config.listModelLoader, customListModelLoader)

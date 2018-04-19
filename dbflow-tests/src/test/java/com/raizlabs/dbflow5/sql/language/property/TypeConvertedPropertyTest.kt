@@ -17,7 +17,7 @@ class TypeConvertedPropertyTest : BaseUnitTest() {
 
     @Test
     fun testTypeConverter() {
-        val property = TypeConvertedProperty<Long, Date>(SimpleModel::class.java, "Prop", true,
+        val property = TypeConvertedProperty<Long, Date>(SimpleModel::class, "Prop", true,
                 object : TypeConvertedProperty.TypeConverterGetter {
                     override fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *> = DateConverter()
                 })

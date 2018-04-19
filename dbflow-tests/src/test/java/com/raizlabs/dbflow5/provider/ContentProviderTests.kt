@@ -28,13 +28,13 @@ class ContentProviderTests : BaseUnitTest() {
     fun setUp() {
         val info = ProviderInfo()
         info.authority = TestContentProvider.AUTHORITY
-        Robolectric.buildContentProvider(TestContentProvider_Provider::class.java).create(info)
+        Robolectric.buildContentProvider(TestContentProvider_Provider::class).create(info)
     }
 
     @Test
     fun testContentProviderUtils() {
         database(ContentDatabase::class) {
-            tables(NoteModel::class.java, ContentProviderModel::class.java)
+            tables(NoteModel::class, ContentProviderModel::class)
 
             var contentProviderModel = ContentProviderModel()
             contentProviderModel.notes = "Test"
@@ -62,14 +62,14 @@ class ContentProviderTests : BaseUnitTest() {
             assertTrue(ContentUtils.delete(mockContentResolver, TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel) > 0)
             assertTrue(!contentProviderModel.exists())
 
-            tables(NoteModel::class.java, ContentProviderModel::class.java)
+            tables(NoteModel::class, ContentProviderModel::class)
         }
     }
 
     @Test
     fun testContentProviderNative() {
         database(ContentDatabase::class) {
-            tables(NoteModel::class.java, ContentProviderModel::class.java)
+            tables(NoteModel::class, ContentProviderModel::class)
 
             var contentProviderModel = ContentProviderModel(notes = "Test")
             contentProviderModel.insert()
@@ -96,14 +96,14 @@ class ContentProviderTests : BaseUnitTest() {
             contentProviderModel.delete()
             assertTrue(!contentProviderModel.exists())
 
-            tables(NoteModel::class.java, ContentProviderModel::class.java)
+            tables(NoteModel::class, ContentProviderModel::class)
         }
     }
 
     @Test
     fun testSyncableModel() {
         database(ContentDatabase::class) {
-            table(this, TestSyncableModel::class.java)
+            table(this, TestSyncableModel::class)
 
             var testSyncableModel = TestSyncableModel(name = "Name")
             testSyncableModel.save()
@@ -126,7 +126,7 @@ class ContentProviderTests : BaseUnitTest() {
             testSyncableModel.delete()
             assertFalse(testSyncableModel.exists())
 
-            table(this, TestSyncableModel::class.java)
+            table(this, TestSyncableModel::class)
         }
     }
 

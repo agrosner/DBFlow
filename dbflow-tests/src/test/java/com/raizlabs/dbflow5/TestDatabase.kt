@@ -13,6 +13,6 @@ import com.raizlabs.dbflow5.models.SimpleModel
 abstract class TestDatabase : DBFlowDatabase() {
 
     @Migration(version = 1, database = TestDatabase::class)
-    class TestMigration : UpdateTableMigration<SimpleModel>(SimpleModel::class.java)
+    class TestMigration : UpdateTableMigration<SimpleModel>(SimpleModel::class)
 
 }

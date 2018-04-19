@@ -23,7 +23,7 @@ class DatabaseConfigTest : BaseUnitTest() {
     fun setup() {
         FlowManager.reset()
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
-        builder = FlowConfig.Builder(context)
+        builder = FlowConfig.Builder()
     }
 
     @Test
@@ -42,7 +42,7 @@ class DatabaseConfigTest : BaseUnitTest() {
         }
 
         FlowManager.init(builder
-            .database(DatabaseConfig.Builder(TestDatabase::class.java, openHelperCreator)
+            .database(DatabaseConfig.Builder(TestDatabase::class, openHelperCreator)
                 .databaseName("Test")
                 .helperListener(helperListener)
                 .transactionManagerCreator(managerCreator)
@@ -52,11 +52,11 @@ class DatabaseConfigTest : BaseUnitTest() {
         val flowConfig = FlowManager.getConfig()
         Assert.assertNotNull(flowConfig)
 
-        val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class.java]!!
+        val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class]!!
         Assert.assertEquals("Test", databaseConfig.databaseName)
         Assert.assertEquals(".db", databaseConfig.databaseExtensionName)
         Assert.assertEquals(databaseConfig.transactionManagerCreator, managerCreator)
-        Assert.assertEquals(databaseConfig.databaseClass, TestDatabase::class.java)
+        Assert.assertEquals(databaseConfig.databaseClass, TestDatabase::class)
         Assert.assertEquals(databaseConfig.openHelperCreator, openHelperCreator)
         Assert.assertEquals(databaseConfig.callback, helperListener)
         Assert.assertTrue(databaseConfig.tableConfigMap.isEmpty())
@@ -70,14 +70,14 @@ class DatabaseConfigTest : BaseUnitTest() {
     @Test
     fun test_EmptyName() {
         FlowManager.init(builder
-            .database(DatabaseConfig.Builder(TestDatabase::class.java,
+            .database(DatabaseConfig.Builder(TestDatabase::class,
                 AndroidSQLiteOpenHelper.createHelperCreator(context))
                 .databaseName("Test")
                 .extensionName("")
                 .build())
             .build())
 
-        val databaseConfig = FlowManager.getConfig().databaseConfigMap[TestDatabase::class.java]!!
+        val databaseConfig = FlowManager.getConfig().databaseConfigMap[TestDatabase::class]!!
         Assert.assertEquals("Test", databaseConfig.databaseName)
         Assert.assertEquals("", databaseConfig.databaseExtensionName)
     }

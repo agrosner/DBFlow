@@ -19,9 +19,10 @@ class DBFlowInstrumentedTestRule : TestRule {
 
             @Throws(Throwable::class)
             override fun evaluate() {
-                FlowManager.init(FlowConfig.Builder(DemoApp.context)
+                FlowManager.init(DemoApp.context)
+                FlowManager.init(FlowConfig.Builder()
                     .database(DatabaseConfig(
-                        databaseClass = AppDatabase::class.java,
+                        databaseClass = AppDatabase::class,
                         openHelperCreator = AndroidSQLiteOpenHelper.createHelperCreator(DemoApp.context),
                         modelNotifier = ContentResolverNotifier(DemoApp.context, "com.grosner.content"),
                         transactionManagerCreator = { databaseDefinition: DBFlowDatabase ->
@@ -29,11 +30,11 @@ class DBFlowInstrumentedTestRule : TestRule {
                         }))
                     .database(DatabaseConfig(
                         openHelperCreator = AndroidSQLiteOpenHelper.createHelperCreator(DemoApp.context),
-                        databaseClass = PrepackagedDB::class.java,
+                        databaseClass = PrepackagedDB::class,
                         databaseName = "prepackaged"))
                     .database(DatabaseConfig(
                         openHelperCreator = AndroidSQLiteOpenHelper.createHelperCreator(DemoApp.context),
-                        databaseClass = CipherDatabase::class.java))
+                        databaseClass = CipherDatabase::class))
                     .build())
                 try {
                     base.evaluate()

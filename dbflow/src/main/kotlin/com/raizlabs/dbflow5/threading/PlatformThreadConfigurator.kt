@@ -20,4 +20,6 @@ actual class ThreadConfigurator {
             FlowLog.log(FlowLog.Level.I, "DBRequestQueue Batch interrupted to start saving")
         }
     }
+
+    actual fun isInterrupted(exception: Exception): Boolean = exception is InterruptedException
 }
