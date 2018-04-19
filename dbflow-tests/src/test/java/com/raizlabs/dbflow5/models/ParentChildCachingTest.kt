@@ -6,7 +6,6 @@ import com.raizlabs.dbflow5.config.database
 import com.raizlabs.dbflow5.query.result
 import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.structure.load
-import com.raizlabs.dbflow5.structure.save
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -1,24 +1,8 @@
 package com.raizlabs.dbflow5.processor.definition.provider
 
-import com.grosner.kpoet.L
-import com.grosner.kpoet.`=`
-import com.grosner.kpoet.`break`
-import com.grosner.kpoet.`private final field`
-import com.grosner.kpoet.`private static final field`
-import com.grosner.kpoet.`return`
-import com.grosner.kpoet.case
-import com.grosner.kpoet.code
-import com.grosner.kpoet.final
-import com.grosner.kpoet.modifiers
-import com.grosner.kpoet.param
-import com.grosner.kpoet.parameterized
-import com.grosner.kpoet.public
-import com.grosner.kpoet.statement
-import com.raizlabs.dbflow5.annotation.provider.ContentProvider
-import com.raizlabs.dbflow5.annotation.provider.ContentUri
+import com.grosner.kpoet.*
+import com.raizlabs.dbflow5.annotation.provider.*
 import com.raizlabs.dbflow5.annotation.provider.NotifyMethod
-import com.raizlabs.dbflow5.annotation.provider.PathSegment
-import com.raizlabs.dbflow5.annotation.provider.TableEndpoint
 import com.raizlabs.dbflow5.processor.ClassNames
 import com.raizlabs.dbflow5.processor.ProcessorManager
 import com.raizlabs.dbflow5.processor.TableEndpointValidator
@@ -28,18 +12,8 @@ import com.raizlabs.dbflow5.processor.definition.MethodDefinition
 import com.raizlabs.dbflow5.processor.utils.`override fun`
 import com.raizlabs.dbflow5.processor.utils.annotation
 import com.raizlabs.dbflow5.processor.utils.controlFlow
-import com.raizlabs.dbflow5.processor.utils.isNullOrEmpty
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
+import com.squareup.javapoet.*
+import javax.lang.model.element.*
 import javax.lang.model.type.MirroredTypeException
 
 internal fun appendDefault(code: CodeBlock.Builder) {

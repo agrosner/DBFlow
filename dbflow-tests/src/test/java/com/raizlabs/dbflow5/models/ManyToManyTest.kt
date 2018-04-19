@@ -1,8 +1,6 @@
 package com.raizlabs.dbflow5.models
 
 import com.raizlabs.dbflow5.BaseUnitTest
-import com.raizlabs.dbflow5.models.Artist
-import com.raizlabs.dbflow5.models.Song
 import com.raizlabs.dbflow5.structure.save
 import org.junit.Assert.assertTrue
 import org.junit.Test

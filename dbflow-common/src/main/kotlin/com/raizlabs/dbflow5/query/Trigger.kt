@@ -5,7 +5,6 @@ import com.raizlabs.dbflow5.appendOptional
 import com.raizlabs.dbflow5.appendQuotedIfNeeded
 import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.sql.Query
-import kotlin.jvm.JvmField
 import kotlin.reflect.KClass
 
 /**

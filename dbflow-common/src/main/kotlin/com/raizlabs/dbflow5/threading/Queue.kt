@@ -1,12 +1,18 @@
 package com.raizlabs.dbflow5.threading
 
-expect interface Queue<T : Any> {
+expect class LinkedBlockingQueue<E : Any>() {
 
-    fun take(): T
+    fun take(): E
 
-    fun remove(): T
+    fun remove(): E
+
+    fun add(element: E): Boolean
+
+    fun clear()
+
+    fun contains(element: E): Boolean
+
+    fun remove(element: E): Boolean
+
+    fun iterator(): MutableIterator<E>
 }
-
-expect abstract class AbstractQueue<T : Any>() : MutableCollection<T>, Queue<T>
-
-expect class LinkedBlockingQueue<T : Any>() : AbstractQueue<T>

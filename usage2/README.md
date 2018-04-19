@@ -51,7 +51,7 @@ val user = User(id = UUID.randomUUID(),
 val db = databaseForTable<User>()
 user.insert(db)
 
-user.name = "Not Andrew Grosner";
+user.name = "Not Andrew Grosner"
 user.update(db)
 
 user.delete(db)

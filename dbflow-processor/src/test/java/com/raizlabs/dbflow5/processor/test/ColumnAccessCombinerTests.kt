@@ -1,4 +1,4 @@
-package com.raizlabs.android.dbflow.processor.test
+package com.raizlabs.dbflow5.processor.test
 
 import com.raizlabs.dbflow5.processor.definition.column.BooleanColumnAccessor
 import com.raizlabs.dbflow5.processor.definition.column.Combiner

@@ -4,6 +4,7 @@ import com.raizlabs.dbflow5.processor.ProcessorManager
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
+import javax.lang.model.element.PackageElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
@@ -30,6 +31,6 @@ fun TypeName?.toTypeElement(manager: ProcessorManager = ProcessorManager.manager
 
 inline fun <reified T : Annotation> Element?.annotation() = this?.getAnnotation(T::class.java)
 
-fun Element?.getPackage(manager: ProcessorManager = ProcessorManager.manager) = manager.elements.getPackageOf(this)
+fun Element.getPackage(manager: ProcessorManager = ProcessorManager.manager): PackageElement = manager.elements.getPackageOf(this)
 
 fun Element?.toClassName(): ClassName? = this?.let { ClassName.get(this as TypeElement) }

@@ -18,7 +18,6 @@ import com.raizlabs.dbflow5.processor.utils.ElementUtility
 import com.raizlabs.dbflow5.processor.utils.ModelUtils
 import com.raizlabs.dbflow5.processor.utils.`override fun`
 import com.raizlabs.dbflow5.processor.utils.getPackage
-import com.raizlabs.dbflow5.processor.utils.toClassName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.ParameterizedTypeName
@@ -29,6 +28,7 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import com.raizlabs.dbflow5.processor.utils.toClassName
 
 /**
  * Description: Used to write Models and ModelViews

@@ -7,7 +7,7 @@ import com.raizlabs.dbflow5.annotation.provider.ContentProvider
 import com.raizlabs.dbflow5.structure.Model
 
 /**
- * Description: Called after the declared [ContentValues] are binded. It enables
+ * Description: Called after the declared [ContentValues] are bound. It enables
  * us to listen and add custom behavior to the [ContentValues]. These must be
  * defined in a [Model] class to register properly.
  *
@@ -24,7 +24,7 @@ interface ContentValuesListener {
     /**
      * Called during an [Model.update] and at the end of
      * [ModelAdapter.bindToContentValues]
-     * . It enables you to customly change the values as necessary during update to the database.
+     * . It enables you to custom-ly change the values as necessary during update to the database.
      *
      * @param contentValues The content values to bind to for an update.
      */
@@ -33,7 +33,7 @@ interface ContentValuesListener {
     /**
      * Called during an [Model.update] and at the end of
      * [ModelAdapter.bindToInsertValues].
-     * It enables you to customly change the values as necessary during insert
+     * It enables you to custom-ly change the values as necessary during insert
      * to the database for a [ContentProvider].
      *
      * @param contentValues The content values to insert into DB for a [ContentProvider]

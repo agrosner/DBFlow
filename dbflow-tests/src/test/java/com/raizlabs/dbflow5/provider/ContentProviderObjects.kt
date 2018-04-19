@@ -50,7 +50,7 @@ class ContentProviderModel(@PrimaryKey(autoincrement = true)
 
         const val NAME = "ContentProviderModel"
 
-        @ContentUri(path = NAME, type = "${ContentType.VND_MULTIPLE}${NAME}")
+        @ContentUri(path = NAME, type = "${ContentType.VND_MULTIPLE}$NAME")
         val CONTENT_URI = ContentUtils.buildUriWithAuthority(ContentDatabase.AUTHORITY)
     }
 }

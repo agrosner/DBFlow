@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.sqlcipher
 
-import android.content.ContentValues
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor

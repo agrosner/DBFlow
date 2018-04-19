@@ -131,7 +131,7 @@ object TestContentProvider {
 
         const val ENDPOINT = "TestSyncableModel"
 
-        @ContentUri(path = ENDPOINT, type = "${ContentType.VND_MULTIPLE}${ENDPOINT}")
+        @ContentUri(path = ENDPOINT, type = "${ContentType.VND_MULTIPLE}$ENDPOINT")
         var CONTENT_URI = buildUri(ENDPOINT)
     }
 }

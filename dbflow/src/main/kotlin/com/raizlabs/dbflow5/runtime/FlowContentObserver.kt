@@ -59,7 +59,7 @@ open class FlowContentObserver(private val contentAuthority: String,
          * @param table            The table that this change occurred on. This is ONLY available on [VERSION_CODES.JELLY_BEAN]
          * and up.
          * @param action           The action on the model. for versions prior to [VERSION_CODES.JELLY_BEAN] ,
-         * the [Action.CHANGE] will always be called for any action.
+         * the [ChangeAction.CHANGE] will always be called for any action.
          * @param primaryKeyValues The array of primary [SQLOperator] of what changed. Call [SQLOperator.columnName]
          * and [SQLOperator.value] to get each information.
          */
@@ -69,8 +69,8 @@ open class FlowContentObserver(private val contentAuthority: String,
     interface ContentChangeListener : OnModelStateChangedListener, OnTableChangedListener
 
     /**
-     * If true, this class will get specific when it needs to, such as using all [Action] qualifiers.
-     * If false, it only uses the [Action.CHANGE] action in callbacks.
+     * If true, this class will get specific when it needs to, such as using all [ChangeAction] qualifiers.
+     * If false, it only uses the [ChangeAction.CHANGE] action in callbacks.
      *
      * @param notifyAllUris
      */
@@ -89,7 +89,7 @@ open class FlowContentObserver(private val contentAuthority: String,
     }
 
     /**
-     * Ends the transaction where it finishes, and will call [.onChange] for Jelly Bean and up for
+     * Ends the transaction where it finishes, and will call [onChange] for Jelly Bean and up for
      * every URI called (if set), or [.onChange] once for lower than Jelly bean.
      */
     open fun endTransactionAndNotify() {
@@ -121,7 +121,7 @@ open class FlowContentObserver(private val contentAuthority: String,
     /**
      * Add a listener for model changes
      *
-     * @param modelChangeListener Generic model change events from an [Action]
+     * @param modelChangeListener Generic model change events from an [ChangeAction]
      */
     fun addModelChangeListener(modelChangeListener: OnModelStateChangedListener) {
         modelChangeListeners.add(modelChangeListener)
@@ -130,7 +130,7 @@ open class FlowContentObserver(private val contentAuthority: String,
     /**
      * Removes a listener for model changes
      *
-     * @param modelChangeListener Generic model change events from a [Action]
+     * @param modelChangeListener Generic model change events from a [ChangeAction]
      */
     fun removeModelChangeListener(modelChangeListener: OnModelStateChangedListener) {
         modelChangeListeners.remove(modelChangeListener)
@@ -147,7 +147,7 @@ open class FlowContentObserver(private val contentAuthority: String,
     /**
      * Add a listener for model + table changes
      *
-     * @param contentChangeListener Generic model change events from an [Action]
+     * @param contentChangeListener Generic model change events from an [ChangeAction]
      */
     fun addContentChangeListener(contentChangeListener: ContentChangeListener) {
         modelChangeListeners.add(contentChangeListener)
@@ -157,7 +157,7 @@ open class FlowContentObserver(private val contentAuthority: String,
     /**
      * Removes a listener for model + table changes
      *
-     * @param contentChangeListener Generic model change events from a [Action]
+     * @param contentChangeListener Generic model change events from a [ChangeAction]
      */
     fun removeContentChangeListener(contentChangeListener: ContentChangeListener) {
         modelChangeListeners.remove(contentChangeListener)

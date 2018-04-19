@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlin_version = '1.2.40-eap-62'
+        kotlin_version = '1.2.31'
         target_sdk = 27
         min_sdk = 7
         min_sdk_rx = 15
@@ -39,7 +39,7 @@ allprojects {
     repositories {
         jcenter()
         google()
-        maven {
+        maven {4
             url 'https://dl.bintray.com/kotlin/kotlin-eap'
         }
         maven { url "https://www.jitpack.io" }

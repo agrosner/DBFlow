@@ -3,16 +3,15 @@ package com.raizlabs.dbflow5.provider
 import android.content.ContentProvider
 import android.content.ContentValues
 import android.net.Uri
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.DatabaseHolder
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.transaction.ITransaction
+import kotlin.reflect.KClass
 
 /**
- * Description: The base provider class that [com.raizlabs.android.dbflow5.annotation.provider.ContentProvider]
- * extend when generated.
+ * Description: The base provider class that class annotated with [com.raizlabs.dbflow5.annotation.provider.ContentProvider] generate.
  */
 abstract class BaseContentProvider
 protected constructor(databaseHolderClass: KClass<out DatabaseHolder>? = null) : ContentProvider() {

@@ -39,5 +39,5 @@ inline fun <T : Throwable> CodeBlock.Builder.catch(exception: KClass<T>,
                                                    function: CodeBlock.Builder.() -> CodeBlock.Builder)
         = nextControl("catch", statement = "\$T e", args = *arrayOf(exception.java), function = function).end()
 
-fun codeBlock(function: CodeBlock.Builder.() -> CodeBlock.Builder) = CodeBlock.builder().function().build()
+fun codeBlock(function: CodeBlock.Builder.() -> CodeBlock.Builder): CodeBlock = CodeBlock.builder().function().build()
 

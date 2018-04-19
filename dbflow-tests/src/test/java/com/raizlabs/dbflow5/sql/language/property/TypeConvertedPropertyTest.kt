@@ -11,6 +11,7 @@ import com.raizlabs.dbflow5.query.property.TypeConvertedProperty
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.*
+import kotlin.reflect.KClass
 
 class TypeConvertedPropertyTest : BaseUnitTest() {
 
@@ -19,7 +20,7 @@ class TypeConvertedPropertyTest : BaseUnitTest() {
     fun testTypeConverter() {
         val property = TypeConvertedProperty<Long, Date>(SimpleModel::class, "Prop", true,
                 object : TypeConvertedProperty.TypeConverterGetter {
-                    override fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *> = DateConverter()
+                    override fun getTypeConverter(modelClass: KClass<*>): TypeConverter<*, *> = DateConverter()
                 })
         assertEquals("`Prop`", property.toString())
 

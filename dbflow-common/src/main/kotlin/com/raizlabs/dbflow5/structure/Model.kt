@@ -4,7 +4,6 @@ import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.config.modelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
-import kotlin.reflect.KClass
 
 interface Model : ReadOnlyModel {
 

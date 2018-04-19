@@ -2,13 +2,7 @@ package com.raizlabs.dbflow5.sql.language
 
 import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.assertEquals
-import com.raizlabs.dbflow5.models.TwoColumnModel_Table.id
-import com.raizlabs.dbflow5.models.TwoColumnModel_Table.name
 import com.raizlabs.dbflow5.query.OperatorGroup
-import com.raizlabs.dbflow5.query.and
-import com.raizlabs.dbflow5.query.andAll
-import com.raizlabs.dbflow5.query.or
-import com.raizlabs.dbflow5.query.orAll
 import org.junit.Test
 
 class OperatorGroupTest : BaseUnitTest() {

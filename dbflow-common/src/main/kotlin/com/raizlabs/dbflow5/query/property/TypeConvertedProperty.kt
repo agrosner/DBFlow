@@ -60,7 +60,7 @@ class TypeConvertedProperty<T, V> : Property<V> {
      * Provides a convenience for supplying type converted methods within the DataClass of the [TypeConverter]
      */
     fun invertProperty(): Property<T> = databaseProperty
-        ?: TypeConvertedProperty<V, T>(table, nameAlias,
+        ?: TypeConvertedProperty<V, T>(requireTable(), nameAlias,
             !convertToDB, object : TypeConverterGetter {
             override fun getTypeConverter(modelClass: KClass<*>): TypeConverter<*, *> =
                 getter.getTypeConverter(modelClass)
@@ -71,6 +71,6 @@ class TypeConvertedProperty<T, V> : Property<V> {
             .newBuilder()
             .withTable(tableNameAlias.tableName)
             .build()
-        return TypeConvertedProperty(this.table, nameAlias, this.convertToDB, this.getter)
+        return TypeConvertedProperty(requireTable(), nameAlias, this.convertToDB, this.getter)
     }
 }

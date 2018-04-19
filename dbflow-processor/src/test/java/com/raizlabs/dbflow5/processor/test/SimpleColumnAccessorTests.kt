@@ -34,7 +34,7 @@ class PrivateScopeColumnAccessorTest {
     @Test
     fun test_canGetPrivateIsAccess() {
         val privateAccess = PrivateScopeColumnAccessor("isTest",
-                useIsForPrivateBooleans = true)
+            useIsForPrivateBooleans = true)
 
         assertEquals("isTest()", privateAccess.get().toString())
     }
@@ -48,10 +48,10 @@ class PrivateScopeColumnAccessorTest {
     @Test
     fun test_canRetrieveColumnGetterSetter() {
         val privateAccess = PrivateScopeColumnAccessor("isTest",
-                object : GetterSetter {
-                    override val getterName = "getTest"
-                    override val setterName = "isTest"
-                })
+            object : GetterSetter {
+                override val getterName = "getTest"
+                override val setterName = "isTest"
+            })
         assertEquals("getTest()", privateAccess.get().toString())
         assertEquals("isTest(yellow)", privateAccess.set(CodeBlock.of("yellow")).toString())
     }
@@ -76,7 +76,7 @@ class PackagePrivateScopeColumnAccessorTest {
     fun test_canSetVariable() {
         val access = PackagePrivateScopeColumnAccessor("test", "com.fuzz.android", "_", "TestClass")
         assertEquals("com.fuzz.android.TestClass_Helper.setTest(model, \"name\")",
-                access.set(CodeBlock.of("\$S", "name"), CodeBlock.of("model")).toString())
+            access.set(CodeBlock.of("\$S", "name"), CodeBlock.of("model")).toString())
     }
 
 }
@@ -93,13 +93,13 @@ class TypeConverterScopeColumnAccessorTest {
     @Test
     fun test_canGetConversion() {
         assertEquals("global_typeConverterDateConverter.getModelValue(cursor.getString(\"name\"))",
-                access.set(CodeBlock.of("cursor.getString(\"name\")")).toString())
+            access.set(CodeBlock.of("cursor.getString(\"name\")")).toString())
     }
 
     @Test
     fun test_canSetConversion() {
         assertEquals("global_typeConverterDateConverter.getDBValue(model.name)",
-                access.get(CodeBlock.of("model.name")).toString())
+            access.get(CodeBlock.of("model.name")).toString())
     }
 }
 
@@ -119,11 +119,11 @@ class EnumColumnAccessorTest {
     fun test_canSetEnum() {
         val access = EnumColumnAccessor(TypeName.get(TestEnum::class.java))
         assertEquals("com.raizlabs.dbflow5.processor.test.EnumColumnAccessorTest.TestEnum.valueOf(model.test)",
-                access.set(CodeBlock.of("model.test")).toString())
+            access.set(CodeBlock.of("model.test")).toString())
     }
 }
 
-class BlobColumnAccessorTest() {
+class BlobColumnAccessorTest {
 
     @Test
     fun test_canGetBlob() {
@@ -135,11 +135,11 @@ class BlobColumnAccessorTest() {
     fun test_canSetBlob() {
         val access = BlobColumnAccessor()
         assertEquals("new com.raizlabs.dbflow5.Blob(cursor.getBlob(index))",
-                access.set(CodeBlock.of("cursor.getBlob(index)")).toString())
+            access.set(CodeBlock.of("cursor.getBlob(index)")).toString())
     }
 }
 
-class BooleanTypeColumnAccessorTest() {
+class BooleanTypeColumnAccessorTest {
 
     @Test
     fun test_canGetBoolean() {
@@ -151,11 +151,11 @@ class BooleanTypeColumnAccessorTest() {
     fun test_canSetBoolean() {
         val access = BooleanColumnAccessor()
         assertEquals("cursor.getBoolean(index)",
-                access.set(CodeBlock.of("cursor.getBoolean(index)")).toString())
+            access.set(CodeBlock.of("cursor.getBoolean(index)")).toString())
     }
 }
 
-class CharColumnAccessorTest() {
+class CharColumnAccessorTest {
     @Test
     fun test_canGetChar() {
         val access = CharColumnAccessor()
@@ -166,6 +166,6 @@ class CharColumnAccessorTest() {
     fun test_canSetChar() {
         val access = CharColumnAccessor()
         assertEquals("cursor.getChar(index).charAt(0)",
-                access.set(CodeBlock.of("cursor.getChar(index)")).toString())
+            access.set(CodeBlock.of("cursor.getChar(index)")).toString())
     }
 }
