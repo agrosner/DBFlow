@@ -2,7 +2,6 @@ package com.raizlabs.dbflow5.config
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.raizlabs.dbflow5.JvmStatic
 import kotlin.reflect.KClass
 
 @SuppressLint("StaticFieldLeak")
@@ -17,8 +16,9 @@ actual object FlowManager : FlowCommonManager() {
      */
     @kotlin.jvm.JvmStatic
     val context: Context
-        get() = internalContext ?: throw IllegalStateException("You must provide a valid FlowConfig instance." +
-            " We recommend calling init() in your application class.")
+        get() = internalContext
+            ?: throw IllegalStateException("You must provide a valid FlowConfig instance." +
+                " We recommend calling init() in your application class.")
 
     /**
      * Helper method to simplify the [.init]. Use [.init] to provide
@@ -26,10 +26,15 @@ actual object FlowManager : FlowCommonManager() {
      *
      * @param context - should be application context, but not necessary as we retrieve it anyways.
      */
-    @JvmStatic
+    @kotlin.jvm.JvmStatic
     fun init(context: Context) {
         internalContext = context.applicationContext
-        FlowManager.init(FlowConfig.Builder().build())
+        FlowManager.init(FlowConfig.Builder(context).build())
+    }
+
+    @JvmStatic
+    fun init(flowConfig: FlowConfig) {
+        super.initialize(flowConfig)
     }
 
     override fun loadDatabaseHolder(holderClass: KClass<out DatabaseHolder>) {

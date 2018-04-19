@@ -1,7 +1,6 @@
 package com.raizlabs.dbflow5.config
 
 import com.raizlabs.dbflow5.JvmOverloads
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.Synchronized
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.adapter.ModelViewAdapter
@@ -16,12 +15,15 @@ import com.raizlabs.dbflow5.runtime.ModelNotifier
 import com.raizlabs.dbflow5.structure.BaseModelView
 import com.raizlabs.dbflow5.structure.InvalidDBConfiguration
 import com.raizlabs.dbflow5.transaction.*
+import kotlin.reflect.KClass
+
+expect abstract class DBFlowDatabase : InternalDBFlowDatabase
 
 /**
  * Description: The main interface that all Database implementations extend from. Use this to
  * pass in for operations and [Transaction].
  */
-abstract class DBFlowDatabase : DatabaseWrapper {
+abstract class InternalDBFlowDatabase : DatabaseWrapper {
 
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
 
@@ -96,11 +98,11 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         get() {
             var helper = _openHelper
             if (helper == null) {
-                val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
+                val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseKClassFile]
                 helper = if (config?.openHelperCreator != null) {
-                    config.openHelperCreator.invoke(this, callback)
+                    config.openHelperCreator.invoke(this as DBFlowDatabase, callback)
                 } else {
-                    PlatformOpenHelper(this, callback)
+                    PlatformOpenHelper(this as DBFlowDatabase, callback)
                 }
                 helper.performRestoreFromBackup()
                 isOpened = true
@@ -150,7 +152,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * @return The class that defines the [Database] annotation.
      */
-    abstract val associatedDatabaseClassFile: KClass<*>
+    abstract val associatedDatabaseKClassFile: KClass<*>
 
     /**
      * @return True if the database is ok. If backups are enabled, we restore from backup and will
@@ -161,7 +163,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     init {
         @Suppress("LeakingThis")
-        applyDatabaseConfig(FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile])
+        applyDatabaseConfig(FlowManager.getConfig().databaseConfigMap[associatedDatabaseKClassFile])
     }
 
     /**
@@ -183,25 +185,25 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             callback = databaseConfig.callback
         }
         transactionManager = if (databaseConfig?.transactionManagerCreator == null) {
-            DefaultTransactionManager(this)
+            DefaultTransactionManager(this as DBFlowDatabase)
         } else {
-            databaseConfig.transactionManagerCreator.invoke(this)
+            databaseConfig.transactionManagerCreator.invoke(this as DBFlowDatabase)
         }
     }
 
     protected fun <T : Any> addModelAdapter(modelAdapter: ModelAdapter<T>, holder: DatabaseHolder) {
-        holder.putDatabaseForTable(modelAdapter.table, this)
+        holder.putDatabaseForTable(modelAdapter.table, this as DBFlowDatabase)
         modelTableNames.put(modelAdapter.tableName, modelAdapter.table)
         modelAdapters.put(modelAdapter.table, modelAdapter)
     }
 
     protected fun <T : Any> addModelViewAdapter(modelViewAdapter: ModelViewAdapter<T>, holder: DatabaseHolder) {
-        holder.putDatabaseForTable(modelViewAdapter.table, this)
+        holder.putDatabaseForTable(modelViewAdapter.table, this as DBFlowDatabase)
         modelViewAdapterMap.put(modelViewAdapter.table, modelViewAdapter)
     }
 
     protected fun <T : Any> addQueryModelAdapter(queryModelAdapter: QueryModelAdapter<T>, holder: DatabaseHolder) {
-        holder.putDatabaseForTable(queryModelAdapter.table, this)
+        holder.putDatabaseForTable(queryModelAdapter.table, this as DBFlowDatabase)
         queryModelAdapterMap.put(queryModelAdapter.table, queryModelAdapter)
     }
 
@@ -260,7 +262,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     fun getModelNotifier(): ModelNotifier {
         var notifier = modelNotifier
         if (notifier == null) {
-            val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
+            val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseKClassFile]
             notifier = if (config?.modelNotifier == null) {
                 DirectModelNotifier()
             } else {
@@ -292,7 +294,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         .execute()
 
     fun <R : Any?> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
-        Transaction.Builder(transaction, this)
+        Transaction.Builder(transaction, this as DBFlowDatabase)
 
     fun <R : Any?> beginTransactionAsync(transaction: (DatabaseWrapper) -> R): Transaction.Builder<R> =
         beginTransactionAsync(object : ITransaction<R> {

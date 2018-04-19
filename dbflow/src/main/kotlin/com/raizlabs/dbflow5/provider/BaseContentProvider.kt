@@ -14,7 +14,10 @@ import kotlin.reflect.KClass
  * Description: The base provider class that class annotated with [com.raizlabs.dbflow5.annotation.provider.ContentProvider] generate.
  */
 abstract class BaseContentProvider
-protected constructor(databaseHolderClass: KClass<out DatabaseHolder>? = null) : ContentProvider() {
+protected constructor(databaseHolderClass: KClass<out DatabaseHolder>?) : ContentProvider() {
+
+    @JvmOverloads
+    protected constructor(databaseHolderClass: Class<out DatabaseHolder>? = null) : this(databaseHolderClass?.kotlin)
 
     protected open var moduleClass: KClass<out DatabaseHolder>? = databaseHolderClass
 

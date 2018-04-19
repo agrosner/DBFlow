@@ -2,7 +2,6 @@
 
 package com.raizlabs.dbflow5.config
 
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.Synchronized
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.adapter.ModelViewAdapter
@@ -15,6 +14,7 @@ import com.raizlabs.dbflow5.quote
 import com.raizlabs.dbflow5.runtime.ModelNotifier
 import com.raizlabs.dbflow5.runtime.TableNotifierRegister
 import com.raizlabs.dbflow5.structure.*
+import kotlin.reflect.KClass
 
 expect object FlowManager : FlowCommonManager
 
@@ -23,7 +23,7 @@ expect object FlowManager : FlowCommonManager
  * and construct the generated database holder class used in defining the structure for all databases
  * used in this application.
  */
-abstract class FlowCommonManager internal constructor() {
+abstract class FlowCommonManager {
 
     internal var config: FlowConfig? = null
 
@@ -159,8 +159,9 @@ abstract class FlowCommonManager internal constructor() {
     }
 
 
-    fun getConfig(): FlowConfig = config ?: throw IllegalStateException("Configuration is not initialized. " +
-        "Please call init(FlowConfig) in your application class.")
+    fun getConfig(): FlowConfig = config
+        ?: throw IllegalStateException("Configuration is not initialized. " +
+            "Please call init(FlowConfig) in your application class.")
 
     /**
      * @return The database holder, creating if necessary using reflection.
@@ -199,7 +200,7 @@ abstract class FlowCommonManager internal constructor() {
      * @param flowConfig The configuration instance that will help shape how DBFlow gets constructed.
      */
 
-    fun init(flowConfig: FlowConfig) {
+    protected fun initialize(flowConfig: FlowConfig) {
         config = config?.merge(flowConfig) ?: flowConfig
 
         loadDefaultHolderClass(DEFAULT_DATABASE_HOLDER_CLASSNAME)
@@ -280,7 +281,8 @@ abstract class FlowCommonManager internal constructor() {
      */
 
     fun <T : Any> getModelViewAdapter(modelViewClass: KClass<T>): ModelViewAdapter<T> =
-        getModelViewAdapterOrNull(modelViewClass) ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
+        getModelViewAdapterOrNull(modelViewClass)
+            ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
 
     /**
      * Returns the query model adapter for an undefined cursor. These are only created with the [T] annotation.
@@ -291,7 +293,8 @@ abstract class FlowCommonManager internal constructor() {
      */
 
     fun <T : Any> getQueryModelAdapter(queryModelClass: KClass<T>): QueryModelAdapter<T> =
-        getQueryModelAdapterOrNull(queryModelClass) ?: throwCannotFindAdapter("QueryModelAdapter", queryModelClass)
+        getQueryModelAdapterOrNull(queryModelClass)
+            ?: throwCannotFindAdapter("QueryModelAdapter", queryModelClass)
 
 
     fun getModelNotifierForTable(table: KClass<*>): ModelNotifier =

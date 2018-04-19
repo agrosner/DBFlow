@@ -71,7 +71,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
 
     init {
         val databaseConfig = FlowManager.getConfig()
-            .getConfigForDatabase(databaseDefinition.associatedDatabaseClassFile)
+            .getConfigForDatabase(databaseDefinition.associatedDatabaseKClassFile)
         if (databaseConfig != null) {
             tableConfig = databaseConfig.getTableConfigForTable(table)
             if (tableConfig != null) {

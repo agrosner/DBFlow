@@ -10,10 +10,16 @@ import kotlin.reflect.KClass
 typealias OpenHelperCreator = (DBFlowDatabase, DatabaseCallback?) -> OpenHelper
 typealias TransactionManagerCreator = (DBFlowDatabase) -> BaseTransactionManager
 
+expect class DatabaseConfig : InternalDatabaseConfig {
+
+    class Builder(databaseClass: KClass<*>,
+                  openHelperCreator: OpenHelperCreator? = null) : InternalBuilder
+}
+
 /**
  * Description:
  */
-class DatabaseConfig(
+abstract class InternalDatabaseConfig(
     val databaseClass: KClass<*>,
     val openHelperCreator: OpenHelperCreator? = null,
     val transactionManagerCreator: TransactionManagerCreator? = null,
@@ -24,7 +30,7 @@ class DatabaseConfig(
     val databaseName: String? = null,
     val databaseExtensionName: String? = null) {
 
-    internal constructor(builder: Builder) : this(
+    protected constructor(builder: InternalDatabaseConfig.InternalBuilder) : this(
         // convert java interface to kotlin function.
         openHelperCreator = builder.openHelperCreator,
         databaseClass = builder.databaseClass,
@@ -47,8 +53,8 @@ class DatabaseConfig(
     /**
      * Build compatibility class for Java. Use the [DatabaseConfig] class directly if Kotlin consumer.
      */
-    class Builder(internal val databaseClass: KClass<*>,
-                  internal val openHelperCreator: OpenHelperCreator? = null) {
+    abstract class InternalBuilder(internal val databaseClass: KClass<*>,
+                                   internal val openHelperCreator: OpenHelperCreator? = null) {
 
         internal var transactionManagerCreator: TransactionManagerCreator? = null
         internal var callback: DatabaseCallback? = null
@@ -58,30 +64,30 @@ class DatabaseConfig(
         internal var databaseName: String? = null
         internal var databaseExtensionName: String? = null
 
-        fun transactionManagerCreator(creator: TransactionManagerCreator) = apply {
+        fun transactionManagerCreator(creator: TransactionManagerCreator) = applyBuilder {
             this.transactionManagerCreator = creator
         }
 
-        fun helperListener(callback: DatabaseCallback) = apply {
+        fun helperListener(callback: DatabaseCallback) = applyBuilder {
             this.callback = callback
         }
 
-        fun addTableConfig(tableConfig: TableConfig<*>) = apply {
+        fun addTableConfig(tableConfig: TableConfig<*>) = applyBuilder {
             tableConfigMap[tableConfig.tableClass] = tableConfig
         }
 
-        fun modelNotifier(modelNotifier: ModelNotifier) = apply {
+        fun modelNotifier(modelNotifier: ModelNotifier) = applyBuilder {
             this.modelNotifier = modelNotifier
         }
 
-        fun inMemory() = apply {
+        fun inMemory() = applyBuilder {
             inMemory = true
         }
 
         /**
          * @return Pass in dynamic database name here. Otherwise it defaults to class name.
          */
-        fun databaseName(name: String) = apply {
+        fun databaseName(name: String) = applyBuilder {
             databaseName = name
         }
 
@@ -89,29 +95,23 @@ class DatabaseConfig(
          * @return Pass in the extension for the DB here.
          * Otherwise defaults to ".db". If empty string passed, no extension is used.
          */
-        fun extensionName(name: String) = apply {
+        fun extensionName(name: String) = applyBuilder {
             databaseExtensionName = name
         }
 
-        fun build() = DatabaseConfig(this)
+        abstract fun build(): DatabaseConfig
+
+        private fun applyBuilder(fn: InternalBuilder.() -> Unit): DatabaseConfig.Builder = apply(fn) as DatabaseConfig.Builder
     }
 
     companion object {
 
-        /* @JvmStatic
-         fun builder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
-             Builder(database, openHelperCreator)*/
+        @JvmStatic
+        fun builder(database: KClass<*>, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder =
+            DatabaseConfig.Builder(database, openHelperCreator)
 
         @JvmStatic
-        fun builder(database: KClass<*>, openHelperCreator: OpenHelperCreator): Builder =
-            Builder(database, openHelperCreator)
-
-        /* @JvmStatic
-         fun inMemoryBuilder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
-             Builder(database, openHelperCreator).inMemory()*/
-
-        @JvmStatic
-        fun inMemoryBuilder(database: KClass<*>, openHelperCreator: OpenHelperCreator): Builder =
-            Builder(database, openHelperCreator).inMemory()
+        fun inMemoryBuilder(database: KClass<*>, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder =
+            DatabaseConfig.Builder(database, openHelperCreator).inMemory()
     }
 }

@@ -50,7 +50,7 @@ abstract class DatabaseHolder {
     fun putDatabaseForTable(table: KClass<*>, databaseDefinition: DBFlowDatabase) {
         databaseDefinitionMap[table] = databaseDefinition
         databaseNameMap[databaseDefinition.databaseName] = databaseDefinition
-        databaseClassLookupMap[databaseDefinition.associatedDatabaseClassFile] = databaseDefinition
+        databaseClassLookupMap[databaseDefinition.associatedDatabaseKClassFile] = databaseDefinition
     }
 
     fun reset() {

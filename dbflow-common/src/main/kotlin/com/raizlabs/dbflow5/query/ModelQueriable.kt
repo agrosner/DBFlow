@@ -1,19 +1,20 @@
 package com.raizlabs.dbflow5.query
 
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.list.FlowCursorList
 import com.raizlabs.dbflow5.query.list.FlowQueryList
 import com.raizlabs.dbflow5.structure.BaseQueryModel
+import kotlin.reflect.KClass
 
+expect interface ModelQueriable<T : Any> : InternalModelQueriable<T>
 
 /**
  * Description: An interface for query objects to enable you to cursor from the database in a structured way.
  * Examples of such statements are: [From], [Where], [StringQuery]
  */
-interface ModelQueriable<T : Any> : Queriable {
+interface InternalModelQueriable<T : Any> : Queriable {
 
     /**
      * @return the table that this query comes from.
@@ -71,7 +72,7 @@ interface ModelQueriable<T : Any> : Queriable {
 
     fun <R : Any?> async(databaseWrapper: DBFlowDatabase,
                          modelQueriableFn: ModelQueriable<T>.(DatabaseWrapper) -> R) =
-        databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
+        databaseWrapper.beginTransactionAsync { (this as ModelQueriable<T>).modelQueriableFn(it) }
 
 }
 
