@@ -1,9 +1,10 @@
 package com.raizlabs.dbflow5.runtime
 
-import kotlin.reflect.KClass
+import com.raizlabs.dbflow5.JvmStatic
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.config.DatabaseConfig
 import com.raizlabs.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 
 /**
  * Description: Directly notifies about model changes. Users should use [.get] to use the shared

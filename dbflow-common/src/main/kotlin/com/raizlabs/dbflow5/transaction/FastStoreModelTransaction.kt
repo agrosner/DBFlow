@@ -1,5 +1,7 @@
 package com.raizlabs.dbflow5.transaction
 
+import com.raizlabs.dbflow5.JvmStatic
+import com.raizlabs.dbflow5.SafeVarargs
 import com.raizlabs.dbflow5.adapter.InternalAdapter
 import com.raizlabs.dbflow5.config.modelAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper

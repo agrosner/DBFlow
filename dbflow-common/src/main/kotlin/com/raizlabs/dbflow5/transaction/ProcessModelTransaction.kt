@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.transaction
 
+import com.raizlabs.dbflow5.Runnable
 import com.raizlabs.dbflow5.SafeVarargs
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.database.DatabaseWrapper
@@ -67,9 +68,11 @@ class ProcessModelTransaction<TModel>(
                 if (runProcessListenerOnSameThread) {
                     processListener.onModelProcessed(i.toLong(), size.toLong(), model)
                 } else {
-                    Transaction.transactionHandler.post {
-                        processListener.onModelProcessed(i.toLong(), size.toLong(), model)
-                    }
+                    Transaction.transactionHandler.post(object : Runnable {
+                        override fun run() {
+                            processListener.onModelProcessed(i.toLong(), size.toLong(), model)
+                        }
+                    })
                 }
             }
         }

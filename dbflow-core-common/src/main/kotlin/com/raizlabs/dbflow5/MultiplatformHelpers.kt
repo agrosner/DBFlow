@@ -20,4 +20,16 @@ expect interface Runnable {
     fun run()
 }
 
+expect open class Thread constructor() : Runnable {
+
+    constructor(name: String)
+
+    fun interrupt()
+
+    fun start()
+
+    fun isAlive(): Boolean
+
+}
+
 expect annotation class CallSuper()

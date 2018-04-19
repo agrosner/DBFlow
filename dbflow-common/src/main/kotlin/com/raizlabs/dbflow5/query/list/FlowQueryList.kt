@@ -2,7 +2,7 @@ package com.raizlabs.dbflow5.query.list
 
 import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.Runnable
-import com.raizlabs.dbflow5.RunnableHandler
+import com.raizlabs.dbflow5.SameThreadRunnableHandler
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
@@ -204,7 +204,7 @@ class FlowQueryList<T : Any>(
 
     companion object {
 
-        private val REFRESH_HANDLER = RunnableHandler()
+        private val REFRESH_HANDLER = SameThreadRunnableHandler()
     }
 
 

@@ -33,6 +33,7 @@ fun AutoCloseable?.closeFinally(cause: Throwable?) = when {
 }
 
 actual typealias Runnable = java.lang.Runnable
+actual typealias Thread = java.lang.Thread
 
 actual typealias Transient = kotlin.jvm.Transient
 

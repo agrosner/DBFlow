@@ -1,17 +1,13 @@
 package com.raizlabs.dbflow5.runtime
 
-import android.os.Looper
-import android.os.Process
-import android.os.Process.THREAD_PRIORITY_BACKGROUND
+import com.raizlabs.dbflow5.Runnable
+import com.raizlabs.dbflow5.Thread
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.structure.Model
 import com.raizlabs.dbflow5.structure.save
-import com.raizlabs.dbflow5.transaction.Error
-import com.raizlabs.dbflow5.transaction.ProcessModelTransaction
-import com.raizlabs.dbflow5.transaction.Success
-import com.raizlabs.dbflow5.transaction.Transaction
-import com.raizlabs.dbflow5.transaction.processModel
+import com.raizlabs.dbflow5.threading.ThreadConfigurator
+import com.raizlabs.dbflow5.transaction.*
 
 /**
  * Description: This queue will bulk save items added to it when it gets access to the DB. It should only exist as one entity.
@@ -23,6 +19,8 @@ class DBBatchSaveQueue
  */
 internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("DBBatchSaveQueue") {
 
+    private val threadConfigurator = ThreadConfigurator()
+
     /**
      * Tells how many items to save at a time. This can be set using [.setModelSaveSize]
      */
@@ -31,7 +29,7 @@ internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("D
     /**
      * Sets the time we check periodically for leftover DB objects in our queue to save.
      */
-    private var modelSaveCheckTime = sMODEL_SAVE_CHECK_TIME.toLong()
+    private var modelSaveCheckTime = MODEL_SAVE_CHECK_TIME.toLong()
 
     /**
      * The list of DB objects that we will save here
@@ -69,7 +67,7 @@ internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("D
 
     /**
      * Sets how long, in millis that this queue will check for leftover DB objects that have not been saved yet.
-     * The default is [.sMODEL_SAVE_CHECK_TIME]
+     * The default is [.MODEL_SAVE_CHECK_TIME]
      *
      * @param time The time, in millis that queue automatically checks for leftover DB objects in this queue.
      */
@@ -106,8 +104,7 @@ internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("D
 
     override fun run() {
         super.run()
-        Looper.prepare()
-        Process.setThreadPriority(THREAD_PRIORITY_BACKGROUND)
+        threadConfigurator.configureForBackground()
         while (true) {
             var tmpModels = listOf<Any>()
             synchronized(models) {
@@ -126,12 +123,7 @@ internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("D
                 emptyTransactionListener?.run()
             }
 
-            try {
-                //sleep, and then check for leftovers
-                Thread.sleep(modelSaveCheckTime)
-            } catch (e: InterruptedException) {
-                FlowLog.log(FlowLog.Level.I, "DBRequestQueue Batch interrupted to start saving")
-            }
+            threadConfigurator.sleep(modelSaveCheckTime)
 
             if (isQuitting) {
                 return
@@ -226,12 +218,12 @@ internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("D
         /**
          * Once the queue size reaches 50 or larger, the thread will be interrupted and we will batch save the models.
          */
-        private val MODEL_SAVE_SIZE = 50
+        private const val MODEL_SAVE_SIZE = 50
 
         /**
          * The default time that it will awake the save queue thread to check if any models are still waiting to be saved
          */
-        private val sMODEL_SAVE_CHECK_TIME = 30000
+        private const val MODEL_SAVE_CHECK_TIME = 30000
     }
 
 }

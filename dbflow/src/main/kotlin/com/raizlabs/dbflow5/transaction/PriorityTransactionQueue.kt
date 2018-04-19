@@ -1,9 +1,8 @@
 package com.raizlabs.dbflow5.transaction
 
-import android.os.Looper
-import android.os.Process.THREAD_PRIORITY_BACKGROUND
-import android.os.Process.setThreadPriority
+import com.raizlabs.dbflow5.Thread
 import com.raizlabs.dbflow5.config.FlowLog
+import com.raizlabs.dbflow5.threading.ThreadConfigurator
 import java.util.concurrent.PriorityBlockingQueue
 
 /**
@@ -18,13 +17,14 @@ class PriorityTransactionQueue
  */
 (name: String) : Thread(name), ITransactionQueue {
 
+    private val threadConfigurator = ThreadConfigurator()
+
     private val queue = PriorityBlockingQueue<PriorityEntry<Transaction<out Any?>>>()
 
     private var isQuitting = false
 
     override fun run() {
-        Looper.prepare()
-        setThreadPriority(THREAD_PRIORITY_BACKGROUND)
+        threadConfigurator.configureForBackground()
         var transaction: PriorityEntry<Transaction<out Any?>>
         while (true) {
             try {
@@ -107,13 +107,10 @@ class PriorityTransactionQueue
 
     internal data class PriorityEntry<out E : Transaction<out Any?>>(val entry: E)
         : Comparable<PriorityEntry<Transaction<out Any?>>> {
-        private val transactionWrapper: PriorityTransactionWrapper =
-            if (entry.transaction is PriorityTransactionWrapper) {
-                entry.transaction
-            } else {
-                PriorityTransactionWrapper.Builder(entry.transaction)
-                    .build()
-            }
+        private val transactionWrapper: PriorityTransactionWrapper = entry.transaction.let { transaction ->
+            transaction as? PriorityTransactionWrapper
+                ?: PriorityTransactionWrapper.Builder(transaction).build()
+        }
 
         override fun compareTo(other: PriorityEntry<Transaction<out Any?>>): Int =
             transactionWrapper.compareTo(other.transactionWrapper)

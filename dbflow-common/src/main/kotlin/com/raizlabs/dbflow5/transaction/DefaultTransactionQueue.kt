@@ -1,10 +1,9 @@
 package com.raizlabs.dbflow5.transaction
 
-import android.os.Looper
-import android.os.Process
-import android.os.Process.THREAD_PRIORITY_BACKGROUND
+import com.raizlabs.dbflow5.Thread
 import com.raizlabs.dbflow5.config.FlowLog
-import java.util.concurrent.LinkedBlockingQueue
+import com.raizlabs.dbflow5.threading.LinkedBlockingQueue
+import com.raizlabs.dbflow5.threading.ThreadConfigurator
 
 /**
  * Description: Handles concurrent requests to the database and puts them in FIFO order based on a
@@ -19,25 +18,30 @@ class DefaultTransactionQueue
  */
 (name: String) : Thread(name), ITransactionQueue {
 
+    private val threadConfigurator = ThreadConfigurator()
+
     private val queue = LinkedBlockingQueue<Transaction<out Any?>>()
 
     private var isQuitting = false
 
     override fun run() {
-        Looper.prepare()
-        Process.setThreadPriority(THREAD_PRIORITY_BACKGROUND)
+        threadConfigurator.configureForBackground()
         var transaction: Transaction<out Any?>
         while (true) {
             try {
                 transaction = queue.take()
-            } catch (e: InterruptedException) {
-                synchronized(this) {
-                    if (isQuitting) {
-                        synchronized(queue) {
-                            queue.clear()
+            } catch (e: Exception) {
+                if (threadConfigurator.isInterrupted(e)) {
+                    synchronized(this) {
+                        if (isQuitting) {
+                            synchronized(queue) {
+                                queue.clear()
+                            }
+                            return
                         }
-                        return
                     }
+                } else {
+                    throw e
                 }
                 continue
             }
@@ -88,10 +92,10 @@ class DefaultTransactionQueue
 
     override fun startIfNotAlive() {
         synchronized(this) {
-            if (!isAlive) {
+            if (!isAlive()) {
                 try {
                     start()
-                } catch (i: IllegalThreadStateException) {
+                } catch (i: IllegalArgumentException) {
                     // log if failure from thread is still alive.
                     FlowLog.log(FlowLog.Level.E, throwable = i)
                 }

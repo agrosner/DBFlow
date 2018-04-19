@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.config
 
-import android.os.Build
-import android.util.Log
+import com.raizlabs.dbflow5.JvmOverloads
+import com.raizlabs.dbflow5.JvmStatic
 import com.raizlabs.dbflow5.config.FlowLog.Level
 
 /**
@@ -11,6 +11,8 @@ object FlowLog {
 
     val TAG = "FlowLog"
     private var level = Level.E
+
+    private val actualLogger = PlatformLogger()
 
     /**
      * Sets the minimum level that we wish to print out log statements with.
@@ -84,37 +86,32 @@ object FlowLog {
     enum class Level {
         V {
             override fun call(tag: String, message: String?, throwable: Throwable?) {
-                Log.v(tag, message, throwable)
+                actualLogger.logVerbose(tag, message, throwable)
             }
         },
         D {
             override fun call(tag: String, message: String?, throwable: Throwable?) {
-                Log.d(tag, message, throwable)
+                actualLogger.logDebug(tag, message, throwable)
             }
         },
         I {
             override fun call(tag: String, message: String?, throwable: Throwable?) {
-                Log.i(tag, message, throwable)
+                actualLogger.logInfo(tag, message, throwable)
             }
         },
         W {
             override fun call(tag: String, message: String?, throwable: Throwable?) {
-                Log.w(tag, message, throwable)
+                actualLogger.logWarning(tag, message, throwable)
             }
         },
         E {
             override fun call(tag: String, message: String?, throwable: Throwable?) {
-                Log.e(tag, message, throwable)
+                actualLogger.logError(tag, message, throwable)
             }
         },
         WTF {
             override fun call(tag: String, message: String?, throwable: Throwable?) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-                    Log.wtf(tag, message, throwable)
-                } else {
-                    // If on older platform, we will just exaggerate the log message in the error level
-                    Log.e(tag, "!!!!!!!!*******$message********!!!!!!", throwable)
-                }
+                actualLogger.logWTF(tag, message, throwable)
             }
         };
 
@@ -122,10 +119,18 @@ object FlowLog {
     }
 
 }
-/**
- * Logs information to the [Log] class. It wraps around the standard implementation.
- * It uses the [.TAG] for messages and sends a null throwable.
- *
- * @param level   The log level to use
- * @param message The message to print out
- */
+
+expect class PlatformLogger() {
+
+    fun logVerbose(tag: String, message: String?, throwable: Throwable?)
+
+    fun logDebug(tag: String, message: String?, throwable: Throwable?)
+
+    fun logInfo(tag: String, message: String?, throwable: Throwable?)
+
+    fun logWarning(tag: String, message: String?, throwable: Throwable?)
+
+    fun logError(tag: String, message: String?, throwable: Throwable?)
+
+    fun logWTF(tag: String, message: String?, throwable: Throwable?)
+}

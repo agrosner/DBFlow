@@ -1,10 +1,11 @@
 package com.raizlabs.dbflow5.transaction
 
-import android.os.Handler
-import android.os.Looper
-
+import com.raizlabs.dbflow5.MainThreadRunnableHandler
+import com.raizlabs.dbflow5.Runnable
+import com.raizlabs.dbflow5.RunnableHandler
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
+import kotlin.jvm.JvmName
 
 
 typealias Success<R> = (Transaction<R>, R) -> Unit
@@ -21,30 +22,30 @@ typealias Completion<R> = (Transaction<R>) -> Unit
  * To create one, the recommended method is to use the [DBFlowDatabase.beginTransactionAsync].
  */
 class Transaction<R : Any?>(
-        @get:JvmName("transaction")
-        val transaction: ITransaction<R>,
-        private val databaseDefinition: DBFlowDatabase,
-        @get:JvmName("error")
-        val error: Error<R>? = null,
-        @get:JvmName("success")
-        val success: Success<R>? = null,
-        @get:JvmName("completion")
-        val completion: Completion<R>? = null,
-        @get:JvmName("name")
-        val name: String?,
-        private val shouldRunInTransaction: Boolean = true,
-        private val runCallbacksOnSameThread: Boolean = true) {
+    @get:JvmName("transaction")
+    val transaction: ITransaction<R>,
+    private val databaseDefinition: DBFlowDatabase,
+    @get:JvmName("error")
+    val error: Error<R>? = null,
+    @get:JvmName("success")
+    val success: Success<R>? = null,
+    @get:JvmName("completion")
+    val completion: Completion<R>? = null,
+    @get:JvmName("name")
+    val name: String?,
+    private val shouldRunInTransaction: Boolean = true,
+    private val runCallbacksOnSameThread: Boolean = true) {
 
 
     internal constructor(builder: Builder<R>) : this(
-            databaseDefinition = builder.databaseDefinition,
-            error = builder.errorCallback,
-            success = builder.successCallback,
-            completion = builder.completion,
-            transaction = builder.transaction,
-            name = builder.name,
-            shouldRunInTransaction = builder.shouldRunInTransaction,
-            runCallbacksOnSameThread = builder.runCallbacksOnSameThread
+        databaseDefinition = builder.databaseDefinition,
+        error = builder.errorCallback,
+        success = builder.successCallback,
+        completion = builder.completion,
+        transaction = builder.transaction,
+        name = builder.name,
+        shouldRunInTransaction = builder.shouldRunInTransaction,
+        runCallbacksOnSameThread = builder.runCallbacksOnSameThread
     )
 
     /**
@@ -78,10 +79,12 @@ class Transaction<R : Any?>(
                     success.invoke(this, result)
                     complete()
                 } else {
-                    transactionHandler.post {
-                        success.invoke(this@Transaction, result)
-                        complete()
-                    }
+                    transactionHandler.post(object : Runnable {
+                        override fun run() {
+                            success.invoke(this@Transaction, result)
+                            complete()
+                        }
+                    })
                 }
             }
         } catch (throwable: Throwable) {
@@ -91,10 +94,12 @@ class Transaction<R : Any?>(
                     error.invoke(this, throwable)
                     complete()
                 } else {
-                    transactionHandler.post {
-                        error.invoke(this@Transaction, throwable)
-                        complete()
-                    }
+                    transactionHandler.post(object : Runnable {
+                        override fun run() {
+                            error.invoke(this@Transaction, throwable)
+                            complete()
+                        }
+                    })
                 }
             } else {
                 throw RuntimeException("An exception occurred while executing a transaction", throwable)
@@ -106,11 +111,11 @@ class Transaction<R : Any?>(
 
     fun newBuilder(): Builder<R> {
         return Builder(transaction, databaseDefinition)
-                .error(error)
-                .success(success)
-                .name(name)
-                .shouldRunInTransaction(shouldRunInTransaction)
-                .runCallbacksOnSameThread(runCallbacksOnSameThread)
+            .error(error)
+            .success(success)
+            .name(name)
+            .shouldRunInTransaction(shouldRunInTransaction)
+            .runCallbacksOnSameThread(runCallbacksOnSameThread)
     }
 
     /**
@@ -198,7 +203,7 @@ class Transaction<R : Any?>(
 
     companion object {
 
-        internal val transactionHandler: Handler by lazy { Handler(Looper.getMainLooper()) }
+        internal val transactionHandler: RunnableHandler by lazy { MainThreadRunnableHandler() }
     }
 }
 

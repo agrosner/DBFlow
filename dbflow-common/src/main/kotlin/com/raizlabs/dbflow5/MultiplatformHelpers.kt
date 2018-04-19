@@ -1,6 +1,10 @@
 package com.raizlabs.dbflow5
 
-expect class RunnableHandler() {
 
+interface RunnableHandler {
     fun post(runnable: Runnable): Boolean
 }
+
+expect class SameThreadRunnableHandler() : RunnableHandler
+
+expect class MainThreadRunnableHandler() : RunnableHandler
