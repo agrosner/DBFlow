@@ -34,7 +34,8 @@ class ContentProviderTests : BaseUnitTest() {
     @Test
     fun testContentProviderUtils() {
         database(ContentDatabase::class) {
-            tables(NoteModel::class, ContentProviderModel::class)
+
+            tables(this, NoteModel::class, ContentProviderModel::class)
 
             var contentProviderModel = ContentProviderModel()
             contentProviderModel.notes = "Test"
@@ -62,14 +63,14 @@ class ContentProviderTests : BaseUnitTest() {
             assertTrue(ContentUtils.delete(mockContentResolver, TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel) > 0)
             assertTrue(!contentProviderModel.exists())
 
-            tables(NoteModel::class, ContentProviderModel::class)
+            tables(this, NoteModel::class, ContentProviderModel::class)
         }
     }
 
     @Test
     fun testContentProviderNative() {
         database(ContentDatabase::class) {
-            tables(NoteModel::class, ContentProviderModel::class)
+            tables(this, NoteModel::class, ContentProviderModel::class)
 
             var contentProviderModel = ContentProviderModel(notes = "Test")
             contentProviderModel.insert()
@@ -96,7 +97,7 @@ class ContentProviderTests : BaseUnitTest() {
             contentProviderModel.delete()
             assertTrue(!contentProviderModel.exists())
 
-            tables(NoteModel::class, ContentProviderModel::class)
+            tables(this, NoteModel::class, ContentProviderModel::class)
         }
     }
 

@@ -20,7 +20,7 @@ import kotlin.reflect.KClass
  * @return The [Uri].
  */
 fun getNotificationUri(contentAuthority: String,
-                       modelClass: KClass<*>,
+                       modelClass: Class<*>,
                        action: ChangeAction?,
                        conditions: Iterable<SQLOperator>?): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")

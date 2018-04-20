@@ -14,7 +14,7 @@ import kotlin.reflect.KClass
 class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: ModelAdapter<T>)
     : RXRetrievalAdapter<T>(modelAdapter) {
 
-    constructor(table: KClass<T>) : this(table.modelAdapter)
+    internal constructor(table: KClass<T>) : this(table.modelAdapter)
 
     fun save(model: T, databaseWrapper: DatabaseWrapper): Single<Boolean> =
         Single.fromCallable { modelAdapter.save(model, databaseWrapper) }
@@ -60,5 +60,8 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
 
         @JvmStatic
         fun <T : Any> from(table: KClass<T>): RXModelAdapter<T> = RXModelAdapter(table)
+
+        @JvmStatic
+        fun <T : Any> from(table: Class<T>): RXModelAdapter<T> = RXModelAdapter(table.kotlin)
     }
 }

@@ -1,9 +1,9 @@
 package com.raizlabs.dbflow5.migration
 
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.index
 import com.raizlabs.dbflow5.query.property.IProperty
+import kotlin.reflect.KClass
 
 /**
  * Description: Defines and enables an Index structurally through a migration.

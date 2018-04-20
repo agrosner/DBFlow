@@ -1,14 +1,46 @@
 package com.raizlabs.dbflow5.query
 
 import com.raizlabs.dbflow5.JvmStatic
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.sql.Query
+import kotlin.reflect.KClass
+
+expect class Delete() : InternalDelete {
+    companion object {
+
+        @JvmStatic
+        fun <T : Any> delete(modelClass: KClass<T>): From<T>
+
+        @JvmStatic
+        inline fun <reified T : Any> delete(): From<T>
+
+        /**
+         * Deletes the specified table
+         *
+         * @param table      The table to delete
+         * @param conditions The list of conditions to use to delete from the specified table
+         * @param [T]   The class that implements [com.raizlabs.dbflow5.structure.Model]
+         */
+        @JvmStatic
+        fun <T : Any> table(databaseWrapper: DatabaseWrapper,
+                            table: KClass<T>,
+                            vararg conditions: SQLOperator): Long
+
+        /**
+         * Deletes the list of tables specified.
+         * WARNING: this will completely clear all rows from each table.
+         *
+         * @param tables The list of tables to wipe.
+         */
+        @JvmStatic
+        fun tables(databaseWrapper: DatabaseWrapper, vararg tables: KClass<*>)
+    }
+}
 
 /**
  * Description: Constructs the beginning of a SQL DELETE query
  */
-class Delete internal constructor() : Query {
+abstract class InternalDelete internal constructor() : Query {
 
     override val query: String
         get() = "DELETE "
@@ -50,8 +82,8 @@ class Delete internal constructor() : Query {
          * @param tables The list of tables to wipe.
          */
         @JvmStatic
-        fun DatabaseWrapper.tables(vararg tables: KClass<*>) {
-            tables.forEach { table(this, it) }
+        fun tables(databaseWrapper: DatabaseWrapper, vararg tables: KClass<*>) {
+            tables.forEach { table(databaseWrapper, it) }
         }
     }
 }

@@ -21,7 +21,7 @@ class ContentResolverNotifier(private val context: Context,
                                               action: ChangeAction) {
         if (FlowContentObserver.shouldNotify()) {
             context.contentResolver.notifyChange(
-                getNotificationUri(authority, adapter.kTable, action,
+                getNotificationUri(authority, adapter.table, action,
                     adapter.getPrimaryConditionClause(model).conditions), null, true)
         }
     }

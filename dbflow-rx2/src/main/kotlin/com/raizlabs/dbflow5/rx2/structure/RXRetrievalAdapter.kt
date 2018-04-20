@@ -36,5 +36,8 @@ internal constructor(private val retrievalAdapter: RetrievalAdapter<T>) {
 
         @JvmStatic
         fun <T : Any> from(table: KClass<T>): RXRetrievalAdapter<T> = RXRetrievalAdapter(table)
+
+        @JvmStatic
+        fun <T : Any> from(table: Class<T>): RXRetrievalAdapter<T> = RXRetrievalAdapter(table.kotlin)
     }
 }
