@@ -192,19 +192,19 @@ abstract class InternalDBFlowDatabase : DatabaseWrapper {
     }
 
     protected fun <T : Any> addModelAdapter(modelAdapter: ModelAdapter<T>, holder: DatabaseHolder) {
-        holder.putDatabaseForTable(modelAdapter.table, this as DBFlowDatabase)
-        modelTableNames.put(modelAdapter.tableName, modelAdapter.table)
-        modelAdapters.put(modelAdapter.table, modelAdapter)
+        holder.putDatabaseForTable(modelAdapter.kTable, this as DBFlowDatabase)
+        modelTableNames.put(modelAdapter.tableName, modelAdapter.kTable)
+        modelAdapters.put(modelAdapter.kTable, modelAdapter)
     }
 
     protected fun <T : Any> addModelViewAdapter(modelViewAdapter: ModelViewAdapter<T>, holder: DatabaseHolder) {
-        holder.putDatabaseForTable(modelViewAdapter.table, this as DBFlowDatabase)
-        modelViewAdapterMap.put(modelViewAdapter.table, modelViewAdapter)
+        holder.putDatabaseForTable(modelViewAdapter.kTable, this as DBFlowDatabase)
+        modelViewAdapterMap.put(modelViewAdapter.kTable, modelViewAdapter)
     }
 
     protected fun <T : Any> addQueryModelAdapter(queryModelAdapter: QueryModelAdapter<T>, holder: DatabaseHolder) {
-        holder.putDatabaseForTable(queryModelAdapter.table, this as DBFlowDatabase)
-        queryModelAdapterMap.put(queryModelAdapter.table, queryModelAdapter)
+        holder.putDatabaseForTable(queryModelAdapter.kTable, this as DBFlowDatabase)
+        queryModelAdapterMap.put(queryModelAdapter.kTable, queryModelAdapter)
     }
 
     protected fun addMigration(version: Int, migration: Migration) {

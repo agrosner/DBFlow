@@ -53,27 +53,27 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     /**
      * @return the model class this adapter corresponds to
      */
-    abstract val table: KClass<T>
+    abstract val kTable: KClass<T>
 
     /**
      * @return A new instance of a [SingleModelLoader]. Subsequent calls do not cache
      * this object so it's recommended only calling this in bulk if possible.
      */
     val nonCacheableSingleModelLoader: SingleModelLoader<T>
-        get() = SingleModelLoader(table)
+        get() = SingleModelLoader(kTable)
 
     /**
      * @return A new instance of a [ListModelLoader]. Subsequent calls do not cache
      * this object so it's recommended only calling this in bulk if possible.
      */
     val nonCacheableListModelLoader: ListModelLoader<T>
-        get() = ListModelLoader(table)
+        get() = ListModelLoader(kTable)
 
     init {
         val databaseConfig = FlowManager.getConfig()
             .getConfigForDatabase(databaseDefinition.associatedDatabaseKClassFile)
         if (databaseConfig != null) {
-            tableConfig = databaseConfig.getTableConfigForTable(table)
+            tableConfig = databaseConfig.getTableConfigForTable(kTable)
             if (tableConfig != null) {
                 tableConfig?.singleModelLoader?.let { _singleModelLoader = it }
                 tableConfig?.listModelLoader?.let { _listModelLoader = it }
@@ -87,7 +87,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     open fun load(model: T, databaseWrapper: DatabaseWrapper): T? =
         nonCacheableSingleModelLoader.load(databaseWrapper,
             (select
-                from table
+                from kTable
                 where getPrimaryConditionClause(model)).query)
 
     /**
@@ -113,12 +113,12 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     /**
      * @return A new [ListModelLoader], caching will override this loader instance.
      */
-    protected open fun createListModelLoader(): ListModelLoader<T> = ListModelLoader(table)
+    protected open fun createListModelLoader(): ListModelLoader<T> = ListModelLoader(kTable)
 
     /**
      * @return A new [SingleModelLoader], caching will override this loader instance.
      */
-    protected open fun createSingleModelLoader(): SingleModelLoader<T> = SingleModelLoader(table)
+    protected open fun createSingleModelLoader(): SingleModelLoader<T> = SingleModelLoader(kTable)
 
 }
 /**

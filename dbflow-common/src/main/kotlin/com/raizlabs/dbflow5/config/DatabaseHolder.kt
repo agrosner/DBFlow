@@ -1,14 +1,16 @@
 package com.raizlabs.dbflow5.config
 
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.converter.TypeConverter
 import kotlin.jvm.JvmField
+import kotlin.reflect.KClass
+
+expect abstract class DatabaseHolder : InternalDatabaseHolder
 
 /**
  * Description: The base interface for interacting with all of the database and top-level data that's shared
  * between them.
  */
-abstract class DatabaseHolder {
+abstract class InternalDatabaseHolder {
 
     val databaseDefinitionMap: MutableMap<KClass<*>, DBFlowDatabase> = hashMapOf()
     val databaseNameMap: MutableMap<String, DBFlowDatabase> = hashMapOf()

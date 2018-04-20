@@ -5,12 +5,13 @@ import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.query.property.PropertyFactory
 import com.raizlabs.dbflow5.sql.SQLiteType
+import kotlin.reflect.KClass
 
 /**
  * Represents SQLite methods on columns. These act as [Property] so we can use them in complex
  * scenarios.
  */
-open class Method(methodName: String, vararg properties: IProperty<*>) : Property<Any?>(null, null as String?) {
+open class Method(methodName: String, vararg properties: IProperty<*>) : Property<Any?>(null as KClass<*>?, null as String?) {
 
     private val propertyList = arrayListOf<IProperty<*>>()
     private val operationsList = arrayListOf<String>()
@@ -20,7 +21,7 @@ open class Method(methodName: String, vararg properties: IProperty<*>) : Propert
     constructor(vararg properties: IProperty<*>) : this("", *properties)
 
     init {
-        methodProperty = Property<Any>(null, NameAlias.rawBuilder(methodName).build())
+        methodProperty = Property<Any>(NameAlias.rawBuilder(methodName).build())
 
         if (properties.isEmpty()) {
             propertyList.add(Property.ALL_PROPERTY)

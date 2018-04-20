@@ -1,32 +1,13 @@
 package com.raizlabs.dbflow5.processor
 
-import com.raizlabs.dbflow5.annotation.Database
-import com.raizlabs.dbflow5.annotation.ManyToMany
-import com.raizlabs.dbflow5.annotation.Migration
-import com.raizlabs.dbflow5.annotation.ModelView
-import com.raizlabs.dbflow5.annotation.MultipleManyToMany
-import com.raizlabs.dbflow5.annotation.QueryModel
-import com.raizlabs.dbflow5.annotation.Table
+import com.raizlabs.dbflow5.annotation.*
 import com.raizlabs.dbflow5.annotation.TypeConverter
 import com.raizlabs.dbflow5.annotation.provider.ContentProvider
 import com.raizlabs.dbflow5.annotation.provider.TableEndpoint
-import com.raizlabs.dbflow5.converter.BigDecimalConverter
-import com.raizlabs.dbflow5.converter.BigIntegerConverter
-import com.raizlabs.dbflow5.converter.BooleanConverter
-import com.raizlabs.dbflow5.converter.CalendarConverter
-import com.raizlabs.dbflow5.converter.CharConverter
-import com.raizlabs.dbflow5.converter.DateConverter
-import com.raizlabs.dbflow5.converter.SqlDateConverter
-import com.raizlabs.dbflow5.converter.UUIDConverter
+import com.raizlabs.dbflow5.converter.*
+import com.raizlabs.dbflow5.processor.definition.*
 import com.raizlabs.dbflow5.processor.definition.provider.ContentProviderDefinition
-import com.raizlabs.dbflow5.processor.definition.DatabaseDefinition
-import com.raizlabs.dbflow5.processor.definition.ManyToManyDefinition
-import com.raizlabs.dbflow5.processor.definition.MigrationDefinition
-import com.raizlabs.dbflow5.processor.definition.ModelViewDefinition
-import com.raizlabs.dbflow5.processor.definition.QueryModelDefinition
-import com.raizlabs.dbflow5.processor.definition.TableDefinition
 import com.raizlabs.dbflow5.processor.definition.provider.TableEndpointDefinition
-import com.raizlabs.dbflow5.processor.definition.TypeConverterDefinition
 import com.raizlabs.dbflow5.processor.utils.annotation
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
@@ -163,8 +144,8 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
                     // Check here if user already placed definition of same type, since default converters
                     // are added last.
                     if (processorManager.typeConverters
-                        .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
-                        .isEmpty()) {
+                            .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
+                            .isEmpty()) {
                         processorManager.addTypeConverterDefinition(converterDefinition)
                     }
                 }
@@ -230,14 +211,5 @@ class DatabaseHandler : BaseContainerHandler<Database>() {
         if (validator.validate(processorManager, managerWriter)) {
             processorManager.addFlowManagerWriter(managerWriter)
         }
-    }
-
-    companion object {
-        val TYPE_CONVERTER_MAP_FIELD_NAME = "typeConverters"
-        val MODEL_ADAPTER_MAP_FIELD_NAME = "modelAdapters"
-        val QUERY_MODEL_ADAPTER_MAP_FIELD_NAME = "queryModelAdapterMap"
-        val MIGRATION_FIELD_NAME = "migrationMap"
-        val MODEL_VIEW_ADAPTER_MAP_FIELD_NAME = "modelViewAdapterMap"
-        val MODEL_NAME_MAP = "modelTableNames"
     }
 }

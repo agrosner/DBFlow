@@ -12,7 +12,7 @@ import com.raizlabs.dbflow5.sql.ConflictAction
 /**
  * Description: Used for generated classes from the combination of [Table] and [Model].
  */
-abstract class InternalModelAdapter<T : Any> internal constructor(databaseDefinition: DBFlowDatabase)
+abstract class InternalModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     : RetrievalAdapter<T>(databaseDefinition), InternalAdapter<T> {
 
     private var _modelSaver: ModelSaver<T>? = null

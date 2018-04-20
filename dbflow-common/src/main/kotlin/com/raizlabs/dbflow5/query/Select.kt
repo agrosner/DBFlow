@@ -6,16 +6,18 @@ import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.sql.QueryCloneable
 import kotlin.reflect.KClass
 
+expect open class Select(vararg properties: IProperty<*>) : InternalSelect
+
 /**
  * Description: A SQL SELECT statement generator. It generates the SELECT part of the statement.
  */
-class Select
+abstract class InternalSelect
 /**
  * Creates this instance with the specified columns from the specified [com.raizlabs.dbflow5.config.FlowManager]
  *
  * @param properties The properties to select from.
  */
-internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Select> {
+(vararg properties: IProperty<*>) : Query, QueryCloneable<Select> {
     /**
      * The select qualifier to append to the SELECT statement
      */
@@ -69,7 +71,7 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
      *
      * @return
      */
-    fun distinct(): Select = selectQualifier(DISTINCT)
+    fun distinct(): Select = selectQualifier(DISTINCT) as Select
 
     override fun toString(): String = query
 

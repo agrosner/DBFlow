@@ -1,10 +1,10 @@
 package com.raizlabs.dbflow5.query.property
 
 import com.raizlabs.dbflow5.JvmStatic
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.NameAlias
 import com.raizlabs.dbflow5.query.Operator
+import kotlin.reflect.KClass
 
 /**
  * Description: Provides some useful methods for creating [IProperty] from non-property types.
@@ -19,7 +19,7 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(c: Char): Property<Char> {
-        return Property(null, NameAlias.rawBuilder("'$c'")
+        return Property(NameAlias.rawBuilder("'$c'")
             .build())
     }
 
@@ -31,7 +31,7 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(i: Int): Property<Int> {
-        return Property(null, NameAlias.rawBuilder(i.toString() + "")
+        return Property(NameAlias.rawBuilder(i.toString() + "")
             .build())
     }
 
@@ -43,7 +43,7 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(d: Double): Property<Double> {
-        return Property(null, NameAlias.rawBuilder(d.toString() + "")
+        return Property(NameAlias.rawBuilder(d.toString() + "")
             .build())
     }
 
@@ -55,7 +55,7 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(l: Long): Property<Long> {
-        return Property(null, NameAlias.rawBuilder(l.toString() + "")
+        return Property(NameAlias.rawBuilder(l.toString() + "")
             .build())
     }
 
@@ -67,7 +67,7 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(f: Float): Property<Float> {
-        return Property(null, NameAlias.rawBuilder(f.toString() + "")
+        return Property(NameAlias.rawBuilder(f.toString() + "")
             .build())
     }
 
@@ -79,7 +79,7 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(s: Short): Property<Short> {
-        return Property(null, NameAlias.rawBuilder(s.toString() + "")
+        return Property(NameAlias.rawBuilder(s.toString() + "")
             .build())
     }
 
@@ -91,7 +91,7 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(b: Byte): Property<Byte> {
-        return Property(null, NameAlias.rawBuilder(b.toString() + "")
+        return Property(NameAlias.rawBuilder(b.toString() + "")
             .build())
     }
 
@@ -109,7 +109,7 @@ object PropertyFactory {
      */
     @JvmStatic
     fun <T> from(type: T?): Property<T> {
-        return Property(null, NameAlias.rawBuilder(
+        return Property(NameAlias.rawBuilder(
             Operator.convertValueToString(type) ?: "")
             .build())
     }
@@ -135,7 +135,7 @@ object PropertyFactory {
     @Suppress("UNUSED_PARAMETER")
     @JvmStatic
     fun <T : Any> from(table: kotlin.reflect.KClass<T>, stringRepresentation: String?): Property<T> {
-        return Property(null, NameAlias.rawBuilder(stringRepresentation ?: "")
+        return Property(NameAlias.rawBuilder(stringRepresentation ?: "")
             .build())
     }
 }

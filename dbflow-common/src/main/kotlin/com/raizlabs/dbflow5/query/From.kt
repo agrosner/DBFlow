@@ -1,24 +1,30 @@
 package com.raizlabs.dbflow5.query
 
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.query.Join.JoinType
 import com.raizlabs.dbflow5.query.property.IndexProperty
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 import kotlin.collections.Set as KSet
+
+expect open class From<T : Any> : InternalFrom<T> {
+    constructor(queryBuilderBase: Query, table: KClass<T>, modelQueriable: ModelQueriable<T>?)
+
+    constructor(queryBuilderBase: Query, table: KClass<T>)
+}
 
 /**
  * Description: The SQL FROM query wrapper that must have a [Query] base.
  */
-class From<TModel : Any>
+open class InternalFrom<TModel : Any>
 /**
  * The SQL from statement constructed.
  *
  * @param queryBuilderBase The base query we append this cursor to
  * @param table     The table this corresponds to
  */
-internal constructor(
+(
 
     /**
      * @return The base query, usually a [Delete], [Select], or [Update]
@@ -35,12 +41,12 @@ internal constructor(
     /**
      * An alias for the table
      */
-    private var tableAlias: NameAlias? = null
+    protected var tableAlias: NameAlias? = null
 
     /**
      * Enables the SQL JOIN statement
      */
-    private val joins = arrayListOf<Join<*, *>>()
+    protected val joins = arrayListOf<Join<*, *>>()
 
     override val primaryAction: ChangeAction
         get() = if (queryBuilderBase is Delete) ChangeAction.DELETE else ChangeAction.CHANGE
@@ -54,7 +60,7 @@ internal constructor(
             }
 
             modelQueriable?.let { queryBuilder.append(it.enclosedQuery) }
-                ?: queryBuilder.append(getTableAlias())
+                ?: queryBuilder.append(getPrivateTableAlias())
 
             if (queryBuilderBase is Select) {
                 if (!joins.isEmpty()) {
@@ -69,10 +75,11 @@ internal constructor(
         }
 
     override fun cloneSelf(): From<TModel> {
+        val builderBase = queryBuilderBase
         val from = From(
-            when (queryBuilderBase) {
-                is Select -> queryBuilderBase.cloneSelf()
-                else -> queryBuilderBase
+            when (builderBase) {
+                is Select -> builderBase.cloneSelf()
+                else -> builderBase
             },
             table)
         from.joins.addAll(joins)
@@ -91,18 +98,18 @@ internal constructor(
             return tables
         }
 
-    private fun getTableAlias(): NameAlias = tableAlias
+    private fun getPrivateTableAlias(): NameAlias = tableAlias
         ?: NameAlias.Builder(FlowManager.getTableName(table)).build().also { tableAlias = it }
 
     /**
      * Set an alias to the table name of this [From].
      */
     infix fun `as`(alias: String): From<TModel> {
-        tableAlias = getTableAlias()
+        tableAlias = getPrivateTableAlias()
             .newBuilder()
             .`as`(alias)
             .build()
-        return this
+        return this as From<TModel>
     }
 
     /**
@@ -112,7 +119,7 @@ internal constructor(
      * @param joinType The type of join to use
      */
     fun <TJoin : Any> join(table: KClass<TJoin>, joinType: JoinType): Join<TJoin, TModel> {
-        val join = Join(this, table, joinType)
+        val join = Join(this as From<TModel>, table, joinType)
         joins.add(join)
         return join
     }
@@ -124,7 +131,7 @@ internal constructor(
      * @param joinType       The type of join to use.
      */
     fun <TJoin : Any> join(modelQueriable: ModelQueriable<TJoin>, joinType: JoinType): Join<TJoin, TModel> {
-        val join = Join(this, joinType, modelQueriable)
+        val join = Join(this as From<TModel>, joinType, modelQueriable)
         joins.add(join)
         return join
     }

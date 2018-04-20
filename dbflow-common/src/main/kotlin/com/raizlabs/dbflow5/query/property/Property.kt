@@ -5,6 +5,28 @@ import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.query.*
 import kotlin.reflect.KClass
 
+expect open class Property<T> : InternalProperty<T> {
+
+    constructor(nameAlias: NameAlias)
+
+    constructor(table: KClass<*>?, nameAlias: NameAlias)
+
+    constructor(table: KClass<*>?, columnName: String?)
+
+    constructor(table: KClass<*>?, columnName: String, aliasName: String)
+
+    companion object {
+        @JvmStatic
+        val ALL_PROPERTY: Property<String>
+
+        @JvmStatic
+        val WILDCARD: Property<*>
+
+        @JvmStatic
+        fun allProperty(table: KClass<*>): Property<String>
+    }
+}
+
 /**
  * Description: The main, immutable property class that gets generated from a table definition.
  *
@@ -19,7 +41,7 @@ import kotlin.reflect.KClass
  *
  * This is type parametrized so that all values passed to this class remain properly typed.
  */
-open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
+open class InternalProperty<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
 
     final override val table: KClass<*>?
 
@@ -39,6 +61,8 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
 
     protected open val operator: Operator<T>
         get() = Operator.op(nameAlias)
+
+    constructor(nameAlias: NameAlias) : this(null, nameAlias)
 
     constructor(table: KClass<*>?, nameAlias: NameAlias) {
         this.table = table
@@ -265,10 +289,10 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
     companion object {
 
         @JvmStatic
-        val ALL_PROPERTY = Property<String>(null, NameAlias.rawBuilder("*").build())
+        val ALL_PROPERTY = Property<String>(NameAlias.rawBuilder("*").build())
 
         @JvmStatic
-        val WILDCARD: Property<*> = Property<Any>(null, NameAlias.rawBuilder("?").build())
+        val WILDCARD: Property<*> = Property<Any>(NameAlias.rawBuilder("?").build())
 
         @JvmStatic
         fun allProperty(table: KClass<*>): Property<String> =

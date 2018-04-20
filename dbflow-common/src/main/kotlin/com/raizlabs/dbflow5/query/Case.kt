@@ -102,7 +102,7 @@ class Case<TReturn>(private val caseColumn: IProperty<*>? = null) : Query {
         if (columnName != null) {
             this.columnName = columnName.quoteIfNeeded()
         }
-        return Property(null, NameAlias.rawBuilder(query).build())
+        return Property(NameAlias.rawBuilder(query).build())
     }
 
     /**

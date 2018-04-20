@@ -1,13 +1,7 @@
 package com.raizlabs.dbflow5.processor.definition
 
-import com.grosner.kpoet.`public final class`
-import com.grosner.kpoet.constructor
-import com.grosner.kpoet.extends
-import com.grosner.kpoet.modifiers
-import com.grosner.kpoet.public
-import com.grosner.kpoet.statement
+import com.grosner.kpoet.*
 import com.raizlabs.dbflow5.processor.ClassNames
-import com.raizlabs.dbflow5.processor.DatabaseHandler
 import com.raizlabs.dbflow5.processor.ProcessorManager
 import com.squareup.javapoet.TypeSpec
 
@@ -36,19 +30,19 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
             modifiers(public)
 
             processorManager.getTypeConverters().forEach { tc ->
-                statement("\$L.put(\$T.class, new \$T())",
-                        DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, tc.modelTypeName, tc.className)
+                statement("putTypeConverterForClass(\$T.class, new \$T())",
+                    tc.modelTypeName, tc.className)
 
                 tc.allowedSubTypes?.forEach { subType ->
-                    statement("\$L.put(\$T.class, new \$T())",
-                            DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, subType, tc.className)
+                    statement("putTypeConverterForClass(\$T.class, new \$T())",
+                        subType, tc.className)
                 }
             }
 
             processorManager.getDatabaseHolderDefinitionList()
-                    .mapNotNull { it.databaseDefinition?.outputClassName }
-                    .sortedBy { it.simpleName() }
-                    .forEach { statement("new \$T(this)", it) }
+                .mapNotNull { it.databaseDefinition?.outputClassName }
+                .sortedBy { it.simpleName() }
+                .forEach { statement("new \$T(this)", it) }
             this
         }
     }
@@ -57,7 +51,7 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
      * If none of the database holder databases exist, don't generate a holder.
      */
     fun isGarbage() = processorManager.getDatabaseHolderDefinitionList()
-            .none { it.databaseDefinition?.outputClassName != null }
+        .none { it.databaseDefinition?.outputClassName != null }
 
     companion object {
 
