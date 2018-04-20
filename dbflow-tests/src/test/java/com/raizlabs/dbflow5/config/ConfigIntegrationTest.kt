@@ -46,6 +46,7 @@ class ConfigIntegrationTest : BaseUnitTest() {
         FlowManager.init(builder
             .database(DatabaseConfig.Builder(TestDatabase::class,
                 AndroidSQLiteOpenHelper.createHelperCreator(context))
+                .databaseName("TestDatabase")
                 .addTableConfig(TableConfig.Builder(SimpleModel::class)
                     .singleModelLoader(singleModelLoader)
                     .listModelLoader(customListModelLoader)

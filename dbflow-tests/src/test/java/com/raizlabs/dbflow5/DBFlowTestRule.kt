@@ -27,6 +27,7 @@ class DBFlowTestRule : TestRule {
                 DirectModelNotifier().clearListeners()
                 FlowManager.init(FlowConfig.Builder(RuntimeEnvironment.application)
                     .database(DatabaseConfig.Builder(TestDatabase::class, AndroidSQLiteOpenHelper.createHelperCreator(context))
+                        .databaseName("TestDatabase")
                         .transactionManagerCreator(::ImmediateTransactionManager2)
                         .build())
                     .database(DatabaseConfig.builder(ContentDatabase::class,

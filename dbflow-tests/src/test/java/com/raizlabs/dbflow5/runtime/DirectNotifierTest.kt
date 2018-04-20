@@ -38,6 +38,7 @@ class DirectNotifierTest {
         FlowManager.init(FlowConfig.Builder(context)
                 .database(DatabaseConfig.Builder(TestDatabase::class,
                         AndroidSQLiteOpenHelper.createHelperCreator(context))
+                    .databaseName("TestDatabase")
                         .transactionManagerCreator(::ImmediateTransactionManager2)
                         .build()).build())
     }

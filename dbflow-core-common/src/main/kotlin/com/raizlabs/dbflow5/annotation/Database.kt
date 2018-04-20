@@ -22,7 +22,7 @@ annotation class Database(
      * @return The current version of the DB. Increment it to trigger a DB update.
      */
     val version: Int,
-    @Deprecated("use DatabaseConfig.databaseName() to change the name.")
+    @Deprecated("use DatabaseConfig.databaseName() to change the name. This will have no affect.")
     val name: String = "",
     @Deprecated("use DatabaseConfig.extension() to change the extension.")
     val databaseExtension: String = "",

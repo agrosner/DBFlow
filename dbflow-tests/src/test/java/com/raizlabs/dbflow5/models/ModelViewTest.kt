@@ -16,6 +16,6 @@ class ModelViewTest : BaseUnitTest() {
 
     @Test
     fun validateJavaModelViewQuery() = database(TestDatabase::class) {
-        "SELECT `first_name` AS `firstName`,`id` AS `id`".assertEquals(JavaModelView.getQuery())
+        "SELECT `first_name` AS `firstName`,`id` AS `id` FROM `Author`".assertEquals(JavaModelView.getQuery())
     }
 }

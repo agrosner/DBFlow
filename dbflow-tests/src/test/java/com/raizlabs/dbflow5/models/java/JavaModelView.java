@@ -5,6 +5,7 @@ import com.raizlabs.dbflow5.annotation.Column;
 import com.raizlabs.dbflow5.annotation.ModelView;
 import com.raizlabs.dbflow5.annotation.ModelViewQuery;
 import com.raizlabs.dbflow5.database.DatabaseWrapper;
+import com.raizlabs.dbflow5.models.Author;
 import com.raizlabs.dbflow5.models.Author_Table;
 import com.raizlabs.dbflow5.query.SQLite;
 import com.raizlabs.dbflow5.sql.Query;
@@ -14,7 +15,7 @@ public class JavaModelView {
 
     @ModelViewQuery
     public static Query getQuery() {
-        return SQLite.select(Author_Table.first_name.as("firstName"), Author_Table.id.as("id"));
+        return SQLite.select(Author_Table.first_name.as("firstName"), Author_Table.id.as("id")).from(Author.class);
     }
 
     @Column
