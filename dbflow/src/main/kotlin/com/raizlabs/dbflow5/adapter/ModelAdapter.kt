@@ -1,8 +1,7 @@
 package com.raizlabs.dbflow5.adapter
 
 import android.content.ContentValues
-import com.raizlabs.dbflow5.config.DBFlowDatabase
-import kotlin.reflect.KClass
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 
 actual abstract class ModelAdapter<T : Any> actual constructor(database: DBFlowDatabase) : InternalModelAdapter<T>(database) {
 

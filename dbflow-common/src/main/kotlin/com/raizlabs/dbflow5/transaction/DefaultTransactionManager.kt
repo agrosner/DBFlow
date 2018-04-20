@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.transaction
 
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 
 /**
  * Description: This class manages batch database interactions. Places DB operations onto the same Thread.

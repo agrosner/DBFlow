@@ -1,7 +1,5 @@
 package com.raizlabs.dbflow5.database
 
-import com.raizlabs.dbflow5.config.DBFlowDatabase
-
 /**
  * Defines how we preserve database data. whether that is something backed up or prepackaged with app.
  */

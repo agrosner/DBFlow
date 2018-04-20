@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.adapter
 
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 
 /**

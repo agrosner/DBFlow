@@ -2,7 +2,7 @@ package com.raizlabs.dbflow5.runtime
 
 import com.raizlabs.dbflow5.Runnable
 import com.raizlabs.dbflow5.Thread
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.structure.Model
 import com.raizlabs.dbflow5.structure.save
 import com.raizlabs.dbflow5.threading.ThreadConfigurator

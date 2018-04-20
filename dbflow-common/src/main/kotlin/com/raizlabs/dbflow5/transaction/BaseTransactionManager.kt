@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.transaction
 
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.runtime.DBBatchSaveQueue
 import com.raizlabs.dbflow5.threading.ThreadConfigurator

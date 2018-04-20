@@ -1,10 +1,9 @@
 package com.raizlabs.dbflow5.rx2.query
 
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.list.FlowCursorList
-import com.raizlabs.dbflow5.rx2.transaction.asSingle
 import com.raizlabs.dbflow5.transaction.Transaction
 import io.reactivex.Flowable
 import io.reactivex.SingleObserver
@@ -12,7 +11,7 @@ import io.reactivex.disposables.Disposable
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import java.util.concurrent.atomic.AtomicLong
-
+import com.raizlabs.dbflow5.rx2.transaction.asSingle
 /**
  * Description: Wraps a [ModelQueriable] into a [Flowable] that emits each item from the
  * result of the [ModelQueriable] one at a time.

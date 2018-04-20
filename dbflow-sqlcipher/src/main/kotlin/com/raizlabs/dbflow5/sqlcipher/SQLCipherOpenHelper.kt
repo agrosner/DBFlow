@@ -1,7 +1,7 @@
 package com.raizlabs.dbflow5.sqlcipher
 
 import android.content.Context
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.config.DatabaseConfig
 import com.raizlabs.dbflow5.database.*
 import net.sqlcipher.database.SQLiteDatabase

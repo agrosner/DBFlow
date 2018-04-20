@@ -8,6 +8,7 @@ import com.raizlabs.dbflow5.adapter.ModelViewAdapter
 import com.raizlabs.dbflow5.adapter.QueryModelAdapter
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.converter.TypeConverter
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.migration.Migration
 import com.raizlabs.dbflow5.quote
 import com.raizlabs.dbflow5.runtime.ModelNotifier

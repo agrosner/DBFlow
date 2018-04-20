@@ -4,7 +4,7 @@ import com.raizlabs.dbflow5.annotation.Column
 import com.raizlabs.dbflow5.annotation.Database
 import com.raizlabs.dbflow5.annotation.PrimaryKey
 import com.raizlabs.dbflow5.annotation.Table
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.structure.BaseModel
 
 @Database(version = 1)

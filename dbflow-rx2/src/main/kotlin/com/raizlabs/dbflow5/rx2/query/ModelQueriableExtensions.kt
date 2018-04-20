@@ -2,7 +2,7 @@
 
 package com.raizlabs.dbflow5.rx2.query
 
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.transaction.ITransactionQueue
 import io.reactivex.Flowable

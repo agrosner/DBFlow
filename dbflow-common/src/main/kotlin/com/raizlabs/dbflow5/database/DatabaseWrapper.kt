@@ -3,11 +3,13 @@ package com.raizlabs.dbflow5.database
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.transaction.ITransaction
 
+expect interface DatabaseWrapper : InternalDatabaseWrapper
+
 /**
  * Description: Provides a base implementation that wraps a database, so other databaseForTable engines potentially can
  * be used.
  */
-interface DatabaseWrapper {
+interface InternalDatabaseWrapper {
 
     val version: Int
 
@@ -36,7 +38,7 @@ interface DatabaseWrapper {
     fun <R> executeTransaction(transaction: ITransaction<R>): R {
         try {
             beginTransaction()
-            val result = transaction.execute(this)
+            val result = transaction.execute(this as DatabaseWrapper)
             setTransactionSuccessful()
             return result
         } finally {

@@ -6,6 +6,7 @@ import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.adapter.ModelViewAdapter
 import com.raizlabs.dbflow5.adapter.QueryModelAdapter
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import kotlin.reflect.KClass
 
 @SuppressLint("StaticFieldLeak")

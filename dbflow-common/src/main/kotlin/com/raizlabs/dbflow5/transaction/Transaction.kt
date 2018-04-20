@@ -3,7 +3,7 @@ package com.raizlabs.dbflow5.transaction
 import com.raizlabs.dbflow5.MainThreadRunnableHandler
 import com.raizlabs.dbflow5.Runnable
 import com.raizlabs.dbflow5.RunnableHandler
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 import kotlin.jvm.JvmName
 

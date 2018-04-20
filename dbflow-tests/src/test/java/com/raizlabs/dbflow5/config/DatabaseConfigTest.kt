@@ -4,6 +4,7 @@ import com.nhaarman.mockito_kotlin.mock
 import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.TestDatabase
 import com.raizlabs.dbflow5.database.AndroidSQLiteOpenHelper
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.database.DatabaseCallback
 import com.raizlabs.dbflow5.database.OpenHelper
 import com.raizlabs.dbflow5.transaction.BaseTransactionManager

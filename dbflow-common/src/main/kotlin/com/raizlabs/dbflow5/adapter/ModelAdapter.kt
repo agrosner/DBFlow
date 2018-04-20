@@ -2,7 +2,7 @@ package com.raizlabs.dbflow5.adapter
 
 import com.raizlabs.dbflow5.adapter.saveable.ListModelSaver
 import com.raizlabs.dbflow5.adapter.saveable.ModelSaver
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.database.DatabaseStatement
 import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.query.property.IProperty

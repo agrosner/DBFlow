@@ -2,7 +2,7 @@ package com.raizlabs.dbflow5.paging
 
 import android.arch.paging.DataSource
 import android.arch.paging.PositionalDataSource
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.Select
 import com.raizlabs.dbflow5.query.Transformable

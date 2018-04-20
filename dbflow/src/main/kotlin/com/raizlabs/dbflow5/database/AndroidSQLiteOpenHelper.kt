@@ -3,7 +3,6 @@ package com.raizlabs.dbflow5.database
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.OpenHelperCreator
 

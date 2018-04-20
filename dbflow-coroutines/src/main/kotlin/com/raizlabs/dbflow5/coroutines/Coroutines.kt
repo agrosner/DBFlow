@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5.coroutines
 
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.query.Queriable
 import com.raizlabs.dbflow5.structure.delete
 import com.raizlabs.dbflow5.structure.insert

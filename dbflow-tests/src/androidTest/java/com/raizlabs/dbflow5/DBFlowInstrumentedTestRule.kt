@@ -1,6 +1,6 @@
 package com.raizlabs.dbflow5
 
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.config.DatabaseConfig
 import com.raizlabs.dbflow5.config.FlowConfig
 import com.raizlabs.dbflow5.config.FlowManager

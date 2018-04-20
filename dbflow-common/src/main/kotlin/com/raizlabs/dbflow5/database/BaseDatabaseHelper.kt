@@ -1,7 +1,6 @@
 package com.raizlabs.dbflow5.database
 
 import com.raizlabs.dbflow5.JvmStatic
-import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 
 /**

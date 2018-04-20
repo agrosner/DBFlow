@@ -10,7 +10,7 @@ import com.raizlabs.dbflow5.annotation.provider.ContentProvider
 import com.raizlabs.dbflow5.annotation.provider.ContentType
 import com.raizlabs.dbflow5.annotation.provider.ContentUri
 import com.raizlabs.dbflow5.annotation.provider.TableEndpoint
-import com.raizlabs.dbflow5.config.DBFlowDatabase
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 
 
 /**

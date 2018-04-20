@@ -1,6 +1,7 @@
 package com.raizlabs.dbflow5.config
 
 import com.raizlabs.dbflow5.JvmStatic
+import com.raizlabs.dbflow5.database.DBFlowDatabase
 import com.raizlabs.dbflow5.database.DatabaseCallback
 import com.raizlabs.dbflow5.database.OpenHelper
 import com.raizlabs.dbflow5.runtime.ModelNotifier

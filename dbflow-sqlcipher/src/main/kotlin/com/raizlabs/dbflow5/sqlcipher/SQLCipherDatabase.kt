@@ -1,10 +1,11 @@
 package com.raizlabs.dbflow5.sqlcipher
 
-import com.raizlabs.dbflow5.database.DatabaseStatement
+import android.content.ContentValues
 import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.database.FlowCursor
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteException
+import com.raizlabs.dbflow5.database.DatabaseStatement
+import com.raizlabs.dbflow5.database.FlowCursor
 
 /**
  * Description: Implements the code necessary to use a [SQLiteDatabase] in dbflow.
@@ -53,6 +54,20 @@ internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
                         whereClause: String?,
                         whereArgs: Array<String>?): Int = rethrowDBFlowException {
         database.delete(tableName, whereClause, whereArgs)
+    }
+
+    override fun updateWithOnConflict(tableName: String,
+                                      contentValues: ContentValues,
+                                      where: String?, whereArgs: Array<String>?,
+                                      conflictAlgorithm: Int): Long = rethrowDBFlowException {
+        database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm).toLong()
+    }
+
+    override fun insertWithOnConflict(tableName: String,
+                                      nullColumnHack: String?,
+                                      values: ContentValues,
+                                      sqLiteDatabaseAlgorithmInt: Int): Long = rethrowDBFlowException {
+        database.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt)
     }
 
     companion object {
