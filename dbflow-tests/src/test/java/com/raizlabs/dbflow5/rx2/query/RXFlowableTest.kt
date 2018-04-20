@@ -63,6 +63,6 @@ class RXFlowableTest : BaseUnitTest() {
         (0 until 10).forEach { Blog(it, name = "${it}name ${it}last", author = authors[it]).save() }
 
         assertEquals(21, calls) // 1 for initial, 10 for each model object
-        assertEquals(10, list.size)
+        assertEquals(9, list.size)
     }
 }
