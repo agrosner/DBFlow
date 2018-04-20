@@ -8,6 +8,7 @@ import com.raizlabs.dbflow5.query.Operator
 import com.raizlabs.dbflow5.query.OperatorGroup
 import com.raizlabs.dbflow5.query.SQLOperator
 import com.raizlabs.dbflow5.structure.ChangeAction
+import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 
 /**
@@ -46,7 +47,7 @@ fun getNotificationUri(contentAuthority: String,
  * @return The [Uri].
  */
 fun getNotificationUri(contentAuthority: String,
-                       modelClass: KClass<*>,
+                       modelClass: Class<*>,
                        action: ChangeAction?,
                        conditions: Array<SQLOperator>?): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
@@ -73,7 +74,7 @@ fun getNotificationUri(contentAuthority: String,
  */
 @JvmOverloads
 fun getNotificationUri(contentAuthority: String,
-                       modelClass: KClass<*>,
+                       modelClass: Class<*>,
                        action: ChangeAction?,
                        notifyKey: String = "",
                        notifyValue: Any? = null): Uri {

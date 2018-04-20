@@ -1,14 +1,15 @@
 package com.raizlabs.dbflow5.query
 
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 
 /**
  * Description: Used to specify the SET part of an [com.raizlabs.dbflow5.query.Update] query.
  * This is an internal class that is subclassed by the platform specific implementations. Should not be used directly.
  */
-abstract class InternalSet<T : Any> internal constructor(
+abstract class InternalSet<T : Any>
+internal constructor(
     override val queryBuilderBase: Query, table: KClass<T>)
     : BaseTransformable<T>(table), WhereBase<T> {
 

@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.Handler
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.TABLE_QUERY_PARAM
 import com.raizlabs.dbflow5.config.DatabaseConfig
 import com.raizlabs.dbflow5.config.FlowLog
@@ -36,7 +35,7 @@ open class FlowContentObserver(private val contentAuthority: String,
 
     private val modelChangeListeners = CopyOnWriteArraySet<OnModelStateChangedListener>()
     private val onTableChangedListeners = CopyOnWriteArraySet<OnTableChangedListener>()
-    private val registeredTables = hashMapOf<String, KClass<*>>()
+    private val registeredTables = hashMapOf<String, Class<*>>()
     private val notificationUris = hashSetOf<Uri>()
     private val tableUris = hashSetOf<Uri>()
 
@@ -63,7 +62,7 @@ open class FlowContentObserver(private val contentAuthority: String,
          * @param primaryKeyValues The array of primary [SQLOperator] of what changed. Call [SQLOperator.columnName]
          * and [SQLOperator.value] to get each information.
          */
-        fun onModelStateChanged(table: KClass<*>?, action: ChangeAction, primaryKeyValues: Array<SQLOperator>)
+        fun onModelStateChanged(table: Class<*>?, action: ChangeAction, primaryKeyValues: Array<SQLOperator>)
     }
 
     interface ContentChangeListener : OnModelStateChangedListener, OnTableChangedListener
@@ -108,7 +107,7 @@ open class FlowContentObserver(private val contentAuthority: String,
                 synchronized(tableUris) {
                     for (uri in tableUris) {
                         for (onTableChangedListener in onTableChangedListeners) {
-                            onTableChangedListener.onTableChanged(registeredTables[uri.authority],
+                            onTableChangedListener.onTableChanged(registeredTables.get(uri.authority)?.kotlin,
                                 ChangeAction.valueOf(uri.fragment))
                         }
                     }
@@ -168,7 +167,7 @@ open class FlowContentObserver(private val contentAuthority: String,
      * Registers the observer for model change events for specific class.
      */
     open fun registerForContentChanges(context: Context,
-                                       table: KClass<*>) {
+                                       table: Class<*>) {
         registerForContentChanges(context.contentResolver, table)
     }
 
@@ -176,7 +175,7 @@ open class FlowContentObserver(private val contentAuthority: String,
      * Registers the observer for model change events for specific class.
      */
     fun registerForContentChanges(contentResolver: ContentResolver,
-                                  table: KClass<*>) {
+                                  table: Class<*>) {
         contentResolver.registerContentObserver(
             getNotificationUri(contentAuthority, table, null), true, this)
         REGISTERED_COUNT.incrementAndGet()
@@ -232,7 +231,7 @@ open class FlowContentObserver(private val contentAuthority: String,
                 }
 
                 if (!calledInternally) {
-                    onTableChangedListeners.forEach { it.onTableChanged(table, action) }
+                    onTableChangedListeners.forEach { it.onTableChanged(table.kotlin, action) }
                 }
             } else {
                 // convert this uri to a CHANGE op if we don't care about individual changes.

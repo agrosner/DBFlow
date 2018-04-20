@@ -69,6 +69,9 @@ actual object FlowManager : FlowCommonManager() {
     @JvmStatic
     fun <T : Any> getQueryModelAdapter(queryModelClass: Class<T>): QueryModelAdapter<T> = getQueryModelAdapter(queryModelClass.kotlin)
 
+    @JvmStatic
+    fun loadDatabaseHolder(holderClass: Class<out DatabaseHolder>) = loadDatabaseHolder(holderClass.kotlin)
+
     override fun loadDatabaseHolder(holderClass: KClass<out DatabaseHolder>) {
         if (loadedModules.contains(holderClass)) {
             return

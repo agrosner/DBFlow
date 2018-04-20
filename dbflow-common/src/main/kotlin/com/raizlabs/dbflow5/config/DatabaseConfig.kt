@@ -50,8 +50,7 @@ abstract class InternalDatabaseConfig(
         tableConfigMap = builder.tableConfigMap,
         modelNotifier = builder.modelNotifier,
         isInMemory = builder.inMemory,
-        databaseName = builder.databaseName
-            ?: throw IllegalArgumentException("Missing Database name in builder for ${builder.databaseClass}"),
+        databaseName = builder.databaseName,
         databaseExtensionName = when {
             builder.databaseExtensionName == null -> ".db"
             builder.databaseExtensionName.isNullOrEmpty().not() -> ".${builder.databaseExtensionName}"

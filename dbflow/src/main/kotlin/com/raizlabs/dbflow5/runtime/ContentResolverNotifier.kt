@@ -2,11 +2,11 @@ package com.raizlabs.dbflow5.runtime
 
 import android.content.ContentResolver
 import android.content.Context
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.getNotificationUri
 import com.raizlabs.dbflow5.query.SQLOperator
 import com.raizlabs.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 
 /**
  * The default use case, it notifies via the [ContentResolver] system.
@@ -29,7 +29,7 @@ class ContentResolverNotifier(private val context: Context,
     override fun <T : Any> notifyTableChanged(table: KClass<T>, action: ChangeAction) {
         if (FlowContentObserver.shouldNotify()) {
             context.contentResolver.notifyChange(
-                getNotificationUri(authority, table, action, null as Array<SQLOperator>?), null, true)
+                getNotificationUri(authority, table.java, action, null as Array<SQLOperator>?), null, true)
         }
     }
 
@@ -52,7 +52,7 @@ class ContentResolverNotifier(private val context: Context,
         }
 
         override fun <T : Any> register(tClass: KClass<T>) {
-            flowContentObserver.registerForContentChanges(context, tClass)
+            flowContentObserver.registerForContentChanges(context, tClass.java)
         }
 
         override fun <T : Any> unregister(tClass: KClass<T>) {

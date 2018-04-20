@@ -11,9 +11,10 @@ expect class FlowConfig : InternalFlowConfig {
 /**
  * Description: The main configuration instance for DBFlow. This
  */
-abstract class InternalFlowConfig(val databaseHolders: Set<KClass<out DatabaseHolder>> = setOf(),
-                                  val databaseConfigMap: Map<KClass<*>, DatabaseConfig> = mapOf(),
-                                  val openDatabasesOnInit: Boolean = false) {
+abstract class InternalFlowConfig
+internal constructor(val databaseHolders: Set<KClass<out DatabaseHolder>> = setOf(),
+                     val databaseConfigMap: Map<KClass<*>, DatabaseConfig> = mapOf(),
+                     val openDatabasesOnInit: Boolean = false) {
 
     protected constructor(builder: InternalBuilder) : this(
         databaseHolders = builder.databaseHolders.toSet(),
