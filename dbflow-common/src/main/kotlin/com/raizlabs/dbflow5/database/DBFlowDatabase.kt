@@ -55,7 +55,7 @@ abstract class InternalDBFlowDatabase : DatabaseWrapper {
     lateinit var transactionManager: BaseTransactionManager
         private set
 
-    private var databaseConfig: DatabaseConfig? = null
+    private var appliedDatabaseConfig: Boolean = false
 
     private var modelNotifier: ModelNotifier? = null
 
@@ -120,7 +120,7 @@ abstract class InternalDBFlowDatabase : DatabaseWrapper {
      * @return The name of this database as defined in [Database]
      */
     val databaseName: String
-        get() = databaseConfig?.databaseName
+        get() = initializedConfig?.databaseName
             ?: throw InvalidDBConfiguration("Database name must be specified in the DatabaseConfig.")
 
     /**
@@ -133,13 +133,13 @@ abstract class InternalDBFlowDatabase : DatabaseWrapper {
      * @return the extension for the file name.
      */
     val databaseExtensionName: String
-        get() = databaseConfig?.databaseExtensionName ?: ".db"
+        get() = initializedConfig?.databaseExtensionName ?: ".db"
 
     /**
      * @return True if the database will reside in memory.
      */
     val isInMemory: Boolean
-        get() = databaseConfig?.isInMemory ?: false
+        get() = initializedConfig?.isInMemory ?: false
 
     /**
      * @return The version of the database currently.
@@ -163,34 +163,34 @@ abstract class InternalDBFlowDatabase : DatabaseWrapper {
     val isDatabaseIntegrityOk: Boolean
         get() = openHelper.isDatabaseIntegrityOk
 
-    init {
-        @Suppress("LeakingThis")
-        applyDatabaseConfig(FlowManager.getConfig().databaseConfigMap[associatedDatabaseKClassFile])
-    }
+    private lateinit var databaseConfig: DatabaseConfig
+    private val initializedConfig: DatabaseConfig?
+        get() {
+            if (!appliedDatabaseConfig) {
+                appliedDatabaseConfig = true
+                applyDatabaseConfig(FlowManager.getDatabaseConfig(associatedDatabaseKClassFile))
+            }
+            return databaseConfig
+        }
 
     /**
      * Applies a database configuration object to this class.
      */
     @Suppress("UNCHECKED_CAST")
-    private fun applyDatabaseConfig(databaseConfig: DatabaseConfig?) {
+    private fun applyDatabaseConfig(databaseConfig: DatabaseConfig) {
         this.databaseConfig = databaseConfig
-        if (databaseConfig != null) {
-            // initialize configuration if exists.
-            val tableConfigCollection = databaseConfig.tableConfigMap.values
-            for (tableConfig in tableConfigCollection) {
-                val modelAdapter: ModelAdapter<Any> = modelAdapters[tableConfig.tableClass] as ModelAdapter<Any>?
-                    ?: continue
-                tableConfig.listModelLoader?.let { modelAdapter.listModelLoader = it as ListModelLoader<Any> }
-                tableConfig.singleModelLoader?.let { modelAdapter.singleModelLoader = it as SingleModelLoader<Any> }
-                tableConfig.modelSaver?.let { modelAdapter.modelSaver = it as ModelSaver<Any> }
-            }
-            callback = databaseConfig.callback
+        // initialize configuration if exists.
+        val tableConfigCollection = databaseConfig.tableConfigMap.values
+        for (tableConfig in tableConfigCollection) {
+            val modelAdapter: ModelAdapter<Any> = modelAdapters[tableConfig.tableClass] as ModelAdapter<Any>?
+                ?: continue
+            tableConfig.listModelLoader?.let { modelAdapter.listModelLoader = it as ListModelLoader<Any> }
+            tableConfig.singleModelLoader?.let { modelAdapter.singleModelLoader = it as SingleModelLoader<Any> }
+            tableConfig.modelSaver?.let { modelAdapter.modelSaver = it as ModelSaver<Any> }
         }
-        transactionManager = if (databaseConfig?.transactionManagerCreator == null) {
-            DefaultTransactionManager(this as DBFlowDatabase)
-        } else {
-            databaseConfig.transactionManagerCreator.invoke(this as DBFlowDatabase)
-        }
+        callback = databaseConfig.callback
+        transactionManager = databaseConfig.transactionManagerCreator?.invoke(this as DBFlowDatabase)
+            ?: DefaultTransactionManager(this as DBFlowDatabase)
     }
 
     protected fun <T : Any> addModelAdapter(modelAdapter: ModelAdapter<T>, holder: DatabaseHolder) {
@@ -264,12 +264,8 @@ abstract class InternalDBFlowDatabase : DatabaseWrapper {
     fun getModelNotifier(): ModelNotifier {
         var notifier = modelNotifier
         if (notifier == null) {
-            val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseKClassFile]
-            notifier = if (config?.modelNotifier == null) {
-                DirectModelNotifier()
-            } else {
-                config.modelNotifier
-            }
+            val config = FlowManager.getDatabaseConfig(associatedDatabaseKClassFile)
+            notifier = config.modelNotifier ?: DirectModelNotifier()
         }
         modelNotifier = notifier
         return notifier
@@ -320,7 +316,7 @@ abstract class InternalDBFlowDatabase : DatabaseWrapper {
      * @param databaseConfig sets a new [DatabaseConfig] on this class.
      */
     @JvmOverloads
-    fun reset(databaseConfig: DatabaseConfig? = this.databaseConfig) {
+    fun reset(databaseConfig: DatabaseConfig = this.databaseConfig) {
         if (!isResetting) {
             destroy()
             // reapply configuration before opening it.
@@ -336,7 +332,7 @@ abstract class InternalDBFlowDatabase : DatabaseWrapper {
      * @param databaseConfig sets a new [DatabaseConfig] on this class.
      */
     @JvmOverloads
-    fun reopen(databaseConfig: DatabaseConfig? = this.databaseConfig) {
+    fun reopen(databaseConfig: DatabaseConfig = this.databaseConfig) {
         if (!isResetting) {
             close()
             _openHelper = null

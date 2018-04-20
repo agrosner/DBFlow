@@ -22,8 +22,8 @@ public class DemoActivity extends Activity {
         FlowManager.init(new FlowConfig.Builder(getApplicationContext())
             .database(
                 DatabaseConfig.builder(PrepackagedDB.class,
+                    "Prepackaged",
                     (dbFlowDatabase, databaseHelperListener) -> new AndroidSQLiteOpenHelper(getApplicationContext(), dbFlowDatabase, databaseHelperListener))
-                    .databaseName("prepackaged")
                     .build())
             .build());
     }

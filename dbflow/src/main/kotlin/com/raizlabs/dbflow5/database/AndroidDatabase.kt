@@ -2,6 +2,7 @@ package com.raizlabs.dbflow5.database
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteException
 import android.os.Build
 
 /**
@@ -80,10 +81,10 @@ class AndroidDatabase internal constructor(val database: SQLiteDatabase) : Datab
     }
 }
 
-fun com.raizlabs.dbflow5.database.SQLiteException.toDBFlowSQLiteException() = com.raizlabs.dbflow5.database.SQLiteException("A Database Error Occurred", this)
+fun SQLiteException.toDBFlowSQLiteException() = com.raizlabs.dbflow5.database.SQLiteException("A Database Error Occurred", this)
 
 inline fun <T> rethrowDBFlowException(fn: () -> T) = try {
     fn()
-} catch (e: com.raizlabs.dbflow5.database.SQLiteException) {
+} catch (e: SQLiteException) {
     throw e.toDBFlowSQLiteException()
 }

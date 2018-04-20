@@ -8,50 +8,51 @@ import kotlin.reflect.KClass
 actual class DatabaseConfig : InternalDatabaseConfig {
 
     constructor(databaseClass: KClass<*>,
+                databaseName: String,
                 openHelperCreator: OpenHelperCreator? = null,
                 transactionManagerCreator: TransactionManagerCreator? = null,
                 callback: DatabaseCallback? = null,
                 tableConfigMap: Map<KClass<*>, TableConfig<*>> = mapOf(),
                 modelNotifier: ModelNotifier? = null,
                 isInMemory: Boolean = false,
-                databaseName: String? = null,
                 databaseExtensionName: String? = null) :
         super(
             databaseClass,
+            databaseName,
             openHelperCreator,
             transactionManagerCreator,
             callback,
             tableConfigMap,
             modelNotifier,
             isInMemory,
-            databaseName,
             databaseExtensionName
         )
 
     constructor(builder: Builder) : super(builder)
 
     actual class Builder actual constructor(databaseClass: KClass<*>,
+                                            databaseName: String,
                                             openHelperCreator: OpenHelperCreator?)
-        : InternalBuilder(databaseClass, openHelperCreator) {
+        : InternalBuilder(databaseClass, databaseName, openHelperCreator) {
         override fun build(): DatabaseConfig = DatabaseConfig(this)
     }
 
     actual companion object {
 
         @JvmStatic
-        fun builder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
-            Builder(database.kotlin, openHelperCreator)
+        fun builder(database: Class<*>, databaseName: String, openHelperCreator: OpenHelperCreator): Builder =
+            Builder(database.kotlin, databaseName, openHelperCreator)
 
         @JvmStatic
-        actual fun builder(database: KClass<*>, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder =
-            InternalDatabaseConfig.builder(database, openHelperCreator)
+        actual fun builder(database: KClass<*>, databaseName: String, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder =
+            InternalDatabaseConfig.builder(database, databaseName, openHelperCreator)
 
         @JvmStatic
-        actual fun inMemoryBuilder(database: KClass<*>, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder =
-            InternalDatabaseConfig.builder(database, openHelperCreator)
+        actual fun inMemoryBuilder(database: KClass<*>, databaseName: String, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder =
+            InternalDatabaseConfig.builder(database, databaseName, openHelperCreator)
 
         @JvmStatic
-        fun inMemoryBuilder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
-            Builder(database.kotlin, openHelperCreator).inMemory()
+        fun inMemoryBuilder(database: Class<*>, databaseName: String, openHelperCreator: OpenHelperCreator): Builder =
+            Builder(database.kotlin, databaseName, openHelperCreator).inMemory()
     }
 }

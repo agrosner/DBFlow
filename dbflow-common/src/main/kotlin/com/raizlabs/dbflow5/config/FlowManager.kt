@@ -145,6 +145,9 @@ abstract class FlowCommonManager {
         ?: throw IllegalStateException("Configuration is not initialized. " +
             "Please call init(FlowConfig) in your application class.")
 
+    fun getDatabaseConfig(clazz: KClass<*>): DatabaseConfig = getConfig().getConfigForDatabase(clazz)
+        ?: throw IllegalStateException("Database configuration for $clazz is missing. It is required for initialization.")
+
     /**
      * @return The database holder, creating if necessary using reflection.
      */

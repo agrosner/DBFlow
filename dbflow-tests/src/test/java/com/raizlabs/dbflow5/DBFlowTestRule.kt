@@ -26,13 +26,16 @@ class DBFlowTestRule : TestRule {
                 FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
                 DirectModelNotifier().clearListeners()
                 FlowManager.init(FlowConfig.Builder(RuntimeEnvironment.application)
-                    .database(DatabaseConfig.Builder(TestDatabase::class, AndroidSQLiteOpenHelper.createHelperCreator(context))
-                        .databaseName("TestDatabase")
+                    .database(DatabaseConfig.Builder(
+                        databaseClass = TestDatabase::class,
+                        databaseName = "TestDatabase",
+                        openHelperCreator = AndroidSQLiteOpenHelper.createHelperCreator(context))
                         .transactionManagerCreator(::ImmediateTransactionManager2)
                         .build())
-                    .database(DatabaseConfig.builder(ContentDatabase::class,
-                        AndroidSQLiteOpenHelper.createHelperCreator(context))
-                        .databaseName("content")
+                    .database(DatabaseConfig.builder(
+                        database = ContentDatabase::class,
+                        databaseName = "Content",
+                        openHelperCreator = AndroidSQLiteOpenHelper.createHelperCreator(context))
                         .build())
                     .build())
                 try {

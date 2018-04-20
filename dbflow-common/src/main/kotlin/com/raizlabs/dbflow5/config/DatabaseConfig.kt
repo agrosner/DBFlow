@@ -14,15 +14,16 @@ typealias TransactionManagerCreator = (DBFlowDatabase) -> BaseTransactionManager
 expect class DatabaseConfig : InternalDatabaseConfig {
 
     class Builder(databaseClass: KClass<*>,
+                  databaseName: String,
                   openHelperCreator: OpenHelperCreator?) : InternalBuilder
 
     companion object {
 
         @JvmStatic
-        fun builder(database: KClass<*>, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder
+        fun builder(database: KClass<*>, databaseName: String, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder
 
         @JvmStatic
-        fun inMemoryBuilder(database: KClass<*>, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder
+        fun inMemoryBuilder(database: KClass<*>, databaseName: String, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder
     }
 }
 
@@ -31,13 +32,13 @@ expect class DatabaseConfig : InternalDatabaseConfig {
  */
 abstract class InternalDatabaseConfig(
     val databaseClass: KClass<*>,
+    val databaseName: String? = null,
     val openHelperCreator: OpenHelperCreator? = null,
     val transactionManagerCreator: TransactionManagerCreator? = null,
     val callback: DatabaseCallback? = null,
     val tableConfigMap: Map<KClass<*>, TableConfig<*>> = mapOf(),
     val modelNotifier: ModelNotifier? = null,
     val isInMemory: Boolean = false,
-    val databaseName: String? = null,
     val databaseExtensionName: String? = null) {
 
     protected constructor(builder: InternalDatabaseConfig.InternalBuilder) : this(
@@ -65,6 +66,7 @@ abstract class InternalDatabaseConfig(
      * Build compatibility class for Java. Use the [DatabaseConfig] class directly if Kotlin consumer.
      */
     abstract class InternalBuilder(internal val databaseClass: KClass<*>,
+                                   internal val databaseName: String,
                                    internal val openHelperCreator: OpenHelperCreator? = null) {
 
         internal var transactionManagerCreator: TransactionManagerCreator? = null
@@ -72,7 +74,6 @@ abstract class InternalDatabaseConfig(
         internal val tableConfigMap: MutableMap<KClass<*>, TableConfig<*>> = hashMapOf()
         internal var modelNotifier: ModelNotifier? = null
         internal var inMemory = false
-        internal var databaseName: String? = null
         internal var databaseExtensionName: String? = null
 
         fun transactionManagerCreator(creator: TransactionManagerCreator) = applyBuilder {
@@ -96,13 +97,6 @@ abstract class InternalDatabaseConfig(
         }
 
         /**
-         * @return Pass in dynamic database name here. Otherwise it defaults to class name.
-         */
-        fun databaseName(name: String) = applyBuilder {
-            databaseName = name
-        }
-
-        /**
          * @return Pass in the extension for the DB here.
          * Otherwise defaults to ".db". If empty string passed, no extension is used.
          */
@@ -118,11 +112,11 @@ abstract class InternalDatabaseConfig(
     companion object {
 
         @JvmStatic
-        fun builder(database: KClass<*>, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder =
-            DatabaseConfig.Builder(database, openHelperCreator)
+        fun builder(database: KClass<*>, databaseName: String, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder =
+            DatabaseConfig.Builder(database, databaseName, openHelperCreator)
 
         @JvmStatic
-        fun inMemoryBuilder(database: KClass<*>, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder =
-            DatabaseConfig.Builder(database, openHelperCreator).inMemory()
+        fun inMemoryBuilder(database: KClass<*>, databaseName: String, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder =
+            DatabaseConfig.Builder(database, databaseName, openHelperCreator).inMemory()
     }
 }

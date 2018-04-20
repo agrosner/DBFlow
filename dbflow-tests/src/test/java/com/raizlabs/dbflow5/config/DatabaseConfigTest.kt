@@ -43,8 +43,10 @@ class DatabaseConfigTest : BaseUnitTest() {
         }
 
         FlowManager.init(builder
-            .database(DatabaseConfig.Builder(TestDatabase::class, openHelperCreator)
-                .databaseName("Test")
+            .database(DatabaseConfig.Builder(
+                databaseClass = TestDatabase::class,
+                databaseName = "Test",
+                openHelperCreator = openHelperCreator)
                 .helperListener(helperListener)
                 .transactionManagerCreator(managerCreator)
                 .build())
@@ -71,9 +73,10 @@ class DatabaseConfigTest : BaseUnitTest() {
     @Test
     fun test_EmptyName() {
         FlowManager.init(builder
-            .database(DatabaseConfig.Builder(TestDatabase::class,
-                AndroidSQLiteOpenHelper.createHelperCreator(context))
-                .databaseName("Test")
+            .database(DatabaseConfig.Builder(
+                databaseClass = TestDatabase::class,
+                databaseName = "Test",
+                openHelperCreator = AndroidSQLiteOpenHelper.createHelperCreator(context))
                 .extensionName("")
                 .build())
             .build())
