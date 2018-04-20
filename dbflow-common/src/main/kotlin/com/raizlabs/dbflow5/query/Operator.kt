@@ -12,6 +12,11 @@ import com.raizlabs.dbflow5.converter.TypeConverter
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.sql.Query
 
+
+fun <T : Any> NameAlias.op() = Operator.op<T>(this)
+
+fun <T : Any> String.op(): Operator<T> = nameAlias.op()
+
 /**
  * Description: The class that contains a column name, Operator<T>, and value.
  * This class is mostly reserved for internal use at this point. Using this class directly should be avoided
@@ -214,6 +219,24 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
      */
     override fun separator(separator: String) = apply {
         this.separator = separator
+    }
+
+    infix fun and(sqlOperator: SQLOperator): OperatorGroup = OperatorGroup.clause(this).and(sqlOperator)
+
+    infix fun or(sqlOperator: SQLOperator): OperatorGroup = OperatorGroup.clause(this).or(sqlOperator)
+
+    infix fun andAll(sqlOperator: Collection<SQLOperator>): OperatorGroup = OperatorGroup.clause(this).andAll(sqlOperator)
+
+    infix fun orAll(sqlOperator: Collection<SQLOperator>): OperatorGroup = OperatorGroup.clause(this).orAll(sqlOperator)
+
+    infix fun `in`(values: Array<T>): Operator.In<T> = when (values.size) {
+        1 -> `in`(values[0])
+        else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
+    }
+
+    infix fun notIn(values: Array<T>): Operator.In<T> = when (values.size) {
+        1 -> notIn(values[0])
+        else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
     }
 
     override fun `is`(conditional: IConditional): Operator<*> =
@@ -628,24 +651,4 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
 
 }
 
-fun <T : Any> NameAlias.op() = Operator.op<T>(this)
 
-fun <T : Any> String.op(): Operator<T> = nameAlias.op()
-
-infix fun <T : Any> Operator<T>.and(sqlOperator: SQLOperator): OperatorGroup = OperatorGroup.clause(this).and(sqlOperator)
-
-infix fun <T : Any> Operator<T>.or(sqlOperator: SQLOperator): OperatorGroup = OperatorGroup.clause(this).or(sqlOperator)
-
-infix fun <T : Any> Operator<T>.andAll(sqlOperator: Collection<SQLOperator>): OperatorGroup = OperatorGroup.clause(this).andAll(sqlOperator)
-
-infix fun <T : Any> Operator<T>.orAll(sqlOperator: Collection<SQLOperator>): OperatorGroup = OperatorGroup.clause(this).orAll(sqlOperator)
-
-infix fun <T : Any> Operator<T>.`in`(values: Array<T>): Operator.In<T> = when (values.size) {
-    1 -> `in`(values[0])
-    else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
-}
-
-infix fun <T : Any> Operator<T>.notIn(values: Array<T>): Operator.In<T> = when (values.size) {
-    1 -> notIn(values[0])
-    else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
-}

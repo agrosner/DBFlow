@@ -5,6 +5,8 @@ import com.raizlabs.dbflow5.assertEquals
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.models.SimpleModel
 import com.raizlabs.dbflow5.models.TwoColumnModel
+import com.raizlabs.dbflow5.models.TwoColumnModel_Table.id
+import com.raizlabs.dbflow5.models.TwoColumnModel_Table.name
 import com.raizlabs.dbflow5.query.*
 import com.raizlabs.dbflow5.query.property.property
 import com.raizlabs.dbflow5.sql.SQLiteType

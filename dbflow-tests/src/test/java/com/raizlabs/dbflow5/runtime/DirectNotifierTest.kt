@@ -11,6 +11,7 @@ import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.database.AndroidSQLiteOpenHelper
 import com.raizlabs.dbflow5.models.SimpleModel
+import com.raizlabs.dbflow5.models.SimpleModel_Table
 import com.raizlabs.dbflow5.query.delete
 import com.raizlabs.dbflow5.query.insert
 import com.raizlabs.dbflow5.query.set

@@ -13,7 +13,16 @@ typealias TransactionManagerCreator = (DBFlowDatabase) -> BaseTransactionManager
 expect class DatabaseConfig : InternalDatabaseConfig {
 
     class Builder(databaseClass: KClass<*>,
-                  openHelperCreator: OpenHelperCreator? = null) : InternalBuilder
+                  openHelperCreator: OpenHelperCreator?) : InternalBuilder
+
+    companion object {
+
+        @JvmStatic
+        fun builder(database: KClass<*>, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder
+
+        @JvmStatic
+        fun inMemoryBuilder(database: KClass<*>, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder
+    }
 }
 
 /**

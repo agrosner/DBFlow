@@ -23,7 +23,7 @@ class DatabaseConfigTest : BaseUnitTest() {
     fun setup() {
         FlowManager.reset()
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
-        builder = FlowConfig.Builder()
+        builder = FlowConfig.Builder(context)
     }
 
     @Test

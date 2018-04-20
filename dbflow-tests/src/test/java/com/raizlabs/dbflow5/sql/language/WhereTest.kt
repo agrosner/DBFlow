@@ -4,7 +4,9 @@ import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.assertEquals
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.models.SimpleModel
+import com.raizlabs.dbflow5.models.SimpleModel_Table.name
 import com.raizlabs.dbflow5.models.TwoColumnModel
+import com.raizlabs.dbflow5.models.TwoColumnModel_Table.id
 import com.raizlabs.dbflow5.query.*
 import com.raizlabs.dbflow5.query.OrderBy.Companion.fromNameAlias
 import org.junit.Assert.assertTrue

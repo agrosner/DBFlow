@@ -31,16 +31,24 @@ actual class DatabaseConfig : InternalDatabaseConfig {
     constructor(builder: Builder) : super(builder)
 
     actual class Builder actual constructor(databaseClass: KClass<*>,
-                                            openHelperCreator: OpenHelperCreator? = null)
+                                            openHelperCreator: OpenHelperCreator?)
         : InternalBuilder(databaseClass, openHelperCreator) {
         override fun build(): DatabaseConfig = DatabaseConfig(this)
     }
 
-    companion object {
+    actual companion object {
 
         @JvmStatic
         fun builder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
             Builder(database.kotlin, openHelperCreator)
+
+        @JvmStatic
+        actual fun builder(database: KClass<*>, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder =
+            InternalDatabaseConfig.builder(database, openHelperCreator)
+
+        @JvmStatic
+        actual fun inMemoryBuilder(database: KClass<*>, openHelperCreator: OpenHelperCreator): DatabaseConfig.Builder =
+            InternalDatabaseConfig.builder(database, openHelperCreator)
 
         @JvmStatic
         fun inMemoryBuilder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =

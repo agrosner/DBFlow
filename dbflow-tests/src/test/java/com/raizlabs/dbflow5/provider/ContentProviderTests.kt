@@ -28,7 +28,7 @@ class ContentProviderTests : BaseUnitTest() {
     fun setUp() {
         val info = ProviderInfo()
         info.authority = TestContentProvider.AUTHORITY
-        Robolectric.buildContentProvider(TestContentProvider_Provider::class).create(info)
+        Robolectric.buildContentProvider(TestContentProvider_Provider::class.java).create(info)
     }
 
     @Test

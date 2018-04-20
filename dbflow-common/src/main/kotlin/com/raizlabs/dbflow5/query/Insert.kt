@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.query
 
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.appendArray
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.modelAdapter
@@ -10,6 +9,7 @@ import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.sql.ConflictAction
 import com.raizlabs.dbflow5.sql.Query
 import com.raizlabs.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 
 expect class Insert<T : Any> internal constructor(table: KClass<T>, vararg columns: Property<*>) : InternalInsert<T>
 
@@ -173,6 +173,16 @@ internal constructor(table: KClass<T>, vararg columns: Property<*>)
         columns(*columns.toTypedArray()).values(values)
     }
 
+    fun columnValues(vararg pairs: Pair<IProperty<*>, *>) = applyInsert {
+        val columns: MutableList<IProperty<*>> = mutableListOf()
+        val values = mutableListOf<Any?>()
+        pairs.forEach {
+            columns.add(it.first)
+            values.add(it.second)
+        }
+        this.columns(columns).values(values)
+    }
+
     /**
      * Uses the [Operator] pairs to fill this insert query.
      *
@@ -197,7 +207,7 @@ internal constructor(table: KClass<T>, vararg columns: Property<*>)
      *
      * @param selectFrom The from that is continuation of [Select].
      */
-    fun select(selectFrom: From<*>) = applyInsert {
+    infix fun select(selectFrom: From<*>) = applyInsert {
         this.selectFrom = selectFrom
     }
 
@@ -249,6 +259,16 @@ internal constructor(table: KClass<T>, vararg columns: Property<*>)
      */
     fun orIgnore() = applyInsert { or(ConflictAction.IGNORE) }
 
+    infix fun orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().columnValues(*into)
+
+    infix fun orRollback(into: Array<out Pair<IProperty<*>, *>>) = orRollback().columnValues(*into)
+
+    infix fun orAbort(into: Array<out Pair<IProperty<*>, *>>) = orAbort().columnValues(*into)
+
+    infix fun orFail(into: Array<out Pair<IProperty<*>, *>>) = orFail().columnValues(*into)
+
+    infix fun orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().columnValues(*into)
+
     override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long {
         throw IllegalStateException("Cannot call executeUpdateDelete() from an Insert")
     }
@@ -256,27 +276,6 @@ internal constructor(table: KClass<T>, vararg columns: Property<*>)
     private inline fun applyInsert(fn: InternalInsert<T>.() -> Unit): Insert<T> = apply(fn) as Insert<T>
 }
 
-infix fun <T : Any> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().columnValues(*into)
-
-infix fun <T : Any> Insert<T>.orRollback(into: Array<out Pair<IProperty<*>, *>>) = orRollback().columnValues(*into)
-
-infix fun <T : Any> Insert<T>.orAbort(into: Array<out Pair<IProperty<*>, *>>) = orAbort().columnValues(*into)
-
-infix fun <T : Any> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) = orFail().columnValues(*into)
-
-infix fun <T : Any> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().columnValues(*into)
-
-infix fun <T : Any> Insert<T>.select(from: From<*>): Insert<T> = select(from)
-
 fun columnValues(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> = pairs
 
-fun <T : Any> Insert<T>.columnValues(vararg pairs: Pair<IProperty<*>, *>): Insert<T> {
-    val columns: MutableList<IProperty<*>> = mutableListOf()
-    val values = mutableListOf<Any?>()
-    pairs.forEach {
-        columns.add(it.first)
-        values.add(it.second)
-    }
-    this.columns(columns).values(values)
-    return this
-}
+

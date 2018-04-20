@@ -2,6 +2,8 @@ package com.raizlabs.dbflow5.sql.language
 
 import com.raizlabs.dbflow5.BaseUnitTest
 import com.raizlabs.dbflow5.assertEquals
+import com.raizlabs.dbflow5.models.TwoColumnModel_Table.id
+import com.raizlabs.dbflow5.models.TwoColumnModel_Table.name
 import com.raizlabs.dbflow5.query.OperatorGroup
 import org.junit.Test
 
