@@ -102,7 +102,6 @@ internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("D
     }
 
     override fun run() {
-        super.run()
         threadConfigurator.configureForBackground()
         while (true) {
             var tmpModels = listOf<Any>()

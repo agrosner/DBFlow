@@ -100,6 +100,9 @@ private constructor(
     fun <TModel : Any> updateOn(onTable: KClass<TModel>, vararg properties: IProperty<*>): TriggerMethod<TModel> =
         TriggerMethod(this, TriggerMethod.UPDATE, onTable, *properties)
 
+    infix fun <T : Any> updateOn(onTable: KClass<T>): TriggerMethod<T> =
+        TriggerMethod(this, TriggerMethod.UPDATE, onTable)
+
     companion object {
 
         /**
@@ -126,8 +129,3 @@ private constructor(
     }
 }
 
-infix fun <T : Any> Trigger.deleteOn(kClass: KClass<T>) = deleteOn(kClass)
-
-infix fun <T : Any> Trigger.insertOn(kClass: KClass<T>) = insertOn(kClass)
-
-infix fun <T : Any> Trigger.updateOn(kClass: KClass<T>) = updateOn(kClass)

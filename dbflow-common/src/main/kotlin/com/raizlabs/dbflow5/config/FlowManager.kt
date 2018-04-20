@@ -8,7 +8,6 @@ import com.raizlabs.dbflow5.adapter.ModelViewAdapter
 import com.raizlabs.dbflow5.adapter.QueryModelAdapter
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.converter.TypeConverter
-import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.migration.Migration
 import com.raizlabs.dbflow5.quote
 import com.raizlabs.dbflow5.runtime.ModelNotifier
@@ -126,24 +125,6 @@ abstract class FlowCommonManager {
             ?: throw InvalidDBConfiguration("The specified database $databaseName was not found. " +
                 "Did you forget the @Database annotation?")
     }
-
-    @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabaseForTable(table)"),
-        message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
-
-    fun getWritableDatabaseForTable(table: KClass<*>): DatabaseWrapper =
-        getDatabaseForTable(table).writableDatabase
-
-    @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabase(databaseName)"),
-        message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
-
-    fun getWritableDatabase(databaseName: String): DatabaseWrapper =
-        getDatabase(databaseName).writableDatabase
-
-    @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabase(databaseClass)"),
-        message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
-
-    fun getWritableDatabase(databaseClass: KClass<out DBFlowDatabase>): DatabaseWrapper =
-        getDatabase(databaseClass).writableDatabase
 
     /**
      * Loading the module Database holder via reflection.
@@ -279,7 +260,6 @@ abstract class FlowCommonManager {
      * @param [T]  The class that extends [BaseModelView]
      * @return The model view adapter for the specified model view.
      */
-
     fun <T : Any> getModelViewAdapter(modelViewClass: KClass<T>): ModelViewAdapter<T> =
         getModelViewAdapterOrNull(modelViewClass)
             ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
@@ -299,7 +279,6 @@ abstract class FlowCommonManager {
 
     fun getModelNotifierForTable(table: KClass<*>): ModelNotifier =
         getDatabaseForTable(table).getModelNotifier()
-
 
     fun newRegisterForTable(table: KClass<*>): TableNotifierRegister =
         getModelNotifierForTable(table).newRegister()

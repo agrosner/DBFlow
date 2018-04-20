@@ -1,6 +1,5 @@
 package com.raizlabs.dbflow5.adapter
 
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.adapter.queriable.ListModelLoader
 import com.raizlabs.dbflow5.adapter.queriable.SingleModelLoader
 import com.raizlabs.dbflow5.config.DBFlowDatabase
@@ -10,12 +9,15 @@ import com.raizlabs.dbflow5.database.DatabaseWrapper
 import com.raizlabs.dbflow5.database.FlowCursor
 import com.raizlabs.dbflow5.query.OperatorGroup
 import com.raizlabs.dbflow5.query.select
+import kotlin.reflect.KClass
+
+expect abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) : InternalRetrievalAdapter<T>
 
 /**
  * Description: Provides a base retrieval class for all [Model] backed
  * adapters.
  */
-abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
+abstract class InternalRetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
 
     /**
      * Overrides the default implementation and allows you to provide your own implementation. Defines

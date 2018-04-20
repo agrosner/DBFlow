@@ -614,7 +614,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
                 `override fun`(ClassNames.SINGLE_MODEL_LOADER, "createSingleModelLoader") {
                     modifiers(public, final)
-                    addStatement("return new \$T<>(getTable(), cacheAdapter)",
+                    addStatement("return new \$T<>(getKTable(), cacheAdapter)",
                             if (singlePrimaryKey)
                                 ClassNames.SINGLE_KEY_CACHEABLE_MODEL_LOADER
                             else
@@ -622,7 +622,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 }
                 `override fun`(ClassNames.LIST_MODEL_LOADER, "createListModelLoader") {
                     modifiers(public, final)
-                    `return`("new \$T<>(getTable(), cacheAdapter)",
+                    `return`("new \$T<>(getKTable(), cacheAdapter)",
                             if (singlePrimaryKey)
                                 ClassNames.SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER
                             else

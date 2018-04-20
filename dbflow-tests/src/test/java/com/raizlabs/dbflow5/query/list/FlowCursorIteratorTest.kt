@@ -5,9 +5,8 @@ import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.models.SimpleModel
 import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.structure.save
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import com.raizlabs.dbflow5.use
+import org.junit.Assert.*
 import org.junit.Test
 
 /**

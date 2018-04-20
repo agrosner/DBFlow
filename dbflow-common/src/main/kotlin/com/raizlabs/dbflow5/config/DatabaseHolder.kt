@@ -4,7 +4,7 @@ import com.raizlabs.dbflow5.converter.TypeConverter
 import kotlin.jvm.JvmField
 import kotlin.reflect.KClass
 
-expect abstract class DatabaseHolder : InternalDatabaseHolder
+expect abstract class DatabaseHolder() : InternalDatabaseHolder
 
 /**
  * Description: The base interface for interacting with all of the database and top-level data that's shared

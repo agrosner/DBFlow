@@ -1,15 +1,21 @@
 package com.raizlabs.dbflow5.query.property
 
-import kotlin.reflect.KClass
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.query.NameAlias
+import kotlin.reflect.KClass
+
+expect open class WrapperProperty<T, V> : InternalWrapperProperty<T, V> {
+    constructor(table: KClass<*>, nameAlias: NameAlias)
+
+    constructor(table: KClass<*>, columnName: String)
+}
 
 /**
  * Description: Provides convenience for types that are represented in different ways in the DB.
  *
  * @author Andrew Grosner (fuzz)
  */
-class WrapperProperty<T, V> : Property<V> {
+abstract class InternalWrapperProperty<T, V> : Property<V> {
 
     private var databaseProperty: WrapperProperty<V, T>? = null
 
