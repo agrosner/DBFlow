@@ -7,17 +7,26 @@ import com.raizlabs.dbflow5.query.property.IProperty
 import com.raizlabs.dbflow5.sql.Query
 import kotlin.reflect.KClass
 
+expect class Trigger(name: String) : InternalTrigger {
+
+    companion object {
+
+        @JvmStatic
+        fun create(triggerName: String): Trigger
+    }
+}
+
 /**
  * Description: Describes an easy way to create a SQLite TRIGGER
  */
-class Trigger
+abstract class InternalTrigger
 /**
  * Creates a trigger with the specified trigger name. You need to complete
  * the trigger using
  *
  * @param name What we should call this trigger
  */
-private constructor(
+internal constructor(
     /**
      * The name in the DB
      */
@@ -49,28 +58,28 @@ private constructor(
     /**
      * Sets the trigger as temporary.
      */
-    fun temporary() = apply {
+    fun temporary() = applyThis {
         this.temporary = true
     }
 
     /**
      * Specifies AFTER eventName
      */
-    fun after() = apply {
+    fun after() = applyThis {
         beforeOrAfter = AFTER
     }
 
     /**
      * Specifies BEFORE eventName
      */
-    fun before() = apply {
+    fun before() = applyThis {
         beforeOrAfter = BEFORE
     }
 
     /**
      * Specifies INSTEAD OF eventName
      */
-    fun insteadOf() = apply {
+    fun insteadOf() = applyThis {
         beforeOrAfter = INSTEAD_OF
     }
 
@@ -80,7 +89,7 @@ private constructor(
      * @param onTable The table ON
      */
     infix fun <TModel : Any> deleteOn(onTable: KClass<TModel>): TriggerMethod<TModel> =
-        TriggerMethod(this, TriggerMethod.DELETE, onTable)
+        TriggerMethod(this as Trigger, TriggerMethod.DELETE, onTable)
 
     /**
      * Starts a INSERT ON command
@@ -88,7 +97,7 @@ private constructor(
      * @param onTable The table ON
      */
     infix fun <TModel : Any> insertOn(onTable: KClass<TModel>): TriggerMethod<TModel> =
-        TriggerMethod(this, TriggerMethod.INSERT, onTable)
+        TriggerMethod(this as Trigger, TriggerMethod.INSERT, onTable)
 
     /**
      * Starts an UPDATE ON command
@@ -98,10 +107,12 @@ private constructor(
      * the UPDATE OF column1, column2,... will be used.
      */
     fun <TModel : Any> updateOn(onTable: KClass<TModel>, vararg properties: IProperty<*>): TriggerMethod<TModel> =
-        TriggerMethod(this, TriggerMethod.UPDATE, onTable, *properties)
+        TriggerMethod(this as Trigger, TriggerMethod.UPDATE, onTable, *properties)
 
     infix fun <T : Any> updateOn(onTable: KClass<T>): TriggerMethod<T> =
-        TriggerMethod(this, TriggerMethod.UPDATE, onTable)
+        TriggerMethod(this as Trigger, TriggerMethod.UPDATE, onTable)
+
+    private fun applyThis(fn: InternalTrigger.() -> Unit): Trigger = apply(fn) as Trigger
 
     companion object {
 
