@@ -1,4 +1,4 @@
-include ':dbflow',
+include ':dbflow-android',
     ':dbflow-rx2',
     ':dbflow-coroutines',
     ':dbflow-processor',
@@ -10,4 +10,3 @@ include ':dbflow',
     ':dbflow-tests',
     ':dbflow-paging',
     ':dbflow-common'
-

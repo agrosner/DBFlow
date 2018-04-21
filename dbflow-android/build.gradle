@@ -22,6 +22,7 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        main.java.srcDirs += '../dbflow-common-jvm/src/main/kotlin'
     }
 }
 

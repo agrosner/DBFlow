@@ -4,9 +4,11 @@ import android.net.Uri
 import com.raizlabs.dbflow5.BaseInstrumentedUnitTest
 import com.raizlabs.dbflow5.DemoApp
 import com.raizlabs.dbflow5.TABLE_QUERY_PARAM
+import com.raizlabs.dbflow5.User_Table.id
 import com.raizlabs.dbflow5.config.databaseForTable
 import com.raizlabs.dbflow5.config.modelAdapter
 import com.raizlabs.dbflow5.config.tableName
+import com.raizlabs.dbflow5.contentobserver.User_Table.name
 import com.raizlabs.dbflow5.getNotificationUri
 import com.raizlabs.dbflow5.query.SQLOperator
 import com.raizlabs.dbflow5.runtime.FlowContentObserver
@@ -25,7 +27,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
     @Before
     fun setupUser() {
         databaseForTable<User> {
-            (com.raizlabs.dbflow5.query.delete() from User::class).execute()
+            (com.raizlabs.dbflow5.query.delete() from User::class).execute(this)
         }
         user = User(5, "Something", 55)
     }
@@ -35,7 +37,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
         val conditionGroup = User::class.modelAdapter
             .getPrimaryConditionClause(user)
         val uri = getNotificationUri(contentUri,
-            User::class, ChangeAction.DELETE,
+            User::class.java, ChangeAction.DELETE,
             conditionGroup.conditions.toTypedArray())
 
         assertEquals(uri.authority, contentUri)
@@ -73,7 +75,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
         val countDownLatch = CountDownLatch(1)
         val mockOnModelStateChangedListener = MockOnModelStateChangedListener(countDownLatch)
         contentObserver.addModelChangeListener(mockOnModelStateChangedListener)
-        contentObserver.registerForContentChanges(DemoApp.context, User::class)
+        contentObserver.registerForContentChanges(DemoApp.context, User::class.java)
 
         userFunc(user)
         countDownLatch.await()

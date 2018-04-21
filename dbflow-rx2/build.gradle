@@ -22,7 +22,7 @@ android {
 }
 
 dependencies {
-    api project("${dbflow_project_prefix}dbflow")
+    api project("${dbflow_project_prefix}dbflow-android")
     api deps.rx2
     api deps.kotlin
 }

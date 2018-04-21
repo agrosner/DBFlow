@@ -27,7 +27,7 @@ android {
 
 dependencies {
     api deps.sql_cipher
-    api project("${dbflow_project_prefix}dbflow")
+    api project("${dbflow_project_prefix}dbflow-android")
     api deps.kotlin
 }
 

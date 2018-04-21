@@ -46,7 +46,7 @@ dependencies {
 
     kapt project("${dbflow_project_prefix}dbflow-processor")
     implementation 'com.android.support:appcompat-v7:27.0.2'
-    implementation project("${dbflow_project_prefix}dbflow")
+    implementation project("${dbflow_project_prefix}dbflow-android")
     implementation project("${dbflow_project_prefix}dbflow-core")
     implementation project("${dbflow_project_prefix}dbflow-core-android")
     implementation project("${dbflow_project_prefix}dbflow-sqlcipher")

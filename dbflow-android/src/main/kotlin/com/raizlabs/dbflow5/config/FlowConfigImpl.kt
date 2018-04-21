@@ -35,7 +35,7 @@ actual class FlowConfig
     actual class Builder(internal val context: Context) : InternalFlowConfig.InternalBuilder() {
 
         fun addDatabaseHolder(databaseHolderClass: Class<out DatabaseHolder>): Builder =
-            addDatabaseHolder(databaseHolderClass.kotlin) as Builder
+            addDatabaseHolder(databaseHolderClass.kotlin)
 
         override fun build(): FlowConfig = FlowConfig(this)
     }
