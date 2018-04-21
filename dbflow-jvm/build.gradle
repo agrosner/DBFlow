@@ -1,0 +1,19 @@
+apply plugin: 'kotlin-platform-jvm'
+
+project.ext.artifactId = bt_name
+
+targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+sourceSets {
+    main.java.srcDirs += '../dbflow-common-jvm/src/main/kotlin'
+}
+
+dependencies {
+    compile deps.kotlin
+    compile project("${dbflow_project_prefix}dbflow-core")
+
+    expectedBy project(':dbflow-common')
+}
+
+apply from: '../kotlin-artifacts.gradle'

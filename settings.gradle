@@ -9,4 +9,5 @@ include ':dbflow-android',
     ':dbflow-rx',
     ':dbflow-tests',
     ':dbflow-paging',
-    ':dbflow-common'
+    ':dbflow-common',
+    ':dbflow-jvm'
