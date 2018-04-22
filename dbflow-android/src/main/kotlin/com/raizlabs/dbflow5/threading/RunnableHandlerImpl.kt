@@ -1,4 +1,4 @@
-package com.raizlabs.dbflow5
+package com.raizlabs.dbflow5.threading
 
 import android.os.Handler
 import android.os.Looper

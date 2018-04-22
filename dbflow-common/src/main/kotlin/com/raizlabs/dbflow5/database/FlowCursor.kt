@@ -1,5 +1,6 @@
 package com.raizlabs.dbflow5.database
 
+import com.raizlabs.dbflow5.JvmOverloads
 import com.raizlabs.dbflow5.JvmStatic
 
 /**
@@ -11,238 +12,116 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
     // compatibility
     override fun getWrappedCursor(): Cursor = cursor
 
-    fun getStringOrDefault(index: Int, defValue: String): String {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getString(index)
-        } else {
-            defValue
-        }
-    }
+    @JvmOverloads
+    fun getStringOrDefault(index: Int, defValue: String = ""): String = getValue(index, defValue) { cursor.getString(index) }
 
-    fun getStringOrDefault(columnName: String): String? =
-        getStringOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getStringOrDefault(index: Int): String? {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getString(index)
-        } else {
-            null
-        }
-    }
-
-    fun getStringOrDefault(columnName: String, defValue: String): String =
+    @JvmOverloads
+    fun getStringOrDefault(columnName: String, defValue: String = ""): String =
         getStringOrDefault(cursor.getColumnIndex(columnName), defValue)
 
-    fun getIntOrDefault(columnName: String): Int =
-        getIntOrDefault(cursor.getColumnIndex(columnName))
+    @JvmOverloads
+    fun getIntOrDefault(index: Int, defValue: Int = 0): Int = getValue(index, defValue) { cursor.getInt(index) }
 
-    fun getIntOrDefault(index: Int): Int {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getInt(index)
-        } else {
-            0
-        }
-    }
-
-    fun getIntOrDefault(index: Int, defValue: Int): Int {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getInt(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getIntOrDefault(columnName: String, defValue: Int): Int =
+    @JvmOverloads
+    fun getIntOrDefault(columnName: String, defValue: Int = 0): Int =
         getIntOrDefault(cursor.getColumnIndex(columnName), defValue)
 
-    fun getIntOrDefault(index: Int, defValue: Int?): Int? {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getInt(index)
-        } else {
-            defValue
-        }
-    }
+    @JvmOverloads
+    fun getIntOrDefault(index: Int, defValue: Int? = null): Int? =
+        getValue(index, defValue) { cursor.getInt(index) }
 
-    fun getIntOrDefault(columnName: String, defValue: Int?): Int? =
+    @JvmOverloads
+    fun getIntOrDefault(columnName: String, defValue: Int? = null): Int? =
         getIntOrDefault(cursor.getColumnIndex(columnName), defValue)
 
-    fun getDoubleOrDefault(index: Int, defValue: Double): Double {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getDouble(index)
-        } else {
-            defValue
-        }
-    }
+    @JvmOverloads
+    fun getDoubleOrDefault(index: Int, defValue: Double = 0.0): Double =
+        getValue(index, defValue) { cursor.getDouble(index) }
 
-    fun getDoubleOrDefault(columnName: String): Double =
-        getDoubleOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getDoubleOrDefault(index: Int): Double {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getDouble(index)
-        } else {
-            0.0
-        }
-    }
-
-    fun getDoubleOrDefault(columnName: String, defValue: Double): Double =
+    @JvmOverloads
+    fun getDoubleOrDefault(columnName: String, defValue: Double = 0.0): Double =
         getDoubleOrDefault(cursor.getColumnIndex(columnName), defValue)
 
-    fun getDoubleOrDefault(index: Int, defValue: Double?): Double? {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getDouble(index)
-        } else {
-            defValue
-        }
-    }
+    @JvmOverloads
+    fun getDoubleOrDefault(index: Int, defValue: Double? = null): Double? =
+        getValue(index, defValue) { cursor.getDouble(index) }
 
-    fun getDoubleOrDefault(columnName: String, defValue: Double?): Double? =
+    @JvmOverloads
+    fun getDoubleOrDefault(columnName: String, defValue: Double? = null): Double? =
         getDoubleOrDefault(cursor.getColumnIndex(columnName), defValue)
 
-    fun getFloatOrDefault(index: Int, defValue: Float): Float {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getFloat(index)
-        } else {
-            defValue
-        }
-    }
+    @JvmOverloads
+    fun getFloatOrDefault(index: Int, defValue: Float = 0f): Float =
+        getValue(index, defValue) { cursor.getFloat(index) }
 
-    fun getFloatOrDefault(columnName: String): Float =
-        getFloatOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getFloatOrDefault(index: Int): Float {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getFloat(index)
-        } else {
-            0f
-        }
-    }
-
-    fun getFloatOrDefault(columnName: String, defValue: Float): Float =
+    @JvmOverloads
+    fun getFloatOrDefault(columnName: String, defValue: Float = 0f): Float =
         getFloatOrDefault(cursor.getColumnIndex(columnName), defValue)
 
-    fun getFloatOrDefault(index: Int, defValue: Float?): Float? {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getFloat(index)
-        } else {
-            defValue
-        }
-    }
+    @JvmOverloads
+    fun getFloatOrDefault(index: Int, defValue: Float? = null): Float? =
+        getValue(index, defValue) { cursor.getFloat(index) }
 
     fun getFloatOrDefault(columnName: String, defValue: Float?): Float? =
         getFloatOrDefault(cursor.getColumnIndex(columnName), defValue)
 
-    fun getLongOrDefault(index: Int, defValue: Long): Long {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getLong(index)
-        } else {
-            defValue
-        }
-    }
+    @JvmOverloads
+    fun getLongOrDefault(index: Int, defValue: Long = 0): Long =
+        getValue(index, defValue) { cursor.getLong(index) }
 
-    fun getLongOrDefault(columnName: String): Long =
-        getLongOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getLongOrDefault(index: Int): Long {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getLong(index)
-        } else {
-            0
-        }
-    }
-
-    fun getLongOrDefault(columnName: String, defValue: Long): Long =
+    @JvmOverloads
+    fun getLongOrDefault(columnName: String, defValue: Long = 0): Long =
         getLongOrDefault(cursor.getColumnIndex(columnName), defValue)
 
-    fun getLongOrDefault(index: Int, defValue: Long?): Long? {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getLong(index)
-        } else {
-            defValue
-        }
-    }
+    @JvmOverloads
+    fun getLongOrDefault(index: Int, defValue: Long? = null): Long? =
+        getValue(index, defValue) { cursor.getLong(index) }
 
-    fun getLongOrDefault(columnName: String, defValue: Long?): Long? =
+    @JvmOverloads
+    fun getLongOrDefault(columnName: String, defValue: Long? = null): Long? =
         getLongOrDefault(cursor.getColumnIndex(columnName), defValue)
 
-    fun getShortOrDefault(index: Int, defValue: Short): Short {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getShort(index)
-        } else {
-            defValue
-        }
-    }
+    @JvmOverloads
+    fun getShortOrDefault(index: Int, defValue: Short = 0): Short =
+        getValue(index, defValue) { cursor.getShort(index) }
 
-    fun getShortOrDefault(columnName: String): Short =
-        getShortOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getShortOrDefault(index: Int): Short {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getShort(index)
-        } else {
-            0
-        }
-    }
-
-    fun getShortOrDefault(columnName: String, defValue: Short): Short =
+    @JvmOverloads
+    fun getShortOrDefault(columnName: String, defValue: Short = 0): Short =
         getShortOrDefault(cursor.getColumnIndex(columnName), defValue)
 
-    fun getShortOrDefault(index: Int, defValue: Short?): Short? {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getShort(index)
-        } else {
-            defValue
-        }
-    }
+    @JvmOverloads
+    fun getShortOrDefault(index: Int, defValue: Short? = null): Short? =
+        getValue(index, defValue) { cursor.getShort(index) }
 
-    fun getShortOrDefault(columnName: String, defValue: Short?): Short? =
+    @JvmOverloads
+    fun getShortOrDefault(columnName: String, defValue: Short? = null): Short? =
         getShortOrDefault(cursor.getColumnIndex(columnName), defValue)
 
-    fun getBlobOrDefault(columnName: String): ByteArray? =
-        getBlobOrDefault(cursor.getColumnIndex(columnName))
+    @JvmOverloads
+    fun getBlobOrDefault(index: Int, defValue: ByteArray? = null): ByteArray? =
+        getValue(index, defValue) { cursor.getBlob(index) }
 
-    fun getBlobOrDefault(index: Int): ByteArray? {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getBlob(index)
-        } else {
-            null
-        }
-    }
-
-    fun getBlobOrDefault(index: Int, defValue: ByteArray): ByteArray {
-        return if (index != -1 && !cursor.isNull(index)) {
-            cursor.getBlob(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getBlobOrDefault(columnName: String, defValue: ByteArray): ByteArray =
+    @JvmOverloads
+    fun getBlobOrDefault(columnName: String, defValue: ByteArray? = null): ByteArray? =
         getBlobOrDefault(cursor.getColumnIndex(columnName), defValue)
 
-    fun getBooleanOrDefault(index: Int, defValue: Boolean): Boolean {
-        return if (index != -1 && !cursor.isNull(index)) {
-            getBoolean(index)
-        } else {
-            defValue
-        }
-    }
+    @JvmOverloads
+    fun getBooleanOrDefault(index: Int, defValue: Boolean = false): Boolean =
+        getValue(index, defValue) { getBoolean(index) }
 
-    fun getBooleanOrDefault(columnName: String): Boolean =
-        getBooleanOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getBooleanOrDefault(index: Int): Boolean {
-        return if (index != -1 && !cursor.isNull(index)) {
-            getBoolean(index)
-        } else {
-            false
-        }
-    }
-
-    fun getBooleanOrDefault(columnName: String, defValue: Boolean): Boolean =
+    @JvmOverloads
+    fun getBooleanOrDefault(columnName: String, defValue: Boolean = false): Boolean =
         getBooleanOrDefault(cursor.getColumnIndex(columnName), defValue)
 
     fun getBoolean(index: Int): Boolean = cursor.getInt(index) == 1
+
+    private inline fun <T> getValue(index: Int, defaultValue: T, getter: () -> T): T {
+        return if (index != -1 && !cursor.isNull(index)) {
+            getter()
+        } else {
+            defaultValue
+        }
+    }
 
     companion object {
 

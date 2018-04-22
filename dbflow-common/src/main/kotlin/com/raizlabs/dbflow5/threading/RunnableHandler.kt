@@ -1,4 +1,6 @@
-package com.raizlabs.dbflow5
+package com.raizlabs.dbflow5.threading
+
+import com.raizlabs.dbflow5.Runnable
 
 
 interface RunnableHandler {
