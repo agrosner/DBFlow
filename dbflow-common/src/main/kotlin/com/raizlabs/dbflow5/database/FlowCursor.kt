@@ -115,14 +115,6 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
 
     fun getBoolean(index: Int): Boolean = cursor.getInt(index) == 1
 
-    private inline fun <T> getValue(index: Int, defaultValue: T, getter: () -> T): T {
-        return if (index != -1 && !cursor.isNull(index)) {
-            getter()
-        } else {
-            defaultValue
-        }
-    }
-
     companion object {
 
         @JvmStatic

@@ -33,6 +33,11 @@ expect interface Cursor : Closeable {
 
 expect val Cursor.count: Int
 
+/**
+ * Used for non null fields to preserve primitives.
+ */
+expect inline fun <T> Cursor.getValue(index: Int, defaultValue: T, getter: () -> T): T
+
 open class CursorWrapper(private val cursor: Cursor) : Cursor by cursor {
 
     open fun getWrappedCursor(): Cursor = cursor
