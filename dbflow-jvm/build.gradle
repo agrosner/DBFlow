@@ -12,6 +12,7 @@ sourceSets {
 dependencies {
     compile deps.kotlin
     compile project("${dbflow_project_prefix}dbflow-core")
+    compile "com.almworks.sqlite4java:sqlite4java:1.0.392"
 
     expectedBy project(':dbflow-common')
 }
