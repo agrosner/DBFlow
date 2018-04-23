@@ -13,33 +13,36 @@ actual typealias PlatformOpenHelper = AndroidSQLiteOpenHelper
  */
 open class AndroidSQLiteOpenHelper(
     private val context: Context,
-    databaseDefinition: DBFlowDatabase,
-    listener: DatabaseCallback?)
+    dbFlowDatabase: DBFlowDatabase,
+    callback: DatabaseCallback?)
     : SQLiteOpenHelper(context,
-    if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
+    if (dbFlowDatabase.isInMemory) null else dbFlowDatabase.databaseFileName,
     null,
-    databaseDefinition.databaseVersion), OpenHelper {
+    dbFlowDatabase.databaseVersion), OpenHelper {
 
+    /**
+     * Used for default platform constructor compatibility.
+     */
     constructor(db: DBFlowDatabase, callback: DatabaseCallback?) : this(
         FlowManager.context,
         db, callback)
 
     private val databaseHelperDelegate: DatabaseHelperDelegate
     private var androidDatabase: AndroidDatabase? = null
-    private val _databaseName = databaseDefinition.databaseFileName
+    private val _databaseName = dbFlowDatabase.databaseFileName
 
     init {
         val restoreHelper = PlatformDatabaseRestoreHelper(context)
-        val migrationHelper = PlatformMigrationHelper(context, databaseDefinition)
+        val migrationHelper = PlatformMigrationHelper(context, dbFlowDatabase)
         var backupHelper: OpenHelper? = null
-        if (databaseDefinition.backupEnabled()) {
+        if (dbFlowDatabase.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = BackupHelper(migrationHelper,
-                DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                databaseDefinition.databaseVersion, databaseDefinition)
+                DatabaseHelperDelegate.getTempDbFileName(dbFlowDatabase),
+                dbFlowDatabase.databaseVersion, dbFlowDatabase)
         }
 
-        databaseHelperDelegate = DatabaseHelperDelegate(migrationHelper, restoreHelper, listener, databaseDefinition, backupHelper)
+        databaseHelperDelegate = DatabaseHelperDelegate(migrationHelper, restoreHelper, callback, dbFlowDatabase, backupHelper)
     }
 
     override fun performRestoreFromBackup() {
@@ -65,13 +68,13 @@ open class AndroidSQLiteOpenHelper(
         }
 
     /**
-     * Set a listener to listen for specific DB events and perform an action before we execute this classes
+     * Set a callback to listen for specific DB events and perform an action before we execute this classes
      * specific methods.
      *
      * @param callback
      */
-    override fun setDatabaseListener(callback: DatabaseCallback?) {
-        databaseHelperDelegate.setDatabaseHelperListener(callback)
+    override fun setDatabaseCallback(callback: DatabaseCallback?) {
+        databaseHelperDelegate.setDatabaseCallback(callback)
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -128,7 +131,7 @@ open class AndroidSQLiteOpenHelper(
 
         override fun backupDB() {}
 
-        override fun setDatabaseListener(callback: DatabaseCallback?) {}
+        override fun setDatabaseCallback(callback: DatabaseCallback?) {}
 
         override fun onCreate(db: SQLiteDatabase) {
             baseDatabaseHelper.onCreate(AndroidDatabase.from(db))

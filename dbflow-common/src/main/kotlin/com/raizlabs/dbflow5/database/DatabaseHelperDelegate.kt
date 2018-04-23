@@ -52,7 +52,7 @@ class DatabaseHelperDelegate(
      * @param databaseCallback Listens for operations the DB and allow you to provide extra
      * functionality.
      */
-    fun setDatabaseHelperListener(databaseCallback: DatabaseCallback?) {
+    fun setDatabaseCallback(databaseCallback: DatabaseCallback?) {
         this.databaseCallback = databaseCallback
     }
 

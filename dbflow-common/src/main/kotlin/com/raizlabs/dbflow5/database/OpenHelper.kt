@@ -17,7 +17,7 @@ interface OpenHelper {
 
     fun backupDB()
 
-    fun setDatabaseListener(callback: DatabaseCallback?)
+    fun setDatabaseCallback(callback: DatabaseCallback?)
 
     fun closeDB()
 

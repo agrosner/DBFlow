@@ -52,6 +52,15 @@ abstract class FlowCommonManager {
         }
     }
 
+    internal fun loadHolder(databaseHolder: DatabaseHolder, holderClass: KClass<out DatabaseHolder>) {
+        globalDatabaseHolder.add(databaseHolder)
+
+        // Cache the holder for future reference.
+        loadedModules.add(holderClass)
+    }
+
+    internal fun hasLoadedHolder(holderClass: KClass<out DatabaseHolder>) = loadedModules.contains(holderClass)
+
     /**
      * Returns the table name for the specific model class
      *

@@ -18,7 +18,12 @@ actual interface Cursor : Closeable {
     actual fun moveToNext(): Boolean
     actual fun moveToPosition(index: Int): Boolean
     actual fun isClosed(): Boolean
+
+    val count: Int
 }
+
+actual val Cursor.count: Int
+    get() = this.count
 
 /**
  * Implements the JDBC way of reading a cursor. Read row first, then check if null.
@@ -36,7 +41,10 @@ actual inline fun <T> Cursor.getValue(index: Int, defaultValue: T, getter: () ->
 /**
  * Provides wrapping on [Cursor] for compatibility into DBFlow internal api.
  */
-class JDBCCursor(private val resultSet: ResultSet) : Cursor {
+class JDBCCursor(private val resultSet: ResultSet,
+                 rowCount: Int) : Cursor {
+
+    override val count: Int = rowCount
 
     override fun isNull(index: Int): Boolean {
         return false
