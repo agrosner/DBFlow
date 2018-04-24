@@ -55,27 +55,27 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
     // Use if Kotlin user.
     kapt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
 
-    compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
-    compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
+    implementation "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
+    implementation "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
 
     // sql-cipher database encryption (optional)
-    compile "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${dbflow_version}"
-    compile "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
+    implementation "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${dbflow_version}"
+    implementation "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
 
     // kotlin extensions
-    compile "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}"
+    implementation "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}"
 
     // RXJava 1 support
-    compile "com.github.Raizlabs.DBFlow:dbflow-rx:${dbflow_version}"
+    implementation "com.github.Raizlabs.DBFlow:dbflow-rx:${dbflow_version}"
 
     // RXJava 1 Kotlin Extensions Support
-    compile "com.github.Raizlabs.DBFlow:dbflow-rx-kotlinextensions:${dbflow_version}"
+    implementation "com.github.Raizlabs.DBFlow:dbflow-rx-kotlinextensions:${dbflow_version}"
 
     // RXJava 2 support
-    compile "com.github.Raizlabs.DBFlow:dbflow-rx2:${dbflow_version}"
+    implementation "com.github.Raizlabs.DBFlow:dbflow-rx2:${dbflow_version}"
 
     // RXJava 2 Kotlin Extensions Support
-    compile "com.github.Raizlabs.DBFlow:dbflow-rx2-kotlinextensions:${dbflow_version}"
+    implementation "com.github.Raizlabs.DBFlow:dbflow-rx2-kotlinextensions:${dbflow_version}"
 
   }
 
