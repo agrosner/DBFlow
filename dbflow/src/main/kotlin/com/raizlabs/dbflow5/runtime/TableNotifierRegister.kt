@@ -1,5 +1,7 @@
 package com.raizlabs.dbflow5.runtime
 
+import com.raizlabs.dbflow5.structure.ChangeAction
+
 /**
  * Description: Defines how [ModelNotifier] registers listeners. Abstracts that away.
  */
@@ -14,4 +16,12 @@ interface TableNotifierRegister {
     fun unregisterAll()
 
     fun setListener(listener: OnTableChangedListener?)
+
+
 }
+
+inline fun TableNotifierRegister.setListener(crossinline listener: (Class<*>?, ChangeAction) -> Unit) =
+        setListener(object : OnTableChangedListener() {
+            override fun onTableChanged(table: Class<*>?, action: ChangeAction) = listener(table, action)
+        })
+
