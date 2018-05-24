@@ -6,61 +6,67 @@ DBFlow has a number of artifacts that you can include in the project.
 
 **Core:** Contains the main annotations and misc classes that are shared across all of DBFlow.
 
-**DBFlow: **The main library artifact used in conjunction with the previous two artifacts.
+**DBFlow:** The main library artifact used in conjunction with the previous two artifacts.
 
-**SCLCipher Support:** Replaces most of inner database interaction with an [Encrypted Database](https://www.zetetic.net/sqlcipher/) that's useful for sensitive information. DBFlow contains wrapper around most of the implementation, so adding it is minimal.
+**Coroutines:** Adds coroutine support for queries.
 
-**Kotlin: **DBFlow has Kotlin extensions support for the library, enabling more concise syntax and tons of inline helper methods! Also most of the public library API is annotated with `@Nullable` or `@NonNull`, providing nice interop when used in Kotlin.
+**RX Java:** Enable applications to be reactive by listening to DB changes and ensuring your subscribers are up-to-date.
 
-**RXJava: **RX1 and RX2 supported. Wraps around normal DB operations by providing RXJava support for Model CRUD updates and SQLite wrapper language. Also Kotlin extensions exist for RX-specific methods.
+**Paging:** Android architecture component paging library support for queries via `QueryDataSource`.
+
+**SQLCipher:** Easy database encryption support in this library.
 
 ### Add the jitpack.io repository
 
 This repo is used to publish the artifacts. It also enables [dynamic builds](https://jitpack.io/docs/), allowing you to specify specific branches or commit hashes of the project to include outside of normal releases.
 
-```Groovy
+```groovy
+
 allProjects {
   repositories {
+    google() 
     // required to find the project's artifacts
+    // place last
     maven { url "https://www.jitpack.io" }
   }
 }
 ```
 
-```Groovy
+Add artifacts to your project:
 
-  apply plugin: 'kotlin-kapt' // required for Kotlin
+```groovy
 
-  def dbflow_version = "xxxx" // reference the releases tab on Github for latest versions
-  // or you can grab a 10-digit commit hash of any commit in the project that builds.
+  apply plugin: 'kotlin-kapt' // only required for kotlin consumers.
+
+  def dbflow_version = "5.0.0-alpha1"
+  // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
   dependencies {
-    annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
 
-    // use kapt for kotlin apt if you're a Kotlin user
-    kapt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
+    // Use if Kotlin user.
+    kapt "com.github.agrosner.dbflow:processor:${dbflow_version}"
 
-    compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
-    compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
+    // Annotation Processor
+    // if only using Java, use this. If using Kotlin do NOT use this.
+    annotationProcessor "com.github.agrosner.dbflow:processor:${dbflow_version}"
+
+    
+    // core set of libraries
+    compile "com.github.agrosner.dbflow:core:${dbflow_version}"
+    compile "com.github.agrosner.dbflow:lib:${dbflow_version}"
 
     // sql-cipher database encryption (optional)
-    compile "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${dbflow_version}"
+    compile "com.github.agrosner.dbflow:sqlcipher:${dbflow_version}"
     compile "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
 
-    // kotlin extensions
-    compile "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}"
-
-    // RXJava 1 support
-    compile "com.github.Raizlabs.DBFlow:dbflow-rx:${dbflow_version}"
-
-    // RXJava 1 Kotlin Extensions Support
-    compile "com.github.Raizlabs.DBFlow:dbflow-rx-kotlinextensions:${dbflow_version}"
-
     // RXJava 2 support
-    compile "com.github.Raizlabs.DBFlow:dbflow-rx2:${dbflow_version}"
+    compile "com.github.agrosner.dbflow:reactive-streams:${dbflow_version}"
 
-    // RXJava 2 Kotlin Extensions Support
-    compile "com.github.Raizlabs.DBFlow:dbflow-rx2-kotlinextensions:${dbflow_version}"
+    // Kotlin Coroutines
+    compile "com.github.agrosner.dbflow:coroutines:${dbflow_version}"
+
+    // Android Architecture Components Paging Library Support
+    compile "com.github.agrosner.dbflow:paging:${dbflow_version}"
 
   }
 

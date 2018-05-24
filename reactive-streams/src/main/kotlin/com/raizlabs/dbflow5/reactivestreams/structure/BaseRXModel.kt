@@ -1,11 +1,11 @@
-package com.raizlabs.dbflow5.reactivestreams.structure
+package com.dbflow5.reactivestreams.structure
 
-import com.raizlabs.dbflow5.annotation.ColumnIgnore
-import com.raizlabs.dbflow5.config.FlowManager
-import com.raizlabs.dbflow5.structure.BaseModel
-import com.raizlabs.dbflow5.structure.InvalidDBConfiguration
-import com.raizlabs.dbflow5.adapter.ModelAdapter
-import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.dbflow5.annotation.ColumnIgnore
+import com.dbflow5.config.FlowManager
+import com.dbflow5.structure.BaseModel
+import com.dbflow5.structure.InvalidDBConfiguration
+import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.database.DatabaseWrapper
 
 import io.reactivex.Completable
 import io.reactivex.Single

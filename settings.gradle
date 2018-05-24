@@ -1,4 +1,4 @@
-include ':dbflow', ':reactive-streams', ':coroutines',
+include ':lib', ':reactive-streams', ':coroutines', ':contentprovider',
         ':processor',
         ':core',
         ':sqlcipher',

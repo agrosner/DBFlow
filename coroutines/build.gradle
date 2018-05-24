@@ -23,7 +23,7 @@ android {
 }
 
 dependencies {
-    implementation project("${dbflow_project_prefix}dbflow")
+    implementation project(':lib')
     api deps.coroutines
 }
 

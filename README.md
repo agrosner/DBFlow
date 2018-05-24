@@ -10,6 +10,8 @@ Supports:
 
 **Kotlin:** Built using the language, the library is super-concise, null-safe and efficient.
 
+**Coroutines:** Adds coroutine support for queries.
+
 **RX Java:** Enable applications to be reactive by listening to DB changes and ensuring your subscribers are up-to-date.
 
 **Paging:** Android architecture component paging library support for queries via `QueryDataSource`.
@@ -61,7 +63,7 @@ Add artifacts to your project:
     
     // core set of libraries
     compile "com.github.agrosner.dbflow:core:${dbflow_version}"
-    compile "com.github.agrosner.dbflow:dbflow:${dbflow_version}"
+    compile "com.github.agrosner.dbflow:lib:${dbflow_version}"
 
     // sql-cipher database encryption (optional)
     compile "com.github.agrosner.dbflow:sqlcipher:${dbflow_version}"

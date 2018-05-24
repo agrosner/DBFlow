@@ -1,7 +1,7 @@
-package com.raizlabs.dbflow5.sqlcipher
+package com.dbflow5.sqlcipher
 
-import com.raizlabs.dbflow5.database.BaseDatabaseStatement
-import com.raizlabs.dbflow5.database.DatabaseStatement
+import com.dbflow5.database.BaseDatabaseStatement
+import com.dbflow5.database.DatabaseStatement
 
 import net.sqlcipher.database.SQLiteStatement
 

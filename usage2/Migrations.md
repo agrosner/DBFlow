@@ -105,7 +105,7 @@ For renaming tables, you should rename the `Model` class' `@Table(name = "{newNa
 this `Migration`. The reason is that DBFlow will know
 the new name only and the existing database will get caught up on it through this migration. Any new database created on a device will automatically have the new table name.
 
-For adding columns, we only support `SQLiteType` (all supported ones [here](https://www.sqlite.org/datatype3.html)) operations to add or remove columns. This is to enforce that the columns are created properly. If a column needs to be a `TypeConverter` column, use the database value from it. We map the associated type of the database field to a `SQLiteType` in [SQLiteType.java](/dbflow/src/main/java/com/raizlabs/android/dbflow/sql/SQLiteType.java). So if you have a `DateConverter` that specifies a `Date` column converted to `Long`, then you should look up `Long` in the `Map`. In this case `Long` converts to `INTEGER`.
+For adding columns, we only support `SQLiteType` (all supported ones [here](https://www.sqlite.org/datatype3.html)) operations to add or remove columns. This is to enforce that the columns are created properly. If a column needs to be a `TypeConverter` column, use the database value from it. We map the associated type of the database field to a `SQLiteType` in [SQLiteType.kt](/dbflow/src/main/java/com/dbflow5/sql/SQLiteType.kt). So if you have a `DateConverter` that specifies a `Date` column converted to `Long`, then you should look up `Long` in the `Map`. In this case `Long` converts to `INTEGER`.
 
 ```java
 

@@ -2,15 +2,6 @@
 
 DBFlow supports Kotlin out of the box and is fairly easily to use and implement.
 
-To add useful Kotlin-specific extensions:
-```
-dependencies {
-  compile "com.github.Raizlabs.DBFlow:dbflow-kotlinextensions:${dbflow_version}@aar"
-}
-
-```
-We also support [kotlin extensions for RX 1 + 2](RXSupport.md)!
-
 ## Classes
 
 DBFlow Classes are beautifully concise to write:

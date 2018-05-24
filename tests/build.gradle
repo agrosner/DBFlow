@@ -45,11 +45,12 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
     kapt project("${dbflow_project_prefix}processor")
-    implementation project(':dbflow')
+    implementation project(':lib')
     implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation project("${dbflow_project_prefix}dbflow")
+    implementation project(':lib')
     implementation project("${dbflow_project_prefix}sqlcipher")
-    implementation project(':dbflow-reactive-streams')
+    implementation project(':reactive-streams')
+    implementation project(':contentprovider')
     implementation project("${dbflow_project_prefix}coroutines")
     implementation project("${dbflow_project_prefix}paging")
 

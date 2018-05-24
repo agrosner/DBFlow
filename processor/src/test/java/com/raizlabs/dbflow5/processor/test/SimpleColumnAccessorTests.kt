@@ -1,6 +1,6 @@
-package com.raizlabs.dbflow5.processor.test
+package com.dbflow5.processor.test
 
-import com.raizlabs.dbflow5.processor.definition.column.*
+import com.dbflow5.processor.definition.column.*
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
 import org.junit.Assert.assertEquals
@@ -118,7 +118,7 @@ class EnumColumnAccessorTest {
     @Test
     fun test_canSetEnum() {
         val access = EnumColumnAccessor(TypeName.get(TestEnum::class.java))
-        assertEquals("com.raizlabs.dbflow5.processor.test.EnumColumnAccessorTest.TestEnum.valueOf(model.test)",
+        assertEquals("com.dbflow5.processor.test.EnumColumnAccessorTest.TestEnum.valueOf(model.test)",
                 access.set(CodeBlock.of("model.test")).toString())
     }
 }
@@ -134,7 +134,7 @@ class BlobColumnAccessorTest() {
     @Test
     fun test_canSetBlob() {
         val access = BlobColumnAccessor()
-        assertEquals("new com.raizlabs.dbflow5.Blob(cursor.getBlob(index))",
+        assertEquals("new com.dbflow5.Blob(cursor.getBlob(index))",
                 access.set(CodeBlock.of("cursor.getBlob(index)")).toString())
     }
 }

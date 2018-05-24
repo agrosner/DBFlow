@@ -1,10 +1,10 @@
 @file:JvmName("RXModelQueriable")
 
-package com.raizlabs.dbflow5.reactivestreams.query
+package com.dbflow5.reactivestreams.query
 
-import com.raizlabs.dbflow5.config.DBFlowDatabase
-import com.raizlabs.dbflow5.query.ModelQueriable
-import com.raizlabs.dbflow5.transaction.ITransactionQueue
+import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.query.ModelQueriable
+import com.dbflow5.transaction.ITransactionQueue
 import io.reactivex.Flowable
 
 /**

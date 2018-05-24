@@ -1,13 +1,13 @@
-package com.raizlabs.dbflow5.sqlcipher
+package com.dbflow5.sqlcipher
 
 import android.content.Context
-import com.raizlabs.dbflow5.config.DBFlowDatabase
-import com.raizlabs.dbflow5.config.DatabaseConfig
-import com.raizlabs.dbflow5.database.BaseDatabaseHelper
-import com.raizlabs.dbflow5.database.DatabaseCallback
-import com.raizlabs.dbflow5.database.DatabaseHelperDelegate
-import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.database.OpenHelper
+import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.DatabaseConfig
+import com.dbflow5.database.BaseDatabaseHelper
+import com.dbflow5.database.DatabaseCallback
+import com.dbflow5.database.DatabaseHelperDelegate
+import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.OpenHelper
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteOpenHelper
 

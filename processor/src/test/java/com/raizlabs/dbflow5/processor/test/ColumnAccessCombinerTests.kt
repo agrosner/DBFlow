@@ -1,15 +1,15 @@
-package com.raizlabs.android.dbflow.processor.test
+package com.dbflow5.processor.test
 
-import com.raizlabs.dbflow5.processor.definition.column.BooleanColumnAccessor
-import com.raizlabs.dbflow5.processor.definition.column.Combiner
-import com.raizlabs.dbflow5.processor.definition.column.ContentValuesCombiner
-import com.raizlabs.dbflow5.processor.definition.column.LoadFromCursorAccessCombiner
-import com.raizlabs.dbflow5.processor.definition.column.PackagePrivateScopeColumnAccessor
-import com.raizlabs.dbflow5.processor.definition.column.PrimaryReferenceAccessCombiner
-import com.raizlabs.dbflow5.processor.definition.column.PrivateScopeColumnAccessor
-import com.raizlabs.dbflow5.processor.definition.column.SqliteStatementAccessCombiner
-import com.raizlabs.dbflow5.processor.definition.column.TypeConverterScopeColumnAccessor
-import com.raizlabs.dbflow5.processor.definition.column.VisibleScopeColumnAccessor
+import com.dbflow5.processor.definition.column.BooleanColumnAccessor
+import com.dbflow5.processor.definition.column.Combiner
+import com.dbflow5.processor.definition.column.ContentValuesCombiner
+import com.dbflow5.processor.definition.column.LoadFromCursorAccessCombiner
+import com.dbflow5.processor.definition.column.PackagePrivateScopeColumnAccessor
+import com.dbflow5.processor.definition.column.PrimaryReferenceAccessCombiner
+import com.dbflow5.processor.definition.column.PrivateScopeColumnAccessor
+import com.dbflow5.processor.definition.column.SqliteStatementAccessCombiner
+import com.dbflow5.processor.definition.column.TypeConverterScopeColumnAccessor
+import com.dbflow5.processor.definition.column.VisibleScopeColumnAccessor
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.TypeName

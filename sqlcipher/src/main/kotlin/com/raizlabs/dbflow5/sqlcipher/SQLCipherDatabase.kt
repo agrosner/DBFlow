@@ -1,9 +1,9 @@
-package com.raizlabs.dbflow5.sqlcipher
+package com.dbflow5.sqlcipher
 
 import android.content.ContentValues
-import com.raizlabs.dbflow5.database.DatabaseStatement
-import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.database.FlowCursor
+import com.dbflow5.database.DatabaseStatement
+import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.FlowCursor
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteException
 
@@ -77,7 +77,7 @@ internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
     }
 }
 
-fun SQLiteException.toDBFlowSQLiteException() = com.raizlabs.dbflow5.database.SQLiteException("A Database Error Occurred", this)
+fun SQLiteException.toDBFlowSQLiteException() = com.dbflow5.database.SQLiteException("A Database Error Occurred", this)
 
 inline fun <T> rethrowDBFlowException(fn: () -> T) = try {
     fn()

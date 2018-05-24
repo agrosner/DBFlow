@@ -1,15 +1,15 @@
-package com.raizlabs.dbflow5.reactivestreams.query
+package com.dbflow5.reactivestreams.query
 
-import com.raizlabs.dbflow5.config.FlowManager
-import com.raizlabs.dbflow5.config.databaseForTable
-import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.query.Join
-import com.raizlabs.dbflow5.query.ModelQueriable
-import com.raizlabs.dbflow5.query.extractFrom
-import com.raizlabs.dbflow5.runtime.OnTableChangedListener
-import com.raizlabs.dbflow5.runtime.TableNotifierRegister
-import com.raizlabs.dbflow5.reactivestreams.transaction.asMaybe
-import com.raizlabs.dbflow5.structure.ChangeAction
+import com.dbflow5.config.FlowManager
+import com.dbflow5.config.databaseForTable
+import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.query.Join
+import com.dbflow5.query.ModelQueriable
+import com.dbflow5.query.extractFrom
+import com.dbflow5.runtime.OnTableChangedListener
+import com.dbflow5.runtime.TableNotifierRegister
+import com.dbflow5.reactivestreams.transaction.asMaybe
+import com.dbflow5.structure.ChangeAction
 import io.reactivex.FlowableEmitter
 import io.reactivex.FlowableOnSubscribe
 import io.reactivex.disposables.Disposables

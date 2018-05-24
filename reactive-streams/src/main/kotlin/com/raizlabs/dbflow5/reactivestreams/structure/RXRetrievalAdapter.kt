@@ -1,8 +1,8 @@
-package com.raizlabs.dbflow5.reactivestreams.structure
+package com.dbflow5.reactivestreams.structure
 
-import com.raizlabs.dbflow5.adapter.RetrievalAdapter
-import com.raizlabs.dbflow5.config.FlowManager
-import com.raizlabs.dbflow5.database.DatabaseWrapper
+import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.config.FlowManager
+import com.dbflow5.database.DatabaseWrapper
 import io.reactivex.Completable
 import io.reactivex.Single
 

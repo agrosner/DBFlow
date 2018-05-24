@@ -1,12 +1,12 @@
 @file:JvmName("RXTransactions")
 
-package com.raizlabs.dbflow5.reactivestreams.transaction
+package com.dbflow5.reactivestreams.transaction
 
-import com.raizlabs.dbflow5.database.DatabaseWrapper
-import com.raizlabs.dbflow5.query.ModelQueriable
-import com.raizlabs.dbflow5.reactivestreams.query.TableChangeOnSubscribe
-import com.raizlabs.dbflow5.transaction.ITransactionQueue
-import com.raizlabs.dbflow5.transaction.Transaction
+import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.query.ModelQueriable
+import com.dbflow5.reactivestreams.query.TableChangeOnSubscribe
+import com.dbflow5.transaction.ITransactionQueue
+import com.dbflow5.transaction.Transaction
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Maybe
