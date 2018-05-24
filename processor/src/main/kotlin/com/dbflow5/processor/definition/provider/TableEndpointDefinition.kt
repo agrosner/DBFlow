@@ -1,9 +1,9 @@
 package com.dbflow5.processor.definition.provider
 
-import com.dbflow5.annotation.provider.ContentUri
-import com.dbflow5.annotation.provider.Notify
-import com.dbflow5.annotation.provider.NotifyMethod
-import com.dbflow5.annotation.provider.TableEndpoint
+import com.dbflow5.contentprovider.annotation.Notify
+import com.dbflow5.contentprovider.annotation.NotifyMethod
+import com.dbflow5.contentprovider.annotation.ContentUri
+import com.dbflow5.contentprovider.annotation.TableEndpoint
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.BaseDefinition
 import com.dbflow5.processor.utils.annotation

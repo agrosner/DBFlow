@@ -1,4 +1,4 @@
-include ':lib', ':reactive-streams', ':coroutines', ':contentprovider',
+include ':lib', ':reactive-streams', ':coroutines', ':contentprovider', ':contentprovider-annotations',
         ':processor',
         ':core',
         ':sqlcipher',

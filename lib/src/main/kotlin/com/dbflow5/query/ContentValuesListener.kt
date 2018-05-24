@@ -3,7 +3,6 @@ package com.dbflow5.query
 import android.content.ContentValues
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.annotation.Table
-import com.dbflow5.annotation.provider.ContentProvider
 import com.dbflow5.structure.Model
 
 /**
@@ -36,7 +35,7 @@ interface ContentValuesListener {
      * It enables you to customly change the values as necessary during insert
      * to the database for a [ContentProvider].
      *
-     * @param contentValues The content values to insert into DB for a [ContentProvider]
+     * @param contentValues The content values to insert into DB for a ContentProvider
      */
     fun onBindToInsertValues(contentValues: ContentValues)
 }

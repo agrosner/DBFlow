@@ -68,6 +68,9 @@ Add artifacts to your project:
     // Android Architecture Components Paging Library Support
     compile "com.github.agrosner.dbflow:paging:${dbflow_version}"
 
+    // adds generated content provider annotations + support.
+    compile "com.github.agrosner.dbflow:contentprovider:${dbflow_version}"
+
   }
 
 ```

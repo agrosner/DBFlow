@@ -6,7 +6,7 @@ To add the library add the library to your `build.gradle` with same version you 
 
 ```groovy
 dependencies {
-  compile "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${version}"
+  compile "com.github.agrosner.dbflow:sqlcipher:${version}"
   compile "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
 
 }

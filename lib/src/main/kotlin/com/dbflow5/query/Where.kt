@@ -1,6 +1,5 @@
 package com.dbflow5.query
 
-import com.dbflow5.annotation.provider.ContentProvider
 import com.dbflow5.appendQualifier
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
@@ -19,12 +18,12 @@ class Where<T : Any>
  * @param whereBase The FROM or SET statement chunk
  */
 internal constructor(
-    /**
-     * The first chunk of the SQL statement before this query.
-     */
-    val whereBase: WhereBase<T>, vararg conditions: SQLOperator)
+        /**
+         * The first chunk of the SQL statement before this query.
+         */
+        val whereBase: WhereBase<T>, vararg conditions: SQLOperator)
     : BaseModelQueriable<T>(whereBase.table),
-    ModelQueriable<T>, Transformable<T>, QueryCloneable<Where<T>> {
+        ModelQueriable<T>, Transformable<T>, QueryCloneable<Where<T>> {
 
     /**
      * Helps to build the where statement easily
@@ -60,10 +59,10 @@ internal constructor(
         get() {
             val fromQuery = whereBase.query.trim { it <= ' ' }
             val queryBuilder = StringBuilder(fromQuery).append(" ")
-                .appendQualifier("WHERE", operatorGroup.query)
-                .appendQualifier("GROUP BY", groupByList.joinToString(separator = ","))
-                .appendQualifier("HAVING", havingGroup.query)
-                .appendQualifier("ORDER BY", orderByList.joinToString(separator = ","))
+                    .appendQualifier("WHERE", operatorGroup.query)
+                    .appendQualifier("GROUP BY", groupByList.joinToString(separator = ","))
+                    .appendQualifier("HAVING", havingGroup.query)
+                    .appendQualifier("ORDER BY", orderByList.joinToString(separator = ","))
 
             if (limit > VALUE_UNSET) {
                 queryBuilder.appendQualifier("LIMIT", limit.toString())
@@ -138,7 +137,7 @@ internal constructor(
     }
 
     /**
-     * For use in [ContentProvider] generation. Appends all ORDER BY here.
+     * For use in ContentProvider generation. Appends all ORDER BY here.
      *
      * @param orderByList The order by.
      * @return this instance.
@@ -169,10 +168,10 @@ internal constructor(
      * @return the result of the query as a [FlowCursor].
      */
     override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? =// Query the sql here
-        when {
-            whereBase.queryBuilderBase is Select -> databaseWrapper.rawQuery(query, null)
-            else -> super.cursor(databaseWrapper)
-        }
+            when {
+                whereBase.queryBuilderBase is Select -> databaseWrapper.rawQuery(query, null)
+                else -> super.cursor(databaseWrapper)
+            }
 
     /**
      * Queries for all of the results this statement returns from a DB cursor in the form of the [T]

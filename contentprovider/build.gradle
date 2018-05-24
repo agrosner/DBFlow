@@ -26,7 +26,7 @@ android {
 }
 
 dependencies {
-    api project(':core')
+    api project(':contentprovider-annotations')
     api project(':lib')
     api "com.android.support:support-annotations:27.1.1"
     api "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"

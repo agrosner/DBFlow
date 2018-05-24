@@ -8,8 +8,8 @@ import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
-import com.dbflow5.annotation.provider.ContentProvider
-import com.dbflow5.annotation.provider.TableEndpoint
+import com.dbflow5.contentprovider.annotation.ContentProvider
+import com.dbflow5.contentprovider.annotation.TableEndpoint
 import com.dbflow5.converter.BigDecimalConverter
 import com.dbflow5.converter.BigIntegerConverter
 import com.dbflow5.converter.BooleanConverter

@@ -16,16 +16,11 @@ Add the separate packages to your project:
 
 dependencies {
   // RXJava1
-  compile "com.github.Raizlabs.DBFlow:dbflow-rx:${dbflow_version}"
-
-  // optional, for use with Kotlin as a nice companion.
-  compile "com.github.Raizlabs.DBFlow:dbflow-rx-kotlinextensions:${dbflow_version}"
+  compile "com.github.agrosner.dbflow:rx:${dbflow_version}"
 
   // RXJava2
-  compile "com.github.Raizlabs.DBFlow:dbflow-rx2:${dbflow_version}"
+  compile "com.github.agrosner.dbflow:rx2:${dbflow_version}"
 
-  // optional, for use with Kotlin as a nice companion.
-  compile "com.github.Raizlabs.DBFlow:dbflow-rx2-kotlinextensions:${dbflow_version}"
 }
 
 ```
