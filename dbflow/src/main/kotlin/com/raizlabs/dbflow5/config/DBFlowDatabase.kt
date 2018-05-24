@@ -23,7 +23,9 @@ import com.raizlabs.dbflow5.structure.BaseModelView
 import com.raizlabs.dbflow5.transaction.BaseTransactionManager
 import com.raizlabs.dbflow5.transaction.DefaultTransactionManager
 import com.raizlabs.dbflow5.transaction.DefaultTransactionQueue
+import com.raizlabs.dbflow5.transaction.Error
 import com.raizlabs.dbflow5.transaction.ITransaction
+import com.raizlabs.dbflow5.transaction.Success
 import com.raizlabs.dbflow5.transaction.Transaction
 
 /**
@@ -282,8 +284,8 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * Executes and returns the executed transaction.
      */
     fun <R : Any?> executeTransactionAsync(transaction: ITransaction<R>,
-                                           success: ((Transaction<R>, R) -> Unit)? = null,
-                                           error: ((Transaction<R>, Throwable) -> Unit)? = null): Transaction<R> = beginTransactionAsync(transaction)
+                                           success: (Success<R>)? = null,
+                                           error: (Error<R>)? = null): Transaction<R> = beginTransactionAsync(transaction)
             .success(success)
             .error(error)
             .execute()
@@ -292,8 +294,8 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * Executes and returns the executed transaction.
      */
     fun <R : Any?> executeTransactionAsync(transaction: (DatabaseWrapper) -> R,
-                                           success: ((Transaction<R>, R) -> Unit)? = null,
-                                           error: ((Transaction<R>, Throwable) -> Unit)? = null): Transaction<R> = beginTransactionAsync(transaction)
+                                           success: (Success<R>)? = null,
+                                           error: (Error<R>)? = null): Transaction<R> = beginTransactionAsync(transaction)
             .success(success)
             .error(error)
             .execute()
