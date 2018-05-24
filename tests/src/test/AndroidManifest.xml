@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    package="com.raizlabs.dbflow5"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-sdk tools:overrideLibrary="com.raizlabs.dbflow5.sqlcipher, net.sqlcipher"/>
+
+    <application>
+        <provider
+            android:name="com.raizlabs.dbflow5.provider.TestContentProvider_Provider"
+            android:authorities="com.raizlabs.dbflow5.test.provider"
+            android:exported="true"/>
+
+    </application>
+
+</manifest>

@@ -6,15 +6,17 @@ DBFlow is fast, efficient, and feature-rich Kotlin database library built on SQL
 
 DBFlow is built from a collection of some of the best features of many database libraries.  Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
 
-A few reasons to use DBFlow:
+Supports:
 
-- **Extensibility**: No restrictions on inheritance of your table classes. They can be plain POJOs or extend our convenience `BaseModel` class. You can extend other DB table classes to reuse columns from the same project or other packages.
-- **Speed**: Built with java's annotation processing code generation, there's almost zero runtime performance hit by using this library (only reflection is creation of the main, generated database module's constructor). This library saves hours of boilerplate code and maintenance by generating the code for you. We also have support for lazy-loading relationships on-demand such as `@ForeignKey` or `@OneToMany`.
-- **SQLite Query Flow**: The queries in this library adhere as closely as possible to SQLite native queries. `(select(name, screenSize) from(Android::class) where name.is("Nexus 5x") and version.is(6.0)).result`
-- **Open Source**: This library is fully open source and contributions are not only welcomed, but encouraged.
-- **Robust**: We support `Trigger`, `ModelView`, `Index`, `Migration`, built-in ways to manage database access, and many more features. SQLCipher, RXJava1/2, Android Architecture Paging and more!
-- **Multiple Databases, Multiple Modules**: we seamlessly support multiple database files, databaseForTable modules using DBFlow in other dependencies, simultaneously.
-- **Built On SQLite**: SQLite is the most widely used database engine in world and using it as your base, you are not tied to a limited set of platforms or libraries.
+**Kotlin:** Built using the language, the library is super-concise, null-safe and efficient.
+
+**RX Java:** Enable applications to be reactive by listening to DB changes and ensuring your subscribers are up-to-date.
+
+**Paging:** Android architecture component paging library support for queries via `QueryDataSource`.
+
+**SQLCipher:** Easy database encryption support in this library.
+
+**SQLite Query Language:** Enabling autocompletion on sqlite queries combined with Kotlin language features means SQLite-like syntax. 
 
 # Changelog
 
@@ -25,17 +27,20 @@ For more detailed usage, check out it out [here](https://agrosner.gitbooks.io/db
 
 # Including in your project
 
+Add jitpack.io to your project's repositories:
 ```groovy
 
 allProjects {
   repositories {
+    google() 
     // required to find the project's artifacts
+    // place last
     maven { url "https://www.jitpack.io" }
   }
 }
 ```
 
-Add the library to the project-level build.gradle, using the apt plugin to enable Annotation Processing:
+Add artifacts to your project:
 
 ```groovy
 
@@ -46,34 +51,30 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
 
   dependencies {
 
-    // Annotation Processor
-    // if Java use this. If using Kotlin do NOT use this.
-    annotationProcessor "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
-
     // Use if Kotlin user.
-    kapt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
+    kapt "com.github.agrosner.dbflow:processor:${dbflow_version}"
 
+    // Annotation Processor
+    // if only using Java, use this. If using Kotlin do NOT use this.
+    annotationProcessor "com.github.agrosner.dbflow:processor:${dbflow_version}"
+
+    
     // core set of libraries
-    compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
-
-    // main dbflow project
-    compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
+    compile "com.github.agrosner.dbflow:core:${dbflow_version}"
+    compile "com.github.agrosner.dbflow:dbflow:${dbflow_version}"
 
     // sql-cipher database encryption (optional)
-    compile "com.github.Raizlabs.DBFlow:dbflow-sqlcipher:${dbflow_version}"
+    compile "com.github.agrosner.dbflow:sqlcipher:${dbflow_version}"
     compile "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
 
-    // RXJava 1 support
-    compile "com.github.Raizlabs.DBFlow:dbflow-rx:${dbflow_version}"
-
     // RXJava 2 support
-    compile "com.github.Raizlabs.DBFlow:dbflow-rx2:${dbflow_version}"
+    compile "com.github.agrosner.dbflow:reactive-streams:${dbflow_version}"
 
     // Kotlin Coroutines
-    compile "com.github.Raizlabs.DBFlow:coroutines:${dbflow_version}"
+    compile "com.github.agrosner.dbflow:coroutines:${dbflow_version}"
 
-    // Android Architecture Components Paging Library
-    compile "com.github.Raizlabs.DBFlow:dbflow-paging:${dbflow_version}"
+    // Android Architecture Components Paging Library Support
+    compile "com.github.agrosner.dbflow:paging:${dbflow_version}"
 
   }
 
