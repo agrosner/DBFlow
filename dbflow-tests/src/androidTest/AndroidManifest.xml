@@ -1,12 +1,12 @@
 <manifest
-    package="com.raizlabs.android.dbflow.test"
+    package="com.raizlabs.dbflow5.test"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-        android:name="com.raizlabs.android.dbflow.DemoApp"
+        android:name="com.raizlabs.dbflow5.DemoApp"
         android:label="DB Flow Compiler Test">
         <activity
-            android:name=".DemoActivity">
+            android:name="com.raizlabs.dbflow5.test.DemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

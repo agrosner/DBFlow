@@ -1,12 +1,18 @@
 <manifest
-    package="com.raizlabs.android.dbflow.test"
+    package="com.raizlabs.dbflow5.test"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
-        android:name="com.raizlabs.android.dbflow.DemoApp"
+        android:name="com.raizlabs.dbflow5.DemoApp"
+        android:allowBackup="false"
         android:label="DB Flow Compiler Test">
+        <provider
+            android:name="com.raizlabs.dbflow5.StubContentProvider"
+            android:authorities="com.grosner.content"
+            android:exported="false"/>
+
         <activity
-            android:name=".DemoActivity">
+            android:name="com.raizlabs.dbflow5.test.DemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -15,8 +21,9 @@
         </activity>
 
         <provider
-            android:name="com.raizlabs.android.dbflow.runtime.StubContentProvider"
-            android:authorities="com.dbflow.authority"/>
+            android:name="com.raizlabs.dbflow5.provider.StubContentProvider"
+            android:authorities="com.dbflow.authority"
+            android:exported="false"/>
     </application>
 
 </manifest>

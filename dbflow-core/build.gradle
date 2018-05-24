@@ -1,8 +1,18 @@
-apply plugin: 'java'
+apply plugin: 'kotlin'
 
 project.ext.artifactId = bt_name
 
-targetCompatibility = JavaVersion.VERSION_1_7
-sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_8
 
-apply from: '../java-artifacts.gradle'
+dependencies {
+    compile deps.kotlin
+}
+
+apply from: '../kotlin-artifacts.gradle'
+
+compileKotlin {
+    kotlinOptions {
+        apiVersion = "1.2"
+    }
+}
