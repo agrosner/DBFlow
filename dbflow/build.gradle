@@ -26,7 +26,7 @@ android {
 }
 
 dependencies {
-    api project("${dbflow_project_prefix}dbflow-core")
+    api project(':core')
     api "com.android.support:support-annotations:27.0.2"
     api "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}"
 }

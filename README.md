@@ -70,7 +70,7 @@ Add the library to the project-level build.gradle, using the apt plugin to enabl
     compile "com.github.Raizlabs.DBFlow:dbflow-rx2:${dbflow_version}"
 
     // Kotlin Coroutines
-    compile "com.github.Raizlabs.DBFlow:dbflow-coroutines:${dbflow_version}"
+    compile "com.github.Raizlabs.DBFlow:coroutines:${dbflow_version}"
 
     // Android Architecture Components Paging Library
     compile "com.github.Raizlabs.DBFlow:dbflow-paging:${dbflow_version}"

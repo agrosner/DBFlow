@@ -1,7 +1,7 @@
-include ':dbflow', ':dbflow-reactive-streams', ':dbflow-coroutines',
-        ':dbflow-processor',
-        ':dbflow-core',
-        ':dbflow-sqlcipher',
-        ':dbflow-tests',
-        ':dbflow-paging'
+include ':dbflow', ':reactive-streams', ':coroutines',
+        ':processor',
+        ':core',
+        ':sqlcipher',
+        ':tests',
+        ':paging'
 
