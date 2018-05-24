@@ -21,7 +21,7 @@ interface TableNotifierRegister {
 }
 
 inline fun TableNotifierRegister.setListener(crossinline listener: (Class<*>?, ChangeAction) -> Unit) =
-        setListener(object : OnTableChangedListener() {
+        setListener(object : OnTableChangedListener {
             override fun onTableChanged(table: Class<*>?, action: ChangeAction) = listener(table, action)
         })
 
