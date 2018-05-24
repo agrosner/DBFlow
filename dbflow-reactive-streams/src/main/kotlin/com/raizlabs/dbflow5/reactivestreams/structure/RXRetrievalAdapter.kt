@@ -1,10 +1,10 @@
-package com.raizlabs.dbflow5.rx.structure
+package com.raizlabs.dbflow5.reactivestreams.structure
 
 import com.raizlabs.dbflow5.adapter.RetrievalAdapter
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.database.DatabaseWrapper
-import rx.Completable
-import rx.Single
+import io.reactivex.Completable
+import io.reactivex.Single
 
 /**
  * Description: Mirrors the [RetrievalAdapter] with subset of exposed methods, mostly for

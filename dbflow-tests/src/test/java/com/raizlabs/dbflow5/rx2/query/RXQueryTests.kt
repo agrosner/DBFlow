@@ -10,8 +10,8 @@ import com.raizlabs.dbflow5.query.insert
 import com.raizlabs.dbflow5.query.property.Property
 import com.raizlabs.dbflow5.query.select
 import com.raizlabs.dbflow5.query.selectCountOf
-import com.raizlabs.dbflow5.rx2.transaction.asMaybe
-import com.raizlabs.dbflow5.rx2.transaction.asSingle
+import com.raizlabs.dbflow5.reactivestreams.transaction.asMaybe
+import com.raizlabs.dbflow5.reactivestreams.transaction.asSingle
 import com.raizlabs.dbflow5.structure.save
 import org.junit.Assert.assertEquals
 import org.junit.Test

@@ -1,10 +1,10 @@
-package com.raizlabs.dbflow5.rx2.query
+package com.raizlabs.dbflow5.reactivestreams.query
 
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.config.FlowLog
 import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.list.FlowCursorList
-import com.raizlabs.dbflow5.rx2.transaction.asSingle
+import com.raizlabs.dbflow5.reactivestreams.transaction.asSingle
 import com.raizlabs.dbflow5.transaction.Transaction
 import io.reactivex.Flowable
 import io.reactivex.SingleObserver

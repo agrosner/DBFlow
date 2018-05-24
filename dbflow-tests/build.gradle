@@ -46,11 +46,10 @@ dependencies {
 
     kapt project("${dbflow_project_prefix}dbflow-processor")
     implementation project(':dbflow')
-    implementation 'com.android.support:appcompat-v7:27.0.2'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation project("${dbflow_project_prefix}dbflow")
     implementation project("${dbflow_project_prefix}dbflow-sqlcipher")
-    implementation project("${dbflow_project_prefix}dbflow-rx")
-    implementation project("${dbflow_project_prefix}dbflow-rx2")
+    implementation project(':dbflow-reactive-streams')
     implementation project("${dbflow_project_prefix}dbflow-coroutines")
     implementation project("${dbflow_project_prefix}dbflow-paging")
 

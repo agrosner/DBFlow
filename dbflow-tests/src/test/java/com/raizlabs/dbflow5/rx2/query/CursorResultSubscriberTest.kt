@@ -7,7 +7,8 @@ import com.raizlabs.dbflow5.models.SimpleModel_Table
 import com.raizlabs.dbflow5.query.insert
 import com.raizlabs.dbflow5.query.requireResult
 import com.raizlabs.dbflow5.query.select
-import com.raizlabs.dbflow5.rx2.transaction.asFlowable
+import com.raizlabs.dbflow5.reactivestreams.query.queryStreamResults
+import com.raizlabs.dbflow5.reactivestreams.transaction.asFlowable
 import com.raizlabs.dbflow5.structure.delete
 import com.raizlabs.dbflow5.structure.insert
 import com.raizlabs.dbflow5.structure.save

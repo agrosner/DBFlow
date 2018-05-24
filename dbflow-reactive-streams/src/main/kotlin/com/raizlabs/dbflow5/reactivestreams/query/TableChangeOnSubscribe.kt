@@ -1,4 +1,4 @@
-package com.raizlabs.dbflow5.rx2.query
+package com.raizlabs.dbflow5.reactivestreams.query
 
 import com.raizlabs.dbflow5.config.FlowManager
 import com.raizlabs.dbflow5.config.databaseForTable
@@ -8,7 +8,7 @@ import com.raizlabs.dbflow5.query.ModelQueriable
 import com.raizlabs.dbflow5.query.extractFrom
 import com.raizlabs.dbflow5.runtime.OnTableChangedListener
 import com.raizlabs.dbflow5.runtime.TableNotifierRegister
-import com.raizlabs.dbflow5.rx2.transaction.asMaybe
+import com.raizlabs.dbflow5.reactivestreams.transaction.asMaybe
 import com.raizlabs.dbflow5.structure.ChangeAction
 import io.reactivex.FlowableEmitter
 import io.reactivex.FlowableOnSubscribe

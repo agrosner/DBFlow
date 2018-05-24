@@ -1,6 +1,6 @@
 @file:JvmName("RXModelQueriable")
 
-package com.raizlabs.dbflow5.rx2.query
+package com.raizlabs.dbflow5.reactivestreams.query
 
 import com.raizlabs.dbflow5.config.DBFlowDatabase
 import com.raizlabs.dbflow5.query.ModelQueriable
@@ -12,5 +12,5 @@ import io.reactivex.Flowable
  * time.
  */
 fun <T : Any> ModelQueriable<T>.queryStreamResults(dbFlowDatabase: DBFlowDatabase): Flowable<T> =
-    CursorListFlowable(this, dbFlowDatabase)
+        CursorListFlowable(this, dbFlowDatabase)
 

@@ -1,4 +1,4 @@
-package com.raizlabs.dbflow5.rx2.structure
+package com.raizlabs.dbflow5.reactivestreams.structure
 
 import com.raizlabs.dbflow5.adapter.ModelAdapter
 import com.raizlabs.dbflow5.config.modelAdapter
@@ -55,7 +55,7 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
 
         @JvmStatic
         fun <T : Any> from(modelAdapter: ModelAdapter<T>): RXModelAdapter<T> =
-            RXModelAdapter(modelAdapter)
+                RXModelAdapter(modelAdapter)
 
         @JvmStatic
         fun <T : Any> from(table: Class<T>): RXModelAdapter<T> = RXModelAdapter(table)
