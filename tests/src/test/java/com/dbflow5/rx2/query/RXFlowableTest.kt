@@ -51,7 +51,7 @@ class RXFlowableTest : BaseUnitTest() {
         var list = mutableListOf<Blog>()
         var calls = 0
         (select from Blog::class
-                leftOuterJoin  Author::class
+                leftOuterJoin Author::class
                 on joinOn)
                 .asFlowable { db, modelQueriable -> modelQueriable.queryList(db) }
                 .subscribe {
@@ -59,8 +59,8 @@ class RXFlowableTest : BaseUnitTest() {
                     list = it
                 }
 
-        val authors = (0 until 10).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
-        (0 until 10).forEach { Blog(it, name = "${it}name ${it}last", author = authors[it]).save() }
+        val authors = (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
+        (1 until 11).forEach { Blog(it, name = "${it}name ${it}last", author = authors[it - 1]).save() }
 
         assertEquals(21, calls) // 1 for initial, 10 for each model object
         assertEquals(10, list.size)
