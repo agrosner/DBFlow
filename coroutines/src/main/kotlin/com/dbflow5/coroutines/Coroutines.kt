@@ -21,8 +21,7 @@ import kotlinx.coroutines.experimental.suspendCancellableCoroutine
  */
 suspend inline fun <Q : Queriable, R : Any?> DBFlowDatabase.awaitTransact(
         modelQueriable: Q,
-        crossinline queriableFunction: Q.() -> R)
-        = suspendCancellableCoroutine<R> { continuation ->
+        crossinline queriableFunction: Q.() -> R) = suspendCancellableCoroutine<R> { continuation ->
     com.dbflow5.coroutines.constructCoroutine(continuation, this) { queriableFunction(modelQueriable) }
 }
 
@@ -37,7 +36,7 @@ inline fun <R : Any?> constructCoroutine(continuation: CancellableContinuation<R
             }.build()
     transaction.execute()
 
-    continuation.invokeOnCompletion {
+    continuation.invokeOnCancellation {
         if (continuation.isCancelled) {
             transaction.cancel()
         }
@@ -49,8 +48,7 @@ inline fun <R : Any?> constructCoroutine(continuation: CancellableContinuation<R
  * Description: Puts a [Model] operation inside a coroutine. Inside the [queriableFunction]
  * execute the db operation.
  */
-suspend inline fun <reified M : Any> M.awaitSave(databaseDefinition: DBFlowDatabase)
-        = suspendCancellableCoroutine<Boolean> { continuation ->
+suspend inline fun <reified M : Any> M.awaitSave(databaseDefinition: DBFlowDatabase) = suspendCancellableCoroutine<Boolean> { continuation ->
     constructCoroutine(continuation, databaseDefinition) { save(databaseDefinition) }
 }
 
@@ -58,8 +56,7 @@ suspend inline fun <reified M : Any> M.awaitSave(databaseDefinition: DBFlowDatab
  * Description: Puts a [Model] operation inside a coroutine. Inside the [queriableFunction]
  * execute the db operation.
  */
-suspend inline fun <reified M : Any> M.awaitInsert(databaseDefinition: DBFlowDatabase)
-        = suspendCancellableCoroutine<Long> { continuation ->
+suspend inline fun <reified M : Any> M.awaitInsert(databaseDefinition: DBFlowDatabase) = suspendCancellableCoroutine<Long> { continuation ->
     constructCoroutine(continuation, databaseDefinition) { insert(databaseDefinition) }
 }
 
@@ -67,8 +64,7 @@ suspend inline fun <reified M : Any> M.awaitInsert(databaseDefinition: DBFlowDat
  * Description: Puts a [Model] operation inside a coroutine. Inside the [queriableFunction]
  * execute the db operation.
  */
-suspend inline fun <reified M : Any> M.awaitDelete(databaseDefinition: DBFlowDatabase)
-        = suspendCancellableCoroutine<Boolean> { continuation ->
+suspend inline fun <reified M : Any> M.awaitDelete(databaseDefinition: DBFlowDatabase) = suspendCancellableCoroutine<Boolean> { continuation ->
     constructCoroutine(continuation, databaseDefinition) { delete(databaseDefinition) }
 }
 
@@ -76,8 +72,7 @@ suspend inline fun <reified M : Any> M.awaitDelete(databaseDefinition: DBFlowDat
  * Description: Puts a [Model] operation inside a coroutine. Inside the [queriableFunction]
  * execute the db operation.
  */
-suspend inline fun <reified M : Any> M.awaitUpdate(databaseDefinition: DBFlowDatabase)
-        = suspendCancellableCoroutine<Boolean> { continuation ->
+suspend inline fun <reified M : Any> M.awaitUpdate(databaseDefinition: DBFlowDatabase) = suspendCancellableCoroutine<Boolean> { continuation ->
     constructCoroutine(continuation, databaseDefinition) { update(databaseDefinition) }
 }
 
@@ -85,40 +80,35 @@ suspend inline fun <reified M : Any> M.awaitUpdate(databaseDefinition: DBFlowDat
  * Description: Puts a [Model] operation inside a coroutine. Inside the [queriableFunction]
  * execute the db operation.
  */
-suspend inline fun <reified M : Any> M.awaitLoad(databaseDefinition: DBFlowDatabase)
-        = suspendCancellableCoroutine<Unit> { continuation ->
+suspend inline fun <reified M : Any> M.awaitLoad(databaseDefinition: DBFlowDatabase) = suspendCancellableCoroutine<Unit> { continuation ->
     constructCoroutine(continuation, databaseDefinition) { load(databaseDefinition) }
 }
 
 /**
  * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.
  */
-suspend inline fun <reified T : Any, reified M : Collection<T>> M.awaitSave(databaseDefinition: DBFlowDatabase)
-        = suspendCancellableCoroutine<Long> { continuation ->
+suspend inline fun <reified T : Any, reified M : Collection<T>> M.awaitSave(databaseDefinition: DBFlowDatabase) = suspendCancellableCoroutine<Long> { continuation ->
     constructFastCoroutine(continuation, databaseDefinition) { fastSave() }
 }
 
 /**
  * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.
  */
-suspend inline fun <reified T : Any, reified M : Collection<T>> M.awaitInsert(databaseDefinition: DBFlowDatabase)
-        = suspendCancellableCoroutine<Long> { continuation ->
+suspend inline fun <reified T : Any, reified M : Collection<T>> M.awaitInsert(databaseDefinition: DBFlowDatabase) = suspendCancellableCoroutine<Long> { continuation ->
     constructFastCoroutine(continuation, databaseDefinition) { fastInsert() }
 }
 
 /**
  * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.
  */
-suspend inline fun <reified T : Any, reified M : Collection<T>> M.awaitUpdate(databaseDefinition: DBFlowDatabase)
-        = suspendCancellableCoroutine<Long> { continuation ->
+suspend inline fun <reified T : Any, reified M : Collection<T>> M.awaitUpdate(databaseDefinition: DBFlowDatabase) = suspendCancellableCoroutine<Long> { continuation ->
     constructFastCoroutine(continuation, databaseDefinition) { fastUpdate() }
 }
 
 /**
  * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.
  */
-suspend inline fun <reified T : Any, reified M : Collection<T>> M.awaitDelete(databaseDefinition: DBFlowDatabase)
-        = suspendCancellableCoroutine<Long> { continuation ->
+suspend inline fun <reified T : Any, reified M : Collection<T>> M.awaitDelete(databaseDefinition: DBFlowDatabase) = suspendCancellableCoroutine<Long> { continuation ->
     constructFastCoroutine(continuation, databaseDefinition) { fastDelete() }
 }
 
