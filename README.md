@@ -89,5 +89,7 @@ I welcome and encourage all pull requests. Please read over these guidelines to 
   4. Pull requests _must_ be made against `develop` branch. Any other branch (unless specified by the maintainers) will get rejected.
   5. Have fun!
 
-# Maintained By
-[agrosner](https://github.com/agrosner) ([@agrosner](https://www.twitter.com/agrosner))
+# Maintainer
+Originally created by [Raizlabs](https://www.raizlabs.com), a [Rightpoint](https://www.rightpoint.com) company
+
+Maintained by [agrosner](https://github.com/agrosner) ([@agrosner](https://www.twitter.com/agrosner))
