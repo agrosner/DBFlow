@@ -1,35 +1,30 @@
 package com.dbflow5.provider
 
 import android.content.ContentResolver
-import android.content.pm.ProviderInfo
-import com.dbflow5.BaseUnitTest
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.rule.provider.ProviderTestRule
+import com.dbflow5.BaseInstrumentedUnitTest
 import com.dbflow5.config.database
 import com.dbflow5.query.Delete.Companion.table
 import com.dbflow5.query.Delete.Companion.tables
 import com.dbflow5.query.result
 import com.dbflow5.query.select
 import com.dbflow5.structure.exists
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Before
+import org.junit.Assert.*
+import org.junit.Rule
 import org.junit.Test
-import org.robolectric.Robolectric
-import org.robolectric.RuntimeEnvironment
 
 /**
  * Description:
  */
-class ContentProviderTests : BaseUnitTest() {
-    private val mockContentResolver: ContentResolver
-        get() = RuntimeEnvironment.application.contentResolver
+class ContentProviderTests : BaseInstrumentedUnitTest() {
 
-    @Before
-    fun setUp() {
-        val info = ProviderInfo()
-        info.authority = TestContentProvider.AUTHORITY
-        Robolectric.buildContentProvider(TestContentProvider_Provider::class.java).create(info)
-    }
+    @get:Rule
+    val contentProviderRule = ProviderTestRule.Builder(TestContentProvider_Provider::class.java, TestContentProvider.AUTHORITY).build()
+
+    private val mockContentResolver: ContentResolver
+        get() = ApplicationProvider.getApplicationContext<Context>().contentResolver
 
     @Test
     fun testContentProviderUtils() {
@@ -115,7 +110,7 @@ class ContentProviderTests : BaseUnitTest() {
             assertEquals(testSyncableModel.name, "TestName")
 
             testSyncableModel = (select from TestSyncableModel::class
-                where (TestSyncableModel_Table.id.`is`(testSyncableModel.id))).result!!
+                    where (TestSyncableModel_Table.id.`is`(testSyncableModel.id))).result!!
 
             var fromContentProvider = TestSyncableModel(id = testSyncableModel.id)
             fromContentProvider = fromContentProvider.load(this)!!

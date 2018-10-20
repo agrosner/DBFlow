@@ -1,14 +1,12 @@
 package com.dbflow5
 
 import android.content.Context
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.runner.AndroidJUnit4
 import org.junit.Rule
 import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@RunWith(AndroidJUnit4::class)
 abstract class BaseUnitTest {
 
     @JvmField
@@ -16,5 +14,5 @@ abstract class BaseUnitTest {
     var dblflowTestRule = DBFlowTestRule.create()
 
     val context: Context
-        get() = RuntimeEnvironment.application
+        get() = ApplicationProvider.getApplicationContext()
 }

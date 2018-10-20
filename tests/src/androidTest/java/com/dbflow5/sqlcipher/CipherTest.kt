@@ -15,7 +15,7 @@ class CipherTest : BaseInstrumentedUnitTest() {
 
     @Test
     fun testCipherModel() = database(CipherDatabase::class) {
-        (delete() from CipherModel::class).execute()
+        (delete() from CipherModel::class).execute(this)
         val model = CipherModel(name = "name")
         model.save(this)
         assertTrue(model.exists(this))
@@ -24,6 +24,6 @@ class CipherTest : BaseInstrumentedUnitTest() {
             where CipherModel_Table.name.eq("name"))
             .result
         assertTrue(retrieval!!.id == model.id)
-        (delete() from CipherModel::class).execute()
+        (delete() from CipherModel::class).execute(this)
     }
 }

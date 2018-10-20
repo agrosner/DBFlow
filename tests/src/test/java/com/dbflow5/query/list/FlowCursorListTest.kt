@@ -1,14 +1,14 @@
 package com.dbflow5.query.list
 
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.times
-import com.nhaarman.mockito_kotlin.verify
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.config.databaseForTable
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.cursor
 import com.dbflow5.query.select
 import com.dbflow5.structure.save
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -22,8 +22,8 @@ class FlowCursorListTest : BaseUnitTest() {
         databaseForTable<SimpleModel> {
             val cursor = (select from SimpleModel::class).cursor
             val list = FlowCursorList.Builder(select from SimpleModel::class, this)
-                .cursor(cursor)
-                .build()
+                    .cursor(cursor)
+                    .build()
 
             assertEquals(cursor, list.cursor)
         }
@@ -34,7 +34,7 @@ class FlowCursorListTest : BaseUnitTest() {
         databaseForTable<SimpleModel> {
             val modelQueriable = (select from SimpleModel::class)
             val list = FlowCursorList.Builder(modelQueriable, this)
-                .build()
+                    .build()
 
             assertEquals(modelQueriable, list.modelQueriable)
         }

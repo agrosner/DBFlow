@@ -19,7 +19,6 @@ import com.dbflow5.structure.insert
 import com.dbflow5.structure.save
 import com.dbflow5.structure.update
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
@@ -33,7 +32,7 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
     @Before
     fun setupUser() {
         databaseForTable<User> {
-            (delete() from User::class).execute()
+            delete<User>().execute(this)
         }
         user = User(5, "Something", 55)
     }
@@ -41,10 +40,10 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
     @Test
     fun testSpecificUris() {
         val conditionGroup = User::class.modelAdapter
-            .getPrimaryConditionClause(user)
+                .getPrimaryConditionClause(user)
         val uri = getNotificationUri(contentUri,
-            User::class.java, ChangeAction.DELETE,
-            conditionGroup.conditions.toTypedArray())
+                User::class.java, ChangeAction.DELETE,
+                conditionGroup.conditions.toTypedArray())
 
         assertEquals(uri.authority, contentUri)
         assertEquals(tableName<User>(), uri.getQueryParameter(TABLE_QUERY_PARAM))
@@ -55,25 +54,25 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
 
     @Test
     fun testSpecificUrlInsert() {
-        assertProperConditions(ChangeAction.INSERT, { it.insert() })
+        assertProperConditions(ChangeAction.INSERT) { it.insert() }
     }
 
     @Test
     fun testSpecificUrlUpdate() {
-        assertProperConditions(ChangeAction.UPDATE, { it.apply { age = 56 }.update() })
+        assertProperConditions(ChangeAction.UPDATE) { it.apply { age = 56 }.update() }
 
     }
 
     @Test
     fun testSpecificUrlSave() {
         // insert on SAVE
-        assertProperConditions(ChangeAction.INSERT, { it.apply { age = 57 }.save() })
+        assertProperConditions(ChangeAction.INSERT) { it.apply { age = 57 }.save() }
     }
 
     @Test
     fun testSpecificUrlDelete() {
         user.save()
-        assertProperConditions(ChangeAction.DELETE, { it.delete() })
+        assertProperConditions(ChangeAction.DELETE) { it.delete() }
     }
 
     private fun assertProperConditions(action: ChangeAction, userFunc: (User) -> Unit) {

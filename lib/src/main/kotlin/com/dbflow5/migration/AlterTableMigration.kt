@@ -1,6 +1,6 @@
 package com.dbflow5.migration
 
-import android.support.annotation.CallSuper
+import androidx.annotation.CallSuper
 import com.dbflow5.appendQuotedIfNeeded
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper

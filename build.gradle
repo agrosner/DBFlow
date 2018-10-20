@@ -1,12 +1,11 @@
 buildscript {
     ext {
         kotlin_version = '1.2.71'
-        target_sdk = 27
+        target_sdk = 28
         min_sdk = 7
         min_sdk_rx = 15
         sql_cipher_min = 7
         arch_min = 14
-        support_version = "28.0.0"
 
         deps = [
                 kotlin             : "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}",
@@ -18,7 +17,7 @@ buildscript {
                 javax_annotation   : 'org.glassfish:javax.annotation:10.0-b28',
                 junit              : 'junit:junit:4.12',
                 paging             : "android.arch.paging:runtime:1.0.0",
-                support_annotations: "com.android.support:support-annotations:${support_version}",
+                support_annotations: "androidx.annotation:annotation:1.0.0",
         ]
     }
     repositories {
@@ -26,9 +25,9 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.0-alpha11'
+        classpath 'com.android.tools.build:gradle:3.3.0-beta01'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.3'
+        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }

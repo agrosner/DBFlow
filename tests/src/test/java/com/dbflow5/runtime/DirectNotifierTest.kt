@@ -1,8 +1,8 @@
 package com.dbflow5.runtime
 
 import android.content.Context
-import com.nhaarman.mockito_kotlin.mock
-import com.nhaarman.mockito_kotlin.verify
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.runner.AndroidJUnit4
 import com.dbflow5.ImmediateTransactionManager2
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.DatabaseConfig
@@ -22,21 +22,19 @@ import com.dbflow5.structure.delete
 import com.dbflow5.structure.insert
 import com.dbflow5.structure.save
 import com.dbflow5.structure.update
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.RuntimeEnvironment
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(manifest = Config.NONE)
+@RunWith(AndroidJUnit4::class)
 class DirectNotifierTest {
 
     val context: Context
-        get() = RuntimeEnvironment.application
+        get() = ApplicationProvider.getApplicationContext()
 
     @Before
     fun setupTest() {

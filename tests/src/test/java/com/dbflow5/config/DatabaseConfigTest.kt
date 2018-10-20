@@ -1,6 +1,6 @@
 package com.dbflow5.config
 
-import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockitokotlin2.mock
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.database.AndroidSQLiteOpenHelper
