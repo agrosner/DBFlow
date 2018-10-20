@@ -77,4 +77,11 @@ success = { transaction, result ->
 error = { transaction, error ->
   // handle any errors
 })
+
+// use coroutines!
+async {
+  database.awaitTransact(
+       delete<SimpleModel>() where SimpleModel_Table.name.eq("5")) { executeUpdateDelete(database)
+  }
+}
 ```

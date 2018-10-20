@@ -8,21 +8,12 @@ We can link `@Table` in DBFlow via 1-1, 1-many, or many-to-many. For 1-1 we use
 
 DBFlow supports multiple `@ForeignKey` right out of the box as well (and for the most part, they can also be `@PrimaryKey`).
 
-```java
-@Table(database = AppDatabase.class)
-public class Dog extends BaseModel {
-
-  @PrimaryKey
-  String name;
-
-  @ForeignKey(tableClass = Breed.class)
-  @PrimaryKey
-  String breed;
-
-  @ForeignKey
-  Owner owner;
-}
-
+```kotlin
+@Table(database = AppDatabase::class)
+class Dog(@PrimaryKey var name: String,
+          @ForeignKey(tableClass = Breed::class)
+          @PrimaryKey var breed: String,
+          @ForeignKey var owner: Owner? = null)
 ```
 
 `@ForeignKey` can only be a subset of types:
@@ -34,7 +25,9 @@ If you create a circular reference (i.e. two tables with strong references to `M
 
 ## Stubbed Relationships
 
-For efficiency reasons we recommend specifying `@ForeignKey(stubbedRelationship = true)`. What this will do is only _preset_ the primary key references into a table object. All other fields will not be set. If you need to access the full object, you will have to call `load()` for `Model`, or use the `ModelAdapter` to load the object from the DB.
+For efficiency reasons we recommend specifying `@ForeignKey(stubbedRelationship = true)`. What this will do is only _preset_ the primary key references into a table object.
+
+ All other fields will not be set. If you need to access the full object, you will have to call `load()` for `Model`, or use the `ModelAdapter` to load the object from the DB.
 
 From our previous example of `Dog`, instead of using a  `String` field for **breed**
 we recommended by using a `Breed`. It is nearly identical, but the difference being
@@ -55,21 +48,13 @@ get you in a `StackOverFlowError` if two tables strongly reference each other in
 
 Our modified example now looks like this:
 
-```java
-@Table(database = AppDatabase.class)
-public class Dog extends BaseModel {
-
-    @PrimaryKey
-    String name;
-
-    @ForeignKey(stubbedRelationship = true)
-    @PrimaryKey
-    Breed breed; // tableClass only needed for single-field refs that are not Model.
-
-    @ForeignKey(stubbedRelationship = true)
-    Owner owner;
-}
-
+```kotlin
+@Table(database = AppDatabase::class)
+class Dog(@PrimaryKey var name: String,
+          @ForeignKey(stubbedRelationship = true)
+          @PrimaryKey var breed: Breed? = null,
+          @ForeignKey(stubbedRelationship = true)
+          var owner: Owner? = null)
 ```
 
 ## One To Many
@@ -77,34 +62,18 @@ public class Dog extends BaseModel {
 In DBFlow, `@OneToMany` is an annotation that you provide to a method in your `Model` class that will allow management of those objects during CRUD operations.
 This can allow you to combine a relationship of objects to a single `Model` to happen together on load, save, insert, update, and deletion.
 
-```java
+```kotlin
+@Table(database = ColonyDatabase::class)
+class Queen(@PrimaryKey(autoincrement = true)
+            var id: Long = 0,
+            var name: String? = null,
+            @ForeignKey(saveForeignKeyModel = false)
+            var colony: Colony? = null) : BaseModel() {
 
-@Table(database = ColonyDatabase.class)
-public class Queen extends BaseModel {
+    @get:OneToMany
+    val ants: List<Ant>? by oneToMany { select from Ant::class where Ant_Table.queen_id.eq(id) }
 
-    @PrimaryKey(autoincrement = true)
-    long id;
-
-    @Column
-    String name;
-
-    @ForeignKey(saveForeignKeyModel = false)
-    Colony colony;
-
-    List<Ant> ants;
-
-    @OneToMany(methods = {OneToMany.Method.ALL}, variableName = "ants")
-    public List<Ant> getMyAnts() {
-        if (ants == null || ants.isEmpty()) {
-            ants = SQLite.select()
-                .from(Ant.class)
-                .where(Ant_Table.queen_id.eq(id))
-                .queryList();
-        }
-        return ants;
-    }
 }
-
 ```
 
 ### Efficient Methods
@@ -113,50 +82,26 @@ If you have nested `@ManyToMany` (which should strongly be avoided), you can tur
 Call `@OneToMany(efficientMethods = false)` and it will instead loop through each model and perform `save()`, `delete()`, etc
 when the parent model is called.
 
-### Kotlin Support
-
-Also, with DBFlow Kotlin extensions, we can make this much more concise:
-```kotlin
-
-@get:OneToMany(methods = arrayOf(OneToMany.Method.ALL))
-var ants by oneToMany { select from Ant::class where (Ant_Table.queen_id.eq(id)) }
-```
-
-This creates a delegated property which does the same operation as above. The only difference is the
-variable is nullable.
-
 ### Custom ForeignKeyReferences
 When simple `@ForeignKey` annotation is not enough, you can manually specify references for your table:
 
-```java
+```kotlin
 
 @ForeignKey(saveForeignKeyModel = false,
-references = {@ForeignKeyReference(columnName = "colony", foreignKeyColumnName = "id")})
-Colony colony;
+references = {ForeignKeyReference(columnName = "colony", foreignKeyColumnName = "id")})
+var colony: Colony? = null;
 
 ```
 
 By default not specifying references will take each field and append "${foreignKeyFieldName}_${ForeignKeyReferenceColumnName}" to make the reference column name. So by default the previous example would use `colony_id` without references. With references it becomes `colony`.
 
 ## Many To Many
-
-
 In DBFlow many to many is done via source-gen. A simple table:
 
-```java
-
-@Table(database = TestDatabase.class)
-@ManyToMany(referencedTable = Follower.class)
-public class User extends BaseModel {
-
-    @PrimaryKey
-    String name;
-
-    @PrimaryKey
-    int id;
-
-}
-
+```kotlin
+@Table(database = AppDatabase::class)
+@ManyToMany(referencedTable = Follower::class)
+class User(@PrimaryKey var id: Int = 0, @PrimaryKey var name: String = "")
 ```
 
 Generates a `@Table` class named `User_Follower`, which DBFlow treats as if you
@@ -226,20 +171,13 @@ than a single `@ManyToMany` relationship on the table.
 
 A class can use both:
 
-```java
-@Table(database = TestDatabase.class)
-@ManyToMany(referencedTable = TestModel1.class)
-@MultipleManyToMany({@ManyToMany(referencedTable = TestModel2.class),
-    @ManyToMany(referencedTable = com.dbflow5.test.sql.TestModel3.class)})
-public class ManyToManyModel extends BaseModel {
-
-    @PrimaryKey
-    String name;
-
-    @PrimaryKey
-    int id;
-
-    @Column
-    char anotherColumn;
-}
+```kotlin
+@Table(database = TestDatabase::class)
+@ManyToMany(referencedTable = TestModel1::class)
+@MultipleManyToMany({@ManyToMany(referencedTable = TestModel2::class),
+    @ManyToMany(referencedTable = TestModel3::class)})
+class ManyToManyModel(
+  @PrimaryKey var name: String = "",
+  @PrimaryKey var id: Int = 0,
+  @PrimaryKey var anotherColumn: Char? = null)
 ```
