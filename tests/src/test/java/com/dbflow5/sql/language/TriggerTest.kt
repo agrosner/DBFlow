@@ -9,7 +9,6 @@ import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table.id
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.cast
-import com.dbflow5.query.columnValues
 import com.dbflow5.query.createTempTrigger
 import com.dbflow5.query.createTrigger
 import com.dbflow5.query.insert

@@ -85,7 +85,7 @@ class InsertTest : BaseUnitTest() {
 
             val contentValues = ContentValues()
             contentValues["name"] = "name"
-            contentValues["id"] = 0
+            contentValues["id"] = 0.toInt()
 
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
                     insertInto<TwoColumnModel>().columnValues(contentValues).query.trim())

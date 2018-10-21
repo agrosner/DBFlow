@@ -41,7 +41,7 @@ class BlogDeferred(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column va
  * Class has example of single foreign key with [ForeignKeyReference] specified
  */
 @Table(database = TestDatabase::class)
-class BlogRef(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
+class BlogRef(@PrimaryKey var id: Int = 0, @PrimaryKey var name: String = "",
               @ForeignKey(references = arrayOf(
                   ForeignKeyReference(columnName = "authorId", foreignKeyColumnName = "id",
                       defaultValue = "not gonna work")))
