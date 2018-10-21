@@ -10,76 +10,56 @@ Indexes are defined using the `indexGroups()` property of the `@Table` annotatio
 
 You can define as many `@IndexGroup` you want within a `@Table` as long as one field references the group. Also individual `@Column` can belong to any number of groups:
 
-```java
-@Table(database = TestDatabase.class,
+```kotlin
+@Table(database = TestDatabase::class,
        indexGroups = [
-               @IndexGroup(number = 1, name = "firstIndex"),
-               @IndexGroup(number = 2, name = "secondIndex"),
-               @IndexGroup(number = 3, name = "thirdIndex")
+               IndexGroup(number = 1, name = "firstIndex"),
+               IndexGroup(number = 2, name = "secondIndex"),
+               IndexGroup(number = 3, name = "thirdIndex")
        ])
-public class IndexModel2 {
+class IndexModel2 {
 
    @Index(indexGroups = {1, 2, 3})
    @PrimaryKey
-   int id;
+   var id: Int = 0
 
    @Index(indexGroups = 1)
    @Column
-   String first_name;
+   var firstName: String = ""
 
    @Index(indexGroups = 2)
    @Column
-   String last_name;
+   var lastName: String = ""
 
    @Index(indexGroups = {1, 3})
    @Column
-   Date created_date;
+   var createdDate: Date? = null
 
    @Index(indexGroups = {2, 3})
    @Column
-   boolean isPro;
+   var isPro: Boolean = false
 }
 ```
 
 By defining the index this way, we generate an `IndexProperty`, which makes it very easy to enable, disable, and use it within queries:
 
-```java
-IndexModel2_Table.firstIndex.createIfNotExists();
-
-SQLite.select()
-  .from(IndexModel2.class)
-  .indexedBy(IndexModel2_Table.firstIndex)
-  .where(...); // do a query here.
-
-IndexModel2_Table.firstIndex.drop(); // turn it off when no longer needed.
-```
-
 ```kotlin
-IndexModel2_Table.firstIndex.createIfNotExists()
+IndexModel2_Table.firstIndex.createIfNotExists(database);
 
-(select from IndexModel2::class indexedBy IndexModel2_Table.firstIndex where (...))
+(select from IndexModel2::class
+  indexedBy IndexModel2_Table.firstIndex
+  where ...)
 
-IndexModel2_Table.firstIndex.drop() // turn it off when no longer needed.
+IndexModel2_Table.firstIndex.drop(database); // turn it off when no longer needed.
 ```
 
 ## SQLite Index Wrapper
 
 For flexibility, we also support the SQLite `Index` wrapper object, in which the `IndexProperty` uses underneath.
 
-```java
-Index<SomeTable> index = SQLite.index("MyIndex")
-    .on(SomeTable.class, SomeTable_Table.name, SomeTable_Table.othercolumn);
-index.enable();
-
-// do some operations
-
-index.disable(); // disable when no longer needed
-```
-
 ```kotlin
 val index = indexOn<SomeTable>("MyIndex", SomeTable_Table.name, SomeTable_Table.othercolumn)
-index.enable()
+index.createIfNotExists(database)
 
-index.disable()
+index.drop(database)
 ```
-

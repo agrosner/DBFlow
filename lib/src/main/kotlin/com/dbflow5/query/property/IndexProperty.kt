@@ -23,11 +23,7 @@ class IndexProperty<T : Any>(indexName: String,
 
     val indexName = indexName.quoteIfNeeded() ?: ""
 
-    fun createIfNotExists(wrapper: DatabaseWrapper) {
-        index.enable(wrapper)
-    }
+    fun createIfNotExists(wrapper: DatabaseWrapper) = index.createIfNotExists(wrapper)
 
-    fun drop(wrapper: DatabaseWrapper) {
-        index.disable(wrapper)
-    }
+    fun drop(wrapper: DatabaseWrapper) = index.drop(wrapper)
 }
