@@ -71,6 +71,7 @@ object ClassNames {
     val BASE_MODEL = ClassName.get(STRUCTURE, "BaseModel")
     val MODEL_CACHE = ClassName.get("$QUERY_PACKAGE.cache", "ModelCache")
     val MULTI_KEY_CACHE_CONVERTER = ClassName.get("$QUERY_PACKAGE.cache", "IMultiKeyCacheConverter")
+    val SIMPLE_MAP_CACHE = ClassName.get("$QUERY_PACKAGE.cache", "SimpleMapCache")
 
     val CACHEABLE_MODEL_LOADER = ClassName.get(QUERIABLE, "CacheableModelLoader")
     val SINGLE_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleModelLoader")

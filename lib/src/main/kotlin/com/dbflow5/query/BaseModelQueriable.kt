@@ -7,6 +7,7 @@ import com.dbflow5.config.FlowLog
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.queryModelAdapter
 import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.query.cache.ModelCache
 import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.query.list.FlowQueryList
 import com.dbflow5.sql.Query
@@ -27,6 +28,7 @@ protected constructor(table: Class<TModel>)
     private val retrievalAdapter: RetrievalAdapter<TModel> by lazy { FlowManager.getRetrievalAdapter(table) }
 
     private var cachingEnabled = true
+    private var customCache: ModelCache<TModel, *>? = null
 
     protected val listModelLoader: ListModelLoader<TModel>
         get() = if (cachingEnabled) {
@@ -46,6 +48,10 @@ protected constructor(table: Class<TModel>)
         cachingEnabled = false
     }
 
+    override fun <C> withCache(modelCache: ModelCache<TModel, C>) = apply {
+        customCache = modelCache
+    }
+
     override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<TModel> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
@@ -59,17 +65,17 @@ protected constructor(table: Class<TModel>)
     }
 
     override fun cursorList(databaseWrapper: DatabaseWrapper): FlowCursorList<TModel> =
-        FlowCursorList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
+            FlowCursorList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
 
     override fun flowQueryList(databaseWrapper: DatabaseWrapper): FlowQueryList<TModel> =
-        FlowQueryList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
+            FlowQueryList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
 
     override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long =
-        compileStatement(databaseWrapper).use { it.executeUpdateDelete() }
+            compileStatement(databaseWrapper).use { it.executeUpdateDelete() }
 
     override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>,
                                                     databaseWrapper: DatabaseWrapper)
-        : MutableList<QueryClass> {
+            : MutableList<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
         return getListQueryModelLoader(queryModelClass).load(databaseWrapper, query)!!
@@ -77,7 +83,7 @@ protected constructor(table: Class<TModel>)
 
     override fun <QueryClass : Any> queryCustomSingle(queryModelClass: Class<QueryClass>,
                                                       databaseWrapper: DatabaseWrapper)
-        : QueryClass? {
+            : QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
         return getSingleQueryModelLoader(queryModelClass).load(databaseWrapper, query)
@@ -85,16 +91,16 @@ protected constructor(table: Class<TModel>)
 
 
     protected fun <T : Any> getListQueryModelLoader(table: Class<T>): ListModelLoader<T> =
-        if (cachingEnabled) {
-            table.queryModelAdapter.listModelLoader
-        } else {
-            table.queryModelAdapter.nonCacheableListModelLoader
-        }
+            if (cachingEnabled) {
+                table.queryModelAdapter.listModelLoader
+            } else {
+                table.queryModelAdapter.nonCacheableListModelLoader
+            }
 
     protected fun <T : Any> getSingleQueryModelLoader(table: Class<T>): SingleModelLoader<T> =
-        if (cachingEnabled) {
-            table.queryModelAdapter.singleModelLoader
-        } else {
-            table.queryModelAdapter.nonCacheableSingleModelLoader
-        }
+            if (cachingEnabled) {
+                table.queryModelAdapter.singleModelLoader
+            } else {
+                table.queryModelAdapter.nonCacheableSingleModelLoader
+            }
 }

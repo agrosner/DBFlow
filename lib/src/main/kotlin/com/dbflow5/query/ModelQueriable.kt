@@ -4,6 +4,7 @@ import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.databaseForTable
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
+import com.dbflow5.query.cache.ModelCache
 import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.query.list.FlowQueryList
 import com.dbflow5.structure.BaseQueryModel
@@ -68,6 +69,11 @@ interface ModelQueriable<T : Any> : Queriable {
      * or [FlowQueryList] if you [.flowQueryList] or [.cursorList]
      */
     fun disableCaching(): ModelQueriable<T>
+
+    /**
+     * Manually specify a cache to use in this query. This differs from the global cache of the table [T].
+     */
+    fun <C> withCache(modelCache: ModelCache<T, C>): ModelQueriable<T>
 
     fun <R : Any?> async(databaseWrapper: DBFlowDatabase,
                          modelQueriableFn: ModelQueriable<T>.(DatabaseWrapper) -> R) =

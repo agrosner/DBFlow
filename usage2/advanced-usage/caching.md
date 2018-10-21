@@ -15,6 +15,14 @@ Do not use caching when: 1. you need a subset of columns from the DB. i.e. \(`se
 
 **Note**: DBFlow is fast and efficient. Caching may not be required at all, except in very particular use-cases. Do not abuse. You can call `disableCaching()` on a query to ensure it's a fresh dataset.
 
+## Clearing Caches
+
+Sometimes the data becomes out of sync, or you perform a vanilla SQLite query, which causes data to get out of sync from the cache. In those cases
+call:
+```kotlin
+modelAdapter<MyTable>().cacheAdapter.clearCache()
+```
+
 ## How Caching Works
 
 Caching under the hood is done by storing an instance of each `Model` returned from a query on a specific table into memory. 1. Developer enables caching on Table A 2. Query from Table A 3. When receiving the `Cursor`, we read the primary key values from it and look them up from `ModelCache`. If the `Model` exists, return it from cache; otherwise create new instance, read in values, and store in cache. 4. That instance remains in memory such on next query, we return that instance instead of recreating one from a `Cursor`. 5. When we call `ModelAdapter.save()`, `insert()`, `update()`, or `delete()`, we update model in the cache so that on next retrieval, the model with proper values is returned. 6. When wrapper operations are performed on tables with caching, caches are not modified. When doing such a call, please call `TableA_Table.cacheAdapter.clearCache()`
@@ -41,20 +49,6 @@ class CacheableModel {
 }
 ```
 
-or in Java:
-
-```java
-@Table(database = AppDatabase.class, cachingEnabled = true)
-public class CacheableModel {
-
-    @PrimaryKey(autoincrement = true)
-    long id;
-
-    @Column
-    String name;
-}
-```
-
 to use caching on a table that uses multiple primary keys, [see](caching.md#multiple-primary-key-caching).
 
 By default we use a `SimpleMapCache`, which loads `Model` into a `Map`. The key is either the primary key of the object or a combination of the two, but it should have an associated `HashCode` and `equals()` value.
@@ -64,18 +58,9 @@ By default we use a `SimpleMapCache`, which loads `Model` into a `Map`. The key 
 Any time a field on these objects are modified, you _should_ immediately save those since we have a direct reference to the object from the cache. Otherwise, the DB and cache could get into an inconsistent state.
 
 ```kotlin
-database<AppDatabase> {
-  (select from MyModel::class where (...)).result?.let { result ->
-    result.name = "Name"
-    result.save()
-  }
-}
-```
-
-```java
-MyModel model = SQLite.select(db).from(MyModel.class).where(...).querySingle();
-model.setName("Name");
-model.save(); // save it to DB post any modifications to this object.
+  val result = (select from MyModel::class where (...)).requireResult
+  result.name = "Name"
+  result.save()
 ```
 
 ## Disable Caching For Some Queries
@@ -83,21 +68,10 @@ model.save(); // save it to DB post any modifications to this object.
 To disable caching on certain queries as you might want to project on only a few columns, rather than the full dataset. Just call `disableCaching()`:
 
 ```kotlin
-database<AppDatabase> {
   select(My_Table.column, My_Table.column2)
     .from(My::class)
     .disableCaching()
     .list
-}
-```
-
-or in Java:
-
-```java
-select(db, My_Table.column, My_Table.column2)
-  .from(My.class)
-  .disableCaching()
-  .queryList();
 ```
 
 ## Advanced
@@ -118,13 +92,6 @@ companion object {
 }
 ```
 
-or in Java using `public static final`:
-
-```java
-@ModelCacheField
-public static ModelCache<CacheableModel3, ?> modelCache = new SimpleMapCache<>(); // replace with any cache you want.
-```
-
 ### Multiple Primary Key Caching
 
 This allows for tables that have multiple primary keys be used in caching. To use, add a `@MultiCacheField` `@JvmField` field. for example we have a `Coordinate` class:
@@ -142,28 +109,4 @@ class Coordinate(@PrimaryKey latitude: Double = 0.0,
 }
 ```
 
-or in Java:
-
-```java
-@Table(database = AppDatabase.class, cachingEnabled = true)
-public class Coordinate {
-
-    @MultiCacheField
-    public static final IMultiKeyCacheConverter<String> multiKeyCacheModel = new IMultiKeyCacheConverter<String>() {
-
-        @Override
-        @NonNull
-        public String getCachingKey(@NonNull Object[] values) {
-            return "(" + values[0] + "," + values[1] + ")";
-        }
-    };
-
-    @PrimaryKey
-    double latitude;
-
-    @PrimaryKey
-    double longitude;
-```
-
 In this case we use the `IMultiKeyCacheConverter` class, which specifies a key type that the object returns. The `getCachingKey` method returns an ordered set of `@PrimaryKey` columns in declaration order. Also the value that is returned should have an `equals()` or `hashcode()` specified \(use a `data class`\) especially when used in the `SimpleMapCache`.
-

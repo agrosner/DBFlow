@@ -1,25 +1,8 @@
 package com.dbflow5.processor.definition
 
-import com.grosner.kpoet.L
-import com.grosner.kpoet.S
-import com.grosner.kpoet.`=`
-import com.grosner.kpoet.`private static final field`
-import com.grosner.kpoet.`public static final field`
-import com.grosner.kpoet.`return`
-import com.grosner.kpoet.`throw new`
-import com.grosner.kpoet.code
-import com.grosner.kpoet.default
-import com.grosner.kpoet.final
-import com.grosner.kpoet.modifiers
-import com.grosner.kpoet.param
-import com.grosner.kpoet.protected
-import com.grosner.kpoet.public
-import com.grosner.kpoet.statement
-import com.grosner.kpoet.switch
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.annotation.DEFAULT_CACHE_SIZE
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.InheritedColumn
 import com.dbflow5.annotation.InheritedPrimaryKey
@@ -28,6 +11,8 @@ import com.dbflow5.annotation.MultiCacheField
 import com.dbflow5.annotation.OneToMany
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
+import com.dbflow5.isNotNullOrEmpty
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.OneToManyValidator
 import com.dbflow5.processor.ProcessorManager
@@ -44,6 +29,21 @@ import com.dbflow5.processor.utils.ensureVisibleStatic
 import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.isNullOrEmpty
 import com.dbflow5.quote
+import com.grosner.kpoet.L
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`=`
+import com.grosner.kpoet.`public static final field`
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.`throw new`
+import com.grosner.kpoet.code
+import com.grosner.kpoet.default
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.param
+import com.grosner.kpoet.protected
+import com.grosner.kpoet.public
+import com.grosner.kpoet.statement
+import com.grosner.kpoet.switch
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.NameAllocator
@@ -86,9 +86,9 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
     private val contentValueMethods: Array<MethodDefinition>
 
     var cachingEnabled = false
-    var cacheSize: Int = 0
     var customCacheFieldName: String? = null
     var customMultiCacheFieldName: String? = null
+    var customCacheSize = 0
 
     var createWithDatabase = true
 
@@ -125,7 +125,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
             generateContentValues = table.generateContentValues
             cachingEnabled = table.cachingEnabled
-            cacheSize = table.cacheSize
+            customCacheSize = table.cacheSize
 
             orderedCursorLookUp = table.orderedCursorLookUp
             assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor
@@ -510,13 +510,32 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             }
 
             if (cachingEnabled) {
-                `private static final field`(com.dbflow5.processor.ClassNames.CACHE_ADAPTER, "cacheAdapter") {
+                `public static final field`(com.dbflow5.processor.ClassNames.CACHE_ADAPTER, "cacheAdapter") {
                     `=` {
+                        val primaryColumns = primaryColumnDefinitions
+
+                        val hasCustomField = customCacheFieldName.isNotNullOrEmpty()
+                        val hasCustomMultiCacheField = customMultiCacheFieldName.isNotNullOrEmpty()
+                        var typeArgumentsString = ""
+                        val typeClasses = mutableListOf<Any?>()
+                        typeArgumentsString = if (hasCustomField) {
+                            typeClasses += elementClassName
+                            "\$T.$customCacheFieldName"
+                        } else {
+                            typeClasses += ClassNames.SIMPLE_MAP_CACHE
+                            "new \$T($customCacheSize)"
+                        }
+                        typeArgumentsString += ", ${primaryColumns.size.L}"
+                        typeArgumentsString += if (hasCustomMultiCacheField) {
+                            typeClasses += elementClassName
+                            ", \$T.$customMultiCacheFieldName"
+                        } else {
+                            ", null"
+                        }
                         add("\$L",
-                                TypeSpec.anonymousClassBuilder("")
+                                TypeSpec.anonymousClassBuilder(typeArgumentsString, *typeClasses.toTypedArray())
                                         .addSuperinterface(ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.CACHE_ADAPTER, elementTypeName))
                                         .apply {
-                                            val primaryColumns = primaryColumnDefinitions
                                             if (primaryColumns.size > 1) {
                                                 `override fun`(ArrayTypeName.of(Any::class.java), "getCachingColumnValuesFromModel",
                                                         param(ArrayTypeName.of(Any::class.java), "inValues"),
@@ -562,34 +581,6 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                                                 }
                                             }
 
-
-                                            `override fun`(TypeName.INT, "getCachingColumnSize") {
-                                                modifiers(public, final)
-                                                `return`(primaryColumns.size.L)
-                                            }
-
-                                            if (cacheSize != DEFAULT_CACHE_SIZE) {
-                                                `override fun`(TypeName.INT, "getCacheSize") {
-                                                    modifiers(public, final)
-                                                    `return`(cacheSize.L)
-                                                }
-                                            }
-
-                                            if (!customCacheFieldName.isNullOrEmpty()) {
-                                                `override fun`(ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.MODEL_CACHE, elementClassName,
-                                                        WildcardTypeName.subtypeOf(Any::class.java)), "createModelCache") {
-                                                    modifiers(public, final)
-                                                    `return`("\$T.$customCacheFieldName", elementClassName)
-                                                }
-                                            }
-
-                                            if (!customMultiCacheFieldName.isNullOrEmpty()) {
-                                                `override fun`(ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.MULTI_KEY_CACHE_CONVERTER,
-                                                        WildcardTypeName.subtypeOf(Any::class.java)), "getCacheConverter") {
-                                                    modifiers(public, final)
-                                                    `return`("\$T.$customMultiCacheFieldName", elementClassName)
-                                                }
-                                            }
                                             if (foreignKeyDefinitions.isNotEmpty()) {
                                                 `override fun`(TypeName.VOID, "reloadRelationships",
                                                         param(elementClassName!!, ModelUtils.variable),
