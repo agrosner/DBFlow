@@ -8,7 +8,7 @@ There are a few concepts to familiarize yourself with. We will go more in depth 
 
 **SQLite Wrapper Language:** DBFlow provides a number of convenience methods, extensions, and generated helpers that produce a concise, flowable query syntax. A few examples below:
 
-```
+```text
 List<User> users = SQLite.select()
   .from(User.class)
   .where(name.is("Andrew Grosner"))
@@ -35,28 +35,30 @@ try {
 
 Or in Kotlin:
 
-    val users = (select from User::class where (name `is` "Andrew Grosner")).list
+```text
+val users = (select from User::class where (name `is` "Andrew Grosner")).list
 
-    (update<User>() set (name eq "Andrew Grosner") where (name eq "Andy Grosner")).executeUpdateDelete()
+(update<User>() set (name eq "Andrew Grosner") where (name eq "Andy Grosner")).executeUpdateDelete()
 
-    database<AppDatabase>().beginTransactionAsync {
+database<AppDatabase>().beginTransactionAsync {
 
-    }
+}
 
-    (select from User::class).queryResults().use { results ->
-      for (user in results) { 
+(select from User::class).queryResults().use { results ->
+  for (user in results) { 
 
-      }
-    }
-
-**Caching: **DBFlow supports caching in models. Caching them greatly increases speed, but cache carefully as it can lead to problems such as stale data.
-
+  }
+}
 ```
+
+**Caching:** DBFlow supports caching in models. Caching them greatly increases speed, but cache carefully as it can lead to problems such as stale data.
+
+```text
 @Table(cachingEnabled = true)
 public class User
 ```
 
-**Migrations: **Migrations are made very simple in DBFlow. We only support the kinds that [SQLite provide](https://sqlite.org/lang_altertable.html), but also allow you to modify the data within the DB in a structured way during these. They are also run whenever the `SQLiteOpenHelper` detects a version change in the order of version they specify.
+**Migrations:** Migrations are made very simple in DBFlow. We only support the kinds that [SQLite provide](https://sqlite.org/lang_altertable.html), but also allow you to modify the data within the DB in a structured way during these. They are also run whenever the `SQLiteOpenHelper` detects a version change in the order of version they specify.
 
 **Multiple Modules:** DBFlow can be used in library projects, in any number of inner-project modules simultaneously. However these models must reside in separate databases.
 
@@ -68,9 +70,9 @@ public class User
 
 **Encrypted Databases:** DBFlow supports database encryption for security using SQLCipher through a separate, easy-to-integrate artifact.
 
-**Indexes: **A SQLite feature that drastically improves query performance on large datasets. Dead-easy to implement.
+**Indexes:** A SQLite feature that drastically improves query performance on large datasets. Dead-easy to implement.
 
-**Reactive: **Easily listen to changes in database data via `ModelNotifier` system.
+**Reactive:** Easily listen to changes in database data via `ModelNotifier` system.
 
 **Transaction Management:** Place all transactions and retrievals on same background thread for maximum efficiency and to prevent UI-hiccups.
 

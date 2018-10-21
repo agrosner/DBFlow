@@ -1,4 +1,4 @@
-# DBFlow
+# README
 
 DBFlow is a Kotlin SQLite library for Android that makes it ridiculously easy to interact and use databases. Built with Annotation Processing, code use within a DB is fast, efficient, and type-safe. It removes the tedious \(and tough-to-maintain\) database interaction code, while providing a very SQLite-like query syntax.
 
@@ -85,3 +85,4 @@ async {
   }
 }
 ```
+
