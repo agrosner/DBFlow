@@ -64,24 +64,24 @@ Add artifacts to your project:
 
 
     // core set of libraries
-    compile "com.github.agrosner.dbflow:core:${dbflow_version}"
-    compile "com.github.agrosner.dbflow:lib:${dbflow_version}"
+    implementation "com.github.agrosner.dbflow:core:${dbflow_version}"
+    implementation "com.github.agrosner.dbflow:lib:${dbflow_version}"
 
     // sql-cipher database encryption (optional)
-    compile "com.github.agrosner.dbflow:sqlcipher:${dbflow_version}"
-    compile "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
+    implementation "com.github.agrosner.dbflow:sqlcipher:${dbflow_version}"
+    implementation "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
 
     // RXJava 2 support
-    compile "com.github.agrosner.dbflow:reactive-streams:${dbflow_version}"
+    implementation "com.github.agrosner.dbflow:reactive-streams:${dbflow_version}"
 
     // Kotlin Coroutines
-    compile "com.github.agrosner.dbflow:coroutines:${dbflow_version}"
+    implementation "com.github.agrosner.dbflow:coroutines:${dbflow_version}"
 
     // Android Architecture Components Paging Library Support
-    compile "com.github.agrosner.dbflow:paging:${dbflow_version}"
+    implementation "com.github.agrosner.dbflow:paging:${dbflow_version}"
 
     // adds generated content provider annotations + support.
-    compile "com.github.agrosner.dbflow:contentprovider:${dbflow_version}"
+    implementation "com.github.agrosner.dbflow:contentprovider:${dbflow_version}"
 
   }
 ```
