@@ -124,9 +124,7 @@ inline fun <R : Any?> constructFastCoroutine(continuation: CancellableContinuati
             }.build()
     transaction.execute()
 
-    continuation.invokeOnCompletion {
-        if (continuation.isCancelled) {
-            transaction.cancel()
-        }
+    continuation.invokeOnCancellation {
+        transaction.cancel()
     }
 }
