@@ -1,10 +1,8 @@
-# SQLite Wrapper Language
+# SQLite Query Language
 
-DBFlow's SQLite wrapper language attempts to make it as easy as possible to
-write queries, execute statements, and more.
+DBFlow's SQLite wrapper language attempts to make it as easy as possible to write queries, execute statements, and more.
 
-We will attempt to make this doc comprehensive, but reference the SQLite language
-for how to formulate queries, as DBFlow follows it as much as possible.
+We will attempt to make this doc comprehensive, but reference the SQLite language for how to formulate queries, as DBFlow follows it as much as possible.
 
 ## SELECT
 
@@ -16,45 +14,33 @@ select from SomeTable::class
 
 ### Projections
 
-By default if no parameters are specified in the `select()` query, we use the `*` wildcard qualifier,
-meaning all columns are returned in the results.
+By default if no parameters are specified in the `select()` query, we use the `*` wildcard qualifier, meaning all columns are returned in the results.
 
-To specify individual columns, you _must_ use `Property` variables.
-These get generated when you annotate your `Model` with columns, or created manually.
+To specify individual columns, you _must_ use `Property` variables. These get generated when you annotate your `Model` with columns, or created manually.
 
 ```kotlin
-
 select(Player_Table.name, Player_Table.position)
    from Player::class
-
 ```
 
-To specify methods such as `COUNT()` or `SUM()` (static import on `Method`):
-
+To specify methods such as `COUNT()` or `SUM()` \(static import on `Method`\):
 
 ```kotlin
-
 select(count(Employee_Table.name), sum(Employee_Table.salary))
     from Employee::class
-
 ```
 
 Translates to:
 
-```sqlite
-
+```text
 SELECT COUNT(`name`), SUM(`salary`) FROM `Employee`;
-
 ```
 
 There are more handy methods in `Method`.
 
 ### Operators
 
-DBFlow supports many kinds of operations. They are formulated into a `OperatorGroup`,
-which represent a set of `SQLOperator` subclasses combined into a SQLite conditional piece.
-`Property` translate themselves into `SQLOperator` via their conditional methods such as
-`eq()`, `lessThan()`, `greaterThan()`, `between()`, `in()`, etc.
+DBFlow supports many kinds of operations. They are formulated into a `OperatorGroup`, which represent a set of `SQLOperator` subclasses combined into a SQLite conditional piece. `Property` translate themselves into `SQLOperator` via their conditional methods such as `eq()`, `lessThan()`, `greaterThan()`, `between()`, `in()`, etc.
 
 They make it very easy to construct concise and meaningful queries:
 
@@ -68,29 +54,25 @@ val taxBracketCount = (select(count(Employee_Table.name))
 
 Translates to:
 
-```sqlite
-
+```text
 SELECT COUNT(`name`) FROM `Employee` WHERE `salary`<150000 AND `salary`>80000;
-
 ```
 
 DBFlow supports `IN`/`NOT IN` and `BETWEEN` as well.
 
 A more comprehensive list of operations DBFlow supports and what they translate to:
 
-  1. is(), eq() -> =
-  2. isNot(), notEq() -> !=
-  3. isNull() -> IS NULL / isNotNull() -> IS NOT NULL
-  4. like(), glob()
-  5. greaterThan(), greaterThanOrEqual(), lessThan(), lessThanOrEqual()
-  6. between() -> BETWEEN
-  7. in(), notIn()
+1. is\(\), eq\(\) -&gt; =
+2. isNot\(\), notEq\(\) -&gt; !=
+3. isNull\(\) -&gt; IS NULL / isNotNull\(\) -&gt; IS NOT NULL
+4. like\(\), glob\(\)
+5. greaterThan\(\), greaterThanOrEqual\(\), lessThan\(\), lessThanOrEqual\(\)
+6. between\(\) -&gt; BETWEEN
+7. in\(\), notIn\(\)
 
 #### Nested Conditions
 
-To create nested conditions (in parenthesis more often than not), just include
-an `OperatorGroup` as a `SQLOperator` in a query:
-
+To create nested conditions \(in parenthesis more often than not\), just include an `OperatorGroup` as a `SQLOperator` in a query:
 
 ```kotlin
 (select from Location::class
@@ -102,10 +84,8 @@ an `OperatorGroup` as a `SQLOperator` in a query:
 
 Translates to:
 
-```sqlite
-
+```text
 SELECT * FROM `Location` WHERE `latitude`=45.05 AND (`latitude` - 45.05) = 1000
-
 ```
 
 #### Nested Queries
@@ -120,15 +100,13 @@ This appends a `WHERE (SELECT * FROM {table} )` to the query.
 
 ### JOINS
 
-For reference, ([JOIN examples](http://www.tutorialspoint.com/sqlite/sqlite_using_joins.htm)).
+For reference, \([JOIN examples](http://www.tutorialspoint.com/sqlite/sqlite_using_joins.htm)\).
 
-`JOIN` statements are great for combining many-to-many relationships.
-If your query returns non-table fields and cannot map to an existing object,
-see about [query models](QueryModels.md)
+`JOIN` statements are great for combining many-to-many relationships. If your query returns non-table fields and cannot map to an existing object, see about [query models](../advanced-usage/querymodels.md)
 
 For example we have a table named `Customer` and another named `Reservations`.
 
-```SQL
+```sql
 SELECT FROM `Customer` AS `C` INNER JOIN `Reservations` AS `R` ON `C`.`customerId`=`R`.`customerId`
 ```
 
@@ -142,9 +120,9 @@ val customers = (select from Customer::class).as("C")
     .customList<CustomTable>());
 ```
 
-The `IProperty.withTable()` method will prepend a `NameAlias` or the `Table` alias  to the `IProperty` in the query, convenient for JOIN queries:
+The `IProperty.withTable()` method will prepend a `NameAlias` or the `Table` alias to the `IProperty` in the query, convenient for JOIN queries:
 
-```sqlite
+```text
 SELECT EMP_ID, NAME, DEPT FROM COMPANY LEFT OUTER JOIN DEPARTMENT
       ON COMPANY.ID = DEPARTMENT.EMP_ID
 ```
@@ -162,7 +140,6 @@ in DBFlow:
 ### Order By
 
 ```kotlin
-
 // true for 'ASC', false for 'DESC'. ASC is default.
 (select from table
   orderBy(Customer_Table.customer_id)
@@ -198,25 +175,17 @@ SQLite.select()
 
 ## UPDATE
 
-DBFlow supports two kind of UPDATE:
-  1. `Model.update()`
-  2. `SQLite.update()`
+DBFlow supports two kind of UPDATE: 1. `Model.update()` 2. `SQLite.update()`
 
-For simple `UPDATE` for a single or few, concrete set of `Model` stick with (1).
-For powerful multiple `Model` update that can span many rows, use (2). In this
-section we speak on (2). **Note:** if using model caching, you'll need to clear it out
-post an operation from (2).
-
+For simple `UPDATE` for a single or few, concrete set of `Model` stick with \(1\). For powerful multiple `Model` update that can span many rows, use \(2\). In this section we speak on \(2\). **Note:** if using model caching, you'll need to clear it out post an operation from \(2\).
 
 ```sql
-
 UPDATE Ant SET type = 'other' WHERE male = 1 AND type = 'worker';
 ```
 
 Using DBFlow:
 
 ```kotlin
-
 // Native SQL wrapper
 database.beginTransactionAsync { db -> (update<Ant>()
    set Ant_Table.type.eq("other")
@@ -226,25 +195,18 @@ database.beginTransactionAsync { db -> (update<Ant>()
   }.execute { _, count -> }; // non-UI blocking
 ```
 
-The `Set` part of the `Update` supports different kinds of values:
-  1. `ContentValues` -> converts to key/value as a `SQLOperator` of `is()`/`eq()`
-  2. `SQLOperator`, which are grouped together as part of the `SET` statement.
+The `Set` part of the `Update` supports different kinds of values: 1. `ContentValues` -&gt; converts to key/value as a `SQLOperator` of `is()`/`eq()` 2. `SQLOperator`, which are grouped together as part of the `SET` statement.
 
 ## DELETE
 
 `DELETE` queries in DBFlow are similiar to `Update` in that we have two kinds:
 
-  1. `Model.delete()`
-  2. `SQLite.delete()`
+1. `Model.delete()`
+2. `SQLite.delete()`
 
-For simple `DELETE` for a single or few, concrete set of `Model` stick with (1).
-For powerful multiple `Model` deletion that can span many rows, use (2). In this
-section we speak on (2). **Note:** if using model caching, you'll need to clear it out
-post an operation from (2).
-
+For simple `DELETE` for a single or few, concrete set of `Model` stick with \(1\). For powerful multiple `Model` deletion that can span many rows, use \(2\). In this section we speak on \(2\). **Note:** if using model caching, you'll need to clear it out post an operation from \(2\).
 
 ```kotlin
-
 // Delete a whole table
 delete<MyTable>().execute(database)
 
@@ -258,19 +220,14 @@ database.beginTransactionAsync { db -> delete<MyTable>()
 
 ## INSERT
 
-`INSERT` queries in DBFlow are also similiar to `Update` and `Delete` in that we
-have two kinds:
+`INSERT` queries in DBFlow are also similiar to `Update` and `Delete` in that we have two kinds:
 
-  1. `Model.insert()`
-  2. `SQLite.insert()`
+1. `Model.insert()`
+2. `SQLite.insert()`
 
-For simple `INSERT` for a single or few, concrete set of `Model` stick with (1).
-For powerful multiple `Model` insertion that can span many rows, use (2). In this
-section we speak on (2). **Note:** using model caching, you'll need to clear it out
-post an operation from (2).
+For simple `INSERT` for a single or few, concrete set of `Model` stick with \(1\). For powerful multiple `Model` insertion that can span many rows, use \(2\). In this section we speak on \(2\). **Note:** using model caching, you'll need to clear it out post an operation from \(2\).
 
 ```kotlin
-
 // columns + values via pairs
 database.beginTransactionAsync { db ->
    (insert<SomeTable>(SomeTable_Table.name to "Default",
@@ -289,7 +246,6 @@ database.beginTransactionAsync { db ->
 `INSERT` supports inserting multiple rows as well.
 
 ```kotlin
-
 // columns + values separately
 database.beginTransactionAsync { db ->
   (insert<SomeTable>(SomeTable_Table.name, SomeTable_Table.phoneNumber)
@@ -306,37 +262,29 @@ database.beginTransactionAsync { db ->
      SomeTable_Table.phoneNumber.eq("6666666")))
      .executeInsert(db)
    }.execute()
-
 ```
 
 ## Trigger
 
-Triggers enable SQLite-level listener operations that perform some operation, modification,
-or action to run when a specific database event occurs. [See](https://www.sqlite.org/lang_createtrigger.html) for more documentation on its usage.
+Triggers enable SQLite-level listener operations that perform some operation, modification, or action to run when a specific database event occurs. [See](https://www.sqlite.org/lang_createtrigger.html) for more documentation on its usage.
 
 ```kotlin
-
 *createTrigger("SomeTrigger")
     .after() insertOn<ConditionModel>())
     .begin(update<TestUpdateModel>()
             .set(TestUpdateModel_Table.value.is("Fired"))))
             .enable(); // enables the trigger if it does not exist, so subsequent calls are OK
-
 ```
 
 ## Case
 
-The SQLite `CASE` operator is very useful to evaluate a set of conditions and "map" them
-to a certain value that returns in a SELECT query.
+The SQLite `CASE` operator is very useful to evaluate a set of conditions and "map" them to a certain value that returns in a SELECT query.
 
-We have two kinds of case:
-1. Simple
-2. Searched
+We have two kinds of case: 1. Simple 2. Searched
 
 The simple CASE query in DBFlow:
 
 ```kotlin
-
 select(CaseModel_Table.customerId,
         CaseModel_Table.firstName,
         CaseModel_Table.lastName,
@@ -346,18 +294,13 @@ select(CaseModel_Table.customerId,
                  `else` "Foreign")
                 .end("CustomerGroup"))
   from<CaseModel>()
-
 ```
 
-The CASE is returned as `CustomerGroup` with the valyes of "Domestic" if the country is from
-the 'USA' otherwise we mark the value as "Foreign". These appear alongside the results
-set from the SELECT.
+The CASE is returned as `CustomerGroup` with the valyes of "Domestic" if the country is from the 'USA' otherwise we mark the value as "Foreign". These appear alongside the results set from the SELECT.
 
-The search CASE is a little more complicated in that each `when()` statement
-represents a `SQLOperator`, which return a `boolean` expression:
+The search CASE is a little more complicated in that each `when()` statement represents a `SQLOperator`, which return a `boolean` expression:
 
 ```kotlin
-
 select(CaseModel_Table.customerId,
     CaseModel_Table.firstName,
     CaseModel_Table.lastName,
@@ -367,3 +310,4 @@ select(CaseModel_Table.customerId,
      .end("CustomerGroup"))
  from<CaseModel>()
 ```
+

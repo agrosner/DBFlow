@@ -1,10 +1,12 @@
+# README
+
 ![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
 
 [![JitPack.io](https://img.shields.io/badge/JitPack.io-5.0.0alpha1-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
 
 DBFlow is fast, efficient, and feature-rich Kotlin database library built on SQLite for Android. DBFlow utilizes annotation processing to generate SQLite boilerplate for you and provides a powerful SQLite query language that makes using SQLite a joy.
 
-DBFlow is built from a collection of some of the best features of many database libraries.  Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
+DBFlow is built from a collection of some of the best features of many database libraries. Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
 
 Supports:
 
@@ -18,20 +20,21 @@ Supports:
 
 **SQLCipher:** Easy database encryption support in this library.
 
-**SQLite Query Language:** Enabling autocompletion on sqlite queries combined with Kotlin language features means SQLite-like syntax. 
+**SQLite Query Language:** Enabling autocompletion on sqlite queries combined with Kotlin language features means SQLite-like syntax.
 
-# Changelog
+## Changelog
 
 Changes exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases).
 
-# Usage Docs
+## Usage Docs
+
 For more detailed usage, check out it out [here](https://agrosner.gitbooks.io/dbflow/content/)
 
-# Including in your project
+## Including in your project
 
 Add jitpack.io to your project's repositories:
-```groovy
 
+```groovy
 allProjects {
   repositories {
     google() 
@@ -45,7 +48,6 @@ allProjects {
 Add artifacts to your project:
 
 ```groovy
-
   apply plugin: 'kotlin-kapt' // only required for kotlin consumers.
 
   def dbflow_version = "5.0.0-alpha1"
@@ -60,7 +62,7 @@ Add artifacts to your project:
     // if only using Java, use this. If using Kotlin do NOT use this.
     annotationProcessor "com.github.agrosner.dbflow:processor:${dbflow_version}"
 
-    
+
     // core set of libraries
     compile "com.github.agrosner.dbflow:core:${dbflow_version}"
     compile "com.github.agrosner.dbflow:lib:${dbflow_version}"
@@ -82,18 +84,15 @@ Add artifacts to your project:
     compile "com.github.agrosner.dbflow:contentprovider:${dbflow_version}"
 
   }
-
 ```
 
-# Pull Requests
-I welcome and encourage all pull requests. Here are some basic rules to follow to ensure timely addition of your request:
-  1. Match coding style (braces, spacing, etc.) This is best achieved using **Reformat Code** shortcut, <kbd>command</kbd>+<kbd>option</kbd>+<kbd>L</kbd> on Mac and <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>L</kbd> on Windows, with Android Studio defaults.
-  2. If its a feature, bugfix, or anything please only change code to what you specify.
-  3. Please keep PR titles easy to read and descriptive of changes, this will make them easier to merge :)
-  4. Pull requests _must_ be made against `develop` branch. Any other branch (unless specified by the maintainers) will get **rejected**.
-  5. Have fun!
+## Pull Requests
 
-# Maintainer
+I welcome and encourage all pull requests. Here are some basic rules to follow to ensure timely addition of your request: 1. Match coding style \(braces, spacing, etc.\) This is best achieved using **Reformat Code** shortcut, command+option+L on Mac and Ctrl+Alt+L on Windows, with Android Studio defaults. 2. If its a feature, bugfix, or anything please only change code to what you specify. 3. Please keep PR titles easy to read and descriptive of changes, this will make them easier to merge :\) 4. Pull requests _must_ be made against `develop` branch. Any other branch \(unless specified by the maintainers\) will get **rejected**. 5. Have fun!
+
+## Maintainer
+
 Originally created by [Raizlabs](https://www.raizlabs.com), a [Rightpoint](https://www.rightpoint.com) company
 
-Maintained by [agrosner](https://github.com/agrosner) ([@agrosner](https://www.twitter.com/agrosner))
+Maintained by [agrosner](https://github.com/agrosner) \([@agrosner](https://www.twitter.com/agrosner)\)
+

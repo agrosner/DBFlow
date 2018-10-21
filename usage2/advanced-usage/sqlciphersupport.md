@@ -1,4 +1,4 @@
-# SQLCipher Support
+# SQLCipher
 
 As of 3.0.0-beta2+, DBFlow now supports [SQLCipher](https://www.zetetic.net/sqlcipher/) fairly easily.
 
@@ -12,12 +12,13 @@ dependencies {
 ```
 
 You also need to add the Proguard rule:
-```
+
+```text
 -keep class net.sqlcipher.** { *; }
 -dontwarn net.sqlcipher.**
 ```
 
-Next, you need to subclass the provided `SQLCipherOpenHelper` (taken from test files):
+Next, you need to subclass the provided `SQLCipherOpenHelper` \(taken from test files\):
 
 ```kotlin
 class SQLCipherOpenHelperImpl(context: Context,
@@ -41,3 +42,4 @@ FlowManager.init(FlowConfig.Builder(this)
 ```
 
 And that's it. You're all set to start using SQLCipher!
+

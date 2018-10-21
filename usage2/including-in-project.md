@@ -1,4 +1,4 @@
-# Including in your Project
+# Including In Project
 
 DBFlow has a number of artifacts that you can include in the project.
 
@@ -16,12 +16,11 @@ DBFlow has a number of artifacts that you can include in the project.
 
 **SQLCipher:** Easy database encryption support in this library.
 
-### Add the jitpack.io repository
+## Add the jitpack.io repository
 
 This repo is used to publish the artifacts. It also enables [dynamic builds](https://jitpack.io/docs/), allowing you to specify specific branches or commit hashes of the project to include outside of normal releases.
 
 ```groovy
-
 allProjects {
   repositories {
     google() 
@@ -35,7 +34,6 @@ allProjects {
 Add artifacts to your project:
 
 ```groovy
-
   apply plugin: 'kotlin-kapt' // only required for kotlin consumers.
 
   def dbflow_version = "5.0.0-alpha1"
@@ -50,7 +48,7 @@ Add artifacts to your project:
     // if only using Java, use this. If using Kotlin do NOT use this.
     annotationProcessor "com.github.agrosner.dbflow:processor:${dbflow_version}"
 
-    
+
     // core set of libraries
     compile "com.github.agrosner.dbflow:core:${dbflow_version}"
     compile "com.github.agrosner.dbflow:lib:${dbflow_version}"
@@ -72,5 +70,5 @@ Add artifacts to your project:
     compile "com.github.agrosner.dbflow:contentprovider:${dbflow_version}"
 
   }
-
 ```
+
