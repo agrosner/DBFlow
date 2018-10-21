@@ -125,34 +125,27 @@ system you can override the default system included.
 
 To begin you must implement a `ITransactionQueue`:
 
-```java
+```kotlin
 
-public class CustomQueue implements ITransactionQueue {
+class CustomQueue : ITransactionQueue {
+  override fun add(transaction: Transaction<out Any?>) {
 
-    @Override
-    public void add(Transaction transaction) {
+  }
 
-    }
+  override fun cancel(transaction: Transaction<out Any?>) {
 
-    @Override
-    public void cancel(Transaction transaction) {
+  }
 
-    }
+  override fun startIfNotAlive() {
+  }
 
-    @Override
-    public void startIfNotAlive() {
+  override fun cancel(name: String) {
 
-    }
+  }
 
-    @Override
-    public void cancel(String name) {
+  override fun quit() {
 
-    }
-
-    @Override
-    public void quit() {
-
-    }
+  }
 }
 
 ```
@@ -165,36 +158,25 @@ a thread).
 
  Next you can override the `BaseTransactionManager` (not required, see later):
 
-```java
+```kotlin
 
-public class CustomTransactionManager extends BaseTransactionManager {
-
-   public CustomTransactionManager(DatabaseDefinition databaseDefinition) {
-       super(new CustomTransactionQueue(), databaseDefinition);
-   }
-
-}
+class CustomTransactionManager(databaseDefinition: DBFlowDatabase)
+    : BaseTransactionManager(CustomTransactionQueue(), databaseDefinition)
 
 ```
 
 To register it with DBFlow, in your `FlowConfig`, you must:
 
-```java
+```kotlin
 
-FlowManager.init(builder
-    .database(new DatabaseConfig.Builder(AppDatabase.class)
-       .transactionManagerCreator(new DatabaseConfig.TransactionManagerCreator() {
-                        @Override
-                        public BaseTransactionManager createManager(DatabaseDefinition databaseDefinition) {
-                          // this will be called once database modules are loaded and created.
-                            return new CustomTransactionManager(databaseDefinition);
-
-                            // or you can:
-                            //return new DefaultTransactionManager(new CustomTransactionQueue(), databaseDefinition);
-                        }
-                    })
-       .build())
-    .build());
+FlowManager.init(FlowConfig.Builder(DemoApp.context)
+  .database(DatabaseConfig(
+    databaseClass = AppDatabase::class.java,
+    transactionManagerCreator = { databaseDefinition ->
+        CustomTransactionManager(databaseDefinition)
+    })
+  .build())
+.build())
 
 ```
 
@@ -207,22 +189,18 @@ keep the legacy way, a `PriorityTransactionQueue` was created.
 As seen in [Custom Transaction Managers](StoringData.md#custom-transactionmanager),
 we provide a custom instance of the  `DefaultTransactionManager` with the `PriorityTransactionQueue` specified:
 
-```java
+```kotlin
 
-FlowManager.init(builder
-    .database(new DatabaseConfig.Builder(AppDatabase.class)
-       .transactionManagerCreator(new DatabaseConfig.TransactionManagerCreator() {
-                        @Override
-                        public BaseTransactionManager createManager(DatabaseDefinition databaseDefinition) {
-                          // this will be called once database modules are loaded and created.
-                            return new DefaultTransactionManager(
-                              new PriorityTransactionQueue("DBFlow Priority Queue"),
-                              databaseDefinition);
-                        }
-                    })
-       .build())
-    .build());
-
+FlowManager.init(FlowConfig.builder(context)
+  .database(DatabaseConfig.Builder(AppDatabase::class.java)
+          .transactionManagerCreator { db ->
+              // this will be called once database modules are loaded and created.
+              DefaultTransactionManager(
+                      PriorityTransactionQueue("DBFlow Priority Queue"),
+                      db)
+          }
+          .build())
+  .build())
 ```
 
 What this does is for the specified database (in this case `AppDatabase`),
@@ -231,13 +209,12 @@ the `PriorityTransactionWrapper`. Otherwise an the `PriorityTransactionQueue`
 wraps the existing `Transaction` in a `PriorityTransactionWrapper` with normal priority.
 
 
-To specify a priority:
+To specify a priority, wrap your original `ITransaction` with a `PriorityTransactionWrapper`:
 
-```java
-
-FlowManager.getDatabase(AppDatabase.class)
-    .beginTransactionAsync(new PriorityTransactionWrapper.Builder(myTransaction)
+```kotlin
+database<AppDatabase>()
+    .beginTransactionAsync(PriorityTransactionWrapper.Builder(myTransaction)
         .priority(PriorityTransactionWrapper.PRIORITY_HIGH).build())
-    .build().execute();
+    .execute();
 
 ```
