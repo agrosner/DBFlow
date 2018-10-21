@@ -40,6 +40,9 @@ fun <T : Any> update(table: KClass<T>) = update(table.java)
 
 inline fun <reified T : Any> insert(vararg columns: Property<*>) = insert(T::class, *columns)
 
+inline fun <reified T: Any> insert(vararg columnValues: Pair<Property<*>, Any?>) = insert(T::class)
+        .columnValues(*columnValues)
+
 /**
  * @param table    The table to insert.
  * @return A new INSERT statement.

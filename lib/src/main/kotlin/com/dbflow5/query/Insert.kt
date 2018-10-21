@@ -31,7 +31,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
     /**
      * The values to specify in this query
      */
-    private var valuesList: MutableList<MutableList<Any?>> = arrayListOf()
+    private var valuesList: MutableList<List<Any?>> = arrayListOf()
 
     /**
      * The conflict algorithm to use to resolve inserts.
@@ -48,14 +48,14 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
                 queryBuilder.append("OR").append(" $conflictAction ")
             }
             queryBuilder.append("INTO")
-                .append(" ")
-                .append(FlowManager.getTableName(table))
+                    .append(" ")
+                    .append(FlowManager.getTableName(table))
 
             columns?.let { columns ->
                 if (columns.isNotEmpty()) {
                     queryBuilder.append("(")
-                        .appendArray(*columns.toTypedArray())
-                        .append(")")
+                            .appendArray(*columns.toTypedArray())
+                            .append(")")
                 }
             }
             val selectFrom = this.selectFrom
@@ -64,16 +64,16 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
             } else {
                 if (valuesList.size < 1) {
                     throw IllegalStateException("The insert of ${FlowManager.getTableName(table)} " +
-                        "should have at least one value specified for the insert")
+                            "should have at least one value specified for the insert")
                 } else columns?.takeIf { it.isNotEmpty() }?.let { columns ->
                     valuesList.asSequence()
-                        .filter { it.size != columns.size }
-                        .forEach {
-                            throw IllegalStateException(
-                                """The Insert of ${FlowManager.getTableName(table)}
+                            .filter { it.size != columns.size }
+                            .forEach {
+                                throw IllegalStateException(
+                                        """The Insert of ${FlowManager.getTableName(table)}
                                             |when specifying columns needs to have the same amount
                                             |of values and columns. found ${it.size} != ${columns.size}""".trimMargin())
-                        }
+                            }
                 }
 
                 queryBuilder.append(" VALUES(")
@@ -127,8 +127,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
     fun asColumnValues() = apply {
         asColumns()
         columns?.let { columns ->
-            val values = arrayListOf<Any?>()
-            columns.indices.forEach { values.add("?") }
+            val values = columns.indices.map { "?" }
             valuesList.add(values)
         }
     }
@@ -159,35 +158,28 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      */
     fun columnValues(vararg conditions: SQLOperator) = apply {
-        val columns = arrayListOf<String>()
-        val values = arrayListOf<Any?>()
-
-        for (i in conditions.indices) {
-            val condition = conditions[i]
-            columns += condition.columnName()
-            values += condition.value()
-        }
-
-        return columns(*columns.toTypedArray()).values(values)
+        return columns(*conditions.map { it.columnName() }.toTypedArray())
+                .values(conditions.map { it.value() })
     }
 
     /**
      * Uses the [Operator] pairs to fill this insert query.
      *
-     * @param operatorGroup The OperatorGroup to use
+     * @param conditions The conditions that we use to fill the columns and values of this INSERT
      */
-    fun columnValues(operatorGroup: OperatorGroup) = apply {
-        val size = operatorGroup.size
-        val columns = arrayListOf<String>()
-        val values = arrayListOf<Any?>()
+    fun columnValues(vararg conditions: Pair<Property<*>, Any?>) = apply {
+        return columns(*conditions.map { it.first }.toTypedArray())
+                .values(conditions.map { it.second })
+    }
 
-        for (i in 0 until size) {
-            val condition = operatorGroup.conditions[i]
-            columns += condition.columnName()
-            values += condition.value()
-        }
-
-        return columns(*columns.toTypedArray()).values(values)
+    /**
+     * Uses the [Operator] pairs to fill this insert query.
+     *
+     * @param group The [Iterable] of [SQLOperator]
+     */
+    fun columnValues(group: Iterable<SQLOperator>) = apply {
+        return columns(*group.map { it.columnName() }.toTypedArray())
+                .values(group.map { it.value() })
     }
 
     fun columnValues(contentValues: ContentValues) = apply {
