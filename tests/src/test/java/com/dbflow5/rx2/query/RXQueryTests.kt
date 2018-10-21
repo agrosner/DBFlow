@@ -39,7 +39,7 @@ class RXQueryTests : BaseUnitTest() {
         var databaseStatement: DatabaseStatement? = null
         databaseForTable<SimpleModel>()
             .beginTransactionAsync {
-                insert<SimpleModel>().columnValues(name.`is`("name")).compileStatement(it)
+                insert<SimpleModel>(name.`is`("name")).compileStatement(it)
             }.asSingle()
             .subscribe { statement ->
                 databaseStatement = statement
@@ -69,7 +69,7 @@ class RXQueryTests : BaseUnitTest() {
         var count = 0L
         databaseForTable<SimpleModel>()
             .beginTransactionAsync {
-                (insert<SimpleModel>().columnValues(name.eq("name"))).executeInsert(it)
+                (insert<SimpleModel>(name.eq("name"))).executeInsert(it)
             }.asSingle()
             .subscribe { c ->
                 count = c

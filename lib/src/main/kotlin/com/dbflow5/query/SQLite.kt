@@ -38,10 +38,15 @@ fun <T : Any> update(table: Class<T>): Update<T> = Update(table)
  */
 fun <T : Any> update(table: KClass<T>) = update(table.java)
 
+inline fun <reified T: Any> insertInto() = insert<T>(columns = *arrayOf())
+
 inline fun <reified T : Any> insert(vararg columns: Property<*>) = insert(T::class, *columns)
 
 inline fun <reified T: Any> insert(vararg columnValues: Pair<Property<*>, Any?>) = insert(T::class)
         .columnValues(*columnValues)
+
+inline fun <reified T: Any> insert(vararg operators: SQLOperator) = insert(T::class)
+        .columnValues(*operators)
 
 /**
  * @param table    The table to insert.

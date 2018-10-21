@@ -167,7 +167,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      *
      * @param conditions The conditions that we use to fill the columns and values of this INSERT
      */
-    fun columnValues(vararg conditions: Pair<Property<*>, Any?>) = apply {
+    fun columnValues(vararg conditions: Pair<IProperty<*>, *>) = apply {
         return columns(*conditions.map { it.first }.toTypedArray())
                 .values(conditions.map { it.second })
     }
@@ -277,16 +277,3 @@ infix fun <T : Any> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) = o
 infix fun <T : Any> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().columnValues(*into)
 
 infix fun <T : Any> Insert<T>.select(from: From<*>): Insert<T> = select(from)
-
-fun columnValues(vararg pairs: Pair<IProperty<*>, *>): Array<out Pair<IProperty<*>, *>> = pairs
-
-fun <T : Any> Insert<T>.columnValues(vararg pairs: Pair<IProperty<*>, *>): Insert<T> {
-    val columns: MutableList<IProperty<*>> = mutableListOf()
-    val values = mutableListOf<Any?>()
-    pairs.forEach {
-        columns.add(it.first)
-        values.add(it.second)
-    }
-    this.columns(columns).values(values)
-    return this
-}
