@@ -6,7 +6,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.provider.ProviderTestRule
 import com.dbflow5.BaseInstrumentedUnitTest
 import com.dbflow5.config.database
-import com.dbflow5.query.Delete.Companion.table
 import com.dbflow5.query.Delete.Companion.tables
 import com.dbflow5.query.result
 import com.dbflow5.query.select
@@ -98,7 +97,7 @@ class ContentProviderTests : BaseInstrumentedUnitTest() {
     @Test
     fun testSyncableModel() {
         database(ContentDatabase::class) {
-            table(this, TestSyncableModel::class.java)
+            com.dbflow5.query.delete<TestSyncableModel>().execute(this)
 
             var testSyncableModel = TestSyncableModel(name = "Name")
             testSyncableModel.save()
@@ -121,7 +120,7 @@ class ContentProviderTests : BaseInstrumentedUnitTest() {
             testSyncableModel.delete()
             assertFalse(testSyncableModel.exists())
 
-            table(this, TestSyncableModel::class.java)
+            com.dbflow5.query.delete<TestSyncableModel>().execute(this)
         }
     }
 

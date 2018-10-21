@@ -15,10 +15,10 @@ import java.io.InputStream
  * used in other helper class definitions.
  */
 class DatabaseHelperDelegate(
-    context: Context,
-    private var databaseCallback: DatabaseCallback?,
-    databaseDefinition: DBFlowDatabase,
-    private val backupHelper: OpenHelper?)
+        context: Context,
+        private var databaseCallback: DatabaseCallback?,
+        databaseDefinition: DBFlowDatabase,
+        private val backupHelper: OpenHelper?)
     : BaseDatabaseHelper(context, databaseDefinition) {
 
     /**
@@ -43,12 +43,12 @@ class DatabaseHelperDelegate(
 
     fun performRestoreFromBackup() {
         movePrepackagedDB(databaseDefinition.databaseFileName,
-            databaseDefinition.databaseFileName)
+                databaseDefinition.databaseFileName)
 
         if (databaseDefinition.backupEnabled()) {
             if (backupHelper == null) {
                 throw IllegalStateException("the passed backup helper was null, even though backup" +
-                    " is enabled. Ensure that its passed in.")
+                        " is enabled. Ensure that its passed in.")
             }
             restoreDatabase(tempDbFileName, databaseDefinition.databaseFileName)
             backupHelper.database
@@ -108,10 +108,10 @@ class DatabaseHelperDelegate(
             val inputStream: InputStream
             // if it exists and the integrity is ok we use backup as the main DB is no longer valid
             inputStream = if (existingDb.exists()
-                && (!databaseDefinition.backupEnabled() ||
-                (databaseDefinition.backupEnabled()
-                    && backupHelper != null
-                    && isDatabaseIntegrityOk(backupHelper.database)))) {
+                    && (!databaseDefinition.backupEnabled() ||
+                            (databaseDefinition.backupEnabled()
+                                    && backupHelper != null
+                                    && isDatabaseIntegrityOk(backupHelper.database)))) {
                 FileInputStream(existingDb)
             } else {
                 context.assets.open(prepackagedName)
@@ -224,8 +224,8 @@ class DatabaseHelperDelegate(
             val inputStream: InputStream
             // if it exists and the integrity is ok
             inputStream = if (existingDb.exists()
-                && (databaseDefinition.backupEnabled() && backupHelper != null
-                && isDatabaseIntegrityOk(backupHelper.database))) {
+                    && (databaseDefinition.backupEnabled() && backupHelper != null
+                            && isDatabaseIntegrityOk(backupHelper.database))) {
                 FileInputStream(existingDb)
             } else {
                 context.assets.open(prepackagedName)
@@ -245,11 +245,11 @@ class DatabaseHelperDelegate(
     fun backupDB() {
         if (!databaseDefinition.backupEnabled() || !databaseDefinition.areConsistencyChecksEnabled()) {
             throw IllegalStateException("Backups are not enabled for : " +
-                "${databaseDefinition.databaseName}. Please consider adding both backupEnabled " +
-                "and consistency checks enabled to the Database annotation")
+                    "${databaseDefinition.databaseName}. Please consider adding both backupEnabled " +
+                    "and consistency checks enabled to the Database annotation")
         }
 
-        databaseDefinition.executeTransactionAsync({
+        databaseDefinition.beginTransactionAsync {
             val backup = context.getDatabasePath(tempDbFileName)
             val temp = context.getDatabasePath("$TEMP_DB_NAME-2-${databaseDefinition.databaseFileName}")
 
@@ -272,7 +272,7 @@ class DatabaseHelperDelegate(
                 FlowLog.logError(e)
 
             }
-        })
+        }.execute()
 
     }
 
@@ -281,6 +281,6 @@ class DatabaseHelperDelegate(
         val TEMP_DB_NAME = "temp-"
 
         fun getTempDbFileName(databaseDefinition: DBFlowDatabase): String =
-            "$TEMP_DB_NAME${databaseDefinition.databaseName}.db"
+                "$TEMP_DB_NAME${databaseDefinition.databaseName}.db"
     }
 }

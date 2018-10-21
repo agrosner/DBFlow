@@ -41,27 +41,25 @@ internal constructor(private val transformable: TQuery,
     }
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>) {
-        database.executeTransactionAsync({
+        database.beginTransactionAsync { db ->
             transformable.constrain(params.startPosition.toLong(), params.loadSize.toLong())
-                    .queryList(database)
-        },
-                success = { _, list -> callback.onResult(list) })
+                    .queryList(db)
+        }.execute { _, list -> callback.onResult(list) }
     }
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
-        database.executeTransactionAsync({ db -> selectCountOf().from(transformable).longValue(db) },
-                success = { _, count ->
+        database.beginTransactionAsync { db -> selectCountOf().from(transformable).longValue(db) }
+                .execute { _, count ->
                     val max = when {
                         params.requestedLoadSize >= count - 1 -> count.toInt()
                         else -> params.requestedLoadSize
                     }
-                    database.executeTransactionAsync({ db ->
+                    database.beginTransactionAsync { db ->
                         transformable.constrain(params.requestedStartPosition.toLong(), max.toLong()).queryList(db)
-                    },
-                            success = { _, list ->
-                                callback.onResult(list, params.requestedStartPosition, count.toInt())
-                            })
-                })
+                    }.execute { _, list ->
+                        callback.onResult(list, params.requestedStartPosition, count.toInt())
+                    }
+                }
     }
 
     class Factory<T : Any, TQuery>
