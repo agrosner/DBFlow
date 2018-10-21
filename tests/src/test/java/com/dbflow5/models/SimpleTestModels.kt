@@ -5,6 +5,7 @@ import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnIgnore
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKey
+import com.dbflow5.annotation.ForeignKeyAction
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.QueryModel
@@ -73,8 +74,7 @@ class DontAssignDefaultModel(@PrimaryKey var name: String? = null,
                              @Column var index: Int = 0)
 
 @Table(database = TestDatabase::class, orderedCursorLookUp = true)
-class OrderCursorModel(@PrimaryKey var id: Int = 0, @Column var name: String? = "",
-                       @Column var age: Int = 0)
+class OrderCursorModel(@Column var age: Int = 0, @PrimaryKey var id: Int = 0, @Column var name: String? = "")
 
 @Table(database = TestDatabase::class)
 class TypeConverterModel(@PrimaryKey var id: Int = 0,
@@ -97,18 +97,18 @@ class FeedEntry(@PrimaryKey var id: Int = 0,
 
 @Table(database = TestDatabase::class)
 @ManyToMany(
-    generatedTableClassName = "Refund", referencedTable = Transfer::class,
-    referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
-    saveForeignKeyModels = true
+        generatedTableClassName = "Refund", referencedTable = Transfer::class,
+        referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
+        saveForeignKeyModels = true
 )
 data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
 data class Transfer2(
-    @PrimaryKey
-    var id: UUID = UUID.randomUUID(),
-    @ForeignKey(stubbedRelationship = true)
-    var origin: Account? = null
+        @PrimaryKey
+        var id: UUID = UUID.randomUUID(),
+        @ForeignKey(stubbedRelationship = true)
+        var origin: Account? = null
 )
 
 @Table(database = TestDatabase::class)
@@ -206,3 +206,21 @@ class NullableNumbers(@PrimaryKey var id: Int = 0,
 class NonNullKotlinModel(@PrimaryKey var name: String = "",
                          @Column var date: Date = Date(),
                          @Column var numb: Int = 0)
+
+@Table(database = TestDatabase::class)
+class Owner : BaseModel() {
+    @PrimaryKey(autoincrement = true)
+    var id: Int = 0
+    @Column
+    var name: String? = null
+}
+
+@Table(database = TestDatabase::class)
+class Dog : BaseModel() {
+    @ForeignKey(onDelete = ForeignKeyAction.CASCADE, stubbedRelationship = true)
+    var owner: Owner? = null
+    @PrimaryKey(autoincrement = true)
+    var id: Int = 0
+    @Column
+    var name: String? = null
+}

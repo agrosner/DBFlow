@@ -1,5 +1,12 @@
 package com.dbflow5.processor.definition
 
+import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.processor.definition.column.wrapperCommaIfBaseModel
+import com.dbflow5.processor.utils.ModelUtils
+import com.dbflow5.processor.utils.`override fun`
+import com.dbflow5.processor.utils.codeBlock
+import com.dbflow5.processor.utils.isNullOrEmpty
+import com.dbflow5.quote
 import com.grosner.kpoet.S
 import com.grosner.kpoet.`=`
 import com.grosner.kpoet.`private final field`
@@ -10,13 +17,6 @@ import com.grosner.kpoet.modifiers
 import com.grosner.kpoet.param
 import com.grosner.kpoet.public
 import com.grosner.kpoet.statement
-import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.processor.definition.column.wrapperCommaIfBaseModel
-import com.dbflow5.processor.utils.ModelUtils
-import com.dbflow5.processor.utils.`override fun`
-import com.dbflow5.processor.utils.codeBlock
-import com.dbflow5.processor.utils.isNullOrEmpty
-import com.dbflow5.quote
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
@@ -133,20 +133,12 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
             when (mode) {
                 Mode.INSERT -> {
                     val start = AtomicInteger(1)
-                    if (tableDefinition.hasAutoIncrement || tableDefinition.hasRowID) {
-                        val autoIncrement = tableDefinition.autoIncrementColumn
-                        autoIncrement?.let {
-                            methodBuilder.addCode(it.getSQLiteStatementMethod(AtomicInteger(start.getAndIncrement())))
-                        }
-                    }
-
                     tableDefinition.columnDefinitions
-                            .filter { !it.isPrimaryKeyAutoIncrement && !it.isRowId }
+                            .filter { !it.isRowId }
                             .forEach {
                                 methodBuilder.addCode(it.getSQLiteStatementMethod(start))
                                 start.incrementAndGet()
                             }
-
                 }
                 Mode.UPDATE -> {
                     val realCount = AtomicInteger(1)
