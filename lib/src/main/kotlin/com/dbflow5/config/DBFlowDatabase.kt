@@ -23,9 +23,7 @@ import com.dbflow5.structure.BaseModelView
 import com.dbflow5.transaction.BaseTransactionManager
 import com.dbflow5.transaction.DefaultTransactionManager
 import com.dbflow5.transaction.DefaultTransactionQueue
-import com.dbflow5.transaction.Error
 import com.dbflow5.transaction.ITransaction
-import com.dbflow5.transaction.Success
 import com.dbflow5.transaction.Transaction
 
 /**
@@ -275,26 +273,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         modelNotifier = notifier
         return notifier
     }
-
-    /**
-     * Executes and returns the executed transaction.
-     */
-    fun <R : Any?> executeTransactionAsync(transaction: ITransaction<R>,
-                                           success: (Success<R>)? = null,
-                                           error: (Error<R>)? = null): Transaction<R> = beginTransactionAsync(transaction)
-            .success(success)
-            .error(error)
-            .execute()
-
-    /**
-     * Executes and returns the executed transaction.
-     */
-    fun <R : Any?> executeTransactionAsync(transaction: (DatabaseWrapper) -> R,
-                                           success: (Success<R>)? = null,
-                                           error: (Error<R>)? = null): Transaction<R> = beginTransactionAsync(transaction)
-            .success(success)
-            .error(error)
-            .execute()
 
     fun <R : Any?> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
             Transaction.Builder(transaction, this)

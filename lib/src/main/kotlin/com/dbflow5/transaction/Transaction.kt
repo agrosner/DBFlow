@@ -132,24 +132,26 @@ class Transaction<R : Any?>(
 
         /**
          * Specify an error callback to return all and any [Throwable] that occured during a [Transaction].
+         * @param error Invoked on the UI thread, unless [runCallbacksOnSameThread] is true.
          */
-        fun error(errorCallback: Error<R>?) = apply {
-            this.errorCallback = errorCallback
+        fun error(error: Error<R>?) = apply {
+            this.errorCallback = error
         }
 
         /**
          * Specify a listener for successful transactions. This is called when the [ITransaction]
          * specified is finished and it is posted on the UI thread.
          *
-         * @param successCallback The callback, invoked on the UI thread.
+         * @param success The callback, invoked on the UI thread, unless [runCallbacksOnSameThread] is true.
          */
-        fun success(successCallback: Success<R>?) = apply {
-            this.successCallback = successCallback
+        fun success(success: Success<R>?) = apply {
+            this.successCallback = success
         }
 
         /**
          * Runs exactly once, no matter if it was successful or failed, at the end of the execution
          * of this transaction.
+         * @param completion Invoked on the UI thread, unless [runCallbacksOnSameThread] is true.
          */
         fun completion(completion: Completion<R>?) = apply {
             this.completion = completion
@@ -193,7 +195,14 @@ class Transaction<R : Any?>(
         /**
          * Convenience method to simply execute a transaction.
          */
-        fun execute() = build().execute()
+        @JvmOverloads
+        fun execute(error: Error<R>? = null, completion: Completion<R>? = null,
+                    success: Success<R>? = null) =
+                this.apply {
+                    success?.let(this::success)
+                    error?.let(this::error)
+                    completion?.let(this::completion)
+                }.build().execute()
     }
 
     companion object {

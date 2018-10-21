@@ -3,6 +3,7 @@ package com.dbflow5.query
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.databaseForTable
 import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.query.list.FlowQueryList
 import com.dbflow5.structure.BaseQueryModel
@@ -45,7 +46,7 @@ interface ModelQueriable<T : Any> : Queriable {
      * Returns a [List] based on the custom [TQueryModel] you pass in.
      *
      * @param queryModelClass The query model class to use.
-     * @param <TQueryModel>   The class that extends [BaseQueryModel]
+     * @param <TQueryModel>   The class that extends [BaseueryModel]
      * @return A list of custom models that are not tied to a table.
     </TQueryModel> */
     fun <TQueryModel : Any> queryCustomList(queryModelClass: Class<TQueryModel>,
@@ -70,21 +71,27 @@ interface ModelQueriable<T : Any> : Queriable {
 
     fun <R : Any?> async(databaseWrapper: DBFlowDatabase,
                          modelQueriableFn: ModelQueriable<T>.(DatabaseWrapper) -> R) =
-        databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
+            databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
 
 }
 
 internal inline val <T : Any> ModelQueriable<T>.enclosedQuery
-    get() = "(${query.trim({ it <= ' ' })})"
+    get() = "(${query.trim { it <= ' ' }})"
 
 inline val <reified T : Any> ModelQueriable<T>.list
     get() = queryList(databaseForTable<T>())
+
+inline fun <reified T : Any> ModelQueriable<*>.customList() =
+        queryCustomList(T::class.java, databaseForTable<T>())
+
+inline fun <reified T : Any> ModelQueriable<*>.customSingle() =
+        queryCustomSingle(T::class.java, databaseForTable<T>())
 
 inline val <reified T : Any> ModelQueriable<T>.result
     get() = querySingle(databaseForTable<T>())
 
 inline val <reified T : Any> ModelQueriable<T>.requireResult
-    get() = result!!
+    get() = result ?: throw SQLiteException("Model result not found for $this")
 
 inline val <reified T : Any> ModelQueriable<T>.flowQueryList
     get() = flowQueryList(databaseForTable<T>())
