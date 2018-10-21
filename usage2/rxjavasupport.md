@@ -95,7 +95,7 @@ RXSQLite.rx(
 
 ## Kotlin Support
 
-Most of the support mirrors [kotlin support](kotlinsupport.md) with a few minor changes.
+Most of the support mirrors [kotlin support]() with a few minor changes.
 
 Extension properties/methods include: 1. `rx()` extension method making it super easy to integrate RX. 2. `RXModelQueriable.streamResults` - stream results one at time to a `Subscription` 3. `list`, `result`,`streamResults`, `cursorResult`,`statement`, `hasData`, `cursor`, and `count` all provide a method lambda that is called within a `Subscription`.
 

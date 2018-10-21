@@ -17,11 +17,11 @@ public abstract class AppDatabase extends DBFlowDatabase {
 }
 ```
 
-The name of the database by default is the class name. To change it, read [here](usage/databases.md).
+The name of the database by default is the class name. To change it, read [here](usage2/usage/databases.md).
 
 Writing this file generates \(by default\) a `AppDatabaseAppDatabase_Database.java` file, which contains tables, views, and more all tied to a specific database. This class is automatically placed into the main `GeneratedDatabaseHolder`, which holds potentially many databases. The name, `AppDatabaseAppDatabase_Database.java`, is generated via {DatabaseClassName}{DatabaseFileName}\_Database
 
-To learn more about what you can configure in a database, read [here](usage/databases.md)
+To learn more about what you can configure in a database, read [here](usage2/usage/databases.md)
 
 ## Initialize FlowManager
 
@@ -50,7 +50,7 @@ public class ExampleApplication extends Application {
 }
 ```
 
-By default without passing in a `DatabaseConfig`, we construct an `AndroidSQLiteOpenHelper` database instance. To learn more about what you can configure in a database, read [here](usage/databases.md), including providing own database instances.
+By default without passing in a `DatabaseConfig`, we construct an `AndroidSQLiteOpenHelper` database instance. To learn more about what you can configure in a database, read [here](usage2/usage/databases.md), including providing own database instances.
 
 Finally, add the custom `Application` definition to the manifest \(with the name that you chose for the class\):
 
@@ -91,11 +91,11 @@ FlowManager.init(FlowConfig.builder(this)
           .build()))
 ```
 
-You can define different kinds for each database. To read more on transactions and subclassing `BaseTransactionManager` go [here](usage/storingdata.md)
+You can define different kinds for each database. To read more on transactions and subclassing `BaseTransactionManager` go [here](usage2/usage/storingdata.md)
 
 ## Create Models
 
-Creating models are as simple as defining the model class, and adding the `@Table` annotation. To read more on this, read [here](usage/models.md).
+Creating models are as simple as defining the model class, and adding the `@Table` annotation. To read more on this, read [here](usage2/usage/models.md).
 
 **For now**: Models must provide a default, parameterless constructor. An example:
 
@@ -169,7 +169,7 @@ SQLite.select(FlowManager.getDatabase(AppDatabase.class))
   .where(Currency_Table.symbol.eq("$"));
 ```
 
-We support many kinds of complex and complicated queries using the builder language. To read more about this, see [the wrapper language docs](usage/sqlitewrapperlanguage.md)
+We support many kinds of complex and complicated queries using the builder language. To read more about this, see [the wrapper language docs](usage2/usage/sqlitewrapperlanguage.md)
 
 There is much more you can do in DBFlow. Read through the other docs to get a sense of the library.
 

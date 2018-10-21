@@ -1,4 +1,4 @@
-# Usage
+# Main Usage
 
 DBFlow supports a number of database features that will enhance and decrease time you need to spend coding with databases. We support multiple databases at the same time \(and in separate modules\) as long as there's no shared models.
 
