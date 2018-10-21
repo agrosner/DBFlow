@@ -15,9 +15,9 @@ interface Transformable<T : Any> {
 
     fun groupBy(vararg properties: IProperty<*>): Where<T>
 
-    fun orderBy(nameAlias: NameAlias, ascending: Boolean): Where<T>
+    fun orderBy(nameAlias: NameAlias, ascending: Boolean = true): Where<T>
 
-    fun orderBy(property: IProperty<*>, ascending: Boolean): Where<T>
+    fun orderBy(property: IProperty<*>, ascending: Boolean = true): Where<T>
 
     infix fun orderBy(orderBy: OrderBy): Where<T>
 
