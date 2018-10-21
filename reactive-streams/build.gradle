@@ -1,0 +1,30 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+project.ext.artifactId = bt_name
+
+android {
+    compileSdkVersion target_sdk
+
+    defaultConfig {
+        minSdkVersion min_sdk_rx
+        targetSdkVersion target_sdk
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+}
+
+dependencies {
+    api project(':lib')
+    api deps.rx2
+    api deps.kotlin
+}
+
+apply from: '../kotlin-artifacts.gradle'

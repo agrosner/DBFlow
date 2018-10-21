@@ -1,0 +1,29 @@
+<manifest
+    package="com.dbflow5.test"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:name="com.dbflow5.DemoApp"
+        android:allowBackup="false"
+        android:label="DB Flow Compiler Test">
+        <provider
+            android:name="com.dbflow5.StubContentProvider"
+            android:authorities="com.grosner.content"
+            android:exported="false"/>
+
+        <activity
+            android:name="com.dbflow5.test.DemoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="com.dbflow5.provider.StubContentProvider"
+            android:authorities="com.dbflow.authority"
+            android:exported="false"/>
+    </application>
+
+</manifest>

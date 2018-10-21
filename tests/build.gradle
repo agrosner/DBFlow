@@ -1,0 +1,100 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'com.getkeepsafe.dexcount'
+apply plugin: 'kotlin-kapt'
+
+android {
+
+    useLibrary 'org.apache.http.legacy'
+
+    compileSdkVersion target_sdk
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdkVersion min_sdk_rx
+        targetSdkVersion target_sdk
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+        exclude 'META-INF/rxjava.properties'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+    testOptions {
+        unitTests {
+            includeAndroidResources true
+        }
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+
+    kapt project("${dbflow_project_prefix}processor")
+    implementation project(':lib')
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation project(':lib')
+    implementation project("${dbflow_project_prefix}sqlcipher")
+    implementation project(':reactive-streams')
+    implementation project(':contentprovider')
+    implementation project("${dbflow_project_prefix}coroutines")
+    implementation project("${dbflow_project_prefix}paging")
+
+    kaptTest project("${dbflow_project_prefix}processor")
+    kaptAndroidTest project("${dbflow_project_prefix}processor")
+
+    testImplementation deps.javax_annotation
+    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC3") {
+        exclude group: "org.jetbrains.kotlin"
+    }
+    testImplementation 'org.mockito:mockito-core:2.23.0'
+
+    androidTestImplementation deps.junit
+    testImplementation deps.junit
+    androidTestImplementation "androidx.test:core:1.0.0-beta02"
+    androidTestImplementation "androidx.test:runner:1.1.0-beta02"
+    androidTestImplementation "androidx.test:rules:1.1.0-beta02"
+    testImplementation "androidx.test:core:1.0.0-beta02"
+    testImplementation "androidx.test:runner:1.1.0-beta02"
+    testImplementation "androidx.test:rules:1.1.0-beta02"
+    testImplementation 'com.google.android:android-test:4.1.1.4'
+
+    testImplementation "org.robolectric:robolectric:4.0-beta-1"
+
+}
+
+android.applicationVariants.all { variant ->
+    String taskName = "copy${variant.name.capitalize()}ResDirectoryToClasses"
+    task(taskName, type: Copy) {
+        from "${projectDir}/src/test/res"
+        into "${buildDir}/intermediates/classes/test/${variant.buildType.name}/res"
+
+        from "${projectDir}/src/test/assets"
+        into "${buildDir}/intermediates/classes/test/${variant.buildType.name}/assets"
+    }
+    project.getTasksByName("generate${variant.name.capitalize()}Resources", false)[0].dependsOn(taskName)
+}
+
+dexcount {
+    includeClasses = true
+    orderByMethodCount = true
+}
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}

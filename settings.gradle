@@ -1,8 +1,7 @@
-include ':dbflow', ':dbflow-rx-kotlinextensions', ':dbflow-rx2', ':dbflow-rx2-kotlinextensions',
-    ':dbflow-processor',
-    ':dbflow-core',
-    ':dbflow-sqlcipher',
-    ':dbflow-kotlinextensions',
-    ':dbflow-rx',
-    ':dbflow-tests'
+include ':lib', ':reactive-streams', ':coroutines', ':contentprovider', ':contentprovider-annotations',
+        ':processor',
+        ':core',
+        ':sqlcipher',
+        ':tests',
+        ':paging'
 

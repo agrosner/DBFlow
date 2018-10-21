@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    package="com.dbflow5"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-sdk tools:overrideLibrary="com.dbflow5.sqlcipher, net.sqlcipher"/>
+
+    <application>
+        <provider
+            android:name="com.dbflow5.provider.TestContentProvider_Provider"
+            android:authorities="com.dbflow5.test.provider"
+            android:exported="true"/>
+
+    </application>
+
+</manifest>
