@@ -9,53 +9,21 @@ to store information.
 While generally saving data synchronous should be avoided, for small amounts of data
 it has little effect.
 
-```java
+```kotlin
+model.save()
+model.insert()
+model.update()
+```
 
-FlowManager.getModelAdapter(SomeTable.class).save(model);
+Avoid saving large amounts of models outside of a transaction:
+```kotlin
 
-FlowManager.getModelAdapter(SomeTable.class).insert(model);
-
-FlowManager.getModelAdapter(SomeTable.class).update(model);
-
-model.insert(); // inserts
-model.update(); // updates
-model.save(); // checks if exists, if true update, else insert.
+// AVOID
+models.forEach { it.save() }
 
 ```
 
-Code (without running in a transaction) like this should be avoided:
-
-```java
-
-for (int i = 0; i < models.size(), i++) {
-  models.get(i).save();
-}
-
-```
-
-Doing operations on the main thread can block it if you read and write to the DB on a different thread while accessing DB on the main.
-
-## Synchronous Transactions
-
-A simple database transaction can be wrapped in a call:
-
-```java
-
-FlowManager.getDatabase(AppDatabase.class).executeTransaction(new ITransaction() {
-            @Override
-            public void execute(DatabaseWrapper databaseWrapper) {
-                // something here
-                Player player = new Player("Andrew", "Grosner");
-                player.save(databaseWrapper); // use wrapper (from BaseModel)
-            }
-});
-
-```
-
-Even though DBFlow is ridiculously fast, this should be put on a separate thread
- outside of the UI, so that your UI remains responsive on all devices.
-
- Instead we should move onto `Transaction` (the preferred method).
+Doing operations on the main thread can block it if you read and write to the DB on a different thread while accessing DB on the main. Instead, use Async Transactions.
 
 ### Async Transactions
 
@@ -74,41 +42,20 @@ Also to use the legacy, priority-based system, read [here](StoringData.md#priori
 
  A basic transaction:
 
- ```java
+ ```kotlin
 
-DatabaseDefinition database = FlowManager.getDatabase(AppDatabase.class);
-Transaction transaction = database.beginTransactionAsync(new ITransaction() {
-            @Override
-            public void execute(DatabaseWrapper databaseWrapper) {
-                called.set(true);
-            }
-        }).build();
-transaction.execute(); // execute
+ val transaction = database<AppDatabase>().beginTransactionAsync { db ->
+    // handle to DB
+    // return a result, or execute a method that returns a result
+  }.build()
+transaction.execute(
+   error = { transaction, error -> // handle any exceptions here },
+   completion = { transaction -> // called when transaction completes success or fail }
+  ) { transaction, result ->
+  // utilize the result returned
 
 transaction.cancel();
  // attempt to cancel before its run. If it's already ran, this call has no effect.
-
- ```
-
- `Transaction` have callbacks to allow you to "listen" for success and errors.
-
- ```java
-
-
- transaction
-    .success(new Transaction.Success() {
-       @Override
-       public void onSuccess(Transaction transaction) {
-          // called post-execution on the UI thread.
-       }
-   })
-   .error(new Transaction.Error() {
-       @Override
-       public void onError(Transaction transaction, Throwable error) {
-          // call if any errors occur in the transaction.
-       }
-   });
-
 
  ```
 
@@ -127,38 +74,23 @@ method in the `Builder`. You can listen for when each are processed inside a nor
 
 It is a convenient way to operate on them:
 
-```java
+```kotlin
 
-ProcessModelTransaction<TestModel1> processModelTransaction =
-        new ProcessModelTransaction.Builder<>(new ProcessModelTransaction.ProcessModel<TestModel1>() {
-            @Override
-            public void processModel(TestModel1 model) {
-                // call some operation on model here
-                model.save();
-                model.insert(); // or
-                model.delete(); // or
-            }
-        }).processListener(new ProcessModelTransaction.OnModelProcessListener<TestModel1>() {
-            @Override
-            public void onModelProcessed(long current, long total, TestModel1 modifiedModel) {
-                modelProcessedCount.incrementAndGet();
-            }
-        }).addAll(items).build();
-Transaction transaction = database.beginTransactionAsync(processModelTransaction).build();
-transaction.execute();
+database.beginTransactionAsync(items.processTransaction { model, db ->
+      // call some operation on model here
+      model.save()
+      model.insert() // or
+      model.delete() // or
+    }
+    .processListener { current, total, modifiedModel ->
+        // for every model looped through and completes
+        modelProcessedCount.incrementAndGet();
+     }
+    .build())
+    .execute()
 
 ```
 
-In Kotlin (with `dbflow-kotlinextensions`), we can drastically simplify:
-
-```java
-
-items.processInTransactionAsync({ it, databaseWrapper -> it.delete(databaseWrapper) },
-    ProcessModelTransaction.OnModelProcessListener { current, size, model ->
-      modelProcessedCount.incrementAndGet();
-    })
-
-```
 You can listen to when operations complete for each model via the `OnModelProcessListener`.
 These callbacks occur on the UI thread. If you wish to run them on same thread (great for tests),
 set `runProcessListenerOnSameThread()` to `true`.
@@ -171,15 +103,13 @@ The `FastStoreModelTransaction` is the quickest, lightest way to store a `List` 
   2. No progress listening
   3. Can only `save`, `insert`, or `update` the whole list entirely.
 
-```java
-
-FastStoreModelTransaction
-  .insertBuilder(FlowManager.getModelAdapter(TestModel2.class))
-    .addAll(modelList)
-    .build()
-
-    // updateBuilder + saveBuilder also available.
-
+```kotlin
+database.beginTransactionAsync(list.fastSave().build())
+  .execute()
+database.beginTransactionAsync(list.fastInsert().build())
+  .execute()
+database.beginTransactionAsync(list.fastUpdate().build())
+  .execute()
 ```
 
 What it provides:
