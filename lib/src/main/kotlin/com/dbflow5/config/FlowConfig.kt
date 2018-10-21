@@ -1,6 +1,7 @@
 package com.dbflow5.config
 
 import android.content.Context
+import kotlin.reflect.KClass
 
 /**
  * Description: The main configuration instance for DBFlow. This
@@ -11,10 +12,10 @@ class FlowConfig(val context: Context,
                  val openDatabasesOnInit: Boolean = false) {
 
     internal constructor(builder: Builder) : this(
-        databaseHolders = builder.databaseHolders.toSet(),
-        databaseConfigMap = builder.databaseConfigMap,
-        context = builder.context,
-        openDatabasesOnInit = builder.openDatabasesOnInit
+            databaseHolders = builder.databaseHolders.toSet(),
+            databaseConfigMap = builder.databaseConfigMap,
+            context = builder.context,
+            openDatabasesOnInit = builder.openDatabasesOnInit
     )
 
     fun getConfigForDatabase(databaseClass: Class<*>): DatabaseConfig? {
@@ -26,13 +27,13 @@ class FlowConfig(val context: Context,
      * will override existing ones.
      */
     internal fun merge(flowConfig: FlowConfig): FlowConfig = FlowConfig(
-        context = flowConfig.context,
-        databaseConfigMap = databaseConfigMap.entries
-            .map { (key, value) ->
-                key to (flowConfig.databaseConfigMap[key] ?: value)
-            }.toMap(),
-        databaseHolders = databaseHolders.plus(flowConfig.databaseHolders),
-        openDatabasesOnInit = flowConfig.openDatabasesOnInit)
+            context = flowConfig.context,
+            databaseConfigMap = databaseConfigMap.entries
+                    .map { (key, value) ->
+                        key to (flowConfig.databaseConfigMap[key] ?: value)
+                    }.toMap(),
+            databaseHolders = databaseHolders.plus(flowConfig.databaseHolders),
+            openDatabasesOnInit = flowConfig.openDatabasesOnInit)
 
     class Builder(context: Context) {
 
@@ -44,6 +45,11 @@ class FlowConfig(val context: Context,
         fun addDatabaseHolder(databaseHolderClass: Class<out DatabaseHolder>) = apply {
             databaseHolders.add(databaseHolderClass)
         }
+
+        fun addDatabaseHolder(databaseHolderClass: KClass<out DatabaseHolder>) = apply {
+            databaseHolders.add(databaseHolderClass.java)
+        }
+
 
         fun database(databaseConfig: DatabaseConfig) = apply {
             databaseConfigMap.put(databaseConfig.databaseClass, databaseConfig)

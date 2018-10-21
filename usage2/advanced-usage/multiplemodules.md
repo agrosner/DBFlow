@@ -29,11 +29,10 @@ By passing the targetModuleName, we append that to the `GeneratedDatabaseHolder`
 
 From previous sample code, we recommend initializing the specific module inside your library, to prevent developer error. **Note**: Multiple calls to `FlowManager` will not adversely affect DBFlow. If DBFlow is already initialized, we append the module to DBFlow if and only if it does not already exist.
 
-```java
-public void initialize(Context context) {
+```kotlin
+fun initialize(context: Context) {
   FlowManager.init(FlowConfig.builder(context)
-    .addDatabaseHolder(SomeUniqueModuleNameGeneratedDatabaseHolder.class)
-    .build());
+    .addDatabaseHolder(SomeUniqueModuleNameGeneratedDatabaseHolder::class)
+    .build())
 }
 ```
-
