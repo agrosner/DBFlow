@@ -61,7 +61,7 @@ class FlowQueryList<T : Any>(
         get() = internalCursorList
 
     /**
-     * @return Constructs a new [Builder] that reuses the underlying [FlowCursor], cache,
+     * @return Constructs a new [Builder] that reuses the underlying [FlowCursor],
      * callbacks, and other properties.
      */
     fun newBuilder(): Builder<T> = Builder(internalCursorList)
