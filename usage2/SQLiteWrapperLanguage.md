@@ -10,10 +10,8 @@ for how to formulate queries, as DBFlow follows it as much as possible.
 
 The way to query data, `SELECT` are started by:
 
-```java
-
-SQLite.select().from(SomeTable.class)
-
+```kotlin
+select from SomeTable::class
 ```
 
 ### Projections
@@ -24,20 +22,20 @@ meaning all columns are returned in the results.
 To specify individual columns, you _must_ use `Property` variables.
 These get generated when you annotate your `Model` with columns, or created manually.
 
-```java
+```kotlin
 
-SQLite.select(Player_Table.name, Player_Table.position)
-    .from(Player.class)
+select(Player_Table.name, Player_Table.position)
+   from Player::class
 
 ```
 
 To specify methods such as `COUNT()` or `SUM()` (static import on `Method`):
 
 
-```java
+```kotlin
 
-SQLite.select(count(Employee_Table.name), sum(Employee_Table.salary))
-    .from(Employee.class)
+select(count(Employee_Table.name), sum(Employee_Table.salary))
+    from Employee::class
 
 ```
 
@@ -60,14 +58,12 @@ which represent a set of `SQLOperator` subclasses combined into a SQLite conditi
 
 They make it very easy to construct concise and meaningful queries:
 
-```java
-
-int taxBracketCount = SQLite.select(count(Employee_Table.name))
-    .from(Employee.class)
-    .where(Employee_Table.salary.lessThan(150000))
-    .and(Employee_Table.salary.greaterThan(80000))
-    .count();
-
+```kotlin
+val taxBracketCount = (select(count(Employee_Table.name))
+    from Employee::class
+    where Employee_Table.salary.lessThan(150000)
+    and Employee_Table.salary.greaterThan(80000))
+    .count(database)
 ```
 
 Translates to:
@@ -96,16 +92,12 @@ To create nested conditions (in parenthesis more often than not), just include
 an `OperatorGroup` as a `SQLOperator` in a query:
 
 
-```java
-
-SQLite.select()
-  .from(Location.class)
-  .where(Location_Table.latitude.eq(home.getLatitude()))
-  .and(OperatorGroup.clause()
-      .and(Location_Table.latitude
-        .minus(PropertyFactory.from(home.getLatitude())
-        .eq(1000L))))
-
+```kotlin
+(select from Location::class
+  where Location_Table.latitude.eq(home.latitude)
+  and (Location_Table.latitude
+         - home.latitude) eq 1000L
+ )
 ```
 
 Translates to:
@@ -118,12 +110,10 @@ SELECT * FROM `Location` WHERE `latitude`=45.05 AND (`latitude` - 45.05) = 1000
 
 #### Nested Queries
 
-To create a nested query simply include it as a `Property` via `PropertyFactory.from(BaseQueriable)`:
+To create a nested query simply include a query as a `Property` via `(query).property`:
 
-```java
-
-.where(PropertyFactory.from(SQLite.select().from(...).where(...))
-
+```kotlin
+.where((select from(...) where(...)).property)
 ```
 
 This appends a `WHERE (SELECT * FROM {table} )` to the query.
@@ -142,15 +132,14 @@ For example we have a table named `Customer` and another named `Reservations`.
 SELECT FROM `Customer` AS `C` INNER JOIN `Reservations` AS `R` ON `C`.`customerId`=`R`.`customerId`
 ```
 
-```java
+```kotlin
 // use the different QueryModel (instead of Table) if the result cannot be applied to existing Model classes.
-List<CustomTable> customers = new Select()   
-  .from(Customer.class).as("C")   
-  .join(Reservations.class, JoinType.INNER).as("R")    
-  .on(Customer_Table.customerId
-      .withTable(NameAlias.builder("C").build())
-    .eq(Reservations_Table.customerId.withTable("R"))
-    .queryCustomList(CustomTable.class);
+val customers = (select from Customer::class).as("C")   
+  innerJoin<Reservations.class>().as("R")    
+   on(Customer_Table.customerId
+      .withTable("C".nameAlias)
+     eq Reservations_Table.customerId.withTable("R"))
+    .customList<CustomTable>());
 ```
 
 The `IProperty.withTable()` method will prepend a `NameAlias` or the `Table` alias  to the `IProperty` in the query, convenient for JOIN queries:
@@ -162,50 +151,45 @@ SELECT EMP_ID, NAME, DEPT FROM COMPANY LEFT OUTER JOIN DEPARTMENT
 
 in DBFlow:
 
-```java
-SQLite.select(Company_Table.EMP_ID, Company_Table.DEPT)
-  .from(Company.class)
-  .leftOuterJoin(Department.class)
+```kotlin
+(select(Company_Table.EMP_ID, Company_Table.DEPT)
+  from Company::class
+  leftOuterJoin<Department>()
   .on(Company_Table.ID.withTable().eq(Department_Table.EMP_ID.withTable()))
+)
 ```
 
 ### Order By
 
-```java
+```kotlin
 
-// true for 'ASC', false for 'DESC'
-SQLite.select()
-  .from(table)
-  .where()
-  .orderBy(Customer_Table.customer_id, true)
+// true for 'ASC', false for 'DESC'. ASC is default.
+(select from table
+  orderBy(Customer_Table.customer_id)
 
-  SQLite.select()
-    .from(table)
-    .where()
-    .orderBy(Customer_Table.customer_id, true)
-    .orderBy(Customer_Table.name, false)
+  (select from table
+    orderBy(Customer_Table.customer_id, ascending = true)
+    orderBy(Customer_Table.name, ascending = false))
 ```
 
 ### Group By
 
-```java
-SQLite.select()
-  .from(table)
+```kotlin
+(select from table)
   .groupBy(Customer_Table.customer_id, Customer_Table.customer_name)
 ```
 
 ### HAVING
 
-```java
-SQLite.select()
-  .from(table)
+```kotlin
+(select from table)
   .groupBy(Customer_Table.customer_id, Customer_Table.customer_name))
   .having(Customer_Table.customer_id.greaterThan(2))
 ```
 
 ### LIMIT + OFFSET
 
-```java
+```kotlin
 SQLite.select()
   .from(table)
   .limit(3)
@@ -231,15 +215,15 @@ UPDATE Ant SET type = 'other' WHERE male = 1 AND type = 'worker';
 
 Using DBFlow:
 
-```java
+```kotlin
 
 // Native SQL wrapper
-SQLite.update(Ant.class)
-  .set(Ant_Table.type.eq("other"))
-  .where(Ant_Table.type.is("worker"))
-    .and(Ant_Table.isMale.is(true))
-    .async()
-    .execute(); // non-UI blocking
+database.beginTransactionAsync { db -> (update<Ant>()
+   set Ant_Table.type.eq("other")
+   where Ant_Table.type.is("worker")
+   and Ant_Table.isMale.is(true))
+   .executeUpdateDelete(db)
+  }.execute { _, count -> }; // non-UI blocking
 ```
 
 The `Set` part of the `Update` supports different kinds of values:
@@ -259,20 +243,17 @@ section we speak on (2). **Note:** if using model caching, you'll need to clear 
 post an operation from (2).
 
 
-```java
+```kotlin
 
 // Delete a whole table
-Delete.table(MyTable.class);
-
-// Delete multiple instantly
-Delete.tables(MyTable1.class, MyTable2.class);
+delete<MyTable>().execute(database)
 
 // Delete using query
-SQLite.delete(MyTable.class)
-  .where(DeviceObject_Table.carrier.is("T-MOBILE"))
-    .and(DeviceObject_Table.device.is("Samsung-Galaxy-S5"))
-  .async()
-  .execute();
+database.beginTransactionAsync { db -> delete<MyTable>()
+   where DeviceObject_Table.carrier.is("T-MOBILE")
+   and DeviceObject_Table.device.is("Samsung-Galaxy-S5"))
+   .executeUpdateDelete(db)
+ }.execute { _, count -> };
 ```
 
 ## INSERT
@@ -288,44 +269,43 @@ For powerful multiple `Model` insertion that can span many rows, use (2). In thi
 section we speak on (2). **Note:** using model caching, you'll need to clear it out
 post an operation from (2).
 
-```java
+```kotlin
 
-// columns + values separately
-SQLite.insert(SomeTable.class)
-  .columns(SomeTable_Table.name, SomeTable_Table.phoneNumber)
-  .values("Default", "5555555")
-  .async()
-  .execute()
+// columns + values via pairs
+database.beginTransactionAsync { db ->
+   (insert<SomeTable>(SomeTable_Table.name to "Default",
+    MSomeTable_Table.phoneNumber to "5555555")
+    .executeInsert(db)
+}.execute()
 
 // or combine into Operators
-  SQLite.insert(SomeTable.class)
-    .columnValues(SomeTable_Table.name.eq("Default"),
-     SomeTable_Table.phoneNumber.eq("5555555"))
-    .async()
-    .execute()
-
+database.beginTransactionAsync { db ->
+   (insert<SomeTable>(SomeTable_Table.name eq "Default",
+    MSomeTable_Table.phoneNumber eq "5555555")
+    .executeInsert(db)
+}.execute()
 ```
 
 `INSERT` supports inserting multiple rows as well.
 
-```java
+```kotlin
 
 // columns + values separately
-SQLite.insert(SomeTable.class)
-  .columns(SomeTable_Table.name, SomeTable_Table.phoneNumber)
+database.beginTransactionAsync { db ->
+  (insert<SomeTable>(SomeTable_Table.name, SomeTable_Table.phoneNumber)
   .values("Default1", "5555555")
-  .values("Default2", "6666666")
-  .async()
-  .execute()
+  .values("Default2", "6666666"))
+  .executeInsert(db)
+}.execute()
 
 // or combine into Operators
-  SQLite.insert(SomeTable.class)
-    .columnValues(SomeTable_Table.name.eq("Default1"),
+database.beginTransactionAsync { db ->
+  (insert<SomeTable>(SomeTable_Table.name.eq("Default1"),
      SomeTable_Table.phoneNumber.eq("5555555"))
     .columnValues(SomeTable_Table.name.eq("Default2"),
-     SomeTable_Table.phoneNumber.eq("6666666"))
-    .async()
-    .execute()
+     SomeTable_Table.phoneNumber.eq("6666666")))
+     .executeInsert(db)
+   }.execute()
 
 ```
 
@@ -334,12 +314,13 @@ SQLite.insert(SomeTable.class)
 Triggers enable SQLite-level listener operations that perform some operation, modification,
 or action to run when a specific database event occurs. [See](https://www.sqlite.org/lang_createtrigger.html) for more documentation on its usage.
 
-```java
+```kotlin
 
-Trigger.create("SomeTrigger")
-                .after().insert(ConditionModel.class).begin(new Update<>(TestUpdateModel.class)
-                        .set(TestUpdateModel_Table.value.is("Fired"))).enable(); // enables the trigger if it does not exist, so subsequent calls are OK
-
+*createTrigger("SomeTrigger")
+    .after() insertOn<ConditionModel>())
+    .begin(update<TestUpdateModel>()
+            .set(TestUpdateModel_Table.value.is("Fired"))))
+            .enable(); // enables the trigger if it does not exist, so subsequent calls are OK
 
 ```
 
@@ -354,15 +335,17 @@ We have two kinds of case:
 
 The simple CASE query in DBFlow:
 
-```java
+```kotlin
 
-SQLite.select(CaseModel_Table.customerId,
+select(CaseModel_Table.customerId,
         CaseModel_Table.firstName,
         CaseModel_Table.lastName,
-        SQLite.case(CaseModel_Table.country)
-                .when("USA").then("Domestic")
-                  ._else("Foreign")
-                .end("CustomerGroup")).from(CaseModel.class)
+        (case(CaseModel_Table.country)
+                 whenever "USA"
+                 then "Domestic"
+                 `else` "Foreign")
+                .end("CustomerGroup"))
+  from<CaseModel>()
 
 ```
 
@@ -373,12 +356,14 @@ set from the SELECT.
 The search CASE is a little more complicated in that each `when()` statement
 represents a `SQLOperator`, which return a `boolean` expression:
 
-```java
+```kotlin
 
-SQLite.select(CaseModel_Table.customerId,
+select(CaseModel_Table.customerId,
     CaseModel_Table.firstName,
     CaseModel_Table.lastName,
-    SQLite.caseWhen(CaseModel_Table.country.eq("USA"))
-            .then("Domestic")
-            ._else("Foreign").end("CustomerGroup")).from(CaseModel.class);
+    caseWhen(CaseModel_Table.country.eq("USA"))
+             then "Domestic"
+             `else` "Foreign")
+     .end("CustomerGroup"))
+ from<CaseModel>()
 ```
