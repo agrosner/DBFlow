@@ -10,13 +10,13 @@ import com.dbflow5.config.OpenHelperCreator
  * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.
  */
 open class AndroidSQLiteOpenHelper(
-    private val context: Context,
-    databaseDefinition: DBFlowDatabase,
-    listener: DatabaseCallback?)
+        private val context: Context,
+        databaseDefinition: DBFlowDatabase,
+        listener: DatabaseCallback?)
     : SQLiteOpenHelper(context,
-    if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
-    null,
-    databaseDefinition.databaseVersion), OpenHelper {
+        if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
+        null,
+        databaseDefinition.databaseVersion), OpenHelper {
 
     private val databaseHelperDelegate: DatabaseHelperDelegate
     private var androidDatabase: AndroidDatabase? = null
@@ -27,8 +27,8 @@ open class AndroidSQLiteOpenHelper(
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = BackupHelper(context,
-                DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                databaseDefinition.databaseVersion, databaseDefinition)
+                    DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
+                    databaseDefinition.databaseVersion, databaseDefinition)
         }
 
         databaseHelperDelegate = DatabaseHelperDelegate(context, listener, databaseDefinition, backupHelper)
@@ -99,7 +99,7 @@ open class AndroidSQLiteOpenHelper(
         : SQLiteOpenHelper(context, name, null, version), OpenHelper {
 
         private var androidDatabase: AndroidDatabase? = null
-        private val baseDatabaseHelper: BaseDatabaseHelper = BaseDatabaseHelper(context, databaseDefinition)
+        private val databaseHelper: DatabaseHelper = DatabaseHelper(AndroidMigrationFileHelper(context), databaseDefinition)
         private val _databaseName = databaseDefinition.databaseFileName
 
         override val database: DatabaseWrapper
@@ -123,19 +123,19 @@ open class AndroidSQLiteOpenHelper(
         override fun setDatabaseListener(callback: DatabaseCallback?) {}
 
         override fun onCreate(db: SQLiteDatabase) {
-            baseDatabaseHelper.onCreate(AndroidDatabase.from(db))
+            databaseHelper.onCreate(AndroidDatabase.from(db))
         }
 
         override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            baseDatabaseHelper.onUpgrade(AndroidDatabase.from(db), oldVersion, newVersion)
+            databaseHelper.onUpgrade(AndroidDatabase.from(db), oldVersion, newVersion)
         }
 
         override fun onOpen(db: SQLiteDatabase) {
-            baseDatabaseHelper.onOpen(AndroidDatabase.from(db))
+            databaseHelper.onOpen(AndroidDatabase.from(db))
         }
 
         override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            baseDatabaseHelper.onDowngrade(AndroidDatabase.from(db), oldVersion, newVersion)
+            databaseHelper.onDowngrade(AndroidDatabase.from(db), oldVersion, newVersion)
         }
 
         override fun closeDB() = Unit
@@ -148,9 +148,9 @@ open class AndroidSQLiteOpenHelper(
     companion object {
         @JvmStatic
         fun createHelperCreator(context: Context): OpenHelperCreator =
-            { db: DBFlowDatabase, databaseCallback: DatabaseCallback? ->
-                AndroidSQLiteOpenHelper(context, db, databaseCallback)
-            }
+                { db: DBFlowDatabase, databaseCallback: DatabaseCallback? ->
+                    AndroidSQLiteOpenHelper(context, db, databaseCallback)
+                }
     }
 
 }

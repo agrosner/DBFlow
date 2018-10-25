@@ -1,29 +1,43 @@
 package com.dbflow5.database
 
-import android.content.Context
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.NaturalOrderComparator
 import java.io.IOException
-import java.io.InputStream
 
 /**
  * Description:
  */
-open class BaseDatabaseHelper(protected val context: Context,
-                              val databaseDefinition: DBFlowDatabase) {
+open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
+                          val databaseDefinition: DBFlowDatabase) {
+
+    // path to migration for the database.
+    private val dbMigrationPath
+        get() = "$MIGRATION_PATH/${databaseDefinition.databaseName}"
 
     open fun onCreate(db: DatabaseWrapper) {
         checkForeignKeySupport(db)
+
+        // table creations done first to get tables in db.
         executeTableCreations(db)
+
+        // execute any initial migrations when DB is first created.
         executeMigrations(db, -1, db.version)
+
+        // views reflect current db state.
         executeViewCreations(db)
     }
 
     open fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
         checkForeignKeySupport(db)
-        executeTableCreations(db)
+
+        // migrations run to get to DB newest version. adjusting any existing tables to new version
         executeMigrations(db, oldVersion, newVersion)
+
+        // create new tables if not previously created
+        executeTableCreations(db)
+
+        // views reflect current db state.
         executeViewCreations(db)
     }
 
@@ -50,15 +64,15 @@ open class BaseDatabaseHelper(protected val context: Context,
             database.beginTransaction()
             val modelAdapters = databaseDefinition.getModelAdapters()
             modelAdapters
-                .asSequence()
-                .filter { it.createWithDatabase() }
-                .forEach {
-                    try {
-                        database.execSQL(it.creationQuery)
-                    } catch (e: SQLiteException) {
-                        FlowLog.logError(e)
+                    .asSequence()
+                    .filter { it.createWithDatabase() }
+                    .forEach {
+                        try {
+                            database.execSQL(it.creationQuery)
+                        } catch (e: SQLiteException) {
+                            FlowLog.logError(e)
+                        }
                     }
-                }
             database.setTransactionSuccessful()
         } finally {
             database.endTransaction()
@@ -73,15 +87,15 @@ open class BaseDatabaseHelper(protected val context: Context,
             database.beginTransaction()
             val modelViews = databaseDefinition.modelViewAdapters
             modelViews
-                .asSequence()
-                .map { "CREATE VIEW IF NOT EXISTS ${it.viewName} AS ${it.getCreationQuery(database)}" }
-                .forEach {
-                    try {
-                        database.execSQL(it)
-                    } catch (e: SQLiteException) {
-                        FlowLog.logError(e)
+                    .asSequence()
+                    .map { "CREATE VIEW IF NOT EXISTS ${it.viewName} AS ${it.getCreationQuery(database)}" }
+                    .forEach {
+                        try {
+                            database.execSQL(it)
+                        } catch (e: SQLiteException) {
+                            FlowLog.logError(e)
+                        }
                     }
-                }
             database.setTransactionSuccessful()
         } finally {
             database.endTransaction()
@@ -93,9 +107,8 @@ open class BaseDatabaseHelper(protected val context: Context,
 
         // will try migrations file or execute migrations from code
         try {
-            val files: List<String> = context.assets.list(
-                "$MIGRATION_PATH/${databaseDefinition.databaseName}")
-                .sortedWith(com.dbflow5.config.NaturalOrderComparator())
+            val files: List<String> = migrationFileHelper.getListFiles(dbMigrationPath)
+                    .sortedWith(NaturalOrderComparator())
 
             val migrationFileMap = hashMapOf<Int, MutableList<String>>()
             for (file in files) {
@@ -157,41 +170,8 @@ open class BaseDatabaseHelper(protected val context: Context,
      * @param db   The database to run it on
      * @param file the file name in assets/migrations that we read from
      */
-    private fun executeSqlScript(db: DatabaseWrapper,
-                                 file: String) {
-        try {
-            val input: InputStream = context.assets.open("$MIGRATION_PATH/${databaseDefinition.databaseName}/$file")
-
-            // ends line with SQL
-            val querySuffix = ";"
-
-            // standard java comments
-            val queryCommentPrefix = "--"
-            var query = StringBuffer()
-
-            input.reader().buffered().forEachLine { fileLine ->
-                var line = fileLine.trim { it <= ' ' }
-                val isEndOfQuery = line.endsWith(querySuffix)
-                if (line.startsWith(queryCommentPrefix)) {
-                    return@forEachLine
-                }
-                if (isEndOfQuery) {
-                    line = line.substring(0, line.length - querySuffix.length)
-                }
-                query.append(" ").append(line)
-                if (isEndOfQuery) {
-                    db.execSQL(query.toString())
-                    query = StringBuffer()
-                }
-            }
-
-            val queryString = query.toString()
-            if (queryString.trim { it <= ' ' }.isNotEmpty()) {
-                db.execSQL(queryString)
-            }
-        } catch (e: IOException) {
-            FlowLog.log(FlowLog.Level.E, "Failed to execute $file. App might be in an inconsistent state!", e)
-        }
+    private fun executeSqlScript(db: DatabaseWrapper, file: String) {
+        migrationFileHelper.executeMigration("$dbMigrationPath/$file") { queryString -> db.execSQL(queryString) }
     }
 
     companion object {

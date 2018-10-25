@@ -15,11 +15,11 @@ import java.io.InputStream
  * used in other helper class definitions.
  */
 class DatabaseHelperDelegate(
-        context: Context,
+        private val context: Context,
         private var databaseCallback: DatabaseCallback?,
         databaseDefinition: DBFlowDatabase,
         private val backupHelper: OpenHelper?)
-    : BaseDatabaseHelper(context, databaseDefinition) {
+    : DatabaseHelper(AndroidMigrationFileHelper(context), databaseDefinition) {
 
     /**
      * @return the temporary database file name for when we have backups enabled

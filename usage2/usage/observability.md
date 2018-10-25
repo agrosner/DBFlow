@@ -132,6 +132,5 @@ DirectModelNotifier.get().registerForModelChanges(User.class, new ModelChangedLi
 Then unregister your model change listener when you don't need it anymore \(to prevent memory leaks\):
 
 ```java
-DirectModelNotifier.get().unregisterForModelChanges(Userr.class, modelChangedListener);
+DirectModelNotifier.get().unregisterForModelChanges(User.class, modelChangedListener);
 ```
-
