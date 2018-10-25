@@ -79,6 +79,18 @@ interface ModelQueriable<T : Any> : Queriable {
                          modelQueriableFn: ModelQueriable<T>.(DatabaseWrapper) -> R) =
             databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
 
+    /**
+     * Attempt to constrain this [ModelQueriable] if it supports it via [Transformable] methods. Otherwise,
+     * we just return itself.
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun attemptConstrain(offset: Long, limit: Long): ModelQueriable<T> {
+        return when {
+            this is Transformable<*> -> (this as Transformable<T>).constrain(offset, limit)
+            else -> this
+        }
+    }
+
 }
 
 internal inline val <T : Any> ModelQueriable<T>.enclosedQuery

@@ -8,7 +8,6 @@ import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.Select
 import com.dbflow5.query.Transformable
 import com.dbflow5.query.WhereBase
-import com.dbflow5.query.constrain
 import com.dbflow5.query.extractFrom
 import com.dbflow5.query.selectCountOf
 import com.dbflow5.runtime.TableNotifierRegister

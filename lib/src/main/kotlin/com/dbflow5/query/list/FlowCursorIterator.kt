@@ -3,7 +3,6 @@ package com.dbflow5.query.list
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.Transformable
-import com.dbflow5.query.constrain
 import com.dbflow5.sql.QueryCloneable
 import java.io.Closeable
 
@@ -12,10 +11,10 @@ import java.io.Closeable
  */
 class FlowCursorIterator<T : Any>
 @JvmOverloads constructor(
-    databaseWrapper: DatabaseWrapper,
-    cursorList: IFlowCursorIterator<T>,
-    startingLocation: Long,
-    private var count: Long = cursorList.count - startingLocation)
+        databaseWrapper: DatabaseWrapper,
+        cursorList: IFlowCursorIterator<T>,
+        startingLocation: Long,
+        private var count: Long = cursorList.count - startingLocation)
     : ListIterator<T>, AutoCloseable, Closeable {
     private var reverseIndex: Long = 0
     private var startingCount: Long = 0
@@ -34,14 +33,14 @@ class FlowCursorIterator<T : Any>
                 is FlowCursorList<*> -> cursorList as FlowCursorList<T>
                 is FlowQueryList<*> -> cursorList.internalCursorList as FlowCursorList<T>
                 else -> throw IllegalArgumentException("The specified ${IFlowCursorIterator::class.java.simpleName} " +
-                    "must track cursor unless it is a FlowCursorList or FlowQueryList")
+                        "must track cursor unless it is a FlowCursorList or FlowQueryList")
             }
             val modelQueriable = _cursorList.modelQueriable
             if (modelQueriable is Transformable<*>) {
                 @Suppress("UNCHECKED_CAST")
                 newCursorList = (modelQueriable as Transformable<T>)
-                    .constrain(startingLocation, count)
-                    .cursorList(databaseWrapper)
+                        .constrain(startingLocation, count)
+                        .cursorList(databaseWrapper)
                 this.count = newCursorList.count
                 newStartingLocation = 0
             }
@@ -103,7 +102,7 @@ class FlowCursorIterator<T : Any>
     private fun checkSizes() {
         if (startingCount != cursorList.count) {
             throw RuntimeException("Concurrent Modification: Cannot change Cursor data " +
-                "during iteration. Expected $startingCount, found: ${cursorList.count}")
+                    "during iteration. Expected $startingCount, found: ${cursorList.count}")
         }
     }
 
