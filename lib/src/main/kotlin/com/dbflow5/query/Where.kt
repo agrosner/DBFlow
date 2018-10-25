@@ -46,7 +46,7 @@ internal constructor(
         get() = whereBase.primaryAction
 
     override fun cloneSelf(): Where<T> {
-        val where = Where(whereBase, *operatorGroup.conditions.toTypedArray())
+        val where = Where(whereBase.cloneSelf(), *operatorGroup.conditions.toTypedArray())
         where.groupByList.addAll(groupByList)
         where.orderByList.addAll(orderByList)
         where.havingGroup.andAll(havingGroup.conditions)

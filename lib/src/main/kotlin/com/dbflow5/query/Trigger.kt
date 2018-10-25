@@ -40,7 +40,7 @@ private constructor(
             }
             queryBuilder.append("TRIGGER IF NOT EXISTS ")
                 .appendQuotedIfNeeded(name).append(" ")
-                .appendOptional(beforeOrAfter + " ")
+                .appendOptional("$beforeOrAfter ")
 
             return queryBuilder.toString()
         }
