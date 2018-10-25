@@ -166,8 +166,7 @@ To specify a priority, wrap your original `ITransaction` with a `PriorityTransac
 
 ```kotlin
 database<AppDatabase>()
-    .beginTransactionAsync(PriorityTransactionWrapper.Builder(myTransaction)
-        .priority(PriorityTransactionWrapper.PRIORITY_HIGH).build())
+    .beginTransactionAsync(myTransaction
+      .withPriority(PriorityTransactionWrapper.PRIORITY_HIGH))
     .execute();
 ```
-
