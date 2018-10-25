@@ -10,23 +10,24 @@ import com.dbflow5.runtime.DBBatchSaveQueue
 abstract class BaseTransactionManager(val queue: ITransactionQueue,
                                       databaseDefinition: DBFlowDatabase) {
 
-    private val saveQueue: DBBatchSaveQueue = DBBatchSaveQueue(databaseDefinition)
+    private val _saveQueue: DBBatchSaveQueue = DBBatchSaveQueue(databaseDefinition)
 
     init {
         checkQueue()
     }
 
-    fun getSaveQueue(): DBBatchSaveQueue {
-        try {
-            if (!saveQueue.isAlive) {
-                saveQueue.start()
+    val saveQueue: DBBatchSaveQueue
+        get() {
+            try {
+                if (!_saveQueue.isAlive) {
+                    _saveQueue.start()
+                }
+            } catch (i: IllegalThreadStateException) {
+                FlowLog.logError(i) // if queue is alive, will throw error. might occur in multithreading.
             }
-        } catch (i: IllegalThreadStateException) {
-            FlowLog.logError(i) // if queue is alive, will throw error. might occur in multithreading.
-        }
 
-        return saveQueue
-    }
+            return _saveQueue
+        }
 
     /**
      * Checks if queue is running. If not, should be started here.
