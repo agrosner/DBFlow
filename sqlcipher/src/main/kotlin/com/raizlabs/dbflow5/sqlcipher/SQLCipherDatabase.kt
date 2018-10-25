@@ -1,8 +1,8 @@
 package com.dbflow5.sqlcipher
 
 import android.content.ContentValues
+import com.dbflow5.database.AndroidDatabaseWrapper
 import com.dbflow5.database.DatabaseStatement
-import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteException
@@ -11,7 +11,7 @@ import net.sqlcipher.database.SQLiteException
  * Description: Implements the code necessary to use a [SQLiteDatabase] in dbflow.
  */
 class SQLCipherDatabase
-internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
+internal constructor(val database: SQLiteDatabase) : AndroidDatabaseWrapper {
 
     override val version: Int
         get() = database.version

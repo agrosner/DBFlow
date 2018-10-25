@@ -6,7 +6,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.provider.ProviderTestRule
 import com.dbflow5.BaseInstrumentedUnitTest
 import com.dbflow5.config.database
-import com.dbflow5.query.Delete.Companion.tables
 import com.dbflow5.query.result
 import com.dbflow5.query.select
 import com.dbflow5.structure.exists
@@ -28,7 +27,9 @@ class ContentProviderTests : BaseInstrumentedUnitTest() {
     @Test
     fun testContentProviderUtils() {
         database(ContentDatabase::class) {
-            tables(NoteModel::class.java, ContentProviderModel::class.java)
+            listOf(NoteModel::class, ContentProviderModel::class).forEach {
+                com.dbflow5.query.delete(it).executeUpdateDelete(this)
+            }
 
             var contentProviderModel = ContentProviderModel()
             contentProviderModel.notes = "Test"
@@ -56,14 +57,16 @@ class ContentProviderTests : BaseInstrumentedUnitTest() {
             assertTrue(ContentUtils.delete(mockContentResolver, TestContentProvider.ContentProviderModel.CONTENT_URI, contentProviderModel) > 0)
             assertTrue(!contentProviderModel.exists())
 
-            tables(NoteModel::class.java, ContentProviderModel::class.java)
+            listOf(NoteModel::class, ContentProviderModel::class).forEach {
+                com.dbflow5.query.delete(it).executeUpdateDelete(this)
+            }
         }
     }
 
     @Test
     fun testContentProviderNative() {
         database(ContentDatabase::class) {
-            tables(NoteModel::class.java, ContentProviderModel::class.java)
+            listOf(NoteModel::class, ContentProviderModel::class).forEach { com.dbflow5.query.delete(it).executeUpdateDelete(this) }
 
             var contentProviderModel = ContentProviderModel(notes = "Test")
             contentProviderModel.insert()
@@ -90,7 +93,7 @@ class ContentProviderTests : BaseInstrumentedUnitTest() {
             contentProviderModel.delete()
             assertTrue(!contentProviderModel.exists())
 
-            tables(NoteModel::class.java, ContentProviderModel::class.java)
+            listOf(NoteModel::class, ContentProviderModel::class).forEach { com.dbflow5.query.delete(it).executeUpdateDelete(this) }
         }
     }
 

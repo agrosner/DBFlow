@@ -393,18 +393,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor = writableDatabase.rawQuery(query, selectionArgs)
 
-    override fun updateWithOnConflict(tableName: String,
-                                      contentValues: ContentValues,
-                                      where: String?,
-                                      whereArgs: Array<String>?,
-                                      conflictAlgorithm: Int): Long = writableDatabase.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm)
-
-    override fun insertWithOnConflict(
-            tableName: String,
-            nullColumnHack: String?,
-            values: ContentValues,
-            sqLiteDatabaseAlgorithmInt: Int): Long = writableDatabase.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt)
-
     override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int = writableDatabase.delete(tableName, whereClause, whereArgs)
 
     override fun query(tableName: String,

@@ -77,6 +77,15 @@ inline fun <reified T : Any> delete() = delete(T::class.java)
 fun <T : Any> delete(table: Class<T>): From<T> = delete().from(table)
 
 /**
+ * Starts a DELETE statement on the specified table.
+ *
+ * @param table    The table to delete from.
+ * @param [T] The class that implements [Model].
+ * @return A [From] with specified DELETE on table.
+ */
+fun <T : Any> delete(table: KClass<T>): From<T> = delete().from(table)
+
+/**
  * Starts an INDEX statement on specified table.
  *
  * @param name     The name of the index.

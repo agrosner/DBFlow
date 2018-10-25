@@ -6,7 +6,7 @@ import com.dbflow5.config.NaturalOrderComparator
 import java.io.IOException
 
 /**
- * Description:
+ * Description: Manages creation, updating, and migrating ac [DBFlowDatabase]. It performs View creations.
  */
 open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
                           val databaseDefinition: DBFlowDatabase) {

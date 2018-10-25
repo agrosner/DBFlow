@@ -1,5 +1,14 @@
 package com.dbflow5.processor.definition
 
+import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.annotation.Database
+import com.dbflow5.processor.ClassNames
+import com.dbflow5.processor.ModelViewValidator
+import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.TableValidator
+import com.dbflow5.processor.utils.`override fun`
+import com.dbflow5.processor.utils.annotation
+import com.dbflow5.processor.utils.isSubclass
 import com.grosner.kpoet.L
 import com.grosner.kpoet.S
 import com.grosner.kpoet.`return`
@@ -9,14 +18,6 @@ import com.grosner.kpoet.modifiers
 import com.grosner.kpoet.param
 import com.grosner.kpoet.public
 import com.grosner.kpoet.statement
-import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.annotation.Database
-import com.dbflow5.processor.ModelViewValidator
-import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.TableValidator
-import com.dbflow5.processor.utils.`override fun`
-import com.dbflow5.processor.utils.annotation
-import com.dbflow5.processor.utils.isSubclass
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -77,10 +78,10 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
         }
 
         if (!element.modifiers.contains(Modifier.ABSTRACT)
-            || element.modifiers.contains(Modifier.PRIVATE)
-            || !typeElement.isSubclass(manager.processingEnvironment, com.dbflow5.processor.ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME)) {
+                || element.modifiers.contains(Modifier.PRIVATE)
+                || !typeElement.isSubclass(manager.processingEnvironment, ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME)) {
             manager.logError("$elementClassName must be a visible abstract class that " +
-                "extends ${com.dbflow5.processor.ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME}")
+                    "extends ${com.dbflow5.processor.ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME}")
         }
     }
 
@@ -97,28 +98,28 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
     }
 
     private fun validateDefinitions() {
-        elementClassName?.let {
+        elementClassName?.let { className ->
             val map = hashMapOf<TypeName, TableDefinition>()
             val tableValidator = TableValidator()
-            manager.getTableDefinitions(it)
-                .filter { tableValidator.validate(ProcessorManager.manager, it) }
-                .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
-            manager.setTableDefinitions(map, it)
+            manager.getTableDefinitions(className)
+                    .filter { tableValidator.validate(ProcessorManager.manager, it) }
+                    .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
+            manager.setTableDefinitions(map, className)
 
             val modelViewDefinitionMap = hashMapOf<TypeName, ModelViewDefinition>()
             val modelViewValidator = ModelViewValidator()
-            manager.getModelViewDefinitions(it)
-                .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
-                .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
-            manager.setModelViewDefinitions(modelViewDefinitionMap, it)
+            manager.getModelViewDefinitions(className)
+                    .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
+                    .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
+            manager.setModelViewDefinitions(modelViewDefinitionMap, className)
         }
     }
 
     private fun prepareDefinitions() {
-        elementClassName?.let {
-            manager.getTableDefinitions(it).forEach(TableDefinition::prepareForWrite)
-            manager.getModelViewDefinitions(it).forEach(ModelViewDefinition::prepareForWrite)
-            manager.getQueryModelDefinitions(it).forEach(QueryModelDefinition::prepareForWrite)
+        elementClassName?.let { className ->
+            manager.getTableDefinitions(className).forEach(TableDefinition::prepareForWrite)
+            manager.getModelViewDefinitions(className).forEach(ModelViewDefinition::prepareForWrite)
+            manager.getQueryModelDefinitions(className).forEach(QueryModelDefinition::prepareForWrite)
         }
     }
 
@@ -153,14 +154,14 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
                 val migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName)
                 migrationDefinitionMap.keys
-                    .sortedByDescending { it }
-                    .forEach { version ->
-                        migrationDefinitionMap[version]
-                            ?.sortedBy { it.priority }
-                            ?.forEach { migrationDefinition ->
-                                statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
-                            }
-                    }
+                        .sortedByDescending { it }
+                        .forEach { version ->
+                            migrationDefinitionMap[version]
+                                    ?.sortedBy { it.priority }
+                                    ?.forEach { migrationDefinition ->
+                                        statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
+                                    }
+                        }
             }
             this
         }
@@ -170,7 +171,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
     private fun writeGetters(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
             `override fun`(ParameterizedTypeName.get(ClassName.get(Class::class.java), WildcardTypeName.subtypeOf(Any::class.java)),
-                "getAssociatedDatabaseClassFile") {
+                    "getAssociatedDatabaseClassFile") {
                 modifiers(public, final)
                 `return`("\$T.class", elementTypeName)
             }

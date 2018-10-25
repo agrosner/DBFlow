@@ -8,7 +8,7 @@ import android.os.Build
 /**
  * Description: Specifies the android default implementation of a database.
  */
-class AndroidDatabase internal constructor(val database: SQLiteDatabase) : DatabaseWrapper {
+class AndroidDatabase internal constructor(val database: SQLiteDatabase) : AndroidDatabaseWrapper {
 
     override fun execSQL(query: String) {
         rethrowDBFlowException { database.execSQL(query) }
@@ -41,8 +41,7 @@ class AndroidDatabase internal constructor(val database: SQLiteDatabase) : Datab
                                       contentValues: ContentValues,
                                       where: String?,
                                       whereArgs: Array<String>?,
-                                      conflictAlgorithm: Int): Long
-        = rethrowDBFlowException {
+                                      conflictAlgorithm: Int): Long = rethrowDBFlowException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm).toLong()
         } else {
