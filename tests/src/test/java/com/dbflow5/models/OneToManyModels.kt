@@ -21,6 +21,9 @@ class OneToManyModel(@PrimaryKey var name: String? = null) {
     @get:OneToMany(oneToManyMethods = [OneToManyMethod.ALL])
     var simpleModels by oneToMany { select from OneToManyBaseModel::class }
 
+    @get:OneToMany(oneToManyMethods = [OneToManyMethod.ALL])
+    var setBaseModels by oneToMany { select from OneToManyBaseModel::class }
+
     @OneToMany(oneToManyMethods = [OneToManyMethod.ALL],
         variableName = "orders", efficientMethods = false)
     fun getRelatedOrders(wrapper: DatabaseWrapper): List<TwoColumnModel> {

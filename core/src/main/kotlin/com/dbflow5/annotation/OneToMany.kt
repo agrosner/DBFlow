@@ -5,7 +5,9 @@ package com.dbflow5.annotation
  * This annotation can handle loading, deleting, and saving when the current data changes. By default it will call the
  * associated method when the containing class operates.
  */
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER)
+@Target(AnnotationTarget.FUNCTION,
+        AnnotationTarget.PROPERTY_GETTER,
+        AnnotationTarget.PROPERTY_SETTER)
 @Retention(AnnotationRetention.SOURCE)
 annotation class OneToMany(
         /**

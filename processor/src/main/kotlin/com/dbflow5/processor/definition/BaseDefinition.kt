@@ -135,9 +135,9 @@ abstract class BaseDefinition : TypeDefinition {
             }
             return `public final class`(outputClassName?.simpleName() ?: "") {
                 if (hasJavaX()) {
-                    addAnnotation(`@`(com.dbflow5.processor.ClassNames.GENERATED, {
+                    addAnnotation(`@`(com.dbflow5.processor.ClassNames.GENERATED) {
                         this["value"] = com.dbflow5.processor.DBFlowProcessor::class.java.canonicalName.toString().S
-                    }).build())
+                    }.build())
                 }
                 extendsClass?.let { extends(it) }
                 implementsClasses.forEach { implements(it) }

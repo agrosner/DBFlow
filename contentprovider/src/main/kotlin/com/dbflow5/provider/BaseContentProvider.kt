@@ -24,8 +24,7 @@ protected constructor(databaseHolderClass: Class<out DatabaseHolder>? = null) : 
 
     override fun onCreate(): Boolean {
         // If this is a module, then we need to initialize the module as part
-        // of the creation process. We can assume the framework has been general
-        // framework has been initialized.
+        // of the creation process. We can assume the framework has been initialized.
         moduleClass
             ?.let { FlowManager.initModule(it) }
             ?: context?.let { FlowManager.init(it) }
