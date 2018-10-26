@@ -1,6 +1,6 @@
 package com.dbflow5.config
 
-import android.content.ContentValues
+import androidx.annotation.WorkerThread
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ModelViewAdapter
 import com.dbflow5.adapter.QueryModelAdapter
@@ -282,6 +282,11 @@ abstract class DBFlowDatabase : DatabaseWrapper {
                 override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
             })
 
+    /**
+     * This should never get called on the main thread. Use [beginTransactionAsync] for an async-variant.
+     * Runs a transaction in the current thread.
+     */
+    @WorkerThread
     fun <R> executeTransaction(transaction: ITransaction<R>): R {
         val database = writableDatabase
         try {
@@ -294,6 +299,11 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         }
     }
 
+    /**
+     * This should never get called on the main thread. Use [beginTransactionAsync] for an async-variant.
+     * Runs a transaction in the current thread.
+     */
+    @WorkerThread
     inline fun <R> executeTransaction(crossinline transaction: (DatabaseWrapper) -> R) = executeTransaction(object : ITransaction<R> {
         override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
     })
