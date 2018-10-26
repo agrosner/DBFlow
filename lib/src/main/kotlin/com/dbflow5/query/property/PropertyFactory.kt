@@ -19,7 +19,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(c: Char): Property<Char> {
         return Property(null, NameAlias.rawBuilder("'$c'")
-            .build())
+                .build())
     }
 
     /**
@@ -31,7 +31,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(i: Int): Property<Int> {
         return Property(null, NameAlias.rawBuilder(i.toString() + "")
-            .build())
+                .build())
     }
 
     /**
@@ -43,7 +43,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(d: Double): Property<Double> {
         return Property(null, NameAlias.rawBuilder(d.toString() + "")
-            .build())
+                .build())
     }
 
     /**
@@ -55,7 +55,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(l: Long): Property<Long> {
         return Property(null, NameAlias.rawBuilder(l.toString() + "")
-            .build())
+                .build())
     }
 
     /**
@@ -67,7 +67,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(f: Float): Property<Float> {
         return Property(null, NameAlias.rawBuilder(f.toString() + "")
-            .build())
+                .build())
     }
 
     /**
@@ -79,7 +79,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(s: Short): Property<Short> {
         return Property(null, NameAlias.rawBuilder(s.toString() + "")
-            .build())
+                .build())
     }
 
     /**
@@ -91,7 +91,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(b: Byte): Property<Byte> {
         return Property(null, NameAlias.rawBuilder(b.toString() + "")
-            .build())
+                .build())
     }
 
     /**
@@ -109,8 +109,20 @@ object PropertyFactory {
     @JvmStatic
     fun <T> from(type: T?): Property<T> {
         return Property(null, NameAlias.rawBuilder(
-            Operator.convertValueToString(type) ?: "")
-            .build())
+                Operator.convertValueToString(type) ?: "")
+                .build())
+    }
+
+
+    /**
+     * Creates a new type-parameterized [Property] from a [NameAlias] directly.
+     *
+     * @param nameAlias will not be copied. Rather used directly.
+     * @return [NameAlias] as a [Property]
+     */
+    @JvmStatic
+    fun from(nameAlias: NameAlias): Property<NameAlias> {
+        return Property(null, nameAlias)
     }
 
     /**
@@ -122,7 +134,7 @@ object PropertyFactory {
      */
     @JvmStatic
     fun <T : Any> from(queriable: ModelQueriable<T>): Property<T> =
-        from(queriable.table, "(${queriable.query.trim { it <= ' ' }})")
+            from(queriable.table, "(${queriable.query.trim { it <= ' ' }})")
 
     /**
      * Creates a new type-parameterized [Property] to be used as its value represented by the string passed in.
@@ -135,7 +147,7 @@ object PropertyFactory {
     @JvmStatic
     fun <T> from(table: Class<T>, stringRepresentation: String?): Property<T> {
         return Property(null, NameAlias.rawBuilder(stringRepresentation ?: "")
-            .build())
+                .build())
     }
 }
 
@@ -158,6 +170,9 @@ val Short.property
     get() = PropertyFactory.from(this)
 
 val Byte.property
+    get() = PropertyFactory.from(this)
+
+val NameAlias.property
     get() = PropertyFactory.from(this)
 
 val <T : Any> T?.property
