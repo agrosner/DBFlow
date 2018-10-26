@@ -71,7 +71,9 @@ class BlogPrimary(@PrimaryKey @ForeignKey var author: Author? = null, @Column va
 class BlogStubbed(@PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
                   @ForeignKey(stubbedRelationship = true, deleteForeignKeyModel = true, saveForeignKeyModel = true,
                       onDelete = ForeignKeyAction.CASCADE, onUpdate = ForeignKeyAction.RESTRICT)
-                  var author: Author? = null) : LoadFromCursorListener {
+                  var author: Author? = null,
+                  var setter: String = "",
+                  var getter: String = "") : LoadFromCursorListener {
     override fun onLoadFromCursor(cursor: FlowCursor) {
 
     }
