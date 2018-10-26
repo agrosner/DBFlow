@@ -13,6 +13,7 @@ import com.dbflow5.query.ifNull
 import com.dbflow5.query.max
 import com.dbflow5.query.min
 import com.dbflow5.query.nullIf
+import com.dbflow5.query.random
 import com.dbflow5.query.replace
 import com.dbflow5.query.strftime
 import com.dbflow5.query.sum
@@ -61,6 +62,11 @@ class MethodTest : BaseUnitTest() {
     @Test
     fun testNulllIf() {
         assertEquals("NULLIF(`name`, `id`)", nullIf(name, id).query)
+    }
+
+    @Test
+    fun `random generates correct query`() {
+        assertEquals("RANDOM()", random.query)
     }
 
     @Test

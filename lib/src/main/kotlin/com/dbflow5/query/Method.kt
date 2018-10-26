@@ -30,19 +30,19 @@ open class Method(methodName: String, vararg properties: IProperty<*>) : Propert
     }
 
     override fun plus(property: IProperty<*>): Method =
-        append(property, " ${Operator.Operation.PLUS}")
+            append(property, " ${Operator.Operation.PLUS}")
 
     override fun minus(property: IProperty<*>): Method =
-        append(property, " ${Operator.Operation.MINUS}")
+            append(property, " ${Operator.Operation.MINUS}")
 
     override fun div(property: IProperty<*>): Property<Any?> =
-        append(property, " ${Operator.Operation.DIVISION}")
+            append(property, " ${Operator.Operation.DIVISION}")
 
     override fun times(property: IProperty<*>): Property<Any?> =
-        append(property, " ${Operator.Operation.MULTIPLY}")
+            append(property, " ${Operator.Operation.MULTIPLY}")
 
     override fun rem(property: IProperty<*>): Property<Any?> =
-        append(property, " ${Operator.Operation.MOD}")
+            append(property, " ${Operator.Operation.MOD}")
 
     /**
      * Allows adding a property to the [Method]. Will remove the [Property.ALL_PROPERTY]
@@ -104,11 +104,11 @@ open class Method(methodName: String, vararg properties: IProperty<*>) : Propert
          */
         fun `as`(sqLiteType: SQLiteType): Property<Any?> {
             val newProperty = Property<Any?>(property.table,
-                property.nameAlias
-                    .newBuilder()
-                    .shouldAddIdentifierToAliasName(false)
-                    .`as`(sqLiteType.name)
-                    .build())
+                    property.nameAlias
+                            .newBuilder()
+                            .shouldAddIdentifierToAliasName(false)
+                            .`as`(sqLiteType.name)
+                            .build())
             return Method("CAST", newProperty)
         }
 
@@ -152,7 +152,7 @@ fun count(vararg properties: IProperty<*>): Method = Method("COUNT", *properties
  * @return A string which is the concatenation of all non-NULL values of the properties.
  */
 fun groupConcat(vararg properties: IProperty<*>): Method =
-    Method("GROUP_CONCAT", *properties)
+        Method("GROUP_CONCAT", *properties)
 
 /**
  * @param properties Set of properties that the method acts on.
@@ -185,7 +185,7 @@ fun total(vararg properties: IProperty<*>): Method = Method("TOTAL", *properties
 fun cast(property: IProperty<*>): Method.Cast = Method.Cast(property)
 
 fun replace(property: IProperty<*>, findString: String, replacement: String): Method =
-    Method("REPLACE", property, PropertyFactory.from<Any>(findString), PropertyFactory.from<Any>(replacement))
+        Method("REPLACE", property, PropertyFactory.from<Any>(findString), PropertyFactory.from<Any>(replacement))
 
 /**
  * SQLite standard "strftime()" method. See SQLite documentation on this method.
@@ -233,3 +233,5 @@ fun ifNull(first: IProperty<*>,
  */
 fun nullIf(first: IProperty<*>,
            second: IProperty<*>): Method = Method("NULLIF", first, second)
+
+val random: Method = Method("RANDOM", Property.NO_PROPERTY)

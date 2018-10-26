@@ -271,6 +271,9 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
         val ALL_PROPERTY = Property<String>(null, NameAlias.rawBuilder("*").build())
 
         @JvmStatic
+        val NO_PROPERTY = Property<String>(null, NameAlias.rawBuilder("").build())
+
+        @JvmStatic
         val WILDCARD: Property<*> = Property<Any>(null, NameAlias.rawBuilder("?").build())
 
         @JvmStatic

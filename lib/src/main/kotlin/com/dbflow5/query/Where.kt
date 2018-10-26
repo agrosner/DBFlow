@@ -125,11 +125,11 @@ internal constructor(
     }
 
     override fun orderBy(nameAlias: NameAlias, ascending: Boolean) = apply {
-        orderByList.add(OrderBy(nameAlias, ascending))
+        orderByList.add(OrderBy.fromNameAlias(nameAlias, ascending))
     }
 
     override fun orderBy(property: IProperty<*>, ascending: Boolean) = apply {
-        orderByList.add(OrderBy(property.nameAlias, ascending))
+        orderByList.add(OrderBy.fromProperty(property, ascending))
     }
 
     override fun orderBy(orderBy: OrderBy) = apply {

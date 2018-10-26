@@ -5,7 +5,6 @@ import com.dbflow5.annotation.Collate
 import com.dbflow5.assertEquals
 import com.dbflow5.models.SimpleModel_Table.name
 import com.dbflow5.query.OrderBy
-import com.dbflow5.query.collate
 import com.dbflow5.query.nameAlias
 import org.junit.Test
 
