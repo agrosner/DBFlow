@@ -234,4 +234,5 @@ fun ifNull(first: IProperty<*>,
 fun nullIf(first: IProperty<*>,
            second: IProperty<*>): Method = Method("NULLIF", first, second)
 
+@JvmField
 val random: Method = Method("RANDOM", Property.NO_PROPERTY)
