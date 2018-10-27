@@ -2,6 +2,7 @@ package com.dbflow5.transaction
 
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.WorkerThread
 
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
@@ -66,6 +67,7 @@ class Transaction<R : Any?>(
      * the [DBFlowDatabase.executeTransaction] method, which runs the
      * [.transaction] in a database transaction.
      */
+    @WorkerThread
     fun executeSync() {
         try {
             val result: R = if (shouldRunInTransaction) {

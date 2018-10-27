@@ -10,6 +10,7 @@ import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
+import com.dbflow5.annotation.Unique
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.data.Blob
 import com.dbflow5.database.DatabaseStatement
@@ -224,3 +225,9 @@ class Dog : BaseModel() {
     @Column
     var name: String? = null
 }
+
+@Table(database = TestDatabase::class)
+class Currency(@PrimaryKey(autoincrement = true) var id: Long = 0,
+               @Column @Unique var symbol: String? = null,
+               @Column var shortName: String? = null,
+               @Column @Unique var name: String = "") // nullability of fields are respected. We will not assign a null value to this field.

@@ -13,7 +13,6 @@ import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.delete
-import com.dbflow5.query.list
 import com.dbflow5.query.select
 import com.dbflow5.structure.save
 import kotlinx.coroutines.experimental.runBlocking
@@ -32,16 +31,16 @@ class CoroutinesTest : BaseUnitTest() {
                     SimpleModel("$it").save()
                 }
 
-                val query = awaitTransact(
-                        select from SimpleModel::class
-                                where SimpleModel_Table.name.eq("5")) { list }
+                val query = (select from SimpleModel::class
+                        where SimpleModel_Table.name.eq("5"))
+                        .awaitTransact(this) { queryList(it) }
 
                 assert(query.size == 1)
 
 
-                val result = awaitTransact(
-                        delete<SimpleModel>()
-                                where SimpleModel_Table.name.eq("5")) { executeUpdateDelete(this@database) }
+                val result = (delete<SimpleModel>()
+                        where SimpleModel_Table.name.eq("5"))
+                        .awaitTransact(this) { executeUpdateDelete(it) }
                 assert(result == 1L)
             }
         }
@@ -84,8 +83,9 @@ class CoroutinesTest : BaseUnitTest() {
                 val updated = simpleModel.awaitUpdate(this)
                 assert(updated)
 
-                val loadedModel = awaitTransact(select from TwoColumnModel::class
-                        where TwoColumnModel_Table.id.eq(5)) { querySingle(this@database) }
+                val loadedModel = (select from TwoColumnModel::class
+                        where TwoColumnModel_Table.id.eq(5))
+                        .awaitTransact(this) { querySingle(it) }
                 assert(loadedModel?.id == 5)
             }
         }

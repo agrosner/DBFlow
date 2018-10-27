@@ -8,21 +8,31 @@ import com.dbflow5.structure.load
 import com.dbflow5.structure.save
 import com.dbflow5.structure.update
 import com.dbflow5.transaction.FastStoreModelTransaction
+import com.dbflow5.transaction.Transaction
 import com.dbflow5.transaction.fastDelete
 import com.dbflow5.transaction.fastInsert
 import com.dbflow5.transaction.fastSave
 import com.dbflow5.transaction.fastUpdate
 import kotlinx.coroutines.experimental.CancellableContinuation
+import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 
 /**
- * Description: Puts this [Queriable] operation inside a coroutine. Inside the [queriableFunction]
- * execute the db operation.
+ * Turns this [Transaction.Builder] into a [Deferred] object to use in coroutines.
  */
-suspend inline fun <Q : Queriable, R : Any?> DBFlowDatabase.awaitTransact(
-        modelQueriable: Q,
-        crossinline queriableFunction: Q.() -> R) = suspendCancellableCoroutine<R> { continuation ->
-    com.dbflow5.coroutines.constructCoroutine(continuation, this) { queriableFunction(modelQueriable) }
+fun <R : Any?> Transaction.Builder<R>.defer(): Deferred<R> {
+    val deferred = CompletableDeferred<R>()
+    val transaction = success { _, result -> deferred.complete(result) }
+            .error { _, throwable -> deferred.completeExceptionally(throwable) }
+            .build()
+    deferred.invokeOnCompletion {
+        if (deferred.isCancelled) {
+            transaction.cancel()
+        }
+    }
+    transaction.execute()
+    return deferred
 }
 
 inline fun <R : Any?> constructCoroutine(continuation: CancellableContinuation<R>,
@@ -43,6 +53,16 @@ inline fun <R : Any?> constructCoroutine(continuation: CancellableContinuation<R
     }
 }
 
+
+/**
+ * Description: Puts this [Queriable] operation inside a coroutine. Inside the [queriableFunction]
+ * execute the db operation.
+ */
+suspend inline fun <Q : Queriable, R : Any?> Q.awaitTransact(
+        dbFlowDatabase: DBFlowDatabase,
+        crossinline queriableFunction: Q.(DBFlowDatabase) -> R) = suspendCancellableCoroutine<R> { continuation ->
+    com.dbflow5.coroutines.constructCoroutine(continuation, dbFlowDatabase) { queriableFunction(dbFlowDatabase) }
+}
 
 /**
  * Description: Puts a [Model] operation inside a coroutine. Inside the [queriableFunction]
