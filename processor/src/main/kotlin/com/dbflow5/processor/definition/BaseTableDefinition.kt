@@ -1,15 +1,5 @@
 package com.dbflow5.processor.definition
 
-import com.grosner.kpoet.`public static final`
-import com.grosner.kpoet.`return`
-import com.grosner.kpoet.code
-import com.grosner.kpoet.constructor
-import com.grosner.kpoet.final
-import com.grosner.kpoet.modifiers
-import com.grosner.kpoet.param
-import com.grosner.kpoet.public
-import com.grosner.kpoet.statement
-import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.definition.column.PackagePrivateScopeColumnAccessor
@@ -19,6 +9,15 @@ import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.getPackage
 import com.dbflow5.processor.utils.toClassName
+import com.grosner.kpoet.`public static final`
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.code
+import com.grosner.kpoet.constructor
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.param
+import com.grosner.kpoet.public
+import com.grosner.kpoet.statement
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.ParameterizedTypeName
@@ -38,6 +37,9 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
     var columnDefinitions: MutableList<ColumnDefinition>
         protected set
+
+    val sqlColumnDefinitions
+        get() = columnDefinitions.filter { it.type !is ColumnDefinition.Type.RowId }
 
     var hasAutoIncrement: Boolean = false
 
@@ -118,7 +120,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
         if (!packagePrivateList.isEmpty()) {
             val classSeparator = databaseDefinition?.classSeparator
             val typeBuilder = TypeSpec.classBuilder("${elementClassName?.simpleName()}${classSeparator}Helper")
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 
             for (columnDefinition in packagePrivateList) {
                 var helperClassName = "${columnDefinition.element.getPackage()}.${columnDefinition.element.enclosingElement.toClassName()?.simpleName()}${classSeparator}Helper"
@@ -136,7 +138,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
                         val methodName = columnDefinition.columnName.capitalize()
 
                         `public static final`(columnDefinition.elementTypeName!!, "get$methodName",
-                            param(elementTypeName!!, ModelUtils.variable)) {
+                                param(elementTypeName!!, ModelUtils.variable)) {
                             if (samePackage) {
                                 `return`("${ModelUtils.variable}.${columnDefinition.elementName}")
                             } else {
@@ -145,8 +147,8 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
                         }
 
                         `public static final`(TypeName.VOID, "set$methodName",
-                            param(elementTypeName!!, ModelUtils.variable),
-                            param(columnDefinition.elementTypeName!!, "var")) {
+                                param(elementTypeName!!, ModelUtils.variable),
+                                param(columnDefinition.elementTypeName!!, "var")) {
                             if (samePackage) {
                                 statement("${ModelUtils.variable}.${columnDefinition.elementName} = var")
                             } else {
@@ -172,8 +174,8 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
     internal fun checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage: Boolean, element: Element): Boolean {
         if (isPackagePrivateNotInSamePackage && !manager.elementBelongsInTable(element)) {
             manager.logError("Package private inheritance on non-table/querymodel/view " +
-                "is not supported without a @InheritedColumn annotation." +
-                " Make $element from ${element.enclosingElement} public or private.")
+                    "is not supported without a @InheritedColumn annotation." +
+                    " Make $element from ${element.enclosingElement} public or private.")
             return true
         }
         return false

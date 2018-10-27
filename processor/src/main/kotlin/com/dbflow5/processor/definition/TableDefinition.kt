@@ -50,7 +50,6 @@ import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import com.squareup.javapoet.WildcardTypeName
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
@@ -320,12 +319,12 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     columnMap.put(columnDefinition.columnName, columnDefinition)
                     // check to ensure not null.
                     when {
-                        columnDefinition.isPrimaryKey -> _primaryColumnDefinitions.add(columnDefinition)
-                        columnDefinition.isPrimaryKeyAutoIncrement -> {
+                        columnDefinition.type is ColumnDefinition.Type.Primary -> _primaryColumnDefinitions.add(columnDefinition)
+                        columnDefinition.type is ColumnDefinition.Type.PrimaryAutoIncrement -> {
                             autoIncrementColumn = columnDefinition
                             hasAutoIncrement = true
                         }
-                        columnDefinition.isRowId -> {
+                        columnDefinition.type is ColumnDefinition.Type.RowId -> {
                             autoIncrementColumn = columnDefinition
                             hasRowID = true
                         }

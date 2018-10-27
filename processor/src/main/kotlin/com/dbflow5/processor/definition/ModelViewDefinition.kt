@@ -127,7 +127,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
                     }
                 }
 
-                if (columnDefinition.isPrimaryKey || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
+                if (columnDefinition.type.isPrimaryField) {
                     manager.logError("ModelView $elementName cannot have primary keys")
                 }
             } else if (variableElement.annotation<ModelViewQuery>() != null) {

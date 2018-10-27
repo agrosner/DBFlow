@@ -1,8 +1,5 @@
 package com.dbflow5.processor.definition.column
 
-import com.grosner.kpoet.S
-import com.grosner.kpoet.`return`
-import com.grosner.kpoet.case
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKey
@@ -24,6 +21,9 @@ import com.dbflow5.processor.utils.toTypeElement
 import com.dbflow5.processor.utils.toTypeErasedElement
 import com.dbflow5.quote
 import com.dbflow5.quoteIfNeeded
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.case
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
@@ -110,11 +110,11 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                 }
 
                 ReferenceSpecificationDefinition(columnName = it.columnName,
-                    referenceName = it.columnMapFieldName,
-                    onNullConflictAction = it.notNull.onNullConflict,
-                    defaultValue = it.defaultValue,
-                    typeConverterClassName = typeConverterClassName,
-                    typeConverterTypeMirror = typeMirror)
+                        referenceName = it.columnMapFieldName,
+                        onNullConflictAction = it.notNull.onNullConflict,
+                        defaultValue = it.defaultValue,
+                        typeConverterClassName = typeConverterClassName,
+                        typeConverterTypeMirror = typeMirror)
             }
         }
 
@@ -156,15 +156,15 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
 
             references = foreignKey.references.map {
                 ReferenceSpecificationDefinition(columnName = it.columnName,
-                    referenceName = it.foreignKeyColumnName,
-                    onNullConflictAction = it.notNull.onNullConflict,
-                    defaultValue = it.defaultValue)
+                        referenceName = it.foreignKeyColumnName,
+                        onNullConflictAction = it.notNull.onNullConflict,
+                        defaultValue = it.defaultValue)
             }
         }
 
         if (isNotNullType) {
             manager.logError("Foreign Keys must be nullable. Please remove the non-null annotation if using " +
-                "Java, or add ? to the type for Kotlin.")
+                    "Java, or add ? to the type for Kotlin.")
         }
     }
 
@@ -190,12 +190,15 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             }
             if (it.columnName.isNullOrEmpty()) {
                 manager.logError("Found empty reference name at ${it.foreignColumnName}" +
-                    " from table ${baseTableDefinition.elementName}")
+                        " from table ${baseTableDefinition.elementName}")
             }
             typeBuilder.addField(FieldSpec.builder(propParam, it.columnName,
-                Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new \$T(\$T.class, \$S)", propParam, tableClass, it.columnName)
-                .addJavadoc(if (isColumnMap) "Column Mapped Field" else ("Foreign Key" + if (isPrimaryKey) " / Primary Key" else "")).build())
+                    Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                    .initializer("new \$T(\$T.class, \$S)", propParam, tableClass, it.columnName)
+                    .addJavadoc(
+                            if (isColumnMap) "Column Mapped Field"
+                            else ("Foreign Key${if (type == Type.Primary) " / Primary Key" else ""}"))
+                    .build())
         }
     }
 
@@ -338,11 +341,11 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             referencedClassName?.let { referencedTableClassName ->
 
                 val tableDefinition = manager.getReferenceDefinition(
-                    baseTableDefinition.databaseDefinition?.elementTypeName, referencedTableClassName)
+                        baseTableDefinition.databaseDefinition?.elementTypeName, referencedTableClassName)
                 val outputClassName = tableDefinition?.outputClassName
                 outputClassName?.let {
                     val foreignKeyCombiner = ForeignKeyLoadFromCursorCombiner(columnAccessor,
-                        referencedTableClassName, outputClassName, isStubbedRelationship, nameAllocator)
+                            referencedTableClassName, outputClassName, isStubbedRelationship, nameAllocator)
                     referenceDefinitionList.forEach {
                         foreignKeyCombiner.fieldAccesses += it.partialAccessor
                     }
@@ -374,8 +377,8 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
         if (!nonModelColumn && columnAccessor !is TypeConverterScopeColumnAccessor) {
             referencedClassName?.let { referencedTableClassName ->
                 val saveAccessor = ForeignKeyAccessField(columnName,
-                    SaveModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
-                        wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
+                        SaveModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
+                                wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
                 saveAccessor.addCode(codeBuilder, 0, modelBlock)
             }
         }
@@ -385,8 +388,8 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
         if (!nonModelColumn && columnAccessor !is TypeConverterScopeColumnAccessor) {
             referencedClassName?.let { referencedTableClassName ->
                 val deleteAccessor = ForeignKeyAccessField(columnName,
-                    DeleteModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
-                        wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
+                        DeleteModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
+                                wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
                 deleteAccessor.addCode(codeBuilder, 0, modelBlock)
             }
         }
@@ -401,20 +404,20 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
         val referencedTableDefinition = manager.getReferenceDefinition(tableDefinition.databaseTypeName, referencedClassName)
         if (referencedTableDefinition == null) {
             manager.logError(ReferenceColumnDefinition::class,
-                "Could not find the referenced ${Table::class.java.simpleName} " +
-                    "or ${QueryModel::class.java.simpleName} definition $referencedClassName" +
-                    " from ${tableDefinition.elementName}. " +
-                    "Ensure it exists in the same database as ${tableDefinition.databaseTypeName}")
+                    "Could not find the referenced ${Table::class.java.simpleName} " +
+                            "or ${QueryModel::class.java.simpleName} definition $referencedClassName" +
+                            " from ${tableDefinition.elementName}. " +
+                            "Ensure it exists in the same database as ${tableDefinition.databaseTypeName}")
         } else if (needsReferences) {
             val primaryColumns =
-                if (isColumnMap) referencedTableDefinition.columnDefinitions
-                else referencedTableDefinition.primaryColumnDefinitions
+                    if (isColumnMap) referencedTableDefinition.columnDefinitions
+                    else referencedTableDefinition.primaryColumnDefinitions
             if (references?.isEmpty() != false) {
                 primaryColumns.forEach {
                     val foreignKeyReferenceDefinition = ReferenceDefinition(manager,
-                        elementName, it.elementName, it, this, primaryColumns.size,
-                        if (isColumnMap) it.elementName else "",
-                        defaultValue = it.defaultValue)
+                            elementName, it.elementName, it, this, primaryColumns.size,
+                            if (isColumnMap) it.elementName else "",
+                            defaultValue = it.defaultValue)
                     _referenceDefinitionList.add(foreignKeyReferenceDefinition)
                 }
                 needsReferences = false
@@ -423,17 +426,17 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                     val foundDefinition = primaryColumns.find { it.columnName == reference.referenceName }
                     if (foundDefinition == null) {
                         manager.logError(ReferenceColumnDefinition::class,
-                            "Could not find referenced column ${reference.referenceName} " +
-                                "from reference named ${reference.columnName}")
+                                "Could not find referenced column ${reference.referenceName} " +
+                                        "from reference named ${reference.columnName}")
                     } else {
                         _referenceDefinitionList.add(
-                            ReferenceDefinition(manager, elementName,
-                                foundDefinition.elementName, foundDefinition, this,
-                                primaryColumns.size, reference.columnName,
-                                reference.onNullConflictAction,
-                                reference.defaultValue,
-                                reference.typeConverterClassName,
-                                reference.typeConverterTypeMirror))
+                                ReferenceDefinition(manager, elementName,
+                                        foundDefinition.elementName, foundDefinition, this,
+                                        primaryColumns.size, reference.columnName,
+                                        reference.onNullConflictAction,
+                                        reference.defaultValue,
+                                        reference.typeConverterClassName,
+                                        reference.typeConverterTypeMirror))
                     }
                 }
                 needsReferences = false
@@ -445,10 +448,10 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
 
             _referenceDefinitionList.forEach {
                 if (it.columnClassName?.isPrimitive == true
-                    && !it.defaultValue.isNullOrEmpty()) {
+                        && !it.defaultValue.isNullOrEmpty()) {
                     manager.logWarning(ColumnValidator::class.java,
-                        "Default value of \"${it.defaultValue}\" from " +
-                            "${tableDefinition.elementName}.$elementName is ignored for primitive columns.")
+                            "Default value of \"${it.defaultValue}\" from " +
+                                    "${tableDefinition.elementName}.$elementName is ignored for primitive columns.")
                 }
             }
         }

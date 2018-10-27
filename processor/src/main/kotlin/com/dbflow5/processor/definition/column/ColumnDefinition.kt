@@ -50,17 +50,28 @@ constructor(processorManager: ProcessorManager, element: Element,
             notNullConflict: ConflictAction = ConflictAction.NONE)
     : BaseDefinition(element, processorManager) {
 
+    sealed class Type {
+        object Normal : Type()
+        object Primary : Type()
+        data class PrimaryAutoIncrement(val quickCheck: Boolean) : Type()
+        object RowId : Type()
+
+        val isPrimaryField
+            get() = this is ColumnDefinition.Type.Primary
+                    || this is ColumnDefinition.Type.PrimaryAutoIncrement
+                    || this is ColumnDefinition.Type.RowId
+    }
+
     private val QUOTE_PATTERN = Pattern.compile("\".*\"")
 
     var columnName: String = ""
     var propertyFieldName: String = ""
 
     var hasTypeConverter: Boolean = false
-    var isPrimaryKey: Boolean = false
-    var isPrimaryKeyAutoIncrement: Boolean = false
-        private set
-    var isQuickCheckPrimaryKeyAutoIncrement: Boolean = false
-    var isRowId: Boolean = false
+
+    var type: Type = Type.Normal
+
+    //var isQuickCheckPrimaryKeyAutoIncrement: Boolean = false
     var length = -1
     var notNull = false
     var isNotNullType = false
@@ -93,7 +104,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         get() = CodeBlock.of("\$L", columnName.quote())
 
     open val insertStatementValuesString: CodeBlock?
-        get() = if (isPrimaryKeyAutoIncrement && isNotNullType) {
+        get() = if (type is Type.PrimaryAutoIncrement && isNotNullType) {
             CodeBlock.of("nullif(?, 0)")
         } else {
             CodeBlock.of("?")
@@ -198,13 +209,10 @@ constructor(processorManager: ProcessorManager, element: Element,
         }
 
         if (primaryKey != null) {
-            when {
-                primaryKey.rowID -> isRowId = true
-                primaryKey.autoincrement -> {
-                    isPrimaryKeyAutoIncrement = true
-                    isQuickCheckPrimaryKeyAutoIncrement = primaryKey.quickCheckAutoIncrement
-                }
-                else -> isPrimaryKey = true
+            type = when {
+                primaryKey.rowID -> Type.RowId
+                primaryKey.autoincrement -> Type.PrimaryAutoIncrement(quickCheck = primaryKey.quickCheckAutoIncrement)
+                else -> Type.Primary
             }
         }
 
@@ -356,9 +364,9 @@ constructor(processorManager: ProcessorManager, element: Element,
             } else {
                 fieldBuilder.initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
             }
-            if (isPrimaryKey) {
+            if (type is Type.Primary) {
                 fieldBuilder.addJavadoc("Primary Key")
-            } else if (isPrimaryKeyAutoIncrement) {
+            } else if (type is Type.PrimaryAutoIncrement) {
                 fieldBuilder.addJavadoc("Primary Key AutoIncrement")
             }
             typeBuilder.addField(fieldBuilder.build())
@@ -449,8 +457,9 @@ constructor(processorManager: ProcessorManager, element: Element,
     }
 
     open fun appendExistenceMethod(codeBuilder: CodeBlock.Builder) {
-        ExistenceAccessCombiner(combiner, isRowId || isPrimaryKeyAutoIncrement,
-                isQuickCheckPrimaryKeyAutoIncrement, baseTableDefinition.elementClassName!!)
+        ExistenceAccessCombiner(combiner, type is Type.RowId || type is Type.PrimaryAutoIncrement,
+                (type as? Type.PrimaryAutoIncrement)?.quickCheck
+                        ?: false, baseTableDefinition.elementClassName!!)
                 .apply {
                     codeBuilder.addCode(columnName, getDefaultValueBlock(), 0, modelBlock)
                 }
@@ -466,7 +475,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         get() {
             val codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, wrapperTypeName, columnName)
 
-            if (isPrimaryKeyAutoIncrement && !isRowId) {
+            if (type is Type.PrimaryAutoIncrement) {
                 codeBlockBuilder.add(" PRIMARY KEY ")
 
                 if (baseTableDefinition is TableDefinition &&

@@ -105,9 +105,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
                     }
                 }
 
-                if (columnDefinition.isPrimaryKey
-                        || columnDefinition.isPrimaryKeyAutoIncrement
-                        || columnDefinition.isRowId) {
+                if (columnDefinition.type.isPrimaryField) {
                     manager.logError("QueryModel $elementName cannot have primary keys")
                 }
             }

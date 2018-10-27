@@ -1,6 +1,7 @@
 package com.dbflow5.processor.definition
 
 import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.definition.column.wrapperCommaIfBaseModel
 import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.`override fun`
@@ -59,7 +60,8 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
 
             if (isInsert) {
                 baseTableDefinition.columnDefinitions.forEach {
-                    if (!it.isPrimaryKeyAutoIncrement && !it.isRowId) {
+                    if (it.type !is ColumnDefinition.Type.PrimaryAutoIncrement
+                            && it.type !is ColumnDefinition.Type.RowId) {
                         methodBuilder.addCode(it.contentValuesStatement)
                     }
                 }
@@ -133,8 +135,7 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
             when (mode) {
                 Mode.INSERT -> {
                     val start = AtomicInteger(1)
-                    tableDefinition.columnDefinitions
-                            .filter { !it.isRowId }
+                    tableDefinition.sqlColumnDefinitions
                             .forEach {
                                 methodBuilder.addCode(it.getSQLiteStatementMethod(start))
                                 start.incrementAndGet()
@@ -143,8 +144,7 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
                 Mode.UPDATE -> {
                     val realCount = AtomicInteger(1)
                     // attach non rowid first, then go onto the WHERE clause
-                    tableDefinition.columnDefinitions
-                            .filter { !it.isRowId }
+                    tableDefinition.sqlColumnDefinitions
                             .forEach {
                                 methodBuilder.addCode(it.getSQLiteStatementMethod(realCount))
                                 realCount.incrementAndGet()
@@ -339,7 +339,7 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition,
                     }
                     add("INTO ${tableDefinition.tableName.quote()}(")
 
-                    tableDefinition.columnDefinitions.filter { !it.isRowId }
+                    tableDefinition.sqlColumnDefinitions
                             .forEachIndexed { index, columnDefinition ->
                                 if (index > 0) add(",")
                                 add(columnDefinition.insertStatementColumnName)
@@ -348,7 +348,7 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition,
 
                     add(") VALUES (")
 
-                    tableDefinition.columnDefinitions.filter { !it.isRowId }
+                    tableDefinition.sqlColumnDefinitions
                             .forEachIndexed { index, columnDefinition ->
                                 if (index > 0) add(",")
                                 add(columnDefinition.insertStatementValuesString)
@@ -374,22 +374,21 @@ class UpdateStatementQueryMethod(private val tableDefinition: TableDefinition) :
                     add(" ${tableDefinition.tableName.quote()} SET ")
 
                     // can only change non primary key values.
-                    tableDefinition.columnDefinitions.filter {
-                        !it.isRowId
-                    }.forEachIndexed { index, columnDefinition ->
-                        if (index > 0) add(",")
-                        add(columnDefinition.updateStatementBlock)
+                    tableDefinition.sqlColumnDefinitions
+                            .forEachIndexed { index, columnDefinition ->
+                                if (index > 0) add(",")
+                                add(columnDefinition.updateStatementBlock)
 
-                    }
+                            }
                     add(" WHERE ")
 
                     // primary key values used as WHERE
-                    tableDefinition.columnDefinitions.filter {
-                        it.isPrimaryKey || it.isPrimaryKeyAutoIncrement || it.isRowId
-                    }.forEachIndexed { index, columnDefinition ->
-                        if (index > 0) add(" AND ")
-                        add(columnDefinition.updateStatementBlock)
-                    }
+                    tableDefinition.columnDefinitions
+                            .filter { it.type.isPrimaryField }
+                            .forEachIndexed { index, columnDefinition ->
+                                if (index > 0) add(" AND ")
+                                add(columnDefinition.updateStatementBlock)
+                            }
                     this
                 }.S)
             }
@@ -406,12 +405,12 @@ class DeleteStatementQueryMethod(private val tableDefinition: TableDefinition) :
                     add("DELETE FROM ${tableDefinition.tableName.quote()} WHERE ")
 
                     // primary key values used as WHERE
-                    tableDefinition.columnDefinitions.filter {
-                        it.isPrimaryKey || it.isPrimaryKeyAutoIncrement || it.isRowId
-                    }.forEachIndexed { index, columnDefinition ->
-                        if (index > 0) add(" AND ")
-                        add(columnDefinition.updateStatementBlock)
-                    }
+                    tableDefinition.columnDefinitions
+                            .filter { it.type.isPrimaryField }
+                            .forEachIndexed { index, columnDefinition ->
+                                if (index > 0) add(" AND ")
+                                add(columnDefinition.updateStatementBlock)
+                            }
                     this
                 }.S)
             }

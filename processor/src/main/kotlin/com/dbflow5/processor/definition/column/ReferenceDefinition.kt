@@ -146,8 +146,10 @@ class ReferenceDefinition(private val manager: ProcessorManager,
     init {
         if (!localColumnName.isNullOrEmpty()) {
             this.columnName = localColumnName
-        } else if (!referenceColumnDefinition.isPrimaryKey && !referenceColumnDefinition.isPrimaryKeyAutoIncrement
-                && !referenceColumnDefinition.isRowId || referenceCount > 0) {
+        } else if (referenceColumnDefinition.type !is ColumnDefinition.Type.Primary
+                && referenceColumnDefinition.type !is ColumnDefinition.Type.PrimaryAutoIncrement
+                && referenceColumnDefinition.type !is ColumnDefinition.Type.RowId
+                || referenceCount > 0) {
             this.columnName = "${foreignKeyFieldName}_${referencedColumn.columnName}"
         } else {
             this.columnName = foreignKeyFieldName
