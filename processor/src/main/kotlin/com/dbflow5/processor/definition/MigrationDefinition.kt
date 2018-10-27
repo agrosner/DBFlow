@@ -1,17 +1,17 @@
 package com.dbflow5.processor.definition
 
-import com.grosner.kpoet.typeName
 import com.dbflow5.annotation.Migration
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.utils.annotation
+import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.isNullOrEmpty
+import com.grosner.kpoet.typeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.MirroredTypeException
 
 /**
  * Description: Used in holding data about migration files.
@@ -33,14 +33,9 @@ class MigrationDefinition(processorManager: ProcessorManager, typeElement: TypeE
 
         val migration = typeElement.annotation<Migration>()
         if (migration == null) {
-            processorManager.logError("Migration was null for:" + typeElement)
+            processorManager.logError("Migration was null for: $typeElement")
         } else {
-            try {
-                migration.database
-            } catch (mte: MirroredTypeException) {
-                databaseName = mte.typeMirror.typeName
-            }
-
+            databaseName = migration.extractTypeNameFromAnnotation { it.database }
             version = migration.version
             priority = migration.priority
 

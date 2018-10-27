@@ -1,5 +1,15 @@
 package com.dbflow5.processor.definition
 
+import com.dbflow5.annotation.ForeignKey
+import com.dbflow5.annotation.ManyToMany
+import com.dbflow5.annotation.PrimaryKey
+import com.dbflow5.annotation.Table
+import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.utils.annotation
+import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
+import com.dbflow5.processor.utils.isNullOrEmpty
+import com.dbflow5.processor.utils.lower
+import com.dbflow5.processor.utils.toTypeElement
 import com.grosner.kpoet.L
 import com.grosner.kpoet.`@`
 import com.grosner.kpoet.`fun`
@@ -11,22 +21,10 @@ import com.grosner.kpoet.modifiers
 import com.grosner.kpoet.param
 import com.grosner.kpoet.public
 import com.grosner.kpoet.statement
-import com.dbflow5.annotation.ForeignKey
-import com.dbflow5.annotation.ManyToMany
-import com.dbflow5.annotation.PrimaryKey
-import com.dbflow5.annotation.Table
-import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.utils.annotation
-import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
-import com.dbflow5.processor.utils.isNullOrEmpty
-import com.dbflow5.processor.utils.lower
-import com.dbflow5.processor.utils.toTypeElement
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.MirroredTypeException
-import javax.lang.model.type.TypeMirror
 
 /**
  * Description: Generates the Model class that is used in a many to many.
@@ -35,24 +33,18 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
                            manyToMany: ManyToMany = element.annotation()!!)
     : BaseDefinition(element, processorManager) {
 
-    internal var referencedTable: TypeName
     var databaseTypeName: TypeName? = null
-    internal var generateAutoIncrement: Boolean = false
-    internal var sameTableReferenced: Boolean = false
-    internal val generatedTableClassName = manyToMany.generatedTableClassName
-    internal var saveForeignKeyModels: Boolean = false
-    internal val thisColumnName = manyToMany.thisTableColumnName
-    internal val referencedColumnName = manyToMany.referencedTableColumnName
+
+    private var referencedTable: TypeName
+    private var generateAutoIncrement: Boolean = false
+    private var sameTableReferenced: Boolean = false
+    private val generatedTableClassName = manyToMany.generatedTableClassName
+    private var saveForeignKeyModels: Boolean = false
+    private val thisColumnName = manyToMany.thisTableColumnName
+    private val referencedColumnName = manyToMany.referencedTableColumnName
 
     init {
-
-        var clazz: TypeMirror? = null
-        try {
-            manyToMany.referencedTable
-        } catch (mte: MirroredTypeException) {
-            clazz = mte.typeMirror
-        }
-        referencedTable = TypeName.get(clazz)
+        referencedTable = manyToMany.extractTypeNameFromAnnotation { it.referencedTable }
         generateAutoIncrement = manyToMany.generateAutoIncrement
         saveForeignKeyModels = manyToMany.saveForeignKeyModels
 

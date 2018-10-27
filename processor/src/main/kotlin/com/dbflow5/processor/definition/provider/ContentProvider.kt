@@ -14,6 +14,7 @@ import com.dbflow5.processor.definition.MethodDefinition
 import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.controlFlow
+import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.isNullOrEmpty
 import com.dbflow5.processor.utils.isSubclass
 import com.dbflow5.processor.utils.toTypeElement
@@ -42,7 +43,6 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
-import javax.lang.model.type.MirroredTypeException
 
 internal fun appendDefault(code: CodeBlock.Builder) {
     code.beginControlFlow("default:")
@@ -383,12 +383,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
 
     init {
         element.annotation<ContentProvider>()?.let { provider ->
-            try {
-                provider.database
-            } catch (mte: MirroredTypeException) {
-                databaseTypeName = TypeName.get(mte.typeMirror)
-            }
-
+            databaseTypeName = provider.extractTypeNameFromAnnotation { it.database }
             authority = provider.authority
 
             val validator = TableEndpointValidator()

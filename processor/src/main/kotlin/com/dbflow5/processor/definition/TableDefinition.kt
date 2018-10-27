@@ -26,6 +26,7 @@ import com.dbflow5.processor.utils.ModelUtils.wrapper
 import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.ensureVisibleStatic
+import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.isNullOrEmpty
 import com.dbflow5.quote
@@ -54,7 +55,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.MirroredTypeException
 
 /**
  * Description: Used in writing ModelAdapters
@@ -116,11 +116,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 tableName = element.simpleName.toString()
             }
 
-            try {
-                table.database
-            } catch (mte: MirroredTypeException) {
-                databaseTypeName = TypeName.get(mte.typeMirror)
-            }
+            databaseTypeName = table.extractTypeNameFromAnnotation { it.database }
 
             generateContentValues = table.generateContentValues
             cachingEnabled = table.cachingEnabled

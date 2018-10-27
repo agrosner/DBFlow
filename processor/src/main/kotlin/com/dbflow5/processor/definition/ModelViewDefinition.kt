@@ -1,13 +1,5 @@
 package com.dbflow5.processor.definition
 
-import com.grosner.kpoet.S
-import com.grosner.kpoet.`=`
-import com.grosner.kpoet.`public static final field`
-import com.grosner.kpoet.`return`
-import com.grosner.kpoet.final
-import com.grosner.kpoet.modifiers
-import com.grosner.kpoet.param
-import com.grosner.kpoet.public
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ModelView
@@ -21,18 +13,26 @@ import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.ensureVisibleStatic
+import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.isNullOrEmpty
 import com.dbflow5.processor.utils.simpleString
 import com.dbflow5.processor.utils.toTypeElement
 import com.dbflow5.processor.utils.toTypeErasedElement
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`=`
+import com.grosner.kpoet.`public static final field`
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.param
+import com.grosner.kpoet.public
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.MirroredTypeException
 
 /**
  * Description: Used in writing ModelViewAdapters
@@ -47,9 +47,9 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
     private var name: String? = null
 
     private val methods: Array<MethodDefinition> = arrayOf(
-        LoadFromCursorMethod(this),
-        ExistenceMethod(this),
-        PrimaryConditionMethod(this))
+            LoadFromCursorMethod(this),
+            ExistenceMethod(this),
+            PrimaryConditionMethod(this))
 
     var allFields: Boolean = false
 
@@ -57,12 +57,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
 
     init {
         element.annotation<ModelView>()?.let { modelView ->
-            try {
-                modelView.database
-            } catch (mte: MirroredTypeException) {
-                this.databaseTypeName = TypeName.get(mte.typeMirror)
-            }
-
+            databaseTypeName = modelView.extractTypeNameFromAnnotation { it.database }
             allFields = modelView.allFields
 
             this.name = modelView.name
@@ -73,7 +68,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
         }
 
         implementsLoadFromCursorListener = (element as? TypeElement)
-            ?.implementsClass(manager.processingEnvironment, com.dbflow5.processor.ClassNames.LOAD_FROM_CURSOR_LISTENER) ?: false
+                ?.implementsClass(manager.processingEnvironment, com.dbflow5.processor.ClassNames.LOAD_FROM_CURSOR_LISTENER) ?: false
 
     }
 
@@ -107,7 +102,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
             val isColumnMap = variableElement.annotation<ColumnMap>() != null
 
             if (variableElement.annotation<Column>() != null || isValidAllFields
-                || isColumnMap) {
+                    || isColumnMap) {
 
                 // package private, will generate helper
                 val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
@@ -172,7 +167,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
             writeGetModelClass(typeBuilder, elementClassName)
 
             `override fun`(String::class, "getCreationQuery",
-                param(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+                    param(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
                 modifiers(public, final)
                 `return`("\$T.\$L().getQuery()", elementClassName, queryFieldName)
             }
@@ -183,7 +178,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
         }
 
         methods.mapNotNull { it.methodSpec }
-            .forEach { typeBuilder.addMethod(it) }
+                .forEach { typeBuilder.addMethod(it) }
     }
 
 }

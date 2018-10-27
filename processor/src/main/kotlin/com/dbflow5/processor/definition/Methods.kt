@@ -1,6 +1,7 @@
 package com.dbflow5.processor.definition
 
 import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.definition.column.wrapperCommaIfBaseModel
 import com.dbflow5.processor.utils.ModelUtils
@@ -52,7 +53,7 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
             val methodBuilder = MethodSpec.methodBuilder(if (isInsert) "bindToInsertValues" else "bindToContentValues")
                     .addAnnotation(Override::class.java)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(com.dbflow5.processor.ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
+                    .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
                     .addParameter(baseTableDefinition.parameterClassName, ModelUtils.variable)
                     .returns(TypeName.VOID)
 
@@ -127,7 +128,7 @@ class BindToStatementMethod(private val tableDefinition: TableDefinition, privat
             val methodBuilder = MethodSpec.methodBuilder(mode.methodName)
                     .addAnnotation(Override::class.java)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(com.dbflow5.processor.ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
+                    .addParameter(ClassNames.DATABASE_STATEMENT, PARAM_STATEMENT)
                     .addParameter(tableDefinition.parameterClassName,
                             ModelUtils.variable).returns(TypeName.VOID)
 
@@ -228,7 +229,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
                     add(") REFERENCES ")
                 }.build())
 
-                tableNameBlocks.add(codeBlock { add("\$T.getTableName(\$T.class)", com.dbflow5.processor.ClassNames.FLOW_MANAGER, fk.referencedClassName) })
+                tableNameBlocks.add(codeBlock { add("\$T.getTableName(\$T.class)", ClassNames.FLOW_MANAGER, fk.referencedClassName) })
 
                 referenceKeyBlocks.add(referenceBuilder.apply {
                     add("(")
@@ -295,7 +296,7 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
     override val methodSpec
         get() = `override fun`(TypeName.BOOLEAN, "exists",
                 param(tableDefinition.parameterClassName!!, ModelUtils.variable),
-                param(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, "wrapper")) {
+                param(ClassNames.DATABASE_WRAPPER, "wrapper")) {
             modifiers(public, final)
             code {
                 // only quick check if enabled.
@@ -424,8 +425,8 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
 
     override val methodSpec: MethodSpec
         get() = `override fun`(baseTableDefinition.parameterClassName!!, "loadFromCursor",
-                param(com.dbflow5.processor.ClassNames.FLOW_CURSOR, PARAM_CURSOR),
-                param(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+                param(ClassNames.FLOW_CURSOR, PARAM_CURSOR),
+                param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
             modifiers(public, final)
             statement("\$1T ${ModelUtils.variable} = new \$1T()", baseTableDefinition.parameterClassName)
             val index = AtomicInteger(0)
@@ -469,7 +470,7 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition) : Meth
                 return `override fun`(TypeName.BOOLEAN, "delete",
                         param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
                     modifiers(public, final)
-                    addParameter(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
+                    addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                     if (tableDefinition.cachingEnabled) {
                         statement("cacheAdapter.removeModelFromCache(${ModelUtils.variable})")
                     }
@@ -506,7 +507,7 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                 return `override fun`(retType, methodName,
                         param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
                     modifiers(public, final)
-                    addParameter(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
+                    addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                     code {
                         if (methodName == METHOD_INSERT) {
                             add("long rowId = ")
@@ -550,11 +551,11 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
 class PrimaryConditionMethod(private val tableDefinition: BaseTableDefinition) : MethodDefinition {
 
     override val methodSpec: MethodSpec?
-        get() = `override fun`(com.dbflow5.processor.ClassNames.OPERATOR_GROUP, "getPrimaryConditionClause",
+        get() = `override fun`(ClassNames.OPERATOR_GROUP, "getPrimaryConditionClause",
                 param(tableDefinition.parameterClassName!!, ModelUtils.variable)) {
             modifiers(public, final)
             code {
-                statement("\$T clause = \$T.clause()", com.dbflow5.processor.ClassNames.OPERATOR_GROUP, com.dbflow5.processor.ClassNames.OPERATOR_GROUP)
+                statement("\$T clause = \$T.clause()", ClassNames.OPERATOR_GROUP, ClassNames.OPERATOR_GROUP)
                 tableDefinition.primaryColumnDefinitions.forEach {
                     val codeBuilder = CodeBlock.builder()
                     it.appendPropertyComparisonAccessStatement(codeBuilder)
