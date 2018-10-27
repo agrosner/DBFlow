@@ -7,6 +7,7 @@ import com.dbflow5.annotation.ForeignKeyAction
 import com.dbflow5.annotation.ForeignKeyReference
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.BaseTableDefinition
@@ -121,7 +122,8 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             deferred = foreignKey.deferred
             isStubbedRelationship = foreignKey.stubbedRelationship
 
-            referencedClassName = foreignKey.extractTypeMirrorFromAnnotation { it.tableClass }?.let { fromTypeMirror(it, manager) }
+            referencedClassName = foreignKey.extractTypeMirrorFromAnnotation { it.tableClass }
+                    ?.let { fromTypeMirror(it, manager) }
 
             val erasedElement = element.toTypeErasedElement()
 
@@ -134,8 +136,8 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                 manager.logError("Referenced was null for $element within $elementTypeName")
             }
 
-            extendsBaseModel = erasedElement.isSubclass(manager.processingEnvironment, com.dbflow5.processor.ClassNames.BASE_MODEL)
-            implementsModel = erasedElement.implementsClass(manager.processingEnvironment, com.dbflow5.processor.ClassNames.MODEL)
+            extendsBaseModel = erasedElement.isSubclass(manager.processingEnvironment, ClassNames.BASE_MODEL)
+            implementsModel = erasedElement.implementsClass(manager.processingEnvironment, ClassNames.MODEL)
             isReferencingTableObject = implementsModel || erasedElement.annotation<Table>() != null
 
             nonModelColumn = !isReferencingTableObject
@@ -171,19 +173,19 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
     }
 
     override fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
-        referenceDefinitionList.forEach {
+        referenceDefinitionList.forEach { referenceDefinition ->
             var propParam: TypeName? = null
-            val colClassName = it.columnClassName
+            val colClassName = referenceDefinition.columnClassName
             colClassName?.let {
-                propParam = ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.PROPERTY, it.box())
+                propParam = ParameterizedTypeName.get(ClassNames.PROPERTY, it.box())
             }
-            if (it.columnName.isNullOrEmpty()) {
-                manager.logError("Found empty reference name at ${it.foreignColumnName}" +
+            if (referenceDefinition.columnName.isNullOrEmpty()) {
+                manager.logError("Found empty reference name at ${referenceDefinition.foreignColumnName}" +
                         " from table ${baseTableDefinition.elementName}")
             }
-            typeBuilder.addField(FieldSpec.builder(propParam, it.columnName,
+            typeBuilder.addField(FieldSpec.builder(propParam, referenceDefinition.columnName,
                     Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                    .initializer("new \$T(\$T.class, \$S)", propParam, tableClass, it.columnName)
+                    .initializer("new \$T(\$T.class, \$S)", propParam, tableClass, referenceDefinition.columnName)
                     .addJavadoc(
                             if (isColumnMap) "Column Mapped Field"
                             else ("Foreign Key${if (type == Type.Primary) " / Primary Key" else ""}"))
@@ -214,8 +216,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
     }
 
     override fun addColumnName(codeBuilder: CodeBlock.Builder) {
-        for (i in referenceDefinitionList.indices) {
-            val reference = referenceDefinitionList[i]
+        referenceDefinitionList.withIndex().forEach { (i, reference) ->
             if (i > 0) {
                 codeBuilder.add(",")
             }
@@ -226,11 +227,10 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
     override val updateStatementBlock: CodeBlock
         get() {
             val builder = CodeBlock.builder()
-            referenceDefinitionList.indices.forEach { i ->
+            referenceDefinitionList.withIndex().forEach { (i, referenceDefinition) ->
                 if (i > 0) {
                     builder.add(",")
                 }
-                val referenceDefinition = referenceDefinitionList[i]
                 builder.add(CodeBlock.of("${referenceDefinition.columnName.quote()}=?"))
             }
             return builder.build()
@@ -239,11 +239,10 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
     override val insertStatementColumnName: CodeBlock
         get() {
             val builder = CodeBlock.builder()
-            referenceDefinitionList.indices.forEach { i ->
+            referenceDefinitionList.withIndex().forEach { (i, referenceDefinition) ->
                 if (i > 0) {
                     builder.add(",")
                 }
-                val referenceDefinition = referenceDefinitionList[i]
                 builder.add(referenceDefinition.columnName.quote())
             }
             return builder.build()
@@ -264,11 +263,10 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
     override val creationName: CodeBlock
         get() {
             val builder = CodeBlock.builder()
-            referenceDefinitionList.indices.forEach { i ->
+            referenceDefinitionList.withIndex().forEach { (i, referenceDefinition) ->
                 if (i > 0) {
                     builder.add(" ,")
                 }
-                val referenceDefinition = referenceDefinitionList[i]
                 builder.add(referenceDefinition.creationStatement)
 
                 if (referenceDefinition.notNull) {
@@ -281,11 +279,10 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
     override val primaryKeyName: String
         get() {
             val builder = CodeBlock.builder()
-            referenceDefinitionList.indices.forEach { i ->
+            referenceDefinitionList.withIndex().forEach { (i, referenceDefinition) ->
                 if (i > 0) {
                     builder.add(" ,")
                 }
-                val referenceDefinition = referenceDefinitionList[i]
                 builder.add(referenceDefinition.primaryKeyName)
             }
             return builder.build().toString()
@@ -296,7 +293,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             super.contentValuesStatement
         } else {
             val codeBuilder = CodeBlock.builder()
-            referencedClassName?.let {
+            referencedClassName?.let { _ ->
                 val foreignKeyCombiner = ForeignKeyAccessCombiner(columnAccessor)
                 referenceDefinitionList.forEach {
                     foreignKeyCombiner.fieldAccesses += it.contentValuesField
@@ -311,7 +308,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             return super.getSQLiteStatementMethod(index, defineProperty)
         } else {
             val codeBuilder = CodeBlock.builder()
-            referencedClassName?.let {
+            referencedClassName?.let { _ ->
                 val foreignKeyCombiner = ForeignKeyAccessCombiner(columnAccessor)
                 referenceDefinitionList.forEach {
                     foreignKeyCombiner.fieldAccesses += it.sqliteStatementField
@@ -331,8 +328,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
 
                 val tableDefinition = manager.getReferenceDefinition(
                         baseTableDefinition.databaseDefinition?.elementTypeName, referencedTableClassName)
-                val outputClassName = tableDefinition?.outputClassName
-                outputClassName?.let {
+                tableDefinition?.outputClassName?.let { outputClassName ->
                     val foreignKeyCombiner = ForeignKeyLoadFromCursorCombiner(columnAccessor,
                             referencedTableClassName, outputClassName, isStubbedRelationship, nameAllocator)
                     referenceDefinitionList.forEach {
@@ -352,7 +348,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                 codeBuilder.addCode(references!![0].columnName, getDefaultValueBlock(), 0, modelBlock)
             }
             columnAccessor is TypeConverterScopeColumnAccessor -> super.appendPropertyComparisonAccessStatement(codeBuilder)
-            else -> referencedClassName?.let {
+            else -> referencedClassName?.let { _ ->
                 val foreignKeyCombiner = ForeignKeyAccessCombiner(columnAccessor)
                 referenceDefinitionList.forEach {
                     foreignKeyCombiner.fieldAccesses += it.primaryReferenceField
@@ -402,11 +398,16 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                     if (isColumnMap) referencedTableDefinition.columnDefinitions
                     else referencedTableDefinition.primaryColumnDefinitions
             if (references?.isEmpty() != false) {
-                primaryColumns.forEach {
+                primaryColumns.forEach { columnDefinition ->
                     val foreignKeyReferenceDefinition = ReferenceDefinition(manager,
-                            elementName, it.elementName, it, this, primaryColumns.size,
-                            if (isColumnMap) it.elementName else "",
-                            defaultValue = it.defaultValue)
+                            foreignKeyFieldName = elementName,
+                            foreignKeyElementName = columnDefinition.elementName,
+                            referencedColumn = columnDefinition,
+                            referenceColumnDefinition = this,
+                            referenceCount = primaryColumns.size,
+                            localColumnName = if (isColumnMap) columnDefinition.elementName else "",
+                            defaultValue = columnDefinition.defaultValue
+                    )
                     _referenceDefinitionList.add(foreignKeyReferenceDefinition)
                 }
                 needsReferences = false
@@ -419,13 +420,18 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                                         "from reference named ${reference.columnName}")
                     } else {
                         _referenceDefinitionList.add(
-                                ReferenceDefinition(manager, elementName,
-                                        foundDefinition.elementName, foundDefinition, this,
-                                        primaryColumns.size, reference.columnName,
-                                        reference.onNullConflictAction,
-                                        reference.defaultValue,
-                                        reference.typeConverterClassName,
-                                        reference.typeConverterTypeMirror))
+                                ReferenceDefinition(manager,
+                                        foreignKeyFieldName = elementName,
+                                        foreignKeyElementName = foundDefinition.elementName,
+                                        referencedColumn = foundDefinition,
+                                        referenceColumnDefinition = this,
+                                        referenceCount = primaryColumns.size,
+                                        localColumnName = reference.columnName,
+                                        onNullConflict = reference.onNullConflictAction,
+                                        defaultValue = reference.defaultValue,
+                                        typeConverterClassName = reference.typeConverterClassName,
+                                        typeConverterTypeMirror = reference.typeConverterTypeMirror
+                                ))
                     }
                 }
                 needsReferences = false
