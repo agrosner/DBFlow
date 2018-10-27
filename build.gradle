@@ -11,7 +11,7 @@ buildscript {
                 kotlin             : "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}",
                 sql_cipher         : "net.zetetic:android-database-sqlcipher:3.5.9@aar",
                 rx2                : 'io.reactivex.rxjava2:rxjava:2.2.3',
-                coroutines         : "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.1",
+                coroutines         : "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.30.2",
                 javapoet           : 'com.squareup:javapoet:1.11.1',
                 kpoet              : 'com.github.agrosner:KPoet:1.0.0',
                 javax_annotation   : 'org.glassfish:javax.annotation:10.0-b28',
