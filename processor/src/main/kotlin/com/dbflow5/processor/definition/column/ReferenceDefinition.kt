@@ -72,25 +72,26 @@ class ReferenceDefinition(private val manager: ProcessorManager,
     private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?,
                                       isCustom: Boolean) {
         // Any annotated members, otherwise we will use the scanner to find other ones
-        typeConverterDefinition?.let {
+        typeConverterDefinition?.let { typeConverter ->
 
-            if (it.modelTypeName != columnClassName) {
-                manager.logError("The specified custom TypeConverter's Model Value %1s from %1s must match the type of the column %1s. ",
-                        it.modelTypeName, it.className, columnClassName)
+            if (typeConverter.modelTypeName != columnClassName) {
+                manager.logError("The specified custom TypeConverter's Model Value " +
+                        "${typeConverter.modelTypeName} from ${typeConverter.className}" +
+                        " must match the type of the column $columnClassName.")
             } else {
                 hasTypeConverter = true
                 hasCustomConverter = isCustom
 
                 val fieldName = if (hasCustomConverter) {
                     referenceColumnDefinition.baseTableDefinition
-                            .addColumnForCustomTypeConverter(referenceColumnDefinition, it.className)
+                            .addColumnForCustomTypeConverter(referenceColumnDefinition, typeConverter.className)
                 } else {
                     referenceColumnDefinition.baseTableDefinition
-                            .addColumnForTypeConverter(referenceColumnDefinition, it.className)
+                            .addColumnForTypeConverter(referenceColumnDefinition, typeConverter.className)
                 }
 
                 wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
-                wrapperTypeName = it.dbTypeName
+                wrapperTypeName = typeConverter.dbTypeName
 
                 // special case of blob
                 if (wrapperTypeName == ClassName.get(Blob::class.java)) {
@@ -115,16 +116,16 @@ class ReferenceDefinition(private val manager: ProcessorManager,
             override val setterName: String = referencedColumn.column?.setterName ?: ""
         }
         columnAccessor = when {
-            isReferencedFieldPrivate -> PrivateScopeColumnAccessor(foreignKeyFieldName, getterSetter, false)
+            isReferencedFieldPrivate -> PrivateScopeColumnAccessor(foreignKeyElementName, getterSetter, false)
             isReferencedFieldPackagePrivate -> {
-                val accessor = PackagePrivateScopeColumnAccessor(foreignKeyFieldName, referencedColumn.packageName,
+                val accessor = PackagePrivateScopeColumnAccessor(foreignKeyElementName, referencedColumn.packageName,
                         referenceColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
                         tableClassName)
-                PackagePrivateScopeColumnAccessor.putElement(accessor.helperClassName, foreignKeyFieldName)
+                PackagePrivateScopeColumnAccessor.putElement(accessor.helperClassName, foreignKeyElementName)
 
                 accessor
             }
-            else -> VisibleScopeColumnAccessor(foreignKeyFieldName)
+            else -> VisibleScopeColumnAccessor(foreignKeyElementName)
         }
 
         hasCustomConverter = false
