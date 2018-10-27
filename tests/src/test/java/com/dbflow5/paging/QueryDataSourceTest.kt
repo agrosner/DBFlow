@@ -1,6 +1,6 @@
 package com.dbflow5.paging
 
-import android.arch.paging.PagedList
+import androidx.paging.PagedList
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.assertThrowsException
