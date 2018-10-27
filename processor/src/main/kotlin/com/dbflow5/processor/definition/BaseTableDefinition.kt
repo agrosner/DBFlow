@@ -25,10 +25,18 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import java.io.IOException
+import javax.annotation.processing.FilerException
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+
+fun Collection<BaseTableDefinition>.safeWritePackageHelper(processorManager: ProcessorManager) = forEach {
+    try {
+        it.writePackageHelper(processorManager.processingEnvironment)
+    } catch (e: FilerException) { /*Ignored intentionally to allow multi-round table generation*/
+    }
+}
 
 /**
  * Description: Used to write Models and ModelViews

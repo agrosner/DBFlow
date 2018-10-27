@@ -16,12 +16,12 @@ class DatabaseObjectHolder {
         }
 
     var tableDefinitionMap: MutableMap<TypeName, TableDefinition> = hashMapOf()
-    var tableNameMap: MutableMap<String, TableDefinition> = hashMapOf()
+    val tableNameMap: MutableMap<String, TableDefinition> = hashMapOf()
 
-    var queryModelDefinitionMap: MutableMap<TypeName, QueryModelDefinition> = hashMapOf()
+    val queryModelDefinitionMap: MutableMap<TypeName, QueryModelDefinition> = hashMapOf()
     var modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition> = hashMapOf()
-    var manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> = hashMapOf()
-    var providerMap = hashMapOf<TypeName, ContentProviderDefinition>()
+    val manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> = hashMapOf()
+    val providerMap = hashMapOf<TypeName, ContentProviderDefinition>()
 
     /**
      * Retrieve what database class they're trying to reference.

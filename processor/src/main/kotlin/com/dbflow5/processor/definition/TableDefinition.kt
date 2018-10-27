@@ -513,9 +513,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
                         val hasCustomField = customCacheFieldName.isNotNullOrEmpty()
                         val hasCustomMultiCacheField = customMultiCacheFieldName.isNotNullOrEmpty()
-                        var typeArgumentsString = ""
                         val typeClasses = mutableListOf<Any?>()
-                        typeArgumentsString = if (hasCustomField) {
+                        var typeArgumentsString = if (hasCustomField) {
                             typeClasses += elementClassName
                             "\$T.$customCacheFieldName"
                         } else {
