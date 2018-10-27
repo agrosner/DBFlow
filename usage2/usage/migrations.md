@@ -53,9 +53,14 @@ object AppDatabase {
 }
 ```
 
-The classes provide the ability to set a `priority` on the `Migration` so that an order is established. The higher the priority, that one will execute first.
+The classes provide the ability to set a `priority` on the `Migration` so that an order is 
+established if more than one migration is to run on the same DB version upgrade.
+They are in reverse order - lower the priority, that one will execute first.
 
-`Migration` have three methods: 1. `onPreMigrate()` - called first, do setup, and construction here. 2. `migrate()` -&gt; called with the `DatabaseWrapper` specified, this is where the actual migration code should execute. 3. `onPostMigrate()` -&gt; perform some cleanup, or any notifications that it was executed.
+`Migration` have three methods:
+  1. `onPreMigrate()` - called first, do setup, and construction here.
+  2. `migrate()` -&gt; called with the `DatabaseWrapper` specified, this is where the actual migration code should execute. 
+  3. `onPostMigrate()` -&gt; perform some cleanup, or any notifications that it was executed.
 
 ### Migration files
 
