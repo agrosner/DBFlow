@@ -26,6 +26,7 @@ import com.grosner.kpoet.`private static final field`
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.case
 import com.grosner.kpoet.code
+import com.grosner.kpoet.constructor
 import com.grosner.kpoet.final
 import com.grosner.kpoet.modifiers
 import com.grosner.kpoet.param
@@ -375,6 +376,8 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
 
     var endpointDefinitions = arrayListOf<TableEndpointDefinition>()
 
+    var holderClass: TypeName? = null
+
     private val methods: Array<MethodDefinition> = arrayOf(QueryMethod(this, manager),
             InsertMethod(this, false),
             InsertMethod(this, true),
@@ -385,6 +388,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
         element.annotation<ContentProvider>()?.let { provider ->
             databaseTypeName = provider.extractTypeNameFromAnnotation { it.database }
             authority = provider.authority
+            holderClass = provider.extractTypeNameFromAnnotation { it.initializeHolderClass }
 
             val validator = TableEndpointValidator()
             val elements = manager.elements.getAllMembers(typeElement as TypeElement)
@@ -397,8 +401,17 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
                 }
             }
 
-            if (!databaseTypeName.toTypeElement(manager).isSubclass(manager.processingEnvironment, ClassNames.CONTENT_PROVIDER_DATABASE)) {
-                manager.logError("A Content Provider database $elementClassName must extend ${ClassNames.CONTENT_PROVIDER_DATABASE}")
+            if (!databaseTypeName.toTypeElement(manager).isSubclass(manager.processingEnvironment,
+                            ClassNames.CONTENT_PROVIDER_DATABASE)) {
+                manager.logError("A Content Provider database $elementClassName " +
+                        "must extend ${ClassNames.CONTENT_PROVIDER_DATABASE}")
+            }
+
+            if (holderClass != TypeName.OBJECT &&
+                    !holderClass.toTypeElement(manager).isSubclass(manager.processingEnvironment,
+                            ClassNames.DATABASE_HOLDER)) {
+                manager.logError("The initializeHolderClass $holderClass must point to a subclass" +
+                        "of ${ClassNames.DATABASE_HOLDER}")
             }
         }
     }
@@ -414,6 +427,12 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 
         typeBuilder.apply {
+            if (holderClass != TypeName.OBJECT) {
+                constructor {
+                    addStatement("super(\$T.class)", holderClass)
+                }
+            }
+
             var code = 0
             for (endpointDefinition in endpointDefinitions) {
                 endpointDefinition.contentUriDefinitions.forEach {

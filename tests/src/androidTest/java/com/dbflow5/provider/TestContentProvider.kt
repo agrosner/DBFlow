@@ -3,6 +3,7 @@ package com.dbflow5.provider
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
+import com.dbflow5.config.GeneratedDatabaseHolder
 import com.dbflow5.contentprovider.annotation.ContentProvider
 import com.dbflow5.contentprovider.annotation.ContentType
 import com.dbflow5.contentprovider.annotation.ContentUri
@@ -12,6 +13,38 @@ import com.dbflow5.contentprovider.annotation.PathSegment
 import com.dbflow5.contentprovider.annotation.TableEndpoint
 import com.dbflow5.getContentValuesKey
 
+@ContentProvider(authority = TestContentProvider.AUTHORITY,
+        database = ContentDatabase::class,
+        initializeHolderClass = GeneratedDatabaseHolder::class)
+object TestContentProvider2 {
+    @TableEndpoint(name = ContentProviderModel.ENDPOINT,
+            contentProvider = ContentDatabase::class)
+    object ContentProviderModel {
+        const val ENDPOINT = "ContentProviderModel"
+
+        @JvmStatic
+        @ContentUri(path = TestContentProvider.ContentProviderModel.ENDPOINT,
+                type = ContentType.VND_MULTIPLE + TestContentProvider.ContentProviderModel.ENDPOINT)
+        var CONTENT_URI = TestContentProvider.buildUri(TestContentProvider.ContentProviderModel.ENDPOINT)
+
+        @JvmStatic
+        @ContentUri(path = TestContentProvider.ContentProviderModel.ENDPOINT + "/#",
+                type = ContentType.VND_SINGLE + TestContentProvider.ContentProviderModel.ENDPOINT,
+                segments = arrayOf(PathSegment(segment = 1, column = "id")))
+        fun withId(id: Long): Uri {
+            return TestContentProvider.buildUri(id.toString())
+        }
+
+        @JvmStatic
+        @Notify(notifyMethod = NotifyMethod.INSERT, paths = arrayOf(TestContentProvider.ContentProviderModel.ENDPOINT + "/#"))
+        fun onInsert(contentValues: ContentValues): Array<Uri> {
+            val id = contentValues.getAsLong("id")!!
+            return arrayOf(withId(id))
+        }
+    }
+}
+
+
 @ContentProvider(authority = TestContentProvider.AUTHORITY, database = ContentDatabase::class,
         baseContentUri = TestContentProvider.BASE_CONTENT_URI)
 object TestContentProvider {
@@ -20,7 +53,7 @@ object TestContentProvider {
 
     const val BASE_CONTENT_URI = "content://"
 
-    private fun buildUri(vararg paths: String): Uri {
+    fun buildUri(vararg paths: String): Uri {
         val builder = Uri.parse(BASE_CONTENT_URI + AUTHORITY).buildUpon()
         for (path in paths) {
             builder.appendPath(path)
