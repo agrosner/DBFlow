@@ -1,6 +1,5 @@
 package com.dbflow5.processor.definition.column
 
-import com.grosner.kpoet.code
 import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ConflictAction
@@ -10,6 +9,7 @@ import com.dbflow5.annotation.NotNull
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Unique
 import com.dbflow5.data.Blob
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.BaseDefinition
 import com.dbflow5.processor.definition.BaseTableDefinition
@@ -22,6 +22,7 @@ import com.dbflow5.processor.utils.isNullOrEmpty
 import com.dbflow5.processor.utils.toClassName
 import com.dbflow5.processor.utils.toTypeElement
 import com.dbflow5.quote
+import com.grosner.kpoet.code
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
@@ -127,22 +128,25 @@ constructor(processorManager: ProcessorManager, element: Element,
         }
 
         // android support annotation
-        element.annotationMirrors
-                .find { it.annotationType.toTypeElement().toClassName() == com.dbflow5.processor.ClassNames.NON_NULL }?.let {
-                    isNotNullType = true
-                    isNullableType = false
-                }
+        if (element.annotationMirrors
+                        .any {
+                            val className = it.annotationType.toTypeElement().toClassName()
+                            return@any className == ClassNames.NON_NULL || className == ClassNames.NON_NULL_X
+                        }) {
+            isNotNullType = true
+            isNullableType = false
+        }
 
-        column?.let {
-            this.columnName = if (it.name == "")
-                element.simpleName.toString()
-            else
-                it.name
-            length = it.length
-            collate = it.collate
-            defaultValue = it.defaultValue
+        column?.let { column ->
+            this.columnName = when {
+                column.name == "" -> element.simpleName.toString()
+                else -> column.name
+            }
+            length = column.length
+            collate = column.collate
+            defaultValue = column.defaultValue
 
-            if (it.defaultValue.isBlank()) {
+            if (column.defaultValue.isBlank()) {
                 defaultValue = null
             }
 

@@ -91,6 +91,7 @@ object ClassNames {
     val SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER = ClassName.get(QUERIABLE, "SingleKeyCacheableListModelLoader")
 
     val NON_NULL = ClassName.get("android.support.annotation", "NonNull")
+    val NON_NULL_X = ClassName.get("androidx.annotation", "NonNull")
 
     val GENERATED = ClassName.get("javax.annotation", "Generated")
 
