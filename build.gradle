@@ -18,6 +18,7 @@ buildscript {
                 junit              : 'junit:junit:4.12',
                 paging             : "androidx.paging:paging-runtime:2.1.0-alpha01",
                 support_annotations: "androidx.annotation:annotation:1.0.0",
+                livedata           : "androidx.lifecycle:lifecycle-livedata:2.0.0-rc01",
         ]
     }
     repositories {
