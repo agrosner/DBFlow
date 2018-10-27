@@ -16,6 +16,7 @@ import com.dbflow5.processor.definition.BaseTableDefinition
 import com.dbflow5.processor.definition.TableDefinition
 import com.dbflow5.processor.definition.TypeConverterDefinition
 import com.dbflow5.processor.utils.annotation
+import com.dbflow5.processor.utils.extractTypeMirrorFromAnnotation
 import com.dbflow5.processor.utils.fromTypeMirror
 import com.dbflow5.processor.utils.getTypeElement
 import com.dbflow5.processor.utils.isNullOrEmpty
@@ -38,7 +39,6 @@ import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.MirroredTypeException
 import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
 
@@ -231,14 +231,8 @@ constructor(processorManager: ProcessorManager, element: Element,
             }
         }
 
-        var typeConverterClassName: ClassName? = null
-        var typeMirror: TypeMirror? = null
-        try {
-            column?.typeConverter
-        } catch (mte: MirroredTypeException) {
-            typeMirror = mte.typeMirror
-            typeConverterClassName = fromTypeMirror(typeMirror, manager)
-        }
+        val typeMirror = column?.extractTypeMirrorFromAnnotation { it.typeConverter }
+        val typeConverterClassName = typeMirror?.let { fromTypeMirror(typeMirror, manager) }
 
         hasCustomConverter = false
         handleSpecifiedTypeConverter(typeConverterClassName, typeMirror)

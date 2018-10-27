@@ -1,5 +1,6 @@
 package com.dbflow5.processor.definition
 
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.definition.column.PackagePrivateScopeColumnAccessor
@@ -95,9 +96,9 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
         constructor {
             if (hasGlobalTypeConverters) {
-                addParameter(param(com.dbflow5.processor.ClassNames.DATABASE_HOLDER, "holder").build())
+                addParameter(param(ClassNames.DATABASE_HOLDER, "holder").build())
             }
-            addParameter(param(com.dbflow5.processor.ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition").build())
+            addParameter(param(ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME, "databaseDefinition").build())
             modifiers(public)
             statement("super(databaseDefinition)")
             code {
@@ -159,7 +160,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
                     count++
                 } else if (className == null) {
-                    manager.logError(BaseTableDefinition::class, "Could not find classname for:" + helperClassName)
+                    manager.logError(BaseTableDefinition::class, "Could not find classname for: $helperClassName")
                 }
             }
 
@@ -171,6 +172,10 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
         }
     }
 
+    /**
+     * Do not support inheritance on package private fields without having ability to generate code for it in
+     * same package.
+     */
     internal fun checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage: Boolean, element: Element): Boolean {
         if (isPackagePrivateNotInSamePackage && !manager.elementBelongsInTable(element)) {
             manager.logError("Package private inheritance on non-table/querymodel/view " +

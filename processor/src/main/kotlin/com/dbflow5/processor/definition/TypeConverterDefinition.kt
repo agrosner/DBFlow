@@ -1,7 +1,6 @@
 package com.dbflow5.processor.definition
 
 import com.dbflow5.annotation.TypeConverter
-import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.utils.annotation
 import com.squareup.javapoet.ClassName

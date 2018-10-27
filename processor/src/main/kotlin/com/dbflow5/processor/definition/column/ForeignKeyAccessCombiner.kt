@@ -1,6 +1,5 @@
 package com.dbflow5.processor.definition.column
 
-import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.SQLiteHelper
 import com.dbflow5.processor.utils.statement
 import com.squareup.javapoet.ClassName
@@ -15,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger
  *
  * @author Andrew Grosner (fuzz)
  */
-class ForeignKeyAccessCombiner(val fieldAccessor: ColumnAccessor) {
+class ForeignKeyAccessCombiner(private val fieldAccessor: ColumnAccessor) {
 
     var fieldAccesses: List<ForeignKeyAccessField> = arrayListOf()
 
@@ -39,9 +38,9 @@ class ForeignKeyAccessCombiner(val fieldAccessor: ColumnAccessor) {
     }
 }
 
-class ForeignKeyAccessField(val columnRepresentation: String,
-                            val columnAccessCombiner: ColumnAccessCombiner,
-                            val defaultValue: CodeBlock? = null) {
+class ForeignKeyAccessField(private val columnRepresentation: String,
+                            private val columnAccessCombiner: ColumnAccessCombiner,
+                            private val defaultValue: CodeBlock? = null) {
 
     fun addCode(code: CodeBlock.Builder, index: Int, modelAccessBlock: CodeBlock,
                 useStart: Boolean = true,
@@ -57,11 +56,11 @@ class ForeignKeyAccessField(val columnRepresentation: String,
     }
 }
 
-class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
-                                       val referencedTypeName: TypeName,
-                                       val referencedTableTypeName: TypeName,
-                                       val isStubbed: Boolean,
-                                       val nameAllocator: NameAllocator) {
+class ForeignKeyLoadFromCursorCombiner(private val fieldAccessor: ColumnAccessor,
+                                       private val referencedTypeName: TypeName,
+                                       private val referencedTableTypeName: TypeName,
+                                       private val isStubbed: Boolean,
+                                       private val nameAllocator: NameAllocator) {
     var fieldAccesses: List<PartialLoadFromCursorAccessCombiner> = arrayListOf()
 
     fun addCode(code: CodeBlock.Builder, index: AtomicInteger) {
@@ -101,17 +100,17 @@ class ForeignKeyLoadFromCursorCombiner(val fieldAccessor: ColumnAccessor,
 }
 
 class PartialLoadFromCursorAccessCombiner(
-        val columnRepresentation: String,
-        val propertyRepresentation: String,
-        val fieldTypeName: TypeName,
-        val orderedCursorLookup: Boolean = false,
-        val fieldLevelAccessor: ColumnAccessor? = null,
-        val subWrapperAccessor: ColumnAccessor? = null,
-        val subWrapperTypeName: TypeName? = null) {
+        private val columnRepresentation: String,
+        private val propertyRepresentation: String,
+        private val fieldTypeName: TypeName,
+        private val orderedCursorLookup: Boolean = false,
+        private val fieldLevelAccessor: ColumnAccessor? = null,
+        private val subWrapperAccessor: ColumnAccessor? = null,
+        private val subWrapperTypeName: TypeName? = null) {
 
-    var indexName: CodeBlock? = null
+    private var indexName: CodeBlock? = null
 
-    fun getIndexName(index: Int, nameAllocator: NameAllocator, referencedTypeName: TypeName): CodeBlock {
+    private fun getIndexName(index: Int, nameAllocator: NameAllocator, referencedTypeName: TypeName): CodeBlock {
         if (indexName == null) {
             indexName = if (!orderedCursorLookup) {
                 // post fix with referenced type name simple name

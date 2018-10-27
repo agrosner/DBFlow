@@ -112,18 +112,10 @@ inline fun <reified A : Annotation>
     return@let null
 }
 
-inline fun <reified A : Annotation>
-        Element.extractTypeNameFromAnnotation(
+inline fun <reified A : Annotation> A.extractTypeMirrorFromAnnotation(
         exceptionHandler: (MirroredTypeException) -> Unit = {},
         invoker: (A) -> Unit)
-        : TypeName? = annotation<A>()?.let { a ->
-    return@let a.extractTypeNameFromAnnotation(exceptionHandler, invoker)
-}
-
-inline fun <reified A : Annotation> A.extractTypeNameFromAnnotation(
-        exceptionHandler: (MirroredTypeException) -> Unit = {},
-        invoker: (A) -> Unit)
-        : TypeName {
+        : TypeMirror? {
     var mirror: TypeMirror? = null
     try {
         invoker(this)
@@ -131,5 +123,9 @@ inline fun <reified A : Annotation> A.extractTypeNameFromAnnotation(
         exceptionHandler(mte)
         mirror = mte.typeMirror
     }
-    return TypeName.get(mirror)
+    return mirror
 }
+
+inline fun <reified A : Annotation> A.extractTypeNameFromAnnotation(
+        exceptionHandler: (MirroredTypeException) -> Unit = {},
+        invoker: (A) -> Unit): TypeName = TypeName.get(extractTypeMirrorFromAnnotation(exceptionHandler, invoker))

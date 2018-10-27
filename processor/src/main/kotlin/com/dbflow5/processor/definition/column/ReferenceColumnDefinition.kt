@@ -13,6 +13,7 @@ import com.dbflow5.processor.definition.BaseTableDefinition
 import com.dbflow5.processor.definition.QueryModelDefinition
 import com.dbflow5.processor.definition.TableDefinition
 import com.dbflow5.processor.utils.annotation
+import com.dbflow5.processor.utils.extractTypeMirrorFromAnnotation
 import com.dbflow5.processor.utils.fromTypeMirror
 import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.isNullOrEmpty
@@ -35,7 +36,6 @@ import com.squareup.javapoet.TypeSpec
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
-import javax.lang.model.type.MirroredTypeException
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -86,7 +86,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
 
     init {
 
-        element.annotation<ColumnMap>()?.let {
+        element.annotation<ColumnMap>()?.let { columnMap ->
             isColumnMap = true
             // column map is stubbed
             isStubbedRelationship = true
@@ -99,20 +99,13 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
                 }
             }
 
-            references = it.references.map {
-                var typeConverterClassName: ClassName? = null
-                var typeMirror: TypeMirror? = null
-                try {
-                    it.typeConverter
-                } catch (mte: MirroredTypeException) {
-                    typeMirror = mte.typeMirror
-                    typeConverterClassName = fromTypeMirror(typeMirror, manager)
-                }
-
-                ReferenceSpecificationDefinition(columnName = it.columnName,
-                        referenceName = it.columnMapFieldName,
-                        onNullConflictAction = it.notNull.onNullConflict,
-                        defaultValue = it.defaultValue,
+            references = columnMap.references.map { reference ->
+                val typeMirror = reference.extractTypeMirrorFromAnnotation { it.typeConverter }
+                val typeConverterClassName = typeMirror?.let { fromTypeMirror(typeMirror, manager) }
+                ReferenceSpecificationDefinition(columnName = reference.columnName,
+                        referenceName = reference.columnMapFieldName,
+                        onNullConflictAction = reference.notNull.onNullConflict,
+                        defaultValue = reference.defaultValue,
                         typeConverterClassName = typeConverterClassName,
                         typeConverterTypeMirror = typeMirror)
             }
@@ -128,11 +121,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             deferred = foreignKey.deferred
             isStubbedRelationship = foreignKey.stubbedRelationship
 
-            try {
-                foreignKey.tableClass
-            } catch (mte: MirroredTypeException) {
-                referencedClassName = fromTypeMirror(mte.typeMirror, manager)
-            }
+            referencedClassName = foreignKey.extractTypeMirrorFromAnnotation { it.tableClass }?.let { fromTypeMirror(it, manager) }
 
             val erasedElement = element.toTypeErasedElement()
 

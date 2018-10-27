@@ -29,6 +29,7 @@ import com.dbflow5.processor.utils.ensureVisibleStatic
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.isNullOrEmpty
+import com.dbflow5.processor.utils.safeLet
 import com.dbflow5.quote
 import com.grosner.kpoet.L
 import com.grosner.kpoet.S
@@ -130,8 +131,9 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             allFields = table.allFields
             useIsForPrivateBooleans = table.useBooleanGetterSetters
 
-            elementClassName?.let { databaseTypeName?.let { it1 -> manager.addModelToDatabase(it, it1) } }
-
+            safeLet(elementClassName, databaseTypeName) { elementClassName, databaseTypeName ->
+                manager.addModelToDatabase(elementClassName, databaseTypeName)
+            }
 
             val inheritedColumns = table.inheritedColumns
             inheritedColumns.forEach {
@@ -140,7 +142,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                             it.fieldName, tableName)
                 }
                 inheritedFieldNameList.add(it.fieldName)
-                inheritedColumnMap.put(it.fieldName, it)
+                inheritedColumnMap[it.fieldName] = it
             }
 
             val inheritedPrimaryKeys = table.inheritedPrimaryKeys
@@ -150,17 +152,17 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                             it.fieldName, tableName)
                 }
                 inheritedFieldNameList.add(it.fieldName)
-                inheritedPrimaryKeyMap.put(it.fieldName, it)
+                inheritedPrimaryKeyMap[it.fieldName] = it
             }
 
             implementsLoadFromCursorListener = element.implementsClass(manager.processingEnvironment,
-                    com.dbflow5.processor.ClassNames.LOAD_FROM_CURSOR_LISTENER)
+                    ClassNames.LOAD_FROM_CURSOR_LISTENER)
 
             implementsContentValuesListener = element.implementsClass(manager.processingEnvironment,
-                    com.dbflow5.processor.ClassNames.CONTENT_VALUES_LISTENER)
+                    ClassNames.CONTENT_VALUES_LISTENER)
 
             implementsSqlStatementListener = element.implementsClass(manager.processingEnvironment,
-                    com.dbflow5.processor.ClassNames.SQLITE_STATEMENT_LISTENER)
+                    ClassNames.SQLITE_STATEMENT_LISTENER)
         }
 
         contentValueMethods = arrayOf(BindToContentValuesMethod(this, true, implementsContentValuesListener),
@@ -205,19 +207,19 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             if (databaseDefinition == null) {
                 manager.logError("DatabaseDefinition was null for : $tableName for db type: $databaseTypeName")
             }
-            databaseDefinition?.let {
+            databaseDefinition?.let { databaseDefinition ->
 
-                setOutputClassName("${it.classSeparator}Table")
+                setOutputClassName("${databaseDefinition.classSeparator}Table")
 
                 // globular default
                 var insertConflict = table.insertConflict
-                if (insertConflict == ConflictAction.NONE && it.insertConflict != ConflictAction.NONE) {
-                    insertConflict = it.insertConflict ?: ConflictAction.NONE
+                if (insertConflict == ConflictAction.NONE && databaseDefinition.insertConflict != ConflictAction.NONE) {
+                    insertConflict = databaseDefinition.insertConflict ?: ConflictAction.NONE
                 }
 
                 var updateConflict = table.updateConflict
-                if (updateConflict == ConflictAction.NONE && it.updateConflict != ConflictAction.NONE) {
-                    updateConflict = it.updateConflict ?: ConflictAction.NONE
+                if (updateConflict == ConflictAction.NONE && databaseDefinition.updateConflict != ConflictAction.NONE) {
+                    updateConflict = databaseDefinition.updateConflict ?: ConflictAction.NONE
                 }
 
                 val primaryKeyConflict = table.primaryKeyConflict
@@ -312,10 +314,11 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition)
-                    columnMap.put(columnDefinition.columnName, columnDefinition)
+                    columnMap[columnDefinition.columnName] = columnDefinition
                     // check to ensure not null.
                     when {
-                        columnDefinition.type is ColumnDefinition.Type.Primary -> _primaryColumnDefinitions.add(columnDefinition)
+                        columnDefinition.type is ColumnDefinition.Type.Primary ->
+                            _primaryColumnDefinitions.add(columnDefinition)
                         columnDefinition.type is ColumnDefinition.Type.PrimaryAutoIncrement -> {
                             autoIncrementColumn = columnDefinition
                             hasAutoIncrement = true
@@ -346,8 +349,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                     }
 
                     if (!columnDefinition.uniqueGroups.isEmpty()) {
-                        val groups = columnDefinition.uniqueGroups
-                        for (group in groups) {
+                        for (group in columnDefinition.uniqueGroups) {
                             columnUniqueMap.getOrPut(group) { mutableSetOf() }
                                     .add(columnDefinition)
                         }
@@ -389,7 +391,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
         get() = autoIncrementColumn?.let { arrayListOf(it) } ?: _primaryColumnDefinitions
 
     override val extendsClass: TypeName?
-        get() = ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.MODEL_ADAPTER, elementClassName)
+        get() = ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         // check references to properly set them up.
@@ -406,26 +408,26 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             }
 
             if (updateConflictActionName.isNotEmpty()) {
-                `override fun`(com.dbflow5.processor.ClassNames.CONFLICT_ACTION, "getUpdateOnConflictAction") {
+                `override fun`(ClassNames.CONFLICT_ACTION, "getUpdateOnConflictAction") {
                     modifiers(public, final)
-                    `return`("\$T.$updateConflictActionName", com.dbflow5.processor.ClassNames.CONFLICT_ACTION)
+                    `return`("\$T.$updateConflictActionName", ClassNames.CONFLICT_ACTION)
                 }
             }
 
             if (insertConflictActionName.isNotEmpty()) {
-                `override fun`(com.dbflow5.processor.ClassNames.CONFLICT_ACTION, "getInsertOnConflictAction") {
+                `override fun`(ClassNames.CONFLICT_ACTION, "getInsertOnConflictAction") {
                     modifiers(public, final)
-                    `return`("\$T.$insertConflictActionName", com.dbflow5.processor.ClassNames.CONFLICT_ACTION)
+                    `return`("\$T.$insertConflictActionName", ClassNames.CONFLICT_ACTION)
                 }
             }
 
             val paramColumnName = "columnName"
             val getPropertiesBuilder = CodeBlock.builder()
 
-            `override fun`(com.dbflow5.processor.ClassNames.PROPERTY, "getProperty",
+            `override fun`(ClassNames.PROPERTY, "getProperty",
                     param(String::class, paramColumnName)) {
                 modifiers(public, final)
-                statement("$paramColumnName = \$T.quoteIfNeeded($paramColumnName)", com.dbflow5.processor.ClassNames.STRING_UTILS)
+                statement("$paramColumnName = \$T.quoteIfNeeded($paramColumnName)", ClassNames.STRING_UTILS)
 
                 switch("($paramColumnName)") {
                     columnDefinitions.indices.forEach { i ->
@@ -444,8 +446,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 }
             }
 
-            `public static final field`(ArrayTypeName.of(com.dbflow5.processor.ClassNames.IPROPERTY), "ALL_COLUMN_PROPERTIES") {
-                `=`("new \$T[]{\$L}", com.dbflow5.processor.ClassNames.IPROPERTY, getPropertiesBuilder.build().toString())
+            `public static final field`(ArrayTypeName.of(ClassNames.IPROPERTY), "ALL_COLUMN_PROPERTIES") {
+                `=`("new \$T[]{\$L}", ClassNames.IPROPERTY, getPropertiesBuilder.build().toString())
             }
 
             // add index properties here
@@ -472,7 +474,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 saveForeignKeyFields.forEach { it.appendSaveMethod(code) }
 
                 `override fun`(TypeName.VOID, "saveForeignKeys", param(elementClassName!!, ModelUtils.variable),
-                        param(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+                        param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
                     modifiers(public, final)
                     addCode(code.build())
                 }
@@ -486,13 +488,13 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 deleteForeignKeyFields.forEach { it.appendDeleteMethod(code) }
 
                 `override fun`(TypeName.VOID, "deleteForeignKeys", param(elementClassName!!, ModelUtils.variable),
-                        param(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+                        param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
                     modifiers(public, final)
                     addCode(code.build())
                 }
             }
 
-            `override fun`(ArrayTypeName.of(com.dbflow5.processor.ClassNames.IPROPERTY), "getAllColumnProperties") {
+            `override fun`(ArrayTypeName.of(ClassNames.IPROPERTY), "getAllColumnProperties") {
                 modifiers(public, final)
                 `return`("ALL_COLUMN_PROPERTIES")
             }
@@ -505,7 +507,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             }
 
             if (cachingEnabled) {
-                `public static final field`(com.dbflow5.processor.ClassNames.CACHE_ADAPTER, "cacheAdapter") {
+                `public static final field`(ClassNames.CACHE_ADAPTER, "cacheAdapter") {
                     `=` {
                         val primaryColumns = primaryColumnDefinitions
 
@@ -529,7 +531,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                         }
                         add("\$L",
                                 TypeSpec.anonymousClassBuilder(typeArgumentsString, *typeClasses.toTypedArray())
-                                        .addSuperinterface(ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.CACHE_ADAPTER, elementTypeName))
+                                        .addSuperinterface(ParameterizedTypeName.get(ClassNames.CACHE_ADAPTER, elementTypeName))
                                         .apply {
                                             if (primaryColumns.size > 1) {
                                                 `override fun`(ArrayTypeName.of(Any::class.java), "getCachingColumnValuesFromModel",
@@ -546,7 +548,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
                                                 `override fun`(ArrayTypeName.of(Any::class.java), "getCachingColumnValuesFromCursor",
                                                         param(ArrayTypeName.of(Any::class.java), "inValues"),
-                                                        param(com.dbflow5.processor.ClassNames.FLOW_CURSOR, "cursor")) {
+                                                        param(ClassNames.FLOW_CURSOR, "cursor")) {
                                                     modifiers(public, final)
                                                     for (i in primaryColumns.indices) {
                                                         val column = primaryColumns[i]
@@ -564,7 +566,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                                                     addCode(primaryColumns[0].getSimpleAccessString())
                                                 }
 
-                                                `override fun`(Any::class, "getCachingColumnValueFromCursor", param(com.dbflow5.processor.ClassNames.FLOW_CURSOR, "cursor")) {
+                                                `override fun`(Any::class, "getCachingColumnValueFromCursor", param(ClassNames.FLOW_CURSOR, "cursor")) {
                                                     modifiers(public, final)
                                                     val column = primaryColumns[0]
                                                     val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.wrapperTypeName)
@@ -579,8 +581,8 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                                             if (foreignKeyDefinitions.isNotEmpty()) {
                                                 `override fun`(TypeName.VOID, "reloadRelationships",
                                                         param(elementClassName!!, ModelUtils.variable),
-                                                        param(com.dbflow5.processor.ClassNames.FLOW_CURSOR, LoadFromCursorMethod.PARAM_CURSOR),
-                                                        param(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+                                                        param(ClassNames.FLOW_CURSOR, LoadFromCursorMethod.PARAM_CURSOR),
+                                                        param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
                                                     modifiers(public, final)
                                                     code {
                                                         val noIndex = AtomicInteger(-1)
@@ -597,26 +599,26 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
                 val singlePrimaryKey = primaryColumnDefinitions.size == 1
 
-                `override fun`(com.dbflow5.processor.ClassNames.SINGLE_MODEL_LOADER, "createSingleModelLoader") {
+                `override fun`(ClassNames.SINGLE_MODEL_LOADER, "createSingleModelLoader") {
                     modifiers(public, final)
                     addStatement("return new \$T<>(getTable(), cacheAdapter)",
                             if (singlePrimaryKey)
-                                com.dbflow5.processor.ClassNames.SINGLE_KEY_CACHEABLE_MODEL_LOADER
+                                ClassNames.SINGLE_KEY_CACHEABLE_MODEL_LOADER
                             else
-                                com.dbflow5.processor.ClassNames.CACHEABLE_MODEL_LOADER)
+                                ClassNames.CACHEABLE_MODEL_LOADER)
                 }
-                `override fun`(com.dbflow5.processor.ClassNames.LIST_MODEL_LOADER, "createListModelLoader") {
+                `override fun`(ClassNames.LIST_MODEL_LOADER, "createListModelLoader") {
                     modifiers(public, final)
                     `return`("new \$T<>(getTable(), cacheAdapter)",
                             if (singlePrimaryKey)
-                                com.dbflow5.processor.ClassNames.SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER
+                                ClassNames.SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER
                             else
-                                com.dbflow5.processor.ClassNames.CACHEABLE_LIST_MODEL_LOADER)
+                                ClassNames.CACHEABLE_LIST_MODEL_LOADER)
                 }
-                `override fun`(ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.CACHEABLE_LIST_MODEL_SAVER, elementClassName),
+                `override fun`(ParameterizedTypeName.get(ClassNames.CACHEABLE_LIST_MODEL_SAVER, elementClassName),
                         "createListModelSaver") {
                     modifiers(protected)
-                    `return`("new \$T<>(getModelSaver(), cacheAdapter)", com.dbflow5.processor.ClassNames.CACHEABLE_LIST_MODEL_SAVER)
+                    `return`("new \$T<>(getModelSaver(), cacheAdapter)", ClassNames.CACHEABLE_LIST_MODEL_SAVER)
                 }
                 `override fun`(TypeName.BOOLEAN, "cachingEnabled") {
                     modifiers(public, final)
@@ -624,7 +626,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                 }
 
                 `override fun`(elementClassName!!, "load", param(elementClassName!!, "model"),
-                        param(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, wrapper)) {
+                        param(ClassNames.DATABASE_WRAPPER, wrapper)) {
                     modifiers(public, final)
                     statement("\$T loaded = super.load(model, $wrapper)", elementClassName!!)
                     statement("cacheAdapter.storeModelInCache(model)")
