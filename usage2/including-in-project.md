@@ -2,6 +2,8 @@
 
 DBFlow has a number of artifacts that you can include in the project.
 
+**Kotlin:** Built using the language, the library is super-concise, null-safe and efficient.
+
 **Annotation Processor**: Generates the necessary code that you don't need to write.
 
 **Core:** Contains the main annotations and misc classes that are shared across all of DBFlow.
@@ -14,7 +16,11 @@ DBFlow has a number of artifacts that you can include in the project.
 
 **Paging:** Android architecture component paging library support for queries via `QueryDataSource`.
 
+**LiveData:** Android architecture LiveData support for queries on table changes.
+
 **SQLCipher:** Easy database encryption support in this library.
+
+**SQLite Query Language:** Enabling autocompletion on sqlite queries combined with Kotlin language features means SQLite-like syntax.
 
 ## Add the jitpack.io repository
 
@@ -64,6 +70,9 @@ Add artifacts to your project:
 
     // Android Architecture Components Paging Library Support
     implementation "com.github.agrosner.dbflow:paging:${dbflow_version}"
+    
+    // Android Architecture Components LiveData Library Support
+    implementation "com.github.agrosner.dbflow:livedata:${dbflow_version}"
 
     // adds generated content provider annotations + support.
     implementation "com.github.agrosner.dbflow:contentprovider:${dbflow_version}"
