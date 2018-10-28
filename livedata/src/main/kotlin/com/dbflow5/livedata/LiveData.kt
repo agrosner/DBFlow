@@ -42,6 +42,9 @@ class QueryLiveData<T : Any, R : Any?>(private val modelQueriable: ModelQueriabl
         super.onActive()
         associatedTables.forEach { register.register(it) }
         register.setListener(onTableChangedListener)
+
+        // trigger initial emission on active.
+        evaluateEmission()
     }
 
     override fun onInactive() {

@@ -72,6 +72,7 @@ dependencies {
     testImplementation "androidx.test:runner:1.1.0-beta02"
     testImplementation "androidx.test:rules:1.1.0-beta02"
     testImplementation 'com.google.android:android-test:4.1.1.4'
+    testImplementation "androidx.arch.core:core-testing:2.0.0"
 
     testImplementation "org.robolectric:robolectric:4.0-beta-1"
 
