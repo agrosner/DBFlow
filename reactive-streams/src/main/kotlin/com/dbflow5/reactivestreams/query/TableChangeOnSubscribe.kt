@@ -6,9 +6,9 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.Join
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.extractFrom
+import com.dbflow5.reactivestreams.transaction.asMaybe
 import com.dbflow5.runtime.OnTableChangedListener
 import com.dbflow5.runtime.TableNotifierRegister
-import com.dbflow5.reactivestreams.transaction.asMaybe
 import com.dbflow5.structure.ChangeAction
 import io.reactivex.FlowableEmitter
 import io.reactivex.FlowableOnSubscribe
@@ -52,14 +52,14 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: Mode
     @Throws(Exception::class)
     override fun subscribe(e: FlowableEmitter<R>) {
         flowableEmitter = e
-        e.setDisposable(Disposables.fromRunnable { register.unregisterAll() })
+        e.setDisposable(Disposables.fromRunnable { associatedTables.forEach { register.unregister(it) } })
 
         // From could be part of many joins, so we register for all affected tables here.
-        for (table in associatedTables) {
-            register.register(table)
-        }
+        associatedTables.forEach { register.register(it) }
 
         register.setListener(onTableChangedListener)
+
+        // emit once on subscribe.
         evaluateEmission()
     }
 
