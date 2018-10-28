@@ -87,7 +87,7 @@ Add artifacts to your project:
 
     // Android Architecture Components Paging Library Support
     implementation "com.github.agrosner.dbflow:paging:${dbflow_version}"
-    
+
     // Android Architecture Components LiveData Library Support
     implementation "com.github.agrosner.dbflow:livedata:${dbflow_version}"
 

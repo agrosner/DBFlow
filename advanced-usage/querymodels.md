@@ -50,17 +50,13 @@ And adjust our query to handle the new output:
   .execute { transaction, list ->
       // utilize list
   }
-
 ```
 
 ## Query Model Support
 
 `QueryModel` are read-only. We can only retrieve from DB into a cursor.
 
-They support inheritance and visibility modifiers as defined by [Models](../usage/models.md).
+They support inheritance and visibility modifiers as defined by [Models](../usage2/usage/models.md).
 
-`QueryModel` **do not** support:
-  1. `InheritedField`/`InheritedPrimaryKey`
-  2. `@PrimaryKey`/`@ForeignKey`
-  3. direct caching.
-  4. changing "useBooleanGetterSetters" for private boolean fields.
+`QueryModel` **do not** support: 1. `InheritedField`/`InheritedPrimaryKey` 2. `@PrimaryKey`/`@ForeignKey` 3. direct caching. 4. changing "useBooleanGetterSetters" for private boolean fields.
+

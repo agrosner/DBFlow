@@ -25,3 +25,4 @@ The full list of limitations/supported types are: 1. Only `@Column`/`@ColumnMap`
 (select from TestModelView::class
   where ...) // ETC
 ```
+
