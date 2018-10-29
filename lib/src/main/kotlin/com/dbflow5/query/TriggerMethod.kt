@@ -77,8 +77,8 @@ internal constructor(internal val trigger: Trigger, private val methodName: Stri
 
     companion object {
 
-        val DELETE = "DELETE"
-        val INSERT = "INSERT"
-        val UPDATE = "UPDATE"
+        const val DELETE = "DELETE"
+        const val INSERT = "INSERT"
+        const val UPDATE = "UPDATE"
     }
 }
