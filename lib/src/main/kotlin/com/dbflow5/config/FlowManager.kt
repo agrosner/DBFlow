@@ -412,25 +412,25 @@ object FlowManager {
 /**
  * Easily get access to its [DBFlowDatabase] directly.
  */
-inline fun <T : DBFlowDatabase> database(kClass: KClass<T>, f: (T) -> Unit = {}): T =
+inline fun <T : DBFlowDatabase> database(kClass: KClass<T>, f: (db: T) -> Unit = {}): T =
         FlowManager.getDatabase(kClass.java).apply(f)
 
 /**
  * Easily get access to its [DBFlowDatabase] directly.
  */
-inline fun <reified T : DBFlowDatabase> database(f: (T) -> Unit = {}): T =
+inline fun <reified T : DBFlowDatabase> database(f: (db: T) -> Unit = {}): T =
         FlowManager.getDatabase(T::class.java).apply(f)
 
 /**
  * Easily get access to its [DBFlowDatabase] directly.
  */
-inline fun <reified T : Any> databaseForTable(f: (DBFlowDatabase) -> Unit = {}): DBFlowDatabase =
+inline fun <reified T : Any> databaseForTable(f: (db: DBFlowDatabase) -> Unit = {}): DBFlowDatabase =
         FlowManager.getDatabaseForTable(T::class.java).apply(f)
 
 /**
  * Easily get access to its [DBFlowDatabase] directly.
  */
-inline fun <T : Any> databaseForTable(clazz: KClass<T>, f: (DBFlowDatabase) -> Unit = {}): DBFlowDatabase =
+inline fun <T : Any> databaseForTable(clazz: KClass<T>, f: (db: DBFlowDatabase) -> Unit = {}): DBFlowDatabase =
         FlowManager.getDatabaseForTable(clazz.java).apply(f)
 
 /**

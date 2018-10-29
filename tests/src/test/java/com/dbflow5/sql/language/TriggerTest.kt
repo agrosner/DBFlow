@@ -59,7 +59,7 @@ class TriggerTest : BaseUnitTest() {
             val trigger = createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
                     insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name"))
             trigger.enable(db)
-            SimpleModel("Test").insert()
+            SimpleModel("Test").insert(db)
 
             val result = select from TwoColumnModel::class where (name eq "Test")
             assertNotNull(result)

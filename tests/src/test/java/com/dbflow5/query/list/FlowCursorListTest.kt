@@ -3,7 +3,6 @@ package com.dbflow5.query.list
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.config.databaseForTable
 import com.dbflow5.models.SimpleModel
-import com.dbflow5.query.cursor
 import com.dbflow5.query.select
 import com.dbflow5.structure.save
 import org.junit.Assert.assertEquals
@@ -16,9 +15,9 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateCursorPassed() {
-        databaseForTable<SimpleModel> { dbFlowDatabase ->
-            val cursor = (select from SimpleModel::class).cursor
-            val list = FlowCursorList.Builder(select from SimpleModel::class, dbFlowDatabase)
+        databaseForTable<SimpleModel> { db ->
+            val cursor = (select from SimpleModel::class).cursor(db)
+            val list = FlowCursorList.Builder(select from SimpleModel::class, db)
                     .cursor(cursor)
                     .build()
 
@@ -28,9 +27,9 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateModelQueriable() {
-        databaseForTable<SimpleModel> { dbFlowDatabase ->
+        databaseForTable<SimpleModel> { db ->
             val modelQueriable = (select from SimpleModel::class)
-            val list = FlowCursorList.Builder(modelQueriable, dbFlowDatabase)
+            val list = FlowCursorList.Builder(modelQueriable, db)
                     .build()
 
             assertEquals(modelQueriable, list.modelQueriable)
@@ -39,12 +38,12 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateGetAll() {
-        databaseForTable<SimpleModel> { dbFlowDatabase ->
+        databaseForTable<SimpleModel> { db ->
             (0..9).forEach {
-                SimpleModel("$it").save()
+                SimpleModel("$it").save(db)
             }
 
-            val list = (select from SimpleModel::class).cursorList(dbFlowDatabase)
+            val list = (select from SimpleModel::class).cursorList(db)
             val all = list.all
             assertEquals(list.count, all.size.toLong())
         }

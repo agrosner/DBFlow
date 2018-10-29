@@ -20,60 +20,64 @@ class RXQueryTests : BaseUnitTest() {
 
     @Test
     fun testCanQuery() {
-        SimpleModel("Name").save()
+        databaseForTable<SimpleModel> { db ->
+            SimpleModel("Name").save(db)
 
-        var cursor: FlowCursor? = null
-        databaseForTable<SimpleModel>()
-            .beginTransactionAsync { (select from SimpleModel::class).cursor(it) }
-            .asMaybe()
-            .subscribe {
-                cursor = it
-            }
+            var cursor: FlowCursor? = null
 
-        assertEquals(1, cursor!!.count)
-        cursor!!.close()
+            db.beginTransactionAsync { (select from SimpleModel::class).cursor(it) }
+                    .asMaybe()
+                    .subscribe {
+                        cursor = it
+                    }
+
+            assertEquals(1, cursor!!.count)
+            cursor!!.close()
+        }
     }
 
     @Test
     fun testCanCompileStatement() {
         var databaseStatement: DatabaseStatement? = null
-        databaseForTable<SimpleModel>()
-            .beginTransactionAsync {
+        databaseForTable<SimpleModel> { db ->
+            db.beginTransactionAsync {
                 insert<SimpleModel>(name.`is`("name")).compileStatement(it)
             }.asSingle()
-            .subscribe { statement ->
-                databaseStatement = statement
-            }
-        databaseStatement!!.close()
+                    .subscribe { statement ->
+                        databaseStatement = statement
+                    }
+            databaseStatement!!.close()
+        }
     }
 
     @Test
     fun testCountMethod() {
-        SimpleModel("name").save()
-        SimpleModel("name2").save()
-        var count = 0L
-        databaseForTable<SimpleModel>()
-            .beginTransactionAsync {
+        databaseForTable<SimpleModel> { db ->
+            SimpleModel("name").save(db)
+            SimpleModel("name2").save(db)
+            var count = 0L
+            db.beginTransactionAsync {
                 (selectCountOf(Property.ALL_PROPERTY) from SimpleModel::class).longValue(it)
             }
-            .asSingle()
-            .subscribe { value ->
-                count = value
-            }
+                    .asSingle()
+                    .subscribe { value ->
+                        count = value
+                    }
 
-        assertEquals(2, count)
+            assertEquals(2, count)
+        }
     }
 
     @Test
     fun testInsertMethod() {
         var count = 0L
         databaseForTable<SimpleModel>()
-            .beginTransactionAsync {
-                (insert<SimpleModel>(name.eq("name"))).executeInsert(it)
-            }.asSingle()
-            .subscribe { c ->
-                count = c
-            }
+                .beginTransactionAsync {
+                    (insert<SimpleModel>(name.eq("name"))).executeInsert(it)
+                }.asSingle()
+                .subscribe { c ->
+                    count = c
+                }
 
         assertEquals(1, count)
     }

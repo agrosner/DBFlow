@@ -28,7 +28,7 @@ class CoroutinesTest : BaseUnitTest() {
         runBlocking {
             database<TestDatabase> { db ->
                 (0..9).forEach {
-                    SimpleModel("$it").save()
+                    SimpleModel("$it").save(db)
                 }
 
                 val query = (select from SimpleModel::class

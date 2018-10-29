@@ -1,6 +1,5 @@
 package com.dbflow5.query
 
-import com.dbflow5.config.databaseForTable
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
@@ -55,12 +54,3 @@ interface Queriable : Query {
     fun execute(databaseWrapper: DatabaseWrapper)
 
 }
-
-inline val <reified T : Any> BaseQueriable<T>.cursor
-    get() = cursor(databaseForTable<T>())
-
-inline val <reified T : Any> BaseQueriable<T>.hasData
-    get() = hasData(databaseForTable<T>())
-
-inline val <reified T : Any> BaseQueriable<T>.statement
-    get() = compileStatement(databaseForTable<T>())

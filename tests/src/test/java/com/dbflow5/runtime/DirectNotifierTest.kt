@@ -46,22 +46,24 @@ class DirectNotifierTest {
 
     @Test
     fun validateCanNotifyDirect() {
-        val simpleModel = SimpleModel("Name")
+        databaseForTable<SimpleModel> { db ->
+            val simpleModel = SimpleModel("Name")
 
-        val modelChange = mock<DirectModelNotifier.OnModelStateChangedListener<SimpleModel>>()
-        DirectModelNotifier.get().registerForModelStateChanges(SimpleModel::class.java, modelChange)
+            val modelChange = mock<DirectModelNotifier.OnModelStateChangedListener<SimpleModel>>()
+            DirectModelNotifier.get().registerForModelStateChanges(SimpleModel::class.java, modelChange)
 
-        simpleModel.insert()
-        verify(modelChange).onModelChanged(simpleModel, ChangeAction.INSERT)
+            simpleModel.insert(db)
+            verify(modelChange).onModelChanged(simpleModel, ChangeAction.INSERT)
 
-        simpleModel.update()
-        verify(modelChange).onModelChanged(simpleModel, ChangeAction.UPDATE)
+            simpleModel.update(db)
+            verify(modelChange).onModelChanged(simpleModel, ChangeAction.UPDATE)
 
-        simpleModel.save()
-        verify(modelChange).onModelChanged(simpleModel, ChangeAction.CHANGE)
+            simpleModel.save(db)
+            verify(modelChange).onModelChanged(simpleModel, ChangeAction.CHANGE)
 
-        simpleModel.delete()
-        verify(modelChange).onModelChanged(simpleModel, ChangeAction.DELETE)
+            simpleModel.delete(db)
+            verify(modelChange).onModelChanged(simpleModel, ChangeAction.DELETE)
+        }
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.dbflow5.rx2.query
 
 import com.dbflow5.BaseUnitTest
+import com.dbflow5.config.databaseForTable
 import com.dbflow5.models.Author
 import com.dbflow5.models.Author_Table
 import com.dbflow5.models.Blog
@@ -21,24 +22,25 @@ class RXFlowableTest : BaseUnitTest() {
 
     @Test
     fun testCanObserveChanges() {
+        databaseForTable<SimpleModel> { db ->
+            (0..100).forEach { SimpleModel("$it").save(db) }
 
-        (0..100).forEach { SimpleModel("$it").save() }
+            var list = mutableListOf<SimpleModel>()
+            var triggerCount = 0
+            val subscription = (select from SimpleModel::class
+                    where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
+                    .asFlowable { db, modelQueriable -> modelQueriable.queryList(db) }
+                    .subscribe {
+                        list = it
+                        triggerCount += 1
+                    }
 
-        var list = mutableListOf<SimpleModel>()
-        var triggerCount = 0
-        val subscription = (select from SimpleModel::class
-                where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
-                .asFlowable { db, modelQueriable -> modelQueriable.queryList(db) }
-                .subscribe {
-                    list = it
-                    triggerCount += 1
-                }
+            assertEquals(50, list.size)
+            subscription.dispose()
 
-        assertEquals(50, list.size)
-        subscription.dispose()
-
-        SimpleModel("should not trigger").save()
-        assertEquals(1, triggerCount)
+            SimpleModel("should not trigger").save(db)
+            assertEquals(1, triggerCount)
+        }
 
     }
 
@@ -60,7 +62,9 @@ class RXFlowableTest : BaseUnitTest() {
                 }
 
         val authors = (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
-        (1 until 11).forEach { Blog(it, name = "${it}name ${it}last", author = authors[it - 1]).save() }
+        (1 until 11).forEach {
+            Blog(it, name = "${it}name ${it}last", author = authors[it - 1]).save(databaseForTable<Blog>())
+        }
 
         assertEquals(21, calls) // 1 for initial, 10 for each model object
         assertEquals(10, list.size)

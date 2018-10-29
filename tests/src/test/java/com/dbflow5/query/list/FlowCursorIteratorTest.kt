@@ -59,7 +59,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
     fun testCanSupplyBadMaximumValue() {
         databaseForTable<SimpleModel>().beginTransactionAsync { db ->
             (0..9).forEach {
-                SimpleModel("$it").save()
+                SimpleModel("$it").save(db)
             }
 
             (select from SimpleModel::class).cursorList(db)

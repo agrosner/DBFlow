@@ -19,15 +19,15 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     @Test
     fun testCanQueryStreamResults() {
         databaseForTable<SimpleModel> { db ->
-            (0..9).forEach { SimpleModel("$it").save() }
+            (0..9).forEach { SimpleModel("$it").save(db) }
 
             var count = 0
             (select from SimpleModel::class)
-                .queryStreamResults(db)
-                .subscribe {
-                    count++
-                    assert(it != null)
-                }
+                    .queryStreamResults(db)
+                    .subscribe {
+                        count++
+                        assert(it != null)
+                    }
 
             assertEquals(10, count)
         }
@@ -37,18 +37,21 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     fun testCanObserveOnTableChangesWithModelOps() {
         var count = 0
         (select from SimpleModel::class)
-            .asFlowable { db, modelQueriable -> modelQueriable.queryList(db) }
-            .subscribe {
-                count++
-            }
+                .asFlowable { db, modelQueriable -> modelQueriable.queryList(db) }
+                .subscribe {
+                    count++
+                }
         val model = SimpleModel("test")
-        model.save()
+        databaseForTable<SimpleModel> { db ->
+            model.save(db)
 
-        model.delete()
+            model.delete(db)
 
-        model.insert()
+            model.insert(db)
 
-        assertEquals(4, count) // once for subscription, 3 for operations
+            assertEquals(4, count) // once for subscription, 3 for operations
+
+        }
     }
 
     @Test
@@ -78,7 +81,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
             val model = (select
                     from SimpleModel::class
                     where SimpleModel_Table.name.eq("test")).requireSingle(db)
-            model.delete()
+            model.delete(databaseForTable<SimpleModel>())
 
             assertEquals(2, curList.size)
 
