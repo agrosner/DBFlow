@@ -117,7 +117,7 @@ val customers = (select from Customer::class).as("C")
    on(Customer_Table.customerId
       .withTable("C".nameAlias)
      eq Reservations_Table.customerId.withTable("R"))
-    .customList<CustomTable>());
+    .queryCustomList<CustomTable>())
 ```
 
 The `IProperty.withTable()` method will prepend a `NameAlias` or the `Table` alias to the `IProperty` in the query, convenient for JOIN queries:
@@ -273,7 +273,7 @@ Triggers enable SQLite-level listener operations that perform some operation, mo
     .after() insertOn<ConditionModel>())
     .begin(update<TestUpdateModel>()
             .set(TestUpdateModel_Table.value.is("Fired"))))
-            .enable(); // enables the trigger if it does not exist, so subsequent calls are OK
+            .enable() // enables the trigger if it does not exist, so subsequent calls are OK
 ```
 
 ## Case
@@ -293,7 +293,7 @@ select(CaseModel_Table.customerId,
                  then "Domestic"
                  `else` "Foreign")
                 .end("CustomerGroup"))
-  from<CaseModel>()
+  from CaseModel::class
 ```
 
 The CASE is returned as `CustomerGroup` with the valyes of "Domestic" if the country is from the 'USA' otherwise we mark the value as "Foreign". These appear alongside the results set from the SELECT.
@@ -308,6 +308,6 @@ select(CaseModel_Table.customerId,
              then "Domestic"
              `else` "Foreign")
      .end("CustomerGroup"))
- from<CaseModel>()
+ from CaseModel:class
 ```
 

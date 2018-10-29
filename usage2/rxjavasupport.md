@@ -2,7 +2,11 @@
 
 RXJava support in DBFlow is an _incubating_ feature and likely to change over time. We support both RX1 and RX2 and have made the extensions + DBFlow compatibility almost identical - save for the changes and where it makes sense in each version.
 
-Currently it supports 1. `Insert`, `Update`, `Delete`, `Set`, `Join`, and all wrapper query mechanisms by wrapping them in `rx()` 2. Single + `List` model `save()`, `insert()`, `update()`, and `delete()`. 3. Streaming a set of results from a query 4. Observing on table changes for specific `ModelQueriable` and providing ability to query from that set repeatedly as needed. 5. Kotlin extension methods in a separate artifact that enhance the conversion.
+Currently it supports 
+    1. `Insert`, `Update`, `Delete`, `Set`, `Join`, and all wrapper query mechanisms by wrapping them in `rx()` 
+    2. Single + `List` model `save()`, `insert()`, `update()`, and `delete()`. 
+    3. Streaming a set of results from a query 
+    4. Observing on table changes for specific `ModelQueriable` and providing ability to query from that set repeatedly as needed. 
 
 ## Getting Started
 
@@ -10,8 +14,6 @@ Add the separate packages to your project:
 
 ```groovy
 dependencies {
-  // RXJava1
-  compile "com.github.agrosner.dbflow:rx:${dbflow_version}"
 
   // RXJava2
   compile "com.github.agrosner.dbflow:rx2:${dbflow_version}"
@@ -116,25 +118,6 @@ which is the same with RX as:
   .list { list ->
 
   }
-```
 
-Or if we want to get pretty with `BaseRXModel` + extensions:
-
-```kotlin
-Person("Somebody").save { success ->
-  // do something
-}
-
-Person("Somebody").update { success ->
-  // do something
-}
-
-Person("Somebody").insert { rowId ->
-  // do something
-}
-
-Person("Somebody").delete { success ->
-  // do something
-}
 ```
 

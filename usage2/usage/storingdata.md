@@ -7,16 +7,16 @@ DBFlow provide a few mechanisms by which we store data to the database. The diff
 While generally saving data synchronous should be avoided, for small amounts of data it has little effect.
 
 ```kotlin
-model.save()
-model.insert()
-model.update()
+model.save(db)
+model.insert(db)
+model.update(db)
 ```
 
 Avoid saving large amounts of models outside of a transaction:
 
 ```kotlin
 // AVOID
-models.forEach { it.save() }
+models.forEach { it.save(db) }
 ```
 
 Doing operations on the main thread can block it if you read and write to the DB on a different thread while accessing DB on the main. Instead, use Async Transactions.
@@ -39,6 +39,7 @@ A basic transaction:
     // return a result, or execute a method that returns a result
   }.build()
 transaction.execute(
+   ready = { transaction -> } // perform any setup.
    error = { transaction, error -> // handle any exceptions here },
    completion = { transaction -> // called when transaction completes success or fail }
   ) { transaction, result ->
@@ -59,13 +60,13 @@ It is a convenient way to operate on them:
 ```kotlin
 database.beginTransactionAsync(items.processTransaction { model, db ->
       // call some operation on model here
-      model.save()
-      model.insert() // or
-      model.delete() // or
+      model.save(db)
+      model.insert(db) // or
+      model.delete(db) // or
     }
     .processListener { current, total, modifiedModel ->
         // for every model looped through and completes
-        modelProcessedCount.incrementAndGet();
+        modelProcessedCount.incrementAndGet()
      }
     .build())
     .execute()
@@ -168,6 +169,6 @@ To specify a priority, wrap your original `ITransaction` with a `PriorityTransac
 database<AppDatabase>()
     .beginTransactionAsync(myTransaction
       .withPriority(PriorityTransactionWrapper.PRIORITY_HIGH))
-    .execute();
+    .execute()
 ```
 

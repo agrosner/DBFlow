@@ -11,26 +11,33 @@ We can also use `ModelView` \([read here](modelviews.md)\) and `@Index` \([read 
 Using the [SQLite query language](sqlitewrapperlanguage.md) we can retrieve data easily and expressively. To perform it synchronously:
 
 ```kotlin
-// list
-val employees = (select from Employee:class).list
-
-// single result, we apply a limit(1) automatically to get the result even faster.
-val employee: Employee? = (select from Employee::class
-                        where Employee_Table.name.eq("Andrew Grosner")).result
-
-// can require result to get non-null if you know it exists
-// throws a SQLiteException if missing
-val employee: Employee? = (select from Employee::class
-                        where Employee_Table.name.eq("Andrew Grosner")).requireResult
-
-// get a custom list
-val employees = (select from Employee::class)
-                .customList<AnotherTable>(database)
-
-// custom object
-val anotherObject = (select from Employee::class
-                        where(Employee_Table.name.eq("Andrew Grosner")))
-                        .customSingle<AnotherTable>();
+databaseForTable<Employee> { db ->
+    // list
+    val employees = (select from Employee::class).queryList(db)
+    
+    // single result, we apply a limit(1) automatically to get the result even faster.
+    val employee: Employee? = (select from Employee::class
+                            where Employee_Table.name.eq("Andrew Grosner")).querySingle(db)
+    
+    // can require result to get non-null if you know it exists
+    // throws a SQLiteException if missing
+    val employee: Employee? = (select from Employee::class
+                            where Employee_Table.name.eq("Andrew Grosner")).requireSingle(db)
+    
+    // get a custom list
+    val employees: List<AnotherTable> = (select from Employee::class)
+                    .queryCustomList(database)
+    
+    // custom object
+    val anotherObject: AnotherTable? = (select from Employee::class
+                            where(Employee_Table.name.eq("Andrew Grosner")))
+                            .queryCustomSingle()
+                            
+    // require custom object
+    val anotherObject: AnotherTable = (select from Employee::class
+                            where(Employee_Table.name.eq("Andrew Grosner")))
+                            .requireCustomSingle()
+}
 ```
 
 To query custom objects or lists, see how to do so in [QueryModel](../../advanced-usage/querymodels.md).
@@ -43,12 +50,14 @@ DBFlow provides the very-handy `Transaction` system that allows you to place all
 
 We wrap our queries in a `beginTransactionAsync` block, executing and providing call backs to the method as follows:
 
-```java
+```kotlin
 database.beginTransactionAsync { db ->
+  // body of transaction. Return the value you wish to pass into the Success callback.
   (select from TestModel1::class
     where TestModel1_Table.name.is("Async")).querySingle(db)
   }
     .execute(
+     ready = { transaction -> }, // called when transaction is ready to be executed.
      success = { transaction, r ->   }, // if successful
      error  = { transaction, throwable ->  }, // any exception thrown is put here
      completion = { transaction -> }) // always called success or failure
