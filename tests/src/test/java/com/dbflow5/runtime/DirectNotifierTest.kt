@@ -13,7 +13,6 @@ import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.delete
-import com.dbflow5.query.insert
 import com.dbflow5.query.insertInto
 import com.dbflow5.query.set
 import com.dbflow5.query.update
@@ -67,19 +66,22 @@ class DirectNotifierTest {
 
     @Test
     fun validateCanNotifyWrapperClasses() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { db ->
             val modelChange = Mockito.mock(OnTableChangedListener::class.java)
             DirectModelNotifier.get().registerForTableChanges(SimpleModel::class.java, modelChange)
 
-            insertInto<SimpleModel>().columnValues(SimpleModel_Table.name to "name").executeInsert(this)
+            insertInto<SimpleModel>()
+                    .columnValues(SimpleModel_Table.name to "name")
+                    .executeInsert(db)
 
             verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.INSERT)
 
-            (update<SimpleModel>() set SimpleModel_Table.name.eq("name2")).executeUpdateDelete(this)
+            (update<SimpleModel>() set SimpleModel_Table.name.eq("name2"))
+                    .executeUpdateDelete(db)
 
             verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.UPDATE)
 
-            delete<SimpleModel>().executeUpdateDelete(this)
+            delete<SimpleModel>().executeUpdateDelete(db)
 
             verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.DELETE)
         }

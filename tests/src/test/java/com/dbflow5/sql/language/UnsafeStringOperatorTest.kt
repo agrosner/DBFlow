@@ -12,7 +12,7 @@ class UnsafeStringOperatorTest : BaseUnitTest() {
 
     @Test
     fun testCanIncludeInQuery() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val op = UnSafeStringOperator("name = ?, id = ?, test = ?", arrayOf("'name'", "0", "'test'"))
             "name = 'name', id = 0, test = 'test'".assertEquals(op)
             "SELECT * FROM `SimpleModel` WHERE name = 'name', id = 0, test = 'test'".assertEquals(select from SimpleModel::class where op)

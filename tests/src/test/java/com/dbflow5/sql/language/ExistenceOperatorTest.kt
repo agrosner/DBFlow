@@ -14,7 +14,7 @@ class ExistenceOperatorTest : BaseUnitTest() {
 
     @Test
     fun validateQuery() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             assertEquals("EXISTS (SELECT * FROM `SimpleModel` WHERE `name`='name')",
                     ExistenceOperator(
                             (select from SimpleModel::class

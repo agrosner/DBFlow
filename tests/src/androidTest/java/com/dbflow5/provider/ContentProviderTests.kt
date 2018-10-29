@@ -6,7 +6,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.provider.ProviderTestRule
 import com.dbflow5.BaseInstrumentedUnitTest
 import com.dbflow5.config.database
-import com.dbflow5.query.result
 import com.dbflow5.query.select
 import com.dbflow5.structure.exists
 import org.junit.Assert.*
@@ -26,7 +25,7 @@ class ContentProviderTests : BaseInstrumentedUnitTest() {
 
     @Test
     fun testContentProviderUtils() {
-        database(ContentDatabase::class) {
+        database(ContentDatabase::class) { t ->
             listOf(NoteModel::class, ContentProviderModel::class).forEach {
                 com.dbflow5.query.delete(it).executeUpdateDelete(this)
             }
@@ -58,14 +57,14 @@ class ContentProviderTests : BaseInstrumentedUnitTest() {
             assertTrue(!contentProviderModel.exists())
 
             listOf(NoteModel::class, ContentProviderModel::class).forEach {
-                com.dbflow5.query.delete(it).executeUpdateDelete(this)
+                com.dbflow5.query.delete(it).executeUpdateDelete(t)
             }
         }
     }
 
     @Test
     fun testContentProviderNative() {
-        database(ContentDatabase::class) {
+        database(ContentDatabase::class) { t ->
             listOf(NoteModel::class, ContentProviderModel::class).forEach { com.dbflow5.query.delete(it).executeUpdateDelete(this) }
 
             var contentProviderModel = ContentProviderModel(notes = "Test")
@@ -93,13 +92,13 @@ class ContentProviderTests : BaseInstrumentedUnitTest() {
             contentProviderModel.delete()
             assertTrue(!contentProviderModel.exists())
 
-            listOf(NoteModel::class, ContentProviderModel::class).forEach { com.dbflow5.query.delete(it).executeUpdateDelete(this) }
+            listOf(NoteModel::class, ContentProviderModel::class).forEach { com.dbflow5.query.delete(it).executeUpdateDelete(t) }
         }
     }
 
     @Test
     fun testSyncableModel() {
-        database(ContentDatabase::class) {
+        database(ContentDatabase::class) { t ->
             com.dbflow5.query.delete<TestSyncableModel>().execute(this)
 
             var testSyncableModel = TestSyncableModel(name = "Name")
@@ -112,7 +111,7 @@ class ContentProviderTests : BaseInstrumentedUnitTest() {
             assertEquals(testSyncableModel.name, "TestName")
 
             testSyncableModel = (select from TestSyncableModel::class
-                    where (TestSyncableModel_Table.id.`is`(testSyncableModel.id))).result!!
+                    where (TestSyncableModel_Table.id.`is`(testSyncableModel.id))).querySingle(this)!!
 
             var fromContentProvider = TestSyncableModel(id = testSyncableModel.id)
             fromContentProvider = fromContentProvider.load(this)!!
@@ -123,7 +122,7 @@ class ContentProviderTests : BaseInstrumentedUnitTest() {
             testSyncableModel.delete()
             assertFalse(testSyncableModel.exists())
 
-            com.dbflow5.query.delete<TestSyncableModel>().execute(this)
+            com.dbflow5.query.delete<TestSyncableModel>().execute(t)
         }
     }
 

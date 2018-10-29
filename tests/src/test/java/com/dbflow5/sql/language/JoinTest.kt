@@ -15,7 +15,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun validateAliasJoin() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             assertEquals("SELECT * FROM `SimpleModel` INNER JOIN `TwoColumnModel` AS `Name` ON `TwoColumnModel`.`name`=`name`",
                     ((select from SimpleModel::class innerJoin
                             TwoColumnModel::class).`as`("Name") on TwoColumnModel_Table.name.withTable().eq(SimpleModel_Table.name)).query.trim())
@@ -24,7 +24,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testInnerJoin() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val join = select from SimpleModel::class innerJoin
                     TwoColumnModel::class on TwoColumnModel_Table.name.withTable().eq(SimpleModel_Table.name)
             assertEquals("SELECT * FROM `SimpleModel` INNER JOIN `TwoColumnModel` ON `TwoColumnModel`.`name`=`name`",
@@ -34,7 +34,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testLeftOuterJoin() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val join = select from SimpleModel::class leftOuterJoin
                     TwoColumnModel::class on TwoColumnModel_Table.name.withTable().eq(SimpleModel_Table.name)
             assertEquals("SELECT * FROM `SimpleModel` LEFT OUTER JOIN `TwoColumnModel` ON `TwoColumnModel`.`name`=`name`",
@@ -44,7 +44,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testCrossJoin() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val join = select from SimpleModel::class crossJoin
                     TwoColumnModel::class on TwoColumnModel_Table.name.withTable().eq(SimpleModel_Table.name)
             assertEquals("SELECT * FROM `SimpleModel` CROSS JOIN `TwoColumnModel` ON `TwoColumnModel`.`name`=`name`",
@@ -54,7 +54,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testMultiJoin() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val join = select from SimpleModel::class innerJoin
                     TwoColumnModel::class on TwoColumnModel_Table.name.withTable().eq(SimpleModel_Table.name) crossJoin
                     TwoColumnModel::class on TwoColumnModel_Table.id.withTable().eq(SimpleModel_Table.name)
@@ -66,7 +66,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testInnerJoinOnUsing() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val join = select from SimpleModel::class innerJoin
                     TwoColumnModel::class using SimpleModel_Table.name.withTable()
             assertEquals("SELECT * FROM `SimpleModel` INNER JOIN `TwoColumnModel` USING (`SimpleModel`.`name`)",
@@ -76,7 +76,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testNaturalJoin() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val join = (select from SimpleModel::class naturalJoin
                     TwoColumnModel::class).end()
             assertEquals("SELECT * FROM `SimpleModel` NATURAL JOIN `TwoColumnModel`",

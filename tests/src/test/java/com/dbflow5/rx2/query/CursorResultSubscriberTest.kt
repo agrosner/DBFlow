@@ -5,7 +5,6 @@ import com.dbflow5.config.databaseForTable
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.insert
-import com.dbflow5.query.requireResult
 import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.query.queryStreamResults
 import com.dbflow5.reactivestreams.transaction.asFlowable
@@ -19,12 +18,12 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
     @Test
     fun testCanQueryStreamResults() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { db ->
             (0..9).forEach { SimpleModel("$it").save() }
 
             var count = 0
             (select from SimpleModel::class)
-                .queryStreamResults(this)
+                .queryStreamResults(db)
                 .subscribe {
                     count++
                     assert(it != null)
@@ -38,7 +37,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     fun testCanObserveOnTableChangesWithModelOps() {
         var count = 0
         (select from SimpleModel::class)
-            .asFlowable { databaseWrapper, modelQueriable -> modelQueriable.queryList(databaseWrapper) }
+            .asFlowable { db, modelQueriable -> modelQueriable.queryList(db) }
             .subscribe {
                 count++
             }
@@ -54,35 +53,37 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
     @Test
     fun testCanObserveOnTableChangesWithTableOps() {
-        var count = 0
-        var curList: MutableList<SimpleModel> = arrayListOf()
-        (select from SimpleModel::class)
-            .asFlowable { databaseWrapper, modelQueriable -> modelQueriable.queryList(databaseWrapper) }
-            .subscribe {
-                curList = it
-                count++
-            }
-        insert(SimpleModel::class, SimpleModel_Table.name)
-            .values("test")
-            .executeInsert(databaseForTable<SimpleModel>())
-        insert(SimpleModel::class, SimpleModel_Table.name)
-            .values("test1")
-            .executeInsert(databaseForTable<SimpleModel>())
-        insert(SimpleModel::class, SimpleModel_Table.name)
-            .values("test2")
-            .executeInsert(databaseForTable<SimpleModel>())
+        databaseForTable<SimpleModel> { db ->
+            var count = 0
+            var curList: MutableList<SimpleModel> = arrayListOf()
+            (select from SimpleModel::class)
+                    .asFlowable { databaseWrapper, modelQueriable -> modelQueriable.queryList(databaseWrapper) }
+                    .subscribe {
+                        curList = it
+                        count++
+                    }
+            insert(SimpleModel::class, SimpleModel_Table.name)
+                    .values("test")
+                    .executeInsert(db)
+            insert(SimpleModel::class, SimpleModel_Table.name)
+                    .values("test1")
+                    .executeInsert(db)
+            insert(SimpleModel::class, SimpleModel_Table.name)
+                    .values("test2")
+                    .executeInsert(db)
 
 
-        assertEquals(3, curList.size)
+            assertEquals(3, curList.size)
 
-        val model = (select
-            from SimpleModel::class
-            where SimpleModel_Table.name.eq("test")).requireResult
-        model.delete()
+            val model = (select
+                    from SimpleModel::class
+                    where SimpleModel_Table.name.eq("test")).requireSingle(db)
+            model.delete()
 
-        assertEquals(2, curList.size)
+            assertEquals(2, curList.size)
 
-        assertEquals(5, count) // once for subscription, 4 for operations
+            assertEquals(5, count) // once for subscription, 4 for operations
+        }
     }
 
 }

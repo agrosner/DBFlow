@@ -12,12 +12,10 @@ import com.dbflow5.query.OrderBy.Companion.fromNameAlias
 import com.dbflow5.query.Where
 import com.dbflow5.query.groupBy
 import com.dbflow5.query.having
-import com.dbflow5.query.list
 import com.dbflow5.query.min
 import com.dbflow5.query.nameAlias
 import com.dbflow5.query.or
 import com.dbflow5.query.property.property
-import com.dbflow5.query.result
 import com.dbflow5.query.select
 import com.dbflow5.query.update
 import org.junit.Assert.assertTrue
@@ -28,7 +26,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateBasicWhere() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val query = select from SimpleModel::class where name.`is`("name")
             "SELECT * FROM `SimpleModel` WHERE `name`='name'".assertEquals(query)
             assertCanCopyQuery(query)
@@ -37,7 +35,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateComplexQueryWhere() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val query = select from SimpleModel::class where name.`is`("name") or id.eq(1) and (id.`is`(0) or name.eq("hi"))
             "SELECT * FROM `SimpleModel` WHERE `name`='name' OR `id`=1 AND (`id`=0 OR `name`='hi')".assertEquals(query)
             assertCanCopyQuery(query)
@@ -46,7 +44,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateGroupBy() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val query = select from SimpleModel::class where name.`is`("name") groupBy name
             "SELECT * FROM `SimpleModel` WHERE `name`='name' GROUP BY `name`".assertEquals(query)
             assertCanCopyQuery(query)
@@ -56,7 +54,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateGroupByNameAlias() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val query = (select from SimpleModel::class where name.`is`("name")).groupBy("name".nameAlias, "id".nameAlias)
             "SELECT * FROM `SimpleModel` WHERE `name`='name' GROUP BY `name`,`id`".assertEquals(query)
             assertCanCopyQuery(query)
@@ -65,7 +63,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateGroupByNameProps() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val query = (select from SimpleModel::class where name.`is`("name")).groupBy(name, id)
             "SELECT * FROM `SimpleModel` WHERE `name`='name' GROUP BY `name`,`id`".assertEquals(query)
             assertCanCopyQuery(query)
@@ -87,7 +85,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateLimit() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val query = select from SimpleModel::class where name.`is`("name") limit 10
             "SELECT * FROM `SimpleModel` WHERE `name`='name' LIMIT 10".assertEquals(query)
             assertCanCopyQuery(query)
@@ -96,7 +94,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOffset() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val query = select from SimpleModel::class where name.`is`("name") offset 10
             "SELECT * FROM `SimpleModel` WHERE `name`='name' OFFSET 10".assertEquals(query)
             assertCanCopyQuery(query)
@@ -105,7 +103,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateWhereExists() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val query = (select from SimpleModel::class
                     whereExists (select(name) from SimpleModel::class where name.like("Andrew")))
             ("SELECT * FROM `SimpleModel` " +
@@ -116,7 +114,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOrderByWhere() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val query = (select from SimpleModel::class
                     where name.eq("name")).orderBy(name, true)
             ("SELECT * FROM `SimpleModel` WHERE `name`='name' ORDER BY `name` ASC").assertEquals(query)
@@ -126,7 +124,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOrderByWhereAlias() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val query = (select from SimpleModel::class
                     where name.eq("name")).orderBy("name".nameAlias, true)
             ("SELECT * FROM `SimpleModel` " +
@@ -137,7 +135,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOrderBy() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val query = (select from SimpleModel::class
                     where name.eq("name") orderBy fromNameAlias("name".nameAlias).ascending())
             ("SELECT * FROM `SimpleModel` " +
@@ -154,7 +152,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOrderByAll() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val query = (select from TwoColumnModel::class
                     where name.eq("name"))
                     .orderByAll(listOf(
@@ -168,16 +166,16 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateNonSelectThrowError() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { db ->
             try {
-                update<SimpleModel>().set(name.`is`("name")).result
+                update<SimpleModel>().set(name.`is`("name")).querySingle(db)
                 fail("Non select passed")
             } catch (i: IllegalArgumentException) {
                 // expected
             }
 
             try {
-                update<SimpleModel>().set(name.`is`("name")).list
+                update<SimpleModel>().set(name.`is`("name")).queryList(db)
                 fail("Non select passed")
             } catch (i: IllegalArgumentException) {
                 // expected

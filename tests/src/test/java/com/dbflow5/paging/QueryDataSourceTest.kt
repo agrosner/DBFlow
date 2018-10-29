@@ -22,10 +22,10 @@ class QueryDataSourceTest : BaseUnitTest() {
 
     @Test
     fun testLoadInitialParams() {
-        database<TestDatabase> {
-            (0 until 100).forEach { SimpleModel("$it").save(this) }
+        database<TestDatabase> { db ->
+            (0 until 100).forEach { SimpleModel("$it").save(db) }
 
-            val factory = (select from SimpleModel::class).toDataSourceFactory(this)
+            val factory = (select from SimpleModel::class).toDataSourceFactory(db)
             val list = PagedList.Builder(factory.create(),
                 PagedList.Config.Builder()
                     .setPageSize(3)
@@ -49,10 +49,10 @@ class QueryDataSourceTest : BaseUnitTest() {
 
     @Test
     fun testThrowsErrorOnInvalidType() {
-        database<TestDatabase> {
+        database<TestDatabase> { db ->
             assertThrowsException(IllegalArgumentException::class) {
                 (update<SimpleModel>() set (SimpleModel_Table.name.eq("name")))
-                    .toDataSourceFactory(this)
+                    .toDataSourceFactory(db)
                     .create()
             }
         }

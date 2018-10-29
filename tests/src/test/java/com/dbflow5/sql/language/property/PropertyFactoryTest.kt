@@ -22,7 +22,7 @@ class PropertyFactoryTest : BaseUnitTest() {
         assertEquals("5", 5.toByte().property.query)
         val nullable: Any? = null
         assertEquals("NULL", nullable.property.query)
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             assertEquals("(SELECT * FROM `SimpleModel`)", (select from SimpleModel::class).property.query)
         }
         assertEquals("SomethingCool", propertyString<String>("SomethingCool").query)

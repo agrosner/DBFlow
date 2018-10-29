@@ -16,9 +16,9 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateCursorPassed() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val cursor = (select from SimpleModel::class).cursor
-            val list = FlowCursorList.Builder(select from SimpleModel::class, this)
+            val list = FlowCursorList.Builder(select from SimpleModel::class, dbFlowDatabase)
                     .cursor(cursor)
                     .build()
 
@@ -28,9 +28,9 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateModelQueriable() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val modelQueriable = (select from SimpleModel::class)
-            val list = FlowCursorList.Builder(modelQueriable, this)
+            val list = FlowCursorList.Builder(modelQueriable, dbFlowDatabase)
                     .build()
 
             assertEquals(modelQueriable, list.modelQueriable)
@@ -39,12 +39,12 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateGetAll() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             (0..9).forEach {
                 SimpleModel("$it").save()
             }
 
-            val list = (select from SimpleModel::class).cursorList(this)
+            val list = (select from SimpleModel::class).cursorList(dbFlowDatabase)
             val all = list.all
             assertEquals(list.count, all.size.toLong())
         }
@@ -52,12 +52,12 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateCursorChange() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { db ->
             (0..9).forEach {
-                SimpleModel("$it").save()
+                SimpleModel("$it").save(db)
             }
 
-            val list = (select from SimpleModel::class).cursorList(this)
+            val list = (select from SimpleModel::class).cursorList(db)
 
             var cursorListFound: FlowCursorList<SimpleModel>? = null
             var count = 0
@@ -67,7 +67,7 @@ class FlowCursorListTest : BaseUnitTest() {
             }
             list.addOnCursorRefreshListener(listener)
             assertEquals(10, list.count)
-            SimpleModel("10").save()
+            SimpleModel("10").save(db)
             list.refresh()
             assertEquals(11, list.count)
 

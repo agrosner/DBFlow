@@ -13,7 +13,7 @@ class IndexTest : BaseUnitTest() {
 
     @Test
     fun validateBasicIndex() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             assertEquals("CREATE INDEX IF NOT EXISTS `index` ON `SimpleModel`(`name`)",
                     indexOn<SimpleModel>("index", SimpleModel_Table.name).query)
         }
@@ -21,7 +21,7 @@ class IndexTest : BaseUnitTest() {
 
     @Test
     fun validateUniqueIndex() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             assertEquals("CREATE UNIQUE INDEX IF NOT EXISTS `index` ON `SimpleModel`(`name`, `test`)",
                     indexOn<SimpleModel>("index").unique(true).and(SimpleModel_Table.name)
                             .and("test".nameAlias).query)
@@ -30,7 +30,7 @@ class IndexTest : BaseUnitTest() {
 
     @Test
     fun validateBasicIndexNameAlias() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             assertEquals("CREATE INDEX IF NOT EXISTS `index` ON `SimpleModel`(`name`, `test`)",
                     indexOn<SimpleModel>("index", "name".nameAlias, "test".nameAlias).query)
         }

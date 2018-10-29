@@ -20,7 +20,7 @@ class InsertTest : BaseUnitTest() {
 
     @Test
     fun validateInsert() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             assertEquals("INSERT INTO `SimpleModel` VALUES('something')",
                     insertInto<SimpleModel>().values("something").query.trim())
         }
@@ -28,7 +28,7 @@ class InsertTest : BaseUnitTest() {
 
     @Test
     fun validateInsertOr() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             assertEquals("INSERT OR REPLACE INTO `SimpleModel` VALUES('something')",
                     insertInto<SimpleModel>().orReplace().values("something").query.trim())
             assertEquals("INSERT OR FAIL INTO `SimpleModel` VALUES('something')",
@@ -46,7 +46,7 @@ class InsertTest : BaseUnitTest() {
 
     @Test
     fun validateInsertProjection() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
                     insertInto<TwoColumnModel>().columns(name, id).values("name", "id").query.trim())
         }
@@ -54,7 +54,7 @@ class InsertTest : BaseUnitTest() {
 
     @Test
     fun validateSelect() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             assertEquals("INSERT INTO `TwoColumnModel` SELECT * FROM `SimpleModel`",
                     insertInto<TwoColumnModel>().select(select from SimpleModel::class).query.trim())
         }
@@ -62,7 +62,7 @@ class InsertTest : BaseUnitTest() {
 
     @Test
     fun validateColumns() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
                     insertInto<TwoColumnModel>().asColumns().values("name", "id").query.trim())
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
@@ -74,7 +74,7 @@ class InsertTest : BaseUnitTest() {
 
     @Test
     fun validateColumnValues() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
                     insertInto<TwoColumnModel>().columnValues(name.eq("name"), id.eq(0)).query.trim())
             assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",

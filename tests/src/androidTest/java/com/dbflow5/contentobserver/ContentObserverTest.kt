@@ -31,8 +31,8 @@ class ContentObserverTest : BaseInstrumentedUnitTest() {
 
     @Before
     fun setupUser() {
-        databaseForTable<User> {
-            delete<User>().execute(this)
+        databaseForTable<User> { dbFlowDatabase ->
+            delete<User>().execute(dbFlowDatabase)
         }
         user = User(5, "Something", 55)
     }

@@ -14,14 +14,14 @@ class SelectTest : BaseUnitTest() {
 
     @Test
     fun validateSelect() {
-        databaseForTable<TwoColumnModel> {
+        databaseForTable<TwoColumnModel> { dbFlowDatabase ->
             "SELECT `name`,`id` FROM `TwoColumnModel`".assertEquals(select(name, id) from TwoColumnModel::class)
         }
     }
 
     @Test
     fun validateSelectDistinct() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             "SELECT DISTINCT `name` FROM `SimpleModel`".assertEquals(select(name).distinct() from SimpleModel::class)
         }
     }

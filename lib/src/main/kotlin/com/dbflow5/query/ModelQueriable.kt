@@ -1,7 +1,6 @@
 package com.dbflow5.query
 
 import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.config.databaseForTable
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.cache.ModelCache
@@ -30,6 +29,12 @@ interface ModelQueriable<T : Any> : Queriable {
      * @return Single model, the first of potentially many results
      */
     fun querySingle(databaseWrapper: DatabaseWrapper): T?
+
+    /**
+     * A non-null result. throws a [SQLiteException] if the query reaches no result.
+     */
+    fun requireSingle(db: DatabaseWrapper) = querySingle(db)
+            ?: throw SQLiteException("Model result not found for $this")
 
     /**
      * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
@@ -93,26 +98,9 @@ interface ModelQueriable<T : Any> : Queriable {
 
 }
 
+/**
+ * Trims and wraps a [ModelQueriable.query] in parenthesis.
+ * E.G. wraps: select * from table into (select * from table)
+ */
 internal inline val <T : Any> ModelQueriable<T>.enclosedQuery
     get() = "(${query.trim { it <= ' ' }})"
-
-inline val <reified T : Any> ModelQueriable<T>.list
-    get() = queryList(databaseForTable<T>())
-
-inline fun <reified T : Any> ModelQueriable<*>.customList() =
-        queryCustomList(T::class.java, databaseForTable<T>())
-
-inline fun <reified T : Any> ModelQueriable<*>.customSingle() =
-        queryCustomSingle(T::class.java, databaseForTable<T>())
-
-inline val <reified T : Any> ModelQueriable<T>.result
-    get() = querySingle(databaseForTable<T>())
-
-inline val <reified T : Any> ModelQueriable<T>.requireResult
-    get() = result ?: throw SQLiteException("Model result not found for $this")
-
-inline val <reified T : Any> ModelQueriable<T>.flowQueryList
-    get() = flowQueryList(databaseForTable<T>())
-
-inline val <reified T : Any> ModelQueriable<T>.cursorList
-    get() = cursorList(databaseForTable<T>())

@@ -18,20 +18,22 @@ import org.junit.Test
 class QueryModelTest : BaseUnitTest() {
 
     @Test
-    fun testCanLoadAuthorBlogs() = database(TestDatabase::class) {
-        val author = Author(0, "Andrew", "Grosner")
-        author.save()
-        val blog = Blog(0, "My First Blog", author)
-        blog.save()
+    fun testCanLoadAuthorBlogs() {
+        database<TestDatabase> { db ->
+            val author = Author(0, "Andrew", "Grosner")
+            author.save(db)
+            val blog = Blog(0, "My First Blog", author)
+            blog.save(db)
 
-        assert(author.exists())
-        assert(blog.exists())
+            assert(author.exists(db))
+            assert(blog.exists(db))
 
-        val result = (select(name.withTable().`as`("blogName"), id.withTable().`as`("authorId"),
-                Blog_Table.id.withTable().`as`("blogId")) from Blog::class innerJoin
-                Author::class on (author_id.withTable() eq id.withTable()))
-                .queryCustomSingle(AuthorNameQuery::class.java, this)!!
-        assertEquals(author.id, result.authorId)
-        assertEquals(blog.id, result.blogId)
+            val result = (select(name.withTable().`as`("blogName"), id.withTable().`as`("authorId"),
+                    Blog_Table.id.withTable().`as`("blogId")) from Blog::class innerJoin
+                    Author::class on (author_id.withTable() eq id.withTable()))
+                    .queryCustomSingle(AuthorNameQuery::class.java, db)!!
+            assertEquals(author.id, result.authorId)
+            assertEquals(blog.id, result.blogId)
+        }
     }
 }

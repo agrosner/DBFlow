@@ -57,7 +57,7 @@ class OperatorTest : BaseUnitTest() {
 
     @Test
     fun testIn() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             "`id` IN (5,6,7,8,9)".assertEquals(id.`in`(5, 6, 7, 8) and 9)
             "`id` NOT IN (SELECT * FROM `SimpleModel`)".assertEquals(id.notIn(select from SimpleModel::class))
         }

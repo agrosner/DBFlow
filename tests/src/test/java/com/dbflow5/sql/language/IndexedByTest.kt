@@ -13,7 +13,7 @@ class IndexedByTest : BaseUnitTest() {
 
     @Test
     fun validateQuery() {
-        databaseForTable<SimpleModel> {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
             val indexed = (select from SimpleModel::class)
                     .indexedBy(IndexProperty("Index", false, SimpleModel::class.java, SimpleModel_Table.name))
             assertEquals("SELECT * FROM `SimpleModel` INDEXED BY `Index`", indexed.query.trim())

@@ -26,21 +26,21 @@ class CoroutinesTest : BaseUnitTest() {
     @Test
     fun testTransact() {
         runBlocking {
-            database<TestDatabase> {
+            database<TestDatabase> { db ->
                 (0..9).forEach {
                     SimpleModel("$it").save()
                 }
 
                 val query = (select from SimpleModel::class
                         where SimpleModel_Table.name.eq("5"))
-                        .awaitTransact(this) { queryList(it) }
+                        .awaitTransact(db) { queryList(it) }
 
                 assert(query.size == 1)
 
 
                 val result = (delete<SimpleModel>()
                         where SimpleModel_Table.name.eq("5"))
-                        .awaitTransact(this) { executeUpdateDelete(it) }
+                        .awaitTransact(db) { executeUpdateDelete(it) }
                 assert(result == 1L)
             }
         }
@@ -49,12 +49,12 @@ class CoroutinesTest : BaseUnitTest() {
     @Test
     fun testAwaitSaveAndDelete() {
         runBlocking {
-            database<TestDatabase> {
+            database<TestDatabase> { db ->
                 val simpleModel = SimpleModel("Name")
-                val result = simpleModel.awaitSave(this)
+                val result = simpleModel.awaitSave(db)
                 assert(result)
 
-                assert(simpleModel.awaitDelete(this))
+                assert(simpleModel.awaitDelete(db))
             }
         }
     }
@@ -62,11 +62,11 @@ class CoroutinesTest : BaseUnitTest() {
     @Test
     fun testAwaitInsertAndDelete() {
         runBlocking {
-            database<TestDatabase> {
+            database<TestDatabase> { db ->
                 val simpleModel = SimpleModel("Name")
-                val result = simpleModel.awaitInsert(this)
+                val result = simpleModel.awaitInsert(db)
                 assert(result > 0)
-                assert(simpleModel.awaitDelete(this))
+                assert(simpleModel.awaitDelete(db))
             }
         }
     }
@@ -74,18 +74,18 @@ class CoroutinesTest : BaseUnitTest() {
     @Test
     fun testAwaitUpdate() {
         runBlocking {
-            database<TestDatabase> {
+            database<TestDatabase> { db ->
                 val simpleModel = TwoColumnModel(name = "Name", id = 5)
-                val result = simpleModel.awaitSave(this)
+                val result = simpleModel.awaitSave(db)
                 assert(result)
 
                 simpleModel.id = 5
-                val updated = simpleModel.awaitUpdate(this)
+                val updated = simpleModel.awaitUpdate(db)
                 assert(updated)
 
                 val loadedModel = (select from TwoColumnModel::class
                         where TwoColumnModel_Table.id.eq(5))
-                        .awaitTransact(this) { querySingle(it) }
+                        .awaitTransact(db) { querySingle(it) }
                 assert(loadedModel?.id == 5)
             }
         }
