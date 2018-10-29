@@ -7,7 +7,7 @@ import androidx.annotation.WorkerThread
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 
-
+typealias Ready<R> = (Transaction<R>) -> Unit
 typealias Success<R> = (Transaction<R>, R) -> Unit
 typealias Error<R> = (Transaction<R>, Throwable) -> Unit
 typealias Completion<R> = (Transaction<R>) -> Unit
@@ -25,6 +25,8 @@ class Transaction<R : Any?>(
         @get:JvmName("transaction")
         val transaction: ITransaction<R>,
         private val databaseDefinition: DBFlowDatabase,
+        @get:JvmName("ready")
+        val ready: Ready<R>? = null,
         @get:JvmName("error")
         val error: Error<R>? = null,
         @get:JvmName("success")
@@ -70,6 +72,8 @@ class Transaction<R : Any?>(
     @WorkerThread
     fun executeSync() {
         try {
+            ready?.invoke(this)
+
             val result: R = if (shouldRunInTransaction) {
                 databaseDefinition.executeTransaction(transaction)
             } else {
@@ -125,6 +129,7 @@ class Transaction<R : Any?>(
      * DB as the code that the transaction runs in.
      */
     (internal val transaction: ITransaction<R>, internal val databaseDefinition: DBFlowDatabase) {
+        internal var ready: Ready<R>? = null
         internal var errorCallback: Error<R>? = null
         internal var successCallback: Success<R>? = null
         internal var completion: Completion<R>? = null
@@ -133,7 +138,15 @@ class Transaction<R : Any?>(
         internal var runCallbacksOnSameThread: Boolean = false
 
         /**
-         * Specify an error callback to return all and any [Throwable] that occured during a [Transaction].
+         * Specify a callback when the transaction is ready to execute. Do an initialization here,
+         * and cleanup on [completion]
+         */
+        fun ready(ready: Ready<R>?) = apply {
+            this.ready = ready
+        }
+
+        /**
+         * Specify an error callback to return all and any [Throwable] that occurred during a [Transaction].
          * @param error Invoked on the UI thread, unless [runCallbacksOnSameThread] is true.
          */
         fun error(error: Error<R>?) = apply {
@@ -198,9 +211,14 @@ class Transaction<R : Any?>(
          * Convenience method to simply execute a transaction.
          */
         @JvmOverloads
-        fun execute(error: Error<R>? = null, completion: Completion<R>? = null,
-                    success: Success<R>? = null) =
+        fun execute(
+                ready: Ready<R>? = null,
+                error: Error<R>? = null,
+                completion: Completion<R>? = null,
+                success: Success<R>? = null
+        ) =
                 this.apply {
+                    ready?.let(this::ready)
                     success?.let(this::success)
                     error?.let(this::error)
                     completion?.let(this::completion)
