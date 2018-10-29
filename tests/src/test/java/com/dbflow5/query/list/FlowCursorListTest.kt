@@ -6,9 +6,6 @@ import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.cursor
 import com.dbflow5.query.select
 import com.dbflow5.structure.save
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -62,19 +59,24 @@ class FlowCursorListTest : BaseUnitTest() {
 
             val list = (select from SimpleModel::class).cursorList(this)
 
-            val listener = mock<FlowCursorList.OnCursorRefreshListener<SimpleModel>>()
+            var cursorListFound: FlowCursorList<SimpleModel>? = null
+            var count = 0
+            val listener: (FlowCursorList<SimpleModel>) -> Unit = { loadedList ->
+                cursorListFound = loadedList
+                count++
+            }
             list.addOnCursorRefreshListener(listener)
             assertEquals(10, list.count)
             SimpleModel("10").save()
             list.refresh()
             assertEquals(11, list.count)
 
-            verify(listener).onCursorRefreshed(list)
+            assertEquals(list, cursorListFound)
 
             list.removeOnCursorRefreshListener(listener)
 
             list.refresh()
-            verify(listener, times(1)).onCursorRefreshed(list)
+            assertEquals(1, count)
         }
     }
 }

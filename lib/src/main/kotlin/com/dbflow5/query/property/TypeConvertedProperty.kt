@@ -5,6 +5,7 @@ import com.dbflow5.config.FlowManager
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.Operator
+import com.dbflow5.query.nameAlias
 
 /**
  * Description: Provides convenience methods for [TypeConverter] when constructing queries.
@@ -16,12 +17,8 @@ class TypeConvertedProperty<T, V> : Property<V> {
 
     private var databaseProperty: TypeConvertedProperty<V, T>? = null
 
-    private var convertToDB: Boolean = false
-
+    private val convertToDB: Boolean
     private val getter: TypeConverterGetter
-
-    override val operator: Operator<V>
-        get() = Operator.op(nameAlias, getter.getTypeConverter(table), convertToDB)
 
     override val table: Class<*>
         get() = super.table!!
@@ -35,6 +32,9 @@ class TypeConvertedProperty<T, V> : Property<V> {
         fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *>
     }
 
+    override val operator: Operator<V>
+        get() = Operator.op(nameAlias, table, getter, convertToDB)
+
     constructor(table: Class<*>, nameAlias: NameAlias,
                 convertToDB: Boolean,
                 getter: TypeConverterGetter) : super(table, nameAlias) {
@@ -44,7 +44,7 @@ class TypeConvertedProperty<T, V> : Property<V> {
 
     constructor(table: Class<*>, columnName: String,
                 convertToDB: Boolean,
-                getter: TypeConverterGetter) : super(table, columnName) {
+                getter: TypeConverterGetter) : super(table, columnName.nameAlias) {
         this.convertToDB = convertToDB
         this.getter = getter
     }

@@ -22,11 +22,9 @@ import com.dbflow5.query.OrderBy
  *
  * This is type parametrized so that all values passed to this class remain properly typed.
  */
-open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
-
-    override val table: Class<*>?
-
-    private lateinit var internalNameAlias: NameAlias
+open class Property<T>(override val table: Class<*>?,
+                       override val nameAlias: NameAlias)
+    : IProperty<Property<T>>, IOperator<T> {
 
     val definition: String
         get() = nameAlias.fullQuery
@@ -41,19 +39,9 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
                 .build()
 
     protected open val operator: Operator<T>
-        get() = Operator.op(nameAlias)
+            get() = Operator.op(nameAlias)
 
-    constructor(table: Class<*>?, nameAlias: NameAlias) {
-        this.table = table
-        this.internalNameAlias = nameAlias
-    }
-
-    constructor(table: Class<*>?, columnName: String?) {
-        this.table = table
-        if (columnName != null) {
-            internalNameAlias = NameAlias.Builder(columnName).build()
-        }
-    }
+    constructor(table: Class<*>?, columnName: String) : this(table, NameAlias.Builder(columnName).build())
 
     constructor(table: Class<*>?, columnName: String, aliasName: String)
             : this(table, NameAlias.builder(columnName).`as`(aliasName).build())
@@ -63,13 +51,7 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
             .withTable(FlowManager.getTableName(table!!))
             .build())
 
-    override val nameAlias: NameAlias
-        get() = internalNameAlias
-
     override val query: String
-        get() = nameAlias.query
-
-    override val cursorKey: String
         get() = nameAlias.query
 
     override fun toString(): String = nameAlias.toString()
@@ -177,32 +159,32 @@ open class Property<T> : IProperty<Property<T>>, IConditional, IOperator<T> {
 
     override fun plus(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.PLUS,
-                internalNameAlias.fullName(), property.toString()))
+                nameAlias.fullName(), property.toString()))
     }
 
     override fun minus(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.MINUS,
-                internalNameAlias.fullName(), property.toString()))
+                nameAlias.fullName(), property.toString()))
     }
 
     override fun div(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.DIVISION,
-                internalNameAlias.fullName(), property.toString()))
+                nameAlias.fullName(), property.toString()))
     }
 
     override fun times(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.MULTIPLY,
-                internalNameAlias.fullName(), property.toString()))
+                nameAlias.fullName(), property.toString()))
     }
 
     override fun rem(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.MOD,
-                internalNameAlias.fullName(), property.toString()))
+                nameAlias.fullName(), property.toString()))
     }
 
     override fun concatenate(property: IProperty<*>): Property<T> {
         return Property(table, NameAlias.joinNames(Operator.Operation.CONCATENATE,
-                internalNameAlias.fullName(), property.toString()))
+                nameAlias.fullName(), property.toString()))
     }
 
     override fun `as`(aliasName: String): Property<T> {

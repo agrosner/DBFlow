@@ -8,6 +8,7 @@ import com.dbflow5.config.FlowLog
 import com.dbflow5.config.FlowManager
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.query.property.Property
+import com.dbflow5.query.property.TypeConvertedProperty
 import com.dbflow5.sql.Query
 
 /**
@@ -15,31 +16,22 @@ import com.dbflow5.sql.Query
  * This class is mostly reserved for internal use at this point. Using this class directly should be avoided
  * and use the generated [Property] instead.
 </T> */
-class Operator<T : Any?> : BaseOperator, IOperator<T> {
+class Operator<T : Any?>
+internal constructor(nameAlias: NameAlias?,
+                     private val table: Class<*>? = null,
+                     private val getter: TypeConvertedProperty.TypeConverterGetter? = null,
+                     private val convertToDB: Boolean) : BaseOperator(nameAlias), IOperator<T> {
 
-    private var typeConverter: TypeConverter<*, *>? = null
-    private var convertToDB: Boolean = false
+    private val typeConverter: TypeConverter<*, *>? by lazy { table?.let { table -> getter?.getTypeConverter(table) } }
 
     private var convertToString = true
 
     override val query: String
         get() = appendToQuery()
 
-    /**
-     * Creates a new instance
-     *
-     * @param [nameAlias] The name of the column in the DB
-     */
-    internal constructor(nameAlias: NameAlias) : super(nameAlias)
 
-    internal constructor(alias: NameAlias, typeConverter: TypeConverter<*, *>, convertToDB: Boolean) : super(alias) {
-        this.typeConverter = typeConverter
-        this.convertToDB = convertToDB
-    }
-
-    internal constructor(operator: Operator<*>) : super(operator.nameAlias) {
-        this.typeConverter = operator.typeConverter
-        this.convertToDB = operator.convertToDB
+    internal constructor(operator: Operator<*>)
+            : this(operator.nameAlias, operator.table, operator.getter, operator.convertToDB) {
         this.value = operator.value
     }
 
@@ -617,11 +609,13 @@ class Operator<T : Any?> : BaseOperator, IOperator<T> {
                 convertValueToString(value, false)
 
         @JvmStatic
-        fun <T> op(column: NameAlias): Operator<T> = Operator(column)
+        fun <T> op(column: NameAlias): Operator<T> = Operator(column, convertToDB = false)
 
         @JvmStatic
-        fun <T> op(alias: NameAlias, typeConverter: TypeConverter<*, *>, convertToDB: Boolean): Operator<T> =
-                Operator(alias, typeConverter, convertToDB)
+        fun <T> op(alias: NameAlias, table: Class<*>,
+                   getter: TypeConvertedProperty.TypeConverterGetter,
+                   convertToDB: Boolean): Operator<T> =
+                Operator(alias, table, getter, convertToDB)
     }
 
 }
