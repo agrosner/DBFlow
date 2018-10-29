@@ -33,27 +33,28 @@ dbflow://%60User%60?%2560id%2560=55#DELETE
 
 Then after we register a `FlowContentObserver`:
 
-```java
-FlowContentObserver observer = new FlowContentObserver();
+```kotlin
+val observer = FlowContentObserver()
 
-observer.registerForContentChanges(context, User.class);
+observer.registerForContentChanges(context, User::class)
 
 // do something here
 // unregister when done
-observer.unregisterForContentChanges(context);
+observer.unregisterForContentChanges(context)
 ```
 
 ### Model Changes
 
 It will now receive the `Uri` for that table. Once we have that, we can register for model changes on that content:
 
-```java
-observer.addModelChangeListener(new OnModelStateChangedListener() {
-  @Override
-  public void onModelStateChanged(@Nullable Class<? extends Model> table, BaseModel.Action action, @NonNull SQLOperator[] primaryKeyValues) {
+```kotlin
+observer.addModelChangeListener(object : OnModelStateChangedListener {
+  override fun onModelStateChanged(table: Class<*>?, 
+        action: ChangeAction,
+        primaryKeyValues: Array<SQLOperator>) {
     // do something here
   }
-});
+})
 ```
 
 The method will return the `Action` which is one of: 1. `SAVE` \(will call `INSERT` or `UPDATE` as well if that operation was used\) 2. `INSERT` 3. `UPDATE` 4. `DELETE`
@@ -66,13 +67,12 @@ If we want to get less granular and just get notifications when generally a tabl
 
 Table change events are similar to `OnModelStateChangedListener`, except that they only specify the table and action taken. These get called for any action on a table, including granular model changes. We recommend batching those events together, which we describe in the next section.
 
-```java
-addOnTableChangedListener(new OnTableChangedListener() {
-    @Override
-    public void onTableChanged(@Nullable Class<? extends Model> tableChanged, BaseModel.Action action) {
+```kotlin
+addOnTableChangedListener(object : OnTableChangedListener {
+    override fun onTableChanged(tableChanged: Class<*>?, action: ChangeAction) {
         // perform an action. May get called many times! Use batch transactions to combine them.
     }
-});
+})
 ```
 
 ### Batch Up Many Events
@@ -81,17 +81,14 @@ Sometimes we're modifying tens or hundreds of items at the same time and we do n
 
 To batch up the notifications so that they fire all at once, we use batch transactions:
 
-```java
-FlowContentObserver observer = new FlowContentObserver();
+```kotlin
+val observer = FlowContentObserver()
+observer.registerForContentChanges(context, User::class.java)
 
-observer.beginTransaction();
+db.beginTransactionAsync(users.fastInsert().build())
+    .execute(ready = { observer.beginTransaction() },
+    completion = { observer.endTransactionAndNotify() })
 
-// save, modify models here
-for(User user: users) {
-  users.save();
-}
-
-observer.endTransactionAndNotify(); // callback batched
 ```
 
 Batch interactions will store up all unique `Uri` for each action \(these include `@Primary` key of the `Model` changed\). When `endTransactionAndNotify()` is called, all those `Uri` are called in the `onChange()` method from the `FlowContentObserver` as expected.
@@ -104,34 +101,32 @@ DBFlow also supports direct observability on model changes rather than convert t
 
 To set up direct changes we override the default `ModelNotifier`:
 
-```java
+```kotlin
 FlowManager.init(FlowConfig.Builder(context)
             .database(DatabaseConfig.Builder(TestDatabase.class)
                 .modelNotifier(DirectModelNotifier.get())
-                .build()).build());
+                .build()).build())
 ```
 
 We must use the shared instance of the `DirectModelNotifier` since if we do not, your listeners will not receive callbacks.
 
 Next register for changes on the `DirectModelNotifier`:
 
-```java
-DirectModelNotifier.get().registerForModelChanges(User.class, new ModelChangedListener<User>() {
-            @Override
-            public void onModelChanged(User model, BaseModel.Action action) {
+```kotlin
+DirectModelNotifier.get().registerForModelChanges(User::class, object: ModelChangedListener<User> {
+            override fun onModelChanged(model: User, action: ChangeAction) {
                 // react to model changes
             }
 
-            @Override
-            public void onTableChanged(BaseModel.Action action) {
+            override fun onTableChanged(action: ChangeAction) {
               // react to table changes.
             }
-        };)
+        })
 ```
 
 Then unregister your model change listener when you don't need it anymore \(to prevent memory leaks\):
 
-```java
-DirectModelNotifier.get().unregisterForModelChanges(User.class, modelChangedListener);
+```kotlin
+DirectModelNotifier.get().unregisterForModelChanges(User::class, modelChangedListener);
 ```
 
