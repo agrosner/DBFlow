@@ -1,12 +1,11 @@
 package com.dbflow5.reactivestreams.structure
 
+import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.annotation.ColumnIgnore
 import com.dbflow5.config.FlowManager
+import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.structure.BaseModel
 import com.dbflow5.structure.InvalidDBConfiguration
-import com.dbflow5.adapter.ModelAdapter
-import com.dbflow5.database.DatabaseWrapper
-
 import io.reactivex.Completable
 import io.reactivex.Single
 
@@ -24,21 +23,39 @@ open class BaseRXModel {
     @delegate:Transient
     private val rxModelAdapter: RXModelAdapter<BaseRXModel> by lazy { RXModelAdapter(javaClass) }
 
-    fun DatabaseWrapper.save(): Single<Boolean> =
-            rxModelAdapter.save(this@BaseRXModel, this)
+    fun save(databaseWrapper: DatabaseWrapper): Single<Boolean> =
+            rxModelAdapter.save(this, databaseWrapper)
 
-    fun DatabaseWrapper.load(): Completable =
-            rxModelAdapter.load(this@BaseRXModel, this)
+    fun load(databaseWrapper: DatabaseWrapper): Completable =
+            rxModelAdapter.load(this, databaseWrapper)
 
-    fun DatabaseWrapper.delete(): Single<Boolean> =
-            rxModelAdapter.delete(this@BaseRXModel, this)
+    fun delete(databaseWrapper: DatabaseWrapper): Single<Boolean> =
+            rxModelAdapter.delete(this, databaseWrapper)
 
-    fun DatabaseWrapper.update(): Single<Boolean> =
-            rxModelAdapter.update(this@BaseRXModel, this)
+    fun update(databaseWrapper: DatabaseWrapper): Single<Boolean> =
+            rxModelAdapter.update(this, databaseWrapper)
 
-    fun DatabaseWrapper.insert(): Single<Long> =
-            rxModelAdapter.insert(this@BaseRXModel, this)
+    fun insert(databaseWrapper: DatabaseWrapper): Single<Long> =
+            rxModelAdapter.insert(this, databaseWrapper)
 
-    fun DatabaseWrapper.exists(): Single<Boolean> =
-            rxModelAdapter.exists(this@BaseRXModel, this)
+    fun exists(databaseWrapper: DatabaseWrapper): Single<Boolean> =
+            rxModelAdapter.exists(this, databaseWrapper)
 }
+
+fun <T : Any> T.rxSave(databaseWrapper: DatabaseWrapper): Single<Boolean> =
+        RXModelAdapter(javaClass).save(this, databaseWrapper)
+
+fun <T : Any> T.rxLoad(databaseWrapper: DatabaseWrapper): Completable =
+        RXModelAdapter(javaClass).load(this, databaseWrapper)
+
+fun <T : Any> T.rxDelete(databaseWrapper: DatabaseWrapper): Single<Boolean> =
+        RXModelAdapter(javaClass).delete(this, databaseWrapper)
+
+fun <T : Any> T.rxUpdate(databaseWrapper: DatabaseWrapper): Single<Boolean> =
+        RXModelAdapter(javaClass).update(this, databaseWrapper)
+
+fun <T : Any> T.rxInsert(databaseWrapper: DatabaseWrapper): Single<Long> =
+        RXModelAdapter(javaClass).insert(this, databaseWrapper)
+
+fun <T : Any> T.exists(databaseWrapper: DatabaseWrapper): Single<Boolean> =
+        RXModelAdapter(javaClass).exists(this, databaseWrapper)

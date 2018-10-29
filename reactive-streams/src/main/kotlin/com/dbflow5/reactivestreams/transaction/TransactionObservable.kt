@@ -34,8 +34,8 @@ fun <R : Any> Transaction.Builder<R>.asSingle(): SingleTransaction<R> = SingleTr
  *  The [evalFn] runs on the [ITransactionQueue].
  */
 fun <T : Any, R> ModelQueriable<T>.asFlowable(
-    evalFn: (DatabaseWrapper, ModelQueriable<T>) -> R): Flowable<R> =
-    Flowable.create(TableChangeOnSubscribe(this, evalFn), BackpressureStrategy.LATEST)
+        evalFn: (DatabaseWrapper, ModelQueriable<T>) -> R): Flowable<R> =
+        Flowable.create(TableChangeOnSubscribe(this, evalFn), BackpressureStrategy.LATEST)
 
 open class TransactionDisposable(private val transaction: Transaction<*>) : Disposable {
     private var disposed = false
@@ -61,9 +61,9 @@ class SingleTransaction<R : Any>(private val builder: Transaction.Builder<R>)
 
     override fun subscribeActual(observer: SingleObserver<in R>) {
         val transaction = builder.success { _, r -> observer.onSuccess(r) }
-            .error { _, throwable -> observer.onError(throwable) }
-            .completion { transaction = null }
-            .build()
+                .error { _, throwable -> observer.onError(throwable) }
+                .completion { transaction = null }
+                .build()
         observer.onSubscribe(TransactionDisposable(transaction))
         this.transaction = transaction
         transaction.execute()
@@ -84,12 +84,12 @@ class MaybeTransaction<R : Any?>(private val builder: Transaction.Builder<R>)
 
     override fun subscribeActual(observer: MaybeObserver<in R>) {
         val transaction = builder.success { _, r -> observer.onSuccess(r) }
-            .completion {
-                transaction = null
-                observer.onComplete()
-            }
-            .error { _, throwable -> observer.onError(throwable) }
-            .build()
+                .completion {
+                    transaction = null
+                    observer.onComplete()
+                }
+                .error { _, throwable -> observer.onError(throwable) }
+                .build()
         observer.onSubscribe(TransactionDisposable(transaction))
         this.transaction = transaction
         transaction.execute()
