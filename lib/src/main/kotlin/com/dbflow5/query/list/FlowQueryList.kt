@@ -6,7 +6,6 @@ import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.ModelQueriable
-import com.dbflow5.query.list.FlowCursorList.OnCursorRefreshListener
 
 /**
  * Description: A query-backed immutable [List]. Represents the results of a cursor without loading
