@@ -1,13 +1,14 @@
 package com.dbflow5.provider
 
+import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
 import com.dbflow5.adapter.ModelAdapter
-import com.dbflow5.contentprovider.annotation.ContentProvider
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.modelAdapter
+import com.dbflow5.contentprovider.annotation.ContentProvider
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.Operator
@@ -162,7 +163,7 @@ object ContentUtils {
         val contentValues = ContentValues()
         adapter.bindToContentValues(contentValues, model)
         val count = contentResolver.update(updateUri, contentValues,
-            adapter.getPrimaryConditionClause(model).query, null)
+                adapter.getPrimaryConditionClause(model).query, null)
         if (count == 0) {
             FlowLog.log(FlowLog.Level.W, "Updated failed of: " + model.javaClass)
         }
@@ -220,7 +221,8 @@ object ContentUtils {
     fun query(contentResolver: ContentResolver, queryUri: Uri,
               whereConditions: OperatorGroup,
               orderBy: String?, vararg columns: String?): FlowCursor? =
-        FlowCursor.from(contentResolver.query(queryUri, columns, whereConditions.query, null, orderBy))
+            contentResolver.query(queryUri, columns, whereConditions.query, null, orderBy)
+                    ?.let { cursor -> FlowCursor.from(cursor) }
 
     /**
      * Queries the [android.content.ContentResolver] with the specified queryUri. It will generate
@@ -255,16 +257,21 @@ object ContentUtils {
      * @param columns         The list of columns to query.
      * @return A list of [TableClass]
      */
+    @SuppressLint("Recycle")
     @JvmStatic
     fun <TableClass : Any> queryList(contentResolver: ContentResolver, queryUri: Uri,
                                      table: Class<TableClass>,
                                      databaseWrapper: DatabaseWrapper,
                                      whereConditions: OperatorGroup,
                                      orderBy: String, vararg columns: String): List<TableClass>? {
-        val cursor = FlowCursor.from(contentResolver.query(queryUri, columns, whereConditions.query, null, orderBy))
-        return table.modelAdapter
-            .listModelLoader
-            .load(cursor, databaseWrapper)
+        val cursor = contentResolver.query(queryUri, columns, whereConditions.query, null, orderBy)?.let { cursor ->
+            FlowCursor.from(cursor)
+        }
+        return cursor.use { c ->
+            table.modelAdapter
+                    .listModelLoader
+                    .load(c, databaseWrapper)
+        }
     }
 
     /**

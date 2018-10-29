@@ -41,11 +41,10 @@ abstract class BaseSyncableProviderModel : BaseModel(), ModelProvider {
                           vararg columns: String?): T? {
         val cursor = ContentUtils.query(FlowManager.context.contentResolver,
                 queryUri, whereOperatorGroup, orderBy, *columns)
-        cursor?.let {
-            val flowCursor = FlowCursor.from(cursor)
-            if (flowCursor.moveToFirst()) {
-                val model: T = modelAdapter.loadFromCursor(flowCursor, wrapper) as T
-                flowCursor.close()
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                val model: T = modelAdapter.loadFromCursor(cursor, wrapper) as T
+                cursor.close()
                 return model
             }
         }

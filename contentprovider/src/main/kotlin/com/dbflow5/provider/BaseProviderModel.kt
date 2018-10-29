@@ -3,7 +3,6 @@ package com.dbflow5.provider
 import android.content.ContentProvider
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.OperatorGroup
 import com.dbflow5.structure.BaseModel
 import com.dbflow5.structure.Model
@@ -27,11 +26,9 @@ abstract class BaseProviderModel : BaseModel(), ModelProvider {
         }
     }
 
-    override fun update(wrapper: DatabaseWrapper): Boolean
-        = ContentUtils.update(FlowManager.context, updateUri, this) > 0
+    override fun update(wrapper: DatabaseWrapper): Boolean = ContentUtils.update(FlowManager.context, updateUri, this) > 0
 
-    override fun insert(wrapper: DatabaseWrapper): Long
-        = if (ContentUtils.insert(FlowManager.context, insertUri, this) != null) 1 else 0
+    override fun insert(wrapper: DatabaseWrapper): Long = if (ContentUtils.insert(FlowManager.context, insertUri, this) != null) 1 else 0
 
     /**
      * Runs a query on the [ContentProvider] to see if it returns data.
@@ -54,10 +51,9 @@ abstract class BaseProviderModel : BaseModel(), ModelProvider {
         val cursor = ContentUtils.query(FlowManager.context.contentResolver,
                 queryUri, whereOperatorGroup, orderBy, *columns)
         if (cursor != null) {
-            val flowCursor = FlowCursor.from(cursor)
-            if (flowCursor.moveToFirst()) {
-                val model: T = modelAdapter.loadFromCursor(flowCursor, wrapper) as T
-                flowCursor.close()
+            if (cursor.moveToFirst()) {
+                val model: T = modelAdapter.loadFromCursor(cursor, wrapper) as T
+                cursor.close()
                 return model
             }
         }
