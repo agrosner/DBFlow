@@ -134,3 +134,4 @@ Then unregister your model change listener when you don't need it anymore \(to p
 ```java
 DirectModelNotifier.get().unregisterForModelChanges(User.class, modelChangedListener);
 ```
+

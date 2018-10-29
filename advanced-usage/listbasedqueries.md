@@ -1,7 +1,6 @@
-# ListBasedQueries
+# List Queries
 
 Converting a whole list at one chunk can be memory intensive. This lazily creates models from a `Cursor` for you and you can operate on it s if it's a list. It a acts like a list can be used in a for-loop:
-
 
 ```kotlin
 (select from MyTable::class
@@ -21,7 +20,6 @@ Converting a whole list at one chunk can be memory intensive. This lazily create
 
      list.forEach { printLn("$it") }
     }
-
 ```
 
 **Note**: It's preferred within a `RecyclerView` to use the `QueryDataSource` with the Paging library, as this use can potentially lock the UI thread during heavy db usage.
@@ -43,3 +41,4 @@ The `FlowCursorList` provides these methods:
 This class is a much more powerful version of the `FlowCursorList`. It contains a `FlowCursorList`, which backs it's retrieval operations.
 
 This class acts as `List` and can be used almost wherever a `List` is used.
+

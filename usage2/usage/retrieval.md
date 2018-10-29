@@ -4,7 +4,7 @@ DBFlow provides a few ways to retrieve information from the database. Through th
 
 DBFlow provides a few different ways to retrieve information from the database. We can retrieve synchronously or asynchronous \(preferred\).
 
-We can also use `ModelView` \([read here](modelviews.md)\) and `@Index` \([read here](../advanced-usage/indexing.md)\) to perform faster retrieval on a set of data constantly queried.
+We can also use `ModelView` \([read here](modelviews.md)\) and `@Index` \([read here](../../advanced-usage/indexing.md)\) to perform faster retrieval on a set of data constantly queried.
 
 ## Synchronous Retrieval
 
@@ -33,9 +33,9 @@ val anotherObject = (select from Employee::class
                         .customSingle<AnotherTable>();
 ```
 
-To query custom objects or lists, see how to do so in [QueryModel](../advanced-usage/querymodels.md).
+To query custom objects or lists, see how to do so in [QueryModel](../../advanced-usage/querymodels.md).
 
-Also you can query a `FlowCursorList`/`FlowTableList` from a query easily via `queryCursorList()` and the `queryTableList()` methods. To see more on these, go to [Flow Lists](../advanced-usage/listbasedqueries.md).
+Also you can query a `FlowCursorList`/`FlowTableList` from a query easily via `queryCursorList()` and the `queryTableList()` methods. To see more on these, go to [Flow Lists](../../advanced-usage/listbasedqueries.md).
 
 ## Asynchronous Retrieval
 
