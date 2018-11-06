@@ -17,8 +17,8 @@ Do not use caching when: 1. you need a subset of columns from the DB. i.e. \(`se
 
 ## Clearing Caches
 
-Sometimes the data becomes out of sync, or you perform a vanilla SQLite query, which causes data to get out of sync from the cache. In those cases call:
-
+Sometimes the data becomes out of sync, or you perform a vanilla SQLite query, which causes data to get out of sync from the cache. In those cases
+call:
 ```kotlin
 modelAdapter<MyTable>().cacheAdapter.clearCache()
 ```
@@ -58,9 +58,9 @@ By default we use a `SimpleMapCache`, which loads `Model` into a `Map`. The key 
 Any time a field on these objects are modified, you _should_ immediately save those since we have a direct reference to the object from the cache. Otherwise, the DB and cache could get into an inconsistent state.
 
 ```kotlin
-  val result = (select from MyModel::class where (...)).requireResult
+  val result = (select from MyModel::class where (...)).requireSingle(db)
   result.name = "Name"
-  result.save()
+  result.save(db)
 ```
 
 ## Disable Caching For Some Queries
@@ -110,4 +110,3 @@ class Coordinate(@PrimaryKey latitude: Double = 0.0,
 ```
 
 In this case we use the `IMultiKeyCacheConverter` class, which specifies a key type that the object returns. The `getCachingKey` method returns an ordered set of `@PrimaryKey` columns in declaration order. Also the value that is returned should have an `equals()` or `hashcode()` specified \(use a `data class`\) especially when used in the `SimpleMapCache`.
-
