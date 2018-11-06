@@ -33,3 +33,6 @@ kotlin {
     }
 }
 
+apply from: '../kotlin-artifacts.gradle'
+
+
