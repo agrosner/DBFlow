@@ -231,3 +231,23 @@ class Currency(@PrimaryKey(autoincrement = true) var id: Long = 0,
                @Column @Unique var symbol: String? = null,
                @Column var shortName: String? = null,
                @Column @Unique var name: String = "") // nullability of fields are respected. We will not assign a null value to this field.
+
+inline class Password(val value: String)
+inline class Email(val value: String)
+
+@Table(database = TestDatabase::class)
+class UserInfo(@PrimaryKey
+               @set:JvmName("setEmail")
+               var email: Email,
+               @set:JvmName("setPassword")
+               var password: Password) {
+    constructor() : this(Email(""), Password(""))
+}
+
+
+@Table(database = TestDatabase::class)
+class InternalClass internal constructor(@PrimaryKey
+                                         @get:JvmName("getId")
+                                         @set:JvmName("setId")
+                                         internal var id: String = "")
+

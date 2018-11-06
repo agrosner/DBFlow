@@ -47,16 +47,20 @@ class ColumnValidator : Validator<ColumnDefinition> {
             val privateColumnAccess = validatorDefinition.columnAccessor as PrivateScopeColumnAccessor
             if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getterNameElement)) {
                 processorManager.logError(ColumnValidator::class,
-                        "Could not find getter for private element: " + "\"%1s\" from table class: %1s. Consider adding a getter with name %1s or making it more accessible.",
-                        validatorDefinition.elementName, validatorDefinition.baseTableDefinition.elementName,
-                        privateColumnAccess.getterNameElement)
+                        """Could not find getter for private element: "${validatorDefinition.elementName}"
+                            | from table class: ${validatorDefinition.baseTableDefinition.elementName}.
+                            | Consider adding a getter with name ${privateColumnAccess.getterNameElement},
+                            |  making it more accessible, or adding a @get:JvmName("${privateColumnAccess.getterNameElement}") """
+                                .trimMargin())
                 success = false
             }
             if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.setterNameElement)) {
                 processorManager.logError(ColumnValidator::class,
-                        "Could not find setter for private element: \"${validatorDefinition.elementName}\"" +
-                                " from table class: ${validatorDefinition.baseTableDefinition.elementName}. " +
-                                "Consider adding a setter with name ${privateColumnAccess.setterNameElement} or making it more accessible.")
+                        """Could not find setter for private element: "${validatorDefinition.elementName}"
+                            | from table class: ${validatorDefinition.baseTableDefinition.elementName}.
+                            | Consider adding a setter with name ${privateColumnAccess.setterNameElement},
+                            | making it more accessible, or adding a @set:JvmName("${privateColumnAccess.setterNameElement}")."""
+                                .trimMargin())
                 success = false
             }
         }

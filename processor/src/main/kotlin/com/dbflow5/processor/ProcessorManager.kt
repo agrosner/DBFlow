@@ -209,8 +209,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     }
 
     fun logError(callingClass: KClass<*>?, error: String?, vararg args: Any?) {
-        messager.printMessage(Diagnostic.Kind.ERROR, String.format("*==========*${callingClass
-                ?: ""} :" + error?.trim() + "*==========*", *args))
+        messager.printMessage(Diagnostic.Kind.ERROR, String.format("*==========*\n${callingClass
+                ?: ""} :${error?.trim()}\n*==========*", *args))
         var stackTraceElements = Thread.currentThread().stackTrace
         if (stackTraceElements.size > 8) {
             stackTraceElements = stackTraceElements.copyOf(8)
