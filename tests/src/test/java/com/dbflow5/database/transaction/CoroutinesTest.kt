@@ -15,7 +15,7 @@ import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
 import com.dbflow5.structure.save
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 /**

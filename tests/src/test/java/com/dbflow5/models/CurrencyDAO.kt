@@ -10,7 +10,7 @@ import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.transaction.Transaction
 import io.reactivex.Single
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.Deferred
 
 /**
  *  Create this class in your own database module.

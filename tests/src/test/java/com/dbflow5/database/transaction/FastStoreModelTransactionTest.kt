@@ -9,7 +9,7 @@ import com.dbflow5.coroutines.awaitUpdate
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.query.select
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test

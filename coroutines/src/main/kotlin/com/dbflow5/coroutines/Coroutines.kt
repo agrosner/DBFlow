@@ -13,10 +13,12 @@ import com.dbflow5.transaction.fastDelete
 import com.dbflow5.transaction.fastInsert
 import com.dbflow5.transaction.fastSave
 import com.dbflow5.transaction.fastUpdate
-import kotlinx.coroutines.experimental.CancellableContinuation
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.suspendCancellableCoroutine
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * Turns this [Transaction.Builder] into a [Deferred] object to use in coroutines.

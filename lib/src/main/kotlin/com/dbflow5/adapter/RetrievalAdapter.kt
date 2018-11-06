@@ -120,6 +120,3 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     protected open fun createSingleModelLoader(): SingleModelLoader<T> = SingleModelLoader(table)
 
 }
-/**
- * Force loads the model from the DB. Even if caching is enabled it will requery the object.
- */

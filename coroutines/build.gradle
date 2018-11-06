@@ -27,12 +27,6 @@ dependencies {
     api deps.coroutines
 }
 
-kotlin {
-    experimental {
-        coroutines 'enable'
-    }
-}
-
 apply from: '../kotlin-artifacts.gradle'
 
 
