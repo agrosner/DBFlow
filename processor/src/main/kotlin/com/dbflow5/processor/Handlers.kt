@@ -18,15 +18,15 @@ import com.dbflow5.converter.CharConverter
 import com.dbflow5.converter.DateConverter
 import com.dbflow5.converter.SqlDateConverter
 import com.dbflow5.converter.UUIDConverter
-import com.dbflow5.processor.definition.provider.ContentProviderDefinition
 import com.dbflow5.processor.definition.DatabaseDefinition
 import com.dbflow5.processor.definition.ManyToManyDefinition
 import com.dbflow5.processor.definition.MigrationDefinition
 import com.dbflow5.processor.definition.ModelViewDefinition
 import com.dbflow5.processor.definition.QueryModelDefinition
 import com.dbflow5.processor.definition.TableDefinition
-import com.dbflow5.processor.definition.provider.TableEndpointDefinition
 import com.dbflow5.processor.definition.TypeConverterDefinition
+import com.dbflow5.processor.definition.provider.ContentProviderDefinition
+import com.dbflow5.processor.definition.provider.TableEndpointDefinition
 import com.dbflow5.processor.utils.annotation
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
@@ -74,8 +74,12 @@ class ModelViewHandler : BaseContainerHandler<ModelView>() {
     override val annotationClass = ModelView::class.java
 
     override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
-        val modelViewDefinition = ModelViewDefinition(processorManager, element)
-        processorManager.addModelViewDefinition(modelViewDefinition)
+        if (element is TypeElement) {
+            element.annotation<ModelView>()?.let { modelView ->
+                val modelViewDefinition = ModelViewDefinition(modelView, processorManager, element)
+                processorManager.addModelViewDefinition(modelViewDefinition)
+            }
+        }
     }
 }
 
@@ -88,9 +92,11 @@ class QueryModelHandler : BaseContainerHandler<QueryModel>() {
     override val annotationClass = QueryModel::class.java
 
     override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
-        val queryModelDefinition = QueryModelDefinition(element, processorManager)
-        if (queryModelDefinition.databaseTypeName != null) {
-            processorManager.addQueryModelDefinition(queryModelDefinition)
+        if (element is TypeElement) {
+            element.annotation<QueryModel>()?.let { queryModel ->
+                val queryModelDefinition = QueryModelDefinition(queryModel, element, processorManager)
+                processorManager.addQueryModelDefinition(queryModelDefinition)
+            }
         }
     }
 }
@@ -123,8 +129,10 @@ class TableHandler : BaseContainerHandler<Table>() {
 
     override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
         if (element is TypeElement && element.getAnnotation(annotationClass) != null) {
-            val tableDefinition = TableDefinition(processorManager, element)
-            processorManager.addTableDefinition(tableDefinition)
+            element.annotation<Table>()?.let { table ->
+                val tableDefinition = TableDefinition(table, processorManager, element)
+                processorManager.addTableDefinition(tableDefinition)
+            }
 
             if (element.annotation<ManyToMany>() != null) {
                 val manyToManyDefinition = ManyToManyDefinition(element, processorManager)
@@ -163,8 +171,8 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
                     // Check here if user already placed definition of same type, since default converters
                     // are added last.
                     if (processorManager.typeConverters
-                        .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
-                        .isEmpty()) {
+                                    .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
+                                    .isEmpty()) {
                         processorManager.addTypeConverterDefinition(converterDefinition)
                     }
                 }
@@ -175,10 +183,10 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
     companion object {
         private val VALIDATOR = TypeConverterValidator()
         private val DEFAULT_TYPE_CONVERTERS = arrayOf<Class<*>>(CalendarConverter::class.java,
-            BigDecimalConverter::class.java, BigIntegerConverter::class.java,
-            DateConverter::class.java, SqlDateConverter::class.java,
-            BooleanConverter::class.java, UUIDConverter::class.java,
-            CharConverter::class.java)
+                BigDecimalConverter::class.java, BigIntegerConverter::class.java,
+                DateConverter::class.java, SqlDateConverter::class.java,
+                BooleanConverter::class.java, UUIDConverter::class.java,
+                CharConverter::class.java)
     }
 }
 

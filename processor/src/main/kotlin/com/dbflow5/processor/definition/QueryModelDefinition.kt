@@ -3,6 +3,7 @@ package com.dbflow5.processor.definition
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.QueryModel
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnDefinition
@@ -14,33 +15,33 @@ import com.dbflow5.processor.utils.implementsClass
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 
 /**
  * Description:
  */
-class QueryModelDefinition(typeElement: Element, processorManager: ProcessorManager)
+class QueryModelDefinition(queryModel: QueryModel,
+                           typeElement: TypeElement,
+                           processorManager: ProcessorManager)
     : BaseTableDefinition(typeElement, processorManager) {
 
-    var allFields: Boolean = false
-
-    var implementsLoadFromCursorListener = false
+    private val implementsLoadFromCursorListener = typeElement.implementsClass(manager.processingEnvironment,
+            ClassNames.LOAD_FROM_CURSOR_LISTENER)
 
     internal var methods: Array<MethodDefinition>
 
-    init {
-        databaseTypeName = typeElement.extractTypeNameFromAnnotation<QueryModel> { it.database }
+    override val associationalBehavior: AssociationalBehavior = AssociationalBehavior(
+            name = typeElement.simpleName.toString(),
+            databaseTypeName = queryModel.extractTypeNameFromAnnotation { it.database },
+            allFields = queryModel.allFields
+    )
 
+    init {
         elementClassName?.let { elementClassName ->
-            databaseTypeName?.let { processorManager.addModelToDatabase(elementClassName, it) }
+            processorManager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
         }
 
-        implementsLoadFromCursorListener = (element as? TypeElement)
-                ?.implementsClass(manager.processingEnvironment, com.dbflow5.processor.ClassNames.LOAD_FROM_CURSOR_LISTENER) == true
-
         methods = arrayOf(LoadFromCursorMethod(this))
-
     }
 
     override fun prepareForWrite() {
@@ -48,10 +49,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         columnDefinitions.clear()
         packagePrivateList.clear()
 
-        val queryModel = typeElement.annotation<QueryModel>()
-        allFields = queryModel?.allFields ?: true
-
-        databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
+        databaseDefinition = manager.getDatabaseHolderDefinition(associationalBehavior.databaseTypeName)?.databaseDefinition
         setOutputClassName("${databaseDefinition?.classSeparator}QueryTable")
 
         typeElement?.let { createColumnDefinitions(it) }
@@ -82,7 +80,7 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         for (variableElement in variableElements) {
 
             // no private static or final fields
-            val isAllFields = ElementUtility.isValidAllFields(allFields, variableElement)
+            val isAllFields = ElementUtility.isValidAllFields(associationalBehavior.allFields, variableElement)
             // package private, will generate helper
             val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
             val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, variableElement, this.element)

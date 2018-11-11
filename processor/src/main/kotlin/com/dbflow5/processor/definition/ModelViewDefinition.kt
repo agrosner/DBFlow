@@ -4,6 +4,7 @@ import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.ModelViewQuery
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnDefinition
@@ -37,40 +38,27 @@ import javax.lang.model.element.TypeElement
 /**
  * Description: Used in writing ModelViewAdapters
  */
-class ModelViewDefinition(manager: ProcessorManager, element: Element)
+class ModelViewDefinition(modelView: ModelView,
+                          manager: ProcessorManager, element: Element)
     : BaseTableDefinition(element, manager) {
 
-    private val implementsLoadFromCursorListener: Boolean
+    private val implementsLoadFromCursorListener: Boolean =
+            typeElement.implementsClass(manager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER)
 
     private var queryFieldName: String? = null
-
-    private var name: String? = null
 
     private val methods: Array<MethodDefinition> = arrayOf(
             LoadFromCursorMethod(this),
             ExistenceMethod(this),
             PrimaryConditionMethod(this))
 
-    var allFields: Boolean = false
+    val priority = modelView.priority
 
-    var priority: Int = 0
-
-    init {
-        element.annotation<ModelView>()?.let { modelView ->
-            databaseTypeName = modelView.extractTypeNameFromAnnotation { it.database }
+    override val associationalBehavior = AssociationalBehavior(
+            name = if (modelView.name.isNullOrEmpty()) modelClassName else modelView.name,
+            databaseTypeName = modelView.extractTypeNameFromAnnotation { it.database },
             allFields = modelView.allFields
-
-            this.name = modelView.name
-            if (name == null || name!!.isEmpty()) {
-                name = modelClassName
-            }
-            this.priority = modelView.priority
-        }
-
-        implementsLoadFromCursorListener = (element as? TypeElement)
-                ?.implementsClass(manager.processingEnvironment, com.dbflow5.processor.ClassNames.LOAD_FROM_CURSOR_LISTENER) ?: false
-
-    }
+    )
 
     override fun prepareForWrite() {
         classElementLookUpMap.clear()
@@ -79,7 +67,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
 
         val modelView = element.getAnnotation(ModelView::class.java)
         if (modelView != null) {
-            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
+            databaseDefinition = manager.getDatabaseHolderDefinition(associationalBehavior.databaseTypeName)?.databaseDefinition
             setOutputClassName("${databaseDefinition?.classSeparator}ViewTable")
 
             typeElement?.let { createColumnDefinitions(it) }
@@ -98,7 +86,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
         val columnValidator = ColumnValidator()
         for (variableElement in variableElements) {
 
-            val isValidAllFields = ElementUtility.isValidAllFields(allFields, variableElement)
+            val isValidAllFields = ElementUtility.isValidAllFields(associationalBehavior.allFields, variableElement)
             val isColumnMap = variableElement.annotation<ColumnMap>() != null
 
             if (variableElement.annotation<Column>() != null || isValidAllFields
@@ -156,7 +144,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
-            `public static final field`(String::class, "VIEW_NAME") { `=`(name.S) }
+            `public static final field`(String::class, "VIEW_NAME") { `=`(associationalBehavior.name.S) }
 
             elementClassName?.let { elementClassName ->
                 columnDefinitions.forEach { it.addPropertyDefinition(typeBuilder, elementClassName) }
@@ -173,7 +161,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
             }
             `override fun`(String::class, "getViewName") {
                 modifiers(public, final)
-                `return`(name.S)
+                `return`(associationalBehavior.name.S)
             }
         }
 

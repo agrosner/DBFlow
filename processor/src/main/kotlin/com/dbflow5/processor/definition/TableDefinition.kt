@@ -29,7 +29,6 @@ import com.dbflow5.processor.utils.ensureVisibleStatic
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.isNullOrEmpty
-import com.dbflow5.processor.utils.safeLet
 import com.dbflow5.quote
 import com.grosner.kpoet.L
 import com.grosner.kpoet.S
@@ -60,9 +59,9 @@ import javax.lang.model.element.TypeElement
 /**
  * Description: Used in writing ModelAdapters
  */
-class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTableDefinition(element, manager) {
-
-    var tableName: String? = null
+class TableDefinition(table: Table,
+                      manager: ProcessorManager, element: TypeElement)
+    : BaseTableDefinition(element, manager) {
 
     var insertConflictActionName: String = ""
 
@@ -92,7 +91,6 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
     var createWithDatabase = true
 
-    var allFields = false
     var useIsForPrivateBooleans: Boolean = false
     var generateContentValues = false
 
@@ -108,62 +106,56 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
     var hasPrimaryConstructor = false
 
+    override val associationalBehavior = AssociationalBehavior(
+            name = if (table.name.isNullOrEmpty()) element.simpleName.toString() else table.name,
+            databaseTypeName = table.extractTypeNameFromAnnotation { it.database },
+            allFields = table.allFields)
+
     init {
 
-        element.annotation<Table>()?.let { table ->
-            this.tableName = table.name
+        generateContentValues = table.generateContentValues
+        cachingEnabled = table.cachingEnabled
+        customCacheSize = table.cacheSize
 
-            if (tableName == null || tableName!!.isEmpty()) {
-                tableName = element.simpleName.toString()
-            }
+        orderedCursorLookUp = table.orderedCursorLookUp
+        assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor
 
-            databaseTypeName = table.extractTypeNameFromAnnotation { it.database }
+        createWithDatabase = table.createWithDatabase
 
-            generateContentValues = table.generateContentValues
-            cachingEnabled = table.cachingEnabled
-            customCacheSize = table.cacheSize
+        useIsForPrivateBooleans = table.useBooleanGetterSetters
 
-            orderedCursorLookUp = table.orderedCursorLookUp
-            assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor
-
-            createWithDatabase = table.createWithDatabase
-
-            allFields = table.allFields
-            useIsForPrivateBooleans = table.useBooleanGetterSetters
-
-            safeLet(elementClassName, databaseTypeName) { elementClassName, databaseTypeName ->
-                manager.addModelToDatabase(elementClassName, databaseTypeName)
-            }
-
-            val inheritedColumns = table.inheritedColumns
-            inheritedColumns.forEach {
-                if (inheritedFieldNameList.contains(it.fieldName)) {
-                    manager.logError("A duplicate inherited column with name %1s was found for %1s",
-                            it.fieldName, tableName)
-                }
-                inheritedFieldNameList.add(it.fieldName)
-                inheritedColumnMap[it.fieldName] = it
-            }
-
-            val inheritedPrimaryKeys = table.inheritedPrimaryKeys
-            inheritedPrimaryKeys.forEach {
-                if (inheritedFieldNameList.contains(it.fieldName)) {
-                    manager.logError("A duplicate inherited column with name %1s was found for %1s",
-                            it.fieldName, tableName)
-                }
-                inheritedFieldNameList.add(it.fieldName)
-                inheritedPrimaryKeyMap[it.fieldName] = it
-            }
-
-            implementsLoadFromCursorListener = element.implementsClass(manager.processingEnvironment,
-                    ClassNames.LOAD_FROM_CURSOR_LISTENER)
-
-            implementsContentValuesListener = element.implementsClass(manager.processingEnvironment,
-                    ClassNames.CONTENT_VALUES_LISTENER)
-
-            implementsSqlStatementListener = element.implementsClass(manager.processingEnvironment,
-                    ClassNames.SQLITE_STATEMENT_LISTENER)
+        elementClassName?.let { elementClassName ->
+            manager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
         }
+
+        val inheritedColumns = table.inheritedColumns
+        inheritedColumns.forEach {
+            if (inheritedFieldNameList.contains(it.fieldName)) {
+                manager.logError("A duplicate inherited column with name %1s was found for %1s",
+                        it.fieldName, associationalBehavior.name)
+            }
+            inheritedFieldNameList.add(it.fieldName)
+            inheritedColumnMap[it.fieldName] = it
+        }
+
+        val inheritedPrimaryKeys = table.inheritedPrimaryKeys
+        inheritedPrimaryKeys.forEach {
+            if (inheritedFieldNameList.contains(it.fieldName)) {
+                manager.logError("A duplicate inherited column with name %1s was found for %1s",
+                        it.fieldName, associationalBehavior.name)
+            }
+            inheritedFieldNameList.add(it.fieldName)
+            inheritedPrimaryKeyMap[it.fieldName] = it
+        }
+
+        implementsLoadFromCursorListener = element.implementsClass(manager.processingEnvironment,
+                ClassNames.LOAD_FROM_CURSOR_LISTENER)
+
+        implementsContentValuesListener = element.implementsClass(manager.processingEnvironment,
+                ClassNames.CONTENT_VALUES_LISTENER)
+
+        implementsSqlStatementListener = element.implementsClass(manager.processingEnvironment,
+                ClassNames.SQLITE_STATEMENT_LISTENER)
 
         contentValueMethods = arrayOf(BindToContentValuesMethod(this, true, implementsContentValuesListener),
                 BindToContentValuesMethod(this, false, implementsContentValuesListener))
@@ -203,9 +195,10 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
         val table = element.getAnnotation(Table::class.java)
         if (table != null) {
-            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
+            databaseDefinition = manager.getDatabaseHolderDefinition(associationalBehavior.databaseTypeName)?.databaseDefinition
             if (databaseDefinition == null) {
-                manager.logError("DatabaseDefinition was null for : $tableName for db type: $databaseTypeName")
+                manager.logError("DatabaseDefinition was null for : ${associationalBehavior.name}" +
+                        " for db type: ${associationalBehavior.databaseTypeName}")
             }
             databaseDefinition?.let { databaseDefinition ->
 
@@ -236,7 +229,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
             for (uniqueGroup in groups) {
                 if (uniqueNumbersSet.contains(uniqueGroup.groupNumber)) {
                     manager.logError("A duplicate unique group with number" +
-                            " ${uniqueGroup.groupNumber} was found for $tableName")
+                            " ${uniqueGroup.groupNumber} was found for ${associationalBehavior.name}")
                 }
                 val definition = UniqueGroupsDefinition(uniqueGroup)
                 columnDefinitions.filter { it.uniqueGroups.contains(definition.number) }
@@ -279,7 +272,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
         val oneToManyValidator = OneToManyValidator()
         elements.forEach { element ->
             // no private static or final fields for all columns, or any inherited columns here.
-            val isAllFields = ElementUtility.isValidAllFields(allFields, element)
+            val isAllFields = ElementUtility.isValidAllFields(associationalBehavior.allFields, element)
 
             // package private, will generate helper
             val isPackagePrivate = ElementUtility.isPackagePrivate(element)
@@ -336,7 +329,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
                                     "To suppress or remove this warning " +
                                     "switch to java primitive, add @android.support.annotation.NonNull," +
                                     "@org.jetbrains.annotation.NotNull, or in Kotlin don't make it nullable. Check the column ${it.columnName} " +
-                                    "on $tableName")
+                                    "on ${associationalBehavior.name}")
                         }
                     }
 
@@ -404,7 +397,7 @@ class TableDefinition(manager: ProcessorManager, element: TypeElement) : BaseTab
 
             `override fun`(String::class, "getTableName") {
                 modifiers(public, final)
-                `return`(tableName.quote().S)
+                `return`(associationalBehavior.name.quote().S)
             }
 
             if (updateConflictActionName.isNotEmpty()) {

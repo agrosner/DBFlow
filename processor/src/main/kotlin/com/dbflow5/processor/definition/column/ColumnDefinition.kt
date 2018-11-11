@@ -320,7 +320,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         val tableDef = baseTableDefinition
         var tableName = tableDef.elementName
         if (tableDef is TableDefinition) {
-            tableName = tableDef.tableName ?: ""
+            tableName = tableDef.associationalBehavior.name
         }
         return "${baseTableDefinition.databaseDefinition?.databaseClassName}.$tableName.${columnName.quote()}"
     }

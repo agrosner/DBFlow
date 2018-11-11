@@ -1,5 +1,9 @@
 package com.dbflow5.processor.definition
 
+import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.utils.ElementUtility
+import com.dbflow5.processor.utils.hasJavaX
+import com.dbflow5.processor.utils.toTypeElement
 import com.grosner.kpoet.S
 import com.grosner.kpoet.`@`
 import com.grosner.kpoet.`public final class`
@@ -7,12 +11,6 @@ import com.grosner.kpoet.extends
 import com.grosner.kpoet.implements
 import com.grosner.kpoet.javadoc
 import com.grosner.kpoet.typeName
-import com.dbflow5.processor.ClassNames
-import com.dbflow5.processor.DBFlowProcessor
-import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.utils.ElementUtility
-import com.dbflow5.processor.utils.hasJavaX
-import com.dbflow5.processor.utils.toTypeElement
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -131,7 +129,8 @@ abstract class BaseDefinition : TypeDefinition {
     override val typeSpec: TypeSpec
         get() {
             if (outputClassName == null) {
-                manager.logError("Found error for $elementTypeName $outputClassName ${(this as QueryModelDefinition).databaseTypeName}")
+                manager.logError("$elementTypeName's outputClass name was null. Database was " +
+                        "${(this as? BaseTableDefinition)?.associationalBehavior?.databaseTypeName}")
             }
             return `public final class`(outputClassName?.simpleName() ?: "") {
                 if (hasJavaX()) {

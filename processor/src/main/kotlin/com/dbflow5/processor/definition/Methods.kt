@@ -190,7 +190,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
             val foreignSize = tableDefinition.foreignKeyDefinitions.size
 
             val creationBuilder = codeBlock {
-                add("CREATE TABLE IF NOT EXISTS ${tableDefinition.tableName.quote()}(")
+                add("CREATE TABLE IF NOT EXISTS ${tableDefinition.associationalBehavior.name.quote()}(")
                 add(tableDefinition.columnDefinitions.joinToString { it.creationName.toString() })
                 tableDefinition.uniqueGroupsDefinitions.forEach {
                     if (!it.columnDefinitionList.isEmpty()) add(it.creationName)
@@ -338,7 +338,7 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition,
                     } else {
                         add("OR ${ConflictAction.REPLACE} ")
                     }
-                    add("INTO ${tableDefinition.tableName.quote()}(")
+                    add("INTO ${tableDefinition.associationalBehavior.name.quote()}(")
 
                     tableDefinition.sqlColumnDefinitions
                             .forEachIndexed { index, columnDefinition ->
@@ -372,7 +372,7 @@ class UpdateStatementQueryMethod(private val tableDefinition: TableDefinition) :
                     if (!tableDefinition.updateConflictActionName.isEmpty()) {
                         add(" OR ${tableDefinition.updateConflictActionName}")
                     }
-                    add(" ${tableDefinition.tableName.quote()} SET ")
+                    add(" ${tableDefinition.associationalBehavior.name.quote()} SET ")
 
                     // can only change non primary key values.
                     tableDefinition.sqlColumnDefinitions
@@ -403,7 +403,7 @@ class DeleteStatementQueryMethod(private val tableDefinition: TableDefinition) :
             return `override fun`(String::class, "getDeleteStatementQuery") {
                 modifiers(public, final)
                 `return`(codeBlock {
-                    add("DELETE FROM ${tableDefinition.tableName.quote()} WHERE ")
+                    add("DELETE FROM ${tableDefinition.associationalBehavior.name.quote()} WHERE ")
 
                     // primary key values used as WHERE
                     tableDefinition.columnDefinitions

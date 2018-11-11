@@ -68,10 +68,10 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
     val modelClassName = typeElement.simpleName.toString()
     var databaseDefinition: DatabaseDefinition? = null
 
-    var databaseTypeName: TypeName? = null
-
     val hasGlobalTypeConverters
         get() = globalTypeConverters.isNotEmpty()
+
+    abstract val associationalBehavior: AssociationalBehavior
 
     init {
         columnDefinitions = arrayListOf()

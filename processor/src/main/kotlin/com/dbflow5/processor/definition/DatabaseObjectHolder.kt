@@ -30,13 +30,13 @@ class DatabaseObjectHolder {
         if (databaseDefinition == null) {
             val list = mutableListOf<String>()
             tableDefinitionMap.values.forEach {
-                list += "Database ${it.databaseTypeName} not found for Table ${it.tableName}"
+                list += "Database ${it.associationalBehavior.databaseTypeName} not found for Table ${it.associationalBehavior.name}"
             }
             queryModelDefinitionMap.values.forEach {
-                list += "Database ${it.databaseTypeName} not found for QueryModel ${it.elementName}"
+                list += "Database ${it.associationalBehavior.databaseTypeName} not found for QueryModel ${it.elementName}"
             }
             modelViewDefinitionMap.values.forEach {
-                list += "Database ${it.databaseTypeName} not found for ModelView ${it.elementName}"
+                list += "Database ${it.associationalBehavior.databaseTypeName} not found for ModelView ${it.elementName}"
             }
             providerMap.values.forEach {
                 list += "Database ${it.databaseTypeName} not found for ContentProvider ${it.elementName}"

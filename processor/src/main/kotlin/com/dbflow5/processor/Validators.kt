@@ -200,7 +200,7 @@ class TableValidator : Validator<TableDefinition> {
         }
 
         if (validatorDefinition.columnDefinitions.isEmpty()) {
-            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.tableName} " +
+            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.associationalBehavior.name} " +
                     "of ${validatorDefinition.elementClassName}, ${validatorDefinition.element.javaClass} " +
                     "needs to define at least one column")
             success = false
@@ -210,7 +210,7 @@ class TableValidator : Validator<TableDefinition> {
                 && !validatorDefinition._primaryColumnDefinitions.isEmpty()
 
         if (hasTwoKinds) {
-            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.tableName}" +
+            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.associationalBehavior.name}" +
                     " cannot mix and match autoincrement and composite primary keys")
             success = false
         }
@@ -221,7 +221,7 @@ class TableValidator : Validator<TableDefinition> {
                 && !validatorDefinition._primaryColumnDefinitions.isEmpty()
 
         if (!hasPrimary) {
-            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.tableName} " +
+            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.associationalBehavior.name} " +
                     "needs to define at least one primary key")
             success = false
         }

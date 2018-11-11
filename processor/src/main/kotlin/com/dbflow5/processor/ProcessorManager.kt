@@ -92,20 +92,22 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun addQueryModelDefinition(queryModelDefinition: QueryModelDefinition) {
         queryModelDefinition.elementClassName?.let {
-            getOrPutDatabase(queryModelDefinition.databaseTypeName)?.queryModelDefinitionMap?.put(it, queryModelDefinition)
+            getOrPutDatabase(queryModelDefinition.associationalBehavior.databaseTypeName)
+                    ?.queryModelDefinitionMap?.put(it, queryModelDefinition)
         }
     }
 
     fun addTableDefinition(tableDefinition: TableDefinition) {
         tableDefinition.elementClassName?.let {
-            val holderDefinition = getOrPutDatabase(tableDefinition.databaseTypeName)
+            val holderDefinition = getOrPutDatabase(tableDefinition.associationalBehavior.databaseTypeName)
             holderDefinition?.tableDefinitionMap?.put(it, tableDefinition)
             holderDefinition?.tableNameMap?.let {
-                if (holderDefinition.tableNameMap.containsKey(tableDefinition.tableName)) {
-                    logError("Found duplicate table ${tableDefinition.tableName} " +
+                val tableName = tableDefinition.associationalBehavior.name
+                if (holderDefinition.tableNameMap.containsKey(tableName)) {
+                    logError("Found duplicate table $tableName " +
                             "for database ${holderDefinition.databaseDefinition?.databaseClassName}")
-                } else tableDefinition.tableName?.let {
-                    holderDefinition.tableNameMap.put(it, tableDefinition)
+                } else {
+                    holderDefinition.tableNameMap.put(tableName, tableDefinition)
                 }
             }
         }
@@ -141,7 +143,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun addModelViewDefinition(modelViewDefinition: ModelViewDefinition) {
         modelViewDefinition.elementClassName?.let {
-            getOrPutDatabase(modelViewDefinition.databaseTypeName)?.modelViewDefinitionMap?.put(it, modelViewDefinition)
+            getOrPutDatabase(modelViewDefinition.associationalBehavior.databaseTypeName)
+                    ?.modelViewDefinitionMap?.put(it, modelViewDefinition)
         }
     }
 

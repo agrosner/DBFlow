@@ -93,8 +93,9 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             isStubbedRelationship = true
             findReferencedClassName(manager)
 
+            // self create a column map if defined here.
             typeElement?.let { typeElement ->
-                QueryModelDefinition(typeElement, manager).apply {
+                QueryModelDefinition(queryModel, typeElement, manager).apply {
                     databaseTypeName = tableDefinition.databaseTypeName
                     manager.addQueryModelDefinition(this)
                 }
@@ -386,13 +387,13 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
      */
     fun checkNeedsReferences() {
         val tableDefinition = baseTableDefinition
-        val referencedTableDefinition = manager.getReferenceDefinition(tableDefinition.databaseTypeName, referencedClassName)
+        val referencedTableDefinition = manager.getReferenceDefinition(tableDefinition.associationalBehavior.databaseTypeName, referencedClassName)
         if (referencedTableDefinition == null) {
             manager.logError(ReferenceColumnDefinition::class,
                     "Could not find the referenced ${Table::class.java.simpleName} " +
                             "or ${QueryModel::class.java.simpleName} definition $referencedClassName" +
                             " from ${tableDefinition.elementName}. " +
-                            "Ensure it exists in the same database as ${tableDefinition.databaseTypeName}")
+                            "Ensure it exists in the same database as ${tableDefinition.associationalBehavior.databaseTypeName}")
         } else if (needsReferences) {
             val primaryColumns =
                     if (isColumnMap) referencedTableDefinition.columnDefinitions
