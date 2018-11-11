@@ -82,9 +82,11 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun getTypeConverterDefinition(typeName: TypeName?): TypeConverterDefinition? = typeConverters[typeName]
 
-    fun addModelToDatabase(modelType: TypeName, databaseName: TypeName) {
-        addDatabase(databaseName)
-        modelToDatabaseMap[modelType] = databaseName
+    fun addModelToDatabase(modelType: TypeName?, databaseName: TypeName) {
+        modelType?.let { type ->
+            addDatabase(databaseName)
+            modelToDatabaseMap[type] = databaseName
+        }
     }
 
     fun getDatabaseName(databaseTypeName: TypeName?) = getOrPutDatabase(databaseTypeName)?.databaseDefinition?.databaseClassName

@@ -30,6 +30,19 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
             allFields = virtualTable.allFields
     )
 
+    override val methods: Array<MethodDefinition> = arrayOf(
+            /*BindToStatementMethod(this, BindToStatementMethod.Mode.INSERT),
+            BindToStatementMethod(this, BindToStatementMethod.Mode.UPDATE),
+            BindToStatementMethod(this, BindToStatementMethod.Mode.DELETE),
+            InsertStatementQueryMethod(this, InsertStatementQueryMethod.Mode.INSERT),
+            InsertStatementQueryMethod(this, InsertStatementQueryMethod.Mode.SAVE),
+            UpdateStatementQueryMethod(this),
+            DeleteStatementQueryMethod(this),
+            CreationQueryMethod(this),*/ // TODO: reactivate with some refactoring.
+            LoadFromCursorMethod(this),
+            ExistenceMethod(this),
+            PrimaryConditionMethod(this))
+
     init {
         element.annotation<VirtualTable>()?.let { ftS4 ->
             type = ftS4.type

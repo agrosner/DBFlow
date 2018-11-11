@@ -47,7 +47,7 @@ class ModelViewDefinition(modelView: ModelView,
 
     private var queryFieldName: String? = null
 
-    private val methods: Array<MethodDefinition> = arrayOf(
+    override val methods: Array<MethodDefinition> = arrayOf(
             LoadFromCursorMethod(this),
             ExistenceMethod(this),
             PrimaryConditionMethod(this))

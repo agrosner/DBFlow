@@ -28,7 +28,7 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
     private val implementsLoadFromCursorListener = typeElement.implementsClass(manager.processingEnvironment,
             ClassNames.LOAD_FROM_CURSOR_LISTENER)
 
-    internal var methods: Array<MethodDefinition>
+    override val methods: Array<MethodDefinition> = arrayOf(LoadFromCursorMethod(this))
 
     constructor(queryModel: QueryModel, typeElement: TypeElement,
                 processorManager: ProcessorManager) : this(
@@ -52,11 +52,7 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
             typeElement, processorManager)
 
     init {
-        elementClassName?.let { elementClassName ->
-            processorManager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
-        }
-
-        methods = arrayOf(LoadFromCursorMethod(this))
+        processorManager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
     }
 
     override fun prepareForWrite() {

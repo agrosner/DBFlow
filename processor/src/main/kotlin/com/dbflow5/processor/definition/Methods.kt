@@ -99,7 +99,8 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
 /**
  * Description:
  */
-class BindToStatementMethod(private val tableDefinition: TableDefinition, private val mode: Mode) : MethodDefinition {
+class BindToStatementMethod(private val tableDefinition: TableDefinition,
+                            private val mode: Mode) : MethodDefinition {
 
     enum class Mode {
         INSERT {

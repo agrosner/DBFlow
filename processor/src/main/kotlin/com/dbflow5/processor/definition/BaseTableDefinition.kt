@@ -73,6 +73,8 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
     abstract val associationalBehavior: AssociationalBehavior
 
+    abstract val methods: Array<MethodDefinition>
+
     init {
         columnDefinitions = arrayListOf()
     }

@@ -81,7 +81,23 @@ class TableDefinition(table: Table,
 
     var implementsLoadFromCursorListener = false
 
-    private val methods: Array<MethodDefinition>
+    override val methods: Array<MethodDefinition> = arrayOf(
+            BindToStatementMethod(this, INSERT),
+            BindToStatementMethod(this, UPDATE),
+            BindToStatementMethod(this, DELETE),
+            InsertStatementQueryMethod(this, InsertStatementQueryMethod.Mode.INSERT),
+            InsertStatementQueryMethod(this, InsertStatementQueryMethod.Mode.SAVE),
+            UpdateStatementQueryMethod(this),
+            DeleteStatementQueryMethod(this),
+            CreationQueryMethod(this),
+            LoadFromCursorMethod(this),
+            ExistenceMethod(this),
+            PrimaryConditionMethod(this),
+            OneToManyDeleteMethod(this),
+            OneToManySaveMethod(this, OneToManySaveMethod.METHOD_SAVE),
+            OneToManySaveMethod(this, OneToManySaveMethod.METHOD_INSERT),
+            OneToManySaveMethod(this, OneToManySaveMethod.METHOD_UPDATE))
+
     private val contentValueMethods: Array<MethodDefinition>
 
     var cachingEnabled = false
@@ -124,9 +140,7 @@ class TableDefinition(table: Table,
 
         useIsForPrivateBooleans = table.useBooleanGetterSetters
 
-        elementClassName?.let { elementClassName ->
-            manager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
-        }
+        manager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
 
         val inheritedColumns = table.inheritedColumns
         inheritedColumns.forEach {
@@ -160,23 +174,6 @@ class TableDefinition(table: Table,
         contentValueMethods = arrayOf(BindToContentValuesMethod(this, true, implementsContentValuesListener),
                 BindToContentValuesMethod(this, false, implementsContentValuesListener))
 
-        methods = arrayOf(
-                BindToStatementMethod(this, INSERT),
-                BindToStatementMethod(this, UPDATE),
-                BindToStatementMethod(this, DELETE),
-                InsertStatementQueryMethod(this, InsertStatementQueryMethod.Mode.INSERT),
-                InsertStatementQueryMethod(this, InsertStatementQueryMethod.Mode.SAVE),
-                UpdateStatementQueryMethod(this),
-                DeleteStatementQueryMethod(this),
-                CreationQueryMethod(this),
-                LoadFromCursorMethod(this),
-                ExistenceMethod(this),
-                PrimaryConditionMethod(this),
-                OneToManyDeleteMethod(this),
-                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_SAVE),
-                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_INSERT),
-                OneToManySaveMethod(this, OneToManySaveMethod.METHOD_UPDATE)
-        )
     }
 
     override fun prepareForWrite() {
