@@ -25,9 +25,6 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
                            processorManager: ProcessorManager)
     : BaseTableDefinition(typeElement, processorManager) {
 
-    private val implementsLoadFromCursorListener = typeElement.implementsClass(manager.processingEnvironment,
-            ClassNames.LOAD_FROM_CURSOR_LISTENER)
-
     override val methods: Array<MethodDefinition> = arrayOf(LoadFromCursorMethod(this))
 
     constructor(queryModel: QueryModel, typeElement: TypeElement,

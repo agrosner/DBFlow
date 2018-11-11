@@ -79,8 +79,6 @@ class TableDefinition(table: Table,
 
     var implementsSqlStatementListener = false
 
-    var implementsLoadFromCursorListener = false
-
     override val methods: Array<MethodDefinition> = arrayOf(
             BindToStatementMethod(this, INSERT),
             BindToStatementMethod(this, UPDATE),
@@ -161,9 +159,6 @@ class TableDefinition(table: Table,
             inheritedFieldNameList.add(it.fieldName)
             inheritedPrimaryKeyMap[it.fieldName] = it
         }
-
-        implementsLoadFromCursorListener = element.implementsClass(manager.processingEnvironment,
-                ClassNames.LOAD_FROM_CURSOR_LISTENER)
 
         implementsContentValuesListener = element.implementsClass(manager.processingEnvironment,
                 ClassNames.CONTENT_VALUES_LISTENER)

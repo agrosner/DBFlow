@@ -4,7 +4,6 @@ import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.ModelViewQuery
-import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnDefinition
@@ -31,7 +30,6 @@ import com.grosner.kpoet.public
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
@@ -39,11 +37,9 @@ import javax.lang.model.element.TypeElement
  * Description: Used in writing ModelViewAdapters
  */
 class ModelViewDefinition(modelView: ModelView,
-                          manager: ProcessorManager, element: Element)
+                          manager: ProcessorManager,
+                          element: TypeElement)
     : BaseTableDefinition(element, manager) {
-
-    private val implementsLoadFromCursorListener: Boolean =
-            typeElement.implementsClass(manager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER)
 
     private var queryFieldName: String? = null
 

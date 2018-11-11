@@ -1,12 +1,10 @@
 package com.dbflow5.processor.definition
 
 import com.dbflow5.annotation.VirtualTable
-import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
-import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.isNullOrEmpty
 import javax.lang.model.element.TypeElement
 
@@ -16,9 +14,6 @@ import javax.lang.model.element.TypeElement
 class VirtualTableDefinition(virtualTable: VirtualTable,
                              typeElement: TypeElement, processorManager: ProcessorManager)
     : BaseTableDefinition(typeElement, processorManager) {
-
-    private val implementsLoadFromCursorListener: Boolean =
-            typeElement.implementsClass(processorManager.processingEnvironment, ClassNames.LOAD_FROM_CURSOR_LISTENER)
 
     private var createWithDatabase = true
 

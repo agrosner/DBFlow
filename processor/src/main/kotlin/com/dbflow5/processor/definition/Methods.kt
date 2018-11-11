@@ -446,7 +446,7 @@ class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition)
                 }
             }
 
-            if (baseTableDefinition is TableDefinition && baseTableDefinition.implementsLoadFromCursorListener) {
+            if (baseTableDefinition.implementsLoadFromCursorListener) {
                 statement("${ModelUtils.variable}.onLoadFromCursor($PARAM_CURSOR)")
             }
             `return`(ModelUtils.variable)

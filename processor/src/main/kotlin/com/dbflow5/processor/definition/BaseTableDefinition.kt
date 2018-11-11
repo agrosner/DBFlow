@@ -9,6 +9,7 @@ import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.getPackage
+import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.toClassName
 import com.grosner.kpoet.`public static final`
 import com.grosner.kpoet.`return`
@@ -41,7 +42,7 @@ fun Collection<BaseTableDefinition>.safeWritePackageHelper(processorManager: Pro
 /**
  * Description: Used to write Models and ModelViews
  */
-abstract class BaseTableDefinition(typeElement: Element, processorManager: ProcessorManager)
+abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: ProcessorManager)
     : BaseDefinition(typeElement, processorManager) {
 
     var columnDefinitions: MutableList<ColumnDefinition>
@@ -70,6 +71,9 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
     val hasGlobalTypeConverters
         get() = globalTypeConverters.isNotEmpty()
+
+    val implementsLoadFromCursorListener = typeElement.implementsClass(manager.processingEnvironment,
+            ClassNames.LOAD_FROM_CURSOR_LISTENER)
 
     abstract val associationalBehavior: AssociationalBehavior
 
