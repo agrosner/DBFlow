@@ -95,8 +95,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
 
             // self create a column map if defined here.
             typeElement?.let { typeElement ->
-                QueryModelDefinition(queryModel, typeElement, manager).apply {
-                    databaseTypeName = tableDefinition.databaseTypeName
+                QueryModelDefinition(typeElement, tableDefinition.associationalBehavior.databaseTypeName, manager).apply {
                     manager.addQueryModelDefinition(this)
                 }
             }

@@ -20,7 +20,7 @@ import javax.lang.model.element.TypeElement
 /**
  * Description:
  */
-class QueryModelDefinition(queryModel: QueryModel,
+class QueryModelDefinition(override val associationalBehavior: AssociationalBehavior,
                            typeElement: TypeElement,
                            processorManager: ProcessorManager)
     : BaseTableDefinition(typeElement, processorManager) {
@@ -30,11 +30,26 @@ class QueryModelDefinition(queryModel: QueryModel,
 
     internal var methods: Array<MethodDefinition>
 
-    override val associationalBehavior: AssociationalBehavior = AssociationalBehavior(
-            name = typeElement.simpleName.toString(),
-            databaseTypeName = queryModel.extractTypeNameFromAnnotation { it.database },
-            allFields = queryModel.allFields
-    )
+    constructor(queryModel: QueryModel, typeElement: TypeElement,
+                processorManager: ProcessorManager) : this(
+            AssociationalBehavior(
+                    name = typeElement.simpleName.toString(),
+                    databaseTypeName = queryModel.extractTypeNameFromAnnotation { it.database },
+                    allFields = queryModel.allFields
+            ), typeElement, processorManager)
+
+    /**
+     * [ColumnMap] constructor.
+     */
+    constructor(typeElement: TypeElement,
+                databaseTypeName: TypeName,
+                processorManager: ProcessorManager) : this(
+            AssociationalBehavior(
+                    name = typeElement.simpleName.toString(),
+                    databaseTypeName = databaseTypeName,
+                    allFields = true
+            ),
+            typeElement, processorManager)
 
     init {
         elementClassName?.let { elementClassName ->
