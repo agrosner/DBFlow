@@ -29,16 +29,16 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
 
     constructor(queryModel: QueryModel, typeElement: TypeElement,
                 processorManager: ProcessorManager) : this(
-            AssociationalBehavior(
-                    name = typeElement.simpleName.toString(),
-                    databaseTypeName = queryModel.extractTypeNameFromAnnotation { it.database },
-                    allFields = queryModel.allFields
-            ),
-            CursorHandlingBehavior(
-                    orderedCursorLookup = queryModel.orderedCursorLookUp,
-                    assignDefaultValuesFromCursor = queryModel.assignDefaultValuesFromCursor
-            ),
-            typeElement, processorManager)
+        AssociationalBehavior(
+            name = typeElement.simpleName.toString(),
+            databaseTypeName = queryModel.extractTypeNameFromAnnotation { it.database },
+            allFields = queryModel.allFields
+        ),
+        CursorHandlingBehavior(
+            orderedCursorLookup = queryModel.orderedCursorLookUp,
+            assignDefaultValuesFromCursor = queryModel.assignDefaultValuesFromCursor
+        ),
+        typeElement, processorManager)
 
     /**
      * [ColumnMap] constructor.
@@ -46,20 +46,20 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
     constructor(typeElement: TypeElement,
                 databaseTypeName: TypeName,
                 processorManager: ProcessorManager) : this(
-            AssociationalBehavior(
-                    name = typeElement.simpleName.toString(),
-                    databaseTypeName = databaseTypeName,
-                    allFields = true
-            ),
-            CursorHandlingBehavior(),
-            typeElement, processorManager)
+        AssociationalBehavior(
+            name = typeElement.simpleName.toString(),
+            databaseTypeName = databaseTypeName,
+            allFields = true
+        ),
+        CursorHandlingBehavior(),
+        typeElement, processorManager)
 
     init {
+        setOutputClassName("_QueryTable")
         processorManager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
     }
 
     override fun prepareForWriteInternal() {
-        setOutputClassName("${databaseDefinition.classSeparator}QueryTable")
         typeElement?.let { createColumnDefinitions(it) }
     }
 
@@ -77,7 +77,7 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
         }
 
         methods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
+            .forEach { typeBuilder.addMethod(it) }
     }
 
     override fun createColumnDefinitions(typeElement: TypeElement) {

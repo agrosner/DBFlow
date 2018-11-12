@@ -1,5 +1,6 @@
 package com.dbflow5.processor.test
 
+import com.dbflow5.processor.definition.CursorHandlingBehavior
 import com.dbflow5.processor.definition.column.BooleanColumnAccessor
 import com.dbflow5.processor.definition.column.Combiner
 import com.dbflow5.processor.definition.column.ContentValuesCombiner
@@ -27,7 +28,7 @@ class ContentValuesCombinerTest {
     @Test
     fun test_canCombineSimpleCase() {
         val combiner = ContentValuesCombiner(Combiner(VisibleScopeColumnAccessor("name"),
-                TypeName.get(String::class.java)))
+            TypeName.get(String::class.java)))
 
         val codeBuilder = CodeBlock.builder()
         combiner.apply {
@@ -35,13 +36,13 @@ class ContentValuesCombinerTest {
         }
 
         assertEquals("values.put(\"`columnName`\", model.name != null ? model.name : \"nonNull\");",
-                codeBuilder.build().toString().trim())
+            codeBuilder.build().toString().trim())
     }
 
     @Test
     fun test_canCombineSimplePrimitiveCase() {
         val combiner = ContentValuesCombiner(Combiner(VisibleScopeColumnAccessor("name"),
-                TypeName.get(Boolean::class.java)))
+            TypeName.get(Boolean::class.java)))
 
         val codeBuilder = CodeBlock.builder()
         combiner.apply {
@@ -49,16 +50,16 @@ class ContentValuesCombinerTest {
         }
 
         assertEquals("values.put(\"`columnName`\", model.name);",
-                codeBuilder.build().toString().trim())
+            codeBuilder.build().toString().trim())
     }
 
     @Test
     fun test_canCombineWrapperCase() {
         val combiner = ContentValuesCombiner(
-                Combiner(PackagePrivateScopeColumnAccessor("name", "com.fuzz.android", "_", "TestType"),
-                        TypeName.get(String::class.java),
-                        TypeConverterScopeColumnAccessor("global_converter"),
-                        TypeName.get(String::class.java)))
+            Combiner(PackagePrivateScopeColumnAccessor("name", "com.fuzz.android", "TestType"),
+                TypeName.get(String::class.java),
+                TypeConverterScopeColumnAccessor("global_converter"),
+                TypeName.get(String::class.java)))
 
         val codeBuilder = CodeBlock.builder()
         combiner.apply {
@@ -66,17 +67,17 @@ class ContentValuesCombinerTest {
         }
 
         assertEquals("java.lang.String refname = com.fuzz.android.TestType_Helper.getName(model) != null ? global_converter.getDBValue(com.fuzz.android.TestType_Helper.getName(model)) : null;"
-                + "\nvalues.put(\"`columnName`\", refname != null ? refname : \"nonNull\");",
-                codeBuilder.build().toString().trim())
+            + "\nvalues.put(\"`columnName`\", refname != null ? refname : \"nonNull\");",
+            codeBuilder.build().toString().trim())
     }
 
     @Test
     fun test_canCombinePrivateWrapperCase() {
         val combiner = ContentValuesCombiner(
-                Combiner(PrivateScopeColumnAccessor("name"),
-                        TypeName.get(String::class.java),
-                        TypeConverterScopeColumnAccessor("global_converter"),
-                        TypeName.get(String::class.java)))
+            Combiner(PrivateScopeColumnAccessor("name"),
+                TypeName.get(String::class.java),
+                TypeConverterScopeColumnAccessor("global_converter"),
+                TypeName.get(String::class.java)))
 
         val codeBuilder = CodeBlock.builder()
         combiner.apply {
@@ -84,8 +85,8 @@ class ContentValuesCombinerTest {
         }
 
         assertEquals("java.lang.String refname = model.getName() != null ? global_converter.getDBValue(model.getName()) : null;"
-                + "\nvalues.put(\"`columnName`\", refname != null ? refname : \"nonNull\");",
-                codeBuilder.build().toString().trim())
+            + "\nvalues.put(\"`columnName`\", refname != null ? refname : \"nonNull\");",
+            codeBuilder.build().toString().trim())
     }
 
 
@@ -96,7 +97,7 @@ class SqliteStatementAccessCombinerTest {
     @Test
     fun test_canCombineSimpleCase() {
         val combiner = SqliteStatementAccessCombiner(
-                Combiner(VisibleScopeColumnAccessor("name"), TypeName.get(String::class.java)))
+            Combiner(VisibleScopeColumnAccessor("name"), TypeName.get(String::class.java)))
 
         val codeBuilder = CodeBlock.builder()
         combiner.apply {
@@ -104,19 +105,19 @@ class SqliteStatementAccessCombinerTest {
         }
 
         assertEquals("if (model.name != null) {" +
-                "\n  statement.bindString(0, model.name);" +
-                "\n} else {" +
-                "\n  statement.bindString(0, \"nonNull\");" +
-                "\n}", codeBuilder.build().toString().trim())
+            "\n  statement.bindString(0, model.name);" +
+            "\n} else {" +
+            "\n  statement.bindString(0, \"nonNull\");" +
+            "\n}", codeBuilder.build().toString().trim())
     }
 
     @Test
     fun test_canCombineSimplePrimitiveCase() {
         val combiner = SqliteStatementAccessCombiner(
-                Combiner(VisibleScopeColumnAccessor("name"),
-                        TypeName.get(Boolean::class.java),
-                        BooleanColumnAccessor(),
-                        TypeName.get(Boolean::class.java)))
+            Combiner(VisibleScopeColumnAccessor("name"),
+                TypeName.get(Boolean::class.java),
+                BooleanColumnAccessor(),
+                TypeName.get(Boolean::class.java)))
 
         val codeBuilder = CodeBlock.builder()
         combiner.apply {
@@ -124,16 +125,16 @@ class SqliteStatementAccessCombinerTest {
         }
 
         assertEquals("statement.bindLong(0, model.name ? 1 : 0);",
-                codeBuilder.build().toString().trim())
+            codeBuilder.build().toString().trim())
     }
 
     @Test
     fun test_canCombineWrapperCase() {
         val combiner = SqliteStatementAccessCombiner(
-                Combiner(PackagePrivateScopeColumnAccessor("name", "com.fuzz.android", "_", "TestType"),
-                        TypeName.get(String::class.java),
-                        TypeConverterScopeColumnAccessor("global_converter"),
-                        TypeName.get(String::class.java)))
+            Combiner(PackagePrivateScopeColumnAccessor("name", "com.fuzz.android", "TestType"),
+                TypeName.get(String::class.java),
+                TypeConverterScopeColumnAccessor("global_converter"),
+                TypeName.get(String::class.java)))
 
         val codeBuilder = CodeBlock.builder()
         combiner.apply {
@@ -141,31 +142,31 @@ class SqliteStatementAccessCombinerTest {
         }
 
         assertEquals("java.lang.String refname = com.fuzz.android.TestType_Helper.getName(model) != null ? global_converter.getDBValue(com.fuzz.android.TestType_Helper.getName(model)) : null;" +
-                "\nif (refname != null) {" +
-                "\n  statement.bindString(1, refname);" +
-                "\n} else {" +
-                "\n  statement.bindString(1, \"nonNull\");" +
-                "\n}", codeBuilder.build().toString().trim())
+            "\nif (refname != null) {" +
+            "\n  statement.bindString(1, refname);" +
+            "\n} else {" +
+            "\n  statement.bindString(1, \"nonNull\");" +
+            "\n}", codeBuilder.build().toString().trim())
     }
 
     @Test
     fun test_canCombinePrivateWrapperCase() {
         val combiner = SqliteStatementAccessCombiner(
-                Combiner(PrivateScopeColumnAccessor("name"),
-                        TypeName.get(String::class.java),
-                        TypeConverterScopeColumnAccessor("global_converter"),
-                        TypeName.get(String::class.java)))
+            Combiner(PrivateScopeColumnAccessor("name"),
+                TypeName.get(String::class.java),
+                TypeConverterScopeColumnAccessor("global_converter"),
+                TypeName.get(String::class.java)))
 
         val codeBuilder = CodeBlock.builder()
         combiner.apply {
             codeBuilder.addCode("", CodeBlock.of("\$S", "nonNull"), 1)
         }
         assertEquals("java.lang.String refname = model.getName() != null ? global_converter.getDBValue(model.getName()) : null;" +
-                "\nif (refname != null) {" +
-                "\n  statement.bindString(1, refname);" +
-                "\n} else {" +
-                "\n  statement.bindString(1, \"nonNull\");" +
-                "\n}", codeBuilder.build().toString().trim())
+            "\nif (refname != null) {" +
+            "\n  statement.bindString(1, refname);" +
+            "\n} else {" +
+            "\n  statement.bindString(1, \"nonNull\");" +
+            "\n}", codeBuilder.build().toString().trim())
     }
 
 }
@@ -175,7 +176,8 @@ class LoadFromCursorAccessCombinerTest {
     @Test
     fun test_simpleCase() {
         val combiner = LoadFromCursorAccessCombiner(
-                Combiner(VisibleScopeColumnAccessor("name"), TypeName.get(String::class.java)), false, NameAllocator())
+            Combiner(VisibleScopeColumnAccessor("name"), TypeName.get(String::class.java)), false, NameAllocator(),
+            CursorHandlingBehavior())
         val codeBuilder = CodeBlock.builder()
         combiner.apply {
             codeBuilder.addCode("columnName", CodeBlock.of("\$S", "nonNull"))
@@ -187,21 +189,22 @@ class LoadFromCursorAccessCombinerTest {
     @Test
     fun test_wrapperCase() {
         val combiner = LoadFromCursorAccessCombiner(
-                Combiner(VisibleScopeColumnAccessor("name"),
-                        TypeName.get(Date::class.java),
-                        wrapperLevelAccessor = TypeConverterScopeColumnAccessor("global_converter"),
-                        wrapperFieldTypeName = TypeName.get(String::class.java)), false, NameAllocator())
+            Combiner(VisibleScopeColumnAccessor("name"),
+                TypeName.get(Date::class.java),
+                wrapperLevelAccessor = TypeConverterScopeColumnAccessor("global_converter"),
+                wrapperFieldTypeName = TypeName.get(String::class.java)), false, NameAllocator(),
+            CursorHandlingBehavior())
         val codeBuilder = CodeBlock.builder()
         combiner.apply {
             codeBuilder.addCode("columnName", CodeBlock.of("\$S", "nonNull"))
         }
 
         assertEquals("int index_columnName = cursor.getColumnIndex(\"columnName\");" +
-                "\nif (index_columnName != -1 && !cursor.isNull(index_columnName)) {" +
-                "\n  model.name = global_converter.getModelValue(cursor.getString(index_columnName));" +
-                "\n} else {" +
-                "\n  model.name = global_converter.getModelValue(\"nonNull\");" +
-                "\n}", codeBuilder.build().toString().trim())
+            "\nif (index_columnName != -1 && !cursor.isNull(index_columnName)) {" +
+            "\n  model.name = global_converter.getModelValue(cursor.getString(index_columnName));" +
+            "\n} else {" +
+            "\n  model.name = global_converter.getModelValue(\"nonNull\");" +
+            "\n}", codeBuilder.build().toString().trim())
     }
 }
 
@@ -210,7 +213,7 @@ class PrimaryReferenceAccessCombinerTest {
     @Test
     fun test_simpleCase() {
         val combiner = PrimaryReferenceAccessCombiner(
-                Combiner(VisibleScopeColumnAccessor("id"), TypeName.get(Long::class.java)))
+            Combiner(VisibleScopeColumnAccessor("id"), TypeName.get(Long::class.java)))
 
         val codeBuilder = CodeBlock.builder()
         combiner.apply {
@@ -223,10 +226,10 @@ class PrimaryReferenceAccessCombinerTest {
     @Test
     fun test_typeConverterCase() {
         val combiner = PrimaryReferenceAccessCombiner(
-                Combiner(VisibleScopeColumnAccessor("id"),
-                        TypeName.get(Long::class.java).box(),
-                        TypeConverterScopeColumnAccessor("global_converter"),
-                        TypeName.get(Date::class.java)))
+            Combiner(VisibleScopeColumnAccessor("id"),
+                TypeName.get(Long::class.java).box(),
+                TypeConverterScopeColumnAccessor("global_converter"),
+                TypeName.get(Date::class.java)))
 
         val codeBuilder = CodeBlock.builder()
         combiner.apply {
@@ -234,7 +237,7 @@ class PrimaryReferenceAccessCombinerTest {
         }
 
         assertEquals("java.util.Date refid = model.id != null ? global_converter.getDBValue(model.id) : null;\n" +
-                "clause.and(id.invertProperty().eq(refid));",
-                codeBuilder.build().toString().trim())
+            "clause.and(id.invertProperty().eq(refid));",
+            codeBuilder.build().toString().trim())
     }
 }

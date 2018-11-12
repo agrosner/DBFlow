@@ -44,31 +44,32 @@ class ModelViewDefinition(modelView: ModelView,
     private var queryFieldName: String? = null
 
     override val methods: Array<MethodDefinition> = arrayOf(
-            LoadFromCursorMethod(this),
-            ExistenceMethod(this),
-            PrimaryConditionMethod(this))
+        LoadFromCursorMethod(this),
+        ExistenceMethod(this),
+        PrimaryConditionMethod(this))
 
     val priority = modelView.priority
 
+    init {
+        setOutputClassName("_ViewTable")
+    }
+
     override val associationalBehavior = AssociationalBehavior(
-            name = if (modelView.name.isNullOrEmpty()) modelClassName else modelView.name,
-            databaseTypeName = modelView.extractTypeNameFromAnnotation { it.database },
-            allFields = modelView.allFields
+        name = if (modelView.name.isNullOrEmpty()) modelClassName else modelView.name,
+        databaseTypeName = modelView.extractTypeNameFromAnnotation { it.database },
+        allFields = modelView.allFields
     )
 
     override val cursorHandlingBehavior = CursorHandlingBehavior(
-            orderedCursorLookup = modelView.orderedCursorLookUp,
-            assignDefaultValuesFromCursor = modelView.assignDefaultValuesFromCursor)
+        orderedCursorLookup = modelView.orderedCursorLookUp,
+        assignDefaultValuesFromCursor = modelView.assignDefaultValuesFromCursor)
 
     override fun prepareForWriteInternal() {
         queryFieldName = null
 
-        val modelView = element.getAnnotation(ModelView::class.java)
+        val modelView = element.annotation<ModelView>()
         if (modelView != null) {
-            setOutputClassName("${databaseDefinition.classSeparator}ViewTable")
             typeElement?.let { createColumnDefinitions(it) }
-        } else {
-            setOutputClassName("ViewTable")
         }
     }
 
@@ -86,7 +87,7 @@ class ModelViewDefinition(modelView: ModelView,
             val isColumnMap = variableElement.annotation<ColumnMap>() != null
 
             if (variableElement.annotation<Column>() != null || isValidAllFields
-                    || isColumnMap) {
+                || isColumnMap) {
 
                 // package private, will generate helper
                 val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
@@ -151,7 +152,7 @@ class ModelViewDefinition(modelView: ModelView,
             writeGetModelClass(typeBuilder, elementClassName)
 
             `override fun`(String::class, "getCreationQuery",
-                    param(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+                param(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
                 modifiers(public, final)
                 `return`("\$T.\$L().getQuery()", elementClassName, queryFieldName)
             }
@@ -162,7 +163,7 @@ class ModelViewDefinition(modelView: ModelView,
         }
 
         methods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
+            .forEach { typeBuilder.addMethod(it) }
     }
 
 }

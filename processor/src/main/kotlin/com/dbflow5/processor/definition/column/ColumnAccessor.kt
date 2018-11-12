@@ -127,15 +127,15 @@ class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSette
 }
 
 class PackagePrivateScopeColumnAccessor(
-        propertyName: String, packageName: String, separator: String?, tableClassName: String)
+    propertyName: String, packageName: String, tableClassName: String)
     : ColumnAccessor(propertyName) {
 
     val helperClassName: ClassName
     val internalHelperClassName: ClassName
 
     init {
-        helperClassName = ClassName.get(packageName, "$tableClassName$separator$classSuffix")
-        internalHelperClassName = ClassName.get(packageName, "$tableClassName$separator$classSuffix")
+        helperClassName = ClassName.get(packageName, "${tableClassName}_$classSuffix")
+        internalHelperClassName = ClassName.get(packageName, "${tableClassName}_$classSuffix")
     }
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {

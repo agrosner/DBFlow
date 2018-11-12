@@ -47,9 +47,9 @@ import javax.lang.model.element.VariableElement
 
 internal fun appendDefault(code: CodeBlock.Builder) {
     code.beginControlFlow("default:")
-            .addStatement("throw new \$T(\$S + \$L)",
-                    ClassName.get(IllegalArgumentException::class.java), "Unknown URI", Constants.PARAM_URI)
-            .endControlFlow()
+        .addStatement("throw new \$T(\$S + \$L)",
+            ClassName.get(IllegalArgumentException::class.java), "Unknown URI", Constants.PARAM_URI)
+        .endControlFlow()
 }
 
 object Constants {
@@ -65,7 +65,7 @@ object Constants {
 internal fun ContentUriDefinition.getSegmentsPreparation() = code {
     if (segments.isNotEmpty()) {
         statement("\$T segments = uri.getPathSegments()",
-                parameterized<String>(List::class))
+            parameterized<String>(List::class))
     }
     this
 }
@@ -79,7 +79,7 @@ internal fun ContentUriDefinition.getSelectionAndSelectionArgs(): CodeBlock {
     } else {
         val selectionBuilder = CodeBlock.builder().add("\$T.concatenateWhere(selection, \"", com.dbflow5.processor.ClassNames.DATABASE_UTILS)
         val selectionArgsBuilder = CodeBlock.builder().add("\$T.appendSelectionArgs(selectionArgs, new \$T[] {",
-                com.dbflow5.processor.ClassNames.DATABASE_UTILS, String::class.java)
+            com.dbflow5.processor.ClassNames.DATABASE_UTILS, String::class.java)
         var isFirst = true
         for (segment in segments) {
             if (!isFirst) {
@@ -116,8 +116,8 @@ class DeleteMethod(private val contentProviderDefinition: ContentProviderDefinit
                             case(uriDefinition.name.L) {
                                 add(uriDefinition.getSegmentsPreparation())
                                 add("long count = \$T.getDatabase(\$T.class).delete(\$S, ",
-                                        com.dbflow5.processor.ClassNames.FLOW_MANAGER, contentProviderDefinition.databaseTypeName,
-                                        it.tableName)
+                                    com.dbflow5.processor.ClassNames.FLOW_MANAGER, contentProviderDefinition.databaseTypeName,
+                                    it.tableName)
                                 add(uriDefinition.getSelectionAndSelectionArgs())
                                 add(");\n")
 
@@ -134,12 +134,12 @@ class DeleteMethod(private val contentProviderDefinition: ContentProviderDefinit
             code.endControlFlow()
 
             return MethodSpec.methodBuilder("delete")
-                    .addAnnotation(Override::class.java)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(com.dbflow5.processor.ClassNames.URI, PARAM_URI)
-                    .addParameter(ClassName.get(String::class.java), PARAM_SELECTION)
-                    .addParameter(ArrayTypeName.of(String::class.java), PARAM_SELECTION_ARGS)
-                    .addCode(code.build()).returns(TypeName.INT).build()
+                .addAnnotation(Override::class.java)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(com.dbflow5.processor.ClassNames.URI, PARAM_URI)
+                .addParameter(ClassName.get(String::class.java), PARAM_SELECTION)
+                .addParameter(ArrayTypeName.of(String::class.java), PARAM_SELECTION_ARGS)
+                .addCode(code.build()).returns(TypeName.INT).build()
         }
 
     companion object {
@@ -168,14 +168,14 @@ class InsertMethod(private val contentProviderDefinition: ContentProviderDefinit
                         code.apply {
                             beginControlFlow("case \$L:", uriDefinition.name)
                             addStatement("\$T adapter = \$T.getModelAdapter(\$T.getTableClassForName(\$T.class, \$S))",
-                                    com.dbflow5.processor.ClassNames.MODEL_ADAPTER, com.dbflow5.processor.ClassNames.FLOW_MANAGER, com.dbflow5.processor.ClassNames.FLOW_MANAGER,
-                                    contentProviderDefinition.databaseTypeName, it.tableName)
+                                com.dbflow5.processor.ClassNames.MODEL_ADAPTER, com.dbflow5.processor.ClassNames.FLOW_MANAGER, com.dbflow5.processor.ClassNames.FLOW_MANAGER,
+                                contentProviderDefinition.databaseTypeName, it.tableName)
 
                             add("final long id = FlowManager.getDatabase(\$T.class)",
-                                    contentProviderDefinition.databaseTypeName).add(
-                                    ".insertWithOnConflict(\$S, null, values, " +
-                                            "\$T.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()));\n", it.tableName,
-                                    com.dbflow5.processor.ClassNames.CONFLICT_ACTION)
+                                contentProviderDefinition.databaseTypeName).add(
+                                ".insertWithOnConflict(\$S, null, values, " +
+                                    "\$T.getSQLiteDatabaseAlgorithmInt(adapter.getInsertOnConflictAction()));\n", it.tableName,
+                                com.dbflow5.processor.ClassNames.CONFLICT_ACTION)
 
                             NotifyMethod(it, uriDefinition, NotifyMethod.INSERT).addCode(this)
 
@@ -193,10 +193,10 @@ class InsertMethod(private val contentProviderDefinition: ContentProviderDefinit
             appendDefault(code)
             code.endControlFlow()
             return MethodSpec.methodBuilder(if (isBulk) "bulkInsert" else "insert")
-                    .addAnnotation(Override::class.java).addParameter(com.dbflow5.processor.ClassNames.URI, Constants.PARAM_URI)
-                    .addParameter(com.dbflow5.processor.ClassNames.CONTENT_VALUES, Constants.PARAM_CONTENT_VALUES)
-                    .addModifiers(if (isBulk) Modifier.PROTECTED else Modifier.PUBLIC, Modifier.FINAL)
-                    .addCode(code.build()).returns(if (isBulk) TypeName.INT else com.dbflow5.processor.ClassNames.URI).build()
+                .addAnnotation(Override::class.java).addParameter(com.dbflow5.processor.ClassNames.URI, Constants.PARAM_URI)
+                .addParameter(com.dbflow5.processor.ClassNames.CONTENT_VALUES, Constants.PARAM_CONTENT_VALUES)
+                .addModifiers(if (isBulk) Modifier.PROTECTED else Modifier.PUBLIC, Modifier.FINAL)
+                .addCode(code.build()).returns(if (isBulk) TypeName.INT else com.dbflow5.processor.ClassNames.URI).build()
         }
 
 }
@@ -217,16 +217,16 @@ class NotifyMethod(private val tableEndpointDefinition: TableEndpointDefinition,
                     val notifyDefinition = notifyDefinitionList[i]
                     if (notifyDefinition.returnsArray) {
                         code.addStatement("\$T[] notifyUris\$L = \$L.\$L(\$L)", com.dbflow5.processor.ClassNames.URI,
-                                notifyDefinition.methodName, notifyDefinition.parent,
-                                notifyDefinition.methodName, notifyDefinition.params)
+                            notifyDefinition.methodName, notifyDefinition.parent,
+                            notifyDefinition.methodName, notifyDefinition.params)
                         code.beginControlFlow("for (\$T notifyUri: notifyUris\$L)", com.dbflow5.processor.ClassNames.URI, notifyDefinition.methodName)
                     } else {
                         code.addStatement("\$T notifyUri\$L = \$L.\$L(\$L)", com.dbflow5.processor.ClassNames.URI,
-                                notifyDefinition.methodName, notifyDefinition.parent,
-                                notifyDefinition.methodName, notifyDefinition.params)
+                            notifyDefinition.methodName, notifyDefinition.parent,
+                            notifyDefinition.methodName, notifyDefinition.params)
                     }
                     code.addStatement("getContext().getContentResolver().notifyChange(notifyUri\$L, null)",
-                            if (notifyDefinition.returnsArray) "" else notifyDefinition.methodName)
+                        if (notifyDefinition.returnsArray) "" else notifyDefinition.methodName)
                     if (notifyDefinition.returnsArray) {
                         code.endControlFlow()
                     }
@@ -262,34 +262,34 @@ class QueryMethod(private val contentProviderDefinition: ContentProviderDefiniti
     override val methodSpec: MethodSpec?
         get() {
             val method = MethodSpec.methodBuilder("query")
-                    .addAnnotation(Override::class.java)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                    .addParameter(com.dbflow5.processor.ClassNames.URI, "uri")
-                    .addParameter(ArrayTypeName.of(String::class.java), "projection")
-                    .addParameter(ClassName.get(String::class.java), "selection")
-                    .addParameter(ArrayTypeName.of(String::class.java), "selectionArgs")
-                    .addParameter(ClassName.get(String::class.java), "sortOrder")
-                    .returns(com.dbflow5.processor.ClassNames.CURSOR)
+                .addAnnotation(Override::class.java)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addParameter(com.dbflow5.processor.ClassNames.URI, "uri")
+                .addParameter(ArrayTypeName.of(String::class.java), "projection")
+                .addParameter(ClassName.get(String::class.java), "selection")
+                .addParameter(ArrayTypeName.of(String::class.java), "selectionArgs")
+                .addParameter(ClassName.get(String::class.java), "sortOrder")
+                .returns(com.dbflow5.processor.ClassNames.CURSOR)
 
             method.addStatement("\$L cursor = null", com.dbflow5.processor.ClassNames.CURSOR)
             method.beginControlFlow("switch(\$L.match(uri))", ContentProviderDefinition.URI_MATCHER)
             for (tableEndpointDefinition in contentProviderDefinition.endpointDefinitions) {
                 tableEndpointDefinition.contentUriDefinitions
-                        .asSequence()
-                        .filter { it.queryEnabled }
-                        .forEach {
-                            method.apply {
-                                beginControlFlow("case \$L:", it.name)
-                                addCode(it.getSegmentsPreparation())
-                                addCode("cursor = \$T.getDatabase(\$T.class).query(\$S, projection, ",
-                                        com.dbflow5.processor.ClassNames.FLOW_MANAGER, contentProviderDefinition.databaseTypeName,
-                                        tableEndpointDefinition.tableName)
-                                addCode(it.getSelectionAndSelectionArgs())
-                                addCode(", null, null, sortOrder);\n")
-                                addStatement("break")
-                                endControlFlow()
-                            }
+                    .asSequence()
+                    .filter { it.queryEnabled }
+                    .forEach {
+                        method.apply {
+                            beginControlFlow("case \$L:", it.name)
+                            addCode(it.getSegmentsPreparation())
+                            addCode("cursor = \$T.getDatabase(\$T.class).query(\$S, projection, ",
+                                com.dbflow5.processor.ClassNames.FLOW_MANAGER, contentProviderDefinition.databaseTypeName,
+                                tableEndpointDefinition.tableName)
+                            addCode(it.getSelectionAndSelectionArgs())
+                            addCode(", null, null, sortOrder);\n")
+                            addStatement("break")
+                            endControlFlow()
                         }
+                    }
             }
             method.endControlFlow()
 
@@ -311,46 +311,46 @@ class UpdateMethod(private val contentProviderDefinition: ContentProviderDefinit
     override val methodSpec: MethodSpec?
         get() {
             val method = MethodSpec.methodBuilder("update")
-                    .addAnnotation(Override::class.java)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(com.dbflow5.processor.ClassNames.URI, Constants.PARAM_URI)
-                    .addParameter(com.dbflow5.processor.ClassNames.CONTENT_VALUES, Constants.PARAM_CONTENT_VALUES)
-                    .addParameter(ClassName.get(String::class.java), "selection")
-                    .addParameter(ArrayTypeName.of(String::class.java), "selectionArgs")
-                    .returns(TypeName.INT)
+                .addAnnotation(Override::class.java)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(com.dbflow5.processor.ClassNames.URI, Constants.PARAM_URI)
+                .addParameter(com.dbflow5.processor.ClassNames.CONTENT_VALUES, Constants.PARAM_CONTENT_VALUES)
+                .addParameter(ClassName.get(String::class.java), "selection")
+                .addParameter(ArrayTypeName.of(String::class.java), "selectionArgs")
+                .returns(TypeName.INT)
 
             method.beginControlFlow("switch(MATCHER.match(\$L))", Constants.PARAM_URI)
             for (tableEndpointDefinition in contentProviderDefinition.endpointDefinitions) {
                 tableEndpointDefinition.contentUriDefinitions
-                        .asSequence()
-                        .filter { it.updateEnabled }
-                        .forEach {
-                            method.apply {
-                                beginControlFlow("case \$L:", it.name)
-                                addStatement("\$T adapter = \$T.getModelAdapter(\$T.getTableClassForName(\$T.class, \$S))",
-                                        com.dbflow5.processor.ClassNames.MODEL_ADAPTER, com.dbflow5.processor.ClassNames.FLOW_MANAGER, com.dbflow5.processor.ClassNames.FLOW_MANAGER,
-                                        contentProviderDefinition.databaseTypeName,
-                                        tableEndpointDefinition.tableName)
-                                addCode(it.getSegmentsPreparation())
-                                addCode(
-                                        "long count = \$T.getDatabase(\$T.class).updateWithOnConflict(\$S, \$L, ",
-                                        com.dbflow5.processor.ClassNames.FLOW_MANAGER, contentProviderDefinition.databaseTypeName,
-                                        tableEndpointDefinition.tableName,
-                                        Constants.PARAM_CONTENT_VALUES)
-                                addCode(it.getSelectionAndSelectionArgs())
-                                addCode(
-                                        ", \$T.getSQLiteDatabaseAlgorithmInt(adapter.getUpdateOnConflictAction()));\n",
-                                        com.dbflow5.processor.ClassNames.CONFLICT_ACTION)
+                    .asSequence()
+                    .filter { it.updateEnabled }
+                    .forEach {
+                        method.apply {
+                            beginControlFlow("case \$L:", it.name)
+                            addStatement("\$T adapter = \$T.getModelAdapter(\$T.getTableClassForName(\$T.class, \$S))",
+                                com.dbflow5.processor.ClassNames.MODEL_ADAPTER, com.dbflow5.processor.ClassNames.FLOW_MANAGER, com.dbflow5.processor.ClassNames.FLOW_MANAGER,
+                                contentProviderDefinition.databaseTypeName,
+                                tableEndpointDefinition.tableName)
+                            addCode(it.getSegmentsPreparation())
+                            addCode(
+                                "long count = \$T.getDatabase(\$T.class).updateWithOnConflict(\$S, \$L, ",
+                                com.dbflow5.processor.ClassNames.FLOW_MANAGER, contentProviderDefinition.databaseTypeName,
+                                tableEndpointDefinition.tableName,
+                                Constants.PARAM_CONTENT_VALUES)
+                            addCode(it.getSelectionAndSelectionArgs())
+                            addCode(
+                                ", \$T.getSQLiteDatabaseAlgorithmInt(adapter.getUpdateOnConflictAction()));\n",
+                                com.dbflow5.processor.ClassNames.CONFLICT_ACTION)
 
-                                val code = CodeBlock.builder()
-                                NotifyMethod(tableEndpointDefinition, it,
-                                        NotifyMethod.UPDATE).addCode(code)
-                                addCode(code.build())
+                            val code = CodeBlock.builder()
+                            NotifyMethod(tableEndpointDefinition, it,
+                                NotifyMethod.UPDATE).addCode(code)
+                            addCode(code.build())
 
-                                addStatement("return (int) count")
-                                endControlFlow()
-                            }
+                            addStatement("return (int) count")
+                            endControlFlow()
                         }
+                    }
 
             }
 
@@ -379,12 +379,13 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
     var holderClass: TypeName? = null
 
     private val methods: Array<MethodDefinition> = arrayOf(QueryMethod(this, manager),
-            InsertMethod(this, false),
-            InsertMethod(this, true),
-            DeleteMethod(this, manager),
-            UpdateMethod(this, manager))
+        InsertMethod(this, false),
+        InsertMethod(this, true),
+        DeleteMethod(this, manager),
+        UpdateMethod(this, manager))
 
     init {
+        setOutputClassName("_$DEFINITION_NAME")
         element.annotation<ContentProvider>()?.let { provider ->
             databaseTypeName = provider.extractTypeNameFromAnnotation { it.database }
             authority = provider.authority
@@ -402,27 +403,22 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
             }
 
             if (!databaseTypeName.toTypeElement(manager).isSubclass(manager.processingEnvironment,
-                            ClassNames.CONTENT_PROVIDER_DATABASE)) {
+                    ClassNames.CONTENT_PROVIDER_DATABASE)) {
                 manager.logError("A Content Provider database $elementClassName " +
-                        "must extend ${ClassNames.CONTENT_PROVIDER_DATABASE}")
+                    "must extend ${ClassNames.CONTENT_PROVIDER_DATABASE}")
             }
 
             if (holderClass != TypeName.OBJECT &&
-                    !holderClass.toTypeElement(manager).isSubclass(manager.processingEnvironment,
-                            ClassNames.DATABASE_HOLDER)) {
+                !holderClass.toTypeElement(manager).isSubclass(manager.processingEnvironment,
+                    ClassNames.DATABASE_HOLDER)) {
                 manager.logError("The initializeHolderClass $holderClass must point to a subclass" +
-                        "of ${ClassNames.DATABASE_HOLDER}")
+                    "of ${ClassNames.DATABASE_HOLDER}")
             }
         }
     }
 
     override val extendsClass: TypeName?
         get() = com.dbflow5.processor.ClassNames.BASE_CONTENT_PROVIDER
-
-    fun prepareForWrite() {
-        val databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)!!.databaseDefinition
-        setOutputClassName(databaseDefinition?.classSeparator + DEFINITION_NAME)
-    }
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
 
@@ -446,10 +442,10 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
             `override fun`(TypeName.BOOLEAN, "onCreate") {
                 modifiers(public, final)
                 addStatement("final \$T $AUTHORITY = \$L", String::class.java,
-                        if (authority.contains("R.string."))
-                            "getContext().getString($authority)"
-                        else
-                            "\"$authority\"")
+                    if (authority.contains("R.string."))
+                        "getContext().getString($authority)"
+                    else
+                        "\"$authority\"")
 
                 for (endpointDefinition in endpointDefinitions) {
                     endpointDefinition.contentUriDefinitions.forEach {
@@ -457,7 +453,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
                             "\"${it.path}\""
                         } else {
                             CodeBlock.builder().add("\$L.\$L.getPath()", it.elementClassName,
-                                    it.name).build().toString()
+                                it.name).build().toString()
                         }
                         addStatement("\$L.addURI(\$L, \$L, \$L)", URI_MATCHER, AUTHORITY, path, it.name)
                     }
@@ -477,12 +473,12 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
                     statement("\$T type = null", ClassName.get(String::class.java))
                     controlFlow("switch(\$L.match(uri))", URI_MATCHER) {
                         endpointDefinitions.flatMap { it.contentUriDefinitions }
-                                .forEach { uri ->
-                                    controlFlow("case \$L:", uri.name) {
-                                        statement("type = \$S", uri.type)
-                                        `break`()
-                                    }
+                            .forEach { uri ->
+                                controlFlow("case \$L:", uri.name) {
+                                    statement("type = \$S", uri.type)
+                                    `break`()
                                 }
+                            }
                         appendDefault(this)
                     }
                     `return`("type")
@@ -491,7 +487,7 @@ class ContentProviderDefinition(typeElement: Element, processorManager: Processo
         }
 
         methods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
+            .forEach { typeBuilder.addMethod(it) }
     }
 
     companion object {

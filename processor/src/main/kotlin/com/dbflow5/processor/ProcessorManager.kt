@@ -265,7 +265,6 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                     val contentProviderDefinitions = databaseHolderDefinition.providerMap.values
                         .sortedBy { it.outputClassName?.simpleName() }
                     contentProviderDefinitions.forEach { contentProviderDefinition ->
-                        contentProviderDefinition.prepareForWrite()
                         if (validator.validate(processorManager, contentProviderDefinition)) {
                             contentProviderDefinition.writeBaseDefinition(processorManager)
                         }

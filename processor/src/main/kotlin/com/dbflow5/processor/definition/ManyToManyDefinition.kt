@@ -59,16 +59,11 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
     }
 
     fun prepareForWrite() {
-        val databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
-        if (databaseDefinition == null) {
-            manager.logError("DatabaseDefinition was null for : $elementName")
+        if (generatedTableClassName.isNullOrEmpty()) {
+            val referencedOutput = referencedTable.toTypeElement(manager).toClassName(manager)
+            setOutputClassName("_${referencedOutput?.simpleName()}")
         } else {
-            if (generatedTableClassName.isNullOrEmpty()) {
-                val referencedOutput = referencedTable.toTypeElement(manager).toClassName(manager)
-                setOutputClassName(databaseDefinition.classSeparator + referencedOutput?.simpleName())
-            } else {
-                setOutputClassNameFull(generatedTableClassName)
-            }
+            setOutputClassNameFull(generatedTableClassName)
         }
     }
 

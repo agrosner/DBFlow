@@ -40,8 +40,6 @@ class DatabaseDefinition(database: Database,
     val insertConflict: ConflictAction = database.insertConflict
     val updateConflict: ConflictAction = database.updateConflict
 
-    val classSeparator: String = "_"
-
     var objectHolder: DatabaseObjectHolder? = null
 
     init {
