@@ -95,20 +95,17 @@ class TableDefinition(table: Table,
 
     private val contentValueMethods: Array<MethodDefinition>
 
-    var createWithDatabase = true
+    private val createWithDatabase: Boolean = table.createWithDatabase
+    val useIsForPrivateBooleans: Boolean = table.useBooleanGetterSetters
+    private val generateContentValues: Boolean = table.generateContentValues
 
-    var useIsForPrivateBooleans: Boolean = false
-    var generateContentValues = false
+    val oneToManyDefinitions = mutableListOf<OneToManyDefinition>()
 
-    val columnMap = mutableMapOf<String, ColumnDefinition>()
-
-    var columnUniqueMap = mutableMapOf<Int, MutableSet<ColumnDefinition>>()
-
-    var oneToManyDefinitions = mutableListOf<OneToManyDefinition>()
-
-    var inheritedColumnMap = hashMapOf<String, InheritedColumn>()
-    var inheritedFieldNameList = mutableListOf<String>()
-    var inheritedPrimaryKeyMap = hashMapOf<String, InheritedPrimaryKey>()
+    private val columnMap = mutableMapOf<String, ColumnDefinition>()
+    private val columnUniqueMap = mutableMapOf<Int, MutableSet<ColumnDefinition>>()
+    private val inheritedColumnMap = hashMapOf<String, InheritedColumn>()
+    private val inheritedFieldNameList = mutableListOf<String>()
+    private val inheritedPrimaryKeyMap = hashMapOf<String, InheritedPrimaryKey>()
 
     var hasPrimaryConstructor = false
 
@@ -122,18 +119,12 @@ class TableDefinition(table: Table,
         assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor)
 
     val cachingBehavior = CachingBehavior(
-            cachingEnabled = table.cachingEnabled,
-            customCacheSize = table.cacheSize,
-            customCacheFieldName = null,
-            customMultiCacheFieldName = null)
+        cachingEnabled = table.cachingEnabled,
+        customCacheSize = table.cacheSize,
+        customCacheFieldName = null,
+        customMultiCacheFieldName = null)
 
     init {
-        generateContentValues = table.generateContentValues
-
-        createWithDatabase = table.createWithDatabase
-
-        useIsForPrivateBooleans = table.useBooleanGetterSetters
-
         manager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
 
         val inheritedColumns = table.inheritedColumns
@@ -432,8 +423,10 @@ class TableDefinition(table: Table,
             }
 
             val saveForeignKeyFields = columnDefinitions
+                .asSequence()
                 .filter { (it is ReferenceColumnDefinition) && it.saveForeignKeyModel }
                 .map { it as ReferenceColumnDefinition }
+                .toList()
             if (saveForeignKeyFields.isNotEmpty()) {
                 val code = CodeBlock.builder()
                 saveForeignKeyFields.forEach { it.appendSaveMethod(code) }
@@ -446,8 +439,10 @@ class TableDefinition(table: Table,
             }
 
             val deleteForeignKeyFields = columnDefinitions
+                .asSequence()
                 .filter { (it is ReferenceColumnDefinition) && it.deleteForeignKeyModel }
                 .map { it as ReferenceColumnDefinition }
+                .toList()
             if (deleteForeignKeyFields.isNotEmpty()) {
                 val code = CodeBlock.builder()
                 deleteForeignKeyFields.forEach { it.appendDeleteMethod(code) }
