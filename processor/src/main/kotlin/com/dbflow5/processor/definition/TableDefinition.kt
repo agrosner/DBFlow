@@ -176,8 +176,7 @@ class TableDefinition(table: Table,
         columnMapDefinitions.clear()
         columnUniqueMap.clear()
         oneToManyDefinitions.clear()
-        cachingBehavior.customCacheFieldName = null
-        cachingBehavior.customMultiCacheFieldName = null
+        cachingBehavior.clear()
 
         val table = element.getAnnotation(Table::class.java)
         if (table != null) {
@@ -237,7 +236,7 @@ class TableDefinition(table: Table,
         val elements = ElementUtility.getAllElements(typeElement, manager)
 
         for (element in elements) {
-            classElementLookUpMap.put(element.simpleName.toString(), element)
+            classElementLookUpMap[element.simpleName.toString()] = element
             if (element is ExecutableElement && element.parameters.isEmpty()
                     && element.simpleName.toString() == "<init>"
                     && element.enclosingElement == typeElement

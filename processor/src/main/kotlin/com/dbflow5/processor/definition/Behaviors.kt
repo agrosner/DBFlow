@@ -59,6 +59,11 @@ data class CachingBehavior(
         var customCacheFieldName: String?,
         var customMultiCacheFieldName: String?) {
 
+    fun clear() {
+        customCacheFieldName = null
+        customMultiCacheFieldName = null
+    }
+
     /**
      * If applicable, we store the [customCacheFieldName] or [customMultiCacheFieldName] for reference.
      */
