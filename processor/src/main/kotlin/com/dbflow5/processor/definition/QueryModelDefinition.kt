@@ -3,6 +3,7 @@ package com.dbflow5.processor.definition
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.QueryModel
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnDefinition
@@ -58,14 +59,12 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
     }
 
     override fun prepareForWriteInternal() {
-        databaseDefinition = manager.getDatabaseHolderDefinition(associationalBehavior.databaseTypeName)?.databaseDefinition
-        setOutputClassName("${databaseDefinition?.classSeparator}QueryTable")
-
+        setOutputClassName("${databaseDefinition.classSeparator}QueryTable")
         typeElement?.let { createColumnDefinitions(it) }
     }
 
     override val extendsClass: TypeName?
-        get() = ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.QUERY_MODEL_ADAPTER, elementClassName)
+        get() = ParameterizedTypeName.get(ClassNames.QUERY_MODEL_ADAPTER, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {

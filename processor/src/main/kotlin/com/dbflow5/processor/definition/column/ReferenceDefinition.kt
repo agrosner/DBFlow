@@ -119,7 +119,7 @@ class ReferenceDefinition(private val manager: ProcessorManager,
             isReferencedFieldPrivate -> PrivateScopeColumnAccessor(foreignKeyElementName, getterSetter, false)
             isReferencedFieldPackagePrivate -> {
                 val accessor = PackagePrivateScopeColumnAccessor(foreignKeyElementName, referencedColumn.packageName,
-                        referenceColumnDefinition.baseTableDefinition.databaseDefinition?.classSeparator,
+                        referenceColumnDefinition.baseTableDefinition.databaseDefinition.classSeparator,
                         tableClassName)
                 PackagePrivateScopeColumnAccessor.putElement(accessor.helperClassName, foreignKeyElementName)
 

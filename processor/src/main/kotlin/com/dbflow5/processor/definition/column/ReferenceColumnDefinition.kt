@@ -327,7 +327,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             referencedClassName?.let { referencedTableClassName ->
 
                 val tableDefinition = manager.getReferenceDefinition(
-                        baseTableDefinition.databaseDefinition?.elementTypeName, referencedTableClassName)
+                        baseTableDefinition.databaseDefinition.elementTypeName, referencedTableClassName)
                 tableDefinition?.outputClassName?.let { outputClassName ->
                     val foreignKeyCombiner = ForeignKeyLoadFromCursorCombiner(columnAccessor,
                             referencedTableClassName, outputClassName, isStubbedRelationship, nameAllocator)

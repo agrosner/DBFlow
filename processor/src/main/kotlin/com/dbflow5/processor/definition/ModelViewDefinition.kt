@@ -65,9 +65,7 @@ class ModelViewDefinition(modelView: ModelView,
 
         val modelView = element.getAnnotation(ModelView::class.java)
         if (modelView != null) {
-            databaseDefinition = manager.getDatabaseHolderDefinition(associationalBehavior.databaseTypeName)?.databaseDefinition
-            setOutputClassName("${databaseDefinition?.classSeparator}ViewTable")
-
+            setOutputClassName("${databaseDefinition.classSeparator}ViewTable")
             typeElement?.let { createColumnDefinitions(it) }
         } else {
             setOutputClassName("ViewTable")

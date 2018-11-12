@@ -45,7 +45,7 @@ fun Collection<BaseTableDefinition>.safeWritePackageHelper(processorManager: Pro
 abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: ProcessorManager)
     : BaseDefinition(typeElement, processorManager) {
 
-    var columnDefinitions: MutableList<ColumnDefinition>
+    var columnDefinitions: MutableList<ColumnDefinition> = arrayListOf()
         protected set
 
     val sqlColumnDefinitions
@@ -57,14 +57,18 @@ abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: P
 
     var autoIncrementColumn: ColumnDefinition? = null
 
-    var associatedTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
-    var globalTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
+    val associatedTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
+    val globalTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
     val packagePrivateList = arrayListOf<ColumnDefinition>()
 
     var classElementLookUpMap: MutableMap<String, Element> = mutableMapOf()
 
     val modelClassName = typeElement.simpleName.toString()
-    var databaseDefinition: DatabaseDefinition? = null
+    val databaseDefinition: DatabaseDefinition by lazy {
+        manager.getDatabaseHolderDefinition(associationalBehavior.databaseTypeName)?.databaseDefinition
+                ?: throw RuntimeException("DatabaseDefinition not found for DB element named ${associationalBehavior.name}" +
+                        " for db type: ${associationalBehavior.databaseTypeName}.")
+    }
 
     val hasGlobalTypeConverters
         get() = globalTypeConverters.isNotEmpty()
@@ -77,10 +81,6 @@ abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: P
     abstract val cursorHandlingBehavior: CursorHandlingBehavior
 
     abstract val methods: Array<MethodDefinition>
-
-    init {
-        columnDefinitions = arrayListOf()
-    }
 
     protected abstract fun createColumnDefinitions(typeElement: TypeElement)
 
@@ -140,14 +140,14 @@ abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: P
         var count = 0
 
         if (!packagePrivateList.isEmpty()) {
-            val classSeparator = databaseDefinition?.classSeparator
+            val classSeparator = databaseDefinition.classSeparator
             val typeBuilder = TypeSpec.classBuilder("${elementClassName?.simpleName()}${classSeparator}Helper")
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 
             for (columnDefinition in packagePrivateList) {
                 var helperClassName = "${columnDefinition.element.getPackage()}.${columnDefinition.element.enclosingElement.toClassName()?.simpleName()}${classSeparator}Helper"
                 if (columnDefinition is ReferenceColumnDefinition) {
-                    val tableDefinition: TableDefinition? = databaseDefinition?.objectHolder?.tableDefinitionMap?.get(columnDefinition.referencedClassName as TypeName)
+                    val tableDefinition: TableDefinition? = databaseDefinition.objectHolder?.tableDefinitionMap?.get(columnDefinition.referencedClassName as TypeName)
                     if (tableDefinition != null) {
                         helperClassName = "${tableDefinition.element.getPackage()}.${ClassName.get(tableDefinition.element as TypeElement).simpleName()}${classSeparator}Helper"
                     }

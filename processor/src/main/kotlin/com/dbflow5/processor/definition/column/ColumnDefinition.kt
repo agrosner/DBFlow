@@ -185,7 +185,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
         if (isPackagePrivate) {
             columnAccessor = PackagePrivateScopeColumnAccessor(elementName, packageName,
-                    baseTableDefinition.databaseDefinition?.classSeparator,
+                    baseTableDefinition.databaseDefinition.classSeparator,
                     ClassName.get(element.enclosingElement as TypeElement).simpleName())
 
             PackagePrivateScopeColumnAccessor.putElement(
@@ -323,7 +323,7 @@ constructor(processorManager: ProcessorManager, element: Element,
         if (tableDef is TableDefinition) {
             tableName = tableDef.associationalBehavior.name
         }
-        return "${baseTableDefinition.databaseDefinition?.databaseClassName}.$tableName.${columnName.quote()}"
+        return "${baseTableDefinition.databaseDefinition.databaseClassName}.$tableName.${columnName.quote()}"
     }
 
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {

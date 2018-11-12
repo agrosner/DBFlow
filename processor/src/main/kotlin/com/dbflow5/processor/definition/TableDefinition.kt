@@ -186,32 +186,24 @@ class TableDefinition(table: Table,
 
         val table = element.getAnnotation(Table::class.java)
         if (table != null) {
-            databaseDefinition = manager.getDatabaseHolderDefinition(associationalBehavior.databaseTypeName)?.databaseDefinition
-            if (databaseDefinition == null) {
-                manager.logError("DatabaseDefinition was null for : ${associationalBehavior.name}" +
-                        " for db type: ${associationalBehavior.databaseTypeName}")
+            setOutputClassName("${databaseDefinition.classSeparator}Table")
+
+            // globular default
+            var insertConflict = table.insertConflict
+            if (insertConflict == ConflictAction.NONE && databaseDefinition.insertConflict != ConflictAction.NONE) {
+                insertConflict = databaseDefinition.insertConflict ?: ConflictAction.NONE
             }
-            databaseDefinition?.let { databaseDefinition ->
 
-                setOutputClassName("${databaseDefinition.classSeparator}Table")
-
-                // globular default
-                var insertConflict = table.insertConflict
-                if (insertConflict == ConflictAction.NONE && databaseDefinition.insertConflict != ConflictAction.NONE) {
-                    insertConflict = databaseDefinition.insertConflict ?: ConflictAction.NONE
-                }
-
-                var updateConflict = table.updateConflict
-                if (updateConflict == ConflictAction.NONE && databaseDefinition.updateConflict != ConflictAction.NONE) {
-                    updateConflict = databaseDefinition.updateConflict ?: ConflictAction.NONE
-                }
-
-                val primaryKeyConflict = table.primaryKeyConflict
-
-                insertConflictActionName = if (insertConflict == ConflictAction.NONE) "" else insertConflict.name
-                updateConflictActionName = if (updateConflict == ConflictAction.NONE) "" else updateConflict.name
-                primaryKeyConflictActionName = if (primaryKeyConflict == ConflictAction.NONE) "" else primaryKeyConflict.name
+            var updateConflict = table.updateConflict
+            if (updateConflict == ConflictAction.NONE && databaseDefinition.updateConflict != ConflictAction.NONE) {
+                updateConflict = databaseDefinition.updateConflict ?: ConflictAction.NONE
             }
+
+            val primaryKeyConflict = table.primaryKeyConflict
+
+            insertConflictActionName = if (insertConflict == ConflictAction.NONE) "" else insertConflict.name
+            updateConflictActionName = if (updateConflict == ConflictAction.NONE) "" else updateConflict.name
+            primaryKeyConflictActionName = if (primaryKeyConflict == ConflictAction.NONE) "" else primaryKeyConflict.name
 
             typeElement?.let { createColumnDefinitions(it) }
 
