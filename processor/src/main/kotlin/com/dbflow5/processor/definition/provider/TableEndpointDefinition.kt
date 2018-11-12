@@ -1,8 +1,8 @@
 package com.dbflow5.processor.definition.provider
 
+import com.dbflow5.contentprovider.annotation.ContentUri
 import com.dbflow5.contentprovider.annotation.Notify
 import com.dbflow5.contentprovider.annotation.NotifyMethod
-import com.dbflow5.contentprovider.annotation.ContentUri
 import com.dbflow5.contentprovider.annotation.TableEndpoint
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.BaseDefinition
@@ -16,7 +16,8 @@ import javax.lang.model.element.TypeElement
 /**
  * Description:
  */
-class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorManager)
+class TableEndpointDefinition(tableEndpoint: TableEndpoint,
+                              typeElement: Element, processorManager: ProcessorManager)
     : BaseDefinition(typeElement, processorManager) {
 
     var contentUriDefinitions: MutableList<ContentUriDefinition> = mutableListOf()
@@ -26,8 +27,7 @@ class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorM
      */
     internal var pathValidationMap: Map<String, ContentUriDefinition> = mutableMapOf()
 
-    var notifyDefinitionPathMap: MutableMap<String, MutableMap<NotifyMethod, MutableList<NotifyDefinition>>>
-        = mutableMapOf()
+    var notifyDefinitionPathMap: MutableMap<String, MutableMap<NotifyMethod, MutableList<NotifyDefinition>>> = mutableMapOf()
 
     var tableName: String? = null
 
@@ -36,7 +36,7 @@ class TableEndpointDefinition(typeElement: Element, processorManager: ProcessorM
     var isTopLevel = false
 
     init {
-        contentProviderName = typeElement.extractTypeNameFromAnnotation<TableEndpoint> {
+        contentProviderName = tableEndpoint.extractTypeNameFromAnnotation {
             tableName = it.name
             it.contentProvider
         }

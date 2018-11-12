@@ -66,18 +66,14 @@ class ModelViewDefinition(modelView: ModelView,
 
     override fun prepareForWriteInternal() {
         queryFieldName = null
-
-        val modelView = element.annotation<ModelView>()
-        if (modelView != null) {
-            typeElement?.let { createColumnDefinitions(it) }
-        }
+        typeElement?.let { createColumnDefinitions(it) }
     }
 
     override fun createColumnDefinitions(typeElement: TypeElement) {
         val variableElements = ElementUtility.getAllElements(typeElement, manager)
 
         for (element in variableElements) {
-            classElementLookUpMap.put(element.simpleName.toString(), element)
+            classElementLookUpMap[element.simpleName.toString()] = element
         }
 
         val columnValidator = ColumnValidator()

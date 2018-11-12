@@ -111,9 +111,11 @@ class TableEndpointHandler : BaseContainerHandler<TableEndpoint>() {
 
         // top-level only
         if (element.enclosingElement is PackageElement) {
-            val tableEndpointDefinition = TableEndpointDefinition(element, processorManager)
-            if (validator.validate(processorManager, tableEndpointDefinition)) {
-                processorManager.putTableEndpointForProvider(tableEndpointDefinition)
+            element.annotation<TableEndpoint>()?.let { tableEndpoint ->
+                val tableEndpointDefinition = TableEndpointDefinition(tableEndpoint, element, processorManager)
+                if (validator.validate(processorManager, tableEndpointDefinition)) {
+                    processorManager.putTableEndpointForProvider(tableEndpointDefinition)
+                }
             }
         }
     }
@@ -217,9 +219,11 @@ class ContentProviderHandler : BaseContainerHandler<ContentProvider>() {
     override val annotationClass = ContentProvider::class.java
 
     override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
-        val contentProviderDefinition = ContentProviderDefinition(element, processorManager)
-        if (contentProviderDefinition.elementClassName != null) {
-            processorManager.addContentProviderDefinition(contentProviderDefinition)
+        element.annotation<ContentProvider>()?.let { contentProvider ->
+            val contentProviderDefinition = ContentProviderDefinition(contentProvider, element, processorManager)
+            if (contentProviderDefinition.elementClassName != null) {
+                processorManager.addContentProviderDefinition(contentProviderDefinition)
+            }
         }
     }
 }

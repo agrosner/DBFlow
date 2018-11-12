@@ -1,48 +1,28 @@
 package com.dbflow5.processor.definition.provider
 
-import com.dbflow5.contentprovider.annotation.ContentProvider
 import com.dbflow5.contentprovider.annotation.ContentUri
 import com.dbflow5.contentprovider.annotation.NotifyMethod
 import com.dbflow5.contentprovider.annotation.PathSegment
-import com.dbflow5.contentprovider.annotation.TableEndpoint
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.TableEndpointValidator
 import com.dbflow5.processor.definition.BaseDefinition
 import com.dbflow5.processor.definition.CodeAdder
 import com.dbflow5.processor.definition.MethodDefinition
-import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.annotation
-import com.dbflow5.processor.utils.controlFlow
-import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
-import com.dbflow5.processor.utils.isNullOrEmpty
-import com.dbflow5.processor.utils.isSubclass
-import com.dbflow5.processor.utils.toTypeElement
 import com.grosner.kpoet.L
-import com.grosner.kpoet.`=`
-import com.grosner.kpoet.`break`
-import com.grosner.kpoet.`private final field`
-import com.grosner.kpoet.`private static final field`
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.case
 import com.grosner.kpoet.code
-import com.grosner.kpoet.constructor
-import com.grosner.kpoet.final
-import com.grosner.kpoet.modifiers
-import com.grosner.kpoet.param
 import com.grosner.kpoet.parameterized
-import com.grosner.kpoet.public
 import com.grosner.kpoet.statement
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 
 internal fun appendDefault(code: CodeBlock.Builder) {
@@ -367,140 +347,6 @@ class UpdateMethod(private val contentProviderDefinition: ContentProviderDefinit
 /**
  * Description:
  */
-class ContentProviderDefinition(typeElement: Element, processorManager: ProcessorManager)
-    : BaseDefinition(typeElement, processorManager) {
-
-    var databaseTypeName: TypeName? = null
-
-    var authority: String = ""
-
-    var endpointDefinitions = arrayListOf<TableEndpointDefinition>()
-
-    var holderClass: TypeName? = null
-
-    private val methods: Array<MethodDefinition> = arrayOf(QueryMethod(this, manager),
-        InsertMethod(this, false),
-        InsertMethod(this, true),
-        DeleteMethod(this, manager),
-        UpdateMethod(this, manager))
-
-    init {
-        setOutputClassName("_$DEFINITION_NAME")
-        element.annotation<ContentProvider>()?.let { provider ->
-            databaseTypeName = provider.extractTypeNameFromAnnotation { it.database }
-            authority = provider.authority
-            holderClass = provider.extractTypeNameFromAnnotation { it.initializeHolderClass }
-
-            val validator = TableEndpointValidator()
-            val elements = manager.elements.getAllMembers(typeElement as TypeElement)
-            elements.forEach {
-                if (it.getAnnotation(TableEndpoint::class.java) != null) {
-                    val endpointDefinition = TableEndpointDefinition(it, manager)
-                    if (validator.validate(processorManager, endpointDefinition)) {
-                        endpointDefinitions.add(endpointDefinition)
-                    }
-                }
-            }
-
-            if (!databaseTypeName.toTypeElement(manager).isSubclass(manager.processingEnvironment,
-                    ClassNames.CONTENT_PROVIDER_DATABASE)) {
-                manager.logError("A Content Provider database $elementClassName " +
-                    "must extend ${ClassNames.CONTENT_PROVIDER_DATABASE}")
-            }
-
-            if (holderClass != TypeName.OBJECT &&
-                !holderClass.toTypeElement(manager).isSubclass(manager.processingEnvironment,
-                    ClassNames.DATABASE_HOLDER)) {
-                manager.logError("The initializeHolderClass $holderClass must point to a subclass" +
-                    "of ${ClassNames.DATABASE_HOLDER}")
-            }
-        }
-    }
-
-    override val extendsClass: TypeName?
-        get() = com.dbflow5.processor.ClassNames.BASE_CONTENT_PROVIDER
-
-    override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
-
-        typeBuilder.apply {
-            if (holderClass != TypeName.OBJECT) {
-                constructor {
-                    addStatement("super(\$T.class)", holderClass)
-                }
-            }
-
-            var code = 0
-            for (endpointDefinition in endpointDefinitions) {
-                endpointDefinition.contentUriDefinitions.forEach {
-                    `private static final field`(TypeName.INT, it.name) { `=`(code.toString()) }
-                    code++
-                }
-            }
-
-            `private final field`(com.dbflow5.processor.ClassNames.URI_MATCHER, URI_MATCHER) { `=`("new \$T(\$T.NO_MATCH)", com.dbflow5.processor.ClassNames.URI_MATCHER, com.dbflow5.processor.ClassNames.URI_MATCHER) }
-
-            `override fun`(TypeName.BOOLEAN, "onCreate") {
-                modifiers(public, final)
-                addStatement("final \$T $AUTHORITY = \$L", String::class.java,
-                    if (authority.contains("R.string."))
-                        "getContext().getString($authority)"
-                    else
-                        "\"$authority\"")
-
-                for (endpointDefinition in endpointDefinitions) {
-                    endpointDefinition.contentUriDefinitions.forEach {
-                        val path = if (!it.path.isNullOrEmpty()) {
-                            "\"${it.path}\""
-                        } else {
-                            CodeBlock.builder().add("\$L.\$L.getPath()", it.elementClassName,
-                                it.name).build().toString()
-                        }
-                        addStatement("\$L.addURI(\$L, \$L, \$L)", URI_MATCHER, AUTHORITY, path, it.name)
-                    }
-                }
-
-                addStatement("return super.onCreate()")
-            }
-
-            `override fun`(String::class, "getDatabaseName") {
-                modifiers(public, final)
-                `return`("\$T.getDatabaseName(\$T.class)", com.dbflow5.processor.ClassNames.FLOW_MANAGER, databaseTypeName)
-            }
-
-            `override fun`(String::class, "getType", param(com.dbflow5.processor.ClassNames.URI, "uri")) {
-                modifiers(public, final)
-                code {
-                    statement("\$T type = null", ClassName.get(String::class.java))
-                    controlFlow("switch(\$L.match(uri))", URI_MATCHER) {
-                        endpointDefinitions.flatMap { it.contentUriDefinitions }
-                            .forEach { uri ->
-                                controlFlow("case \$L:", uri.name) {
-                                    statement("type = \$S", uri.type)
-                                    `break`()
-                                }
-                            }
-                        appendDefault(this)
-                    }
-                    `return`("type")
-                }
-            }
-        }
-
-        methods.mapNotNull { it.methodSpec }
-            .forEach { typeBuilder.addMethod(it) }
-    }
-
-    companion object {
-
-        internal val DEFINITION_NAME = "Provider"
-        val URI_MATCHER = "MATCHER"
-        private val AUTHORITY = "AUTHORITY"
-    }
-}
-
-/**
- * Description:
- */
 class ContentUriDefinition(typeElement: Element, processorManager: ProcessorManager) : BaseDefinition(typeElement, processorManager) {
 
     var name = "${typeElement.enclosingElement.simpleName}_${typeElement.simpleName}"
@@ -533,11 +379,11 @@ class ContentUriDefinition(typeElement: Element, processorManager: ProcessorMana
         }
 
         if (typeElement is VariableElement) {
-            if (com.dbflow5.processor.ClassNames.URI != elementTypeName) {
+            if (ClassNames.URI != elementTypeName) {
                 processorManager.logError("Content Uri field returned wrong type. It must return a Uri")
             }
         } else if (typeElement is ExecutableElement) {
-            if (com.dbflow5.processor.ClassNames.URI != elementTypeName) {
+            if (ClassNames.URI != elementTypeName) {
                 processorManager.logError("ContentUri method returns wrong type. It must return Uri")
             }
         }
