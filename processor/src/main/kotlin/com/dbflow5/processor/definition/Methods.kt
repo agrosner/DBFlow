@@ -468,12 +468,12 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition) : Meth
     override val methodSpec: MethodSpec?
         get() {
             val shouldWrite = tableDefinition.oneToManyDefinitions.any { it.isDelete }
-            if (shouldWrite || tableDefinition.cachingEnabled) {
+            if (shouldWrite || tableDefinition.cachingBehavior.cachingEnabled) {
                 return `override fun`(TypeName.BOOLEAN, "delete",
                         param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
                     modifiers(public, final)
                     addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
-                    if (tableDefinition.cachingEnabled) {
+                    if (tableDefinition.cachingBehavior.cachingEnabled) {
                         statement("cacheAdapter.removeModelFromCache(${ModelUtils.variable})")
                     }
 
@@ -496,7 +496,7 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
 
     override val methodSpec: MethodSpec?
         get() {
-            if (!tableDefinition.oneToManyDefinitions.isEmpty() || tableDefinition.cachingEnabled) {
+            if (!tableDefinition.oneToManyDefinitions.isEmpty() || tableDefinition.cachingBehavior.cachingEnabled) {
                 var retType = TypeName.BOOLEAN
                 var retStatement = "successful"
                 when (methodName) {
@@ -518,7 +518,7 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                         }
                         statement("super.$methodName(${ModelUtils.variable}${wrapperCommaIfBaseModel(true)})")
 
-                        if (tableDefinition.cachingEnabled) {
+                        if (tableDefinition.cachingBehavior.cachingEnabled) {
                             statement("cacheAdapter.storeModelInCache(${ModelUtils.variable})")
                         }
                         this

@@ -98,11 +98,6 @@ class TableDefinition(table: Table,
 
     private val contentValueMethods: Array<MethodDefinition>
 
-    var cachingEnabled = false
-    var customCacheFieldName: String? = null
-    var customMultiCacheFieldName: String? = null
-    var customCacheSize = 0
-
     var createWithDatabase = true
 
     var useIsForPrivateBooleans: Boolean = false
@@ -129,11 +124,14 @@ class TableDefinition(table: Table,
             orderedCursorLookup = table.orderedCursorLookUp,
             assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor)
 
-    init {
+    val cachingBehavior = CachingBehavior(
+            cachingEnabled = table.cachingEnabled,
+            customCacheSize = table.cacheSize,
+            customCacheFieldName = null,
+            customMultiCacheFieldName = null)
 
+    init {
         generateContentValues = table.generateContentValues
-        cachingEnabled = table.cachingEnabled
-        customCacheSize = table.cacheSize
 
         createWithDatabase = table.createWithDatabase
 
@@ -181,8 +179,8 @@ class TableDefinition(table: Table,
         columnMapDefinitions.clear()
         columnUniqueMap.clear()
         oneToManyDefinitions.clear()
-        customCacheFieldName = null
-        customMultiCacheFieldName = null
+        cachingBehavior.customCacheFieldName = null
+        cachingBehavior.customMultiCacheFieldName = null
 
         val table = element.getAnnotation(Table::class.java)
         if (table != null) {
@@ -348,17 +346,17 @@ class TableDefinition(table: Table,
                 }
             } else if (element.annotation<ModelCacheField>() != null) {
                 ensureVisibleStatic(element, typeElement, "ModelCacheField")
-                if (!customCacheFieldName.isNullOrEmpty()) {
+                if (!cachingBehavior.customCacheFieldName.isNullOrEmpty()) {
                     manager.logError("ModelCacheField can only be declared once from: $typeElement")
                 } else {
-                    customCacheFieldName = element.simpleName.toString()
+                    cachingBehavior.customCacheFieldName = element.simpleName.toString()
                 }
             } else if (element.annotation<MultiCacheField>() != null) {
                 ensureVisibleStatic(element, typeElement, "MultiCacheField")
-                if (!customMultiCacheFieldName.isNullOrEmpty()) {
+                if (!cachingBehavior.customMultiCacheFieldName.isNullOrEmpty()) {
                     manager.logError("MultiCacheField can only be declared once from: $typeElement")
                 } else {
-                    customMultiCacheFieldName = element.simpleName.toString()
+                    cachingBehavior.customMultiCacheFieldName = element.simpleName.toString()
                 }
             }
         }
@@ -489,7 +487,8 @@ class TableDefinition(table: Table,
                 }
             }
 
-            if (cachingEnabled) {
+            if (cachingBehavior.cachingEnabled) {
+                val (_, customCacheSize, customCacheFieldName, customMultiCacheFieldName) = cachingBehavior
                 `public static final field`(ClassNames.CACHE_ADAPTER, "cacheAdapter") {
                     `=` {
                         val primaryColumns = primaryColumnDefinitions

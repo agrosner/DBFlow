@@ -5,7 +5,7 @@ import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.squareup.javapoet.TypeName
 
 /**
- * Description: Defines how a class is named, db it belongs to, and other loading behaviors.
+ * Defines how a class is named, db it belongs to, and other loading behaviors.
  */
 data class AssociationalBehavior(
         /**
@@ -25,7 +25,7 @@ data class AssociationalBehavior(
 
 
 /**
- * Description: Defines how a Cursor gets loaded from the DB.
+ * Defines how a Cursor gets loaded from the DB.
  */
 data class CursorHandlingBehavior(
         val orderedCursorLookup: Boolean = false,
@@ -41,3 +41,12 @@ data class PrimaryKeyColumnBehavior(
          */
         val associatedColumn: ColumnDefinition?,
         val hasAutoIncrement: Boolean)
+
+/**
+ * Describes caching behavior of a [TableDefinition].
+ */
+data class CachingBehavior(
+        val cachingEnabled: Boolean,
+        val customCacheSize: Int,
+        var customCacheFieldName: String?,
+        var customMultiCacheFieldName: String?)
