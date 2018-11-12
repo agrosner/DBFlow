@@ -1,7 +1,8 @@
 package com.dbflow5.processor.definition
 
+import com.dbflow5.processor.ClassNames
+import com.dbflow5.processor.DBFlowProcessor
 import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.hasJavaX
 import com.dbflow5.processor.utils.toClassName
 import com.dbflow5.processor.utils.toTypeElement
@@ -49,6 +50,7 @@ abstract class BaseDefinition(
 
 
     var outputClassName: ClassName? = null
+        private set
 
     /**
      * Unqualified name of the [element]. Useful for names of methods, fields, or short type names.
@@ -68,7 +70,7 @@ abstract class BaseDefinition(
             null
         }
     ) {
-        elementClassName = if (elementTypeName != null && !elementTypeName.isPrimitive) getElementClassName(element) else null
+        elementClassName = if (elementTypeName?.isPrimitive == true) null else element.toClassName(manager)
     }
 
     constructor(element: Element, processorManager: ProcessorManager,
@@ -90,7 +92,7 @@ abstract class BaseDefinition(
         }
     ) {
         elementTypeName?.let {
-            if (!it.isPrimitive) elementClassName = getElementClassName(element)
+            if (!it.isPrimitive) elementClassName = element.toClassName(processorManager)
         }
 
     }
@@ -103,30 +105,24 @@ abstract class BaseDefinition(
             ?: "",
         elementTypeName = element.asType().typeName
     ) {
-        elementClassName = element.toClassName()
-    }
-
-    protected open fun getElementClassName(element: Element?): ClassName? {
-        return try {
-            ElementUtility.getClassName(element?.asType().toString(), manager)
-        } catch (e: Exception) {
-            null
-        }
+        elementClassName = element.toClassName(processorManager)
     }
 
     protected fun setOutputClassName(postfix: String) {
         val outputName: String
+
+        val elementClassName = elementClassName
         if (elementClassName == null) {
             when (elementTypeName) {
                 is ClassName -> outputName = elementTypeName.simpleName()
                 is ParameterizedTypeName -> {
                     outputName = elementTypeName.rawType.simpleName()
-                    elementClassName = elementTypeName.rawType
+                    this.elementClassName = elementTypeName.rawType
                 }
                 else -> outputName = elementTypeName.toString()
             }
         } else {
-            outputName = elementClassName!!.simpleName()
+            outputName = elementClassName.simpleName()
         }
         outputClassName = ClassName.get(packageName, outputName + postfix)
     }
@@ -138,13 +134,13 @@ abstract class BaseDefinition(
     override val typeSpec: TypeSpec
         get() {
             if (outputClassName == null) {
-                manager.logError("$elementTypeName's outputClass name was null. Database was " +
+                manager.logError("$elementTypeName's is missing an outputClassName. Database was " +
                     "${(this as? BaseTableDefinition)?.associationalBehavior?.databaseTypeName}")
             }
             return `public final class`(outputClassName?.simpleName() ?: "") {
                 if (hasJavaX()) {
-                    addAnnotation(`@`(com.dbflow5.processor.ClassNames.GENERATED) {
-                        this["value"] = com.dbflow5.processor.DBFlowProcessor::class.java.canonicalName.toString().S
+                    addAnnotation(`@`(ClassNames.GENERATED) {
+                        this["value"] = DBFlowProcessor::class.java.canonicalName.toString().S
                     }.build())
                 }
                 extendsClass?.let { extends(it) }

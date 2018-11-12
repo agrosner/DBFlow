@@ -6,7 +6,6 @@ import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.BaseDefinition
 import com.dbflow5.processor.utils.annotation
-import com.squareup.javapoet.ClassName
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
@@ -46,15 +45,15 @@ class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
             val paramType = param.asType()
             val typeAsString = paramType.toString()
             paramsBuilder.append(
-                    when (typeAsString) {
-                        "android.content.Context" -> "getContext()"
-                        "android.net.Uri" -> "uri"
-                        "android.content.ContentValues" -> "values"
-                        "long" -> "id"
-                        "java.lang.String" -> "where"
-                        "java.lang.String[]" -> "whereArgs"
-                        else -> ""
-                    })
+                when (typeAsString) {
+                    "android.content.Context" -> "getContext()"
+                    "android.net.Uri" -> "uri"
+                    "android.content.ContentValues" -> "values"
+                    "long" -> "id"
+                    "java.lang.String" -> "where"
+                    "java.lang.String[]" -> "whereArgs"
+                    else -> ""
+                })
         }
 
         params = paramsBuilder.toString()
@@ -67,5 +66,4 @@ class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
         }
     }
 
-    override fun getElementClassName(element: Element?): ClassName? = null
 }

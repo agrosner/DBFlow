@@ -9,6 +9,7 @@ import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.isNullOrEmpty
 import com.dbflow5.processor.utils.lower
+import com.dbflow5.processor.utils.toClassName
 import com.dbflow5.processor.utils.toTypeElement
 import com.grosner.kpoet.L
 import com.grosner.kpoet.`@`
@@ -52,7 +53,7 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
 
         databaseTypeName = element.extractTypeNameFromAnnotation<Table> { it.database }
         if (!thisColumnName.isNullOrEmpty() && !referencedColumnName.isNullOrEmpty()
-                && thisColumnName == referencedColumnName) {
+            && thisColumnName == referencedColumnName) {
             manager.logError(ManyToManyDefinition::class, "The thisTableColumnName and referenceTableColumnName cannot be the same")
         }
     }
@@ -63,7 +64,7 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
             manager.logError("DatabaseDefinition was null for : $elementName")
         } else {
             if (generatedTableClassName.isNullOrEmpty()) {
-                val referencedOutput = getElementClassName(referencedTable.toTypeElement(manager))
+                val referencedOutput = referencedTable.toTypeElement(manager).toClassName(manager)
                 setOutputClassName(databaseDefinition.classSeparator + referencedOutput?.simpleName())
             } else {
                 setOutputClassNameFull(generatedTableClassName)
@@ -74,7 +75,7 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
             addAnnotation(AnnotationSpec.builder(Table::class.java)
-                    .addMember("database", "\$T.class", databaseTypeName).build())
+                .addMember("database", "\$T.class", databaseTypeName).build())
 
             val referencedDefinition = manager.getTableDefinition(databaseTypeName, referencedTable)
             val selfDefinition = manager.getTableDefinition(databaseTypeName, elementTypeName)
@@ -119,7 +120,7 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
                 `return`(fieldName.L)
             }
             `fun`(TypeName.VOID, "set${fieldName.capitalize()}",
-                    param(referencedDefinition.elementClassName!!, "param")) {
+                param(referencedDefinition.elementClassName!!, "param")) {
                 modifiers(public, final)
                 statement("$fieldName = param")
             }
