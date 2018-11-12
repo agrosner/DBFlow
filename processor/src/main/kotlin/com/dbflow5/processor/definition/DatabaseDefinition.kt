@@ -32,8 +32,6 @@ class DatabaseDefinition(database: Database,
                          manager: ProcessorManager, element: Element)
     : BaseDefinition(element, manager, packageName = ClassNames.FLOW_MANAGER_PACKAGE), TypeDefinition {
 
-    val databaseClassName: String? = elementName
-
     private val databaseVersion: Int = database.version
     private val foreignKeysSupported = database.foreignKeyConstraintsEnforced
     private val consistencyChecksEnabled = database.consistencyCheckEnabled
@@ -47,7 +45,7 @@ class DatabaseDefinition(database: Database,
     var objectHolder: DatabaseObjectHolder? = null
 
     init {
-        setOutputClassName("${databaseClassName}_Database")
+        setOutputClassName("${elementName}_Database")
 
         if (!element.modifiers.contains(Modifier.ABSTRACT)
             || element.modifiers.contains(Modifier.PRIVATE)
