@@ -1,14 +1,9 @@
 package com.dbflow5.processor.definition.provider
 
-import com.dbflow5.contentprovider.annotation.ContentUri
 import com.dbflow5.contentprovider.annotation.NotifyMethod
-import com.dbflow5.contentprovider.annotation.PathSegment
-import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.definition.BaseDefinition
 import com.dbflow5.processor.definition.CodeAdder
 import com.dbflow5.processor.definition.MethodDefinition
-import com.dbflow5.processor.utils.annotation
 import com.grosner.kpoet.L
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.case
@@ -20,10 +15,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
-import javax.lang.model.element.VariableElement
 
 internal fun appendDefault(code: CodeBlock.Builder) {
     code.beginControlFlow("default:")
@@ -195,29 +187,13 @@ class NotifyMethod(private val tableEndpointDefinition: TableEndpointDefinition,
             if (notifyDefinitionList != null) {
                 for (i in notifyDefinitionList.indices) {
                     val notifyDefinition = notifyDefinitionList[i]
-                    if (notifyDefinition.returnsArray) {
-                        code.addStatement("\$T[] notifyUris\$L = \$L.\$L(\$L)", com.dbflow5.processor.ClassNames.URI,
-                            notifyDefinition.methodName, notifyDefinition.parent,
-                            notifyDefinition.methodName, notifyDefinition.params)
-                        code.beginControlFlow("for (\$T notifyUri: notifyUris\$L)", com.dbflow5.processor.ClassNames.URI, notifyDefinition.methodName)
-                    } else {
-                        code.addStatement("\$T notifyUri\$L = \$L.\$L(\$L)", com.dbflow5.processor.ClassNames.URI,
-                            notifyDefinition.methodName, notifyDefinition.parent,
-                            notifyDefinition.methodName, notifyDefinition.params)
-                    }
-                    code.addStatement("getContext().getContentResolver().notifyChange(notifyUri\$L, null)",
-                        if (notifyDefinition.returnsArray) "" else notifyDefinition.methodName)
-                    if (notifyDefinition.returnsArray) {
-                        code.endControlFlow()
-                    }
-
+                    notifyDefinition.addCode(code)
                     hasListener = true
                 }
             }
         }
 
         if (!hasListener) {
-
             val isUpdateDelete = notifyMethod == NotifyMethod.UPDATE || notifyMethod == NotifyMethod.DELETE
             if (isUpdateDelete) {
                 code.beginControlFlow("if (count > 0)")
@@ -344,49 +320,3 @@ class UpdateMethod(private val contentProviderDefinition: ContentProviderDefinit
 
 }
 
-/**
- * Description:
- */
-class ContentUriDefinition(typeElement: Element, processorManager: ProcessorManager) : BaseDefinition(typeElement, processorManager) {
-
-    var name = "${typeElement.enclosingElement.simpleName}_${typeElement.simpleName}"
-
-    var path = ""
-
-    var type = ""
-
-    var queryEnabled = false
-
-    var insertEnabled = false
-
-    var deleteEnabled = false
-
-
-    var updateEnabled = false
-
-    var segments = arrayOf<PathSegment>()
-
-    init {
-        typeElement.annotation<ContentUri>()?.let { contentUri ->
-            path = contentUri.path
-            type = contentUri.type
-            queryEnabled = contentUri.queryEnabled
-            insertEnabled = contentUri.insertEnabled
-            deleteEnabled = contentUri.deleteEnabled
-            updateEnabled = contentUri.updateEnabled
-
-            segments = contentUri.segments
-        }
-
-        if (typeElement is VariableElement) {
-            if (ClassNames.URI != elementTypeName) {
-                processorManager.logError("Content Uri field returned wrong type. It must return a Uri")
-            }
-        } else if (typeElement is ExecutableElement) {
-            if (ClassNames.URI != elementTypeName) {
-                processorManager.logError("ContentUri method returns wrong type. It must return Uri")
-            }
-        }
-    }
-
-}

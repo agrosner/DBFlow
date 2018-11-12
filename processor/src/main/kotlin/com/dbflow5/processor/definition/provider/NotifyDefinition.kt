@@ -5,7 +5,9 @@ import com.dbflow5.contentprovider.annotation.NotifyMethod
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.BaseDefinition
+import com.dbflow5.processor.definition.CodeAdder
 import com.dbflow5.processor.utils.annotation
+import com.squareup.javapoet.CodeBlock
 import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
@@ -14,7 +16,7 @@ import javax.lang.model.element.TypeElement
  * Description:
  */
 class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
-    : BaseDefinition(typeElement, processorManager) {
+    : BaseDefinition(typeElement, processorManager), CodeAdder {
 
     var paths = arrayOf<String>()
     var method = NotifyMethod.DELETE
@@ -66,4 +68,22 @@ class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
         }
     }
 
+    override fun addCode(code: CodeBlock.Builder): CodeBlock.Builder {
+        if (returnsArray) {
+            code.addStatement("\$T[] notifyUris\$L = \$L.\$L(\$L)", ClassNames.URI,
+                methodName, parent,
+                methodName, params)
+            code.beginControlFlow("for (\$T notifyUri: notifyUris\$L)", ClassNames.URI, methodName)
+        } else {
+            code.addStatement("\$T notifyUri\$L = \$L.\$L(\$L)", ClassNames.URI,
+                methodName, parent,
+                methodName, params)
+        }
+        code.addStatement("getContext().getContentResolver().notifyChange(notifyUri\$L, null)",
+            if (returnsArray) "" else methodName)
+        if (returnsArray) {
+            code.endControlFlow()
+        }
+        return code
+    }
 }
