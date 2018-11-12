@@ -191,12 +191,12 @@ class TableDefinition(table: Table,
             // globular default
             var insertConflict = table.insertConflict
             if (insertConflict == ConflictAction.NONE && databaseDefinition.insertConflict != ConflictAction.NONE) {
-                insertConflict = databaseDefinition.insertConflict ?: ConflictAction.NONE
+                insertConflict = databaseDefinition.insertConflict
             }
 
             var updateConflict = table.updateConflict
             if (updateConflict == ConflictAction.NONE && databaseDefinition.updateConflict != ConflictAction.NONE) {
-                updateConflict = databaseDefinition.updateConflict ?: ConflictAction.NONE
+                updateConflict = databaseDefinition.updateConflict
             }
 
             val primaryKeyConflict = table.primaryKeyConflict

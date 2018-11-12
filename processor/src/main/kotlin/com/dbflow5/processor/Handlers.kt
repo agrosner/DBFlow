@@ -171,8 +171,8 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
                     // Check here if user already placed definition of same type, since default converters
                     // are added last.
                     if (processorManager.typeConverters
-                                    .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
-                                    .isEmpty()) {
+                            .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
+                            .isEmpty()) {
                         processorManager.addTypeConverterDefinition(converterDefinition)
                     }
                 }
@@ -183,10 +183,10 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
     companion object {
         private val VALIDATOR = TypeConverterValidator()
         private val DEFAULT_TYPE_CONVERTERS = arrayOf<Class<*>>(CalendarConverter::class.java,
-                BigDecimalConverter::class.java, BigIntegerConverter::class.java,
-                DateConverter::class.java, SqlDateConverter::class.java,
-                BooleanConverter::class.java, UUIDConverter::class.java,
-                CharConverter::class.java)
+            BigDecimalConverter::class.java, BigIntegerConverter::class.java,
+            DateConverter::class.java, SqlDateConverter::class.java,
+            BooleanConverter::class.java, UUIDConverter::class.java,
+            CharConverter::class.java)
     }
 }
 
@@ -234,9 +234,11 @@ class DatabaseHandler : BaseContainerHandler<Database>() {
     override val annotationClass = Database::class.java
 
     override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
-        val managerWriter = DatabaseDefinition(processorManager, element)
-        if (validator.validate(processorManager, managerWriter)) {
-            processorManager.addFlowManagerWriter(managerWriter)
+        element.annotation<Database>()?.let { database ->
+            val managerWriter = DatabaseDefinition(database, processorManager, element)
+            if (validator.validate(processorManager, managerWriter)) {
+                processorManager.addDatabaseDefinition(managerWriter)
+            }
         }
     }
 

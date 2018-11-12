@@ -67,7 +67,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         }
     }
 
-    fun addFlowManagerWriter(databaseDefinition: DatabaseDefinition) {
+    fun addDatabaseDefinition(databaseDefinition: DatabaseDefinition) {
         val holderDefinition = getOrPutDatabase(databaseDefinition.elementClassName)
         holderDefinition?.databaseDefinition = databaseDefinition
     }

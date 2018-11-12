@@ -7,7 +7,6 @@ import com.dbflow5.processor.ModelViewValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.TableValidator
 import com.dbflow5.processor.utils.`override fun`
-import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.isSubclass
 import com.grosner.kpoet.L
 import com.grosner.kpoet.`return`
@@ -30,41 +29,26 @@ import javax.lang.model.element.Modifier
  * Description: Writes [Database] definitions,
  * which contain [Table], [ModelView], and [Migration]
  */
-class DatabaseDefinition(manager: ProcessorManager, element: Element)
+class DatabaseDefinition(database: Database,
+                         manager: ProcessorManager, element: Element)
     : BaseDefinition(element, manager, packageName = ClassNames.FLOW_MANAGER_PACKAGE), TypeDefinition {
 
-    var databaseClassName: String? = null
+    val databaseClassName: String? = elementName
 
-    var databaseVersion: Int = 0
+    private val databaseVersion: Int = database.version
+    private val foreignKeysSupported = database.foreignKeyConstraintsEnforced
+    private val consistencyChecksEnabled = database.consistencyCheckEnabled
+    private val backupEnabled = database.backupEnabled
 
-    internal var foreignKeysSupported: Boolean = false
-
-    internal var consistencyChecksEnabled: Boolean = false
-
-    internal var backupEnabled: Boolean = false
-
-    var insertConflict: ConflictAction? = null
-
-    var updateConflict: ConflictAction? = null
+    val insertConflict: ConflictAction = database.insertConflict
+    val updateConflict: ConflictAction = database.updateConflict
 
     val classSeparator: String = "_"
 
     var objectHolder: DatabaseObjectHolder? = null
 
     init {
-        element.annotation<Database>()?.let { database ->
-            databaseClassName = element.simpleName.toString()
-            consistencyChecksEnabled = database.consistencyCheckEnabled
-            backupEnabled = database.backupEnabled
-
-            setOutputClassName("$databaseClassName${classSeparator}Database")
-
-            databaseVersion = database.version
-            foreignKeysSupported = database.foreignKeyConstraintsEnforced
-
-            insertConflict = database.insertConflict
-            updateConflict = database.updateConflict
-        }
+        setOutputClassName("${databaseClassName}_Database")
 
         if (!element.modifiers.contains(Modifier.ABSTRACT)
             || element.modifiers.contains(Modifier.PRIVATE)
