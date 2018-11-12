@@ -3,7 +3,6 @@ package com.dbflow5.processor.definition
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.QueryModel
-import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnDefinition
@@ -11,7 +10,6 @@ import com.dbflow5.processor.definition.column.ReferenceColumnDefinition
 import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
-import com.dbflow5.processor.utils.implementsClass
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
@@ -21,6 +19,7 @@ import javax.lang.model.element.TypeElement
  * Description:
  */
 class QueryModelDefinition(override val associationalBehavior: AssociationalBehavior,
+                           override val cursorHandlingBehavior: CursorHandlingBehavior,
                            typeElement: TypeElement,
                            processorManager: ProcessorManager)
     : BaseTableDefinition(typeElement, processorManager) {
@@ -33,7 +32,12 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
                     name = typeElement.simpleName.toString(),
                     databaseTypeName = queryModel.extractTypeNameFromAnnotation { it.database },
                     allFields = queryModel.allFields
-            ), typeElement, processorManager)
+            ),
+            CursorHandlingBehavior(
+                    orderedCursorLookup = queryModel.orderedCursorLookUp,
+                    assignDefaultValuesFromCursor = queryModel.assignDefaultValuesFromCursor
+            ),
+            typeElement, processorManager)
 
     /**
      * [ColumnMap] constructor.
@@ -46,17 +50,14 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
                     databaseTypeName = databaseTypeName,
                     allFields = true
             ),
+            CursorHandlingBehavior(),
             typeElement, processorManager)
 
     init {
         processorManager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
     }
 
-    override fun prepareForWrite() {
-        classElementLookUpMap.clear()
-        columnDefinitions.clear()
-        packagePrivateList.clear()
-
+    override fun prepareForWriteInternal() {
         databaseDefinition = manager.getDatabaseHolderDefinition(associationalBehavior.databaseTypeName)?.databaseDefinition
         setOutputClassName("${databaseDefinition?.classSeparator}QueryTable")
 

@@ -125,14 +125,15 @@ class TableDefinition(table: Table,
             databaseTypeName = table.extractTypeNameFromAnnotation { it.database },
             allFields = table.allFields)
 
+    override val cursorHandlingBehavior = CursorHandlingBehavior(
+            orderedCursorLookup = table.orderedCursorLookUp,
+            assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor)
+
     init {
 
         generateContentValues = table.generateContentValues
         cachingEnabled = table.cachingEnabled
         customCacheSize = table.cacheSize
-
-        orderedCursorLookUp = table.orderedCursorLookUp
-        assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor
 
         createWithDatabase = table.createWithDatabase
 
@@ -171,10 +172,8 @@ class TableDefinition(table: Table,
 
     }
 
-    override fun prepareForWrite() {
-        columnDefinitions = arrayListOf()
+    override fun prepareForWriteInternal() {
         columnMap.clear()
-        classElementLookUpMap.clear()
         _primaryColumnDefinitions.clear()
         uniqueGroupsDefinitions.clear()
         indexGroupsDefinitions.clear()

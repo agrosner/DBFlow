@@ -61,9 +61,6 @@ abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: P
     var globalTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
     val packagePrivateList = arrayListOf<ColumnDefinition>()
 
-    var orderedCursorLookUp: Boolean = false
-    var assignDefaultValuesFromCursor = true
-
     var classElementLookUpMap: MutableMap<String, Element> = mutableMapOf()
 
     val modelClassName = typeElement.simpleName.toString()
@@ -77,6 +74,8 @@ abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: P
 
     abstract val associationalBehavior: AssociationalBehavior
 
+    abstract val cursorHandlingBehavior: CursorHandlingBehavior
+
     abstract val methods: Array<MethodDefinition>
 
     init {
@@ -87,7 +86,15 @@ abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: P
 
     abstract val primaryColumnDefinitions: List<ColumnDefinition>
 
-    abstract fun prepareForWrite()
+    fun prepareForWrite() {
+        classElementLookUpMap.clear()
+        columnDefinitions.clear()
+        packagePrivateList.clear()
+
+        prepareForWriteInternal()
+    }
+
+    protected abstract fun prepareForWriteInternal()
 
     val parameterClassName: TypeName?
         get() = elementClassName

@@ -31,7 +31,18 @@ annotation class VirtualTable(
          * @return When false, this table gets generated and associated with database, however it will not immediately
          * get created upon startup. This is useful for keeping around legacy tables for migrations.
          */
-        val createWithDatabase: Boolean = true
+        val createWithDatabase: Boolean = true,
+
+        /**
+         * @return If true, we throw away checks for column indexing and simply assume that the cursor returns
+         * all our columns in order. This may provide a slight performance boost.
+         */
+        val orderedCursorLookUp: Boolean = false,
+        /**
+         * @return When true, we reassign the corresponding Model's fields to default values when loading
+         * from cursor. If false, we assign values only if present in Cursor.
+         */
+        val assignDefaultValuesFromCursor: Boolean = true
 ) {
     /**
      * Represents a type of virtual table to create. The choices are purposely limited and more

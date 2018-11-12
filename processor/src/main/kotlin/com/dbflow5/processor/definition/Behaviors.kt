@@ -22,3 +22,10 @@ data class AssociationalBehavior(
          */
         val allFields: Boolean)
 
+
+/**
+ * Description: Defines how a Cursor gets loaded from the DB.
+ */
+data class CursorHandlingBehavior(
+        val orderedCursorLookup: Boolean = false,
+        val assignDefaultValuesFromCursor: Boolean = true)

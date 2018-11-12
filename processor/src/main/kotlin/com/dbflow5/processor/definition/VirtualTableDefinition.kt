@@ -25,6 +25,10 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
             allFields = virtualTable.allFields
     )
 
+    override val cursorHandlingBehavior = CursorHandlingBehavior(
+            orderedCursorLookup = virtualTable.orderedCursorLookUp,
+            assignDefaultValuesFromCursor = virtualTable.assignDefaultValuesFromCursor)
+
     override val methods: Array<MethodDefinition> = arrayOf(
             /*BindToStatementMethod(this, BindToStatementMethod.Mode.INSERT),
             BindToStatementMethod(this, BindToStatementMethod.Mode.UPDATE),
@@ -52,7 +56,7 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
     override val primaryColumnDefinitions: List<ColumnDefinition>
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
 
-    override fun prepareForWrite() {
+    override fun prepareForWriteInternal() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

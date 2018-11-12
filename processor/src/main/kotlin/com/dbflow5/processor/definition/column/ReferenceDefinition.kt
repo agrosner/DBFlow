@@ -139,9 +139,15 @@ class ReferenceDefinition(private val manager: ProcessorManager,
         val combiner = Combiner(columnAccessor, columnClassName!!, wrapperAccessor,
                 wrapperTypeName, subWrapperAccessor, referenceColumnDefinition.elementName)
 
-        partialAccessor = PartialLoadFromCursorAccessCombiner(columnName, foreignColumnName,
-                columnClassName, referenceColumnDefinition.baseTableDefinition.orderedCursorLookUp,
-                columnAccessor, wrapperAccessor, wrapperTypeName)
+        partialAccessor = PartialLoadFromCursorAccessCombiner(
+                columnRepresentation = columnName,
+                propertyRepresentation = foreignColumnName,
+                fieldTypeName = columnClassName,
+                orderedCursorLookup = referenceColumnDefinition.baseTableDefinition.cursorHandlingBehavior.orderedCursorLookup,
+                fieldLevelAccessor = columnAccessor,
+                subWrapperAccessor = wrapperAccessor,
+                subWrapperTypeName = wrapperTypeName
+        )
 
         val defaultValue = referenceColumnDefinition.getDefaultValueBlock(this.defaultValue, columnClassName)
         primaryReferenceField = ForeignKeyAccessField(columnName,

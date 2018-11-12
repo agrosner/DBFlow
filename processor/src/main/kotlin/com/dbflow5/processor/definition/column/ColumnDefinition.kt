@@ -13,6 +13,7 @@ import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.BaseDefinition
 import com.dbflow5.processor.definition.BaseTableDefinition
+import com.dbflow5.processor.definition.CursorHandlingBehavior
 import com.dbflow5.processor.definition.TableDefinition
 import com.dbflow5.processor.definition.TypeConverterDefinition
 import com.dbflow5.processor.utils.annotation
@@ -244,7 +245,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     private fun handleSpecifiedTypeConverter(typeConverterClassName: ClassName?, typeMirror: TypeMirror?) {
         if (typeConverterClassName != null && typeMirror != null &&
-                typeConverterClassName != com.dbflow5.processor.ClassNames.TYPE_CONVERTER) {
+                typeConverterClassName != ClassNames.TYPE_CONVERTER) {
             evaluateTypeConverter(TypeConverterDefinition(typeConverterClassName, typeMirror, manager), true)
         }
     }
@@ -329,11 +330,11 @@ constructor(processorManager: ProcessorManager, element: Element,
         elementTypeName?.let { elementTypeName ->
             val isNonPrimitiveTypeConverter = !wrapperAccessor.isPrimitiveTarget() && wrapperAccessor is TypeConverterScopeColumnAccessor
             val propParam: TypeName = if (isNonPrimitiveTypeConverter) {
-                ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.TYPE_CONVERTED_PROPERTY, wrapperTypeName, elementTypeName.box())
+                ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, wrapperTypeName, elementTypeName.box())
             } else if (!wrapperAccessor.isPrimitiveTarget()) {
-                ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.WRAPPER_PROPERTY, wrapperTypeName, elementTypeName.box())
+                ParameterizedTypeName.get(ClassNames.WRAPPER_PROPERTY, wrapperTypeName, elementTypeName.box())
             } else {
-                ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.PROPERTY, elementTypeName.box())
+                ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box())
             }
 
             val fieldBuilder = FieldSpec.builder(propParam,
@@ -350,9 +351,9 @@ constructor(processorManager: ProcessorManager, element: Element,
                         return adapter.${"$"}L;
                     }
                     })""",
-                        com.dbflow5.processor.ClassNames.TYPE_CONVERTER_GETTER, com.dbflow5.processor.ClassNames.TYPE_CONVERTER,
+                        ClassNames.TYPE_CONVERTER_GETTER, ClassNames.TYPE_CONVERTER,
                         baseTableDefinition.outputClassName, baseTableDefinition.outputClassName,
-                        com.dbflow5.processor.ClassNames.FLOW_MANAGER,
+                        ClassNames.FLOW_MANAGER,
                         (wrapperAccessor as TypeConverterScopeColumnAccessor).typeConverterFieldName)
                 fieldBuilder.initializer(codeBlock.build())
             } else {
@@ -408,16 +409,16 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open fun getLoadFromCursorMethod(endNonPrimitiveIf: Boolean, index: AtomicInteger,
                                      nameAllocator: NameAllocator) = code {
-
-        var assignDefaultValue = baseTableDefinition.assignDefaultValuesFromCursor
+        val (orderedCursorLookup, assignDefaultValuesFromCursor) = baseTableDefinition.cursorHandlingBehavior
+        var assignDefaultValue = assignDefaultValuesFromCursor
         val defaultValueBlock = getDefaultValueBlock()
         if (isNotNullType && CodeBlock.of("null") == defaultValueBlock) {
             assignDefaultValue = false
         }
 
         LoadFromCursorAccessCombiner(combiner, defaultValue != null,
-                nameAllocator, baseTableDefinition.orderedCursorLookUp,
-                assignDefaultValue).apply {
+                nameAllocator,
+                CursorHandlingBehavior(orderedCursorLookup, assignDefaultValue)).apply {
             addCode(columnName, getDefaultValueBlock(), index.get(), modelBlock)
         }
         this

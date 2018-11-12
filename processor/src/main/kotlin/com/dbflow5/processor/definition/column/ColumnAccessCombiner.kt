@@ -6,6 +6,7 @@ import com.grosner.kpoet.`if`
 import com.grosner.kpoet.end
 import com.grosner.kpoet.statement
 import com.dbflow5.processor.SQLiteHelper
+import com.dbflow5.processor.definition.CursorHandlingBehavior
 import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.catch
 import com.dbflow5.processor.utils.isNullOrEmpty
@@ -211,22 +212,21 @@ class SqliteStatementAccessCombiner(combiner: Combiner)
 class LoadFromCursorAccessCombiner(combiner: Combiner,
                                    val hasDefaultValue: Boolean,
                                    val nameAllocator: NameAllocator,
-                                   val orderedCursorLookup: Boolean = false,
-                                   val assignDefaultValuesFromCursor: Boolean = true)
+                                   val cursorHandlingBehavior: CursorHandlingBehavior)
     : ColumnAccessCombiner(combiner) {
 
     override fun CodeBlock.Builder.addCode(columnRepresentation: String,
                                            defaultValue: CodeBlock?, index: Int,
                                            modelBlock: CodeBlock, defineProperty: Boolean) {
         combiner.apply {
-            var indexName = if (!orderedCursorLookup) {
+            var indexName = if (!cursorHandlingBehavior.orderedCursorLookup) {
                 CodeBlock.of(columnRepresentation.S)
             } else {
                 CodeBlock.of(index.toString())
             }!!
 
             if (wrapperLevelAccessor != null) {
-                if (!orderedCursorLookup) {
+                if (!cursorHandlingBehavior.orderedCursorLookup) {
                     indexName = CodeBlock.of(nameAllocator.newName("index_$columnRepresentation", columnRepresentation))
                     statement("\$T \$L = cursor.getColumnIndex(\$S)", Int::class.java, indexName,
                             columnRepresentation)
@@ -250,7 +250,7 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
                 }
                 if (isEnum) {
                     catch(IllegalArgumentException::class) {
-                        if (assignDefaultValuesFromCursor) {
+                        if (cursorHandlingBehavior.assignDefaultValuesFromCursor) {
                             statement(fieldLevelAccessor.set(wrapperLevelAccessor.set(defaultValue,
                                     isDefault = true), modelBlock))
                         } else {
@@ -258,7 +258,7 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
                         }
                     }
                 }
-                if (assignDefaultValuesFromCursor) {
+                if (cursorHandlingBehavior.assignDefaultValuesFromCursor) {
                     nextControlFlow("else")
                     statement(fieldLevelAccessor.set(wrapperLevelAccessor.set(defaultValue,
                             isDefault = true), modelBlock))
@@ -267,7 +267,7 @@ class LoadFromCursorAccessCombiner(combiner: Combiner,
             } else {
                 var hasDefault = hasDefaultValue
                 var defaultValueBlock = defaultValue
-                if (!assignDefaultValuesFromCursor) {
+                if (!cursorHandlingBehavior.assignDefaultValuesFromCursor) {
                     defaultValueBlock = fieldLevelAccessor.get(modelBlock)
                 } else if (!hasDefault && fieldTypeName.isBoxedPrimitive) {
                     hasDefault = true // force a null on it.

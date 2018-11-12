@@ -56,9 +56,11 @@ class ModelViewDefinition(modelView: ModelView,
             allFields = modelView.allFields
     )
 
-    override fun prepareForWrite() {
-        classElementLookUpMap.clear()
-        columnDefinitions.clear()
+    override val cursorHandlingBehavior = CursorHandlingBehavior(
+            orderedCursorLookup = modelView.orderedCursorLookUp,
+            assignDefaultValuesFromCursor = modelView.assignDefaultValuesFromCursor)
+
+    override fun prepareForWriteInternal() {
         queryFieldName = null
 
         val modelView = element.getAnnotation(ModelView::class.java)
