@@ -51,17 +51,12 @@ abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: P
     val sqlColumnDefinitions
         get() = columnDefinitions.filter { it.type !is ColumnDefinition.Type.RowId }
 
-    var hasAutoIncrement: Boolean = false
-
-    var hasRowID: Boolean = false
-
-    var autoIncrementColumn: ColumnDefinition? = null
 
     val associatedTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
     val globalTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
     val packagePrivateList = arrayListOf<ColumnDefinition>()
 
-    var classElementLookUpMap: MutableMap<String, Element> = mutableMapOf()
+    val classElementLookUpMap: MutableMap<String, Element> = mutableMapOf()
 
     val modelClassName = typeElement.simpleName.toString()
     val databaseDefinition: DatabaseDefinition by lazy {
@@ -77,8 +72,9 @@ abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: P
             ClassNames.LOAD_FROM_CURSOR_LISTENER)
 
     abstract val associationalBehavior: AssociationalBehavior
-
     abstract val cursorHandlingBehavior: CursorHandlingBehavior
+    open var primaryKeyColumnBehavior: PrimaryKeyColumnBehavior =
+            PrimaryKeyColumnBehavior(hasRowID = false, associatedColumn = null, hasAutoIncrement = false)
 
     abstract val methods: Array<MethodDefinition>
 

@@ -72,8 +72,9 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                             ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
                 }
             } else {
-                if (baseTableDefinition.hasAutoIncrement || baseTableDefinition.hasRowID) {
-                    val autoIncrement = baseTableDefinition.autoIncrementColumn
+                if (baseTableDefinition.primaryKeyColumnBehavior.hasAutoIncrement
+                        || baseTableDefinition.primaryKeyColumnBehavior.hasRowID) {
+                    val autoIncrement = baseTableDefinition.primaryKeyColumnBehavior.associatedColumn
                     autoIncrement?.let {
                         methodBuilder.addCode(autoIncrement.contentValuesStatement)
                     }
@@ -197,7 +198,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
                     if (!it.columnDefinitionList.isEmpty()) add(it.creationName)
                 }
 
-                if (!tableDefinition.hasAutoIncrement) {
+                if (!tableDefinition.primaryKeyColumnBehavior.hasAutoIncrement) {
                     val primarySize = tableDefinition.primaryColumnDefinitions.size
                     if (primarySize > 0) {
                         add(", PRIMARY KEY(${tableDefinition.primaryColumnDefinitions.joinToString { it.primaryKeyName.toString() }})")
@@ -301,7 +302,7 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
             modifiers(public, final)
             code {
                 // only quick check if enabled.
-                var primaryColumn = tableDefinition.autoIncrementColumn
+                var primaryColumn = tableDefinition.primaryKeyColumnBehavior.associatedColumn
                 if (primaryColumn == null) {
                     primaryColumn = tableDefinition.primaryColumnDefinitions[0]
                 }

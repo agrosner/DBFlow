@@ -1,6 +1,7 @@
 package com.dbflow5.processor.definition
 
 import com.dbflow5.annotation.PrimaryKey
+import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.squareup.javapoet.TypeName
 
 /**
@@ -29,3 +30,14 @@ data class AssociationalBehavior(
 data class CursorHandlingBehavior(
         val orderedCursorLookup: Boolean = false,
         val assignDefaultValuesFromCursor: Boolean = true)
+
+/**
+ * Defines how Primary Key columns behave. If has autoincrementing column or ROWID, the [associatedColumn] is not null.
+ */
+data class PrimaryKeyColumnBehavior(
+        val hasRowID: Boolean,
+        /**
+         * Either [hasRowID] or [hasAutoIncrement] or null.
+         */
+        val associatedColumn: ColumnDefinition?,
+        val hasAutoIncrement: Boolean)

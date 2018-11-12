@@ -206,7 +206,8 @@ class TableValidator : Validator<TableDefinition> {
             success = false
         }
 
-        val hasTwoKinds = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID)
+        val hasTwoKinds = (validatorDefinition.primaryKeyColumnBehavior.hasAutoIncrement
+                || validatorDefinition.primaryKeyColumnBehavior.hasRowID)
                 && !validatorDefinition._primaryColumnDefinitions.isEmpty()
 
         if (hasTwoKinds) {
@@ -215,11 +216,12 @@ class TableValidator : Validator<TableDefinition> {
             success = false
         }
 
-        val hasPrimary = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID)
+        val hasPrimary = (validatorDefinition.primaryKeyColumnBehavior.hasAutoIncrement
+                || validatorDefinition.primaryKeyColumnBehavior.hasRowID)
                 && validatorDefinition._primaryColumnDefinitions.isEmpty()
-                || !validatorDefinition.hasAutoIncrement && !validatorDefinition.hasRowID
+                || !validatorDefinition.primaryKeyColumnBehavior.hasAutoIncrement
+                && !validatorDefinition.primaryKeyColumnBehavior.hasRowID
                 && !validatorDefinition._primaryColumnDefinitions.isEmpty()
-
         if (!hasPrimary) {
             processorManager.logError(TableValidator::class, "Table ${validatorDefinition.associationalBehavior.name} " +
                     "needs to define at least one primary key")

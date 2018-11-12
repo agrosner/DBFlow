@@ -296,16 +296,22 @@ class TableDefinition(table: Table,
                         columnDefinition.type is ColumnDefinition.Type.Primary ->
                             _primaryColumnDefinitions.add(columnDefinition)
                         columnDefinition.type is ColumnDefinition.Type.PrimaryAutoIncrement -> {
-                            autoIncrementColumn = columnDefinition
-                            hasAutoIncrement = true
+                            this.primaryKeyColumnBehavior = PrimaryKeyColumnBehavior(
+                                    hasRowID = false,
+                                    hasAutoIncrement = true,
+                                    associatedColumn = columnDefinition
+                            )
                         }
                         columnDefinition.type is ColumnDefinition.Type.RowId -> {
-                            autoIncrementColumn = columnDefinition
-                            hasRowID = true
+                            this.primaryKeyColumnBehavior = PrimaryKeyColumnBehavior(
+                                    hasRowID = true,
+                                    hasAutoIncrement = false,
+                                    associatedColumn = columnDefinition
+                            )
                         }
                     }
 
-                    autoIncrementColumn?.let {
+                    primaryKeyColumnBehavior.associatedColumn?.let {
                         // check to ensure not null.
                         if (it.isNullableType) {
                             manager.logWarning("Attempting to use nullable field type on an autoincrementing column. " +
@@ -364,7 +370,8 @@ class TableDefinition(table: Table,
     }
 
     override val primaryColumnDefinitions: List<ColumnDefinition>
-        get() = autoIncrementColumn?.let { arrayListOf(it) } ?: _primaryColumnDefinitions
+        get() = primaryKeyColumnBehavior.associatedColumn?.let { arrayListOf(it) }
+                ?: _primaryColumnDefinitions
 
     override val extendsClass: TypeName?
         get() = ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName)
@@ -431,8 +438,8 @@ class TableDefinition(table: Table,
                 addField(indexGroupsDefinition.fieldSpec)
             }
 
-            if (hasAutoIncrement || hasRowID) {
-                val autoIncrement = autoIncrementColumn
+            if (primaryKeyColumnBehavior.hasAutoIncrement || primaryKeyColumnBehavior.hasRowID) {
+                val autoIncrement = primaryKeyColumnBehavior.associatedColumn
                 autoIncrement?.let {
                     `override fun`(TypeName.VOID, "updateAutoIncrement", param(elementClassName!!, ModelUtils.variable),
                             param(Number::class, "id")) {
