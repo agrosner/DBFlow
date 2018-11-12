@@ -21,7 +21,6 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
-import java.util.regex.Pattern
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 
@@ -165,20 +164,5 @@ class DatabaseDefinition(database: Database,
                 `return`(databaseVersion.L)
             }
         }
-    }
-
-    /**
-     *
-     * Checks if databaseName is valid. It will check if databaseName matches regex pattern
-     * [A-Za-z_$]+[a-zA-Z0-9_$]* Examples:   * database - valid  * DbFlow1 - valid  * database.db -
-     * invalid (contains a dot)  * 1database - invalid (starts with a number)
-
-     * @param databaseName database name to validate.
-     * *
-     * @return `true` if parameter is a valid database name, `false` otherwise.
-     */
-    private fun isValidDatabaseName(databaseName: String?): Boolean {
-        val javaClassNamePattern = Pattern.compile("[A-Za-z_$]+[a-zA-Z0-9_$]*")
-        return javaClassNamePattern.matcher(databaseName).matches()
     }
 }

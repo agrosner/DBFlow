@@ -5,10 +5,29 @@ import com.dbflow5.database.OpenHelper
 import com.dbflow5.isNotNullOrEmpty
 import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.transaction.BaseTransactionManager
+import java.util.regex.Pattern
 import kotlin.reflect.KClass
 
 typealias OpenHelperCreator = (DBFlowDatabase, DatabaseCallback?) -> OpenHelper
 typealias TransactionManagerCreator = (DBFlowDatabase) -> BaseTransactionManager
+
+
+/**
+ *
+ * Checks if databaseName is valid. It will check if databaseName matches regex pattern
+ * [A-Za-z_$]+[a-zA-Z0-9_$]
+ * Examples:
+ * database - valid
+ * DbFlow1 - valid
+ * database.db - invalid (contains a dot)
+ * 1database - invalid (starts with a number)
+ * @param databaseName database name to validate.
+ * @return `true` if parameter is a valid database name, `false` otherwise.
+ */
+private fun isValidDatabaseName(databaseName: String?): Boolean {
+    val javaClassNamePattern = Pattern.compile("[A-Za-z_$]+[a-zA-Z0-9_$]*")
+    return javaClassNamePattern.matcher(databaseName).matches()
+}
 
 /**
  * Description:
@@ -38,7 +57,12 @@ class DatabaseConfig(
             builder.databaseExtensionName == null -> ".db"
             builder.databaseExtensionName.isNotNullOrEmpty() -> ".${builder.databaseExtensionName}"
             else -> ""
-        })
+        }) {
+        if (!isValidDatabaseName(databaseName)) {
+            throw IllegalArgumentException("Invalid database name $databaseName found. Names must follow " +
+                "the \"[A-Za-z_\$]+[a-zA-Z0-9_\$]*\" pattern.")
+        }
+    }
 
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getTableConfigForTable(modelClass: Class<T>): TableConfig<T>? =
