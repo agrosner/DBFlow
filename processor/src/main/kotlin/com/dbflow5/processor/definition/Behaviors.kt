@@ -1,8 +1,16 @@
 package com.dbflow5.processor.definition
 
+import com.dbflow5.annotation.ModelCacheField
+import com.dbflow5.annotation.MultiCacheField
 import com.dbflow5.annotation.PrimaryKey
+import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnDefinition
+import com.dbflow5.processor.utils.annotation
+import com.dbflow5.processor.utils.ensureVisibleStatic
+import com.dbflow5.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.TypeName
+import javax.lang.model.element.Element
+import javax.lang.model.element.TypeElement
 
 /**
  * Defines how a class is named, db it belongs to, and other loading behaviors.
@@ -49,4 +57,26 @@ data class CachingBehavior(
         val cachingEnabled: Boolean,
         val customCacheSize: Int,
         var customCacheFieldName: String?,
-        var customMultiCacheFieldName: String?)
+        var customMultiCacheFieldName: String?) {
+
+    /**
+     * If applicable, we store the [customCacheFieldName] or [customMultiCacheFieldName] for reference.
+     */
+    fun evaluateElement(element: Element, typeElement: TypeElement, manager: ProcessorManager) {
+        if (element.annotation<ModelCacheField>() != null) {
+            ensureVisibleStatic(element, typeElement, "ModelCacheField")
+            if (!customCacheFieldName.isNullOrEmpty()) {
+                manager.logError("ModelCacheField can only be declared once from: $typeElement")
+            } else {
+                customCacheFieldName = element.simpleName.toString()
+            }
+        } else if (element.annotation<MultiCacheField>() != null) {
+            ensureVisibleStatic(element, typeElement, "MultiCacheField")
+            if (!customMultiCacheFieldName.isNullOrEmpty()) {
+                manager.logError("MultiCacheField can only be declared once from: $typeElement")
+            } else {
+                customMultiCacheFieldName = element.simpleName.toString()
+            }
+        }
+    }
+}

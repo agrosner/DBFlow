@@ -6,8 +6,6 @@ import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.InheritedColumn
 import com.dbflow5.annotation.InheritedPrimaryKey
-import com.dbflow5.annotation.ModelCacheField
-import com.dbflow5.annotation.MultiCacheField
 import com.dbflow5.annotation.OneToMany
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
@@ -25,7 +23,6 @@ import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.ModelUtils.wrapper
 import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.annotation
-import com.dbflow5.processor.utils.ensureVisibleStatic
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.isNullOrEmpty
@@ -344,20 +341,8 @@ class TableDefinition(table: Table,
                 if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition)
                 }
-            } else if (element.annotation<ModelCacheField>() != null) {
-                ensureVisibleStatic(element, typeElement, "ModelCacheField")
-                if (!cachingBehavior.customCacheFieldName.isNullOrEmpty()) {
-                    manager.logError("ModelCacheField can only be declared once from: $typeElement")
-                } else {
-                    cachingBehavior.customCacheFieldName = element.simpleName.toString()
-                }
-            } else if (element.annotation<MultiCacheField>() != null) {
-                ensureVisibleStatic(element, typeElement, "MultiCacheField")
-                if (!cachingBehavior.customMultiCacheFieldName.isNullOrEmpty()) {
-                    manager.logError("MultiCacheField can only be declared once from: $typeElement")
-                } else {
-                    cachingBehavior.customMultiCacheFieldName = element.simpleName.toString()
-                }
+            } else {
+                cachingBehavior.evaluateElement(element, typeElement, manager)
             }
         }
 
