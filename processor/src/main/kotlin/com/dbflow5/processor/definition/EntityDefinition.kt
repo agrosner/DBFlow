@@ -32,7 +32,7 @@ import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 
-fun Collection<BaseTableDefinition>.safeWritePackageHelper(processorManager: ProcessorManager) = forEach {
+fun Collection<EntityDefinition>.safeWritePackageHelper(processorManager: ProcessorManager) = forEach {
     try {
         it.writePackageHelper(processorManager.processingEnvironment)
     } catch (e: FilerException) { /*Ignored intentionally to allow multi-round table generation*/
@@ -42,7 +42,7 @@ fun Collection<BaseTableDefinition>.safeWritePackageHelper(processorManager: Pro
 /**
  * Description: Used to write Models and ModelViews
  */
-abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: ProcessorManager)
+abstract class EntityDefinition(typeElement: TypeElement, processorManager: ProcessorManager)
     : BaseDefinition(typeElement, processorManager) {
 
     var columnDefinitions: MutableList<ColumnDefinition> = arrayListOf()
@@ -50,7 +50,6 @@ abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: P
 
     val sqlColumnDefinitions
         get() = columnDefinitions.filter { it.type !is ColumnDefinition.Type.RowId }
-
 
     val associatedTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
     val globalTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
@@ -108,7 +107,7 @@ abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: P
     }
 
     fun TypeSpec.Builder.writeConstructor() {
-        val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@BaseTableDefinition)
+        val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@EntityDefinition)
         customTypeConverterPropertyMethod.addToType(this)
 
         constructor {
@@ -151,7 +150,7 @@ abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: P
 
                 if (className != null && PackagePrivateScopeColumnAccessor.containsColumn(className, columnDefinition.columnName)) {
                     typeBuilder.apply {
-                        val samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this@BaseTableDefinition.element)
+                        val samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this@EntityDefinition.element)
                         val methodName = columnDefinition.columnName.capitalize()
 
                         `public static final`(columnDefinition.elementTypeName!!, "get$methodName",
@@ -176,7 +175,7 @@ abstract class BaseTableDefinition(typeElement: TypeElement, processorManager: P
 
                     count++
                 } else if (className == null) {
-                    manager.logError(BaseTableDefinition::class, "Could not find classname for: $helperClassName")
+                    manager.logError(EntityDefinition::class, "Could not find classname for: $helperClassName")
                 }
             }
 

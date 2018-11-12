@@ -135,7 +135,7 @@ abstract class BaseDefinition(
         get() {
             if (outputClassName == null) {
                 manager.logError("$elementTypeName's is missing an outputClassName. Database was " +
-                    "${(this as? BaseTableDefinition)?.associationalBehavior?.databaseTypeName}")
+                    "${(this as? EntityDefinition)?.associationalBehavior?.databaseTypeName}")
             }
             return `public final class`(outputClassName?.simpleName() ?: "") {
                 if (hasJavaX()) {

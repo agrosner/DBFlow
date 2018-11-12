@@ -44,7 +44,7 @@ interface MethodDefinition {
 /**
  * Description: Writes the bind to content values method in the ModelDAO.
  */
-class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefinition,
+class BindToContentValuesMethod(private val entityDefinition: EntityDefinition,
                                 private val isInsert: Boolean,
                                 private val implementsContentValuesListener: Boolean) : MethodDefinition {
 
@@ -54,13 +54,13 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                     .addAnnotation(Override::class.java)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
-                    .addParameter(baseTableDefinition.parameterClassName, ModelUtils.variable)
+                    .addParameter(entityDefinition.parameterClassName, ModelUtils.variable)
                     .returns(TypeName.VOID)
 
             var retMethodBuilder: MethodSpec.Builder? = methodBuilder
 
             if (isInsert) {
-                baseTableDefinition.columnDefinitions.forEach {
+                entityDefinition.columnDefinitions.forEach {
                     if (it.type !is ColumnDefinition.Type.PrimaryAutoIncrement
                             && it.type !is ColumnDefinition.Type.RowId) {
                         methodBuilder.addCode(it.contentValuesStatement)
@@ -72,9 +72,9 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                             ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
                 }
             } else {
-                if (baseTableDefinition.primaryKeyColumnBehavior.hasAutoIncrement
-                        || baseTableDefinition.primaryKeyColumnBehavior.hasRowID) {
-                    val autoIncrement = baseTableDefinition.primaryKeyColumnBehavior.associatedColumn
+                if (entityDefinition.primaryKeyColumnBehavior.hasAutoIncrement
+                        || entityDefinition.primaryKeyColumnBehavior.hasRowID) {
+                    val autoIncrement = entityDefinition.primaryKeyColumnBehavior.associatedColumn
                     autoIncrement?.let {
                         methodBuilder.addCode(autoIncrement.contentValuesStatement)
                     }
@@ -260,16 +260,16 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
 /**
  * Description: Writes out the custom type converter fields.
  */
-class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTableDefinition)
+class CustomTypeConverterPropertyMethod(private val entityDefinition: EntityDefinition)
     : TypeAdder, CodeAdder {
 
     override fun addToType(typeBuilder: TypeSpec.Builder) {
-        val customTypeConverters = baseTableDefinition.associatedTypeConverters.keys
+        val customTypeConverters = entityDefinition.associatedTypeConverters.keys
         customTypeConverters.forEach {
             typeBuilder.`private final field`(it, "typeConverter${it.simpleName()}") { `=`("new \$T()", it) }
         }
 
-        val globalTypeConverters = baseTableDefinition.globalTypeConverters.keys
+        val globalTypeConverters = entityDefinition.globalTypeConverters.keys
         globalTypeConverters.forEach {
             typeBuilder.`private final field`(it, "global_typeConverter${it.simpleName()}")
         }
@@ -277,9 +277,9 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
 
     override fun addCode(code: CodeBlock.Builder): CodeBlock.Builder {
         // Constructor code
-        val globalTypeConverters = baseTableDefinition.globalTypeConverters.keys
+        val globalTypeConverters = entityDefinition.globalTypeConverters.keys
         globalTypeConverters.forEach {
-            val def = baseTableDefinition.globalTypeConverters[it]
+            val def = entityDefinition.globalTypeConverters[it]
             val firstDef = def?.get(0)
             firstDef?.typeConverterElementNames?.forEach { elementName ->
                 code.statement("global_typeConverter${it.simpleName()} " +
@@ -293,7 +293,7 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
 /**
  * Description:
  */
-class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : MethodDefinition {
+class ExistenceMethod(private val tableDefinition: EntityDefinition) : MethodDefinition {
 
     override val methodSpec
         get() = `override fun`(TypeName.BOOLEAN, "exists",
@@ -423,31 +423,31 @@ class DeleteStatementQueryMethod(private val tableDefinition: TableDefinition) :
 /**
  * Description:
  */
-class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition) : MethodDefinition {
+class LoadFromCursorMethod(private val entityDefinition: EntityDefinition) : MethodDefinition {
 
     override val methodSpec: MethodSpec
-        get() = `override fun`(baseTableDefinition.parameterClassName!!, "loadFromCursor",
+        get() = `override fun`(entityDefinition.parameterClassName!!, "loadFromCursor",
                 param(ClassNames.FLOW_CURSOR, PARAM_CURSOR),
                 param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
             modifiers(public, final)
-            statement("\$1T ${ModelUtils.variable} = new \$1T()", baseTableDefinition.parameterClassName)
+            statement("\$1T ${ModelUtils.variable} = new \$1T()", entityDefinition.parameterClassName)
             val index = AtomicInteger(0)
             val nameAllocator = NameAllocator() // unique names
-            baseTableDefinition.columnDefinitions.forEach {
+            entityDefinition.columnDefinitions.forEach {
                 addCode(it.getLoadFromCursorMethod(true, index, nameAllocator))
                 index.incrementAndGet()
             }
 
-            if (baseTableDefinition is TableDefinition) {
+            if (entityDefinition is TableDefinition) {
                 code {
-                    baseTableDefinition.oneToManyDefinitions
+                    entityDefinition.oneToManyDefinitions
                             .filter { it.isLoad }
                             .forEach { it.writeLoad(this) }
                     this
                 }
             }
 
-            if (baseTableDefinition.implementsLoadFromCursorListener) {
+            if (entityDefinition.implementsLoadFromCursorListener) {
                 statement("${ModelUtils.variable}.onLoadFromCursor($PARAM_CURSOR)")
             }
             `return`(ModelUtils.variable)
@@ -468,12 +468,12 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition) : Meth
     override val methodSpec: MethodSpec?
         get() {
             val shouldWrite = tableDefinition.oneToManyDefinitions.any { it.isDelete }
-            if (shouldWrite || tableDefinition.cachingEnabled) {
+            if (shouldWrite || tableDefinition.cachingBehavior.cachingEnabled) {
                 return `override fun`(TypeName.BOOLEAN, "delete",
                         param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
                     modifiers(public, final)
                     addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
-                    if (tableDefinition.cachingEnabled) {
+                    if (tableDefinition.cachingBehavior.cachingEnabled) {
                         statement("cacheAdapter.removeModelFromCache(${ModelUtils.variable})")
                     }
 
@@ -496,7 +496,7 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
 
     override val methodSpec: MethodSpec?
         get() {
-            if (!tableDefinition.oneToManyDefinitions.isEmpty() || tableDefinition.cachingEnabled) {
+            if (!tableDefinition.oneToManyDefinitions.isEmpty() || tableDefinition.cachingBehavior.cachingEnabled) {
                 var retType = TypeName.BOOLEAN
                 var retStatement = "successful"
                 when (methodName) {
@@ -518,7 +518,7 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                         }
                         statement("super.$methodName(${ModelUtils.variable}${wrapperCommaIfBaseModel(true)})")
 
-                        if (tableDefinition.cachingEnabled) {
+                        if (tableDefinition.cachingBehavior.cachingEnabled) {
                             statement("cacheAdapter.storeModelInCache(${ModelUtils.variable})")
                         }
                         this
@@ -550,7 +550,7 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
  * Description: Creates a method that builds a clause of ConditionGroup that represents its primary keys. Useful
  * for updates or deletes.
  */
-class PrimaryConditionMethod(private val tableDefinition: BaseTableDefinition) : MethodDefinition {
+class PrimaryConditionMethod(private val tableDefinition: EntityDefinition) : MethodDefinition {
 
     override val methodSpec: MethodSpec?
         get() = `override fun`(ClassNames.OPERATOR_GROUP, "getPrimaryConditionClause",

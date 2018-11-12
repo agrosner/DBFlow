@@ -23,7 +23,7 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
                            override val cursorHandlingBehavior: CursorHandlingBehavior,
                            typeElement: TypeElement,
                            processorManager: ProcessorManager)
-    : BaseTableDefinition(typeElement, processorManager) {
+    : EntityDefinition(typeElement, processorManager) {
 
     override val methods: Array<MethodDefinition> = arrayOf(LoadFromCursorMethod(this))
 

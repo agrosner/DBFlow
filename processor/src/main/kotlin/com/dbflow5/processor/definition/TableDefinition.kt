@@ -6,8 +6,6 @@ import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.InheritedColumn
 import com.dbflow5.annotation.InheritedPrimaryKey
-import com.dbflow5.annotation.ModelCacheField
-import com.dbflow5.annotation.MultiCacheField
 import com.dbflow5.annotation.OneToMany
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
@@ -25,7 +23,6 @@ import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.ModelUtils.wrapper
 import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.annotation
-import com.dbflow5.processor.utils.ensureVisibleStatic
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.isNullOrEmpty
@@ -61,7 +58,7 @@ import javax.lang.model.element.TypeElement
  */
 class TableDefinition(table: Table,
                       manager: ProcessorManager, element: TypeElement)
-    : BaseTableDefinition(element, manager) {
+    : EntityDefinition(element, manager) {
 
     var insertConflictActionName: String = ""
 
@@ -98,11 +95,6 @@ class TableDefinition(table: Table,
 
     private val contentValueMethods: Array<MethodDefinition>
 
-    var cachingEnabled = false
-    var customCacheFieldName: String? = null
-    var customMultiCacheFieldName: String? = null
-    var customCacheSize = 0
-
     var createWithDatabase = true
 
     var useIsForPrivateBooleans: Boolean = false
@@ -129,11 +121,14 @@ class TableDefinition(table: Table,
         orderedCursorLookup = table.orderedCursorLookUp,
         assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor)
 
-    init {
+    val cachingBehavior = CachingBehavior(
+            cachingEnabled = table.cachingEnabled,
+            customCacheSize = table.cacheSize,
+            customCacheFieldName = null,
+            customMultiCacheFieldName = null)
 
+    init {
         generateContentValues = table.generateContentValues
-        cachingEnabled = table.cachingEnabled
-        customCacheSize = table.cacheSize
 
         createWithDatabase = table.createWithDatabase
 
@@ -181,8 +176,7 @@ class TableDefinition(table: Table,
         columnMapDefinitions.clear()
         columnUniqueMap.clear()
         oneToManyDefinitions.clear()
-        customCacheFieldName = null
-        customMultiCacheFieldName = null
+        cachingBehavior.clear()
 
         val table = element.getAnnotation(Table::class.java)
         if (table != null) {
@@ -242,7 +236,7 @@ class TableDefinition(table: Table,
         val elements = ElementUtility.getAllElements(typeElement, manager)
 
         for (element in elements) {
-            classElementLookUpMap.put(element.simpleName.toString(), element)
+            classElementLookUpMap[element.simpleName.toString()] = element
             if (element is ExecutableElement && element.parameters.isEmpty()
                 && element.simpleName.toString() == "<init>"
                 && element.enclosingElement == typeElement
@@ -346,20 +340,8 @@ class TableDefinition(table: Table,
                 if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition)
                 }
-            } else if (element.annotation<ModelCacheField>() != null) {
-                ensureVisibleStatic(element, typeElement, "ModelCacheField")
-                if (!customCacheFieldName.isNullOrEmpty()) {
-                    manager.logError("ModelCacheField can only be declared once from: $typeElement")
-                } else {
-                    customCacheFieldName = element.simpleName.toString()
-                }
-            } else if (element.annotation<MultiCacheField>() != null) {
-                ensureVisibleStatic(element, typeElement, "MultiCacheField")
-                if (!customMultiCacheFieldName.isNullOrEmpty()) {
-                    manager.logError("MultiCacheField can only be declared once from: $typeElement")
-                } else {
-                    customMultiCacheFieldName = element.simpleName.toString()
-                }
+            } else {
+                cachingBehavior.evaluateElement(element, typeElement, manager)
             }
         }
 
@@ -489,7 +471,8 @@ class TableDefinition(table: Table,
                 }
             }
 
-            if (cachingEnabled) {
+            if (cachingBehavior.cachingEnabled) {
+                val (_, customCacheSize, customCacheFieldName, customMultiCacheFieldName) = cachingBehavior
                 `public static final field`(ClassNames.CACHE_ADAPTER, "cacheAdapter") {
                     `=` {
                         val primaryColumns = primaryColumnDefinitions

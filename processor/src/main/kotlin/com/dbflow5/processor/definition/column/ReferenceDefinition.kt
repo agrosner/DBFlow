@@ -83,10 +83,10 @@ class ReferenceDefinition(private val manager: ProcessorManager,
                 hasCustomConverter = isCustom
 
                 val fieldName = if (hasCustomConverter) {
-                    referenceColumnDefinition.baseTableDefinition
+                    referenceColumnDefinition.entityDefinition
                             .addColumnForCustomTypeConverter(referenceColumnDefinition, typeConverter.className)
                 } else {
-                    referenceColumnDefinition.baseTableDefinition
+                    referenceColumnDefinition.entityDefinition
                             .addColumnForTypeConverter(referenceColumnDefinition, typeConverter.className)
                 }
 
@@ -142,7 +142,7 @@ class ReferenceDefinition(private val manager: ProcessorManager,
                 columnRepresentation = columnName,
                 propertyRepresentation = foreignColumnName,
                 fieldTypeName = columnClassName,
-                orderedCursorLookup = referenceColumnDefinition.baseTableDefinition.cursorHandlingBehavior.orderedCursorLookup,
+                orderedCursorLookup = referenceColumnDefinition.entityDefinition.cursorHandlingBehavior.orderedCursorLookup,
                 fieldLevelAccessor = columnAccessor,
                 subWrapperAccessor = wrapperAccessor,
                 subWrapperTypeName = wrapperTypeName
