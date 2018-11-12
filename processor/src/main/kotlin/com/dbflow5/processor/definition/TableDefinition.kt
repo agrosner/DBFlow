@@ -61,7 +61,7 @@ import javax.lang.model.element.TypeElement
  */
 class TableDefinition(table: Table,
                       manager: ProcessorManager, element: TypeElement)
-    : BaseTableDefinition(element, manager) {
+    : EntityDefinition(element, manager) {
 
     var insertConflictActionName: String = ""
 

@@ -10,7 +10,7 @@ import com.dbflow5.annotation.Table
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.definition.BaseTableDefinition
+import com.dbflow5.processor.definition.EntityDefinition
 import com.dbflow5.processor.definition.QueryModelDefinition
 import com.dbflow5.processor.definition.TableDefinition
 import com.dbflow5.processor.utils.annotation
@@ -43,7 +43,7 @@ import javax.lang.model.type.TypeMirror
  * Description: Represents both a [ForeignKey] and [ColumnMap]. Builds up the model of fields
  * required to generate definitions.
  */
-class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: BaseTableDefinition,
+class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: EntityDefinition,
                                 element: Element, isPackagePrivate: Boolean)
     : ColumnDefinition(manager, element, tableDefinition, isPackagePrivate) {
 
@@ -181,7 +181,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             }
             if (referenceDefinition.columnName.isNullOrEmpty()) {
                 manager.logError("Found empty reference name at ${referenceDefinition.foreignColumnName}" +
-                        " from table ${baseTableDefinition.elementName}")
+                        " from table ${entityDefinition.elementName}")
             }
             typeBuilder.addField(FieldSpec.builder(propParam, referenceDefinition.columnName,
                     Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
@@ -327,7 +327,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
             referencedClassName?.let { referencedTableClassName ->
 
                 val tableDefinition = manager.getReferenceDefinition(
-                        baseTableDefinition.databaseDefinition.elementTypeName, referencedTableClassName)
+                        entityDefinition.databaseDefinition.elementTypeName, referencedTableClassName)
                 tableDefinition?.outputClassName?.let { outputClassName ->
                     val foreignKeyCombiner = ForeignKeyLoadFromCursorCombiner(columnAccessor,
                             referencedTableClassName, outputClassName, isStubbedRelationship, nameAllocator)
@@ -385,7 +385,7 @@ class ReferenceColumnDefinition(manager: ProcessorManager, tableDefinition: Base
      * table. We do this post-evaluation so all of the [TableDefinition] can be generated.
      */
     fun checkNeedsReferences() {
-        val tableDefinition = baseTableDefinition
+        val tableDefinition = entityDefinition
         val referencedTableDefinition = manager.getReferenceDefinition(tableDefinition.associationalBehavior.databaseTypeName, referencedClassName)
         if (referencedTableDefinition == null) {
             manager.logError(ReferenceColumnDefinition::class,

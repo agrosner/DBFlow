@@ -130,7 +130,7 @@ abstract class BaseDefinition : TypeDefinition {
         get() {
             if (outputClassName == null) {
                 manager.logError("$elementTypeName's outputClass name was null. Database was " +
-                        "${(this as? BaseTableDefinition)?.associationalBehavior?.databaseTypeName}")
+                        "${(this as? EntityDefinition)?.associationalBehavior?.databaseTypeName}")
             }
             return `public final class`(outputClassName?.simpleName() ?: "") {
                 if (hasJavaX()) {

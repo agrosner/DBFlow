@@ -45,19 +45,19 @@ class ColumnValidator : Validator<ColumnDefinition> {
         // validate getter and setters.
         if (validatorDefinition.columnAccessor is PrivateScopeColumnAccessor) {
             val privateColumnAccess = validatorDefinition.columnAccessor as PrivateScopeColumnAccessor
-            if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getterNameElement)) {
+            if (!validatorDefinition.entityDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getterNameElement)) {
                 processorManager.logError(ColumnValidator::class,
                         """Could not find getter for private element: "${validatorDefinition.elementName}"
-                            | from table class: ${validatorDefinition.baseTableDefinition.elementName}.
+                            | from table class: ${validatorDefinition.entityDefinition.elementName}.
                             | Consider adding a getter with name ${privateColumnAccess.getterNameElement},
                             |  making it more accessible, or adding a @get:JvmName("${privateColumnAccess.getterNameElement}") """
                                 .trimMargin())
                 success = false
             }
-            if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.setterNameElement)) {
+            if (!validatorDefinition.entityDefinition.classElementLookUpMap.containsKey(privateColumnAccess.setterNameElement)) {
                 processorManager.logError(ColumnValidator::class,
                         """Could not find setter for private element: "${validatorDefinition.elementName}"
-                            | from table class: ${validatorDefinition.baseTableDefinition.elementName}.
+                            | from table class: ${validatorDefinition.entityDefinition.elementName}.
                             | Consider adding a setter with name ${privateColumnAccess.setterNameElement},
                             | making it more accessible, or adding a @set:JvmName("${privateColumnAccess.setterNameElement}")."""
                                 .trimMargin())
@@ -73,7 +73,7 @@ class ColumnValidator : Validator<ColumnDefinition> {
             } else if (typeName?.isPrimitive == true) {
                 processorManager.logWarning(ColumnValidator::class.java,
                         "Default value of ${validatorDefinition.defaultValue} from" +
-                                " ${validatorDefinition.baseTableDefinition.elementName}.${validatorDefinition.elementName}" +
+                                " ${validatorDefinition.entityDefinition.elementName}.${validatorDefinition.elementName}" +
                                 " is ignored for primitive columns.")
             }
         }

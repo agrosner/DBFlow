@@ -12,7 +12,7 @@ import com.dbflow5.data.Blob
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.BaseDefinition
-import com.dbflow5.processor.definition.BaseTableDefinition
+import com.dbflow5.processor.definition.EntityDefinition
 import com.dbflow5.processor.definition.CursorHandlingBehavior
 import com.dbflow5.processor.definition.TableDefinition
 import com.dbflow5.processor.definition.TypeConverterDefinition
@@ -45,7 +45,7 @@ import javax.tools.Diagnostic
 
 open class ColumnDefinition @JvmOverloads
 constructor(processorManager: ProcessorManager, element: Element,
-            var baseTableDefinition: BaseTableDefinition, isPackagePrivate: Boolean,
+            var entityDefinition: EntityDefinition, isPackagePrivate: Boolean,
             var column: Column? = element.annotation(),
             primaryKey: PrimaryKey? = element.annotation(),
             notNullConflict: ConflictAction = ConflictAction.NONE)
@@ -185,7 +185,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
         if (isPackagePrivate) {
             columnAccessor = PackagePrivateScopeColumnAccessor(elementName, packageName,
-                    baseTableDefinition.databaseDefinition.classSeparator,
+                    entityDefinition.databaseDefinition.classSeparator,
                     ClassName.get(element.enclosingElement as TypeElement).simpleName())
 
             PackagePrivateScopeColumnAccessor.putElement(
@@ -197,7 +197,7 @@ constructor(processorManager: ProcessorManager, element: Element,
             if (isPrivate) {
                 val isBoolean = elementTypeName?.box() == TypeName.BOOLEAN.box()
                 val useIs = isBoolean
-                        && baseTableDefinition is TableDefinition && (baseTableDefinition as TableDefinition).useIsForPrivateBooleans
+                        && entityDefinition is TableDefinition && (entityDefinition as TableDefinition).useIsForPrivateBooleans
                 columnAccessor = PrivateScopeColumnAccessor(elementName, object : GetterSetter {
                     override val getterName: String = column?.getterName ?: ""
                     override val setterName: String = column?.setterName ?: ""
@@ -302,9 +302,9 @@ constructor(processorManager: ProcessorManager, element: Element,
                 hasCustomConverter = isCustom
 
                 val fieldName = if (hasCustomConverter) {
-                    baseTableDefinition.addColumnForCustomTypeConverter(this, it.className)
+                    entityDefinition.addColumnForCustomTypeConverter(this, it.className)
                 } else {
-                    baseTableDefinition.addColumnForTypeConverter(this, it.className)
+                    entityDefinition.addColumnForTypeConverter(this, it.className)
                 }
                 wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
                 wrapperTypeName = it.dbTypeName
@@ -318,12 +318,12 @@ constructor(processorManager: ProcessorManager, element: Element,
     }
 
     override fun toString(): String {
-        val tableDef = baseTableDefinition
+        val tableDef = entityDefinition
         var tableName = tableDef.elementName
         if (tableDef is TableDefinition) {
             tableName = tableDef.associationalBehavior.name
         }
-        return "${baseTableDefinition.databaseDefinition.databaseClassName}.$tableName.${columnName.quote()}"
+        return "${entityDefinition.databaseDefinition.databaseClassName}.$tableName.${columnName.quote()}"
     }
 
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
@@ -352,7 +352,7 @@ constructor(processorManager: ProcessorManager, element: Element,
                     }
                     })""",
                         ClassNames.TYPE_CONVERTER_GETTER, ClassNames.TYPE_CONVERTER,
-                        baseTableDefinition.outputClassName, baseTableDefinition.outputClassName,
+                        entityDefinition.outputClassName, entityDefinition.outputClassName,
                         ClassNames.FLOW_MANAGER,
                         (wrapperAccessor as TypeConverterScopeColumnAccessor).typeConverterFieldName)
                 fieldBuilder.initializer(codeBlock.build())
@@ -409,7 +409,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open fun getLoadFromCursorMethod(endNonPrimitiveIf: Boolean, index: AtomicInteger,
                                      nameAllocator: NameAllocator) = code {
-        val (orderedCursorLookup, assignDefaultValuesFromCursor) = baseTableDefinition.cursorHandlingBehavior
+        val (orderedCursorLookup, assignDefaultValuesFromCursor) = entityDefinition.cursorHandlingBehavior
         var assignDefaultValue = assignDefaultValuesFromCursor
         val defaultValueBlock = getDefaultValueBlock()
         if (isNotNullType && CodeBlock.of("null") == defaultValueBlock) {
@@ -454,7 +454,7 @@ constructor(processorManager: ProcessorManager, element: Element,
     open fun appendExistenceMethod(codeBuilder: CodeBlock.Builder) {
         ExistenceAccessCombiner(combiner, type is Type.RowId || type is Type.PrimaryAutoIncrement,
                 (type as? Type.PrimaryAutoIncrement)?.quickCheck
-                        ?: false, baseTableDefinition.elementClassName!!)
+                        ?: false, entityDefinition.elementClassName!!)
                 .apply {
                     codeBuilder.addCode(columnName, getDefaultValueBlock(), 0, modelBlock)
                 }
@@ -473,10 +473,10 @@ constructor(processorManager: ProcessorManager, element: Element,
             if (type is Type.PrimaryAutoIncrement) {
                 codeBlockBuilder.add(" PRIMARY KEY ")
 
-                if (baseTableDefinition is TableDefinition &&
-                        !(baseTableDefinition as TableDefinition).primaryKeyConflictActionName.isNullOrEmpty()) {
+                if (entityDefinition is TableDefinition &&
+                        !(entityDefinition as TableDefinition).primaryKeyConflictActionName.isNullOrEmpty()) {
                     codeBlockBuilder.add("ON CONFLICT \$L ",
-                            (baseTableDefinition as TableDefinition).primaryKeyConflictActionName)
+                            (entityDefinition as TableDefinition).primaryKeyConflictActionName)
                 }
 
                 codeBlockBuilder.add("AUTOINCREMENT")

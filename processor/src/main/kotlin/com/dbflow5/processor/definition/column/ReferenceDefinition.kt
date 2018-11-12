@@ -83,10 +83,10 @@ class ReferenceDefinition(private val manager: ProcessorManager,
                 hasCustomConverter = isCustom
 
                 val fieldName = if (hasCustomConverter) {
-                    referenceColumnDefinition.baseTableDefinition
+                    referenceColumnDefinition.entityDefinition
                             .addColumnForCustomTypeConverter(referenceColumnDefinition, typeConverter.className)
                 } else {
-                    referenceColumnDefinition.baseTableDefinition
+                    referenceColumnDefinition.entityDefinition
                             .addColumnForTypeConverter(referenceColumnDefinition, typeConverter.className)
                 }
 
@@ -119,7 +119,7 @@ class ReferenceDefinition(private val manager: ProcessorManager,
             isReferencedFieldPrivate -> PrivateScopeColumnAccessor(foreignKeyElementName, getterSetter, false)
             isReferencedFieldPackagePrivate -> {
                 val accessor = PackagePrivateScopeColumnAccessor(foreignKeyElementName, referencedColumn.packageName,
-                        referenceColumnDefinition.baseTableDefinition.databaseDefinition.classSeparator,
+                        referenceColumnDefinition.entityDefinition.databaseDefinition.classSeparator,
                         tableClassName)
                 PackagePrivateScopeColumnAccessor.putElement(accessor.helperClassName, foreignKeyElementName)
 
@@ -143,7 +143,7 @@ class ReferenceDefinition(private val manager: ProcessorManager,
                 columnRepresentation = columnName,
                 propertyRepresentation = foreignColumnName,
                 fieldTypeName = columnClassName,
-                orderedCursorLookup = referenceColumnDefinition.baseTableDefinition.cursorHandlingBehavior.orderedCursorLookup,
+                orderedCursorLookup = referenceColumnDefinition.entityDefinition.cursorHandlingBehavior.orderedCursorLookup,
                 fieldLevelAccessor = columnAccessor,
                 subWrapperAccessor = wrapperAccessor,
                 subWrapperTypeName = wrapperTypeName

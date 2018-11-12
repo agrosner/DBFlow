@@ -39,7 +39,7 @@ import javax.lang.model.element.TypeElement
 class ModelViewDefinition(modelView: ModelView,
                           manager: ProcessorManager,
                           element: TypeElement)
-    : BaseTableDefinition(element, manager) {
+    : EntityDefinition(element, manager) {
 
     private var queryFieldName: String? = null
 

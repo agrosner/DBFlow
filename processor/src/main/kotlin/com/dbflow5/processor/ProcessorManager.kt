@@ -1,6 +1,6 @@
 package com.dbflow5.processor
 
-import com.dbflow5.processor.definition.BaseTableDefinition
+import com.dbflow5.processor.definition.EntityDefinition
 import com.dbflow5.processor.definition.DatabaseDefinition
 import com.dbflow5.processor.definition.DatabaseHolderDefinition
 import com.dbflow5.processor.definition.DatabaseObjectHolder
@@ -137,7 +137,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         return getOrPutDatabase(databaseName)?.modelViewDefinitionMap?.get(typeName)
     }
 
-    fun getReferenceDefinition(databaseName: TypeName?, typeName: TypeName?): BaseTableDefinition? {
+    fun getReferenceDefinition(databaseName: TypeName?, typeName: TypeName?): EntityDefinition? {
         return getTableDefinition(databaseName, typeName)
                 ?: getQueryModelDefinition(databaseName, typeName)
                 ?: getModelViewDefinition(databaseName, typeName)
@@ -323,7 +323,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun elementBelongsInTable(element: Element): Boolean {
         val enclosingElement = element.enclosingElement
-        var find: BaseTableDefinition? = databaseDefinitionMap.values.flatMap { it.tableDefinitionMap.values }
+        var find: EntityDefinition? = databaseDefinitionMap.values.flatMap { it.tableDefinitionMap.values }
                 .find { it.element == enclosingElement }
 
         // modelview check.

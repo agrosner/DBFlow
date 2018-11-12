@@ -13,7 +13,7 @@ import javax.lang.model.element.TypeElement
  */
 class VirtualTableDefinition(virtualTable: VirtualTable,
                              typeElement: TypeElement, processorManager: ProcessorManager)
-    : BaseTableDefinition(typeElement, processorManager) {
+    : EntityDefinition(typeElement, processorManager) {
 
     private var createWithDatabase = true
 
