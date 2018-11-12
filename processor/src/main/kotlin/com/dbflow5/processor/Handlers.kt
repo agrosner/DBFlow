@@ -136,8 +136,8 @@ class TableHandler : BaseContainerHandler<Table>() {
                 processorManager.addTableDefinition(tableDefinition)
             }
 
-            if (element.annotation<ManyToMany>() != null) {
-                val manyToManyDefinition = ManyToManyDefinition(element, processorManager)
+            element.annotation<ManyToMany>()?.let { manyToMany ->
+                val manyToManyDefinition = ManyToManyDefinition(element, processorManager, manyToMany)
                 processorManager.addManyToManyDefinition(manyToManyDefinition)
             }
 

@@ -10,6 +10,7 @@ import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.PackageElement
 import javax.lang.model.element.TypeElement
 
@@ -45,20 +46,23 @@ class TableEndpointDefinition(tableEndpoint: TableEndpoint,
 
         val elements = processorManager.elements.getAllMembers(typeElement as TypeElement)
         for (innerElement in elements) {
-            if (innerElement.annotation<ContentUri>() != null) {
-                val contentUriDefinition = ContentUriDefinition(innerElement, processorManager)
+            innerElement.annotation<ContentUri>()?.let { contentUri ->
+                val contentUriDefinition = ContentUriDefinition(contentUri, innerElement, processorManager)
                 if (!pathValidationMap.containsKey(contentUriDefinition.path)) {
                     contentUriDefinitions.add(contentUriDefinition)
                 } else {
                     processorManager.logError("There must be unique paths for the specified @ContentUri" + " %1s from %1s", contentUriDefinition.name, contentProviderName)
                 }
-            } else if (innerElement.annotation<Notify>() != null) {
-                val notifyDefinition = NotifyDefinition(innerElement, processorManager)
-                @Suppress("LoopToCallChain")
-                for (path in notifyDefinition.paths) {
-                    val methodListMap = notifyDefinitionPathMap.getOrPut(path) { mutableMapOf() }
-                    val notifyDefinitionList = methodListMap.getOrPut(notifyDefinition.method) { arrayListOf() }
-                    notifyDefinitionList.add(notifyDefinition)
+            }
+            innerElement.annotation<Notify>()?.let { notify ->
+                if (innerElement is ExecutableElement) {
+                    val notifyDefinition = NotifyDefinition(notify, innerElement, processorManager)
+                    @Suppress("LoopToCallChain")
+                    for (path in notifyDefinition.paths) {
+                        val methodListMap = notifyDefinitionPathMap.getOrPut(path) { mutableMapOf() }
+                        val notifyDefinitionList = methodListMap.getOrPut(notifyDefinition.method) { arrayListOf() }
+                        notifyDefinitionList.add(notifyDefinition)
+                    }
                 }
             }
         }

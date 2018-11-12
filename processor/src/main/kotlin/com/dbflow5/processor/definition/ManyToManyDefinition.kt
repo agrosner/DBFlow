@@ -4,6 +4,7 @@ import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
@@ -31,27 +32,20 @@ import javax.lang.model.element.TypeElement
  * Description: Generates the Model class that is used in a many to many.
  */
 class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorManager,
-                           manyToMany: ManyToMany = element.annotation()!!)
+                           manyToMany: ManyToMany)
     : BaseDefinition(element, processorManager) {
 
-    var databaseTypeName: TypeName? = null
+    val databaseTypeName: TypeName? = element.extractTypeNameFromAnnotation<Table> { it.database }
 
-    private var referencedTable: TypeName
-    private var generateAutoIncrement: Boolean = false
-    private var sameTableReferenced: Boolean = false
+    private val referencedTable: TypeName = manyToMany.extractTypeNameFromAnnotation { it.referencedTable }
+    private val generateAutoIncrement: Boolean = manyToMany.generateAutoIncrement
+    private val sameTableReferenced: Boolean = referencedTable == elementTypeName
     private val generatedTableClassName = manyToMany.generatedTableClassName
-    private var saveForeignKeyModels: Boolean = false
+    private val saveForeignKeyModels: Boolean = manyToMany.saveForeignKeyModels
     private val thisColumnName = manyToMany.thisTableColumnName
     private val referencedColumnName = manyToMany.referencedTableColumnName
 
     init {
-        referencedTable = manyToMany.extractTypeNameFromAnnotation { it.referencedTable }
-        generateAutoIncrement = manyToMany.generateAutoIncrement
-        saveForeignKeyModels = manyToMany.saveForeignKeyModels
-
-        sameTableReferenced = referencedTable == elementTypeName
-
-        databaseTypeName = element.extractTypeNameFromAnnotation<Table> { it.database }
         if (!thisColumnName.isNullOrEmpty() && !referencedColumnName.isNullOrEmpty()
             && thisColumnName == referencedColumnName) {
             manager.logError(ManyToManyDefinition::class, "The thisTableColumnName and referenceTableColumnName cannot be the same")
@@ -89,8 +83,7 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
         }
     }
 
-    override val extendsClass: TypeName?
-        get() = com.dbflow5.processor.ClassNames.BASE_MODEL
+    override val extendsClass: TypeName? = ClassNames.BASE_MODEL
 
     private fun appendColumnDefinitions(typeBuilder: TypeSpec.Builder,
                                         referencedDefinition: TableDefinition, index: Int, optionalName: String) {

@@ -6,61 +6,39 @@ import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.BaseDefinition
 import com.dbflow5.processor.definition.CodeAdder
-import com.dbflow5.processor.utils.annotation
 import com.squareup.javapoet.CodeBlock
-import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
 /**
- * Description:
+ * Description: Writes code for [Notify] annotation.
  */
-class NotifyDefinition(typeElement: Element, processorManager: ProcessorManager)
+class NotifyDefinition(notify: Notify,
+                       typeElement: ExecutableElement,
+                       processorManager: ProcessorManager)
     : BaseDefinition(typeElement, processorManager), CodeAdder {
 
-    var paths = arrayOf<String>()
-    var method = NotifyMethod.DELETE
-    val parent = (typeElement.enclosingElement as TypeElement).qualifiedName.toString()
-    val methodName = typeElement.simpleName.toString()
-    var params: String
+    val paths: Array<String> = notify.paths
+    val method: NotifyMethod = notify.notifyMethod
+    private val parent = (typeElement.enclosingElement as TypeElement).qualifiedName.toString()
+    private val methodName = typeElement.simpleName.toString()
+    private var params: String = typeElement.parameters.joinToString {
+        when (it.asType().toString()) {
+            "android.content.Context" -> "getContext()"
+            "android.net.Uri" -> "uri"
+            "android.content.ContentValues" -> "values"
+            "long" -> "id"
+            "java.lang.String" -> "where"
+            "java.lang.String[]" -> "whereArgs"
+            else -> ""
+        }
+    }
+
     var returnsArray: Boolean = false
     var returnsSingle: Boolean = false
 
     init {
-
-        typeElement.annotation<Notify>()?.let { notify ->
-            paths = notify.paths
-            method = notify.notifyMethod
-        }
-
-        val executableElement = typeElement as ExecutableElement
-
-        val parameters = executableElement.parameters
-        val paramsBuilder = StringBuilder()
-        var first = true
-        parameters.forEach { param ->
-            if (first) {
-                first = false
-            } else {
-                paramsBuilder.append(", ")
-            }
-            val paramType = param.asType()
-            val typeAsString = paramType.toString()
-            paramsBuilder.append(
-                when (typeAsString) {
-                    "android.content.Context" -> "getContext()"
-                    "android.net.Uri" -> "uri"
-                    "android.content.ContentValues" -> "values"
-                    "long" -> "id"
-                    "java.lang.String" -> "where"
-                    "java.lang.String[]" -> "whereArgs"
-                    else -> ""
-                })
-        }
-
-        params = paramsBuilder.toString()
-
-        val typeMirror = executableElement.returnType
+        val typeMirror = typeElement.returnType
         when {
             "${ClassNames.URI}[]" == typeMirror.toString() -> returnsArray = true
             ClassNames.URI.toString() == typeMirror.toString() -> returnsSingle = true
