@@ -10,7 +10,6 @@ import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.isSubclass
 import com.grosner.kpoet.L
-import com.grosner.kpoet.S
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.constructor
 import com.grosner.kpoet.final
@@ -52,17 +51,8 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element)
 
     var objectHolder: DatabaseObjectHolder? = null
 
-    var databaseExtensionName = ""
-
-    var databaseName = ""
-
-    var inMemory = false
-
     init {
         element.annotation<Database>()?.let { database ->
-            databaseName = database.name
-            databaseExtensionName = database.databaseExtension
-            inMemory = database.inMemory
             databaseClassName = element.simpleName.toString()
             consistencyChecksEnabled = database.consistencyCheckEnabled
             backupEnabled = database.backupEnabled
@@ -189,24 +179,6 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element)
             `override fun`(TypeName.INT, "getDatabaseVersion") {
                 modifiers(public, final)
                 `return`(databaseVersion.L)
-            }
-            if (!databaseExtensionName.isBlank()) {
-                `override fun`(String::class, "getDatabaseExtensionName") {
-                    modifiers(public, final)
-                    `return`(databaseExtensionName.S)
-                }
-            }
-            if (!databaseName.isBlank()) {
-                `override fun`(String::class, "getDatabaseName") {
-                    modifiers(public, final)
-                    `return`(databaseName.S)
-                }
-            }
-            if (inMemory) {
-                `override fun`(TypeName.BOOLEAN, "isInMemory") {
-                    modifiers(public, final)
-                    `return`(true.L)
-                }
             }
         }
     }
