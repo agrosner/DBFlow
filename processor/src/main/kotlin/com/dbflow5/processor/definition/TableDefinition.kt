@@ -15,6 +15,10 @@ import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.OneToManyValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.BindToStatementMethod.Mode.*
+import com.dbflow5.processor.definition.behavior.AssociationalBehavior
+import com.dbflow5.processor.definition.behavior.CachingBehavior
+import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
+import com.dbflow5.processor.definition.behavior.PrimaryKeyColumnBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.definition.column.DefinitionUtils
 import com.dbflow5.processor.definition.column.ReferenceColumnDefinition
@@ -265,9 +269,12 @@ class TableDefinition(table: Table,
                     ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
                         inherited?.column, null, inherited?.nonNullConflict
                         ?: ConflictAction.NONE)
-                } else if (isForeign || isColumnMap) {
-                    ReferenceColumnDefinition(manager, this,
+                } else if (isForeign) {
+                    ReferenceColumnDefinition(element.annotation<ForeignKey>()!!, manager, this,
                         element, isPackagePrivateNotInSamePackage)
+                } else if (isColumnMap) {
+                    ReferenceColumnDefinition(element.annotation<ColumnMap>()!!,
+                        manager, this, element, isPackagePrivateNotInSamePackage)
                 } else {
                     ColumnDefinition(manager, element,
                         this, isPackagePrivateNotInSamePackage)
@@ -424,7 +431,7 @@ class TableDefinition(table: Table,
 
             val saveForeignKeyFields = columnDefinitions
                 .asSequence()
-                .filter { (it is ReferenceColumnDefinition) && it.saveForeignKeyModel }
+                .filter { (it is ReferenceColumnDefinition) && it.foreignKeyColumnBehavior?.saveForeignKeyModel == true }
                 .map { it as ReferenceColumnDefinition }
                 .toList()
             if (saveForeignKeyFields.isNotEmpty()) {
@@ -440,7 +447,7 @@ class TableDefinition(table: Table,
 
             val deleteForeignKeyFields = columnDefinitions
                 .asSequence()
-                .filter { (it is ReferenceColumnDefinition) && it.deleteForeignKeyModel }
+                .filter { (it is ReferenceColumnDefinition) && it.foreignKeyColumnBehavior?.deleteForeignKeyModel == true }
                 .map { it as ReferenceColumnDefinition }
                 .toList()
             if (deleteForeignKeyFields.isNotEmpty()) {

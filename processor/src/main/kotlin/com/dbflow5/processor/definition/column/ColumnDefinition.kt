@@ -13,7 +13,7 @@ import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.BaseDefinition
 import com.dbflow5.processor.definition.EntityDefinition
-import com.dbflow5.processor.definition.CursorHandlingBehavior
+import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.TableDefinition
 import com.dbflow5.processor.definition.TypeConverterDefinition
 import com.dbflow5.processor.utils.annotation

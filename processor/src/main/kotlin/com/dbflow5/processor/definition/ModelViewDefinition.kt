@@ -6,6 +6,8 @@ import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.ModelViewQuery
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.definition.behavior.AssociationalBehavior
+import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.definition.column.ReferenceColumnDefinition
 import com.dbflow5.processor.utils.ElementUtility
@@ -92,7 +94,7 @@ class ModelViewDefinition(modelView: ModelView,
                 if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, variableElement)) return
 
                 val columnDefinition = if (isColumnMap) {
-                    ReferenceColumnDefinition(manager, this, variableElement, isPackagePrivateNotInSamePackage)
+                    ReferenceColumnDefinition(variableElement.annotation<ColumnMap>()!!, manager, this, variableElement, isPackagePrivateNotInSamePackage)
                 } else {
                     ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
                 }

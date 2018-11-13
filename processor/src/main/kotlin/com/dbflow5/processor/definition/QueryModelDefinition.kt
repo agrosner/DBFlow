@@ -6,6 +6,8 @@ import com.dbflow5.annotation.QueryModel
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.definition.behavior.AssociationalBehavior
+import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.definition.column.ReferenceColumnDefinition
 import com.dbflow5.processor.utils.ElementUtility
@@ -99,7 +101,7 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
                 if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, variableElement)) return
 
                 val columnDefinition = if (isColumnMap) {
-                    ReferenceColumnDefinition(manager, this, variableElement, isPackagePrivateNotInSamePackage)
+                    ReferenceColumnDefinition(variableElement.annotation<ColumnMap>()!!, manager, this, variableElement, isPackagePrivateNotInSamePackage)
                 } else {
                     ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
                 }

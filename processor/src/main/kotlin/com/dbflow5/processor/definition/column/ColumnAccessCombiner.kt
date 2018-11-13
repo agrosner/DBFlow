@@ -6,7 +6,7 @@ import com.grosner.kpoet.`if`
 import com.grosner.kpoet.end
 import com.grosner.kpoet.statement
 import com.dbflow5.processor.SQLiteHelper
-import com.dbflow5.processor.definition.CursorHandlingBehavior
+import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.catch
 import com.dbflow5.processor.utils.isNullOrEmpty

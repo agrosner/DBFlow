@@ -2,6 +2,9 @@ package com.dbflow5.processor.definition
 
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.definition.behavior.AssociationalBehavior
+import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
+import com.dbflow5.processor.definition.behavior.PrimaryKeyColumnBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.definition.column.PackagePrivateScopeColumnAccessor
 import com.dbflow5.processor.definition.column.ReferenceColumnDefinition

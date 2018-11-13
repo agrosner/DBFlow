@@ -1,10 +1,9 @@
-package com.dbflow5.processor.definition
+package com.dbflow5.processor.definition.behavior
 
 import com.dbflow5.annotation.ModelCacheField
 import com.dbflow5.annotation.MultiCacheField
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.ensureVisibleStatic
 import com.dbflow5.processor.utils.isNullOrEmpty
@@ -17,7 +16,7 @@ import javax.lang.model.element.TypeElement
  */
 data class AssociationalBehavior(
         /**
-         * @return The name of this view. Default is the class name.
+         * @return The name of this object in the database. Default is the class name.
          */
         val name: String,
         /**
@@ -38,17 +37,6 @@ data class AssociationalBehavior(
 data class CursorHandlingBehavior(
         val orderedCursorLookup: Boolean = false,
         val assignDefaultValuesFromCursor: Boolean = true)
-
-/**
- * Defines how Primary Key columns behave. If has autoincrementing column or ROWID, the [associatedColumn] is not null.
- */
-data class PrimaryKeyColumnBehavior(
-        val hasRowID: Boolean,
-        /**
-         * Either [hasRowID] or [hasAutoIncrement] or null.
-         */
-        val associatedColumn: ColumnDefinition?,
-        val hasAutoIncrement: Boolean)
 
 /**
  * Describes caching behavior of a [TableDefinition].
@@ -85,3 +73,4 @@ data class CachingBehavior(
         }
     }
 }
+

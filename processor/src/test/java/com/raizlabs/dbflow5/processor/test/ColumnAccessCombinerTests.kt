@@ -1,6 +1,6 @@
 package com.dbflow5.processor.test
 
-import com.dbflow5.processor.definition.CursorHandlingBehavior
+import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.column.BooleanColumnAccessor
 import com.dbflow5.processor.definition.column.Combiner
 import com.dbflow5.processor.definition.column.ContentValuesCombiner

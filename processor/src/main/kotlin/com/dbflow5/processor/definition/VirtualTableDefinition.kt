@@ -2,6 +2,8 @@ package com.dbflow5.processor.definition
 
 import com.dbflow5.annotation.VirtualTable
 import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.definition.behavior.AssociationalBehavior
+import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
@@ -20,14 +22,14 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
     private var type: VirtualTable.Type = VirtualTable.Type.FTS4
 
     override val associationalBehavior = AssociationalBehavior(
-            name = if (virtualTable.name.isNullOrEmpty()) typeElement.simpleName.toString() else virtualTable.name,
-            databaseTypeName = virtualTable.extractTypeNameFromAnnotation { it.database },
-            allFields = virtualTable.allFields
+        name = if (virtualTable.name.isNullOrEmpty()) typeElement.simpleName.toString() else virtualTable.name,
+        databaseTypeName = virtualTable.extractTypeNameFromAnnotation { it.database },
+        allFields = virtualTable.allFields
     )
 
     override val cursorHandlingBehavior = CursorHandlingBehavior(
-            orderedCursorLookup = virtualTable.orderedCursorLookUp,
-            assignDefaultValuesFromCursor = virtualTable.assignDefaultValuesFromCursor)
+        orderedCursorLookup = virtualTable.orderedCursorLookUp,
+        assignDefaultValuesFromCursor = virtualTable.assignDefaultValuesFromCursor)
 
     override val methods: Array<MethodDefinition> = arrayOf(
             /*BindToStatementMethod(this, BindToStatementMethod.Mode.INSERT),
