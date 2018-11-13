@@ -9,7 +9,6 @@ import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.behavior.AssociationalBehavior
 import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
-import com.dbflow5.processor.definition.column.ReferenceColumnDefinition
 import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.`override fun`
@@ -72,8 +71,8 @@ class ModelViewDefinition(modelView: ModelView,
     }
 
     override fun createColumnDefinitions(typeElement: TypeElement) {
+        val columnGenerator = BasicColumnGenerator(manager)
         val variableElements = ElementUtility.getAllElements(typeElement, manager)
-
         for (element in variableElements) {
             classElementLookUpMap[element.simpleName.toString()] = element
         }
@@ -89,24 +88,17 @@ class ModelViewDefinition(modelView: ModelView,
 
                 // package private, will generate helper
                 val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
-                val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, variableElement, this.element)
-
-                if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, variableElement)) return
-
-                val columnDefinition = if (isColumnMap) {
-                    ReferenceColumnDefinition(variableElement.annotation<ColumnMap>()!!, manager, this, variableElement, isPackagePrivateNotInSamePackage)
-                } else {
-                    ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
-                }
-                if (columnValidator.validate(manager, columnDefinition)) {
-                    columnDefinitions.add(columnDefinition)
-                    if (isPackagePrivate) {
-                        packagePrivateList.add(columnDefinition)
+                columnGenerator.generate(variableElement, this)?.let { columnDefinition ->
+                    if (columnValidator.validate(manager, columnDefinition)) {
+                        columnDefinitions.add(columnDefinition)
+                        if (isPackagePrivate) {
+                            packagePrivateList.add(columnDefinition)
+                        }
                     }
-                }
 
-                if (columnDefinition.type.isPrimaryField) {
-                    manager.logError("ModelView $elementName cannot have primary keys")
+                    if (columnDefinition.type.isPrimaryField) {
+                        manager.logError("ModelView $elementName cannot have primary keys")
+                    }
                 }
             } else if (variableElement.annotation<ModelViewQuery>() != null) {
                 if (!queryFieldName.isNullOrEmpty()) {

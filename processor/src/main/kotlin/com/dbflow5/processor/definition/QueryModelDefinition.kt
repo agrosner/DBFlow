@@ -9,7 +9,6 @@ import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.behavior.AssociationalBehavior
 import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
-import com.dbflow5.processor.definition.column.ReferenceColumnDefinition
 import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
@@ -83,8 +82,11 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
     }
 
     override fun createColumnDefinitions(typeElement: TypeElement) {
+        val columnGenerator = BasicColumnGenerator(manager)
         val variableElements = ElementUtility.getAllElements(typeElement, manager)
-        variableElements.forEach { classElementLookUpMap.put(it.simpleName.toString(), it) }
+        for (element in variableElements) {
+            classElementLookUpMap[element.simpleName.toString()] = element
+        }
 
         val columnValidator = ColumnValidator()
         for (variableElement in variableElements) {
@@ -92,29 +94,21 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
             // no private static or final fields
             val isAllFields = ElementUtility.isValidAllFields(associationalBehavior.allFields, variableElement)
             // package private, will generate helper
-            val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
-            val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, variableElement, this.element)
             val isColumnMap = variableElement.annotation<ColumnMap>() != null
 
             if (variableElement.annotation<Column>() != null || isAllFields || isColumnMap) {
-
-                if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, variableElement)) return
-
-                val columnDefinition = if (isColumnMap) {
-                    ReferenceColumnDefinition(variableElement.annotation<ColumnMap>()!!, manager, this, variableElement, isPackagePrivateNotInSamePackage)
-                } else {
-                    ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
-                }
-                if (columnValidator.validate(manager, columnDefinition)) {
-                    columnDefinitions.add(columnDefinition)
-
-                    if (isPackagePrivate) {
-                        packagePrivateList.add(columnDefinition)
+                val isPackagePrivate = ElementUtility.isPackagePrivate(element)
+                columnGenerator.generate(variableElement, this)?.let { columnDefinition ->
+                    if (columnValidator.validate(manager, columnDefinition)) {
+                        columnDefinitions.add(columnDefinition)
+                        if (isPackagePrivate) {
+                            packagePrivateList.add(columnDefinition)
+                        }
                     }
-                }
 
-                if (columnDefinition.type.isPrimaryField) {
-                    manager.logError("QueryModel $elementName cannot have primary keys")
+                    if (columnDefinition.type.isPrimaryField) {
+                        manager.logError("QueryModel $elementName cannot have primary keys")
+                    }
                 }
             }
         }

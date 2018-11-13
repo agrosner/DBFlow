@@ -242,46 +242,49 @@ class TableDefinition(table: Table,
 
         val columnValidator = ColumnValidator()
         val oneToManyValidator = OneToManyValidator()
-        elements.forEach { element ->
+        elements.forEach { variableElement ->
             // no private static or final fields for all columns, or any inherited columns here.
-            val isAllFields = ElementUtility.isValidAllFields(associationalBehavior.allFields, element)
+            val isAllFields = ElementUtility.isValidAllFields(associationalBehavior.allFields, variableElement)
 
             // package private, will generate helper
-            val isPackagePrivate = ElementUtility.isPackagePrivate(element)
-            val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, element, this.element)
+            val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
+            val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, variableElement, this.element)
 
-            val isForeign = element.annotation<ForeignKey>() != null
-            val isPrimary = element.annotation<PrimaryKey>() != null
-            val isInherited = inheritedColumnMap.containsKey(element.simpleName.toString())
-            val isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(element.simpleName.toString())
-            val isColumnMap = element.annotation<ColumnMap>() != null
-            if (element.annotation<Column>() != null || isForeign || isPrimary
+            val isForeign = variableElement.annotation<ForeignKey>() != null
+            val isPrimary = variableElement.annotation<PrimaryKey>() != null
+            val isInherited = inheritedColumnMap.containsKey(variableElement.simpleName.toString())
+            val isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(variableElement.simpleName.toString())
+            val isColumnMap = variableElement.annotation<ColumnMap>() != null
+            if (variableElement.annotation<Column>() != null || isForeign || isPrimary
                 || isAllFields || isInherited || isInheritedPrimaryKey || isColumnMap) {
 
-                if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, element)) return
+                if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, variableElement)) return
 
                 val columnDefinition = if (isInheritedPrimaryKey) {
-                    val inherited = inheritedPrimaryKeyMap[element.simpleName.toString()]
-                    ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
+                    val inherited = inheritedPrimaryKeyMap[variableElement.simpleName.toString()]
+                    ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage,
                         inherited?.column, inherited?.primaryKey)
                 } else if (isInherited) {
-                    val inherited = inheritedColumnMap[element.simpleName.toString()]
-                    ColumnDefinition(manager, element, this, isPackagePrivateNotInSamePackage,
+                    val inherited = inheritedColumnMap[variableElement.simpleName.toString()]
+                    ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage,
                         inherited?.column, null, inherited?.nonNullConflict
                         ?: ConflictAction.NONE)
                 } else if (isForeign) {
-                    ReferenceColumnDefinition(element.annotation<ForeignKey>()!!, manager, this,
-                        element, isPackagePrivateNotInSamePackage)
+                    ReferenceColumnDefinition(variableElement.annotation<ForeignKey>()!!, manager, this,
+                        variableElement, isPackagePrivateNotInSamePackage)
                 } else if (isColumnMap) {
-                    ReferenceColumnDefinition(element.annotation<ColumnMap>()!!,
-                        manager, this, element, isPackagePrivateNotInSamePackage)
+                    ReferenceColumnDefinition(variableElement.annotation<ColumnMap>()!!,
+                        manager, this, variableElement, isPackagePrivateNotInSamePackage)
                 } else {
-                    ColumnDefinition(manager, element,
+                    ColumnDefinition(manager, variableElement,
                         this, isPackagePrivateNotInSamePackage)
                 }
 
                 if (columnValidator.validate(manager, columnDefinition)) {
                     columnDefinitions.add(columnDefinition)
+                    if (isPackagePrivate) {
+                        packagePrivateList.add(columnDefinition)
+                    }
                     columnMap[columnDefinition.columnName] = columnDefinition
                     // check to ensure not null.
                     when {
@@ -317,7 +320,7 @@ class TableDefinition(table: Table,
                     if (columnDefinition is ReferenceColumnDefinition) {
                         if (!columnDefinition.isColumnMap) {
                             foreignKeyDefinitions.add(columnDefinition)
-                        } else if (columnDefinition.isColumnMap) {
+                        } else {
                             columnMapDefinitions.add(columnDefinition)
                         }
                     }
@@ -328,18 +331,14 @@ class TableDefinition(table: Table,
                                 .add(columnDefinition)
                         }
                     }
-
-                    if (isPackagePrivate) {
-                        packagePrivateList.add(columnDefinition)
-                    }
                 }
-            } else if (element.annotation<OneToMany>() != null) {
-                val oneToManyDefinition = OneToManyDefinition(element as ExecutableElement, manager, elements)
+            } else if (variableElement.annotation<OneToMany>() != null) {
+                val oneToManyDefinition = OneToManyDefinition(variableElement as ExecutableElement, manager, elements)
                 if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition)
                 }
             } else {
-                cachingBehavior.evaluateElement(element, typeElement, manager)
+                cachingBehavior.evaluateElement(variableElement, typeElement, manager)
             }
         }
 
