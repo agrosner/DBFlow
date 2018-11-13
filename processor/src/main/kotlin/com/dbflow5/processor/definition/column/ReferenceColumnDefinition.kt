@@ -405,16 +405,20 @@ private constructor(manager: ProcessorManager, tableDefinition: EntityDefinition
                 else referencedTableDefinition.primaryColumnDefinitions
             if (references.isEmpty()) {
                 primaryColumns.forEach { columnDefinition ->
-                    val foreignKeyReferenceDefinition = ReferenceDefinition(manager,
+                    val typeMirror = columnDefinition.column?.extractTypeMirrorFromAnnotation { it.typeConverter }
+                    val typeConverterClassName = typeMirror?.let { fromTypeMirror(typeMirror, manager) }
+                    val referenceDefinition = ReferenceDefinition(manager,
                         foreignKeyFieldName = elementName,
                         foreignKeyElementName = columnDefinition.elementName,
                         referencedColumn = columnDefinition,
                         referenceColumnDefinition = this,
                         referenceCount = primaryColumns.size,
                         localColumnName = if (isColumnMap) columnDefinition.elementName else "",
-                        defaultValue = columnDefinition.defaultValue
+                        defaultValue = columnDefinition.defaultValue,
+                        typeConverterClassName = typeConverterClassName,
+                        typeConverterTypeMirror = typeMirror
                     )
-                    _referenceDefinitionList.add(foreignKeyReferenceDefinition)
+                    _referenceDefinitionList.add(referenceDefinition)
                 }
                 needsReferences = false
             } else {

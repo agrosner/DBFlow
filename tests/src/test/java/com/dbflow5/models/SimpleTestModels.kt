@@ -11,6 +11,7 @@ import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.Unique
+import com.dbflow5.annotation.UniqueGroup
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.data.Blob
 import com.dbflow5.database.DatabaseStatement
@@ -98,18 +99,18 @@ class FeedEntry(@PrimaryKey var id: Int = 0,
 
 @Table(database = TestDatabase::class)
 @ManyToMany(
-        generatedTableClassName = "Refund", referencedTable = Transfer::class,
-        referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
-        saveForeignKeyModels = true
+    generatedTableClassName = "Refund", referencedTable = Transfer::class,
+    referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
+    saveForeignKeyModels = true
 )
 data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
 data class Transfer2(
-        @PrimaryKey
-        var id: UUID = UUID.randomUUID(),
-        @ForeignKey(stubbedRelationship = true)
-        var origin: Account? = null
+    @PrimaryKey
+    var id: UUID = UUID.randomUUID(),
+    @ForeignKey(stubbedRelationship = true)
+    var origin: Account? = null
 )
 
 @Table(database = TestDatabase::class)
@@ -250,4 +251,9 @@ class InternalClass internal constructor(@PrimaryKey
                                          @get:JvmName("getId")
                                          @set:JvmName("setId")
                                          internal var id: String = "")
+
+@Table(database = TestDatabase::class, uniqueColumnGroups = [UniqueGroup(1)])
+class UniqueModel(@PrimaryKey var id: String = "",
+                  @Unique(uniqueGroups = [1]) var name: String = "",
+                  @ForeignKey @Unique(uniqueGroups = [1]) var model: TypeConverterModel? = null)
 
