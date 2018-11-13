@@ -373,8 +373,10 @@ private constructor(manager: ProcessorManager, tableDefinition: EntityDefinition
         if (!nonModelColumn && columnAccessor !is TypeConverterScopeColumnAccessor) {
             referencedClassName?.let { referencedTableClassName ->
                 val saveAccessor = ForeignKeyAccessField(columnName,
-                    SaveModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
-                        wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
+                    SaveModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName,
+                        complexColumnBehavior.wrapperAccessor,
+                        complexColumnBehavior.wrapperTypeName,
+                        complexColumnBehavior.subWrapperAccessor), implementsModel, extendsBaseModel))
                 saveAccessor.addCode(codeBuilder, 0, modelBlock)
             }
         }
@@ -384,8 +386,10 @@ private constructor(manager: ProcessorManager, tableDefinition: EntityDefinition
         if (!nonModelColumn && columnAccessor !is TypeConverterScopeColumnAccessor) {
             referencedClassName?.let { referencedTableClassName ->
                 val deleteAccessor = ForeignKeyAccessField(columnName,
-                    DeleteModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName, wrapperAccessor,
-                        wrapperTypeName, subWrapperAccessor), implementsModel, extendsBaseModel))
+                    DeleteModelAccessCombiner(Combiner(columnAccessor, referencedTableClassName,
+                        complexColumnBehavior.wrapperAccessor,
+                        complexColumnBehavior.wrapperTypeName,
+                        complexColumnBehavior.subWrapperAccessor), implementsModel, extendsBaseModel))
                 deleteAccessor.addCode(codeBuilder, 0, modelBlock)
             }
         }

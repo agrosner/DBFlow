@@ -8,24 +8,21 @@ import com.dbflow5.annotation.Index
 import com.dbflow5.annotation.NotNull
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Unique
-import com.dbflow5.data.Blob
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.BaseDefinition
 import com.dbflow5.processor.definition.EntityDefinition
-import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.TableDefinition
-import com.dbflow5.processor.definition.TypeConverterDefinition
+import com.dbflow5.processor.definition.behavior.ComplexColumnBehavior
+import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeMirrorFromAnnotation
 import com.dbflow5.processor.utils.fromTypeMirror
-import com.dbflow5.processor.utils.getTypeElement
 import com.dbflow5.processor.utils.isNullOrEmpty
 import com.dbflow5.processor.utils.toClassName
 import com.dbflow5.processor.utils.toTypeElement
 import com.dbflow5.quote
 import com.grosner.kpoet.code
-import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
@@ -37,11 +34,8 @@ import com.squareup.javapoet.TypeSpec
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.regex.Pattern
 import javax.lang.model.element.Element
-import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeMirror
-import javax.tools.Diagnostic
 
 open class ColumnDefinition @JvmOverloads
 constructor(processorManager: ProcessorManager, element: Element,
@@ -68,8 +62,6 @@ constructor(processorManager: ProcessorManager, element: Element,
     var columnName: String = ""
     var propertyFieldName: String = ""
 
-    var hasTypeConverter: Boolean = false
-
     var type: Type = Type.Normal
 
     //var isQuickCheckPrimaryKeyAutoIncrement: Boolean = false
@@ -88,15 +80,10 @@ constructor(processorManager: ProcessorManager, element: Element,
     var defaultValue: String? = null
 
     var columnAccessor: ColumnAccessor
-    var wrapperAccessor: ColumnAccessor? = null
-    var wrapperTypeName: TypeName? = null
 
-    // Wraps for special cases such as for a Blob converter since we cannot use conventional converter
-    var subWrapperAccessor: ColumnAccessor? = null
+    val complexColumnBehavior: ComplexColumnBehavior
 
     var combiner: Combiner
-
-    var hasCustomConverter: Boolean = false
 
     open val updateStatementBlock: CodeBlock
         get() = CodeBlock.of("${columnName.quote()}=?")
@@ -234,86 +221,19 @@ constructor(processorManager: ProcessorManager, element: Element,
         val typeMirror = column?.extractTypeMirrorFromAnnotation { it.typeConverter }
         val typeConverterClassName = typeMirror?.let { fromTypeMirror(typeMirror, manager) }
 
-        hasCustomConverter = false
-        handleSpecifiedTypeConverter(typeConverterClassName, typeMirror)
-        evaluateIfWrappingNecessary(element, processorManager)
+        complexColumnBehavior = ComplexColumnBehavior(
+            columnClassName = elementTypeName,
+            columnDefinition = this,
+            referencedColumn = this,
+            referencedColumnHasCustomConverter = false,
+            typeConverterClassName = typeConverterClassName,
+            typeMirror = typeMirror,
+            manager = manager
+        )
 
-        combiner = Combiner(columnAccessor, elementTypeName!!, wrapperAccessor, wrapperTypeName,
-            subWrapperAccessor)
-    }
-
-    private fun handleSpecifiedTypeConverter(typeConverterClassName: ClassName?, typeMirror: TypeMirror?) {
-        if (typeConverterClassName != null && typeMirror != null &&
-            typeConverterClassName != ClassNames.TYPE_CONVERTER) {
-            evaluateTypeConverter(TypeConverterDefinition(typeConverterClassName, typeMirror, manager), true)
-        }
-    }
-
-    private fun evaluateIfWrappingNecessary(element: Element, processorManager: ProcessorManager) {
-        if (!hasCustomConverter) {
-            val typeElement = getTypeElement(element)
-            if (typeElement != null && typeElement.kind == ElementKind.ENUM) {
-                wrapperAccessor = EnumColumnAccessor(elementTypeName!!)
-                wrapperTypeName = ClassName.get(String::class.java)
-            } else if (elementTypeName == ClassName.get(Blob::class.java)) {
-                wrapperAccessor = BlobColumnAccessor()
-                wrapperTypeName = ArrayTypeName.of(TypeName.BYTE)
-            } else {
-                if (elementTypeName is ParameterizedTypeName ||
-                    elementTypeName == ArrayTypeName.of(TypeName.BYTE.unbox())) {
-                    // do nothing, for now.
-                } else if (elementTypeName is ArrayTypeName) {
-                    processorManager.messager.printMessage(Diagnostic.Kind.ERROR,
-                        "Columns cannot be of array type. Found $elementTypeName")
-                } else {
-                    when (elementTypeName) {
-                        TypeName.BOOLEAN -> {
-                            wrapperAccessor = BooleanColumnAccessor()
-                            wrapperTypeName = TypeName.BOOLEAN
-                        }
-                        TypeName.CHAR -> {
-                            wrapperAccessor = CharColumnAccessor()
-                            wrapperTypeName = TypeName.CHAR
-                        }
-                        TypeName.BYTE -> {
-                            wrapperAccessor = ByteColumnAccessor()
-                            wrapperTypeName = TypeName.BYTE
-                        }
-                        else -> evaluateTypeConverter(elementTypeName?.let {
-                            processorManager.getTypeConverterDefinition(it)
-                        }, false)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun evaluateTypeConverter(typeConverterDefinition: TypeConverterDefinition?,
-                                      isCustom: Boolean) {
-        // Any annotated members, otherwise we will use the scanner to find other ones
-        typeConverterDefinition?.let {
-
-            if (it.modelTypeName != elementTypeName) {
-                manager.logError("The specified custom TypeConverter's Model Value ${it.modelTypeName}" +
-                    " from ${it.className} must match the type of the column $elementTypeName. ")
-            } else {
-                hasTypeConverter = true
-                hasCustomConverter = isCustom
-
-                val fieldName = if (hasCustomConverter) {
-                    entityDefinition.addColumnForCustomTypeConverter(this, it.className)
-                } else {
-                    entityDefinition.addColumnForTypeConverter(this, it.className)
-                }
-                wrapperAccessor = TypeConverterScopeColumnAccessor(fieldName)
-                wrapperTypeName = it.dbTypeName
-
-                // special case of blob
-                if (wrapperTypeName == ClassName.get(Blob::class.java)) {
-                    subWrapperAccessor = BlobColumnAccessor()
-                }
-            }
-        }
+        combiner = Combiner(columnAccessor, elementTypeName!!, complexColumnBehavior.wrapperAccessor,
+            complexColumnBehavior.wrapperTypeName,
+            complexColumnBehavior.subWrapperAccessor)
     }
 
     override fun toString(): String {
@@ -327,11 +247,12 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
         elementTypeName?.let { elementTypeName ->
-            val isNonPrimitiveTypeConverter = !wrapperAccessor.isPrimitiveTarget() && wrapperAccessor is TypeConverterScopeColumnAccessor
+            val isNonPrimitiveTypeConverter = !complexColumnBehavior.wrapperAccessor.isPrimitiveTarget()
+                && complexColumnBehavior.wrapperAccessor is TypeConverterScopeColumnAccessor
             val propParam: TypeName = if (isNonPrimitiveTypeConverter) {
-                ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, wrapperTypeName, elementTypeName.box())
-            } else if (!wrapperAccessor.isPrimitiveTarget()) {
-                ParameterizedTypeName.get(ClassNames.WRAPPER_PROPERTY, wrapperTypeName, elementTypeName.box())
+                ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, complexColumnBehavior.wrapperTypeName, elementTypeName.box())
+            } else if (!complexColumnBehavior.wrapperAccessor.isPrimitiveTarget()) {
+                ParameterizedTypeName.get(ClassNames.WRAPPER_PROPERTY, complexColumnBehavior.wrapperTypeName, elementTypeName.box())
             } else {
                 ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box())
             }
@@ -353,7 +274,7 @@ constructor(processorManager: ProcessorManager, element: Element,
                     ClassNames.TYPE_CONVERTER_GETTER, ClassNames.TYPE_CONVERTER,
                     entityDefinition.outputClassName, entityDefinition.outputClassName,
                     ClassNames.FLOW_MANAGER,
-                    (wrapperAccessor as TypeConverterScopeColumnAccessor).typeConverterFieldName)
+                    (complexColumnBehavior.wrapperAccessor as TypeConverterScopeColumnAccessor).typeConverterFieldName)
                 fieldBuilder.initializer(codeBlock.build())
             } else {
                 fieldBuilder.initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
@@ -467,7 +388,7 @@ constructor(processorManager: ProcessorManager, element: Element,
 
     open val creationName: CodeBlock
         get() {
-            val codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, wrapperTypeName, columnName)
+            val codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, complexColumnBehavior.wrapperTypeName, columnName)
 
             if (type is Type.PrimaryAutoIncrement) {
                 codeBlockBuilder.add(" PRIMARY KEY ")

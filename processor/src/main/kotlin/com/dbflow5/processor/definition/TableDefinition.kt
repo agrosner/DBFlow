@@ -518,7 +518,7 @@ class TableDefinition(table: Table,
                                             modifiers(public, final)
                                             for (i in primaryColumns.indices) {
                                                 val column = primaryColumns[i]
-                                                val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.wrapperTypeName)
+                                                val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.complexColumnBehavior.wrapperTypeName)
                                                 statement("inValues[$i] = ${LoadFromCursorMethod.PARAM_CURSOR}" +
                                                     ".$method(${LoadFromCursorMethod.PARAM_CURSOR}.getColumnIndex(${column.columnName.S}))")
                                             }
@@ -535,7 +535,7 @@ class TableDefinition(table: Table,
                                         `override fun`(Any::class, "getCachingColumnValueFromCursor", param(ClassNames.FLOW_CURSOR, "cursor")) {
                                             modifiers(public, final)
                                             val column = primaryColumns[0]
-                                            val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.wrapperTypeName)
+                                            val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.complexColumnBehavior.wrapperTypeName)
                                             `return`("${LoadFromCursorMethod.PARAM_CURSOR}.$method(${LoadFromCursorMethod.PARAM_CURSOR}.getColumnIndex(${column.columnName.S}))")
                                         }
                                         `override fun`(Any::class, "getCachingId", param(elementClassName!!, ModelUtils.variable)) {
