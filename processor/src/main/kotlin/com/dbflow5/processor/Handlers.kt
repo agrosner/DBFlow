@@ -59,8 +59,10 @@ class MigrationHandler : BaseContainerHandler<Migration>() {
 
     override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
         if (element is TypeElement) {
-            val migrationDefinition = MigrationDefinition(processorManager, element)
-            processorManager.addMigrationDefinition(migrationDefinition)
+            element.annotation<Migration>()?.let { migration ->
+                val migrationDefinition = MigrationDefinition(migration, processorManager, element)
+                processorManager.addMigrationDefinition(migrationDefinition)
+            }
         }
     }
 }

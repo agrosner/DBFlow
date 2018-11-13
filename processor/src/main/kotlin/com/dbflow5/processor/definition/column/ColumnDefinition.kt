@@ -38,12 +38,15 @@ import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 
 open class ColumnDefinition @JvmOverloads
-constructor(processorManager: ProcessorManager, element: Element,
-            var entityDefinition: EntityDefinition, isPackagePrivate: Boolean,
-            var column: Column? = element.annotation(),
-            primaryKey: PrimaryKey? = element.annotation(),
-            notNullConflict: ConflictAction = ConflictAction.NONE)
-    : BaseDefinition(element, processorManager) {
+constructor(
+    processorManager: ProcessorManager,
+    element: Element,
+    val entityDefinition: EntityDefinition,
+    isPackagePrivate: Boolean,
+    val column: Column? = element.annotation(),
+    primaryKey: PrimaryKey? = element.annotation(),
+    notNullConflict: ConflictAction = ConflictAction.NONE
+) : BaseDefinition(element, processorManager) {
 
     sealed class Type {
         object Normal : Type()
@@ -180,18 +183,17 @@ constructor(processorManager: ProcessorManager, element: Element,
 
         } else {
             val isPrivate = element.modifiers.contains(Modifier.PRIVATE)
-            if (isPrivate) {
+            columnAccessor = if (isPrivate) {
                 val isBoolean = elementTypeName?.box() == TypeName.BOOLEAN.box()
                 val useIs = isBoolean
                     && entityDefinition is TableDefinition && (entityDefinition as TableDefinition).useIsForPrivateBooleans
-                columnAccessor = PrivateScopeColumnAccessor(elementName, object : GetterSetter {
+                PrivateScopeColumnAccessor(elementName, object : GetterSetter {
                     override val getterName: String = column?.getterName ?: ""
                     override val setterName: String = column?.setterName ?: ""
 
                 }, useIsForPrivateBooleans = useIs)
-
             } else {
-                columnAccessor = VisibleScopeColumnAccessor(elementName)
+                VisibleScopeColumnAccessor(elementName)
             }
         }
 
