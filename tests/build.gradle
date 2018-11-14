@@ -45,7 +45,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
     kapt project("${dbflow_project_prefix}processor")
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation project("${dbflow_project_prefix}lib")
     implementation project("${dbflow_project_prefix}sqlcipher")
     implementation project("${dbflow_project_prefix}reactive-streams")
@@ -57,24 +57,17 @@ dependencies {
     kaptTest project("${dbflow_project_prefix}processor")
     kaptAndroidTest project("${dbflow_project_prefix}processor")
 
-    testImplementation deps.javax_annotation
-    testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC3") {
+    androidTestImplementation deps.javax_annotation
+    androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC3") {
         exclude group: "org.jetbrains.kotlin"
     }
-    testImplementation 'org.mockito:mockito-core:2.23.0'
+    androidTestImplementation 'org.mockito:mockito-core:2.23.0'
 
     androidTestImplementation deps.junit
-    testImplementation deps.junit
     androidTestImplementation "androidx.test:core:1.0.0"
     androidTestImplementation "androidx.test:runner:1.1.0"
     androidTestImplementation "androidx.test:rules:1.1.0"
-    testImplementation "androidx.test:core:1.0.0"
-    testImplementation "androidx.test:runner:1.1.0"
-    testImplementation "androidx.test:rules:1.1.0"
-    testImplementation 'com.google.android:android-test:4.1.1.4'
-    testImplementation "androidx.arch.core:core-testing:2.0.0"
-
-    testImplementation "org.robolectric:robolectric:4.0.2"
+    androidTestImplementation "androidx.arch.core:core-testing:2.0.0"
 
 }
 

@@ -65,7 +65,7 @@ class MethodTest : BaseUnitTest() {
     }
 
     @Test
-    fun `random generates correct query`() {
+    fun random_generates_correct_query() {
         assertEquals("RANDOM()", random.query)
     }
 

@@ -15,7 +15,7 @@ import org.junit.Test
 class Fts4ModelTest : BaseUnitTest() {
 
     @Test
-    fun `validate fts4 created`() {
+    fun validate_fts4_created() {
         database<TestDatabase> { db ->
             val model = Fts4Model(name = "FTSBABY")
             model.save(db)

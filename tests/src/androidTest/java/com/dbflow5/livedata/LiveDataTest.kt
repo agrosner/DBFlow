@@ -23,7 +23,7 @@ class LiveDataTest : BaseUnitTest() {
     val rule: TestRule = InstantTaskExecutorRule()
 
     @Test
-    fun `live data executes for a few model queries`() {
+    fun live_data_executes_for_a_few_model_queries() {
         val data = (select from LiveDataModel::class)
                 .liveData { db, queriable -> queriable.queryList(db) }
 

@@ -3,7 +3,7 @@ package com.dbflow5.runtime
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.runner.AndroidJUnit4
-import com.dbflow5.ImmediateTransactionManager2
+import com.dbflow5.ImmediateTransactionManager
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.DatabaseConfig
 import com.dbflow5.config.FlowConfig
@@ -38,10 +38,10 @@ class DirectNotifierTest {
     @Before
     fun setupTest() {
         FlowManager.init(FlowConfig.Builder(context)
-                .database(DatabaseConfig.Builder(TestDatabase::class.java,
-                        AndroidSQLiteOpenHelper.createHelperCreator(context))
-                        .transactionManagerCreator(::ImmediateTransactionManager2)
-                        .build()).build())
+            .database(DatabaseConfig.Builder(TestDatabase::class.java,
+                AndroidSQLiteOpenHelper.createHelperCreator(context))
+                .transactionManagerCreator(::ImmediateTransactionManager)
+                .build()).build())
     }
 
     @Test
@@ -73,13 +73,13 @@ class DirectNotifierTest {
             DirectModelNotifier.get().registerForTableChanges(SimpleModel::class.java, modelChange)
 
             insertInto<SimpleModel>()
-                    .columnValues(SimpleModel_Table.name to "name")
-                    .executeInsert(db)
+                .columnValues(SimpleModel_Table.name to "name")
+                .executeInsert(db)
 
             verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.INSERT)
 
             (update<SimpleModel>() set SimpleModel_Table.name.eq("name2"))
-                    .executeUpdateDelete(db)
+                .executeUpdateDelete(db)
 
             verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.UPDATE)
 
