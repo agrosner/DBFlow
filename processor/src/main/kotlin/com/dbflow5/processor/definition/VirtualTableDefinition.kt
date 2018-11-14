@@ -28,7 +28,8 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
     private val createWithDatabase: Boolean = virtualTable.createWithDatabase
     val type: VirtualTable.Type = virtualTable.type
     var contentTableDefinition: TableDefinition? = null
-    val contentTableClassName = virtualTable.extractTypeNameFromAnnotation { it.contentTable }
+    private val databaseTypeName: TypeName? = virtualTable.extractTypeNameFromAnnotation { it.database }
+    private val contentTableClassName = virtualTable.extractTypeNameFromAnnotation { it.contentTable }
 
     override val associationalBehavior = AssociationalBehavior(
         name = if (virtualTable.name.isNullOrEmpty()) typeElement.simpleName.toString() else virtualTable.name,
@@ -86,6 +87,10 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
         get() = columnDefinitions
 
     override fun prepareForWriteInternal() {
+        contentTableDefinition = when {
+            contentTableClassName != TypeName.OBJECT -> manager.getTableDefinition(databaseTypeName, contentTableClassName)
+            else -> null
+        }
         typeElement?.let { createColumnDefinitions(typeElement) }
     }
 
