@@ -182,4 +182,13 @@ class WhereTest : BaseUnitTest() {
             }
         }
     }
+
+    @Test
+    fun `validate match operator`() {
+        databaseForTable<SimpleModel> { dbFlowDatabase ->
+            val query = (select from SimpleModel::class where (name match "%s"))
+            ("SELECT * FROM `SimpleModel` WHERE `name` MATCH '%s'").assertEquals(query)
+            assertCanCopyQuery(query)
+        }
+    }
 }
