@@ -22,6 +22,7 @@ class DatabaseObjectHolder {
     var modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition> = hashMapOf()
     val manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> = hashMapOf()
     val providerMap = hashMapOf<TypeName, ContentProviderDefinition>()
+    val virtualTableDefinitionMap = mutableMapOf<TypeName, VirtualTableDefinition>()
 
     /**
      * Retrieve what database class they're trying to reference.
@@ -40,6 +41,9 @@ class DatabaseObjectHolder {
             }
             providerMap.values.forEach {
                 list += "Database ${it.databaseTypeName} not found for ContentProvider ${it.elementName}"
+            }
+            virtualTableDefinitionMap.values.forEach {
+                list += "Database ${it.associationalBehavior.databaseTypeName} not found for VirtualTable ${it.elementName}"
             }
             return list
 

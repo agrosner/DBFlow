@@ -8,25 +8,37 @@ import com.squareup.javapoet.TypeSpec
 import kotlin.reflect.KClass
 
 fun TypeSpec.Builder.`override fun`(type: TypeName, name: String, vararg params: ParameterSpec.Builder,
-                                    codeMethod: (MethodSpec.Builder.() -> MethodSpec.Builder) = { this })
-        = addMethod(MethodSpec.methodBuilder(name).returns(type).addParameters(params.map { it.build() }.toList())
+                                    codeMethod: (MethodSpec.Builder.() -> Unit) = { }) =
+    addMethod(MethodSpec
+        .methodBuilder(name)
+        .returns(type)
+        .addParameters(params.map { it.build() }.toList())
         .addAnnotation(Override::class.java)
-        .codeMethod().build())!!
+        .apply(codeMethod).build())
 
 fun TypeSpec.Builder.`override fun`(type: KClass<*>, name: String, vararg params: ParameterSpec.Builder,
-                                    codeMethod: (MethodSpec.Builder.() -> MethodSpec.Builder) = { this })
-        = addMethod(MethodSpec.methodBuilder(name).returns(type).addParameters(params.map { it.build() }.toList())
+                                    codeMethod: (MethodSpec.Builder.() -> Unit) = { }): TypeSpec.Builder =
+    addMethod(MethodSpec
+        .methodBuilder(name)
+        .returns(type)
+        .addParameters(params.map { it.build() }.toList())
         .addAnnotation(Override::class.java)
-        .codeMethod().build())!!
+        .apply(codeMethod).build())
 
 fun `override fun`(type: TypeName, name: String, vararg params: ParameterSpec.Builder,
-                   codeMethod: (MethodSpec.Builder.() -> MethodSpec.Builder) = { this })
-        = MethodSpec.methodBuilder(name).returns(type).addParameters(params.map { it.build() }.toList())
+                   codeMethod: (MethodSpec.Builder.() -> Unit) = { }): MethodSpec =
+    MethodSpec
+        .methodBuilder(name)
+        .returns(type)
+        .addParameters(params.map { it.build() }.toList())
         .addAnnotation(Override::class.java)
-        .codeMethod().build()!!
+        .apply(codeMethod).build()
 
 fun `override fun`(type: KClass<*>, name: String, vararg params: ParameterSpec.Builder,
-                   codeMethod: (MethodSpec.Builder.() -> MethodSpec.Builder) = { this })
-        = MethodSpec.methodBuilder(name).returns(type).addParameters(params.map { it.build() }.toList())
+                   codeMethod: (MethodSpec.Builder.() -> Unit) = { }): MethodSpec =
+    MethodSpec
+        .methodBuilder(name)
+        .returns(type)
+        .addParameters(params.map { it.build() }.toList())
         .addAnnotation(Override::class.java)
-        .codeMethod().build()!!
+        .apply(codeMethod).build()

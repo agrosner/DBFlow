@@ -1,10 +1,14 @@
 package com.dbflow5.processor.definition
 
+import com.dbflow5.annotation.Column
+import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.VirtualTable
+import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.behavior.AssociationalBehavior
 import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
+import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.isNullOrEmpty
@@ -17,9 +21,9 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
                              typeElement: TypeElement, processorManager: ProcessorManager)
     : EntityDefinition(typeElement, processorManager) {
 
-    private var createWithDatabase = true
-
-    private var type: VirtualTable.Type = VirtualTable.Type.FTS4
+    private val createWithDatabase: Boolean = virtualTable.createWithDatabase
+    val type: VirtualTable.Type = virtualTable.type
+    var contentTableDefinition: TableDefinition? = null
 
     override val associationalBehavior = AssociationalBehavior(
         name = if (virtualTable.name.isNullOrEmpty()) typeElement.simpleName.toString() else virtualTable.name,
@@ -32,33 +36,52 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
         assignDefaultValuesFromCursor = virtualTable.assignDefaultValuesFromCursor)
 
     override val methods: Array<MethodDefinition> = arrayOf(
-            /*BindToStatementMethod(this, BindToStatementMethod.Mode.INSERT),
-            BindToStatementMethod(this, BindToStatementMethod.Mode.UPDATE),
-            BindToStatementMethod(this, BindToStatementMethod.Mode.DELETE),
-            InsertStatementQueryMethod(this, InsertStatementQueryMethod.Mode.INSERT),
-            InsertStatementQueryMethod(this, InsertStatementQueryMethod.Mode.SAVE),
-            UpdateStatementQueryMethod(this),
-            DeleteStatementQueryMethod(this),
-            CreationQueryMethod(this),*/ // TODO: reactivate with some refactoring.
-            LoadFromCursorMethod(this),
-            ExistenceMethod(this),
-            PrimaryConditionMethod(this))
+        VirtualCreationMethod(this),
+        LoadFromCursorMethod(this),
+        ExistenceMethod(this),
+        PrimaryConditionMethod(this))
 
     init {
-        element.annotation<VirtualTable>()?.let { ftS4 ->
-            type = ftS4.type
-            createWithDatabase = ftS4.createWithDatabase
-        }
+        setOutputClassName("_VirtualTable")
     }
 
     override fun createColumnDefinitions(typeElement: TypeElement) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val columnGenerator = BasicColumnGenerator(manager)
+        val variableElements = ElementUtility.getAllElements(typeElement, manager)
+        for (element in variableElements) {
+            classElementLookUpMap[element.simpleName.toString()] = element
+        }
+        val columnValidator = ColumnValidator()
+        for (variableElement in variableElements) {
+
+            // no private static or final fields
+            val isAllFields = ElementUtility.isValidAllFields(associationalBehavior.allFields, variableElement)
+            // package private, will generate helper
+            val isColumnMap = variableElement.annotation<ColumnMap>() != null
+
+            if (variableElement.annotation<Column>() != null || isAllFields || isColumnMap) {
+                val isPackagePrivate = ElementUtility.isPackagePrivate(element)
+                columnGenerator.generate(variableElement, this)?.let { columnDefinition ->
+                    if (columnValidator.validate(manager, columnDefinition)) {
+                        columnDefinitions.add(columnDefinition)
+                        if (isPackagePrivate) {
+                            packagePrivateList.add(columnDefinition)
+                        }
+                    }
+
+                    if (columnDefinition.type.isPrimaryField) {
+                        manager.logError("Virtual $type Table of type $elementName cannot have primary keys")
+                    }
+                }
+            }
+        }
     }
 
-    override val primaryColumnDefinitions: List<ColumnDefinition>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+    override // Shouldn't include any
+    val primaryColumnDefinitions: List<ColumnDefinition>
+        get() = arrayListOf()
 
     override fun prepareForWriteInternal() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        typeElement?.let { createColumnDefinitions(typeElement) }
     }
 }

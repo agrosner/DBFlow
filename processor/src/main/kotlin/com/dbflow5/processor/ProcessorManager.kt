@@ -1,15 +1,16 @@
 package com.dbflow5.processor
 
-import com.dbflow5.processor.definition.EntityDefinition
 import com.dbflow5.processor.definition.DatabaseDefinition
 import com.dbflow5.processor.definition.DatabaseHolderDefinition
 import com.dbflow5.processor.definition.DatabaseObjectHolder
+import com.dbflow5.processor.definition.EntityDefinition
 import com.dbflow5.processor.definition.ManyToManyDefinition
 import com.dbflow5.processor.definition.MigrationDefinition
 import com.dbflow5.processor.definition.ModelViewDefinition
 import com.dbflow5.processor.definition.QueryModelDefinition
 import com.dbflow5.processor.definition.TableDefinition
 import com.dbflow5.processor.definition.TypeConverterDefinition
+import com.dbflow5.processor.definition.VirtualTableDefinition
 import com.dbflow5.processor.definition.provider.ContentProviderDefinition
 import com.dbflow5.processor.definition.provider.TableEndpointDefinition
 import com.dbflow5.processor.definition.safeWritePackageHelper
@@ -93,6 +94,13 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         queryModelDefinition.elementClassName?.let {
             getOrPutDatabase(queryModelDefinition.associationalBehavior.databaseTypeName)
                 ?.queryModelDefinitionMap?.put(it, queryModelDefinition)
+        }
+    }
+
+    fun addVirtualTableDefinition(virtualTableDefinition: VirtualTableDefinition) {
+        virtualTableDefinition.elementClassName?.let {
+            getOrPutDatabase(virtualTableDefinition.associationalBehavior.databaseTypeName)
+                ?.virtualTableDefinitionMap?.put(it, virtualTableDefinition)
         }
     }
 

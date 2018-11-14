@@ -1,6 +1,7 @@
 package com.dbflow5.processor.definition
 
 import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.annotation.VirtualTable
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnDefinition
@@ -243,6 +244,31 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
             codeBuilder.add("\";\n")
 
             addCode(codeBuilder.build())
+        }
+}
+
+class VirtualCreationMethod(private val virtualTableDefinition: VirtualTableDefinition) : MethodDefinition {
+
+    override val methodSpec: MethodSpec?
+        get() = `override fun`(String::class, "getCreationQuery") {
+            addCode(codeBlock {
+                add("CREATE VIRTUAL TABLE IF NOT EXISTS ${virtualTableDefinition.associationalBehavior.name.quote()} USING ")
+                when (virtualTableDefinition.type) {
+                    VirtualTable.Type.FTS4 -> {
+                        add("FTS4")
+                    }
+                }
+                add("(")
+                // FTS4 uses column names directly.
+                add(virtualTableDefinition.columnDefinitions.joinToString { it.columnName })
+                virtualTableDefinition.contentTableDefinition?.let { tableDefinition ->
+                    if (virtualTableDefinition.columnDefinitions.isNotEmpty()) {
+                        add(", ")
+                    }
+                    add(tableDefinition.associationalBehavior.name.quote())
+                }
+                add(")")
+            })
         }
 }
 

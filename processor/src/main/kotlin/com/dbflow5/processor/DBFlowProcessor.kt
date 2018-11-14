@@ -28,8 +28,7 @@ class DBFlowProcessor : AbstractProcessor() {
      * @return the names of the annotation types supported by this
      * * processor, or an empty set if none
      */
-    override fun getSupportedAnnotationTypes()
-        = linkedSetOf(Table::class.java.canonicalName,
+    override fun getSupportedAnnotationTypes() = linkedSetOf(Table::class.java.canonicalName,
         Column::class.java.canonicalName,
         TypeConverter::class.java.canonicalName,
         ModelView::class.java.canonicalName,
@@ -50,7 +49,8 @@ class DBFlowProcessor : AbstractProcessor() {
      */
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 
-    @Synchronized override fun init(processingEnv: ProcessingEnvironment) {
+    @Synchronized
+    override fun init(processingEnv: ProcessingEnvironment) {
         super.init(processingEnv)
         manager = ProcessorManager(processingEnv)
         manager.addHandlers(MigrationHandler(),
@@ -59,6 +59,7 @@ class DBFlowProcessor : AbstractProcessor() {
             TableHandler(),
             QueryModelHandler(),
             ModelViewHandler(),
+            VirtualTableHandler(),
             ContentProviderHandler(),
             TableEndpointHandler())
     }
