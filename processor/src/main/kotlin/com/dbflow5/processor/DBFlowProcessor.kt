@@ -7,6 +7,7 @@ import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
+import com.dbflow5.annotation.VirtualTable
 import com.dbflow5.contentprovider.annotation.ContentProvider
 import com.dbflow5.contentprovider.annotation.TableEndpoint
 import com.dbflow5.processor.definition.DatabaseHolderDefinition
@@ -28,7 +29,8 @@ class DBFlowProcessor : AbstractProcessor() {
      * @return the names of the annotation types supported by this
      * * processor, or an empty set if none
      */
-    override fun getSupportedAnnotationTypes() = linkedSetOf(Table::class.java.canonicalName,
+    override fun getSupportedAnnotationTypes() = linkedSetOf(
+        Table::class.java.canonicalName,
         Column::class.java.canonicalName,
         TypeConverter::class.java.canonicalName,
         ModelView::class.java.canonicalName,
@@ -36,7 +38,8 @@ class DBFlowProcessor : AbstractProcessor() {
         ContentProvider::class.java.canonicalName,
         TableEndpoint::class.java.canonicalName,
         ColumnIgnore::class.java.canonicalName,
-        QueryModel::class.java.canonicalName
+        QueryModel::class.java.canonicalName,
+        VirtualTable::class.java.canonicalName
     )
 
     override fun getSupportedOptions() = linkedSetOf(DatabaseHolderDefinition.OPTION_TARGET_MODULE_NAME)

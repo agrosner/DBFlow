@@ -189,6 +189,13 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
             .sortedBy { it.outputClassName?.simpleName() }
     }
 
+    fun getVirtualTableDefinitions(databaseName: TypeName): List<VirtualTableDefinition> {
+        val databaseDefinition = getOrPutDatabase(databaseName)
+        return (databaseDefinition?.virtualTableDefinitionMap?.values ?: arrayListOf())
+            .toHashSet()
+            .sortedBy { it.outputClassName?.simpleName() }
+    }
+
     fun addMigrationDefinition(migrationDefinition: MigrationDefinition) {
         val migrationDefinitionMap = migrations.getOrPut(migrationDefinition.databaseName) { hashMapOf() }
         val migrationDefinitions = migrationDefinitionMap.getOrPut(migrationDefinition.version) { arrayListOf() }
@@ -306,6 +313,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
                 val virtualTableDefinitions = databaseHolderDefinition.virtualTableDefinitionMap.values
                     .sortedBy { it.outputClassName?.simpleName() }
+                virtualTableDefinitions.forEach { it.writeBaseDefinition(processorManager) }
 
                 tableDefinitions.safeWritePackageHelper(processorManager)
                 modelViewDefinitions.safeWritePackageHelper(processorManager)

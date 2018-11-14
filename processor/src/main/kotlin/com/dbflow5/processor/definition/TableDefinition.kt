@@ -236,6 +236,11 @@ class TableDefinition(private val table: Table,
             }
         }
 
+        if (!hasPrimaryConstructor) {
+            manager.logError("For now, tables must have a visible, default, parameterless constructor. In" +
+                " Kotlin all field parameters must have default values.")
+        }
+
         val columnValidator = ColumnValidator()
         val oneToManyValidator = OneToManyValidator()
         elements.forEach { variableElement ->

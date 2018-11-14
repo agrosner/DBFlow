@@ -4,6 +4,7 @@ import androidx.annotation.WorkerThread
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ModelViewAdapter
 import com.dbflow5.adapter.QueryModelAdapter
+import com.dbflow5.adapter.VirtualTableAdapter
 import com.dbflow5.adapter.queriable.ListModelLoader
 import com.dbflow5.adapter.queriable.SingleModelLoader
 import com.dbflow5.adapter.saveable.ModelSaver
@@ -41,6 +42,8 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     private val modelViewAdapterMap = linkedMapOf<Class<*>, ModelViewAdapter<*>>()
 
     private val queryModelAdapterMap = linkedMapOf<Class<*>, QueryModelAdapter<*>>()
+
+    private val virtualTableAdapterMap = linkedMapOf<Class<*>, VirtualTableAdapter<*>>()
 
     /**
      * The helper that manages database changes and initialization
@@ -182,7 +185,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             val tableConfigCollection = databaseConfig.tableConfigMap.values
             for (tableConfig in tableConfigCollection) {
                 val modelAdapter: ModelAdapter<Any> = modelAdapters[tableConfig.tableClass] as ModelAdapter<Any>?
-                        ?: continue
+                    ?: continue
                 tableConfig.listModelLoader?.let { loader -> modelAdapter.listModelLoader = loader as ListModelLoader<Any> }
                 tableConfig.singleModelLoader?.let { loader -> modelAdapter.singleModelLoader = loader as SingleModelLoader<Any> }
                 tableConfig.modelSaver?.let { saver -> modelAdapter.modelSaver = saver as ModelSaver<Any> }
@@ -210,6 +213,11 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     protected fun <T : Any> addQueryModelAdapter(queryModelAdapter: QueryModelAdapter<T>, holder: DatabaseHolder) {
         holder.putDatabaseForTable(queryModelAdapter.table, this)
         queryModelAdapterMap[queryModelAdapter.table] = queryModelAdapter
+    }
+
+    protected fun <T : Any> addVirtualTableAdapter(virtualTableAdapter: VirtualTableAdapter<T>, holder: DatabaseHolder) {
+        holder.putDatabaseForTable(virtualTableAdapter.table, this)
+        virtualTableAdapterMap[virtualTableAdapter.table] = virtualTableAdapter
     }
 
     protected fun addMigration(version: Int, migration: Migration) {
@@ -250,7 +258,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getModelViewAdapterForTable(table: Class<T>): ModelViewAdapter<T>? =
-            modelViewAdapterMap[table] as ModelViewAdapter<T>?
+        modelViewAdapterMap[table] as ModelViewAdapter<T>?
 
     /**
      * @param queryModel The [QueryModel] class
@@ -258,7 +266,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getQueryModelAdapterForQueryClass(queryModel: Class<T>): QueryModelAdapter<T>? =
-            queryModelAdapterMap[queryModel] as QueryModelAdapter<T>?
+        queryModelAdapterMap[queryModel] as QueryModelAdapter<T>?
 
     fun getModelNotifier(): ModelNotifier {
         var notifier = modelNotifier
@@ -275,12 +283,12 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     }
 
     fun <R : Any?> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
-            Transaction.Builder(transaction, this)
+        Transaction.Builder(transaction, this)
 
     inline fun <R : Any?> beginTransactionAsync(crossinline transaction: (DatabaseWrapper) -> R): Transaction.Builder<R> =
-            beginTransactionAsync(object : ITransaction<R> {
-                override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
-            })
+        beginTransactionAsync(object : ITransaction<R> {
+            override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
+        })
 
     /**
      * This should never get called on the main thread. Use [beginTransactionAsync] for an async-variant.

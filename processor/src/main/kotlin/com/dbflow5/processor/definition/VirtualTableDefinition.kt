@@ -3,6 +3,7 @@ package com.dbflow5.processor.definition
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.VirtualTable
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.behavior.AssociationalBehavior
@@ -12,6 +13,9 @@ import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.isNullOrEmpty
+import com.squareup.javapoet.ParameterizedTypeName
+import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.TypeElement
 
 /**
@@ -83,5 +87,17 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
 
     override fun prepareForWriteInternal() {
         typeElement?.let { createColumnDefinitions(typeElement) }
+    }
+
+    override val extendsClass: TypeName?
+        get() = ParameterizedTypeName.get(ClassNames.VIRTUAL_TABLE_ADAPTER, elementClassName)
+
+    override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
+        typeBuilder.apply {
+            writeGetModelClass(this, elementClassName)
+            this.writeConstructor()
+
+
+        }
     }
 }

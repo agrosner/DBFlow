@@ -88,6 +88,7 @@ class DatabaseDefinition(database: Database,
             manager.getTableDefinitions(className).forEach(TableDefinition::prepareForWrite)
             manager.getModelViewDefinitions(className).forEach(ModelViewDefinition::prepareForWrite)
             manager.getQueryModelDefinitions(className).forEach(QueryModelDefinition::prepareForWrite)
+            manager.getVirtualTableDefinitions(className).forEach(VirtualTableDefinition::prepareForWrite)
         }
     }
 
@@ -117,6 +118,14 @@ class DatabaseDefinition(database: Database,
                         statement("addQueryModelAdapter(new \$T(holder, this), holder)", definition.outputClassName)
                     } else {
                         statement("addQueryModelAdapter(new \$T(this), holder)", definition.outputClassName)
+                    }
+                }
+
+                for (definition in manager.getVirtualTableDefinitions(elementClassName)) {
+                    if (definition.hasGlobalTypeConverters) {
+                        statement("addVirtualTableAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                    } else {
+                        statement("addVirtualTableAdapter(new \$T(this), holder)", definition.outputClassName)
                     }
                 }
 
