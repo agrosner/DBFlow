@@ -31,7 +31,7 @@ internal constructor(nameAlias: NameAlias?,
 
 
     internal constructor(operator: Operator<*>)
-            : this(operator.nameAlias, operator.table, operator.getter, operator.convertToDB) {
+        : this(operator.nameAlias, operator.table, operator.getter, operator.convertToDB) {
         this.value = operator.value
     }
 
@@ -84,6 +84,22 @@ internal constructor(nameAlias: NameAlias?,
         return value(value)
     }
 
+
+    /**
+     * Uses the MATCH operation. Faster than [like], using an FTS4 Table.
+     *
+     * . If the WHERE clause of the SELECT statement contains a sub-clause of the form "<column> MATCH ?",
+     * FTS is able to use the built-in full-text index to restrict the search to those documents
+     * that match the full-text query string specified as the right-hand operand of the MATCH clause.
+     *
+     * @param value a simple string to match.
+
+     */
+    override fun match(value: String): Operator<T> {
+        operation = " ${Operation.MATCH} "
+        return value(value)
+    }
+
     /**
      * Uses the NOT LIKE operation. Case insensitive comparisons.
      *
@@ -92,7 +108,7 @@ internal constructor(nameAlias: NameAlias?,
      * There are two wildcards: % and _
      * % represents [0,many) numbers or characters.
      * The _ represents a single number or character.
-     * @return This condition
+     *
      */
     override fun notLike(value: String): Operator<T> {
         operation = " ${Operation.NOT_LIKE} "
@@ -107,7 +123,7 @@ internal constructor(nameAlias: NameAlias?,
      * There are two wildcards: * and ?
      * * represents [0,many) numbers or characters.
      * The ? represents a single number or character
-     * @return This condition
+     *
      */
     override fun glob(value: String): Operator<T> {
         operation = " ${Operation.GLOB} "
@@ -118,7 +134,7 @@ internal constructor(nameAlias: NameAlias?,
      * The value of the parameter
      *
      * @param value The value of the column in the DB
-     * @return This condition
+     *
      */
     fun value(value: Any?) = apply {
         this.value = value
@@ -159,7 +175,7 @@ internal constructor(nameAlias: NameAlias?,
      * Add a custom operation to this argument
      *
      * @param operation The SQLite operator
-     * @return This condition
+     *
      */
     fun operation(operation: String) = apply {
         this.operation = operation
@@ -169,7 +185,7 @@ internal constructor(nameAlias: NameAlias?,
      * Adds a COLLATE to the end of this condition
      *
      * @param collation The SQLite collate function
-     * @return This condition.
+     * .
      */
     infix fun collate(collation: String) = apply {
         postArg = "COLLATE $collation"
@@ -179,7 +195,7 @@ internal constructor(nameAlias: NameAlias?,
      * Adds a COLLATE to the end of this condition using the [Collate] enum.
      *
      * @param collation The SQLite collate function
-     * @return This condition.
+     * .
      */
     infix fun collate(collation: Collate) = apply {
         if (collation == Collate.NONE) {
@@ -207,80 +223,80 @@ internal constructor(nameAlias: NameAlias?,
     }
 
     override fun `is`(conditional: IConditional): Operator<*> =
-            assignValueOp(conditional, Operation.EQUALS)
+        assignValueOp(conditional, Operation.EQUALS)
 
     override fun eq(conditional: IConditional): Operator<*> =
-            assignValueOp(conditional, Operation.EQUALS)
+        assignValueOp(conditional, Operation.EQUALS)
 
     override fun isNot(conditional: IConditional): Operator<*> =
-            assignValueOp(conditional, Operation.NOT_EQUALS)
+        assignValueOp(conditional, Operation.NOT_EQUALS)
 
     override fun notEq(conditional: IConditional): Operator<*> =
-            assignValueOp(conditional, Operation.NOT_EQUALS)
+        assignValueOp(conditional, Operation.NOT_EQUALS)
 
     override fun like(conditional: IConditional): Operator<T> = like(conditional.query)
 
     override fun glob(conditional: IConditional): Operator<T> = glob(conditional.query)
 
     override fun greaterThan(conditional: IConditional): Operator<T> =
-            assignValueOp(conditional, Operation.GREATER_THAN)
+        assignValueOp(conditional, Operation.GREATER_THAN)
 
     override fun greaterThanOrEq(conditional: IConditional): Operator<T> =
-            assignValueOp(conditional, Operation.GREATER_THAN_OR_EQUALS)
+        assignValueOp(conditional, Operation.GREATER_THAN_OR_EQUALS)
 
     override fun lessThan(conditional: IConditional): Operator<T> =
-            assignValueOp(conditional, Operation.LESS_THAN)
+        assignValueOp(conditional, Operation.LESS_THAN)
 
     override fun lessThanOrEq(conditional: IConditional): Operator<T> =
-            assignValueOp(conditional, Operation.LESS_THAN_OR_EQUALS)
+        assignValueOp(conditional, Operation.LESS_THAN_OR_EQUALS)
 
     override fun between(conditional: IConditional): Between<*> = Between(this as Operator<Any>, conditional)
 
     override fun `in`(firstConditional: IConditional, vararg conditionals: IConditional): In<*> =
-            In(this as Operator<Any>, firstConditional, true, *conditionals)
+        In(this as Operator<Any>, firstConditional, true, *conditionals)
 
     override fun notIn(firstConditional: IConditional, vararg conditionals: IConditional): In<*> =
-            In(this as Operator<Any>, firstConditional, false, *conditionals)
+        In(this as Operator<Any>, firstConditional, false, *conditionals)
 
     override fun notIn(firstBaseModelQueriable: BaseModelQueriable<*>,
                        vararg baseModelQueriables: BaseModelQueriable<*>): In<*> =
-            In(this as Operator<Any>, firstBaseModelQueriable, false, *baseModelQueriables)
+        In(this as Operator<Any>, firstBaseModelQueriable, false, *baseModelQueriables)
 
     override fun `is`(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(baseModelQueriable, Operation.EQUALS)
+        assignValueOp(baseModelQueriable, Operation.EQUALS)
 
     override fun eq(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(baseModelQueriable, Operation.EQUALS)
+        assignValueOp(baseModelQueriable, Operation.EQUALS)
 
     override fun isNot(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(baseModelQueriable, Operation.NOT_EQUALS)
+        assignValueOp(baseModelQueriable, Operation.NOT_EQUALS)
 
     override fun notEq(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(baseModelQueriable, Operation.NOT_EQUALS)
+        assignValueOp(baseModelQueriable, Operation.NOT_EQUALS)
 
     override fun like(baseModelQueriable: BaseModelQueriable<*>): Operator<T> =
-            assignValueOp(baseModelQueriable, Operation.LIKE)
+        assignValueOp(baseModelQueriable, Operation.LIKE)
 
     override fun notLike(conditional: IConditional): Operator<*> =
-            assignValueOp(conditional, Operation.NOT_LIKE)
+        assignValueOp(conditional, Operation.NOT_LIKE)
 
     override fun notLike(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(baseModelQueriable, Operation.NOT_LIKE)
+        assignValueOp(baseModelQueriable, Operation.NOT_LIKE)
 
     override fun glob(baseModelQueriable: BaseModelQueriable<*>): Operator<T> =
-            assignValueOp(baseModelQueriable, Operation.GLOB)
+        assignValueOp(baseModelQueriable, Operation.GLOB)
 
     override fun greaterThan(baseModelQueriable: BaseModelQueriable<*>): Operator<T> =
-            assignValueOp(baseModelQueriable, Operation.GREATER_THAN)
+        assignValueOp(baseModelQueriable, Operation.GREATER_THAN)
 
     override fun greaterThanOrEq(baseModelQueriable: BaseModelQueriable<*>): Operator<T> =
-            assignValueOp(baseModelQueriable, Operation.GREATER_THAN_OR_EQUALS)
+        assignValueOp(baseModelQueriable, Operation.GREATER_THAN_OR_EQUALS)
 
     override fun lessThan(baseModelQueriable: BaseModelQueriable<*>): Operator<T> =
-            assignValueOp(baseModelQueriable, Operation.LESS_THAN)
+        assignValueOp(baseModelQueriable, Operation.LESS_THAN)
 
     override fun lessThanOrEq(baseModelQueriable: BaseModelQueriable<*>): Operator<T> =
-            assignValueOp(baseModelQueriable, Operation.LESS_THAN_OR_EQUALS)
+        assignValueOp(baseModelQueriable, Operation.LESS_THAN_OR_EQUALS)
 
     operator fun plus(value: IConditional): Operator<*> = assignValueOp(value, Operation.PLUS)
 
@@ -293,25 +309,25 @@ internal constructor(nameAlias: NameAlias?,
     operator fun rem(value: IConditional): Operator<*> = assignValueOp(value, Operation.MOD)
 
     override fun plus(value: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(value, Operation.PLUS)
+        assignValueOp(value, Operation.PLUS)
 
     override fun minus(value: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(value, Operation.MINUS)
+        assignValueOp(value, Operation.MINUS)
 
     override fun div(value: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(value, Operation.DIVISION)
+        assignValueOp(value, Operation.DIVISION)
 
     override fun times(value: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(value, Operation.MULTIPLY)
+        assignValueOp(value, Operation.MULTIPLY)
 
     override fun rem(value: BaseModelQueriable<*>): Operator<*> =
-            assignValueOp(value, Operation.MOD)
+        assignValueOp(value, Operation.MOD)
 
     override fun between(baseModelQueriable: BaseModelQueriable<*>): Between<*> =
-            Between(this as Operator<Any>, baseModelQueriable)
+        Between(this as Operator<Any>, baseModelQueriable)
 
     override fun `in`(firstBaseModelQueriable: BaseModelQueriable<*>, vararg baseModelQueriables: BaseModelQueriable<*>): In<*> =
-            In(this as Operator<Any>, firstBaseModelQueriable, true, *baseModelQueriables)
+        In(this as Operator<Any>, firstBaseModelQueriable, true, *baseModelQueriables)
 
     override fun concatenate(value: Any?): Operator<T> {
         var _value = value
@@ -328,7 +344,7 @@ internal constructor(nameAlias: NameAlias?,
             is String, is IOperator<*>, is Char -> "$operation ${Operation.CONCATENATE} "
             is Number -> "$operation ${Operation.PLUS} "
             else -> throw IllegalArgumentException(
-                    "Cannot concatenate the ${if (_value != null) _value.javaClass else "null"}")
+                "Cannot concatenate the ${if (_value != null) _value.javaClass else "null"}")
         }
         this.value = _value
         isValueSet = true
@@ -336,7 +352,7 @@ internal constructor(nameAlias: NameAlias?,
     }
 
     override fun concatenate(conditional: IConditional): Operator<T> =
-            concatenate(conditional as Any)
+        concatenate(conditional as Any)
 
     /**
      * Turns this condition into a SQL BETWEEN operation
@@ -348,30 +364,30 @@ internal constructor(nameAlias: NameAlias?,
 
     @SafeVarargs
     override fun `in`(firstValue: T, vararg values: T): In<T> =
-            In(this, firstValue, true, *values)
+        In(this, firstValue, true, *values)
 
     @SafeVarargs
     override fun notIn(firstValue: T, vararg values: T): In<T> =
-            In(this, firstValue, false, *values)
+        In(this, firstValue, false, *values)
 
     override fun `in`(values: Collection<T>): In<T> = In(this, values, true)
 
     override fun notIn(values: Collection<T>): In<T> = In(this, values, false)
 
     override fun convertObjectToString(obj: Any?, appendInnerParenthesis: Boolean): String? =
-            (typeConverter as? TypeConverter<*, Any>?)?.let { typeConverter ->
-                var converted = obj
-                try {
-                    converted = if (convertToDB) typeConverter.getDBValue(obj) else obj
-                } catch (c: ClassCastException) {
-                    // if object type is not valid converted type, just use type as is here.
-                    // if object type is not valid converted type, just use type as is here.
-                    FlowLog.log(FlowLog.Level.I, "Value passed to operation is not valid type" +
-                            " for TypeConverter in the column. Preserving value $obj to be used as is.")
-                }
+        (typeConverter as? TypeConverter<*, Any>?)?.let { typeConverter ->
+            var converted = obj
+            try {
+                converted = if (convertToDB) typeConverter.getDBValue(obj) else obj
+            } catch (c: ClassCastException) {
+                // if object type is not valid converted type, just use type as is here.
+                // if object type is not valid converted type, just use type as is here.
+                FlowLog.log(FlowLog.Level.I, "Value passed to operation is not valid type" +
+                    " for TypeConverter in the column. Preserving value $obj to be used as is.")
+            }
 
-                convertValueToString(converted, appendInnerParenthesis, false)
-            } ?: super.convertObjectToString(obj, appendInnerParenthesis)
+            convertValueToString(converted, appendInnerParenthesis, false)
+        } ?: super.convertObjectToString(obj, appendInnerParenthesis)
 
     private fun assignValueOp(value: Any?, operation: String): Operator<T> {
         return if (!isValueSet) {
@@ -427,6 +443,13 @@ internal constructor(nameAlias: NameAlias?,
          * The _ represents a single number or character.
          */
         const val LIKE = "LIKE"
+
+        /**
+         * If the WHERE clause of the SELECT statement contains a sub-clause of the form "<column> MATCH ?",
+         * FTS is able to use the built-in full-text index to restrict the search to those documents
+         * that match the full-text query string specified as the right-hand operand of the MATCH clause.
+         */
+        const val MATCH = "MATCH"
 
         /**
          * If something is NOT LIKE another (a case insensitive search).
@@ -542,11 +565,11 @@ internal constructor(nameAlias: NameAlias?,
 
         override fun appendConditionToQuery(queryBuilder: StringBuilder) {
             queryBuilder.append(columnName()).append(operation())
-                    .append(convertObjectToString(value(), true))
-                    .append(" ${Operation.AND} ")
-                    .append(convertObjectToString(secondValue(), true))
-                    .append(" ")
-                    .appendOptional(postArgument())
+                .append(convertObjectToString(value(), true))
+                .append(" ${Operation.AND} ")
+                .append(convertObjectToString(secondValue(), true))
+                .append(" ")
+                .appendOptional(postArgument())
         }
     }
 
@@ -595,10 +618,10 @@ internal constructor(nameAlias: NameAlias?,
 
         override fun appendConditionToQuery(queryBuilder: StringBuilder) {
             queryBuilder.append(columnName())
-                    .append(operation())
-                    .append("(")
-                    .append(joinArguments(",", inArguments, this))
-                    .append(")")
+                .append(operation())
+                .append("(")
+                .append(joinArguments(",", inArguments, this))
+                .append(")")
         }
     }
 
@@ -606,7 +629,7 @@ internal constructor(nameAlias: NameAlias?,
 
         @JvmStatic
         fun convertValueToString(value: Any?): String? =
-                convertValueToString(value, false)
+            convertValueToString(value, false)
 
         @JvmStatic
         fun <T> op(column: NameAlias): Operator<T> = Operator(column, convertToDB = false)
@@ -615,7 +638,7 @@ internal constructor(nameAlias: NameAlias?,
         fun <T> op(alias: NameAlias, table: Class<*>,
                    getter: TypeConvertedProperty.TypeConverterGetter,
                    convertToDB: Boolean): Operator<T> =
-                Operator(alias, table, getter, convertToDB)
+            Operator(alias, table, getter, convertToDB)
     }
 
 }

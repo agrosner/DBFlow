@@ -13,6 +13,10 @@ import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.isNullOrEmpty
+import com.dbflow5.stripQuotes
+import com.grosner.kpoet.`=`
+import com.grosner.kpoet.`public static final field`
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
@@ -69,9 +73,16 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
                 val isPackagePrivate = ElementUtility.isPackagePrivate(element)
                 columnGenerator.generate(variableElement, this)?.let { columnDefinition ->
                     if (columnValidator.validate(manager, columnDefinition)) {
-                        columnDefinitions.add(columnDefinition)
-                        if (isPackagePrivate) {
-                            packagePrivateList.add(columnDefinition)
+                        if (type != VirtualTable.Type.FTS4 ||
+                            columnDefinition.elementClassName == ClassName.get(String::class.java)) {
+                            columnDefinitions.add(columnDefinition)
+                            if (isPackagePrivate) {
+                                packagePrivateList.add(columnDefinition)
+                            }
+                        } else {
+                            if (type == VirtualTable.Type.FTS4) {
+                                manager.logError("Virtual $type Table of type $elementName must only contain String columns")
+                            }
                         }
                     }
 
@@ -101,6 +112,16 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
         typeBuilder.apply {
             elementClassName?.let { elementClassName ->
                 columnDefinitions.forEach { it.addPropertyDefinition(this, elementClassName) }
+            }
+
+            // generate implicit docid column if not defined by model.
+            if (columnDefinitions.any { it.columnName.stripQuotes() != "docid" }) {
+                `public static final field`(ParameterizedTypeName.get(ClassNames.PROPERTY, TypeName.INT.box()), "docid") {
+                    addJavadoc("Generated docid for FTS4 tables")
+                    `=`("new \$T(\$T.class, \$S)",
+                        ParameterizedTypeName.get(ClassNames.PROPERTY, TypeName.INT.box()),
+                        elementClassName, "docid")
+                }
             }
 
             writeGetModelClass(this, elementClassName)
