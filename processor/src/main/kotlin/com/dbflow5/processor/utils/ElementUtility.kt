@@ -18,7 +18,7 @@ object ElementUtility {
      */
     fun getAllElements(element: TypeElement, manager: ProcessorManager): List<Element> {
         val elements = manager.elements.getAllMembers(element).toMutableList()
-        var superMirror: TypeMirror? = null
+        var superMirror: TypeMirror?
         var typeElement: TypeElement? = element
         while (typeElement?.superclass.let { superMirror = it; it != null }) {
             typeElement = manager.typeUtils.asElement(superMirror) as TypeElement?

@@ -166,8 +166,8 @@ abstract class EntityDefinition(typeElement: TypeElement, processorManager: Proc
                         }
 
                         `public static final`(TypeName.VOID, "set$methodName",
-                            param(elementTypeName!!, ModelUtils.variable),
-                            param(columnDefinition.elementTypeName!!, "var")) {
+                            param(elementTypeName, ModelUtils.variable),
+                            param(columnDefinition.elementTypeName, "var")) {
                             if (samePackage) {
                                 statement("${ModelUtils.variable}.${columnDefinition.elementName} = var")
                             } else {

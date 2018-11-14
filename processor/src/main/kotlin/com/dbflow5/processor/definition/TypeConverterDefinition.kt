@@ -13,38 +13,35 @@ import javax.lang.model.type.TypeMirror
  * Description: Holds data about type converters in order to write them.
  */
 class TypeConverterDefinition(
-    typeConverter: TypeConverter,
+    typeConverter: TypeConverter?,
     val className: ClassName,
     typeMirror: TypeMirror, manager: ProcessorManager) {
 
-    var modelTypeName: TypeName? = null
-        private set
-
-    var dbTypeName: TypeName? = null
-        private set
-
-    var allowedSubTypes: List<TypeName>? = null
+    val modelTypeName: TypeName?
+    val dbTypeName: TypeName?
+    val allowedSubTypes: List<TypeName>
 
     init {
-
         val allowedSubTypes: MutableList<TypeName> = mutableListOf()
-        try {
-            typeConverter.allowedSubtypes
-        } catch (e: MirroredTypesException) {
-            val types = e.typeMirrors
-            types.forEach { allowedSubTypes.add(TypeName.get(it)) }
+        typeConverter?.let { converter ->
+            try {
+                converter.allowedSubtypes
+            } catch (e: MirroredTypesException) {
+                val types = e.typeMirrors
+                types.forEach { allowedSubTypes.add(TypeName.get(it)) }
+            }
         }
         this.allowedSubTypes = allowedSubTypes
 
         val types = manager.typeUtils
 
         var typeConverterSuper: DeclaredType? = null
-        val typeConverter = manager.typeUtils.getDeclaredType(manager.elements
+        val typeConverterType = manager.typeUtils.getDeclaredType(manager.elements
             .getTypeElement(ClassNames.TYPE_CONVERTER.toString()))
 
         for (superType in types.directSupertypes(typeMirror)) {
             val erasure = types.erasure(superType)
-            if (types.isAssignable(erasure, typeConverter) || erasure.toString() == typeConverter.toString()) {
+            if (types.isAssignable(erasure, typeConverterType) || erasure.toString() == typeConverterType.toString()) {
                 typeConverterSuper = superType as DeclaredType
             }
         }
@@ -53,6 +50,9 @@ class TypeConverterDefinition(
             val typeArgs = typeConverterSuper.typeArguments
             dbTypeName = ClassName.get(typeArgs[0])
             modelTypeName = ClassName.get(typeArgs[1])
+        } else {
+            dbTypeName = null
+            modelTypeName = null
         }
     }
 

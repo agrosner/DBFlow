@@ -304,9 +304,13 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                     .sortedBy { it.outputClassName?.simpleName() }
                 queryModelDefinitions.forEach { it.writeBaseDefinition(processorManager) }
 
+                val virtualTableDefinitions = databaseHolderDefinition.virtualTableDefinitionMap.values
+                    .sortedBy { it.outputClassName?.simpleName() }
+
                 tableDefinitions.safeWritePackageHelper(processorManager)
                 modelViewDefinitions.safeWritePackageHelper(processorManager)
                 queryModelDefinitions.safeWritePackageHelper(processorManager)
+                virtualTableDefinitions.safeWritePackageHelper(processorManager)
             } catch (e: IOException) {
             }
 

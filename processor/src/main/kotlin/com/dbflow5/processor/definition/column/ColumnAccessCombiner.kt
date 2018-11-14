@@ -32,7 +32,7 @@ abstract class ColumnAccessCombiner(val combiner: Combiner) {
                             modelBlock: CodeBlock,
                             useWrapper: Boolean = true,
                             defineProperty: Boolean = true): CodeBlock {
-        var fieldAccess: CodeBlock = CodeBlock.of("")
+        var fieldAccess: CodeBlock
         combiner.apply {
             if (wrapperLevelAccessor != null && !fieldTypeName.isPrimitive) {
                 fieldAccess = CodeBlock.of("${nameAllocator.newName(customPrefixName)}ref" + fieldLevelAccessor.propertyName)

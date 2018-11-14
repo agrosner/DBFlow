@@ -186,7 +186,7 @@ constructor(
             columnAccessor = if (isPrivate) {
                 val isBoolean = elementTypeName?.box() == TypeName.BOOLEAN.box()
                 val useIs = isBoolean
-                    && entityDefinition is TableDefinition && (entityDefinition as TableDefinition).useIsForPrivateBooleans
+                    && entityDefinition is TableDefinition && entityDefinition.useIsForPrivateBooleans
                 PrivateScopeColumnAccessor(elementName, object : GetterSetter {
                     override val getterName: String = column?.getterName ?: ""
                     override val setterName: String = column?.setterName ?: ""
@@ -396,9 +396,8 @@ constructor(
                 codeBlockBuilder.add(" PRIMARY KEY ")
 
                 if (entityDefinition is TableDefinition &&
-                    !(entityDefinition as TableDefinition).primaryKeyConflictActionName.isNullOrEmpty()) {
-                    codeBlockBuilder.add("ON CONFLICT \$L ",
-                        (entityDefinition as TableDefinition).primaryKeyConflictActionName)
+                    !entityDefinition.primaryKeyConflictActionName.isNullOrEmpty()) {
+                    codeBlockBuilder.add("ON CONFLICT \$L ", entityDefinition.primaryKeyConflictActionName)
                 }
 
                 codeBlockBuilder.add("AUTOINCREMENT")

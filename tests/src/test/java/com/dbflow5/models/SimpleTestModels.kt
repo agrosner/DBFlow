@@ -12,6 +12,7 @@ import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.Unique
 import com.dbflow5.annotation.UniqueGroup
+import com.dbflow5.annotation.VirtualTable
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.data.Blob
 import com.dbflow5.database.DatabaseStatement
@@ -257,3 +258,9 @@ class UniqueModel(@PrimaryKey var id: String = "",
                   @Unique(uniqueGroups = [1]) var name: String = "",
                   @ForeignKey @Unique(uniqueGroups = [1]) var model: TypeConverterModel? = null)
 
+
+@Table(database = TestDatabase::class)
+class Fts4Model(@PrimaryKey var name: String = "")
+
+@VirtualTable(type = VirtualTable.Type.FTS4, database = TestDatabase::class)
+class Fts4VirtualModel(var name: String = "")

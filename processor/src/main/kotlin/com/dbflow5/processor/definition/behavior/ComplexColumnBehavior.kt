@@ -62,7 +62,7 @@ class ComplexColumnBehavior(
     private fun handleSpecifiedTypeConverter(typeConverterClassName: ClassName?, typeMirror: TypeMirror?) {
         if (typeConverterClassName != null && typeMirror != null &&
             typeConverterClassName != com.dbflow5.processor.ClassNames.TYPE_CONVERTER) {
-            evaluateTypeConverter(TypeConverterDefinition(typeConverterClassName, typeMirror, manager), true)
+            evaluateTypeConverter(TypeConverterDefinition(null, typeConverterClassName, typeMirror, manager), true)
         }
     }
 
