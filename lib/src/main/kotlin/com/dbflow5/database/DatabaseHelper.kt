@@ -86,16 +86,13 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
         try {
             database.beginTransaction()
             val modelViews = databaseDefinition.modelViewAdapters
-            modelViews
-                    .asSequence()
-                    .map { "CREATE VIEW IF NOT EXISTS ${it.viewName} AS ${it.getCreationQuery(database)}" }
-                    .forEach {
-                        try {
-                            database.execSQL(it)
-                        } catch (e: SQLiteException) {
-                            FlowLog.logError(e)
-                        }
-                    }
+            modelViews.forEach {
+                try {
+                    database.execSQL(it.creationQuery)
+                } catch (e: SQLiteException) {
+                    FlowLog.logError(e)
+                }
+            }
             database.setTransactionSuccessful()
         } finally {
             database.endTransaction()

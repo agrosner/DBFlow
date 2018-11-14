@@ -7,6 +7,7 @@ import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.behavior.AssociationalBehavior
+import com.dbflow5.processor.definition.behavior.CreationQueryBehavior
 import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.utils.ElementUtility
@@ -29,27 +30,27 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
                              typeElement: TypeElement, processorManager: ProcessorManager)
     : EntityDefinition(typeElement, processorManager) {
 
-    private val createWithDatabase: Boolean = virtualTable.createWithDatabase
+    private val creationQueryBehavior = CreationQueryBehavior(createWithDatabase = virtualTable.createWithDatabase)
     val type: VirtualTable.Type = virtualTable.type
     var contentTableDefinition: TableDefinition? = null
     private val databaseTypeName: TypeName? = virtualTable.extractTypeNameFromAnnotation { it.database }
     private val contentTableClassName = virtualTable.extractTypeNameFromAnnotation { it.contentTable }
 
     override val associationalBehavior = AssociationalBehavior(
-        name = if (virtualTable.name.isNullOrEmpty()) typeElement.simpleName.toString() else virtualTable.name,
-        databaseTypeName = virtualTable.extractTypeNameFromAnnotation { it.database },
-        allFields = virtualTable.allFields
+            name = if (virtualTable.name.isNullOrEmpty()) typeElement.simpleName.toString() else virtualTable.name,
+            databaseTypeName = virtualTable.extractTypeNameFromAnnotation { it.database },
+            allFields = virtualTable.allFields
     )
 
     override val cursorHandlingBehavior = CursorHandlingBehavior(
-        orderedCursorLookup = virtualTable.orderedCursorLookUp,
-        assignDefaultValuesFromCursor = virtualTable.assignDefaultValuesFromCursor)
+            orderedCursorLookup = virtualTable.orderedCursorLookUp,
+            assignDefaultValuesFromCursor = virtualTable.assignDefaultValuesFromCursor)
 
     override val methods: Array<MethodDefinition> = arrayOf(
-        VirtualCreationMethod(this),
-        LoadFromCursorMethod(this),
-        ExistenceMethod(this),
-        PrimaryConditionMethod(this))
+            VirtualCreationMethod(this),
+            LoadFromCursorMethod(this),
+            ExistenceMethod(this),
+            PrimaryConditionMethod(this))
 
     init {
         setOutputClassName("_VirtualTable")
@@ -74,7 +75,7 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
                 columnGenerator.generate(variableElement, this)?.let { columnDefinition ->
                     if (columnValidator.validate(manager, columnDefinition)) {
                         if (type != VirtualTable.Type.FTS4 ||
-                            columnDefinition.elementClassName == ClassName.get(String::class.java)) {
+                                columnDefinition.elementClassName == ClassName.get(String::class.java)) {
                             columnDefinitions.add(columnDefinition)
                             if (isPackagePrivate) {
                                 packagePrivateList.add(columnDefinition)
@@ -119,15 +120,17 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
                 `public static final field`(ParameterizedTypeName.get(ClassNames.PROPERTY, TypeName.INT.box()), "docid") {
                     addJavadoc("Generated docid for FTS4 tables")
                     `=`("new \$T(\$T.class, \$S)",
-                        ParameterizedTypeName.get(ClassNames.PROPERTY, TypeName.INT.box()),
-                        elementClassName, "docid")
+                            ParameterizedTypeName.get(ClassNames.PROPERTY, TypeName.INT.box()),
+                            elementClassName, "docid")
                 }
             }
+
+            creationQueryBehavior.addToType(this)
 
             writeGetModelClass(this, elementClassName)
             this.writeConstructor()
             methods.mapNotNull { it.methodSpec }
-                .forEach { addMethod(it) }
+                    .forEach { addMethod(it) }
         }
 
 

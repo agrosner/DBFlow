@@ -7,10 +7,10 @@ import com.dbflow5.annotation.ModelViewQuery
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.behavior.AssociationalBehavior
+import com.dbflow5.processor.definition.behavior.CreationQueryBehavior
 import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.utils.ElementUtility
-import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.ensureVisibleStatic
@@ -20,13 +20,13 @@ import com.dbflow5.processor.utils.isNullOrEmpty
 import com.dbflow5.processor.utils.simpleString
 import com.dbflow5.processor.utils.toTypeElement
 import com.dbflow5.processor.utils.toTypeErasedElement
+import com.dbflow5.quoteIfNeeded
 import com.grosner.kpoet.S
 import com.grosner.kpoet.`=`
 import com.grosner.kpoet.`public static final field`
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.final
 import com.grosner.kpoet.modifiers
-import com.grosner.kpoet.param
 import com.grosner.kpoet.public
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -45,9 +45,11 @@ class ModelViewDefinition(modelView: ModelView,
     private var queryFieldName: String? = null
 
     override val methods: Array<MethodDefinition> = arrayOf(
-        LoadFromCursorMethod(this),
-        ExistenceMethod(this),
-        PrimaryConditionMethod(this))
+            LoadFromCursorMethod(this),
+            ExistenceMethod(this),
+            PrimaryConditionMethod(this))
+
+    private val creationQueryBehavior = CreationQueryBehavior(createWithDatabase = modelView.createWithDatabase)
 
     val priority = modelView.priority
 
@@ -56,14 +58,14 @@ class ModelViewDefinition(modelView: ModelView,
     }
 
     override val associationalBehavior = AssociationalBehavior(
-        name = if (modelView.name.isNullOrEmpty()) modelClassName else modelView.name,
-        databaseTypeName = modelView.extractTypeNameFromAnnotation { it.database },
-        allFields = modelView.allFields
+            name = if (modelView.name.isNullOrEmpty()) modelClassName else modelView.name,
+            databaseTypeName = modelView.extractTypeNameFromAnnotation { it.database },
+            allFields = modelView.allFields
     )
 
     override val cursorHandlingBehavior = CursorHandlingBehavior(
-        orderedCursorLookup = modelView.orderedCursorLookUp,
-        assignDefaultValuesFromCursor = modelView.assignDefaultValuesFromCursor)
+            orderedCursorLookup = modelView.orderedCursorLookUp,
+            assignDefaultValuesFromCursor = modelView.assignDefaultValuesFromCursor)
 
     override fun prepareForWriteInternal() {
         queryFieldName = null
@@ -84,7 +86,7 @@ class ModelViewDefinition(modelView: ModelView,
             val isColumnMap = variableElement.annotation<ColumnMap>() != null
 
             if (variableElement.annotation<Column>() != null || isValidAllFields
-                || isColumnMap) {
+                    || isColumnMap) {
 
                 // package private, will generate helper
                 val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
@@ -141,10 +143,11 @@ class ModelViewDefinition(modelView: ModelView,
 
             writeGetModelClass(typeBuilder, elementClassName)
 
-            `override fun`(String::class, "getCreationQuery",
-                param(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+            creationQueryBehavior.addToType(this)
+
+            `override fun`(String::class, "getCreationQuery") {
                 modifiers(public, final)
-                `return`("\$T.\$L().getQuery()", elementClassName, queryFieldName)
+                `return`("\"CREATE VIEW IF NOT EXISTS ${associationalBehavior.name.quoteIfNeeded()} AS \" + \$T.\$L().getQuery()", elementClassName, queryFieldName)
             }
             `override fun`(String::class, "getViewName") {
                 modifiers(public, final)
@@ -153,7 +156,7 @@ class ModelViewDefinition(modelView: ModelView,
         }
 
         methods.mapNotNull { it.methodSpec }
-            .forEach { typeBuilder.addMethod(it) }
+                .forEach { typeBuilder.addMethod(it) }
     }
 
 }

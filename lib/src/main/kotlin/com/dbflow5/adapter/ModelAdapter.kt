@@ -16,16 +16,11 @@ import com.dbflow5.query.property.Property
  * Description: Used for generated classes from the combination of [Table] and [Model].
  */
 abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
-    : RetrievalAdapter<T>(databaseDefinition), InternalAdapter<T> {
+    : RetrievalAdapter<T>(databaseDefinition), InternalAdapter<T>, CreationAdapter {
 
     private var _modelSaver: ModelSaver<T>? = null
 
     val listModelSaver: ListModelSaver<T> by lazy { createListModelSaver() }
-
-    /**
-     * @return The query used to create this table.
-     */
-    abstract val creationQuery: String
 
     /**
      * @return An array of column properties, in order of declaration.
@@ -179,10 +174,5 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      */
     abstract fun getProperty(columnName: String): Property<*>
 
-    /**
-     * @return When false, this table gets generated and associated with database, however it will not immediately
-     * get created upon startup. This is useful for keeping around legacy tables for migrations.
-     */
-    open fun createWithDatabase(): Boolean = true
 
 }

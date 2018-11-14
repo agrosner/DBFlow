@@ -40,4 +40,10 @@ annotation class ModelView(
          * @return The higher the number, the order by which the creation of this class gets called.
          * Useful for creating ones that depend on another [ModelView].
          */
-        val priority: Int = 0)
+        val priority: Int = 0,
+
+        /**
+         * @return When false, this view gets generated and associated with database, however it will not immediately
+         * get created upon startup. This is useful for keeping around legacy tables for migrations.
+         */
+        val createWithDatabase: Boolean = true)
