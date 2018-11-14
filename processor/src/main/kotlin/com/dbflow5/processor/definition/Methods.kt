@@ -5,6 +5,7 @@ import com.dbflow5.annotation.VirtualTable
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnDefinition
+import com.dbflow5.processor.definition.column.modelBlock
 import com.dbflow5.processor.definition.column.wrapperCommaIfBaseModel
 import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.`override fun`
@@ -251,7 +252,8 @@ class VirtualCreationMethod(private val virtualTableDefinition: VirtualTableDefi
 
     override val methodSpec: MethodSpec?
         get() = `override fun`(String::class, "getCreationQuery") {
-            addCode(codeBlock {
+            modifiers(public, final)
+            addCode("return ${codeBlock {
                 add("CREATE VIRTUAL TABLE IF NOT EXISTS ${virtualTableDefinition.associationalBehavior.name.quote()} USING ")
                 when (virtualTableDefinition.type) {
                     VirtualTable.Type.FTS4 -> {
@@ -260,7 +262,7 @@ class VirtualCreationMethod(private val virtualTableDefinition: VirtualTableDefi
                 }
                 add("(")
                 // FTS4 uses column names directly.
-                add(virtualTableDefinition.columnDefinitions.joinToString { it.columnName })
+                add(virtualTableDefinition.columnDefinitions.joinToString { it.columnName.quote() })
                 virtualTableDefinition.contentTableDefinition?.let { tableDefinition ->
                     if (virtualTableDefinition.columnDefinitions.isNotEmpty()) {
                         add(", ")
@@ -268,7 +270,7 @@ class VirtualCreationMethod(private val virtualTableDefinition: VirtualTableDefi
                     add(tableDefinition.associationalBehavior.name.quote())
                 }
                 add(")")
-            })
+            }.S};\n")
         }
 }
 
@@ -317,11 +319,24 @@ class ExistenceMethod(private val tableDefinition: EntityDefinition) : MethodDef
             modifiers(public, final)
             code {
                 // only quick check if enabled.
-                var primaryColumn = tableDefinition.primaryKeyColumnBehavior.associatedColumn
-                if (primaryColumn == null) {
-                    primaryColumn = tableDefinition.primaryColumnDefinitions[0]
+                if (tableDefinition.primaryColumnDefinitions.isNotEmpty()) {
+                    var primaryColumn = tableDefinition.primaryKeyColumnBehavior.associatedColumn
+                    if (primaryColumn == null) {
+                        primaryColumn = tableDefinition.primaryColumnDefinitions[0]
+                    }
+                    primaryColumn.appendExistenceMethod(this)
+                } else {
+                    when (tableDefinition) {
+                        is QueryModelDefinition, is VirtualTableDefinition -> {
+                            add(codeBlock {
+                                add("return \$T.selectCountOf()\n.from(\$T.class)\n" +
+                                    ".where(getPrimaryConditionClause(\$L))\n" +
+                                    ".hasData(wrapper);\n",
+                                    ClassNames.SQLITE, tableDefinition.elementClassName, modelBlock)
+                            })
+                        }
+                    }
                 }
-                primaryColumn.appendExistenceMethod(this)
                 this
             }
         }

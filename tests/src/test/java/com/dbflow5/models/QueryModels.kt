@@ -26,4 +26,4 @@ class CustomBlobModel(@Column var myBlob: MyBlob? = null) {
 }
 
 @QueryModel(database = TestDatabase::class, allFields = true)
-class AllFieldsQueryModel(var model: String? = null)
+class AllFieldsQueryModel(var fieldModel: String? = null)

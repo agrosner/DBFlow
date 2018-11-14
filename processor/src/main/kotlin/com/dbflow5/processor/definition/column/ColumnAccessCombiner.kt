@@ -1,5 +1,6 @@
 package com.dbflow5.processor.definition.column
 
+import com.dbflow5.processor.ClassNames
 import com.grosner.kpoet.S
 import com.grosner.kpoet.`else`
 import com.grosner.kpoet.`if`
@@ -117,7 +118,7 @@ class ExistenceAccessCombiner(combiner: Combiner,
                 add("\$T.selectCountOf()\n.from(\$T.class)\n" +
                         ".where(getPrimaryConditionClause(\$L))\n" +
                         ".hasData(wrapper)",
-                        com.dbflow5.processor.ClassNames.SQLITE, tableClassName, modelBlock)
+                        ClassNames.SQLITE, tableClassName, modelBlock)
             }
             add(";\n")
         }
@@ -293,7 +294,7 @@ class PrimaryReferenceAccessCombiner(combiner: Combiner)
 
     override fun addNull(code: CodeBlock.Builder, columnRepresentation: String, index: Int) {
         code.addStatement("clause.and(\$L.eq((\$T) \$L))", columnRepresentation,
-                com.dbflow5.processor.ClassNames.ICONDITIONAL, "null")
+                ClassNames.ICONDITIONAL, "null")
     }
 }
 
@@ -335,7 +336,7 @@ class SaveModelAccessCombiner(combiner: Combiner,
                     statement("$access.save(${wrapperIfBaseModel(extendsBaseModel)})")
                 } else {
                     statement("\$T.getModelAdapter(\$T.class).save($access, ${ModelUtils.wrapper})",
-                            com.dbflow5.processor.ClassNames.FLOW_MANAGER, fieldTypeName)
+                            ClassNames.FLOW_MANAGER, fieldTypeName)
                 }
             }.end()
         }
@@ -356,7 +357,7 @@ class DeleteModelAccessCombiner(combiner: Combiner,
                     statement("$access.delete(${wrapperIfBaseModel(extendsBaseModel)})")
                 } else {
                     statement("\$T.getModelAdapter(\$T.class).delete($access, ${ModelUtils.wrapper})",
-                            com.dbflow5.processor.ClassNames.FLOW_MANAGER, fieldTypeName)
+                            ClassNames.FLOW_MANAGER, fieldTypeName)
                 }
             }.end()
         }

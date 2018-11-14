@@ -26,7 +26,9 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
                            processorManager: ProcessorManager)
     : EntityDefinition(typeElement, processorManager) {
 
-    override val methods: Array<MethodDefinition> = arrayOf(LoadFromCursorMethod(this))
+    override val methods: Array<MethodDefinition> = arrayOf(LoadFromCursorMethod(this),
+        ExistenceMethod(this),
+        PrimaryConditionMethod(this))
 
     constructor(queryModel: QueryModel, typeElement: TypeElement,
                 processorManager: ProcessorManager) : this(
@@ -114,8 +116,7 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
         }
     }
 
-    override // Shouldn't include any
-    val primaryColumnDefinitions: List<ColumnDefinition>
-        get() = arrayListOf()
+    override val primaryColumnDefinitions: List<ColumnDefinition>
+        get() = columnDefinitions
 
 }

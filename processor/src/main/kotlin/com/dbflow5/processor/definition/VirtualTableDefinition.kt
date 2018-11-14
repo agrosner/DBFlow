@@ -28,6 +28,7 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
     private val createWithDatabase: Boolean = virtualTable.createWithDatabase
     val type: VirtualTable.Type = virtualTable.type
     var contentTableDefinition: TableDefinition? = null
+    val contentTableClassName = virtualTable.extractTypeNameFromAnnotation { it.contentTable }
 
     override val associationalBehavior = AssociationalBehavior(
         name = if (virtualTable.name.isNullOrEmpty()) typeElement.simpleName.toString() else virtualTable.name,
@@ -81,9 +82,8 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
         }
     }
 
-    override // Shouldn't include any
-    val primaryColumnDefinitions: List<ColumnDefinition>
-        get() = arrayListOf()
+    override val primaryColumnDefinitions: List<ColumnDefinition>
+        get() = columnDefinitions
 
     override fun prepareForWriteInternal() {
         typeElement?.let { createColumnDefinitions(typeElement) }
@@ -94,10 +94,16 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
+            elementClassName?.let { elementClassName ->
+                columnDefinitions.forEach { it.addPropertyDefinition(this, elementClassName) }
+            }
+
             writeGetModelClass(this, elementClassName)
             this.writeConstructor()
-
-
+            methods.mapNotNull { it.methodSpec }
+                .forEach { addMethod(it) }
         }
+
+
     }
 }

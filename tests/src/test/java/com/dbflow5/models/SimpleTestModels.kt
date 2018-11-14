@@ -262,5 +262,5 @@ class UniqueModel(@PrimaryKey var id: String = "",
 @Table(database = TestDatabase::class)
 class Fts4Model(@PrimaryKey var name: String = "")
 
-@VirtualTable(type = VirtualTable.Type.FTS4, database = TestDatabase::class)
+@VirtualTable(type = VirtualTable.Type.FTS4, database = TestDatabase::class, contentTable = Fts4Model::class)
 class Fts4VirtualModel(var name: String = "")
