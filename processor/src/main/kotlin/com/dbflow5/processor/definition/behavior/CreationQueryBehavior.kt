@@ -16,10 +16,12 @@ import com.squareup.javapoet.TypeSpec
 data class CreationQueryBehavior(val createWithDatabase: Boolean) : TypeAdder {
 
     override fun addToType(typeBuilder: TypeSpec.Builder) {
-        if (!createWithDatabase) {
-            `override fun`(TypeName.BOOLEAN, "createWithDatabase") {
-                modifiers(public, final)
-                `return`(false.L)
+        typeBuilder.apply {
+            if (!createWithDatabase) {
+                `override fun`(TypeName.BOOLEAN, "createWithDatabase") {
+                    modifiers(public, final)
+                    `return`(false.L)
+                }
             }
         }
     }
