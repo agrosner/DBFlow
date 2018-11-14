@@ -60,7 +60,7 @@ import javax.lang.model.element.TypeElement
 /**
  * Description: Used in writing ModelAdapters
  */
-class TableDefinition(table: Table,
+class TableDefinition(private val table: Table,
                       manager: ProcessorManager, element: TypeElement)
     : EntityDefinition(element, manager) {
 
@@ -129,6 +129,8 @@ class TableDefinition(table: Table,
         customMultiCacheFieldName = null)
 
     init {
+        setOutputClassName("_Table")
+
         manager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
 
         val inheritedColumns = table.inheritedColumns
@@ -173,58 +175,52 @@ class TableDefinition(table: Table,
         oneToManyDefinitions.clear()
         cachingBehavior.clear()
 
-        val table = element.getAnnotation(Table::class.java)
-        if (table != null) {
-            setOutputClassName("_Table")
-
-            // globular default
-            var insertConflict = table.insertConflict
-            if (insertConflict == ConflictAction.NONE && databaseDefinition.insertConflict != ConflictAction.NONE) {
-                insertConflict = databaseDefinition.insertConflict
-            }
-
-            var updateConflict = table.updateConflict
-            if (updateConflict == ConflictAction.NONE && databaseDefinition.updateConflict != ConflictAction.NONE) {
-                updateConflict = databaseDefinition.updateConflict
-            }
-
-            val primaryKeyConflict = table.primaryKeyConflict
-
-            insertConflictActionName = if (insertConflict == ConflictAction.NONE) "" else insertConflict.name
-            updateConflictActionName = if (updateConflict == ConflictAction.NONE) "" else updateConflict.name
-            primaryKeyConflictActionName = if (primaryKeyConflict == ConflictAction.NONE) "" else primaryKeyConflict.name
-
-            typeElement?.let { createColumnDefinitions(it) }
-
-            val groups = table.uniqueColumnGroups
-            var uniqueNumbersSet: MutableSet<Int> = hashSetOf()
-            for (uniqueGroup in groups) {
-                if (uniqueNumbersSet.contains(uniqueGroup.groupNumber)) {
-                    manager.logError("A duplicate unique group with number" +
-                        " ${uniqueGroup.groupNumber} was found for ${associationalBehavior.name}")
-                }
-                val definition = UniqueGroupsDefinition(uniqueGroup)
-                columnDefinitions.filter { it.uniqueGroups.contains(definition.number) }
-                    .forEach { definition.addColumnDefinition(it) }
-                uniqueGroupsDefinitions.add(definition)
-                uniqueNumbersSet.add(uniqueGroup.groupNumber)
-            }
-
-            val indexGroups = table.indexGroups
-            uniqueNumbersSet = hashSetOf()
-            for (indexGroup in indexGroups) {
-                if (uniqueNumbersSet.contains(indexGroup.number)) {
-                    manager.logError(TableDefinition::class, "A duplicate unique index number" +
-                        " ${indexGroup.number} was found for $elementName")
-                }
-                val definition = IndexGroupsDefinition(this, indexGroup)
-                columnDefinitions.filter { it.indexGroups.contains(definition.indexNumber) }
-                    .forEach { definition.columnDefinitionList.add(it) }
-                indexGroupsDefinitions.add(definition)
-                uniqueNumbersSet.add(indexGroup.number)
-            }
+        // globular default
+        var insertConflict = table.insertConflict
+        if (insertConflict == ConflictAction.NONE && databaseDefinition.insertConflict != ConflictAction.NONE) {
+            insertConflict = databaseDefinition.insertConflict
         }
 
+        var updateConflict = table.updateConflict
+        if (updateConflict == ConflictAction.NONE && databaseDefinition.updateConflict != ConflictAction.NONE) {
+            updateConflict = databaseDefinition.updateConflict
+        }
+
+        val primaryKeyConflict = table.primaryKeyConflict
+
+        insertConflictActionName = if (insertConflict == ConflictAction.NONE) "" else insertConflict.name
+        updateConflictActionName = if (updateConflict == ConflictAction.NONE) "" else updateConflict.name
+        primaryKeyConflictActionName = if (primaryKeyConflict == ConflictAction.NONE) "" else primaryKeyConflict.name
+
+        typeElement?.let { createColumnDefinitions(it) }
+
+        val groups = table.uniqueColumnGroups
+        var uniqueNumbersSet: MutableSet<Int> = hashSetOf()
+        for (uniqueGroup in groups) {
+            if (uniqueNumbersSet.contains(uniqueGroup.groupNumber)) {
+                manager.logError("A duplicate unique group with number" +
+                    " ${uniqueGroup.groupNumber} was found for ${associationalBehavior.name}")
+            }
+            val definition = UniqueGroupsDefinition(uniqueGroup)
+            columnDefinitions.filter { it.uniqueGroups.contains(definition.number) }
+                .forEach { definition.addColumnDefinition(it) }
+            uniqueGroupsDefinitions.add(definition)
+            uniqueNumbersSet.add(uniqueGroup.groupNumber)
+        }
+
+        val indexGroups = table.indexGroups
+        uniqueNumbersSet = hashSetOf()
+        for (indexGroup in indexGroups) {
+            if (uniqueNumbersSet.contains(indexGroup.number)) {
+                manager.logError(TableDefinition::class, "A duplicate unique index number" +
+                    " ${indexGroup.number} was found for $elementName")
+            }
+            val definition = IndexGroupsDefinition(this, indexGroup)
+            columnDefinitions.filter { it.indexGroups.contains(definition.indexNumber) }
+                .forEach { definition.columnDefinitionList.add(it) }
+            indexGroupsDefinitions.add(definition)
+            uniqueNumbersSet.add(indexGroup.number)
+        }
     }
 
     override fun createColumnDefinitions(typeElement: TypeElement) {
