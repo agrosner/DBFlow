@@ -45,14 +45,14 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     private val migrations = hashMapOf<TypeName?, MutableMap<Int, MutableList<MigrationDefinition>>>()
 
     private val databaseDefinitionMap = hashMapOf<TypeName?, DatabaseObjectHolder>()
-    private val handlers = mutableSetOf<BaseContainerHandler<*>>()
+    private val handlers = mutableSetOf<AnnotatedHandler<*>>()
     private val providerMap = hashMapOf<TypeName?, ContentProviderDefinition>()
 
     init {
         manager = this
     }
 
-    fun addHandlers(vararg containerHandlers: BaseContainerHandler<*>) {
+    fun addHandlers(vararg containerHandlers: AnnotatedHandler<*>) {
         containerHandlers.forEach { handlers.add(it) }
     }
 
