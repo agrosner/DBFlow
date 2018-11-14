@@ -54,6 +54,8 @@ open class Property<T>(override val table: Class<*>?,
     override val query: String
         get() = nameAlias.query
 
+    override fun toString(): String = nameAlias.toString()
+
     override fun `is`(conditional: IConditional): Operator<*> = operator.`is`(conditional)
 
     override fun eq(conditional: IConditional): Operator<*> = operator.eq(conditional)
