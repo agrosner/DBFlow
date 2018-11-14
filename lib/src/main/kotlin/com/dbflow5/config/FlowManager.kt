@@ -8,6 +8,7 @@ import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ModelViewAdapter
 import com.dbflow5.adapter.QueryModelAdapter
 import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.adapter.VirtualTableAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.database.DatabaseWrapper
@@ -78,7 +79,8 @@ object FlowManager {
     fun getTableName(table: Class<*>): String {
         return getModelAdapterOrNull(table)?.tableName
                 ?: getModelViewAdapterOrNull(table)?.viewName
-                ?: throwCannotFindAdapter("ModelAdapter/ModelViewAdapter", table)
+                ?: getVirtualTableAdapterOrNull(table)?.tableName
+                ?: throwCannotFindAdapter("ModelAdapter/ModelViewAdapter/VirtualAdapter", table)
     }
 
     /**
@@ -311,9 +313,8 @@ object FlowManager {
         var retrievalAdapter: RetrievalAdapter<T>? = getModelAdapterOrNull(modelClass)
         if (retrievalAdapter == null) {
             retrievalAdapter = getModelViewAdapterOrNull(modelClass)
-            if (retrievalAdapter == null) {
-                retrievalAdapter = getQueryModelAdapterOrNull(modelClass)
-            }
+                    ?: getQueryModelAdapterOrNull(modelClass)
+                    ?: getVirtualTableAdapterOrNull(modelClass)
         }
         return retrievalAdapter ?: throwCannotFindAdapter("RetrievalAdapter", modelClass)
     }
@@ -343,7 +344,7 @@ object FlowManager {
                     ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
 
     /**
-     * Returns the query model adapter for an undefined cursor. These are only created with the [T] annotation.
+     * Returns the query model adapter for the model class. These are only created with the [T] annotation.
      *
      * @param queryModelClass The class of the query
      * @param [T]  The class that extends [BaseQueryModel]
@@ -353,6 +354,18 @@ object FlowManager {
     fun <T : Any> getQueryModelAdapter(queryModelClass: Class<T>): QueryModelAdapter<T> =
             getQueryModelAdapterOrNull(queryModelClass)
                     ?: throwCannotFindAdapter("QueryModelAdapter", queryModelClass)
+
+    /**
+     * Returns the virtual table adapter for the model class. These are only created with the [T] annotation.
+     *
+     * @param virtualTableClass The class of the query
+     * @param [T]  The class that extends [BaseQueryModel]
+     * @return The query model adapter for the specified model cursor.
+     */
+    @JvmStatic
+    fun <T : Any> getVirtualTableAdapter(virtualTableClass: Class<T>): VirtualTableAdapter<T> =
+            getVirtualTableAdapterOrNull(virtualTableClass)
+                    ?: throwCannotFindAdapter("VirtualTableAdapter", virtualTableClass)
 
     @JvmStatic
     fun getModelNotifierForTable(table: Class<*>): ModelNotifier =
@@ -367,6 +380,9 @@ object FlowManager {
 
     private fun <T : Any> getModelViewAdapterOrNull(modelClass: Class<T>): ModelViewAdapter<T>? =
             getDatabaseForTable(modelClass).getModelViewAdapterForTable(modelClass)
+
+    private fun <T : Any> getVirtualTableAdapterOrNull(modelClass: Class<T>): VirtualTableAdapter<T>? =
+            getDatabaseForTable(modelClass).getVirtualTableAdapterForQueryClass(modelClass)
 
     private fun <T : Any> getQueryModelAdapterOrNull(modelClass: Class<T>): QueryModelAdapter<T>? =
             getDatabaseForTable(modelClass).getQueryModelAdapterForQueryClass(modelClass)

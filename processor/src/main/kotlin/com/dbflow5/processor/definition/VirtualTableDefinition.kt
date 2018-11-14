@@ -128,6 +128,7 @@ class VirtualTableDefinition(virtualTable: VirtualTable,
             creationQueryBehavior.addToType(this)
 
             writeGetModelClass(this, elementClassName)
+            associationalBehavior.writeTableName(this)
             this.writeConstructor()
             methods.mapNotNull { it.methodSpec }
                     .forEach { addMethod(it) }

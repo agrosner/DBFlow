@@ -4,10 +4,18 @@ import com.dbflow5.annotation.ModelCacheField
 import com.dbflow5.annotation.MultiCacheField
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.ensureVisibleStatic
 import com.dbflow5.processor.utils.isNullOrEmpty
+import com.dbflow5.quote
+import com.grosner.kpoet.S
+import com.grosner.kpoet.`return`
+import com.grosner.kpoet.final
+import com.grosner.kpoet.modifiers
+import com.grosner.kpoet.public
 import com.squareup.javapoet.TypeName
+import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 
@@ -28,7 +36,17 @@ data class AssociationalBehavior(
          * The only required annotated field becomes The [PrimaryKey]
          * or [PrimaryKey.autoincrement].
          */
-        val allFields: Boolean)
+        val allFields: Boolean) {
+
+    fun writeTableName(typeSpec: TypeSpec.Builder) {
+        typeSpec.apply {
+            `override fun`(String::class, "getTableName") {
+                modifiers(public, final)
+                `return`(name.quote().S)
+            }
+        }
+    }
+}
 
 
 /**

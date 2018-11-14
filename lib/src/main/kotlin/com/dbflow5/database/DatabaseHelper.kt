@@ -26,6 +26,7 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
 
         // views reflect current db state.
         executeViewCreations(db)
+        executeVirtualTableCreations(db)
     }
 
     open fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
@@ -39,6 +40,7 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
 
         // views reflect current db state.
         executeViewCreations(db)
+        executeVirtualTableCreations(db)
     }
 
     open fun onOpen(db: DatabaseWrapper) {
@@ -60,22 +62,17 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
     }
 
     protected fun executeTableCreations(database: DatabaseWrapper) {
-        try {
-            database.beginTransaction()
-            val modelAdapters = databaseDefinition.getModelAdapters()
-            modelAdapters
+        database.executeTransaction {
+            databaseDefinition.modelAdapters
                     .asSequence()
                     .filter { it.createWithDatabase() }
                     .forEach {
                         try {
-                            database.execSQL(it.creationQuery)
+                            execSQL(it.creationQuery)
                         } catch (e: SQLiteException) {
                             FlowLog.logError(e)
                         }
                     }
-            database.setTransactionSuccessful()
-        } finally {
-            database.endTransaction()
         }
     }
 
@@ -83,19 +80,36 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
      * This method executes CREATE TABLE statements as well as CREATE VIEW on the database passed.
      */
     protected fun executeViewCreations(database: DatabaseWrapper) {
-        try {
-            database.beginTransaction()
-            val modelViews = databaseDefinition.modelViewAdapters
-            modelViews.forEach {
-                try {
-                    database.execSQL(it.creationQuery)
-                } catch (e: SQLiteException) {
-                    FlowLog.logError(e)
-                }
-            }
-            database.setTransactionSuccessful()
-        } finally {
-            database.endTransaction()
+        database.executeTransaction {
+            databaseDefinition.modelViewAdapters
+                    .asSequence()
+                    .filter { it.createWithDatabase() }
+                    .forEach {
+                        try {
+                            execSQL(it.creationQuery)
+                        } catch (e: SQLiteException) {
+                            FlowLog.logError(e)
+                        }
+
+                    }
+        }
+    }
+
+    /**
+     * This method executes CREATE TABLE statements as well as CREATE VIEW on the database passed.
+     */
+    protected fun executeVirtualTableCreations(database: DatabaseWrapper) {
+        database.executeTransaction {
+            databaseDefinition.virtualTableAdapters
+                    .asSequence()
+                    .filter { it.createWithDatabase() }
+                    .forEach {
+                        try {
+                            execSQL(it.creationQuery)
+                        } catch (e: SQLiteException) {
+                            FlowLog.logError(e)
+                        }
+                    }
         }
     }
 

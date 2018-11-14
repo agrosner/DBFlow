@@ -31,7 +31,6 @@ import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.isNullOrEmpty
-import com.dbflow5.quote
 import com.grosner.kpoet.L
 import com.grosner.kpoet.S
 import com.grosner.kpoet.`=`
@@ -365,11 +364,7 @@ class TableDefinition(private val table: Table,
 
             writeGetModelClass(this, elementClassName)
             this.writeConstructor()
-
-            `override fun`(String::class, "getTableName") {
-                modifiers(public, final)
-                `return`(associationalBehavior.name.quote().S)
-            }
+            associationalBehavior.writeTableName(this)
 
             if (updateConflictActionName.isNotEmpty()) {
                 `override fun`(ClassNames.CONFLICT_ACTION, "getUpdateOnConflictAction") {
