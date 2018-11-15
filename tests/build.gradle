@@ -44,7 +44,6 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
-    kapt project("${dbflow_project_prefix}processor")
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation project("${dbflow_project_prefix}lib")
     implementation project("${dbflow_project_prefix}sqlcipher")
@@ -54,14 +53,13 @@ dependencies {
     implementation project("${dbflow_project_prefix}paging")
     implementation project("${dbflow_project_prefix}livedata")
 
-    kaptTest project("${dbflow_project_prefix}processor")
     kaptAndroidTest project("${dbflow_project_prefix}processor")
 
     androidTestImplementation deps.javax_annotation
     androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC3") {
         exclude group: "org.jetbrains.kotlin"
     }
-    androidTestImplementation 'org.mockito:mockito-core:2.23.0'
+    androidTestImplementation "org.mockito:mockito-android:2.23.0"
 
     androidTestImplementation deps.junit
     androidTestImplementation "androidx.test:core:1.0.0"
