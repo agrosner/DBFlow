@@ -88,7 +88,6 @@ observer.registerForContentChanges(context, User::class.java)
 db.beginTransactionAsync(users.fastInsert().build())
     .execute(ready = { observer.beginTransaction() },
     completion = { observer.endTransactionAndNotify() })
-
 ```
 
 Batch interactions will store up all unique `Uri` for each action \(these include `@Primary` key of the `Model` changed\). When `endTransactionAndNotify()` is called, all those `Uri` are called in the `onChange()` method from the `FlowContentObserver` as expected.

@@ -46,11 +46,10 @@ And adjust our query to handle the new output:
                 EmployeeModel_Table.title)
   from EmployeeModel::class)
   .groupBy(EmployeeModel_Table.department, EmployeeModel_Table.title)
-  .async(database) { it.queryCustomList<AverageSalary>() }
+  .async(database) { it.customList<AverageSalary>() }
   .execute { transaction, list ->
       // utilize list
   }
-
 ```
 
 ## Query Model Support
@@ -59,8 +58,5 @@ And adjust our query to handle the new output:
 
 They support inheritance and visibility modifiers as defined by [Models](../usage/models.md).
 
-`QueryModel` **do not** support:
-  1. `InheritedField`/`InheritedPrimaryKey`
-  2. `@PrimaryKey`/`@ForeignKey`
-  3. direct caching.
-  4. changing "useBooleanGetterSetters" for private boolean fields.
+`QueryModel` **do not** support: 1. `InheritedField`/`InheritedPrimaryKey` 2. `@PrimaryKey`/`@ForeignKey` 3. direct caching. 4. changing "useBooleanGetterSetters" for private boolean fields.
+

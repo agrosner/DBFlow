@@ -114,7 +114,7 @@ class Migration2 : AlterTableMigration<AModel>(AModel::class.java) {
 
 ### Index Migrations
 
-An `IndexMigration` \(and `IndexPropertyMigration`\) is used to structurally activate an `Index` on the database at a specific version. See [here](../../advanced-usage/indexing.md) for information on creating them.
+An `IndexMigration` \(and `IndexPropertyMigration`\) is used to structurally activate an `Index` on the database at a specific version. See [here](../advanced-usage/indexing.md) for information on creating them.
 
 `IndexMigration` does not require an `IndexProperty` to run, while `IndexPropertyMigration` makes use of the property to run.
 

@@ -4,7 +4,7 @@ DBFlow provides a few ways to retrieve information from the database. Through th
 
 DBFlow provides a few different ways to retrieve information from the database. We can retrieve synchronously or asynchronous \(preferred\).
 
-We can also use `ModelView` \([read here](modelviews.md)\) and `@Index` \([read here](../../advanced-usage/indexing.md)\) to perform faster retrieval on a set of data constantly queried.
+We can also use `ModelView` \([read here](modelviews.md)\) and `@Index` \([read here](../advanced-usage/indexing.md)\) to perform faster retrieval on a set of data constantly queried.
 
 ## Synchronous Retrieval
 
@@ -14,25 +14,25 @@ Using the [SQLite query language](sqlitewrapperlanguage.md) we can retrieve data
 databaseForTable<Employee> { db ->
     // list
     val employees = (select from Employee::class).queryList(db)
-    
+
     // single result, we apply a limit(1) automatically to get the result even faster.
     val employee: Employee? = (select from Employee::class
                             where Employee_Table.name.eq("Andrew Grosner")).querySingle(db)
-    
+
     // can require result to get non-null if you know it exists
     // throws a SQLiteException if missing
     val employee: Employee? = (select from Employee::class
                             where Employee_Table.name.eq("Andrew Grosner")).requireSingle(db)
-    
+
     // get a custom list
     val employees: List<AnotherTable> = (select from Employee::class)
                     .queryCustomList(database)
-    
+
     // custom object
     val anotherObject: AnotherTable? = (select from Employee::class
                             where(Employee_Table.name.eq("Andrew Grosner")))
                             .queryCustomSingle()
-                            
+
     // require custom object
     val anotherObject: AnotherTable = (select from Employee::class
                             where(Employee_Table.name.eq("Andrew Grosner")))
@@ -40,9 +40,9 @@ databaseForTable<Employee> { db ->
 }
 ```
 
-To query custom objects or lists, see how to do so in [QueryModel](../../advanced-usage/querymodels.md).
+To query custom objects or lists, see how to do so in [QueryModel](../advanced-usage/querymodels.md).
 
-Also you can query a `FlowCursorList`/`FlowTableList` from a query easily via `queryCursorList()` and the `queryTableList()` methods. To see more on these, go to [Flow Lists](../../advanced-usage/listbasedqueries.md).
+Also you can query a `FlowCursorList`/`FlowTableList` from a query easily via `queryCursorList()` and the `queryTableList()` methods. To see more on these, go to [Flow Lists](../advanced-usage/listbasedqueries.md).
 
 ## Asynchronous Retrieval
 
