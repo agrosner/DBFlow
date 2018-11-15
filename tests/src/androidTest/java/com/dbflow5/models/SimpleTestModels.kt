@@ -6,13 +6,13 @@ import com.dbflow5.annotation.ColumnIgnore
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.ForeignKeyAction
+import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.Unique
 import com.dbflow5.annotation.UniqueGroup
-import com.dbflow5.annotation.VirtualTable
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.data.Blob
 import com.dbflow5.database.DatabaseStatement
@@ -100,18 +100,18 @@ class FeedEntry(@PrimaryKey var id: Int = 0,
 
 @Table(database = TestDatabase::class)
 @ManyToMany(
-    generatedTableClassName = "Refund", referencedTable = Transfer::class,
-    referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
-    saveForeignKeyModels = true
+        generatedTableClassName = "Refund", referencedTable = Transfer::class,
+        referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
+        saveForeignKeyModels = true
 )
 data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
 data class Transfer2(
-    @PrimaryKey
-    var id: UUID = UUID.randomUUID(),
-    @ForeignKey(stubbedRelationship = true)
-    var origin: Account? = null
+        @PrimaryKey
+        var id: UUID = UUID.randomUUID(),
+        @ForeignKey(stubbedRelationship = true)
+        var origin: Account? = null
 )
 
 @Table(database = TestDatabase::class)
@@ -262,5 +262,6 @@ class UniqueModel(@PrimaryKey var id: String = "",
 @Table(database = TestDatabase::class)
 class Fts4Model(@PrimaryKey var name: String = "")
 
-@VirtualTable(type = VirtualTable.Type.FTS4, database = TestDatabase::class, contentTable = Fts4Model::class)
-class Fts4VirtualModel(var name: String = "")
+@Table(database = TestDatabase::class)
+@Fts4(contentTable = Fts4Model::class)
+class Fts4VirtualModel2(var name: String = "")

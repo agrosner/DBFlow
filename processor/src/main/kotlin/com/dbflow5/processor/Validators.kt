@@ -222,7 +222,7 @@ class TableValidator : Validator<TableDefinition> {
                 || !validatorDefinition.primaryKeyColumnBehavior.hasAutoIncrement
                 && !validatorDefinition.primaryKeyColumnBehavior.hasRowID
                 && !validatorDefinition._primaryColumnDefinitions.isEmpty()
-        if (!hasPrimary) {
+        if (!hasPrimary && validatorDefinition.type == TableDefinition.Type.Normal) {
             processorManager.logError(TableValidator::class, "Table ${validatorDefinition.associationalBehavior.name} " +
                     "needs to define at least one primary key")
             success = false

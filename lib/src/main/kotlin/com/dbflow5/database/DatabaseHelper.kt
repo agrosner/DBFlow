@@ -26,7 +26,6 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
 
         // views reflect current db state.
         executeViewCreations(db)
-        executeVirtualTableCreations(db)
     }
 
     open fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
@@ -40,7 +39,6 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
 
         // views reflect current db state.
         executeViewCreations(db)
-        executeVirtualTableCreations(db)
     }
 
     open fun onOpen(db: DatabaseWrapper) {
@@ -91,24 +89,6 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
                             FlowLog.logError(e)
                         }
 
-                    }
-        }
-    }
-
-    /**
-     * This method executes CREATE TABLE statements as well as CREATE VIEW on the database passed.
-     */
-    protected fun executeVirtualTableCreations(database: DatabaseWrapper) {
-        database.executeTransaction {
-            databaseDefinition.virtualTableAdapters
-                    .asSequence()
-                    .filter { it.createWithDatabase() }
-                    .forEach {
-                        try {
-                            execSQL(it.creationQuery)
-                        } catch (e: SQLiteException) {
-                            FlowLog.logError(e)
-                        }
                     }
         }
     }

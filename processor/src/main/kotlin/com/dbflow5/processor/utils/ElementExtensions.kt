@@ -6,6 +6,7 @@ import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
+import kotlin.reflect.KClass
 
 // element extensions
 
@@ -39,3 +40,6 @@ fun Element?.toClassName(manager: ProcessorManager = ProcessorManager.manager): 
         else -> ElementUtility.getClassName(asType().toString(), manager)
     }
 }
+
+fun TypeName?.isOneOf(vararg kClass: KClass<*>): Boolean = this?.let { kClass.any { clazz -> TypeName.get(clazz.java) == this } }
+        ?: false

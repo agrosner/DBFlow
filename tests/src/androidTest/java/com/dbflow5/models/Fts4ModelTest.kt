@@ -20,7 +20,7 @@ class Fts4ModelTest : BaseUnitTest() {
             val model = Fts4Model(name = "FTSBABY")
             model.save(db)
 
-            val rows = insert<Fts4VirtualModel>(propertyString<Any>("Fts4VirtualModel".quote()))
+            val rows = insert<Fts4VirtualModel2>(propertyString<Any>("Fts4VirtualModel2".quote()))
                     .values("rebuild")
                     .executeInsert(db)
             assert(rows > 0)

@@ -4,14 +4,12 @@ import androidx.annotation.WorkerThread
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ModelViewAdapter
 import com.dbflow5.adapter.QueryModelAdapter
-import com.dbflow5.adapter.VirtualTableAdapter
 import com.dbflow5.adapter.queriable.ListModelLoader
 import com.dbflow5.adapter.queriable.SingleModelLoader
 import com.dbflow5.adapter.saveable.ModelSaver
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
-import com.dbflow5.annotation.VirtualTable
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseStatement
@@ -43,8 +41,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     private val modelViewAdapterMap = linkedMapOf<Class<*>, ModelViewAdapter<*>>()
 
     private val queryModelAdapterMap = linkedMapOf<Class<*>, QueryModelAdapter<*>>()
-
-    private val virtualTableAdapterMap = linkedMapOf<Class<*>, VirtualTableAdapter<*>>()
 
     /**
      * The helper that manages database changes and initialization
@@ -86,13 +82,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     val modelViewAdapters: List<ModelViewAdapter<*>>
         get() = modelViewAdapterMap.values.toList()
-
-    /**
-     * @return The list of [VirtualTableAdapter]. Internal method for
-     * creating virtual tables in the DB at creation time.
-     */
-    val virtualTableAdapters: List<VirtualTableAdapter<*>>
-        get() = virtualTableAdapterMap.values.toList()
 
     /**
      * @return The list of [QueryModelAdapter]. Internal method for creating query models in the DB.
@@ -223,11 +212,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         queryModelAdapterMap[queryModelAdapter.table] = queryModelAdapter
     }
 
-    protected fun <T : Any> addVirtualTableAdapter(virtualTableAdapter: VirtualTableAdapter<T>, holder: DatabaseHolder) {
-        holder.putDatabaseForTable(virtualTableAdapter.table, this)
-        virtualTableAdapterMap[virtualTableAdapter.table] = virtualTableAdapter
-    }
-
     protected fun addMigration(version: Int, migration: Migration) {
         val list = migrationMap.getOrPut(version) { arrayListOf() }
         list += migration
@@ -276,14 +260,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getQueryModelAdapterForQueryClass(queryModel: Class<T>): QueryModelAdapter<T>? =
             queryModelAdapterMap[queryModel] as QueryModelAdapter<T>?
-
-    /**
-     * @param virtualTableClass The [VirtualTable] class
-     * @return The adapter that corresponds to the specified class.
-     */
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getVirtualTableAdapterForQueryClass(virtualTableClass: Class<T>): VirtualTableAdapter<T>? =
-            virtualTableAdapterMap[virtualTableClass] as VirtualTableAdapter<T>?
 
     fun getModelNotifier(): ModelNotifier {
         var notifier = modelNotifier

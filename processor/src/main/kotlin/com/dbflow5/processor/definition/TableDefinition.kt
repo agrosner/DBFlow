@@ -4,6 +4,7 @@ import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKey
+import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.InheritedColumn
 import com.dbflow5.annotation.InheritedPrimaryKey
 import com.dbflow5.annotation.OneToMany
@@ -19,6 +20,7 @@ import com.dbflow5.processor.definition.behavior.AssociationalBehavior
 import com.dbflow5.processor.definition.behavior.CachingBehavior
 import com.dbflow5.processor.definition.behavior.CreationQueryBehavior
 import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
+import com.dbflow5.processor.definition.behavior.FTS4Behavior
 import com.dbflow5.processor.definition.behavior.PrimaryKeyColumnBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.definition.column.DefinitionUtils
@@ -63,6 +65,17 @@ import javax.lang.model.element.TypeElement
 class TableDefinition(private val table: Table,
                       manager: ProcessorManager, element: TypeElement)
     : EntityDefinition(element, manager) {
+
+    enum class Type {
+        Normal,
+        FTS4;
+
+        val isVirtual: Boolean
+            get() = when (this) {
+                Normal -> false
+                else -> true
+            }
+    }
 
     var insertConflictActionName: String = ""
 
@@ -128,10 +141,31 @@ class TableDefinition(private val table: Table,
             customCacheFieldName = null,
             customMultiCacheFieldName = null)
 
+    val type: Type
+
+    val ftS4Behavior: FTS4Behavior?
+
     init {
         setOutputClassName("_Table")
 
         manager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
+
+        val fts4 = element.annotation<Fts4>()
+
+        type = when {
+            fts4 != null -> {
+                Type.FTS4
+            }
+            else -> Type.Normal
+        }
+
+        ftS4Behavior = when {
+            fts4 != null -> FTS4Behavior(contentTable = fts4.extractTypeNameFromAnnotation { it.contentTable },
+                    databaseTypeName = associationalBehavior.databaseTypeName,
+                    elementName = elementName,
+                    manager = manager)
+            else -> null
+        }
 
         val inheritedColumns = table.inheritedColumns
         inheritedColumns.forEach {
@@ -307,16 +341,18 @@ class TableDefinition(private val table: Table,
                         }
                     }
 
-                    primaryKeyColumnBehavior.associatedColumn?.let {
+                    primaryKeyColumnBehavior.associatedColumn?.let { associatedColumn ->
                         // check to ensure not null.
-                        if (it.isNullableType) {
+                        if (associatedColumn.isNullableType) {
                             manager.logWarning("Attempting to use nullable field type on an autoincrementing column. " +
                                     "To suppress or remove this warning " +
                                     "switch to java primitive, add @android.support.annotation.NonNull," +
-                                    "@org.jetbrains.annotation.NotNull, or in Kotlin don't make it nullable. Check the column ${it.columnName} " +
+                                    "@org.jetbrains.annotation.NotNull, or in Kotlin don't make it nullable. Check the column ${associatedColumn.columnName} " +
                                     "on ${associationalBehavior.name}")
                         }
                     }
+
+                    ftS4Behavior?.validateColumnDefinition(columnDefinition)
 
                     if (columnDefinition is ReferenceColumnDefinition) {
                         if (!columnDefinition.isColumnMap) {
@@ -351,7 +387,11 @@ class TableDefinition(private val table: Table,
 
     override val primaryColumnDefinitions: List<ColumnDefinition>
         get() = primaryKeyColumnBehavior.associatedColumn?.let { arrayListOf(it) }
-                ?: _primaryColumnDefinitions
+                ?: when {
+                    // fts4 use all columns, since there's no primary keys here.
+                    ftS4Behavior != null -> columnDefinitions
+                    else -> _primaryColumnDefinitions
+                }
 
     override val extendsClass: TypeName?
         get() = ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, elementClassName)

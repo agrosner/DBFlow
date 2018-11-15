@@ -8,7 +8,6 @@ import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
-import com.dbflow5.annotation.VirtualTable
 import com.dbflow5.contentprovider.annotation.ContentProvider
 import com.dbflow5.contentprovider.annotation.TableEndpoint
 import com.dbflow5.converter.BigDecimalConverter
@@ -26,7 +25,6 @@ import com.dbflow5.processor.definition.ModelViewDefinition
 import com.dbflow5.processor.definition.QueryModelDefinition
 import com.dbflow5.processor.definition.TableDefinition
 import com.dbflow5.processor.definition.TypeConverterDefinition
-import com.dbflow5.processor.definition.VirtualTableDefinition
 import com.dbflow5.processor.definition.provider.ContentProviderDefinition
 import com.dbflow5.processor.definition.provider.TableEndpointDefinition
 import com.dbflow5.processor.utils.annotation
@@ -125,20 +123,6 @@ class QueryModelHandler : AnnotatedHandler<QueryModel>(QueryModel::class) {
     }
 }
 
-/**
- * Description: Handles [VirtualTable] annotations, writing QueryModelAdapter, and
- * adding them to the [ProcessorManager].
- */
-class VirtualTableHandler : AnnotatedHandler<VirtualTable>(VirtualTable::class) {
-
-    override fun onProcessElement(annotation: VirtualTable, element: Element, processorManager: ProcessorManager) {
-        if (element is TypeElement) {
-            val virtualTableDefinition = VirtualTableDefinition(annotation, element, processorManager)
-            processorManager.addVirtualTableDefinition(virtualTableDefinition)
-        }
-    }
-}
-
 class TableEndpointHandler : AnnotatedHandler<TableEndpoint>(TableEndpoint::class) {
 
     private val validator: TableEndpointValidator = TableEndpointValidator()
@@ -200,8 +184,8 @@ class TypeConverterHandler : AnnotatedHandler<TypeConverter>(TypeConverter::clas
                     // Check here if user already placed definition of same type, since default converters
                     // are added last.
                     if (processorManager.typeConverters
-                            .filter { it.value.modelTypeName == definition.modelTypeName }
-                            .isEmpty()) {
+                                    .filter { it.value.modelTypeName == definition.modelTypeName }
+                                    .isEmpty()) {
                         processorManager.addTypeConverterDefinition(definition)
                     }
                 }
@@ -212,10 +196,10 @@ class TypeConverterHandler : AnnotatedHandler<TypeConverter>(TypeConverter::clas
     companion object {
         private val VALIDATOR = TypeConverterValidator()
         private val DEFAULT_TYPE_CONVERTERS = arrayOf<Class<*>>(CalendarConverter::class.java,
-            BigDecimalConverter::class.java, BigIntegerConverter::class.java,
-            DateConverter::class.java, SqlDateConverter::class.java,
-            BooleanConverter::class.java, UUIDConverter::class.java,
-            CharConverter::class.java)
+                BigDecimalConverter::class.java, BigIntegerConverter::class.java,
+                DateConverter::class.java, SqlDateConverter::class.java,
+                BooleanConverter::class.java, UUIDConverter::class.java,
+                CharConverter::class.java)
     }
 }
 
