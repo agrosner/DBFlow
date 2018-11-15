@@ -267,7 +267,7 @@ class VirtualCreationMethod(private val virtualTableDefinition: VirtualTableDefi
                     if (virtualTableDefinition.columnDefinitions.isNotEmpty()) {
                         add(", ")
                     }
-                    add("content = ${tableDefinition.associationalBehavior.name.quote()}")
+                    add("content=${tableDefinition.associationalBehavior.name.quote()}")
                 }
                 add(")")
             }.S};\n")
