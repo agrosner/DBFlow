@@ -37,3 +37,19 @@ class FTS4Behavior(
         }
     }
 }
+
+class FTS3Behavior(
+        private val elementName: String,
+        private val manager: ProcessorManager) {
+
+    fun validateColumnDefinition(columnDefinition: ColumnDefinition) {
+        if (columnDefinition.type != ColumnDefinition.Type.RowId
+                && columnDefinition.columnName != "rowid"
+                && columnDefinition.elementTypeName.isOneOf(Int::class, Long::class)) {
+            manager.logError("FTS4 Table of type $elementName can only have a single primary key named \"rowid\" of type rowid that is an Int or Long type.")
+        } else if (columnDefinition.elementTypeName != ClassName.get(String::class.java)) {
+            manager.logError("FTS4 Table of type $elementName must only contain String columns")
+        }
+    }
+
+}

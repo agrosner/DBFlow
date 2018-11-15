@@ -194,9 +194,8 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
                 addCode("return ${codeBlock {
                     add("CREATE VIRTUAL TABLE IF NOT EXISTS ${tableDefinition.associationalBehavior.name.quote()} USING ")
                     when (tableDefinition.type) {
-                        TableDefinition.Type.FTS4 -> {
-                            add("FTS4")
-                        }
+                        TableDefinition.Type.FTS4 -> add("FTS4")
+                        TableDefinition.Type.FTS3 -> add("FTS3")
                         else -> {
                             ProcessorManager.manager.logError("Invalid table type found ${tableDefinition.type}")
                         }

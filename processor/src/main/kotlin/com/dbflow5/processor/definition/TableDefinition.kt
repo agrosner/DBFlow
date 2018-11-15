@@ -4,6 +4,7 @@ import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKey
+import com.dbflow5.annotation.Fts3
 import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.InheritedColumn
 import com.dbflow5.annotation.InheritedPrimaryKey
@@ -20,6 +21,7 @@ import com.dbflow5.processor.definition.behavior.AssociationalBehavior
 import com.dbflow5.processor.definition.behavior.CachingBehavior
 import com.dbflow5.processor.definition.behavior.CreationQueryBehavior
 import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
+import com.dbflow5.processor.definition.behavior.FTS3Behavior
 import com.dbflow5.processor.definition.behavior.FTS4Behavior
 import com.dbflow5.processor.definition.behavior.PrimaryKeyColumnBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
@@ -68,6 +70,7 @@ class TableDefinition(private val table: Table,
 
     enum class Type {
         Normal,
+        FTS3,
         FTS4;
 
         val isVirtual: Boolean
@@ -144,6 +147,7 @@ class TableDefinition(private val table: Table,
     val type: Type
 
     val ftS4Behavior: FTS4Behavior?
+    val ftS3Behavior: FTS3Behavior?
 
     init {
         setOutputClassName("_Table")
@@ -151,11 +155,15 @@ class TableDefinition(private val table: Table,
         manager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
 
         val fts4 = element.annotation<Fts4>()
+        val fts3 = element.annotation<Fts3>()
+
+        if (fts3 != null && fts4 != null) {
+            manager.logError("Table $elementClassName cannot have multiple FTS annotations.")
+        }
 
         type = when {
-            fts4 != null -> {
-                Type.FTS4
-            }
+            fts4 != null -> Type.FTS4
+            fts3 != null -> Type.FTS3
             else -> Type.Normal
         }
 
@@ -163,6 +171,12 @@ class TableDefinition(private val table: Table,
             fts4 != null -> FTS4Behavior(contentTable = fts4.extractTypeNameFromAnnotation { it.contentTable },
                     databaseTypeName = associationalBehavior.databaseTypeName,
                     elementName = elementName,
+                    manager = manager)
+            else -> null
+        }
+
+        ftS3Behavior = when {
+            fts3 != null -> FTS3Behavior(elementName = elementName,
                     manager = manager)
             else -> null
         }
@@ -352,6 +366,7 @@ class TableDefinition(private val table: Table,
                         }
                     }
 
+                    ftS3Behavior?.validateColumnDefinition(columnDefinition)
                     ftS4Behavior?.validateColumnDefinition(columnDefinition)
 
                     if (columnDefinition is ReferenceColumnDefinition) {
