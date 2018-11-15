@@ -78,7 +78,7 @@ object FlowManager {
     fun getTableName(table: Class<*>): String {
         return getModelAdapterOrNull(table)?.tableName
                 ?: getModelViewAdapterOrNull(table)?.viewName
-                ?: throwCannotFindAdapter("ModelAdapter/ModelViewAdapter", table)
+                ?: throwCannotFindAdapter("ModelAdapter/ModelViewAdapter/VirtualAdapter", table)
     }
 
     /**
@@ -176,6 +176,18 @@ object FlowManager {
         loadDatabaseHolder(generatedClassName)
     }
 
+    /**
+     * Loading the module Database holder via reflection.
+     *
+     *
+     * It is assumed FlowManager.init() is called by the application that uses the
+     * module database. This method should only be called if you need to load databases
+     * that are part of a module. Building once will give you the ability to add the class.
+     */
+    fun initModule(generatedClassName: KClass<out DatabaseHolder>) {
+        loadDatabaseHolder(generatedClassName.java)
+    }
+
     @JvmStatic
     fun getConfig(): FlowConfig = config
             ?: throw IllegalStateException("Configuration is not initialized. " +
@@ -184,8 +196,7 @@ object FlowManager {
     /**
      * @return The database holder, creating if necessary using reflection.
      */
-    @JvmStatic
-    internal fun loadDatabaseHolder(holderClass: Class<out DatabaseHolder>) {
+    private fun loadDatabaseHolder(holderClass: Class<out DatabaseHolder>) {
         if (loadedModules.contains(holderClass)) {
             return
         }
@@ -311,9 +322,7 @@ object FlowManager {
         var retrievalAdapter: RetrievalAdapter<T>? = getModelAdapterOrNull(modelClass)
         if (retrievalAdapter == null) {
             retrievalAdapter = getModelViewAdapterOrNull(modelClass)
-            if (retrievalAdapter == null) {
-                retrievalAdapter = getQueryModelAdapterOrNull(modelClass)
-            }
+                    ?: getQueryModelAdapterOrNull(modelClass)
         }
         return retrievalAdapter ?: throwCannotFindAdapter("RetrievalAdapter", modelClass)
     }
@@ -343,7 +352,7 @@ object FlowManager {
                     ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
 
     /**
-     * Returns the query model adapter for an undefined cursor. These are only created with the [T] annotation.
+     * Returns the query model adapter for the model class. These are only created with the [T] annotation.
      *
      * @param queryModelClass The class of the query
      * @param [T]  The class that extends [BaseQueryModel]

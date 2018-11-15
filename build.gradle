@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlin_version = '1.3.0'
+        kotlin_version = '1.3.10'
         target_sdk = 28
         min_sdk = 7
         min_sdk_rx = 15
@@ -26,7 +26,7 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.0-beta02'
+        classpath 'com.android.tools.build:gradle:3.3.0-beta04'
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:0.8.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"

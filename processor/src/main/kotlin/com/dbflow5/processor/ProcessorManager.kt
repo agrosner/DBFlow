@@ -1,9 +1,9 @@
 package com.dbflow5.processor
 
-import com.dbflow5.processor.definition.BaseTableDefinition
 import com.dbflow5.processor.definition.DatabaseDefinition
 import com.dbflow5.processor.definition.DatabaseHolderDefinition
 import com.dbflow5.processor.definition.DatabaseObjectHolder
+import com.dbflow5.processor.definition.EntityDefinition
 import com.dbflow5.processor.definition.ManyToManyDefinition
 import com.dbflow5.processor.definition.MigrationDefinition
 import com.dbflow5.processor.definition.ModelViewDefinition
@@ -44,14 +44,14 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     private val migrations = hashMapOf<TypeName?, MutableMap<Int, MutableList<MigrationDefinition>>>()
 
     private val databaseDefinitionMap = hashMapOf<TypeName?, DatabaseObjectHolder>()
-    private val handlers = mutableSetOf<BaseContainerHandler<*>>()
+    private val handlers = mutableSetOf<AnnotatedHandler<*>>()
     private val providerMap = hashMapOf<TypeName?, ContentProviderDefinition>()
 
     init {
         manager = this
     }
 
-    fun addHandlers(vararg containerHandlers: BaseContainerHandler<*>) {
+    fun addHandlers(vararg containerHandlers: AnnotatedHandler<*>) {
         containerHandlers.forEach { handlers.add(it) }
     }
 
@@ -67,7 +67,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         }
     }
 
-    fun addFlowManagerWriter(databaseDefinition: DatabaseDefinition) {
+    fun addDatabaseDefinition(databaseDefinition: DatabaseDefinition) {
         val holderDefinition = getOrPutDatabase(databaseDefinition.elementClassName)
         holderDefinition?.databaseDefinition = databaseDefinition
     }
@@ -82,30 +82,31 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun getTypeConverterDefinition(typeName: TypeName?): TypeConverterDefinition? = typeConverters[typeName]
 
-    fun addModelToDatabase(modelType: TypeName, databaseName: TypeName) {
-        addDatabase(databaseName)
-        modelToDatabaseMap[modelType] = databaseName
+    fun addModelToDatabase(modelType: TypeName?, databaseName: TypeName) {
+        modelType?.let { type ->
+            addDatabase(databaseName)
+            modelToDatabaseMap[type] = databaseName
+        }
     }
-
-    fun getDatabaseName(databaseTypeName: TypeName?) = getOrPutDatabase(databaseTypeName)?.databaseDefinition?.databaseClassName
-            ?: ""
 
     fun addQueryModelDefinition(queryModelDefinition: QueryModelDefinition) {
         queryModelDefinition.elementClassName?.let {
-            getOrPutDatabase(queryModelDefinition.databaseTypeName)?.queryModelDefinitionMap?.put(it, queryModelDefinition)
+            getOrPutDatabase(queryModelDefinition.associationalBehavior.databaseTypeName)
+                    ?.queryModelDefinitionMap?.put(it, queryModelDefinition)
         }
     }
 
     fun addTableDefinition(tableDefinition: TableDefinition) {
         tableDefinition.elementClassName?.let {
-            val holderDefinition = getOrPutDatabase(tableDefinition.databaseTypeName)
+            val holderDefinition = getOrPutDatabase(tableDefinition.associationalBehavior.databaseTypeName)
             holderDefinition?.tableDefinitionMap?.put(it, tableDefinition)
             holderDefinition?.tableNameMap?.let {
-                if (holderDefinition.tableNameMap.containsKey(tableDefinition.tableName)) {
-                    logError("Found duplicate table ${tableDefinition.tableName} " +
-                            "for database ${holderDefinition.databaseDefinition?.databaseClassName}")
-                } else tableDefinition.tableName?.let {
-                    holderDefinition.tableNameMap.put(it, tableDefinition)
+                val tableName = tableDefinition.associationalBehavior.name
+                if (holderDefinition.tableNameMap.containsKey(tableName)) {
+                    logError("Found duplicate table $tableName " +
+                            "for database ${holderDefinition.databaseDefinition?.elementName}")
+                } else {
+                    holderDefinition.tableNameMap.put(tableName, tableDefinition)
                 }
             }
         }
@@ -133,7 +134,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         return getOrPutDatabase(databaseName)?.modelViewDefinitionMap?.get(typeName)
     }
 
-    fun getReferenceDefinition(databaseName: TypeName?, typeName: TypeName?): BaseTableDefinition? {
+    fun getReferenceDefinition(databaseName: TypeName?, typeName: TypeName?): EntityDefinition? {
         return getTableDefinition(databaseName, typeName)
                 ?: getQueryModelDefinition(databaseName, typeName)
                 ?: getModelViewDefinition(databaseName, typeName)
@@ -141,7 +142,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun addModelViewDefinition(modelViewDefinition: ModelViewDefinition) {
         modelViewDefinition.elementClassName?.let {
-            getOrPutDatabase(modelViewDefinition.databaseTypeName)?.modelViewDefinitionMap?.put(it, modelViewDefinition)
+            getOrPutDatabase(modelViewDefinition.associationalBehavior.databaseTypeName)
+                    ?.modelViewDefinitionMap?.put(it, modelViewDefinition)
         }
     }
 
@@ -263,7 +265,6 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                     val contentProviderDefinitions = databaseHolderDefinition.providerMap.values
                             .sortedBy { it.outputClassName?.simpleName() }
                     contentProviderDefinitions.forEach { contentProviderDefinition ->
-                        contentProviderDefinition.prepareForWrite()
                         if (validator.validate(processorManager, contentProviderDefinition)) {
                             contentProviderDefinition.writeBaseDefinition(processorManager)
                         }
@@ -318,7 +319,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun elementBelongsInTable(element: Element): Boolean {
         val enclosingElement = element.enclosingElement
-        var find: BaseTableDefinition? = databaseDefinitionMap.values.flatMap { it.tableDefinitionMap.values }
+        var find: EntityDefinition? = databaseDefinitionMap.values.flatMap { it.tableDefinitionMap.values }
                 .find { it.element == enclosingElement }
 
         // modelview check.

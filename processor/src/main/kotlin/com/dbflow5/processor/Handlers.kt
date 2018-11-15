@@ -18,20 +18,22 @@ import com.dbflow5.converter.CharConverter
 import com.dbflow5.converter.DateConverter
 import com.dbflow5.converter.SqlDateConverter
 import com.dbflow5.converter.UUIDConverter
-import com.dbflow5.processor.definition.provider.ContentProviderDefinition
 import com.dbflow5.processor.definition.DatabaseDefinition
 import com.dbflow5.processor.definition.ManyToManyDefinition
 import com.dbflow5.processor.definition.MigrationDefinition
 import com.dbflow5.processor.definition.ModelViewDefinition
 import com.dbflow5.processor.definition.QueryModelDefinition
 import com.dbflow5.processor.definition.TableDefinition
-import com.dbflow5.processor.definition.provider.TableEndpointDefinition
 import com.dbflow5.processor.definition.TypeConverterDefinition
+import com.dbflow5.processor.definition.provider.ContentProviderDefinition
+import com.dbflow5.processor.definition.provider.TableEndpointDefinition
 import com.dbflow5.processor.utils.annotation
+import com.dbflow5.processor.utils.fromTypeMirror
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.PackageElement
 import javax.lang.model.element.TypeElement
+import kotlin.reflect.KClass
 
 /**
  * Description: The main base-level handler for performing some action when the
@@ -50,17 +52,41 @@ interface Handler {
 }
 
 /**
+ * Description: The base handler than provides common callbacks into processing annotated top-level elements
+ */
+abstract class AnnotatedHandler<AnnotationClass : Annotation>(private val annotationClass: KClass<AnnotationClass>) : Handler {
+
+    override fun handle(processorManager: ProcessorManager, roundEnvironment: RoundEnvironment) {
+        val annotatedElements = roundEnvironment.getElementsAnnotatedWith(annotationClass.java).toMutableSet()
+        processElements(processorManager, annotatedElements)
+        if (annotatedElements.size > 0) {
+            annotatedElements.forEach { element ->
+                element.getAnnotation(annotationClass.java)?.let { annotation ->
+                    onProcessElement(annotation, element, processorManager)
+                }
+            }
+        }
+    }
+
+    open fun processElements(processorManager: ProcessorManager, annotatedElements: MutableSet<Element>) {
+
+    }
+
+    protected abstract fun onProcessElement(annotation: AnnotationClass, element: Element, processorManager: ProcessorManager)
+}
+
+/**
  * Description: Handles [Migration] by creating [MigrationDefinition]
  * and adds them to the [ProcessorManager]
  */
-class MigrationHandler : BaseContainerHandler<Migration>() {
+class MigrationHandler : AnnotatedHandler<Migration>(Migration::class) {
 
-    override val annotationClass = Migration::class.java
-
-    override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
+    override fun onProcessElement(annotation: Migration, element: Element, processorManager: ProcessorManager) {
         if (element is TypeElement) {
-            val migrationDefinition = MigrationDefinition(processorManager, element)
-            processorManager.addMigrationDefinition(migrationDefinition)
+            element.annotation<Migration>()?.let { migration ->
+                val migrationDefinition = MigrationDefinition(migration, processorManager, element)
+                processorManager.addMigrationDefinition(migrationDefinition)
+            }
         }
     }
 }
@@ -69,13 +95,15 @@ class MigrationHandler : BaseContainerHandler<Migration>() {
  * Description: Handles [ModelView] annotations, writing
  * ModelViewAdapters, and adding them to the [ProcessorManager]
  */
-class ModelViewHandler : BaseContainerHandler<ModelView>() {
+class ModelViewHandler : AnnotatedHandler<ModelView>(ModelView::class) {
 
-    override val annotationClass = ModelView::class.java
-
-    override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
-        val modelViewDefinition = ModelViewDefinition(processorManager, element)
-        processorManager.addModelViewDefinition(modelViewDefinition)
+    override fun onProcessElement(annotation: ModelView, element: Element, processorManager: ProcessorManager) {
+        if (element is TypeElement) {
+            element.annotation<ModelView>()?.let { modelView ->
+                val modelViewDefinition = ModelViewDefinition(modelView, processorManager, element)
+                processorManager.addModelViewDefinition(modelViewDefinition)
+            }
+        }
     }
 }
 
@@ -83,29 +111,27 @@ class ModelViewHandler : BaseContainerHandler<ModelView>() {
  * Description: Handles [QueryModel] annotations, writing QueryModelAdapter, and
  * adding them to the [ProcessorManager].
  */
-class QueryModelHandler : BaseContainerHandler<QueryModel>() {
+class QueryModelHandler : AnnotatedHandler<QueryModel>(QueryModel::class) {
 
-    override val annotationClass = QueryModel::class.java
-
-    override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
-        val queryModelDefinition = QueryModelDefinition(element, processorManager)
-        if (queryModelDefinition.databaseTypeName != null) {
-            processorManager.addQueryModelDefinition(queryModelDefinition)
+    override fun onProcessElement(annotation: QueryModel, element: Element, processorManager: ProcessorManager) {
+        if (element is TypeElement) {
+            element.annotation<QueryModel>()?.let { queryModel ->
+                val queryModelDefinition = QueryModelDefinition(queryModel, element, processorManager)
+                processorManager.addQueryModelDefinition(queryModelDefinition)
+            }
         }
     }
 }
 
-class TableEndpointHandler : BaseContainerHandler<TableEndpoint>() {
+class TableEndpointHandler : AnnotatedHandler<TableEndpoint>(TableEndpoint::class) {
 
     private val validator: TableEndpointValidator = TableEndpointValidator()
 
-    override val annotationClass = TableEndpoint::class.java
-
-    override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
+    override fun onProcessElement(annotation: TableEndpoint, element: Element, processorManager: ProcessorManager) {
 
         // top-level only
         if (element.enclosingElement is PackageElement) {
-            val tableEndpointDefinition = TableEndpointDefinition(element, processorManager)
+            val tableEndpointDefinition = TableEndpointDefinition(annotation, element, processorManager)
             if (validator.validate(processorManager, tableEndpointDefinition)) {
                 processorManager.putTableEndpointForProvider(tableEndpointDefinition)
             }
@@ -117,17 +143,15 @@ class TableEndpointHandler : BaseContainerHandler<TableEndpoint>() {
  * Description: Handles [Table] annotations, writing ModelAdapters,
  * and adding them to the [ProcessorManager]
  */
-class TableHandler : BaseContainerHandler<Table>() {
+class TableHandler : AnnotatedHandler<Table>(Table::class) {
 
-    override val annotationClass = Table::class.java
-
-    override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
-        if (element is TypeElement && element.getAnnotation(annotationClass) != null) {
-            val tableDefinition = TableDefinition(processorManager, element)
+    override fun onProcessElement(annotation: Table, element: Element, processorManager: ProcessorManager) {
+        if (element is TypeElement) {
+            val tableDefinition = TableDefinition(annotation, processorManager, element)
             processorManager.addTableDefinition(tableDefinition)
 
-            if (element.annotation<ManyToMany>() != null) {
-                val manyToManyDefinition = ManyToManyDefinition(element, processorManager)
+            element.annotation<ManyToMany>()?.let { manyToMany ->
+                val manyToManyDefinition = ManyToManyDefinition(element, processorManager, manyToMany)
                 processorManager.addManyToManyDefinition(manyToManyDefinition)
             }
 
@@ -145,27 +169,24 @@ class TableHandler : BaseContainerHandler<Table>() {
  * Description: Handles [TypeConverter] annotations,
  * adding default methods and adding them to the [ProcessorManager]
  */
-class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
-
-    override val annotationClass = TypeConverter::class.java
+class TypeConverterHandler : AnnotatedHandler<TypeConverter>(TypeConverter::class) {
 
     override fun processElements(processorManager: ProcessorManager, annotatedElements: MutableSet<Element>) {
         DEFAULT_TYPE_CONVERTERS.mapTo(annotatedElements) { processorManager.elements.getTypeElement(it.name) }
     }
 
-    override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
+    override fun onProcessElement(annotation: TypeConverter, element: Element, processorManager: ProcessorManager) {
         if (element is TypeElement) {
-            val className = com.dbflow5.processor.utils.fromTypeMirror(element.asType(), processorManager)
-            val converterDefinition = className?.let { TypeConverterDefinition(it, element.asType(), processorManager, element) }
-            converterDefinition?.let {
-                if (VALIDATOR.validate(processorManager, converterDefinition)) {
+            fromTypeMirror(element.asType(), processorManager)?.let { className ->
+                val definition = TypeConverterDefinition(annotation, className, element.asType(), processorManager)
+                if (VALIDATOR.validate(processorManager, definition)) {
                     // allow user overrides from default.
                     // Check here if user already placed definition of same type, since default converters
                     // are added last.
                     if (processorManager.typeConverters
-                        .filter { it.value.modelTypeName == converterDefinition.modelTypeName }
-                        .isEmpty()) {
-                        processorManager.addTypeConverterDefinition(converterDefinition)
+                                    .filter { it.value.modelTypeName == definition.modelTypeName }
+                                    .isEmpty()) {
+                        processorManager.addTypeConverterDefinition(definition)
                     }
                 }
             }
@@ -175,41 +196,17 @@ class TypeConverterHandler : BaseContainerHandler<TypeConverter>() {
     companion object {
         private val VALIDATOR = TypeConverterValidator()
         private val DEFAULT_TYPE_CONVERTERS = arrayOf<Class<*>>(CalendarConverter::class.java,
-            BigDecimalConverter::class.java, BigIntegerConverter::class.java,
-            DateConverter::class.java, SqlDateConverter::class.java,
-            BooleanConverter::class.java, UUIDConverter::class.java,
-            CharConverter::class.java)
+                BigDecimalConverter::class.java, BigIntegerConverter::class.java,
+                DateConverter::class.java, SqlDateConverter::class.java,
+                BooleanConverter::class.java, UUIDConverter::class.java,
+                CharConverter::class.java)
     }
 }
 
-/**
- * Description: The base handler than provides common callbacks into processing annotated top-level elements
- */
-abstract class BaseContainerHandler<AnnotationClass : Annotation> : Handler {
+class ContentProviderHandler : AnnotatedHandler<ContentProvider>(ContentProvider::class) {
 
-    override fun handle(processorManager: ProcessorManager, roundEnvironment: RoundEnvironment) {
-        val annotatedElements = roundEnvironment.getElementsAnnotatedWith(annotationClass).toMutableSet()
-        processElements(processorManager, annotatedElements)
-        if (annotatedElements.size > 0) {
-            annotatedElements.forEach { onProcessElement(processorManager, it) }
-        }
-    }
-
-    protected abstract val annotationClass: Class<AnnotationClass>
-
-    open fun processElements(processorManager: ProcessorManager, annotatedElements: MutableSet<Element>) {
-
-    }
-
-    protected abstract fun onProcessElement(processorManager: ProcessorManager, element: Element)
-}
-
-class ContentProviderHandler : BaseContainerHandler<ContentProvider>() {
-
-    override val annotationClass = ContentProvider::class.java
-
-    override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
-        val contentProviderDefinition = ContentProviderDefinition(element, processorManager)
+    override fun onProcessElement(annotation: ContentProvider, element: Element, processorManager: ProcessorManager) {
+        val contentProviderDefinition = ContentProviderDefinition(annotation, element, processorManager)
         if (contentProviderDefinition.elementClassName != null) {
             processorManager.addContentProviderDefinition(contentProviderDefinition)
         }
@@ -219,16 +216,14 @@ class ContentProviderHandler : BaseContainerHandler<ContentProvider>() {
 /**
  * Description: Deals with writing database definitions
  */
-class DatabaseHandler : BaseContainerHandler<Database>() {
+class DatabaseHandler : AnnotatedHandler<Database>(Database::class) {
 
     private val validator = DatabaseValidator()
 
-    override val annotationClass = Database::class.java
-
-    override fun onProcessElement(processorManager: ProcessorManager, element: Element) {
-        val managerWriter = DatabaseDefinition(processorManager, element)
+    override fun onProcessElement(annotation: Database, element: Element, processorManager: ProcessorManager) {
+        val managerWriter = DatabaseDefinition(annotation, processorManager, element)
         if (validator.validate(processorManager, managerWriter)) {
-            processorManager.addFlowManagerWriter(managerWriter)
+            processorManager.addDatabaseDefinition(managerWriter)
         }
     }
 

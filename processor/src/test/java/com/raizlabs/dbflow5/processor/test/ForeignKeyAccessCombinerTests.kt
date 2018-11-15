@@ -71,10 +71,10 @@ class ForeignKeyAccessCombinerTest {
     @Test
     fun test_canCombinePackagePrivateCase() {
         val foreignKeyAccessCombiner = ForeignKeyAccessCombiner(PackagePrivateScopeColumnAccessor("name",
-                "com.fuzz.android", "_", "TestHelper"))
+            "com.fuzz.android", "TestHelper"))
         foreignKeyAccessCombiner.fieldAccesses += ForeignKeyAccessField("test",
                 PrimaryReferenceAccessCombiner(Combiner(PackagePrivateScopeColumnAccessor("test",
-                        "com.fuzz.android", "_", "TestHelper2"),
+                    "com.fuzz.android", "TestHelper2"),
                         TypeName.get(String::class.java))))
 
         val builder = CodeBlock.builder()
@@ -93,7 +93,7 @@ class ForeignKeyAccessCombinerTest {
         val foreignKeyAccessCombiner = ForeignKeyAccessCombiner(VisibleScopeColumnAccessor("modem"))
         foreignKeyAccessCombiner.fieldAccesses += ForeignKeyAccessField("number",
                 ContentValuesCombiner(Combiner(PackagePrivateScopeColumnAccessor("number",
-                        "com.fuzz", "\$", "AnotherHelper"),
+                    "com.fuzz", "AnotherHelper"),
                         TypeName.INT)))
         foreignKeyAccessCombiner.fieldAccesses += ForeignKeyAccessField("date",
                 ContentValuesCombiner(Combiner(TypeConverterScopeColumnAccessor("global_converter", "date"),

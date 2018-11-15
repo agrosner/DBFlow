@@ -44,6 +44,8 @@ interface IConditional : Query {
 
     infix fun like(value: String): Operator<*>
 
+    infix fun match(value: String): Operator<*>
+
     infix fun notLike(value: String): Operator<*>
 
     infix fun glob(value: String): Operator<*>

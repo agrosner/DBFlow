@@ -7,10 +7,8 @@ import com.dbflow5.processor.ModelViewValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.TableValidator
 import com.dbflow5.processor.utils.`override fun`
-import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.isSubclass
 import com.grosner.kpoet.L
-import com.grosner.kpoet.S
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.constructor
 import com.grosner.kpoet.final
@@ -23,7 +21,6 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
-import java.util.regex.Pattern
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 
@@ -31,57 +28,28 @@ import javax.lang.model.element.Modifier
  * Description: Writes [Database] definitions,
  * which contain [Table], [ModelView], and [Migration]
  */
-class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefinition(element, manager), TypeDefinition {
+class DatabaseDefinition(database: Database,
+                         manager: ProcessorManager, element: Element)
+    : BaseDefinition(element, manager, packageName = ClassNames.FLOW_MANAGER_PACKAGE), TypeDefinition {
 
-    var databaseClassName: String? = null
+    private val databaseVersion: Int = database.version
+    private val foreignKeysSupported = database.foreignKeyConstraintsEnforced
+    private val consistencyChecksEnabled = database.consistencyCheckEnabled
+    private val backupEnabled = database.backupEnabled
 
-    var databaseVersion: Int = 0
-
-    internal var foreignKeysSupported: Boolean = false
-
-    internal var consistencyChecksEnabled: Boolean = false
-
-    internal var backupEnabled: Boolean = false
-
-    var insertConflict: ConflictAction? = null
-
-    var updateConflict: ConflictAction? = null
-
-    val classSeparator: String = "_"
+    val insertConflict: ConflictAction = database.insertConflict
+    val updateConflict: ConflictAction = database.updateConflict
 
     var objectHolder: DatabaseObjectHolder? = null
 
-    var databaseExtensionName = ""
-
-    var databaseName = ""
-
-    var inMemory = false
-
     init {
-        packageName = com.dbflow5.processor.ClassNames.FLOW_MANAGER_PACKAGE
-
-        element.annotation<Database>()?.let { database ->
-            databaseName = database.name
-            databaseExtensionName = database.databaseExtension
-            inMemory = database.inMemory
-            databaseClassName = element.simpleName.toString()
-            consistencyChecksEnabled = database.consistencyCheckEnabled
-            backupEnabled = database.backupEnabled
-
-            setOutputClassName("$databaseClassName${classSeparator}Database")
-
-            databaseVersion = database.version
-            foreignKeysSupported = database.foreignKeyConstraintsEnforced
-
-            insertConflict = database.insertConflict
-            updateConflict = database.updateConflict
-        }
+        setOutputClassName("${elementName}_Database")
 
         if (!element.modifiers.contains(Modifier.ABSTRACT)
-                || element.modifiers.contains(Modifier.PRIVATE)
-                || !typeElement.isSubclass(manager.processingEnvironment, ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME)) {
+            || element.modifiers.contains(Modifier.PRIVATE)
+            || !typeElement.isSubclass(manager.processingEnvironment, ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME)) {
             manager.logError("$elementClassName must be a visible abstract class that " +
-                    "extends ${com.dbflow5.processor.ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME}")
+                "extends ${ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME}")
         }
     }
 
@@ -102,15 +70,15 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
             val map = hashMapOf<TypeName, TableDefinition>()
             val tableValidator = TableValidator()
             manager.getTableDefinitions(className)
-                    .filter { tableValidator.validate(ProcessorManager.manager, it) }
-                    .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
+                .filter { tableValidator.validate(ProcessorManager.manager, it) }
+                .forEach { it.elementClassName?.let { className -> map.put(className, it) } }
             manager.setTableDefinitions(map, className)
 
             val modelViewDefinitionMap = hashMapOf<TypeName, ModelViewDefinition>()
             val modelViewValidator = ModelViewValidator()
             manager.getModelViewDefinitions(className)
-                    .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
-                    .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
+                .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
+                .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
             manager.setModelViewDefinitions(modelViewDefinitionMap, className)
         }
     }
@@ -125,7 +93,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
     private fun writeConstructor(builder: TypeSpec.Builder) {
 
-        builder.constructor(param(com.dbflow5.processor.ClassNames.DATABASE_HOLDER, "holder")) {
+        builder.constructor(param(ClassNames.DATABASE_HOLDER, "holder")) {
             modifiers(public)
             this@DatabaseDefinition.elementClassName?.let { elementClassName ->
                 for (definition in manager.getTableDefinitions(elementClassName)) {
@@ -154,14 +122,14 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
 
                 val migrationDefinitionMap = manager.getMigrationsForDatabase(elementClassName)
                 migrationDefinitionMap.keys
-                        .sortedByDescending { it }
-                        .forEach { version ->
-                            migrationDefinitionMap[version]
-                                    ?.sortedBy { it.priority }
-                                    ?.forEach { migrationDefinition ->
-                                        statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
-                                    }
-                        }
+                    .sortedByDescending { it }
+                    .forEach { version ->
+                        migrationDefinitionMap[version]
+                            ?.sortedBy { it.priority }
+                            ?.forEach { migrationDefinition ->
+                                statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
+                            }
+                    }
             }
             this
         }
@@ -171,7 +139,7 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
     private fun writeGetters(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
             `override fun`(ParameterizedTypeName.get(ClassName.get(Class::class.java), WildcardTypeName.subtypeOf(Any::class.java)),
-                    "getAssociatedDatabaseClassFile") {
+                "getAssociatedDatabaseClassFile") {
                 modifiers(public, final)
                 `return`("\$T.class", elementTypeName)
             }
@@ -191,39 +159,6 @@ class DatabaseDefinition(manager: ProcessorManager, element: Element) : BaseDefi
                 modifiers(public, final)
                 `return`(databaseVersion.L)
             }
-            if (!databaseExtensionName.isBlank()) {
-                `override fun`(String::class, "getDatabaseExtensionName") {
-                    modifiers(public, final)
-                    `return`(databaseExtensionName.S)
-                }
-            }
-            if (!databaseName.isBlank()) {
-                `override fun`(String::class, "getDatabaseName") {
-                    modifiers(public, final)
-                    `return`(databaseName.S)
-                }
-            }
-            if (inMemory) {
-                `override fun`(TypeName.BOOLEAN, "isInMemory") {
-                    modifiers(public, final)
-                    `return`(true.L)
-                }
-            }
         }
-    }
-
-    /**
-     *
-     * Checks if databaseName is valid. It will check if databaseName matches regex pattern
-     * [A-Za-z_$]+[a-zA-Z0-9_$]* Examples:   * database - valid  * DbFlow1 - valid  * database.db -
-     * invalid (contains a dot)  * 1database - invalid (starts with a number)
-
-     * @param databaseName database name to validate.
-     * *
-     * @return `true` if parameter is a valid database name, `false` otherwise.
-     */
-    private fun isValidDatabaseName(databaseName: String?): Boolean {
-        val javaClassNamePattern = Pattern.compile("[A-Za-z_$]+[a-zA-Z0-9_$]*")
-        return javaClassNamePattern.matcher(databaseName).matches()
     }
 }

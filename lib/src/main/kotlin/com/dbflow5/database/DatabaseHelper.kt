@@ -60,22 +60,17 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
     }
 
     protected fun executeTableCreations(database: DatabaseWrapper) {
-        try {
-            database.beginTransaction()
-            val modelAdapters = databaseDefinition.getModelAdapters()
-            modelAdapters
+        database.executeTransaction {
+            databaseDefinition.modelAdapters
                     .asSequence()
                     .filter { it.createWithDatabase() }
                     .forEach {
                         try {
-                            database.execSQL(it.creationQuery)
+                            execSQL(it.creationQuery)
                         } catch (e: SQLiteException) {
                             FlowLog.logError(e)
                         }
                     }
-            database.setTransactionSuccessful()
-        } finally {
-            database.endTransaction()
         }
     }
 
@@ -83,22 +78,18 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
      * This method executes CREATE TABLE statements as well as CREATE VIEW on the database passed.
      */
     protected fun executeViewCreations(database: DatabaseWrapper) {
-        try {
-            database.beginTransaction()
-            val modelViews = databaseDefinition.modelViewAdapters
-            modelViews
+        database.executeTransaction {
+            databaseDefinition.modelViewAdapters
                     .asSequence()
-                    .map { "CREATE VIEW IF NOT EXISTS ${it.viewName} AS ${it.getCreationQuery(database)}" }
+                    .filter { it.createWithDatabase() }
                     .forEach {
                         try {
-                            database.execSQL(it)
+                            execSQL(it.creationQuery)
                         } catch (e: SQLiteException) {
                             FlowLog.logError(e)
                         }
+
                     }
-            database.setTransactionSuccessful()
-        } finally {
-            database.endTransaction()
         }
     }
 

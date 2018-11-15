@@ -3,7 +3,6 @@ package com.dbflow5.provider
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
-import com.dbflow5.config.GeneratedDatabaseHolder
 import com.dbflow5.contentprovider.annotation.ContentProvider
 import com.dbflow5.contentprovider.annotation.ContentType
 import com.dbflow5.contentprovider.annotation.ContentUri
@@ -14,23 +13,22 @@ import com.dbflow5.contentprovider.annotation.TableEndpoint
 import com.dbflow5.getContentValuesKey
 
 @ContentProvider(authority = TestContentProvider.AUTHORITY,
-        database = ContentDatabase::class,
-        initializeHolderClass = GeneratedDatabaseHolder::class)
+    database = ContentDatabase::class)
 object TestContentProvider2 {
     @TableEndpoint(name = ContentProviderModel.ENDPOINT,
-            contentProvider = ContentDatabase::class)
+        contentProvider = ContentDatabase::class)
     object ContentProviderModel {
         const val ENDPOINT = "ContentProviderModel"
 
         @JvmStatic
         @ContentUri(path = TestContentProvider.ContentProviderModel.ENDPOINT,
-                type = ContentType.VND_MULTIPLE + TestContentProvider.ContentProviderModel.ENDPOINT)
+            type = ContentType.VND_MULTIPLE + TestContentProvider.ContentProviderModel.ENDPOINT)
         var CONTENT_URI = TestContentProvider.buildUri(TestContentProvider.ContentProviderModel.ENDPOINT)
 
         @JvmStatic
         @ContentUri(path = TestContentProvider.ContentProviderModel.ENDPOINT + "/#",
-                type = ContentType.VND_SINGLE + TestContentProvider.ContentProviderModel.ENDPOINT,
-                segments = arrayOf(PathSegment(segment = 1, column = "id")))
+            type = ContentType.VND_SINGLE + TestContentProvider.ContentProviderModel.ENDPOINT,
+            segments = arrayOf(PathSegment(segment = 1, column = "id")))
         fun withId(id: Long): Uri {
             return TestContentProvider.buildUri(id.toString())
         }
@@ -46,7 +44,7 @@ object TestContentProvider2 {
 
 
 @ContentProvider(authority = TestContentProvider.AUTHORITY, database = ContentDatabase::class,
-        baseContentUri = TestContentProvider.BASE_CONTENT_URI)
+    baseContentUri = TestContentProvider.BASE_CONTENT_URI)
 object TestContentProvider {
 
     const val AUTHORITY = "com.dbflow5.test.provider"
@@ -68,13 +66,13 @@ object TestContentProvider {
 
         @JvmStatic
         @ContentUri(path = ENDPOINT,
-                type = ContentType.VND_MULTIPLE + ENDPOINT)
+            type = ContentType.VND_MULTIPLE + ENDPOINT)
         var CONTENT_URI = buildUri(ENDPOINT)
 
         @JvmStatic
         @ContentUri(path = ENDPOINT + "/#",
-                type = ContentType.VND_SINGLE + ENDPOINT,
-                segments = arrayOf(PathSegment(segment = 1, column = "id")))
+            type = ContentType.VND_SINGLE + ENDPOINT,
+            segments = arrayOf(PathSegment(segment = 1, column = "id")))
         fun withId(id: Long): Uri {
             return buildUri(id.toString())
         }
@@ -98,24 +96,24 @@ object TestContentProvider {
 
         @JvmStatic
         @ContentUri(path = ENDPOINT + "/#", type = ContentType.VND_MULTIPLE + ENDPOINT,
-                segments = arrayOf(PathSegment(column = "id", segment = 1)))
+            segments = arrayOf(PathSegment(column = "id", segment = 1)))
         fun withId(id: Long): Uri {
             return buildUri(ENDPOINT, id.toString())
         }
 
         @JvmStatic
         @ContentUri(path = ENDPOINT + "/#/#",
-                type = ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
-                segments = arrayOf(PathSegment(column = "id", segment = 2)))
+            type = ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
+            segments = arrayOf(PathSegment(column = "id", segment = 2)))
         fun fromList(id: Long): Uri {
             return buildUri(ENDPOINT, "fromList", id.toString())
         }
 
         @JvmStatic
         @ContentUri(path = ENDPOINT + "/#/#",
-                type = ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
-                segments = arrayOf(PathSegment(column = "id", segment = 1),
-                        PathSegment(column = "isOpen", segment = 2)))
+            type = ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
+            segments = arrayOf(PathSegment(column = "id", segment = 1),
+                PathSegment(column = "isOpen", segment = 2)))
         fun withOpenId(id: Long, isOpen: Boolean): Uri {
             return buildUri(ENDPOINT, id.toString(), isOpen.toString())
         }

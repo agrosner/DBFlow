@@ -2,6 +2,9 @@ package com.dbflow5.processor.definition
 
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.definition.behavior.AssociationalBehavior
+import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
+import com.dbflow5.processor.definition.behavior.PrimaryKeyColumnBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.dbflow5.processor.definition.column.PackagePrivateScopeColumnAccessor
 import com.dbflow5.processor.definition.column.ReferenceColumnDefinition
@@ -9,6 +12,7 @@ import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.getPackage
+import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.toClassName
 import com.grosner.kpoet.`public static final`
 import com.grosner.kpoet.`return`
@@ -31,7 +35,7 @@ import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 
-fun Collection<BaseTableDefinition>.safeWritePackageHelper(processorManager: ProcessorManager) = forEach {
+fun Collection<EntityDefinition>.safeWritePackageHelper(processorManager: ProcessorManager) = forEach {
     try {
         it.writePackageHelper(processorManager.processingEnvironment)
     } catch (e: FilerException) { /*Ignored intentionally to allow multi-round table generation*/
@@ -41,47 +45,54 @@ fun Collection<BaseTableDefinition>.safeWritePackageHelper(processorManager: Pro
 /**
  * Description: Used to write Models and ModelViews
  */
-abstract class BaseTableDefinition(typeElement: Element, processorManager: ProcessorManager)
+abstract class EntityDefinition(typeElement: TypeElement, processorManager: ProcessorManager)
     : BaseDefinition(typeElement, processorManager) {
 
-    var columnDefinitions: MutableList<ColumnDefinition>
+    var columnDefinitions: MutableList<ColumnDefinition> = arrayListOf()
         protected set
 
     val sqlColumnDefinitions
         get() = columnDefinitions.filter { it.type !is ColumnDefinition.Type.RowId }
 
-    var hasAutoIncrement: Boolean = false
-
-    var hasRowID: Boolean = false
-
-    var autoIncrementColumn: ColumnDefinition? = null
-
-    var associatedTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
-    var globalTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
+    val associatedTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
+    val globalTypeConverters = hashMapOf<ClassName, MutableList<ColumnDefinition>>()
     val packagePrivateList = arrayListOf<ColumnDefinition>()
 
-    var orderedCursorLookUp: Boolean = false
-    var assignDefaultValuesFromCursor = true
-
-    var classElementLookUpMap: MutableMap<String, Element> = mutableMapOf()
+    val classElementLookUpMap: MutableMap<String, Element> = mutableMapOf()
 
     val modelClassName = typeElement.simpleName.toString()
-    var databaseDefinition: DatabaseDefinition? = null
-
-    var databaseTypeName: TypeName? = null
+    val databaseDefinition: DatabaseDefinition by lazy {
+        manager.getDatabaseHolderDefinition(associationalBehavior.databaseTypeName)?.databaseDefinition
+            ?: throw RuntimeException("DatabaseDefinition not found for DB element named ${associationalBehavior.name}" +
+                " for db type: ${associationalBehavior.databaseTypeName}.")
+    }
 
     val hasGlobalTypeConverters
         get() = globalTypeConverters.isNotEmpty()
 
-    init {
-        columnDefinitions = arrayListOf()
-    }
+    val implementsLoadFromCursorListener = typeElement.implementsClass(manager.processingEnvironment,
+        ClassNames.LOAD_FROM_CURSOR_LISTENER)
+
+    abstract val associationalBehavior: AssociationalBehavior
+    abstract val cursorHandlingBehavior: CursorHandlingBehavior
+    open var primaryKeyColumnBehavior: PrimaryKeyColumnBehavior =
+        PrimaryKeyColumnBehavior(hasRowID = false, associatedColumn = null, hasAutoIncrement = false)
+
+    abstract val methods: Array<MethodDefinition>
 
     protected abstract fun createColumnDefinitions(typeElement: TypeElement)
 
     abstract val primaryColumnDefinitions: List<ColumnDefinition>
 
-    abstract fun prepareForWrite()
+    fun prepareForWrite() {
+        classElementLookUpMap.clear()
+        columnDefinitions.clear()
+        packagePrivateList.clear()
+
+        prepareForWriteInternal()
+    }
+
+    protected abstract fun prepareForWriteInternal()
 
     val parameterClassName: TypeName?
         get() = elementClassName
@@ -99,7 +110,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
     }
 
     fun TypeSpec.Builder.writeConstructor() {
-        val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@BaseTableDefinition)
+        val customTypeConverterPropertyMethod = CustomTypeConverterPropertyMethod(this@EntityDefinition)
         customTypeConverterPropertyMethod.addToType(this)
 
         constructor {
@@ -127,27 +138,26 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
         var count = 0
 
         if (!packagePrivateList.isEmpty()) {
-            val classSeparator = databaseDefinition?.classSeparator
-            val typeBuilder = TypeSpec.classBuilder("${elementClassName?.simpleName()}${classSeparator}Helper")
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+            val typeBuilder = TypeSpec.classBuilder("${elementClassName?.simpleName()}_Helper")
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
 
             for (columnDefinition in packagePrivateList) {
-                var helperClassName = "${columnDefinition.element.getPackage()}.${columnDefinition.element.enclosingElement.toClassName()?.simpleName()}${classSeparator}Helper"
+                var helperClassName = "${columnDefinition.element.getPackage()}.${columnDefinition.element.enclosingElement.toClassName()?.simpleName()}_Helper"
                 if (columnDefinition is ReferenceColumnDefinition) {
-                    val tableDefinition: TableDefinition? = databaseDefinition?.objectHolder?.tableDefinitionMap?.get(columnDefinition.referencedClassName as TypeName)
+                    val tableDefinition: TableDefinition? = databaseDefinition.objectHolder?.tableDefinitionMap?.get(columnDefinition.referencedClassName as TypeName)
                     if (tableDefinition != null) {
-                        helperClassName = "${tableDefinition.element.getPackage()}.${ClassName.get(tableDefinition.element as TypeElement).simpleName()}${classSeparator}Helper"
+                        helperClassName = "${tableDefinition.element.getPackage()}.${ClassName.get(tableDefinition.element as TypeElement).simpleName()}_Helper"
                     }
                 }
                 val className = ElementUtility.getClassName(helperClassName, manager)
 
                 if (className != null && PackagePrivateScopeColumnAccessor.containsColumn(className, columnDefinition.columnName)) {
                     typeBuilder.apply {
-                        val samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this@BaseTableDefinition.element)
+                        val samePackage = ElementUtility.isInSamePackage(manager, columnDefinition.element, this@EntityDefinition.element)
                         val methodName = columnDefinition.columnName.capitalize()
 
                         `public static final`(columnDefinition.elementTypeName!!, "get$methodName",
-                                param(elementTypeName!!, ModelUtils.variable)) {
+                            param(elementTypeName!!, ModelUtils.variable)) {
                             if (samePackage) {
                                 `return`("${ModelUtils.variable}.${columnDefinition.elementName}")
                             } else {
@@ -156,8 +166,8 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
                         }
 
                         `public static final`(TypeName.VOID, "set$methodName",
-                                param(elementTypeName!!, ModelUtils.variable),
-                                param(columnDefinition.elementTypeName!!, "var")) {
+                            param(elementTypeName, ModelUtils.variable),
+                            param(columnDefinition.elementTypeName, "var")) {
                             if (samePackage) {
                                 statement("${ModelUtils.variable}.${columnDefinition.elementName} = var")
                             } else {
@@ -168,7 +178,7 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
 
                     count++
                 } else if (className == null) {
-                    manager.logError(BaseTableDefinition::class, "Could not find classname for: $helperClassName")
+                    manager.logError(EntityDefinition::class, "Could not find classname for: $helperClassName")
                 }
             }
 
@@ -187,8 +197,8 @@ abstract class BaseTableDefinition(typeElement: Element, processorManager: Proce
     internal fun checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage: Boolean, element: Element): Boolean {
         if (isPackagePrivateNotInSamePackage && !manager.elementBelongsInTable(element)) {
             manager.logError("Package private inheritance on non-table/querymodel/view " +
-                    "is not supported without a @InheritedColumn annotation." +
-                    " Make $element from ${element.enclosingElement} public or private.")
+                "is not supported without a @InheritedColumn annotation." +
+                " Make $element from ${element.enclosingElement} public or private.")
             return true
         }
         return false

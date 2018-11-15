@@ -12,9 +12,8 @@ import com.squareup.javapoet.CodeBlock
  */
 class UniqueGroupsDefinition(uniqueGroup: UniqueGroup) {
 
-    var columnDefinitionList: MutableList<ColumnDefinition> = arrayListOf()
-
-    var number: Int = uniqueGroup.groupNumber
+    val columnDefinitionList: MutableList<ColumnDefinition> = arrayListOf()
+    val number: Int = uniqueGroup.groupNumber
 
     private val uniqueConflict: ConflictAction = uniqueGroup.uniqueConflict
 
@@ -25,18 +24,13 @@ class UniqueGroupsDefinition(uniqueGroup: UniqueGroup) {
     val creationName: CodeBlock
         get() {
             val codeBuilder = CodeBlock.builder().add(", UNIQUE(")
-            columnDefinitionList.forEachIndexed { index, columnDefinition ->
-                if (index > 0) {
-                    codeBuilder.add(",")
-                }
+            codeBuilder.add(columnDefinitionList.joinToString { columnDefinition ->
                 if (columnDefinition is ReferenceColumnDefinition) {
-                    for (reference in columnDefinition.referenceDefinitionList) {
-                        codeBuilder.add(reference.columnName.quote())
-                    }
+                    columnDefinition.referenceDefinitionList.joinToString { it.columnName.quote() }
                 } else {
-                    codeBuilder.add(columnDefinition.columnName.quote())
+                    columnDefinition.columnName.quote()
                 }
-            }
+            })
             codeBuilder.add(") ON CONFLICT \$L", uniqueConflict)
             return codeBuilder.build()
         }

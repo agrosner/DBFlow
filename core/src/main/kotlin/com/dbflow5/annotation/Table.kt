@@ -12,7 +12,7 @@ val DEFAULT_CACHE_SIZE = 25
  * The $Adapter class defines how to retrieve and store this object as well as other methods for acting on model objects in the database.
  */
 @Retention(AnnotationRetention.SOURCE)
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
+@Target(AnnotationTarget.CLASS)
 annotation class Table(
         /**
          * @return Specifies a different name for the table than the name of the Model class.

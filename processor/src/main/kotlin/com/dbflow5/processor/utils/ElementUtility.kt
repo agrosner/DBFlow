@@ -18,7 +18,7 @@ object ElementUtility {
      */
     fun getAllElements(element: TypeElement, manager: ProcessorManager): List<Element> {
         val elements = manager.elements.getAllMembers(element).toMutableList()
-        var superMirror: TypeMirror? = null
+        var superMirror: TypeMirror?
         var typeElement: TypeElement? = element
         while (typeElement?.superclass.let { superMirror = it; it != null }) {
             typeElement = manager.typeUtils.asElement(superMirror) as TypeElement?
@@ -36,16 +36,21 @@ object ElementUtility {
 
     fun isPackagePrivate(element: Element): Boolean {
         return !element.modifiers.contains(Modifier.PUBLIC) && !element.modifiers.contains(Modifier.PRIVATE)
-                && !element.modifiers.contains(Modifier.STATIC)
+            && !element.modifiers.contains(Modifier.STATIC)
     }
 
     fun isValidAllFields(allFields: Boolean, element: Element): Boolean {
         return allFields && element.kind.isField &&
-                !element.modifiers.contains(Modifier.STATIC) &&
-                !element.modifiers.contains(Modifier.FINAL) &&
-                element.annotation<ColumnIgnore>() == null
+            !element.modifiers.contains(Modifier.STATIC) &&
+            !element.modifiers.contains(Modifier.FINAL) &&
+            element.annotation<ColumnIgnore>() == null
     }
 
+    /**
+     * Attempts to retrieve a [ClassName] from the [elementClassname] Fully-qualified name. If it
+     * does not exist yet via [ClassName.get], we manually create the [ClassName] object to reference
+     * later at compile time validation.
+     */
     fun getClassName(elementClassname: String, manager: ProcessorManager): ClassName? {
         val typeElement: TypeElement? = manager.elements.getTypeElement(elementClassname)
         return if (typeElement != null) {
@@ -55,7 +60,7 @@ object ElementUtility {
             if (names.isNotEmpty()) {
                 // attempt to take last part as class name
                 val className = names[names.size - 1]
-                ClassName.get(elementClassname.replace("." + className, ""), className)
+                ClassName.get(elementClassname.replace(".$className", ""), className)
             } else {
                 null
             }

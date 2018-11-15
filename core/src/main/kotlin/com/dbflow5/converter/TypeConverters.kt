@@ -34,6 +34,7 @@ abstract class TypeConverter<DataClass, ModelClass> {
 /**
  * Description: Defines how we store and retrieve a [java.math.BigDecimal]
  */
+@com.dbflow5.annotation.TypeConverter
 class BigDecimalConverter : TypeConverter<String, BigDecimal>() {
     override fun getDBValue(model: BigDecimal?): String? = model?.toString()
 
@@ -43,6 +44,7 @@ class BigDecimalConverter : TypeConverter<String, BigDecimal>() {
 /**
  * Description: Defines how we store and retrieve a [java.math.BigInteger]
  */
+@com.dbflow5.annotation.TypeConverter
 class BigIntegerConverter : TypeConverter<String, BigInteger>() {
     override fun getDBValue(model: BigInteger?): String? = model?.toString()
 
@@ -52,6 +54,7 @@ class BigIntegerConverter : TypeConverter<String, BigInteger>() {
 /**
  * Description: Converts a boolean object into an Integer for database storage.
  */
+@com.dbflow5.annotation.TypeConverter
 class BooleanConverter : TypeConverter<Int, Boolean>() {
     override fun getDBValue(model: Boolean?): Int? = if (model == null) null else if (model) 1 else 0
 
@@ -73,6 +76,7 @@ class CalendarConverter : TypeConverter<Long, Calendar>() {
 /**
  * Description: Converts a [Character] into a [String] for database storage.
  */
+@com.dbflow5.annotation.TypeConverter
 class CharConverter : TypeConverter<String, Char>() {
 
     override fun getDBValue(model: Char?): String? =
@@ -84,6 +88,7 @@ class CharConverter : TypeConverter<String, Char>() {
 /**
  * Description: Defines how we store and retrieve a [java.util.Date]
  */
+@com.dbflow5.annotation.TypeConverter
 class DateConverter : TypeConverter<Long, Date>() {
 
     override fun getDBValue(model: Date?): Long? = model?.time
@@ -107,6 +112,7 @@ class SqlDateConverter : TypeConverter<Long, java.sql.Date>() {
  *
  * @author Andrew Grosner (fuzz)
  */
+@com.dbflow5.annotation.TypeConverter
 class UUIDConverter : TypeConverter<String, UUID>() {
 
     override fun getDBValue(model: UUID?): String? = model?.toString()

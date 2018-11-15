@@ -40,19 +40,19 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
 
             processorManager.getTypeConverters().forEach { tc ->
                 statement("\$L.put(\$T.class, new \$T())",
-                        DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, tc.modelTypeName, tc.className)
+                    DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, tc.modelTypeName, tc.className)
 
-                tc.allowedSubTypes?.forEach { subType ->
+                tc.allowedSubTypes.forEach { subType ->
                     statement("\$L.put(\$T.class, new \$T())",
-                            DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, subType, tc.className)
+                        DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, subType, tc.className)
                 }
             }
 
             processorManager.getDatabaseHolderDefinitionList()
-                    .asSequence()
-                    .mapNotNull { it.databaseDefinition?.outputClassName }
-                    .sortedBy { it.simpleName() }
-                    .forEach { statement("new \$T(this)", it) }
+                .asSequence()
+                .mapNotNull { it.databaseDefinition?.outputClassName }
+                .sortedBy { it.simpleName() }
+                .forEach { statement("new \$T(this)", it) }
             this
         }
     }
@@ -61,7 +61,7 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
      * If none of the database holder databases exist, don't generate a holder.
      */
     fun isGarbage() = processorManager.getDatabaseHolderDefinitionList()
-            .none { it.databaseDefinition?.outputClassName != null }
+        .none { it.databaseDefinition?.outputClassName != null }
 
     companion object {
 

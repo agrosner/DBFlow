@@ -2,7 +2,9 @@ package com.dbflow5.processor.definition
 
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.processor.ClassNames
+import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnDefinition
+import com.dbflow5.processor.definition.column.modelBlock
 import com.dbflow5.processor.definition.column.wrapperCommaIfBaseModel
 import com.dbflow5.processor.utils.ModelUtils
 import com.dbflow5.processor.utils.`override fun`
@@ -44,7 +46,7 @@ interface MethodDefinition {
 /**
  * Description: Writes the bind to content values method in the ModelDAO.
  */
-class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefinition,
+class BindToContentValuesMethod(private val entityDefinition: EntityDefinition,
                                 private val isInsert: Boolean,
                                 private val implementsContentValuesListener: Boolean) : MethodDefinition {
 
@@ -54,13 +56,13 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                     .addAnnotation(Override::class.java)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                     .addParameter(ClassNames.CONTENT_VALUES, PARAM_CONTENT_VALUES)
-                    .addParameter(baseTableDefinition.parameterClassName, ModelUtils.variable)
+                    .addParameter(entityDefinition.parameterClassName, ModelUtils.variable)
                     .returns(TypeName.VOID)
 
             var retMethodBuilder: MethodSpec.Builder? = methodBuilder
 
             if (isInsert) {
-                baseTableDefinition.columnDefinitions.forEach {
+                entityDefinition.columnDefinitions.forEach {
                     if (it.type !is ColumnDefinition.Type.PrimaryAutoIncrement
                             && it.type !is ColumnDefinition.Type.RowId) {
                         methodBuilder.addCode(it.contentValuesStatement)
@@ -72,8 +74,9 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
                             ModelUtils.variable, if (isInsert) "Insert" else "Content", PARAM_CONTENT_VALUES)
                 }
             } else {
-                if (baseTableDefinition.hasAutoIncrement || baseTableDefinition.hasRowID) {
-                    val autoIncrement = baseTableDefinition.autoIncrementColumn
+                if (entityDefinition.primaryKeyColumnBehavior.hasAutoIncrement
+                        || entityDefinition.primaryKeyColumnBehavior.hasRowID) {
+                    val autoIncrement = entityDefinition.primaryKeyColumnBehavior.associatedColumn
                     autoIncrement?.let {
                         methodBuilder.addCode(autoIncrement.contentValuesStatement)
                     }
@@ -99,7 +102,8 @@ class BindToContentValuesMethod(private val baseTableDefinition: BaseTableDefini
 /**
  * Description:
  */
-class BindToStatementMethod(private val tableDefinition: TableDefinition, private val mode: Mode) : MethodDefinition {
+class BindToStatementMethod(private val tableDefinition: TableDefinition,
+                            private val mode: Mode) : MethodDefinition {
 
     enum class Mode {
         INSERT {
@@ -186,88 +190,94 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
     override val methodSpec: MethodSpec
         get() = `override fun`(String::class, "getCreationQuery") {
             modifiers(public, final)
-
-            val foreignSize = tableDefinition.foreignKeyDefinitions.size
-
-            val creationBuilder = codeBlock {
-                add("CREATE TABLE IF NOT EXISTS ${tableDefinition.tableName.quote()}(")
-                add(tableDefinition.columnDefinitions.joinToString { it.creationName.toString() })
-                tableDefinition.uniqueGroupsDefinitions.forEach {
-                    if (!it.columnDefinitionList.isEmpty()) add(it.creationName)
-                }
-
-                if (!tableDefinition.hasAutoIncrement) {
-                    val primarySize = tableDefinition.primaryColumnDefinitions.size
-                    if (primarySize > 0) {
-                        add(", PRIMARY KEY(${tableDefinition.primaryColumnDefinitions.joinToString { it.primaryKeyName.toString() }})")
-                        if (!tableDefinition.primaryKeyConflictActionName.isNullOrEmpty()) {
-                            add(" ON CONFLICT ${tableDefinition.primaryKeyConflictActionName}")
+            if (tableDefinition.type.isVirtual) {
+                addCode("return ${codeBlock {
+                    add("CREATE VIRTUAL TABLE IF NOT EXISTS ${tableDefinition.associationalBehavior.name.quote()} USING ")
+                    when (tableDefinition.type) {
+                        TableDefinition.Type.FTS4 -> add("FTS4")
+                        TableDefinition.Type.FTS3 -> add("FTS3")
+                        else -> {
+                            ProcessorManager.manager.logError("Invalid table type found ${tableDefinition.type}")
                         }
                     }
-                }
-                if (foreignSize == 0) {
-                    add(")")
-                }
-                this
-            }
-
-            val codeBuilder = CodeBlock.builder()
-                    .add("return ${creationBuilder.toString().S}")
-
-            val foreignKeyBlocks = arrayListOf<CodeBlock>()
-            val tableNameBlocks = arrayListOf<CodeBlock>()
-            val referenceKeyBlocks = arrayListOf<CodeBlock>()
-
-            for (i in 0 until foreignSize) {
-                val foreignKeyBuilder = CodeBlock.builder()
-                val referenceBuilder = CodeBlock.builder()
-                val fk = tableDefinition.foreignKeyDefinitions[i]
-
-                foreignKeyBlocks.add(foreignKeyBuilder.apply {
-                    add(", FOREIGN KEY(")
-                    add(fk.referenceDefinitionList.joinToString { it.columnName.quote() })
-                    add(") REFERENCES ")
-                }.build())
-
-                tableNameBlocks.add(codeBlock { add("\$T.getTableName(\$T.class)", ClassNames.FLOW_MANAGER, fk.referencedClassName) })
-
-                referenceKeyBlocks.add(referenceBuilder.apply {
                     add("(")
-                    add(fk.referenceDefinitionList.joinToString { it.foreignColumnName.quote() })
-                    add(") ON UPDATE ${fk.onUpdate.name.replace("_", " ")} ON DELETE ${fk.onDelete.name.replace("_", " ")}")
-                    if (fk.deferred) {
-                        add(" DEFERRABLE INITIALLY DEFERRED")
-                    }
-                }.build())
-            }
-
-            if (foreignSize > 0) {
-                @Suppress("LoopToCallChain")
-                for (i in 0 until foreignSize) {
-                    codeBuilder.add("+ ${foreignKeyBlocks[i].S} + ${tableNameBlocks[i]} + ${referenceKeyBlocks[i].S}")
-                }
-                codeBuilder.add(" + ${");".S};\n")
+                    // FTS4 uses column names directly.
+                    add(tableDefinition.columnDefinitions.joinToString { it.columnName.quote() })
+                    tableDefinition.ftS4Behavior?.addContentTableCode(tableDefinition.columnDefinitions.isNotEmpty(), this)
+                    add(")")
+                }.S};\n")
             } else {
-                codeBuilder.add(";\n")
-            }
 
-            addCode(codeBuilder.build())
+                val foreignSize = tableDefinition.foreignKeyDefinitions.size
+
+                val creationBuilder = codeBlock {
+                    add("CREATE TABLE IF NOT EXISTS ${tableDefinition.associationalBehavior.name.quote()}(")
+                    add(tableDefinition.columnDefinitions.joinToString { it.creationName.toString() })
+                    tableDefinition.uniqueGroupsDefinitions.forEach {
+                        if (!it.columnDefinitionList.isEmpty()) add(it.creationName)
+                    }
+
+                    if (!tableDefinition.primaryKeyColumnBehavior.hasAutoIncrement) {
+                        val primarySize = tableDefinition.primaryColumnDefinitions.size
+                        if (primarySize > 0) {
+                            add(", PRIMARY KEY(${tableDefinition.primaryColumnDefinitions.joinToString { it.primaryKeyName.toString() }})")
+                            if (!tableDefinition.primaryKeyConflictActionName.isNullOrEmpty()) {
+                                add(" ON CONFLICT ${tableDefinition.primaryKeyConflictActionName}")
+                            }
+                        }
+                    }
+                    if (foreignSize == 0) {
+                        add(")")
+                    }
+                    this
+                }
+
+                val codeBuilder = CodeBlock.builder()
+                        .add("return \"$creationBuilder")
+
+                tableDefinition.foreignKeyDefinitions.forEach { fk ->
+                    val referencedTableDefinition = ProcessorManager.manager.getReferenceDefinition(tableDefinition.associationalBehavior.databaseTypeName, fk.referencedClassName)
+                    if (referencedTableDefinition == null) {
+                        fk.throwCannotFindReference()
+                    } else {
+                        codeBuilder.add(buildString {
+                            append(", FOREIGN KEY(")
+                            append(fk.referenceDefinitionList.joinToString { it.columnName.quote() })
+                            append(") REFERENCES ")
+                            append("${referencedTableDefinition.associationalBehavior.name} ")
+                            append("(")
+                            append(fk.referenceDefinitionList.joinToString { it.foreignColumnName.quote() })
+                            append(") ON UPDATE ${fk.foreignKeyColumnBehavior!!.onUpdate.name.replace("_", " ")}")
+                            append(" ON DELETE ${fk.foreignKeyColumnBehavior.onDelete.name.replace("_", " ")}")
+                            if (fk.foreignKeyColumnBehavior.deferred) {
+                                append(" DEFERRABLE INITIALLY DEFERRED")
+                            }
+                        })
+                    }
+                }
+                if (foreignSize > 0) {
+                    codeBuilder.add(")")
+                }
+                codeBuilder.add("\";\n")
+
+                addCode(codeBuilder.build())
+            }
         }
 }
 
 /**
  * Description: Writes out the custom type converter fields.
  */
-class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTableDefinition)
+class CustomTypeConverterPropertyMethod(private val entityDefinition: EntityDefinition)
     : TypeAdder, CodeAdder {
 
     override fun addToType(typeBuilder: TypeSpec.Builder) {
-        val customTypeConverters = baseTableDefinition.associatedTypeConverters.keys
+        val customTypeConverters = entityDefinition.associatedTypeConverters.keys
         customTypeConverters.forEach {
             typeBuilder.`private final field`(it, "typeConverter${it.simpleName()}") { `=`("new \$T()", it) }
         }
 
-        val globalTypeConverters = baseTableDefinition.globalTypeConverters.keys
+        val globalTypeConverters = entityDefinition.globalTypeConverters.keys
         globalTypeConverters.forEach {
             typeBuilder.`private final field`(it, "global_typeConverter${it.simpleName()}")
         }
@@ -275,9 +285,9 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
 
     override fun addCode(code: CodeBlock.Builder): CodeBlock.Builder {
         // Constructor code
-        val globalTypeConverters = baseTableDefinition.globalTypeConverters.keys
+        val globalTypeConverters = entityDefinition.globalTypeConverters.keys
         globalTypeConverters.forEach {
-            val def = baseTableDefinition.globalTypeConverters[it]
+            val def = entityDefinition.globalTypeConverters[it]
             val firstDef = def?.get(0)
             firstDef?.typeConverterElementNames?.forEach { elementName ->
                 code.statement("global_typeConverter${it.simpleName()} " +
@@ -291,7 +301,7 @@ class CustomTypeConverterPropertyMethod(private val baseTableDefinition: BaseTab
 /**
  * Description:
  */
-class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : MethodDefinition {
+class ExistenceMethod(private val tableDefinition: EntityDefinition) : MethodDefinition {
 
     override val methodSpec
         get() = `override fun`(TypeName.BOOLEAN, "exists",
@@ -300,11 +310,24 @@ class ExistenceMethod(private val tableDefinition: BaseTableDefinition) : Method
             modifiers(public, final)
             code {
                 // only quick check if enabled.
-                var primaryColumn = tableDefinition.autoIncrementColumn
-                if (primaryColumn == null) {
-                    primaryColumn = tableDefinition.primaryColumnDefinitions[0]
+                if (tableDefinition.primaryColumnDefinitions.isNotEmpty()) {
+                    var primaryColumn = tableDefinition.primaryKeyColumnBehavior.associatedColumn
+                    if (primaryColumn == null) {
+                        primaryColumn = tableDefinition.primaryColumnDefinitions[0]
+                    }
+                    primaryColumn.appendExistenceMethod(this)
+                } else {
+                    when (tableDefinition) {
+                        is QueryModelDefinition -> {
+                            add(codeBlock {
+                                add("return \$T.selectCountOf()\n.from(\$T.class)\n" +
+                                        ".where(getPrimaryConditionClause(\$L))\n" +
+                                        ".hasData(wrapper);\n",
+                                        ClassNames.SQLITE, tableDefinition.elementClassName, modelBlock)
+                            })
+                        }
+                    }
                 }
-                primaryColumn.appendExistenceMethod(this)
                 this
             }
         }
@@ -338,7 +361,7 @@ class InsertStatementQueryMethod(private val tableDefinition: TableDefinition,
                     } else {
                         add("OR ${ConflictAction.REPLACE} ")
                     }
-                    add("INTO ${tableDefinition.tableName.quote()}(")
+                    add("INTO ${tableDefinition.associationalBehavior.name.quote()}(")
 
                     tableDefinition.sqlColumnDefinitions
                             .forEachIndexed { index, columnDefinition ->
@@ -372,7 +395,7 @@ class UpdateStatementQueryMethod(private val tableDefinition: TableDefinition) :
                     if (!tableDefinition.updateConflictActionName.isEmpty()) {
                         add(" OR ${tableDefinition.updateConflictActionName}")
                     }
-                    add(" ${tableDefinition.tableName.quote()} SET ")
+                    add(" ${tableDefinition.associationalBehavior.name.quote()} SET ")
 
                     // can only change non primary key values.
                     tableDefinition.sqlColumnDefinitions
@@ -385,7 +408,7 @@ class UpdateStatementQueryMethod(private val tableDefinition: TableDefinition) :
 
                     // primary key values used as WHERE
                     tableDefinition.columnDefinitions
-                            .filter { it.type.isPrimaryField }
+                            .filter { it.type.isPrimaryField || tableDefinition.type.isVirtual }
                             .forEachIndexed { index, columnDefinition ->
                                 if (index > 0) add(" AND ")
                                 add(columnDefinition.updateStatementBlock)
@@ -403,11 +426,11 @@ class DeleteStatementQueryMethod(private val tableDefinition: TableDefinition) :
             return `override fun`(String::class, "getDeleteStatementQuery") {
                 modifiers(public, final)
                 `return`(codeBlock {
-                    add("DELETE FROM ${tableDefinition.tableName.quote()} WHERE ")
+                    add("DELETE FROM ${tableDefinition.associationalBehavior.name.quote()} WHERE ")
 
                     // primary key values used as WHERE
                     tableDefinition.columnDefinitions
-                            .filter { it.type.isPrimaryField }
+                            .filter { it.type.isPrimaryField || tableDefinition.type.isVirtual }
                             .forEachIndexed { index, columnDefinition ->
                                 if (index > 0) add(" AND ")
                                 add(columnDefinition.updateStatementBlock)
@@ -421,31 +444,31 @@ class DeleteStatementQueryMethod(private val tableDefinition: TableDefinition) :
 /**
  * Description:
  */
-class LoadFromCursorMethod(private val baseTableDefinition: BaseTableDefinition) : MethodDefinition {
+class LoadFromCursorMethod(private val entityDefinition: EntityDefinition) : MethodDefinition {
 
     override val methodSpec: MethodSpec
-        get() = `override fun`(baseTableDefinition.parameterClassName!!, "loadFromCursor",
+        get() = `override fun`(entityDefinition.parameterClassName!!, "loadFromCursor",
                 param(ClassNames.FLOW_CURSOR, PARAM_CURSOR),
                 param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
             modifiers(public, final)
-            statement("\$1T ${ModelUtils.variable} = new \$1T()", baseTableDefinition.parameterClassName)
+            statement("\$1T ${ModelUtils.variable} = new \$1T()", entityDefinition.parameterClassName)
             val index = AtomicInteger(0)
             val nameAllocator = NameAllocator() // unique names
-            baseTableDefinition.columnDefinitions.forEach {
+            entityDefinition.columnDefinitions.forEach {
                 addCode(it.getLoadFromCursorMethod(true, index, nameAllocator))
                 index.incrementAndGet()
             }
 
-            if (baseTableDefinition is TableDefinition) {
+            if (entityDefinition is TableDefinition) {
                 code {
-                    baseTableDefinition.oneToManyDefinitions
+                    entityDefinition.oneToManyDefinitions
                             .filter { it.isLoad }
                             .forEach { it.writeLoad(this) }
                     this
                 }
             }
 
-            if (baseTableDefinition is TableDefinition && baseTableDefinition.implementsLoadFromCursorListener) {
+            if (entityDefinition.implementsLoadFromCursorListener) {
                 statement("${ModelUtils.variable}.onLoadFromCursor($PARAM_CURSOR)")
             }
             `return`(ModelUtils.variable)
@@ -466,12 +489,12 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition) : Meth
     override val methodSpec: MethodSpec?
         get() {
             val shouldWrite = tableDefinition.oneToManyDefinitions.any { it.isDelete }
-            if (shouldWrite || tableDefinition.cachingEnabled) {
+            if (shouldWrite || tableDefinition.cachingBehavior.cachingEnabled) {
                 return `override fun`(TypeName.BOOLEAN, "delete",
                         param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
                     modifiers(public, final)
                     addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
-                    if (tableDefinition.cachingEnabled) {
+                    if (tableDefinition.cachingBehavior.cachingEnabled) {
                         statement("cacheAdapter.removeModelFromCache(${ModelUtils.variable})")
                     }
 
@@ -494,7 +517,7 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
 
     override val methodSpec: MethodSpec?
         get() {
-            if (!tableDefinition.oneToManyDefinitions.isEmpty() || tableDefinition.cachingEnabled) {
+            if (!tableDefinition.oneToManyDefinitions.isEmpty() || tableDefinition.cachingBehavior.cachingEnabled) {
                 var retType = TypeName.BOOLEAN
                 var retStatement = "successful"
                 when (methodName) {
@@ -516,7 +539,7 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
                         }
                         statement("super.$methodName(${ModelUtils.variable}${wrapperCommaIfBaseModel(true)})")
 
-                        if (tableDefinition.cachingEnabled) {
+                        if (tableDefinition.cachingBehavior.cachingEnabled) {
                             statement("cacheAdapter.storeModelInCache(${ModelUtils.variable})")
                         }
                         this
@@ -548,7 +571,7 @@ class OneToManySaveMethod(private val tableDefinition: TableDefinition,
  * Description: Creates a method that builds a clause of ConditionGroup that represents its primary keys. Useful
  * for updates or deletes.
  */
-class PrimaryConditionMethod(private val tableDefinition: BaseTableDefinition) : MethodDefinition {
+class PrimaryConditionMethod(private val tableDefinition: EntityDefinition) : MethodDefinition {
 
     override val methodSpec: MethodSpec?
         get() = `override fun`(ClassNames.OPERATOR_GROUP, "getPrimaryConditionClause",

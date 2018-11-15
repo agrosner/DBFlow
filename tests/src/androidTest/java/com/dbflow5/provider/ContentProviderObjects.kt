@@ -22,7 +22,7 @@ abstract class ContentDatabase : ContentProviderDatabase() {
     companion object {
         const val BASE_CONTENT_URI = "content://"
 
-        const val AUTHORITY = "com.raizlabs.android.content.test.ContentDatabase"
+        const val AUTHORITY = "com.grosner.content.test.ContentDatabase"
 
         const val VERSION = 1
     }

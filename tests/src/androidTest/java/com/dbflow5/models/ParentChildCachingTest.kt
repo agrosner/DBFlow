@@ -4,7 +4,6 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
 import com.dbflow5.query.select
-import com.dbflow5.structure.load
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

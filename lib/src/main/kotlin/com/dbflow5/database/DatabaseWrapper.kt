@@ -54,4 +54,16 @@ interface DatabaseWrapper {
               having: String?, orderBy: String?): FlowCursor
 
     fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int
+
 }
+
+inline fun DatabaseWrapper.executeTransaction(dbFn: DatabaseWrapper.() -> Unit) {
+    try {
+        beginTransaction()
+        dbFn()
+        setTransactionSuccessful()
+    } finally {
+        endTransaction()
+    }
+}
+
