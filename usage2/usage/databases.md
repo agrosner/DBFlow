@@ -145,7 +145,7 @@ Databases can get corrupted or in an invalid state at some point. If you specify
 
 ### Custom FlowSQLiteOpenHelper
 
-For variety of reasons, you may want to provide your own `FlowSQLiteOpenHelper` to manage database interactions. To do so, you must implement `OpenHelper`, but for convenience you should extend `AndroidSQLiteOpenHelper` \(for Android databases\), or `SQLCipherOpenHelper` for SQLCipher. Read more [here](../../advanced-usage/sqlciphersupport.md)
+For variety of reasons, you may want to provide your own `FlowSQLiteOpenHelper` to manage database interactions. To do so, you must implement `OpenHelper`, but for convenience you should extend `AndroidSQLiteOpenHelper` \(for Android databases\), or `SQLCipherOpenHelper` for SQLCipher. Read more [here](../advanced-usage/sqlciphersupport.md)
 
 ```kotlin
 class CustomFlowSQliteOpenHelper(context: Contect, databaseDefinition: DatabaseDefinition, listener: DatabaseHelperListener) : FlowSQLiteOpenHelper(context, databaseDefinition, listener)

@@ -44,13 +44,13 @@ class IndexModel2 {
 By defining the index this way, we generate an `IndexProperty`, which makes it very easy to enable, disable, and use it within queries:
 
 ```kotlin
-IndexModel2_Table.firstIndex.createIfNotExists(db);
+IndexModel2_Table.firstIndex.createIfNotExists(database);
 
 (select from IndexModel2::class
   indexedBy IndexModel2_Table.firstIndex
   where ...)
 
-IndexModel2_Table.firstIndex.drop(db); // turn it off when no longer needed.
+IndexModel2_Table.firstIndex.drop(database); // turn it off when no longer needed.
 ```
 
 ## SQLite Index Wrapper
@@ -59,7 +59,8 @@ For flexibility, we also support the SQLite `Index` wrapper object, in which the
 
 ```kotlin
 val index = indexOn<SomeTable>("MyIndex", SomeTable_Table.name, SomeTable_Table.othercolumn)
-index.createIfNotExists(db)
+index.createIfNotExists(database)
 
-index.drop(db)
+index.drop(database)
 ```
+

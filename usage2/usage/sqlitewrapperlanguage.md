@@ -102,7 +102,7 @@ This appends a `WHERE (SELECT * FROM {table} )` to the query.
 
 For reference, \([JOIN examples](http://www.tutorialspoint.com/sqlite/sqlite_using_joins.htm)\).
 
-`JOIN` statements are great for combining many-to-many relationships. If your query returns non-table fields and cannot map to an existing object, see about [query models](../../advanced-usage/querymodels.md)
+`JOIN` statements are great for combining many-to-many relationships. If your query returns non-table fields and cannot map to an existing object, see about [query models](../advanced-usage/querymodels.md)
 
 For example we have a table named `Customer` and another named `Reservations`.
 
