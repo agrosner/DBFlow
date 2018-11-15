@@ -8,7 +8,6 @@ import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ModelViewAdapter
 import com.dbflow5.adapter.QueryModelAdapter
 import com.dbflow5.adapter.RetrievalAdapter
-import com.dbflow5.adapter.VirtualTableAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.database.DatabaseWrapper
