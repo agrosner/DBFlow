@@ -374,7 +374,7 @@ internal constructor(nameAlias: NameAlias?,
 
     override fun notIn(values: Collection<T>): In<T> = In(this, values, false)
 
-    override fun convertObjectToString(obj: Any?, appendInnerParenthesis: Boolean): String? =
+    override fun convertObjectToString(obj: Any?, appendInnerParenthesis: Boolean): String =
         (typeConverter as? TypeConverter<*, Any>?)?.let { typeConverter ->
             var converted = obj
             try {
@@ -506,6 +506,11 @@ internal constructor(nameAlias: NameAlias?,
         /**
          * An empty value for the condition.
          */
+        @Deprecated(replaceWith = ReplaceWith(
+            expression = "Property.WILDCARD",
+            imports = ["com.dbflow5.query.Property"]
+        ), message = "Deprecated. This will translate to '?' in the query as it get's SQL-escaped. " +
+            "Use the Property.WILDCARD instead to get desired ? behavior.")
         const val EMPTY_PARAM = "?"
 
         /**
