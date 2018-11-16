@@ -4,6 +4,7 @@ import com.dbflow5.byteArrayToHexString
 import com.dbflow5.config.FlowManager
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.data.Blob
+import com.dbflow5.query.property.Property
 import com.dbflow5.sql.Query
 import com.dbflow5.sqlEscapeString
 
@@ -128,8 +129,7 @@ abstract class BaseOperator internal constructor(
             } else {
                 var stringVal: String
                 if (typeConvert) {
-                    val typeConverter: TypeConverter<*, Any?>?
-                        = FlowManager.getTypeConverterForClass(locVal.javaClass) as TypeConverter<*, Any?>?
+                    val typeConverter: TypeConverter<*, Any?>? = FlowManager.getTypeConverterForClass(locVal.javaClass) as TypeConverter<*, Any?>?
                     if (typeConverter != null) {
                         locVal = typeConverter.getDBValue(locVal)
                     }
@@ -158,9 +158,10 @@ abstract class BaseOperator internal constructor(
                         }
                         stringVal = "X${sqlEscapeString(byteArrayToHexString(bytes))}"
                     } else {
-                        stringVal = locVal.toString()
-                        if (stringVal != Operator.Operation.EMPTY_PARAM) {
-                            stringVal = sqlEscapeString(stringVal)
+                        stringVal = if (locVal is Property<*> && locVal == Property.WILDCARD) {
+                            locVal.toString()
+                        } else {
+                            sqlEscapeString(locVal.toString())
                         }
                     }
                 }
