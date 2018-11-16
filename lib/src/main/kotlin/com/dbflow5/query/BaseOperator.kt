@@ -79,13 +79,13 @@ abstract class BaseOperator internal constructor(
      */
     internal fun columnAlias(): NameAlias? = nameAlias
 
-    open fun convertObjectToString(obj: Any?, appendInnerParenthesis: Boolean): String? =
+    open fun convertObjectToString(obj: Any?, appendInnerParenthesis: Boolean): String =
         convertValueToString(obj, appendInnerParenthesis)
 
     companion object {
 
         @JvmStatic
-        fun convertValueToString(value: Any?, appendInnerQueryParenthesis: Boolean): String? =
+        fun convertValueToString(value: Any?, appendInnerQueryParenthesis: Boolean): String =
             convertValueToString(value, appendInnerQueryParenthesis, true)
 
         /**
@@ -122,47 +122,42 @@ abstract class BaseOperator internal constructor(
         @JvmStatic
         fun convertValueToString(value: Any?,
                                  appendInnerQueryParenthesis: Boolean,
-                                 typeConvert: Boolean): String? {
+                                 typeConvert: Boolean): String {
             var locVal = value
             if (locVal == null) {
                 return "NULL"
             } else {
-                var stringVal: String
+                val stringVal: String
                 if (typeConvert) {
                     val typeConverter: TypeConverter<*, Any?>? = FlowManager.getTypeConverterForClass(locVal.javaClass) as TypeConverter<*, Any?>?
                     if (typeConverter != null) {
                         locVal = typeConverter.getDBValue(locVal)
                     }
                 }
-
-                if (locVal is Number) {
+                if (appendInnerQueryParenthesis && locVal is BaseModelQueriable<*>) {
+                    stringVal = locVal.enclosedQuery
+                } else if (locVal is Property<*> && locVal == Property.WILDCARD) {
                     stringVal = locVal.toString()
-                } else if (locVal is Enum<*>) {
-                    stringVal = sqlEscapeString(locVal.name)
                 } else {
-                    if (appendInnerQueryParenthesis && locVal is BaseModelQueriable<*>) {
-                        stringVal = locVal.enclosedQuery
-                    } else if (locVal is NameAlias) {
-                        stringVal = locVal.query
-                    } else if (locVal is SQLOperator) {
-                        val queryBuilder = StringBuilder()
-                        locVal.appendConditionToQuery(queryBuilder)
-                        stringVal = queryBuilder.toString()
-                    } else if (locVal is Query) {
-                        stringVal = locVal.query
-                    } else if (locVal is Blob || locVal is ByteArray) {
-                        val bytes: ByteArray? = if (locVal is Blob) {
-                            locVal.blob
-                        } else {
-                            locVal as ByteArray?
+                    stringVal = when (locVal) {
+                        is Number -> locVal.toString()
+                        is Enum<*> -> sqlEscapeString(locVal.name)
+                        is NameAlias -> locVal.query
+                        is SQLOperator -> {
+                            val queryBuilder = StringBuilder()
+                            locVal.appendConditionToQuery(queryBuilder)
+                            queryBuilder.toString()
                         }
-                        stringVal = "X${sqlEscapeString(byteArrayToHexString(bytes))}"
-                    } else {
-                        stringVal = if (locVal is Property<*> && locVal == Property.WILDCARD) {
-                            locVal.toString()
-                        } else {
-                            sqlEscapeString(locVal.toString())
+                        is Query -> locVal.query
+                        is Blob, is ByteArray -> {
+                            val bytes: ByteArray? = if (locVal is Blob) {
+                                locVal.blob
+                            } else {
+                                locVal as ByteArray?
+                            }
+                            "X${sqlEscapeString(byteArrayToHexString(bytes))}"
                         }
+                        else -> sqlEscapeString(locVal.toString())
                     }
                 }
 
@@ -182,19 +177,8 @@ abstract class BaseOperator internal constructor(
         @JvmStatic
         fun joinArguments(delimiter: CharSequence,
                           tokens: Iterable<*>,
-                          condition: BaseOperator): String {
-            val sb = StringBuilder()
-            var firstTime = true
-            for (token in tokens) {
-                if (firstTime) {
-                    firstTime = false
-                } else {
-                    sb.append(delimiter)
-                }
-                sb.append(condition.convertObjectToString(token, false))
-            }
-            return sb.toString()
-        }
+                          condition: BaseOperator): String =
+            tokens.joinToString(separator = delimiter) { condition.convertObjectToString(it, false) }
 
         /**
          * Returns a string containing the tokens converted into DBValues joined by delimiters.
@@ -207,7 +191,7 @@ abstract class BaseOperator internal constructor(
         @JvmStatic
         fun joinArguments(delimiter: CharSequence, tokens: Array<Any?>): String =
             tokens.joinToString(separator = delimiter) {
-                convertValueToString(it, false, true) ?: ""
+                convertValueToString(it, false, true)
             }
 
         /**
@@ -221,7 +205,7 @@ abstract class BaseOperator internal constructor(
         @JvmStatic
         fun joinArguments(delimiter: CharSequence, tokens: Iterable<Any?>): String =
             tokens.joinToString(separator = delimiter) {
-                convertValueToString(it, false, true) ?: ""
+                convertValueToString(it, false, true)
             }
     }
 
