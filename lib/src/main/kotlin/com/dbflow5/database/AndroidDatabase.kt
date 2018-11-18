@@ -14,6 +14,9 @@ class AndroidDatabase internal constructor(val database: SQLiteDatabase) : Andro
         rethrowDBFlowException { database.execSQL(query) }
     }
 
+    override val isInTransaction: Boolean
+        get() = database.inTransaction()
+
     override fun beginTransaction() {
         database.beginTransaction()
     }

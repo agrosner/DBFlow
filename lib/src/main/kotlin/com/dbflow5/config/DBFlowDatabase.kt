@@ -412,4 +412,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
                        selectionArgs: Array<String>?,
                        groupBy: String?, having: String?,
                        orderBy: String?): FlowCursor = writableDatabase.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy)
+
+    override val isInTransaction: Boolean
+        get() = writableDatabase.isInTransaction
 }
