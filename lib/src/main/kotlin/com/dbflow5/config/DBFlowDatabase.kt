@@ -208,7 +208,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     val isDatabaseIntegrityOk: Boolean
         get() = openHelper.isDatabaseIntegrityOk
 
-    private val tableObserver: TableObserver by lazy {
+    val tableObserver: TableObserver by lazy {
         // observe all tables
         TableObserver(this, tables = modelClasses.toMutableList().apply {
             addAll(modelViews)
@@ -448,7 +448,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     override fun execSQL(query: String) = writableDatabase.execSQL(query)
 
     override fun beginTransaction() {
-        //tableObserver.syncTriggers(writableDatabase)
+        tableObserver.syncTriggers(writableDatabase)
         writableDatabase.beginTransaction()
     }
 
@@ -457,7 +457,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     override fun endTransaction() {
         writableDatabase.endTransaction()
         if (!isInTransaction) {
-            //tableObserver.enqueueTableUpdateCheck()
+            tableObserver.enqueueTableUpdateCheck()
         }
     }
 

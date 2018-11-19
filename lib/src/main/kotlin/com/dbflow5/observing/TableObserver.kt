@@ -74,7 +74,7 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
     /**
      * Enqueues a table update check on the [DBFlowDatabase] Transaction queue.
      */
-    internal fun enqueueTableUpdateCheck() {
+    fun enqueueTableUpdateCheck() {
         if (!pendingRefresh.compareAndSet(false, true)) {
             db.beginTransactionAsync { db ->
                 // TODO: ugly cast check here.
@@ -86,6 +86,11 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
                     FlowLog.log(FlowLog.Level.E, "Could not check for table updates", e)
                 })
         }
+    }
+
+    fun checkForTableUpdates() {
+        syncTriggers()
+        checkForTableUpdates(db)
     }
 
 
