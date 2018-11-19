@@ -41,7 +41,8 @@ class DatabaseConfig(
     val modelNotifier: ModelNotifier? = null,
     val isInMemory: Boolean = false,
     val databaseName: String? = null,
-    val databaseExtensionName: String? = null) {
+    val databaseExtensionName: String? = null,
+    val journalMode: DBFlowDatabase.JournalMode = DBFlowDatabase.JournalMode.Automatic) {
 
     internal constructor(builder: Builder) : this(
         // convert java interface to kotlin function.
@@ -57,7 +58,8 @@ class DatabaseConfig(
             builder.databaseExtensionName == null -> ".db"
             builder.databaseExtensionName.isNotNullOrEmpty() -> ".${builder.databaseExtensionName}"
             else -> ""
-        }) {
+        },
+        journalMode = builder.journalMode) {
         if (!isValidDatabaseName(databaseName)) {
             throw IllegalArgumentException("Invalid database name $databaseName found. Names must follow " +
                 "the \"[A-Za-z_\$]+[a-zA-Z0-9_\$]*\" pattern.")
@@ -81,6 +83,7 @@ class DatabaseConfig(
         internal var inMemory = false
         internal var databaseName: String? = null
         internal var databaseExtensionName: String? = null
+        internal var journalMode: DBFlowDatabase.JournalMode = DBFlowDatabase.JournalMode.Automatic
 
         constructor(kClass: KClass<*>, openHelperCreator: OpenHelperCreator)
             : this(kClass.java, openHelperCreator)
@@ -103,6 +106,10 @@ class DatabaseConfig(
 
         fun inMemory() = apply {
             inMemory = true
+        }
+
+        fun journalMode(journalMode: DBFlowDatabase.JournalMode) = apply {
+            this.journalMode = journalMode
         }
 
         /**

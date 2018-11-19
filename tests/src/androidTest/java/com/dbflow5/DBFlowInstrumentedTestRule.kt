@@ -3,6 +3,7 @@ package com.dbflow5
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.DatabaseConfig
 import com.dbflow5.config.FlowConfig
+import com.dbflow5.config.FlowLog
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.prepackaged.PrepackagedDB
@@ -21,6 +22,7 @@ class DBFlowInstrumentedTestRule : TestRule {
 
             @Throws(Throwable::class)
             override fun evaluate() {
+                FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
                 FlowManager.init(FlowConfig.Builder(DemoApp.context)
                     .database(DatabaseConfig(
                         databaseClass = AppDatabase::class.java,

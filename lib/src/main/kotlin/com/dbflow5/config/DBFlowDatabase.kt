@@ -1,5 +1,9 @@
 package com.dbflow5.config
 
+import android.app.ActivityManager
+import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ModelViewAdapter
@@ -34,6 +38,27 @@ import java.util.concurrent.locks.ReentrantLock
  * pass in for operations and [Transaction].
  */
 abstract class DBFlowDatabase : DatabaseWrapper {
+
+    enum class JournalMode {
+        Automatic,
+        Truncate,
+        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+        WriteAheadLogging;
+
+        fun adjustIfAutomatic(context: Context): JournalMode = when (this) {
+            Automatic -> this
+            else -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    // check if low ram device
+                    val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && manager?.isLowRamDevice == false) {
+                        WriteAheadLogging
+                    }
+                }
+                Truncate
+            }
+        }
+    }
 
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
 
@@ -105,6 +130,8 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     val closeLock: Lock = ReentrantLock()
 
+    internal var writeAheadLoggingEnabled = false
+
     val openHelper: OpenHelper
         @Synchronized get() {
             var helper = _openHelper
@@ -115,13 +142,23 @@ abstract class DBFlowDatabase : DatabaseWrapper {
                 } else {
                     AndroidSQLiteOpenHelper(FlowManager.context, this, callback)
                 }
-                helper.performRestoreFromBackup()
-                isOpened = true
-                tableObserver.construct(helper.database)
+                onOpenWithConfig(config, helper)
             }
             _openHelper = helper
             return helper
         }
+
+    private fun onOpenWithConfig(config: DatabaseConfig?, helper: OpenHelper) {
+        var wal = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            wal = config != null && config.journalMode.adjustIfAutomatic(FlowManager.context) == JournalMode.WriteAheadLogging
+            helper.setWriteAheadLoggingEnabled(wal)
+        }
+        writeAheadLoggingEnabled = wal
+        helper.performRestoreFromBackup()
+        isOpened = true
+        tableObserver.construct(helper.database)
+    }
 
     val writableDatabase: DatabaseWrapper
         get() = openHelper.database
