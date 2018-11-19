@@ -374,7 +374,7 @@ internal constructor(nameAlias: NameAlias?,
 
     override fun notIn(values: Collection<T>): In<T> = In(this, values, false)
 
-    override fun convertObjectToString(obj: Any?, appendInnerParenthesis: Boolean): String? =
+    override fun convertObjectToString(obj: Any?, appendInnerParenthesis: Boolean): String =
         (typeConverter as? TypeConverter<*, Any>?)?.let { typeConverter ->
             var converted = obj
             try {
