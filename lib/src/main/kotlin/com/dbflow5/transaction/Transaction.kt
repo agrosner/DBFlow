@@ -40,7 +40,7 @@ class Transaction<R : Any?>(
 
 
     internal constructor(builder: Builder<R>) : this(
-            databaseDefinition = builder.databaseDefinition,
+            databaseDefinition = builder.database,
             error = builder.errorCallback,
             success = builder.successCallback,
             completion = builder.completion,
@@ -125,10 +125,10 @@ class Transaction<R : Any?>(
     class Builder<R : Any?>
     /**
      * @param transaction        The interface that actually executes the transaction.
-     * @param databaseDefinition The database this transaction will run on. Should be the same
+     * @param database The database this transaction will run on. Should be the same
      * DB as the code that the transaction runs in.
      */
-    (internal val transaction: ITransaction<R>, internal val databaseDefinition: DBFlowDatabase) {
+    (internal val transaction: ITransaction<R>, internal val database: DBFlowDatabase) {
         internal var ready: Ready<R>? = null
         internal var errorCallback: Error<R>? = null
         internal var successCallback: Success<R>? = null
