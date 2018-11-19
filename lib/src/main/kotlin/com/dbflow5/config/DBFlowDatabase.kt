@@ -138,9 +138,9 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             if (helper == null) {
                 val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
                 helper = if (config?.openHelperCreator != null) {
-                    config.openHelperCreator.invoke(this, callback)
+                    config.openHelperCreator.invoke(this, internalCallback)
                 } else {
-                    AndroidSQLiteOpenHelper(FlowManager.context, this, callback)
+                    AndroidSQLiteOpenHelper(FlowManager.context, this, internalCallback)
                 }
                 onOpenWithConfig(config, helper)
             }
@@ -157,7 +157,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         writeAheadLoggingEnabled = wal
         helper.performRestoreFromBackup()
         isOpened = true
-        tableObserver.construct(helper.database)
     }
 
     val writableDatabase: DatabaseWrapper
@@ -449,7 +448,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     override fun execSQL(query: String) = writableDatabase.execSQL(query)
 
     override fun beginTransaction() {
-        tableObserver.syncTriggers(writableDatabase)
+        //tableObserver.syncTriggers(writableDatabase)
         writableDatabase.beginTransaction()
     }
 
@@ -458,7 +457,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     override fun endTransaction() {
         writableDatabase.endTransaction()
         if (!isInTransaction) {
-            tableObserver.enqueueTableUpdateCheck()
+            //tableObserver.enqueueTableUpdateCheck()
         }
     }
 
@@ -477,4 +476,23 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     override val isInTransaction: Boolean
         get() = writableDatabase.isInTransaction
+
+    private val internalCallback: DatabaseCallback = object : DatabaseCallback {
+        override fun onOpen(database: DatabaseWrapper) {
+            tableObserver.construct(database)
+            callback?.onOpen(database)
+        }
+
+        override fun onCreate(database: DatabaseWrapper) {
+            callback?.onCreate(database)
+        }
+
+        override fun onUpgrade(database: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
+            callback?.onUpgrade(database, oldVersion, newVersion)
+        }
+
+        override fun onDowngrade(databaseWrapper: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
+            callback?.onDowngrade(databaseWrapper, oldVersion, newVersion)
+        }
+    }
 }
