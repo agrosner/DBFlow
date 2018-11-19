@@ -44,14 +44,13 @@ class CursorResultSubscriberTest : BaseUnitTest() {
             }
         val model = SimpleModel("test")
         databaseForTable<SimpleModel> { db ->
-            model.save(db)
+            db.executeTransaction { db ->
+                model.save(db)
+                model.delete(db)
+                model.insert(db)
+            }
 
-            model.delete(db)
-
-            model.insert(db)
-
-            assertEquals(4, count) // once for subscription, 3 for operations
-
+            assertEquals(2, count) // once for subscription, 1 for operations in transaction.
         }
     }
 
@@ -67,27 +66,30 @@ class CursorResultSubscriberTest : BaseUnitTest() {
                     curList = it
                     count++
                 }
-            insert(SimpleModel::class, SimpleModel_Table.name)
-                .values("test")
-                .executeInsert(db)
-            insert(SimpleModel::class, SimpleModel_Table.name)
-                .values("test1")
-                .executeInsert(db)
-            insert(SimpleModel::class, SimpleModel_Table.name)
-                .values("test2")
-                .executeInsert(db)
+            db.executeTransaction { db ->
+                insert(SimpleModel::class, SimpleModel_Table.name)
+                    .values("test")
+                    .executeInsert(db)
+                insert(SimpleModel::class, SimpleModel_Table.name)
+                    .values("test1")
+                    .executeInsert(db)
+                insert(SimpleModel::class, SimpleModel_Table.name)
+                    .values("test2")
+                    .executeInsert(db)
+            }
 
 
             assertEquals(3, curList.size)
 
-            val model = (select
-                from SimpleModel::class
-                where SimpleModel_Table.name.eq("test")).requireSingle(db)
-            model.delete(databaseForTable<SimpleModel>())
+            db.executeTransaction { db ->
+                val model = (select
+                    from SimpleModel::class
+                    where SimpleModel_Table.name.eq("test")).requireSingle(db)
+                model.delete(db)
+            }
 
             assertEquals(2, curList.size)
-
-            assertEquals(5, count) // once for subscription, 4 for operations
+            assertEquals(3, count) // once for subscription, 2 for transactions
         }
     }
 

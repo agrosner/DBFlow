@@ -7,6 +7,7 @@ import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.FlowLog
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.property.IProperty
@@ -63,7 +64,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      * To bind values use [bindToInsertStatement].
      */
     fun getInsertStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-            databaseWrapper.compileStatement(insertStatementQuery)
+        databaseWrapper.compileStatement(insertStatementQuery)
 
     /**
      * @param databaseWrapper The database used to do an update statement.
@@ -71,7 +72,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      * To bind values use [bindToUpdateStatement].
      */
     fun getUpdateStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-            databaseWrapper.compileStatement(updateStatementQuery)
+        databaseWrapper.compileStatement(updateStatementQuery)
 
     /**
      * @param databaseWrapper The database used to do a delete statement.
@@ -79,7 +80,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      * To bind values use [bindToDeleteStatement].
      */
     fun getDeleteStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-            databaseWrapper.compileStatement(deleteStatementQuery)
+        databaseWrapper.compileStatement(deleteStatementQuery)
 
     /**
      * @param databaseWrapper The database used to do a save (insert or replace) statement.
@@ -87,31 +88,54 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      * To bind values use [bindToInsertStatement].
      */
     fun getSaveStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
-            databaseWrapper.compileStatement(saveStatementQuery)
+        databaseWrapper.compileStatement(saveStatementQuery)
 
-    override fun save(model: T, databaseWrapper: DatabaseWrapper): Boolean =
-            modelSaver.save(model, databaseWrapper)
+    override fun save(model: T, databaseWrapper: DatabaseWrapper): Boolean {
+        checkInTransaction(databaseWrapper)
+        return modelSaver.save(model, databaseWrapper)
+    }
 
-    override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long =
-            listModelSaver.saveAll(models, databaseWrapper)
+    override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long {
+        checkInTransaction(databaseWrapper)
+        return listModelSaver.saveAll(models, databaseWrapper)
+    }
 
-    override fun insert(model: T, databaseWrapper: DatabaseWrapper): Long =
-            modelSaver.insert(model, databaseWrapper)
+    override fun insert(model: T, databaseWrapper: DatabaseWrapper): Long {
+        checkInTransaction(databaseWrapper)
+        return modelSaver.insert(model, databaseWrapper)
+    }
 
-    override fun insertAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long =
-            listModelSaver.insertAll(models, databaseWrapper)
+    override fun insertAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long {
+        checkInTransaction(databaseWrapper)
+        return listModelSaver.insertAll(models, databaseWrapper)
+    }
 
-    override fun update(model: T, databaseWrapper: DatabaseWrapper): Boolean =
-            modelSaver.update(model, databaseWrapper)
+    override fun update(model: T, databaseWrapper: DatabaseWrapper): Boolean {
+        checkInTransaction(databaseWrapper)
+        return modelSaver.update(model, databaseWrapper)
+    }
 
-    override fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long =
-            listModelSaver.updateAll(models, databaseWrapper)
+    override fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long {
+        checkInTransaction(databaseWrapper)
+        return listModelSaver.updateAll(models, databaseWrapper)
+    }
 
-    override fun delete(model: T, databaseWrapper: DatabaseWrapper): Boolean =
-            modelSaver.delete(model, databaseWrapper)
+    override fun delete(model: T, databaseWrapper: DatabaseWrapper): Boolean {
+        checkInTransaction(databaseWrapper)
+        return modelSaver.delete(model, databaseWrapper)
+    }
 
-    override fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long =
-            listModelSaver.deleteAll(models, databaseWrapper)
+    override fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long {
+        checkInTransaction(databaseWrapper)
+        return listModelSaver.deleteAll(models, databaseWrapper)
+    }
+
+    private fun checkInTransaction(databaseWrapper: DatabaseWrapper) {
+        if (!databaseWrapper.isInTransaction) {
+            FlowLog.log(FlowLog.Level.W, "Database Not Running in a Transaction. Performance may be impacted, observability " +
+                "will need manual updates via db.tableObserver.checkForTableUpdates()")
+        }
+    }
 
     override fun bindToContentValues(contentValues: ContentValues, model: T) {
         bindToInsertValues(contentValues, model)
@@ -119,7 +143,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
 
     override fun bindToInsertValues(contentValues: ContentValues, model: T) {
         throw RuntimeException("ContentValues are no longer generated automatically. To enable it," +
-                " set generateContentValues = true in @Table for $table.")
+            " set generateContentValues = true in @Table for $table.")
     }
 
     /**
@@ -153,9 +177,9 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
 
     var modelSaver: ModelSaver<T>
         get() = _modelSaver
-                ?: createSingleModelSaver()
-                        .apply { modelAdapter = this@ModelAdapter }
-                        .also { _modelSaver = it }
+            ?: createSingleModelSaver()
+                .apply { modelAdapter = this@ModelAdapter }
+                .also { _modelSaver = it }
         set(value) {
             this._modelSaver = value
             value.modelAdapter = this

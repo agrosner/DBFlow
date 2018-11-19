@@ -1,6 +1,5 @@
 package com.dbflow5.rx2.query
 
-import android.util.Log
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
