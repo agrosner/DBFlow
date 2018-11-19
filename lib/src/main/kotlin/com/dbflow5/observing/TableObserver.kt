@@ -1,7 +1,10 @@
-package com.dbflow5.database
+package com.dbflow5.observing
 
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
+import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.SQLiteException
+import com.dbflow5.database.executeTransaction
 import com.dbflow5.query.TriggerMethod
 
 /**
