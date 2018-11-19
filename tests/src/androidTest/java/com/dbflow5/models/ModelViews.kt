@@ -5,9 +5,7 @@ import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.ModelViewQuery
-import com.dbflow5.models.Author_Table.first_name
-import com.dbflow5.models.Author_Table.id
-import com.dbflow5.models.Author_Table.last_name
+import com.dbflow5.models.Author_Table.*
 import com.dbflow5.query.From
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.property
