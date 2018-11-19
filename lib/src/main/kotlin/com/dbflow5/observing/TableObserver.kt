@@ -75,14 +75,16 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
      * Enqueues a table update check on the [DBFlowDatabase] Transaction queue.
      */
     internal fun enqueueTableUpdateCheck() {
-        db.beginTransactionAsync { db ->
-            // TODO: ugly cast check here.
-            if (db == this.db) {
-                checkForTableUpdates(db as DBFlowDatabase)
-            } else throw RuntimeException("Invalid DB object passed. Must be a ${DBFlowDatabase::class}")
-        }.execute(error = { _, e ->
-            FlowLog.log(FlowLog.Level.E, "Could not check for table updates", e)
-        })
+        if (!pendingRefresh.compareAndSet(false, true)) {
+            db.beginTransactionAsync { db ->
+                // TODO: ugly cast check here.
+                if (db == this.db) {
+                    checkForTableUpdates(db as DBFlowDatabase)
+                } else throw RuntimeException("Invalid DB object passed. Must be a ${DBFlowDatabase::class}")
+            }.execute(error = { _, e ->
+                FlowLog.log(FlowLog.Level.E, "Could not check for table updates", e)
+            })
+        }
     }
 
 
@@ -117,21 +119,27 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
 
         try {
             while (true) {
-                val tablesToSync = observingTableTracker.tablesToSync ?: return
-                db.executeTransaction {
-                    tablesToSync.forEachIndexed { index, operation ->
-                        // return value of Unit to make sure exhaustive "when".
-                        @Suppress("UNUSED_VARIABLE")
-                        val exhaustive = when (operation) {
-                            ObservingTableTracker.Operation.Add -> observeTable(db, index)
-                            ObservingTableTracker.Operation.Remove -> stopObservingTable(db, index)
-                            ObservingTableTracker.Operation.None -> {
-                                // don't do anything
+                val lock = this.db.closeLock
+                lock.lock()
+                try {
+                    val tablesToSync = observingTableTracker.tablesToSync ?: return
+                    db.executeTransaction {
+                        tablesToSync.forEachIndexed { index, operation ->
+                            // return value of Unit to make sure exhaustive "when".
+                            @Suppress("UNUSED_VARIABLE")
+                            val exhaustive = when (operation) {
+                                ObservingTableTracker.Operation.Add -> observeTable(db, index)
+                                ObservingTableTracker.Operation.Remove -> stopObservingTable(db, index)
+                                ObservingTableTracker.Operation.None -> {
+                                    // don't do anything
+                                }
                             }
                         }
                     }
+                    observingTableTracker.syncCompleted()
+                } finally {
+                    lock.unlock()
                 }
-                observingTableTracker.syncCompleted()
             }
         } catch (e: Exception) {
             when (e) {
@@ -144,9 +152,12 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
     }
 
     internal fun checkForTableUpdates(db: DBFlowDatabase) {
+        val lock = db.closeLock
         var hasUpdatedTable = false
 
         try {
+            lock.lock()
+
             if (!db.isOpened) {
                 return
             }
@@ -176,6 +187,8 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
                 }
                 else -> throw e
             }
+        } finally {
+            lock.unlock()
         }
         if (hasUpdatedTable) {
             synchronized(observerToObserverWithIdsMap) {

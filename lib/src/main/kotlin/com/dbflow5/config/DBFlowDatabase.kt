@@ -26,6 +26,8 @@ import com.dbflow5.transaction.DefaultTransactionManager
 import com.dbflow5.transaction.DefaultTransactionQueue
 import com.dbflow5.transaction.ITransaction
 import com.dbflow5.transaction.Transaction
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Description: The main interface that all Database implementations extend from. Use this to
@@ -100,6 +102,8 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * Returns true if the [openHelper] has been created.
      */
     var isOpened: Boolean = false
+
+    val closeLock: Lock = ReentrantLock()
 
     val openHelper: OpenHelper
         @Synchronized get() {
@@ -381,8 +385,13 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     fun close() {
         transactionManager.stopQueue()
         if (isOpened) {
-            openHelper.closeDB()
-            isOpened = false
+            try {
+                closeLock.lock()
+                openHelper.closeDB()
+                isOpened = false
+            } finally {
+                closeLock.unlock()
+            }
         }
     }
 
