@@ -16,6 +16,9 @@ internal constructor(val database: SQLiteDatabase) : AndroidDatabaseWrapper {
     override val version: Int
         get() = database.version
 
+    override val isInTransaction: Boolean
+        get() = database.inTransaction()
+
     override fun execSQL(query: String) = rethrowDBFlowException {
         database.execSQL(query)
     }

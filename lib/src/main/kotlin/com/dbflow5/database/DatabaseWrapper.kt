@@ -6,6 +6,8 @@ package com.dbflow5.database
  */
 interface DatabaseWrapper {
 
+    val isInTransaction: Boolean
+
     /**
      * The current version of the database.
      */
