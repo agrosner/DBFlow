@@ -8,6 +8,8 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.database.executeTransaction
 import com.dbflow5.query.TriggerMethod
+import com.dbflow5.quoteIfNeeded
+import com.dbflow5.stripQuotes
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -231,7 +233,7 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
         TriggerMethod.METHODS.forEach { method ->
             // utilize raw query, since we're using dynamic tables not supported by query language.
             db.execSQL("CREATE TEMP TRIGGER IF NOT EXISTS ${getTriggerName(tableName, method)} " +
-                "AFTER $method ON `$tableName` BEGIN UPDATE $TABLE_OBSERVER_NAME " +
+                "AFTER $method ON ${FlowManager.getTableName(tableName).quoteIfNeeded()} BEGIN UPDATE $TABLE_OBSERVER_NAME " +
                 "SET $INVALIDATED_COLUMN_NAME = 1 " +
                 "WHERE $TABLE_ID_COLUMN_NAME = $tableId " +
                 "AND $INVALIDATED_COLUMN_NAME = 0; END")
@@ -246,7 +248,7 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
     }
 
     private fun getTriggerName(table: Class<*>, method: String) =
-        "`${TRIGGER_PREFIX}_${FlowManager.getTableName(table)}_$method`"
+        "`${TRIGGER_PREFIX}_${FlowManager.getTableName(table).stripQuotes()}_$method`"
 
     companion object {
 

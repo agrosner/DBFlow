@@ -22,7 +22,7 @@ class OnTableChangedObserverWithIds(internal val observer: OnTableChangedObserve
 
     internal fun notifyTables(invalidationStatus: BooleanArray) {
         var invalidatedTables: MutableSet<Class<*>>? = null
-        tableIds.forEach { tableId ->
+        tableIds.forEachIndexed { index, tableId ->
             if (invalidationStatus[tableId]) {
                 val singleTableSet = singleTableSet
                 if (singleTableSet != null) {
@@ -31,7 +31,7 @@ class OnTableChangedObserverWithIds(internal val observer: OnTableChangedObserve
                     if (invalidatedTables == null) {
                         invalidatedTables = mutableSetOf()
                     }
-                    invalidatedTables!!.add(observer.tables[tableId])
+                    invalidatedTables!!.add(observer.tables[index])
                 }
             }
         }
