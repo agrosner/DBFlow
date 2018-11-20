@@ -87,6 +87,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
                     where SimpleModel_Table.name.eq("test")).requireSingle(db)
                 model.delete(db)
             }
+            db.tableObserver.checkForTableUpdates()
 
             assertEquals(2, curList.size)
             assertEquals(3, count) // once for subscription, 2 for transactions
