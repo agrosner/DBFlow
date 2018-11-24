@@ -64,7 +64,6 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: Mode
             currentTransactions.dispose()
         })
 
-        // From could be part of many joins, so we register for all affected tables here.
         observer.addOnTableChangedObserver(onTableChangedObserver)
 
         // emit once on subscribe.
