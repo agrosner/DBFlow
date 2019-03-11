@@ -12,7 +12,7 @@ import com.dbflow5.stripQuotes
 /**
  * Description: Provides a very nice way to alter a single table quickly and easily.
  */
-class AlterTableMigration<T : Any>(
+open class AlterTableMigration<T : Any>(
     /**
      * The table to ALTER
      */
