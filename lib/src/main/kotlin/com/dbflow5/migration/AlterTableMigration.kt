@@ -12,11 +12,11 @@ import com.dbflow5.stripQuotes
 /**
  * Description: Provides a very nice way to alter a single table quickly and easily.
  */
-class AlterTableMigration<T : Any>(
-        /**
-         * The table to ALTER
-         */
-        private val table: Class<T>) : BaseMigration() {
+open class AlterTableMigration<T : Any>(
+    /**
+     * The table to ALTER
+     */
+    private val table: Class<T>) : BaseMigration() {
 
     /**
      * The query to rename the table with
@@ -92,18 +92,10 @@ class AlterTableMigration<T : Any>(
      *
      * @param sqLiteType The type of column represented in the DB.
      * @param columnName The name of the column to add. Use the "_Table" class for the specified table.
-     * @param defaultValue the default value as a String representation.
-     * Leaving parameter as null leaves the case out.
-     * For NULL column add defaultValue = "NULL". Encapsulate the value in quotes "\'name\'" if it's a string.
      * @return This instance
      */
-    @JvmOverloads
-    fun addColumn(sqLiteType: SQLiteType, columnName: String, defaultValue: String? = null) = apply {
-        var addStatement = "${columnName.quoteIfNeeded()} ${sqLiteType.name}"
-        if (defaultValue != null) {
-            addStatement += " DEFAULT $defaultValue"
-        }
-        internalColumnDefinitions.add(addStatement)
+    fun addColumn(sqLiteType: SQLiteType, columnName: String) = apply {
+        internalColumnDefinitions.add("${columnName.quoteIfNeeded()} ${sqLiteType.name}")
         columnNames.add(columnName)
     }
 
