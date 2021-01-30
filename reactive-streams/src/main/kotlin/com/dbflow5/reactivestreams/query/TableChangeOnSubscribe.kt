@@ -8,10 +8,10 @@ import com.dbflow5.query.Join
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.extractFrom
 import com.dbflow5.reactivestreams.transaction.asMaybe
-import io.reactivex.FlowableEmitter
-import io.reactivex.FlowableOnSubscribe
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposables
+import io.reactivex.rxjava3.core.FlowableEmitter
+import io.reactivex.rxjava3.core.FlowableOnSubscribe
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
 import kotlin.reflect.KClass
 
 /**
@@ -55,11 +55,11 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: Mode
         flowableEmitter = e
 
         val db = FlowManager.getDatabaseForTable(associatedTables.first())
-        // force initialize the db
+        // force initialize the dbr
         db.writableDatabase
 
         val observer = db.tableObserver
-        e.setDisposable(Disposables.fromRunnable {
+        e.setDisposable(Disposable.fromRunnable {
             observer.removeOnTableChangedObserver(onTableChangedObserver)
             currentTransactions.dispose()
         })

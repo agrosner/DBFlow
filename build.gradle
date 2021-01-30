@@ -3,22 +3,22 @@ buildscript {
         kotlin_version = '1.4.21'
         target_sdk = 28
         min_sdk = 7
-        min_sdk_rx = 15
+        min_sdk_rx = 16
         sql_cipher_min = 7
         arch_min = 14
 
         deps = [
                 kotlin             : "org.jetbrains.kotlin:kotlin-stdlib:${kotlin_version}",
-                sql_cipher         : "net.zetetic:android-database-sqlcipher:3.5.9@aar",
-                rx2                : 'io.reactivex.rxjava2:rxjava:2.2.3',
+                sql_cipher         : "net.zetetic:android-database-sqlcipher:4.4.2",
+                rx2                : 'io.reactivex.rxjava3:rxjava:3.0.4',
                 coroutines         : "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.0",
                 javapoet           : 'com.squareup:javapoet:1.11.1',
                 kpoet              : 'com.github.agrosner:KPoet:1.0.0',
                 javax_annotation   : 'org.glassfish:javax.annotation:10.0-b28',
                 junit              : 'junit:junit:4.12',
-                paging             : "androidx.paging:paging-runtime:2.1.0-alpha01",
-                support_annotations: "androidx.annotation:annotation:1.0.0",
-                livedata           : "androidx.lifecycle:lifecycle-livedata:2.0.0-rc01",
+                paging             : "androidx.paging:paging-runtime:2.1.2",
+                support_annotations: "androidx.annotation:annotation:1.1.0",
+                livedata           : "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0",
         ]
     }
     repositories {

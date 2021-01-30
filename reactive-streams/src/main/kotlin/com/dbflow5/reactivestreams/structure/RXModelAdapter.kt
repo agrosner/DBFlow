@@ -3,9 +3,9 @@ package com.dbflow5.reactivestreams.structure
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.config.modelAdapter
 import com.dbflow5.database.DatabaseWrapper
-import io.reactivex.Completable
-import io.reactivex.Completable.fromCallable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Completable.fromCallable
+import io.reactivex.rxjava3.core.Single
 
 /**
  * Description: Wraps most [ModelAdapter] modification operations into RX-style constructs.
