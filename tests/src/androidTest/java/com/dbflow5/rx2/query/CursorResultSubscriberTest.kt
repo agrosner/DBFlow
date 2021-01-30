@@ -43,13 +43,10 @@ class CursorResultSubscriberTest : BaseUnitTest() {
                 count++
             }
         val model = SimpleModel("test")
-        databaseForTable<SimpleModel> { db ->
-            db.executeTransaction { db ->
-                model.save(db)
-                model.delete(db)
-                model.insert(db)
-            }
-
+        databaseForTable<SimpleModel>().executeTransaction { db ->
+            model.save(db)
+            model.delete(db)
+            model.insert(db)
             assertEquals(2, count) // once for subscription, 1 for operations in transaction.
         }
     }
@@ -66,26 +63,26 @@ class CursorResultSubscriberTest : BaseUnitTest() {
                     curList = it
                     count++
                 }
-            db.executeTransaction { db ->
+            db.executeTransaction { d ->
                 insert(SimpleModel::class, SimpleModel_Table.name)
                     .values("test")
-                    .executeInsert(db)
+                    .executeInsert(d)
                 insert(SimpleModel::class, SimpleModel_Table.name)
                     .values("test1")
-                    .executeInsert(db)
+                    .executeInsert(d)
                 insert(SimpleModel::class, SimpleModel_Table.name)
                     .values("test2")
-                    .executeInsert(db)
+                    .executeInsert(d)
             }
 
 
             assertEquals(3, curList.size)
 
-            db.executeTransaction { db ->
+            db.executeTransaction { d ->
                 val model = (select
                     from SimpleModel::class
-                    where SimpleModel_Table.name.eq("test")).requireSingle(db)
-                model.delete(db)
+                    where SimpleModel_Table.name.eq("test")).requireSingle(d)
+                model.delete(d)
             }
             db.tableObserver.checkForTableUpdates()
 

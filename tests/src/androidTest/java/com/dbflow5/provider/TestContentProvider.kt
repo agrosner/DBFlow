@@ -70,7 +70,7 @@ object TestContentProvider {
         var CONTENT_URI = buildUri(ENDPOINT)
 
         @JvmStatic
-        @ContentUri(path = ENDPOINT + "/#",
+        @ContentUri(path = "$ENDPOINT/#",
             type = ContentType.VND_SINGLE + ENDPOINT,
             segments = arrayOf(PathSegment(segment = 1, column = "id")))
         fun withId(id: Long): Uri {
@@ -78,7 +78,7 @@ object TestContentProvider {
         }
 
         @JvmStatic
-        @Notify(notifyMethod = NotifyMethod.INSERT, paths = arrayOf(ENDPOINT + "/#"))
+        @Notify(notifyMethod = NotifyMethod.INSERT, paths = ["$ENDPOINT/#"])
         fun onInsert(contentValues: ContentValues): Array<Uri> {
             val id = contentValues.getAsLong("id")!!
             return arrayOf(withId(id))
@@ -95,14 +95,14 @@ object TestContentProvider {
         var CONTENT_URI = buildUri(ENDPOINT)
 
         @JvmStatic
-        @ContentUri(path = ENDPOINT + "/#", type = ContentType.VND_MULTIPLE + ENDPOINT,
+        @ContentUri(path = "$ENDPOINT/#", type = ContentType.VND_MULTIPLE + ENDPOINT,
             segments = arrayOf(PathSegment(column = "id", segment = 1)))
         fun withId(id: Long): Uri {
             return buildUri(ENDPOINT, id.toString())
         }
 
         @JvmStatic
-        @ContentUri(path = ENDPOINT + "/#/#",
+        @ContentUri(path = "$ENDPOINT/#/#",
             type = ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
             segments = arrayOf(PathSegment(column = "id", segment = 2)))
         fun fromList(id: Long): Uri {
@@ -110,7 +110,7 @@ object TestContentProvider {
         }
 
         @JvmStatic
-        @ContentUri(path = ENDPOINT + "/#/#",
+        @ContentUri(path = "$ENDPOINT/#/#",
             type = ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
             segments = arrayOf(PathSegment(column = "id", segment = 1),
                 PathSegment(column = "isOpen", segment = 2)))
@@ -119,23 +119,23 @@ object TestContentProvider {
         }
 
         @JvmStatic
-        @Notify(notifyMethod = NotifyMethod.INSERT, paths = arrayOf(ENDPOINT))
+        @Notify(notifyMethod = NotifyMethod.INSERT, paths = [ENDPOINT])
         fun onInsert(contentValues: ContentValues): Array<Uri> {
             val listId = contentValues.getAsLong(getContentValuesKey(contentValues, "providerModel"))!!
             return arrayOf(ContentProviderModel.withId(listId), fromList(listId))
         }
 
         @JvmStatic
-        @Notify(notifyMethod = NotifyMethod.INSERT, paths = arrayOf(ENDPOINT))
+        @Notify(notifyMethod = NotifyMethod.INSERT, paths = [ENDPOINT])
         fun onInsert2(contentValues: ContentValues): Uri {
             val listId = contentValues.getAsLong(getContentValuesKey(contentValues, "providerModel"))!!
             return fromList(listId)
         }
 
         @JvmStatic
-        @Notify(notifyMethod = NotifyMethod.UPDATE, paths = arrayOf(ENDPOINT + "/#"))
+        @Notify(notifyMethod = NotifyMethod.UPDATE, paths = ["$ENDPOINT/#"])
         fun onUpdate(context: Context, uri: Uri): Array<Uri> {
-            val noteId = java.lang.Long.valueOf(uri.pathSegments[1])!!
+            val noteId = java.lang.Long.valueOf(uri.pathSegments[1])
             val c = context.contentResolver.query(uri, arrayOf("noteModel"), null, null, null)
             c!!.moveToFirst()
             val listId = c.getLong(c.getColumnIndex("providerModel"))
@@ -145,9 +145,9 @@ object TestContentProvider {
         }
 
         @JvmStatic
-        @Notify(notifyMethod = NotifyMethod.DELETE, paths = arrayOf(ENDPOINT + "/#"))
+        @Notify(notifyMethod = NotifyMethod.DELETE, paths = ["$ENDPOINT/#"])
         fun onDelete(context: Context, uri: Uri): Array<Uri> {
-            val noteId = java.lang.Long.valueOf(uri.pathSegments[1])!!
+            val noteId = java.lang.Long.valueOf(uri.pathSegments[1])
             val c = context.contentResolver.query(uri, null, null, null, null)
             c!!.moveToFirst()
             val listId = c.getLong(c.getColumnIndex("providerModel"))
