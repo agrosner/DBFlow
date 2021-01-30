@@ -20,6 +20,7 @@ import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.OpenHelper
+import com.dbflow5.database.trySetWriteAheadLoggingEnabled
 import com.dbflow5.migration.Migration
 import com.dbflow5.observing.TableObserver
 import com.dbflow5.runtime.DirectModelNotifier
@@ -152,7 +153,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         var wal = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             wal = config != null && config.journalMode.adjustIfAutomatic(FlowManager.context) == JournalMode.WriteAheadLogging
-            helper.setWriteAheadLoggingEnabled(wal)
+            helper.trySetWriteAheadLoggingEnabled(wal)
         }
         writeAheadLoggingEnabled = wal
         helper.performRestoreFromBackup()

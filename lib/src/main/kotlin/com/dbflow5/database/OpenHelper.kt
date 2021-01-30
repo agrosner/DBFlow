@@ -23,3 +23,14 @@ interface OpenHelper {
 
     fun deleteDB()
 }
+
+/**
+ * Ignores if the underlying DB supports it or not.
+ */
+fun OpenHelper.trySetWriteAheadLoggingEnabled(enabled: Boolean) {
+    try {
+        setWriteAheadLoggingEnabled(enabled)
+    } catch (e: UnsupportedOperationException) {
+        // ignore
+    }
+}
