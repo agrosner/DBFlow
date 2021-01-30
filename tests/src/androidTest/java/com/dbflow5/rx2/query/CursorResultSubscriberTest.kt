@@ -47,8 +47,8 @@ class CursorResultSubscriberTest : BaseUnitTest() {
             model.save(db)
             model.delete(db)
             model.insert(db)
-            assertEquals(2, count) // once for subscription, 1 for operations in transaction.
         }
+        assertEquals(2, count) // once for subscription, 1 for operations in transaction.
     }
 
     @Test

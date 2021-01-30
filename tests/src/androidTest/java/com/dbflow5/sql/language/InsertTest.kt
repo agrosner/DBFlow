@@ -78,12 +78,5 @@ class InsertTest : BaseUnitTest() {
         assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
             insertInto<TwoColumnModel>().columnValues(group = OperatorGroup.clause().andAll(name.eq("name"), id.eq(0))).query.trim())
 
-        val contentValues = ContentValues()
-        contentValues["name"] = "name"
-        contentValues["id"] = 0.toInt()
-
-        assertEquals("INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
-            insertInto<TwoColumnModel>().columnValues(contentValues).query.trim())
-
     }
 }
