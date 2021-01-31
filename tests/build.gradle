@@ -54,7 +54,7 @@ dependencies {
     kaptAndroidTest project("${dbflow_project_prefix}processor")
 
     androidTestImplementation deps.javax_annotation
-    androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC3") {
+    androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0") {
         exclude group: "org.jetbrains.kotlin"
     }
     androidTestImplementation "org.mockito:mockito-android:2.23.0"

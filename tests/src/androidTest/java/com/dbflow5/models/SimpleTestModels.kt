@@ -32,6 +32,9 @@ class SimpleModel(@PrimaryKey var name: String? = "")
 @QueryModel(database = TestDatabase::class)
 class SimpleCustomModel(@Column var name: String? = "")
 
+@Table(database = TestDatabase::class)
+class SimpleQuickCheckModel(@PrimaryKey(quickCheckAutoIncrement = true, autoincrement = true) var name: Int = 0)
+
 @Table(database = TestDatabase::class, insertConflict = ConflictAction.FAIL, updateConflict = ConflictAction.FAIL)
 class NumberModel(@PrimaryKey var id: Int = 0)
 

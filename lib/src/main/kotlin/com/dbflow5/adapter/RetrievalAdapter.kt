@@ -9,6 +9,7 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query.select
+import com.dbflow5.query.selectCountOf
 
 /**
  * Description: Provides a base retrieval class for all [Model] backed
@@ -85,9 +86,9 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
      */
     open fun load(model: T, databaseWrapper: DatabaseWrapper): T? =
             nonCacheableSingleModelLoader.load(databaseWrapper,
-                    (select
-                            from table
-                            where getPrimaryConditionClause(model)).query)
+                (select
+                    from table
+                    where getPrimaryConditionClause(model)).query)
 
     /**
      * Converts the specified [FlowCursor] into a new [T]
@@ -101,7 +102,10 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
      * @param model The model to query values from
      * @return True if it exists as a row in the corresponding database table
      */
-    abstract fun exists(model: T, databaseWrapper: DatabaseWrapper): Boolean
+    open fun exists(model: T, databaseWrapper: DatabaseWrapper): Boolean = selectCountOf()
+        .from(table)
+        .where(getPrimaryConditionClause(model))
+        .hasData(databaseWrapper)
 
     /**
      * @param model The primary condition clause.
