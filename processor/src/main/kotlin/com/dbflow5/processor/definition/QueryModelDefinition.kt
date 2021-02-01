@@ -67,7 +67,7 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
     }
 
     override val extendsClass: TypeName?
-        get() = ParameterizedTypeName.get(ClassNames.QUERY_MODEL_ADAPTER, elementClassName)
+        get() = ParameterizedTypeName.get(ClassNames.RETRIEVAL_ADAPTER, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {

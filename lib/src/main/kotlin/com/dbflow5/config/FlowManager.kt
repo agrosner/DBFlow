@@ -6,7 +6,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ModelViewAdapter
-import com.dbflow5.adapter.QueryModelAdapter
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.converter.TypeConverter
@@ -41,7 +40,7 @@ object FlowManager {
     private val DEFAULT_DATABASE_HOLDER_PACKAGE_NAME = FlowManager::class.java.`package`.name
 
     private val DEFAULT_DATABASE_HOLDER_CLASSNAME =
-            "$DEFAULT_DATABASE_HOLDER_PACKAGE_NAME.$DEFAULT_DATABASE_HOLDER_NAME"
+        "$DEFAULT_DATABASE_HOLDER_PACKAGE_NAME.$DEFAULT_DATABASE_HOLDER_NAME"
 
     /**
      * Will throw an exception if this class is not initialized yet in [.init]
@@ -51,8 +50,8 @@ object FlowManager {
     @JvmStatic
     val context: Context
         get() = config?.context
-                ?: throw IllegalStateException("You must provide a valid FlowConfig instance." +
-                        " We recommend calling init() in your application class.")
+            ?: throw IllegalStateException("You must provide a valid FlowConfig instance." +
+                " We recommend calling init() in your application class.")
 
     private class GlobalDatabaseHolder : DatabaseHolder() {
 
@@ -77,8 +76,8 @@ object FlowManager {
     @JvmStatic
     fun getTableName(table: Class<*>): String {
         return getModelAdapterOrNull(table)?.tableName
-                ?: getModelViewAdapterOrNull(table)?.viewName
-                ?: throwCannotFindAdapter("ModelAdapter/ModelViewAdapter/VirtualAdapter", table)
+            ?: getModelViewAdapterOrNull(table)?.viewName
+            ?: throwCannotFindAdapter("ModelAdapter/ModelViewAdapter/VirtualAdapter", table)
     }
 
     /**
@@ -90,9 +89,9 @@ object FlowManager {
     fun getTableClassForName(databaseName: String, tableName: String): Class<*> {
         val databaseDefinition = getDatabase(databaseName)
         return databaseDefinition.getModelClassForName(tableName)
-                ?: databaseDefinition.getModelClassForName(tableName.quote())
-                ?: throw IllegalArgumentException("The specified table $tableName was not found." +
-                        " Did you forget to add the @Table annotation and point it to $databaseName?")
+            ?: databaseDefinition.getModelClassForName(tableName.quote())
+            ?: throw IllegalArgumentException("The specified table $tableName was not found." +
+                " Did you forget to add the @Table annotation and point it to $databaseName?")
     }
 
     /**
@@ -104,9 +103,9 @@ object FlowManager {
     fun getTableClassForName(databaseClass: Class<out DBFlowDatabase>, tableName: String): Class<*> {
         val databaseDefinition = getDatabase(databaseClass)
         return databaseDefinition.getModelClassForName(tableName)
-                ?: databaseDefinition.getModelClassForName(tableName.quote())
-                ?: throw IllegalArgumentException("The specified table $tableName was not found." +
-                        " Did you forget to add the @Table annotation and point it to $databaseClass?")
+            ?: databaseDefinition.getModelClassForName(tableName.quote())
+            ?: throw IllegalArgumentException("The specified table $tableName was not found." +
+                " Did you forget to add the @Table annotation and point it to $databaseClass?")
     }
 
     /**
@@ -117,8 +116,8 @@ object FlowManager {
     fun getDatabaseForTable(table: Class<*>): DBFlowDatabase {
         checkDatabaseHolder()
         return globalDatabaseHolder.getDatabaseForTable(table)
-                ?: throw InvalidDBConfiguration("Model object: ${table.name} is not registered with a Database." +
-                        " Did you forget an annotation?")
+            ?: throw InvalidDBConfiguration("Model object: ${table.name} is not registered with a Database." +
+                " Did you forget an annotation?")
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -126,8 +125,8 @@ object FlowManager {
     fun <T : DBFlowDatabase> getDatabase(databaseClass: Class<T>): T {
         checkDatabaseHolder()
         return globalDatabaseHolder.getDatabase(databaseClass) as? T
-                ?: throw InvalidDBConfiguration("Database: ${databaseClass.name} is not a registered Database. " +
-                        "Did you forget the @Database annotation?")
+            ?: throw InvalidDBConfiguration("Database: ${databaseClass.name} is not a registered Database. " +
+                "Did you forget the @Database annotation?")
     }
 
     @JvmStatic
@@ -141,27 +140,27 @@ object FlowManager {
     fun getDatabase(databaseName: String): DBFlowDatabase {
         checkDatabaseHolder()
         return globalDatabaseHolder.getDatabase(databaseName)
-                ?: throw InvalidDBConfiguration("The specified database $databaseName was not found. " +
-                        "Did you forget the @Database annotation?")
+            ?: throw InvalidDBConfiguration("The specified database $databaseName was not found. " +
+                "Did you forget the @Database annotation?")
     }
 
     @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabaseForTable(table)"),
-            message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
+        message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
     @JvmStatic
     fun getWritableDatabaseForTable(table: Class<*>): DatabaseWrapper =
-            getDatabaseForTable(table).writableDatabase
+        getDatabaseForTable(table).writableDatabase
 
     @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabase(databaseName)"),
-            message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
+        message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
     @JvmStatic
     fun getWritableDatabase(databaseName: String): DatabaseWrapper =
-            getDatabase(databaseName).writableDatabase
+        getDatabase(databaseName).writableDatabase
 
     @Deprecated(replaceWith = ReplaceWith("FlowManager.getDatabase(databaseClass)"),
-            message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
+        message = "This method is no longer needed. DBFlowDatabase now delegates to the DatabaseWrapper.")
     @JvmStatic
     fun getWritableDatabase(databaseClass: Class<out DBFlowDatabase>): DatabaseWrapper =
-            getDatabase(databaseClass).writableDatabase
+        getDatabase(databaseClass).writableDatabase
 
     /**
      * Loading the module Database holder via reflection.
@@ -190,8 +189,8 @@ object FlowManager {
 
     @JvmStatic
     fun getConfig(): FlowConfig = config
-            ?: throw IllegalStateException("Configuration is not initialized. " +
-                    "Please call init(FlowConfig) in your application class.")
+        ?: throw IllegalStateException("Configuration is not initialized. " +
+            "Please call init(FlowConfig) in your application class.")
 
     /**
      * @return The database holder, creating if necessary using reflection.
@@ -315,14 +314,14 @@ object FlowManager {
     /**
      * @param modelClass The class that implements [Model] to find an adapter for.
      * @return The adapter associated with the class. If its not a [ModelAdapter],
-     * it checks both the [ModelViewAdapter] and [QueryModelAdapter].
+     * it checks both the [ModelViewAdapter] and [RetrievalAdapter].
      */
     @JvmStatic
     fun <T : Any> getRetrievalAdapter(modelClass: Class<T>): RetrievalAdapter<T> {
         var retrievalAdapter: RetrievalAdapter<T>? = getModelAdapterOrNull(modelClass)
         if (retrievalAdapter == null) {
             retrievalAdapter = getModelViewAdapterOrNull(modelClass)
-                    ?: getQueryModelAdapterOrNull(modelClass)
+                ?: getQueryModelAdapterOrNull(modelClass)
         }
         return retrievalAdapter ?: throwCannotFindAdapter("RetrievalAdapter", modelClass)
     }
@@ -337,7 +336,7 @@ object FlowManager {
      */
     @JvmStatic
     fun <T : Any> getModelAdapter(modelClass: Class<T>): ModelAdapter<T> =
-            getModelAdapterOrNull(modelClass) ?: throwCannotFindAdapter("ModelAdapter", modelClass)
+        getModelAdapterOrNull(modelClass) ?: throwCannotFindAdapter("ModelAdapter", modelClass)
 
     /**
      * Returns the model view adapter for a SQLite VIEW. These are only created with the [com.dbflow5.annotation.ModelView] annotation.
@@ -348,8 +347,8 @@ object FlowManager {
      */
     @JvmStatic
     fun <T : Any> getModelViewAdapter(modelViewClass: Class<T>): ModelViewAdapter<T> =
-            getModelViewAdapterOrNull(modelViewClass)
-                    ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
+        getModelViewAdapterOrNull(modelViewClass)
+            ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
 
     /**
      * Returns the query model adapter for the model class. These are only created with the [T] annotation.
@@ -359,26 +358,26 @@ object FlowManager {
      * @return The query model adapter for the specified model cursor.
      */
     @JvmStatic
-    fun <T : Any> getQueryModelAdapter(queryModelClass: Class<T>): QueryModelAdapter<T> =
-            getQueryModelAdapterOrNull(queryModelClass)
-                    ?: throwCannotFindAdapter("QueryModelAdapter", queryModelClass)
+    fun <T : Any> getQueryModelAdapter(queryModelClass: Class<T>): RetrievalAdapter<T> =
+        getQueryModelAdapterOrNull(queryModelClass)
+            ?: throwCannotFindAdapter("RetrievalAdapter", queryModelClass)
 
     @JvmStatic
     fun getModelNotifierForTable(table: Class<*>): ModelNotifier =
-            getDatabaseForTable(table).getModelNotifier()
+        getDatabaseForTable(table).getModelNotifier()
 
     @JvmStatic
     fun newRegisterForTable(table: Class<*>): TableNotifierRegister =
-            getModelNotifierForTable(table).newRegister()
+        getModelNotifierForTable(table).newRegister()
 
     private fun <T : Any> getModelAdapterOrNull(modelClass: Class<T>): ModelAdapter<T>? =
-            getDatabaseForTable(modelClass).getModelAdapterForTable(modelClass)
+        getDatabaseForTable(modelClass).getModelAdapterForTable(modelClass)
 
     private fun <T : Any> getModelViewAdapterOrNull(modelClass: Class<T>): ModelViewAdapter<T>? =
-            getDatabaseForTable(modelClass).getModelViewAdapterForTable(modelClass)
+        getDatabaseForTable(modelClass).getModelViewAdapterForTable(modelClass)
 
-    private fun <T : Any> getQueryModelAdapterOrNull(modelClass: Class<T>): QueryModelAdapter<T>? =
-            getDatabaseForTable(modelClass).getQueryModelAdapterForQueryClass(modelClass)
+    private fun <T : Any> getQueryModelAdapterOrNull(modelClass: Class<T>): RetrievalAdapter<T>? =
+        getDatabaseForTable(modelClass).getQueryModelAdapterForQueryClass(modelClass)
 
     /**
      * @param databaseName The name of the database. Will throw an exception if the databaseForTable doesn't exist.
@@ -386,7 +385,7 @@ object FlowManager {
      */
     @JvmStatic
     internal fun getMigrations(databaseName: String): Map<Int, List<Migration>> =
-            getDatabase(databaseName).migrations
+        getDatabase(databaseName).migrations
 
     /**
      * Checks a standard database helper for integrity using quick_check(1).
@@ -398,12 +397,12 @@ object FlowManager {
     fun isDatabaseIntegrityOk(databaseName: String) = getDatabase(databaseName).openHelper.isDatabaseIntegrityOk
 
     private fun throwCannotFindAdapter(type: String, clazz: Class<*>): Nothing =
-            throw IllegalArgumentException("Cannot find $type for $clazz. Ensure the class is annotated with proper annotation.")
+        throw IllegalArgumentException("Cannot find $type for $clazz. Ensure the class is annotated with proper annotation.")
 
     private fun checkDatabaseHolder() {
         if (!globalDatabaseHolder.isInitialized) {
             throw IllegalStateException("The global databaseForTable holder is not initialized. " +
-                    "Ensure you call FlowManager.init() before accessing the databaseForTable.")
+                "Ensure you call FlowManager.init() before accessing the databaseForTable.")
         }
     }
 
@@ -422,25 +421,25 @@ object FlowManager {
  * Easily get access to its [DBFlowDatabase] directly.
  */
 inline fun <T : DBFlowDatabase> database(kClass: KClass<T>, f: (db: T) -> Unit = {}): T =
-        FlowManager.getDatabase(kClass.java).apply(f)
+    FlowManager.getDatabase(kClass.java).apply(f)
 
 /**
  * Easily get access to its [DBFlowDatabase] directly.
  */
 inline fun <reified T : DBFlowDatabase> database(f: (db: T) -> Unit = {}): T =
-        FlowManager.getDatabase(T::class.java).apply(f)
+    FlowManager.getDatabase(T::class.java).apply(f)
 
 /**
  * Easily get access to its [DBFlowDatabase] directly.
  */
 inline fun <reified T : Any> databaseForTable(f: (db: DBFlowDatabase) -> Unit = {}): DBFlowDatabase =
-        FlowManager.getDatabaseForTable(T::class.java).apply(f)
+    FlowManager.getDatabaseForTable(T::class.java).apply(f)
 
 /**
  * Easily get access to its [DBFlowDatabase] directly.
  */
 inline fun <T : Any> databaseForTable(clazz: KClass<T>, f: (db: DBFlowDatabase) -> Unit = {}): DBFlowDatabase =
-        FlowManager.getDatabaseForTable(clazz.java).apply(f)
+    FlowManager.getDatabaseForTable(clazz.java).apply(f)
 
 /**
  * Easily get its table name.
@@ -459,15 +458,26 @@ inline val <T : Any> KClass<T>.modelAdapter
 inline val <T : Any> Class<T>.modelAdapter
     get() = FlowManager.getModelAdapter(this)
 
-/**
- * Easily get its [QueryModelAdapter].
- */
+@Deprecated(message = "Use retrievalAdapter().", replaceWith = ReplaceWith("retrievalAdapter()", "com.dbflow5.config"))
 inline fun <reified T : Any> queryModelAdapter() = FlowManager.getQueryModelAdapter(T::class.java)
 
+@Deprecated(message = "Use retrievalAdapter.", replaceWith = ReplaceWith("retrievalAdapter", "com.dbflow5.config"))
 inline val <T : Any> KClass<T>.queryModelAdapter
     get() = FlowManager.getQueryModelAdapter(this.java)
 
+@Deprecated(message = "Use retrievalAdapter().", replaceWith = ReplaceWith("retrievalAdapter", "com.dbflow5.config"))
 inline val <T : Any> Class<T>.queryModelAdapter
+    get() = FlowManager.getQueryModelAdapter(this)
+
+/**
+ * Easily get its [RetrievalAdapter].
+ */
+inline fun <reified T : Any> retrievalAdapter() = FlowManager.getQueryModelAdapter(T::class.java)
+
+inline val <T : Any> KClass<T>.retrievalAdapter
+    get() = FlowManager.getQueryModelAdapter(this.java)
+
+inline val <T : Any> Class<T>.retrievalAdapter
     get() = FlowManager.getQueryModelAdapter(this)
 
 /**

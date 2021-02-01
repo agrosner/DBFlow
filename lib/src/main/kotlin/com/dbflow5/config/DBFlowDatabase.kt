@@ -7,7 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ModelViewAdapter
-import com.dbflow5.adapter.QueryModelAdapter
+import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.queriable.ListModelLoader
 import com.dbflow5.adapter.queriable.SingleModelLoader
 import com.dbflow5.adapter.saveable.ModelSaver
@@ -43,6 +43,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     enum class JournalMode {
         Automatic,
         Truncate,
+
         @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
         WriteAheadLogging;
 
@@ -69,7 +70,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     private val modelViewAdapterMap = linkedMapOf<Class<*>, ModelViewAdapter<*>>()
 
-    private val queryModelAdapterMap = linkedMapOf<Class<*>, QueryModelAdapter<*>>()
+    private val queryModelAdapterMap = linkedMapOf<Class<*>, RetrievalAdapter<*>>()
 
     /**
      * The helper that manages database changes and initialization
@@ -113,9 +114,9 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         get() = modelViewAdapterMap.values.toList()
 
     /**
-     * @return The list of [QueryModelAdapter]. Internal method for creating query models in the DB.
+     * @return The list of [RetrievalAdapter]. Internal method for creating query models in the DB.
      */
-    val modelQueryAdapters: List<QueryModelAdapter<*>>
+    val queryModelAdapters: List<RetrievalAdapter<*>>
         get() = queryModelAdapterMap.values.toList()
 
     /**
@@ -261,9 +262,9 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         modelViewAdapterMap[modelViewAdapter.table] = modelViewAdapter
     }
 
-    protected fun <T : Any> addQueryModelAdapter(queryModelAdapter: QueryModelAdapter<T>, holder: DatabaseHolder) {
-        holder.putDatabaseForTable(queryModelAdapter.table, this)
-        queryModelAdapterMap[queryModelAdapter.table] = queryModelAdapter
+    protected fun <T : Any> addRetrievalAdapter(retrievalAdapter: RetrievalAdapter<T>, holder: DatabaseHolder) {
+        holder.putDatabaseForTable(retrievalAdapter.table, this)
+        queryModelAdapterMap[retrievalAdapter.table] = retrievalAdapter
     }
 
     protected fun addMigration(version: Int, migration: Migration) {
@@ -312,8 +313,8 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * @return The adapter that corresponds to the specified class.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getQueryModelAdapterForQueryClass(queryModel: Class<T>): QueryModelAdapter<T>? =
-        queryModelAdapterMap[queryModel] as QueryModelAdapter<T>?
+    fun <T : Any> getQueryModelAdapterForQueryClass(queryModel: Class<T>): RetrievalAdapter<T>? =
+        queryModelAdapterMap[queryModel] as RetrievalAdapter<T>?
 
     fun getModelNotifier(): ModelNotifier {
         var notifier = modelNotifier

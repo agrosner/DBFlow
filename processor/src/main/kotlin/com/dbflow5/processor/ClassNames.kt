@@ -38,7 +38,7 @@ object ClassNames {
     val CONTENT_URIS: ClassName = ClassName.get("android.content", "ContentUris")
 
     val MODEL_ADAPTER: ClassName = ClassName.get(ADAPTER, "ModelAdapter")
-    val QUERY_MODEL_ADAPTER: ClassName = ClassName.get(ADAPTER, "QueryModelAdapter")
+    val RETRIEVAL_ADAPTER: ClassName = ClassName.get(ADAPTER, "RetrievalAdapter")
     val MODEL: ClassName = ClassName.get(STRUCTURE, "Model")
     val MODEL_VIEW_ADAPTER: ClassName = ClassName.get(ADAPTER, "ModelViewAdapter")
     val VIRTUAL_TABLE_ADAPTER: ClassName = ClassName.get(ADAPTER, "VirtualTableAdapter")

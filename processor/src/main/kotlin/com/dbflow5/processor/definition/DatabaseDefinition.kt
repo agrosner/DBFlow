@@ -114,9 +114,9 @@ class DatabaseDefinition(database: Database,
 
                 for (definition in manager.getQueryModelDefinitions(elementClassName)) {
                     if (definition.hasGlobalTypeConverters) {
-                        statement("addQueryModelAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                        statement("addRetrievalAdapter(new \$T(holder, this), holder)", definition.outputClassName)
                     } else {
-                        statement("addQueryModelAdapter(new \$T(this), holder)", definition.outputClassName)
+                        statement("addRetrievalAdapter(new \$T(this), holder)", definition.outputClassName)
                     }
                 }
 
