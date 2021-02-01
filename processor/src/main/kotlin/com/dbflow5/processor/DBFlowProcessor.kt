@@ -2,8 +2,11 @@ package com.dbflow5.processor
 
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnIgnore
+import com.dbflow5.annotation.Fts3
+import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
+import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
@@ -29,15 +32,18 @@ class DBFlowProcessor : AbstractProcessor() {
      * * processor, or an empty set if none
      */
     override fun getSupportedAnnotationTypes() = listOf(
-            Table::class,
-            Column::class,
-            TypeConverter::class,
-            ModelView::class,
-            Migration::class,
-            ContentProvider::class,
-            TableEndpoint::class,
-            ColumnIgnore::class,
-            QueryModel::class).mapTo(linkedSetOf<String>()) { it.java.canonicalName }
+        Table::class,
+        Column::class,
+        TypeConverter::class,
+        ModelView::class,
+        Migration::class,
+        ContentProvider::class,
+        TableEndpoint::class,
+        ColumnIgnore::class,
+        QueryModel::class,
+        Fts3::class,
+        Fts4::class,
+        MultipleManyToMany::class).mapTo(linkedSetOf<String>()) { it.java.canonicalName }
 
     override fun getSupportedOptions() = linkedSetOf(DatabaseHolderDefinition.OPTION_TARGET_MODULE_NAME)
 
@@ -54,13 +60,13 @@ class DBFlowProcessor : AbstractProcessor() {
         super.init(processingEnv)
         manager = ProcessorManager(processingEnv)
         manager.addHandlers(MigrationHandler(),
-                TypeConverterHandler(),
-                DatabaseHandler(),
-                TableHandler(),
-                QueryModelHandler(),
-                ModelViewHandler(),
-                ContentProviderHandler(),
-                TableEndpointHandler())
+            TypeConverterHandler(),
+            DatabaseHandler(),
+            TableHandler(),
+            QueryModelHandler(),
+            ModelViewHandler(),
+            ContentProviderHandler(),
+            TableEndpointHandler())
     }
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
