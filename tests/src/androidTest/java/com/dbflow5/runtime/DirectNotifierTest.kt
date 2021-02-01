@@ -2,7 +2,7 @@ package com.dbflow5.runtime
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dbflow5.ImmediateTransactionManager
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.DatabaseConfig

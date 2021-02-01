@@ -1,13 +1,13 @@
 package com.dbflow5.provider
 
 import android.content.ContentResolver
-import android.content.Context
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.provider.ProviderTestRule
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.config.database
 import com.dbflow5.query.select
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
@@ -20,7 +20,7 @@ class ContentProviderTests : BaseUnitTest() {
     val contentProviderRule = ProviderTestRule.Builder(TestContentProvider_Provider::class.java, TestContentProvider.AUTHORITY).build()
 
     private val mockContentResolver: ContentResolver
-        get() = ApplicationProvider.getApplicationContext<Context>().contentResolver
+        get() = contentProviderRule.resolver
 
     @Test
     fun testContentProviderUtils() {
@@ -110,7 +110,7 @@ class ContentProviderTests : BaseUnitTest() {
             assertEquals(testSyncableModel.name, "TestName")
 
             testSyncableModel = (select from TestSyncableModel::class
-                    where (TestSyncableModel_Table.id.`is`(testSyncableModel.id))).querySingle(db)!!
+                where (TestSyncableModel_Table.id.`is`(testSyncableModel.id))).querySingle(db)!!
 
             var fromContentProvider = TestSyncableModel(id = testSyncableModel.id)
             fromContentProvider = fromContentProvider.load(db)!!
