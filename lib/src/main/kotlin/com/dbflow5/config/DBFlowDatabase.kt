@@ -209,6 +209,10 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     val isDatabaseIntegrityOk: Boolean
         get() = openHelper.isDatabaseIntegrityOk
 
+    /**
+     * Returns the associated table observer that tracks changes to tables during transactions on
+     * the DB.
+     */
     val tableObserver: TableObserver by lazy {
         // observe all tables
         TableObserver(this, tables = modelClasses.toMutableList().apply {
