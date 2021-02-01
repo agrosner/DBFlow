@@ -38,7 +38,7 @@ fun <T : Any> update(table: Class<T>): Update<T> = Update(table)
  */
 fun <T : Any> update(table: KClass<T>) = update(table.java)
 
-inline fun <reified T: Any> insertInto() = insert<T>(columns = *arrayOf())
+inline fun <reified T: Any> insertInto() = insert<T>(columns = arrayOf())
 
 inline fun <reified T : Any> insert(vararg columns: Property<*>) = insert(T::class, *columns)
 

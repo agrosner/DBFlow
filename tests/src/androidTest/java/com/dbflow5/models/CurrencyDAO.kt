@@ -9,7 +9,7 @@ import com.dbflow5.query.Where
 import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.transaction.Transaction
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.Deferred
 
 /**

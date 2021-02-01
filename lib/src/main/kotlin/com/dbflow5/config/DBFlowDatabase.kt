@@ -1,5 +1,9 @@
 package com.dbflow5.config
 
+import android.app.ActivityManager
+import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ModelViewAdapter
@@ -16,7 +20,9 @@ import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.OpenHelper
+import com.dbflow5.database.trySetWriteAheadLoggingEnabled
 import com.dbflow5.migration.Migration
+import com.dbflow5.observing.TableObserver
 import com.dbflow5.runtime.DirectModelNotifier
 import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.structure.BaseModelView
@@ -25,12 +31,35 @@ import com.dbflow5.transaction.DefaultTransactionManager
 import com.dbflow5.transaction.DefaultTransactionQueue
 import com.dbflow5.transaction.ITransaction
 import com.dbflow5.transaction.Transaction
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * Description: The main interface that all Database implementations extend from. Use this to
  * pass in for operations and [Transaction].
  */
 abstract class DBFlowDatabase : DatabaseWrapper {
+
+    enum class JournalMode {
+        Automatic,
+        Truncate,
+        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+        WriteAheadLogging;
+
+        fun adjustIfAutomatic(context: Context): JournalMode = when (this) {
+            Automatic -> this
+            else -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    // check if low ram device
+                    val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && manager?.isLowRamDevice == false) {
+                        WriteAheadLogging
+                    }
+                }
+                Truncate
+            }
+        }
+    }
 
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
 
@@ -100,22 +129,36 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     var isOpened: Boolean = false
 
+    val closeLock: Lock = ReentrantLock()
+
+    internal var writeAheadLoggingEnabled = false
+
     val openHelper: OpenHelper
         @Synchronized get() {
             var helper = _openHelper
             if (helper == null) {
                 val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
                 helper = if (config?.openHelperCreator != null) {
-                    config.openHelperCreator.invoke(this, callback)
+                    config.openHelperCreator.invoke(this, internalCallback)
                 } else {
-                    AndroidSQLiteOpenHelper(FlowManager.context, this, callback)
+                    AndroidSQLiteOpenHelper(FlowManager.context, this, internalCallback)
                 }
-                helper.performRestoreFromBackup()
-                isOpened = true
+                onOpenWithConfig(config, helper)
             }
             _openHelper = helper
             return helper
         }
+
+    private fun onOpenWithConfig(config: DatabaseConfig?, helper: OpenHelper) {
+        var wal = false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            wal = config != null && config.journalMode.adjustIfAutomatic(FlowManager.context) == JournalMode.WriteAheadLogging
+            helper.trySetWriteAheadLoggingEnabled(wal)
+        }
+        writeAheadLoggingEnabled = wal
+        helper.performRestoreFromBackup()
+        isOpened = true
+    }
 
     val writableDatabase: DatabaseWrapper
         get() = openHelper.database
@@ -166,6 +209,17 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     val isDatabaseIntegrityOk: Boolean
         get() = openHelper.isDatabaseIntegrityOk
 
+    /**
+     * Returns the associated table observer that tracks changes to tables during transactions on
+     * the DB.
+     */
+    val tableObserver: TableObserver by lazy {
+        // observe all tables
+        TableObserver(this, tables = modelClasses.toMutableList().apply {
+            addAll(modelViews)
+        })
+    }
+
     init {
         @Suppress("LeakingThis")
         applyDatabaseConfig(FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile])
@@ -182,7 +236,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             val tableConfigCollection = databaseConfig.tableConfigMap.values
             for (tableConfig in tableConfigCollection) {
                 val modelAdapter: ModelAdapter<Any> = modelAdapterMap[tableConfig.tableClass] as ModelAdapter<Any>?
-                        ?: continue
+                    ?: continue
                 tableConfig.listModelLoader?.let { loader -> modelAdapter.listModelLoader = loader as ListModelLoader<Any> }
                 tableConfig.singleModelLoader?.let { loader -> modelAdapter.singleModelLoader = loader as SingleModelLoader<Any> }
                 tableConfig.modelSaver?.let { saver -> modelAdapter.modelSaver = saver as ModelSaver<Any> }
@@ -251,7 +305,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getModelViewAdapterForTable(table: Class<T>): ModelViewAdapter<T>? =
-            modelViewAdapterMap[table] as ModelViewAdapter<T>?
+        modelViewAdapterMap[table] as ModelViewAdapter<T>?
 
     /**
      * @param queryModel The [QueryModel] class
@@ -259,7 +313,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> getQueryModelAdapterForQueryClass(queryModel: Class<T>): QueryModelAdapter<T>? =
-            queryModelAdapterMap[queryModel] as QueryModelAdapter<T>?
+        queryModelAdapterMap[queryModel] as QueryModelAdapter<T>?
 
     fun getModelNotifier(): ModelNotifier {
         var notifier = modelNotifier
@@ -276,12 +330,12 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     }
 
     fun <R : Any?> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
-            Transaction.Builder(transaction, this)
+        Transaction.Builder(transaction, this)
 
     inline fun <R : Any?> beginTransactionAsync(crossinline transaction: (DatabaseWrapper) -> R): Transaction.Builder<R> =
-            beginTransactionAsync(object : ITransaction<R> {
-                override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
-            })
+        beginTransactionAsync(object : ITransaction<R> {
+            override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
+        })
 
     /**
      * This should never get called on the main thread. Use [beginTransactionAsync] for an async-variant.
@@ -289,14 +343,13 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     @WorkerThread
     fun <R> executeTransaction(transaction: ITransaction<R>): R {
-        val database = writableDatabase
         try {
-            database.beginTransaction()
-            val result = transaction.execute(database)
-            database.setTransactionSuccessful()
+            beginTransaction()
+            val result = transaction.execute(writableDatabase)
+            setTransactionSuccessful()
             return result
         } finally {
-            database.endTransaction()
+            endTransaction()
         }
     }
 
@@ -373,8 +426,13 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     fun close() {
         transactionManager.stopQueue()
         if (isOpened) {
-            openHelper.closeDB()
-            isOpened = false
+            try {
+                closeLock.lock()
+                openHelper.closeDB()
+                isOpened = false
+            } finally {
+                closeLock.unlock()
+            }
         }
     }
 
@@ -394,11 +452,19 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     override fun execSQL(query: String) = writableDatabase.execSQL(query)
 
-    override fun beginTransaction() = writableDatabase.beginTransaction()
+    override fun beginTransaction() {
+        tableObserver.syncTriggers(writableDatabase)
+        writableDatabase.beginTransaction()
+    }
 
     override fun setTransactionSuccessful() = writableDatabase.setTransactionSuccessful()
 
-    override fun endTransaction() = writableDatabase.endTransaction()
+    override fun endTransaction() {
+        writableDatabase.endTransaction()
+        if (!isInTransaction) {
+            tableObserver.enqueueTableUpdateCheck()
+        }
+    }
 
     override fun compileStatement(rawQuery: String): DatabaseStatement = writableDatabase.compileStatement(rawQuery)
 
@@ -412,4 +478,26 @@ abstract class DBFlowDatabase : DatabaseWrapper {
                        selectionArgs: Array<String>?,
                        groupBy: String?, having: String?,
                        orderBy: String?): FlowCursor = writableDatabase.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy)
+
+    override val isInTransaction: Boolean
+        get() = writableDatabase.isInTransaction
+
+    private val internalCallback: DatabaseCallback = object : DatabaseCallback {
+        override fun onOpen(database: DatabaseWrapper) {
+            tableObserver.construct(database)
+            callback?.onOpen(database)
+        }
+
+        override fun onCreate(database: DatabaseWrapper) {
+            callback?.onCreate(database)
+        }
+
+        override fun onUpgrade(database: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
+            callback?.onUpgrade(database, oldVersion, newVersion)
+        }
+
+        override fun onDowngrade(databaseWrapper: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
+            callback?.onDowngrade(databaseWrapper, oldVersion, newVersion)
+        }
+    }
 }

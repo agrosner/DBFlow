@@ -44,7 +44,9 @@ class LiveDataTest : BaseUnitTest() {
                 }
                 .execute()
 
+        database<TestDatabase>().tableObserver.checkForTableUpdates()
+
         val value2 = data.value!!
-        assert(value2.size == 3)
+        assert(value2.size == 3) { "expected ${value2.size} == 3" }
     }
 }

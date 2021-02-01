@@ -55,8 +55,8 @@ constructor(
         object RowId : Type()
 
         val isPrimaryField
-            get() = this is ColumnDefinition.Type.Primary
-                || this is ColumnDefinition.Type.PrimaryAutoIncrement
+            get() = this is Primary
+                || this is PrimaryAutoIncrement
                 || this is ColumnDefinition.Type.RowId
     }
 
@@ -373,10 +373,20 @@ constructor(
         this
     }
 
+    val quickCheckPrimaryKey: Boolean
+        get() = (type as? Type.PrimaryAutoIncrement)?.quickCheck ?: false
+
+    val isAutoRowId: Boolean
+        get() = type is Type.RowId || type is Type.PrimaryAutoIncrement
+
+    fun shouldWriteExistence(): Boolean {
+        return isAutoRowId || quickCheckPrimaryKey
+    }
+
     open fun appendExistenceMethod(codeBuilder: CodeBlock.Builder) {
-        ExistenceAccessCombiner(combiner, type is Type.RowId || type is Type.PrimaryAutoIncrement,
-            (type as? Type.PrimaryAutoIncrement)?.quickCheck
-                ?: false, entityDefinition.elementClassName!!)
+        ExistenceAccessCombiner(combiner, isAutoRowId,
+            quickCheckPrimaryKey,
+            entityDefinition.elementClassName!!)
             .apply {
                 codeBuilder.addCode(columnName, getDefaultValueBlock(), 0, modelBlock)
             }

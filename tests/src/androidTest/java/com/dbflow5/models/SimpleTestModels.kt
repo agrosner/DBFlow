@@ -32,6 +32,9 @@ class SimpleModel(@PrimaryKey var name: String? = "")
 @QueryModel(database = TestDatabase::class)
 class SimpleCustomModel(@Column var name: String? = "")
 
+@Table(database = TestDatabase::class)
+class SimpleQuickCheckModel(@PrimaryKey(quickCheckAutoIncrement = true, autoincrement = true) var name: Int = 0)
+
 @Table(database = TestDatabase::class, insertConflict = ConflictAction.FAIL, updateConflict = ConflictAction.FAIL)
 class NumberModel(@PrimaryKey var id: Int = 0)
 
@@ -100,18 +103,18 @@ class FeedEntry(@PrimaryKey var id: Int = 0,
 
 @Table(database = TestDatabase::class)
 @ManyToMany(
-        generatedTableClassName = "Refund", referencedTable = Transfer::class,
-        referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
-        saveForeignKeyModels = true
+    generatedTableClassName = "Refund", referencedTable = Transfer::class,
+    referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
+    saveForeignKeyModels = true
 )
 data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
 data class Transfer2(
-        @PrimaryKey
-        var id: UUID = UUID.randomUUID(),
-        @ForeignKey(stubbedRelationship = true)
-        var origin: Account? = null
+    @PrimaryKey
+    var id: UUID = UUID.randomUUID(),
+    @ForeignKey(stubbedRelationship = true)
+    var origin: Account? = null
 )
 
 @Table(database = TestDatabase::class)
@@ -214,6 +217,7 @@ class NonNullKotlinModel(@PrimaryKey var name: String = "",
 class Owner : BaseModel() {
     @PrimaryKey(autoincrement = true)
     var id: Int = 0
+
     @Column
     var name: String? = null
 }
@@ -222,8 +226,10 @@ class Owner : BaseModel() {
 class Dog : BaseModel() {
     @ForeignKey(onDelete = ForeignKeyAction.CASCADE, stubbedRelationship = true)
     var owner: Owner? = null
+
     @PrimaryKey(autoincrement = true)
     var id: Int = 0
+
     @Column
     var name: String? = null
 }
@@ -240,7 +246,9 @@ inline class Email(val value: String)
 @Table(database = TestDatabase::class)
 class UserInfo(@PrimaryKey
                @set:JvmName("setEmail")
+               @get:JvmName("getEmail")
                var email: Email,
+               @get:JvmName("getPassword")
                @set:JvmName("setPassword")
                var password: Password) {
     constructor() : this(Email(""), Password(""))

@@ -1,7 +1,6 @@
 package com.dbflow5.sql.language.property
 
 import com.dbflow5.BaseUnitTest
-import com.dbflow5.config.databaseForTable
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.property.property
 import com.dbflow5.query.property.propertyString
@@ -22,9 +21,7 @@ class PropertyFactoryTest : BaseUnitTest() {
         assertEquals("5", 5.toByte().property.query)
         val nullable: Any? = null
         assertEquals("NULL", nullable.property.query)
-        databaseForTable<SimpleModel> { dbFlowDatabase ->
-            assertEquals("(SELECT * FROM `SimpleModel`)", (select from SimpleModel::class).property.query)
-        }
+        assertEquals("(SELECT * FROM `SimpleModel`)", (select from SimpleModel::class).property.query)
         assertEquals("SomethingCool", propertyString<String>("SomethingCool").query)
     }
 }

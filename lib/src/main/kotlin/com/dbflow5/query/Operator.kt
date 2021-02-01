@@ -506,6 +506,11 @@ internal constructor(nameAlias: NameAlias?,
         /**
          * An empty value for the condition.
          */
+        @Deprecated(replaceWith = ReplaceWith(
+            expression = "Property.WILDCARD",
+            imports = ["com.dbflow5.query.Property"]
+        ), message = "Deprecated. This will translate to '?' in the query as it get's SQL-escaped. " +
+            "Use the Property.WILDCARD instead to get desired ? behavior.")
         const val EMPTY_PARAM = "?"
 
         /**

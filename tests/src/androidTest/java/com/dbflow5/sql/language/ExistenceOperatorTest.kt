@@ -1,7 +1,6 @@
 package com.dbflow5.sql.language
 
 import com.dbflow5.BaseUnitTest
-import com.dbflow5.config.databaseForTable
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.ExistenceOperator
@@ -14,12 +13,10 @@ class ExistenceOperatorTest : BaseUnitTest() {
 
     @Test
     fun validateQuery() {
-        databaseForTable<SimpleModel> { dbFlowDatabase ->
-            assertEquals("EXISTS (SELECT * FROM `SimpleModel` WHERE `name`='name')",
-                    ExistenceOperator(
-                            (select from SimpleModel::class
-                                    where SimpleModel_Table.name.eq("name")))
-                            .query.trim())
-        }
+        assertEquals("EXISTS (SELECT * FROM `SimpleModel` WHERE `name`='name')",
+            ExistenceOperator(
+                (select from SimpleModel::class
+                    where SimpleModel_Table.name.eq("name")))
+                .query.trim())
     }
 }

@@ -3,16 +3,15 @@ package com.dbflow5.reactivestreams.query
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.databaseForTable
 import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.Join
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.extractFrom
 import com.dbflow5.reactivestreams.transaction.asMaybe
-import com.dbflow5.runtime.OnTableChangedListener
-import com.dbflow5.runtime.TableNotifierRegister
-import com.dbflow5.structure.ChangeAction
-import io.reactivex.FlowableEmitter
-import io.reactivex.FlowableOnSubscribe
-import io.reactivex.disposables.Disposables
+import io.reactivex.rxjava3.core.FlowableEmitter
+import io.reactivex.rxjava3.core.FlowableOnSubscribe
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
 import kotlin.reflect.KClass
 
 /**
@@ -23,28 +22,30 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: Mode
                                                 private val evalFn: (DatabaseWrapper, ModelQueriable<T>) -> R)
     : FlowableOnSubscribe<R> {
 
-    private val register: TableNotifierRegister = FlowManager.newRegisterForTable(modelQueriable.table)
     private lateinit var flowableEmitter: FlowableEmitter<R>
 
-    private val associatedTables: Set<Class<*>> = modelQueriable.extractFrom()?.associatedTables
-            ?: setOf(modelQueriable.table)
+    private val currentTransactions = CompositeDisposable()
 
-    private val onTableChangedListener = object : OnTableChangedListener {
-        override fun onTableChanged(table: Class<*>?, action: ChangeAction) {
-            if (table != null && associatedTables.contains(table)) {
-                evaluateEmission(table.kotlin)
+    private val associatedTables: Set<Class<*>> = modelQueriable.extractFrom()?.associatedTables
+        ?: setOf(modelQueriable.table)
+
+    private val onTableChangedObserver = object : OnTableChangedObserver(associatedTables.toList()) {
+        override fun onChanged(tables: Set<Class<*>>) {
+            if (tables.isNotEmpty()) {
+                evaluateEmission(tables.first().kotlin)
             }
         }
     }
 
     private fun evaluateEmission(table: KClass<*> = modelQueriable.table.kotlin) {
         if (this::flowableEmitter.isInitialized) {
-            databaseForTable(table)
-                    .beginTransactionAsync { evalFn(it, modelQueriable) }
-                    .asMaybe()
-                    .subscribe {
-                        flowableEmitter.onNext(it)
-                    }
+            currentTransactions.add(databaseForTable(table)
+                .beginTransactionAsync { evalFn(it, modelQueriable) }
+                .shouldRunInTransaction(false)
+                .asMaybe()
+                .subscribe {
+                    flowableEmitter.onNext(it)
+                })
         }
     }
 
@@ -52,12 +53,18 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: Mode
     @Throws(Exception::class)
     override fun subscribe(e: FlowableEmitter<R>) {
         flowableEmitter = e
-        e.setDisposable(Disposables.fromRunnable { associatedTables.forEach { register.unregister(it) } })
 
-        // From could be part of many joins, so we register for all affected tables here.
-        associatedTables.forEach { register.register(it) }
+        val db = FlowManager.getDatabaseForTable(associatedTables.first())
+        // force initialize the dbr
+        db.writableDatabase
 
-        register.setListener(onTableChangedListener)
+        val observer = db.tableObserver
+        e.setDisposable(Disposable.fromRunnable {
+            observer.removeOnTableChangedObserver(onTableChangedObserver)
+            currentTransactions.dispose()
+        })
+
+        observer.addOnTableChangedObserver(onTableChangedObserver)
 
         // emit once on subscribe.
         evaluateEmission()

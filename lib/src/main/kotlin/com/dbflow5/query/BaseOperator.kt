@@ -123,45 +123,42 @@ abstract class BaseOperator internal constructor(
         fun convertValueToString(value: Any?,
                                  appendInnerQueryParenthesis: Boolean,
                                  typeConvert: Boolean): String {
-            var locVal = value
-            if (locVal == null) {
+            if (value == null) {
+                // Return to match NULL in SQLITE.
                 return "NULL"
             } else {
-                val stringVal: String
+                var locVal = value
                 if (typeConvert) {
                     val typeConverter: TypeConverter<*, Any?>? = FlowManager.getTypeConverterForClass(locVal.javaClass) as TypeConverter<*, Any?>?
                     if (typeConverter != null) {
                         locVal = typeConverter.getDBValue(locVal)
                     }
                 }
-                if (appendInnerQueryParenthesis && locVal is BaseModelQueriable<*>) {
-                    stringVal = locVal.enclosedQuery
+                return if (appendInnerQueryParenthesis && locVal is BaseModelQueriable<*>) {
+                    locVal.enclosedQuery
                 } else if (locVal is Property<*> && locVal == Property.WILDCARD) {
-                    stringVal = locVal.toString()
-                } else {
-                    stringVal = when (locVal) {
-                        is Number -> locVal.toString()
-                        is Enum<*> -> sqlEscapeString(locVal.name)
-                        is NameAlias -> locVal.query
-                        is SQLOperator -> {
-                            val queryBuilder = StringBuilder()
-                            locVal.appendConditionToQuery(queryBuilder)
-                            queryBuilder.toString()
-                        }
-                        is Query -> locVal.query
-                        is Blob, is ByteArray -> {
-                            val bytes: ByteArray? = if (locVal is Blob) {
-                                locVal.blob
-                            } else {
-                                locVal as ByteArray?
-                            }
-                            "X${sqlEscapeString(byteArrayToHexString(bytes))}"
-                        }
-                        else -> sqlEscapeString(locVal.toString())
-                    }
-                }
+                    locVal.toString()
+                } else when (locVal) {
+                    is Number -> locVal.toString()
+                    is Enum<*> -> sqlEscapeString(locVal.name)
+                    is NameAlias -> locVal.query
+                    is SQLOperator -> {
+                        val queryBuilder = StringBuilder()
+                        locVal.appendConditionToQuery(queryBuilder)
 
-                return stringVal
+                        queryBuilder.toString()
+                    }
+                    is Query -> locVal.query
+                    is Blob, is ByteArray -> {
+                        val bytes: ByteArray? = if (locVal is Blob) {
+                            locVal.blob
+                        } else {
+                            locVal as ByteArray?
+                        }
+                        "X${sqlEscapeString(byteArrayToHexString(bytes))}"
+                    }
+                    else -> sqlEscapeString(locVal.toString())
+                }
             }
         }
 

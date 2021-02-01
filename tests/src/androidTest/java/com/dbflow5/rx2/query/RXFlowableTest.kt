@@ -1,6 +1,8 @@
 package com.dbflow5.rx2.query
 
 import com.dbflow5.BaseUnitTest
+import com.dbflow5.TestDatabase
+import com.dbflow5.config.database
 import com.dbflow5.config.databaseForTable
 import com.dbflow5.models.Author
 import com.dbflow5.models.Author_Table
@@ -28,12 +30,12 @@ class RXFlowableTest : BaseUnitTest() {
             var list = mutableListOf<SimpleModel>()
             var triggerCount = 0
             val subscription = (select from SimpleModel::class
-                    where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
-                    .asFlowable { db, modelQueriable -> modelQueriable.queryList(db) }
-                    .subscribe {
-                        list = it
-                        triggerCount += 1
-                    }
+                where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
+                .asFlowable { d, modelQueriable -> modelQueriable.queryList(d) }
+                .subscribe {
+                    list = it
+                    triggerCount += 1
+                }
 
             assertEquals(50, list.size)
             subscription.dispose()
@@ -46,27 +48,31 @@ class RXFlowableTest : BaseUnitTest() {
 
     @Test
     fun testObservesJoinTables() {
-        val joinOn = Blog_Table.name.withTable()
+        database<TestDatabase> { db ->
+            val joinOn = Blog_Table.name.withTable()
                 .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
-        assertEquals("`Blog`.`name`=`Author`.`first_name`+' '+`Author`.`last_name`", joinOn.query)
+            assertEquals("`Blog`.`name`=`Author`.`first_name`+' '+`Author`.`last_name`", joinOn.query)
 
-        var list = mutableListOf<Blog>()
-        var calls = 0
-        (select from Blog::class
+            var list = mutableListOf<Blog>()
+            var calls = 0
+            (select from Blog::class
                 leftOuterJoin Author::class
                 on joinOn)
-                .asFlowable { db, modelQueriable -> modelQueriable.queryList(db) }
+                .asFlowable { d, modelQueriable -> modelQueriable.queryList(d) }
                 .subscribe {
                     calls++
                     list = it
                 }
 
-        val authors = (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
-        (1 until 11).forEach {
-            Blog(it, name = "${it}name ${it}last", author = authors[it - 1]).save(databaseForTable<Blog>())
-        }
+            val authors = (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
+            db.executeTransaction { d ->
+                (1 until 11).forEach {
+                    Blog(it, name = "${it}name ${it}last", author = authors[it - 1]).save(d)
+                }
+            }
 
-        assertEquals(21, calls) // 1 for initial, 10 for each model object
-        assertEquals(10, list.size)
+            assertEquals(10, list.size)
+            assertEquals(2, calls) // 1 for initial, 1 for batch of changes
+        }
     }
 }

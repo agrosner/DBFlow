@@ -28,16 +28,16 @@ class DBFlowProcessor : AbstractProcessor() {
      * @return the names of the annotation types supported by this
      * * processor, or an empty set if none
      */
-    override fun getSupportedAnnotationTypes() = linkedSetOf(
-            Table::class.java.canonicalName,
-            Column::class.java.canonicalName,
-            TypeConverter::class.java.canonicalName,
-            ModelView::class.java.canonicalName,
-            Migration::class.java.canonicalName,
-            ContentProvider::class.java.canonicalName,
-            TableEndpoint::class.java.canonicalName,
-            ColumnIgnore::class.java.canonicalName,
-            QueryModel::class.java.canonicalName)
+    override fun getSupportedAnnotationTypes() = listOf(
+            Table::class,
+            Column::class,
+            TypeConverter::class,
+            ModelView::class,
+            Migration::class,
+            ContentProvider::class,
+            TableEndpoint::class,
+            ColumnIgnore::class,
+            QueryModel::class).mapTo(linkedSetOf<String>()) { it.java.canonicalName }
 
     override fun getSupportedOptions() = linkedSetOf(DatabaseHolderDefinition.OPTION_TARGET_MODULE_NAME)
 

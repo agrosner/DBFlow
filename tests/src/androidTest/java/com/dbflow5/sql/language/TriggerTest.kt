@@ -25,39 +25,37 @@ class TriggerTest : BaseUnitTest() {
 
     @Test
     fun validateBasicTrigger() {
-        databaseForTable<SimpleModel> { dbFlowDatabase ->
-            ("CREATE TRIGGER IF NOT EXISTS `MyTrigger` AFTER INSERT ON `SimpleModel` " +
-                    "\nBEGIN" +
-                    "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
-                    "\nEND").assertEquals(createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
-                    insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name")))
-        }
+        ("CREATE TRIGGER IF NOT EXISTS `MyTrigger` AFTER INSERT ON `SimpleModel` " +
+            "\nBEGIN" +
+            "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
+            "\nEND").assertEquals(createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
+            insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name")))
     }
 
     @Test
     fun validateUpdateTriggerMultiline() {
         ("CREATE TEMP TRIGGER IF NOT EXISTS `MyTrigger` BEFORE UPDATE ON `SimpleModel` " +
-                "\nBEGIN" +
-                "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
-                "\nINSERT INTO `TwoColumnModel`(`id`) VALUES(CAST(`new`.`name` AS INTEGER));" +
-                "\nEND")
-                .assertEquals(
-                        createTempTrigger("MyTrigger").before()
-                                updateOn SimpleModel::class
-                                begin
-                                insert(TwoColumnModel::class, name).values(NameAlias.ofTable("new", "name"))
-                                and
-                                insert(TwoColumnModel::class, id)
-                                        .values(cast(NameAlias.ofTable("new", "name").property).`as`(SQLiteType.INTEGER))
+            "\nBEGIN" +
+            "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
+            "\nINSERT INTO `TwoColumnModel`(`id`) VALUES(CAST(`new`.`name` AS INTEGER));" +
+            "\nEND")
+            .assertEquals(
+                createTempTrigger("MyTrigger").before()
+                    updateOn SimpleModel::class
+                    begin
+                    insert(TwoColumnModel::class, name).values(NameAlias.ofTable("new", "name"))
+                    and
+                    insert(TwoColumnModel::class, id)
+                        .values(cast(NameAlias.ofTable("new", "name").property).`as`(SQLiteType.INTEGER))
 
-                )
+            )
     }
 
     @Test
     fun validateTriggerWorks() {
         databaseForTable<SimpleModel> { db ->
             val trigger = createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
-                    insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name"))
+                insert(TwoColumnModel::class).columnValues(name to NameAlias.ofTable("new", "name"))
             trigger.enable(db)
             SimpleModel("Test").insert(db)
 

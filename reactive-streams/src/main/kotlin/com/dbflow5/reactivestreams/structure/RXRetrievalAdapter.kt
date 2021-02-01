@@ -3,8 +3,8 @@ package com.dbflow5.reactivestreams.structure
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 
 /**
  * Description: Mirrors the [RetrievalAdapter] with subset of exposed methods, mostly for

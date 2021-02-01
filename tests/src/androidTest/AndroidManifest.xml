@@ -5,6 +5,13 @@
         android:name="com.dbflow5.DemoApp"
         android:allowBackup="false"
         android:label="DB Flow Compiler Test">
-
+        <provider
+            android:name="com.dbflow5.provider.TestContentProvider_Provider"
+            android:authorities="com.dbflow5.test.provider"
+            android:exported="true"/>
+        <provider
+            android:name="com.dbflow5.provider.TestContentProvider2_Provider"
+            android:authorities="com.dbflow5.test.provider"
+            android:exported="true"/>
     </application>
 </manifest>

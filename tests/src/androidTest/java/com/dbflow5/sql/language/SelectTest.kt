@@ -2,7 +2,6 @@ package com.dbflow5.sql.language
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.assertEquals
-import com.dbflow5.config.databaseForTable
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table.id
@@ -14,15 +13,11 @@ class SelectTest : BaseUnitTest() {
 
     @Test
     fun validateSelect() {
-        databaseForTable<TwoColumnModel> { dbFlowDatabase ->
-            "SELECT `name`,`id` FROM `TwoColumnModel`".assertEquals(select(name, id) from TwoColumnModel::class)
-        }
+        "SELECT `name`,`id` FROM `TwoColumnModel`".assertEquals(select(name, id) from TwoColumnModel::class)
     }
 
     @Test
     fun validateSelectDistinct() {
-        databaseForTable<SimpleModel> { dbFlowDatabase ->
-            "SELECT DISTINCT `name` FROM `SimpleModel`".assertEquals(select(name).distinct() from SimpleModel::class)
-        }
+        "SELECT DISTINCT `name` FROM `SimpleModel`".assertEquals(select(name).distinct() from SimpleModel::class)
     }
 }

@@ -6,9 +6,9 @@ import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.transaction.Transaction
-import io.reactivex.Flowable
-import io.reactivex.SingleObserver
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.SingleObserver
+import io.reactivex.rxjava3.disposables.Disposable
 import org.reactivestreams.Subscriber
 import org.reactivestreams.Subscription
 import java.util.concurrent.atomic.AtomicLong

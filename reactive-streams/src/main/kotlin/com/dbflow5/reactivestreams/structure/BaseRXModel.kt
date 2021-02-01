@@ -6,8 +6,8 @@ import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.structure.BaseModel
 import com.dbflow5.structure.InvalidDBConfiguration
-import io.reactivex.Completable
-import io.reactivex.Single
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Single
 
 /**
  * Description: Similar to [BaseModel] with RX constructs. Extend this for convenience methods.
