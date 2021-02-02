@@ -77,6 +77,9 @@ interface ModelQueriable<T : Any> : Queriable {
      */
     fun <C> withCache(modelCache: ModelCache<T, C>): ModelQueriable<T>
 
+    /**
+     * Begins an async DB transaction using the specified TransactionManager.
+     */
     fun <R : Any?> async(databaseWrapper: DBFlowDatabase,
                          modelQueriableFn: ModelQueriable<T>.(DatabaseWrapper) -> R) =
             databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
