@@ -5,6 +5,7 @@ import com.dbflow5.query.BaseQueriable
 import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query.SQLOperator
 import com.dbflow5.query.update
+import kotlin.reflect.KClass
 
 /**
  * Description: Provides a simple way to update a table's field or fields quickly in a migration.
@@ -22,6 +23,8 @@ open class UpdateTableMigration<T : Any>
      * The table to update
      */
     private val table: Class<T>) : BaseMigration() {
+
+    constructor(table: KClass<T>) : this(table.java)
 
     /**
      * Builds the conditions for the WHERE part of our query
