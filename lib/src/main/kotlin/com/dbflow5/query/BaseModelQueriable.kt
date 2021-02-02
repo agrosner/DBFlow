@@ -6,6 +6,7 @@ import com.dbflow5.adapter.queriable.SingleModelLoader
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.queryModelAdapter
+import com.dbflow5.config.retrievalAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.cache.ModelCache
 import com.dbflow5.query.list.FlowCursorList
@@ -92,15 +93,15 @@ protected constructor(table: Class<TModel>)
 
     protected fun <T : Any> getListQueryModelLoader(table: Class<T>): ListModelLoader<T> =
             if (cachingEnabled) {
-                table.queryModelAdapter.listModelLoader
+                table.retrievalAdapter.listModelLoader
             } else {
-                table.queryModelAdapter.nonCacheableListModelLoader
+                table.retrievalAdapter.nonCacheableListModelLoader
             }
 
     protected fun <T : Any> getSingleQueryModelLoader(table: Class<T>): SingleModelLoader<T> =
             if (cachingEnabled) {
-                table.queryModelAdapter.singleModelLoader
+                table.retrievalAdapter.singleModelLoader
             } else {
-                table.queryModelAdapter.nonCacheableSingleModelLoader
+                table.retrievalAdapter.nonCacheableSingleModelLoader
             }
 }
