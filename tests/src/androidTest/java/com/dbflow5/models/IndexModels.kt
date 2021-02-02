@@ -12,27 +12,30 @@ import java.util.*
  * Description:
  */
 
-@Table(database = TestDatabase::class, indexGroups = arrayOf(IndexGroup(number = 1, name = "firstIndex"),
+@Table(database = TestDatabase::class,
+    indexGroups = [
+        IndexGroup(number = 1, name = "firstIndex"),
         IndexGroup(number = 2, name = "secondIndex"),
-        IndexGroup(number = 3, name = "thirdIndex")))
+        IndexGroup(number = 3, name = "thirdIndex"),
+    ])
 class IndexModel {
-    @Index(indexGroups = intArrayOf(1, 2, 3))
+    @Index(indexGroups = [1, 2, 3])
     @PrimaryKey
     var id: Int = 0
 
-    @Index(indexGroups = intArrayOf(1))
+    @Index(indexGroups = [1])
     @Column
     var first_name: String? = null
 
-    @Index(indexGroups = intArrayOf(2))
+    @Index(indexGroups = [2])
     @Column
     var last_name: String? = null
 
-    @Index(indexGroups = intArrayOf(3))
+    @Index(indexGroups = [3])
     @Column
     var created_date: Date? = null
 
-    @Index(indexGroups = intArrayOf(2, 3))
+    @Index(indexGroups = [2, 3])
     @Column
     var isPro: Boolean = false
 }
