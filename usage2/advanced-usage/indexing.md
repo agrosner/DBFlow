@@ -2,9 +2,15 @@
 
 In SQLite, an `Index` is a pointer to specific columns in a table that enable super-fast retrieval.
 
-**Note**: The database size can increase significantly, however if performance is more important, the tradeoff is worth it.
+**Note**: The database size can increase significantly, however if performance is more important, the tradeoff can be worth it.
 
-Indexes are defined using the `indexGroups()` property of the `@Table` annotation. These operate similar to how `UniqueGroup` work: 1. specify an `@IndexGroup` 2. Add the `@Index` 3. Build and an `IndexProperty` gets generated. This allows super-easy access to the index so you can enable/disable it with ease.
+Indexes are defined using the `indexGroups()` property of the `@Table` annotation. These operate similar to how `UniqueGroup` work:
+
+1. specify an `@IndexGroup` , giving it a number and `name` . The `name` is used in the database directly to create an index.
+
+2. Add the `@Index` annotation to a `@Column` and assign the `indexGroups` to the `number` you specified in the annotation.
+
+3. Build and an `IndexProperty` gets generated. This allows super-easy access to the index so you can enable/disable it with ease.
 
 **Note**: `Index` are not explicitly enabled unless coupled with an `IndexMigration`. \([read here](../usage/migrations.md#index-migrations)\).
 
