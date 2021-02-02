@@ -7,7 +7,7 @@ To add the library add the library to your `build.gradle` with same version you 
 ```groovy
 dependencies {
   implementation "com.dbflow5:sqlcipher:${version}"
-  implementation "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
+  implementation "net.zetetic:android-database-sqlcipher:${sqlcipher_version}"
 }
 ```
 
@@ -34,9 +34,9 @@ _Note:_ that the constructor with `DatabaseDefinition` and `DatabaseHelperListen
 Then in your application class when initializing DBFlow:
 
 ```kotlin
-FlowManager.init(FlowConfig.Builder(this)
+FlowManager.init(FlowConfig.Builder(context)
   .database(
-      DatabaseConfig.Builder(CipherDatabase::class) { db, callback -> SQLCipherHelperImpl(databaseDefinition, callback))
+      DatabaseConfig.Builder(CipherDatabase::class) { db, callback -> SQLCipherHelperImpl(context, databaseDefinition, callback))
       .build())
   .build())
 ```
