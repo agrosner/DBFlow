@@ -1,8 +1,7 @@
 package com.dbflow5.provider
 
 import android.content.ContentProvider
-import android.content.ContentResolver
-import com.dbflow5.config.FlowManager
+import com.dbflow5.config.FlowManager.contentResolver
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.OperatorGroup
 import com.dbflow5.structure.BaseModel
@@ -16,35 +15,26 @@ abstract class BaseSyncableProviderModel : BaseModel(), ModelProvider {
 
     override fun insert(wrapper: DatabaseWrapper): Long {
         val rowId = super.insert(wrapper)
-        ContentUtils.insert(FlowManager.context, insertUri, this)
+        ContentUtils.insert(contentResolver, insertUri, this)
         return rowId
     }
 
-    override fun save(wrapper: DatabaseWrapper): Boolean =
-        save(wrapper, FlowManager.context.contentResolver)
-
-    fun save(wrapper: DatabaseWrapper, contentResolver: ContentResolver): Boolean {
-        return super.save(wrapper) && if (exists(wrapper)) {
-            ContentUtils.update(contentResolver, updateUri, this) > 0
-        } else {
-            ContentUtils.insert(contentResolver, insertUri, this) != null
-        }
+    override fun save(wrapper: DatabaseWrapper): Boolean = super.save(wrapper) && if (exists(wrapper)) {
+        ContentUtils.update(contentResolver, updateUri, this) > 0
+    } else {
+        ContentUtils.insert(contentResolver, insertUri, this) != null
     }
 
-    override fun delete(wrapper: DatabaseWrapper): Boolean = delete(wrapper, FlowManager.context.contentResolver)
+    override fun delete(wrapper: DatabaseWrapper): Boolean = super.delete(wrapper) && ContentUtils.delete(contentResolver, deleteUri, this) > 0
 
-    fun delete(wrapper: DatabaseWrapper, contentResolver: ContentResolver): Boolean = super.delete(wrapper) && ContentUtils.delete(contentResolver, deleteUri, this) > 0
-
-    override fun update(wrapper: DatabaseWrapper): Boolean = update(wrapper, FlowManager.context.contentResolver)
-
-    fun update(wrapper: DatabaseWrapper, contentResolver: ContentResolver): Boolean = super.update(wrapper) && ContentUtils.update(contentResolver, updateUri, this) > 0
+    override fun update(wrapper: DatabaseWrapper): Boolean = super.update(wrapper) && ContentUtils.update(contentResolver, updateUri, this) > 0
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> load(whereOperatorGroup: OperatorGroup,
                           orderBy: String?,
                           wrapper: DatabaseWrapper,
                           vararg columns: String?): T? {
-        val cursor = ContentUtils.query(FlowManager.context.contentResolver,
+        val cursor = ContentUtils.query(contentResolver,
             queryUri, whereOperatorGroup, orderBy, *columns)
         if (cursor != null) {
             if (cursor.moveToFirst()) {

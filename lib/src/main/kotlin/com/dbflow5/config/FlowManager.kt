@@ -3,6 +3,7 @@
 package com.dbflow5.config
 
 import android.annotation.SuppressLint
+import android.content.ContentResolver
 import android.content.Context
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ModelViewAdapter
@@ -43,6 +44,11 @@ object FlowManager {
         "$DEFAULT_DATABASE_HOLDER_PACKAGE_NAME.$DEFAULT_DATABASE_HOLDER_NAME"
 
     /**
+     * Override for testing
+     */
+    var globalContentResolver: ContentResolver? = null
+
+    /**
      * Will throw an exception if this class is not initialized yet in [.init]
      *
      * @return The shared context.
@@ -52,6 +58,10 @@ object FlowManager {
         get() = config?.context
             ?: throw IllegalStateException("You must provide a valid FlowConfig instance." +
                 " We recommend calling init() in your application class.")
+
+    val contentResolver: ContentResolver
+        get() = globalContentResolver ?: context.contentResolver
+
 
     private class GlobalDatabaseHolder : DatabaseHolder() {
 
