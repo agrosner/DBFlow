@@ -2,7 +2,7 @@ package com.dbflow5.adapter
 
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
-import com.dbflow5.query.cache.IMultiKeyCacheConverter
+import com.dbflow5.query.cache.MultiKeyCacheConverter
 import com.dbflow5.query.cache.ModelCache
 import com.dbflow5.structure.InvalidDBConfiguration
 
@@ -11,7 +11,7 @@ import com.dbflow5.structure.InvalidDBConfiguration
  */
 abstract class CacheAdapter<T : Any>(val modelCache: ModelCache<T, *>,
                                      val cachingColumnSize: Int = 1,
-                                     val cacheConverter: IMultiKeyCacheConverter<*>? = null) {
+                                     val cacheConverter: MultiKeyCacheConverter<*>? = null) {
 
     /**
      * @param cursor The cursor to load caching id from.
@@ -62,7 +62,7 @@ abstract class CacheAdapter<T : Any>(val modelCache: ModelCache<T, *>,
         inValues?.size == 1 -> // if it exists in cache no matter the query we will use that one
             inValues.getOrNull(0)
         inValues != null -> cacheConverter?.getCachingKey(inValues)
-                ?: throw InvalidDBConfiguration("For multiple primary keys, a public static IMultiKeyCacheConverter field must" +
+                ?: throw InvalidDBConfiguration("For multiple primary keys, a public static MultiKeyCacheConverter field must" +
                         "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
                         "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.")
         else -> null
