@@ -1,6 +1,6 @@
 # QueryModels
 
-A `QueryModel` is purely an ORM object that maps rows from a `Cursor` into a `Model` such that when loading from the DB, we can easily use the data from it.
+A `QueryModel` maps any kind of custom query to a type object. These types are virtual and do not get represented by any real DB construct such as a `Table`
 
 We use a different annotation, `@QueryModel`, to define it separately. These do not allow for modifications in the DB, rather act as a marshal agent out of the DB.
 
@@ -58,5 +58,13 @@ And adjust our query to handle the new output:
 
 They support inheritance and visibility modifiers as defined by [Models](../usage/models.md).
 
-`QueryModel` **do not** support: 1. `InheritedField`/`InheritedPrimaryKey` 2. `@PrimaryKey`/`@ForeignKey` 3. direct caching. 4. changing "useBooleanGetterSetters" for private boolean fields.
+`QueryModel` **do not** support: 
+
+1. `InheritedField`/`InheritedPrimaryKey` 
+
+2. `@PrimaryKey`/`@ForeignKey` 
+
+3. direct caching. Can cache queries using the `withModelCache`  on a SQLite query, which is a read-only cache.
+
+4. changing `useBooleanGetterSetters` for private boolean fields.
 
