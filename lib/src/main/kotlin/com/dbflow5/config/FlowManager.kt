@@ -20,6 +20,7 @@ import com.dbflow5.structure.BaseModelView
 import com.dbflow5.structure.BaseQueryModel
 import com.dbflow5.structure.InvalidDBConfiguration
 import com.dbflow5.structure.Model
+import org.jetbrains.annotations.TestOnly
 import kotlin.reflect.KClass
 
 /**
@@ -46,6 +47,7 @@ object FlowManager {
     /**
      * Override for testing
      */
+    @set:TestOnly
     var globalContentResolver: ContentResolver? = null
 
     /**
