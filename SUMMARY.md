@@ -1,9 +1,9 @@
 # Table of contents
 
 * [README](README.md)
-* [GettingStarted](gettingstarted.md)
 * [Usage Docs](usage2/README.md)
   * [Including In Project](usage2/including-in-project.md)
+  * [Getting Started](usage2/gettingstarted.md)
   * [Proguard](usage2/proguard.md)
   * [Advanced Usage](usage2/advanced-usage/README.md)
     * [Caching](usage2/advanced-usage/caching.md)
