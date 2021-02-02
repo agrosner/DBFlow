@@ -24,9 +24,11 @@ Converting a whole list at one chunk can be memory intensive. This lazily create
 
 **Note**: It's preferred within a `RecyclerView` to use the `QueryDataSource` with the Paging library, as this use can potentially lock the UI thread during heavy db usage.
 
+**Note:** Ensure you close the `FlowQueryList` when you are done using.
+
 ## FlowCursorList
 
-The `FlowCursorList` is simply a wrapper around a standard `Cursor`, giving it the ability to cache `Model`, load items at specific position with conversion, and refresh it's content easily.
+The `FlowCursorList` is simply a wrapper around a standard `Cursor`, giving it the ability to cache `Model`, load items at specific position with conversion, and refresh its contents easily.
 
 The `FlowCursorList` provides these methods:
 
@@ -38,7 +40,5 @@ The `FlowCursorList` provides these methods:
 
 ## Flow Query List
 
-This class is a much more powerful version of the `FlowCursorList`. It contains a `FlowCursorList`, which backs it's retrieval operations.
-
-This class acts as `List` and can be used almost wherever a `List` is used.
+This class is a much more powerful version of the `FlowCursorList`. This class acts as `List` and can be used almost wherever a `List` is used.
 
