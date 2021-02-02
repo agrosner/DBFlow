@@ -23,17 +23,17 @@ public class Dog(@PrimaryKey var id: Int = 0, var name: String? = null)
 
 Columns have a wide-range of supported types in the `Model` classes: **Supported Types**:
 
-1. all primitives including `Char`,`Byte`, `Short`, and `Boolean`.
-2. All Kotlin nullable primitives \(java boxed\).
-3. String, Date, java.sql.Date, Calendar, Blob, Boolean
-4. Custom data types via a [TypeConverter](typeconverters.md)
-5. `Model` as fields, but only as `@PrimaryKey` and/or `@ForeignKey`
-6. `@ColumnMap` objects that flatten an object into the current table. Just like a `@ForeignKey`, but without requiring a separate table. \(4.1.0+\). Avoid nesting more than one object, as the column count could get out of control.
+   1. all primitives including `Char`,`Byte`, `Short`, and `Boolean`.
+   2. All Kotlin nullable primitives (java boxed).
+   3. String, Date, java.sql.Date, Calendar, Blob, Boolean
+   4. Custom data types via a [TypeConverter](typeconverters.md)
+   5. `Model` as fields, but only as `@PrimaryKey` and/or `@ForeignKey`
+   6. `@ColumnMap` objects that flatten an object into the current table. Just like a `@ForeignKey`, but without requiring a separate table. \(4.1.0+\). Avoid nesting more than one object, as the column count could get out of control.
 
 **Unsupported Types**:
 
-1. `List<T>` : List columns are not supported and not generally proper for a relational database. However, you can get away with a non-generic `List` column via a `TypeConverter`. But again, avoid this if you can.
-2. Anything that is generically typed \(even with an associated `TypeConverter`\). If you need to include the field, subclass the generic object and provide a `TypeConverter`.
+  1. `List<T>` : List columns are not supported and not generally proper for a relational database. However, you can get away with a non-generic `List` column via a `TypeConverter`. But again, avoid this if you can.
+  2. Anything that is generically typed \(even with an associated `TypeConverter`\). If you need to include the field, subclass the generic object and provide a `TypeConverter`.
 
 ## Inherited Columns
 
@@ -94,7 +94,6 @@ class UniqueModel(
 The `groupNumber` within each defined `uniqueColumnGroups` with an associated `@Unique` column. We need to specify `unique=false` for any column used in a group so we expect the column to be part of a group. If true as well, the column will _also_ alone be unique.
 
 ## Default Values
-
 **Not to be confused with Kotlin default values** This only applies when fields are marked as `nullable`. When fields are non null in kotlin, we utilize the default constructor value when it is set, so when the column data is `null` from a `Cursor`, we do not override the initial assignment.
 
 DBFlow supports default values in a slighty different way that SQLite does. Since we do not know exactly the intention of missing data when saving a `Model`, since we group all fields, `defaultValue` specifies a value that we replace when saving to the database when the value of the field is `null`.
@@ -116,4 +115,3 @@ Boolean aBoolean;
 ```
 
 DBFlow inserts it's literal value into the `ModelAdapter` for the table so any `String` must be escaped.
-

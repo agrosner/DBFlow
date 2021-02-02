@@ -70,4 +70,3 @@ Add artifacts to your project:
 
   }
 ```
-
