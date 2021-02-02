@@ -10,7 +10,6 @@ Using KAPT:
 
 ```java
 kapt {
-    generateStubs = true
     arguments {
         arg("targetModuleName", "SomeUniqueModuleName")
     }
@@ -28,7 +27,9 @@ javaCompileOptions {
     }
 ```
 
-By passing the targetModuleName, we append that to the `GeneratedDatabaseHolder` class name to create the `{targetModuleName}GeneratedDatabaseHolder` module. **Note**: Specifying this in code means you need to specify the module when initializing DBFlow:
+By passing the targetModuleName, we append that to the `GeneratedDatabaseHolder` class name to create the `{targetModuleName}GeneratedDatabaseHolder` module. 
+
+**Note**: Specifying this in code means you need to specify the module when initializing DBFlow:
 
 From previous sample code, we recommend initializing the specific module inside your library, to prevent developer error. **Note**: Multiple calls to `FlowManager` will not adversely affect DBFlow. If DBFlow is already initialized, we append the module to DBFlow if and only if it does not already exist.
 
