@@ -2,21 +2,27 @@ package com.dbflow5.migration
 
 import androidx.annotation.CallSuper
 import com.dbflow5.appendQuotedIfNeeded
+import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.select
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.sql.SQLiteType
 import com.dbflow5.stripQuotes
+import java.util.*
+import kotlin.reflect.KClass
 
 /**
  * Description: Provides a very nice way to alter a single table quickly and easily.
  */
-class AlterTableMigration<T : Any>(
-        /**
-         * The table to ALTER
-         */
-        private val table: Class<T>) : BaseMigration() {
+open class AlterTableMigration<T : Any>(
+    /**
+     * The table to ALTER
+     */
+    private val table: Class<T>) : BaseMigration() {
+
+
+    constructor(table: KClass<T>) : this(table.java)
 
     /**
      * The query to rename the table with
