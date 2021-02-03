@@ -61,6 +61,13 @@ database.beginTransactionAsync { db ->
      success = { transaction, r ->   }, // if successful
      error  = { transaction, throwable ->  }, // any exception thrown is put here
      completion = { transaction -> }) // always called success or failure
+     
+// or inverse is supported
+(select from TestModel1::class
+    where TestModel1_Table.name.is("Async")).async { d -> querySingle(d) }
+    .execute { _, model: TestModel1? ->
+      
+    }
 ```
 
 A `ITransaction<R>` simply returns a result, `R` , which could be a query, or a result from multiple queries combined into one result.
