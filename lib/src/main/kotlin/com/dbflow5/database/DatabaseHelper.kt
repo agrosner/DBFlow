@@ -31,11 +31,11 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
     open fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
         checkForeignKeySupport(db)
 
-        // migrations run to get to DB newest version. adjusting any existing tables to new version
-        executeMigrations(db, oldVersion, newVersion)
-
         // create new tables if not previously created
         executeTableCreations(db)
+
+        // migrations run to get to DB newest version. adjusting any existing tables to new version
+        executeMigrations(db, oldVersion, newVersion)
 
         // views reflect current db state.
         executeViewCreations(db)
