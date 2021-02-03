@@ -20,7 +20,7 @@ You can also specify the query as a property getter or function:
 ```kotlin
 companion object {
     @ModelViewQuery @JvmStatic
-    val query gey() = (select from TestModel2::class where TestModel2_Table.model_order.greaterThan(5))
+    val query get() = (select from TestModel2::class where TestModel2_Table.model_order.greaterThan(5))
 
     @ModelViewQuery @JvmStatic
     fun getQuery() = (select from TestModel2::class where TestModel2_Table.model_order.greaterThan(5))
@@ -29,7 +29,19 @@ companion object {
 
 To specify the query that a `ModelView` creates itself with, we _must_ define a public static final field annotated with `@ModelViewQuery`. This tells DBFlow what field is the query. This query is used only once when the database is created \(or updated\) to create the view.
 
-The full list of limitations/supported types are: 1. Only `@Column`/`@ColumnMap` are allowed 2. No `@PrimaryKey` or `@ForeignKey` 3. Supports all fields, and accessibility modifiers that `Model` support 4. Does not support `@InheritedField`, `@InheritedPrimaryKey` 5. Basic, type-converted `@Column`. 6. **Cannot**: update, insert, or delete
+The full list of limitations/supported types are: 
+
+1. Only `@Column`/`@ColumnMap` are allowed 
+
+2. No `@PrimaryKey` or `@ForeignKey` 
+
+3. Supports all fields, and accessibility modifiers that `Model` support 
+
+4. Does not support `@InheritedField`, `@InheritedPrimaryKey` 
+
+5. Basic, type-converted `@Column`. 
+
+6. **Cannot**: update, insert, or delete
 
 `ModelView` are used identically to `Model` when retrieving from the database:
 
