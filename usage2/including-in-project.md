@@ -42,7 +42,7 @@ Add artifacts to your project:
 ```groovy
   apply plugin: 'kotlin-kapt' // only required for kotlin consumers.
 
-  def dbflow_version = "5.0.0-alpha1"
+  def dbflow_version = "5.0.0-alpha2"
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
   dependencies {
