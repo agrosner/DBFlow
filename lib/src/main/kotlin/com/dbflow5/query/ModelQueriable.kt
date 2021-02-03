@@ -3,7 +3,6 @@ package com.dbflow5.query
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
-import com.dbflow5.query.cache.ModelCache
 import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.query.list.FlowQueryList
 
@@ -33,7 +32,7 @@ interface ModelQueriable<T : Any> : Queriable {
      * A non-null result. throws a [SQLiteException] if the query reaches no result.
      */
     fun requireSingle(db: DatabaseWrapper) = querySingle(db)
-            ?: throw SQLiteException("Model result not found for $this")
+        ?: throw SQLiteException("Model result not found for $this")
 
     /**
      * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
@@ -72,17 +71,13 @@ interface ModelQueriable<T : Any> : Queriable {
      */
     fun disableCaching(): ModelQueriable<T>
 
-    /**
-     * Manually specify a cache to use in this query. This differs from the global cache of the table [T].
-     */
-    fun <C> withCache(modelCache: ModelCache<T, C>): ModelQueriable<T>
 
     /**
      * Begins an async DB transaction using the specified TransactionManager.
      */
     fun <R : Any?> async(databaseWrapper: DBFlowDatabase,
                          modelQueriableFn: ModelQueriable<T>.(DatabaseWrapper) -> R) =
-            databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
+        databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
 
     /**
      * Attempt to constrain this [ModelQueriable] if it supports it via [Transformable] methods. Otherwise,
@@ -106,11 +101,11 @@ internal inline val <T : Any> ModelQueriable<T>.enclosedQuery
     get() = "(${query.trim { it <= ' ' }})"
 
 inline fun <reified T : Any> ModelQueriable<T>.queryCustomList(db: DatabaseWrapper) =
-        queryCustomList(T::class.java, db)
+    queryCustomList(T::class.java, db)
 
 inline fun <reified T : Any> ModelQueriable<T>.queryCustomSingle(db: DatabaseWrapper) =
-        queryCustomSingle(T::class.java, db)
+    queryCustomSingle(T::class.java, db)
 
 inline fun <reified T : Any> ModelQueriable<T>.requireCustomSingle(db: DatabaseWrapper) =
-        queryCustomSingle(T::class.java, db)
-                ?: throw SQLiteException("QueryModel result not found for $this")
+    queryCustomSingle(T::class.java, db)
+        ?: throw SQLiteException("QueryModel result not found for $this")
