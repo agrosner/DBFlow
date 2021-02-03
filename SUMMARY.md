@@ -27,6 +27,4 @@
   * [ContentProviderGeneration](usage2/contentprovidergeneration.md)
   * [Migration4Guide](usage2/migration4guide.md)
 * [ISSUE\_TEMPLATE](issue_template.md)
-* [.github](.github/README.md)
-  * [CONTRIBUTING](.github/contributing.md)
 
