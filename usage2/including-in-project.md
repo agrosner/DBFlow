@@ -12,15 +12,13 @@ DBFlow has a number of artifacts that you can include in the project.
 
 **Coroutines:** Adds coroutine support for queries.
 
-**RX Java:** Enable applications to be reactive by listening to DB changes and ensuring your subscribers are up-to-date.
+**RXJava3:** Enable applications to be reactive by listening to DB changes and ensuring your subscribers are up-to-date.
 
 **Paging:** Android architecture component paging library support for queries via `QueryDataSource`.
 
 **LiveData:** Android architecture LiveData support for queries on table changes.
 
 **SQLCipher:** Easy database encryption support in this library.
-
-**SQLite Query Language:** Enabling autocompletion on sqlite queries combined with Kotlin language features means SQLite-like syntax.
 
 ## Add the jitpack.io repository
 
