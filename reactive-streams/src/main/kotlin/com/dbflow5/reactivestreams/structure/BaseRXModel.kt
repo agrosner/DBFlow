@@ -57,5 +57,5 @@ fun <T : Any> T.rxUpdate(databaseWrapper: DatabaseWrapper): Single<Boolean> =
 fun <T : Any> T.rxInsert(databaseWrapper: DatabaseWrapper): Single<Long> =
         RXModelAdapter(javaClass).insert(this, databaseWrapper)
 
-fun <T : Any> T.exists(databaseWrapper: DatabaseWrapper): Single<Boolean> =
+fun <T : Any> T.rxExists(databaseWrapper: DatabaseWrapper): Single<Boolean> =
         RXModelAdapter(javaClass).exists(this, databaseWrapper)
