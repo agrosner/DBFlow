@@ -11,12 +11,22 @@ In DBFlow, creating a database is as simple as only a few lines of code. DBFlow 
 abstract class AppDatabase : DBFlowDatabase()
 ```
 
-or in Java:
+## Referencing the Database
 
-```java
-@Database(version = 1)
-public abstract class AppDatabase extends DBFlowDatabase() {
+To grab a reference to the DB object:
+
+```kotlin
+val db = database<AppDatabase>()
+
+// can utilize in a closure
+database<AppDatabase> { db -> 
+  model.save(db)
+  
+  db.beginTransactionAsync { d -> }
 }
+
+// or old-school way
+val db = FlowManager.getDatabase(AppDatabase::class.java)
 ```
 
 ## Initialization
@@ -37,16 +47,7 @@ To dynamically change the database name, call:
 database<AppDatabase>()
   .reopen(DatabaseConfig.builder(AppDatabase::class)
     .databaseName("AppDatabase-2")
-    .build())
-```
-
-or in Java:
-
-```java
-FlowManager.getDatabase(AppDatabase.class)
-  .reopen(DatabaseConfig.builder(AppDatabase.class)
-    .databaseName("AppDatabase-2")
-    .build())
+    .build())]
 ```
 
 This will close the open DB, reopen the DB, and replace previous `DatabaseConfig` with this new one. Ensure that you persist the changes to the `DatabaseConfig` somewhere as next time app is launched and DBFlow is initialized, the new config would get overwritten.
@@ -58,14 +59,6 @@ As with **name**, in previous versions of DBFlow \(&lt; 5.0\), you specified `in
 ```kotlin
 FlowManager.init(FlowConfig.builder()
     .database(DatabaseConfig.inMemoryBuilder(AppDatabase::class.java)
-      .databaseName("AppDatabase")
-      .build())
-    .build())
-```
-
-```java
-FlowManager.init(FlowConfig.builder()
-    .database(DatabaseConfig.inMemoryBuilder(AppDatabase::class)
       .databaseName("AppDatabase")
       .build())
     .build())
@@ -93,25 +86,6 @@ abstract class AppDatabase : DBFlowDatabase() {
 }
 ```
 
-```java
-@Database(version = 2)
-public abstract class AppDatabase extends DBFlowDatabase {
-
-  @Migration(version = 2, database = MigrationDatabase.class)
-  public static class AddEmailToUserMigration extends AlterTableMigration<User> {
-
-    public AddEmailToUserMigration(Class<User> table) {
-        super(table);
-    }
-
-    @Override
-    public void onPreMigrate() {
-        addColumn(SQLiteType.TEXT, "email");
-    }
-  }
-}
-```
-
 This simple example adds a column to the `User` table named "email". In code, just add the column to the `Model` class and this migration runs only on existing dbs. To read more on migrations and more examples of different kinds, visit the [page](migrations.md).
 
 ## Advanced Database features
@@ -127,14 +101,8 @@ To include a prepackaged database for your application, simply include the ".db"
 In DBFlow when an INSERT or UPDATE are performed, by default, we use `NONE`. If you wish to configure this globally, you can define it to apply for all tables from a given database:
 
 ```kotlin
-@Database(version = 2, insertConflict = ConflictAction.IGNORE, updateConflict= ConflictAction.REPLACE)
+@Database(version = 2, insertConflict = ConflictAction.IGNORE, updateConflict = ConflictAction.REPLACE)
 abstract class AppDatabase : DBFlowDatabase()
-```
-
-```java
-@Database(version = 2, insertConflict = ConflictAction.IGNORE, updateConflict= ConflictAction.REPLACE)
-public abstract class AppDatabase extends DBFlowDatabase {
-}
 ```
 
 These follow the SQLite standard [here](https://www.sqlite.org/conflict.html).
@@ -151,15 +119,6 @@ For variety of reasons, you may want to provide your own `FlowSQLiteOpenHelper` 
 class CustomFlowSQliteOpenHelper(context: Contect, databaseDefinition: DatabaseDefinition, listener: DatabaseHelperListener) : FlowSQLiteOpenHelper(context, databaseDefinition, listener)
 ```
 
-```java
-public class CustomFlowSQliteOpenHelper extends FlowSQLiteOpenHelper {
-
-    public CustomFlowSQliteOpenHelper(Context context, BaseDatabaseDefinition databaseDefinition, @Nullable DatabaseCallback callback) {
-        super(context, databaseDefinition, callback);
-    }
-}
-```
-
 Then in your `DatabaseConfig`:
 
 ```kotlin
@@ -168,19 +127,5 @@ FlowManager.init(FlowConfig.builder(context)
       .openHelper(::CustomFlowSQliteOpenHelper)
       .build())
   .build())
-```
-
-```java
-FlowManager.init(FlowConfig.builder(context)
-  .database(
-      DatabaseConfig.builder(CipherDatabase.class)
-          .openHelper(new DatabaseConfig.OpenHelperCreator() {
-              @Override
-              public OpenHelper createHelper(@NonNull DatabaseDefinition databaseDefinition, @Nullable DatabaseCallback callback) {
-                  return new CustomFlowSQliteOpenHelper(context, databaseDefinition, callback);
-              }
-          })
-      .build())
-  .build());
 ```
 
