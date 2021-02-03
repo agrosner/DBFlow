@@ -62,7 +62,7 @@ Add artifacts to your project:
     implementation "com.github.agrosner.dbflow:sqlcipher:${dbflow_version}"
     implementation "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
 
-    // RXJava 2 support
+    // RXJava3 support
     implementation "com.github.agrosner.dbflow:reactive-streams:${dbflow_version}"
 
     // Kotlin Coroutines
