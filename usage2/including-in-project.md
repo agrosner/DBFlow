@@ -20,8 +20,6 @@ DBFlow has a number of artifacts that you can include in the project.
 
 **SQLCipher:** Easy database encryption support in this library.
 
-**SQLite Query Language:** Enabling autocompletion on sqlite queries combined with Kotlin language features means SQLite-like syntax.
-
 ## Add the jitpack.io repository
 
 This repo is used to publish the artifacts. It also enables [dynamic builds](https://jitpack.io/docs/), allowing you to specify specific branches or commit hashes of the project to include outside of normal releases.
@@ -42,7 +40,7 @@ Add artifacts to your project:
 ```groovy
   apply plugin: 'kotlin-kapt' // only required for kotlin consumers.
 
-  def dbflow_version = "5.0.0-alpha1"
+  def dbflow_version = "5.0.0-alpha2"
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
   dependencies {
