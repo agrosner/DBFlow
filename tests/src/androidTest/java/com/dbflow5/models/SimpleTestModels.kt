@@ -235,7 +235,7 @@ class Dog : BaseModel() {
 }
 
 @Table(database = TestDatabase::class)
-class Currency(@PrimaryKey(autoincrement = true) var id: Long = 0,
+data class Currency(@PrimaryKey(autoincrement = true) var id: Long = 0,
                @Column @Unique var symbol: String? = null,
                @Column var shortName: String? = null,
                @Column @Unique var name: String = "") // nullability of fields are respected. We will not assign a null value to this field.
