@@ -39,6 +39,7 @@ object FlowManager {
 
     private val DEFAULT_DATABASE_HOLDER_NAME = "GeneratedDatabaseHolder"
 
+    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     private val DEFAULT_DATABASE_HOLDER_PACKAGE_NAME = FlowManager::class.java.`package`.name
 
     private val DEFAULT_DATABASE_HOLDER_CLASSNAME =
@@ -214,7 +215,7 @@ object FlowManager {
 
         try {
             // Load the database holder, and add it to the global collection.
-            val dbHolder = holderClass.newInstance()
+            val dbHolder: DatabaseHolder? = holderClass.newInstance()
             if (dbHolder != null) {
                 globalDatabaseHolder.add(dbHolder)
 

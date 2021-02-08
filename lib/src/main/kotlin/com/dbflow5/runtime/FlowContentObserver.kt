@@ -107,8 +107,12 @@ open class FlowContentObserver(private val contentAuthority: String,
                 synchronized(tableUris) {
                     for (uri in tableUris) {
                         for (onTableChangedListener in onTableChangedListeners) {
-                            onTableChangedListener.onTableChanged(registeredTables[uri.authority],
-                                ChangeAction.valueOf(uri.fragment))
+                            uri.authority?.let { authority ->
+                                uri.fragment?.let { fragment ->
+                                    onTableChangedListener.onTableChanged(registeredTables[authority],
+                                        ChangeAction.valueOf(fragment))
+                                }
+                            }
                         }
                     }
                     tableUris.clear()
