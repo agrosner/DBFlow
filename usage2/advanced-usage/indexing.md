@@ -25,7 +25,7 @@ You can define as many `@IndexGroup` you want within a `@Table` as long as one f
        ])
 class IndexModel2 {
 
-   @Index(indexGroups = {1, 2, 3})
+   @Index(indexGroups = [1, 2, 3])
    @PrimaryKey
    var id: Int = 0
 
@@ -37,11 +37,11 @@ class IndexModel2 {
    @Column
    var lastName: String = ""
 
-   @Index(indexGroups = {1, 3})
+   @Index(indexGroups = [1, 3])
    @Column
    var createdDate: Date? = null
 
-   @Index(indexGroups = {2, 3})
+   @Index(indexGroups = [2, 3])
    @Column
    var isPro: Boolean = false
 }
