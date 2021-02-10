@@ -46,7 +46,7 @@ And adjust our query to handle the new output:
                 EmployeeModel_Table.title)
   from EmployeeModel::class)
   .groupBy(EmployeeModel_Table.department, EmployeeModel_Table.title)
-  .async(database) { it.customList<AverageSalary>() }
+  .async(database) { queryCustomList<AverageSalary>(it) }
   .execute { transaction, list ->
       // utilize list
   }
