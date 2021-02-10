@@ -1,6 +1,6 @@
 # RXJavaSupport
 
-RXJava support in DBFlow is an _incubating_ feature and likely to change over time. We support both RX1 and RX2 and have made the extensions + DBFlow compatibility almost identical - save for the changes and where it makes sense in each version.
+RXJava support in DBFlow is an _incubating_ feature and likely to change over time. We support RXJava3 only and have made the extensions + DBFlow compatibility almost identical - save for the changes and where it makes sense in each version.
 
 Currently it supports 
 
