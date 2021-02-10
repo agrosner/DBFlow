@@ -213,21 +213,18 @@ open class FlowContentObserver(private val contentAuthority: String,
         val fragment = locUri.fragment
         val tableName = locUri.getQueryParameter(TABLE_QUERY_PARAM)
 
-        var columnName: String
-        var param: String
-
         val queryNames = locUri.queryParameterNames
         val columnsChanged = arrayListOf<SQLOperator>()
         queryNames.asSequence()
             .filter { it != TABLE_QUERY_PARAM }
             .forEach { key ->
-                param = Uri.decode(locUri.getQueryParameter(key))
-                columnName = Uri.decode(key)
+                val param = Uri.decode(locUri.getQueryParameter(key))
+                val columnName = Uri.decode(key)
                 columnsChanged += Operator.op<Any>(NameAlias.Builder(columnName).build()).eq(param)
             }
 
-        val table = registeredTables[tableName]
-        if (table != null) {
+        val table = tableName?.let { t -> registeredTables[t] }
+        if (table != null && fragment != null) {
             var action = ChangeAction.valueOf(fragment)
             if (!isInTransaction) {
                 modelChangeListeners.forEach {
