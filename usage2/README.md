@@ -5,16 +5,19 @@ DBFlow is a Kotlin SQLite library for Android that makes it ridiculously easy to
 Creating a database is as easy as a few lines of code:
 
 ```kotlin
-@Database(version = AppDatabase.VERSION)
-object AppDatabase {
-    const val VERSION = 1
-}
+@Database(version = 1)
+abstract class AppDatabase: DBFlowDatabase
 ```
 
 The `@Database` annotation generates a `DatabaseDefinition` which now references your SQLite Database on disk in the file named "AppDatabase.db". You can reference it in code as:
 
 ```java
-val db: DatabaseDefinition = database<AppDatabase>();
+val db = database<AppDatabase>();
+
+// or 
+database<AppDatabase> { db -> 
+
+}
 ```
 
 To ensure generated code in DBFlow is found by the library, initialize the library in your `Application` class:
@@ -36,53 +39,48 @@ Creating a table is also very simple:
 ```kotlin
 @Table(database = AppDatabase::class, name = "User2")
 class User(@PrimaryKey var id: Int = 0,
-           @Column var firstName: String? = null,
-           @Column var lastName: String? = null,
-           @Column var email: String? = null)
+           var firstName: String? = null,
+           var lastName: String? = null,
+           var email: String? = null)
 ```
 
 Then to create, read, update, and delete the model:
 
 ```kotlin
-val user = User(id = UUID.randomUUID(),
+// always utilize DB transactions when possible.
+databaseForTable<User>().executeTransaction { db ->
+  val user = User(id = UUID.randomUUID(),
                 name = "Andrew Grosner",
                 age = 27)
+  user.insert(db)
 
-val db = databaseForTable<User>()
-user.insert(db)
+  user.name = "Not Andrew Grosner";
+  user.update(db)
 
-user.name = "Not Andrew Grosner";
-user.update(db)
+  user.delete(db)
+}
 
-user.delete(db)
+// find adult users synchronously
+val users = (select from User::class
+               where (User_Table.age greaterThan 18))
+            .queryList(database<AppDatabase>())
 
-// Db optional on extension method
-user.insert()
-user.update()
-user.delete()
-user.save()
-
-// find adult users
-val users = database<AppDatabase>()
-              .(select from User::class
-                       where (User_Table.age greaterThan 18))
-              .list
-
-// or asynchronous retrieval
-database<AppDatabase>().executeTransactionAsync(
-{ (select from User::class where User_Table.age.greaterThan(18)).list },
-success = { transaction, result ->
-  // use result here
-},
-error = { transaction, error ->
+// or asynchronous retrieval (preferred)
+(select from User::class where User_Table.age.greaterThan(18))
+ .async(database<AppDatabase>()) { queryList(it) }
+ .execute(
+  success = { transaction, result ->
+   // use result here
+  },
+  error = { transaction, error ->
   // handle any errors
-})
-
-// use coroutines!
-async {
-  database.awaitTransact(
-       delete<SimpleModel>() where SimpleModel_Table.name.eq("5")) { executeUpdateDelete(database)
   }
+ )
+
+// use coroutines! or RX3 or LiveData
+async {
+   val result = (delete<SimpleModel>() where SimpleModel_Table.name.eq("5"))
+    .awaitTransact(db) { executeUpdateDelete(database) }
 }
 ```
 
