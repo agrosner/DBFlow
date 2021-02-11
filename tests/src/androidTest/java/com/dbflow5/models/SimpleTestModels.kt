@@ -6,6 +6,7 @@ import com.dbflow5.annotation.ColumnIgnore
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.ForeignKeyAction
+import com.dbflow5.annotation.Fts3
 import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.PrimaryKey
@@ -236,9 +237,9 @@ class Dog : BaseModel() {
 
 @Table(database = TestDatabase::class)
 data class Currency(@PrimaryKey(autoincrement = true) var id: Long = 0,
-               @Column @Unique var symbol: String? = null,
-               @Column var shortName: String? = null,
-               @Column @Unique var name: String = "") // nullability of fields are respected. We will not assign a null value to this field.
+                    @Column @Unique var symbol: String? = null,
+                    @Column var shortName: String? = null,
+                    @Column @Unique var name: String = "") // nullability of fields are respected. We will not assign a null value to this field.
 
 inline class Password(val value: String)
 inline class Email(val value: String)
@@ -266,6 +267,9 @@ class UniqueModel(@PrimaryKey var id: String = "",
                   @Unique(uniqueGroups = [1]) var name: String = "",
                   @ForeignKey @Unique(uniqueGroups = [1]) var model: TypeConverterModel? = null)
 
+@Table(database = TestDatabase::class)
+@Fts3
+class Fts3Model(var name: String = "")
 
 @Table(database = TestDatabase::class)
 class Fts4Model(

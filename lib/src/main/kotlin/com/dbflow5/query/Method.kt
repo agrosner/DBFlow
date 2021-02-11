@@ -264,7 +264,7 @@ inline fun <reified T : Any> offsets() = Method("offsets", tableName<T>())
  * @param start - the start match text.
  * @param end - the end match text
  * @param ellipses
- * @param ftsTableColumnNumber - The FTS table column number to extract the returned fragments of
+ * @param index - The FTS table column number to extract the returned fragments of
  * text from. Columns are numbered from left to right starting with zero.
  * A negative value indicates that the text may be extracted from any column.
  * @param approximateTokens - The absolute value of this integer argument is used as the
@@ -277,10 +277,10 @@ inline fun <reified T : Any> snippet(
     start: String? = null,
     end: String? = null,
     ellipses: String? = null,
-    ftsTableColumnNumber: Int? = null,
+    index: Int? = null,
     approximateTokens: Int? = null,
 ): Method {
-    val args = listOfNotNull(tableName<T>(), start, end, ellipses, ftsTableColumnNumber, approximateTokens)
+    val args = listOfNotNull(tableName<T>(), start, end, ellipses, index, approximateTokens)
         .map {
             if (it is String) propertyString("'${it}'")
             else propertyString<Any>(it.toString())

@@ -15,7 +15,7 @@ import org.junit.Test
 /**
  * Description:
  */
-class Fts4ModelTest : BaseUnitTest() {
+class FtsModelTest : BaseUnitTest() {
 
     @Test
     fun validate_fts4_created() {

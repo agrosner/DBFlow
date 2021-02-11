@@ -203,7 +203,7 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
                         add("(")
                         // FTS4 uses column names directly.
                         add(tableDefinition.columnDefinitions.joinToString { it.columnName.quote() })
-                        tableDefinition.ftS4Behavior?.addContentTableCode(tableDefinition.columnDefinitions.isNotEmpty(), this)
+                        tableDefinition.ftsBehavior?.addContentTableCode(tableDefinition.columnDefinitions.isNotEmpty(), this)
                         add(")")
                     }.S
                 };\n")
