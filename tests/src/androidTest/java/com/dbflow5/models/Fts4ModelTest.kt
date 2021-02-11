@@ -5,6 +5,7 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
 import com.dbflow5.query.insert
 import com.dbflow5.query.property.propertyString
+import com.dbflow5.query.property.tableName
 import com.dbflow5.query.select
 import com.dbflow5.structure.save
 import org.junit.Test
@@ -34,7 +35,7 @@ class Fts4ModelTest : BaseUnitTest() {
     fun match_query() {
         validate_fts4_created()
         database<TestDatabase> { db ->
-            val model = (select from Fts4VirtualModel2::class where (propertyString<Any>("Fts4VirtualModel2") match "FTSBABY"))
+            val model = (select from Fts4VirtualModel2::class where (tableName<Fts4VirtualModel2>() match "FTSBABY"))
                 .querySingle(db)
             assert(model != null)
         }

@@ -1,5 +1,6 @@
 package com.dbflow5.query.property
 
+import com.dbflow5.config.FlowManager
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.Operator
@@ -19,7 +20,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(c: Char): Property<Char> {
         return Property(null, NameAlias.rawBuilder("'$c'")
-                .build())
+            .build())
     }
 
     /**
@@ -31,7 +32,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(i: Int): Property<Int> {
         return Property(null, NameAlias.rawBuilder(i.toString() + "")
-                .build())
+            .build())
     }
 
     /**
@@ -43,7 +44,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(d: Double): Property<Double> {
         return Property(null, NameAlias.rawBuilder(d.toString() + "")
-                .build())
+            .build())
     }
 
     /**
@@ -55,7 +56,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(l: Long): Property<Long> {
         return Property(null, NameAlias.rawBuilder(l.toString() + "")
-                .build())
+            .build())
     }
 
     /**
@@ -67,7 +68,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(f: Float): Property<Float> {
         return Property(null, NameAlias.rawBuilder(f.toString() + "")
-                .build())
+            .build())
     }
 
     /**
@@ -79,7 +80,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(s: Short): Property<Short> {
         return Property(null, NameAlias.rawBuilder(s.toString() + "")
-                .build())
+            .build())
     }
 
     /**
@@ -91,7 +92,7 @@ object PropertyFactory {
     @JvmStatic
     fun from(b: Byte): Property<Byte> {
         return Property(null, NameAlias.rawBuilder(b.toString() + "")
-                .build())
+            .build())
     }
 
     /**
@@ -109,8 +110,8 @@ object PropertyFactory {
     @JvmStatic
     fun <T> from(type: T?): Property<T> {
         return Property(null, NameAlias.rawBuilder(
-                Operator.convertValueToString(type) ?: "")
-                .build())
+            Operator.convertValueToString(type) ?: "")
+            .build())
     }
 
 
@@ -134,7 +135,7 @@ object PropertyFactory {
      */
     @JvmStatic
     fun <T : Any> from(queriable: ModelQueriable<T>): Property<T> =
-            from(queriable.table, "(${queriable.query.trim { it <= ' ' }})")
+        from(queriable.table, "(${queriable.query.trim { it <= ' ' }})")
 
     /**
      * Creates a new type-parameterized [Property] to be used as its value represented by the string passed in.
@@ -147,7 +148,7 @@ object PropertyFactory {
     @JvmStatic
     fun <T> from(table: Class<T>, stringRepresentation: String?): Property<T> {
         return Property(null, NameAlias.rawBuilder(stringRepresentation ?: "")
-                .build())
+            .build())
     }
 }
 
@@ -184,3 +185,8 @@ val <T : Any> ModelQueriable<T>.property
 inline fun <reified T : Any> propertyString(stringRepresentation: String?) = PropertyFactory.from(T::class.java, stringRepresentation)
 
 inline fun <reified T : Any> KClass<T>.allProperty() = Property.allProperty(this.java)
+
+/**
+ * Convenience wrapper for creating a table name property used in queries.
+ */
+inline fun <reified T : Any> tableName() = propertyString<Any>(FlowManager.getTableName(T::class.java))
