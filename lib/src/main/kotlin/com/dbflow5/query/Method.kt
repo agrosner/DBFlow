@@ -4,6 +4,8 @@ package com.dbflow5.query
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.Property
 import com.dbflow5.query.property.PropertyFactory
+import com.dbflow5.query.property.propertyString
+import com.dbflow5.query.property.tableName
 import com.dbflow5.sql.SQLiteType
 
 /**
@@ -30,19 +32,19 @@ open class Method(methodName: String, vararg properties: IProperty<*>) : Propert
     }
 
     override fun plus(property: IProperty<*>): Method =
-            append(property, " ${Operator.Operation.PLUS}")
+        append(property, " ${Operator.Operation.PLUS}")
 
     override fun minus(property: IProperty<*>): Method =
-            append(property, " ${Operator.Operation.MINUS}")
+        append(property, " ${Operator.Operation.MINUS}")
 
     override fun div(property: IProperty<*>): Property<Any?> =
-            append(property, " ${Operator.Operation.DIVISION}")
+        append(property, " ${Operator.Operation.DIVISION}")
 
     override fun times(property: IProperty<*>): Property<Any?> =
-            append(property, " ${Operator.Operation.MULTIPLY}")
+        append(property, " ${Operator.Operation.MULTIPLY}")
 
     override fun rem(property: IProperty<*>): Property<Any?> =
-            append(property, " ${Operator.Operation.MOD}")
+        append(property, " ${Operator.Operation.MOD}")
 
     /**
      * Allows adding a property to the [Method]. Will remove the [Property.ALL_PROPERTY]
@@ -104,11 +106,11 @@ open class Method(methodName: String, vararg properties: IProperty<*>) : Propert
          */
         fun `as`(sqLiteType: SQLiteType): Property<Any?> {
             val newProperty = Property<Any?>(property.table,
-                    property.nameAlias
-                            .newBuilder()
-                            .shouldAddIdentifierToAliasName(false)
-                            .`as`(sqLiteType.name)
-                            .build())
+                property.nameAlias
+                    .newBuilder()
+                    .shouldAddIdentifierToAliasName(false)
+                    .`as`(sqLiteType.name)
+                    .build())
             return Method("CAST", newProperty)
         }
 
@@ -152,7 +154,7 @@ fun count(vararg properties: IProperty<*>): Method = Method("COUNT", *properties
  * @return A string which is the concatenation of all non-NULL values of the properties.
  */
 fun groupConcat(vararg properties: IProperty<*>): Method =
-        Method("GROUP_CONCAT", *properties)
+    Method("GROUP_CONCAT", *properties)
 
 /**
  * @param properties Set of properties that the method acts on.
@@ -185,7 +187,7 @@ fun total(vararg properties: IProperty<*>): Method = Method("TOTAL", *properties
 fun cast(property: IProperty<*>): Method.Cast = Method.Cast(property)
 
 fun replace(property: IProperty<*>, findString: String, replacement: String): Method =
-        Method("REPLACE", property, PropertyFactory.from<Any>(findString), PropertyFactory.from<Any>(replacement))
+    Method("REPLACE", property, PropertyFactory.from<Any>(findString), PropertyFactory.from<Any>(replacement))
 
 /**
  * SQLite standard "strftime()" method. See SQLite documentation on this method.
@@ -236,3 +238,52 @@ fun nullIf(first: IProperty<*>,
 
 @JvmField
 val random: Method = Method("RANDOM", Property.NO_PROPERTY)
+
+/**
+ * Used for FTS:
+ *
+ * For a SELECT query that uses the full-text index, the offsets() function returns a
+ * text value containing a series of space-separated integers. For each term in each phrase
+ * match of the current row, there are four integers in the returned list.
+ * Each set of four integers is interpreted as follows:
+ * Integer	Interpretation
+ *  0	The column number that the term instance occurs in (0 for the leftmost column of the FTS table, 1 for the next leftmost, etc.).
+ *  1	The term number of the matching term within the full-text query expression. Terms within a query expression are numbered starting from 0 in the order that they occur.
+ *  2	The byte offset of the matching term within the column.
+ *  3	The size of the matching term in bytes.
+ *
+ *  For more see sqlite.org
+ */
+inline fun <reified T : Any> offsets() = Method("offsets", tableName<T>())
+
+/**
+ * Used for FTS:
+ * The snippet function is used to create formatted fragments of document text for
+ * display as part of a full-text query results report.
+ *
+ * @param start - the start match text.
+ * @param end - the end match text
+ * @param ellipses
+ * @param ftsTableColumnNumber - The FTS table column number to extract the returned fragments of
+ * text from. Columns are numbered from left to right starting with zero.
+ * A negative value indicates that the text may be extracted from any column.
+ * @param approximateTokens - The absolute value of this integer argument is used as the
+ * (approximate) number of tokens to include in the returned text value.
+ * The maximum allowable absolute value is 64.
+ *
+ * For more see sqlite.org
+ */
+inline fun <reified T : Any> snippet(
+    start: String? = null,
+    end: String? = null,
+    ellipses: String? = null,
+    ftsTableColumnNumber: Int? = null,
+    approximateTokens: Int? = null,
+): Method {
+    val args = listOfNotNull(tableName<T>(), start, end, ellipses, ftsTableColumnNumber, approximateTokens)
+        .map {
+            if (it is String) propertyString("'${it}'")
+            else propertyString<Any>(it.toString())
+        }.toTypedArray()
+    return Method("snippet", *args)
+}

@@ -87,7 +87,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     open fun load(model: T, databaseWrapper: DatabaseWrapper): T? =
             nonCacheableSingleModelLoader.load(databaseWrapper,
                 (select
-                    from table
+                    from table.kotlin
                     where getPrimaryConditionClause(model)).query)
 
     /**

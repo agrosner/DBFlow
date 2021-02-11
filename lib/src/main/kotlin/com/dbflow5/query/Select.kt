@@ -57,7 +57,7 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
      * @param [T] The class that implements [com.dbflow5.structure.Model]
      * @return the From part of this query
      */
-    infix fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
+    fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
 
     inline fun <reified T : Any> from() = from(T::class.java)
 

@@ -60,7 +60,7 @@ open class AlterTableMigration<T : Any>(
         // We have column definitions to add here
         // ADD COLUMN columnName {type}
         if (internalColumnDefinitions.isNotEmpty()) {
-            (select from table limit 0).cursor(database)?.use { cursor ->
+            (select from table.kotlin limit 0).cursor(database)?.use { cursor ->
                 sql = "$sql$tableName"
                 for (i in internalColumnDefinitions.indices) {
                     val columnDefinition = internalColumnDefinitions[i]

@@ -26,9 +26,14 @@ interface Queriable : Query {
     fun compileStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement
 
     /**
-     * @return the long value of the results of query.
+     * @return the long value of the results of a query or single-column result.
      */
     fun longValue(databaseWrapper: DatabaseWrapper): Long
+
+    /**
+     * @return the string value for results of a query or single-column result.
+     */
+    fun stringValue(databaseWrapper: DatabaseWrapper): String?
 
     /**
      * @return This may return the number of rows affected from a [Set] or [Delete] statement.

@@ -8,6 +8,7 @@ import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.longForQuery
 import com.dbflow5.runtime.NotifyDistributor
+import com.dbflow5.stringForQuery
 import com.dbflow5.structure.ChangeAction
 
 /**
@@ -24,7 +25,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
     override fun longValue(databaseWrapper: DatabaseWrapper): Long {
         try {
             val query = query
-                FlowLog.log(FlowLog.Level.V, "Executing query: $query")
+            FlowLog.log(FlowLog.Level.V, "Executing query: $query")
             return longForQuery(databaseWrapper, query)
         } catch (sde: SQLiteException) {
             // catch exception here, log it but return 0;
@@ -32,6 +33,19 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
         }
 
         return 0
+    }
+
+    override fun stringValue(databaseWrapper: DatabaseWrapper): String? {
+        try {
+            val query = query
+            FlowLog.log(FlowLog.Level.V, "Executing query: $query")
+            return stringForQuery(databaseWrapper, query)
+        } catch (sde: SQLiteException) {
+            // catch exception here, log it but return null;
+            FlowLog.logWarning(sde)
+        }
+
+        return null
     }
 
     override fun hasData(databaseWrapper: DatabaseWrapper): Boolean = longValue(databaseWrapper) > 0
