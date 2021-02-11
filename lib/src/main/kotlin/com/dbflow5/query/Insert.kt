@@ -43,49 +43,48 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
     override// append FROM, which overrides values
     val query: String
         get() {
-            val queryBuilder = StringBuilder("INSERT ")
-            if (conflictAction != null && conflictAction != ConflictAction.NONE) {
-                queryBuilder.append("OR").append(" $conflictAction ")
-            }
-            queryBuilder.append("INTO")
-                    .append(" ")
-                    .append(FlowManager.getTableName(table))
-
-            columns?.let { columns ->
-                if (columns.isNotEmpty()) {
-                    queryBuilder.append("(")
+            val q = buildString {
+                append("INSERT ")
+                if (conflictAction != null && conflictAction != ConflictAction.NONE) {
+                    append("OR $conflictAction ")
+                }
+                append("INTO ${FlowManager.getTableName(table)}")
+                columns?.let { columns ->
+                    if (columns.isNotEmpty()) {
+                        append("(")
                             .appendArray(*columns.toTypedArray())
                             .append(")")
+                    }
                 }
-            }
-            val selectFrom = this.selectFrom
-            if (selectFrom != null) {
-                queryBuilder.append(" ").append(selectFrom.query)
-            } else {
-                if (valuesList.size < 1) {
-                    throw IllegalStateException("The insert of ${FlowManager.getTableName(table)} " +
+                val selectFrom = this@Insert.selectFrom
+                if (selectFrom != null) {
+                    append(" ${selectFrom.query}")
+                } else {
+                    if (valuesList.size < 1) {
+                        throw IllegalStateException("The insert of ${FlowManager.getTableName(table)} " +
                             "should have at least one value specified for the insert")
-                } else columns?.takeIf { it.isNotEmpty() }?.let { columns ->
-                    valuesList.asSequence()
+                    } else columns?.takeIf { it.isNotEmpty() }?.let { columns ->
+                        valuesList.asSequence()
                             .filter { it.size != columns.size }
                             .forEach {
                                 throw IllegalStateException(
-                                        """The Insert of ${FlowManager.getTableName(table)}
+                                    """The Insert of ${FlowManager.getTableName(table)}
                                             |when specifying columns needs to have the same amount
                                             |of values and columns. found ${it.size} != ${columns.size}""".trimMargin())
                             }
-                }
-
-                queryBuilder.append(" VALUES(")
-                valuesList.forEachIndexed { i, valuesList ->
-                    if (i > 0) {
-                        queryBuilder.append(",(")
                     }
-                    queryBuilder.append(BaseOperator.joinArguments(", ", valuesList)).append(")")
+
+                    append(" VALUES(")
+                    valuesList.forEachIndexed { i, valuesList ->
+                        if (i > 0) {
+                            append(",(")
+                        }
+                        append(BaseOperator.joinArguments(", ", valuesList))
+                            .append(")")
+                    }
                 }
             }
-
-            return queryBuilder.toString()
+            return q
         }
 
     init {
@@ -159,7 +158,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      */
     fun columnValues(vararg conditions: SQLOperator) = apply {
         return columns(*conditions.map { it.columnName() }.toTypedArray())
-                .values(conditions.map { it.value() })
+            .values(conditions.map { it.value() })
     }
 
     /**
@@ -169,7 +168,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      */
     fun columnValues(vararg conditions: Pair<IProperty<*>, *>) = apply {
         return columns(*conditions.map { it.first }.toTypedArray())
-                .values(conditions.map { it.second })
+            .values(conditions.map { it.second })
     }
 
     /**
@@ -179,7 +178,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
      */
     fun columnValues(group: Iterable<SQLOperator>) = apply {
         return columns(*group.map { it.columnName() }.toTypedArray())
-                .values(group.map { it.value() })
+            .values(group.map { it.value() })
     }
 
     fun columnValues(contentValues: ContentValues) = apply {
