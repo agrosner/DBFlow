@@ -268,7 +268,10 @@ class UniqueModel(@PrimaryKey var id: String = "",
 
 
 @Table(database = TestDatabase::class)
-class Fts4Model(@PrimaryKey var name: String = "")
+class Fts4Model(
+    @PrimaryKey(autoincrement = true)
+    var id: Int = 0,
+    var name: String = "")
 
 @Table(database = TestDatabase::class)
 @Fts4(contentTable = Fts4Model::class)

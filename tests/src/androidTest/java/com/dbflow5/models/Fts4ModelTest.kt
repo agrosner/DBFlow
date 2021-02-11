@@ -4,7 +4,9 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
 import com.dbflow5.query.insert
+import com.dbflow5.query.insertInto
 import com.dbflow5.query.property.propertyString
+import com.dbflow5.query.select
 import com.dbflow5.quote
 import com.dbflow5.structure.save
 import org.junit.Test
@@ -20,9 +22,10 @@ class Fts4ModelTest : BaseUnitTest() {
             val model = Fts4Model(name = "FTSBABY")
             model.save(db)
 
-            val rows = insert<Fts4VirtualModel2>(propertyString<Any>("Fts4VirtualModel2".quote()))
-                    .values("rebuild")
-                    .executeInsert(db)
+            val rows = (insert<Fts4VirtualModel2>(
+                propertyString<Any>("docid"),
+                Fts4VirtualModel2_Table.name) select (select(Fts4Model_Table.id, Fts4Model_Table.name) from Fts4Model::class))
+                .executeInsert(db)
             assert(rows > 0)
 
 
