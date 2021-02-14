@@ -437,9 +437,9 @@ class TableDefinition(private val table: Table,
             `override fun`(ClassNames.PROPERTY, "getProperty",
                 param(String::class, paramColumnName)) {
                 modifiers(public, final)
-                statement("$paramColumnName = \$T.quoteIfNeeded($paramColumnName)", ClassNames.STRING_UTILS)
+                statement("String ${paramColumnName}2 = \$T.quoteIfNeeded($paramColumnName)", ClassNames.STRING_UTILS)
 
-                switch("($paramColumnName)") {
+                switch("(${paramColumnName}2)") {
                     columnDefinitions.indices.forEach { i ->
                         if (i > 0) {
                             getPropertiesBuilder.add(",")
