@@ -50,8 +50,16 @@ abstract class CacheAdapter<T : Any>(val modelCache: ModelCache<T, *>,
         modelCache.addModel(getCachingId(model), model)
     }
 
+    fun storeModelsInCache(models: Collection<T>) {
+        models.onEach { storeModelInCache(it) }
+    }
+
     fun removeModelFromCache(model: T) {
         getCachingId(model)?.let { modelCache.removeModel(it) }
+    }
+
+    fun removeModelsFromCache(models: Collection<T>) {
+        models.onEach { removeModelFromCache(it) }
     }
 
     fun clearCache() {

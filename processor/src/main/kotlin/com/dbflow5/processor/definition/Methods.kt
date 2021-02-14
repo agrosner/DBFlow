@@ -12,6 +12,7 @@ import com.dbflow5.processor.utils.isNullOrEmpty
 import com.dbflow5.quote
 import com.grosner.kpoet.S
 import com.grosner.kpoet.`=`
+import com.grosner.kpoet.`for`
 import com.grosner.kpoet.`private final field`
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.code
@@ -24,8 +25,10 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.NameAllocator
+import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.WildcardTypeName
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Modifier
 
@@ -476,23 +479,38 @@ class LoadFromCursorMethod(private val entityDefinition: EntityDefinition) : Met
 /**
  * Description:
  */
-class OneToManyDeleteMethod(private val tableDefinition: TableDefinition) : MethodDefinition {
+class OneToManyDeleteMethod(private val tableDefinition: TableDefinition,
+                            private val isPlural: Boolean = false) : MethodDefinition {
+
+    private val variableName = if (isPlural) "models" else ModelUtils.variable
+    private val typeName: TypeName = if (!isPlural) tableDefinition.elementClassName!! else
+        ParameterizedTypeName.get(ClassName.get(Collection::class.java), WildcardTypeName.subtypeOf(tableDefinition.elementClassName!!))
+
+    private val methodName = "delete${if (isPlural) "All" else ""}"
 
     override val methodSpec: MethodSpec?
         get() {
             val shouldWrite = tableDefinition.oneToManyDefinitions.any { it.isDelete }
             if (shouldWrite || tableDefinition.cachingBehavior.cachingEnabled) {
-                return `override fun`(TypeName.BOOLEAN, "delete",
-                    param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
+                val returnTypeName = if (isPlural) TypeName.LONG else TypeName.BOOLEAN
+                return `override fun`(returnTypeName, methodName,
+                    param(typeName, variableName)) {
                     modifiers(public, final)
                     addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                     if (tableDefinition.cachingBehavior.cachingEnabled) {
-                        statement("cacheAdapter.removeModelFromCache(${ModelUtils.variable})")
+                        statement("cacheAdapter.removeModel${if (isPlural) "s" else ""}FromCache(${variableName})")
                     }
 
-                    statement("boolean successful = super.delete(${ModelUtils.variable}${wrapperCommaIfBaseModel(true)})")
+                    statement("\$T successful = super.${methodName}(${variableName}${wrapperCommaIfBaseModel(true)})", returnTypeName)
 
-                    tableDefinition.oneToManyDefinitions.forEach { it.writeDelete(this) }
+                    if (isPlural && tableDefinition.oneToManyDefinitions.isNotEmpty()) {
+                        `for`("\$T model: models", tableDefinition.elementClassName!!) {
+                            tableDefinition.oneToManyDefinitions.forEach { it.writeDelete(this) }
+                            this
+                        }
+                    } else {
+                        tableDefinition.oneToManyDefinitions.forEach { it.writeDelete(this) }
+                    }
 
                     `return`("successful")
                 }
@@ -505,44 +523,68 @@ class OneToManyDeleteMethod(private val tableDefinition: TableDefinition) : Meth
  * Description: Overrides the save, update, and insert methods if the [com.dbflow5.annotation.OneToMany.Method.SAVE] is used.
  */
 class OneToManySaveMethod(private val tableDefinition: TableDefinition,
-                          private val methodName: String) : MethodDefinition {
+                          private val methodName: String,
+                          private val isPlural: Boolean = false) : MethodDefinition {
+
+    private val variableName = if (isPlural) "models" else ModelUtils.variable
+    private val typeName: TypeName = if (!isPlural) tableDefinition.elementClassName!! else
+        ParameterizedTypeName.get(ClassName.get(Collection::class.java), WildcardTypeName.subtypeOf(tableDefinition.elementClassName!!))
+
+    private val fullMethodName = "$methodName${if (isPlural) "All" else ""}"
 
     override val methodSpec: MethodSpec?
         get() {
             if (!tableDefinition.oneToManyDefinitions.isEmpty() || tableDefinition.cachingBehavior.cachingEnabled) {
                 var retType = TypeName.BOOLEAN
                 var retStatement = "successful"
-                when (methodName) {
-                    METHOD_INSERT -> {
-                        retType = ClassName.LONG
-                        retStatement = "rowId"
-                    }
+                if (isPlural) {
+                    retType = ClassName.LONG
+                    retStatement = "count"
+                } else if (fullMethodName == METHOD_INSERT) {
+                    retType = ClassName.LONG
+                    retStatement = "rowId"
                 }
 
-                return `override fun`(retType, methodName,
-                    param(tableDefinition.elementClassName!!, ModelUtils.variable)) {
+                return `override fun`(
+                    retType, fullMethodName,
+                    param(typeName, variableName),
+                ) {
                     modifiers(public, final)
                     addParameter(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                     code {
-                        if (methodName == METHOD_INSERT) {
+                        if (isPlural) {
+                            add("long count = ")
+                        } else if (fullMethodName == METHOD_INSERT) {
                             add("long rowId = ")
-                        } else if (methodName == METHOD_UPDATE || methodName == METHOD_SAVE) {
+                        } else if (fullMethodName == METHOD_UPDATE || fullMethodName == METHOD_SAVE) {
                             add("boolean successful = ")
                         }
-                        statement("super.$methodName(${ModelUtils.variable}${wrapperCommaIfBaseModel(true)})")
+                        statement("super.$fullMethodName(${variableName}${wrapperCommaIfBaseModel(true)})")
 
                         if (tableDefinition.cachingBehavior.cachingEnabled) {
-                            statement("cacheAdapter.storeModelInCache(${ModelUtils.variable})")
+                            statement("cacheAdapter.storeModel${if (isPlural) "s" else ""}InCache(${variableName})")
                         }
                         this
                     }
 
-                    for (oneToManyDefinition in tableDefinition.oneToManyDefinitions) {
-                        when (methodName) {
-                            METHOD_SAVE -> oneToManyDefinition.writeSave(this)
-                            METHOD_UPDATE -> oneToManyDefinition.writeUpdate(this)
-                            METHOD_INSERT -> oneToManyDefinition.writeInsert(this)
+                    val filteredDefinitions = tableDefinition.oneToManyDefinitions.filter { it.isSave }
+
+                    fun saveDefinitions() {
+                        filteredDefinitions.forEach { oneToManyDefinition ->
+                            when (methodName) {
+                                METHOD_SAVE -> oneToManyDefinition.writeSave(this)
+                                METHOD_UPDATE -> oneToManyDefinition.writeUpdate(this)
+                                METHOD_INSERT -> oneToManyDefinition.writeInsert(this)
+                            }
                         }
+                    }
+                    if (isPlural && filteredDefinitions.isNotEmpty()) {
+                        `for`("\$T model: models", tableDefinition.elementClassName!!) {
+                            saveDefinitions()
+                            this
+                        }
+                    } else {
+                        saveDefinitions()
                     }
 
                     `return`(retStatement)

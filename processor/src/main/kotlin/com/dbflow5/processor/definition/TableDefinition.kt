@@ -112,9 +112,14 @@ class TableDefinition(private val table: Table,
         ExistenceMethod(this),
         PrimaryConditionMethod(this),
         OneToManyDeleteMethod(this),
+        OneToManyDeleteMethod(this, isPlural = true),
         OneToManySaveMethod(this, OneToManySaveMethod.METHOD_SAVE),
+        OneToManySaveMethod(this, OneToManySaveMethod.METHOD_SAVE, isPlural = true),
         OneToManySaveMethod(this, OneToManySaveMethod.METHOD_INSERT),
-        OneToManySaveMethod(this, OneToManySaveMethod.METHOD_UPDATE))
+        OneToManySaveMethod(this, OneToManySaveMethod.METHOD_INSERT, isPlural = true),
+        OneToManySaveMethod(this, OneToManySaveMethod.METHOD_UPDATE),
+        OneToManySaveMethod(this, OneToManySaveMethod.METHOD_UPDATE, isPlural = true),
+    )
 
     private val contentValueMethods: Array<MethodDefinition>
 
