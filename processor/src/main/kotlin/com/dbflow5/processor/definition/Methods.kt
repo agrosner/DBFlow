@@ -215,10 +215,10 @@ class CreationQueryMethod(private val tableDefinition: TableDefinition) : Method
                 val foreignSize = tableDefinition.foreignKeyDefinitions.size
 
                 val creationBuilder = codeBlock {
-                    add("CREATE TABLE IF NOT EXISTS ${tableDefinition.associationalBehavior.name.quote()}(")
+                    add("CREATE ${if (tableDefinition.temporary) "TEMP " else ""}TABLE IF NOT EXISTS ${tableDefinition.associationalBehavior.name.quote()}(")
                     add(tableDefinition.columnDefinitions.joinToString { it.creationName.toString() })
                     tableDefinition.uniqueGroupsDefinitions.forEach {
-                        if (!it.columnDefinitionList.isEmpty()) add(it.creationName)
+                        if (it.columnDefinitionList.isNotEmpty()) add(it.creationName)
                     }
 
                     if (!tableDefinition.primaryKeyColumnBehavior.hasAutoIncrement) {

@@ -1,5 +1,6 @@
 package com.dbflow5.database
 
+import com.dbflow5.adapter.createIfNotExists
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.NaturalOrderComparator
@@ -66,7 +67,7 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
                     .filter { it.createWithDatabase() }
                     .forEach {
                         try {
-                            execSQL(it.creationQuery)
+                            it.createIfNotExists(this)
                         } catch (e: SQLiteException) {
                             FlowLog.logError(e)
                         }
@@ -84,7 +85,7 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
                     .filter { it.createWithDatabase() }
                     .forEach {
                         try {
-                            execSQL(it.creationQuery)
+                            it.createIfNotExists(this)
                         } catch (e: SQLiteException) {
                             FlowLog.logError(e)
                         }

@@ -41,7 +41,7 @@ object ClassNames {
     val RETRIEVAL_ADAPTER: ClassName = ClassName.get(ADAPTER, "RetrievalAdapter")
     val MODEL: ClassName = ClassName.get(STRUCTURE, "Model")
     val MODEL_VIEW_ADAPTER: ClassName = ClassName.get(ADAPTER, "ModelViewAdapter")
-    val VIRTUAL_TABLE_ADAPTER: ClassName = ClassName.get(ADAPTER, "VirtualTableAdapter")
+    val OBJECT_TYPE: ClassName = ClassName.get(ADAPTER, "ObjectType")
 
     val DATABASE_STATEMENT: ClassName = ClassName.get(DATABASE, "DatabaseStatement")
 

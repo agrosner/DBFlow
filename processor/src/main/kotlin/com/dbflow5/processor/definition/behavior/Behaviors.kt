@@ -38,9 +38,9 @@ data class AssociationalBehavior(
          */
         val allFields: Boolean) {
 
-    fun writeTableName(typeSpec: TypeSpec.Builder) {
+    fun writeName(typeSpec: TypeSpec.Builder) {
         typeSpec.apply {
-            `override fun`(String::class, "getTableName") {
+            `override fun`(String::class, "getName") {
                 modifiers(public, final)
                 `return`(name.quote().S)
             }

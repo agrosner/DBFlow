@@ -253,7 +253,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     protected fun <T : Any> addModelAdapter(modelAdapter: ModelAdapter<T>, holder: DatabaseHolder) {
         holder.putDatabaseForTable(modelAdapter.table, this)
-        modelTableNames[modelAdapter.tableName] = modelAdapter.table
+        modelTableNames[modelAdapter.name] = modelAdapter.table
         modelAdapterMap[modelAdapter.table] = modelAdapter
     }
 

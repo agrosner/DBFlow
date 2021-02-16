@@ -156,6 +156,8 @@ class TableDefinition(private val table: Table,
 
     val ftsBehavior: FtsBehavior?
 
+    val temporary: Boolean
+
     init {
         setOutputClassName("_Table")
 
@@ -211,6 +213,8 @@ class TableDefinition(private val table: Table,
 
         contentValueMethods = arrayOf(BindToContentValuesMethod(this, true, implementsContentValuesListener),
             BindToContentValuesMethod(this, false, implementsContentValuesListener))
+
+        temporary = table.temporary
 
     }
 
@@ -420,7 +424,11 @@ class TableDefinition(private val table: Table,
 
             writeGetModelClass(this, elementClassName)
             this.writeConstructor()
-            associationalBehavior.writeTableName(this)
+            associationalBehavior.writeName(this)
+            `override fun`(ClassNames.OBJECT_TYPE, "getType") {
+                modifiers(public, final)
+                `return`("\$T.Table", ClassNames.OBJECT_TYPE)
+            }
 
             if (updateConflictActionName.isNotEmpty()) {
                 `override fun`(ClassNames.CONFLICT_ACTION, "getUpdateOnConflictAction") {

@@ -88,8 +88,8 @@ object FlowManager {
      */
     @JvmStatic
     fun getTableName(table: Class<*>): String {
-        return getModelAdapterOrNull(table)?.tableName
-            ?: getModelViewAdapterOrNull(table)?.viewName
+        return getModelAdapterOrNull(table)?.name
+            ?: getModelViewAdapterOrNull(table)?.name
             ?: throwCannotFindAdapter("ModelAdapter/ModelViewAdapter/VirtualAdapter", table)
     }
 

@@ -67,6 +67,12 @@ annotation class Table(
         val createWithDatabase: Boolean = true,
 
         /**
+         * If true this table will be created as a TEMP table. Pair this with [createWithDatabase]
+         * to properly not create the table.
+         */
+        val temporary: Boolean = false,
+
+        /**
          * If true, generates ContentValues bindings for a table. By default it no longer does.
          */
         val generateContentValues: Boolean = false,
