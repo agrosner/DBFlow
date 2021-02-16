@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
 /**
  * Return a new [LiveData] instance. Specify using the [evalFn] what query to run.
  */
-fun <T : Any, Q : ModelQueriable<T>, R> Q.liveData(evalFn: (DatabaseWrapper, ModelQueriable<T>) -> R): LiveData<R> =
+fun <T : Any, Q : ModelQueriable<T>, R> Q.toLiveData(evalFn: (DatabaseWrapper, ModelQueriable<T>) -> R): LiveData<R> =
         QueryLiveData(this, evalFn)
 
 class QueryLiveData<T : Any, R : Any?>(private val modelQueriable: ModelQueriable<T>,
