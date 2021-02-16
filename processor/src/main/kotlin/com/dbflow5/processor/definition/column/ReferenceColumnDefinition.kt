@@ -82,6 +82,7 @@ private constructor(manager: ProcessorManager, tableDefinition: EntityDefinition
         get() = foreignKeyColumnBehavior == null
 
     private var needsReferences = true
+    val explicitReferences = references.isNotEmpty()
 
     override val typeConverterElementNames: List<TypeName?>
         get() {
@@ -282,6 +283,8 @@ private constructor(manager: ProcessorManager, tableDefinition: EntityDefinition
 
                 if (referenceDefinition.notNull) {
                     builder.add(" NOT NULL ON CONFLICT \$L", referenceDefinition.onNullConflict)
+                } else if (!explicitReferences && notNull) {
+                    builder.add(" NOT NULL ON CONFLICT \$L", onNullConflict)
                 }
             }
             return builder.build()

@@ -112,3 +112,7 @@ class PositionWithTypeConverter(@PrimaryKey var id: Int = 0,
                                     columnMapFieldName = "latitude", typeConverter = DoubleConverter::class),
                                     ColumnMapReference(columnName = "longitude", columnMapFieldName = "longitude")))
                                 var location: Location2? = null)
+
+@Table(database = TestDatabase::class)
+class NotNullReferenceModel(@PrimaryKey var name: String = "",
+                            @NotNull @ForeignKey var model: SimpleModel? = null)
