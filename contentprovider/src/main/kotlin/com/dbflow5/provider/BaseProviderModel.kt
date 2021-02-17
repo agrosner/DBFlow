@@ -48,13 +48,10 @@ abstract class BaseProviderModel : BaseModel(), ModelProvider {
                           orderBy: String?,
                           wrapper: DatabaseWrapper,
                           vararg columns: String?): T? {
-        val cursor = ContentUtils.query(FlowManager.contentResolver,
-            queryUri, whereOperatorGroup, orderBy, *columns)
-        if (cursor != null) {
+        ContentUtils.query(FlowManager.contentResolver,
+            queryUri, whereOperatorGroup, orderBy, *columns)?.use { cursor ->
             if (cursor.moveToFirst()) {
-                val model: T = modelAdapter.loadFromCursor(cursor, wrapper) as T
-                cursor.close()
-                return model
+                return modelAdapter.loadFromCursor(cursor, wrapper) as T
             }
         }
         return null
