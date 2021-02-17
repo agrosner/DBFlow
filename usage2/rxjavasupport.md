@@ -1,6 +1,6 @@
 # RXJavaSupport
 
-RXJava support in DBFlow is an _incubating_ feature and likely to change over time. We support both RX1 and RX2 and have made the extensions + DBFlow compatibility almost identical - save for the changes and where it makes sense in each version.
+RXJava support in DBFlow is an _incubating_ feature and likely to change over time. We support RXJava3 only and have made the extensions + DBFlow compatibility almost identical - save for the changes and where it makes sense in each version.
 
 Currently it supports 
 
@@ -27,9 +27,11 @@ dependencies {
 
 ## Wrapper Language
 
-Using the classes is as easy as wrapping all SQL wrapper calls with `RXSQLite.rx()` \(Kotlin we supply extension method\):
+We can convert wrapper queries into different kinds of RX operations.
 
-Before:
+For a single query:
+
+Using vanilla transactions:
 
 ```kotlin
 (select 
@@ -38,7 +40,7 @@ Before:
   .execute { _, r ->}
 ```
 
-After:
+Using RX:
 
 ```kotlin
 (select 
@@ -49,6 +51,21 @@ After:
     // use list
   }
 ```
+
+### Observable Queries
+
+We can easily observe a query for any table changes \(once per transaction\) while it is active and recompute via:
+
+```kotlin
+(select 
+  from MyTable::class)
+  .asFlowable { db -> queryList(db) }
+  .subscribeBy { list ->  
+    // use list
+  }
+```
+
+This works across joins as well.
 
 ## Model operations
 

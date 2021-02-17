@@ -34,11 +34,11 @@ val db = FlowManager.getDatabase(AppDatabase::class.java)
 To specify a custom **name** to the database, in previous versions of DBFlow \(&lt; 4.1.0\), you had to specify it in the `@Database` annotation. As of 5.0 now you pass it in the initialization of the `FlowManager`:
 
 ```kotlin
-FlowManager.init(context) {
-    database<AppDatabase> {
-      databaseName("AppDatabase")
-    }
- }
+FlowManager.init(FlowConfig.builder()
+    .database(DatabaseConfig.builder(AppDatabase::class)
+      .databaseName("AppDatabase")
+      .build())
+    .build())
 ```
 
 To dynamically change the database name, call:
@@ -47,7 +47,7 @@ To dynamically change the database name, call:
 database<AppDatabase>()
   .reopen(DatabaseConfig.builder(AppDatabase::class)
     .databaseName("AppDatabase-2")
-    .build())
+    .build())]
 ```
 
 This will close the open DB, reopen the DB, and replace previous `DatabaseConfig` with this new one. Ensure that you persist the changes to the `DatabaseConfig` somewhere as next time app is launched and DBFlow is initialized, the new config would get overwritten.
@@ -57,11 +57,11 @@ This will close the open DB, reopen the DB, and replace previous `DatabaseConfig
 As with **name**, in previous versions of DBFlow \(&lt; 5.0\), you specified `inMemory` in the `@Database` annotation. Starting with 5.0 that is replaced with:
 
 ```kotlin
-FlowManager.init(context) {
-  inMemoryDatabase<AppDatabase> {
-    databaseName("AppDatabase")
-  }
-}
+FlowManager.init(FlowConfig.builder()
+    .database(DatabaseConfig.inMemoryBuilder(AppDatabase::class.java)
+      .databaseName("AppDatabase")
+      .build())
+    .build())
 ```
 
 This will allow you to use in-memory databases in your tests, while writing to disk in your apps. Also if your device the app is running on is low on memory, you could also swap the DB into memory by calling `reopen(DatabaseConfig)` as explained above.
@@ -122,32 +122,10 @@ class CustomFlowSQliteOpenHelper(context: Contect, databaseDefinition: DatabaseD
 Then in your `DatabaseConfig`:
 
 ```kotlin
-FlowManager.init(context) {
-  database<CipherDatabase> {
-    openHelper(::CustomFlowSQliteOpenHelper)
-  }
-}
+FlowManager.init(FlowConfig.builder(context)
+  .database(DatabaseConfig.Builder(CipherDatabase::class.java)
+      .openHelper(::CustomFlowSQliteOpenHelper)
+      .build())
+  .build())
 ```
-
-### Database Configuration DSL
-
-As of 5.0.0-alpha2, you can configure a database via a DSL rather than use the `FlowConfig.Builder` , `DatabaseConfig.Builder`, and `TableConfig.Builder`. This allows more readable, expressive syntax.
-
-**Initializing DBFlow:**
-
-```kotlin
-FlowManager.init(context) { 
-  // this is FlowConfig.Builder
-  database<AppDatabase> {
-    // this is DatabaseConfig.Builder
-    table<MyTable> {
-      // this is TableConfig.Builder
-    }
-  }
-  // other module dbs
-  databaseHolder<MyGeneratedDatabaseHolder>()
-}
-```
-
-By utilizing Kotlin DSL, this code is more straightforward, concise, and readable. 
 
