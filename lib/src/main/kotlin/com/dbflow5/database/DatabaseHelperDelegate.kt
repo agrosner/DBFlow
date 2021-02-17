@@ -63,6 +63,11 @@ class DatabaseHelperDelegate(
         this.databaseCallback = databaseCallback
     }
 
+    override fun onConfigure(db: DatabaseWrapper) {
+        databaseCallback?.onConfigure(db)
+        super.onConfigure(db)
+    }
+
     override fun onCreate(db: DatabaseWrapper) {
         databaseCallback?.onCreate(db)
         super.onCreate(db)

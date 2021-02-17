@@ -66,6 +66,10 @@ open class AndroidSQLiteOpenHelper(
         databaseHelperDelegate.setDatabaseHelperListener(callback)
     }
 
+    override fun onConfigure(db: SQLiteDatabase) {
+        databaseHelperDelegate.onConfigure(AndroidDatabase.from(db))
+    }
+
     override fun onCreate(db: SQLiteDatabase) {
         databaseHelperDelegate.onCreate(AndroidDatabase.from(db))
     }
@@ -121,6 +125,10 @@ open class AndroidSQLiteOpenHelper(
         override fun backupDB() {}
 
         override fun setDatabaseListener(callback: DatabaseCallback?) {}
+
+        override fun onConfigure(db: SQLiteDatabase) {
+            databaseHelper.onConfigure(AndroidDatabase.from(db))
+        }
 
         override fun onCreate(db: SQLiteDatabase) {
             databaseHelper.onCreate(AndroidDatabase.from(db))

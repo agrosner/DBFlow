@@ -76,6 +76,10 @@ abstract class SQLCipherOpenHelper(
         delegate.setDatabaseHelperListener(callback)
     }
 
+    override fun onConfigure(db: SQLiteDatabase) {
+        delegate.onConfigure(SQLCipherDatabase.from(db))
+    }
+
     override fun onCreate(db: SQLiteDatabase) {
         delegate.onCreate(SQLCipherDatabase.from(db))
     }
@@ -135,6 +139,10 @@ abstract class SQLCipherOpenHelper(
         override fun closeDB() = Unit
 
         override fun setDatabaseListener(callback: DatabaseCallback?) = Unit
+
+        override fun onConfigure(db: SQLiteDatabase) {
+            databaseHelper.onConfigure(SQLCipherDatabase.from(db))
+        }
 
         override fun onCreate(db: SQLiteDatabase) {
             databaseHelper.onCreate(SQLCipherDatabase.from(db))

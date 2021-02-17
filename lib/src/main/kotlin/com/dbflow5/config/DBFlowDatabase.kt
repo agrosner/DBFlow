@@ -500,5 +500,9 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         override fun onDowngrade(databaseWrapper: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
             callback?.onDowngrade(databaseWrapper, oldVersion, newVersion)
         }
+
+        override fun onConfigure(db: DatabaseWrapper) {
+            callback?.onConfigure(db)
+        }
     }
 }

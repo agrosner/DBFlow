@@ -16,9 +16,11 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
     private val dbMigrationPath
         get() = "$MIGRATION_PATH/${databaseDefinition.databaseName}"
 
-    open fun onCreate(db: DatabaseWrapper) {
+    open fun onConfigure(db: DatabaseWrapper) {
         checkForeignKeySupport(db)
+    }
 
+    open fun onCreate(db: DatabaseWrapper) {
         // table creations done first to get tables in db.
         executeTableCreations(db)
 
@@ -30,8 +32,6 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
     }
 
     open fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
-        checkForeignKeySupport(db)
-
         // create new tables if not previously created
         executeTableCreations(db)
 
@@ -43,11 +43,9 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
     }
 
     open fun onOpen(db: DatabaseWrapper) {
-        checkForeignKeySupport(db)
     }
 
     open fun onDowngrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
-        checkForeignKeySupport(db)
     }
 
     /**
@@ -63,15 +61,15 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
     protected fun executeTableCreations(database: DatabaseWrapper) {
         database.executeTransaction {
             databaseDefinition.modelAdapters
-                    .asSequence()
-                    .filter { it.createWithDatabase() }
-                    .forEach {
-                        try {
-                            it.createIfNotExists(this)
-                        } catch (e: SQLiteException) {
-                            FlowLog.logError(e)
-                        }
+                .asSequence()
+                .filter { it.createWithDatabase() }
+                .forEach {
+                    try {
+                        it.createIfNotExists(this)
+                    } catch (e: SQLiteException) {
+                        FlowLog.logError(e)
                     }
+                }
         }
     }
 
@@ -81,16 +79,16 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
     protected fun executeViewCreations(database: DatabaseWrapper) {
         database.executeTransaction {
             databaseDefinition.modelViewAdapters
-                    .asSequence()
-                    .filter { it.createWithDatabase() }
-                    .forEach {
-                        try {
-                            it.createIfNotExists(this)
-                        } catch (e: SQLiteException) {
-                            FlowLog.logError(e)
-                        }
-
+                .asSequence()
+                .filter { it.createWithDatabase() }
+                .forEach {
+                    try {
+                        it.createIfNotExists(this)
+                    } catch (e: SQLiteException) {
+                        FlowLog.logError(e)
                     }
+
+                }
         }
     }
 
@@ -100,7 +98,7 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
         // will try migrations file or execute migrations from code
         try {
             val files: List<String> = migrationFileHelper.getListFiles(dbMigrationPath)
-                    .sortedWith(NaturalOrderComparator())
+                .sortedWith(NaturalOrderComparator())
 
             val migrationFileMap = hashMapOf<Int, MutableList<String>>()
             for (file in files) {

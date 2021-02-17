@@ -36,4 +36,10 @@ interface DatabaseCallback {
      * @param newVersion      The new lower version.
      */
     fun onDowngrade(databaseWrapper: DatabaseWrapper, oldVersion: Int, newVersion: Int)
+
+    /**
+     * Called when DB connection is being configured. Useful for checking foreign key support or enabling
+     * write-ahead-logging.
+     */
+    fun onConfigure(db: DatabaseWrapper)
 }
