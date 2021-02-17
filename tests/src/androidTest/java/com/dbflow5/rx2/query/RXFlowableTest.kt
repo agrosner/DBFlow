@@ -31,7 +31,7 @@ class RXFlowableTest : BaseUnitTest() {
             var triggerCount = 0
             val subscription = (select from SimpleModel::class
                 where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
-                .asFlowable { d, modelQueriable -> modelQueriable.queryList(d) }
+                .asFlowable { db -> queryList(db) }
                 .subscribe {
                     list = it
                     triggerCount += 1
@@ -58,7 +58,7 @@ class RXFlowableTest : BaseUnitTest() {
             (select from Blog::class
                 leftOuterJoin Author::class
                 on joinOn)
-                .asFlowable { d, modelQueriable -> modelQueriable.queryList(d) }
+                .asFlowable { db -> queryList(db) }
                 .subscribe {
                     calls++
                     list = it

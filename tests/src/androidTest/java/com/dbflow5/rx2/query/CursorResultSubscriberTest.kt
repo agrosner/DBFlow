@@ -38,7 +38,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     fun testCanObserveOnTableChangesWithModelOps() {
         var count = 0
         (select from SimpleModel::class)
-            .asFlowable { db, modelQueriable -> modelQueriable.queryList(db) }
+            .asFlowable { db -> queryList(db) }
             .subscribe {
                 count++
             }
@@ -58,7 +58,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
             var count = 0
             var curList: MutableList<SimpleModel> = arrayListOf()
             (select from SimpleModel::class)
-                .asFlowable { databaseWrapper, modelQueriable -> modelQueriable.queryList(databaseWrapper) }
+                .asFlowable { db -> queryList(db) }
                 .subscribe {
                     curList = it
                     count++

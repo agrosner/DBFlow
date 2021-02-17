@@ -12,14 +12,14 @@ import kotlin.reflect.KClass
 /**
  * Return a new [LiveData] instance. Specify using the [evalFn] what query to run.
  */
-fun <T : Any, Q : ModelQueriable<T>, R> Q.toLiveData(evalFn: (DatabaseWrapper, ModelQueriable<T>) -> R): LiveData<R> =
-        QueryLiveData(this, evalFn)
+fun <T : Any, Q : ModelQueriable<T>, R> Q.toLiveData(evalFn: ModelQueriable<T>.(DatabaseWrapper) -> R): LiveData<R> =
+    QueryLiveData(this, evalFn)
 
 class QueryLiveData<T : Any, R : Any?>(private val modelQueriable: ModelQueriable<T>,
-                                       private val evalFn: (DatabaseWrapper, ModelQueriable<T>) -> R) : LiveData<R>() {
+                                       private val evalFn: ModelQueriable<T>.(DatabaseWrapper) -> R) : LiveData<R>() {
 
     private val associatedTables: Set<Class<*>> = modelQueriable.extractFrom()?.associatedTables
-            ?: setOf(modelQueriable.table)
+        ?: setOf(modelQueriable.table)
 
     private val onTableChangedObserver = object : OnTableChangedObserver(associatedTables.toList()) {
         override fun onChanged(tables: Set<Class<*>>) {
@@ -31,8 +31,8 @@ class QueryLiveData<T : Any, R : Any?>(private val modelQueriable: ModelQueriabl
 
     private fun evaluateEmission(table: KClass<*> = modelQueriable.table.kotlin) {
         databaseForTable(table)
-                .beginTransactionAsync { evalFn(it, modelQueriable) }
-                .execute { _, r -> value = r }
+            .beginTransactionAsync { modelQueriable.evalFn(it) }
+            .execute { _, r -> value = r }
     }
 
     override fun onActive() {

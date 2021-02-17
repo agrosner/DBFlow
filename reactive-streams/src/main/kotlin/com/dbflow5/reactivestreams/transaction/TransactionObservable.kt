@@ -32,7 +32,7 @@ fun <R : Any> Transaction.Builder<R>.asSingle(): SingleTransaction<R> = SingleTr
  *  The [evalFn] runs on the [ITransactionQueue].
  */
 fun <T : Any, R> ModelQueriable<T>.asFlowable(
-        evalFn: (DatabaseWrapper, ModelQueriable<T>) -> R): Flowable<R> =
+        evalFn: ModelQueriable<T>.(DatabaseWrapper) -> R): Flowable<R> =
         Flowable.create(TableChangeOnSubscribe(this, evalFn), BackpressureStrategy.LATEST)
 
 open class TransactionDisposable(private val transaction: Transaction<*>) : Disposable {

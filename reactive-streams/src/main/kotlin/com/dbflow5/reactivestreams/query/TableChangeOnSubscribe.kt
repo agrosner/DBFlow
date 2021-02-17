@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
  * If the [ModelQueriable] relates to a [Join], this can be multiple tables.
  */
 class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: ModelQueriable<T>,
-                                                private val evalFn: (DatabaseWrapper, ModelQueriable<T>) -> R)
+                                                private val evalFn: ModelQueriable<T>.(DatabaseWrapper) -> R)
     : FlowableOnSubscribe<R> {
 
     private lateinit var flowableEmitter: FlowableEmitter<R>
@@ -40,7 +40,7 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: Mode
     private fun evaluateEmission(table: KClass<*> = modelQueriable.table.kotlin) {
         if (this::flowableEmitter.isInitialized) {
             currentTransactions.add(databaseForTable(table)
-                .beginTransactionAsync { evalFn(it, modelQueriable) }
+                .beginTransactionAsync { modelQueriable.evalFn(it) }
                 .shouldRunInTransaction(false)
                 .asMaybe()
                 .subscribe {

@@ -25,7 +25,7 @@ class LiveDataTest : BaseUnitTest() {
     @Test
     fun live_data_executes_for_a_few_model_queries() {
         val data = (select from LiveDataModel::class)
-                .toLiveData { db, queriable -> queriable.queryList(db) }
+                .toLiveData { db -> queryList(db) }
 
         val observer = mock<Observer<MutableList<LiveDataModel>>>()
         val lifecycle = LifecycleRegistry(mock())
