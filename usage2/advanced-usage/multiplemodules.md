@@ -35,9 +35,9 @@ From previous sample code, we recommend initializing the specific module inside 
 
 ```kotlin
 fun initialize(context: Context) {
-  FlowManager.init(FlowConfig.builder(context)
-    .addDatabaseHolder(SomeUniqueModuleNameGeneratedDatabaseHolder::class)
-    .build())
+  FlowManager.init(context) {
+    addDatabaseHolder(SomeUniqueModuleNameGeneratedDatabaseHolder::class)
+  }
 }
 ```
 

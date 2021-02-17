@@ -53,19 +53,20 @@ A database within DBFlow is only initialized once you call `database<SomeDatabas
 ```kotlin
 override fun onCreate() {
     super.onCreate()
-    FlowManager.init(FlowConfig.builder(this)
-        .openDatabasesOnInit(true)
-        .build())
+    FlowManager.init(this) {
+        openDatabasesOnInit(true)
+    })
 }
 ```
 
 Each `DBFlowDatabase` contains a `TransactionManager`, which runs any `async` transaction on a queue / dispatch system. If you do not like the built-in `DefaultTransactionManager`, or just want to roll your own existing system:
 
 ```kotlin
-FlowManager.init(FlowConfig.builder(this)
-    .database(DatabaseConfig.builder(AppDatabase::class)
-            .transactionManagerCreator { db -> CustomTransactionManager(db))
-          .build()))
+FlowManager.init(this) {
+  database<AppDatabase> {
+      transactionManagerCreator { db -> CustomTransactionManager(db) }
+  }
+}
 ```
 
 You can define different kinds for each database. To read more on transactions and subclassing `BaseTransactionManager` go [here](usage/storingdata.md)
@@ -79,9 +80,9 @@ Creating models are as simple as defining the model class, and adding the `@Tabl
 ```kotlin
 @Table(database = TestDatabase::class)
 class Currency(@PrimaryKey(autoincrement = true) var id: Long = 0,
-               @Column @Unique var symbol: String? = null,
-               @Column var shortName: String? = null,
-               @Column @Unique var name: String = "") // nullability of fields are respected. We will not assign a null value to this field.
+               @Unique var symbol: String? = null,
+               var shortName: String? = null,
+               @Unique var name: String = "") // nullability of fields are respected. We will not assign a null value to this field.
 ```
 
 ## Build Your DAO
