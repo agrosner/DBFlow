@@ -5,10 +5,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dbflow5.ImmediateTransactionManager
 import com.dbflow5.TestDatabase
-import com.dbflow5.config.DatabaseConfig
-import com.dbflow5.config.FlowConfig
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.databaseForTable
+import com.dbflow5.config.flowConfig
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
@@ -37,11 +36,11 @@ class DirectNotifierTest {
 
     @Before
     fun setupTest() {
-        FlowManager.init(FlowConfig.Builder(context)
-            .database(DatabaseConfig.Builder(TestDatabase::class.java,
-                AndroidSQLiteOpenHelper.createHelperCreator(context))
-                .transactionManagerCreator(::ImmediateTransactionManager)
-                .build()).build())
+        FlowManager.init(flowConfig(context) {
+            database<TestDatabase>({
+                transactionManagerCreator(::ImmediateTransactionManager)
+            }, AndroidSQLiteOpenHelper.createHelperCreator(context))
+        })
     }
 
     @Test

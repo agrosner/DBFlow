@@ -18,21 +18,18 @@ import org.junit.Test
  */
 class ConfigIntegrationTest : BaseUnitTest() {
 
-    private lateinit var builder: FlowConfig.Builder
-
     @Before
     fun setup() {
         FlowManager.reset()
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
-        builder = FlowConfig.Builder(context)
     }
 
 
     @Test
     fun test_flowConfig() {
-        val config = builder
-            .openDatabasesOnInit(true)
-            .build()
+        val config = flowConfig(context) {
+            openDatabasesOnInit(true)
+        }
         assertEquals(config.openDatabasesOnInit, true)
         assertTrue(config.databaseConfigMap.isEmpty())
         assertTrue(config.databaseHolders.isEmpty())
@@ -45,15 +42,16 @@ class ConfigIntegrationTest : BaseUnitTest() {
         val singleModelLoader = SingleModelLoader(SimpleModel::class.java)
         val modelSaver = ModelSaver<SimpleModel>()
 
-        FlowManager.init(builder
-            .database<TestDatabase>({
-                table<SimpleModel> {
-                    singleModelLoader(singleModelLoader)
-                    listModelLoader(customListModelLoader)
-                    modelAdapterModelSaver(modelSaver)
-                }
-            }, AndroidSQLiteOpenHelper.createHelperCreator(context))
-            .build())
+        FlowManager.init(
+            flowConfig(context) {
+                database<TestDatabase>({
+                    table<SimpleModel> {
+                        singleModelLoader(singleModelLoader)
+                        listModelLoader(customListModelLoader)
+                        modelAdapterModelSaver(modelSaver)
+                    }
+                }, AndroidSQLiteOpenHelper.createHelperCreator(context))
+            })
 
         val flowConfig = FlowManager.getConfig()
         assertNotNull(flowConfig)

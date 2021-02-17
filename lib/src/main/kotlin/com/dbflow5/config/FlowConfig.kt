@@ -77,5 +77,5 @@ class FlowConfig(val context: Context,
     }
 }
 
-inline fun flowConfig(context: Context, fn: FlowConfig.Builder.() -> Unit) =
+inline fun flowConfig(context: Context, fn: FlowConfig.Builder.() -> Unit): FlowConfig =
     FlowConfig.builder(context).apply(fn).build()
