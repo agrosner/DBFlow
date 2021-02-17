@@ -1,7 +1,6 @@
 package com.dbflow5.config
 
 import android.content.Context
-import kotlin.reflect.KClass
 
 /**
  * Description: The main configuration instance for DBFlow. This
@@ -46,10 +45,7 @@ class FlowConfig(val context: Context,
             databaseHolders.add(databaseHolderClass)
         }
 
-        fun addDatabaseHolder(databaseHolderClass: KClass<out DatabaseHolder>) = apply {
-            databaseHolders.add(databaseHolderClass.java)
-        }
-
+        inline fun <reified T : DatabaseHolder> databaseHolder() = addDatabaseHolder(T::class.java)
 
         fun database(databaseConfig: DatabaseConfig) = apply {
             databaseConfigMap.put(databaseConfig.databaseClass, databaseConfig)
