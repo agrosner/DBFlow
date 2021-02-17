@@ -23,7 +23,7 @@ class DBFlowInstrumentedTestRule : TestRule {
             @Throws(Throwable::class)
             override fun evaluate() {
                 FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
-                FlowManager.init(flowConfig(DemoApp.context) {
+                FlowManager.init(DemoApp.context) {
                     database<AppDatabase>({
                         modelNotifier(ContentResolverNotifier(DemoApp.context, "com.grosner.content"))
                         transactionManagerCreator { databaseDefinition: DBFlowDatabase ->
@@ -40,7 +40,7 @@ class DBFlowInstrumentedTestRule : TestRule {
                     database<TestDatabase>({
                         transactionManagerCreator(::ImmediateTransactionManager)
                     }, AndroidSQLiteOpenHelper.createHelperCreator(DemoApp.context))
-                })
+                }
                 try {
                     base.evaluate()
                 } finally {

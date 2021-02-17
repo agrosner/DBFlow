@@ -260,8 +260,9 @@ object FlowManager {
      * @param context - should be application context, but not necessary as we retrieve it anyways.
      */
     @JvmStatic
-    fun init(context: Context) {
-        init(FlowConfig.Builder(context).build())
+    @JvmOverloads
+    fun init(context: Context, config: FlowConfig.Builder.() -> Unit = {}) {
+        init(flowConfig(context, config))
     }
 
     /**
