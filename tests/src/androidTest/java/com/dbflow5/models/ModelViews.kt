@@ -34,7 +34,7 @@ class PriorityView(var name: String = "") {
 
     companion object {
         @JvmStatic
-        @ModelViewQuery
-        fun getQuery(): From<Author> = select((first_name + last_name).`as`("name")) from Author::class
+        @get:ModelViewQuery
+        val query: From<Author> = select((first_name + last_name).`as`("name")) from Author::class
     }
 }
