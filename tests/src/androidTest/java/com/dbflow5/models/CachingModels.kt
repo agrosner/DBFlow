@@ -19,9 +19,7 @@ class Coordinate(@PrimaryKey var latitude: Double = 0.0,
     companion object {
         @JvmField
         @MultiCacheField
-        val cacheConverter = object : MultiKeyCacheConverter<String> {
-            override fun getCachingKey(values: Array<Any>) = "${values[0]},${values[1]}"
-        }
+        val cacheConverter = MultiKeyCacheConverter { values -> "${values[0]},${values[1]}" }
     }
 }
 
