@@ -18,27 +18,13 @@ You also need to add the Proguard rule:
 -dontwarn net.sqlcipher.**
 ```
 
-Next, you need to subclass the provided `SQLCipherOpenHelper` \(taken from test files\):
-
-```kotlin
-class SQLCipherOpenHelperImpl(context: Context,
-                              databaseDefinition: DBFlowDatabase,
-                              callback: DatabaseCallback?)
-    : SQLCipherOpenHelper(context, databaseDefinition, callback) {
-    override val cipherSecret get() = "dbflow-rules"
-}
-```
-
-_Note:_ that the constructor with `DatabaseDefinition` and `DatabaseHelperListener` is required.
-
 Then in your application class when initializing DBFlow:
 
 ```kotlin
-FlowManager.init(FlowConfig.Builder(context)
-  .database(
-      DatabaseConfig.Builder(CipherDatabase::class) { db, callback -> SQLCipherHelperImpl(context, databaseDefinition, callback))
-      .build())
-  .build())
+FlowManager.init(context) {
+  database<CipherDatabase>(
+    openHelperCreator = SQLCipherOpenHelper.createHelperCreator(DemoApp.context, secret = "dbflow-rules"))
+}
 ```
 
 And that's it. You're all set to start using SQLCipher!
