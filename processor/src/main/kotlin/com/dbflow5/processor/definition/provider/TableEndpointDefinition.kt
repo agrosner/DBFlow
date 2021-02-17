@@ -51,7 +51,9 @@ class TableEndpointDefinition(tableEndpoint: TableEndpoint,
                 if (!pathValidationMap.containsKey(contentUriDefinition.path)) {
                     contentUriDefinitions.add(contentUriDefinition)
                 } else {
-                    processorManager.logError("There must be unique paths for the specified @ContentUri" + " %1s from %1s", contentUriDefinition.name, contentProviderName)
+                    processorManager.logError("There must be unique paths " +
+                        "for the specified @ContentUri ${contentUriDefinition.name} " +
+                        "from $contentProviderName")
                 }
             }
             innerElement.annotation<Notify>()?.let { notify ->

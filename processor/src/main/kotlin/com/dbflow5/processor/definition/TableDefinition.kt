@@ -188,8 +188,8 @@ class TableDefinition(private val table: Table,
         val inheritedColumns = table.inheritedColumns
         inheritedColumns.forEach {
             if (inheritedFieldNameList.contains(it.fieldName)) {
-                manager.logError("A duplicate inherited column with name %1s was found for %1s",
-                    it.fieldName, associationalBehavior.name)
+                manager.logError("A duplicate inherited column with name ${it.fieldName} " +
+                    "was found for ${associationalBehavior.name}")
             }
             inheritedFieldNameList.add(it.fieldName)
             inheritedColumnMap[it.fieldName] = it
@@ -198,8 +198,8 @@ class TableDefinition(private val table: Table,
         val inheritedPrimaryKeys = table.inheritedPrimaryKeys
         inheritedPrimaryKeys.forEach {
             if (inheritedFieldNameList.contains(it.fieldName)) {
-                manager.logError("A duplicate inherited column with name %1s was found for %1s",
-                    it.fieldName, associationalBehavior.name)
+                manager.logError("A duplicate inherited column with name ${it.fieldName} " +
+                    "was found for ${associationalBehavior.name}")
             }
             inheritedFieldNameList.add(it.fieldName)
             inheritedPrimaryKeyMap[it.fieldName] = it

@@ -65,6 +65,7 @@ abstract class AnnotatedHandler<AnnotationClass : Annotation>(private val annota
                     onProcessElement(annotation, element, processorManager)
                 }
             }
+            afterProcessElements(processorManager)
         }
     }
 
@@ -73,6 +74,10 @@ abstract class AnnotatedHandler<AnnotationClass : Annotation>(private val annota
     }
 
     protected abstract fun onProcessElement(annotation: AnnotationClass, element: Element, processorManager: ProcessorManager)
+
+    open fun afterProcessElements(processorManager: ProcessorManager) {
+
+    }
 }
 
 /**
@@ -171,35 +176,66 @@ class TableHandler : AnnotatedHandler<Table>(Table::class) {
  */
 class TypeConverterHandler : AnnotatedHandler<TypeConverter>(TypeConverter::class) {
 
+    private var typeConverterElements = setOf<Element>()
+    private val typeConverterDefinitions = mutableSetOf<TypeConverterDefinition>()
     override fun processElements(processorManager: ProcessorManager, annotatedElements: MutableSet<Element>) {
-        DEFAULT_TYPE_CONVERTERS.mapTo(annotatedElements) { processorManager.elements.getTypeElement(it.name) }
+        typeConverterElements = DEFAULT_TYPE_CONVERTERS.mapTo(mutableSetOf()) { processorManager.elements.getTypeElement(it.name) }
+        annotatedElements.addAll(typeConverterElements)
     }
 
     override fun onProcessElement(annotation: TypeConverter, element: Element, processorManager: ProcessorManager) {
         if (element is TypeElement) {
             fromTypeMirror(element.asType(), processorManager)?.let { className ->
-                val definition = TypeConverterDefinition(annotation, className, element.asType(), processorManager)
+                val definition = TypeConverterDefinition(annotation, className, element.asType(), processorManager,
+                    isDefaultConverter = typeConverterElements.contains(element))
                 if (VALIDATOR.validate(processorManager, definition)) {
                     // allow user overrides from default.
                     // Check here if user already placed definition of same type, since default converters
                     // are added last.
                     if (processorManager.typeConverters
-                                    .filter { it.value.modelTypeName == definition.modelTypeName }
-                                    .isEmpty()) {
-                        processorManager.addTypeConverterDefinition(definition)
+                            .filter { it.value.modelTypeName == definition.modelTypeName }
+                            .isEmpty()) {
+                        typeConverterDefinitions.add(definition)
                     }
                 }
             }
         }
     }
 
+    override fun afterProcessElements(processorManager: ProcessorManager) {
+        // validate multiple global registered do not exist.
+        val grouping = typeConverterDefinitions
+            .filter { it.isDefaultConverter }
+            .groupingBy { it.modelTypeName }
+        val groupingMap = grouping.aggregate { key, accumulator: MutableSet<TypeConverterDefinition>?, element: TypeConverterDefinition, first: Boolean ->
+            val set = accumulator ?: mutableSetOf()
+            set.add(element)
+            return@aggregate set
+        }
+        grouping.eachCount()
+            .forEach { (type, count) ->
+                if (count > 1) {
+                    processorManager.logError(TypeConverterHandler::class, "Multiple registered @TypeConverter of type $type found. " +
+                        "Pick one for global and make the other a local converter for a @Column. " +
+                        "Or explicitly specify both as field converters." +
+                        "\n${
+                            groupingMap[type]?.joinToString("\n") { " ${it.className} registered for ${it.modelTypeName} <-> ${it.dbTypeName}" }
+                        }\n")
+                }
+            }
+        // sort default converters first so that they can get overwritten
+        typeConverterDefinitions
+            .sortedBy { !it.isDefaultConverter }
+            .forEach { def -> processorManager.addTypeConverterDefinition(def) }
+    }
+
     companion object {
         private val VALIDATOR = TypeConverterValidator()
         private val DEFAULT_TYPE_CONVERTERS = arrayOf<Class<*>>(CalendarConverter::class.java,
-                BigDecimalConverter::class.java, BigIntegerConverter::class.java,
-                DateConverter::class.java, SqlDateConverter::class.java,
-                BooleanConverter::class.java, UUIDConverter::class.java,
-                CharConverter::class.java)
+            BigDecimalConverter::class.java, BigIntegerConverter::class.java,
+            DateConverter::class.java, SqlDateConverter::class.java,
+            BooleanConverter::class.java, UUIDConverter::class.java,
+            CharConverter::class.java)
     }
 }
 

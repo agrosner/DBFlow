@@ -15,7 +15,8 @@ import javax.lang.model.type.TypeMirror
 class TypeConverterDefinition(
     typeConverter: TypeConverter?,
     val className: ClassName,
-    typeMirror: TypeMirror, manager: ProcessorManager) {
+    typeMirror: TypeMirror, manager: ProcessorManager,
+    val isDefaultConverter: Boolean) {
 
     val modelTypeName: TypeName?
     val dbTypeName: TypeName?

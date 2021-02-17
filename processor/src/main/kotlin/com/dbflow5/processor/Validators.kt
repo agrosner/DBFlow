@@ -80,9 +80,9 @@ class ColumnValidator : Validator<ColumnDefinition> {
 
         if (validatorDefinition.columnName.isEmpty()) {
             success = false
-            processorManager.logError("Field %1s cannot have a null column name for column: %1s and type: %1s",
-                validatorDefinition.elementName, validatorDefinition.columnName,
-                validatorDefinition.elementTypeName)
+            processorManager.logError("Field ${validatorDefinition.elementName} " +
+                "cannot have a null column name for column: ${validatorDefinition.columnName}" +
+                " and type: ${validatorDefinition.elementTypeName}")
         }
 
         if (validatorDefinition.columnAccessor is EnumColumnAccessor) {
