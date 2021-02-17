@@ -29,7 +29,7 @@ class DatabaseConfigTest : BaseUnitTest() {
     @Test
     fun test_databaseConfig() {
 
-        val helperListener = mock<DatabaseCallback>()
+        val helperListener = object : DatabaseCallback {}
         val customOpenHelper = mock<OpenHelper>()
 
         val openHelperCreator = OpenHelperCreator { _, _ ->

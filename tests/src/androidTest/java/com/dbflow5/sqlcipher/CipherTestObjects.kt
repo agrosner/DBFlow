@@ -12,7 +12,7 @@ class SQLCipherOpenHelperImpl(context: Context,
                               databaseDefinition: DBFlowDatabase,
                               callback: DatabaseCallback?)
     : SQLCipherOpenHelper(context, databaseDefinition, callback) {
-    override val cipherSecret get() = "dbflow-rules"
+    override var cipherSecret = "dbflow-rules"
 }
 
 @Table(database = CipherDatabase::class)
