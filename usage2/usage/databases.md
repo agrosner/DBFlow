@@ -47,7 +47,7 @@ To dynamically change the database name, call:
 database<AppDatabase>()
   .reopen(DatabaseConfig.builder(AppDatabase::class)
     .databaseName("AppDatabase-2")
-    .build())]
+    .build())
 ```
 
 This will close the open DB, reopen the DB, and replace previous `DatabaseConfig` with this new one. Ensure that you persist the changes to the `DatabaseConfig` somewhere as next time app is launched and DBFlow is initialized, the new config would get overwritten.
