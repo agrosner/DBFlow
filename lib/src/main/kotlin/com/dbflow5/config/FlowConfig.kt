@@ -60,6 +60,14 @@ class FlowConfig(val context: Context,
             openHelperCreator: OpenHelperCreator? = null,
         ) = database(DatabaseConfig.builder(T::class, openHelperCreator).apply(fn).build())
 
+        inline fun <reified T : Any> inMemoryDatabase(
+            fn: DatabaseConfig.Builder.() -> Unit = {},
+            openHelperCreator: OpenHelperCreator? = null,
+        ) = database<T>({
+            inMemory()
+            fn()
+        }, openHelperCreator)
+
         /**
          * @param openDatabasesOnInit true if we want all databases open.
          * @return True to open all associated databases in DBFlow on calling of [FlowManager.init]
