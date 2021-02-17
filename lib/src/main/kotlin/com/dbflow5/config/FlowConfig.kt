@@ -12,10 +12,10 @@ class FlowConfig(val context: Context,
                  val openDatabasesOnInit: Boolean = false) {
 
     internal constructor(builder: Builder) : this(
-            databaseHolders = builder.databaseHolders.toSet(),
-            databaseConfigMap = builder.databaseConfigMap,
-            context = builder.context,
-            openDatabasesOnInit = builder.openDatabasesOnInit
+        databaseHolders = builder.databaseHolders.toSet(),
+        databaseConfigMap = builder.databaseConfigMap,
+        context = builder.context,
+        openDatabasesOnInit = builder.openDatabasesOnInit
     )
 
     fun getConfigForDatabase(databaseClass: Class<*>): DatabaseConfig? {
@@ -27,13 +27,13 @@ class FlowConfig(val context: Context,
      * will override existing ones.
      */
     internal fun merge(flowConfig: FlowConfig): FlowConfig = FlowConfig(
-            context = flowConfig.context,
-            databaseConfigMap = databaseConfigMap.entries
-                    .map { (key, value) ->
-                        key to (flowConfig.databaseConfigMap[key] ?: value)
-                    }.toMap(),
-            databaseHolders = databaseHolders.plus(flowConfig.databaseHolders),
-            openDatabasesOnInit = flowConfig.openDatabasesOnInit)
+        context = flowConfig.context,
+        databaseConfigMap = databaseConfigMap.entries
+            .map { (key, value) ->
+                key to (flowConfig.databaseConfigMap[key] ?: value)
+            }.toMap(),
+        databaseHolders = databaseHolders.plus(flowConfig.databaseHolders),
+        openDatabasesOnInit = flowConfig.openDatabasesOnInit)
 
     class Builder(context: Context) {
 
@@ -55,6 +55,11 @@ class FlowConfig(val context: Context,
             databaseConfigMap.put(databaseConfig.databaseClass, databaseConfig)
         }
 
+        inline fun <reified T : Any> database(
+            fn: DatabaseConfig.Builder.() -> Unit = {},
+            openHelperCreator: OpenHelperCreator? = null,
+        ) = database(DatabaseConfig.builder(T::class, openHelperCreator).apply(fn).build())
+
         /**
          * @param openDatabasesOnInit true if we want all databases open.
          * @return True to open all associated databases in DBFlow on calling of [FlowManager.init]
@@ -71,3 +76,6 @@ class FlowConfig(val context: Context,
         fun builder(context: Context): Builder = Builder(context)
     }
 }
+
+inline fun flowConfig(context: Context, fn: FlowConfig.Builder.() -> Unit) =
+    FlowConfig.builder(context).apply(fn).build()

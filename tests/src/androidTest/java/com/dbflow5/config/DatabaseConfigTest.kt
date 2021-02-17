@@ -1,12 +1,12 @@
 package com.dbflow5.config
 
-import com.nhaarman.mockitokotlin2.mock
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.transaction.BaseTransactionManager
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -32,22 +32,22 @@ class DatabaseConfigTest : BaseUnitTest() {
         val helperListener = mock<DatabaseCallback>()
         val customOpenHelper = mock<OpenHelper>()
 
-        val openHelperCreator: ((DBFlowDatabase, DatabaseCallback?) -> OpenHelper) = { _, _ ->
+        val openHelperCreator = OpenHelperCreator { _, _ ->
             customOpenHelper
         }
         var testTransactionManager: TestTransactionManager? = null
-        val managerCreator: (DBFlowDatabase) -> BaseTransactionManager = { databaseDefinition ->
+        val managerCreator = TransactionManagerCreator { databaseDefinition ->
             testTransactionManager = TestTransactionManager(databaseDefinition)
             testTransactionManager!!
         }
 
-        FlowManager.init(builder
-            .database(DatabaseConfig.Builder(TestDatabase::class.java, openHelperCreator)
-                .databaseName("Test")
-                .helperListener(helperListener)
-                .transactionManagerCreator(managerCreator)
-                .build())
-            .build())
+        FlowManager.init(builder.apply {
+            database<TestDatabase>({
+                databaseName("Test")
+                helperListener(helperListener)
+                transactionManagerCreator(managerCreator)
+            }, openHelperCreator)
+        }.build())
 
         val flowConfig = FlowManager.getConfig()
         Assert.assertNotNull(flowConfig)
@@ -69,13 +69,12 @@ class DatabaseConfigTest : BaseUnitTest() {
 
     @Test
     fun test_EmptyName() {
-        FlowManager.init(builder
-            .database(DatabaseConfig.Builder(TestDatabase::class.java,
-                AndroidSQLiteOpenHelper.createHelperCreator(context))
-                .databaseName("Test")
-                .extensionName("")
-                .build())
-            .build())
+        FlowManager.init(builder.apply {
+            database<TestDatabase>({
+                databaseName("Test")
+                extensionName("")
+            }, AndroidSQLiteOpenHelper.createHelperCreator(context))
+        }.build())
 
         val databaseConfig = FlowManager.getConfig().databaseConfigMap[TestDatabase::class.java]!!
         Assert.assertEquals("Test", databaseConfig.databaseName)

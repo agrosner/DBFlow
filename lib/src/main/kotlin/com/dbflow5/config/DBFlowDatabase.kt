@@ -140,7 +140,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             if (helper == null) {
                 val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
                 helper = if (config?.openHelperCreator != null) {
-                    config.openHelperCreator.invoke(this, internalCallback)
+                    config.openHelperCreator.createHelper(this, internalCallback)
                 } else {
                     AndroidSQLiteOpenHelper(FlowManager.context, this, internalCallback)
                 }
@@ -247,7 +247,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         transactionManager = if (databaseConfig?.transactionManagerCreator == null) {
             DefaultTransactionManager(this)
         } else {
-            databaseConfig.transactionManagerCreator.invoke(this)
+            databaseConfig.transactionManagerCreator.createManager(this)
         }
     }
 

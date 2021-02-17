@@ -8,8 +8,13 @@ import com.dbflow5.transaction.BaseTransactionManager
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
 
-typealias OpenHelperCreator = (DBFlowDatabase, DatabaseCallback?) -> OpenHelper
-typealias TransactionManagerCreator = (DBFlowDatabase) -> BaseTransactionManager
+fun interface OpenHelperCreator {
+    fun createHelper(db: DBFlowDatabase, callback: DatabaseCallback?): OpenHelper
+}
+
+fun interface TransactionManagerCreator {
+    fun createManager(db: DBFlowDatabase): BaseTransactionManager
+}
 
 
 /**
@@ -85,7 +90,7 @@ class DatabaseConfig(
         internal var databaseExtensionName: String? = null
         internal var journalMode: DBFlowDatabase.JournalMode = DBFlowDatabase.JournalMode.Automatic
 
-        constructor(kClass: KClass<*>, openHelperCreator: OpenHelperCreator)
+        constructor(kClass: KClass<*>, openHelperCreator: OpenHelperCreator? = null)
             : this(kClass.java, openHelperCreator)
 
         fun transactionManagerCreator(creator: TransactionManagerCreator) = apply {
@@ -97,8 +102,11 @@ class DatabaseConfig(
         }
 
         fun addTableConfig(tableConfig: TableConfig<*>) = apply {
-            tableConfigMap.put(tableConfig.tableClass, tableConfig)
+            tableConfigMap[tableConfig.tableClass] = tableConfig
         }
+
+        inline fun <reified T : Any> table(fn: TableConfig.Builder<T>.() -> Unit) =
+            addTableConfig(TableConfig.builder(T::class).apply(fn).build())
 
         fun modelNotifier(modelNotifier: ModelNotifier) = apply {
             this.modelNotifier = modelNotifier
@@ -133,17 +141,17 @@ class DatabaseConfig(
     companion object {
 
         @JvmStatic
-        fun builder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
+        fun builder(database: Class<*>, openHelperCreator: OpenHelperCreator? = null): Builder =
             Builder(database, openHelperCreator)
 
-        fun builder(database: KClass<*>, openHelperCreator: OpenHelperCreator): Builder =
+        fun builder(database: KClass<*>, openHelperCreator: OpenHelperCreator? = null): Builder =
             Builder(database, openHelperCreator)
 
         @JvmStatic
-        fun inMemoryBuilder(database: Class<*>, openHelperCreator: OpenHelperCreator): Builder =
+        fun inMemoryBuilder(database: Class<*>, openHelperCreator: OpenHelperCreator? = null): Builder =
             Builder(database, openHelperCreator).inMemory()
 
-        fun inMemoryBuilder(database: KClass<*>, openHelperCreator: OpenHelperCreator): Builder =
+        fun inMemoryBuilder(database: KClass<*>, openHelperCreator: OpenHelperCreator? = null): Builder =
             Builder(database, openHelperCreator).inMemory()
     }
 }

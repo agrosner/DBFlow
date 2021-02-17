@@ -3,11 +3,12 @@ package com.dbflow5.sqlcipher
 import android.content.Context
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.DatabaseConfig
+import com.dbflow5.config.OpenHelperCreator
+import com.dbflow5.database.AndroidMigrationFileHelper
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseHelper
 import com.dbflow5.database.DatabaseHelperDelegate
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.database.AndroidMigrationFileHelper
 import com.dbflow5.database.OpenHelper
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteOpenHelper
@@ -17,11 +18,11 @@ import net.sqlcipher.database.SQLiteOpenHelper
  * of your database to get it to work with specifying the secret you use for the databaseForTable.
  */
 abstract class SQLCipherOpenHelper(
-        private val context: Context,
-        databaseDefinition: DBFlowDatabase, listener: DatabaseCallback?)
+    private val context: Context,
+    databaseDefinition: DBFlowDatabase, listener: DatabaseCallback?)
     : SQLiteOpenHelper(context,
-        if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
-        null, databaseDefinition.databaseVersion), OpenHelper {
+    if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
+    null, databaseDefinition.databaseVersion), OpenHelper {
 
     final override val delegate: DatabaseHelperDelegate
     private var cipherDatabase: SQLCipherDatabase? = null
@@ -50,8 +51,8 @@ abstract class SQLCipherOpenHelper(
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = BackupHelper(context,
-                    DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                    databaseDefinition.databaseVersion, databaseDefinition)
+                DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
+                databaseDefinition.databaseVersion, databaseDefinition)
         }
 
         delegate = DatabaseHelperDelegate(context, listener, databaseDefinition, backupHelper)
@@ -152,6 +153,19 @@ abstract class SQLCipherOpenHelper(
         override fun deleteDB() {
             context.deleteDatabase(_databaseName)
         }
+    }
+
+    companion object {
+        /**
+         * Provides a handy interface for [OpenHelperCreator] usage.
+         */
+        @JvmStatic
+        fun createHelperCreator(context: Context, secret: String): OpenHelperCreator =
+            OpenHelperCreator { db, callback ->
+                object : SQLCipherOpenHelper(context, db, callback) {
+                    override val cipherSecret: String = secret
+                }
+            }
     }
 
 }

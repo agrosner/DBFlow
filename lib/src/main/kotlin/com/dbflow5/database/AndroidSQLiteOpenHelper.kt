@@ -10,13 +10,13 @@ import com.dbflow5.config.OpenHelperCreator
  * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.
  */
 open class AndroidSQLiteOpenHelper(
-        private val context: Context,
-        databaseDefinition: DBFlowDatabase,
-        listener: DatabaseCallback?)
+    private val context: Context,
+    databaseDefinition: DBFlowDatabase,
+    listener: DatabaseCallback?)
     : SQLiteOpenHelper(context,
-        if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
-        null,
-        databaseDefinition.databaseVersion), OpenHelper {
+    if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
+    null,
+    databaseDefinition.databaseVersion), OpenHelper {
 
     private val databaseHelperDelegate: DatabaseHelperDelegate
     private var androidDatabase: AndroidDatabase? = null
@@ -27,8 +27,8 @@ open class AndroidSQLiteOpenHelper(
         if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
             backupHelper = BackupHelper(context,
-                    DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                    databaseDefinition.databaseVersion, databaseDefinition)
+                DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
+                databaseDefinition.databaseVersion, databaseDefinition)
         }
 
         databaseHelperDelegate = DatabaseHelperDelegate(context, listener, databaseDefinition, backupHelper)
@@ -148,9 +148,9 @@ open class AndroidSQLiteOpenHelper(
     companion object {
         @JvmStatic
         fun createHelperCreator(context: Context): OpenHelperCreator =
-                { db: DBFlowDatabase, databaseCallback: DatabaseCallback? ->
-                    AndroidSQLiteOpenHelper(context, db, databaseCallback)
-                }
+            OpenHelperCreator { db: DBFlowDatabase, databaseCallback: DatabaseCallback? ->
+                AndroidSQLiteOpenHelper(context, db, databaseCallback)
+            }
     }
 
 }

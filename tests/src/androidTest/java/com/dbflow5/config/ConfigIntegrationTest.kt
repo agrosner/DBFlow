@@ -46,14 +46,13 @@ class ConfigIntegrationTest : BaseUnitTest() {
         val modelSaver = ModelSaver<SimpleModel>()
 
         FlowManager.init(builder
-            .database(DatabaseConfig.Builder(TestDatabase::class.java,
-                AndroidSQLiteOpenHelper.createHelperCreator(context))
-                .addTableConfig(TableConfig.Builder(SimpleModel::class.java)
-                    .singleModelLoader(singleModelLoader)
-                    .listModelLoader(customListModelLoader)
-                    .modelAdapterModelSaver(modelSaver)
-                    .build())
-                .build())
+            .database<TestDatabase>({
+                table<SimpleModel> {
+                    singleModelLoader(singleModelLoader)
+                    listModelLoader(customListModelLoader)
+                    modelAdapterModelSaver(modelSaver)
+                }
+            }, AndroidSQLiteOpenHelper.createHelperCreator(context))
             .build())
 
         val flowConfig = FlowManager.getConfig()
