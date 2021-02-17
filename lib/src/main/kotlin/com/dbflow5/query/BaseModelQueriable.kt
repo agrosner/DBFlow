@@ -1,5 +1,6 @@
 package com.dbflow5.query
 
+import android.os.Handler
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.queriable.ListModelLoader
 import com.dbflow5.adapter.queriable.SingleModelLoader
@@ -99,3 +100,10 @@ protected constructor(table: Class<TModel>)
             table.retrievalAdapter.nonCacheableSingleModelLoader
         }
 }
+
+/**
+ * Constructs a flowQueryList allowing a custom [Handler].
+ */
+fun <T : Any> ModelQueriable<T>.flowQueryList(databaseWrapper: DatabaseWrapper, refreshHandler: Handler) =
+    FlowQueryList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper,
+        refreshHandler = refreshHandler).build()
