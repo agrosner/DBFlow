@@ -151,13 +151,14 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         }
 
     private fun onOpenWithConfig(config: DatabaseConfig?, helper: OpenHelper) {
+        helper.performRestoreFromBackup()
+
         var wal = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             wal = config != null && config.journalMode.adjustIfAutomatic(FlowManager.context) == JournalMode.WriteAheadLogging
             helper.trySetWriteAheadLoggingEnabled(wal)
         }
         writeAheadLoggingEnabled = wal
-        helper.performRestoreFromBackup()
         isOpened = true
     }
 

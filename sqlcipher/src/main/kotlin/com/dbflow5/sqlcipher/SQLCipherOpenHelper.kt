@@ -46,16 +46,12 @@ abstract class SQLCipherOpenHelper(
 
     init {
         SQLiteDatabase.loadLibs(context)
-
-        var backupHelper: OpenHelper? = null
-        if (databaseDefinition.backupEnabled()) {
+        delegate = DatabaseHelperDelegate(context, listener, databaseDefinition, if (databaseDefinition.backupEnabled()) {
             // Temp database mirrors existing
-            backupHelper = BackupHelper(context,
+            BackupHelper(context,
                 DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
                 databaseDefinition.databaseVersion, databaseDefinition)
-        }
-
-        delegate = DatabaseHelperDelegate(context, listener, databaseDefinition, backupHelper)
+        } else null)
     }
 
     override fun performRestoreFromBackup() {
@@ -93,7 +89,11 @@ abstract class SQLCipherOpenHelper(
     }
 
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
-        throw UnsupportedOperationException("Not supported in SQLCipher")
+        if (enabled) {
+            cipherDatabase?.database?.enableWriteAheadLogging()
+        } else {
+            cipherDatabase?.database?.disableWriteAheadLogging()
+        }
     }
 
     override fun closeDB() {
@@ -126,11 +126,9 @@ abstract class SQLCipherOpenHelper(
                 return sqlCipherDatabase!!
             }
 
-        override val delegate: DatabaseHelperDelegate?
-            get() = null
+        override val delegate: DatabaseHelperDelegate? = null
 
-        override val isDatabaseIntegrityOk: Boolean
-            get() = false
+        override val isDatabaseIntegrityOk: Boolean = false
 
         override fun performRestoreFromBackup() = Unit
 

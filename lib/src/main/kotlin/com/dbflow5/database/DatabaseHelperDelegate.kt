@@ -15,11 +15,11 @@ import java.io.InputStream
  * used in other helper class definitions.
  */
 class DatabaseHelperDelegate(
-        private val context: Context,
-        private var databaseCallback: DatabaseCallback?,
-        databaseDefinition: DBFlowDatabase,
-        private val backupHelper: OpenHelper?)
-    : DatabaseHelper(AndroidMigrationFileHelper(context), databaseDefinition) {
+    private val context: Context,
+    private var databaseCallback: DatabaseCallback?,
+    databaseDefinition: DBFlowDatabase,
+    private val backupHelper: OpenHelper?)
+    : DatabaseHelper(AndroidMigrationFileHelper(context), databaseDefinition), OpenHelperDelegate {
 
     /**
      * @return the temporary database file name for when we have backups enabled
@@ -35,25 +35,27 @@ class DatabaseHelperDelegate(
      *
      * @return true if the database is ok, false if the consistency has been compromised.
      */
-    val isDatabaseIntegrityOk: Boolean
-        get() = isDatabaseIntegrityOk(writableDatabase)
+    override val isDatabaseIntegrityOk: Boolean
+        get() = isDatabaseIntegrityOk(database)
 
-    val writableDatabase: DatabaseWrapper
+    override val database: DatabaseWrapper
         get() = databaseDefinition
 
-    fun performRestoreFromBackup() {
+    override fun performRestoreFromBackup() {
         movePrepackagedDB(databaseDefinition.databaseFileName,
-                databaseDefinition.databaseFileName)
+            databaseDefinition.databaseFileName)
 
         if (databaseDefinition.backupEnabled()) {
             if (backupHelper == null) {
                 throw IllegalStateException("the passed backup helper was null, even though backup" +
-                        " is enabled. Ensure that its passed in.")
+                    " is enabled. Ensure that its passed in.")
             }
             restoreDatabase(tempDbFileName, databaseDefinition.databaseFileName)
             backupHelper.database
         }
     }
+
+    override val delegate: DatabaseHelperDelegate = this
 
     /**
      * @param databaseCallback Listens for operations the DB and allow you to provide extra
@@ -99,7 +101,9 @@ class DatabaseHelperDelegate(
         val dbPath = context.getDatabasePath(databaseName)
 
         // If the database already exists, and is ok return
-        if (dbPath.exists() && (!databaseDefinition.areConsistencyChecksEnabled() || databaseDefinition.areConsistencyChecksEnabled() && isDatabaseIntegrityOk(writableDatabase))) {
+        if (dbPath.exists()
+            && (!databaseDefinition.areConsistencyChecksEnabled()
+                || (databaseDefinition.areConsistencyChecksEnabled() && isDatabaseIntegrityOk(database)))) {
             return
         }
 
@@ -110,13 +114,12 @@ class DatabaseHelperDelegate(
         try {
             // check existing and use that as backup
             val existingDb = context.getDatabasePath(tempDbFileName)
-            val inputStream: InputStream
             // if it exists and the integrity is ok we use backup as the main DB is no longer valid
-            inputStream = if (existingDb.exists()
-                    && (!databaseDefinition.backupEnabled() ||
-                            (databaseDefinition.backupEnabled()
-                                    && backupHelper != null
-                                    && isDatabaseIntegrityOk(backupHelper.database)))) {
+            val inputStream = if (existingDb.exists()
+                && (!databaseDefinition.backupEnabled() ||
+                    (databaseDefinition.backupEnabled()
+                        && backupHelper != null
+                        && isDatabaseIntegrityOk(backupHelper.database)))) {
                 FileInputStream(existingDb)
             } else {
                 context.assets.open(prepackagedName)
@@ -124,6 +127,44 @@ class DatabaseHelperDelegate(
             writeDB(dbPath, inputStream)
         } catch (e: IOException) {
             FlowLog.log(FlowLog.Level.W, "Failed to open file", e)
+        }
+
+    }
+
+
+    /**
+     * Will use the already existing app database if [DBFlowDatabase.backupEnabled] is true. If the existing
+     * is not there we will try to use the prepackaged database for that purpose.
+     *
+     * @param databaseName    The name of the database to restore
+     * @param prepackagedName The name of the prepackaged db file
+     */
+    fun restoreDatabase(databaseName: String, prepackagedName: String) {
+        val dbPath = context.getDatabasePath(databaseName)
+
+        // If the database already exists, return
+        if (dbPath.exists()) {
+            return
+        }
+
+        // Make sure we have a path to the file
+        dbPath.parentFile.mkdirs()
+
+        // Try to copy database file
+        try {
+            // check existing and use that as backup
+            val existingDb = context.getDatabasePath(databaseDefinition.databaseFileName)
+            // if it exists and the integrity is ok
+            val inputStream = if (existingDb.exists()
+                && (databaseDefinition.backupEnabled() && backupHelper != null
+                    && isDatabaseIntegrityOk(backupHelper.database))) {
+                FileInputStream(existingDb)
+            } else {
+                context.assets.open(prepackagedName)
+            }
+            writeDB(dbPath, inputStream)
+        } catch (e: IOException) {
+            FlowLog.logError(e)
         }
 
     }
@@ -137,10 +178,7 @@ class DatabaseHelperDelegate(
      */
     fun isDatabaseIntegrityOk(databaseWrapper: DatabaseWrapper): Boolean {
         var integrityOk = true
-
-        var statement: DatabaseStatement? = null
-        try {
-            statement = databaseWrapper.compileStatement("PRAGMA quick_check(1)")
+        databaseWrapper.compileStatement("PRAGMA quick_check(1)").use { statement ->
             val result = statement.simpleQueryForString()
             if (result == null || !result.equals("ok", ignoreCase = true)) {
                 // integrity_checker failed on main or attached databases
@@ -149,10 +187,6 @@ class DatabaseHelperDelegate(
                 if (databaseDefinition.backupEnabled()) {
                     integrityOk = restoreBackUp()
                 }
-            }
-        } finally {
-            if (statement != null) {
-                statement.close()
             }
         }
         return integrityOk
@@ -204,54 +238,19 @@ class DatabaseHelperDelegate(
         existingDB.close()
     }
 
-    /**
-     * Will use the already existing app database if [DBFlowDatabase.backupEnabled] is true. If the existing
-     * is not there we will try to use the prepackaged database for that purpose.
-     *
-     * @param databaseName    The name of the database to restore
-     * @param prepackagedName The name of the prepackaged db file
-     */
-    fun restoreDatabase(databaseName: String, prepackagedName: String) {
-        val dbPath = context.getDatabasePath(databaseName)
-
-        // If the database already exists, return
-        if (dbPath.exists()) {
-            return
-        }
-
-        // Make sure we have a path to the file
-        dbPath.parentFile.mkdirs()
-
-        // Try to copy database file
-        try {
-            // check existing and use that as backup
-            val existingDb = context.getDatabasePath(databaseDefinition.databaseFileName)
-            val inputStream: InputStream
-            // if it exists and the integrity is ok
-            inputStream = if (existingDb.exists()
-                    && (databaseDefinition.backupEnabled() && backupHelper != null
-                            && isDatabaseIntegrityOk(backupHelper.database))) {
-                FileInputStream(existingDb)
-            } else {
-                context.assets.open(prepackagedName)
-            }
-            writeDB(dbPath, inputStream)
-        } catch (e: IOException) {
-            FlowLog.logError(e)
-        }
+    private fun checkDBVersion() {
 
     }
-
 
     /**
      * Saves the database as a backup on the [DefaultTransactionQueue].
      * This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      */
-    fun backupDB() {
+    override fun backupDB() {
         if (!databaseDefinition.backupEnabled() || !databaseDefinition.areConsistencyChecksEnabled()) {
             throw IllegalStateException("Backups are not enabled for : " +
-                    "${databaseDefinition.databaseName}. Please consider adding both backupEnabled " +
-                    "and consistency checks enabled to the Database annotation")
+                "${databaseDefinition.databaseName}. Please consider adding both backupEnabled " +
+                "and consistency checks enabled to the Database annotation")
         }
 
         databaseDefinition.beginTransactionAsync {
@@ -286,6 +285,6 @@ class DatabaseHelperDelegate(
         val TEMP_DB_NAME = "temp-"
 
         fun getTempDbFileName(databaseDefinition: DBFlowDatabase): String =
-                "$TEMP_DB_NAME${databaseDefinition.databaseName}.db"
+            "$TEMP_DB_NAME${databaseDefinition.databaseName}.db"
     }
 }
