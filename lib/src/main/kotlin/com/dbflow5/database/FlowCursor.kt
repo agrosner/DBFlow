@@ -13,7 +13,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
     override fun getWrappedCursor(): Cursor = cursor
 
     fun getStringOrDefault(index: Int, defValue: String): String {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getString(index)
         } else {
             defValue
@@ -24,7 +24,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getStringOrDefault(cursor.getColumnIndex(columnName))
 
     fun getStringOrDefault(index: Int): String? {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getString(index)
         } else {
             null
@@ -38,7 +38,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getIntOrDefault(cursor.getColumnIndex(columnName))
 
     fun getIntOrDefault(index: Int): Int {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getInt(index)
         } else {
             0
@@ -46,7 +46,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
     }
 
     fun getIntOrDefault(index: Int, defValue: Int): Int {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getInt(index)
         } else {
             defValue
@@ -57,7 +57,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getIntOrDefault(cursor.getColumnIndex(columnName), defValue)
 
     fun getIntOrDefault(index: Int, defValue: Int?): Int? {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getInt(index)
         } else {
             defValue
@@ -68,7 +68,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getIntOrDefault(cursor.getColumnIndex(columnName), defValue)
 
     fun getDoubleOrDefault(index: Int, defValue: Double): Double {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getDouble(index)
         } else {
             defValue
@@ -79,7 +79,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getDoubleOrDefault(cursor.getColumnIndex(columnName))
 
     fun getDoubleOrDefault(index: Int): Double {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getDouble(index)
         } else {
             0.0
@@ -90,7 +90,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getDoubleOrDefault(cursor.getColumnIndex(columnName), defValue)
 
     fun getDoubleOrDefault(index: Int, defValue: Double?): Double? {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getDouble(index)
         } else {
             defValue
@@ -101,7 +101,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getDoubleOrDefault(cursor.getColumnIndex(columnName), defValue)
 
     fun getFloatOrDefault(index: Int, defValue: Float): Float {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getFloat(index)
         } else {
             defValue
@@ -112,7 +112,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getFloatOrDefault(cursor.getColumnIndex(columnName))
 
     fun getFloatOrDefault(index: Int): Float {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getFloat(index)
         } else {
             0f
@@ -123,7 +123,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getFloatOrDefault(cursor.getColumnIndex(columnName), defValue)
 
     fun getFloatOrDefault(index: Int, defValue: Float?): Float? {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getFloat(index)
         } else {
             defValue
@@ -134,7 +134,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getFloatOrDefault(cursor.getColumnIndex(columnName), defValue)
 
     fun getLongOrDefault(index: Int, defValue: Long): Long {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getLong(index)
         } else {
             defValue
@@ -145,7 +145,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getLongOrDefault(cursor.getColumnIndex(columnName))
 
     fun getLongOrDefault(index: Int): Long {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getLong(index)
         } else {
             0
@@ -156,7 +156,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getLongOrDefault(cursor.getColumnIndex(columnName), defValue)
 
     fun getLongOrDefault(index: Int, defValue: Long?): Long? {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getLong(index)
         } else {
             defValue
@@ -167,7 +167,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getLongOrDefault(cursor.getColumnIndex(columnName), defValue)
 
     fun getShortOrDefault(index: Int, defValue: Short): Short {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getShort(index)
         } else {
             defValue
@@ -178,7 +178,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getShortOrDefault(cursor.getColumnIndex(columnName))
 
     fun getShortOrDefault(index: Int): Short {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getShort(index)
         } else {
             0
@@ -189,7 +189,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getShortOrDefault(cursor.getColumnIndex(columnName), defValue)
 
     fun getShortOrDefault(index: Int, defValue: Short?): Short? {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getShort(index)
         } else {
             defValue
@@ -203,7 +203,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getBlobOrDefault(cursor.getColumnIndex(columnName))
 
     fun getBlobOrDefault(index: Int): ByteArray? {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getBlob(index)
         } else {
             null
@@ -211,7 +211,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
     }
 
     fun getBlobOrDefault(index: Int, defValue: ByteArray): ByteArray {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             cursor.getBlob(index)
         } else {
             defValue
@@ -222,7 +222,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getBlobOrDefault(cursor.getColumnIndex(columnName), defValue)
 
     fun getBooleanOrDefault(index: Int, defValue: Boolean): Boolean {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             getBoolean(index)
         } else {
             defValue
@@ -233,7 +233,7 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         getBooleanOrDefault(cursor.getColumnIndex(columnName))
 
     fun getBooleanOrDefault(index: Int): Boolean {
-        return if (index != -1 && !cursor.isNull(index)) {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
             getBoolean(index)
         } else {
             false
@@ -246,6 +246,8 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
     fun getBoolean(index: Int): Boolean = cursor.getInt(index) == 1
 
     companion object {
+
+        const val COLUMN_NOT_FOUND = -1
 
         @JvmStatic
         fun from(cursor: Cursor): FlowCursor = cursor as? FlowCursor ?: FlowCursor(cursor)
