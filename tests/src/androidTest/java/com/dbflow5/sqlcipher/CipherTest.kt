@@ -1,30 +1,38 @@
 package com.dbflow5.sqlcipher
 
-import com.dbflow5.BaseUnitTest
+import com.dbflow5.DBFlowInstrumentedTestRule
+import com.dbflow5.DemoApp
 import com.dbflow5.config.database
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
 import org.junit.Assert.assertTrue
+import org.junit.Rule
 import org.junit.Test
 
 /**
  * Description: Ensures we can use SQLCipher
  */
-class CipherTest : BaseUnitTest() {
+class CipherTest {
+
+    @JvmField
+    @Rule
+    var dblflowTestRule = DBFlowInstrumentedTestRule.create {
+        database<CipherDatabase>(openHelperCreator = SQLCipherOpenHelper.createHelperCreator(DemoApp.context, "dbflow-rules"))
+    }
 
     @Test
     fun testCipherModel() {
-        database(CipherDatabase::class) { t ->
-            (delete() from CipherModel::class).execute(t)
+        database<CipherDatabase> { db ->
+            (delete() from CipherModel::class).execute(db)
             val model = CipherModel(name = "name")
-            model.save(t)
-            assertTrue(model.exists(t))
+            model.save(db)
+            assertTrue(model.exists(db))
 
             val retrieval = (select from CipherModel::class
                 where CipherModel_Table.name.eq("name"))
-                .querySingle(t)
+                .querySingle(db)
             assertTrue(retrieval!!.id == model.id)
-            (delete() from CipherModel::class).execute(t)
+            (delete() from CipherModel::class).execute(db)
         }
     }
 }

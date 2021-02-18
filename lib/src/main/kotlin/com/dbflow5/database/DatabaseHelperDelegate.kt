@@ -125,6 +125,7 @@ class DatabaseHelperDelegate(
                 context.assets.open(prepackagedName)
             }
             writeDB(dbPath, inputStream)
+            databaseDefinition.reopen()
         } catch (e: IOException) {
             FlowLog.log(FlowLog.Level.W, "Failed to open file", e)
         }

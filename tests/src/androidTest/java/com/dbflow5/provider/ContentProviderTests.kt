@@ -1,23 +1,32 @@
 package com.dbflow5.provider
 
 import android.content.ContentResolver
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.provider.ProviderTestRule
-import com.dbflow5.BaseUnitTest
+import com.dbflow5.DBFlowInstrumentedTestRule
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.database
+import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.query.select
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 
 /**
  * Description:
  */
-class ContentProviderTests : BaseUnitTest() {
+class ContentProviderTests {
+
+    @JvmField
+    @Rule
+    var dblflowTestRule = DBFlowInstrumentedTestRule.create {
+        database<ContentDatabase>({
+            databaseName("content")
+        }, AndroidSQLiteOpenHelper.createHelperCreator(ApplicationProvider.getApplicationContext()))
+    }
 
     @get:Rule
     val contentProviderRule = ProviderTestRule.Builder(TestContentProvider_Provider::class.java, TestContentProvider.AUTHORITY).build()
