@@ -25,7 +25,9 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
         executeTableCreations(db)
 
         // execute any initial migrations when DB is first created.
-        executeMigrations(db, -1, db.version)
+        // use the databaseversion of the definition, since onupgrade is not called oncreate on a version 0
+        // then SQLCipher and Android set the DB to that version you choose.
+        executeMigrations(db, -1, databaseDefinition.databaseVersion)
 
         // views reflect current db state.
         executeViewCreations(db)

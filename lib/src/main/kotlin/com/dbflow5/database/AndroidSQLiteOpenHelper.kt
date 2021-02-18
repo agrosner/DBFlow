@@ -11,25 +11,25 @@ import com.dbflow5.config.OpenHelperCreator
  */
 open class AndroidSQLiteOpenHelper(
     private val context: Context,
-    databaseDefinition: DBFlowDatabase,
+    dbFlowDatabase: DBFlowDatabase,
     listener: DatabaseCallback?,
-    private val databaseHelperDelegate: DatabaseHelperDelegate = DatabaseHelperDelegate(context, listener, databaseDefinition,
-        if (databaseDefinition.backupEnabled()) {
+    private val databaseHelperDelegate: DatabaseHelperDelegate = DatabaseHelperDelegate(context, listener, dbFlowDatabase,
+        if (dbFlowDatabase.backupEnabled()) {
             // Temp database mirrors existing
             BackupHelper(context,
-                DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                databaseDefinition.databaseVersion, databaseDefinition)
+                DatabaseHelperDelegate.getTempDbFileName(dbFlowDatabase),
+                dbFlowDatabase.databaseVersion, dbFlowDatabase)
         } else null),
 ) : SQLiteOpenHelper(
     context,
-    if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
+    if (dbFlowDatabase.isInMemory) null else dbFlowDatabase.databaseFileName,
     null,
-    databaseDefinition.databaseVersion,
+    dbFlowDatabase.databaseVersion,
 ), OpenHelper, OpenHelperDelegate by databaseHelperDelegate {
 
 
     private var androidDatabase: AndroidDatabase? = null
-    private val _databaseName = databaseDefinition.databaseFileName
+    private val _databaseName = dbFlowDatabase.databaseFileName
 
     override val database: DatabaseWrapper
         get() {
