@@ -133,21 +133,20 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     internal var writeAheadLoggingEnabled = false
 
-    val openHelper: OpenHelper
-        @Synchronized get() {
-            var helper = _openHelper
-            if (helper == null) {
-                val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
-                helper = if (config?.openHelperCreator != null) {
-                    config.openHelperCreator.createHelper(this, internalCallback)
-                } else {
-                    AndroidSQLiteOpenHelper(FlowManager.context, this, internalCallback)
-                }
-                onOpenWithConfig(config, helper)
+    val openHelper: OpenHelper by lazy {
+        var helper = _openHelper
+        if (helper == null) {
+            val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
+            helper = if (config?.openHelperCreator != null) {
+                config.openHelperCreator.createHelper(this, internalCallback)
+            } else {
+                AndroidSQLiteOpenHelper(FlowManager.context, this, internalCallback)
             }
-            _openHelper = helper
-            return helper
+            onOpenWithConfig(config, helper)
         }
+        _openHelper = helper
+        return@lazy helper
+    }
 
     private fun onOpenWithConfig(config: DatabaseConfig?, helper: OpenHelper) {
         helper.performRestoreFromBackup()
