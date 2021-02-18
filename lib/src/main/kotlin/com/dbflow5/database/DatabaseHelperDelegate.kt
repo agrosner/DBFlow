@@ -238,10 +238,6 @@ class DatabaseHelperDelegate(
         existingDB.close()
     }
 
-    private fun checkDBVersion() {
-
-    }
-
     /**
      * Saves the database as a backup on the [DefaultTransactionQueue].
      * This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
