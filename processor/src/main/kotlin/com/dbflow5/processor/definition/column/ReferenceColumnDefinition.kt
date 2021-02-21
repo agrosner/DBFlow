@@ -358,8 +358,7 @@ private constructor(manager: ProcessorManager, tableDefinition: EntityDefinition
     override fun appendPropertyComparisonAccessStatement(codeBuilder: CodeBlock.Builder) {
         when {
             nonModelColumn -> PrimaryReferenceAccessCombiner(combiner).apply {
-                checkNeedsReferences()
-                codeBuilder.addCode(references[0].columnName, getDefaultValueBlock(), 0, modelBlock)
+                codeBuilder.addCode(referenceDefinitionList[0].columnName, getDefaultValueBlock(), 0, modelBlock)
             }
             columnAccessor is TypeConverterScopeColumnAccessor -> super.appendPropertyComparisonAccessStatement(codeBuilder)
             else -> referencedClassName?.let { _ ->
