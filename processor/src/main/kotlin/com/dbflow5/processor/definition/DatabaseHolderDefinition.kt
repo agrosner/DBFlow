@@ -3,6 +3,7 @@ package com.dbflow5.processor.definition
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.DatabaseHandler
 import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.utils.rawTypeName
 import com.grosner.kpoet.`public final class`
 import com.grosner.kpoet.constructor
 import com.grosner.kpoet.extends
@@ -40,11 +41,14 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
 
             processorManager.getTypeConverters().forEach { tc ->
                 statement("\$L.put(\$T.class, new \$T())",
-                    DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, tc.modelTypeName, tc.className)
+                    DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME,
+                    tc.modelTypeName?.rawTypeName(),
+                    tc.className)
 
                 tc.allowedSubTypes.forEach { subType ->
                     statement("\$L.put(\$T.class, new \$T())",
-                        DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME, subType, tc.className)
+                        DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME,
+                        subType.rawTypeName(), tc.className)
                 }
             }
 

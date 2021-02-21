@@ -2,6 +2,7 @@ package com.dbflow5.processor.utils
 
 import com.dbflow5.processor.ProcessorManager
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
@@ -42,4 +43,11 @@ fun Element?.toClassName(manager: ProcessorManager = ProcessorManager.manager): 
 }
 
 fun TypeName?.isOneOf(vararg kClass: KClass<*>): Boolean = this?.let { kClass.any { clazz -> TypeName.get(clazz.java) == this } }
-        ?: false
+    ?: false
+
+fun TypeName.rawTypeName(): TypeName {
+    if (this is ParameterizedTypeName) {
+        return rawType
+    }
+    return this
+}
