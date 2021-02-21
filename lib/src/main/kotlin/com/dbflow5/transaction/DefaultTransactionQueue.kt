@@ -42,8 +42,10 @@ class DefaultTransactionQueue
                 continue
             }
 
-            if (!isQuitting) {
-                transaction.executeSync()
+            synchronized(this) {
+                if (!isQuitting) {
+                    transaction.executeSync()
+                }
             }
         }
     }
