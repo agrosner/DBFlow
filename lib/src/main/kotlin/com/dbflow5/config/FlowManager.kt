@@ -394,14 +394,6 @@ object FlowManager {
         getDatabaseForTable(modelClass).getQueryModelAdapterForQueryClass(modelClass)
 
     /**
-     * @param databaseName The name of the database. Will throw an exception if the databaseForTable doesn't exist.
-     * @return The map of migrations for the specified database.
-     */
-    @JvmStatic
-    internal fun getMigrations(databaseName: String): Map<Int, List<Migration>> =
-        getDatabase(databaseName).migrations
-
-    /**
      * Checks a standard database helper for integrity using quick_check(1).
      *
      * @param databaseName The name of the database to check. Will thrown an exception if it does not exist.
