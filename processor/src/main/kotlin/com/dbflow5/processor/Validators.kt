@@ -204,7 +204,8 @@ class TableValidator : Validator<TableDefinition> {
 
         if (!validatorDefinition.hasPrimaryConstructor) {
             processorManager.logError(TableValidator::class, "Table ${validatorDefinition.elementClassName}" +
-                " must provide a visible, default constructor.")
+                " must provide a visible, parameterless constructor. Each field also must have a visible " +
+                "setter for now.")
             success = false
         }
 
