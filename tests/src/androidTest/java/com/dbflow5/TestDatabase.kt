@@ -18,7 +18,12 @@ import com.dbflow5.models.SimpleModel
 abstract class TestDatabase : DBFlowDatabase() {
 
     @Migration(version = 1, database = TestDatabase::class, priority = 5)
-    class TestMigration : UpdateTableMigration<SimpleModel>(SimpleModel::class.java)
+    class TestMigration : UpdateTableMigration<SimpleModel>(SimpleModel::class.java) {
+        override fun onPreMigrate() {
+            super.onPreMigrate()
+            set(SimpleModel_Table.name.eq("Test")).where(SimpleModel_Table.name.eq("Test1"))
+        }
+    }
 
     @Migration(version = 1, database = TestDatabase::class, priority = 1)
     class SecondMigration : BaseMigration() {
