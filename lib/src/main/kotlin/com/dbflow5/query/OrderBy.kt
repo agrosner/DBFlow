@@ -10,7 +10,10 @@ import com.dbflow5.sql.Query
 class OrderBy
 @JvmOverloads
 constructor(private val column: NameAlias? = null,
-            private var isAscending: Boolean = false) : Query {
+            /**
+             * If true, append ASC, if false append DESC, or if null, then don't append.
+             */
+            private var isAscending: Boolean? = true) : Query {
 
     private var collation: Collate? = null
     private var orderByString: String?
@@ -20,17 +23,21 @@ constructor(private val column: NameAlias? = null,
             val locOrderByString = orderByString
             return if (locOrderByString == null) {
                 val query = StringBuilder()
-                    .append(column)
-                    .append(" ")
+                        .append(column)
+                        .append(" ")
                 if (collation != null) {
                     query.append("COLLATE $collation ")
                 }
-                query.append(if (isAscending) ASCENDING else DESCENDING)
+                isAscending?.let { isAscending ->
+                    query.append(if (isAscending) ASCENDING else DESCENDING)
+                }
                 query.toString()
             } else {
                 locOrderByString
             }
         }
+
+    internal constructor(property: IProperty<*>) : this(property.nameAlias)
 
     internal constructor(orderByString: String) : this(column = null) {
         this.orderByString = orderByString
@@ -48,7 +55,7 @@ constructor(private val column: NameAlias? = null,
         isAscending = false
     }
 
-    fun collate(collate: Collate) = apply {
+    infix fun collate(collate: Collate) = apply {
         this.collation = collate
     }
 
@@ -56,21 +63,29 @@ constructor(private val column: NameAlias? = null,
 
     companion object {
 
-        @JvmField
-        val ASCENDING = "ASC"
+        const val ASCENDING = "ASC"
 
-        @JvmField
-        val DESCENDING = "DESC"
+        const val DESCENDING = "DESC"
 
         @JvmStatic
-        fun fromProperty(property: IProperty<*>): OrderBy = OrderBy(property.nameAlias)
+        fun fromProperty(property: IProperty<*>, isAscending: Boolean = true): OrderBy =
+                OrderBy(property.nameAlias,
+                        // if we use RANDOM(), leave out ascending qualifier as its not valid SQLite.
+                        if (property == random) {
+                            null
+                        } else isAscending)
 
         @JvmStatic
-        fun fromNameAlias(nameAlias: NameAlias): OrderBy = OrderBy(nameAlias)
+        fun fromNameAlias(nameAlias: NameAlias, isAscending: Boolean = true): OrderBy =
+                OrderBy(nameAlias, isAscending)
+
+        /**
+         * Starts an [OrderBy] with RANDOM() query.
+         */
+        fun random(): OrderBy = OrderBy(random.nameAlias, isAscending = null)
 
         @JvmStatic
         fun fromString(orderByString: String): OrderBy = OrderBy(orderByString)
+
     }
 }
-
-infix fun OrderBy.collate(collate: Collate) = collate(collate)

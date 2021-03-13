@@ -20,12 +20,6 @@ annotation class Database(
          * @return The current version of the DB. Increment it to trigger a DB update.
          */
         val version: Int,
-        @Deprecated("use DatabaseConfig.databaseName() to change the name.")
-        val name: String = "",
-        @Deprecated("use DatabaseConfig.extension() to change the extension.")
-        val databaseExtension: String = "",
-        @Deprecated("use DatabaseConfig.inMemoryBuilder() instead.")
-        val inMemory: Boolean = false,
         /**
          * @return If true, SQLite will throw exceptions when [ForeignKey] constraints are not respected.
          * Default is false and will not throw exceptions.

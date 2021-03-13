@@ -4,9 +4,17 @@ import androidx.annotation.IntDef
 import com.dbflow5.database.DatabaseWrapper
 
 /**
+ * Constructs a [PriorityTransactionWrapper] from an [ITransaction] specifying the priority.
+ */
+fun ITransaction<*>.withPriority(@PriorityTransactionWrapper.Priority
+                                 priority: Int = PriorityTransactionWrapper.PRIORITY_NORMAL): PriorityTransactionWrapper =
+        PriorityTransactionWrapper(this, priority)
+
+/**
  * Description: Provides transaction with priority. Meant to be used in a [PriorityTransactionQueue].
  */
-class PriorityTransactionWrapper(private val priority: Int, private val transaction: ITransaction<*>)
+class PriorityTransactionWrapper(private val transaction: ITransaction<*>,
+                                 private val priority: Int = PriorityTransactionWrapper.PRIORITY_NORMAL)
     : ITransaction<Unit>, Comparable<PriorityTransactionWrapper> {
 
     @Suppress("RemoveEmptyPrimaryConstructor")
@@ -14,32 +22,11 @@ class PriorityTransactionWrapper(private val priority: Int, private val transact
     @IntDef(PRIORITY_LOW, PRIORITY_NORMAL, PRIORITY_HIGH, PRIORITY_UI)
     annotation class Priority()
 
-    internal constructor(builder: Builder) : this(
-            priority = if (builder.priority == 0) {
-                PRIORITY_NORMAL
-            } else {
-                builder.priority
-            },
-            transaction = builder.transaction)
-
     override fun execute(databaseWrapper: DatabaseWrapper) {
         transaction.execute(databaseWrapper)
     }
 
     override fun compareTo(other: PriorityTransactionWrapper): Int = other.priority - priority
-
-    class Builder(internal val transaction: ITransaction<*>) {
-        internal var priority: Int = 0
-
-        /**
-         * Sets a [Priority] that orders this transaction.
-         */
-        fun priority(@Priority priority: Int) = apply {
-            this.priority = priority
-        }
-
-        fun build(): PriorityTransactionWrapper = PriorityTransactionWrapper(this)
-    }
 
     companion object {
 

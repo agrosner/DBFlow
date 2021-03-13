@@ -25,7 +25,7 @@ To learn more about what you can configure in a database, read [here](usage2/usa
 
 ## Initialize FlowManager
 
-DBFlow needs an instance of `Context` in order to use it for a few features such as reading from assets, content observing, and generating `ContentProvider`.
+DBFlow currently needs an instance of `Context` in order to use it for a few features such as reading from assets, content observing, and generating `ContentProvider`.
 
 Initialize in your `Application` subclass. You can also initialize it from other `Context` but we always grab the `Application` `Context` \(this is done only once\).
 
@@ -87,7 +87,7 @@ If you do not like the built-in `DefaultTransactionManager`, or just want to rol
 ```kotlin
 FlowManager.init(FlowConfig.builder(this)
     .database(DatabaseConfig.builder(AppDatabase::class)
-            .transactionManager(CustomTransactionManager())
+            .transactionManagerCreator { db -> CustomTransactionManager(db))
           .build()))
 ```
 
@@ -97,7 +97,7 @@ You can define different kinds for each database. To read more on transactions a
 
 Creating models are as simple as defining the model class, and adding the `@Table` annotation. To read more on this, read [here](usage2/usage/models.md).
 
-**For now**: Models must provide a default, parameterless constructor. An example:
+**For now**: Models must provide a default, parameterless constructor. Also, all fields must be mutable \(currently, we hope to evolve this requirement in the near future\). An example:
 
 ```kotlin
 @Table(database = TestDatabase::class)
@@ -137,36 +137,84 @@ public class Currency {
 }
 ```
 
-## Perform Some Queries
+## Build Your DAO
+
+Set up a DAO \(Data Access Object\) to help you interact with your database. Using dependency injection and service locating, we can build better, highly testable code. While not required to use DBFlow, it is **highly** recommended utilize this approach.
+
+With kotlin, we can utilize it in a powerful way:
+
+```kotlin
+/**
+*  Create this class in your own database module.
+*/
+interface DBProvider<out T: DBFlowDatabase> {
+
+  val database: T
+
+}
+
+interface CurrencyDAO : DBProvider<AppDatabase> {
+
+  /**
+   *  Utilize coroutines package
+   */
+  fun coroutineRetrieveUSD(): Deferred<MutableList<Currency>> =
+          database.beginTransactionAsync {
+              (select from Currency::class
+                      where (Currency_Table.symbol eq "$")).queryList(it)
+          }.defer()
+
+  /**
+   *  Utilize RXJava2 package.
+   * Also can use asMaybe(), or asFlowable() (to register for changes and continue listening)
+   */
+  fun rxRetrieveUSD(): Single<MutableList<Currency>> =
+          database.beginTransactionAsync {
+              (select from Currency::class
+                      where (Currency_Table.symbol eq "$"))
+                      .queryList(it)
+          }.asSingle()
+
+    /**
+     *  Utilize Vanilla Transactions.
+     */
+    fun retrieveUSD(): Transaction.Builder<MutableList<Currency>> =
+            database.beginTransactionAsync {
+                (select from Currency::class
+                        where (Currency_Table.symbol eq "$"))
+                        .queryList(it)
+            }
+
+    /**
+     *  Utilize Paging Library from paging artifact.
+     */
+    fun pagingRetrieveUSD(): QueryDataSource.Factory<Currency, Where<Currency>> = (select from Currency::class
+            where (Currency_Table.symbol eq "$"))
+            .toDataSourceFactory(database)
+
+}
+```
 
 DBFlow uses expressive builders to represent and translate to the SQLite language.
 
-A simple query in SQLite:
+We can represent the query above in SQLite:
 
 ```text
 SELECT * FROM Currency WHERE symbol='$';
 ```
 
-DBFlow Kotlin \(by using our `dbflow-coroutines` module\):
+Wherever we perform dependency injection we supply the instance:
 
 ```kotlin
-async {
-  database<AppDatabase>{
-    val list = awaitTransact(
-      select from Currency::class
-      where (symbol eq "$")) { list }
-
-    // use the objects here
-  }
+fun provideCurrencyDAO(db: AppDatabase) = object : CurrencyDAO {
+    override val database: AppDatabase = db
 }
 ```
 
-or in Java with fluent syntax
+Then in our `ViewModel`, we can inject it via the constructor and utilize it in our queries:
 
-```java
-SQLite.select(FlowManager.getDatabase(AppDatabase.class))
-  .from(Currency.class)
-  .where(Currency_Table.symbol.eq("$"));
+```kotlin
+class SampleViewModel(private currencyDAO: CurrencyDAO)
 ```
 
 We support many kinds of complex and complicated queries using the builder language. To read more about this, see [the wrapper language docs](usage2/usage/sqlitewrapperlanguage.md)

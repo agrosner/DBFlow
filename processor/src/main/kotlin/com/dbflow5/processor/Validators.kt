@@ -45,18 +45,22 @@ class ColumnValidator : Validator<ColumnDefinition> {
         // validate getter and setters.
         if (validatorDefinition.columnAccessor is PrivateScopeColumnAccessor) {
             val privateColumnAccess = validatorDefinition.columnAccessor as PrivateScopeColumnAccessor
-            if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getterNameElement)) {
+            if (!validatorDefinition.entityDefinition.classElementLookUpMap.containsKey(privateColumnAccess.getterNameElement)) {
                 processorManager.logError(ColumnValidator::class,
-                    "Could not find getter for private element: " + "\"%1s\" from table class: %1s. Consider adding a getter with name %1s or making it more accessible.",
-                    validatorDefinition.elementName, validatorDefinition.baseTableDefinition.elementName,
-                    privateColumnAccess.getterNameElement)
+                    """Could not find getter for private element: "${validatorDefinition.elementName}"
+                            | from table class: ${validatorDefinition.entityDefinition.elementName}.
+                            | Consider adding a getter with name ${privateColumnAccess.getterNameElement},
+                            |  making it more accessible, or adding a @get:JvmName("${privateColumnAccess.getterNameElement}") """
+                        .trimMargin())
                 success = false
             }
-            if (!validatorDefinition.baseTableDefinition.classElementLookUpMap.containsKey(privateColumnAccess.setterNameElement)) {
+            if (!validatorDefinition.entityDefinition.classElementLookUpMap.containsKey(privateColumnAccess.setterNameElement)) {
                 processorManager.logError(ColumnValidator::class,
-                    "Could not find setter for private element: \"${validatorDefinition.elementName}\"" +
-                        " from table class: ${validatorDefinition.baseTableDefinition.elementName}. " +
-                        "Consider adding a setter with name ${privateColumnAccess.setterNameElement} or making it more accessible.")
+                    """Could not find setter for private element: "${validatorDefinition.elementName}"
+                            | from table class: ${validatorDefinition.entityDefinition.elementName}.
+                            | Consider adding a setter with name ${privateColumnAccess.setterNameElement},
+                            | making it more accessible, or adding a @set:JvmName("${privateColumnAccess.setterNameElement}")."""
+                        .trimMargin())
                 success = false
             }
         }
@@ -69,20 +73,20 @@ class ColumnValidator : Validator<ColumnDefinition> {
             } else if (typeName?.isPrimitive == true) {
                 processorManager.logWarning(ColumnValidator::class.java,
                     "Default value of ${validatorDefinition.defaultValue} from" +
-                        " ${validatorDefinition.baseTableDefinition.elementName}.${validatorDefinition.elementName}" +
+                        " ${validatorDefinition.entityDefinition.elementName}.${validatorDefinition.elementName}" +
                         " is ignored for primitive columns.")
             }
         }
 
         if (validatorDefinition.columnName.isEmpty()) {
             success = false
-            processorManager.logError("Field %1s cannot have a null column name for column: %1s and type: %1s",
-                validatorDefinition.elementName, validatorDefinition.columnName,
-                validatorDefinition.elementTypeName)
+            processorManager.logError("Field ${validatorDefinition.elementName} " +
+                "cannot have a null column name for column: ${validatorDefinition.columnName}" +
+                " and type: ${validatorDefinition.elementTypeName}")
         }
 
         if (validatorDefinition.columnAccessor is EnumColumnAccessor) {
-            if (validatorDefinition.isPrimaryKey) {
+            if (validatorDefinition.type is ColumnDefinition.Type.Primary) {
                 success = false
                 processorManager.logError("Enums cannot be primary keys. Column: ${validatorDefinition.columnName}" +
                     " and type: ${validatorDefinition.elementTypeName}")
@@ -103,13 +107,23 @@ class ColumnValidator : Validator<ColumnDefinition> {
                 }
             }
 
+            // it is an error to specify both a not null and provide explicit references.
+            if (validatorDefinition.explicitReferences && validatorDefinition.notNull) {
+                success = false
+                processorManager.logError("Foreign Key ${validatorDefinition.elementName} " +
+                    "cannot specify both @NotNull and references. Remove the top-level @NotNull " +
+                    "and use the contained 'notNull' field " +
+                    "in each reference to control its SQL notnull conflicts.")
+            }
+
         } else {
-            if (autoIncrementingPrimaryKey != null && validatorDefinition.isPrimaryKey) {
+            if (autoIncrementingPrimaryKey != null && validatorDefinition.type is ColumnDefinition.Type.Primary) {
                 processorManager.logError("You cannot mix and match autoincrementing and composite primary keys.")
                 success = false
             }
 
-            if (validatorDefinition.isPrimaryKeyAutoIncrement || validatorDefinition.isRowId) {
+            if (validatorDefinition.type is ColumnDefinition.Type.PrimaryAutoIncrement
+                || validatorDefinition.type is ColumnDefinition.Type.RowId) {
                 if (autoIncrementingPrimaryKey == null) {
                     autoIncrementingPrimaryKey = validatorDefinition
                 } else if (autoIncrementingPrimaryKey != validatorDefinition) {
@@ -190,33 +204,36 @@ class TableValidator : Validator<TableDefinition> {
 
         if (!validatorDefinition.hasPrimaryConstructor) {
             processorManager.logError(TableValidator::class, "Table ${validatorDefinition.elementClassName}" +
-                " must provide a visible, default constructor.")
+                " must provide a visible, parameterless constructor. Each field also must have a visible " +
+                "setter for now.")
             success = false
         }
 
         if (validatorDefinition.columnDefinitions.isEmpty()) {
-            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.tableName} " +
+            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.associationalBehavior.name} " +
                 "of ${validatorDefinition.elementClassName}, ${validatorDefinition.element.javaClass} " +
                 "needs to define at least one column")
             success = false
         }
 
-        val hasTwoKinds = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID)
+        val hasTwoKinds = (validatorDefinition.primaryKeyColumnBehavior.hasAutoIncrement
+            || validatorDefinition.primaryKeyColumnBehavior.hasRowID)
             && !validatorDefinition._primaryColumnDefinitions.isEmpty()
 
         if (hasTwoKinds) {
-            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.tableName}" +
+            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.associationalBehavior.name}" +
                 " cannot mix and match autoincrement and composite primary keys")
             success = false
         }
 
-        val hasPrimary = (validatorDefinition.hasAutoIncrement || validatorDefinition.hasRowID)
+        val hasPrimary = (validatorDefinition.primaryKeyColumnBehavior.hasAutoIncrement
+            || validatorDefinition.primaryKeyColumnBehavior.hasRowID)
             && validatorDefinition._primaryColumnDefinitions.isEmpty()
-            || !validatorDefinition.hasAutoIncrement && !validatorDefinition.hasRowID
+            || !validatorDefinition.primaryKeyColumnBehavior.hasAutoIncrement
+            && !validatorDefinition.primaryKeyColumnBehavior.hasRowID
             && !validatorDefinition._primaryColumnDefinitions.isEmpty()
-
-        if (!hasPrimary) {
-            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.tableName} " +
+        if (!hasPrimary && validatorDefinition.type == TableDefinition.Type.Normal) {
+            processorManager.logError(TableValidator::class, "Table ${validatorDefinition.associationalBehavior.name} " +
                 "needs to define at least one primary key")
             success = false
         }

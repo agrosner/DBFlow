@@ -18,11 +18,11 @@ import com.dbflow5.contentprovider.annotation.TableEndpoint
 @ContentProvider(authority = ContentDatabase.AUTHORITY, database = ContentDatabase::class,
         baseContentUri = ContentDatabase.BASE_CONTENT_URI)
 @Database(version = ContentDatabase.VERSION)
-abstract class ContentDatabase : DBFlowDatabase() {
+abstract class ContentDatabase : ContentProviderDatabase() {
     companion object {
         const val BASE_CONTENT_URI = "content://"
 
-        const val AUTHORITY = "com.raizlabs.android.content.test.ContentDatabase"
+        const val AUTHORITY = "com.grosner.content.test.ContentDatabase"
 
         const val VERSION = 1
     }

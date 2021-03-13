@@ -1,5 +1,6 @@
 package com.dbflow5.query.property
 
+import com.dbflow5.config.FlowManager
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.Operator
@@ -113,6 +114,18 @@ object PropertyFactory {
             .build())
     }
 
+
+    /**
+     * Creates a new type-parameterized [Property] from a [NameAlias] directly.
+     *
+     * @param nameAlias will not be copied. Rather used directly.
+     * @return [NameAlias] as a [Property]
+     */
+    @JvmStatic
+    fun from(nameAlias: NameAlias): Property<NameAlias> {
+        return Property(null, nameAlias)
+    }
+
     /**
      * Creates a new [Property] that is used to allow selects in a query.
      *
@@ -160,6 +173,9 @@ val Short.property
 val Byte.property
     get() = PropertyFactory.from(this)
 
+val NameAlias.property
+    get() = PropertyFactory.from(this)
+
 val <T : Any> T?.property
     get() = PropertyFactory.from(this)
 
@@ -169,3 +185,17 @@ val <T : Any> ModelQueriable<T>.property
 inline fun <reified T : Any> propertyString(stringRepresentation: String?) = PropertyFactory.from(T::class.java, stringRepresentation)
 
 inline fun <reified T : Any> KClass<T>.allProperty() = Property.allProperty(this.java)
+
+/**
+ * Convenience wrapper for creating a table name property used in queries.
+ */
+inline fun <reified T : Any> tableName() = propertyString<Any>(FlowManager.getTableName(T::class.java))
+
+/**
+ * For FTS tables, "docid" is allowed as an alias along with the usual "rowid", "oid" and "_oid_" identifiers.
+ * Attempting to insert or update a row with a docid value that already exists in the table is
+ * an error, just as it would be with an ordinary SQLite table.
+ * There is one other subtle difference between "docid" and the normal SQLite aliases for the rowid column.
+ * Normally, if an INSERT or UPDATE statement assigns discrete values to two or more aliases of the rowid column, SQLite writes the rightmost of such values specified in the INSERT or UPDATE statement to the database. However, assigning a non-NULL value to both the "docid" and one or more of the SQLite rowid aliases when inserting or updating an FTS table is considered an error. See below for an example.
+ */
+val docId: Property<Int> = propertyString("docid")

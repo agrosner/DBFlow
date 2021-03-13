@@ -14,8 +14,8 @@ The `@Database` annotation generates a `DatabaseDefinition` which now references
 ```java
 val db = database<AppDatabase>();
 
-// or 
-database<AppDatabase> { db -> 
+// or
+database<AppDatabase> { db ->
 
 }
 ```

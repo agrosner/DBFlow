@@ -1,10 +1,10 @@
 package com.dbflow5.processor.definition.column
 
-import com.grosner.kpoet.code
 import com.dbflow5.data.Blob
 import com.dbflow5.processor.utils.capitalizeFirstLetter
 import com.dbflow5.processor.utils.isNullOrEmpty
 import com.dbflow5.processor.utils.lower
+import com.grosner.kpoet.code
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.TypeName
@@ -94,9 +94,9 @@ class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSette
         get() = if (getterName.isNullOrEmpty()) {
             if (propertyName != null) {
                 if (useIsForPrivateBooleans && !propertyName.startsWith("is", ignoreCase = true)) {
-                    "is" + propertyName.capitalize()
-                } else if (!useIsForPrivateBooleans && !propertyName.startsWith("get", ignoreCase = true)) {
-                    "get" + propertyName.capitalize()
+                    "is${propertyName.capitalize()}"
+                } else if (!useIsForPrivateBooleans) {
+                    "get${propertyName.capitalize()}"
                 } else propertyName.lower()
             } else {
                 ""
@@ -113,8 +113,8 @@ class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSette
                     } else if (useIsForPrivateBooleans && setElementName.startsWith("Is")) {
                         setElementName = setElementName.replaceFirst("Is".toRegex(), "")
                     }
-                    "set" + setElementName.capitalize()
-                } else setElementName.lower()
+                    "set${setElementName.capitalize()}"
+                } else "set${setElementName.capitalize()}"
             } else setterName
         } else ""
 
@@ -127,15 +127,15 @@ class PrivateScopeColumnAccessor(propertyName: String, getterSetter: GetterSette
 }
 
 class PackagePrivateScopeColumnAccessor(
-        propertyName: String, packageName: String, separator: String?, tableClassName: String)
+    propertyName: String, packageName: String, tableClassName: String)
     : ColumnAccessor(propertyName) {
 
     val helperClassName: ClassName
     val internalHelperClassName: ClassName
 
     init {
-        helperClassName = ClassName.get(packageName, "$tableClassName$separator$classSuffix")
-        internalHelperClassName = ClassName.get(packageName, "$tableClassName$separator$classSuffix")
+        helperClassName = ClassName.get(packageName, "${tableClassName}_$classSuffix")
+        internalHelperClassName = ClassName.get(packageName, "${tableClassName}_$classSuffix")
     }
 
     override fun get(existingBlock: CodeBlock?): CodeBlock {

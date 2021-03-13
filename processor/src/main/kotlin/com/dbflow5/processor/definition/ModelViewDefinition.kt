@@ -1,109 +1,89 @@
 package com.dbflow5.processor.definition
 
+import com.dbflow5.annotation.Column
+import com.dbflow5.annotation.ColumnMap
+import com.dbflow5.annotation.ModelView
+import com.dbflow5.annotation.ModelViewQuery
+import com.dbflow5.processor.ClassNames
+import com.dbflow5.processor.ColumnValidator
+import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.definition.behavior.AssociationalBehavior
+import com.dbflow5.processor.definition.behavior.CreationQueryBehavior
+import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
+import com.dbflow5.processor.definition.column.ColumnDefinition
+import com.dbflow5.processor.utils.ElementUtility
+import com.dbflow5.processor.utils.`override fun`
+import com.dbflow5.processor.utils.annotation
+import com.dbflow5.processor.utils.ensureVisibleStatic
+import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
+import com.dbflow5.processor.utils.implementsClass
+import com.dbflow5.processor.utils.isNullOrEmpty
+import com.dbflow5.processor.utils.simpleString
+import com.dbflow5.processor.utils.toTypeElement
+import com.dbflow5.processor.utils.toTypeErasedElement
+import com.dbflow5.quoteIfNeeded
 import com.grosner.kpoet.S
 import com.grosner.kpoet.`=`
 import com.grosner.kpoet.`public static final field`
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.final
 import com.grosner.kpoet.modifiers
-import com.grosner.kpoet.param
 import com.grosner.kpoet.public
-import com.dbflow5.annotation.Column
-import com.dbflow5.annotation.ColumnMap
-import com.dbflow5.annotation.ModelView
-import com.dbflow5.annotation.ModelViewQuery
-import com.dbflow5.processor.ColumnValidator
-import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.definition.column.ColumnDefinition
-import com.dbflow5.processor.definition.column.ReferenceColumnDefinition
-import com.dbflow5.processor.utils.ElementUtility
-import com.dbflow5.processor.utils.ModelUtils
-import com.dbflow5.processor.utils.`override fun`
-import com.dbflow5.processor.utils.annotation
-import com.dbflow5.processor.utils.ensureVisibleStatic
-import com.dbflow5.processor.utils.implementsClass
-import com.dbflow5.processor.utils.isNullOrEmpty
-import com.dbflow5.processor.utils.simpleString
-import com.dbflow5.processor.utils.toTypeElement
-import com.dbflow5.processor.utils.toTypeErasedElement
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
-import javax.lang.model.type.MirroredTypeException
 
 /**
  * Description: Used in writing ModelViewAdapters
  */
-class ModelViewDefinition(manager: ProcessorManager, element: Element)
-    : BaseTableDefinition(element, manager) {
-
-    private val implementsLoadFromCursorListener: Boolean
+class ModelViewDefinition(modelView: ModelView,
+                          manager: ProcessorManager,
+                          element: TypeElement)
+    : EntityDefinition(element, manager) {
 
     private var queryFieldName: String? = null
 
-    private var name: String? = null
-
-    private val methods: Array<MethodDefinition> = arrayOf(
+    override val methods: Array<MethodDefinition> = arrayOf(
         LoadFromCursorMethod(this),
         ExistenceMethod(this),
         PrimaryConditionMethod(this))
 
-    var allFields: Boolean = false
+    private val creationQueryBehavior = CreationQueryBehavior(createWithDatabase = modelView.createWithDatabase)
 
-    var priority: Int = 0
+    val priority = modelView.priority
 
     init {
-        element.annotation<ModelView>()?.let { modelView ->
-            try {
-                modelView.database
-            } catch (mte: MirroredTypeException) {
-                this.databaseTypeName = TypeName.get(mte.typeMirror)
-            }
-
-            allFields = modelView.allFields
-
-            this.name = modelView.name
-            if (name == null || name!!.isEmpty()) {
-                name = modelClassName
-            }
-            this.priority = modelView.priority
-        }
-
-        implementsLoadFromCursorListener = (element as? TypeElement)
-            ?.implementsClass(manager.processingEnvironment, com.dbflow5.processor.ClassNames.LOAD_FROM_CURSOR_LISTENER) ?: false
-
+        setOutputClassName("_ViewTable")
     }
 
-    override fun prepareForWrite() {
-        classElementLookUpMap.clear()
-        columnDefinitions.clear()
+    override val associationalBehavior = AssociationalBehavior(
+        name = if (modelView.name.isNullOrEmpty()) modelClassName else modelView.name,
+        databaseTypeName = modelView.extractTypeNameFromAnnotation { it.database },
+        allFields = modelView.allFields
+    )
+
+    override val cursorHandlingBehavior = CursorHandlingBehavior(
+        orderedCursorLookup = modelView.orderedCursorLookUp,
+        assignDefaultValuesFromCursor = modelView.assignDefaultValuesFromCursor)
+
+    override fun prepareForWriteInternal() {
         queryFieldName = null
-
-        val modelView = element.getAnnotation(ModelView::class.java)
-        if (modelView != null) {
-            databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
-            setOutputClassName("${databaseDefinition?.classSeparator}ViewTable")
-
-            typeElement?.let { createColumnDefinitions(it) }
-        } else {
-            setOutputClassName("ViewTable")
-        }
+        typeElement?.let { createColumnDefinitions(it) }
     }
 
     override fun createColumnDefinitions(typeElement: TypeElement) {
+        val columnGenerator = BasicColumnGenerator(manager)
         val variableElements = ElementUtility.getAllElements(typeElement, manager)
-
         for (element in variableElements) {
-            classElementLookUpMap.put(element.simpleName.toString(), element)
+            classElementLookUpMap[element.simpleName.toString()] = element
         }
 
         val columnValidator = ColumnValidator()
         for (variableElement in variableElements) {
 
-            val isValidAllFields = ElementUtility.isValidAllFields(allFields, variableElement)
+            val isValidAllFields = ElementUtility.isValidAllFields(associationalBehavior.allFields, variableElement)
             val isColumnMap = variableElement.annotation<ColumnMap>() != null
 
             if (variableElement.annotation<Column>() != null || isValidAllFields
@@ -111,24 +91,17 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
 
                 // package private, will generate helper
                 val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
-                val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, variableElement, this.element)
-
-                if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, variableElement)) return
-
-                val columnDefinition = if (isColumnMap) {
-                    ReferenceColumnDefinition(manager, this, variableElement, isPackagePrivateNotInSamePackage)
-                } else {
-                    ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
-                }
-                if (columnValidator.validate(manager, columnDefinition)) {
-                    columnDefinitions.add(columnDefinition)
-                    if (isPackagePrivate) {
-                        packagePrivateList.add(columnDefinition)
+                columnGenerator.generate(variableElement, this)?.let { columnDefinition ->
+                    if (columnValidator.validate(manager, columnDefinition)) {
+                        columnDefinitions.add(columnDefinition)
+                        if (isPackagePrivate) {
+                            packagePrivateList.add(columnDefinition)
+                        }
                     }
-                }
 
-                if (columnDefinition.isPrimaryKey || columnDefinition.isPrimaryKeyAutoIncrement || columnDefinition.isRowId) {
-                    manager.logError("ModelView $elementName cannot have primary keys")
+                    if (columnDefinition.type.isPrimaryField) {
+                        manager.logError("ModelView $elementName cannot have primary keys")
+                    }
                 }
             } else if (variableElement.annotation<ModelViewQuery>() != null) {
                 if (!queryFieldName.isNullOrEmpty()) {
@@ -161,7 +134,7 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
-            `public static final field`(String::class, "VIEW_NAME") { `=`(name.S) }
+            `public static final field`(String::class, "VIEW_NAME") { `=`(associationalBehavior.name.S) }
 
             elementClassName?.let { elementClassName ->
                 columnDefinitions.forEach { it.addPropertyDefinition(typeBuilder, elementClassName) }
@@ -171,14 +144,17 @@ class ModelViewDefinition(manager: ProcessorManager, element: Element)
 
             writeGetModelClass(typeBuilder, elementClassName)
 
-            `override fun`(String::class, "getCreationQuery",
-                param(com.dbflow5.processor.ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+            creationQueryBehavior.addToType(this)
+
+            `override fun`(String::class, "getCreationQuery") {
                 modifiers(public, final)
-                `return`("\$T.\$L().getQuery()", elementClassName, queryFieldName)
+                `return`("\"CREATE VIEW IF NOT EXISTS ${associationalBehavior.name.quoteIfNeeded()} AS \" + \$T.\$L().getQuery()", elementClassName, queryFieldName)
             }
-            `override fun`(String::class, "getViewName") {
+            associationalBehavior.writeName(typeBuilder)
+
+            `override fun`(ClassNames.OBJECT_TYPE, "getType") {
                 modifiers(public, final)
-                `return`(name.S)
+                `return`("\$T.View", ClassNames.OBJECT_TYPE)
             }
         }
 

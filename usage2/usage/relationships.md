@@ -14,21 +14,29 @@ class Dog(@PrimaryKey var name: String,
           @ForeignKey var owner: Owner? = null)
 ```
 
-`@ForeignKey` can only be a subset of types: 1. `Model` 2. Any field not requiring a `TypeConverter`. If not a `Model` or a table class, you _must_ specify the `tableClass` it points to. 3. Cannot inherit `@ForeignKey` from non-model classes \(see [Inherited Columns](models.md#inherited-columns)\)
+`@ForeignKey` can only be a subset of types: 
+
+1. `Model` 
+
+2. Any field not requiring a `TypeConverter`. If not a `Model` or a table class, you _must_ specify the `tableClass` it points to. 
+
+3. Cannot inherit `@ForeignKey` from non-model classes \(see [Inherited Columns](models.md#inherited-columns)\)
 
 If you create a circular reference \(i.e. two tables with strong references to `Model` as `@ForeignKey` to each other\), read on.
 
 ## Stubbed Relationships
 
-For efficiency reasons we recommend specifying `@ForeignKey(stubbedRelationship = true)`. What this will do is only _preset_ the primary key references into a table object.
+For efficiency reasons we recommend specifying `@ForeignKey(stubbedRelationship = true)`. What this will do is only _preset_ the primary key references into a table object. This only works with models that have fully mutable constructor properties.
 
-All other fields will not be set. If you need to access the full object, you will have to call `load()` for `Model`, or use the `ModelAdapter` to load the object from the DB.
+All other fields will not be set. If you need to access the full object, you will have to call `modelAdapter<MyStubbedModel>().load()` . 
 
 From our previous example of `Dog`, instead of using a `String` field for **breed** we recommended by using a `Breed`. It is nearly identical, but the difference being we would then only need to call `load()` on the reference and it would query the `Breed` table for a row with the `breed` id. This also makes it easier if the table you reference has multiple primary keys, since DBFlow will handle the work for you.
 
 Multiple calls to `load()` will query the DB every time, so call when needed. Also if you don't specify `@Database(foreignKeyConstraintsEnforced = true)`, calling `load()` may not have any effect. Essentially without enforcing `@ForeignKey` at a SQLite level, you can end up with floating key references that do not exist in the referenced table.
 
-In normal circumstances, for every load of a `Dog` object from the database, we would also do a load of related `Owner`. This means that even if multiple `Dog` say \(50\) all point to same owner we end up doing 2x retrievals for every load of `Dog`. Replacing that model field of `Owner` with a stubbed relationship prevents the extra N lookup time, leading to much faster loads of `Dog`.
+In normal circumstances, for every load of a `Dog` object from the database, we would also do a load of related `Owner`. This means that even if multiple `Dog` say \(50\) all point to same owner we end up doing 2x retrievals for every load of `Dog`. Replacing that model field of `Owner` with a stubbed relationship prevents the extra N lookup time, leading to much faster loads of `Dog`. 
+
+**Note:** if you need more detailed information, you will still need to load the full data on each individual object.
 
 **Note**: using stubbed relationships also helps to prevent circular references that can get you in a `StackOverFlowError` if two tables strongly reference each other in `@ForeignKey`.
 
@@ -60,6 +68,8 @@ class Queen(@PrimaryKey(autoincrement = true)
 
 }
 ```
+
+**Note:** This is not recommended to use heavily. It impacts performance exponentially and only recommended if you have a small set of parent objects that reference a subset of items in the DB.
 
 ### Efficient Methods
 
@@ -133,13 +143,15 @@ public final class User_Follower extends BaseModel {
 
 This annotation makes it very easy to generate "join" tables for you to use in the app for a ManyToMany relationship. It only generates the table you need. To use it you must reference it in code as normal.
 
-_Note_: This annotation is only a helper to generate tables that otherwise you would have to write yourself. It is expected that management still is done by you, the developer.
+**Note**: This annotation is only a helper to generate tables that otherwise you would have to write yourself. It is expected that management still is done by you, the developer.
 
 ### Custom Column Names
 
 You can change the name of the columns that are generated. By default they are simply lower case first letter version of the table name.
 
-`referencedTableColumnName` -&gt; Refers to the referenced table. `thisTableColumnName` -&gt; Refers to the table that is creating the reference.
+`referencedTableColumnName` -&gt; Refers to the referenced table. 
+
+`thisTableColumnName` -&gt; Refers to the table that is creating the reference.
 
 ### Multiple ManyToMany
 

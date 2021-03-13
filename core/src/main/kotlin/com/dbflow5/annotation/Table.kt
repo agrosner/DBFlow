@@ -12,7 +12,7 @@ val DEFAULT_CACHE_SIZE = 25
  * The $Adapter class defines how to retrieve and store this object as well as other methods for acting on model objects in the database.
  */
 @Retention(AnnotationRetention.SOURCE)
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
+@Target(AnnotationTarget.CLASS)
 annotation class Table(
         /**
          * @return Specifies a different name for the table than the name of the Model class.
@@ -65,6 +65,12 @@ annotation class Table(
          * get created upon startup. This is useful for keeping around legacy tables for migrations.
          */
         val createWithDatabase: Boolean = true,
+
+        /**
+         * If true this table will be created as a TEMP table. Pair this with [createWithDatabase]
+         * to properly not create the table.
+         */
+        val temporary: Boolean = false,
 
         /**
          * If true, generates ContentValues bindings for a table. By default it no longer does.

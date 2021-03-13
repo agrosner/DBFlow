@@ -1,12 +1,8 @@
 package com.dbflow5.processor.definition
 
-import com.grosner.kpoet.`for`
-import com.grosner.kpoet.`if`
-import com.grosner.kpoet.end
-import com.grosner.kpoet.statement
-import com.grosner.kpoet.typeName
 import com.dbflow5.annotation.OneToMany
 import com.dbflow5.annotation.OneToManyMethod
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.definition.column.ColumnAccessor
 import com.dbflow5.processor.definition.column.GetterSetter
@@ -21,6 +17,11 @@ import com.dbflow5.processor.utils.isSubclass
 import com.dbflow5.processor.utils.simpleString
 import com.dbflow5.processor.utils.statement
 import com.dbflow5.processor.utils.toTypeElement
+import com.grosner.kpoet.`for`
+import com.grosner.kpoet.`if`
+import com.grosner.kpoet.end
+import com.grosner.kpoet.statement
+import com.grosner.kpoet.typeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
@@ -37,7 +38,8 @@ import javax.lang.model.element.TypeElement
  */
 class OneToManyDefinition(executableElement: ExecutableElement,
                           processorManager: ProcessorManager,
-                          parentElements: Collection<Element>) : BaseDefinition(executableElement, processorManager) {
+                          parentElements: Collection<Element>)
+    : BaseDefinition(executableElement, processorManager) {
 
     private var _methodName: String
 
@@ -75,13 +77,13 @@ class OneToManyDefinition(executableElement: ExecutableElement,
         _methodName = executableElement.simpleName.toString()
         variableName = oneToMany.variableName
         if (variableName.isEmpty()) {
-            variableName = _methodName.replace("get", "")
+            variableName = _methodName.replaceFirst("get", "")
             variableName = variableName.substring(0, 1).toLowerCase() + variableName.substring(1)
         }
 
         val privateAccessor = PrivateScopeColumnAccessor(variableName, object : GetterSetter {
             override val getterName: String = ""
-            override val setterName: String = ""
+            override val setterName: String = "set${variableName.capitalize()}"
         }, optionalGetterParam = if (hasWrapper) ModelUtils.wrapper else "")
 
         var isVariablePrivate = false
@@ -90,7 +92,9 @@ class OneToManyDefinition(executableElement: ExecutableElement,
             // check on setter. if setter exists, we can reference it safely since a getter has already been defined.
             if (!parentElements.any { it.simpleString == privateAccessor.setterNameElement }) {
                 manager.logError(OneToManyDefinition::class,
-                    "@OneToMany definition $elementName Cannot find referenced variable $variableName.")
+                        "@OneToMany definition $elementName " +
+                                "Cannot find setter ${privateAccessor.setterNameElement} " +
+                                "for variable $variableName.")
             } else {
                 isVariablePrivate = true
             }
@@ -175,8 +179,8 @@ class OneToManyDefinition(executableElement: ExecutableElement,
                 // need to load adapter for non-model classes
                 if (!extendsModel || efficientCodeMethods) {
                     statement("\$T adapter = \$T.getModelAdapter(\$T.class)",
-                        ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.MODEL_ADAPTER, referencedTableType),
-                        com.dbflow5.processor.ClassNames.FLOW_MANAGER, referencedTableType)
+                            ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
+                            ClassNames.FLOW_MANAGER, referencedTableType)
                 }
 
                 if (efficientCodeMethods) {

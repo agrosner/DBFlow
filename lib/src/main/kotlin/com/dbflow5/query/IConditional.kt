@@ -44,6 +44,8 @@ interface IConditional : Query {
 
     infix fun like(value: String): Operator<*>
 
+    infix fun match(value: String): Operator<*>
+
     infix fun notLike(value: String): Operator<*>
 
     infix fun glob(value: String): Operator<*>
@@ -87,32 +89,33 @@ interface IConditional : Query {
     infix operator fun times(value: BaseModelQueriable<*>): Operator<*>
 
     infix operator fun rem(value: BaseModelQueriable<*>): Operator<*>
-}
 
-infix fun IConditional.`in`(values: Array<IConditional>): Operator.In<*> {
-    return when (values.size) {
-        1 -> `in`(values[0])
-        else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
+    infix fun `in`(values: Array<IConditional>): Operator.In<*> {
+        return when (values.size) {
+            1 -> `in`(values[0])
+            else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
+        }
+    }
+
+    infix fun notIn(values: Array<IConditional>): Operator.In<*> {
+        return when (values.size) {
+            1 -> notIn(values[0])
+            else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
+        }
+    }
+
+    infix fun <T : Any> `in`(values: Array<BaseModelQueriable<T>>): Operator.In<*> {
+        return when (values.size) {
+            1 -> `in`(values[0])
+            else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
+        }
+    }
+
+    infix fun <T : Any> notIn(values: Array<BaseModelQueriable<T>>): Operator.In<*> {
+        return when (values.size) {
+            1 -> notIn(values[0])
+            else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
+        }
     }
 }
 
-infix fun IConditional.notIn(values: Array<IConditional>): Operator.In<*> {
-    return when (values.size) {
-        1 -> notIn(values[0])
-        else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
-    }
-}
-
-infix fun <T : Any> IConditional.`in`(values: Array<BaseModelQueriable<T>>): Operator.In<*> {
-    return when (values.size) {
-        1 -> `in`(values[0])
-        else -> this.`in`(values[0], *values.sliceArray(IntRange(1, values.size)))
-    }
-}
-
-infix fun <T : Any> IConditional.notIn(values: Array<BaseModelQueriable<T>>): Operator.In<*> {
-    return when (values.size) {
-        1 -> notIn(values[0])
-        else -> this.notIn(values[0], *values.sliceArray(IntRange(1, values.size)))
-    }
-}

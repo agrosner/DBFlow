@@ -1,11 +1,12 @@
 package com.dbflow5.query
 
+import android.os.Handler
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.queriable.ListModelLoader
 import com.dbflow5.adapter.queriable.SingleModelLoader
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.FlowManager
-import com.dbflow5.config.queryModelAdapter
+import com.dbflow5.config.retrievalAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.query.list.FlowQueryList
@@ -28,6 +29,7 @@ protected constructor(table: Class<TModel>)
 
     private var cachingEnabled = true
 
+    private var _cacheListModelLoader: ListModelLoader<TModel>? = null
     protected val listModelLoader: ListModelLoader<TModel>
         get() = if (cachingEnabled) {
             retrievalAdapter.listModelLoader
@@ -86,15 +88,22 @@ protected constructor(table: Class<TModel>)
 
     protected fun <T : Any> getListQueryModelLoader(table: Class<T>): ListModelLoader<T> =
         if (cachingEnabled) {
-            table.queryModelAdapter.listModelLoader
+            table.retrievalAdapter.listModelLoader
         } else {
-            table.queryModelAdapter.nonCacheableListModelLoader
+            table.retrievalAdapter.nonCacheableListModelLoader
         }
 
     protected fun <T : Any> getSingleQueryModelLoader(table: Class<T>): SingleModelLoader<T> =
         if (cachingEnabled) {
-            table.queryModelAdapter.singleModelLoader
+            table.retrievalAdapter.singleModelLoader
         } else {
-            table.queryModelAdapter.nonCacheableSingleModelLoader
+            table.retrievalAdapter.nonCacheableSingleModelLoader
         }
 }
+
+/**
+ * Constructs a flowQueryList allowing a custom [Handler].
+ */
+fun <T : Any> ModelQueriable<T>.flowQueryList(databaseWrapper: DatabaseWrapper, refreshHandler: Handler) =
+    FlowQueryList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper,
+        refreshHandler = refreshHandler).build()

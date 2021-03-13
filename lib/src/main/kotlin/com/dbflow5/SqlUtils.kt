@@ -4,9 +4,6 @@ package com.dbflow5
 
 import android.content.ContentValues
 import android.net.Uri
-import com.dbflow5.isNotNullOrEmpty
-import com.dbflow5.quoteIfNeeded
-import com.dbflow5.stripQuotes
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.NameAlias
@@ -154,22 +151,13 @@ fun getContentValuesKey(contentValues: ContentValues, key: String): String {
 }
 
 fun longForQuery(wrapper: DatabaseWrapper, query: String): Long =
-    wrapper.compileStatement(query).let { statement ->
-        try {
-            statement.simpleQueryForLong()
-        } finally {
-            statement.close()
-        }
-    }
+    wrapper.compileStatement(query).use { statement -> statement.simpleQueryForLong() }
+
+fun stringForQuery(wrapper: DatabaseWrapper, query: String): String? =
+    wrapper.compileStatement(query).use { statement -> statement.simpleQueryForString() }
 
 fun doubleForQuery(wrapper: DatabaseWrapper, query: String): Double =
-    wrapper.compileStatement(query).let { statement ->
-        try {
-            statement.simpleQueryForLong().toDouble()
-        } finally {
-            statement.close()
-        }
-    }
+    wrapper.compileStatement(query).use { statement -> statement.simpleQueryForLong().toDouble() }
 
 /**
  * Converts a byte[] to a String hex representation for within wrapper queries.

@@ -109,7 +109,7 @@ internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("D
         Looper.prepare()
         Process.setThreadPriority(THREAD_PRIORITY_BACKGROUND)
         while (true) {
-            var tmpModels = listOf<Any>()
+            var tmpModels: List<Any>
             synchronized(models) {
                 tmpModels = arrayListOf(models)
                 models.clear()

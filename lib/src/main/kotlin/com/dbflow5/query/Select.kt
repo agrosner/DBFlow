@@ -6,6 +6,12 @@ import com.dbflow5.sql.Query
 import com.dbflow5.sql.QueryCloneable
 import kotlin.reflect.KClass
 
+private inline class QualifierType(val value: String)
+
+private val Distinct = QualifierType("DISTINCT")
+private val All = QualifierType("ALL")
+private val None = QualifierType("NONE")
+
 /**
  * Description: A SQL SELECT statement generator. It generates the SELECT part of the statement.
  */
@@ -16,24 +22,20 @@ class Select
  * @param properties The properties to select from.
  */
 internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Select> {
+
     /**
      * The select qualifier to append to the SELECT statement
      */
-    private var selectQualifier = NONE
+    private var selectQualifier: QualifierType = None
 
     private val propertyList = arrayListOf<IProperty<*>>()
 
     override val query: String
         get() {
             val queryBuilder = StringBuilder("SELECT ")
-
-            if (selectQualifier != NONE) {
-                if (selectQualifier == DISTINCT) {
-                    queryBuilder.append("DISTINCT")
-                } else if (selectQualifier == ALL) {
-                    queryBuilder.append("ALL")
-                }
-                queryBuilder.append(" ")
+            when (selectQualifier) {
+                Distinct -> queryBuilder.append("DISTINCT ")
+                All -> queryBuilder.append("ALL ")
             }
 
             queryBuilder.append(propertyList.joinToString(separator = ","))
@@ -55,7 +57,7 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
      * @param [T] The class that implements [com.dbflow5.structure.Model]
      * @return the From part of this query
      */
-    infix fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
+    fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
 
     inline fun <reified T : Any> from() = from(T::class.java)
 
@@ -71,7 +73,7 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
      *
      * @return
      */
-    fun distinct(): Select = selectQualifier(DISTINCT)
+    fun distinct(): Select = selectQualifier(Distinct)
 
     override fun toString(): String = query
 
@@ -83,27 +85,8 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
      * @param qualifierInt Can be [.ALL], [.NONE], or [.DISTINCT]
      * @return
      */
-    private fun selectQualifier(qualifierInt: Int) = apply {
-        selectQualifier = qualifierInt
-    }
-
-    companion object {
-
-        /**
-         * Default does not include the qualifier
-         */
-        @JvmField
-        val NONE = -1
-        /**
-         * SELECT DISTINCT call
-         */
-        @JvmField
-        val DISTINCT = 0
-        /**
-         * SELECT ALL call
-         */
-        @JvmField
-        val ALL = 1
+    private fun selectQualifier(qualifier: QualifierType) = apply {
+        selectQualifier = qualifier
     }
 }
 

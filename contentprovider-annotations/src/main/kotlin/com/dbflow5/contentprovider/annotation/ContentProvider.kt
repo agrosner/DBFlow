@@ -19,4 +19,9 @@ annotation class ContentProvider(
         /**
          * @return The base content uri String to use for all paths
          */
-        val baseContentUri: String = "")
+        val baseContentUri: String = "",
+
+        /**
+         * @return the holder class to pass to constructor of the ContentProvider so it will initialize before using DB.
+         */
+        val initializeHolderClass: KClass<*> = Any::class)

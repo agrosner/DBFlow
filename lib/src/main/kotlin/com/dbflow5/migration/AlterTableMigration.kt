@@ -2,21 +2,27 @@ package com.dbflow5.migration
 
 import androidx.annotation.CallSuper
 import com.dbflow5.appendQuotedIfNeeded
+import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.select
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.sql.SQLiteType
 import com.dbflow5.stripQuotes
+import java.util.*
+import kotlin.reflect.KClass
 
 /**
  * Description: Provides a very nice way to alter a single table quickly and easily.
  */
-class AlterTableMigration<T : Any>(
+open class AlterTableMigration<T : Any>(
     /**
      * The table to ALTER
      */
     private val table: Class<T>) : BaseMigration() {
+
+
+    constructor(table: KClass<T>) : this(table.java)
 
     /**
      * The query to rename the table with
@@ -54,7 +60,7 @@ class AlterTableMigration<T : Any>(
         // We have column definitions to add here
         // ADD COLUMN columnName {type}
         if (internalColumnDefinitions.isNotEmpty()) {
-            (select from table limit 0).cursor(database)?.use { cursor ->
+            (select from table.kotlin limit 0).cursor(database)?.use { cursor ->
                 sql = "$sql$tableName"
                 for (i in internalColumnDefinitions.indices) {
                     val columnDefinition = internalColumnDefinitions[i]
@@ -92,10 +98,18 @@ class AlterTableMigration<T : Any>(
      *
      * @param sqLiteType The type of column represented in the DB.
      * @param columnName The name of the column to add. Use the "_Table" class for the specified table.
+     * @param defaultValue the default value as a String representation.
+     * Leaving parameter as null leaves the case out.
+     * For NULL column add defaultValue = "NULL". Encapsulate the value in quotes "\'name\'" if it's a string.
      * @return This instance
      */
-    fun addColumn(sqLiteType: SQLiteType, columnName: String) = apply {
-        internalColumnDefinitions.add("${columnName.quoteIfNeeded()} ${sqLiteType.name}")
+    @JvmOverloads
+    fun addColumn(sqLiteType: SQLiteType, columnName: String, defaultValue: String? = null) = apply {
+        var addStatement = "${columnName.quoteIfNeeded()} ${sqLiteType.name}"
+        if (defaultValue != null) {
+            addStatement += " DEFAULT $defaultValue"
+        }
+        internalColumnDefinitions.add(addStatement)
         columnNames.add(columnName)
     }
 

@@ -4,13 +4,15 @@ package com.dbflow5.query
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.Property
 import com.dbflow5.query.property.PropertyFactory
+import com.dbflow5.query.property.propertyString
+import com.dbflow5.query.property.tableName
 import com.dbflow5.sql.SQLiteType
 
 /**
  * Represents SQLite methods on columns. These act as [Property] so we can use them in complex
  * scenarios.
  */
-open class Method(methodName: String, vararg properties: IProperty<*>) : Property<Any?>(null, null as String?) {
+open class Method(methodName: String, vararg properties: IProperty<*>) : Property<Any?>(null, "") {
 
     private val propertyList = arrayListOf<IProperty<*>>()
     private val operationsList = arrayListOf<String>()
@@ -233,3 +235,55 @@ fun ifNull(first: IProperty<*>,
  */
 fun nullIf(first: IProperty<*>,
            second: IProperty<*>): Method = Method("NULLIF", first, second)
+
+@JvmField
+val random: Method = Method("RANDOM", Property.NO_PROPERTY)
+
+/**
+ * Used for FTS:
+ *
+ * For a SELECT query that uses the full-text index, the offsets() function returns a
+ * text value containing a series of space-separated integers. For each term in each phrase
+ * match of the current row, there are four integers in the returned list.
+ * Each set of four integers is interpreted as follows:
+ * Integer	Interpretation
+ *  0	The column number that the term instance occurs in (0 for the leftmost column of the FTS table, 1 for the next leftmost, etc.).
+ *  1	The term number of the matching term within the full-text query expression. Terms within a query expression are numbered starting from 0 in the order that they occur.
+ *  2	The byte offset of the matching term within the column.
+ *  3	The size of the matching term in bytes.
+ *
+ *  For more see sqlite.org
+ */
+inline fun <reified T : Any> offsets() = Method("offsets", tableName<T>())
+
+/**
+ * Used for FTS:
+ * The snippet function is used to create formatted fragments of document text for
+ * display as part of a full-text query results report.
+ *
+ * @param start - the start match text.
+ * @param end - the end match text
+ * @param ellipses
+ * @param index - The FTS table column number to extract the returned fragments of
+ * text from. Columns are numbered from left to right starting with zero.
+ * A negative value indicates that the text may be extracted from any column.
+ * @param approximateTokens - The absolute value of this integer argument is used as the
+ * (approximate) number of tokens to include in the returned text value.
+ * The maximum allowable absolute value is 64.
+ *
+ * For more see sqlite.org
+ */
+inline fun <reified T : Any> snippet(
+    start: String? = null,
+    end: String? = null,
+    ellipses: String? = null,
+    index: Int? = null,
+    approximateTokens: Int? = null,
+): Method {
+    val args = listOfNotNull(tableName<T>(), start, end, ellipses, index, approximateTokens)
+        .map {
+            if (it is String) propertyString("'${it}'")
+            else propertyString<Any>(it.toString())
+        }.toTypedArray()
+    return Method("snippet", *args)
+}

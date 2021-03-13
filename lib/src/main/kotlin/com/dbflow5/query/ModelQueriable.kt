@@ -1,12 +1,10 @@
 package com.dbflow5.query
 
 import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.config.databaseForTable
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.query.list.FlowQueryList
-import com.dbflow5.structure.BaseQueryModel
 
 
 /**
@@ -31,6 +29,12 @@ interface ModelQueriable<T : Any> : Queriable {
     fun querySingle(databaseWrapper: DatabaseWrapper): T?
 
     /**
+     * A non-null result. throws a [SQLiteException] if the query reaches no result.
+     */
+    fun requireSingle(db: DatabaseWrapper) = querySingle(db)
+        ?: throw SQLiteException("Model result not found for $this")
+
+    /**
      * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
      * cache models dynamically by setting [FlowCursorList.setCacheModels] to true.
      */
@@ -43,22 +47,20 @@ interface ModelQueriable<T : Any> : Queriable {
     fun flowQueryList(databaseWrapper: DatabaseWrapper): FlowQueryList<T>
 
     /**
-     * Returns a [List] based on the custom [TQueryModel] you pass in.
+     * Returns a [List] based on the custom [TQuery] you pass in.
      *
      * @param queryModelClass The query model class to use.
-     * @param <TQueryModel>   The class that extends [BaseueryModel]
      * @return A list of custom models that are not tied to a table.
-    </TQueryModel> */
-    fun <TQueryModel : Any> queryCustomList(queryModelClass: Class<TQueryModel>,
-                                            databaseWrapper: DatabaseWrapper): MutableList<TQueryModel>
+     */
+    fun <TQuery : Any> queryCustomList(queryModelClass: Class<TQuery>,
+                                       databaseWrapper: DatabaseWrapper): MutableList<TQuery>
 
     /**
      * Returns a single [TQueryModel] from this query.
      *
      * @param queryModelClass The class to use.
-     * @param <TQueryModel>   The class that extends [BaseQueryModel]
      * @return A single model from the query.
-    </TQueryModel> */
+     */
     fun <TQueryModel : Any> queryCustomSingle(queryModelClass: Class<TQueryModel>,
                                               databaseWrapper: DatabaseWrapper): TQueryModel?
 
@@ -69,32 +71,41 @@ interface ModelQueriable<T : Any> : Queriable {
      */
     fun disableCaching(): ModelQueriable<T>
 
+
+    /**
+     * Begins an async DB transaction using the specified TransactionManager.
+     */
     fun <R : Any?> async(databaseWrapper: DBFlowDatabase,
                          modelQueriableFn: ModelQueriable<T>.(DatabaseWrapper) -> R) =
-            databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
+        databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
+
+    /**
+     * Attempt to constrain this [ModelQueriable] if it supports it via [Transformable] methods. Otherwise,
+     * we just return itself.
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun attemptConstrain(offset: Long, limit: Long): ModelQueriable<T> {
+        return when {
+            this is Transformable<*> -> (this as Transformable<T>).constrain(offset, limit)
+            else -> this
+        }
+    }
 
 }
 
+/**
+ * Trims and wraps a [ModelQueriable.query] in parenthesis.
+ * E.G. wraps: select * from table into (select * from table)
+ */
 internal inline val <T : Any> ModelQueriable<T>.enclosedQuery
     get() = "(${query.trim { it <= ' ' }})"
 
-inline val <reified T : Any> ModelQueriable<T>.list
-    get() = queryList(databaseForTable<T>())
+inline fun <reified T : Any> ModelQueriable<T>.queryCustomList(db: DatabaseWrapper) =
+    queryCustomList(T::class.java, db)
 
-inline fun <reified T : Any> ModelQueriable<*>.customList() =
-        queryCustomList(T::class.java, databaseForTable<T>())
+inline fun <reified T : Any> ModelQueriable<T>.queryCustomSingle(db: DatabaseWrapper) =
+    queryCustomSingle(T::class.java, db)
 
-inline fun <reified T : Any> ModelQueriable<*>.customSingle() =
-        queryCustomSingle(T::class.java, databaseForTable<T>())
-
-inline val <reified T : Any> ModelQueriable<T>.result
-    get() = querySingle(databaseForTable<T>())
-
-inline val <reified T : Any> ModelQueriable<T>.requireResult
-    get() = result ?: throw SQLiteException("Model result not found for $this")
-
-inline val <reified T : Any> ModelQueriable<T>.flowQueryList
-    get() = flowQueryList(databaseForTable<T>())
-
-inline val <reified T : Any> ModelQueriable<T>.cursorList
-    get() = cursorList(databaseForTable<T>())
+inline fun <reified T : Any> ModelQueriable<T>.requireCustomSingle(db: DatabaseWrapper) =
+    queryCustomSingle(T::class.java, db)
+        ?: throw SQLiteException("QueryModel result not found for $this")

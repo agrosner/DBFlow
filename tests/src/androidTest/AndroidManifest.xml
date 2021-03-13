@@ -1,18 +1,17 @@
-<manifest
-    package="com.dbflow5.test"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.dbflow5.test">
 
     <application
         android:name="com.dbflow5.DemoApp"
+        android:allowBackup="false"
         android:label="DB Flow Compiler Test">
-        <activity
-            android:name="com.dbflow5.test.DemoActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
+        <provider
+            android:name="com.dbflow5.provider.TestContentProvider_Provider"
+            android:authorities="com.dbflow5.test.provider"
+            android:exported="true"/>
+        <provider
+            android:name="com.dbflow5.provider.TestContentProvider2_Provider"
+            android:authorities="com.dbflow5.test.provider"
+            android:exported="true"/>
     </application>
-
 </manifest>

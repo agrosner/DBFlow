@@ -61,20 +61,20 @@ class PackagePrivateScopeColumnAccessorTest {
 
     @Test
     fun test_canSetupClass() {
-        val access = PackagePrivateScopeColumnAccessor("test", "com.fuzz.android", "_", "TestClass")
+        val access = PackagePrivateScopeColumnAccessor("test", "com.fuzz.android", "TestClass")
         assertEquals("com.fuzz.android.TestClass_Helper", access.helperClassName.toString())
         assertEquals("com.fuzz.android.TestClass_Helper", access.internalHelperClassName.toString())
     }
 
     @Test
     fun test_canGetVariable() {
-        val access = PackagePrivateScopeColumnAccessor("test", "com.fuzz.android", "_", "TestClass")
+        val access = PackagePrivateScopeColumnAccessor("test", "com.fuzz.android", "TestClass")
         assertEquals("com.fuzz.android.TestClass_Helper.getTest(model)", access.get(CodeBlock.of("model")).toString())
     }
 
     @Test
     fun test_canSetVariable() {
-        val access = PackagePrivateScopeColumnAccessor("test", "com.fuzz.android", "_", "TestClass")
+        val access = PackagePrivateScopeColumnAccessor("test", "com.fuzz.android", "TestClass")
         assertEquals("com.fuzz.android.TestClass_Helper.setTest(model, \"name\")",
                 access.set(CodeBlock.of("\$S", "name"), CodeBlock.of("model")).toString())
     }

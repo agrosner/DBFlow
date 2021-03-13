@@ -18,11 +18,6 @@ interface IProperty<P : IProperty<P>> : Query {
     val nameAlias: NameAlias
 
     /**
-     * @return The key used in placing values into cursor.
-     */
-    val cursorKey: String
-
-    /**
      * @return the table this property belongs to.
      */
     val table: Class<*>?

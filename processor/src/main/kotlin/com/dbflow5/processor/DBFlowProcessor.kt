@@ -2,8 +2,11 @@ package com.dbflow5.processor
 
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnIgnore
+import com.dbflow5.annotation.Fts3
+import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
+import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
@@ -28,17 +31,19 @@ class DBFlowProcessor : AbstractProcessor() {
      * @return the names of the annotation types supported by this
      * * processor, or an empty set if none
      */
-    override fun getSupportedAnnotationTypes()
-        = linkedSetOf(Table::class.java.canonicalName,
-        Column::class.java.canonicalName,
-        TypeConverter::class.java.canonicalName,
-        ModelView::class.java.canonicalName,
-        Migration::class.java.canonicalName,
-        ContentProvider::class.java.canonicalName,
-        TableEndpoint::class.java.canonicalName,
-        ColumnIgnore::class.java.canonicalName,
-        QueryModel::class.java.canonicalName
-    )
+    override fun getSupportedAnnotationTypes() = listOf(
+        Table::class,
+        Column::class,
+        TypeConverter::class,
+        ModelView::class,
+        Migration::class,
+        ContentProvider::class,
+        TableEndpoint::class,
+        ColumnIgnore::class,
+        QueryModel::class,
+        Fts3::class,
+        Fts4::class,
+        MultipleManyToMany::class).mapTo(linkedSetOf<String>()) { it.java.canonicalName }
 
     override fun getSupportedOptions() = linkedSetOf(DatabaseHolderDefinition.OPTION_TARGET_MODULE_NAME)
 
@@ -50,7 +55,8 @@ class DBFlowProcessor : AbstractProcessor() {
      */
     override fun getSupportedSourceVersion(): SourceVersion = SourceVersion.latestSupported()
 
-    @Synchronized override fun init(processingEnv: ProcessingEnvironment) {
+    @Synchronized
+    override fun init(processingEnv: ProcessingEnvironment) {
         super.init(processingEnv)
         manager = ProcessorManager(processingEnv)
         manager.addHandlers(MigrationHandler(),

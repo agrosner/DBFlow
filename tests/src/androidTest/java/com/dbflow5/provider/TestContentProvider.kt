@@ -12,15 +12,46 @@ import com.dbflow5.contentprovider.annotation.PathSegment
 import com.dbflow5.contentprovider.annotation.TableEndpoint
 import com.dbflow5.getContentValuesKey
 
+@ContentProvider(authority = TestContentProvider.AUTHORITY,
+    database = ContentDatabase::class)
+object TestContentProvider2 {
+    @TableEndpoint(name = ContentProviderModel.ENDPOINT,
+        contentProvider = ContentDatabase::class)
+    object ContentProviderModel {
+        const val ENDPOINT = "ContentProviderModel"
+
+        @JvmStatic
+        @ContentUri(path = TestContentProvider.ContentProviderModel.ENDPOINT,
+            type = ContentType.VND_MULTIPLE + TestContentProvider.ContentProviderModel.ENDPOINT)
+        var CONTENT_URI = TestContentProvider.buildUri(TestContentProvider.ContentProviderModel.ENDPOINT)
+
+        @JvmStatic
+        @ContentUri(path = TestContentProvider.ContentProviderModel.ENDPOINT + "/#",
+            type = ContentType.VND_SINGLE + TestContentProvider.ContentProviderModel.ENDPOINT,
+            segments = arrayOf(PathSegment(segment = 1, column = "id")))
+        fun withId(id: Long): Uri {
+            return TestContentProvider.buildUri(id.toString())
+        }
+
+        @JvmStatic
+        @Notify(notifyMethod = NotifyMethod.INSERT, paths = arrayOf(TestContentProvider.ContentProviderModel.ENDPOINT + "/#"))
+        fun onInsert(contentValues: ContentValues): Array<Uri> {
+            val id = contentValues.getAsLong("id")!!
+            return arrayOf(withId(id))
+        }
+    }
+}
+
+
 @ContentProvider(authority = TestContentProvider.AUTHORITY, database = ContentDatabase::class,
-        baseContentUri = TestContentProvider.BASE_CONTENT_URI)
+    baseContentUri = TestContentProvider.BASE_CONTENT_URI)
 object TestContentProvider {
 
     const val AUTHORITY = "com.dbflow5.test.provider"
 
     const val BASE_CONTENT_URI = "content://"
 
-    private fun buildUri(vararg paths: String): Uri {
+    fun buildUri(vararg paths: String): Uri {
         val builder = Uri.parse(BASE_CONTENT_URI + AUTHORITY).buildUpon()
         for (path in paths) {
             builder.appendPath(path)
@@ -35,19 +66,19 @@ object TestContentProvider {
 
         @JvmStatic
         @ContentUri(path = ENDPOINT,
-                type = ContentType.VND_MULTIPLE + ENDPOINT)
+            type = ContentType.VND_MULTIPLE + ENDPOINT)
         var CONTENT_URI = buildUri(ENDPOINT)
 
         @JvmStatic
-        @ContentUri(path = ENDPOINT + "/#",
-                type = ContentType.VND_SINGLE + ENDPOINT,
-                segments = arrayOf(PathSegment(segment = 1, column = "id")))
+        @ContentUri(path = "$ENDPOINT/#",
+            type = ContentType.VND_SINGLE + ENDPOINT,
+            segments = arrayOf(PathSegment(segment = 1, column = "id")))
         fun withId(id: Long): Uri {
             return buildUri(id.toString())
         }
 
         @JvmStatic
-        @Notify(notifyMethod = NotifyMethod.INSERT, paths = arrayOf(ENDPOINT + "/#"))
+        @Notify(notifyMethod = NotifyMethod.INSERT, paths = ["$ENDPOINT/#"])
         fun onInsert(contentValues: ContentValues): Array<Uri> {
             val id = contentValues.getAsLong("id")!!
             return arrayOf(withId(id))
@@ -64,47 +95,47 @@ object TestContentProvider {
         var CONTENT_URI = buildUri(ENDPOINT)
 
         @JvmStatic
-        @ContentUri(path = ENDPOINT + "/#", type = ContentType.VND_MULTIPLE + ENDPOINT,
-                segments = arrayOf(PathSegment(column = "id", segment = 1)))
+        @ContentUri(path = "$ENDPOINT/#", type = ContentType.VND_MULTIPLE + ENDPOINT,
+            segments = arrayOf(PathSegment(column = "id", segment = 1)))
         fun withId(id: Long): Uri {
             return buildUri(ENDPOINT, id.toString())
         }
 
         @JvmStatic
-        @ContentUri(path = ENDPOINT + "/#/#",
-                type = ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
-                segments = arrayOf(PathSegment(column = "id", segment = 2)))
+        @ContentUri(path = "$ENDPOINT/#/#",
+            type = ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
+            segments = arrayOf(PathSegment(column = "id", segment = 2)))
         fun fromList(id: Long): Uri {
             return buildUri(ENDPOINT, "fromList", id.toString())
         }
 
         @JvmStatic
-        @ContentUri(path = ENDPOINT + "/#/#",
-                type = ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
-                segments = arrayOf(PathSegment(column = "id", segment = 1),
-                        PathSegment(column = "isOpen", segment = 2)))
+        @ContentUri(path = "$ENDPOINT/#/#",
+            type = ContentType.VND_SINGLE + ContentProviderModel.ENDPOINT,
+            segments = arrayOf(PathSegment(column = "id", segment = 1),
+                PathSegment(column = "isOpen", segment = 2)))
         fun withOpenId(id: Long, isOpen: Boolean): Uri {
             return buildUri(ENDPOINT, id.toString(), isOpen.toString())
         }
 
         @JvmStatic
-        @Notify(notifyMethod = NotifyMethod.INSERT, paths = arrayOf(ENDPOINT))
+        @Notify(notifyMethod = NotifyMethod.INSERT, paths = [ENDPOINT])
         fun onInsert(contentValues: ContentValues): Array<Uri> {
             val listId = contentValues.getAsLong(getContentValuesKey(contentValues, "providerModel"))!!
             return arrayOf(ContentProviderModel.withId(listId), fromList(listId))
         }
 
         @JvmStatic
-        @Notify(notifyMethod = NotifyMethod.INSERT, paths = arrayOf(ENDPOINT))
+        @Notify(notifyMethod = NotifyMethod.INSERT, paths = [ENDPOINT])
         fun onInsert2(contentValues: ContentValues): Uri {
             val listId = contentValues.getAsLong(getContentValuesKey(contentValues, "providerModel"))!!
             return fromList(listId)
         }
 
         @JvmStatic
-        @Notify(notifyMethod = NotifyMethod.UPDATE, paths = arrayOf(ENDPOINT + "/#"))
+        @Notify(notifyMethod = NotifyMethod.UPDATE, paths = ["$ENDPOINT/#"])
         fun onUpdate(context: Context, uri: Uri): Array<Uri> {
-            val noteId = java.lang.Long.valueOf(uri.pathSegments[1])!!
+            val noteId = java.lang.Long.valueOf(uri.pathSegments[1])
             val c = context.contentResolver.query(uri, arrayOf("noteModel"), null, null, null)
             c!!.moveToFirst()
             val listId = c.getLong(c.getColumnIndex("providerModel"))
@@ -114,9 +145,9 @@ object TestContentProvider {
         }
 
         @JvmStatic
-        @Notify(notifyMethod = NotifyMethod.DELETE, paths = arrayOf(ENDPOINT + "/#"))
+        @Notify(notifyMethod = NotifyMethod.DELETE, paths = ["$ENDPOINT/#"])
         fun onDelete(context: Context, uri: Uri): Array<Uri> {
-            val noteId = java.lang.Long.valueOf(uri.pathSegments[1])!!
+            val noteId = java.lang.Long.valueOf(uri.pathSegments[1])
             val c = context.contentResolver.query(uri, null, null, null, null)
             c!!.moveToFirst()
             val listId = c.getLong(c.getColumnIndex("providerModel"))

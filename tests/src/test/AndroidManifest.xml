@@ -7,10 +7,6 @@
     <uses-sdk tools:overrideLibrary="com.dbflow5.sqlcipher, net.sqlcipher"/>
 
     <application>
-        <provider
-            android:name="com.dbflow5.provider.TestContentProvider_Provider"
-            android:authorities="com.dbflow5.test.provider"
-            android:exported="true"/>
 
     </application>
 

@@ -75,27 +75,31 @@ class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TM
 
         @JvmStatic
         fun <TModel> saveBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
-            Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.saveAll(tModels, wrapper) }
+                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.saveAll(tModels, wrapper) }
 
         @JvmStatic
         fun <TModel> insertBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
-            Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.insertAll(tModels, wrapper) }
+                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.insertAll(tModels, wrapper) }
 
 
         @JvmStatic
         fun <TModel> updateBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
-            Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.updateAll(tModels, wrapper) }
+                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.updateAll(tModels, wrapper) }
 
         @JvmStatic
         fun <TModel> deleteBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
-            Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.deleteAll(tModels, wrapper) }
+                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.deleteAll(tModels, wrapper) }
     }
 }
 
-inline fun <reified T : Any> Collection<T>.fastSave() = FastStoreModelTransaction.saveBuilder(modelAdapter<T>()).addAll(this)
+inline fun <reified T : Any> Collection<T>.fastSave(): FastStoreModelTransaction.Builder<T> =
+        FastStoreModelTransaction.saveBuilder(modelAdapter<T>()).addAll(this)
 
-inline fun <reified T : Any> Collection<T>.fastInsert() = FastStoreModelTransaction.insertBuilder(modelAdapter<T>()).addAll(this)
+inline fun <reified T : Any> Collection<T>.fastInsert(): FastStoreModelTransaction.Builder<T> =
+        FastStoreModelTransaction.insertBuilder(modelAdapter<T>()).addAll(this)
 
-inline fun <reified T : Any> Collection<T>.fastUpdate() = FastStoreModelTransaction.updateBuilder(modelAdapter<T>()).addAll(this)
+inline fun <reified T : Any> Collection<T>.fastUpdate(): FastStoreModelTransaction.Builder<T> =
+        FastStoreModelTransaction.updateBuilder(modelAdapter<T>()).addAll(this)
 
-inline fun <reified T : Any> Collection<T>.fastDelete() = FastStoreModelTransaction.deleteBuilder(modelAdapter<T>()).addAll(this)
+inline fun <reified T : Any> Collection<T>.fastDelete(): FastStoreModelTransaction.Builder<T> =
+        FastStoreModelTransaction.deleteBuilder(modelAdapter<T>()).addAll(this)

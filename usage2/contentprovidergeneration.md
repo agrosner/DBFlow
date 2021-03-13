@@ -10,36 +10,38 @@ This feature is largely based off of [schematic](https://github.com/SimonVT/sche
 
 In order to define a `ContentProvider`, you must define it in a placeholder class:
 
-```java
+```kotlin
 @ContentProvider(authority = TestContentProvider.AUTHORITY,
-        database = TestDatabase.class,
+        database = TestDatabase::class,
         baseContentUri = TestContentProvider.BASE_CONTENT_URI)
-public class TestContentProvider {
+object TestContentProvider {
 
-    public static final String AUTHORITY = "com.dbflow5.test.provider";
+    const val AUTHORITY = "com.dbflow5.test.provider"
 
-    public static final String BASE_CONTENT_URI = "content://";
+    const val BASE_CONTENT_URI = "content://"
 
 }
 ```
 
-or you can use the annotation in any class you wish. The recommended place would be in a `@Database` placeholder class. This is to simplify some of the declarations and keep it all in one place.
+or you can use the annotation in any class you wish. The recommended place would be in a `@Database` placeholder class. This is to simplify some of the declarations and keep it all in one place. Any database this annotated class references **must** extend `ContentProviderDatabase`
 
-```java
+```kotlin
 @ContentProvider(authority = TestDatabase.AUTHORITY,
-        database = TestDatabase.class,
+        database = TestDatabase::class,
         baseContentUri = TestDatabase.BASE_CONTENT_URI)
 @Database(name = TestDatabase.NAME, version = TestDatabase.VERSION)
-public class TestDatabase {
+abstract class TestDatabase: ContentProviderDatabase() {
+    companion object {
 
-    public static final String NAME = "TestDatabase";
+      const val NAME = "TestDatabase"
 
-    public static final int VERSION = "1";
+      const val VERSION = 1
 
-    public static final String AUTHORITY = "com.dbflow5.test.provider";
+      const val AUTHORITY = "com.dbflow5.test.provider"
 
-    public static final String BASE_CONTENT_URI = "content://";
-
+      const val BASE_CONTENT_URI = "content://"
+      
+    } 
 }
 ```
 
@@ -62,74 +64,69 @@ In other applications or your current's `AndroidManifest.xml` add the **generate
 
 ### Adding endpoints into the data
 
-There are two ways of defining `@TableEndpoint`: 1. Create an inner class within the `@ContentProvider` annotation. 2. Or Add the annotation to a `@Table` and specify the content provider class name \(ex. TestContentProvider\)
+There are two ways of defining `@TableEndpoint`: 
+
+1. Create an inner class within the `@ContentProvider` annotation.
+
+ 2. Or Add the annotation to a `@Table` and specify the content provider class name \(ex. TestContentProvider\)
 
 `@TableEndpoint`: links up a query, insert, delete, and update to a specific table in the `ContentProvider` local database.
 
-Some recommendations: 1. \(if inside a `@ContentProvider` class\) Name the inner class same as the table it's referencing 2. Create a `public static final String ENDPOINT = "{tableName}"` field for reusability 3. Create `buildUri()` method \(see below\) to aid in creating other ones.
+Some recommendations: 
+
+1. \(if inside a `@ContentProvider` class\) Name the inner class same as the table it's referencing 
+
+2. Create a `const val ENDPOINT = "{tableName}"` field for reusability 
+
+3. Create `buildUri()` method \(see below\) to aid in creating other ones.
 
 To define one:
 
-```java
+```kotlin
 @TableEndpoint(ContentProviderModel.ENDPOINT)
-public static class ContentProviderModel {
+object ContentProviderModel {
 
-    public static final String ENDPOINT = "ContentProviderModel";
+    const val ENDPOINT = "ContentProviderModel"
 
-    private static Uri buildUri(String... paths) {
-        Uri.Builder builder = Uri.parse(BASE_CONTENT_URI + AUTHORITY).buildUpon();
-        for (String path : paths) {
-            builder.appendPath(path);
+    fun buildUri(vararg paths: String): Uri {
+        val builder = Uri.parse(BASE_CONTENT_URI + AUTHORITY).buildUpon()
+        for (path in paths) {
+            builder.appendPath(path)
         }
-        return builder.build();
+        return builder.build()
     }
 
     @ContentUri(path = ContentProviderModel.ENDPOINT,
             type = ContentUri.ContentType.VND_MULTIPLE + ENDPOINT)
-    public static Uri CONTENT_URI = buildUri(ENDPOINT);
+    val CONTENT_URI = buildUri(ENDPOINT);
 
-}
+}    
 ```
 
 or via the table it belongs to
 
-```java
-@TableEndpoint(name = ContentProviderModel.NAME, contentProvider = ContentDatabase.class)
-@Table(database = ContentDatabase.class, tableName = ContentProviderModel.NAME)
-public class ContentProviderModel extends BaseProviderModel<ContentProviderModel> {
+```kotlin
+@TableEndpoint(name = ContentProviderModel.NAME, contentProvider = ContentDatabase::class)
+@Table(database = ContentDatabase::class, name = ContentProviderModel.NAME, generateContentValues = true)
+class ContentProviderModel(@PrimaryKey(autoincrement = true)
+                           var id: Long = 0,
+                           var notes: String? = null,
+                           var title: String? = null) : BaseProviderModel() {
 
-    public static final String NAME = "ContentProviderModel";
+    override val deleteUri get() = TestContentProvider.ContentProviderModel.CONTENT_URI
 
-    @ContentUri(path = NAME, type = ContentUri.ContentType.VND_MULTIPLE + NAME)
-    public static final Uri CONTENT_URI = ContentUtils.buildUriWithAuthority(ContentDatabase.AUTHORITY);
+    override val insertUri get() = TestContentProvider.ContentProviderModel.CONTENT_URI
 
-    @PrimaryKey(autoincrement = true)
-    long id;
+    override val updateUri get() = TestContentProvider.ContentProviderModel.CONTENT_URI
 
-    @Column
-    String notes;
+    override val queryUri get() = TestContentProvider.ContentProviderModel.CONTENT_URI
 
-    @Column
-    String title;
+    companion object {
 
-    @Override
-    public Uri getDeleteUri() {
-        return TestContentProvider.ContentProviderModel.CONTENT_URI;
-    }
+        const val NAME = "ContentProviderModel"
 
-    @Override
-    public Uri getInsertUri() {
-        return TestContentProvider.ContentProviderModel.CONTENT_URI;
-    }
-
-    @Override
-    public Uri getUpdateUri() {
-        return TestContentProvider.ContentProviderModel.CONTENT_URI;
-    }
-
-    @Override
-    public Uri getQueryUri() {
-        return TestContentProvider.ContentProviderModel.CONTENT_URI;
+        @ContentUri(path = NAME, type = "${ContentType.VND_MULTIPLE}${NAME}")
+        val CONTENT_URI = ContentUtils.buildUriWithAuthority(ContentDatabase.AUTHORITY)
     }
 }
 ```
@@ -148,14 +145,14 @@ There are two kinds of `Model` that connect your application to a ContentProvide
 
 You can use the `ContentUtils` methods:
 
-```java
-ContentProviderModel contentProviderModel = ...; // some instance
+```kotlin
+val contentProviderModel: ContentProviderModel = ...; // some instance
 
-int count = ContentUtils.update(getContentResolver(), ContentProviderModel.CONTENT_URI, contentProviderModel);
+val count = ContentUtils.update(contentResolver, ContentProviderModel.CONTENT_URI, contentProviderModel)
 
-Uri uri = ContentUtils.insert(getContentResolver(), ContentProviderModel.CONTENT_URI, contentProviderModel);
+val uri = ContentUtils.insert(contentResolver, ContentProviderModel.CONTENT_URI, contentProviderModel)
 
-int count = ContentUtils.delete(getContentResolver(), someContentUri, contentProviderModel);
+val count = ContentUtils.delete(contentResolver, someContentUri, contentProviderModel)
 ```
 
 **Recommended** usage is extending `BaseSyncableProviderModel` \(for inter-app usage\) so the local database contains the same data. Otherwise `BaseProviderModel` works just as well.
@@ -163,12 +160,12 @@ int count = ContentUtils.delete(getContentResolver(), someContentUri, contentPro
 ```java
 MyModel model = new MyModel();
 model.id = 5;
-model.load(); // queries the content provider
+model.load(database<ContentDatabase>()) // queries the content provider
 
 model.someProp = "Hello"
-model.update(false); // runs an update on the CP
+model.update(database<ContentDatabase>()) // runs an update on the CP
 
-model.insert(false); // inserts the data into the CP
+model.insert(database<ContentDatabase>()) // inserts the data into the CP
 ```
 
 ## Advanced Usage
@@ -181,14 +178,13 @@ Supported kinds include: 1. Update 2. Insert 3. Delete
 
 #### Example
 
-```java
-@Notify(method = Notify.Method.UPDATE,
+```kotlin
+@JvmStatic
+@Notify(method = NotifyMethod.UPDATE,
 paths = {}) // specify paths that will call this method when specified.
-public static Uri[] onUpdate(Context context, Uri uri) {
+fun onUpdate(context: Context, uri: Uri): Array<Uri> {
 
-  return new Uri[] {
-    // return custom uris here
-  };
+  return arrayOf(...) // return custom uris here
 }
 ```
 
@@ -206,20 +202,19 @@ path = "Friends/#/#"
 
 then match up the segments as:
 
-```java
-segments = {@PathSegment(segment = 1, column = "id"),
-    @PathSegment(segment = 2, column = "name")}
+```kotlin
+segments = [@PathSegment(segment = 1, column = "id"),
+    @PathSegment(segment = 2, column = "name")]
 ```
 
 And to put it all together:
 
-```java
+```kotlin
+@JvmStatic
 @ContentUri(type = ContentType.VND_MULTIPLE,
 path = "Friends/#/#",
-segments = {@PathSegment(segment = 1, column = "id"),
-    @PathSegment(segment = 2, column = "name")})
-public static Uri withIdAndName(int id, String name) {
-  return buildUri(id, name);
-}
+segments = [@PathSegment(segment = 1, column = "id"),
+    @PathSegment(segment = 2, column = "name")])
+fun withIdAndName(int id, String name): Uri = buildUri(id, name)
 ```
 

@@ -1,30 +1,17 @@
 package com.dbflow5.adapter
 
-import com.dbflow5.annotation.DEFAULT_CACHE_SIZE
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
-import com.dbflow5.query.cache.IMultiKeyCacheConverter
+import com.dbflow5.query.cache.MultiKeyCacheConverter
 import com.dbflow5.query.cache.ModelCache
-import com.dbflow5.query.cache.SimpleMapCache
 import com.dbflow5.structure.InvalidDBConfiguration
 
 /**
  * Description:
  */
-abstract class CacheAdapter<T : Any> {
-
-    val modelCache: ModelCache<T, *> by lazy { createModelCache() }
-
-    open val cacheSize: Int
-        get() = DEFAULT_CACHE_SIZE
-
-    open val cachingColumnSize: Int
-        get() = 1
-
-    open val cacheConverter: IMultiKeyCacheConverter<*>
-        get() = throw InvalidDBConfiguration("For multiple primary keys, a public static IMultiKeyCacheConverter field must" +
-            "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
-            "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.")
+abstract class CacheAdapter<T : Any>(val modelCache: ModelCache<T, *>,
+                                     val cachingColumnSize: Int = 1,
+                                     val cacheConverter: MultiKeyCacheConverter<*>? = null) {
 
     /**
      * @param cursor The cursor to load caching id from.
@@ -37,7 +24,6 @@ abstract class CacheAdapter<T : Any> {
      * @return The single cache column from model (if single).
      */
     open fun getCachingColumnValueFromModel(model: T): Any? = Unit
-
 
     /**
      * Loads all primary keys from the [FlowCursor] into the inValues. The size of the array must
@@ -64,8 +50,16 @@ abstract class CacheAdapter<T : Any> {
         modelCache.addModel(getCachingId(model), model)
     }
 
+    fun storeModelsInCache(models: Collection<T>) {
+        models.onEach { storeModelInCache(it) }
+    }
+
     fun removeModelFromCache(model: T) {
         getCachingId(model)?.let { modelCache.removeModel(it) }
+    }
+
+    fun removeModelsFromCache(models: Collection<T>) {
+        models.onEach { removeModelFromCache(it) }
     }
 
     fun clearCache() {
@@ -75,15 +69,16 @@ abstract class CacheAdapter<T : Any> {
     fun getCachingId(inValues: Array<Any>?): Any? = when {
         inValues?.size == 1 -> // if it exists in cache no matter the query we will use that one
             inValues.getOrNull(0)
-        inValues != null -> cacheConverter.getCachingKey(inValues)
+        inValues != null -> cacheConverter?.getCachingKey(inValues)
+                ?: throw InvalidDBConfiguration("For multiple primary keys, a public static MultiKeyCacheConverter field must" +
+                        "be  marked with @MultiCacheField in the corresponding model class. The resulting key" +
+                        "must be a unique combination of the multiple keys, otherwise inconsistencies may occur.")
         else -> null
     }
 
     open fun getCachingId(model: T): Any? =
-        getCachingId(getCachingColumnValuesFromModel(arrayOfNulls(cachingColumnSize), model))
+            getCachingId(getCachingColumnValuesFromModel(arrayOfNulls(cachingColumnSize), model))
 
-
-    open fun createModelCache(): ModelCache<T, *> = SimpleMapCache(cacheSize)
 
     /**
      * Reloads relationships when loading from [FlowCursor] in a model that's cacheable. By having

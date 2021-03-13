@@ -13,7 +13,7 @@ interface InternalAdapter<in TModel> {
     /**
      * @return The table name of this adapter.
      */
-    val tableName: String
+    val name: String
 
     /**
      * Saves the specified model to the DB.

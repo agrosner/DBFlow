@@ -3,62 +3,71 @@ package com.dbflow5.processor.definition
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.QueryModel
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.definition.behavior.AssociationalBehavior
+import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
-import com.dbflow5.processor.definition.column.ReferenceColumnDefinition
 import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
-import com.dbflow5.processor.utils.implementsClass
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 
 /**
  * Description:
  */
-class QueryModelDefinition(typeElement: Element, processorManager: ProcessorManager)
-    : BaseTableDefinition(typeElement, processorManager) {
+class QueryModelDefinition(override val associationalBehavior: AssociationalBehavior,
+                           override val cursorHandlingBehavior: CursorHandlingBehavior,
+                           typeElement: TypeElement,
+                           processorManager: ProcessorManager)
+    : EntityDefinition(typeElement, processorManager) {
 
-    var allFields: Boolean = false
+    override val methods: Array<MethodDefinition> = arrayOf(LoadFromCursorMethod(this),
+        ExistenceMethod(this),
+        PrimaryConditionMethod(this))
 
-    var implementsLoadFromCursorListener = false
+    constructor(queryModel: QueryModel, typeElement: TypeElement,
+                processorManager: ProcessorManager) : this(
+        AssociationalBehavior(
+            name = typeElement.simpleName.toString(),
+            databaseTypeName = queryModel.extractTypeNameFromAnnotation { it.database },
+            allFields = queryModel.allFields
+        ),
+        CursorHandlingBehavior(
+            orderedCursorLookup = queryModel.orderedCursorLookUp,
+            assignDefaultValuesFromCursor = queryModel.assignDefaultValuesFromCursor
+        ),
+        typeElement, processorManager)
 
-    internal var methods: Array<MethodDefinition>
+    /**
+     * [ColumnMap] constructor.
+     */
+    constructor(typeElement: TypeElement,
+                databaseTypeName: TypeName,
+                processorManager: ProcessorManager) : this(
+        AssociationalBehavior(
+            name = typeElement.simpleName.toString(),
+            databaseTypeName = databaseTypeName,
+            allFields = true
+        ),
+        CursorHandlingBehavior(),
+        typeElement, processorManager)
 
     init {
-        databaseTypeName = typeElement.extractTypeNameFromAnnotation<QueryModel> { it.database }
-
-        elementClassName?.let { elementClassName ->
-            databaseTypeName?.let { processorManager.addModelToDatabase(elementClassName, it) }
-        }
-
-        implementsLoadFromCursorListener = (element as? TypeElement)
-                ?.implementsClass(manager.processingEnvironment, com.dbflow5.processor.ClassNames.LOAD_FROM_CURSOR_LISTENER) == true
-
-        methods = arrayOf(LoadFromCursorMethod(this))
-
+        setOutputClassName("_QueryTable")
+        processorManager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
     }
 
-    override fun prepareForWrite() {
-        classElementLookUpMap.clear()
-        columnDefinitions.clear()
-        packagePrivateList.clear()
-
-        val queryModel = typeElement.annotation<QueryModel>()
-        allFields = queryModel?.allFields ?: true
-
-        databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)?.databaseDefinition
-        setOutputClassName("${databaseDefinition?.classSeparator}QueryTable")
-
+    override fun prepareForWriteInternal() {
         typeElement?.let { createColumnDefinitions(it) }
     }
 
     override val extendsClass: TypeName?
-        get() = ParameterizedTypeName.get(com.dbflow5.processor.ClassNames.QUERY_MODEL_ADAPTER, elementClassName)
+        get() = ParameterizedTypeName.get(ClassNames.RETRIEVAL_ADAPTER, elementClassName)
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
@@ -71,51 +80,43 @@ class QueryModelDefinition(typeElement: Element, processorManager: ProcessorMana
         }
 
         methods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
+            .forEach { typeBuilder.addMethod(it) }
     }
 
     override fun createColumnDefinitions(typeElement: TypeElement) {
+        val columnGenerator = BasicColumnGenerator(manager)
         val variableElements = ElementUtility.getAllElements(typeElement, manager)
-        variableElements.forEach { classElementLookUpMap.put(it.simpleName.toString(), it) }
+        for (element in variableElements) {
+            classElementLookUpMap[element.simpleName.toString()] = element
+        }
 
         val columnValidator = ColumnValidator()
         for (variableElement in variableElements) {
 
             // no private static or final fields
-            val isAllFields = ElementUtility.isValidAllFields(allFields, variableElement)
+            val isAllFields = ElementUtility.isValidAllFields(associationalBehavior.allFields, variableElement)
             // package private, will generate helper
-            val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
-            val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, variableElement, this.element)
             val isColumnMap = variableElement.annotation<ColumnMap>() != null
 
             if (variableElement.annotation<Column>() != null || isAllFields || isColumnMap) {
-
-                if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, variableElement)) return
-
-                val columnDefinition = if (isColumnMap) {
-                    ReferenceColumnDefinition(manager, this, variableElement, isPackagePrivateNotInSamePackage)
-                } else {
-                    ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage)
-                }
-                if (columnValidator.validate(manager, columnDefinition)) {
-                    columnDefinitions.add(columnDefinition)
-
-                    if (isPackagePrivate) {
-                        packagePrivateList.add(columnDefinition)
+                val isPackagePrivate = ElementUtility.isPackagePrivate(element)
+                columnGenerator.generate(variableElement, this)?.let { columnDefinition ->
+                    if (columnValidator.validate(manager, columnDefinition)) {
+                        columnDefinitions.add(columnDefinition)
+                        if (isPackagePrivate) {
+                            packagePrivateList.add(columnDefinition)
+                        }
                     }
-                }
 
-                if (columnDefinition.isPrimaryKey
-                        || columnDefinition.isPrimaryKeyAutoIncrement
-                        || columnDefinition.isRowId) {
-                    manager.logError("QueryModel $elementName cannot have primary keys")
+                    if (columnDefinition.type.isPrimaryField) {
+                        manager.logError("QueryModel $elementName cannot have primary keys")
+                    }
                 }
             }
         }
     }
 
-    override // Shouldn't include any
-    val primaryColumnDefinitions: List<ColumnDefinition>
-        get() = arrayListOf()
+    override val primaryColumnDefinitions: List<ColumnDefinition>
+        get() = columnDefinitions
 
 }

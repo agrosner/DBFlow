@@ -2,28 +2,38 @@
 
 DBFlow provide a few mechanisms by which we store data to the database. The difference of options should not provide confusion but rather allow flexibility in what you decide is the best way to store information.
 
+DB classifies two different kind of DB transactions:
+
+1. Synchronous
+2. Asynchronous
+
 ## Synchronous Storage
 
-While generally saving data synchronous should be avoided, for small amounts of data it has little effect.
+Saving data synchronous on the main thread should be avoided. We can save data synchronously using a synchronous transaction:
 
 ```kotlin
-model.save()
-model.insert()
-model.update()
+database<AppDatabase>().executeTransaction { db -> 
+  modelAdapter.save(model, db)
+  modelAdapter.insert(model, db)
+  modelAdapter.update(model, db)
+}
 ```
 
-Avoid saving large amounts of models outside of a transaction:
+_Avoid_ saving large amounts of models outside of a transaction:
 
 ```kotlin
 // AVOID
-models.forEach { it.save() }
+models.forEach { it.save(db) }
+
+// DO
+database<AppDatabase>().executeTransaction { db -> 
+  modelAdapter<MyModel>().saveAll(models, db)
+}
 ```
 
 Doing operations on the main thread can block it if you read and write to the DB on a different thread while accessing DB on the main. Instead, use Async Transactions.
 
-### Async Transactions
-
-## Transactions
+## Async Transactions
 
 Transactions are ACID in SQLite, meaning they either occur completely or not at all. Using transactions significantly speed up the time it takes to store. So recommendation you should use transactions whenever you can.
 
@@ -39,6 +49,7 @@ A basic transaction:
     // return a result, or execute a method that returns a result
   }.build()
 transaction.execute(
+   ready = { transaction -> } // perform any setup.
    error = { transaction, error -> // handle any exceptions here },
    completion = { transaction -> // called when transaction completes success or fail }
   ) { transaction, result ->
@@ -48,7 +59,9 @@ transaction.cancel();
  // attempt to cancel before its run. If it's already ran, this call has no effect.
 ```
 
-The `Success` callback runs post-transaction on the UI thread. The `Error` callback is called on the UI thread if and only if it is specified and an exception occurs, otherwise it is thrown in the `Transaction` as a `RuntimeException`. **Note**: all exceptions are caught when specifying the callback. Ensure you handle all errors, otherwise you might miss some problems.
+The `Success` callback runs post-transaction on the UI thread. The `Error` callback is called on the UI thread if and only if it is specified and an exception occurs, otherwise it is thrown in the `Transaction` as a `RuntimeException`. 
+
+**Note**: all exceptions are caught when specifying the callback. Ensure you handle all errors, otherwise you might miss some problems.
 
 ### ProcessModelTransaction
 
@@ -59,13 +72,13 @@ It is a convenient way to operate on them:
 ```kotlin
 database.beginTransactionAsync(items.processTransaction { model, db ->
       // call some operation on model here
-      model.save()
-      model.insert() // or
-      model.delete() // or
+      model.save(db)
+      model.insert(db) // or
+      model.delete(db) // or
     }
     .processListener { current, total, modifiedModel ->
         // for every model looped through and completes
-        modelProcessedCount.incrementAndGet();
+        modelProcessedCount.incrementAndGet()
      }
     .build())
     .execute()
@@ -75,7 +88,13 @@ You can listen to when operations complete for each model via the `OnModelProces
 
 ### FastStoreModelTransaction
 
-The `FastStoreModelTransaction` is the quickest, lightest way to store a `List` of `Model` into the database through a `Transaction`. It comes with some restrictions when compared to `ProcessModelTransaction`: 1. All `Model` must be from same Table/Model Class. 2. No progress listening 3. Can only `save`, `insert`, or `update` the whole list entirely.
+The `FastStoreModelTransaction` is the quickest, lightest way to store a `List` of `Model` into the database through a `Transaction`. Under the hood it just calls `modelAdapter.saveAll()` or \(insertAll, updateAll, deleteAll\) It comes with some restrictions when compared to `ProcessModelTransaction`: 
+
+1. All `Model` must be from same Table/Model Class. 
+
+2. No progress listening 
+
+3. Can only `save`, `insert`, or `update` the whole list entirely.
 
 ```kotlin
 database.beginTransactionAsync(list.fastSave().build())
@@ -86,7 +105,13 @@ database.beginTransactionAsync(list.fastUpdate().build())
   .execute()
 ```
 
-What it provides: 1. Reuses `ContentValues`, `DatabaseStatement`, and other classes where possible. 2. Opens and closes own `DatabaseStatement` per total execution. 3. Significant speed bump over `ProcessModelTransaction` at the expense of flexibility.
+What it provides: 
+
+1. Reuses `DatabaseStatement`, and other classes where possible. 
+
+2. Opens and closes own `DatabaseStatement` per total execution. 
+
+3. Significant speed bump over `ProcessModelTransaction` at the expense of flexibility.
 
 ### Custom TransactionManager
 
@@ -166,8 +191,8 @@ To specify a priority, wrap your original `ITransaction` with a `PriorityTransac
 
 ```kotlin
 database<AppDatabase>()
-    .beginTransactionAsync(PriorityTransactionWrapper.Builder(myTransaction)
-        .priority(PriorityTransactionWrapper.PRIORITY_HIGH).build())
-    .execute();
+    .beginTransactionAsync(myTransaction
+      .withPriority(PriorityTransactionWrapper.PRIORITY_HIGH))
+    .execute()
 ```
 

@@ -11,42 +11,25 @@ import com.dbflow5.config.OpenHelperCreator
  */
 open class AndroidSQLiteOpenHelper(
     private val context: Context,
-    databaseDefinition: DBFlowDatabase,
-    listener: DatabaseCallback?)
-    : SQLiteOpenHelper(context,
-    if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
-    null,
-    databaseDefinition.databaseVersion), OpenHelper {
-
-    private val databaseHelperDelegate: DatabaseHelperDelegate
-    private var androidDatabase: AndroidDatabase? = null
-    private val _databaseName = databaseDefinition.databaseFileName
-
-    init {
-        var backupHelper: OpenHelper? = null
-        if (databaseDefinition.backupEnabled()) {
+    dbFlowDatabase: DBFlowDatabase,
+    listener: DatabaseCallback?,
+    private val databaseHelperDelegate: DatabaseHelperDelegate = DatabaseHelperDelegate(context, listener, dbFlowDatabase,
+        if (dbFlowDatabase.backupEnabled()) {
             // Temp database mirrors existing
-            backupHelper = BackupHelper(context,
-                DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                databaseDefinition.databaseVersion, databaseDefinition)
-        }
+            BackupHelper(context,
+                DatabaseHelperDelegate.getTempDbFileName(dbFlowDatabase),
+                dbFlowDatabase.databaseVersion, dbFlowDatabase)
+        } else null),
+) : SQLiteOpenHelper(
+    context,
+    if (dbFlowDatabase.isInMemory) null else dbFlowDatabase.databaseFileName,
+    null,
+    dbFlowDatabase.databaseVersion,
+), OpenHelper, OpenHelperDelegate by databaseHelperDelegate {
 
-        databaseHelperDelegate = DatabaseHelperDelegate(context, listener, databaseDefinition, backupHelper)
-    }
 
-    override fun performRestoreFromBackup() {
-        databaseHelperDelegate.performRestoreFromBackup()
-    }
-
-    override val delegate: DatabaseHelperDelegate?
-        get() = databaseHelperDelegate
-
-    override val isDatabaseIntegrityOk: Boolean
-        get() = databaseHelperDelegate.isDatabaseIntegrityOk
-
-    override fun backupDB() {
-        databaseHelperDelegate.backupDB()
-    }
+    private var androidDatabase: AndroidDatabase? = null
+    private val _databaseName = dbFlowDatabase.databaseFileName
 
     override val database: DatabaseWrapper
         get() {
@@ -64,6 +47,10 @@ open class AndroidSQLiteOpenHelper(
      */
     override fun setDatabaseListener(callback: DatabaseCallback?) {
         databaseHelperDelegate.setDatabaseHelperListener(callback)
+    }
+
+    override fun onConfigure(db: SQLiteDatabase) {
+        databaseHelperDelegate.onConfigure(AndroidDatabase.from(db))
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -93,13 +80,13 @@ open class AndroidSQLiteOpenHelper(
     /**
      * Simple helper to manage backup.
      */
-    private inner class BackupHelper(context: Context,
-                                     name: String, version: Int,
-                                     databaseDefinition: DBFlowDatabase)
+    private class BackupHelper(private val context: Context,
+                               name: String, version: Int,
+                               databaseDefinition: DBFlowDatabase)
         : SQLiteOpenHelper(context, name, null, version), OpenHelper {
 
         private var androidDatabase: AndroidDatabase? = null
-        private val baseDatabaseHelper: BaseDatabaseHelper = BaseDatabaseHelper(context, databaseDefinition)
+        private val databaseHelper: DatabaseHelper = DatabaseHelper(AndroidMigrationFileHelper(context), databaseDefinition)
         private val _databaseName = databaseDefinition.databaseFileName
 
         override val database: DatabaseWrapper
@@ -122,20 +109,24 @@ open class AndroidSQLiteOpenHelper(
 
         override fun setDatabaseListener(callback: DatabaseCallback?) {}
 
+        override fun onConfigure(db: SQLiteDatabase) {
+            databaseHelper.onConfigure(AndroidDatabase.from(db))
+        }
+
         override fun onCreate(db: SQLiteDatabase) {
-            baseDatabaseHelper.onCreate(AndroidDatabase.from(db))
+            databaseHelper.onCreate(AndroidDatabase.from(db))
         }
 
         override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            baseDatabaseHelper.onUpgrade(AndroidDatabase.from(db), oldVersion, newVersion)
+            databaseHelper.onUpgrade(AndroidDatabase.from(db), oldVersion, newVersion)
         }
 
         override fun onOpen(db: SQLiteDatabase) {
-            baseDatabaseHelper.onOpen(AndroidDatabase.from(db))
+            databaseHelper.onOpen(AndroidDatabase.from(db))
         }
 
         override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            baseDatabaseHelper.onDowngrade(AndroidDatabase.from(db), oldVersion, newVersion)
+            databaseHelper.onDowngrade(AndroidDatabase.from(db), oldVersion, newVersion)
         }
 
         override fun closeDB() = Unit
@@ -148,7 +139,7 @@ open class AndroidSQLiteOpenHelper(
     companion object {
         @JvmStatic
         fun createHelperCreator(context: Context): OpenHelperCreator =
-            { db: DBFlowDatabase, databaseCallback: DatabaseCallback? ->
+            OpenHelperCreator { db: DBFlowDatabase, databaseCallback: DatabaseCallback? ->
                 AndroidSQLiteOpenHelper(context, db, databaseCallback)
             }
     }

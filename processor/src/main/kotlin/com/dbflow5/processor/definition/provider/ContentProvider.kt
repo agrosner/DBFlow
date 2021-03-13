@@ -1,45 +1,21 @@
 package com.dbflow5.processor.definition.provider
 
+import com.dbflow5.contentprovider.annotation.NotifyMethod
+import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.definition.CodeAdder
+import com.dbflow5.processor.definition.MethodDefinition
 import com.grosner.kpoet.L
-import com.grosner.kpoet.`=`
-import com.grosner.kpoet.`break`
-import com.grosner.kpoet.`private final field`
-import com.grosner.kpoet.`private static final field`
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.case
 import com.grosner.kpoet.code
-import com.grosner.kpoet.final
-import com.grosner.kpoet.modifiers
-import com.grosner.kpoet.param
 import com.grosner.kpoet.parameterized
-import com.grosner.kpoet.public
 import com.grosner.kpoet.statement
-import com.dbflow5.contentprovider.annotation.ContentProvider
-import com.dbflow5.contentprovider.annotation.ContentUri
-import com.dbflow5.contentprovider.annotation.NotifyMethod
-import com.dbflow5.contentprovider.annotation.PathSegment
-import com.dbflow5.contentprovider.annotation.TableEndpoint
-import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.TableEndpointValidator
-import com.dbflow5.processor.definition.BaseDefinition
-import com.dbflow5.processor.definition.CodeAdder
-import com.dbflow5.processor.definition.MethodDefinition
-import com.dbflow5.processor.utils.`override fun`
-import com.dbflow5.processor.utils.annotation
-import com.dbflow5.processor.utils.controlFlow
-import com.dbflow5.processor.utils.isNullOrEmpty
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
-import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
-import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.MirroredTypeException
 
 internal fun appendDefault(code: CodeBlock.Builder) {
     code.beginControlFlow("default:")
@@ -211,29 +187,13 @@ class NotifyMethod(private val tableEndpointDefinition: TableEndpointDefinition,
             if (notifyDefinitionList != null) {
                 for (i in notifyDefinitionList.indices) {
                     val notifyDefinition = notifyDefinitionList[i]
-                    if (notifyDefinition.returnsArray) {
-                        code.addStatement("\$T[] notifyUris\$L = \$L.\$L(\$L)", com.dbflow5.processor.ClassNames.URI,
-                            notifyDefinition.methodName, notifyDefinition.parent,
-                            notifyDefinition.methodName, notifyDefinition.params)
-                        code.beginControlFlow("for (\$T notifyUri: notifyUris\$L)", com.dbflow5.processor.ClassNames.URI, notifyDefinition.methodName)
-                    } else {
-                        code.addStatement("\$T notifyUri\$L = \$L.\$L(\$L)", com.dbflow5.processor.ClassNames.URI,
-                            notifyDefinition.methodName, notifyDefinition.parent,
-                            notifyDefinition.methodName, notifyDefinition.params)
-                    }
-                    code.addStatement("getContext().getContentResolver().notifyChange(notifyUri\$L, null)",
-                        if (notifyDefinition.returnsArray) "" else notifyDefinition.methodName)
-                    if (notifyDefinition.returnsArray) {
-                        code.endControlFlow()
-                    }
-
+                    notifyDefinition.addCode(code)
                     hasListener = true
                 }
             }
         }
 
         if (!hasListener) {
-
             val isUpdateDelete = notifyMethod == NotifyMethod.UPDATE || notifyMethod == NotifyMethod.DELETE
             if (isUpdateDelete) {
                 code.beginControlFlow("if (count > 0)")
@@ -360,175 +320,3 @@ class UpdateMethod(private val contentProviderDefinition: ContentProviderDefinit
 
 }
 
-/**
- * Description:
- */
-class ContentProviderDefinition(typeElement: Element, processorManager: ProcessorManager)
-    : BaseDefinition(typeElement, processorManager) {
-
-    var databaseTypeName: TypeName? = null
-
-    var authority: String = ""
-
-    var endpointDefinitions = arrayListOf<TableEndpointDefinition>()
-
-    private val methods: Array<MethodDefinition> = arrayOf(QueryMethod(this, manager),
-        InsertMethod(this, false),
-        InsertMethod(this, true),
-        DeleteMethod(this, manager),
-        UpdateMethod(this, manager))
-
-    init {
-        element.annotation<ContentProvider>()?.let { provider ->
-            try {
-                provider.database
-            } catch (mte: MirroredTypeException) {
-                databaseTypeName = TypeName.get(mte.typeMirror)
-            }
-
-            authority = provider.authority
-
-            val validator = TableEndpointValidator()
-            val elements = manager.elements.getAllMembers(typeElement as TypeElement)
-            elements.forEach {
-                if (it.getAnnotation(TableEndpoint::class.java) != null) {
-                    val endpointDefinition = TableEndpointDefinition(it, manager)
-                    if (validator.validate(processorManager, endpointDefinition)) {
-                        endpointDefinitions.add(endpointDefinition)
-                    }
-                }
-            }
-
-        }
-
-    }
-
-    override val extendsClass: TypeName?
-        get() = com.dbflow5.processor.ClassNames.BASE_CONTENT_PROVIDER
-
-    fun prepareForWrite() {
-        val databaseDefinition = manager.getDatabaseHolderDefinition(databaseTypeName)!!.databaseDefinition
-        setOutputClassName(databaseDefinition?.classSeparator + DEFINITION_NAME)
-    }
-
-    override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
-
-        typeBuilder.apply {
-            var code = 0
-            for (endpointDefinition in endpointDefinitions) {
-                endpointDefinition.contentUriDefinitions.forEach {
-                    `private static final field`(TypeName.INT, it.name) { `=`(code.toString()) }
-                    code++
-                }
-            }
-
-            `private final field`(com.dbflow5.processor.ClassNames.URI_MATCHER, URI_MATCHER) { `=`("new \$T(\$T.NO_MATCH)", com.dbflow5.processor.ClassNames.URI_MATCHER, com.dbflow5.processor.ClassNames.URI_MATCHER) }
-
-            `override fun`(TypeName.BOOLEAN, "onCreate") {
-                modifiers(public, final)
-                addStatement("final \$T $AUTHORITY = \$L", String::class.java,
-                    if (authority.contains("R.string."))
-                        "getContext().getString($authority)"
-                    else
-                        "\"$authority\"")
-
-                for (endpointDefinition in endpointDefinitions) {
-                    endpointDefinition.contentUriDefinitions.forEach {
-                        val path = if (!it.path.isNullOrEmpty()) {
-                            "\"${it.path}\""
-                        } else {
-                            CodeBlock.builder().add("\$L.\$L.getPath()", it.elementClassName,
-                                it.name).build().toString()
-                        }
-                        addStatement("\$L.addURI(\$L, \$L, \$L)", URI_MATCHER, AUTHORITY, path, it.name)
-                    }
-                }
-
-                addStatement("return super.onCreate()")
-            }
-
-            `override fun`(String::class, "getDatabaseName") {
-                modifiers(public, final)
-                `return`("\$T.getDatabaseName(\$T.class)", com.dbflow5.processor.ClassNames.FLOW_MANAGER, databaseTypeName)
-            }
-
-            `override fun`(String::class, "getType", param(com.dbflow5.processor.ClassNames.URI, "uri")) {
-                modifiers(public, final)
-                code {
-                    statement("\$T type = null", ClassName.get(String::class.java))
-                    controlFlow("switch(\$L.match(uri))", URI_MATCHER) {
-                        endpointDefinitions.flatMap { it.contentUriDefinitions }
-                            .forEach { uri ->
-                                controlFlow("case \$L:", uri.name) {
-                                    statement("type = \$S", uri.type)
-                                    `break`()
-                                }
-                            }
-                        appendDefault(this)
-                    }
-                    `return`("type")
-                }
-            }
-        }
-
-        methods.mapNotNull { it.methodSpec }
-            .forEach { typeBuilder.addMethod(it) }
-    }
-
-    companion object {
-
-        internal val DEFINITION_NAME = "Provider"
-        val URI_MATCHER = "MATCHER"
-        private val AUTHORITY = "AUTHORITY"
-    }
-}
-
-/**
- * Description:
- */
-class ContentUriDefinition(typeElement: Element, processorManager: ProcessorManager) : BaseDefinition(typeElement, processorManager) {
-
-    var name = "${typeElement.enclosingElement.simpleName}_${typeElement.simpleName}"
-
-    var path = ""
-
-    var type = ""
-
-    var queryEnabled = false
-
-    var insertEnabled = false
-
-    var deleteEnabled = false
-
-
-    var updateEnabled = false
-
-    var segments = arrayOf<PathSegment>()
-
-    init {
-        typeElement.annotation<ContentUri>()?.let { contentUri ->
-            path = contentUri.path
-            type = contentUri.type
-            queryEnabled = contentUri.queryEnabled
-            insertEnabled = contentUri.insertEnabled
-            deleteEnabled = contentUri.deleteEnabled
-            updateEnabled = contentUri.updateEnabled
-
-            segments = contentUri.segments
-        }
-
-        if (typeElement is VariableElement) {
-            if (com.dbflow5.processor.ClassNames.URI != elementTypeName) {
-                processorManager.logError("Content Uri field returned wrong type. It must return a Uri")
-            }
-        } else if (typeElement is ExecutableElement) {
-            if (com.dbflow5.processor.ClassNames.URI != elementTypeName) {
-                processorManager.logError("ContentUri method returns wrong type. It must return Uri")
-            }
-        }
-    }
-
-    override fun getElementClassName(element: Element?): ClassName? {
-        return null
-    }
-}

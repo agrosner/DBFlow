@@ -2,6 +2,8 @@
 
 DBFlow has a number of artifacts that you can include in the project.
 
+**Kotlin:** Built using the language, the library is super-concise, null-safe and efficient.
+
 **Annotation Processor**: Generates the necessary code that you don't need to write.
 
 **Core:** Contains the main annotations and misc classes that are shared across all of DBFlow.
@@ -13,6 +15,8 @@ DBFlow has a number of artifacts that you can include in the project.
 **RX Java:** Enable applications to be reactive by listening to DB changes and ensuring your subscribers are up-to-date.
 
 **Paging:** Android architecture component paging library support for queries via `QueryDataSource`.
+
+**LiveData:** Android architecture LiveData support for queries on table changes.
 
 **SQLCipher:** Easy database encryption support in this library.
 
@@ -36,7 +40,7 @@ Add artifacts to your project:
 ```groovy
   apply plugin: 'kotlin-kapt' // only required for kotlin consumers.
 
-  def dbflow_version = "5.0.0-alpha1"
+  def dbflow_version = "5.0.0-alpha2"
   // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
 
   dependencies {
@@ -64,6 +68,9 @@ Add artifacts to your project:
 
     // Android Architecture Components Paging Library Support
     implementation "com.github.agrosner.dbflow:paging:${dbflow_version}"
+
+    // Android Architecture Components LiveData Library Support
+    implementation "com.github.agrosner.dbflow:livedata:${dbflow_version}"
 
     // adds generated content provider annotations + support.
     implementation "com.github.agrosner.dbflow:contentprovider:${dbflow_version}"

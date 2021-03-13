@@ -18,8 +18,10 @@ annotation class Migration(
          */
         val database: KClass<*>,
         /**
-         * @return If number greater than -1, the migrations from the same [.version] get ordered from
-         * highest to lowest. if they are the same priority, there is no telling which one is executed first. The
+         * @return If number greater than -1, the migrations are in run in reverse priority,
+         * meaning ones from the same [version] get ordered from
+         * lowest to highest number.  if they are the same priority,
+         * there is no telling which one is executed first. The
          * annotation processor will process in order it finds the classes.
          */
         val priority: Int = -1)

@@ -9,22 +9,14 @@ import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.ModelQueriable
 
 /**
+ * Interface for callbacks when cursor gets refreshed.
+ */
+typealias OnCursorRefreshListener<T> = (cursorList: FlowCursorList<T>) -> Unit
+
+/**
  * Description: A non-modifiable, cursor-backed list that you can use in [ListView] or other data sources.
  */
 class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCursorIterator<T> {
-
-    /**
-     * Interface for callbacks when cursor gets refreshed.
-     */
-    interface OnCursorRefreshListener<TModel : Any> {
-
-        /**
-         * Callback when cursor refreshes.
-         *
-         * @param cursorList The object that changed.
-         */
-        fun onCursorRefreshed(cursorList: FlowCursorList<TModel>)
-    }
 
     val table: Class<T>
     val modelQueriable: ModelQueriable<T>
@@ -70,8 +62,8 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         trackingCursor = builder.cursor != null
         cursorFunc = {
             builder.cursor
-                ?: modelQueriable.cursor(databaseWrapper)
-                ?: throw IllegalStateException("The object must evaluate to a cursor")
+                    ?: modelQueriable.cursor(databaseWrapper)
+                    ?: throw IllegalStateException("The object must evaluate to a cursor")
         }
         instanceAdapter = FlowManager.getRetrievalAdapter(builder.modelClass)
     }
@@ -82,7 +74,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     override operator fun iterator(): FlowCursorIterator<T> = FlowCursorIterator(databaseWrapper, this)
 
     override fun iterator(startingLocation: Long, limit: Long): FlowCursorIterator<T> =
-        FlowCursorIterator(databaseWrapper, this, startingLocation, limit)
+            FlowCursorIterator(databaseWrapper, this, startingLocation, limit)
 
     /**
      * Register listener for when cursor refreshes.
@@ -109,7 +101,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         this._cursor = modelQueriable.cursor(databaseWrapper)
         trackingCursor = false
         synchronized(cursorRefreshListenerSet) {
-            cursorRefreshListenerSet.forEach { listener -> listener.onCursorRefreshed(this) }
+            cursorRefreshListenerSet.forEach { listener -> listener(this) }
         }
     }
 
@@ -126,9 +118,9 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
         val cursor = unpackCursor()
         return if (cursor.moveToPosition(index.toInt())) {
             instanceAdapter.singleModelLoader.convertToData(
-                FlowCursor.from(cursor), false,
-                databaseWrapper)
-                ?: throw IndexOutOfBoundsException("Invalid item at index $index. Check your cursor data.")
+                    FlowCursor.from(cursor), false,
+                    databaseWrapper)
+                    ?: throw IndexOutOfBoundsException("Invalid item at index $index. Check your cursor data.")
         } else {
             throw IndexOutOfBoundsException("Invalid item at index $index. Check your cursor data.")
         }

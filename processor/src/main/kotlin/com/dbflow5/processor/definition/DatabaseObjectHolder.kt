@@ -16,12 +16,12 @@ class DatabaseObjectHolder {
         }
 
     var tableDefinitionMap: MutableMap<TypeName, TableDefinition> = hashMapOf()
-    var tableNameMap: MutableMap<String, TableDefinition> = hashMapOf()
+    val tableNameMap: MutableMap<String, TableDefinition> = hashMapOf()
 
-    var queryModelDefinitionMap: MutableMap<TypeName, QueryModelDefinition> = hashMapOf()
+    val queryModelDefinitionMap: MutableMap<TypeName, QueryModelDefinition> = hashMapOf()
     var modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition> = hashMapOf()
-    var manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> = hashMapOf()
-    var providerMap = hashMapOf<TypeName, ContentProviderDefinition>()
+    val manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> = hashMapOf()
+    val providerMap = hashMapOf<TypeName, ContentProviderDefinition>()
 
     /**
      * Retrieve what database class they're trying to reference.
@@ -30,13 +30,13 @@ class DatabaseObjectHolder {
         if (databaseDefinition == null) {
             val list = mutableListOf<String>()
             tableDefinitionMap.values.forEach {
-                list += "Database ${it.databaseTypeName} not found for Table ${it.tableName}"
+                list += "Database ${it.associationalBehavior.databaseTypeName} not found for Table ${it.associationalBehavior.name}"
             }
             queryModelDefinitionMap.values.forEach {
-                list += "Database ${it.databaseTypeName} not found for QueryModel ${it.elementName}"
+                list += "Database ${it.associationalBehavior.databaseTypeName} not found for QueryModel ${it.elementName}"
             }
             modelViewDefinitionMap.values.forEach {
-                list += "Database ${it.databaseTypeName} not found for ModelView ${it.elementName}"
+                list += "Database ${it.associationalBehavior.databaseTypeName} not found for ModelView ${it.elementName}"
             }
             providerMap.values.forEach {
                 list += "Database ${it.databaseTypeName} not found for ContentProvider ${it.elementName}"

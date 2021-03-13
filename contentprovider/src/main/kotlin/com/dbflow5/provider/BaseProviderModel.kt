@@ -3,7 +3,6 @@ package com.dbflow5.provider
 import android.content.ContentProvider
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.OperatorGroup
 import com.dbflow5.structure.BaseModel
 import com.dbflow5.structure.Model
@@ -16,10 +15,10 @@ import com.dbflow5.structure.Model
  */
 abstract class BaseProviderModel : BaseModel(), ModelProvider {
 
-    override fun delete(wrapper: DatabaseWrapper): Boolean = ContentUtils.delete(FlowManager.context, deleteUri, this) > 0
+    override fun delete(wrapper: DatabaseWrapper): Boolean = ContentUtils.delete(FlowManager.contentResolver, deleteUri, this) > 0
 
     override fun save(wrapper: DatabaseWrapper): Boolean {
-        val count = ContentUtils.update(FlowManager.context, updateUri, this)
+        val count = ContentUtils.update(FlowManager.contentResolver, updateUri, this)
         return if (count == 0) {
             insert(wrapper) > 0
         } else {
@@ -27,11 +26,9 @@ abstract class BaseProviderModel : BaseModel(), ModelProvider {
         }
     }
 
-    override fun update(wrapper: DatabaseWrapper): Boolean
-        = ContentUtils.update(FlowManager.context, updateUri, this) > 0
+    override fun update(wrapper: DatabaseWrapper): Boolean = ContentUtils.update(FlowManager.contentResolver, updateUri, this) > 0
 
-    override fun insert(wrapper: DatabaseWrapper): Long
-        = if (ContentUtils.insert(FlowManager.context, insertUri, this) != null) 1 else 0
+    override fun insert(wrapper: DatabaseWrapper): Long = if (ContentUtils.insert(FlowManager.contentResolver, insertUri, this) != null) 1 else 0
 
     /**
      * Runs a query on the [ContentProvider] to see if it returns data.
@@ -39,8 +36,8 @@ abstract class BaseProviderModel : BaseModel(), ModelProvider {
      * @return true if this model exists in the [ContentProvider] based on its primary keys.
      */
     override fun exists(wrapper: DatabaseWrapper): Boolean {
-        val cursor = ContentUtils.query(FlowManager.context.contentResolver,
-                queryUri, modelAdapter.getPrimaryConditionClause(this), "")
+        val cursor = ContentUtils.query(FlowManager.contentResolver,
+            queryUri, modelAdapter.getPrimaryConditionClause(this), "")
         val exists = cursor != null && cursor.count > 0
         cursor?.close()
         return exists
@@ -51,14 +48,10 @@ abstract class BaseProviderModel : BaseModel(), ModelProvider {
                           orderBy: String?,
                           wrapper: DatabaseWrapper,
                           vararg columns: String?): T? {
-        val cursor = ContentUtils.query(FlowManager.context.contentResolver,
-                queryUri, whereOperatorGroup, orderBy, *columns)
-        if (cursor != null) {
-            val flowCursor = FlowCursor.from(cursor)
-            if (flowCursor.moveToFirst()) {
-                val model: T = modelAdapter.loadFromCursor(flowCursor, wrapper) as T
-                flowCursor.close()
-                return model
+        ContentUtils.query(FlowManager.contentResolver,
+            queryUri, whereOperatorGroup, orderBy, *columns)?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                return modelAdapter.loadFromCursor(cursor, wrapper) as T
             }
         }
         return null

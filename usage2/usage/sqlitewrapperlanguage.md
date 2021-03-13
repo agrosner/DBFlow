@@ -117,7 +117,7 @@ val customers = (select from Customer::class).as("C")
    on(Customer_Table.customerId
       .withTable("C".nameAlias)
      eq Reservations_Table.customerId.withTable("R"))
-    .customList<CustomTable>());
+    .queryCustomList<CustomTable>())
 ```
 
 The `IProperty.withTable()` method will prepend a `NameAlias` or the `Table` alias to the `IProperty` in the query, convenient for JOIN queries:
@@ -167,15 +167,19 @@ in DBFlow:
 ### LIMIT + OFFSET
 
 ```kotlin
-SQLite.select()
-  .from(table)
-  .limit(3)
-  .offset(2)
+(select 
+  from table
+  limit 3)
+  offset 2)
 ```
 
 ## UPDATE
 
-DBFlow supports two kind of UPDATE: 1. `Model.update()` 2. `SQLite.update()`
+DBFlow supports two kind of UPDATE: 
+
+1. `ModelAdapter` updates
+
+2.  Query language updates \(for less targeted updates\)
 
 For simple `UPDATE` for a single or few, concrete set of `Model` stick with \(1\). For powerful multiple `Model` update that can span many rows, use \(2\). In this section we speak on \(2\). **Note:** if using model caching, you'll need to clear it out post an operation from \(2\).
 
@@ -201,8 +205,8 @@ The `Set` part of the `Update` supports different kinds of values: 1. `ContentVa
 
 `DELETE` queries in DBFlow are similiar to `Update` in that we have two kinds:
 
-1. `Model.delete()`
-2. `SQLite.delete()`
+1. `ModelAdapter`deletes. 
+2. Query language deletes.
 
 For simple `DELETE` for a single or few, concrete set of `Model` stick with \(1\). For powerful multiple `Model` deletion that can span many rows, use \(2\). In this section we speak on \(2\). **Note:** if using model caching, you'll need to clear it out post an operation from \(2\).
 
@@ -269,11 +273,11 @@ database.beginTransactionAsync { db ->
 Triggers enable SQLite-level listener operations that perform some operation, modification, or action to run when a specific database event occurs. [See](https://www.sqlite.org/lang_createtrigger.html) for more documentation on its usage.
 
 ```kotlin
-*createTrigger("SomeTrigger")
+createTrigger("SomeTrigger")
     .after() insertOn<ConditionModel>())
     .begin(update<TestUpdateModel>()
             .set(TestUpdateModel_Table.value.is("Fired"))))
-            .enable(); // enables the trigger if it does not exist, so subsequent calls are OK
+            .enable() // enables the trigger if it does not exist, so subsequent calls are OK
 ```
 
 ## Case
@@ -293,7 +297,7 @@ select(CaseModel_Table.customerId,
                  then "Domestic"
                  `else` "Foreign")
                 .end("CustomerGroup"))
-  from<CaseModel>()
+  from CaseModel::class
 ```
 
 The CASE is returned as `CustomerGroup` with the valyes of "Domestic" if the country is from the 'USA' otherwise we mark the value as "Foreign". These appear alongside the results set from the SELECT.
@@ -308,6 +312,6 @@ select(CaseModel_Table.customerId,
              then "Domestic"
              `else` "Foreign")
      .end("CustomerGroup"))
- from<CaseModel>()
+ from CaseModel:class
 ```
 

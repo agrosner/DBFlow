@@ -18,10 +18,10 @@ internal constructor(internal val trigger: Trigger, private val methodName: Stri
     override val query: String
         get() {
             val queryBuilder = StringBuilder(trigger.query)
-                .append(methodName)
+                    .append(methodName)
             if (properties.isNotEmpty()) {
                 queryBuilder.append(" OF ")
-                    .appendArray(properties.toTypedArray())
+                        .appendArray(properties.toTypedArray())
             }
             queryBuilder.append(" ON ").append(FlowManager.getTableName(onTable))
 
@@ -73,12 +73,15 @@ internal constructor(internal val trigger: Trigger, private val methodName: Stri
      * @return This trigger
      */
     infix fun begin(triggerLogicQuery: Query): CompletedTrigger<TModel> =
-        CompletedTrigger(this, triggerLogicQuery)
+            CompletedTrigger(this, triggerLogicQuery)
 
     companion object {
 
-        val DELETE = "DELETE"
-        val INSERT = "INSERT"
-        val UPDATE = "UPDATE"
+        const val DELETE = "DELETE"
+        const val INSERT = "INSERT"
+        const val UPDATE = "UPDATE"
+
+        @JvmField
+        val METHODS = listOf(INSERT, UPDATE, DELETE)
     }
 }

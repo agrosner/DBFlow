@@ -38,7 +38,7 @@ fun <T : Any> update(table: Class<T>): Update<T> = Update(table)
  */
 fun <T : Any> update(table: KClass<T>) = update(table.java)
 
-inline fun <reified T: Any> insertInto() = insert<T>(columns = *arrayOf())
+inline fun <reified T: Any> insertInto() = insert<T>(columns = arrayOf())
 
 inline fun <reified T : Any> insert(vararg columns: Property<*>) = insert(T::class, *columns)
 
@@ -75,6 +75,15 @@ inline fun <reified T : Any> delete() = delete(T::class.java)
  * @return A [From] with specified DELETE on table.
  */
 fun <T : Any> delete(table: Class<T>): From<T> = delete().from(table)
+
+/**
+ * Starts a DELETE statement on the specified table.
+ *
+ * @param table    The table to delete from.
+ * @param [T] The class that implements [Model].
+ * @return A [From] with specified DELETE on table.
+ */
+fun <T : Any> delete(table: KClass<T>): From<T> = delete().from(table)
 
 /**
  * Starts an INDEX statement on specified table.
