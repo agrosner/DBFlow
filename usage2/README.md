@@ -12,7 +12,12 @@ abstract class AppDatabase: DBFlowDatabase
 The `@Database` annotation generates a `DatabaseDefinition` which now references your SQLite Database on disk in the file named "AppDatabase.db". You can reference it in code as:
 
 ```java
-val db: DatabaseDefinition = database<AppDatabase>();
+val db = database<AppDatabase>();
+
+// or
+database<AppDatabase> { db ->
+
+}
 ```
 
 To ensure generated code in DBFlow is found by the library, initialize the library in your `Application` class:

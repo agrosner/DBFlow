@@ -2,13 +2,13 @@
 
 RXJava support in DBFlow is an _incubating_ feature and likely to change over time. We support RXJava3 only and have made the extensions + DBFlow compatibility almost identical - save for the changes and where it makes sense in each version.
 
-Currently it supports 
+Currently it supports
 
-1. Any `ModelQueriable` can be wrapped in a `Single`, `Maybe`, or `Flowable` \(to continuously observe changes\). 
+1. Any `ModelQueriable` can be wrapped in a `Single`, `Maybe`, or `Flowable` \(to continuously observe changes\).
 
-2. Single + `List` model `save()`, `insert()`, `update()`, and `delete()`. 
+2. Single + `List` model `save()`, `insert()`, `update()`, and `delete()`.
 
-3. Streaming a set of results from a query 
+3. Streaming a set of results from a query
 
 4. Observing on table changes for specific `ModelQueriable` and providing ability to query from that set repeatedly as needed.
 
@@ -34,7 +34,7 @@ For a single query:
 Using vanilla transactions:
 
 ```kotlin
-(select 
+(select
   from MyTable::class)
   .async(db) { d -> queryList(d) }
   .execute { _, r ->}
@@ -43,11 +43,11 @@ Using vanilla transactions:
 Using RX:
 
 ```kotlin
-(select 
+(select
   from MyTable::class)
   .async(db) { d -> queryList(d) }
   .asSingle()
-  .subscribeBy { list ->  
+  .subscribeBy { list ->
     // use list
   }
 ```
@@ -57,10 +57,10 @@ Using RX:
 We can easily observe a query for any table changes \(once per transaction\) while it is active and recompute via:
 
 ```kotlin
-(select 
+(select
   from MyTable::class)
   .asFlowable { db -> queryList(db) }
-  .subscribeBy { list ->  
+  .subscribeBy { list ->
     // use list
   }
 ```
@@ -74,8 +74,8 @@ Operations are as easy as:
 ```kotlin
 Person(5, "Andrew Grosner")
   .rxInsert(db) // rxSave, rxUpdate, etc.
-  .subscribeBy { rowId -> 
-  
+  .subscribeBy { rowId ->
+
   }
 ```
 
@@ -86,7 +86,7 @@ We can use RX to stream the result set, one at a time from the `ModelQueriable` 
 ```kotlin
 (select from TestModel::class)
    .queryStreamResults(db)
-   .subscribeBy { model -> 
+   .subscribeBy { model ->
 
    }
 ```

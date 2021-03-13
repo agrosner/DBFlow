@@ -28,6 +28,4 @@
   * [5.0 Migration Guide](usage2/5.0-migration-guide.md)
   * [Migration4Guide](usage2/migration4guide.md)
 * [ISSUE\_TEMPLATE](issue_template.md)
-* [.github](.github/README.md)
-  * [CONTRIBUTING](.github/contributing.md)
 
