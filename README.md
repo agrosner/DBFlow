@@ -36,7 +36,7 @@ Changes exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases)
 
 ## Usage Docs
 
-For more detailed usage, check out it out [here](https://agrosner.gitbooks.io/dbflow/content/)
+For more detailed usage, check out it out [here](https://dbflow.gitbook.io/dbflow/)
 
 ## Including in your project
 
