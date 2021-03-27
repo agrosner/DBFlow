@@ -39,4 +39,11 @@ annotation class ManyToMany(
          * object for obvious efficiency reasons.
          * @see ForeignKey.saveForeignKeyModel
          */
-        val saveForeignKeyModels: Boolean = false)
+        val saveForeignKeyModels: Boolean = false,
+
+        /**
+         * @return if true, it will generate a [BaseModel]. By default we do not generate basemodel
+         * compatibility due to it being deprecated now.
+         */
+        @Deprecated("This is for backwards compability with BaseModel")
+        val generateBaseModel: Boolean = false)

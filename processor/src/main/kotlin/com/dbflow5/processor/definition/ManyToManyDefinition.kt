@@ -6,7 +6,6 @@ import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.isNullOrEmpty
 import com.dbflow5.processor.utils.lower
@@ -44,6 +43,7 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
     private val saveForeignKeyModels: Boolean = manyToMany.saveForeignKeyModels
     private val thisColumnName = manyToMany.thisTableColumnName
     private val referencedColumnName = manyToMany.referencedTableColumnName
+    private val generateBaseModel = manyToMany.generateBaseModel
 
     init {
         if (!thisColumnName.isNullOrEmpty() && !referencedColumnName.isNullOrEmpty()
@@ -83,7 +83,7 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
         }
     }
 
-    override val extendsClass: TypeName? = ClassNames.BASE_MODEL
+    override val extendsClass: TypeName? = if (generateBaseModel) ClassNames.BASE_MODEL else null
 
     private fun appendColumnDefinitions(typeBuilder: TypeSpec.Builder,
                                         referencedDefinition: TableDefinition, index: Int, optionalName: String) {

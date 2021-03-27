@@ -10,6 +10,8 @@ import com.dbflow5.database.DatabaseWrapper
  * Description: The base implementation of [Model]. It is recommended to use this class as
  * the base for your [Model], but it is not required.
  */
+@Deprecated("Use the extension methods, or modelAdapter directly. " +
+    "This class incurs a small lookup penalty per object")
 open class BaseModel : Model {
 
     /**
