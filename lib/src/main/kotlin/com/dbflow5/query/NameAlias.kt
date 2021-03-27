@@ -207,21 +207,13 @@ class NameAlias(private val name: String,
          * @param names     The names to join.
          * @return The new namealias object.
          */
-        fun joinNames(operation: String, vararg names: String): NameAlias {
-            var newName = ""
-            for (i in names.indices) {
-                if (i > 0) {
-                    newName += " $operation "
-                }
-                newName += names[i]
-            }
-            return rawBuilder(newName).build()
-        }
+        fun joinNames(operation: String, vararg names: String): NameAlias =
+            rawBuilder(names.joinToString(" $operation ")).build()
 
         fun builder(name: String): Builder = Builder(name)
 
         fun tableNameBuilder(tableName: String): Builder = Builder("")
-                .withTable(tableName)
+            .withTable(tableName)
 
         /**
          * @param name The raw name of this alias.
