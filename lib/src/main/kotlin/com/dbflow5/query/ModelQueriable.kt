@@ -7,6 +7,8 @@ import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.query.list.FlowQueryList
 
 
+typealias ModelQueriableEvalFn<T, R> = ModelQueriable<T>.(DatabaseWrapper) -> R
+
 /**
  * Description: An interface for query objects to enable you to cursor from the database in a structured way.
  * Examples of such statements are: [From], [Where], [StringQuery]

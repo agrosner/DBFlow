@@ -2,10 +2,10 @@ package com.dbflow5.reactivestreams.query
 
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.databaseForTable
-import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.Join
 import com.dbflow5.query.ModelQueriable
+import com.dbflow5.query.ModelQueriableEvalFn
 import com.dbflow5.query.extractFrom
 import com.dbflow5.reactivestreams.transaction.asMaybe
 import io.reactivex.rxjava3.core.FlowableEmitter
@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
  * If the [ModelQueriable] relates to a [Join], this can be multiple tables.
  */
 class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: ModelQueriable<T>,
-                                                private val evalFn: ModelQueriable<T>.(DatabaseWrapper) -> R)
+                                                private val evalFn: ModelQueriableEvalFn<T, R>)
     : FlowableOnSubscribe<R> {
 
     private lateinit var flowableEmitter: FlowableEmitter<R>

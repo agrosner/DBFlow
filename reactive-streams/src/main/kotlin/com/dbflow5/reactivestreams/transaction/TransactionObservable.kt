@@ -4,6 +4,7 @@ package com.dbflow5.reactivestreams.transaction
 
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.ModelQueriable
+import com.dbflow5.query.ModelQueriableEvalFn
 import com.dbflow5.reactivestreams.query.TableChangeOnSubscribe
 import com.dbflow5.transaction.ITransactionQueue
 import com.dbflow5.transaction.Transaction
@@ -32,7 +33,7 @@ fun <R : Any> Transaction.Builder<R>.asSingle(): SingleTransaction<R> = SingleTr
  *  The [evalFn] runs on the [ITransactionQueue].
  */
 fun <T : Any, R> ModelQueriable<T>.asFlowable(
-        evalFn: ModelQueriable<T>.(DatabaseWrapper) -> R): Flowable<R> =
+        evalFn: ModelQueriableEvalFn<T, R>): Flowable<R> =
         Flowable.create(TableChangeOnSubscribe(this, evalFn), BackpressureStrategy.LATEST)
 
 open class TransactionDisposable(private val transaction: Transaction<*>) : Disposable {
