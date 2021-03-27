@@ -11,13 +11,9 @@ import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.migration.Migration
 import com.dbflow5.quote
 import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.runtime.TableNotifierRegister
-import com.dbflow5.structure.BaseModel
-import com.dbflow5.structure.BaseModelView
-import com.dbflow5.structure.BaseQueryModel
 import com.dbflow5.structure.InvalidDBConfiguration
 import com.dbflow5.structure.Model
 import org.jetbrains.annotations.TestOnly
@@ -326,7 +322,7 @@ object FlowManager {
     }
 
     /**
-     * @param modelClass The class that implements [Model] to find an adapter for.
+     * @param modelClass The class that contains the [Table] annotation to find an adapter for.
      * @return The adapter associated with the class. If its not a [ModelAdapter],
      * it checks both the [ModelViewAdapter] and [RetrievalAdapter].
      */
@@ -343,10 +339,12 @@ object FlowManager {
 
     /**
      * @param modelClass The class of the table
-     * @param [T]   The class that implements [Model]
+     * @param [T]   The class with the [Table] annotation.
+     *
+     * @throws IllegalArgumentException if the adapter does not exist.
+     *
      * @return The associated model adapter (DAO) that is generated from a [Table] class. Handles
-     * interactions with the database. This method is meant for internal usage only.
-     * We strongly prefer you use the built-in methods associated with [Model] and [BaseModel].
+     * interactions with the database.
      */
     @JvmStatic
     fun <T : Any> getModelAdapter(modelClass: Class<T>): ModelAdapter<T> =
@@ -355,9 +353,11 @@ object FlowManager {
     /**
      * Returns the model view adapter for a SQLite VIEW. These are only created with the [com.dbflow5.annotation.ModelView] annotation.
      *
+     * @throws IllegalArgumentException if the adapter does not exist.
+     *
      * @param modelViewClass The class of the VIEW
-     * @param [T]  The class that extends [BaseModelView]
-     * @return The model view adapter for the specified model view.
+     * @param [T]  The class that has a [com.dbflow5.annotation.ModelView] annotation.
+     * @return The model view adapter for the specified class.
      */
     @JvmStatic
     fun <T : Any> getModelViewAdapter(modelViewClass: Class<T>): ModelViewAdapter<T> =
@@ -365,11 +365,13 @@ object FlowManager {
             ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
 
     /**
-     * Returns the query model adapter for the model class. These are only created with the [T] annotation.
+     * Returns the query model adapter for the model class. These are only created with the [QueryModel] annotation.
+     *
+     * @throws IllegalArgumentException if the adapter does not exist.
      *
      * @param queryModelClass The class of the query
-     * @param [T]  The class that extends [BaseQueryModel]
-     * @return The query model adapter for the specified model cursor.
+     * @param [T]  The class that has a [QueryModel] annotation.
+     * @return The query model adapter for the specified class.
      */
     @JvmStatic
     fun <T : Any> getQueryModelAdapter(queryModelClass: Class<T>): RetrievalAdapter<T> =
@@ -464,27 +466,24 @@ inline val <T : Any> KClass<T>.modelAdapter
 inline val <T : Any> Class<T>.modelAdapter
     get() = FlowManager.getModelAdapter(this)
 
-@Deprecated(message = "Use retrievalAdapter().", replaceWith = ReplaceWith("retrievalAdapter()", "com.dbflow5.config"))
 inline fun <reified T : Any> queryModelAdapter() = FlowManager.getQueryModelAdapter(T::class.java)
 
-@Deprecated(message = "Use retrievalAdapter.", replaceWith = ReplaceWith("retrievalAdapter", "com.dbflow5.config"))
 inline val <T : Any> KClass<T>.queryModelAdapter
     get() = FlowManager.getQueryModelAdapter(this.java)
 
-@Deprecated(message = "Use retrievalAdapter().", replaceWith = ReplaceWith("retrievalAdapter", "com.dbflow5.config"))
 inline val <T : Any> Class<T>.queryModelAdapter
     get() = FlowManager.getQueryModelAdapter(this)
 
 /**
  * Easily get its [RetrievalAdapter].
  */
-inline fun <reified T : Any> retrievalAdapter() = FlowManager.getQueryModelAdapter(T::class.java)
+inline fun <reified T : Any> retrievalAdapter() = FlowManager.getRetrievalAdapter(T::class.java)
 
 inline val <T : Any> KClass<T>.retrievalAdapter
-    get() = FlowManager.getQueryModelAdapter(this.java)
+    get() = FlowManager.getRetrievalAdapter(this.java)
 
 inline val <T : Any> Class<T>.retrievalAdapter
-    get() = FlowManager.getQueryModelAdapter(this)
+    get() = FlowManager.getRetrievalAdapter(this)
 
 /**
  * Easily get its [ModelViewAdapter]

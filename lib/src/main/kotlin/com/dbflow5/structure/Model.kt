@@ -1,6 +1,7 @@
 package com.dbflow5.structure
 
 import com.dbflow5.config.modelAdapter
+import com.dbflow5.config.retrievalAdapter
 import com.dbflow5.database.DatabaseWrapper
 
 interface Model : ReadOnlyModel {
@@ -56,8 +57,8 @@ inline fun <reified T : Any> T.delete(databaseWrapper: DatabaseWrapper): Boolean
         modelAdapter<T>().delete(this, databaseWrapper)
 
 inline fun <reified T : Any> T.exists(databaseWrapper: DatabaseWrapper): Boolean =
-        modelAdapter<T>().exists(this, databaseWrapper)
+        retrievalAdapter<T>().exists(this, databaseWrapper)
 
 inline fun <reified T : Any> T.load(databaseWrapper: DatabaseWrapper) =
-        modelAdapter<T>().load(this, databaseWrapper)
+        retrievalAdapter<T>().load(this, databaseWrapper)
 
