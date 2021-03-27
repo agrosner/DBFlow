@@ -17,8 +17,4 @@ abstract class NoModificationModel : ReadOnlyModel {
     @Suppress("UNCHECKED_CAST")
     override fun <T> load(wrapper: DatabaseWrapper): T? = retrievalAdapter.load(this, wrapper) as T?
 
-    /**
-     * Gets thrown when an operation is not valid for the SQL View
-     */
-    internal class InvalidSqlViewOperationException(detailMessage: String) : RuntimeException(detailMessage)
 }
