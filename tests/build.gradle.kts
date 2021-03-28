@@ -55,6 +55,7 @@ dependencies {
     implementation(project(":coroutines"))
     implementation(project(":paging"))
     implementation(project(":livedata"))
+    implementation(kotlin("test"))
 
     kaptAndroidTest(project(":processor"))
 
