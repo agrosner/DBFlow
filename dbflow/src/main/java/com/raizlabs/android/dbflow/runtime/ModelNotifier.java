@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.runtime;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.structure.BaseModel;
 import com.raizlabs.android.dbflow.structure.ModelAdapter;

@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.structure.cache;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Description: A generic cache for models that is implemented or can be implemented to your liking.

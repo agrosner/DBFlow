@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.sql.language;
 
 import android.content.ContentValues;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.Query;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;

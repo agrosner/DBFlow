@@ -1,8 +1,8 @@
 package com.raizlabs.android.dbflow.structure.database;
 
 import android.content.ContentValues;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Description: Provides a base implementation that wraps a database, so other database engines potentially can

@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.structure.database;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor;
 import com.raizlabs.android.dbflow.sql.language.BaseQueriable;

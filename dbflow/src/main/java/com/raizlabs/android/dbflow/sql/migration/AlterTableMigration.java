@@ -1,8 +1,8 @@
 package com.raizlabs.android.dbflow.sql.migration;
 
 import android.database.Cursor;
-import android.support.annotation.CallSuper;
-import android.support.annotation.NonNull;
+import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.QueryBuilder;

@@ -3,7 +3,7 @@ package com.raizlabs.android.dbflow.runtime;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.DatabaseHolder;

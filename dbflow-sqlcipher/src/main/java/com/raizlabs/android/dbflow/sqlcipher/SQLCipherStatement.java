@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.sqlcipher;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.structure.database.BaseDatabaseStatement;
 import com.raizlabs.android.dbflow.structure.database.DatabaseStatement;

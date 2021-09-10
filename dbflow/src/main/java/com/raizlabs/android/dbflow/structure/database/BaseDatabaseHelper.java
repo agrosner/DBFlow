@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.structure.database;
 
 import android.database.sqlite.SQLiteException;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowLog;

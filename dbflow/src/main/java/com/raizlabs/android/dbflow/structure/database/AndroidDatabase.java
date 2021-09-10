@@ -3,8 +3,8 @@ package com.raizlabs.android.dbflow.structure.database;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Description: Specifies the android default implementation of a database.

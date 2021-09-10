@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.sql.saveable;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.runtime.NotifyDistributor;

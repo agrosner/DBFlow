@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.sql.saveable;
 
 import android.content.ContentValues;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.ConflictAction;
 import com.raizlabs.android.dbflow.config.FlowManager;

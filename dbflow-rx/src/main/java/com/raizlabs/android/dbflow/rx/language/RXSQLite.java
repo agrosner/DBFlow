@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.rx.language;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.queriable.ModelQueriable;
 import com.raizlabs.android.dbflow.sql.queriable.Queriable;

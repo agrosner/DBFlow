@@ -7,8 +7,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.raizlabs.android.dbflow.StringUtils;
 import com.raizlabs.android.dbflow.config.FlowManager;

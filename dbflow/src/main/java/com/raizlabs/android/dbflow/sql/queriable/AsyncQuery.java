@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.sql.queriable;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.BaseAsyncObject;
 import com.raizlabs.android.dbflow.structure.database.transaction.QueryTransaction;

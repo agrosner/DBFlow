@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.rx.language;
 
 import android.database.Cursor;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.Insert;

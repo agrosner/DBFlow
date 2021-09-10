@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.structure;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.sql.migration.Migration;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;

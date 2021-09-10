@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.structure.database;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Description: Abstracts out the {@link DatabaseHelperDelegate} into the one used in this library.

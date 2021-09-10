@@ -25,7 +25,7 @@ android {
 
 dependencies {
     api project("${dbflow_project_prefix}dbflow-core")
-    api "com.android.support:support-annotations:26.0.1"
+    api "androidx.annotation:annotation:1.2.0"
 }
 
 apply from: '../android-artifacts.gradle'

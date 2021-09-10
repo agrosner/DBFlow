@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.rx.structure;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.annotation.ColumnIgnore;
 import com.raizlabs.android.dbflow.config.FlowManager;

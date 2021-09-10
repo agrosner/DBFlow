@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.structure.database;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Description: Provides callbacks for {@link OpenHelper} methods

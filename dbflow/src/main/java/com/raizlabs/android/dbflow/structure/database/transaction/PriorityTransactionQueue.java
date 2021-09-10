@@ -1,7 +1,7 @@
 package com.raizlabs.android.dbflow.structure.database.transaction;
 
 import android.os.Looper;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowLog;
 

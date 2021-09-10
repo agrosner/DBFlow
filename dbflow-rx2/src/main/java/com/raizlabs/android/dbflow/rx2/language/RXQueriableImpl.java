@@ -1,7 +1,10 @@
 package com.raizlabs.android.dbflow.rx2.language;
 
+import static io.reactivex.Single.fromCallable;
+
 import android.database.Cursor;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.FlowManager;
 import com.raizlabs.android.dbflow.sql.language.BaseQueriable;
@@ -14,8 +17,6 @@ import java.util.concurrent.Callable;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
-
-import static io.reactivex.Single.fromCallable;
 
 /**
  * Description: Represents {@link BaseQueriable} with RX constructs.

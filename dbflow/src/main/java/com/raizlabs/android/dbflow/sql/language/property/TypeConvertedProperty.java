@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.sql.language.property;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.converter.TypeConverter;
 import com.raizlabs.android.dbflow.sql.language.NameAlias;

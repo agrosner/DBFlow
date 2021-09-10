@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.structure.database;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * Description: Default implementation for some {@link DatabaseStatement} methods.

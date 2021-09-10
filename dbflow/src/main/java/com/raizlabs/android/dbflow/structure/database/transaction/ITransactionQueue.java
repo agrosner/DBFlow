@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.structure.database.transaction;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Description: Interface for a queue that manages transactions.

@@ -1,6 +1,6 @@
 package com.raizlabs.android.dbflow.structure.database.transaction;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.runtime.BaseTransactionManager;
