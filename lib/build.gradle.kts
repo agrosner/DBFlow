@@ -35,4 +35,4 @@ dependencies {
     api(Dependencies.AndroidX.Annotations)
 }
 
-apply(from = "../kotlin-artifacts.gradle")
+apply(from = "../kotlin-artifacts.gradle.kts")

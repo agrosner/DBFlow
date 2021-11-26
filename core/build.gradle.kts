@@ -10,4 +10,4 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-apply(from = "../kotlin-artifacts.gradle")
+apply(from = "../kotlin-artifacts.gradle.kts")

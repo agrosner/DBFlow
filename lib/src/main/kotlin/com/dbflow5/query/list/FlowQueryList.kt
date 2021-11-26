@@ -17,8 +17,8 @@ class FlowQueryList<T : Any>(
      * Holds the table cursor
      */
     val internalCursorList: FlowCursorList<T>,
-    private val refreshHandler: Handler = globalRefreshHandler)
-    : List<T>, IFlowCursorIterator<T> by internalCursorList {
+    private val refreshHandler: Handler = globalRefreshHandler
+) : List<T>, IFlowCursorIterator<T> by internalCursorList {
 
     private var pendingRefresh = false
 
@@ -97,7 +97,10 @@ class FlowQueryList<T : Any>(
      * @return always false if its anything other than the current table. True if [com.dbflow5.structure.Model.exists] passes.
      */
     override operator fun contains(element: T): Boolean {
-        return internalCursorList.instanceAdapter.exists(element, internalCursorList.databaseWrapper)
+        return internalCursorList.instanceAdapter.exists(
+            element,
+            internalCursorList.databaseWrapper
+        )
     }
 
     /**
@@ -128,7 +131,8 @@ class FlowQueryList<T : Any>(
 
     override fun indexOf(element: T): Int {
         throw UnsupportedOperationException(
-            "We cannot determine which index in the table this item exists at efficiently")
+            "We cannot determine which index in the table this item exists at efficiently"
+        )
     }
 
     override fun isEmpty(): Boolean {
@@ -149,7 +153,8 @@ class FlowQueryList<T : Any>(
 
     override fun lastIndexOf(element: T): Int {
         throw UnsupportedOperationException(
-            "We cannot determine which index in the table this item exists at efficiently")
+            "We cannot determine which index in the table this item exists at efficiently"
+        )
     }
 
     /**
@@ -183,8 +188,10 @@ class FlowQueryList<T : Any>(
         internal val databaseWrapper: DatabaseWrapper
         internal val refreshHandler: Handler
 
-        internal constructor(cursorList: FlowCursorList<T>,
-                             refreshHandler: Handler = globalRefreshHandler) {
+        internal constructor(
+            cursorList: FlowCursorList<T>,
+            refreshHandler: Handler = globalRefreshHandler
+        ) {
             this.databaseWrapper = cursorList.databaseWrapper
             table = cursorList.table
             cursor = cursorList.cursor
@@ -192,9 +199,10 @@ class FlowQueryList<T : Any>(
             this.refreshHandler = refreshHandler
         }
 
-        constructor(modelQueriable: ModelQueriable<T>,
-                    databaseWrapper: DatabaseWrapper,
-                    refreshHandler: Handler = globalRefreshHandler
+        constructor(
+            modelQueriable: ModelQueriable<T>,
+            databaseWrapper: DatabaseWrapper,
+            refreshHandler: Handler = globalRefreshHandler
         ) {
             this.databaseWrapper = databaseWrapper
             this.table = modelQueriable.table
@@ -211,7 +219,7 @@ class FlowQueryList<T : Any>(
 
     companion object {
 
-        private val globalRefreshHandler = Handler(Looper.myLooper())
+        private val globalRefreshHandler = Handler(Looper.myLooper()!!)
     }
 
 

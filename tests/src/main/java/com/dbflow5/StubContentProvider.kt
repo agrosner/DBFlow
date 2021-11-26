@@ -10,27 +10,27 @@ import android.net.Uri
  */
 open class StubContentProvider : ContentProvider() {
 
-    override fun insert(uri: Uri?, values: ContentValues?): Uri {
+    override fun insert(uri: Uri, values: ContentValues?): Uri {
         TODO("not implemented")
     }
 
-    override fun query(uri: Uri?, projection: Array<out String>?, selection: String?,
+    override fun query(uri: Uri, projection: Array<out String>?, selection: String?,
                        selectionArgs: Array<out String>?, sortOrder: String?): Cursor {
         TODO("not implemented")
     }
 
     override fun onCreate(): Boolean = true
 
-    override fun update(uri: Uri?, values: ContentValues?, selection: String?,
+    override fun update(uri: Uri, values: ContentValues?, selection: String?,
                         selectionArgs: Array<out String>?): Int {
         TODO("not implemented")
     }
 
-    override fun delete(uri: Uri?, selection: String?, selectionArgs: Array<out String>?): Int {
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
         TODO("not implemented")
     }
 
-    override fun getType(uri: Uri?): String {
+    override fun getType(uri: Uri): String {
         TODO("not implemented")
     }
 }

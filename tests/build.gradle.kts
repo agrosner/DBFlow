@@ -11,7 +11,7 @@ android {
 
     useLibrary("org.apache.http.legacy")
 
-    compileSdkVersion(Versions.TargetSdk)
+    compileSdk = Versions.TargetSdk
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -19,8 +19,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion(Versions.MinSdkRX)
-        targetSdkVersion(Versions.TargetSdk)
+        minSdk = Versions.MinSdkRX
+        targetSdk = Versions.TargetSdk
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -47,7 +47,7 @@ android {
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.2.0")
+    implementation("androidx.appcompat:appcompat:1.4.0")
     implementation(project(":lib"))
     implementation(project(":sqlcipher"))
     implementation(project(":reactive-streams"))
@@ -55,10 +55,10 @@ dependencies {
     implementation(project(":coroutines"))
     implementation(project(":paging"))
     implementation(project(":livedata"))
-    implementation(kotlin("test"))
 
     kaptAndroidTest(project(":processor"))
 
+    androidTestImplementation(kotlin("test"))
     androidTestImplementation(Dependencies.JavaXAnnotation)
     androidTestImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0") {
         exclude(group = "org.jetbrains.kotlin")
@@ -67,19 +67,19 @@ dependencies {
 
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.2")
     androidTestImplementation(Dependencies.JUnit)
-    androidTestImplementation("androidx.test:core:1.3.0")
-    androidTestImplementation("androidx.test:runner:1.3.0")
-    androidTestImplementation("androidx.test:rules:1.3.0")
+    androidTestImplementation("androidx.test:core:1.4.0")
+    androidTestImplementation("androidx.test:runner:1.4.0")
+    androidTestImplementation("androidx.test:rules:1.4.0")
     androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
-    androidTestImplementation("androidx.test.ext:junit:1.1.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.3")
 
 }
 
 dexcount {
-    includeClasses = true
-    orderByMethodCount = true
+    includeClasses.set(true)
+    orderByMethodCount.set(true)
 }
 
 tasks.withType<KotlinCompile>().all {
-    kotlinOptions.freeCompilerArgs += listOf("-XXLanguage:+InlineClasses", "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi")
+    kotlinOptions.freeCompilerArgs += listOf("-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi")
 }

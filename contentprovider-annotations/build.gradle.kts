@@ -14,4 +14,4 @@ dependencies {
     api(project(":core"))
 }
 
-apply(from = "../kotlin-artifacts.gradle")
+apply(from = "../kotlin-artifacts.gradle.kts")

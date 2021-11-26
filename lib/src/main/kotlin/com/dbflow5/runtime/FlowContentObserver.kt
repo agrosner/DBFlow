@@ -30,8 +30,10 @@ import java.util.concurrent.atomic.AtomicInteger
  *
  * @param [contentAuthority] Reuse the same authority as defined in your manifest and [ContentResolverNotifier].
  */
-open class FlowContentObserver(private val contentAuthority: String,
-                               handler: Handler? = null) : ContentObserver(handler) {
+open class FlowContentObserver(
+    private val contentAuthority: String,
+    handler: Handler? = null
+) : ContentObserver(handler) {
 
     private val modelChangeListeners = CopyOnWriteArraySet<OnModelStateChangedListener>()
     private val onTableChangedListeners = CopyOnWriteArraySet<OnTableChangedListener>()
@@ -62,7 +64,11 @@ open class FlowContentObserver(private val contentAuthority: String,
          * @param primaryKeyValues The array of primary [SQLOperator] of what changed. Call [SQLOperator.columnName]
          * and [SQLOperator.value] to get each information.
          */
-        fun onModelStateChanged(table: Class<*>?, action: ChangeAction, primaryKeyValues: Array<SQLOperator>)
+        fun onModelStateChanged(
+            table: Class<*>?,
+            action: ChangeAction,
+            primaryKeyValues: Array<SQLOperator>
+        )
     }
 
     interface ContentChangeListener : OnModelStateChangedListener, OnTableChangedListener
@@ -109,8 +115,10 @@ open class FlowContentObserver(private val contentAuthority: String,
                         for (onTableChangedListener in onTableChangedListeners) {
                             uri.authority?.let { authority ->
                                 uri.fragment?.let { fragment ->
-                                    onTableChangedListener.onTableChanged(registeredTables[authority],
-                                        ChangeAction.valueOf(fragment))
+                                    onTableChangedListener.onTableChanged(
+                                        registeredTables[authority],
+                                        ChangeAction.valueOf(fragment)
+                                    )
                                 }
                             }
                         }
@@ -170,18 +178,23 @@ open class FlowContentObserver(private val contentAuthority: String,
     /**
      * Registers the observer for model change events for specific class.
      */
-    open fun registerForContentChanges(context: Context,
-                                       table: Class<*>) {
+    open fun registerForContentChanges(
+        context: Context,
+        table: Class<*>
+    ) {
         registerForContentChanges(context.contentResolver, table)
     }
 
     /**
      * Registers the observer for model change events for specific class.
      */
-    fun registerForContentChanges(contentResolver: ContentResolver,
-                                  table: Class<*>) {
+    fun registerForContentChanges(
+        contentResolver: ContentResolver,
+        table: Class<*>
+    ) {
         contentResolver.registerContentObserver(
-            getNotificationUri(contentAuthority, table, null), true, this)
+            getNotificationUri(contentAuthority, table, null), true, this
+        )
         REGISTERED_COUNT.incrementAndGet()
         if (!registeredTables.containsValue(table)) {
             registeredTables.put(FlowManager.getTableName(table), table)
@@ -198,13 +211,19 @@ open class FlowContentObserver(private val contentAuthority: String,
     }
 
     override fun onChange(selfChange: Boolean) {
-        modelChangeListeners.forEach { it.onModelStateChanged(null, ChangeAction.CHANGE, arrayOf()) }
+        modelChangeListeners.forEach {
+            it.onModelStateChanged(
+                null,
+                ChangeAction.CHANGE,
+                arrayOf()
+            )
+        }
         onTableChangedListeners.forEach { it.onTableChanged(null, ChangeAction.CHANGE) }
     }
 
     @TargetApi(VERSION_CODES.JELLY_BEAN)
-    override fun onChange(selfChange: Boolean, uri: Uri) {
-        onChange(uri, false)
+    override fun onChange(selfChange: Boolean, uri: Uri?) {
+        uri?.let { uri -> onChange(uri, false) }
     }
 
     @TargetApi(VERSION_CODES.JELLY_BEAN)
@@ -250,7 +269,10 @@ open class FlowContentObserver(private val contentAuthority: String,
                 }
             }
         } else {
-            FlowLog.log(FlowLog.Level.W, "Received URI change for unregistered table $tableName . URI ignored.")
+            FlowLog.log(
+                FlowLog.Level.W,
+                "Received URI change for unregistered table $tableName . URI ignored."
+            )
         }
     }
 

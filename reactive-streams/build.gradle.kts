@@ -31,4 +31,4 @@ dependencies {
     api(Dependencies.RX)
 }
 
-apply(from = "../kotlin-artifacts.gradle")
+apply(from = "../kotlin-artifacts.gradle.kts")

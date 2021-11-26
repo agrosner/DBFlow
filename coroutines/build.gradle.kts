@@ -12,13 +12,6 @@ android {
         targetSdkVersion(Versions.TargetSdk)
     }
 
-    buildTypes {
-        getByName("release") {
-            minifyEnabled (false)
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
-        }
-    }
-
     sourceSets {
         getByName("main").java.srcDirs("src/main/kotlin")
     }
@@ -29,4 +22,4 @@ dependencies {
     api(Dependencies.Coroutines)
 }
 
-apply(from = "../kotlin-artifacts.gradle")
+apply(from = "../kotlin-artifacts.gradle.kts")
