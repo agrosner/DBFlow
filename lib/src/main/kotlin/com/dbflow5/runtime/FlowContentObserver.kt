@@ -5,7 +5,6 @@ import android.content.ContentResolver
 import android.content.Context
 import android.database.ContentObserver
 import android.net.Uri
-import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.Handler
 import com.dbflow5.TABLE_QUERY_PARAM
@@ -94,37 +93,33 @@ open class FlowContentObserver(
     }
 
     /**
-     * Ends the transaction where it finishes, and will call [.onChange] for Jelly Bean and up for
-     * every URI called (if set), or [.onChange] once for lower than Jelly bean.
+     * Ends the transaction where it finishes, and will call [.onChange] for
+     * every URI called (if set)/
      */
     open fun endTransactionAndNotify() {
         if (isInTransaction) {
             isInTransaction = false
 
-            if (Build.VERSION.SDK_INT < VERSION_CODES.JELLY_BEAN) {
-                onChange(true)
-            } else {
-                synchronized(notificationUris) {
-                    for (uri in notificationUris) {
-                        onChange(uri, true)
-                    }
-                    notificationUris.clear()
+            synchronized(notificationUris) {
+                for (uri in notificationUris) {
+                    onChange(uri, true)
                 }
-                synchronized(tableUris) {
-                    for (uri in tableUris) {
-                        for (onTableChangedListener in onTableChangedListeners) {
-                            uri.authority?.let { authority ->
-                                uri.fragment?.let { fragment ->
-                                    onTableChangedListener.onTableChanged(
-                                        registeredTables[authority],
-                                        ChangeAction.valueOf(fragment)
-                                    )
-                                }
+                notificationUris.clear()
+            }
+            synchronized(tableUris) {
+                for (uri in tableUris) {
+                    for (onTableChangedListener in onTableChangedListeners) {
+                        uri.authority?.let { authority ->
+                            uri.fragment?.let { fragment ->
+                                onTableChangedListener.onTableChanged(
+                                    registeredTables[authority],
+                                    ChangeAction.valueOf(fragment)
+                                )
                             }
                         }
                     }
-                    tableUris.clear()
                 }
+                tableUris.clear()
             }
         }
     }

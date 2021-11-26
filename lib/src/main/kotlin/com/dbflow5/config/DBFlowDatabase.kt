@@ -49,12 +49,10 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         fun adjustIfAutomatic(context: Context): JournalMode = when (this) {
             Automatic -> this
             else -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    // check if low ram device
-                    val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && manager?.isLowRamDevice == false) {
-                        WriteAheadLogging
-                    }
+                // check if low ram device
+                val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && manager?.isLowRamDevice == false) {
+                    WriteAheadLogging
                 }
                 Truncate
             }
@@ -151,11 +149,9 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     private fun onOpenWithConfig(config: DatabaseConfig?, helper: OpenHelper) {
         helper.performRestoreFromBackup()
 
-        var wal = false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            wal = config != null && config.journalMode.adjustIfAutomatic(FlowManager.context) == JournalMode.WriteAheadLogging
-            helper.setWriteAheadLoggingEnabled(wal)
-        }
+        var wal = config != null &&
+            config.journalMode.adjustIfAutomatic(FlowManager.context) == JournalMode.WriteAheadLogging
+        helper.setWriteAheadLoggingEnabled(wal)
         writeAheadLoggingEnabled = wal
         isOpened = true
     }

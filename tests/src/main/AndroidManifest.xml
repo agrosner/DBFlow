@@ -12,6 +12,7 @@
             android:exported="false"/>
 
         <activity
+            android:exported="true"
             android:name="com.dbflow5.test.DemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

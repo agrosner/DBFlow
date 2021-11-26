@@ -1,10 +1,10 @@
 object Versions {
     const val Kotlin = "1.6.0"
     const val TargetSdk = 31
-    const val MinSdk = 7
-    const val MinSdkRX = 16
-    const val SQLCipherMin = 7
-    const val ArchMin = 14
+    const val MinSdk = 21
+    const val MinSdkRX = 21
+    const val SQLCipherMin = 21
+    const val ArchMin = 21
 }
 
 object Dependencies {

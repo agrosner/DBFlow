@@ -1,6 +1,5 @@
 package com.dbflow5.config
 
-import android.os.Build
 import android.util.Log
 import com.dbflow5.config.FlowLog.Level
 
@@ -48,7 +47,8 @@ object FlowLog {
      * @param throwable The optional stack trace to print
      */
     @JvmStatic
-    fun log(level: Level, message: String, throwable: Throwable?) = log(level = level, tag = TAG, message = message, throwable = throwable)
+    fun log(level: Level, message: String, throwable: Throwable?) =
+        log(level = level, tag = TAG, message = message, throwable = throwable)
 
     /**
      * Returns true if the logging level is lower than the specified [Level]
@@ -109,12 +109,7 @@ object FlowLog {
         },
         WTF {
             override fun call(tag: String, message: String?, throwable: Throwable?) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-                    Log.wtf(tag, message, throwable)
-                } else {
-                    // If on older platform, we will just exaggerate the log message in the error level
-                    Log.e(tag, "!!!!!!!!*******$message********!!!!!!", throwable)
-                }
+                Log.wtf(tag, message, throwable)
             }
         };
 

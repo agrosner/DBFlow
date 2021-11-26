@@ -1,39 +1,18 @@
 package com.dbflow5.database
 
-import android.database.Cursor
-import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteStatement
-import android.os.Build
 
 /**
  * Description:
  */
 class AndroidDatabaseStatement
-internal constructor(val statement: SQLiteStatement,
-                     private val database: SQLiteDatabase) : BaseDatabaseStatement(), DatabaseStatement {
+internal constructor(
+    val statement: SQLiteStatement,
+) : BaseDatabaseStatement(), DatabaseStatement {
 
-    override fun executeUpdateDelete(): Long {
-        var count: Long = 0
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            count = statement.executeUpdateDelete().toLong()
-        } else {
-            statement.execute()
-
-            var cursor: Cursor? = null
-            try {
-                cursor = database.rawQuery("SELECT changes() AS affected_row_count", null)
-                if (cursor != null && cursor.count > 0 && cursor.moveToFirst()) {
-                    count = cursor.getLong(cursor.getColumnIndex("affected_row_count"))
-                }
-            } catch (e: SQLException) {
-                // Handle exception here.
-            } finally {
-                cursor?.close()
-            }
-        }
-        return count
-    }
+    override fun executeUpdateDelete(): Long =
+        statement.executeUpdateDelete().toLong()
 
     override fun execute() {
         statement.execute()
@@ -48,7 +27,8 @@ internal constructor(val statement: SQLiteStatement,
         simpleQueryForLong
     }
 
-    override fun simpleQueryForString(): String? = rethrowDBFlowException { statement.simpleQueryForString() }
+    override fun simpleQueryForString(): String? =
+        rethrowDBFlowException { statement.simpleQueryForString() }
 
     override fun executeInsert(): Long = rethrowDBFlowException { statement.executeInsert() }
 
@@ -78,9 +58,18 @@ internal constructor(val statement: SQLiteStatement,
 
     companion object {
 
+        @Deprecated(
+            replaceWith = ReplaceWith("from(sqLiteStatement)"),
+            message = "Database no longer needed as parameter. You can remove."
+        )
         @JvmStatic
-        fun from(sqLiteStatement: SQLiteStatement,
-                 database: SQLiteDatabase): AndroidDatabaseStatement =
-                AndroidDatabaseStatement(sqLiteStatement, database)
+        fun from(
+            sqLiteStatement: SQLiteStatement,
+            database: SQLiteDatabase
+        ): AndroidDatabaseStatement =
+            AndroidDatabaseStatement(sqLiteStatement)
+
+        @JvmStatic
+        fun from(sqLiteStatement: SQLiteStatement) = AndroidDatabaseStatement(sqLiteStatement)
     }
 }
