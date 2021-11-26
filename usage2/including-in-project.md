@@ -72,9 +72,6 @@ Add artifacts to your project:
     // Android Architecture Components LiveData Library Support
     implementation "com.github.agrosner.dbflow:livedata:${dbflow_version}"
 
-    // adds generated content provider annotations + support.
-    implementation "com.github.agrosner.dbflow:contentprovider:${dbflow_version}"
-
   }
 ```
 

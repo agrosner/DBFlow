@@ -20,22 +20,15 @@ object ClassNames {
     val QUERIABLE = "$ADAPTER.queriable"
     val PROPERTY_PACKAGE = "$QUERY_PACKAGE.property"
     val CONFIG = "$BASE_PACKAGE.config"
-    val RUNTIME = "$BASE_PACKAGE.runtime"
     val SAVEABLE = "$ADAPTER.saveable"
     val PROVIDER = "$BASE_PACKAGE.provider"
 
     val DATABASE_HOLDER: ClassName = ClassName.get(CONFIG, "DatabaseHolder")
     val FLOW_MANAGER: ClassName = ClassName.get(CONFIG, "FlowManager")
     val BASE_DATABASE_DEFINITION_CLASSNAME: ClassName = ClassName.get(CONFIG, "DBFlowDatabase")
-    val CONTENT_PROVIDER_DATABASE: ClassName = ClassName.get(PROVIDER, "ContentProviderDatabase")
 
-    val URI: ClassName = ClassName.get("android.net", "Uri")
-    val URI_MATCHER: ClassName = ClassName.get("android.content", "UriMatcher")
-    val CURSOR: ClassName = ClassName.get("android.database", "Cursor")
     val FLOW_CURSOR: ClassName = ClassName.get(DATABASE, "FlowCursor")
-    val DATABASE_UTILS: ClassName = ClassName.get("android.database", "DatabaseUtils")
     val CONTENT_VALUES: ClassName = ClassName.get("android.content", "ContentValues")
-    val CONTENT_URIS: ClassName = ClassName.get("android.content", "ContentUris")
 
     val MODEL_ADAPTER: ClassName = ClassName.get(ADAPTER, "ModelAdapter")
     val RETRIEVAL_ADAPTER: ClassName = ClassName.get(ADAPTER, "RetrievalAdapter")
@@ -48,18 +41,23 @@ object ClassNames {
     val QUERY: ClassName = ClassName.get(QUERY_PACKAGE, "Query")
 
     val TYPE_CONVERTER: ClassName = ClassName.get(CONVERTER, "TypeConverter")
-    val TYPE_CONVERTER_GETTER: ClassName = ClassName.get(PROPERTY_PACKAGE,
-        "TypeConvertedProperty.TypeConverterGetter")
+    val TYPE_CONVERTER_GETTER: ClassName = ClassName.get(
+        PROPERTY_PACKAGE,
+        "TypeConvertedProperty.TypeConverterGetter"
+    )
 
     val CONFLICT_ACTION: ClassName = ClassName.get(ConflictAction::class.java)
 
     val CONTENT_VALUES_LISTENER: ClassName = ClassName.get(QUERY_PACKAGE, "ContentValuesListener")
-    val LOAD_FROM_CURSOR_LISTENER: ClassName = ClassName.get(QUERY_PACKAGE, "LoadFromCursorListener")
-    val SQLITE_STATEMENT_LISTENER: ClassName = ClassName.get(QUERY_PACKAGE, "SQLiteStatementListener")
+    val LOAD_FROM_CURSOR_LISTENER: ClassName =
+        ClassName.get(QUERY_PACKAGE, "LoadFromCursorListener")
+    val SQLITE_STATEMENT_LISTENER: ClassName =
+        ClassName.get(QUERY_PACKAGE, "SQLiteStatementListener")
 
 
     val PROPERTY: ClassName = ClassName.get(PROPERTY_PACKAGE, "Property")
-    val TYPE_CONVERTED_PROPERTY: ClassName = ClassName.get(PROPERTY_PACKAGE, "TypeConvertedProperty")
+    val TYPE_CONVERTED_PROPERTY: ClassName =
+        ClassName.get(PROPERTY_PACKAGE, "TypeConvertedProperty")
     val WRAPPER_PROPERTY: ClassName = ClassName.get(PROPERTY_PACKAGE, "WrapperProperty")
 
     val IPROPERTY: ClassName = ClassName.get(PROPERTY_PACKAGE, "IProperty")
@@ -68,16 +66,13 @@ object ClassNames {
 
     val ICONDITIONAL: ClassName = ClassName.get(QUERY_PACKAGE, "IConditional")
 
-    val BASE_CONTENT_PROVIDER: ClassName = ClassName.get(PROVIDER, "BaseContentProvider")
-
     val BASE_MODEL: ClassName = ClassName.get(STRUCTURE, "BaseModel")
-    val MODEL_CACHE: ClassName = ClassName.get("$QUERY_PACKAGE.cache", "ModelCache")
-    val MULTI_KEY_CACHE_CONVERTER: ClassName = ClassName.get("$QUERY_PACKAGE.cache", "MultiKeyCacheConverter")
     val SIMPLE_MAP_CACHE: ClassName = ClassName.get("$QUERY_PACKAGE.cache", "SimpleMapCache")
 
     val CACHEABLE_MODEL_LOADER: ClassName = ClassName.get(QUERIABLE, "CacheableModelLoader")
     val SINGLE_MODEL_LOADER: ClassName = ClassName.get(QUERIABLE, "SingleModelLoader")
-    val CACHEABLE_LIST_MODEL_LOADER: ClassName = ClassName.get(QUERIABLE, "CacheableListModelLoader")
+    val CACHEABLE_LIST_MODEL_LOADER: ClassName =
+        ClassName.get(QUERIABLE, "CacheableListModelLoader")
     val LIST_MODEL_LOADER: ClassName = ClassName.get(QUERIABLE, "ListModelLoader")
     val CACHE_ADAPTER: ClassName = ClassName.get(ADAPTER, "CacheAdapter")
 
@@ -86,10 +81,11 @@ object ClassNames {
     val SQLITE: ClassName = ClassName.get(QUERY_PACKAGE, "SQLite")
 
     val CACHEABLE_LIST_MODEL_SAVER: ClassName = ClassName.get(SAVEABLE, "CacheableListModelSaver")
-    val SINGLE_MODEL_SAVER: ClassName = ClassName.get(SAVEABLE, "ModelSaver")
 
-    val SINGLE_KEY_CACHEABLE_MODEL_LOADER: ClassName = ClassName.get(QUERIABLE, "SingleKeyCacheableModelLoader")
-    val SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER: ClassName = ClassName.get(QUERIABLE, "SingleKeyCacheableListModelLoader")
+    val SINGLE_KEY_CACHEABLE_MODEL_LOADER: ClassName =
+        ClassName.get(QUERIABLE, "SingleKeyCacheableModelLoader")
+    val SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER: ClassName =
+        ClassName.get(QUERIABLE, "SingleKeyCacheableListModelLoader")
 
     val NON_NULL: ClassName = ClassName.get("android.support.annotation", "NonNull")
     val NON_NULL_X: ClassName = ClassName.get("androidx.annotation", "NonNull")

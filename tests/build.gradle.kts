@@ -51,7 +51,6 @@ dependencies {
     implementation(project(":lib"))
     implementation(project(":sqlcipher"))
     implementation(project(":reactive-streams"))
-    implementation(project(":contentprovider"))
     implementation(project(":coroutines"))
     implementation(project(":paging"))
     implementation(project(":livedata"))

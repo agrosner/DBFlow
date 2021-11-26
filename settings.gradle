@@ -1,7 +1,8 @@
-include ':lib', ':reactive-streams', ':coroutines', ':contentprovider', ':contentprovider-annotations', ':livedata',
-        ':processor',
-        ':core',
-        ':sqlcipher',
-        ':tests',
-        ':paging'
+include ':lib', ':reactive-streams', ':coroutines',
+    ':livedata',
+    ':processor',
+    ':core',
+    ':sqlcipher',
+    ':tests',
+    ':paging'
 

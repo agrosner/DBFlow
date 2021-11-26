@@ -10,8 +10,6 @@ import com.dbflow5.processor.definition.ModelViewDefinition
 import com.dbflow5.processor.definition.QueryModelDefinition
 import com.dbflow5.processor.definition.TableDefinition
 import com.dbflow5.processor.definition.TypeConverterDefinition
-import com.dbflow5.processor.definition.provider.ContentProviderDefinition
-import com.dbflow5.processor.definition.provider.TableEndpointDefinition
 import com.dbflow5.processor.definition.safeWritePackageHelper
 import com.dbflow5.processor.utils.writeBaseDefinition
 import com.squareup.javapoet.ClassName
@@ -32,7 +30,8 @@ import kotlin.reflect.KClass
  * Description: The main object graph during processing. This class collects all of the
  * processor classes and writes them to the corresponding database holders.
  */
-class ProcessorManager internal constructor(val processingEnvironment: ProcessingEnvironment) : Handler {
+class ProcessorManager internal constructor(val processingEnvironment: ProcessingEnvironment) :
+    Handler {
 
     companion object {
         lateinit var manager: ProcessorManager
@@ -41,11 +40,11 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     private val uniqueDatabases = arrayListOf<TypeName>()
     private val modelToDatabaseMap = hashMapOf<TypeName, TypeName>()
     val typeConverters = linkedMapOf<TypeName?, TypeConverterDefinition>()
-    private val migrations = hashMapOf<TypeName?, MutableMap<Int, MutableList<MigrationDefinition>>>()
+    private val migrations =
+        hashMapOf<TypeName?, MutableMap<Int, MutableList<MigrationDefinition>>>()
 
     private val databaseDefinitionMap = hashMapOf<TypeName?, DatabaseObjectHolder>()
     private val handlers = mutableSetOf<AnnotatedHandler<*>>()
-    private val providerMap = hashMapOf<TypeName?, ContentProviderDefinition>()
 
     init {
         manager = this
@@ -80,7 +79,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         typeConverters[definition.modelTypeName] = definition
     }
 
-    fun getTypeConverterDefinition(typeName: TypeName?): TypeConverterDefinition? = typeConverters[typeName]
+    fun getTypeConverterDefinition(typeName: TypeName?): TypeConverterDefinition? =
+        typeConverters[typeName]
 
     fun addModelToDatabase(modelType: TypeName?, databaseName: TypeName) {
         modelType?.let { type ->
@@ -98,13 +98,16 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun addTableDefinition(tableDefinition: TableDefinition) {
         tableDefinition.elementClassName?.let {
-            val holderDefinition = getOrPutDatabase(tableDefinition.associationalBehavior.databaseTypeName)
+            val holderDefinition =
+                getOrPutDatabase(tableDefinition.associationalBehavior.databaseTypeName)
             holderDefinition?.tableDefinitionMap?.put(it, tableDefinition)
             holderDefinition?.tableNameMap?.let {
                 val tableName = tableDefinition.associationalBehavior.name
                 if (holderDefinition.tableNameMap.containsKey(tableName)) {
-                    logError("Found duplicate table $tableName " +
-                        "for database ${holderDefinition.databaseDefinition?.elementName}")
+                    logError(
+                        "Found duplicate table $tableName " +
+                            "for database ${holderDefinition.databaseDefinition?.elementName}"
+                    )
                 } else {
                     holderDefinition.tableNameMap.put(tableName, tableDefinition)
                 }
@@ -126,7 +129,10 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         return getOrPutDatabase(databaseName)?.tableDefinitionMap?.get(typeName)
     }
 
-    fun getQueryModelDefinition(databaseName: TypeName?, typeName: TypeName?): QueryModelDefinition? {
+    fun getQueryModelDefinition(
+        databaseName: TypeName?,
+        typeName: TypeName?
+    ): QueryModelDefinition? {
         return getOrPutDatabase(databaseName)?.queryModelDefinitionMap?.get(typeName)
     }
 
@@ -147,7 +153,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         }
     }
 
-    fun getTypeConverters() = typeConverters.values.toHashSet().sortedBy { it.modelTypeName?.toString() }
+    fun getTypeConverters() =
+        typeConverters.values.toHashSet().sortedBy { it.modelTypeName?.toString() }
 
     fun getTableDefinitions(databaseName: TypeName): List<TableDefinition> {
         val databaseHolderDefinition = getOrPutDatabase(databaseName)
@@ -156,7 +163,10 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
             .sortedBy { it.outputClassName?.simpleName() }
     }
 
-    fun setTableDefinitions(tableDefinitionSet: MutableMap<TypeName, TableDefinition>, databaseName: TypeName) {
+    fun setTableDefinitions(
+        tableDefinitionSet: MutableMap<TypeName, TableDefinition>,
+        databaseName: TypeName
+    ) {
         val databaseDefinition = getOrPutDatabase(databaseName)
         databaseDefinition?.tableDefinitionMap = tableDefinitionSet
     }
@@ -169,7 +179,10 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
             .sortedByDescending { it.priority }
     }
 
-    fun setModelViewDefinitions(modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition>, elementClassName: ClassName) {
+    fun setModelViewDefinitions(
+        modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition>,
+        elementClassName: ClassName
+    ) {
         val databaseDefinition = getOrPutDatabase(elementClassName)
         databaseDefinition?.modelViewDefinitionMap = modelViewDefinitionMap
     }
@@ -182,8 +195,10 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     }
 
     fun addMigrationDefinition(migrationDefinition: MigrationDefinition) {
-        val migrationDefinitionMap = migrations.getOrPut(migrationDefinition.databaseName) { hashMapOf() }
-        val migrationDefinitions = migrationDefinitionMap.getOrPut(migrationDefinition.version) { arrayListOf() }
+        val migrationDefinitionMap =
+            migrations.getOrPut(migrationDefinition.databaseName) { hashMapOf() }
+        val migrationDefinitions =
+            migrationDefinitionMap.getOrPut(migrationDefinition.version) { arrayListOf() }
         if (!migrationDefinitions.contains(migrationDefinition)) {
             migrationDefinitions.add(migrationDefinition)
         }
@@ -192,30 +207,17 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     fun getMigrationsForDatabase(databaseName: TypeName) = migrations[databaseName]
         ?: hashMapOf<Int, List<MigrationDefinition>>()
 
-    fun addContentProviderDefinition(contentProviderDefinition: ContentProviderDefinition) {
-        contentProviderDefinition.elementTypeName?.let {
-            val holderDefinition = getOrPutDatabase(contentProviderDefinition.databaseTypeName)
-            holderDefinition?.providerMap?.put(it, contentProviderDefinition)
-            providerMap.put(it, contentProviderDefinition)
-        }
-    }
-
-    fun putTableEndpointForProvider(tableEndpointDefinition: TableEndpointDefinition) {
-        val contentProviderDefinition = providerMap[tableEndpointDefinition.contentProviderName]
-        if (contentProviderDefinition == null) {
-            logError("Content Provider ${tableEndpointDefinition.contentProviderName} was not found for the @TableEndpoint ${tableEndpointDefinition.elementClassName}")
-        } else {
-            contentProviderDefinition.endpointDefinitions.add(tableEndpointDefinition)
-        }
-    }
-
     fun logError(callingClass: KClass<*>?, error: String?, vararg args: Any?) {
-        messager.printMessage(Diagnostic.Kind.ERROR,
-            String.format("${
-                (callingClass?.toString() ?: "")
-                    // don't print this in logs.
-                    .replace("(Kotlin reflection is not available)", "")
-            } : ${error?.trim()}", *args))
+        messager.printMessage(
+            Diagnostic.Kind.ERROR,
+            String.format(
+                "${
+                    (callingClass?.toString() ?: "")
+                        // don't print this in logs.
+                        .replace("(Kotlin reflection is not available)", "")
+                } : ${error?.trim()}", *args
+            )
+        )
     }
 
     fun logError(error: String?) = logError(callingClass = null, error = error)
@@ -246,7 +248,8 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
                 val manyToManyDefinitions = databaseHolderDefinition.manyToManyDefinitionMap.values
 
-                val flattenedList = manyToManyDefinitions.flatten().sortedBy { it.outputClassName?.simpleName() }
+                val flattenedList =
+                    manyToManyDefinitions.flatten().sortedBy { it.outputClassName?.simpleName() }
                 for (manyToManyList in flattenedList) {
                     manyToManyList.prepareForWrite()
                     manyToManyList.writeBaseDefinition(processorManager)
@@ -256,17 +259,6 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                 if (!manyToManyDefinitions.isEmpty()) {
                     manyToManyDefinitions.clear()
                     continue
-                }
-
-                if (roundEnvironment.processingOver()) {
-                    val validator = ContentProviderValidator()
-                    val contentProviderDefinitions = databaseHolderDefinition.providerMap.values
-                        .sortedBy { it.outputClassName?.simpleName() }
-                    contentProviderDefinitions.forEach { contentProviderDefinition ->
-                        if (validator.validate(processorManager, contentProviderDefinition)) {
-                            contentProviderDefinition.writeBaseDefinition(processorManager)
-                        }
-                    }
                 }
 
                 databaseHolderDefinition.databaseDefinition?.validateAndPrepareToWrite()
@@ -305,8 +297,10 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         try {
             val databaseHolderDefinition = DatabaseHolderDefinition(processorManager)
             if (!databaseHolderDefinition.isGarbage()) {
-                JavaFile.builder(com.dbflow5.processor.ClassNames.FLOW_MANAGER_PACKAGE,
-                    databaseHolderDefinition.typeSpec).build()
+                JavaFile.builder(
+                    com.dbflow5.processor.ClassNames.FLOW_MANAGER_PACKAGE,
+                    databaseHolderDefinition.typeSpec
+                ).build()
                     .writeTo(processorManager.processingEnvironment.filer)
             }
         } catch (e: FilerException) {
@@ -317,8 +311,9 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
 
     fun elementBelongsInTable(element: Element): Boolean {
         val enclosingElement = element.enclosingElement
-        var find: EntityDefinition? = databaseDefinitionMap.values.flatMap { it.tableDefinitionMap.values }
-            .find { it.element == enclosingElement }
+        var find: EntityDefinition? =
+            databaseDefinitionMap.values.flatMap { it.tableDefinitionMap.values }
+                .find { it.element == enclosingElement }
 
         // modelview check.
         if (find == null) {

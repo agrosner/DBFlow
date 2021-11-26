@@ -12,7 +12,6 @@ tasks.withType<KotlinCompile> {
 
 dependencies {
     api(project(":core"))
-    api(project(":contentprovider-annotations"))
     api(Dependencies.JavaPoet)
     api(Dependencies.KPoet)
 

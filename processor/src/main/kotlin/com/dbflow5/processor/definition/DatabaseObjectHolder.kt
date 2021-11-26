@@ -1,6 +1,5 @@
 package com.dbflow5.processor.definition
 
-import com.dbflow5.processor.definition.provider.ContentProviderDefinition
 import com.squareup.javapoet.TypeName
 
 /**
@@ -20,8 +19,8 @@ class DatabaseObjectHolder {
 
     val queryModelDefinitionMap: MutableMap<TypeName, QueryModelDefinition> = hashMapOf()
     var modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition> = hashMapOf()
-    val manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> = hashMapOf()
-    val providerMap = hashMapOf<TypeName, ContentProviderDefinition>()
+    val manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> =
+        hashMapOf()
 
     /**
      * Retrieve what database class they're trying to reference.
@@ -37,9 +36,6 @@ class DatabaseObjectHolder {
             }
             modelViewDefinitionMap.values.forEach {
                 list += "Database ${it.associationalBehavior.databaseTypeName} not found for ModelView ${it.elementName}"
-            }
-            providerMap.values.forEach {
-                list += "Database ${it.databaseTypeName} not found for ContentProvider ${it.elementName}"
             }
             return list
 

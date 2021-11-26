@@ -10,8 +10,6 @@ import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
-import com.dbflow5.contentprovider.annotation.ContentProvider
-import com.dbflow5.contentprovider.annotation.TableEndpoint
 import com.dbflow5.processor.definition.DatabaseHolderDefinition
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
@@ -37,15 +35,15 @@ class DBFlowProcessor : AbstractProcessor() {
         TypeConverter::class,
         ModelView::class,
         Migration::class,
-        ContentProvider::class,
-        TableEndpoint::class,
         ColumnIgnore::class,
         QueryModel::class,
         Fts3::class,
         Fts4::class,
-        MultipleManyToMany::class).mapTo(linkedSetOf<String>()) { it.java.canonicalName }
+        MultipleManyToMany::class
+    ).mapTo(linkedSetOf<String>()) { it.java.canonicalName }
 
-    override fun getSupportedOptions() = linkedSetOf(DatabaseHolderDefinition.OPTION_TARGET_MODULE_NAME)
+    override fun getSupportedOptions() =
+        linkedSetOf(DatabaseHolderDefinition.OPTION_TARGET_MODULE_NAME)
 
     /**
      * If the processor class is annotated with [ ], return the source version in the
@@ -59,14 +57,14 @@ class DBFlowProcessor : AbstractProcessor() {
     override fun init(processingEnv: ProcessingEnvironment) {
         super.init(processingEnv)
         manager = ProcessorManager(processingEnv)
-        manager.addHandlers(MigrationHandler(),
+        manager.addHandlers(
+            MigrationHandler(),
             TypeConverterHandler(),
             DatabaseHandler(),
             TableHandler(),
             QueryModelHandler(),
             ModelViewHandler(),
-            ContentProviderHandler(),
-            TableEndpointHandler())
+        )
     }
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {

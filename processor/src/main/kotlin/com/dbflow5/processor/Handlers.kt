@@ -8,8 +8,6 @@ import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
-import com.dbflow5.contentprovider.annotation.ContentProvider
-import com.dbflow5.contentprovider.annotation.TableEndpoint
 import com.dbflow5.converter.BigDecimalConverter
 import com.dbflow5.converter.BigIntegerConverter
 import com.dbflow5.converter.BooleanConverter
@@ -25,13 +23,10 @@ import com.dbflow5.processor.definition.ModelViewDefinition
 import com.dbflow5.processor.definition.QueryModelDefinition
 import com.dbflow5.processor.definition.TableDefinition
 import com.dbflow5.processor.definition.TypeConverterDefinition
-import com.dbflow5.processor.definition.provider.ContentProviderDefinition
-import com.dbflow5.processor.definition.provider.TableEndpointDefinition
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.fromTypeMirror
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
-import javax.lang.model.element.PackageElement
 import javax.lang.model.element.TypeElement
 import kotlin.reflect.KClass
 
@@ -54,10 +49,12 @@ interface Handler {
 /**
  * Description: The base handler than provides common callbacks into processing annotated top-level elements
  */
-abstract class AnnotatedHandler<AnnotationClass : Annotation>(private val annotationClass: KClass<AnnotationClass>) : Handler {
+abstract class AnnotatedHandler<AnnotationClass : Annotation>(private val annotationClass: KClass<AnnotationClass>) :
+    Handler {
 
     override fun handle(processorManager: ProcessorManager, roundEnvironment: RoundEnvironment) {
-        val annotatedElements = roundEnvironment.getElementsAnnotatedWith(annotationClass.java).toMutableSet()
+        val annotatedElements =
+            roundEnvironment.getElementsAnnotatedWith(annotationClass.java).toMutableSet()
         processElements(processorManager, annotatedElements)
         if (annotatedElements.size > 0) {
             annotatedElements.forEach { element ->
@@ -69,11 +66,18 @@ abstract class AnnotatedHandler<AnnotationClass : Annotation>(private val annota
         }
     }
 
-    open fun processElements(processorManager: ProcessorManager, annotatedElements: MutableSet<Element>) {
+    open fun processElements(
+        processorManager: ProcessorManager,
+        annotatedElements: MutableSet<Element>
+    ) {
 
     }
 
-    protected abstract fun onProcessElement(annotation: AnnotationClass, element: Element, processorManager: ProcessorManager)
+    protected abstract fun onProcessElement(
+        annotation: AnnotationClass,
+        element: Element,
+        processorManager: ProcessorManager
+    )
 
     open fun afterProcessElements(processorManager: ProcessorManager) {
 
@@ -86,7 +90,11 @@ abstract class AnnotatedHandler<AnnotationClass : Annotation>(private val annota
  */
 class MigrationHandler : AnnotatedHandler<Migration>(Migration::class) {
 
-    override fun onProcessElement(annotation: Migration, element: Element, processorManager: ProcessorManager) {
+    override fun onProcessElement(
+        annotation: Migration,
+        element: Element,
+        processorManager: ProcessorManager
+    ) {
         if (element is TypeElement) {
             element.annotation<Migration>()?.let { migration ->
                 val migrationDefinition = MigrationDefinition(migration, processorManager, element)
@@ -102,7 +110,11 @@ class MigrationHandler : AnnotatedHandler<Migration>(Migration::class) {
  */
 class ModelViewHandler : AnnotatedHandler<ModelView>(ModelView::class) {
 
-    override fun onProcessElement(annotation: ModelView, element: Element, processorManager: ProcessorManager) {
+    override fun onProcessElement(
+        annotation: ModelView,
+        element: Element,
+        processorManager: ProcessorManager
+    ) {
         if (element is TypeElement) {
             element.annotation<ModelView>()?.let { modelView ->
                 val modelViewDefinition = ModelViewDefinition(modelView, processorManager, element)
@@ -118,27 +130,16 @@ class ModelViewHandler : AnnotatedHandler<ModelView>(ModelView::class) {
  */
 class QueryModelHandler : AnnotatedHandler<QueryModel>(QueryModel::class) {
 
-    override fun onProcessElement(annotation: QueryModel, element: Element, processorManager: ProcessorManager) {
+    override fun onProcessElement(
+        annotation: QueryModel,
+        element: Element,
+        processorManager: ProcessorManager
+    ) {
         if (element is TypeElement) {
             element.annotation<QueryModel>()?.let { queryModel ->
-                val queryModelDefinition = QueryModelDefinition(queryModel, element, processorManager)
+                val queryModelDefinition =
+                    QueryModelDefinition(queryModel, element, processorManager)
                 processorManager.addQueryModelDefinition(queryModelDefinition)
-            }
-        }
-    }
-}
-
-class TableEndpointHandler : AnnotatedHandler<TableEndpoint>(TableEndpoint::class) {
-
-    private val validator: TableEndpointValidator = TableEndpointValidator()
-
-    override fun onProcessElement(annotation: TableEndpoint, element: Element, processorManager: ProcessorManager) {
-
-        // top-level only
-        if (element.enclosingElement is PackageElement) {
-            val tableEndpointDefinition = TableEndpointDefinition(annotation, element, processorManager)
-            if (validator.validate(processorManager, tableEndpointDefinition)) {
-                processorManager.putTableEndpointForProvider(tableEndpointDefinition)
             }
         }
     }
@@ -150,20 +151,31 @@ class TableEndpointHandler : AnnotatedHandler<TableEndpoint>(TableEndpoint::clas
  */
 class TableHandler : AnnotatedHandler<Table>(Table::class) {
 
-    override fun onProcessElement(annotation: Table, element: Element, processorManager: ProcessorManager) {
+    override fun onProcessElement(
+        annotation: Table,
+        element: Element,
+        processorManager: ProcessorManager
+    ) {
         if (element is TypeElement) {
             val tableDefinition = TableDefinition(annotation, processorManager, element)
             processorManager.addTableDefinition(tableDefinition)
 
             element.annotation<ManyToMany>()?.let { manyToMany ->
-                val manyToManyDefinition = ManyToManyDefinition(element, processorManager, manyToMany)
+                val manyToManyDefinition =
+                    ManyToManyDefinition(element, processorManager, manyToMany)
                 processorManager.addManyToManyDefinition(manyToManyDefinition)
             }
 
             if (element.annotation<MultipleManyToMany>() != null) {
                 val multipleManyToMany = element.annotation<MultipleManyToMany>()
                 multipleManyToMany?.value?.forEach {
-                    processorManager.addManyToManyDefinition(ManyToManyDefinition(element, processorManager, it))
+                    processorManager.addManyToManyDefinition(
+                        ManyToManyDefinition(
+                            element,
+                            processorManager,
+                            it
+                        )
+                    )
                 }
             }
         }
@@ -178,23 +190,35 @@ class TypeConverterHandler : AnnotatedHandler<TypeConverter>(TypeConverter::clas
 
     private var typeConverterElements = setOf<Element>()
     private val typeConverterDefinitions = mutableSetOf<TypeConverterDefinition>()
-    override fun processElements(processorManager: ProcessorManager, annotatedElements: MutableSet<Element>) {
-        typeConverterElements = DEFAULT_TYPE_CONVERTERS.mapTo(mutableSetOf()) { processorManager.elements.getTypeElement(it.name) }
+    override fun processElements(
+        processorManager: ProcessorManager,
+        annotatedElements: MutableSet<Element>
+    ) {
+        typeConverterElements = DEFAULT_TYPE_CONVERTERS.mapTo(mutableSetOf()) {
+            processorManager.elements.getTypeElement(it.name)
+        }
         annotatedElements.addAll(typeConverterElements)
     }
 
-    override fun onProcessElement(annotation: TypeConverter, element: Element, processorManager: ProcessorManager) {
+    override fun onProcessElement(
+        annotation: TypeConverter,
+        element: Element,
+        processorManager: ProcessorManager
+    ) {
         if (element is TypeElement) {
             fromTypeMirror(element.asType(), processorManager)?.let { className ->
-                val definition = TypeConverterDefinition(annotation, className, element.asType(), processorManager,
-                    isDefaultConverter = typeConverterElements.contains(element))
+                val definition = TypeConverterDefinition(
+                    annotation, className, element.asType(), processorManager,
+                    isDefaultConverter = typeConverterElements.contains(element)
+                )
                 if (VALIDATOR.validate(processorManager, definition)) {
                     // allow user overrides from default.
                     // Check here if user already placed definition of same type, since default converters
                     // are added last.
                     if (processorManager.typeConverters
                             .filter { it.value.modelTypeName == definition.modelTypeName }
-                            .isEmpty()) {
+                            .isEmpty()
+                    ) {
                         typeConverterDefinitions.add(definition)
                     }
                 }
@@ -207,20 +231,22 @@ class TypeConverterHandler : AnnotatedHandler<TypeConverter>(TypeConverter::clas
         val grouping = typeConverterDefinitions
             .filter { it.isDefaultConverter }
             .groupingBy { it.modelTypeName }
-        val groupingMap = grouping.aggregate { key, accumulator: MutableSet<TypeConverterDefinition>?, element: TypeConverterDefinition, first: Boolean ->
-            val set = accumulator ?: mutableSetOf()
-            set.add(element)
-            return@aggregate set
-        }
+        val groupingMap =
+            grouping.aggregate { key, accumulator: MutableSet<TypeConverterDefinition>?, element: TypeConverterDefinition, first: Boolean ->
+                val set = accumulator ?: mutableSetOf()
+                set.add(element)
+                return@aggregate set
+            }
         grouping.eachCount()
             .forEach { (type, count) ->
                 if (count > 1) {
-                    processorManager.logError(TypeConverterHandler::class, "Multiple registered @TypeConverter of type $type found. " +
-                        "Pick one for global and make the other a local converter for a @Column. " +
-                        "Or explicitly specify both as field converters." +
-                        "\n${
-                            groupingMap[type]?.joinToString("\n") { " ${it.className} registered for ${it.modelTypeName} <-> ${it.dbTypeName}" }
-                        }\n")
+                    processorManager.logError(TypeConverterHandler::class,
+                        "Multiple registered @TypeConverter of type $type found. " +
+                            "Pick one for global and make the other a local converter for a @Column. " +
+                            "Or explicitly specify both as field converters." +
+                            "\n${
+                                groupingMap[type]?.joinToString("\n") { " ${it.className} registered for ${it.modelTypeName} <-> ${it.dbTypeName}" }
+                            }\n")
                 }
             }
         // sort default converters first so that they can get overwritten
@@ -231,21 +257,13 @@ class TypeConverterHandler : AnnotatedHandler<TypeConverter>(TypeConverter::clas
 
     companion object {
         private val VALIDATOR = TypeConverterValidator()
-        private val DEFAULT_TYPE_CONVERTERS = arrayOf<Class<*>>(CalendarConverter::class.java,
+        private val DEFAULT_TYPE_CONVERTERS = arrayOf<Class<*>>(
+            CalendarConverter::class.java,
             BigDecimalConverter::class.java, BigIntegerConverter::class.java,
             DateConverter::class.java, SqlDateConverter::class.java,
             BooleanConverter::class.java, UUIDConverter::class.java,
-            CharConverter::class.java)
-    }
-}
-
-class ContentProviderHandler : AnnotatedHandler<ContentProvider>(ContentProvider::class) {
-
-    override fun onProcessElement(annotation: ContentProvider, element: Element, processorManager: ProcessorManager) {
-        val contentProviderDefinition = ContentProviderDefinition(annotation, element, processorManager)
-        if (contentProviderDefinition.elementClassName != null) {
-            processorManager.addContentProviderDefinition(contentProviderDefinition)
-        }
+            CharConverter::class.java
+        )
     }
 }
 
@@ -256,7 +274,11 @@ class DatabaseHandler : AnnotatedHandler<Database>(Database::class) {
 
     private val validator = DatabaseValidator()
 
-    override fun onProcessElement(annotation: Database, element: Element, processorManager: ProcessorManager) {
+    override fun onProcessElement(
+        annotation: Database,
+        element: Element,
+        processorManager: ProcessorManager
+    ) {
         val managerWriter = DatabaseDefinition(annotation, processorManager, element)
         if (validator.validate(processorManager, managerWriter)) {
             processorManager.addDatabaseDefinition(managerWriter)
