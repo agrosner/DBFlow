@@ -3,14 +3,12 @@ plugins {
     kotlin("android")
 }
 
-// project.ext.artifactId = bt_name
-
 android {
-    compileSdkVersion(Versions.TargetSdk)
+    compileSdk = Versions.TargetSdk
 
     defaultConfig {
-        minSdkVersion(Versions.MinSdk)
-        targetSdkVersion(Versions.TargetSdk)
+        minSdk = Versions.MinSdk
+        targetSdk = Versions.TargetSdk
     }
 
     compileOptions {
@@ -29,5 +27,5 @@ dependencies {
     api(Dependencies.AndroidX.Annotations)
 }
 
-apply(from = "../kotlin-artifacts.gradle")
+apply(from = "../kotlin-artifacts.gradle.kts")
 

@@ -51,10 +51,11 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             else -> {
                 // check if low ram device
                 val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && manager?.isLowRamDevice == false) {
+                if (manager?.isLowRamDevice == false) {
                     WriteAheadLogging
+                } else {
+                    Truncate
                 }
-                Truncate
             }
         }
     }
@@ -231,11 +232,18 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             // initialize configuration if exists.
             val tableConfigCollection = databaseConfig.tableConfigMap.values
             for (tableConfig in tableConfigCollection) {
-                val modelAdapter: ModelAdapter<Any> = modelAdapterMap[tableConfig.tableClass] as ModelAdapter<Any>?
-                    ?: continue
-                tableConfig.listModelLoader?.let { loader -> modelAdapter.listModelLoader = loader as ListModelLoader<Any> }
-                tableConfig.singleModelLoader?.let { loader -> modelAdapter.singleModelLoader = loader as SingleModelLoader<Any> }
-                tableConfig.modelSaver?.let { saver -> modelAdapter.modelSaver = saver as ModelSaver<Any> }
+                val modelAdapter: ModelAdapter<Any> =
+                    modelAdapterMap[tableConfig.tableClass] as ModelAdapter<Any>?
+                        ?: continue
+                tableConfig.listModelLoader?.let { loader ->
+                    modelAdapter.listModelLoader = loader as ListModelLoader<Any>
+                }
+                tableConfig.singleModelLoader?.let { loader ->
+                    modelAdapter.singleModelLoader = loader as SingleModelLoader<Any>
+                }
+                tableConfig.modelSaver?.let { saver ->
+                    modelAdapter.modelSaver = saver as ModelSaver<Any>
+                }
             }
             callback = databaseConfig.callback
         }
@@ -252,12 +260,18 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         modelAdapterMap[modelAdapter.table] = modelAdapter
     }
 
-    protected fun <T : Any> addModelViewAdapter(modelViewAdapter: ModelViewAdapter<T>, holder: DatabaseHolder) {
+    protected fun <T : Any> addModelViewAdapter(
+        modelViewAdapter: ModelViewAdapter<T>,
+        holder: DatabaseHolder
+    ) {
         holder.putDatabaseForTable(modelViewAdapter.table, this)
         modelViewAdapterMap[modelViewAdapter.table] = modelViewAdapter
     }
 
-    protected fun <T : Any> addRetrievalAdapter(retrievalAdapter: RetrievalAdapter<T>, holder: DatabaseHolder) {
+    protected fun <T : Any> addRetrievalAdapter(
+        retrievalAdapter: RetrievalAdapter<T>,
+        holder: DatabaseHolder
+    ) {
         holder.putDatabaseForTable(retrievalAdapter.table, this)
         queryModelAdapterMap[retrievalAdapter.table] = retrievalAdapter
     }
@@ -354,9 +368,10 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * Runs a transaction in the current thread.
      */
     @WorkerThread
-    inline fun <R> executeTransaction(crossinline transaction: (DatabaseWrapper) -> R) = executeTransaction(object : ITransaction<R> {
-        override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
-    })
+    inline fun <R> executeTransaction(crossinline transaction: (DatabaseWrapper) -> R) =
+        executeTransaction(object : ITransaction<R> {
+            override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
+        })
 
     /**
      * @return True if the [Database.consistencyCheckEnabled] annotation is true.
@@ -462,18 +477,31 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         }
     }
 
-    override fun compileStatement(rawQuery: String): DatabaseStatement = writableDatabase.compileStatement(rawQuery)
+    override fun compileStatement(rawQuery: String): DatabaseStatement =
+        writableDatabase.compileStatement(rawQuery)
 
-    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor = writableDatabase.rawQuery(query, selectionArgs)
+    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
+        writableDatabase.rawQuery(query, selectionArgs)
 
-    override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int = writableDatabase.delete(tableName, whereClause, whereArgs)
+    override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int =
+        writableDatabase.delete(tableName, whereClause, whereArgs)
 
-    override fun query(tableName: String,
-                       columns: Array<String>?,
-                       selection: String?,
-                       selectionArgs: Array<String>?,
-                       groupBy: String?, having: String?,
-                       orderBy: String?): FlowCursor = writableDatabase.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy)
+    override fun query(
+        tableName: String,
+        columns: Array<String>?,
+        selection: String?,
+        selectionArgs: Array<String>?,
+        groupBy: String?, having: String?,
+        orderBy: String?
+    ): FlowCursor = writableDatabase.query(
+        tableName,
+        columns,
+        selection,
+        selectionArgs,
+        groupBy,
+        having,
+        orderBy
+    )
 
     override val isInTransaction: Boolean
         get() = writableDatabase.isInTransaction
@@ -492,7 +520,11 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             callback?.onUpgrade(database, oldVersion, newVersion)
         }
 
-        override fun onDowngrade(databaseWrapper: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
+        override fun onDowngrade(
+            databaseWrapper: DatabaseWrapper,
+            oldVersion: Int,
+            newVersion: Int
+        ) {
             callback?.onDowngrade(databaseWrapper, oldVersion, newVersion)
         }
 
