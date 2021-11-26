@@ -48,7 +48,6 @@ object ClassNames {
 
     val CONFLICT_ACTION: ClassName = ClassName.get(ConflictAction::class.java)
 
-    val CONTENT_VALUES_LISTENER: ClassName = ClassName.get(QUERY_PACKAGE, "ContentValuesListener")
     val LOAD_FROM_CURSOR_LISTENER: ClassName =
         ClassName.get(QUERY_PACKAGE, "LoadFromCursorListener")
     val SQLITE_STATEMENT_LISTENER: ClassName =

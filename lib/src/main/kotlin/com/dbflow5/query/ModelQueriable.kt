@@ -67,14 +67,6 @@ interface ModelQueriable<T : Any> : Queriable {
                                               databaseWrapper: DatabaseWrapper): TQueryModel?
 
     /**
-     * Disables caching on this query for the object retrieved from DB (if caching enabled). If
-     * caching is not enabled, this method is ignored. This also disables caching in a [FlowCursorList]
-     * or [FlowQueryList] if you [.flowQueryList] or [.cursorList]
-     */
-    fun disableCaching(): ModelQueriable<T>
-
-
-    /**
      * Begins an async DB transaction using the specified TransactionManager.
      */
     fun <R : Any?> async(databaseWrapper: DBFlowDatabase,

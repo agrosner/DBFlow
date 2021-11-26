@@ -22,31 +22,21 @@ abstract class BaseModelQueriable<TModel : Any>
  *
  * @param table the table that belongs to this query.
  */
-protected constructor(table: Class<TModel>)
-    : BaseQueriable<TModel>(table), ModelQueriable<TModel>, Query {
+protected constructor(table: Class<TModel>) : BaseQueriable<TModel>(table), ModelQueriable<TModel>,
+    Query {
 
-    private val retrievalAdapter: RetrievalAdapter<TModel> by lazy { FlowManager.getRetrievalAdapter(table) }
-
-    private var cachingEnabled = true
+    private val retrievalAdapter: RetrievalAdapter<TModel> by lazy {
+        FlowManager.getRetrievalAdapter(
+            table
+        )
+    }
 
     private var _cacheListModelLoader: ListModelLoader<TModel>? = null
     protected val listModelLoader: ListModelLoader<TModel>
-        get() = if (cachingEnabled) {
-            retrievalAdapter.listModelLoader
-        } else {
-            retrievalAdapter.nonCacheableListModelLoader
-        }
+        get() = retrievalAdapter.nonCacheableListModelLoader
 
     protected val singleModelLoader: SingleModelLoader<TModel>
-        get() = if (cachingEnabled) {
-            retrievalAdapter.singleModelLoader
-        } else {
-            retrievalAdapter.nonCacheableSingleModelLoader
-        }
-
-    override fun disableCaching() = apply {
-        cachingEnabled = false
-    }
+        get() = retrievalAdapter.nonCacheableSingleModelLoader
 
     override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<TModel> {
         val query = query
@@ -69,16 +59,20 @@ protected constructor(table: Class<TModel>)
     override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long =
         compileStatement(databaseWrapper).use { it.executeUpdateDelete() }
 
-    override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>,
-                                                    databaseWrapper: DatabaseWrapper)
+    override fun <QueryClass : Any> queryCustomList(
+        queryModelClass: Class<QueryClass>,
+        databaseWrapper: DatabaseWrapper
+    )
         : MutableList<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
         return getListQueryModelLoader(queryModelClass).load(databaseWrapper, query)!!
     }
 
-    override fun <QueryClass : Any> queryCustomSingle(queryModelClass: Class<QueryClass>,
-                                                      databaseWrapper: DatabaseWrapper)
+    override fun <QueryClass : Any> queryCustomSingle(
+        queryModelClass: Class<QueryClass>,
+        databaseWrapper: DatabaseWrapper
+    )
         : QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
@@ -87,23 +81,20 @@ protected constructor(table: Class<TModel>)
 
 
     protected fun <T : Any> getListQueryModelLoader(table: Class<T>): ListModelLoader<T> =
-        if (cachingEnabled) {
-            table.retrievalAdapter.listModelLoader
-        } else {
-            table.retrievalAdapter.nonCacheableListModelLoader
-        }
+        table.retrievalAdapter.nonCacheableListModelLoader
 
     protected fun <T : Any> getSingleQueryModelLoader(table: Class<T>): SingleModelLoader<T> =
-        if (cachingEnabled) {
-            table.retrievalAdapter.singleModelLoader
-        } else {
-            table.retrievalAdapter.nonCacheableSingleModelLoader
-        }
+        table.retrievalAdapter.nonCacheableSingleModelLoader
 }
 
 /**
  * Constructs a flowQueryList allowing a custom [Handler].
  */
-fun <T : Any> ModelQueriable<T>.flowQueryList(databaseWrapper: DatabaseWrapper, refreshHandler: Handler) =
-    FlowQueryList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper,
-        refreshHandler = refreshHandler).build()
+fun <T : Any> ModelQueriable<T>.flowQueryList(
+    databaseWrapper: DatabaseWrapper,
+    refreshHandler: Handler
+) =
+    FlowQueryList.Builder(
+        modelQueriable = this, databaseWrapper = databaseWrapper,
+        refreshHandler = refreshHandler
+    ).build()

@@ -179,7 +179,7 @@ class DefaultModel(@PrimaryKey @Column(defaultValue = "5") var id: Int? = 0,
                    @Column(defaultValue = "5.0") var location: Double? = 0.0,
                    @Column(defaultValue = "\"String\"") var name: String? = "")
 
-@Table(database = TestDatabase::class, cachingEnabled = true)
+@Table(database = TestDatabase::class)
 class TestModelChild : BaseModel() {
     @PrimaryKey
     var id: Long = 0

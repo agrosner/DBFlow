@@ -8,13 +8,15 @@ import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.query.cache.MultiKeyCacheConverter
 
-@Table(database = TestDatabase::class, cachingEnabled = true)
+@Table(database = TestDatabase::class)
 class SimpleCacheObject(@PrimaryKey var id: String = "")
 
-@Table(database = TestDatabase::class, cachingEnabled = true)
-class Coordinate(@PrimaryKey var latitude: Double = 0.0,
-                 @PrimaryKey var longitude: Double = 0.0,
-                 @ForeignKey var path: Path? = null) {
+@Table(database = TestDatabase::class)
+class Coordinate(
+    @PrimaryKey var latitude: Double = 0.0,
+    @PrimaryKey var longitude: Double = 0.0,
+    @ForeignKey var path: Path? = null
+) {
 
     companion object {
         @JvmField
@@ -24,5 +26,7 @@ class Coordinate(@PrimaryKey var latitude: Double = 0.0,
 }
 
 @Table(database = TestDatabase::class)
-class Path(@PrimaryKey var id: String = "",
-           @Column var name: String = "")
+class Path(
+    @PrimaryKey var id: String = "",
+    @Column var name: String = ""
+)

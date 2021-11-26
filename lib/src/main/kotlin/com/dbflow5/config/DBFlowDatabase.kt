@@ -150,7 +150,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     private fun onOpenWithConfig(config: DatabaseConfig?, helper: OpenHelper) {
         helper.performRestoreFromBackup()
 
-        var wal = config != null &&
+        val wal = config != null &&
             config.journalMode.adjustIfAutomatic(FlowManager.context) == JournalMode.WriteAheadLogging
         helper.setWriteAheadLoggingEnabled(wal)
         writeAheadLoggingEnabled = wal

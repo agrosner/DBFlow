@@ -11,7 +11,6 @@ import com.dbflow5.annotation.InheritedPrimaryKey
 import com.dbflow5.annotation.OneToMany
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
-import com.dbflow5.isNotNullOrEmpty
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.OneToManyValidator
@@ -20,7 +19,6 @@ import com.dbflow5.processor.definition.BindToStatementMethod.Mode.DELETE
 import com.dbflow5.processor.definition.BindToStatementMethod.Mode.INSERT
 import com.dbflow5.processor.definition.BindToStatementMethod.Mode.UPDATE
 import com.dbflow5.processor.definition.behavior.AssociationalBehavior
-import com.dbflow5.processor.definition.behavior.CachingBehavior
 import com.dbflow5.processor.definition.behavior.CreationQueryBehavior
 import com.dbflow5.processor.definition.behavior.CursorHandlingBehavior
 import com.dbflow5.processor.definition.behavior.FTS3Behavior
@@ -28,38 +26,30 @@ import com.dbflow5.processor.definition.behavior.FTS4Behavior
 import com.dbflow5.processor.definition.behavior.FtsBehavior
 import com.dbflow5.processor.definition.behavior.PrimaryKeyColumnBehavior
 import com.dbflow5.processor.definition.column.ColumnDefinition
-import com.dbflow5.processor.definition.column.DefinitionUtils
 import com.dbflow5.processor.definition.column.ReferenceColumnDefinition
 import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.ModelUtils
-import com.dbflow5.processor.utils.ModelUtils.wrapper
 import com.dbflow5.processor.utils.`override fun`
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.implementsClass
 import com.dbflow5.processor.utils.isNullOrEmpty
-import com.grosner.kpoet.L
-import com.grosner.kpoet.S
 import com.grosner.kpoet.`=`
 import com.grosner.kpoet.`public static final field`
 import com.grosner.kpoet.`return`
 import com.grosner.kpoet.`throw new`
-import com.grosner.kpoet.code
 import com.grosner.kpoet.default
 import com.grosner.kpoet.final
 import com.grosner.kpoet.modifiers
 import com.grosner.kpoet.param
-import com.grosner.kpoet.protected
 import com.grosner.kpoet.public
 import com.grosner.kpoet.statement
 import com.grosner.kpoet.switch
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
@@ -67,9 +57,10 @@ import javax.lang.model.element.TypeElement
 /**
  * Description: Used in writing ModelAdapters
  */
-class TableDefinition(private val table: Table,
-                      manager: ProcessorManager, element: TypeElement)
-    : EntityDefinition(element, manager) {
+class TableDefinition(
+    private val table: Table,
+    manager: ProcessorManager, element: TypeElement
+) : EntityDefinition(element, manager) {
 
     enum class Type {
         Normal,
@@ -95,8 +86,6 @@ class TableDefinition(private val table: Table,
     val uniqueGroupsDefinitions = mutableListOf<UniqueGroupsDefinition>()
     val indexGroupsDefinitions = mutableListOf<IndexGroupsDefinition>()
 
-    var implementsContentValuesListener = false
-
     var implementsSqlStatementListener = false
 
     override val methods: Array<MethodDefinition> = arrayOf(
@@ -121,11 +110,9 @@ class TableDefinition(private val table: Table,
         OneToManySaveMethod(this, OneToManySaveMethod.METHOD_UPDATE, isPlural = true),
     )
 
-    private val contentValueMethods: Array<MethodDefinition>
-
-    private val creationQueryBehavior = CreationQueryBehavior(createWithDatabase = table.createWithDatabase)
+    private val creationQueryBehavior =
+        CreationQueryBehavior(createWithDatabase = table.createWithDatabase)
     val useIsForPrivateBooleans: Boolean = table.useBooleanGetterSetters
-    private val generateContentValues: Boolean = table.generateContentValues
 
     val oneToManyDefinitions = mutableListOf<OneToManyDefinition>()
 
@@ -140,17 +127,13 @@ class TableDefinition(private val table: Table,
     override val associationalBehavior = AssociationalBehavior(
         name = if (table.name.isNullOrEmpty()) element.simpleName.toString() else table.name,
         databaseTypeName = table.extractTypeNameFromAnnotation { it.database },
-        allFields = table.allFields)
+        allFields = table.allFields
+    )
 
     override val cursorHandlingBehavior = CursorHandlingBehavior(
         orderedCursorLookup = table.orderedCursorLookUp,
-        assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor)
-
-    val cachingBehavior = CachingBehavior(
-        cachingEnabled = table.cachingEnabled,
-        customCacheSize = table.cacheSize,
-        customCacheFieldName = null,
-        customMultiCacheFieldName = null)
+        assignDefaultValuesFromCursor = table.assignDefaultValuesFromCursor
+    )
 
     val type: Type
 
@@ -177,10 +160,12 @@ class TableDefinition(private val table: Table,
         }
 
         ftsBehavior = when (type) {
-            Type.FTS4 -> FTS4Behavior(contentTable = fts4!!.extractTypeNameFromAnnotation { it.contentTable },
+            Type.FTS4 -> FTS4Behavior(
+                contentTable = fts4!!.extractTypeNameFromAnnotation { it.contentTable },
                 databaseTypeName = associationalBehavior.databaseTypeName,
                 elementName = elementName,
-                manager = manager)
+                manager = manager
+            )
             Type.FTS3 -> FTS3Behavior(elementName, manager)
             Type.Normal -> null
         }
@@ -188,8 +173,10 @@ class TableDefinition(private val table: Table,
         val inheritedColumns = table.inheritedColumns
         inheritedColumns.forEach {
             if (inheritedFieldNameList.contains(it.fieldName)) {
-                manager.logError("A duplicate inherited column with name ${it.fieldName} " +
-                    "was found for ${associationalBehavior.name}")
+                manager.logError(
+                    "A duplicate inherited column with name ${it.fieldName} " +
+                        "was found for ${associationalBehavior.name}"
+                )
             }
             inheritedFieldNameList.add(it.fieldName)
             inheritedColumnMap[it.fieldName] = it
@@ -198,21 +185,19 @@ class TableDefinition(private val table: Table,
         val inheritedPrimaryKeys = table.inheritedPrimaryKeys
         inheritedPrimaryKeys.forEach {
             if (inheritedFieldNameList.contains(it.fieldName)) {
-                manager.logError("A duplicate inherited column with name ${it.fieldName} " +
-                    "was found for ${associationalBehavior.name}")
+                manager.logError(
+                    "A duplicate inherited column with name ${it.fieldName} " +
+                        "was found for ${associationalBehavior.name}"
+                )
             }
             inheritedFieldNameList.add(it.fieldName)
             inheritedPrimaryKeyMap[it.fieldName] = it
         }
 
-        implementsContentValuesListener = element.implementsClass(manager.processingEnvironment,
-            ClassNames.CONTENT_VALUES_LISTENER)
-
-        implementsSqlStatementListener = element.implementsClass(manager.processingEnvironment,
-            ClassNames.SQLITE_STATEMENT_LISTENER)
-
-        contentValueMethods = arrayOf(BindToContentValuesMethod(this, true, implementsContentValuesListener),
-            BindToContentValuesMethod(this, false, implementsContentValuesListener))
+        implementsSqlStatementListener = element.implementsClass(
+            manager.processingEnvironment,
+            ClassNames.SQLITE_STATEMENT_LISTENER
+        )
 
         temporary = table.temporary
 
@@ -227,7 +212,6 @@ class TableDefinition(private val table: Table,
         columnMapDefinitions.clear()
         columnUniqueMap.clear()
         oneToManyDefinitions.clear()
-        cachingBehavior.clear()
 
         // globular default
         var insertConflict = table.insertConflict
@@ -242,9 +226,12 @@ class TableDefinition(private val table: Table,
 
         val primaryKeyConflict = table.primaryKeyConflict
 
-        insertConflictActionName = if (insertConflict == ConflictAction.NONE) "" else insertConflict.name
-        updateConflictActionName = if (updateConflict == ConflictAction.NONE) "" else updateConflict.name
-        primaryKeyConflictActionName = if (primaryKeyConflict == ConflictAction.NONE) "" else primaryKeyConflict.name
+        insertConflictActionName =
+            if (insertConflict == ConflictAction.NONE) "" else insertConflict.name
+        updateConflictActionName =
+            if (updateConflict == ConflictAction.NONE) "" else updateConflict.name
+        primaryKeyConflictActionName =
+            if (primaryKeyConflict == ConflictAction.NONE) "" else primaryKeyConflict.name
 
         typeElement?.let { createColumnDefinitions(it) }
 
@@ -252,8 +239,10 @@ class TableDefinition(private val table: Table,
         var uniqueNumbersSet: MutableSet<Int> = hashSetOf()
         for (uniqueGroup in groups) {
             if (uniqueNumbersSet.contains(uniqueGroup.groupNumber)) {
-                manager.logError("A duplicate unique group with number" +
-                    " ${uniqueGroup.groupNumber} was found for ${associationalBehavior.name}")
+                manager.logError(
+                    "A duplicate unique group with number" +
+                        " ${uniqueGroup.groupNumber} was found for ${associationalBehavior.name}"
+                )
             }
             val definition = UniqueGroupsDefinition(uniqueGroup)
             columnDefinitions.filter { it.uniqueGroups.contains(definition.number) }
@@ -266,8 +255,10 @@ class TableDefinition(private val table: Table,
         uniqueNumbersSet = hashSetOf()
         for (indexGroup in indexGroups) {
             if (uniqueNumbersSet.contains(indexGroup.number)) {
-                manager.logError(TableDefinition::class, "A duplicate unique index number" +
-                    " ${indexGroup.number} was found for $elementName")
+                manager.logError(
+                    TableDefinition::class, "A duplicate unique index number" +
+                        " ${indexGroup.number} was found for $elementName"
+                )
             }
             val definition = IndexGroupsDefinition(this, indexGroup)
             columnDefinitions.filter { it.indexGroups.contains(definition.indexNumber) }
@@ -285,54 +276,79 @@ class TableDefinition(private val table: Table,
             if (element is ExecutableElement && element.parameters.isEmpty()
                 && element.simpleName.toString() == "<init>"
                 && element.enclosingElement == typeElement
-                && !element.modifiers.contains(Modifier.PRIVATE)) {
+                && !element.modifiers.contains(Modifier.PRIVATE)
+            ) {
                 hasPrimaryConstructor = true
             }
         }
 
         if (!hasPrimaryConstructor) {
-            manager.logError("For now, tables must have a visible, default, parameterless constructor. In" +
-                " Kotlin all field parameters must have default values.")
+            manager.logError(
+                "For now, tables must have a visible, default, parameterless constructor. In" +
+                    " Kotlin all field parameters must have default values."
+            )
         }
 
         val columnValidator = ColumnValidator()
         val oneToManyValidator = OneToManyValidator()
         elements.forEach { variableElement ->
             // no private static or final fields for all columns, or any inherited columns here.
-            val isAllFields = ElementUtility.isValidAllFields(associationalBehavior.allFields, variableElement)
+            val isAllFields =
+                ElementUtility.isValidAllFields(associationalBehavior.allFields, variableElement)
 
             // package private, will generate helper
             val isPackagePrivate = ElementUtility.isPackagePrivate(variableElement)
-            val isPackagePrivateNotInSamePackage = isPackagePrivate && !ElementUtility.isInSamePackage(manager, variableElement, this.element)
+            val isPackagePrivateNotInSamePackage =
+                isPackagePrivate && !ElementUtility.isInSamePackage(
+                    manager,
+                    variableElement,
+                    this.element
+                )
 
             val isForeign = variableElement.annotation<ForeignKey>() != null
             val isPrimary = variableElement.annotation<PrimaryKey>() != null
             val isInherited = inheritedColumnMap.containsKey(variableElement.simpleName.toString())
-            val isInheritedPrimaryKey = inheritedPrimaryKeyMap.containsKey(variableElement.simpleName.toString())
+            val isInheritedPrimaryKey =
+                inheritedPrimaryKeyMap.containsKey(variableElement.simpleName.toString())
             val isColumnMap = variableElement.annotation<ColumnMap>() != null
             if (variableElement.annotation<Column>() != null || isForeign || isPrimary
-                || isAllFields || isInherited || isInheritedPrimaryKey || isColumnMap) {
+                || isAllFields || isInherited || isInheritedPrimaryKey || isColumnMap
+            ) {
 
-                if (checkInheritancePackagePrivate(isPackagePrivateNotInSamePackage, variableElement)) return
+                if (checkInheritancePackagePrivate(
+                        isPackagePrivateNotInSamePackage,
+                        variableElement
+                    )
+                ) return
 
                 val columnDefinition = if (isInheritedPrimaryKey) {
                     val inherited = inheritedPrimaryKeyMap[variableElement.simpleName.toString()]
-                    ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage,
-                        inherited?.column, inherited?.primaryKey)
+                    ColumnDefinition(
+                        manager, variableElement, this, isPackagePrivateNotInSamePackage,
+                        inherited?.column, inherited?.primaryKey
+                    )
                 } else if (isInherited) {
                     val inherited = inheritedColumnMap[variableElement.simpleName.toString()]
-                    ColumnDefinition(manager, variableElement, this, isPackagePrivateNotInSamePackage,
+                    ColumnDefinition(
+                        manager, variableElement, this, isPackagePrivateNotInSamePackage,
                         inherited?.column, null, inherited?.nonNullConflict
-                        ?: ConflictAction.NONE)
+                            ?: ConflictAction.NONE
+                    )
                 } else if (isForeign) {
-                    ReferenceColumnDefinition(variableElement.annotation<ForeignKey>()!!, manager, this,
-                        variableElement, isPackagePrivateNotInSamePackage)
+                    ReferenceColumnDefinition(
+                        variableElement.annotation<ForeignKey>()!!, manager, this,
+                        variableElement, isPackagePrivateNotInSamePackage
+                    )
                 } else if (isColumnMap) {
-                    ReferenceColumnDefinition(variableElement.annotation<ColumnMap>()!!,
-                        manager, this, variableElement, isPackagePrivateNotInSamePackage)
+                    ReferenceColumnDefinition(
+                        variableElement.annotation<ColumnMap>()!!,
+                        manager, this, variableElement, isPackagePrivateNotInSamePackage
+                    )
                 } else {
-                    ColumnDefinition(manager, variableElement,
-                        this, isPackagePrivateNotInSamePackage)
+                    ColumnDefinition(
+                        manager, variableElement,
+                        this, isPackagePrivateNotInSamePackage
+                    )
                 }
 
                 if (columnValidator.validate(manager, columnDefinition)) {
@@ -364,11 +380,13 @@ class TableDefinition(private val table: Table,
                     primaryKeyColumnBehavior.associatedColumn?.let { associatedColumn ->
                         // check to ensure not null.
                         if (associatedColumn.isNullableType) {
-                            manager.logWarning("Attempting to use nullable field type on an autoincrementing column. " +
-                                "To suppress or remove this warning " +
-                                "switch to java primitive, add @android.support.annotation.NonNull," +
-                                "@org.jetbrains.annotation.NotNull, or in Kotlin don't make it nullable. Check the column ${associatedColumn.columnName} " +
-                                "on ${associationalBehavior.name}")
+                            manager.logWarning(
+                                "Attempting to use nullable field type on an autoincrementing column. " +
+                                    "To suppress or remove this warning " +
+                                    "switch to java primitive, add @android.support.annotation.NonNull," +
+                                    "@org.jetbrains.annotation.NotNull, or in Kotlin don't make it nullable. Check the column ${associatedColumn.columnName} " +
+                                    "on ${associationalBehavior.name}"
+                            )
                         }
                     }
 
@@ -390,12 +408,11 @@ class TableDefinition(private val table: Table,
                     }
                 }
             } else if (variableElement.annotation<OneToMany>() != null) {
-                val oneToManyDefinition = OneToManyDefinition(variableElement as ExecutableElement, manager, elements)
+                val oneToManyDefinition =
+                    OneToManyDefinition(variableElement as ExecutableElement, manager, elements)
                 if (oneToManyValidator.validate(manager, oneToManyDefinition)) {
                     oneToManyDefinitions.add(oneToManyDefinition)
                 }
-            } else {
-                cachingBehavior.evaluateElement(variableElement, typeElement, manager)
             }
         }
 
@@ -447,10 +464,15 @@ class TableDefinition(private val table: Table,
             val paramColumnName = "columnName"
             val getPropertiesBuilder = CodeBlock.builder()
 
-            `override fun`(ClassNames.PROPERTY, "getProperty",
-                param(String::class, paramColumnName)) {
+            `override fun`(
+                ClassNames.PROPERTY, "getProperty",
+                param(String::class, paramColumnName)
+            ) {
                 modifiers(public, final)
-                statement("String ${paramColumnName}2 = \$T.quoteIfNeeded($paramColumnName)", ClassNames.STRING_UTILS)
+                statement(
+                    "String ${paramColumnName}2 = \$T.quoteIfNeeded($paramColumnName)",
+                    ClassNames.STRING_UTILS
+                )
 
                 switch("(${paramColumnName}2)") {
                     columnDefinitions.indices.forEach { i ->
@@ -458,18 +480,29 @@ class TableDefinition(private val table: Table,
                             getPropertiesBuilder.add(",")
                         }
                         val columnDefinition = columnDefinitions[i]
-                        elementClassName?.let { columnDefinition.addPropertyDefinition(typeBuilder, it) }
+                        elementClassName?.let {
+                            columnDefinition.addPropertyDefinition(
+                                typeBuilder,
+                                it
+                            )
+                        }
                         columnDefinition.addPropertyCase(this)
                         columnDefinition.addColumnName(getPropertiesBuilder)
                     }
 
                     default {
-                        `throw new`(IllegalArgumentException::class, "Invalid column name passed. Ensure you are calling the correct table's column")
+                        `throw new`(
+                            IllegalArgumentException::class,
+                            "Invalid column name passed. Ensure you are calling the correct table's column"
+                        )
                     }
                 }
             }
 
-            `public static final field`(ArrayTypeName.of(ClassNames.IPROPERTY), "ALL_COLUMN_PROPERTIES") {
+            `public static final field`(
+                ArrayTypeName.of(ClassNames.IPROPERTY),
+                "ALL_COLUMN_PROPERTIES"
+            ) {
                 `=`("new \$T[]{\$L}", ClassNames.IPROPERTY, getPropertiesBuilder.build().toString())
             }
 
@@ -481,8 +514,12 @@ class TableDefinition(private val table: Table,
             if (primaryKeyColumnBehavior.hasAutoIncrement || primaryKeyColumnBehavior.hasRowID) {
                 val autoIncrement = primaryKeyColumnBehavior.associatedColumn
                 autoIncrement?.let {
-                    `override fun`(TypeName.VOID, "updateAutoIncrement", param(elementClassName!!, ModelUtils.variable),
-                        param(Number::class, "id")) {
+                    `override fun`(
+                        TypeName.VOID,
+                        "updateAutoIncrement",
+                        param(elementClassName!!, ModelUtils.variable),
+                        param(Number::class, "id")
+                    ) {
                         modifiers(public, final)
                         addCode(autoIncrement.updateAutoIncrementMethod)
                     }
@@ -498,8 +535,12 @@ class TableDefinition(private val table: Table,
                 val code = CodeBlock.builder()
                 saveForeignKeyFields.forEach { it.appendSaveMethod(code) }
 
-                `override fun`(TypeName.VOID, "saveForeignKeys", param(elementClassName!!, ModelUtils.variable),
-                    param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+                `override fun`(
+                    TypeName.VOID,
+                    "saveForeignKeys",
+                    param(elementClassName!!, ModelUtils.variable),
+                    param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
+                ) {
                     modifiers(public, final)
                     addCode(code.build())
                 }
@@ -514,8 +555,12 @@ class TableDefinition(private val table: Table,
                 val code = CodeBlock.builder()
                 deleteForeignKeyFields.forEach { it.appendDeleteMethod(code) }
 
-                `override fun`(TypeName.VOID, "deleteForeignKeys", param(elementClassName!!, ModelUtils.variable),
-                    param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
+                `override fun`(
+                    TypeName.VOID,
+                    "deleteForeignKeys",
+                    param(elementClassName!!, ModelUtils.variable),
+                    param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
+                ) {
                     modifiers(public, final)
                     addCode(code.build())
                 }
@@ -527,142 +572,9 @@ class TableDefinition(private val table: Table,
             }
 
             creationQueryBehavior.addToType(this)
-
-            if (cachingBehavior.cachingEnabled) {
-                val (_, customCacheSize, customCacheFieldName, customMultiCacheFieldName) = cachingBehavior
-                `public static final field`(ClassNames.CACHE_ADAPTER, "cacheAdapter") {
-                    `=` {
-                        val primaryColumns = primaryColumnDefinitions
-
-                        val hasCustomField = customCacheFieldName.isNotNullOrEmpty()
-                        val hasCustomMultiCacheField = customMultiCacheFieldName.isNotNullOrEmpty()
-                        val typeClasses = mutableListOf<Any?>()
-                        var typeArgumentsString = if (hasCustomField) {
-                            typeClasses += elementClassName
-                            "\$T.$customCacheFieldName"
-                        } else {
-                            typeClasses += ClassNames.SIMPLE_MAP_CACHE
-                            "new \$T($customCacheSize)"
-                        }
-                        typeArgumentsString += ", ${primaryColumns.size.L}"
-                        typeArgumentsString += if (hasCustomMultiCacheField) {
-                            typeClasses += elementClassName
-                            ", \$T.$customMultiCacheFieldName"
-                        } else {
-                            ", null"
-                        }
-                        add("\$L",
-                            TypeSpec.anonymousClassBuilder(typeArgumentsString, *typeClasses.toTypedArray())
-                                .addSuperinterface(ParameterizedTypeName.get(ClassNames.CACHE_ADAPTER, elementTypeName))
-                                .apply {
-                                    if (primaryColumns.size > 1) {
-                                        `override fun`(ArrayTypeName.of(Any::class.java), "getCachingColumnValuesFromModel",
-                                            param(ArrayTypeName.of(Any::class.java), "inValues"),
-                                            param(elementClassName!!, ModelUtils.variable)) {
-                                            modifiers(public, final)
-                                            for (i in primaryColumns.indices) {
-                                                val column = primaryColumns[i]
-                                                addCode(column.getColumnAccessString(i))
-                                            }
-
-                                            `return`("inValues")
-                                        }
-
-                                        `override fun`(ArrayTypeName.of(Any::class.java), "getCachingColumnValuesFromCursor",
-                                            param(ArrayTypeName.of(Any::class.java), "inValues"),
-                                            param(ClassNames.FLOW_CURSOR, "cursor")) {
-                                            modifiers(public, final)
-                                            for (i in primaryColumns.indices) {
-                                                val column = primaryColumns[i]
-                                                val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.complexColumnBehavior.wrapperTypeName)
-                                                statement("inValues[$i] = ${LoadFromCursorMethod.PARAM_CURSOR}" +
-                                                    ".$method(${LoadFromCursorMethod.PARAM_CURSOR}.getColumnIndex(${column.columnName.S}))")
-                                            }
-                                            `return`("inValues")
-                                        }
-                                    } else {
-                                        // single primary key
-                                        `override fun`(Any::class, "getCachingColumnValueFromModel",
-                                            param(elementClassName!!, ModelUtils.variable)) {
-                                            modifiers(public, final)
-                                            addCode(primaryColumns[0].getSimpleAccessString())
-                                        }
-
-                                        `override fun`(Any::class, "getCachingColumnValueFromCursor", param(ClassNames.FLOW_CURSOR, "cursor")) {
-                                            modifiers(public, final)
-                                            val column = primaryColumns[0]
-                                            val method = DefinitionUtils.getLoadFromCursorMethodString(column.elementTypeName, column.complexColumnBehavior.wrapperTypeName)
-                                            `return`("${LoadFromCursorMethod.PARAM_CURSOR}.$method(${LoadFromCursorMethod.PARAM_CURSOR}.getColumnIndex(${column.columnName.S}))")
-                                        }
-                                        `override fun`(Any::class, "getCachingId", param(elementClassName!!, ModelUtils.variable)) {
-                                            modifiers(public, final)
-                                            `return`("getCachingColumnValueFromModel(${ModelUtils.variable})")
-                                        }
-                                    }
-
-                                    if (foreignKeyDefinitions.isNotEmpty()) {
-                                        `override fun`(TypeName.VOID, "reloadRelationships",
-                                            param(elementClassName!!, ModelUtils.variable),
-                                            param(ClassNames.FLOW_CURSOR, LoadFromCursorMethod.PARAM_CURSOR),
-                                            param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)) {
-                                            modifiers(public, final)
-                                            code {
-                                                val noIndex = AtomicInteger(-1)
-                                                val nameAllocator = NameAllocator()
-                                                foreignKeyDefinitions.forEach { add(it.getLoadFromCursorMethod(false, noIndex, nameAllocator)) }
-                                                this
-                                            }
-                                        }
-                                    }
-                                }
-                                .build())
-                    }
-                }
-
-                val singlePrimaryKey = primaryColumnDefinitions.size == 1
-
-                `override fun`(ClassNames.SINGLE_MODEL_LOADER, "createSingleModelLoader") {
-                    modifiers(public, final)
-                    addStatement("return new \$T<>(getTable(), cacheAdapter)",
-                        if (singlePrimaryKey)
-                            ClassNames.SINGLE_KEY_CACHEABLE_MODEL_LOADER
-                        else
-                            ClassNames.CACHEABLE_MODEL_LOADER)
-                }
-                `override fun`(ClassNames.LIST_MODEL_LOADER, "createListModelLoader") {
-                    modifiers(public, final)
-                    `return`("new \$T<>(getTable(), cacheAdapter)",
-                        if (singlePrimaryKey)
-                            ClassNames.SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER
-                        else
-                            ClassNames.CACHEABLE_LIST_MODEL_LOADER)
-                }
-                `override fun`(ParameterizedTypeName.get(ClassNames.CACHEABLE_LIST_MODEL_SAVER, elementClassName),
-                    "createListModelSaver") {
-                    modifiers(protected)
-                    `return`("new \$T<>(getModelSaver(), cacheAdapter)", ClassNames.CACHEABLE_LIST_MODEL_SAVER)
-                }
-                `override fun`(TypeName.BOOLEAN, "cachingEnabled") {
-                    modifiers(public, final)
-                    `return`(true.L)
-                }
-
-                `override fun`(elementClassName!!, "load", param(elementClassName!!, "model"),
-                    param(ClassNames.DATABASE_WRAPPER, wrapper)) {
-                    modifiers(public, final)
-                    statement("\$T loaded = super.load(model, $wrapper)", elementClassName!!)
-                    statement("cacheAdapter.storeModelInCache(model)")
-                    `return`("loaded")
-                }
-
-            }
         }
 
         methods.mapNotNull { it.methodSpec }
             .forEach { typeBuilder.addMethod(it) }
-        if (generateContentValues) {
-            contentValueMethods.mapNotNull { it.methodSpec }
-                .forEach { typeBuilder.addMethod(it) }
-        }
     }
 }
