@@ -17,6 +17,9 @@ import com.squareup.kotlinpoet.typeNameOf
 class KSClassDeclarationParser(
     private val propertyParser: KSPropertyDeclarationParser,
     private val databasePropertyParser: DatabasePropertyParser,
+    private val tablePropertyParser: TablePropertyParser,
+    private val queryPropertyParser: QueryPropertyParser,
+    private val viewPropertyParser: ViewPropertyParser,
 ) : Parser<KSClassDeclaration, ObjectModel> {
 
     override fun parse(input: KSClassDeclaration): ObjectModel {
@@ -40,6 +43,7 @@ class KSClassDeclarationParser(
                     name = name,
                     classType = classType,
                     type = ClassModel.ClassType.Normal,
+                    properties = tablePropertyParser.parse(annotation),
                     fields = fields,
                 )
             }
@@ -48,6 +52,7 @@ class KSClassDeclarationParser(
                     name = name,
                     classType = classType,
                     type = ClassModel.ClassType.View,
+                    properties = viewPropertyParser.parse(annotation),
                     fields = fields,
                 )
             }
@@ -56,6 +61,7 @@ class KSClassDeclarationParser(
                     name = name,
                     classType = classType,
                     type = ClassModel.ClassType.Query,
+                    properties = queryPropertyParser.parse(annotation),
                     fields = fields,
                 )
             }

@@ -1,5 +1,7 @@
 package com.dbflow5.ksp.model
 
+import com.dbflow5.ksp.model.properties.ClassProperties
+import com.dbflow5.ksp.model.properties.TableProperties
 import com.google.devtools.ksp.symbol.KSName
 import com.squareup.kotlinpoet.TypeName
 
@@ -10,6 +12,7 @@ data class ClassModel(
      */
     val classType: TypeName,
     val type: ClassType,
+    val properties: ClassProperties,
     val fields: List<FieldModel>,
 ) : ObjectModel {
 

@@ -1,6 +1,6 @@
 package com.dbflow5.ksp.model
 
-import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.ksp.model.properties.DatabaseProperties
 import com.google.devtools.ksp.symbol.KSName
 import com.squareup.kotlinpoet.TypeName
 
@@ -10,13 +10,7 @@ import com.squareup.kotlinpoet.TypeName
 data class DatabaseModel(
     val name: KSName,
     val classType: TypeName,
-    val properties: Properties,
+    val properties: DatabaseProperties,
 ) : ObjectModel {
 
-    data class Properties(
-        val version: Int,
-        val foreignKeyConstraintsEnforced: Boolean,
-        val insertConflict: ConflictAction,
-        val updateConflict: ConflictAction,
-    )
 }

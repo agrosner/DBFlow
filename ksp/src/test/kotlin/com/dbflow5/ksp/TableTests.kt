@@ -37,5 +37,7 @@ class TableTests {
         )
         val result = compilation(temporaryFolder, sources = listOf(source)).compile()
         assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+        // ensure database and table generated.
+        assertEquals(result.generatedFiles.size, 2)
     }
 }
