@@ -6,3 +6,4 @@ include ':lib', ':reactive-streams', ':coroutines',
     ':tests',
     ':paging'
 
+include ':ksp'

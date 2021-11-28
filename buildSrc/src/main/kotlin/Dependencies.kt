@@ -15,6 +15,13 @@ object Dependencies {
     const val KPoet = "com.github.agrosner:KPoet:1.0.0"
     const val JavaXAnnotation = "org.glassfish:javax.annotation:10.0-b28"
     const val JUnit = "junit:junit:4.12"
+    const val KotlinPoet = "com.squareup:kotlinpoet-ksp:1.10.2"
+    const val KSP = "com.google.devtools.ksp:symbol-processing-api:${Versions.Kotlin}-1.0.1"
+    const val Koin = "io.insert-koin:koin-core:3.1.4"
+    const val KoinTest = "io.insert-koin:koin-test-junit4:3.1.4"
+
+    const val KotlinCompileTestingKSP = "com.github.tschuchortdev:kotlin-compile-testing-ksp:1.4.6"
+
 
     object AndroidX {
         const val Annotations = "androidx.annotation:annotation:1.3.0"
