@@ -79,7 +79,7 @@ class NameAlias(private val name: String,
     /**
      * @return The real column name.
      */
-    fun name(): String? {
+    fun name(): String {
         return if (name.isNotNullOrEmpty() && shouldAddIdentifierToQuery)
             name.quoteIfNeeded()
         else name

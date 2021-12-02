@@ -27,6 +27,8 @@ interface DatabaseStatement : Closeable {
 
     fun bindLong(index: Int, aLong: Long)
 
+    fun bindLongOrNull(index: Int, aLong: Long?)
+
     fun bindNumber(index: Int, number: Number?)
 
     fun bindNumberOrNull(index: Int, number: Number?)
@@ -43,3 +45,62 @@ interface DatabaseStatement : Closeable {
 
     fun bindAllArgsAsStrings(selectionArgs: Array<String>?)
 }
+
+fun DatabaseStatement.bind(index: Int, value: String) {
+    bindString(index, value)
+}
+
+@JvmName("bindNullable")
+fun DatabaseStatement.bind(index: Int, value: String?) {
+    bindStringOrNull(index, value)
+}
+
+fun DatabaseStatement.bind(index: Int, value: Long) {
+    bindLong(index, value)
+}
+
+@JvmName("bindNullable")
+fun DatabaseStatement.bind(index: Int, value: Long?) {
+    bindLongOrNull(index, value)
+}
+
+fun DatabaseStatement.bind(index: Int, value: Number) {
+    bindNumber(index, value)
+}
+
+@JvmName("bindNullable")
+fun DatabaseStatement.bind(index: Int, value: Number?) {
+    bindNumberOrNull(index, value)
+}
+
+fun DatabaseStatement.bind(index: Int, value: Double) {
+    bindDouble(index, value)
+}
+
+@JvmName("bindNullable")
+fun DatabaseStatement.bind(index: Int, value: Double?) {
+    bindDoubleOrNull(index, value)
+}
+
+
+fun DatabaseStatement.bind(index: Int, value: Float) {
+    bindDouble(index, value.toDouble())
+}
+
+@JvmName("bindNullable")
+fun DatabaseStatement.bind(index: Int, value: Float?) {
+    bindFloatOrNull(index, value)
+}
+
+fun DatabaseStatement.bind(index: Int, value: ByteArray) {
+    bindBlob(index, value)
+}
+
+@JvmName("bindNullable")
+fun DatabaseStatement.bind(index: Int, value: ByteArray?) {
+    bindBlobOrNull(index, value)
+}
+
+
+
+

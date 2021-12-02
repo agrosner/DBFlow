@@ -1,6 +1,8 @@
 package com.dbflow5.query.property
 
 import com.dbflow5.config.FlowManager
+import com.dbflow5.data.Blob
+import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.BaseModelQueriable
 import com.dbflow5.query.IConditional
 import com.dbflow5.query.IOperator
@@ -22,9 +24,10 @@ import com.dbflow5.query.OrderBy
  *
  * This is type parametrized so that all values passed to this class remain properly typed.
  */
-open class Property<T>(override val table: Class<*>?,
-                       override val nameAlias: NameAlias)
-    : IProperty<Property<T>>, IOperator<T> {
+open class Property<T>(
+    override val table: Class<*>?,
+    override val nameAlias: NameAlias
+) : IProperty<Property<T>>, IOperator<T> {
 
     val definition: String
         get() = nameAlias.fullQuery
@@ -41,15 +44,20 @@ open class Property<T>(override val table: Class<*>?,
     protected open val operator: Operator<T>
         get() = Operator.op(nameAlias)
 
-    constructor(table: Class<*>?, columnName: String) : this(table, NameAlias.Builder(columnName).build())
+    constructor(table: Class<*>?, columnName: String) : this(
+        table,
+        NameAlias.Builder(columnName).build()
+    )
 
     constructor(table: Class<*>?, columnName: String, aliasName: String)
         : this(table, NameAlias.builder(columnName).`as`(aliasName).build())
 
-    override fun withTable(): Property<T> = Property(table, nameAlias
-        .newBuilder()
-        .withTable(FlowManager.getTableName(table!!))
-        .build())
+    override fun withTable(): Property<T> = Property(
+        table, nameAlias
+            .newBuilder()
+            .withTable(FlowManager.getTableName(table!!))
+            .build()
+    )
 
     override val query: String
         get() = nameAlias.query
@@ -90,10 +98,16 @@ open class Property<T>(override val table: Class<*>?,
     override fun between(conditional: IConditional): Operator.Between<*> =
         operator.between(conditional)
 
-    override fun `in`(firstConditional: IConditional, vararg conditionals: IConditional): Operator.In<*> =
+    override fun `in`(
+        firstConditional: IConditional,
+        vararg conditionals: IConditional
+    ): Operator.In<*> =
         operator.`in`(firstConditional, *conditionals)
 
-    override fun notIn(firstConditional: IConditional, vararg conditionals: IConditional): Operator.In<*> =
+    override fun notIn(
+        firstConditional: IConditional,
+        vararg conditionals: IConditional
+    ): Operator.In<*> =
         operator.notIn(firstConditional, *conditionals)
 
     override fun `is`(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
@@ -138,12 +152,16 @@ open class Property<T>(override val table: Class<*>?,
     override fun between(baseModelQueriable: BaseModelQueriable<*>): Operator.Between<*> =
         operator.between(baseModelQueriable)
 
-    override fun `in`(firstBaseModelQueriable: BaseModelQueriable<*>,
-                      vararg baseModelQueriables: BaseModelQueriable<*>): Operator.In<*> =
+    override fun `in`(
+        firstBaseModelQueriable: BaseModelQueriable<*>,
+        vararg baseModelQueriables: BaseModelQueriable<*>
+    ): Operator.In<*> =
         operator.`in`(firstBaseModelQueriable, *baseModelQueriables)
 
-    override fun notIn(firstBaseModelQueriable: BaseModelQueriable<*>,
-                       vararg baseModelQueriables: BaseModelQueriable<*>): Operator.In<*> =
+    override fun notIn(
+        firstBaseModelQueriable: BaseModelQueriable<*>,
+        vararg baseModelQueriables: BaseModelQueriable<*>
+    ): Operator.In<*> =
         operator.notIn(firstBaseModelQueriable, *baseModelQueriables)
 
     override fun concatenate(conditional: IConditional): Operator<*> =
@@ -160,49 +178,77 @@ open class Property<T>(override val table: Class<*>?,
     override fun rem(value: BaseModelQueriable<*>): Operator<*> = operator.rem(value)
 
     override fun plus(property: IProperty<*>): Property<T> {
-        return Property(table, NameAlias.joinNames(Operator.Operation.PLUS,
-            nameAlias.fullName(), property.toString()))
+        return Property(
+            table, NameAlias.joinNames(
+                Operator.Operation.PLUS,
+                nameAlias.fullName(), property.toString()
+            )
+        )
     }
 
     override fun minus(property: IProperty<*>): Property<T> {
-        return Property(table, NameAlias.joinNames(Operator.Operation.MINUS,
-            nameAlias.fullName(), property.toString()))
+        return Property(
+            table, NameAlias.joinNames(
+                Operator.Operation.MINUS,
+                nameAlias.fullName(), property.toString()
+            )
+        )
     }
 
     override fun div(property: IProperty<*>): Property<T> {
-        return Property(table, NameAlias.joinNames(Operator.Operation.DIVISION,
-            nameAlias.fullName(), property.toString()))
+        return Property(
+            table, NameAlias.joinNames(
+                Operator.Operation.DIVISION,
+                nameAlias.fullName(), property.toString()
+            )
+        )
     }
 
     override fun times(property: IProperty<*>): Property<T> {
-        return Property(table, NameAlias.joinNames(Operator.Operation.MULTIPLY,
-            nameAlias.fullName(), property.toString()))
+        return Property(
+            table, NameAlias.joinNames(
+                Operator.Operation.MULTIPLY,
+                nameAlias.fullName(), property.toString()
+            )
+        )
     }
 
     override fun rem(property: IProperty<*>): Property<T> {
-        return Property(table, NameAlias.joinNames(Operator.Operation.MOD,
-            nameAlias.fullName(), property.toString()))
+        return Property(
+            table, NameAlias.joinNames(
+                Operator.Operation.MOD,
+                nameAlias.fullName(), property.toString()
+            )
+        )
     }
 
     override fun concatenate(property: IProperty<*>): Property<T> {
-        return Property(table, NameAlias.joinNames(Operator.Operation.CONCATENATE,
-            nameAlias.fullName(), property.toString()))
+        return Property(
+            table, NameAlias.joinNames(
+                Operator.Operation.CONCATENATE,
+                nameAlias.fullName(), property.toString()
+            )
+        )
     }
 
     override fun `as`(aliasName: String): Property<T> {
-        return Property(table, nameAlias
-            .newBuilder()
-            .`as`(aliasName)
-            .build())
+        return Property(
+            table, nameAlias
+                .newBuilder()
+                .`as`(aliasName)
+                .build()
+        )
     }
 
     override fun distinct(): Property<T> = Property(table, distinctAliasName)
 
     override fun withTable(tableNameAlias: NameAlias): Property<T> {
-        return Property(table, nameAlias
-            .newBuilder()
-            .withTable(tableNameAlias.tableName)
-            .build())
+        return Property(
+            table, nameAlias
+                .newBuilder()
+                .withTable(tableNameAlias.tableName)
+                .build()
+        )
     }
 
     override fun `is`(value: T?): Operator<T> = operator.`is`(value)
@@ -265,5 +311,63 @@ open class Property<T>(override val table: Class<*>?,
             Property<String>(table, NameAlias.rawBuilder("*").build()).withTable()
     }
 }
+
+inline fun <reified T> property(columnName: String) = Property<T>(T::class.java, columnName)
+
+@JvmName("getNullable")
+operator fun Property<String?>.get(cursor: FlowCursor): String? =
+    cursor.getStringOrDefault(nameAlias.name())
+
+operator fun Property<String>.get(cursor: FlowCursor): String =
+    cursor.getStringOrDefault(nameAlias.name(), "")
+
+@JvmName("getNullable")
+operator fun Property<Boolean?>.get(cursor: FlowCursor): Boolean =
+    cursor.getBooleanOrDefault(nameAlias.name())
+
+operator fun Property<Boolean>.get(cursor: FlowCursor): Boolean =
+    cursor.getBooleanOrDefault(nameAlias.name())
+
+@JvmName("getNullable")
+operator fun Property<Int?>.get(cursor: FlowCursor): Int? =
+    cursor.getIntOrDefault(nameAlias.name(), null)
+
+operator fun Property<Int>.get(cursor: FlowCursor): Int =
+    cursor.getIntOrDefault(nameAlias.name())
+
+@JvmName("getNullable")
+operator fun Property<Double?>.get(cursor: FlowCursor): Double? =
+    cursor.getDoubleOrDefault(nameAlias.name(), null)
+
+operator fun Property<Double>.get(cursor: FlowCursor): Double =
+    cursor.getDoubleOrDefault(nameAlias.name())
+
+@JvmName("getNullable")
+operator fun Property<Float?>.get(cursor: FlowCursor): Float? =
+    cursor.getFloatOrDefault(nameAlias.name(), null)
+
+operator fun Property<Float>.get(cursor: FlowCursor): Float =
+    cursor.getFloatOrDefault(nameAlias.name())
+
+@JvmName("getNullable")
+operator fun Property<Long?>.get(cursor: FlowCursor): Long? =
+    cursor.getLongOrDefault(nameAlias.name(), null)
+
+operator fun Property<Long>.get(cursor: FlowCursor): Long =
+    cursor.getLongOrDefault(nameAlias.name())
+
+@JvmName("getNullable")
+operator fun Property<Short?>.get(cursor: FlowCursor): Short? =
+    cursor.getShortOrDefault(nameAlias.name(), null)
+
+operator fun Property<Short>.get(cursor: FlowCursor): Short =
+    cursor.getShortOrDefault(nameAlias.name())
+
+@JvmName("getNullable")
+operator fun Property<Blob?>.get(cursor: FlowCursor): Blob? =
+    cursor.getBlobOrDefault(nameAlias.name())?.let { Blob(it) }
+
+operator fun Property<Blob>.get(cursor: FlowCursor): Blob =
+    Blob(cursor.getBlobOrDefault(nameAlias.name(), byteArrayOf()))
 
 

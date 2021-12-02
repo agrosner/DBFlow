@@ -32,7 +32,7 @@ class TableTests {
             abstract class TestDatabase: DBFlowDatabase()
             
             @Table(database = TestDatabase::class)
-            class SimpleModel(@PrimaryKey var name: String? = "")  
+            class SimpleModel(@PrimaryKey val name: String)  
             """.trimIndent()
         )
         val result = compilation(temporaryFolder, sources = listOf(source)).compile()

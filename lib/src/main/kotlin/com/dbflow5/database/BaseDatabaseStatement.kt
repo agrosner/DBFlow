@@ -25,6 +25,14 @@ abstract class BaseDatabaseStatement : DatabaseStatement {
         }
     }
 
+    override fun bindLongOrNull(index: Int, aLong: Long?) {
+        if (aLong != null) {
+            bindLong(index, aLong)
+        } else {
+            bindNull(index)
+        }
+    }
+
     override fun bindDoubleOrNull(index: Int, aDouble: Double?) {
         if (aDouble != null) {
             bindDouble(index, aDouble)

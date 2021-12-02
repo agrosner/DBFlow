@@ -49,6 +49,14 @@ fun String?.quoteIfNeeded() = if (this != null && !isQuoted()) {
     this
 }
 
+@JvmName("quoteIfNeededNonNull")
+fun String.quoteIfNeeded() = if (!isQuoted()) {
+    quote()
+} else {
+    this
+}
+
+
 /**
  * Appends the [SQLiteType] to [StringBuilder]
  */

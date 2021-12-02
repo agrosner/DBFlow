@@ -8,6 +8,7 @@ import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.DatabaseModel
 import com.dbflow5.ksp.model.ObjectModel
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.typeNameOf
 
@@ -24,7 +25,7 @@ class KSClassDeclarationParser(
 
     override fun parse(input: KSClassDeclaration): ObjectModel {
         val fields = input.getAllProperties().map { propertyParser.parse(it) }.toList()
-        val classType = input.asStarProjectedType().toTypeName()
+        val classType = input.asStarProjectedType().toClassName()
         val name = input.qualifiedName!!
 
         // inspect annotations for what object it is.

@@ -6,6 +6,9 @@ import com.dbflow5.ksp.parser.KSPropertyDeclarationParser
 import com.dbflow5.ksp.parser.QueryPropertyParser
 import com.dbflow5.ksp.parser.TablePropertyParser
 import com.dbflow5.ksp.parser.ViewPropertyParser
+import com.dbflow5.ksp.writer.ClassWriter
+import com.dbflow5.ksp.writer.FieldPropertyWriter
+import com.dbflow5.ksp.writer.PropertyStatementWrapperWriter
 import org.koin.dsl.module
 
 /**
@@ -14,9 +17,12 @@ import org.koin.dsl.module
 val module = module {
     single { KSPropertyDeclarationParser() }
     single { DatabasePropertyParser() }
-    single { DBFlowKspProcessor(get()) }
+    single { DBFlowKspProcessor(get(), get()) }
     single { TablePropertyParser() }
     single { QueryPropertyParser() }
     single { ViewPropertyParser() }
     single { KSClassDeclarationParser(get(), get(), get(), get(), get()) }
+    single { ClassWriter(get(), get()) }
+    single { FieldPropertyWriter() }
+    single { PropertyStatementWrapperWriter() }
 }
