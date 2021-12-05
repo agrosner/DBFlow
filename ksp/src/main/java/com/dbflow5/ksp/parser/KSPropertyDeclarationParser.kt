@@ -1,6 +1,7 @@
 package com.dbflow5.ksp.parser
 
 import com.dbflow5.annotation.PrimaryKey
+import com.dbflow5.annotation.Table
 import com.dbflow5.ksp.model.FieldModel
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.squareup.kotlinpoet.ksp.toTypeName
@@ -9,7 +10,9 @@ import com.squareup.kotlinpoet.typeNameOf
 /**
  * Description:
  */
-class KSPropertyDeclarationParser : Parser<KSPropertyDeclaration, FieldModel> {
+class KSPropertyDeclarationParser constructor(
+    private val fieldPropertyParser: FieldPropertyParser,
+) : Parser<KSPropertyDeclaration, FieldModel> {
 
     override fun parse(input: KSPropertyDeclaration): FieldModel {
         val primaryKey =
@@ -24,11 +27,14 @@ class KSPropertyDeclarationParser : Parser<KSPropertyDeclaration, FieldModel> {
         } else {
             FieldModel.FieldType.Normal
         }
+        val column =
+            input.annotations.find { it.annotationType.toTypeName() == typeNameOf<Table>() }
 
         return FieldModel(
             name = input.qualifiedName!!,
             classType = input.type.toTypeName(),
             fieldType,
+            properties = column?.let { fieldPropertyParser.parse(column) }
         )
     }
 }

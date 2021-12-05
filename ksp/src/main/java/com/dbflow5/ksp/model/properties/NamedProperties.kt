@@ -7,6 +7,10 @@ import com.squareup.kotlinpoet.TypeName
  */
 interface NamedProperties {
     val name: String
+
+    fun nameWithFallback(fallback: String) =
+        name.takeIf { it.isNotBlank() }
+            ?: fallback
 }
 
 interface DatabaseScopedProperties {

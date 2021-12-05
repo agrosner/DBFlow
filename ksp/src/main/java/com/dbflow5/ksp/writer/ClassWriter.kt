@@ -37,7 +37,7 @@ class ClassWriter(
             type = String::class.asClassName(),
         ) {
             addModifiers(KModifier.OVERRIDE)
-            defaultValue("%S", model.name.getShortName().quoteIfNeeded())
+            defaultValue("%S", model.dbName)
         }
         return FileSpec.builder(model.name.getQualifier(), model.name.getShortName())
             .addType(
@@ -65,6 +65,11 @@ class ClassWriter(
                         getPropertyMethod(model)
                         allColumnProperties(model)
                         bindInsert(model)
+                        bindUpdate(model)
+                        bindDelete(model)
+                        insertStatementQuery(model, isSave = false)
+                        insertStatementQuery(model, isSave = true)
+                        updateStatement(model)
                         loadFromCursor(model)
                         getPrimaryConditionClause(model)
 
@@ -183,6 +188,8 @@ class ClassWriter(
         addFunction(FunSpec.builder("bindToInsertStatement")
             .apply {
                 addModifiers(KModifier.OVERRIDE)
+                addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
+                addParameter(ParameterSpec("model", model.classType))
                 model.fields.forEachIndexed { index, model ->
                     addStatement(
                         "%L.bind(model, statement, %L)",
@@ -190,6 +197,85 @@ class ClassWriter(
                         index,
                     )
                 }
+            }
+            .build())
+    }
+
+
+    private fun TypeSpec.Builder.bindUpdate(model: ClassModel) = apply {
+        addFunction(FunSpec.builder("bindToUpdateStatement")
+            .apply {
+                addModifiers(KModifier.OVERRIDE)
+                addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
+                addParameter(ParameterSpec("model", model.classType))
+                listOf(
+                    model.fields,
+                    model.primaryFields,
+                ).flatten().forEachIndexed { index, model ->
+                    addStatement(
+                        "%L.bind(model, statement, %L)",
+                        model.fieldWrapperName,
+                        index,
+                    )
+                }
+
+            }
+            .build())
+    }
+
+    private fun TypeSpec.Builder.bindDelete(model: ClassModel) = apply {
+        addFunction(FunSpec.builder("bindToDeleteStatement")
+            .apply {
+                addModifiers(KModifier.OVERRIDE)
+                addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
+                addParameter(ParameterSpec("model", model.classType))
+                model.primaryFields.forEachIndexed { index, model ->
+                    addStatement(
+                        "%L.bind(model, statement, %L)",
+                        model.fieldWrapperName,
+                        index,
+                    )
+                }
+            }
+            .build())
+    }
+
+    private fun TypeSpec.Builder.insertStatementQuery(
+        model: ClassModel,
+        isSave: Boolean
+    ) = apply {
+        addProperty(PropertySpec.builder(
+            "${if (isSave) "save" else "insert"}StatementQuery",
+            String::class.asClassName()
+        )
+            .apply {
+                getter(
+                    FunSpec.getterBuilder()
+                        .addCode("return %S", buildString {
+                            append("INSERT ${if (isSave) "OR REPLACE" else ""} INTO ${model.dbName}(")
+                            append(model.fields.joinToString { it.dbName })
+                            append(") VALUES (${model.fields.joinToString { "?" }}")
+                            append(")")
+                        })
+                        .build()
+                )
+            }
+            .build())
+    }
+
+    private fun TypeSpec.Builder.updateStatement(model: ClassModel) = apply {
+        addProperty(PropertySpec.builder("updateStatementQuery", String::class.asClassName())
+            .apply {
+                getter(
+                    FunSpec.getterBuilder()
+                        .addCode("return %S", buildString {
+                            append("UPDATE ${model.dbName} SET ")
+                            append(model.fields.joinToString { "${it.dbName}=?" })
+                            append(" WHERE ")
+                            append(model.primaryFields.joinToString { "${it.dbName}=?" })
+                        })
+                        .build()
+                )
             }
             .build())
     }

@@ -35,6 +35,8 @@ object ClassNames {
     fun nullablePropertyStatementWrapper(typeName: TypeName) =
         ClassName(PackageNames.Property, "NullablePropertyStatementWrapper")
             .parameterizedBy(typeName)
+
+    val DatabaseStatement = ClassName(PackageNames.Database, "DatabaseStatement")
 }
 
 object MemberNames {
