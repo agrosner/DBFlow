@@ -24,6 +24,7 @@ object ClassNames {
         ClassName(PackageNames.Adapter, "ModelAdapter").parameterizedBy(typeName)
 
     val DBFlowDatabase = ClassName(PackageNames.Config, "DBFlowDatabase")
+    val MutableHolder = ClassName(PackageNames.Config, "MutableHolder")
 
     val FlowCursor = ClassName(PackageNames.Database, "FlowCursor")
     val DatabaseWrapper = ClassName(PackageNames.Database, "DatabaseWrapper")

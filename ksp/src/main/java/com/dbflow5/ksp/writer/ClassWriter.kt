@@ -7,8 +7,8 @@ import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.ForeignKeyModel
 import com.dbflow5.ksp.model.ReferencesCache
 import com.dbflow5.ksp.model.SingleFieldModel
+import com.dbflow5.ksp.model.generatedClassName
 import com.dbflow5.quoteIfNeeded
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -63,12 +63,7 @@ class ClassWriter(
         }
         return FileSpec.builder(model.name.packageName, model.name.shortName)
             .addType(
-                TypeSpec.classBuilder(
-                    ClassName(
-                        model.name.packageName,
-                        "${model.name.shortName}_Table"
-                    )
-                )
+                TypeSpec.classBuilder(model.generatedClassName.className)
                     .primaryConstructor(
                         FunSpec.constructorBuilder()
                             .addParameter(

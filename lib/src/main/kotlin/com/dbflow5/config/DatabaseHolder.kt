@@ -1,19 +1,24 @@
 package com.dbflow5.config
 
 import com.dbflow5.converter.TypeConverter
+import kotlin.reflect.KClass
+
+interface MutableHolder {
+    fun put(databaseDefinition: DBFlowDatabase, table: KClass<*>)
+}
 
 /**
  * Description: The base interface for interacting with all of the database and top-level data that's shared
  * between them.
  */
-abstract class DatabaseHolder {
+abstract class DatabaseHolder : MutableHolder {
 
-    val databaseDefinitionMap: MutableMap<Class<*>, DBFlowDatabase> = hashMapOf()
+    val databaseDefinitionMap: MutableMap<KClass<*>, DBFlowDatabase> = hashMapOf()
     val databaseNameMap: MutableMap<String, DBFlowDatabase> = hashMapOf()
-    val databaseClassLookupMap: MutableMap<Class<*>, DBFlowDatabase> = hashMapOf()
+    val databaseClassLookupMap: MutableMap<KClass<*>, DBFlowDatabase> = hashMapOf()
 
     @JvmField
-    val typeConverters: MutableMap<Class<*>, TypeConverter<*, *>> = hashMapOf()
+    val typeConverters: MutableMap<KClass<*>, TypeConverter<*, *>> = hashMapOf()
 
     val databaseDefinitions: List<DBFlowDatabase>
         get() = databaseNameMap.values.toList()
@@ -22,22 +27,30 @@ abstract class DatabaseHolder {
      * @param clazz The model value class to get a [TypeConverter]
      * @return Type converter for the specified model value.
      */
-    fun getTypeConverterForClass(clazz: Class<*>): TypeConverter<*, *>? = typeConverters[clazz]
+    fun getTypeConverterForClass(clazz: Class<*>): TypeConverter<*, *>? =
+        typeConverters[clazz.kotlin]
 
     /**
      * @param table The model class
      * @return The database that the table belongs in
      */
-    fun getDatabaseForTable(table: Class<*>): DBFlowDatabase? = databaseDefinitionMap[table]
+    fun getDatabaseForTable(table: Class<*>): DBFlowDatabase? = databaseDefinitionMap[table.kotlin]
 
     fun getDatabase(databaseClass: Class<*>): DBFlowDatabase? =
-        databaseClassLookupMap[databaseClass]
+        databaseClassLookupMap[databaseClass.kotlin]
 
     /**
      * @param databaseName The name of the database to retrieve
      * @return The database that has the specified name
      */
     fun getDatabase(databaseName: String): DBFlowDatabase? = databaseNameMap[databaseName]
+
+    override fun put(databaseDefinition: DBFlowDatabase, table: KClass<*>) {
+        databaseDefinitionMap[table] = databaseDefinition
+        databaseNameMap[databaseDefinition.databaseName] = databaseDefinition
+        databaseClassLookupMap[databaseDefinition.associatedDatabaseClassFile.kotlin] =
+            databaseDefinition
+    }
 
     /**
      * Helper method used to store a database for the specified table.
@@ -46,9 +59,7 @@ abstract class DatabaseHolder {
      * @param databaseDefinition The database definition
      */
     fun putDatabaseForTable(table: Class<*>, databaseDefinition: DBFlowDatabase) {
-        databaseDefinitionMap.put(table, databaseDefinition)
-        databaseNameMap.put(databaseDefinition.databaseName, databaseDefinition)
-        databaseClassLookupMap.put(databaseDefinition.associatedDatabaseClassFile, databaseDefinition)
+        put(databaseDefinition, table.kotlin)
     }
 
     fun reset() {

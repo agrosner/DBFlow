@@ -5,6 +5,7 @@ import com.dbflow5.ksp.model.properties.NamedProperties
 import com.dbflow5.ksp.model.properties.nameWithFallback
 import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.TypeName
 
 data class ClassModel(
     val name: NameModel,
@@ -54,3 +55,21 @@ data class ClassModel(
         object Query : ClassType
     }
 }
+
+fun ClassModel.partOfDatabaseAsType(
+    databaseTypeName: TypeName,
+    type: ClassModel.ClassType,
+) = type == ClassModel.ClassType.Normal &&
+    properties.database == databaseTypeName
+
+
+val ClassModel.generatedClassName
+    get() = NameModel(
+        name.packageName, "${name.shortName}_${
+            when (type) {
+                is ClassModel.ClassType.Normal -> "Adapter"
+                is ClassModel.ClassType.Query -> "Query"
+                is ClassModel.ClassType.View -> "View"
+            }
+        }"
+    )

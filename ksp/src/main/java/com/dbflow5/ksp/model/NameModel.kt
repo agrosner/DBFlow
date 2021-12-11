@@ -1,6 +1,7 @@
 package com.dbflow5.ksp.model
 
 import com.google.devtools.ksp.symbol.KSName
+import com.squareup.kotlinpoet.ClassName
 
 /**
  * Description:
@@ -13,4 +14,6 @@ data class NameModel(
         ksName.getQualifier(),
         ksName.getShortName()
     )
+
+    val className = ClassName(packageName, shortName)
 }

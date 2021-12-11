@@ -254,25 +254,25 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         }
     }
 
-    protected fun <T : Any> addModelAdapter(modelAdapter: ModelAdapter<T>, holder: DatabaseHolder) {
-        holder.putDatabaseForTable(modelAdapter.table, this)
+    protected fun <T : Any> addModelAdapter(modelAdapter: ModelAdapter<T>, holder: MutableHolder) {
+        holder.put(this, modelAdapter.table.kotlin)
         modelTableNames[modelAdapter.name] = modelAdapter.table
         modelAdapterMap[modelAdapter.table] = modelAdapter
     }
 
     protected fun <T : Any> addModelViewAdapter(
         modelViewAdapter: ModelViewAdapter<T>,
-        holder: DatabaseHolder
+        holder: MutableHolder
     ) {
-        holder.putDatabaseForTable(modelViewAdapter.table, this)
+        holder.put(this, modelViewAdapter.table.kotlin)
         modelViewAdapterMap[modelViewAdapter.table] = modelViewAdapter
     }
 
     protected fun <T : Any> addRetrievalAdapter(
         retrievalAdapter: RetrievalAdapter<T>,
-        holder: DatabaseHolder
+        holder: MutableHolder
     ) {
-        holder.putDatabaseForTable(retrievalAdapter.table, this)
+        holder.put(this, retrievalAdapter.table.kotlin)
         queryModelAdapterMap[retrievalAdapter.table] = retrievalAdapter
     }
 
