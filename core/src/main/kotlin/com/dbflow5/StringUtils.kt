@@ -68,13 +68,15 @@ fun StringBuilder.appendSQLiteType(sqLiteType: SQLiteType): StringBuilder = appe
  * @param name The name ot strip the quotes from.
  * @return A non-quoted name.
  */
-fun String?.stripQuotes(): String? {
-    var ret: String? = this
-    if (ret != null && ret.isQuoted()) {
-        ret = ret.replace("`", "")
-    }
-    return ret
-}
+fun String?.stripQuotes(): String? =
+    if (this?.isQuoted() == true) {
+        replace("`", "")
+    } else this
+
+@JvmName("stripQuotesNotNull")
+fun String.stripQuotes(): String = if (isQuoted()) {
+    replace("`", "")
+} else this
 
 
 /**

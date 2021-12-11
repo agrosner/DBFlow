@@ -46,4 +46,11 @@ object MemberNames {
     val propertyGet = MemberName(PackageNames.Property, "get")
 
     val bind = MemberName(PackageNames.Database, "bind")
+
+    val select = MemberName(PackageNames.Query, "select")
+    val from = MemberName(PackageNames.Query, "from")
+    val where = MemberName(PackageNames.Query, "where")
+    val requireSingle = MemberName(PackageNames.Query, "requireSingle")
+    val querySingle = MemberName(PackageNames.Query, "querySingle")
+    val eq = MemberName(PackageNames.Query, "eq")
 }

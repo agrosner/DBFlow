@@ -1,6 +1,7 @@
 package com.dbflow5.ksp
 
 import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.ReferencesCache
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.writer.ClassWriter
 import com.google.devtools.ksp.processing.Resolver
@@ -14,6 +15,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 class DBFlowKspProcessor(
     private val ksClassDeclarationParser: KSClassDeclarationParser,
     private val classWriter: ClassWriter,
+    private val referencesCache: ReferencesCache,
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -28,6 +30,10 @@ class DBFlowKspProcessor(
                 else -> null
             }
         }
+        objects.filterIsInstance<ClassModel>()
+            .let { classes ->
+                referencesCache.allTables = classes
+            }
 
         println("Objects $objects")
 

@@ -14,11 +14,11 @@ class FieldPropertyWriter : TypeCreator<FieldModel, PropertySpec> {
 
     override fun create(model: FieldModel): PropertySpec {
         return PropertySpec.builder(
-            model.name.getShortName(),
+            model.name.shortName,
             ClassNames.Property
                 .parameterizedBy(model.classType)
         )
-            .initializer("%M(%S)", MemberNames.property, model.name.getShortName())
+            .initializer("%M(%S)", MemberNames.property, model.name.shortName)
             .build()
     }
 }

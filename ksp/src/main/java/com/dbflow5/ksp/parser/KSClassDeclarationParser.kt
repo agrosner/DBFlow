@@ -6,6 +6,7 @@ import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.DatabaseModel
+import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.ObjectModel
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -34,14 +35,14 @@ class KSClassDeclarationParser(
             val annotationType = annotation.annotationType.toTypeName()
             if (annotationType == typeNameOf<Database>()) {
                 return DatabaseModel(
-                    name = name,
+                    name = NameModel(name),
                     classType = classType,
                     properties = databasePropertyParser.parse(annotation)
                 )
             }
             if (annotationType == typeNameOf<Table>()) {
                 return ClassModel(
-                    name = name,
+                    name = NameModel(name),
                     classType = classType,
                     type = ClassModel.ClassType.Normal,
                     properties = tablePropertyParser.parse(annotation),
@@ -50,7 +51,7 @@ class KSClassDeclarationParser(
             }
             if (annotationType == typeNameOf<ModelView>()) {
                 return ClassModel(
-                    name = name,
+                    name = NameModel(name),
                     classType = classType,
                     type = ClassModel.ClassType.View,
                     properties = viewPropertyParser.parse(annotation),
@@ -59,7 +60,7 @@ class KSClassDeclarationParser(
             }
             if (annotationType == typeNameOf<QueryModel>()) {
                 return ClassModel(
-                    name = name,
+                    name = NameModel(name),
                     classType = classType,
                     type = ClassModel.ClassType.Query,
                     properties = queryPropertyParser.parse(annotation),

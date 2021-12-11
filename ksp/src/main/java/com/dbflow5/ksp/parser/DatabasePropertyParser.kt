@@ -2,9 +2,12 @@ package com.dbflow5.ksp.parser
 
 import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.annotation.ForeignKeyAction
 import com.dbflow5.ksp.model.properties.DatabaseProperties
 import com.dbflow5.ksp.model.properties.FieldProperties
+import com.dbflow5.ksp.model.properties.ForeignKeyProperties
 import com.dbflow5.ksp.model.properties.QueryProperties
+import com.dbflow5.ksp.model.properties.ReferenceProperties
 import com.dbflow5.ksp.model.properties.TableProperties
 import com.dbflow5.ksp.model.properties.ViewProperties
 import com.google.devtools.ksp.symbol.KSAnnotation
@@ -77,6 +80,40 @@ class FieldPropertyParser : Parser<KSAnnotation, FieldProperties> {
             length = args.arg("length"),
             collate = args.enumArg("collate", Collate::valueOf),
             defaultValue = args.arg("defaultValue"),
+        )
+    }
+}
+
+class ForeignKeyPropertyParser
+constructor(
+    private val foreignKeyReferencePropertyParser: ForeignKeyReferencePropertyParser,
+) : Parser<KSAnnotation, ForeignKeyProperties> {
+    override fun parse(input: KSAnnotation): ForeignKeyProperties {
+        val args = input.arguments.mapProperties()
+        val references = args.arg<List<KSAnnotation>>("references")
+            .map { foreignKeyReferencePropertyParser.parse(it) }
+        return ForeignKeyProperties(
+            onDelete = args.enumArg("onDelete", ForeignKeyAction::valueOf),
+            onUpdate = args.enumArg("onUpdate", ForeignKeyAction::valueOf),
+            referencesType = when (references.isNotEmpty()) {
+                true -> ForeignKeyProperties.ReferencesType.Specific(
+                    references,
+                )
+                else -> ForeignKeyProperties.ReferencesType.All
+            }
+        )
+    }
+}
+
+class ForeignKeyReferencePropertyParser : Parser<KSAnnotation, ReferenceProperties> {
+    override fun parse(input: KSAnnotation): ReferenceProperties {
+        val args = input.arguments.mapProperties()
+        val notNullArgs = args.arg<KSAnnotation>("notNull").arguments.mapProperties()
+        return ReferenceProperties(
+            name = args.arg("name"),
+            referencedName = args.arg("referencedName"),
+            defaultValue = args.arg("defaultValue"),
+            onNullConflict = notNullArgs.arg("onNullConflict"),
         )
     }
 }

@@ -4,6 +4,9 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.ForeignKeyModel
+import com.dbflow5.ksp.model.ReferencesCache
+import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
@@ -22,6 +25,7 @@ import kotlin.reflect.KClass
 class ClassWriter(
     private val fieldPropertyWriter: FieldPropertyWriter,
     private val propertyStatementWrapperWriter: PropertyStatementWrapperWriter,
+    private val referencesCache: ReferencesCache,
 ) : TypeCreator<ClassModel, FileSpec> {
     override fun create(model: ClassModel): FileSpec {
         val tableParam = ParameterPropertySpec(
@@ -39,12 +43,30 @@ class ClassWriter(
             addModifiers(KModifier.OVERRIDE)
             defaultValue("%S", model.dbName)
         }
-        return FileSpec.builder(model.name.getQualifier(), model.name.getShortName())
+        val extractors = model.fields.map {
+            when (it) {
+                is ForeignKeyModel -> FieldExtractor.ForeignFieldExtractor(
+                    it,
+                    referencesCache,
+                )
+                is SingleFieldModel -> FieldExtractor.SingleFieldExtractor(it)
+            }
+        }
+        val primaryExtractors = model.primaryFields.map {
+            when (it) {
+                is ForeignKeyModel -> FieldExtractor.ForeignFieldExtractor(
+                    it,
+                    referencesCache,
+                )
+                is SingleFieldModel -> FieldExtractor.SingleFieldExtractor(it)
+            }
+        }
+        return FileSpec.builder(model.name.packageName, model.name.shortName)
             .addType(
                 TypeSpec.classBuilder(
                     ClassName(
-                        model.name.getQualifier(),
-                        "${model.name.getShortName()}_Table"
+                        model.name.packageName,
+                        "${model.name.shortName}_Table"
                     )
                 )
                     .primaryConstructor(
@@ -67,15 +89,17 @@ class ClassWriter(
                         bindInsert(model)
                         bindUpdate(model)
                         bindDelete(model)
-                        insertStatementQuery(model, isSave = false)
-                        insertStatementQuery(model, isSave = true)
-                        updateStatement(model)
+                        insertStatementQuery(model, extractors, isSave = false)
+                        insertStatementQuery(model, extractors, isSave = true)
+                        creationQuery(model, extractors)
+                        updateStatement(model, extractors, primaryExtractors)
+                        deleteStatement(model, primaryExtractors)
                         loadFromCursor(model)
                         getPrimaryConditionClause(model)
 
                         addType(TypeSpec.companionObjectBuilder()
                             .apply {
-                                model.fields.forEach { field ->
+                                model.flattenedFields(referencesCache).forEach { field ->
                                     addProperty(fieldPropertyWriter.create(field))
                                     addProperty(propertyStatementWrapperWriter.create(field))
                                 }
@@ -99,14 +123,14 @@ class ClassWriter(
                     "columnName",
                     MemberNames.quoteIfNeeded
                 )
-                model.fields.forEach { field ->
+                model.flattenedFields(referencesCache).forEach { field ->
                     addCode(
                         """
                         %S -> %L
                         
                     """.trimIndent(),
-                        field.name.getShortName().quoteIfNeeded(),
-                        field.name.getShortName()
+                        field.name.shortName.quoteIfNeeded(),
+                        field.name.shortName
                     )
                 }
                 addCode(
@@ -130,8 +154,8 @@ class ClassWriter(
                 .getter(FunSpec.getterBuilder()
                     .addCode("return arrayOf(\n")
                     .apply {
-                        model.fields.forEach { field ->
-                            addCode("%L,\n", field.name.getShortName())
+                        model.flattenedFields(referencesCache).forEach { field ->
+                            addCode("%L,\n", field.name.shortName)
                         }
                     }
                     .addCode(")")
@@ -152,13 +176,48 @@ class ClassWriter(
                 )
                 addCode("return %T(\n", model.classType)
                 model.fields.forEach { field ->
-                    addCode(
-                        "%N = %N.%M(%N),\n",
-                        field.name.getShortName(),
-                        field.name.getShortName(),
-                        MemberNames.propertyGet,
-                        "cursor"
-                    )
+                    when (field) {
+                        is ForeignKeyModel -> {
+                            addCode(
+                                "\t%N = ((%M %M %T::class) %N\n",
+                                field.name.shortName,
+                                MemberNames.select,
+                                MemberNames.from,
+                                field.classType,
+                                MemberNames.where,
+                            )
+                            field.references(referencesCache, "").zip(
+                                field.references(referencesCache, field.dbName)
+                            ).forEach { (plain, referenced) ->
+                                addCode(
+                                    "\t\t%T.%L %M %N.%M(%N),\n",
+                                    field.classType,
+                                    plain.name.shortName,
+                                    MemberNames.eq,
+                                    referenced.name.shortName,
+                                    MemberNames.propertyGet,
+                                    "cursor"
+                                )
+                            }
+                            addCode(
+                                "\t).%M(%N)\n",
+                                if (field.classType.isNullable)
+                                    MemberNames.querySingle
+                                else MemberNames.requireSingle,
+                                "wrapper",
+                            )
+                        }
+                        is SingleFieldModel -> {
+                            addCode(
+                                "\t%N = %N.%M(%N),\n",
+                                field.name.shortName,
+                                field.name.shortName,
+                                MemberNames.propertyGet,
+                                "cursor"
+                            )
+                        }
+                    }
+
                 }
                 addCode(")")
             }
@@ -171,12 +230,13 @@ class ClassWriter(
                 addModifiers(KModifier.OVERRIDE)
                 addParameter(ParameterSpec("model", model.classType))
                 addCode("return %T.clause().apply {\n", ClassNames.OperatorGroup)
-                model.fields.forEach { field ->
+                model.primaryFlattenedFields(referencesCache).forEach { field ->
                     addCode(
-                        "and(%L eq %N.%L)\n",
-                        field.name.getShortName(),
+                        "and(%L %M %N.%L)\n",
+                        field.name.shortName,
+                        MemberNames.eq,
                         "model",
-                        field.name.getShortName(),
+                        field.name.shortName,
                     )
                 }
                 addCode("}\n")
@@ -190,7 +250,7 @@ class ClassWriter(
                 addModifiers(KModifier.OVERRIDE)
                 addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
                 addParameter(ParameterSpec("model", model.classType))
-                model.fields.forEachIndexed { index, model ->
+                model.flattenedFields(referencesCache).forEachIndexed { index, model ->
                     addStatement(
                         "%L.bind(model, statement, %L)",
                         model.fieldWrapperName,
@@ -209,8 +269,8 @@ class ClassWriter(
                 addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
                 addParameter(ParameterSpec("model", model.classType))
                 listOf(
-                    model.fields,
-                    model.primaryFields,
+                    model.flattenedFields(referencesCache),
+                    model.primaryFlattenedFields(referencesCache),
                 ).flatten().forEachIndexed { index, model ->
                     addStatement(
                         "%L.bind(model, statement, %L)",
@@ -229,7 +289,7 @@ class ClassWriter(
                 addModifiers(KModifier.OVERRIDE)
                 addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
                 addParameter(ParameterSpec("model", model.classType))
-                model.primaryFields.forEachIndexed { index, model ->
+                model.primaryFlattenedFields(referencesCache).forEachIndexed { index, model ->
                     addStatement(
                         "%L.bind(model, statement, %L)",
                         model.fieldWrapperName,
@@ -242,8 +302,13 @@ class ClassWriter(
 
     private fun TypeSpec.Builder.insertStatementQuery(
         model: ClassModel,
+        extractors: List<FieldExtractor>,
         isSave: Boolean
     ) = apply {
+        val joinToString = extractors.joinToString {
+            it.commaNames
+        }
+
         addProperty(PropertySpec.builder(
             "${if (isSave) "save" else "insert"}StatementQuery",
             String::class.asClassName()
@@ -253,8 +318,8 @@ class ClassWriter(
                     FunSpec.getterBuilder()
                         .addCode("return %S", buildString {
                             append("INSERT ${if (isSave) "OR REPLACE" else ""} INTO ${model.dbName}(")
-                            append(model.fields.joinToString { it.dbName })
-                            append(") VALUES (${model.fields.joinToString { "?" }}")
+                            append(joinToString)
+                            append(") VALUES (${extractors.joinToString { it.valuesName }}")
                             append(")")
                         })
                         .build()
@@ -263,16 +328,57 @@ class ClassWriter(
             .build())
     }
 
-    private fun TypeSpec.Builder.updateStatement(model: ClassModel) = apply {
+    private fun TypeSpec.Builder.updateStatement(
+        model: ClassModel,
+        extractors: List<FieldExtractor>,
+        primaryExtractors: List<FieldExtractor>
+    ) = apply {
         addProperty(PropertySpec.builder("updateStatementQuery", String::class.asClassName())
             .apply {
                 getter(
                     FunSpec.getterBuilder()
                         .addCode("return %S", buildString {
                             append("UPDATE ${model.dbName} SET ")
-                            append(model.fields.joinToString { "${it.dbName}=?" })
+                            append(extractors.joinToString { it.updateName })
                             append(" WHERE ")
-                            append(model.primaryFields.joinToString { "${it.dbName}=?" })
+                            append(primaryExtractors.joinToString { it.updateName })
+                        })
+                        .build()
+                )
+            }
+            .build())
+    }
+
+    private fun TypeSpec.Builder.deleteStatement(
+        model: ClassModel,
+        primaryExtractors: List<FieldExtractor>
+    ) = apply {
+        addProperty(PropertySpec.builder("deleteStatementQuery", String::class.asClassName())
+            .apply {
+                getter(
+                    FunSpec.getterBuilder()
+                        .addCode("return %S", buildString {
+                            append("DELETE FROM ${model.dbName} WHERE ")
+                            append(primaryExtractors.joinToString("AND") { it.updateName })
+                        })
+                        .build()
+                )
+            }
+            .build())
+    }
+
+    private fun TypeSpec.Builder.creationQuery(
+        model: ClassModel,
+        extractors: List<FieldExtractor>
+    ) = apply {
+        addProperty(PropertySpec.builder("creationQuery", String::class.asClassName())
+            .apply {
+                getter(
+                    FunSpec.getterBuilder()
+                        .addCode("return %S", buildString {
+                            append("CREATE TABLE IF NOT EXISTS ${model.dbName}(")
+                            append(extractors.joinToString { it.createName })
+                            append(")")
                         })
                         .build()
                 )

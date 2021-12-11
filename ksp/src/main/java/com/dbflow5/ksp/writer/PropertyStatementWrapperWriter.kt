@@ -32,7 +32,7 @@ class PropertyStatementWrapperWriter : TypeCreator<FieldModel, PropertySpec> {
                     """.trimIndent(),
                         ClassNames.nullablePropertyStatementWrapper(model.classType),
                         MemberNames.bind,
-                        model.name.getShortName(),
+                        model.name.shortName,
                     )
                 } else {
                     initializer(
@@ -41,7 +41,7 @@ class PropertyStatementWrapperWriter : TypeCreator<FieldModel, PropertySpec> {
                     """.trimIndent(),
                         ClassNames.propertyStatementWrapper(model.classType),
                         MemberNames.bind,
-                        model.name.getShortName(),
+                        model.name.shortName,
                     )
                 }
             }
@@ -50,4 +50,4 @@ class PropertyStatementWrapperWriter : TypeCreator<FieldModel, PropertySpec> {
 }
 
 
-val FieldModel.fieldWrapperName get() = "${name.getShortName()}_wrapper"
+val FieldModel.fieldWrapperName get() = "${name.shortName}_wrapper"

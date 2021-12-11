@@ -40,4 +40,36 @@ class TableTests {
         // ensure database and table generated.
         assertEquals(result.generatedFiles.size, 2)
     }
+
+    @Test
+    fun `foreign key table`() {
+        val source = SourceFile.kotlin(
+            "ForeignKeyTable.kt",
+            """
+            package test
+            import com.dbflow5.annotation.Database
+            import com.dbflow5.annotation.ForeignKey
+            import com.dbflow5.annotation.Table
+            import com.dbflow5.annotation.PrimaryKey
+            import com.dbflow5.config.DBFlowDatabase
+
+            @Database(version = 1)
+            abstract class TestDatabase: DBFlowDatabase()
+            
+            @Table(database = TestDatabase::class)
+            class SimpleModel(@PrimaryKey val name: String)
+              
+            @Table(database = TestDatabase::class)
+            class ForeignKeyModel(
+                @PrimaryKey val name: String,
+                @ForeignKey val model: SimpleModel,
+            )
+
+            """.trimIndent()
+        )
+        val result = compilation(temporaryFolder, sources = listOf(source)).compile()
+        assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+        // ensure database and table generated.
+        assertEquals(result.generatedFiles.size, 2)
+    }
 }

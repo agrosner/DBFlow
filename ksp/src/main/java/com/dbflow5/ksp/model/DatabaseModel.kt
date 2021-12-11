@@ -8,7 +8,7 @@ import com.squareup.kotlinpoet.TypeName
  * Description:
  */
 data class DatabaseModel(
-    val name: KSName,
+    val name: NameModel,
     val classType: TypeName,
     val properties: DatabaseProperties,
 ) : ObjectModel {
