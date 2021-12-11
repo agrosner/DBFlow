@@ -1,11 +1,15 @@
 package com.dbflow5.ksp
 
 import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.DatabaseHolderModel
 import com.dbflow5.ksp.model.DatabaseModel
+import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.ReferencesCache
 import com.dbflow5.ksp.model.partOfDatabaseAsType
+import com.dbflow5.ksp.model.properties.DatabaseHolderProperties
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.writer.ClassWriter
+import com.dbflow5.ksp.writer.DatabaseHolderWriter
 import com.dbflow5.ksp.writer.DatabaseWriter
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -19,6 +23,7 @@ class DBFlowKspProcessor(
     private val ksClassDeclarationParser: KSClassDeclarationParser,
     private val classWriter: ClassWriter,
     private val databaseWriter: DatabaseWriter,
+    private val databaseHolderWriter: DatabaseHolderWriter,
     private val referencesCache: ReferencesCache,
 ) : SymbolProcessor {
 
@@ -55,13 +60,18 @@ class DBFlowKspProcessor(
                 )
             }
 
-        referencesCache.allTables = classes
+        val holderModel = DatabaseHolderModel(
+            name = NameModel(ClassNames.GeneratedDatabaseHolder),
+            databases,
+            properties = DatabaseHolderProperties("")
+        )
 
-        println("Objects $objects")
+        referencesCache.allTables = classes
 
         listOf(
             classes.map(classWriter::create),
-            databases.map(databaseWriter::create)
+            databases.map(databaseWriter::create),
+            listOf(holderModel).map(databaseHolderWriter::create)
         )
             .flatten()
             .forEach { it.writeTo(System.out) }

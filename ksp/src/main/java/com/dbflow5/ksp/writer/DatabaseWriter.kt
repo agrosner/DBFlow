@@ -4,7 +4,6 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.DatabaseModel
 import com.dbflow5.ksp.model.generatedClassName
-import com.dbflow5.ksp.model.generatedName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -46,7 +45,7 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
         return FileSpec.builder(model.name.packageName, model.name.shortName)
             .apply {
                 addType(
-                    TypeSpec.classBuilder(model.generatedName)
+                    TypeSpec.classBuilder(model.generatedClassName.className)
                         .primaryConstructor(
                             FunSpec.constructorBuilder()
                                 .addParameter("holder", ClassNames.MutableHolder)

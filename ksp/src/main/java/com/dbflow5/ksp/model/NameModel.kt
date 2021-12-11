@@ -15,5 +15,10 @@ data class NameModel(
         ksName.getShortName()
     )
 
+    constructor(className: ClassName) : this(
+        className.packageName,
+        className.simpleName,
+    )
+
     val className = ClassName(packageName, shortName)
 }

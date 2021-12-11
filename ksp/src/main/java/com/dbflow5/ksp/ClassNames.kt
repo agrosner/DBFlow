@@ -25,6 +25,7 @@ object ClassNames {
 
     val DBFlowDatabase = ClassName(PackageNames.Config, "DBFlowDatabase")
     val MutableHolder = ClassName(PackageNames.Config, "MutableHolder")
+    val GeneratedDatabaseHolder = ClassName(PackageNames.Config, "GeneratedDatabaseHolder")
 
     val FlowCursor = ClassName(PackageNames.Database, "FlowCursor")
     val DatabaseWrapper = ClassName(PackageNames.Database, "DatabaseWrapper")

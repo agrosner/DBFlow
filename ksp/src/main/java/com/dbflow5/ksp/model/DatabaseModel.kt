@@ -15,6 +15,8 @@ data class DatabaseModel(
     val queryModels: List<ClassModel> = listOf(),
 ) : ObjectModel
 
-
-val DatabaseModel.generatedName
-    get() = "${name.shortName}_Database"
+val DatabaseModel.generatedClassName
+    get() = NameModel(
+        name.packageName,
+        "${name.shortName}_Database"
+    )
