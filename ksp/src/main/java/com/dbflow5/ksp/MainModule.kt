@@ -15,12 +15,13 @@ import com.dbflow5.ksp.writer.DatabaseHolderWriter
 import com.dbflow5.ksp.writer.DatabaseWriter
 import com.dbflow5.ksp.writer.FieldPropertyWriter
 import com.dbflow5.ksp.writer.PropertyStatementWrapperWriter
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import org.koin.dsl.module
 
 /**
  * Description:
  */
-val module = module {
+fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { KSPropertyDeclarationParser(get(), get()) }
     single { DatabasePropertyParser() }
     single {
@@ -29,7 +30,8 @@ val module = module {
             get(),
             get(),
             get(),
-            get()
+            get(),
+            environment,
         )
     }
     single { TablePropertyParser() }

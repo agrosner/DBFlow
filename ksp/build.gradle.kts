@@ -18,6 +18,7 @@ dependencies {
     api(Dependencies.Koin)
     api(Dependencies.KSP)
 
+    testImplementation(Dependencies.MockitoKotlin)
     testImplementation(Dependencies.KoinTest)
     testImplementation(kotlin("test"))
     testImplementation(Dependencies.KotlinCompileTestingKSP)

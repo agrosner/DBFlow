@@ -4,6 +4,8 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import org.koin.core.context.stopKoin
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -37,8 +39,6 @@ class TableTests {
         )
         val result = compilation(temporaryFolder, sources = listOf(source)).compile()
         assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
-        // ensure database and table generated.
-        assertEquals(result.generatedFiles.size, 2)
     }
 
     @Test
@@ -69,7 +69,10 @@ class TableTests {
         )
         val result = compilation(temporaryFolder, sources = listOf(source)).compile()
         assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
-        // ensure database and table generated.
-        assertEquals(result.generatedFiles.size, 2)
+    }
+
+    @AfterTest
+    fun stop() {
+        stopKoin()
     }
 }

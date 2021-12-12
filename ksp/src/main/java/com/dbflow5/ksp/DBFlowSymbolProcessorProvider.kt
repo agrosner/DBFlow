@@ -13,7 +13,7 @@ import org.koin.core.context.startKoin
 class DBFlowSymbolProcessorProvider : SymbolProcessorProvider, KoinComponent {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
         startKoin {
-            modules(module)
+            modules(getModule(environment))
         }
         return inject<DBFlowKspProcessor>().value
     }

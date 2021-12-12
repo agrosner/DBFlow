@@ -3,20 +3,10 @@ package com.dbflow5.ksp.writer
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
-import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.ForeignKeyModel
-import com.dbflow5.ksp.model.ReferencesCache
-import com.dbflow5.ksp.model.SingleFieldModel
-import com.dbflow5.ksp.model.generatedClassName
+import com.dbflow5.ksp.model.*
 import com.dbflow5.quoteIfNeeded
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asClassName
 import kotlin.reflect.KClass
 
 /**
@@ -130,8 +120,10 @@ class ClassWriter(
                 }
                 addCode(
                     """
-                    else -> throw %T("Invalid column name passed. Ensure you are calling the correct table's column") 
-                """.trimIndent(), IllegalArgumentException::class.asClassName()
+                    else -> throw %T(%S) 
+                """.trimIndent(),
+                    IllegalArgumentException::class.asClassName(),
+                    "Invalid column name passed. Ensure you are calling the correct table's column"
                 )
                 endControlFlow()
             }
@@ -183,9 +175,13 @@ class ClassWriter(
                             )
                             field.references(referencesCache, "").zip(
                                 field.references(referencesCache, field.dbName)
-                            ).forEach { (plain, referenced) ->
+                            ).forEachIndexed { index, (plain, referenced) ->
+                                addCode("\t\t")
+                                if (index > 0) {
+                                    addCode("%M ", "and")
+                                }
                                 addCode(
-                                    "\t\t%T.%L %M %N.%M(%N),\n",
+                                    "(%T.%L %M %N.%M(%N))\n",
                                     field.classType,
                                     plain.name.shortName,
                                     MemberNames.eq,

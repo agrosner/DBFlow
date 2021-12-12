@@ -19,6 +19,7 @@ object Dependencies {
     const val KSP = "com.google.devtools.ksp:symbol-processing-api:${Versions.Kotlin}-1.0.1"
     const val Koin = "io.insert-koin:koin-core:3.1.4"
     const val KoinTest = "io.insert-koin:koin-test-junit4:3.1.4"
+    const val MockitoKotlin = "org.mockito.kotlin:mockito-kotlin:4.0.0"
 
     const val KotlinCompileTestingKSP = "com.github.tschuchortdev:kotlin-compile-testing-ksp:1.4.6"
 

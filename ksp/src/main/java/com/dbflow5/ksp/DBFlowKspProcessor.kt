@@ -1,11 +1,6 @@
 package com.dbflow5.ksp
 
-import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.DatabaseHolderModel
-import com.dbflow5.ksp.model.DatabaseModel
-import com.dbflow5.ksp.model.NameModel
-import com.dbflow5.ksp.model.ReferencesCache
-import com.dbflow5.ksp.model.partOfDatabaseAsType
+import com.dbflow5.ksp.model.*
 import com.dbflow5.ksp.model.properties.DatabaseHolderProperties
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.writer.ClassWriter
@@ -13,8 +8,10 @@ import com.dbflow5.ksp.writer.DatabaseHolderWriter
 import com.dbflow5.ksp.writer.DatabaseWriter
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.squareup.kotlinpoet.ksp.writeTo
 
 /**
  * Description:
@@ -25,6 +22,7 @@ class DBFlowKspProcessor(
     private val databaseWriter: DatabaseWriter,
     private val databaseHolderWriter: DatabaseHolderWriter,
     private val referencesCache: ReferencesCache,
+    private val environment: SymbolProcessorEnvironment,
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -34,47 +32,55 @@ class DBFlowKspProcessor(
                     it.qualifiedName
                 ).toList()
             }.flatten()
-        val objects = symbols.mapNotNull { annotated ->
-            when (annotated) {
-                is KSClassDeclaration -> {
-                    ksClassDeclarationParser.parse(annotated)
-                }
-                else -> null
-            }
-        }
-        val classes = objects.filterIsInstance<ClassModel>()
-
-        // associate classes into DB.
-        val databases = objects.filterIsInstance<DatabaseModel>()
-            .map { database ->
-                database.copy(
-                    tables = classes.filter {
-                        it.partOfDatabaseAsType(database.classType, ClassModel.ClassType.Normal)
-                    },
-                    views = classes.filter {
-                        it.partOfDatabaseAsType(database.classType, ClassModel.ClassType.View)
-                    },
-                    queryModels = classes.filter {
-                        it.partOfDatabaseAsType(database.classType, ClassModel.ClassType.Query)
+        if (symbols.isNotEmpty()) {
+            val objects = symbols.mapNotNull { annotated ->
+                when (annotated) {
+                    is KSClassDeclaration -> {
+                        ksClassDeclarationParser.parse(annotated)
                     }
-                )
+                    else -> null
+                }
             }
+            val classes = objects.filterIsInstance<ClassModel>()
 
-        val holderModel = DatabaseHolderModel(
-            name = NameModel(ClassNames.GeneratedDatabaseHolder),
-            databases,
-            properties = DatabaseHolderProperties("")
-        )
+            // associate classes into DB.
+            val databases = objects.filterIsInstance<DatabaseModel>()
+                .map { database ->
+                    database.copy(
+                        tables = classes.filter {
+                            it.partOfDatabaseAsType(database.classType, ClassModel.ClassType.Normal)
+                        },
+                        views = classes.filter {
+                            it.partOfDatabaseAsType(database.classType, ClassModel.ClassType.View)
+                        },
+                        queryModels = classes.filter {
+                            it.partOfDatabaseAsType(database.classType, ClassModel.ClassType.Query)
+                        }
+                    )
+                }
 
-        referencesCache.allTables = classes
+            val holderModel = DatabaseHolderModel(
+                name = NameModel(ClassNames.GeneratedDatabaseHolder),
+                databases,
+                properties = DatabaseHolderProperties("")
+            )
 
-        listOf(
-            classes.map(classWriter::create),
-            databases.map(databaseWriter::create),
-            listOf(holderModel).map(databaseHolderWriter::create)
-        )
-            .flatten()
-            .forEach { it.writeTo(System.out) }
+            referencesCache.allTables = classes
+
+            listOf(
+                classes.map(classWriter::create),
+                databases.map(databaseWriter::create),
+                listOf(holderModel).map(databaseHolderWriter::create)
+            )
+                .flatten()
+                .forEach {
+                    it.writeTo(System.out)
+                    it.writeTo(
+                        environment.codeGenerator,
+                        aggregating = false,
+                    )
+                }
+        }
 
         return listOf()
     }
