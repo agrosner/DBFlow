@@ -1,9 +1,7 @@
 package com.dbflow5.ksp
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.TypeName
 
 object PackageNames {
     const val Core = "com.dbflow5"
@@ -17,8 +15,9 @@ object PackageNames {
 object ClassNames {
 
 
-    val Property = ClassName(PackageNames.Query, "Property")
-    val IProperty = ClassName(PackageNames.Query, "IProperty")
+    val Property = ClassName(PackageNames.Property, "Property")
+    val IProperty = ClassName(PackageNames.Property, "IProperty")
+        .parameterizedBy(WildcardTypeName.producerOf(Any::class.asTypeName().copy(nullable = true)))
     val OperatorGroup = ClassName(PackageNames.Query, "OperatorGroup")
     fun modelAdapter(typeName: TypeName) =
         ClassName(PackageNames.Adapter, "ModelAdapter").parameterizedBy(typeName)
@@ -39,6 +38,8 @@ object ClassNames {
             .parameterizedBy(typeName)
 
     val DatabaseStatement = ClassName(PackageNames.Database, "DatabaseStatement")
+
+    val ObjectType = ClassName(PackageNames.Adapter, "ObjectType")
 }
 
 object MemberNames {
@@ -50,9 +51,9 @@ object MemberNames {
     val bind = MemberName(PackageNames.Database, "bind")
 
     val select = MemberName(PackageNames.Query, "select")
-    val from = MemberName(PackageNames.Query, "from")
-    val where = MemberName(PackageNames.Query, "where")
-    val requireSingle = MemberName(PackageNames.Query, "requireSingle")
-    val querySingle = MemberName(PackageNames.Query, "querySingle")
-    val eq = MemberName(PackageNames.Query, "eq")
+    const val from = "from"
+    const val where = "where"
+    const val requireSingle = "requireSingle"
+    const val querySingle = "querySingle"
+    const val eq = "eq"
 }

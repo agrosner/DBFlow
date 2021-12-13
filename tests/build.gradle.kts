@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    id("com.google.devtools.ksp") version Versions.KSP
     id("com.android.application")
     kotlin("android")
     id("com.getkeepsafe.dexcount")
@@ -42,7 +43,9 @@ android {
     }
 
     sourceSets {
-        getByName("main").java.srcDirs("src/main/kotlin")
+        getByName("main").kotlin.srcDir("build/generated/ksp/main/kotlin")
+        getByName("test").kotlin.srcDir("build/generated/ksp/test/kotlin")
+        getByName("androidTest").kotlin.srcDir("build/generated/ksp/androidTest/kotlin")
     }
 }
 
@@ -55,7 +58,8 @@ dependencies {
     implementation(project(":paging"))
     implementation(project(":livedata"))
 
-    kaptAndroidTest(project(":processor"))
+    //kaptAndroidTest(project(":processor"))
+    kspAndroidTest(project(":ksp"))
 
     androidTestImplementation(kotlin("test"))
     androidTestImplementation(Dependencies.JavaXAnnotation)

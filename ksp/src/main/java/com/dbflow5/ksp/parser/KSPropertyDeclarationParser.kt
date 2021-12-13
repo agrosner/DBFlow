@@ -38,7 +38,10 @@ class KSPropertyDeclarationParser constructor(
             input.annotations.find { it.annotationType.toTypeName() == typeNameOf<ForeignKey>() }
         if (foreignKey != null) {
             return ForeignKeyModel(
-                name = NameModel(input.qualifiedName!!),
+                name = NameModel(
+                    input.qualifiedName!!,
+                    input.packageName
+                ),
                 classType = input.type.toTypeName(),
                 fieldType,
                 properties = column?.let { fieldPropertyParser.parse(column) },
@@ -46,7 +49,10 @@ class KSPropertyDeclarationParser constructor(
             )
         }
         return SingleFieldModel(
-            name = NameModel(input.qualifiedName!!),
+            name = NameModel(
+                input.qualifiedName!!,
+                input.packageName
+            ),
             classType = input.type.toTypeName(),
             fieldType,
             properties = column?.let { fieldPropertyParser.parse(column) }

@@ -1,6 +1,8 @@
 package com.dbflow5.ksp.model.properties
 
 import com.dbflow5.annotation.ForeignKeyAction
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.asClassName
 
 /**
  * Description:
@@ -9,6 +11,7 @@ data class ForeignKeyProperties(
     val onDelete: ForeignKeyAction,
     val onUpdate: ForeignKeyAction,
     val referencesType: ReferencesType,
+    val referencedTableTypeName: TypeName,
 ) {
 
     sealed interface ReferencesType {
@@ -18,3 +21,9 @@ data class ForeignKeyProperties(
         ) : ReferencesType
     }
 }
+
+/**
+ * If true, use the field type.
+ */
+fun ForeignKeyProperties.isInferredTable() =
+    referencedTableTypeName != Any::class.asClassName()

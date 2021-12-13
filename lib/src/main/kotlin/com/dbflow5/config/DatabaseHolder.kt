@@ -62,6 +62,10 @@ abstract class DatabaseHolder : MutableHolder {
         put(databaseDefinition, table.kotlin)
     }
 
+    fun putTypeConverter(type: Class<*>, typeConverter: TypeConverter<*, *>) {
+        typeConverters[type.kotlin] = typeConverter
+    }
+
     fun reset() {
         databaseDefinitionMap.clear()
         databaseNameMap.clear()

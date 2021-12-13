@@ -7,7 +7,6 @@ import com.dbflow5.ksp.model.*
 import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import kotlin.reflect.KClass
 
 /**
  * Description:
@@ -20,11 +19,11 @@ class ClassWriter(
     override fun create(model: ClassModel): FileSpec {
         val tableParam = ParameterPropertySpec(
             name = "table",
-            type = KClass::class.asClassName()
+            type = Class::class.asClassName()
                 .parameterizedBy(model.classType),
         ) {
             addModifiers(KModifier.OVERRIDE)
-            defaultValue("%T::class", model.classType)
+            defaultValue("%T::class.java", model.classType)
         }
         val tableNameParam = ParameterPropertySpec(
             name = "name",
@@ -64,7 +63,7 @@ class ClassWriter(
                             .build()
                     )
                     .superclass(ClassNames.modelAdapter(model.classType))
-                    .addSuperclassConstructorParameter("dbflowDataBase")
+                    .addSuperclassConstructorParameter("dbFlowDataBase")
                     .apply {
                         addProperty(tableParam.propertySpec)
                         addProperty(tableNameParam.propertySpec)
@@ -81,6 +80,7 @@ class ClassWriter(
                         deleteStatement(model, primaryExtractors)
                         loadFromCursor(model)
                         getPrimaryConditionClause(model)
+                        getObjectType(model)
 
                         addType(TypeSpec.companionObjectBuilder()
                             .apply {
@@ -102,7 +102,11 @@ class ClassWriter(
             .apply {
                 addModifiers(KModifier.OVERRIDE)
                 addParameter(ParameterSpec("columnName", String::class.asClassName()))
-                returns(ClassNames.Property)
+                returns(
+                    ClassNames.Property.parameterizedBy(
+                        WildcardTypeName.producerOf(Any::class.asTypeName().copy(nullable = true))
+                    )
+                )
                 beginControlFlow(
                     "return when(%N.%M())",
                     "columnName",
@@ -166,7 +170,7 @@ class ClassWriter(
                     when (field) {
                         is ForeignKeyModel -> {
                             addCode(
-                                "\t%N = ((%M %M %T::class) %N\n",
+                                "\t%N = ((%M %L %T::class) %L\n",
                                 field.name.shortName,
                                 MemberNames.select,
                                 MemberNames.from,
@@ -178,10 +182,10 @@ class ClassWriter(
                             ).forEachIndexed { index, (plain, referenced) ->
                                 addCode("\t\t")
                                 if (index > 0) {
-                                    addCode("%M ", "and")
+                                    addCode("%L ", "and")
                                 }
                                 addCode(
-                                    "(%T.%L %M %N.%M(%N))\n",
+                                    "(%T.%L %L %N.%M(%N))\n",
                                     field.classType,
                                     plain.name.shortName,
                                     MemberNames.eq,
@@ -191,7 +195,7 @@ class ClassWriter(
                                 )
                             }
                             addCode(
-                                "\t).%M(%N)\n",
+                                "\t).%L(%N),\n",
                                 if (field.classType.isNullable)
                                     MemberNames.querySingle
                                 else MemberNames.requireSingle,
@@ -220,10 +224,10 @@ class ClassWriter(
             .apply {
                 addModifiers(KModifier.OVERRIDE)
                 addParameter(ParameterSpec("model", model.classType))
-                addCode("return %T.clause().apply {\n", ClassNames.OperatorGroup)
+                addCode("return %T.clause().apply{\n", ClassNames.OperatorGroup)
                 model.primaryFlattenedFields(referencesCache).forEach { field ->
                     addCode(
-                        "and(%L %M %N.%L)\n",
+                        "and(%L %L %N.%L)\n",
                         field.name.shortName,
                         MemberNames.eq,
                         "model",
@@ -243,8 +247,9 @@ class ClassWriter(
                 addParameter(ParameterSpec("model", model.classType))
                 model.flattenedFields(referencesCache).forEachIndexed { index, model ->
                     addStatement(
-                        "%L.bind(model, statement, %L)",
+                        "%L.bind(model.%L, statement, %L)",
                         model.fieldWrapperName,
+                        model.name.shortName,
                         index,
                     )
                 }
@@ -305,6 +310,7 @@ class ClassWriter(
             String::class.asClassName()
         )
             .apply {
+                addModifiers(KModifier.OVERRIDE)
                 getter(
                     FunSpec.getterBuilder()
                         .addCode("return %S", buildString {
@@ -326,6 +332,7 @@ class ClassWriter(
     ) = apply {
         addProperty(PropertySpec.builder("updateStatementQuery", String::class.asClassName())
             .apply {
+                addModifiers(KModifier.OVERRIDE)
                 getter(
                     FunSpec.getterBuilder()
                         .addCode("return %S", buildString {
@@ -346,6 +353,7 @@ class ClassWriter(
     ) = apply {
         addProperty(PropertySpec.builder("deleteStatementQuery", String::class.asClassName())
             .apply {
+                addModifiers(KModifier.OVERRIDE)
                 getter(
                     FunSpec.getterBuilder()
                         .addCode("return %S", buildString {
@@ -364,6 +372,7 @@ class ClassWriter(
     ) = apply {
         addProperty(PropertySpec.builder("creationQuery", String::class.asClassName())
             .apply {
+                addModifiers(KModifier.OVERRIDE)
                 getter(
                     FunSpec.getterBuilder()
                         .addCode("return %S", buildString {
@@ -375,5 +384,25 @@ class ClassWriter(
                 )
             }
             .build())
+    }
+
+    private fun TypeSpec.Builder.getObjectType(model: ClassModel) = apply {
+        if (model.type !== ClassModel.ClassType.Query) {
+            addProperty(
+                PropertySpec.builder("type", ClassNames.ObjectType)
+                    .addModifiers(KModifier.OVERRIDE)
+                    .getter(
+                        FunSpec.getterBuilder()
+                            .addCode(
+                                "return %T.%L", ClassNames.ObjectType,
+                                if (model.type == ClassModel.ClassType.Normal) {
+                                    "Table"
+                                } else "View"
+                            )
+                            .build()
+                    )
+                    .build()
+            )
+        }
     }
 }

@@ -3,15 +3,10 @@ package com.dbflow5.ksp.parser
 import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKeyAction
-import com.dbflow5.ksp.model.properties.DatabaseProperties
-import com.dbflow5.ksp.model.properties.FieldProperties
-import com.dbflow5.ksp.model.properties.ForeignKeyProperties
-import com.dbflow5.ksp.model.properties.QueryProperties
-import com.dbflow5.ksp.model.properties.ReferenceProperties
-import com.dbflow5.ksp.model.properties.TableProperties
-import com.dbflow5.ksp.model.properties.ViewProperties
+import com.dbflow5.ksp.model.properties.*
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
+import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
 class DatabasePropertyParser : Parser<KSAnnotation, DatabaseProperties> {
@@ -23,6 +18,8 @@ class DatabasePropertyParser : Parser<KSAnnotation, DatabaseProperties> {
             foreignKeyConstraintsEnforced = args.arg("foreignKeyConstraintsEnforced"),
             updateConflict = args.enumArg("updateConflict", ConflictAction::valueOf),
             insertConflict = args.enumArg("insertConflict", ConflictAction::valueOf),
+            areConsistencyChecksEnabled = args.arg("consistencyCheckEnabled"),
+            backupEnabled = args.arg("backupEnabled"),
         )
     }
 }
@@ -67,7 +64,6 @@ class QueryPropertyParser : Parser<KSAnnotation, QueryProperties> {
             allFields = args.arg("allFields"),
             orderedCursorLookup = args.arg("orderedCursorLookUp"),
             assignDefaultValuesFromCursor = args.arg("assignDefaultValuesFromCursor"),
-            createWithDatabase = args.arg("createWithDatabase"),
         )
     }
 }
@@ -100,7 +96,8 @@ constructor(
                     references,
                 )
                 else -> ForeignKeyProperties.ReferencesType.All
-            }
+            },
+            referencedTableTypeName = args.arg<KSType>("tableClass").toClassName(),
         )
     }
 }
@@ -110,10 +107,10 @@ class ForeignKeyReferencePropertyParser : Parser<KSAnnotation, ReferenceProperti
         val args = input.arguments.mapProperties()
         val notNullArgs = args.arg<KSAnnotation>("notNull").arguments.mapProperties()
         return ReferenceProperties(
-            name = args.arg("name"),
-            referencedName = args.arg("referencedName"),
+            name = args.arg("columnName"),
+            referencedName = args.arg("foreignKeyColumnName"),
             defaultValue = args.arg("defaultValue"),
-            onNullConflict = notNullArgs.arg("onNullConflict"),
+            onNullConflict = notNullArgs.enumArg("onNullConflict", ConflictAction::valueOf),
         )
     }
 }

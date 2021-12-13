@@ -44,6 +44,6 @@ data class QueryProperties(
     override val allFields: Boolean,
     override val orderedCursorLookup: Boolean,
     override val assignDefaultValuesFromCursor: Boolean,
-    override val createWithDatabase: Boolean,
+    override val createWithDatabase: Boolean = false,
 ) : ClassProperties, CreatableScopeProperties
 

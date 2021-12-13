@@ -20,16 +20,18 @@ class ReferencesCache {
     private val referenceMap = mutableMapOf<ReferenceType, List<SingleFieldModel>>()
 
     operator fun get(classType: TypeName): List<SingleFieldModel> {
-        return referenceMap.getOrPut(ReferenceType.AllFromClass(classType)) {
-            allTables.first { it.classType == classType }.fields.map {
-                when (it) {
-                    is ForeignKeyModel -> it.references(
-                        this,
-                        namePrefix = it.dbName
-                    )
-                    is SingleFieldModel -> listOf(it)
-                }
-            }.flatten()
+        val nonNullVersion = classType.copy(false)
+        return referenceMap.getOrPut(ReferenceType.AllFromClass(nonNullVersion)) {
+            allTables.firstOrNull { it.classType == nonNullVersion }
+                ?.fields?.map {
+                    when (it) {
+                        is ForeignKeyModel -> it.references(
+                            this,
+                            namePrefix = it.dbName
+                        )
+                        is SingleFieldModel -> listOf(it)
+                    }
+                }?.flatten() ?: listOf()
         }
     }
 

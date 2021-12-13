@@ -1,14 +1,12 @@
 package com.dbflow5.ksp.parser
 
-import com.dbflow5.annotation.Database
-import com.dbflow5.annotation.ModelView
-import com.dbflow5.annotation.QueryModel
-import com.dbflow5.annotation.Table
+import com.dbflow5.annotation.*
 import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.DatabaseModel
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.ObjectModel
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.typeNameOf
@@ -25,9 +23,17 @@ class KSClassDeclarationParser(
 ) : Parser<KSClassDeclaration, ObjectModel> {
 
     override fun parse(input: KSClassDeclaration): ObjectModel {
-        val fields = input.getAllProperties().map { propertyParser.parse(it) }.toList()
+        val fields = input.getAllProperties()
+            .filterNot { prop ->
+                prop.annotations.any {
+                    it.annotationType.toTypeName() == typeNameOf<ColumnIgnore>()
+                }
+            }
+            .map { propertyParser.parse(it) }
+            .toList()
         val classType = input.asStarProjectedType().toClassName()
         val name = input.qualifiedName!!
+        val packageName = input.packageName
 
         // inspect annotations for what object it is.
         // only allow one of these kinds
@@ -35,14 +41,14 @@ class KSClassDeclarationParser(
             val annotationType = annotation.annotationType.toTypeName()
             if (annotationType == typeNameOf<Database>()) {
                 return DatabaseModel(
-                    name = NameModel(name),
+                    name = NameModel(name, packageName),
                     classType = classType,
                     properties = databasePropertyParser.parse(annotation)
                 )
             }
             if (annotationType == typeNameOf<Table>()) {
                 return ClassModel(
-                    name = NameModel(name),
+                    name = NameModel(name, packageName),
                     classType = classType,
                     type = ClassModel.ClassType.Normal,
                     properties = tablePropertyParser.parse(annotation),
@@ -51,7 +57,7 @@ class KSClassDeclarationParser(
             }
             if (annotationType == typeNameOf<ModelView>()) {
                 return ClassModel(
-                    name = NameModel(name),
+                    name = NameModel(name, packageName),
                     classType = classType,
                     type = ClassModel.ClassType.View,
                     properties = viewPropertyParser.parse(annotation),
@@ -60,7 +66,7 @@ class KSClassDeclarationParser(
             }
             if (annotationType == typeNameOf<QueryModel>()) {
                 return ClassModel(
-                    name = NameModel(name),
+                    name = NameModel(name, packageName),
                     classType = classType,
                     type = ClassModel.ClassType.Query,
                     properties = queryPropertyParser.parse(annotation),

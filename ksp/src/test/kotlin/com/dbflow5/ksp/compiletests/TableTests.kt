@@ -1,5 +1,6 @@
-package com.dbflow5.ksp
+package com.dbflow5.ksp.compiletests
 
+import com.dbflow5.ksp.compilation
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import org.junit.Rule

@@ -376,12 +376,12 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * @return True if the [Database.consistencyCheckEnabled] annotation is true.
      */
-    abstract fun areConsistencyChecksEnabled(): Boolean
+    abstract val areConsistencyChecksEnabled: Boolean
 
     /**
      * @return True if the [Database.backupEnabled] annotation is true.
      */
-    abstract fun backupEnabled(): Boolean
+    abstract val backupEnabled: Boolean
 
     /**
      * Performs a full deletion of this database. Reopens the [AndroidSQLiteOpenHelper] as well.

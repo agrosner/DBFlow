@@ -46,7 +46,7 @@ abstract class SQLCipherOpenHelper(
 
     init {
         SQLiteDatabase.loadLibs(context)
-        delegate = DatabaseHelperDelegate(context, listener, databaseDefinition, if (databaseDefinition.backupEnabled()) {
+        delegate = DatabaseHelperDelegate(context, listener, databaseDefinition, if (databaseDefinition.backupEnabled) {
             // Temp database mirrors existing
             BackupHelper(context,
                 DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),

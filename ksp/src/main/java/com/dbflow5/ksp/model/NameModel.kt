@@ -10,14 +10,17 @@ data class NameModel(
     val packageName: String,
     val shortName: String
 ) {
-    constructor(ksName: KSName) : this(
-        ksName.getQualifier(),
-        ksName.getShortName()
+    constructor(
+        ksName: KSName,
+        packageName: KSName
+    ) : this(
+        packageName = packageName.asString(),
+        shortName = ksName.getShortName(),
     )
 
     constructor(className: ClassName) : this(
-        className.packageName,
-        className.simpleName,
+        packageName = className.packageName,
+        shortName = className.simpleName,
     )
 
     val className = ClassName(packageName, shortName)

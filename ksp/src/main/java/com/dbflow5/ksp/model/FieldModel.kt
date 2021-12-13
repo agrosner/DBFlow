@@ -2,6 +2,7 @@ package com.dbflow5.ksp.model
 
 import com.dbflow5.ksp.model.properties.FieldProperties
 import com.dbflow5.ksp.model.properties.ForeignKeyProperties
+import com.dbflow5.ksp.model.properties.isInferredTable
 import com.dbflow5.ksp.model.properties.nameWithFallback
 import com.dbflow5.stripQuotes
 import com.squareup.kotlinpoet.TypeName
@@ -56,20 +57,29 @@ data class ForeignKeyModel(
     fun references(
         referencesCache: ReferencesCache,
         namePrefix: String
-    ): List<SingleFieldModel> = when (foreignKeyProperties.referencesType) {
-        is ForeignKeyProperties.ReferencesType.All -> referencesCache[classType]
-        is ForeignKeyProperties.ReferencesType.Specific -> referencesCache.references(
-            foreignKeyProperties.referencesType.references,
+    ): List<SingleFieldModel> {
+        val tableTypeName = if (foreignKeyProperties.isInferredTable()) {
+            foreignKeyProperties.referencedTableTypeName
+        } else {
             classType
-        )
-    }.map { reference ->
-        if (namePrefix.isNotBlank()) {
-            reference.copy(
-                name = reference.name.copy(
-                    shortName = "${namePrefix.stripQuotes()}_${reference.name.shortName}"
+        }
+        return when (foreignKeyProperties.referencesType) {
+            is ForeignKeyProperties.ReferencesType.All -> referencesCache[tableTypeName]
+            is ForeignKeyProperties.ReferencesType.Specific -> {
+                referencesCache.references(
+                    foreignKeyProperties.referencesType.references,
+                    tableTypeName,
                 )
-            )
-        } else reference
+            }
+        }.map { reference ->
+            if (namePrefix.isNotBlank()) {
+                reference.copy(
+                    name = reference.name.copy(
+                        shortName = "${namePrefix.stripQuotes()}_${reference.name.shortName}"
+                    )
+                )
+            } else reference
+        }
     }
 }
 

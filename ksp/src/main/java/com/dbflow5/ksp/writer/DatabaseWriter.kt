@@ -4,13 +4,8 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.DatabaseModel
 import com.dbflow5.ksp.model.generatedClassName
-import com.squareup.kotlinpoet.CodeBlock
-import com.squareup.kotlinpoet.FileSpec
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asClassName
 import kotlin.reflect.KClass
 
 /**
@@ -28,7 +23,7 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
             defaultValue("%T::class", model.classType)
         }
         val version = ParameterPropertySpec(
-            name = "version",
+            name = "databaseVersion",
             type = Int::class.asClassName()
         ) {
             addModifiers(KModifier.OVERRIDE)
@@ -42,6 +37,22 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
             defaultValue("%L", model.properties.foreignKeyConstraintsEnforced)
         }
 
+        val areConsistencyChecksEnabled = ParameterPropertySpec(
+            name = "areConsistencyChecksEnabled",
+            type = Boolean::class.asClassName(),
+        ) {
+            addModifiers(KModifier.OVERRIDE)
+            defaultValue("%L", model.properties.areConsistencyChecksEnabled)
+        }
+
+        val backupEnabled = ParameterPropertySpec(
+            name = "backupEnabled",
+            type = Boolean::class.asClassName(),
+        ) {
+            addModifiers(KModifier.OVERRIDE)
+            defaultValue("%L", model.properties.backupEnabled)
+        }
+
         return FileSpec.builder(model.name.packageName, model.name.shortName)
             .apply {
                 addType(
@@ -52,6 +63,8 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
                                 .addParameter(associatedClassName.parameterSpec)
                                 .addParameter(version.parameterSpec)
                                 .addParameter(foreignKeys.parameterSpec)
+                                .addParameter(areConsistencyChecksEnabled.parameterSpec)
+                                .addParameter(backupEnabled.parameterSpec)
                                 .build()
                         )
                         .apply {
@@ -59,6 +72,8 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
                             addProperty(associatedClassName.propertySpec)
                             addProperty(version.propertySpec)
                             addProperty(foreignKeys.propertySpec)
+                            addProperty(areConsistencyChecksEnabled.propertySpec)
+                            addProperty(backupEnabled.propertySpec)
                             addInitializerBlock(
                                 CodeBlock.builder()
                                     .apply {

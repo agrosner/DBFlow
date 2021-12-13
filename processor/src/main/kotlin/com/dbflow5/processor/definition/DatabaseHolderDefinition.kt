@@ -40,14 +40,12 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
             modifiers(public)
 
             processorManager.getTypeConverters().forEach { tc ->
-                statement("\$L.put(\$T.class, new \$T())",
-                    DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME,
+                statement("putTypeConverter(\$T.class, new \$T())",
                     tc.modelTypeName?.rawTypeName(),
                     tc.className)
 
                 tc.allowedSubTypes.forEach { subType ->
-                    statement("\$L.put(\$T.class, new \$T())",
-                        DatabaseHandler.TYPE_CONVERTER_MAP_FIELD_NAME,
+                    statement("putTypeConverter(\$T.class, new \$T())",
                         subType.rawTypeName(), tc.className)
                 }
             }

@@ -23,7 +23,7 @@ class DatabaseHelperDelegate(
 
     /**
      * @return the temporary database file name for when we have backups enabled
-     * [DBFlowDatabase.backupEnabled]
+     * [DBFlowDatabase.getBackupEnabled]
      */
     private val tempDbFileName: String
         get() = getTempDbFileName(databaseDefinition)
@@ -45,7 +45,7 @@ class DatabaseHelperDelegate(
         movePrepackagedDB(databaseDefinition.databaseFileName,
             databaseDefinition.databaseFileName)
 
-        if (databaseDefinition.backupEnabled()) {
+        if (databaseDefinition.backupEnabled) {
             if (backupHelper == null) {
                 throw IllegalStateException("the passed backup helper was null, even though backup" +
                     " is enabled. Ensure that its passed in.")
@@ -102,8 +102,8 @@ class DatabaseHelperDelegate(
 
         // If the database already exists, and is ok return
         if (dbPath.exists()
-            && (!databaseDefinition.areConsistencyChecksEnabled()
-                || (databaseDefinition.areConsistencyChecksEnabled() && isDatabaseIntegrityOk(database)))) {
+            && (!databaseDefinition.areConsistencyChecksEnabled
+                || (databaseDefinition.areConsistencyChecksEnabled && isDatabaseIntegrityOk(database)))) {
             return
         }
 
@@ -116,8 +116,8 @@ class DatabaseHelperDelegate(
             val existingDb = context.getDatabasePath(tempDbFileName)
             // if it exists and the integrity is ok we use backup as the main DB is no longer valid
             val inputStream = if (existingDb.exists()
-                && (!databaseDefinition.backupEnabled() ||
-                    (databaseDefinition.backupEnabled()
+                && (!databaseDefinition.backupEnabled ||
+                    (databaseDefinition.backupEnabled
                         && backupHelper != null
                         && isDatabaseIntegrityOk(backupHelper.database)))) {
                 FileInputStream(existingDb)
@@ -133,7 +133,7 @@ class DatabaseHelperDelegate(
 
 
     /**
-     * Will use the already existing app database if [DBFlowDatabase.backupEnabled] is true. If the existing
+     * Will use the already existing app database if [DBFlowDatabase.getBackupEnabled] is true. If the existing
      * is not there we will try to use the prepackaged database for that purpose.
      *
      * @param databaseName    The name of the database to restore
@@ -156,7 +156,7 @@ class DatabaseHelperDelegate(
             val existingDb = context.getDatabasePath(databaseDefinition.databaseFileName)
             // if it exists and the integrity is ok
             val inputStream = if (existingDb.exists()
-                && (databaseDefinition.backupEnabled() && backupHelper != null
+                && (databaseDefinition.backupEnabled && backupHelper != null
                     && isDatabaseIntegrityOk(backupHelper.database))) {
                 FileInputStream(existingDb)
             } else {
@@ -184,7 +184,7 @@ class DatabaseHelperDelegate(
                 // integrity_checker failed on main or attached databases
                 FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on ${databaseDefinition.databaseName} returned: $result")
                 integrityOk = false
-                if (databaseDefinition.backupEnabled()) {
+                if (databaseDefinition.backupEnabled) {
                     integrityOk = restoreBackUp()
                 }
             }
@@ -243,7 +243,7 @@ class DatabaseHelperDelegate(
      * This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      */
     override fun backupDB() {
-        if (!databaseDefinition.backupEnabled() || !databaseDefinition.areConsistencyChecksEnabled()) {
+        if (!databaseDefinition.backupEnabled || !databaseDefinition.areConsistencyChecksEnabled) {
             throw IllegalStateException("Backups are not enabled for : " +
                 "${databaseDefinition.databaseName}. Please consider adding both backupEnabled " +
                 "and consistency checks enabled to the Database annotation")

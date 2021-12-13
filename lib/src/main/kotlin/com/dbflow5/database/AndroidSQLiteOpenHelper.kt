@@ -14,7 +14,7 @@ open class AndroidSQLiteOpenHelper(
     dbFlowDatabase: DBFlowDatabase,
     listener: DatabaseCallback?,
     private val databaseHelperDelegate: DatabaseHelperDelegate = DatabaseHelperDelegate(context, listener, dbFlowDatabase,
-        if (dbFlowDatabase.backupEnabled()) {
+        if (dbFlowDatabase.backupEnabled) {
             // Temp database mirrors existing
             BackupHelper(context,
                 DatabaseHelperDelegate.getTempDbFileName(dbFlowDatabase),
