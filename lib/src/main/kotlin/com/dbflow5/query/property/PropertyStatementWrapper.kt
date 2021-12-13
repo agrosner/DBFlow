@@ -7,8 +7,10 @@ import com.dbflow5.database.DatabaseStatement
  */
 data class NullablePropertyStatementWrapper<T : Any?>(
     val statementBinder: (model: T, statement: DatabaseStatement, index: Int) -> Unit,
-    val nullBinder: (statement: DatabaseStatement, index: Int) -> Unit = { _, _ -> },
 ) {
+    val nullBinder: (statement: DatabaseStatement, index: Int) -> Unit =
+        { statement, index -> statement.bindNull(index) }
+
     fun bind(model: T, statement: DatabaseStatement, startIndex: Int) {
         if (model != null) {
             statementBinder(model, statement, startIndex)

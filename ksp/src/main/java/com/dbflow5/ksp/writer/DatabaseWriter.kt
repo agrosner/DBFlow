@@ -16,11 +16,11 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
     override fun create(model: DatabaseModel): FileSpec {
         val associatedClassName = ParameterPropertySpec(
             name = "associatedDatabaseClassFile",
-            type = KClass::class.asClassName()
+            type = Class::class.asClassName()
                 .parameterizedBy(model.classType),
         ) {
             addModifiers(KModifier.OVERRIDE)
-            defaultValue("%T::class", model.classType)
+            defaultValue("%T::class.java", model.classType)
         }
         val version = ParameterPropertySpec(
             name = "databaseVersion",

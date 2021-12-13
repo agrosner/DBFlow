@@ -6,6 +6,7 @@ import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.*
 import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.FunSpec.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 /**
@@ -50,6 +51,11 @@ class ClassWriter(
                 is SingleFieldModel -> FieldExtractor.SingleFieldExtractor(it)
             }
         }
+        val superClass = when (model.type) {
+            ClassModel.ClassType.Normal -> ClassNames.modelAdapter(model.classType)
+            ClassModel.ClassType.View -> ClassNames.modelViewAdapter(model.classType)
+            ClassModel.ClassType.Query -> ClassNames.retrievalAdapter(model.classType)
+        }
         return FileSpec.builder(model.name.packageName, model.name.shortName)
             .addType(
                 TypeSpec.classBuilder(model.generatedClassName.className)
@@ -62,7 +68,7 @@ class ClassWriter(
                             .addParameter(tableNameParam.parameterSpec)
                             .build()
                     )
-                    .superclass(ClassNames.modelAdapter(model.classType))
+                    .superclass(superClass)
                     .addSuperclassConstructorParameter("dbFlowDataBase")
                     .apply {
                         addProperty(tableParam.propertySpec)
@@ -70,14 +76,19 @@ class ClassWriter(
 
                         getPropertyMethod(model)
                         allColumnProperties(model)
-                        bindInsert(model)
-                        bindUpdate(model)
-                        bindDelete(model)
-                        insertStatementQuery(model, extractors, isSave = false)
-                        insertStatementQuery(model, extractors, isSave = true)
-                        creationQuery(model, extractors)
-                        updateStatement(model, extractors, primaryExtractors)
-                        deleteStatement(model, primaryExtractors)
+                        if (model.type == ClassModel.ClassType.Normal) {
+                            bindInsert(model)
+                            bindUpdate(model)
+                            bindDelete(model)
+                            insertStatementQuery(model, extractors, isSave = false)
+                            insertStatementQuery(model, extractors, isSave = true)
+                            updateStatement(model, extractors, primaryExtractors)
+                            deleteStatement(model, primaryExtractors)
+                        }
+                        if (model.type != ClassModel.ClassType.View) {
+                            creationQuery(model, extractors)
+                        }
+
                         loadFromCursor(model)
                         getPrimaryConditionClause(model)
                         getObjectType(model)
@@ -104,7 +115,9 @@ class ClassWriter(
                 addParameter(ParameterSpec("columnName", String::class.asClassName()))
                 returns(
                     ClassNames.Property.parameterizedBy(
-                        WildcardTypeName.producerOf(Any::class.asTypeName().copy(nullable = true))
+                        WildcardTypeName.producerOf(
+                            Any::class.asTypeName().copy(nullable = true)
+                        )
                     )
                 )
                 beginControlFlow(
@@ -115,10 +128,11 @@ class ClassWriter(
                 model.flattenedFields(referencesCache).forEach { field ->
                     addCode(
                         """
-                        %S -> %L
+                        %S -> %L.%L
                         
                     """.trimIndent(),
                         field.name.shortName.quoteIfNeeded(),
+                        "Companion",
                         field.name.shortName
                     )
                 }
@@ -146,7 +160,11 @@ class ClassWriter(
                     .addCode("return arrayOf(\n")
                     .apply {
                         model.flattenedFields(referencesCache).forEach { field ->
-                            addCode("%L,\n", field.name.shortName)
+                            addCode(
+                                "%L.%L,\n",
+                                "Companion",
+                                field.name.shortName
+                            )
                         }
                     }
                     .addCode(")")
@@ -174,7 +192,7 @@ class ClassWriter(
                                 field.name.shortName,
                                 MemberNames.select,
                                 MemberNames.from,
-                                field.classType,
+                                field.nonNullClassType,
                                 MemberNames.where,
                             )
                             field.references(referencesCache, "").zip(
@@ -184,13 +202,18 @@ class ClassWriter(
                                 if (index > 0) {
                                     addCode("%L ", "and")
                                 }
+                                val className = field.nonNullClassType as ClassName
                                 addCode(
-                                    "(%T.%L %L %N.%M(%N))\n",
-                                    field.classType,
+                                    "(%T.%L %L %L.%N.%M(%N))\n",
+                                    ClassName(
+                                        className.packageName,
+                                        className.simpleName + "_Adapter",
+                                    ),
                                     plain.name.shortName,
                                     MemberNames.eq,
+                                    "Companion",
                                     referenced.name.shortName,
-                                    MemberNames.propertyGet,
+                                    MemberNames.infer,
                                     "cursor"
                                 )
                             }
@@ -204,10 +227,11 @@ class ClassWriter(
                         }
                         is SingleFieldModel -> {
                             addCode(
-                                "\t%N = %N.%M(%N),\n",
+                                "\t%N = %L.%N.%M(%N),\n",
                                 field.name.shortName,
+                                "Companion",
                                 field.name.shortName,
-                                MemberNames.propertyGet,
+                                MemberNames.infer,
                                 "cursor"
                             )
                         }
@@ -227,7 +251,8 @@ class ClassWriter(
                 addCode("return %T.clause().apply{\n", ClassNames.OperatorGroup)
                 model.primaryFlattenedFields(referencesCache).forEach { field ->
                     addCode(
-                        "and(%L %L %N.%L)\n",
+                        "and(%L.%L %L %N.%L)\n",
+                        "Companion",
                         field.name.shortName,
                         MemberNames.eq,
                         "model",
@@ -239,19 +264,54 @@ class ClassWriter(
             .build())
     }
 
+
+    private fun Builder.loopModels(
+        model: FieldModel,
+        index: Int,
+        modelName: String = "model",
+    ): Builder = with(this) {
+        when (model) {
+            is ForeignKeyModel -> {
+                // foreign key has nesting logic
+                this.beginControlFlow(
+                    "%L.%L%L.let { m -> ",
+                    modelName,
+                    model.originatingName.shortName,
+                    if (model.classType.isNullable) "?" else ""
+                )
+
+                model.references(this@ClassWriter.referencesCache, namePrefix = model.dbName)
+                    .forEachIndexed { i, reference ->
+                        loopModels(
+                            model = reference, index = index + i,
+                            modelName = "m"
+                        )
+                    }
+                this.nextControlFlow("?: run")
+                this.addStatement("statement.bindNull(%L)", index)
+                this.endControlFlow()
+            }
+            is SingleFieldModel -> {
+                // simple field has access
+                this.addStatement(
+                    "%L.bind(%L.%L, statement, %L)",
+                    model.fieldWrapperName,
+                    modelName,
+                    model.originatingName.shortName,
+                    index,
+                )
+            }
+        }
+    }
+
     private fun TypeSpec.Builder.bindInsert(model: ClassModel) = apply {
         addFunction(FunSpec.builder("bindToInsertStatement")
             .apply {
                 addModifiers(KModifier.OVERRIDE)
                 addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
                 addParameter(ParameterSpec("model", model.classType))
-                model.flattenedFields(referencesCache).forEachIndexed { index, model ->
-                    addStatement(
-                        "%L.bind(model.%L, statement, %L)",
-                        model.fieldWrapperName,
-                        model.name.shortName,
-                        index,
-                    )
+                model.fields.forEachIndexed { index, model ->
+                    this.loopModels(model, index)
                 }
             }
             .build())
@@ -265,14 +325,10 @@ class ClassWriter(
                 addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
                 addParameter(ParameterSpec("model", model.classType))
                 listOf(
-                    model.flattenedFields(referencesCache),
-                    model.primaryFlattenedFields(referencesCache),
+                    model.fields,
+                    model.primaryFields,
                 ).flatten().forEachIndexed { index, model ->
-                    addStatement(
-                        "%L.bind(model, statement, %L)",
-                        model.fieldWrapperName,
-                        index,
-                    )
+                    this.loopModels(model, index)
                 }
 
             }
@@ -285,12 +341,8 @@ class ClassWriter(
                 addModifiers(KModifier.OVERRIDE)
                 addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
                 addParameter(ParameterSpec("model", model.classType))
-                model.primaryFlattenedFields(referencesCache).forEachIndexed { index, model ->
-                    addStatement(
-                        "%L.bind(model, statement, %L)",
-                        model.fieldWrapperName,
-                        index,
-                    )
+                model.primaryFields.forEachIndexed { index, model ->
+                    this.loopModels(model, index)
                 }
             }
             .build())

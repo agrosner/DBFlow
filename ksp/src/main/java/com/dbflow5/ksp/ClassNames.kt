@@ -22,9 +22,16 @@ object ClassNames {
     fun modelAdapter(typeName: TypeName) =
         ClassName(PackageNames.Adapter, "ModelAdapter").parameterizedBy(typeName)
 
+    fun retrievalAdapter(typeName: TypeName) =
+        ClassName(PackageNames.Adapter, "RetrievalAdapter").parameterizedBy(typeName)
+
+    fun modelViewAdapter(typeName: TypeName) =
+        ClassName(PackageNames.Adapter, "ModelViewAdapter").parameterizedBy(typeName)
+
     val DBFlowDatabase = ClassName(PackageNames.Config, "DBFlowDatabase")
     val MutableHolder = ClassName(PackageNames.Config, "MutableHolder")
     val GeneratedDatabaseHolder = ClassName(PackageNames.Config, "GeneratedDatabaseHolder")
+    val DatabaseHolder = ClassName(PackageNames.Config, "DatabaseHolder")
 
     val FlowCursor = ClassName(PackageNames.Database, "FlowCursor")
     val DatabaseWrapper = ClassName(PackageNames.Database, "DatabaseWrapper")
@@ -46,7 +53,7 @@ object MemberNames {
 
     val property = MemberName(PackageNames.Property, "property")
     val quoteIfNeeded = MemberName(PackageNames.Core, "quoteIfNeeded")
-    val propertyGet = MemberName(PackageNames.Property, "get")
+    val infer = MemberName(PackageNames.Property, "infer")
 
     val bind = MemberName(PackageNames.Database, "bind")
 

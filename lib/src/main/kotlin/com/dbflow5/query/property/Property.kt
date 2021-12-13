@@ -1,14 +1,10 @@
 package com.dbflow5.query.property
 
 import com.dbflow5.config.FlowManager
+import com.dbflow5.converter.TypeConverter
 import com.dbflow5.data.Blob
 import com.dbflow5.database.FlowCursor
-import com.dbflow5.query.BaseModelQueriable
-import com.dbflow5.query.IConditional
-import com.dbflow5.query.IOperator
-import com.dbflow5.query.NameAlias
-import com.dbflow5.query.Operator
-import com.dbflow5.query.OrderBy
+import com.dbflow5.query.*
 
 /**
  * Description: The main, immutable property class that gets generated from a table definition.
@@ -315,59 +311,63 @@ open class Property<T>(
 inline fun <reified T> property(columnName: String) = Property<T>(T::class.java, columnName)
 
 @JvmName("getNullable")
-operator fun Property<String?>.get(cursor: FlowCursor): String? =
+fun Property<String?>.infer(cursor: FlowCursor): String? =
     cursor.getStringOrDefault(nameAlias.name())
 
-operator fun Property<String>.get(cursor: FlowCursor): String =
+fun Property<String>.infer(cursor: FlowCursor): String =
     cursor.getStringOrDefault(nameAlias.name(), "")
 
 @JvmName("getNullable")
-operator fun Property<Boolean?>.get(cursor: FlowCursor): Boolean =
+fun Property<Boolean?>.infer(cursor: FlowCursor): Boolean =
     cursor.getBooleanOrDefault(nameAlias.name())
 
-operator fun Property<Boolean>.get(cursor: FlowCursor): Boolean =
+fun Property<Boolean>.infer(cursor: FlowCursor): Boolean =
     cursor.getBooleanOrDefault(nameAlias.name())
 
 @JvmName("getNullable")
-operator fun Property<Int?>.get(cursor: FlowCursor): Int? =
+fun Property<Int?>.infer(cursor: FlowCursor): Int? =
     cursor.getIntOrDefault(nameAlias.name(), null)
 
-operator fun Property<Int>.get(cursor: FlowCursor): Int =
+fun Property<Int>.infer(cursor: FlowCursor): Int =
     cursor.getIntOrDefault(nameAlias.name())
 
 @JvmName("getNullable")
-operator fun Property<Double?>.get(cursor: FlowCursor): Double? =
+fun Property<Double?>.infer(cursor: FlowCursor): Double? =
     cursor.getDoubleOrDefault(nameAlias.name(), null)
 
-operator fun Property<Double>.get(cursor: FlowCursor): Double =
+fun Property<Double>.infer(cursor: FlowCursor): Double =
     cursor.getDoubleOrDefault(nameAlias.name())
 
 @JvmName("getNullable")
-operator fun Property<Float?>.get(cursor: FlowCursor): Float? =
+fun Property<Float?>.infer(cursor: FlowCursor): Float? =
     cursor.getFloatOrDefault(nameAlias.name(), null)
 
-operator fun Property<Float>.get(cursor: FlowCursor): Float =
+fun Property<Float>.infer(cursor: FlowCursor): Float =
     cursor.getFloatOrDefault(nameAlias.name())
 
 @JvmName("getNullable")
-operator fun Property<Long?>.get(cursor: FlowCursor): Long? =
+fun Property<Long?>.infer(cursor: FlowCursor): Long? =
     cursor.getLongOrDefault(nameAlias.name(), null)
 
-operator fun Property<Long>.get(cursor: FlowCursor): Long =
+fun Property<Long>.infer(cursor: FlowCursor): Long =
     cursor.getLongOrDefault(nameAlias.name())
 
 @JvmName("getNullable")
-operator fun Property<Short?>.get(cursor: FlowCursor): Short? =
+fun Property<Short?>.infer(cursor: FlowCursor): Short? =
     cursor.getShortOrDefault(nameAlias.name(), null)
 
-operator fun Property<Short>.get(cursor: FlowCursor): Short =
+fun Property<Short>.infer(cursor: FlowCursor): Short =
     cursor.getShortOrDefault(nameAlias.name())
 
 @JvmName("getNullable")
-operator fun Property<Blob?>.get(cursor: FlowCursor): Blob? =
+fun Property<Blob?>.infer(cursor: FlowCursor): Blob? =
     cursor.getBlobOrDefault(nameAlias.name())?.let { Blob(it) }
 
-operator fun Property<Blob>.get(cursor: FlowCursor): Blob =
+fun Property<Blob>.infer(cursor: FlowCursor): Blob =
     Blob(cursor.getBlobOrDefault(nameAlias.name(), byteArrayOf()))
 
-
+inline fun <Data, Model> TypeConvertedProperty<Data, Model>.infer(
+    cursor: FlowCursor, typeConverter: TypeConverter<Data, Model>,
+    getData: (cursor: FlowCursor) -> Data?
+): Model? =
+    typeConverter.getModelValue(getData(cursor))

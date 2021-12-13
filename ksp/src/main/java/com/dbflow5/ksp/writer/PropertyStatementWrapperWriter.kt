@@ -12,38 +12,24 @@ import com.squareup.kotlinpoet.PropertySpec
 class PropertyStatementWrapperWriter : TypeCreator<FieldModel, PropertySpec> {
 
     override fun create(model: FieldModel): PropertySpec {
+        val type = if (model.classType.isNullable) {
+            ClassNames.nullablePropertyStatementWrapper(model.classType)
+        } else {
+            ClassNames.propertyStatementWrapper(model.classType)
+        }
         return PropertySpec.builder(
             model.fieldWrapperName,
-            if (model.classType.isNullable) {
-                ClassNames.nullablePropertyStatementWrapper(model.classType)
-            } else {
-                ClassNames.propertyStatementWrapper(model.classType)
-            },
+            type,
             KModifier.PRIVATE,
         )
             .apply {
-                if (model.classType.isNullable) {
-                    initializer(
-                        """
-                        %T(
-                          { model, statement, index -> statement.%M(index, model.%L) },
-                          { statement, index -> statement.bindNull(index) }
-                        )
+                initializer(
+                    """
+                        %T { data, statement, index -> statement.%M(index, data) }
                     """.trimIndent(),
-                        ClassNames.nullablePropertyStatementWrapper(model.classType),
-                        MemberNames.bind,
-                        model.name.shortName,
-                    )
-                } else {
-                    initializer(
-                        """
-                        %T { model, statement, index -> statement.%M(index, model.%L) }
-                    """.trimIndent(),
-                        ClassNames.propertyStatementWrapper(model.classType),
-                        MemberNames.bind,
-                        model.name.shortName,
-                    )
-                }
+                    type,
+                    MemberNames.bind,
+                )
             }
             .build()
     }

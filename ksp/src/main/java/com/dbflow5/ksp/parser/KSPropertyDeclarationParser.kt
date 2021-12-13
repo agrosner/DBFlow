@@ -39,7 +39,7 @@ class KSPropertyDeclarationParser constructor(
         if (foreignKey != null) {
             return ForeignKeyModel(
                 name = NameModel(
-                    input.qualifiedName!!,
+                    input.simpleName,
                     input.packageName
                 ),
                 classType = input.type.toTypeName(),
@@ -50,7 +50,7 @@ class KSPropertyDeclarationParser constructor(
         }
         return SingleFieldModel(
             name = NameModel(
-                input.qualifiedName!!,
+                input.simpleName,
                 input.packageName
             ),
             classType = input.type.toTypeName(),

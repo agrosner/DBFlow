@@ -12,9 +12,17 @@ sealed interface FieldModel {
     val name: NameModel
 
     /**
+     * If this is a reference type, this field will represent original name of the
+     * field within a specific model.
+     */
+    val originatingName: NameModel
+
+    /**
      * The declared type of the field.
      */
     val classType: TypeName
+    val nonNullClassType: TypeName
+        get() = classType.copy(nullable = false)
     val fieldType: FieldType
     val properties: FieldProperties?
 
@@ -44,6 +52,7 @@ data class SingleFieldModel(
     override val classType: TypeName,
     override val fieldType: FieldModel.FieldType,
     override val properties: FieldProperties?,
+    override val originatingName: NameModel = name,
 ) : ObjectModel, FieldModel
 
 data class ForeignKeyModel(
@@ -52,6 +61,7 @@ data class ForeignKeyModel(
     override val fieldType: FieldModel.FieldType,
     override val properties: FieldProperties?,
     val foreignKeyProperties: ForeignKeyProperties,
+    override val originatingName: NameModel = name,
 ) : ObjectModel, FieldModel {
 
     fun references(
@@ -74,6 +84,7 @@ data class ForeignKeyModel(
         }.map { reference ->
             if (namePrefix.isNotBlank()) {
                 reference.copy(
+                    originatingName = reference.name,
                     name = reference.name.copy(
                         shortName = "${namePrefix.stripQuotes()}_${reference.name.shortName}"
                     )

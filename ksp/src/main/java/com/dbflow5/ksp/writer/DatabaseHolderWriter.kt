@@ -1,5 +1,6 @@
 package com.dbflow5.ksp.writer
 
+import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.DatabaseHolderModel
 import com.dbflow5.ksp.model.generatedClassName
 import com.dbflow5.ksp.model.properties.nameWithFallback
@@ -25,6 +26,7 @@ class DatabaseHolderWriter : TypeCreator<DatabaseHolderModel, FileSpec> {
                     model.name.shortName,
                 ).stripQuotes()
             )
+                .superclass(ClassNames.DatabaseHolder)
                 .addInitializerBlock(
                     CodeBlock.builder()
                         .apply {
