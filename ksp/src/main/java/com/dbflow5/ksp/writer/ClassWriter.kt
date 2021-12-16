@@ -4,6 +4,7 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.*
+import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.FunSpec.*

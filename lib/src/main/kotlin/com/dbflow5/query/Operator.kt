@@ -17,12 +17,20 @@ import com.dbflow5.sql.Query
  * and use the generated [Property] instead.
 </T> */
 class Operator<T : Any?>
-internal constructor(nameAlias: NameAlias?,
-                     private val table: Class<*>? = null,
-                     private val getter: TypeConvertedProperty.TypeConverterGetter? = null,
-                     private val convertToDB: Boolean) : BaseOperator(nameAlias), IOperator<T> {
+internal constructor(
+    nameAlias: NameAlias?,
+    private val table: Class<*>? = null,
+    private val getter: TypeConvertedProperty.TypeConverterGetter? = null,
+    private val convertToDB: Boolean
+) : BaseOperator(nameAlias), IOperator<T> {
 
-    private val typeConverter: TypeConverter<*, *>? by lazy { table?.let { table -> getter?.getTypeConverter(table) } }
+    private val typeConverter: TypeConverter<*, *>? by lazy {
+        table?.let { table ->
+            getter?.getTypeConverter(
+                table
+            )
+        }
+    }
 
     private var convertToString = true
 
@@ -41,7 +49,12 @@ internal constructor(nameAlias: NameAlias?,
         // Do not use value for certain operators
         // If is raw, we do not want to convert the value to a string.
         if (isValueSet) {
-            queryBuilder.append(if (convertToString) convertObjectToString(value(), true) else value())
+            queryBuilder.append(
+                if (convertToString) convertObjectToString(
+                    value(),
+                    true
+                ) else value()
+            )
         }
 
         postArgument()?.let { queryBuilder.append(" $it") }
@@ -250,7 +263,8 @@ internal constructor(nameAlias: NameAlias?,
     override fun lessThanOrEq(conditional: IConditional): Operator<T> =
         assignValueOp(conditional, Operation.LESS_THAN_OR_EQUALS)
 
-    override fun between(conditional: IConditional): Between<*> = Between(this as Operator<Any>, conditional)
+    override fun between(conditional: IConditional): Between<*> =
+        Between(this as Operator<Any>, conditional)
 
     override fun `in`(firstConditional: IConditional, vararg conditionals: IConditional): In<*> =
         In(this as Operator<Any>, firstConditional, true, *conditionals)
@@ -258,8 +272,10 @@ internal constructor(nameAlias: NameAlias?,
     override fun notIn(firstConditional: IConditional, vararg conditionals: IConditional): In<*> =
         In(this as Operator<Any>, firstConditional, false, *conditionals)
 
-    override fun notIn(firstBaseModelQueriable: BaseModelQueriable<*>,
-                       vararg baseModelQueriables: BaseModelQueriable<*>): In<*> =
+    override fun notIn(
+        firstBaseModelQueriable: BaseModelQueriable<*>,
+        vararg baseModelQueriables: BaseModelQueriable<*>
+    ): In<*> =
         In(this as Operator<Any>, firstBaseModelQueriable, false, *baseModelQueriables)
 
     override fun `is`(baseModelQueriable: BaseModelQueriable<*>): Operator<*> =
@@ -326,7 +342,10 @@ internal constructor(nameAlias: NameAlias?,
     override fun between(baseModelQueriable: BaseModelQueriable<*>): Between<*> =
         Between(this as Operator<Any>, baseModelQueriable)
 
-    override fun `in`(firstBaseModelQueriable: BaseModelQueriable<*>, vararg baseModelQueriables: BaseModelQueriable<*>): In<*> =
+    override fun `in`(
+        firstBaseModelQueriable: BaseModelQueriable<*>,
+        vararg baseModelQueriables: BaseModelQueriable<*>
+    ): In<*> =
         In(this as Operator<Any>, firstBaseModelQueriable, true, *baseModelQueriables)
 
     override fun concatenate(value: Any?): Operator<T> {
@@ -335,16 +354,18 @@ internal constructor(nameAlias: NameAlias?,
 
         var typeConverter: TypeConverter<*, Any>? = this.typeConverter as TypeConverter<*, Any>?
         if (typeConverter == null && _value != null) {
-            typeConverter = FlowManager.getTypeConverterForClass(_value.javaClass) as TypeConverter<*, Any>?
+            typeConverter =
+                FlowManager.getTypeConverterForClass(_value.javaClass) as TypeConverter<*, Any>?
         }
-        if (typeConverter != null && convertToDB) {
+        if (typeConverter != null && convertToDB && _value != null) {
             _value = typeConverter.getDBValue(_value)
         }
         operation = when (_value) {
             is String, is IOperator<*>, is Char -> "$operation ${Operation.CONCATENATE} "
             is Number -> "$operation ${Operation.PLUS} "
             else -> throw IllegalArgumentException(
-                "Cannot concatenate the ${if (_value != null) _value.javaClass else "null"}")
+                "Cannot concatenate the ${if (_value != null) _value.javaClass else "null"}"
+            )
         }
         this.value = _value
         isValueSet = true
@@ -378,12 +399,14 @@ internal constructor(nameAlias: NameAlias?,
         (typeConverter as? TypeConverter<*, Any>?)?.let { typeConverter ->
             var converted = obj
             try {
-                converted = if (convertToDB) typeConverter.getDBValue(obj) else obj
+                converted = if (convertToDB && obj != null) typeConverter.getDBValue(obj) else obj
             } catch (c: ClassCastException) {
                 // if object type is not valid converted type, just use type as is here.
                 // if object type is not valid converted type, just use type as is here.
-                FlowLog.log(FlowLog.Level.I, "Value passed to operation is not valid type" +
-                    " for TypeConverter in the column. Preserving value $obj to be used as is.")
+                FlowLog.log(
+                    FlowLog.Level.I, "Value passed to operation is not valid type" +
+                        " for TypeConverter in the column. Preserving value $obj to be used as is."
+                )
             }
 
             convertValueToString(converted, appendInnerParenthesis, false)
@@ -506,11 +529,14 @@ internal constructor(nameAlias: NameAlias?,
         /**
          * An empty value for the condition.
          */
-        @Deprecated(replaceWith = ReplaceWith(
-            expression = "Property.WILDCARD",
-            imports = ["com.dbflow5.query.Property"]
-        ), message = "Deprecated. This will translate to '?' in the query as it get's SQL-escaped. " +
-            "Use the Property.WILDCARD instead to get desired ? behavior.")
+        @Deprecated(
+            replaceWith = ReplaceWith(
+                expression = "Property.WILDCARD",
+                imports = ["com.dbflow5.query.Property"]
+            ),
+            message = "Deprecated. This will translate to '?' in the query as it get's SQL-escaped. " +
+                "Use the Property.WILDCARD instead to get desired ? behavior."
+        )
         const val EMPTY_PARAM = "?"
 
         /**
@@ -548,7 +574,8 @@ internal constructor(nameAlias: NameAlias?,
      * @param operator
      * @param value    The value of the first argument of the BETWEEN clause
      */
-    internal constructor(operator: Operator<T>, value: T) : BaseOperator(operator.nameAlias), Query {
+    internal constructor(operator: Operator<T>, value: T) : BaseOperator(operator.nameAlias),
+        Query {
 
         private var secondValue: T? = null
 
@@ -598,13 +625,20 @@ internal constructor(nameAlias: NameAlias?,
          * statement or a [Operator.Operation.NOT_IN]
          */
         @SafeVarargs
-        internal constructor(operator: Operator<T>, firstArgument: T?, isIn: Boolean, vararg arguments: T?) : super(operator.columnAlias()) {
+        internal constructor(
+            operator: Operator<T>,
+            firstArgument: T?,
+            isIn: Boolean,
+            vararg arguments: T?
+        ) : super(operator.columnAlias()) {
             inArguments.add(firstArgument)
             inArguments.addAll(arguments)
             operation = " ${if (isIn) Operation.IN else Operation.NOT_IN} "
         }
 
-        internal constructor(operator: Operator<T>, args: Collection<T>, isIn: Boolean) : super(operator.columnAlias()) {
+        internal constructor(operator: Operator<T>, args: Collection<T>, isIn: Boolean) : super(
+            operator.columnAlias()
+        ) {
             inArguments.addAll(args)
             operation = " ${if (isIn) Operation.IN else Operation.NOT_IN} "
         }
@@ -640,9 +674,11 @@ internal constructor(nameAlias: NameAlias?,
         fun <T> op(column: NameAlias): Operator<T> = Operator(column, convertToDB = false)
 
         @JvmStatic
-        fun <T> op(alias: NameAlias, table: Class<*>,
-                   getter: TypeConvertedProperty.TypeConverterGetter,
-                   convertToDB: Boolean): Operator<T> =
+        fun <T> op(
+            alias: NameAlias, table: Class<*>,
+            getter: TypeConvertedProperty.TypeConverterGetter,
+            convertToDB: Boolean
+        ): Operator<T> =
             Operator(alias, table, getter, convertToDB)
     }
 
@@ -652,13 +688,17 @@ fun <T : Any> NameAlias.op() = Operator.op<T>(this)
 
 fun <T : Any> String.op(): Operator<T> = nameAlias.op()
 
-infix fun <T : Any> Operator<T>.and(sqlOperator: SQLOperator): OperatorGroup = OperatorGroup.clause(this).and(sqlOperator)
+infix fun <T : Any> Operator<T>.and(sqlOperator: SQLOperator): OperatorGroup =
+    OperatorGroup.clause(this).and(sqlOperator)
 
-infix fun <T : Any> Operator<T>.or(sqlOperator: SQLOperator): OperatorGroup = OperatorGroup.clause(this).or(sqlOperator)
+infix fun <T : Any> Operator<T>.or(sqlOperator: SQLOperator): OperatorGroup =
+    OperatorGroup.clause(this).or(sqlOperator)
 
-infix fun <T : Any> Operator<T>.andAll(sqlOperator: Collection<SQLOperator>): OperatorGroup = OperatorGroup.clause(this).andAll(sqlOperator)
+infix fun <T : Any> Operator<T>.andAll(sqlOperator: Collection<SQLOperator>): OperatorGroup =
+    OperatorGroup.clause(this).andAll(sqlOperator)
 
-infix fun <T : Any> Operator<T>.orAll(sqlOperator: Collection<SQLOperator>): OperatorGroup = OperatorGroup.clause(this).orAll(sqlOperator)
+infix fun <T : Any> Operator<T>.orAll(sqlOperator: Collection<SQLOperator>): OperatorGroup =
+    OperatorGroup.clause(this).orAll(sqlOperator)
 
 infix fun <T : Any> Operator<T>.`in`(values: Array<T>): Operator.In<T> = when (values.size) {
     1 -> `in`(values[0])

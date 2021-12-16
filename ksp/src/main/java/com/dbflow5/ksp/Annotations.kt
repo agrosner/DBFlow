@@ -10,5 +10,6 @@ enum class Annotations(val qualifiedName: String) {
     Table(com.dbflow5.annotation.Table::class.qualifiedName!!),
     Query(QueryModel::class.qualifiedName!!),
     View(ModelView::class.qualifiedName!!),
-    Database(com.dbflow5.annotation.Database::class.qualifiedName!!)
+    Database(com.dbflow5.annotation.Database::class.qualifiedName!!),
+    TypeConverter(com.dbflow5.annotation.TypeConverter::class.qualifiedName!!),
 }

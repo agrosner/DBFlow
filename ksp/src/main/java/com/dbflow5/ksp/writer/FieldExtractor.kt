@@ -1,10 +1,8 @@
 package com.dbflow5.ksp.writer
 
-import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.ForeignKeyModel
-import com.dbflow5.ksp.model.ReferencesCache
+import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.SingleFieldModel
-import com.dbflow5.ksp.model.properties.nameWithFallback
 
 /**
  * Description:

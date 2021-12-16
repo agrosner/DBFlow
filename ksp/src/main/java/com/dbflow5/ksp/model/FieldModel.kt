@@ -1,5 +1,6 @@
 package com.dbflow5.ksp.model
 
+import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.properties.FieldProperties
 import com.dbflow5.ksp.model.properties.ForeignKeyProperties
 import com.dbflow5.ksp.model.properties.isInferredTable

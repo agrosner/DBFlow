@@ -1,12 +1,10 @@
 package com.dbflow5.ksp.parser
 
 import com.dbflow5.annotation.*
-import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.DatabaseModel
-import com.dbflow5.ksp.model.NameModel
-import com.dbflow5.ksp.model.ObjectModel
+import com.dbflow5.ksp.ClassNames
+import com.dbflow5.ksp.model.*
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.typeNameOf
@@ -20,6 +18,7 @@ class KSClassDeclarationParser(
     private val tablePropertyParser: TablePropertyParser,
     private val queryPropertyParser: QueryPropertyParser,
     private val viewPropertyParser: ViewPropertyParser,
+    private val typeConverterPropertyParser: TypeConverterPropertyParser,
 ) : Parser<KSClassDeclaration, ObjectModel> {
 
     override fun parse(input: KSClassDeclaration): ObjectModel {
@@ -71,6 +70,22 @@ class KSClassDeclarationParser(
                     type = ClassModel.ClassType.Query,
                     properties = queryPropertyParser.parse(annotation),
                     fields = fields,
+                )
+            }
+            if (annotationType == typeNameOf<TypeConverter>()) {
+                val typeConverterSuper = input.superTypes.firstNotNullOf { reference ->
+                    reference.resolve().toTypeName().let {
+                        it as? ParameterizedTypeName
+                    }?.takeIf { type ->
+                        type.rawType == ClassNames.TypeConverter
+                    }
+                }
+                return TypeConverterModel(
+                    name = NameModel(name, packageName),
+                    properties = typeConverterPropertyParser.parse(annotation),
+                    classType = classType,
+                    modelClassType = typeConverterSuper.typeArguments[1],
+                    dataClassType = typeConverterSuper.typeArguments[0],
                 )
             }
         }

@@ -1,6 +1,8 @@
 package com.dbflow5.ksp
 
 import com.dbflow5.ksp.model.*
+import com.dbflow5.ksp.model.cache.ReferencesCache
+import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.properties.DatabaseHolderProperties
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.writer.ClassWriter
@@ -22,6 +24,7 @@ class DBFlowKspProcessor(
     private val databaseWriter: DatabaseWriter,
     private val databaseHolderWriter: DatabaseHolderWriter,
     private val referencesCache: ReferencesCache,
+    private val typeConverterCache: TypeConverterCache,
     private val environment: SymbolProcessorEnvironment,
 ) : SymbolProcessor {
 
@@ -66,6 +69,11 @@ class DBFlowKspProcessor(
             )
 
             referencesCache.allTables = classes
+
+            objects.filterIsInstance<TypeConverterModel>().forEach { model ->
+                typeConverterCache.putTypeConverter(model)
+            }
+
 
             listOf(
                 classes.map(classWriter::create),

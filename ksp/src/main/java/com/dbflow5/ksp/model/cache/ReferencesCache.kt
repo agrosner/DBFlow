@@ -1,5 +1,8 @@
-package com.dbflow5.ksp.model
+package com.dbflow5.ksp.model.cache
 
+import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.ForeignKeyModel
+import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.properties.ReferenceProperties
 import com.squareup.kotlinpoet.TypeName
 

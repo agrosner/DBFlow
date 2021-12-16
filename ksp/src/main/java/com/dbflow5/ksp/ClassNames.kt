@@ -10,6 +10,7 @@ object PackageNames {
     const val Adapter = "com.dbflow5.adapter"
     const val Config = "com.dbflow5.config"
     const val Database = "com.dbflow5.database"
+    const val Converter = "com.dbflow5.converter"
 }
 
 object ClassNames {
@@ -44,9 +45,21 @@ object ClassNames {
         ClassName(PackageNames.Property, "NullablePropertyStatementWrapper")
             .parameterizedBy(typeName)
 
+    fun typeConvertedPropertyStatementWrapper(modelTypeName: TypeName, dataTypeName: TypeName) =
+        ClassName(PackageNames.Property, "TypeConvertedPropertyStatementWrapper")
+            .parameterizedBy(modelTypeName, dataTypeName)
+
+    fun typeConvertedNullablePropertyStatementWrapper(
+        modelTypeName: TypeName,
+        dataTypeName: TypeName
+    ) =
+        ClassName(PackageNames.Property, "TypeConvertedNullablePropertyStatementWrapper")
+            .parameterizedBy(modelTypeName, dataTypeName)
+
     val DatabaseStatement = ClassName(PackageNames.Database, "DatabaseStatement")
 
     val ObjectType = ClassName(PackageNames.Adapter, "ObjectType")
+    val TypeConverter = ClassName(PackageNames.Converter, "TypeConverter")
 }
 
 object MemberNames {

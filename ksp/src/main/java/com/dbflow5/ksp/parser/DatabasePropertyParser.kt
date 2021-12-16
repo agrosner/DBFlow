@@ -76,6 +76,7 @@ class FieldPropertyParser : Parser<KSAnnotation, FieldProperties> {
             length = args.arg("length"),
             collate = args.enumArg("collate", Collate::valueOf),
             defaultValue = args.arg("defaultValue"),
+            typeConverterTypeName = args.arg<KSType>("typeConverter").toTypeName(),
         )
     }
 }

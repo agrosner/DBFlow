@@ -1,5 +1,6 @@
 package com.dbflow5.query.property
 
+import com.dbflow5.converter.TypeConverter
 import com.dbflow5.database.DatabaseStatement
 
 /**
@@ -28,5 +29,30 @@ data class PropertyStatementWrapper<T : Any>(
 ) {
     fun bind(model: T, statement: DatabaseStatement, startIndex: Int) {
         statementBinder(model, statement, startIndex)
+    }
+}
+
+data class TypeConvertedPropertyStatementWrapper<Data: Any, Model: Any>(
+    val typeConverter: TypeConverter<Data, Model>,
+    val statementBinder: (model: Data, statement: DatabaseStatement, index: Int) -> Unit,
+) {
+    fun bind(model: Model, statement: DatabaseStatement, startIndex: Int) {
+        statementBinder(typeConverter.getDBValue(model), statement, startIndex)
+    }
+}
+
+data class NullableTypeConvertedPropertyStatementWrapper<Data: Any?, Model: Any?>(
+    val typeConverter: TypeConverter<Data, Model>,
+    val statementBinder: (model: Data, statement: DatabaseStatement, index: Int) -> Unit,
+) {
+    val nullBinder: (statement: DatabaseStatement, index: Int) -> Unit =
+        { statement, index -> statement.bindNull(index) }
+
+    fun bind(model: Model, statement: DatabaseStatement, startIndex: Int) {
+        if (model != null) {
+            statementBinder(typeConverter.getDBValue(model), statement, startIndex)
+        } else {
+            nullBinder(statement, startIndex)
+        }
     }
 }

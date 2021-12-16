@@ -366,8 +366,18 @@ fun Property<Blob?>.infer(cursor: FlowCursor): Blob? =
 fun Property<Blob>.infer(cursor: FlowCursor): Blob =
     Blob(cursor.getBlobOrDefault(nameAlias.name(), byteArrayOf()))
 
-inline fun <Data, Model> TypeConvertedProperty<Data, Model>.infer(
+@Suppress("unused")
+inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data, Model>.infer(
     cursor: FlowCursor, typeConverter: TypeConverter<Data, Model>,
+    getData: (cursor: FlowCursor) -> Data
+): Model =
+    typeConverter.getModelValue(getData(cursor))
+
+@Suppress("unused")
+@JvmName("nullableInfer")
+inline fun <Data : Any?, Model : Any?> TypeConvertedProperty<Data?, Model?>.infer(
+    cursor: FlowCursor, typeConverter: TypeConverter<Data?, Model?>,
     getData: (cursor: FlowCursor) -> Data?
 ): Model? =
     typeConverter.getModelValue(getData(cursor))
+

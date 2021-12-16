@@ -1,5 +1,6 @@
 package com.dbflow5.ksp.model
 
+import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.properties.ClassProperties
 import com.dbflow5.ksp.model.properties.NamedProperties
 import com.dbflow5.ksp.model.properties.nameWithFallback
