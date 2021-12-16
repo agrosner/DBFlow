@@ -1,5 +1,6 @@
 package com.dbflow5.ksp.parser
 
+import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
@@ -33,7 +34,7 @@ class KSPropertyDeclarationParser constructor(
             FieldModel.FieldType.Normal
         }
         val column =
-            input.annotations.find { it.annotationType.toTypeName() == typeNameOf<Table>() }
+            input.annotations.find { it.annotationType.toTypeName() == typeNameOf<Column>() }
         val foreignKey =
             input.annotations.find { it.annotationType.toTypeName() == typeNameOf<ForeignKey>() }
         if (foreignKey != null) {

@@ -29,6 +29,8 @@ class DBFlowKspProcessor(
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
+        typeConverterCache.applyResolver(resolver)
+
         val symbols =
             Annotations.values().map {
                 resolver.getSymbolsWithAnnotation(

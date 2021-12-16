@@ -7,7 +7,6 @@ import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.asTypeName
 
 /**
  * Description:
@@ -17,7 +16,11 @@ class PropertyStatementWrapperWriter(
 ) : TypeCreator<FieldModel, PropertySpec> {
 
     override fun create(model: FieldModel): PropertySpec {
-        val hasTypeConverter = model.properties?.typeConverterTypeName != Any::class.asTypeName()
+        val hasTypeConverter =
+            model.properties?.let { properties ->
+                properties.typeConverterTypeName != ClassNames.TypeConverterWithProjection
+            }
+                ?: false
         val type = if (model.classType.isNullable) {
             if (hasTypeConverter) {
                 ClassNames.typeConvertedNullablePropertyStatementWrapper(

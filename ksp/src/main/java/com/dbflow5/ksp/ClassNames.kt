@@ -60,6 +60,18 @@ object ClassNames {
 
     val ObjectType = ClassName(PackageNames.Adapter, "ObjectType")
     val TypeConverter = ClassName(PackageNames.Converter, "TypeConverter")
+    val TypeConverterWithProjection = TypeConverter.parameterizedBy(
+        WildcardTypeName.producerOf(
+            Any::class.asClassName().copy(
+                nullable = true
+            ),
+        ),
+        WildcardTypeName.producerOf(
+            Any::class.asClassName().copy(
+                nullable = true
+            ),
+        ),
+    )
 }
 
 object MemberNames {

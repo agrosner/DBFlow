@@ -38,5 +38,5 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { DatabaseHolderWriter() }
     single { PropertyStatementWrapperWriter(get()) }
     single { ReferencesCache() }
-    single { TypeConverterCache() }
+    single { TypeConverterCache(get()) }
 }
