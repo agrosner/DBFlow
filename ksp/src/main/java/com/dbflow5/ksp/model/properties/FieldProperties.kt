@@ -1,6 +1,7 @@
 package com.dbflow5.ksp.model.properties
 
 import com.dbflow5.annotation.Collate
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
 
 /**
@@ -14,5 +15,5 @@ data class FieldProperties(
     /**
      * If has type converter, use this field.
      */
-    val typeConverterTypeName: TypeName,
+    val typeConverterClassName: ClassName,
 ) : NamedProperties

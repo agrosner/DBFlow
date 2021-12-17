@@ -29,6 +29,12 @@ data class ClassModel(
         else -> name.shortName
     }.quoteIfNeeded()
 
+    val isQuery
+        get() = type == ClassType.Query
+
+    val isNormal
+        get() = type == ClassType.Normal
+
     private fun createFlattenedFields(
         referencesCache: ReferencesCache,
         primaryFields: List<FieldModel>
@@ -60,7 +66,7 @@ data class ClassModel(
 fun ClassModel.partOfDatabaseAsType(
     databaseTypeName: TypeName,
     type: ClassModel.ClassType,
-) = type == ClassModel.ClassType.Normal &&
+) = type == this.type &&
     properties.database == databaseTypeName
 
 

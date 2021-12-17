@@ -84,12 +84,12 @@ class KSClassDeclarationParser(
                     name = NameModel(name, packageName),
                     properties = typeConverterPropertyParser.parse(annotation),
                     classType = classType,
-                    modelClassType = typeConverterSuper.typeArguments[1],
                     dataClassType = typeConverterSuper.typeArguments[0],
+                    modelClassType = typeConverterSuper.typeArguments[1],
                 )
             }
         }
 
-        throw IllegalStateException("Invalid class type found $name")
+        throw IllegalStateException("Invalid class type found ${name.asString()}")
     }
 }

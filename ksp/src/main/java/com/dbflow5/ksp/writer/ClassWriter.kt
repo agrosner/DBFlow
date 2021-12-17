@@ -66,18 +66,24 @@ class ClassWriter(
                                 ParameterSpec("dbFlowDataBase", ClassNames.DBFlowDatabase)
                             )
                             .addParameter(tableParam.parameterSpec)
-                            .addParameter(tableNameParam.parameterSpec)
+                            .apply {
+                                if (!model.isQuery) {
+                                    addParameter(tableNameParam.parameterSpec)
+                                }
+                            }
                             .build()
                     )
                     .superclass(superClass)
                     .addSuperclassConstructorParameter("dbFlowDataBase")
                     .apply {
                         addProperty(tableParam.propertySpec)
-                        addProperty(tableNameParam.propertySpec)
-
-                        getPropertyMethod(model)
-                        allColumnProperties(model)
-                        if (model.type == ClassModel.ClassType.Normal) {
+                        if (!model.isQuery) {
+                            addProperty(tableNameParam.propertySpec)
+                            getPropertyMethod(model)
+                            allColumnProperties(model)
+                            creationQuery(model, extractors)
+                        }
+                        if (model.isNormal) {
                             bindInsert(model)
                             bindUpdate(model)
                             bindDelete(model)
@@ -85,9 +91,6 @@ class ClassWriter(
                             insertStatementQuery(model, extractors, isSave = true)
                             updateStatement(model, extractors, primaryExtractors)
                             deleteStatement(model, primaryExtractors)
-                        }
-                        if (model.type != ClassModel.ClassType.View) {
-                            creationQuery(model, extractors)
                         }
 
                         loadFromCursor(model)

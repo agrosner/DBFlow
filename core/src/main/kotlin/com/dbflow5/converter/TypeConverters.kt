@@ -7,12 +7,10 @@ import java.sql.Timestamp
 import java.util.*
 
 /**
- * Author: andrewgrosner
  * Description: This class is responsible for converting the stored database value into the field value in
  * a Model.
  */
-@com.dbflow5.annotation.TypeConverter
-abstract class TypeConverter<DataClass, ModelClass> {
+abstract class TypeConverter<DataClass : Any, ModelClass : Any> {
 
     /**
      * Converts the ModelClass into a DataClass

@@ -7,6 +7,7 @@ import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeName
 
 /**
  * Description:
@@ -18,28 +19,25 @@ class PropertyStatementWrapperWriter(
     override fun create(model: FieldModel): PropertySpec {
         val hasTypeConverter =
             model.properties?.let { properties ->
-                properties.typeConverterTypeName != ClassNames.TypeConverterWithProjection
+                properties.typeConverterClassName as TypeName != ClassNames.TypeConverter
             }
                 ?: false
-        val type = if (model.classType.isNullable) {
-            if (hasTypeConverter) {
-                ClassNames.typeConvertedNullablePropertyStatementWrapper(
-                    model.classType,
-                    typeConverterCache[model.classType].dataClassType,
-                )
-            } else {
-                ClassNames.nullablePropertyStatementWrapper(model.classType)
+        val type =
+            when {
+                hasTypeConverter -> {
+                    ClassNames.typeConvertedPropertyStatementWrapper(
+                        model.classType,
+                        typeConverterCache[model.classType, model.properties?.typeConverterClassName?.toString()
+                            ?: ""].dataClassType,
+                    )
+                }
+                model.classType.isNullable -> {
+                    ClassNames.nullablePropertyStatementWrapper(model.classType)
+                }
+                else -> {
+                    ClassNames.propertyStatementWrapper(model.classType)
+                }
             }
-        } else {
-            if (hasTypeConverter) {
-                ClassNames.typeConvertedPropertyStatementWrapper(
-                    model.classType,
-                    typeConverterCache[model.classType].dataClassType,
-                )
-            } else {
-                ClassNames.propertyStatementWrapper(model.classType)
-            }
-        }
         return PropertySpec.builder(
             model.fieldWrapperName,
             type,

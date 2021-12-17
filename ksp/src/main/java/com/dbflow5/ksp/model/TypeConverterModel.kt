@@ -10,6 +10,6 @@ data class TypeConverterModel(
     val name: NameModel,
     val properties: TypeConverterProperties,
     val classType: TypeName,
-    val modelClassType: TypeName,
     val dataClassType: TypeName,
+    val modelClassType: TypeName,
 ) : ObjectModel

@@ -1,11 +1,17 @@
 package com.dbflow5.ksp.model.cache
 
 import com.dbflow5.converter.*
+import com.dbflow5.ksp.ClassNames
+import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.TypeConverterModel
+import com.dbflow5.ksp.model.properties.TypeConverterProperties
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.google.devtools.ksp.processing.Resolver
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 
 /**
  * Description: Keeps all defined [TypeConverterModel]
@@ -19,19 +25,40 @@ class TypeConverterCache(
     fun applyResolver(resolver: Resolver) {
         DEFAULT_TYPE_CONVERTERS.forEach { defaultType ->
             val typeName = defaultType.asClassName()
-            val declaration =
-                resolver.getClassDeclarationByName(resolver.getKSNameFromString(typeName.toString()))!!
-            val classModel = classDeclarationParser.parse(declaration) as TypeConverterModel
-            putTypeConverter(classModel)
+            putTypeConverter(typeName, resolver)
         }
+    }
+
+    fun putTypeConverter(className: ClassName, resolver: Resolver) {
+        val declaration =
+            resolver.getClassDeclarationByName(resolver.getKSNameFromString(className.toString()))!!
+        val typeConverterSuper = declaration.superTypes.firstNotNullOfOrNull { reference ->
+            reference.resolve().toTypeName().let {
+                it as? ParameterizedTypeName
+            }?.takeIf { type ->
+                type.rawType == ClassNames.TypeConverter
+            }
+        } ?: throw IllegalStateException("Error ${className}")
+        val classModel = TypeConverterModel(
+            name = NameModel(className),
+            properties = TypeConverterProperties(listOf()),
+            classType = className,
+            dataClassType = typeConverterSuper.typeArguments[0],
+            modelClassType = typeConverterSuper.typeArguments[1],
+        )
+        putTypeConverter(classModel)
     }
 
 
     fun putTypeConverter(typeConverterModel: TypeConverterModel) {
-        typeConverters[typeConverterModel.modelClassType] = typeConverterModel
+        typeConverters[typeConverterModel.modelClassType.copy(nullable = false)] =
+            typeConverterModel
     }
 
-    operator fun get(typeName: TypeName) = typeConverters.getValue(typeName)
+    operator fun get(typeName: TypeName, name: String) =
+        typeConverters.getOrElse(typeName.copy(nullable = false)) {
+            throw IllegalStateException("Missing Key ${typeName}:${name}. Map is ${typeConverters}")
+        }
 
     companion object {
         private val DEFAULT_TYPE_CONVERTERS = arrayOf(

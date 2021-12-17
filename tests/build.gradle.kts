@@ -45,7 +45,9 @@ android {
     sourceSets {
         getByName("main").kotlin.srcDir("build/generated/ksp/main/kotlin")
         getByName("test").kotlin.srcDir("build/generated/ksp/test/kotlin")
-        getByName("androidTest").kotlin.srcDir("build/generated/ksp/androidTest/kotlin")
+        getByName("androidTest").kotlin {
+            srcDir("build/generated/ksp/debugAndroidTest/kotlin")
+        }
     }
 }
 

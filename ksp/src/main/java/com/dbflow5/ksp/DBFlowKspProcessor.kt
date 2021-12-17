@@ -76,6 +76,15 @@ class DBFlowKspProcessor(
                 typeConverterCache.putTypeConverter(model)
             }
 
+            objects.filterIsInstance<ClassModel>()
+                .asSequence()
+                .map { it.fields }
+                .flatten()
+                .mapNotNull { it.properties?.typeConverterClassName }
+                .filter { it != ClassNames.TypeConverter }
+                .forEach { typeConverterName ->
+                    typeConverterCache.putTypeConverter(typeConverterName, resolver)
+                }
 
             listOf(
                 classes.map(classWriter::create),
