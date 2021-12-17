@@ -310,6 +310,12 @@ open class Property<T>(
 
 inline fun <reified T> property(columnName: String) = Property<T>(T::class.java, columnName)
 
+inline fun <reified T, Data, Model> typeConvertedProperty(
+    columnName: String,
+    getter: TypeConvertedProperty.TypeConverterGetter
+) =
+    TypeConvertedProperty<Data, Model>(T::class, columnName, getter = getter)
+
 @JvmName("getNullable")
 fun Property<String?>.infer(cursor: FlowCursor): String? =
     cursor.getStringOrDefault(nameAlias.name())

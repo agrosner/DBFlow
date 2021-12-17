@@ -32,9 +32,9 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { ForeignKeyPropertyParser(get()) }
     single { ForeignKeyReferencePropertyParser() }
     single { KSClassDeclarationParser(get(), get(), get(), get(), get(), get()) }
-    single { ClassWriter(get(), get(), get()) }
+    single { ClassWriter(get(), get(), get(), get()) }
     single { DatabaseWriter() }
-    single { FieldPropertyWriter() }
+    single { FieldPropertyWriter(get()) }
     single { DatabaseHolderWriter() }
     single { PropertyStatementWrapperWriter(get()) }
     single { ReferencesCache() }

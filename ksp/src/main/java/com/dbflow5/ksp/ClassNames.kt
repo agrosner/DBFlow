@@ -16,7 +16,15 @@ object PackageNames {
 object ClassNames {
 
 
-    val Property = ClassName(PackageNames.Property, "Property")
+    fun property(typeName: TypeName) = ClassName(PackageNames.Property, "Property")
+        .parameterizedBy(typeName)
+
+    fun typeConvertedProperty(
+        dataTypeName: TypeName,
+        modelTypeName: TypeName,
+    ) = ClassName(PackageNames.Property, "TypeConvertedProperty")
+        .parameterizedBy(dataTypeName, modelTypeName)
+
     val IProperty = ClassName(PackageNames.Property, "IProperty")
         .parameterizedBy(WildcardTypeName.producerOf(Any::class.asTypeName().copy(nullable = true)))
     val OperatorGroup = ClassName(PackageNames.Query, "OperatorGroup")
@@ -31,7 +39,7 @@ object ClassNames {
 
     val DBFlowDatabase = ClassName(PackageNames.Config, "DBFlowDatabase")
     val MutableHolder = ClassName(PackageNames.Config, "MutableHolder")
-    val GeneratedDatabaseHolder = ClassName(PackageNames.Config, "GeneratedDatabaseHolder")
+    val GeneratedDatabaseHolder = ClassName(PackageNames.Config, "KspGeneratedDatabaseHolder")
     val DatabaseHolder = ClassName(PackageNames.Config, "DatabaseHolder")
 
     val FlowCursor = ClassName(PackageNames.Database, "FlowCursor")
@@ -70,6 +78,7 @@ object ClassNames {
 object MemberNames {
 
     val property = MemberName(PackageNames.Property, "property")
+    val typeConvertedProperty = MemberName(PackageNames.Property, "typeConvertedProperty")
     val quoteIfNeeded = MemberName(PackageNames.Core, "quoteIfNeeded")
     val infer = MemberName(PackageNames.Property, "infer")
 

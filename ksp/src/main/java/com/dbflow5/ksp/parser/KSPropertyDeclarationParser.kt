@@ -3,12 +3,13 @@ package com.dbflow5.ksp.parser
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.PrimaryKey
-import com.dbflow5.annotation.Table
 import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.ForeignKeyModel
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.SingleFieldModel
+import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.typeNameOf
 
@@ -47,6 +48,8 @@ class KSPropertyDeclarationParser constructor(
                 fieldType,
                 properties = column?.let { fieldPropertyParser.parse(column) },
                 foreignKeyProperties = foreignKeyPropertyParser.parse(foreignKey),
+                enclosingClassType = input.parentDeclaration?.closestClassDeclaration()!!
+                    .toClassName(),
             )
         }
         return SingleFieldModel(
@@ -56,7 +59,8 @@ class KSPropertyDeclarationParser constructor(
             ),
             classType = input.type.toTypeName(),
             fieldType,
-            properties = column?.let { fieldPropertyParser.parse(column) }
+            properties = column?.let { fieldPropertyParser.parse(column) },
+            enclosingClassType = input.parentDeclaration?.closestClassDeclaration()!!.toClassName(),
         )
     }
 }

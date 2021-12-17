@@ -60,6 +60,8 @@ class TypeConverterCache(
             throw IllegalStateException("Missing Key ${typeName}:${name}. Map is ${typeConverters}")
         }
 
+    fun has(typeName: TypeName) = typeConverters.containsKey(typeName)
+
     companion object {
         private val DEFAULT_TYPE_CONVERTERS = arrayOf(
             CalendarConverter::class,

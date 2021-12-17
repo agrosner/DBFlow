@@ -4,10 +4,12 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.cache.TypeConverterCache
+import com.dbflow5.ksp.model.hasTypeConverter
+import com.dbflow5.ksp.model.typeConverter
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeName
+import java.util.*
 
 /**
  * Description:
@@ -17,18 +19,13 @@ class PropertyStatementWrapperWriter(
 ) : TypeCreator<FieldModel, PropertySpec> {
 
     override fun create(model: FieldModel): PropertySpec {
-        val hasTypeConverter =
-            model.properties?.let { properties ->
-                properties.typeConverterClassName as TypeName != ClassNames.TypeConverter
-            }
-                ?: false
+        val hasTypeConverter = model.hasTypeConverter(typeConverterCache)
         val type =
             when {
                 hasTypeConverter -> {
                     ClassNames.typeConvertedPropertyStatementWrapper(
                         model.classType,
-                        typeConverterCache[model.classType, model.properties?.typeConverterClassName?.toString()
-                            ?: ""].dataClassType,
+                        model.typeConverter(typeConverterCache).dataClassType,
                     )
                 }
                 model.classType.isNullable -> {
@@ -48,7 +45,10 @@ class PropertyStatementWrapperWriter(
                     CodeBlock.builder().apply {
                         add("%T", type)
                         if (hasTypeConverter) {
-                            add("(typeConverter)")
+                            add(
+                                "(%L)", model.typeConverter(typeConverterCache)
+                                    .name.shortName.lowercase(Locale.getDefault())
+                            )
                         }
                         add(
                             """

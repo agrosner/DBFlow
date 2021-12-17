@@ -5,10 +5,12 @@ import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.*
 import com.dbflow5.ksp.model.cache.ReferencesCache
+import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.FunSpec.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import java.util.*
 
 /**
  * Description:
@@ -17,6 +19,7 @@ class ClassWriter(
     private val fieldPropertyWriter: FieldPropertyWriter,
     private val propertyStatementWrapperWriter: PropertyStatementWrapperWriter,
     private val referencesCache: ReferencesCache,
+    private val typeConverterCache: TypeConverterCache,
 ) : TypeCreator<ClassModel, FileSpec> {
     override fun create(model: ClassModel): FileSpec {
         val tableParam = ParameterPropertySpec(
@@ -57,6 +60,17 @@ class ClassWriter(
             ClassModel.ClassType.View -> ClassNames.modelViewAdapter(model.classType)
             ClassModel.ClassType.Query -> ClassNames.retrievalAdapter(model.classType)
         }
+
+        val typeConverters = model.flattenedFields(referencesCache)
+            .filter { it.hasTypeConverter(typeConverterCache) }
+            .associate {
+                val typeConverter = it.typeConverter(typeConverterCache)
+                typeConverter.name.shortName.lowercase(
+                    Locale.getDefault()
+                ) to typeConverter
+            }
+
+
         return FileSpec.builder(model.name.packageName, model.name.shortName)
             .addType(
                 TypeSpec.classBuilder(model.generatedClassName.className)
@@ -76,6 +90,16 @@ class ClassWriter(
                     .superclass(superClass)
                     .addSuperclassConstructorParameter("dbFlowDataBase")
                     .apply {
+                        if (typeConverters.isNotEmpty()) {
+                            typeConverters.forEach { (name, model) ->
+                                addProperty(
+                                    PropertySpec.builder(name, model.classType)
+                                        .initializer("%T()", model.classType)
+                                        .build()
+                                )
+                            }
+                        }
+
                         addProperty(tableParam.propertySpec)
                         if (!model.isQuery) {
                             addProperty(tableNameParam.propertySpec)
@@ -97,11 +121,13 @@ class ClassWriter(
                         getPrimaryConditionClause(model)
                         getObjectType(model)
 
+                        model.flattenedFields(referencesCache).forEach { field ->
+                            addProperty(propertyStatementWrapperWriter.create(field))
+                        }
                         addType(TypeSpec.companionObjectBuilder()
                             .apply {
                                 model.flattenedFields(referencesCache).forEach { field ->
                                     addProperty(fieldPropertyWriter.create(field))
-                                    addProperty(propertyStatementWrapperWriter.create(field))
                                 }
                             }
                             .build()
@@ -118,7 +144,7 @@ class ClassWriter(
                 addModifiers(KModifier.OVERRIDE)
                 addParameter(ParameterSpec("columnName", String::class.asClassName()))
                 returns(
-                    ClassNames.Property.parameterizedBy(
+                    ClassNames.property(
                         WildcardTypeName.producerOf(
                             Any::class.asTypeName().copy(nullable = true)
                         )
@@ -177,75 +203,91 @@ class ClassWriter(
         )
     }
 
-    private fun TypeSpec.Builder.loadFromCursor(model: ClassModel) = apply {
-        addFunction(FunSpec.builder("loadFromCursor")
-            .apply {
-                addModifiers(KModifier.OVERRIDE)
-                addParameter(
-                    ParameterSpec("cursor", ClassNames.FlowCursor),
-                )
-                addParameter(
-                    ParameterSpec("wrapper", ClassNames.DatabaseWrapper)
-                )
-                addCode("return %T(\n", model.classType)
-                model.fields.forEach { field ->
-                    when (field) {
-                        is ForeignKeyModel -> {
-                            addCode(
-                                "\t%N = ((%M %L %T::class) %L\n",
-                                field.name.shortName,
-                                MemberNames.select,
-                                MemberNames.from,
-                                field.nonNullClassType,
-                                MemberNames.where,
-                            )
-                            field.references(referencesCache, "").zip(
-                                field.references(referencesCache, field.dbName)
-                            ).forEachIndexed { index, (plain, referenced) ->
-                                addCode("\t\t")
-                                if (index > 0) {
-                                    addCode("%L ", "and")
-                                }
-                                val className = field.nonNullClassType as ClassName
+    private fun TypeSpec.Builder.loadFromCursor(
+        model: ClassModel,
+    ) =
+        apply {
+            addFunction(FunSpec.builder("loadFromCursor")
+                .apply {
+                    addModifiers(KModifier.OVERRIDE)
+                    addParameter(
+                        ParameterSpec("cursor", ClassNames.FlowCursor),
+                    )
+                    addParameter(
+                        ParameterSpec("wrapper", ClassNames.DatabaseWrapper)
+                    )
+                    addCode("return %T(\n", model.classType)
+                    model.fields.forEach { field ->
+                        when (field) {
+                            is ForeignKeyModel -> {
                                 addCode(
-                                    "(%T.%L %L %L.%N.%M(%N))\n",
-                                    ClassName(
-                                        className.packageName,
-                                        className.simpleName + "_Adapter",
-                                    ),
-                                    plain.name.shortName,
-                                    MemberNames.eq,
+                                    "\t%N = ((%M %L %T::class) %L\n",
+                                    field.name.shortName,
+                                    MemberNames.select,
+                                    MemberNames.from,
+                                    field.nonNullClassType,
+                                    MemberNames.where,
+                                )
+                                field.references(referencesCache, "").zip(
+                                    field.references(referencesCache, field.dbName)
+                                ).forEachIndexed { index, (plain, referenced) ->
+                                    addCode("\t\t")
+                                    if (index > 0) {
+                                        addCode("%L ", "and")
+                                    }
+                                    val className = field.nonNullClassType as ClassName
+                                    addCode(
+                                        "(%T.%L %L %L.%N.%M(%N))\n",
+                                        ClassName(
+                                            className.packageName,
+                                            className.simpleName + "_Adapter",
+                                        ),
+                                        plain.name.shortName,
+                                        MemberNames.eq,
+                                        "Companion",
+                                        referenced.name.shortName,
+                                        MemberNames.infer,
+                                        "cursor"
+                                    )
+                                }
+                                addCode(
+                                    "\t).%L(%N),\n",
+                                    if (field.classType.isNullable)
+                                        MemberNames.querySingle
+                                    else MemberNames.requireSingle,
+                                    "wrapper",
+                                )
+                            }
+                            is SingleFieldModel -> {
+                                addCode(
+                                    "\t%N = %L.%N.%M(%N",
+                                    field.name.shortName,
                                     "Companion",
-                                    referenced.name.shortName,
+                                    field.name.shortName,
                                     MemberNames.infer,
                                     "cursor"
                                 )
+                                if (field.hasTypeConverter(typeConverterCache)) {
+                                    addCode(
+                                        ", %L) { %L.%N.invertProperty().%M(%N) },\n",
+                                        field.typeConverter(typeConverterCache)
+                                            .name.shortName.lowercase(Locale.getDefault()),
+                                        "Companion",
+                                        field.name.shortName,
+                                        MemberNames.infer,
+                                        "cursor"
+                                    )
+                                } else {
+                                    addCode("),\n")
+                                }
                             }
-                            addCode(
-                                "\t).%L(%N),\n",
-                                if (field.classType.isNullable)
-                                    MemberNames.querySingle
-                                else MemberNames.requireSingle,
-                                "wrapper",
-                            )
                         }
-                        is SingleFieldModel -> {
-                            addCode(
-                                "\t%N = %L.%N.%M(%N),\n",
-                                field.name.shortName,
-                                "Companion",
-                                field.name.shortName,
-                                MemberNames.infer,
-                                "cursor"
-                            )
-                        }
-                    }
 
+                    }
+                    addCode(")")
                 }
-                addCode(")")
-            }
-            .build())
-    }
+                .build())
+        }
 
     private fun TypeSpec.Builder.getPrimaryConditionClause(model: ClassModel) = apply {
         addFunction(FunSpec.builder("getPrimaryConditionClause")

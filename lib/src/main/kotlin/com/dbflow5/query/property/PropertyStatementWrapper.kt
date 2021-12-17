@@ -32,7 +32,7 @@ data class PropertyStatementWrapper<T : Any>(
     }
 }
 
-data class TypeConvertedPropertyStatementWrapper<Data : Any, Model : Any>(
+data class TypeConvertedPropertyStatementWrapper<Model : Any, Data : Any>(
     val typeConverter: TypeConverter<Data, Model>,
     val statementBinder: (model: Data, statement: DatabaseStatement, index: Int) -> Unit,
 ) {

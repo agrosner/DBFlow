@@ -1,6 +1,8 @@
 package com.dbflow5.ksp.model
 
+import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.cache.ReferencesCache
+import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.properties.FieldProperties
 import com.dbflow5.ksp.model.properties.ForeignKeyProperties
 import com.dbflow5.ksp.model.properties.isInferredTable
@@ -27,6 +29,11 @@ sealed interface FieldModel {
     val fieldType: FieldType
     val properties: FieldProperties?
 
+    /**
+     * This can be View, Normal, or Query. Based on [ClassModel]
+     */
+    val enclosingClassType: TypeName
+
     val dbName
         get() = properties.nameWithFallback(name.shortName)
 
@@ -41,6 +48,16 @@ sealed interface FieldModel {
 
 }
 
+fun FieldModel.hasTypeConverter(typeConverterCache: TypeConverterCache) =
+    properties?.let { properties ->
+        properties.typeConverterClassName as TypeName != ClassNames.TypeConverter
+    }
+        ?: typeConverterCache.has(classType)
+
+fun FieldModel.typeConverter(typeConverterCache: TypeConverterCache) =
+    typeConverterCache[classType, properties?.typeConverterClassName?.toString()
+        ?: ""]
+
 /**
  * Description:
  */
@@ -54,6 +71,7 @@ data class SingleFieldModel(
     override val fieldType: FieldModel.FieldType,
     override val properties: FieldProperties?,
     override val originatingName: NameModel = name,
+    override val enclosingClassType: TypeName,
 ) : ObjectModel, FieldModel
 
 data class ForeignKeyModel(
@@ -63,6 +81,7 @@ data class ForeignKeyModel(
     override val properties: FieldProperties?,
     val foreignKeyProperties: ForeignKeyProperties,
     override val originatingName: NameModel = name,
+    override val enclosingClassType: TypeName,
 ) : ObjectModel, FieldModel {
 
     fun references(

@@ -1,26 +1,18 @@
 package com.dbflow5.models
 
 import com.dbflow5.TestDatabase
-import com.dbflow5.annotation.Column
-import com.dbflow5.annotation.ForeignKey
-import com.dbflow5.annotation.ForeignKeyAction
-import com.dbflow5.annotation.Index
-import com.dbflow5.annotation.IndexGroup
-import com.dbflow5.annotation.NotNull
-import com.dbflow5.annotation.PrimaryKey
-import com.dbflow5.annotation.Table
-import com.dbflow5.annotation.TypeConverter
+import com.dbflow5.annotation.*
 import com.dbflow5.structure.BaseModel
 
 
 @TypeConverter
 class MutableSetTypeConverter : com.dbflow5.converter.TypeConverter<String, MutableSet<String>>() {
-    override fun getDBValue(model: MutableSet<String>?): String? {
-        return model?.joinToString()
+    override fun getDBValue(model: MutableSet<String>): String {
+        return model.joinToString()
     }
 
-    override fun getModelValue(data: String?): MutableSet<String>? {
-        return data?.split("")?.toMutableSet()
+    override fun getModelValue(data: String): MutableSet<String> {
+        return data.split("")?.toMutableSet()
     }
 }
 
@@ -32,8 +24,10 @@ class MutableSetTypeConverter : com.dbflow5.converter.TypeConverter<String, Muta
  * It is envisioned that the resolvedResponses may be provided only when an additional parameter is
  * specified in the request.
  */
-@Table(database = TestDatabase::class, allFields = true, useBooleanGetterSetters = false,
-    indexGroups = [IndexGroup(number = 1, name = "modified")])
+@Table(
+    database = TestDatabase::class, allFields = true, useBooleanGetterSetters = false,
+    indexGroups = [IndexGroup(number = 1, name = "modified")]
+)
 open internal class ProspectQuiz : BaseModel {
     @NotNull
     @PrimaryKey
@@ -81,8 +75,10 @@ open internal class ProspectQuiz : BaseModel {
  * account is deactivated or deleted should never be visible. When a quiz is refreshed and a participant
  * deleted or deactivated the account, the entry for the deleted user will disappear from the response.
  */
-@Table(database = TestDatabase::class, allFields = true, useBooleanGetterSetters = false,
-    indexGroups = [IndexGroup(number = 1, name = "quizid_answerts")])
+@Table(
+    database = TestDatabase::class, allFields = true, useBooleanGetterSetters = false,
+    indexGroups = [IndexGroup(number = 1, name = "quizid_answerts")]
+)
 open internal class ProspectQuizEntry : BaseModel {
     @PrimaryKey
     @NotNull
@@ -91,9 +87,11 @@ open internal class ProspectQuizEntry : BaseModel {
     @PrimaryKey
     @NotNull
     @Index(indexGroups = [1])
-    @ForeignKey(stubbedRelationship = true,
+    @ForeignKey(
+        stubbedRelationship = true,
         tableClass = ProspectQuiz::class,
-        onDelete = ForeignKeyAction.CASCADE)
+        onDelete = ForeignKeyAction.CASCADE
+    )
     lateinit var quizID: String
 
     //@ForeignKey(saveForeignKeyModel = true) var photo: PhotoMedia?

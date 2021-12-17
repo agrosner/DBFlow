@@ -2,7 +2,6 @@ package com.dbflow5.sql.language.property
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.converter.DateConverter
-import com.dbflow5.converter.TypeConverter
 import com.dbflow5.models.Difficulty
 import com.dbflow5.models.EnumTypeConverterModel_Table
 import com.dbflow5.models.SimpleModel
@@ -17,10 +16,9 @@ class TypeConvertedPropertyTest : BaseUnitTest() {
 
     @Test
     fun testTypeConverter() {
-        val property = TypeConvertedProperty<Long, Date>(SimpleModel::class.java, "Prop", true,
-                object : TypeConvertedProperty.TypeConverterGetter {
-                    override fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *> = DateConverter()
-                })
+        val property = TypeConvertedProperty<Long, Date>(
+            SimpleModel::class, "Prop", true
+        ) { DateConverter() }
         assertEquals("`Prop`", property.toString())
 
         val date = Date()
@@ -35,8 +33,19 @@ class TypeConvertedPropertyTest : BaseUnitTest() {
     @Test
     fun testCustomEnumTypeConverter() {
 
-        assertEquals("`difficulty`='H'", EnumTypeConverterModel_Table.difficulty.eq(Difficulty.HARD).query)
-        assertEquals("`EnumTypeConverterModel`.`difficulty`='H'", EnumTypeConverterModel_Table.difficulty.withTable().eq(Difficulty.HARD).query)
-        assertEquals("`et`.`difficulty`='H'", EnumTypeConverterModel_Table.difficulty.withTable(NameAlias.tableNameBuilder("et").build()).eq(Difficulty.HARD).query)
+        assertEquals(
+            "`difficulty`='H'",
+            EnumTypeConverterModel_Table.difficulty.eq(Difficulty.HARD).query
+        )
+        assertEquals(
+            "`EnumTypeConverterModel`.`difficulty`='H'",
+            EnumTypeConverterModel_Table.difficulty.withTable().eq(Difficulty.HARD).query
+        )
+        assertEquals(
+            "`et`.`difficulty`='H'",
+            EnumTypeConverterModel_Table.difficulty.withTable(
+                NameAlias.tableNameBuilder("et").build()
+            ).eq(Difficulty.HARD).query
+        )
     }
 }
