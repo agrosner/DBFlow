@@ -22,6 +22,10 @@ data class ClassModel(
      * (to remain compatible with old DBFlow models).
      */
     val hasPrimaryConstructor: Boolean,
+    /**
+     * If true, generated adapter will also generate internal.
+     */
+    val isInternal: Boolean,
 ) : ObjectModel {
 
     val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.PrimaryAuto }

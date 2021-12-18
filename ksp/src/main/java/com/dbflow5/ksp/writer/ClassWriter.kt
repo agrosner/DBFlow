@@ -89,6 +89,9 @@ class ClassWriter(
                     .superclass(superClass)
                     .addSuperclassConstructorParameter("dbFlowDataBase")
                     .apply {
+                        if (model.isInternal) {
+                            addModifiers(KModifier.INTERNAL)
+                        }
                         if (typeConverters.isNotEmpty()) {
                             typeConverters.forEach { (name, model) ->
                                 addProperty(

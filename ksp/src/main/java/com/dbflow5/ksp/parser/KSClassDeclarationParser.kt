@@ -3,6 +3,7 @@ package com.dbflow5.ksp.parser
 import com.dbflow5.annotation.*
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.*
+import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -35,6 +36,7 @@ class KSClassDeclarationParser(
         val name = input.qualifiedName!!
         val packageName = input.packageName
         val hasPrimaryConstructor = input.primaryConstructor != null
+        val isInternal = input.isInternal()
 
         // inspect annotations for what object it is.
         // only allow one of these kinds
@@ -55,6 +57,7 @@ class KSClassDeclarationParser(
                     properties = tablePropertyParser.parse(annotation),
                     fields = fields,
                     hasPrimaryConstructor = hasPrimaryConstructor,
+                    isInternal = isInternal,
                 )
             }
             if (annotationType == typeNameOf<ModelView>()) {
@@ -65,6 +68,7 @@ class KSClassDeclarationParser(
                     properties = viewPropertyParser.parse(annotation),
                     fields = fields,
                     hasPrimaryConstructor = hasPrimaryConstructor,
+                    isInternal = isInternal,
                 )
             }
             if (annotationType == typeNameOf<QueryModel>()) {
@@ -75,6 +79,7 @@ class KSClassDeclarationParser(
                     properties = queryPropertyParser.parse(annotation),
                     fields = fields,
                     hasPrimaryConstructor = hasPrimaryConstructor,
+                    isInternal = isInternal,
                 )
             }
             if (annotationType == typeNameOf<TypeConverter>()) {
