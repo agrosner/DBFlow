@@ -6,7 +6,6 @@ import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.*
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
-import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.FunSpec.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -216,7 +215,11 @@ class ClassWriter(
                     addParameter(
                         ParameterSpec("wrapper", ClassNames.DatabaseWrapper)
                     )
-                    addCode("return %T(\n", model.classType)
+                    if (model.hasPrimaryConstructor) {
+                        addCode("return %T(\n", model.classType)
+                    } else {
+                        beginControlFlow("return %T().apply", model.classType)
+                    }
                     model.fields.forEach { field ->
                         when (field) {
                             is ForeignKeyModel -> {
@@ -251,11 +254,12 @@ class ClassWriter(
                                     )
                                 }
                                 addCode(
-                                    "\t).%L(%N),\n",
+                                    "\t).%L(%N)%L\n",
                                     if (field.classType.isNullable)
                                         MemberNames.querySingle
                                     else MemberNames.requireSingle,
                                     "wrapper",
+                                    model.memberSeparator,
                                 )
                             }
                             is SingleFieldModel -> {
@@ -269,22 +273,27 @@ class ClassWriter(
                                 )
                                 if (field.hasTypeConverter(typeConverterCache)) {
                                     addCode(
-                                        ", %L) { %L.%N.invertProperty().%M(%N) },\n",
+                                        ", %L) { %L.%N.invertProperty().%M(%N) }%L\n",
                                         field.typeConverter(typeConverterCache)
                                             .name.shortName.lowercase(Locale.getDefault()),
                                         "Companion",
                                         field.name.shortName,
                                         MemberNames.infer,
-                                        "cursor"
+                                        "cursor",
+                                        model.memberSeparator,
                                     )
                                 } else {
-                                    addCode("),\n")
+                                    addCode(")%L\n", model.memberSeparator)
                                 }
                             }
                         }
 
                     }
-                    addCode(")")
+                    if (model.hasPrimaryConstructor) {
+                        addCode(")")
+                    } else {
+                        endControlFlow()
+                    }
                 }
                 .build())
         }

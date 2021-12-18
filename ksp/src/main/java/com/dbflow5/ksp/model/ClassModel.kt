@@ -17,6 +17,11 @@ data class ClassModel(
     val type: ClassType,
     val properties: ClassProperties,
     val fields: List<FieldModel>,
+    /**
+     * If true we use that, other wise expect all mutable fields
+     * (to remain compatible with old DBFlow models).
+     */
+    val hasPrimaryConstructor: Boolean,
 ) : ObjectModel {
 
     val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.PrimaryAuto }
@@ -81,3 +86,6 @@ val ClassModel.generatedClassName
             }
         }"
     )
+
+val ClassModel.memberSeparator
+    get() = if (hasPrimaryConstructor) "," else ""

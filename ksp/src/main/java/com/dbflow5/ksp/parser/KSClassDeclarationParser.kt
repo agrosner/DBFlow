@@ -30,10 +30,11 @@ class KSClassDeclarationParser(
             }
             .map { propertyParser.parse(it) }
             .toList()
-        
+
         val classType = input.asStarProjectedType().toClassName()
         val name = input.qualifiedName!!
         val packageName = input.packageName
+        val hasPrimaryConstructor = input.primaryConstructor != null
 
         // inspect annotations for what object it is.
         // only allow one of these kinds
@@ -53,6 +54,7 @@ class KSClassDeclarationParser(
                     type = ClassModel.ClassType.Normal,
                     properties = tablePropertyParser.parse(annotation),
                     fields = fields,
+                    hasPrimaryConstructor = hasPrimaryConstructor,
                 )
             }
             if (annotationType == typeNameOf<ModelView>()) {
@@ -62,6 +64,7 @@ class KSClassDeclarationParser(
                     type = ClassModel.ClassType.View,
                     properties = viewPropertyParser.parse(annotation),
                     fields = fields,
+                    hasPrimaryConstructor = hasPrimaryConstructor,
                 )
             }
             if (annotationType == typeNameOf<QueryModel>()) {
@@ -71,6 +74,7 @@ class KSClassDeclarationParser(
                     type = ClassModel.ClassType.Query,
                     properties = queryPropertyParser.parse(annotation),
                     fields = fields,
+                    hasPrimaryConstructor = hasPrimaryConstructor,
                 )
             }
             if (annotationType == typeNameOf<TypeConverter>()) {
