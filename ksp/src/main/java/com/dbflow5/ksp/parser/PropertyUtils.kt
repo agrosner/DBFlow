@@ -3,18 +3,23 @@ package com.dbflow5.ksp.parser
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueArgument
 
-/**
- * Description:
- */
+typealias ArgMap = Map<String, KSValueArgument>
 
-
-inline fun <reified T> Map<String, KSValueArgument>.arg(name: String): T {
+inline fun <reified T> ArgMap.arg(name: String): T {
     return getValue(name).value as T
 }
 
-fun List<KSValueArgument>.mapProperties() = associateBy { it.name!!.getShortName() }
+inline fun <T> ArgMap.ifArg(name: String, arg: ArgMap.(name: String) -> T) =
+    if (containsKey(name)) {
+        arg(name)
+    } else {
+        null
+    }
 
-inline fun <reified T : Enum<T>> Map<String, KSValueArgument>.enumArg(
+fun List<KSValueArgument>.mapProperties(): ArgMap =
+    associateBy { it.name!!.getShortName() }
+
+inline fun <reified T : Enum<T>> ArgMap.enumArg(
     name: String,
     valueOf: (value: String) -> T
 ): T {

@@ -4,7 +4,7 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.properties.FieldProperties
-import com.dbflow5.ksp.model.properties.ForeignKeyProperties
+import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.dbflow5.ksp.model.properties.isInferredTable
 import com.dbflow5.ksp.model.properties.nameWithFallback
 import com.squareup.kotlinpoet.TypeName
@@ -71,6 +71,7 @@ sealed interface FieldModel {
 fun FieldModel.hasTypeConverter(typeConverterCache: TypeConverterCache) =
     properties?.let { properties ->
         properties.typeConverterClassName as TypeName != ClassNames.TypeConverter
+            || typeConverterCache.has(classType)
     }
         ?: typeConverterCache.has(classType)
 
@@ -94,30 +95,36 @@ data class SingleFieldModel(
     override val names: List<NameModel> = listOf(name),
 ) : ObjectModel, FieldModel
 
-data class ForeignKeyModel(
+data class ReferenceHolderModel(
     override val name: NameModel,
     override val classType: TypeName,
     override val fieldType: FieldModel.FieldType,
     override val properties: FieldProperties?,
-    val foreignKeyProperties: ForeignKeyProperties,
+    val referenceHolderProperties: ReferenceHolderProperties,
     override val enclosingClassType: TypeName,
     override val names: List<NameModel> = listOf(name),
+    val type: Type,
 ) : ObjectModel, FieldModel {
+
+    enum class Type {
+        ForeignKey,
+        ColumnMap
+    }
 
     fun references(
         referencesCache: ReferencesCache,
         nameToNest: NameModel? = null,
     ): List<SingleFieldModel> {
-        val tableTypeName = if (foreignKeyProperties.isInferredTable()) {
-            foreignKeyProperties.referencedTableTypeName
+        val tableTypeName = if (referenceHolderProperties.isInferredTable()) {
+            referenceHolderProperties.referencedTableTypeName
         } else {
             classType
         }
-        return when (foreignKeyProperties.referencesType) {
-            is ForeignKeyProperties.ReferencesType.All -> referencesCache[tableTypeName]
-            is ForeignKeyProperties.ReferencesType.Specific -> {
+        return when (referenceHolderProperties.referencesType) {
+            is ReferenceHolderProperties.ReferencesType.All -> referencesCache[tableTypeName]
+            is ReferenceHolderProperties.ReferencesType.Specific -> {
                 referencesCache.references(
-                    foreignKeyProperties.referencesType.references,
+                    referenceHolderProperties.referencesType.references,
                     tableTypeName,
                 )
             }

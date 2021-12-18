@@ -9,7 +9,7 @@ import com.dbflow5.database.DatabaseStatement
 data class NullablePropertyStatementWrapper<T : Any?>(
     val statementBinder: (model: T, statement: DatabaseStatement, index: Int) -> Unit,
 ) {
-    val nullBinder: (statement: DatabaseStatement, index: Int) -> Unit =
+    private val nullBinder: (statement: DatabaseStatement, index: Int) -> Unit =
         { statement, index -> statement.bindNull(index) }
 
     fun bind(model: T, statement: DatabaseStatement, startIndex: Int) {
@@ -38,5 +38,21 @@ data class TypeConvertedPropertyStatementWrapper<Model : Any, Data : Any>(
 ) {
     fun bind(model: Model, statement: DatabaseStatement, startIndex: Int) {
         statementBinder(typeConverter.getDBValue(model), statement, startIndex)
+    }
+}
+
+data class NullableTypeConvertedPropertyStatementWrapper<Model : Any, Data : Any>(
+    val typeConverter: TypeConverter<Data, Model>,
+    val statementBinder: (model: Data, statement: DatabaseStatement, index: Int) -> Unit,
+) {
+    private val nullBinder: (statement: DatabaseStatement, index: Int) -> Unit =
+        { statement, index -> statement.bindNull(index) }
+
+    fun bind(model: Model?, statement: DatabaseStatement, startIndex: Int) {
+        if (model != null) {
+            statementBinder(typeConverter.getDBValue(model), statement, startIndex)
+        } else {
+            nullBinder(statement, startIndex)
+        }
     }
 }

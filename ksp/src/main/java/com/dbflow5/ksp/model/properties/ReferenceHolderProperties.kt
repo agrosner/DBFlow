@@ -7,7 +7,7 @@ import com.squareup.kotlinpoet.asClassName
 /**
  * Description:
  */
-data class ForeignKeyProperties(
+data class ReferenceHolderProperties(
     val onDelete: ForeignKeyAction,
     val onUpdate: ForeignKeyAction,
     val referencesType: ReferencesType,
@@ -25,5 +25,5 @@ data class ForeignKeyProperties(
 /**
  * If true, use the field type.
  */
-fun ForeignKeyProperties.isInferredTable() =
+fun ReferenceHolderProperties.isInferredTable() =
     referencedTableTypeName != Any::class.asClassName()

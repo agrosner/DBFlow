@@ -59,6 +59,10 @@ object ClassNames {
         ClassName(PackageNames.Property, "TypeConvertedPropertyStatementWrapper")
             .parameterizedBy(modelTypeName, dataTypeName)
 
+    fun nullableTypeConvertedPropertyStatementWrapper(modelTypeName: TypeName, dataTypeName: TypeName) =
+        ClassName(PackageNames.Property, "NullableTypeConvertedPropertyStatementWrapper")
+            .parameterizedBy(modelTypeName, dataTypeName)
+
     val DatabaseStatement = ClassName(PackageNames.Database, "DatabaseStatement")
 
     val ObjectType = ClassName(PackageNames.Adapter, "ObjectType")

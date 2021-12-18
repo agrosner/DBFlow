@@ -38,7 +38,7 @@ class ClassWriter(
         }
         val extractors = model.fields.map {
             when (it) {
-                is ForeignKeyModel -> FieldExtractor.ForeignFieldExtractor(
+                is ReferenceHolderModel -> FieldExtractor.ForeignFieldExtractor(
                     it,
                     referencesCache,
                 )
@@ -47,7 +47,7 @@ class ClassWriter(
         }
         val primaryExtractors = model.primaryFields.map {
             when (it) {
-                is ForeignKeyModel -> FieldExtractor.ForeignFieldExtractor(
+                is ReferenceHolderModel -> FieldExtractor.ForeignFieldExtractor(
                     it,
                     referencesCache,
                 )
@@ -106,6 +106,10 @@ class ClassWriter(
                         if (!model.isQuery) {
                             addProperty(tableNameParam.propertySpec)
                             creationQuery(model, extractors)
+
+                            model.flattenedFields(referencesCache).forEach { field ->
+                                addProperty(propertyStatementWrapperWriter.create(field))
+                            }sv≈
                         }
                         if (model.isNormal) {
                             getPropertyMethod(model)
@@ -123,9 +127,6 @@ class ClassWriter(
                         getPrimaryConditionClause(model)
                         getObjectType(model)
 
-                        model.flattenedFields(referencesCache).forEach { field ->
-                            addProperty(propertyStatementWrapperWriter.create(field))
-                        }
                         addType(TypeSpec.companionObjectBuilder()
                             .apply {
                                 model.flattenedFields(referencesCache).forEach { field ->
@@ -225,45 +226,52 @@ class ClassWriter(
                     }
                     model.fields.forEach { field ->
                         when (field) {
-                            is ForeignKeyModel -> {
-                                addCode(
-                                    "\t%N = ((%M %L %T::class) %L\n",
-                                    field.name.shortName,
-                                    MemberNames.select,
-                                    MemberNames.from,
-                                    field.nonNullClassType,
-                                    MemberNames.where,
-                                )
-                                field.references(referencesCache).zip(
-                                    field.references(referencesCache, field.name)
-                                ).forEachIndexed { index, (plain, referenced) ->
-                                    addCode("\t\t")
-                                    if (index > 0) {
-                                        addCode("%L ", "and")
+                            is ReferenceHolderModel -> {
+                                when (field.type) {
+                                    ReferenceHolderModel.Type.ForeignKey -> {
+                                        addCode(
+                                            "\t%N = ((%M %L %T::class) %L\n",
+                                            field.name.shortName,
+                                            MemberNames.select,
+                                            MemberNames.from,
+                                            field.nonNullClassType,
+                                            MemberNames.where,
+                                        )
+                                        field.references(referencesCache).zip(
+                                            field.references(referencesCache, field.name)
+                                        ).forEachIndexed { index, (plain, referenced) ->
+                                            addCode("\t\t")
+                                            if (index > 0) {
+                                                addCode("%L ", "and")
+                                            }
+                                            val className = field.nonNullClassType as ClassName
+                                            addCode(
+                                                "(%T.%L %L %L.%N.%M(%N))\n",
+                                                ClassName(
+                                                    className.packageName,
+                                                    className.simpleName + "_Adapter",
+                                                ),
+                                                plain.name.shortName,
+                                                MemberNames.eq,
+                                                "Companion",
+                                                referenced.propertyName,
+                                                MemberNames.infer,
+                                                "cursor"
+                                            )
+                                        }
+                                        addCode(
+                                            "\t).%L(%N)%L\n",
+                                            if (field.classType.isNullable)
+                                                MemberNames.querySingle
+                                            else MemberNames.requireSingle,
+                                            "wrapper",
+                                            model.memberSeparator,
+                                        )
                                     }
-                                    val className = field.nonNullClassType as ClassName
-                                    addCode(
-                                        "(%T.%L %L %L.%N.%M(%N))\n",
-                                        ClassName(
-                                            className.packageName,
-                                            className.simpleName + "_Adapter",
-                                        ),
-                                        plain.name.shortName,
-                                        MemberNames.eq,
-                                        "Companion",
-                                        referenced.propertyName,
-                                        MemberNames.infer,
-                                        "cursor"
-                                    )
+                                    ReferenceHolderModel.Type.ColumnMap -> {
+                                        // todo
+                                    }
                                 }
-                                addCode(
-                                    "\t).%L(%N)%L\n",
-                                    if (field.classType.isNullable)
-                                        MemberNames.querySingle
-                                    else MemberNames.requireSingle,
-                                    "wrapper",
-                                    model.memberSeparator,
-                                )
                             }
                             is SingleFieldModel -> {
                                 addCode(
@@ -329,7 +337,7 @@ class ClassWriter(
         modelName: String = "model",
     ): Builder = with(this) {
         when (model) {
-            is ForeignKeyModel -> {
+            is ReferenceHolderModel -> {
                 // foreign key has nesting logic
                 this.beginControlFlow(
                     "%L.%L.let { m -> ",

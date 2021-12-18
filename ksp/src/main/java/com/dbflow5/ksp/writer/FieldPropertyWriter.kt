@@ -17,6 +17,7 @@ class FieldPropertyWriter(
 ) : TypeCreator<FieldModel, PropertySpec> {
 
     override fun create(model: FieldModel): PropertySpec {
+
         if (model.hasTypeConverter(typeConverterCache)) {
             val typeConverterModel = model.typeConverter(typeConverterCache)
             return PropertySpec.builder(

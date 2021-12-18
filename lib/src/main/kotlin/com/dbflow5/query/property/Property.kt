@@ -379,3 +379,11 @@ inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data, Model>.infer(
 ): Model =
     typeConverter.getModelValue(getData(cursor))
 
+@JvmName("inferNullable")
+@Suppress("unused")
+inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data, Model?>.infer(
+    cursor: FlowCursor, typeConverter: TypeConverter<Data, Model>,
+    getData: (cursor: FlowCursor) -> Data?
+): Model? =
+    getData(cursor)?.let { typeConverter.getModelValue(it) }
+

@@ -1,7 +1,7 @@
 package com.dbflow5.ksp.model.cache
 
 import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.ForeignKeyModel
+import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.properties.ReferenceProperties
 import com.squareup.kotlinpoet.TypeName
@@ -28,7 +28,7 @@ class ReferencesCache {
             allTables.firstOrNull { it.classType == nonNullVersion }
                 ?.fields?.map {
                     when (it) {
-                        is ForeignKeyModel -> it.references(
+                        is ReferenceHolderModel -> it.references(
                             this,
                             nameToNest = it.name,
                         )

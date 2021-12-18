@@ -35,7 +35,8 @@ class KSClassDeclarationParser(
         val classType = input.asStarProjectedType().toClassName()
         val name = input.qualifiedName!!
         val packageName = input.packageName
-        val hasPrimaryConstructor = input.primaryConstructor != null
+        val hasPrimaryConstructor =
+            input.primaryConstructor?.parameters?.all { it.hasDefault } == true
         val isInternal = input.isInternal()
 
         // inspect annotations for what object it is.

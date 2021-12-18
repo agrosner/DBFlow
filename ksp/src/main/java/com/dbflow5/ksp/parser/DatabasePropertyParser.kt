@@ -6,6 +6,7 @@ import com.dbflow5.annotation.ForeignKeyAction
 import com.dbflow5.ksp.model.properties.*
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
+import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
@@ -81,24 +82,30 @@ class FieldPropertyParser : Parser<KSAnnotation, FieldProperties> {
     }
 }
 
-class ForeignKeyPropertyParser
+class ReferenceHolderProperyParser
 constructor(
     private val foreignKeyReferencePropertyParser: ForeignKeyReferencePropertyParser,
-) : Parser<KSAnnotation, ForeignKeyProperties> {
-    override fun parse(input: KSAnnotation): ForeignKeyProperties {
+) : Parser<KSAnnotation, ReferenceHolderProperties> {
+    override fun parse(input: KSAnnotation): ReferenceHolderProperties {
         val args = input.arguments.mapProperties()
         val references = args.arg<List<KSAnnotation>>("references")
             .map { foreignKeyReferencePropertyParser.parse(it) }
-        return ForeignKeyProperties(
-            onDelete = args.enumArg("onDelete", ForeignKeyAction::valueOf),
-            onUpdate = args.enumArg("onUpdate", ForeignKeyAction::valueOf),
+        return ReferenceHolderProperties(
+            onDelete = args.ifArg("onDelete") {
+                enumArg(it, ForeignKeyAction::valueOf)
+            } ?: ForeignKeyAction.NO_ACTION,
+            onUpdate = args.ifArg("onUpdate") {
+                enumArg("onUpdate", ForeignKeyAction::valueOf)
+            } ?: ForeignKeyAction.NO_ACTION,
             referencesType = when (references.isNotEmpty()) {
-                true -> ForeignKeyProperties.ReferencesType.Specific(
+                true -> ReferenceHolderProperties.ReferencesType.Specific(
                     references,
                 )
-                else -> ForeignKeyProperties.ReferencesType.All
+                else -> ReferenceHolderProperties.ReferencesType.All
             },
-            referencedTableTypeName = args.arg<KSType>("tableClass").toClassName(),
+            referencedTableTypeName = args.ifArg("tableClass") {
+                arg<KSType>("tableClass").toClassName()
+            } ?: Any::class.asTypeName()
         )
     }
 }
@@ -109,7 +116,9 @@ class ForeignKeyReferencePropertyParser : Parser<KSAnnotation, ReferenceProperti
         val notNullArgs = args.arg<KSAnnotation>("notNull").arguments.mapProperties()
         return ReferenceProperties(
             name = args.arg("columnName"),
-            referencedName = args.arg("foreignKeyColumnName"),
+            referencedName = args.ifArg("foreignKeyColumnName") {
+                arg(it)
+            } ?: args.arg("columnMapFieldName"),
             defaultValue = args.arg("defaultValue"),
             onNullConflict = notNullArgs.enumArg("onNullConflict", ConflictAction::valueOf),
         )

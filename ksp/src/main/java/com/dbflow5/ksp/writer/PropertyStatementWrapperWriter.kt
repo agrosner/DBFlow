@@ -22,17 +22,26 @@ class PropertyStatementWrapperWriter(
         val hasTypeConverter = model.hasTypeConverter(typeConverterCache)
         val type =
             when {
-                hasTypeConverter -> {
-                    ClassNames.typeConvertedPropertyStatementWrapper(
-                        model.classType,
-                        model.typeConverter(typeConverterCache).dataClassType,
-                    )
-                }
                 model.classType.isNullable -> {
-                    ClassNames.nullablePropertyStatementWrapper(model.classType)
+                    if (hasTypeConverter) {
+                        ClassNames.nullableTypeConvertedPropertyStatementWrapper(
+                            model.classType
+                                .copy(nullable = false),
+                            model.typeConverter(typeConverterCache).dataClassType,
+                        )
+                    } else {
+                        ClassNames.nullablePropertyStatementWrapper(model.classType)
+                    }
                 }
                 else -> {
-                    ClassNames.propertyStatementWrapper(model.classType)
+                    if (hasTypeConverter) {
+                        ClassNames.typeConvertedPropertyStatementWrapper(
+                            model.classType,
+                            model.typeConverter(typeConverterCache).dataClassType,
+                        )
+                    } else {
+                        ClassNames.propertyStatementWrapper(model.classType)
+                    }
                 }
             }
         return PropertySpec.builder(

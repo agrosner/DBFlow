@@ -1,6 +1,6 @@
 package com.dbflow5.ksp.writer
 
-import com.dbflow5.ksp.model.ForeignKeyModel
+import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.SingleFieldModel
 
@@ -34,7 +34,7 @@ sealed interface FieldExtractor {
     }
 
     data class ForeignFieldExtractor(
-        private val field: ForeignKeyModel,
+        private val field: ReferenceHolderModel,
         private val referencesCache: ReferencesCache,
     ) : FieldExtractor {
 

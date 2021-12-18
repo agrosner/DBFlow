@@ -50,7 +50,7 @@ data class ClassModel(
     ): List<FieldModel> {
         return primaryFields.map { field ->
             when (field) {
-                is ForeignKeyModel -> field.references(
+                is ReferenceHolderModel -> field.references(
                     referencesCache,
                     nameToNest = field.name,
                 )
