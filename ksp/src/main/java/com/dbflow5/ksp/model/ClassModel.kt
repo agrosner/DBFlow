@@ -43,7 +43,7 @@ data class ClassModel(
             when (field) {
                 is ForeignKeyModel -> field.references(
                     referencesCache,
-                    namePrefix = field.dbName
+                    nameToNest = field.name,
                 )
                 is SingleFieldModel -> listOf(field)
             }
@@ -72,7 +72,8 @@ fun ClassModel.partOfDatabaseAsType(
 
 val ClassModel.generatedClassName
     get() = NameModel(
-        name.packageName, "${name.shortName}_${
+        packageName = name.packageName,
+        shortName = "${name.shortName}_${
             when (type) {
                 is ClassModel.ClassType.Normal -> "Adapter"
                 is ClassModel.ClassType.Query -> "Query"

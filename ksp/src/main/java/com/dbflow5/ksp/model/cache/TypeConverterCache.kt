@@ -5,7 +5,6 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.properties.TypeConverterProperties
-import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.google.devtools.ksp.processing.Resolver
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
@@ -16,9 +15,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 /**
  * Description: Keeps all defined [TypeConverterModel]
  */
-class TypeConverterCache(
-    private val classDeclarationParser: KSClassDeclarationParser,
-) {
+class TypeConverterCache {
 
     private var typeConverters = mutableMapOf<TypeName, TypeConverterModel>()
 
@@ -60,7 +57,10 @@ class TypeConverterCache(
             throw IllegalStateException("Missing Key ${typeName}:${name}. Map is ${typeConverters}")
         }
 
-    fun has(typeName: TypeName) = typeConverters.containsKey(typeName)
+    fun has(typeName: TypeName) = typeConverters.containsKey(
+        typeName
+            .copy(nullable = false)
+    )
 
     companion object {
         private val DEFAULT_TYPE_CONVERTERS = arrayOf(

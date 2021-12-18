@@ -7,18 +7,19 @@ import com.dbflow5.ksp.model.properties.FieldProperties
 import com.dbflow5.ksp.model.properties.ForeignKeyProperties
 import com.dbflow5.ksp.model.properties.isInferredTable
 import com.dbflow5.ksp.model.properties.nameWithFallback
-import com.dbflow5.stripQuotes
 import com.squareup.kotlinpoet.TypeName
 
 
 sealed interface FieldModel {
+    /**
+     * The original name.
+     */
     val name: NameModel
 
     /**
-     * If this is a reference type, this field will represent original name of the
-     * field within a specific model.
+     * List of names, nested by call
      */
-    val originatingName: NameModel
+    val names: List<NameModel>
 
     /**
      * The declared type of the field.
@@ -34,8 +35,27 @@ sealed interface FieldModel {
      */
     val enclosingClassType: TypeName
 
+    /**
+     *  Join by name for properties.
+     */
+    val propertyName
+        get() = names.joinToString("_") { it.shortName }
+
+    /**
+     * [useLastNull] Last name if we want ? inserted
+     */
+    fun accessName(useLastNull: Boolean = false) = names
+        .withIndex()
+        .joinToString(".") { (index, value) ->
+            if (index < names.size - 1 || useLastNull) {
+                value.accessName
+            } else {
+                value.shortName
+            }
+        }
+
     val dbName
-        get() = properties.nameWithFallback(name.shortName)
+        get() = properties.nameWithFallback(propertyName)
 
     sealed interface FieldType {
         object Normal : FieldType
@@ -70,8 +90,8 @@ data class SingleFieldModel(
     override val classType: TypeName,
     override val fieldType: FieldModel.FieldType,
     override val properties: FieldProperties?,
-    override val originatingName: NameModel = name,
     override val enclosingClassType: TypeName,
+    override val names: List<NameModel> = listOf(name),
 ) : ObjectModel, FieldModel
 
 data class ForeignKeyModel(
@@ -80,13 +100,13 @@ data class ForeignKeyModel(
     override val fieldType: FieldModel.FieldType,
     override val properties: FieldProperties?,
     val foreignKeyProperties: ForeignKeyProperties,
-    override val originatingName: NameModel = name,
     override val enclosingClassType: TypeName,
+    override val names: List<NameModel> = listOf(name),
 ) : ObjectModel, FieldModel {
 
     fun references(
         referencesCache: ReferencesCache,
-        namePrefix: String
+        nameToNest: NameModel? = null,
     ): List<SingleFieldModel> {
         val tableTypeName = if (foreignKeyProperties.isInferredTable()) {
             foreignKeyProperties.referencedTableTypeName
@@ -102,12 +122,11 @@ data class ForeignKeyModel(
                 )
             }
         }.map { reference ->
-            if (namePrefix.isNotBlank()) {
+            if (nameToNest != null) {
                 reference.copy(
-                    originatingName = reference.name,
-                    name = reference.name.copy(
-                        shortName = "${namePrefix.stripQuotes()}_${reference.name.shortName}"
-                    )
+                    names = reference.names.toMutableList().apply {
+                        add(0, nameToNest)
+                    }
                 )
             } else reference
         }

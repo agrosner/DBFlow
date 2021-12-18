@@ -30,7 +30,7 @@ class ReferencesCache {
                     when (it) {
                         is ForeignKeyModel -> it.references(
                             this,
-                            namePrefix = it.dbName
+                            nameToNest = it.name,
                         )
                         is SingleFieldModel -> listOf(it)
                     }

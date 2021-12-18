@@ -20,7 +20,7 @@ class FieldPropertyWriter(
         if (model.hasTypeConverter(typeConverterCache)) {
             val typeConverterModel = model.typeConverter(typeConverterCache)
             return PropertySpec.builder(
-                model.name.shortName,
+                model.propertyName,
                 ClassNames.typeConvertedProperty(
                     typeConverterModel.dataClassType,
                     model.classType,
@@ -38,7 +38,7 @@ class FieldPropertyWriter(
                 .build()
         }
         return PropertySpec.builder(
-            model.name.shortName,
+            model.propertyName,
             ClassNames.property(model.classType)
         )
             .initializer("%M(%S)", MemberNames.property, model.name.shortName)

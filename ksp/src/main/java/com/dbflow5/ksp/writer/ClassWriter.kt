@@ -103,11 +103,11 @@ class ClassWriter(
                         addProperty(tableParam.propertySpec)
                         if (!model.isQuery) {
                             addProperty(tableNameParam.propertySpec)
-                            getPropertyMethod(model)
-                            allColumnProperties(model)
                             creationQuery(model, extractors)
                         }
                         if (model.isNormal) {
+                            getPropertyMethod(model)
+                            allColumnProperties(model)
                             bindInsert(model)
                             bindUpdate(model)
                             bindDelete(model)
@@ -161,9 +161,9 @@ class ClassWriter(
                         %S -> %L.%L
                         
                     """.trimIndent(),
-                        field.name.shortName.quoteIfNeeded(),
+                        field.dbName,
                         "Companion",
-                        field.name.shortName
+                        field.propertyName,
                     )
                 }
                 addCode(
@@ -193,7 +193,7 @@ class ClassWriter(
                             addCode(
                                 "%L.%L,\n",
                                 "Companion",
-                                field.name.shortName
+                                field.propertyName,
                             )
                         }
                     }
@@ -228,8 +228,8 @@ class ClassWriter(
                                     field.nonNullClassType,
                                     MemberNames.where,
                                 )
-                                field.references(referencesCache, "").zip(
-                                    field.references(referencesCache, field.dbName)
+                                field.references(referencesCache).zip(
+                                    field.references(referencesCache, field.name)
                                 ).forEachIndexed { index, (plain, referenced) ->
                                     addCode("\t\t")
                                     if (index > 0) {
@@ -245,7 +245,7 @@ class ClassWriter(
                                         plain.name.shortName,
                                         MemberNames.eq,
                                         "Companion",
-                                        referenced.name.shortName,
+                                        referenced.propertyName,
                                         MemberNames.infer,
                                         "cursor"
                                     )
@@ -299,10 +299,10 @@ class ClassWriter(
                     addCode(
                         "and(%L.%L %L %N.%L)\n",
                         "Companion",
-                        field.name.shortName,
+                        field.propertyName,
                         MemberNames.eq,
                         "model",
-                        field.name.shortName,
+                        field.accessName(useLastNull = false),
                     )
                 }
                 addCode("}\n")
@@ -320,13 +320,15 @@ class ClassWriter(
             is ForeignKeyModel -> {
                 // foreign key has nesting logic
                 this.beginControlFlow(
-                    "%L.%L%L.let { m -> ",
+                    "%L.%L.let { m -> ",
                     modelName,
-                    model.originatingName.shortName,
-                    if (model.classType.isNullable) "?" else ""
+                    model.accessName(useLastNull = true),
                 )
 
-                model.references(this@ClassWriter.referencesCache, namePrefix = model.dbName)
+                model.references(
+                    this@ClassWriter.referencesCache,
+                    nameToNest = model.name
+                )
                     .forEachIndexed { i, reference ->
                         loopModels(
                             model = reference, index = index + i,
@@ -343,7 +345,7 @@ class ClassWriter(
                     "%L.bind(%L.%L, statement, %L)",
                     model.fieldWrapperName,
                     modelName,
-                    model.originatingName.shortName,
+                    model.name.shortName,
                     index,
                 )
             }

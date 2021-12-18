@@ -64,4 +64,4 @@ class PropertyStatementWrapperWriter(
 }
 
 
-val FieldModel.fieldWrapperName get() = "${name.shortName}_wrapper"
+val FieldModel.fieldWrapperName get() = "${propertyName}_wrapper"

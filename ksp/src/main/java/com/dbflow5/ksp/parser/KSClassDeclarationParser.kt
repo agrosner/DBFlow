@@ -30,6 +30,7 @@ class KSClassDeclarationParser(
             }
             .map { propertyParser.parse(it) }
             .toList()
+        
         val classType = input.asStarProjectedType().toClassName()
         val name = input.qualifiedName!!
         val packageName = input.packageName

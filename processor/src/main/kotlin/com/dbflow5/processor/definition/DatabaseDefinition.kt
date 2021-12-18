@@ -147,11 +147,11 @@ class DatabaseDefinition(database: Database,
                 modifiers(public, final)
                 `return`(foreignKeysSupported.L)
             }
-            `override fun`(TypeName.BOOLEAN, "backupEnabled") {
+            `override fun`(TypeName.BOOLEAN, "getBackupEnabled") {
                 modifiers(public, final)
                 `return`(backupEnabled.L)
             }
-            `override fun`(TypeName.BOOLEAN, "areConsistencyChecksEnabled") {
+            `override fun`(TypeName.BOOLEAN, "getAreConsistencyChecksEnabled") {
                 modifiers(public, final)
                 `return`(consistencyChecksEnabled.L)
             }

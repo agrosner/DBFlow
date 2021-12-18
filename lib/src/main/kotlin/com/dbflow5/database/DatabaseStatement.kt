@@ -101,6 +101,17 @@ fun DatabaseStatement.bind(index: Int, value: ByteArray?) {
     bindBlobOrNull(index, value)
 }
 
+fun DatabaseStatement.bind(index: Int, value: Boolean) {
+    bindLong(index, if (value) 1 else 0)
+}
+
+fun DatabaseStatement.bind(index: Int, value: Boolean?) {
+    if (value != null) {
+        bind(index, value)
+    } else {
+        bindNull(index)
+    }
+}
 
 
 

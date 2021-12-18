@@ -40,7 +40,7 @@ sealed interface FieldExtractor {
 
         private val references = field.references(
             referencesCache,
-            namePrefix = field.dbName
+            nameToNest = field.name,
         )
             .map {
                 SingleFieldExtractor(it)

@@ -8,14 +8,17 @@ import com.squareup.kotlinpoet.ClassName
  */
 data class NameModel(
     val packageName: String,
-    val shortName: String
+    val shortName: String,
+    val nullable: Boolean = false,
 ) {
     constructor(
         ksName: KSName,
-        packageName: KSName
+        packageName: KSName,
+        nullable: Boolean = false,
     ) : this(
         packageName = packageName.asString(),
         shortName = ksName.getShortName(),
+        nullable = nullable,
     )
 
     constructor(className: ClassName) : this(
@@ -24,4 +27,10 @@ data class NameModel(
     )
 
     val className = ClassName(packageName, shortName)
+
+    val accessName = if (nullable) {
+        "${shortName}?"
+    } else {
+        shortName
+    }
 }
