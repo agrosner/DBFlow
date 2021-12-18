@@ -26,7 +26,7 @@ class KSClassDeclarationParser(
             .filterNot { prop ->
                 prop.annotations.any {
                     it.annotationType.toTypeName() == typeNameOf<ColumnIgnore>()
-                }
+                } || prop.type.toTypeName() == ClassNames.modelAdapter(ClassNames.BaseModel)
             }
             .map { propertyParser.parse(it) }
             .toList()

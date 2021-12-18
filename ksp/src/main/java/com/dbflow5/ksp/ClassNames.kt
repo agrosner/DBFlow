@@ -11,10 +11,12 @@ object PackageNames {
     const val Config = "com.dbflow5.config"
     const val Database = "com.dbflow5.database"
     const val Converter = "com.dbflow5.converter"
+    const val Structure = "com.dbflow5.structure"
 }
 
 object ClassNames {
 
+    val BaseModel = ClassName(PackageNames.Structure, "BaseModel")
 
     fun property(typeName: TypeName) = ClassName(PackageNames.Property, "Property")
         .parameterizedBy(typeName)
