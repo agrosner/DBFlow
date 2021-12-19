@@ -1,13 +1,12 @@
 package com.dbflow5.ksp.writer
 
 import com.dbflow5.ksp.ClassNames
-import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.*
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
+import com.dbflow5.ksp.writer.classwriter.*
 import com.squareup.kotlinpoet.*
-import com.squareup.kotlinpoet.FunSpec.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import java.util.*
 
@@ -19,6 +18,11 @@ class ClassWriter(
     private val propertyStatementWrapperWriter: PropertyStatementWrapperWriter,
     private val referencesCache: ReferencesCache,
     private val typeConverterCache: TypeConverterCache,
+    private val loadFromCursorWriter: LoadFromCursorWriter,
+    private val getPropertyMethodWriter: GetPropertyMethodWriter,
+    private val allColumnPropertiesWriter: AllColumnPropertiesWriter,
+    private val primaryConditionClauseWriter: PrimaryConditionClauseWriter,
+    private val statementBinderWriter: StatementBinderWriter,
 ) : TypeCreator<ClassModel, FileSpec> {
     override fun create(model: ClassModel): FileSpec {
         val tableParam = ParameterPropertySpec(
@@ -109,22 +113,22 @@ class ClassWriter(
 
                             model.flattenedFields(referencesCache).forEach { field ->
                                 addProperty(propertyStatementWrapperWriter.create(field))
-                            }sv≈
+                            }
                         }
                         if (model.isNormal) {
-                            getPropertyMethod(model)
-                            allColumnProperties(model)
-                            bindInsert(model)
-                            bindUpdate(model)
-                            bindDelete(model)
+                            addFunction(getPropertyMethodWriter.create(model))
+                            addProperty(allColumnPropertiesWriter.create(model))
+                            addFunction(statementBinderWriter.deleteWriter.create(model))
+                            addFunction(statementBinderWriter.insertWriter.create(model))
+                            addFunction(statementBinderWriter.deleteWriter.create(model))
                             insertStatementQuery(model, extractors, isSave = false)
                             insertStatementQuery(model, extractors, isSave = true)
                             updateStatement(model, extractors, primaryExtractors)
                             deleteStatement(model, primaryExtractors)
                         }
 
-                        loadFromCursor(model)
-                        getPrimaryConditionClause(model)
+                        addFunction(loadFromCursorWriter.create(model))
+                        addFunction(primaryConditionClauseWriter.create(model))
                         getObjectType(model)
 
                         addType(TypeSpec.companionObjectBuilder()
@@ -139,281 +143,6 @@ class ClassWriter(
             )
             .build()
 
-    }
-
-    private fun TypeSpec.Builder.getPropertyMethod(model: ClassModel) = apply {
-        addFunction(FunSpec.builder("getProperty")
-            .apply {
-                addModifiers(KModifier.OVERRIDE)
-                addParameter(ParameterSpec("columnName", String::class.asClassName()))
-                returns(
-                    ClassNames.property(
-                        WildcardTypeName.producerOf(
-                            Any::class.asTypeName().copy(nullable = true)
-                        )
-                    )
-                )
-                beginControlFlow(
-                    "return when(%N.%M())",
-                    "columnName",
-                    MemberNames.quoteIfNeeded
-                )
-                model.flattenedFields(referencesCache).forEach { field ->
-                    addCode(
-                        """
-                        %S -> %L.%L
-                        
-                    """.trimIndent(),
-                        field.dbName,
-                        "Companion",
-                        field.propertyName,
-                    )
-                }
-                addCode(
-                    """
-                    else -> throw %T(%S) 
-                """.trimIndent(),
-                    IllegalArgumentException::class.asClassName(),
-                    "Invalid column name passed. Ensure you are calling the correct table's column"
-                )
-                endControlFlow()
-            }
-            .build())
-    }
-
-    private fun TypeSpec.Builder.allColumnProperties(model: ClassModel) = apply {
-        addProperty(
-            PropertySpec.builder(
-                name = "allColumnProperties",
-                type = Array::class.asClassName()
-                    .parameterizedBy(ClassNames.IProperty),
-                KModifier.OVERRIDE,
-            )
-                .getter(FunSpec.getterBuilder()
-                    .addCode("return arrayOf(\n")
-                    .apply {
-                        model.flattenedFields(referencesCache).forEach { field ->
-                            addCode(
-                                "%L.%L,\n",
-                                "Companion",
-                                field.propertyName,
-                            )
-                        }
-                    }
-                    .addCode(")")
-                    .build())
-                .build()
-        )
-    }
-
-    private fun TypeSpec.Builder.loadFromCursor(
-        model: ClassModel,
-    ) =
-        apply {
-            addFunction(FunSpec.builder("loadFromCursor")
-                .apply {
-                    addModifiers(KModifier.OVERRIDE)
-                    addParameter(
-                        ParameterSpec("cursor", ClassNames.FlowCursor),
-                    )
-                    addParameter(
-                        ParameterSpec("wrapper", ClassNames.DatabaseWrapper)
-                    )
-                    if (model.hasPrimaryConstructor) {
-                        addCode("return %T(\n", model.classType)
-                    } else {
-                        beginControlFlow("return %T().apply", model.classType)
-                    }
-                    model.fields.forEach { field ->
-                        when (field) {
-                            is ReferenceHolderModel -> {
-                                when (field.type) {
-                                    ReferenceHolderModel.Type.ForeignKey -> {
-                                        addCode(
-                                            "\t%N = ((%M %L %T::class) %L\n",
-                                            field.name.shortName,
-                                            MemberNames.select,
-                                            MemberNames.from,
-                                            field.nonNullClassType,
-                                            MemberNames.where,
-                                        )
-                                        field.references(referencesCache).zip(
-                                            field.references(referencesCache, field.name)
-                                        ).forEachIndexed { index, (plain, referenced) ->
-                                            addCode("\t\t")
-                                            if (index > 0) {
-                                                addCode("%L ", "and")
-                                            }
-                                            val className = field.nonNullClassType as ClassName
-                                            addCode(
-                                                "(%T.%L %L %L.%N.%M(%N))\n",
-                                                ClassName(
-                                                    className.packageName,
-                                                    className.simpleName + "_Adapter",
-                                                ),
-                                                plain.name.shortName,
-                                                MemberNames.eq,
-                                                "Companion",
-                                                referenced.propertyName,
-                                                MemberNames.infer,
-                                                "cursor"
-                                            )
-                                        }
-                                        addCode(
-                                            "\t).%L(%N)%L\n",
-                                            if (field.classType.isNullable)
-                                                MemberNames.querySingle
-                                            else MemberNames.requireSingle,
-                                            "wrapper",
-                                            model.memberSeparator,
-                                        )
-                                    }
-                                    ReferenceHolderModel.Type.ColumnMap -> {
-                                        // todo
-                                    }
-                                }
-                            }
-                            is SingleFieldModel -> {
-                                addCode(
-                                    "\t%N = %L.%N.%M(%N",
-                                    field.name.shortName,
-                                    "Companion",
-                                    field.name.shortName,
-                                    MemberNames.infer,
-                                    "cursor"
-                                )
-                                if (field.hasTypeConverter(typeConverterCache)) {
-                                    addCode(
-                                        ", %L) { %L.%N.invertProperty().%M(%N) }%L\n",
-                                        field.typeConverter(typeConverterCache)
-                                            .name.shortName.lowercase(Locale.getDefault()),
-                                        "Companion",
-                                        field.name.shortName,
-                                        MemberNames.infer,
-                                        "cursor",
-                                        model.memberSeparator,
-                                    )
-                                } else {
-                                    addCode(")%L\n", model.memberSeparator)
-                                }
-                            }
-                        }
-
-                    }
-                    if (model.hasPrimaryConstructor) {
-                        addCode(")")
-                    } else {
-                        endControlFlow()
-                    }
-                }
-                .build())
-        }
-
-    private fun TypeSpec.Builder.getPrimaryConditionClause(model: ClassModel) = apply {
-        addFunction(FunSpec.builder("getPrimaryConditionClause")
-            .apply {
-                addModifiers(KModifier.OVERRIDE)
-                addParameter(ParameterSpec("model", model.classType))
-                addCode("return %T.clause().apply{\n", ClassNames.OperatorGroup)
-                model.primaryFlattenedFields(referencesCache).forEach { field ->
-                    addCode(
-                        "and(%L.%L %L %N.%L)\n",
-                        "Companion",
-                        field.propertyName,
-                        MemberNames.eq,
-                        "model",
-                        field.accessName(useLastNull = false),
-                    )
-                }
-                addCode("}\n")
-            }
-            .build())
-    }
-
-
-    private fun Builder.loopModels(
-        model: FieldModel,
-        index: Int,
-        modelName: String = "model",
-    ): Builder = with(this) {
-        when (model) {
-            is ReferenceHolderModel -> {
-                // foreign key has nesting logic
-                this.beginControlFlow(
-                    "%L.%L.let { m -> ",
-                    modelName,
-                    model.accessName(useLastNull = true),
-                )
-
-                model.references(
-                    this@ClassWriter.referencesCache,
-                    nameToNest = model.name
-                )
-                    .forEachIndexed { i, reference ->
-                        loopModels(
-                            model = reference, index = index + i,
-                            modelName = "m"
-                        )
-                    }
-                this.nextControlFlow("?: run")
-                this.addStatement("statement.bindNull(%L)", index)
-                this.endControlFlow()
-            }
-            is SingleFieldModel -> {
-                // simple field has access
-                this.addStatement(
-                    "%L.bind(%L.%L, statement, %L)",
-                    model.fieldWrapperName,
-                    modelName,
-                    model.name.shortName,
-                    index,
-                )
-            }
-        }
-    }
-
-    private fun TypeSpec.Builder.bindInsert(model: ClassModel) = apply {
-        addFunction(FunSpec.builder("bindToInsertStatement")
-            .apply {
-                addModifiers(KModifier.OVERRIDE)
-                addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
-                addParameter(ParameterSpec("model", model.classType))
-                model.fields.forEachIndexed { index, model ->
-                    this.loopModels(model, index)
-                }
-            }
-            .build())
-    }
-
-
-    private fun TypeSpec.Builder.bindUpdate(model: ClassModel) = apply {
-        addFunction(FunSpec.builder("bindToUpdateStatement")
-            .apply {
-                addModifiers(KModifier.OVERRIDE)
-                addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
-                addParameter(ParameterSpec("model", model.classType))
-                listOf(
-                    model.fields,
-                    model.primaryFields,
-                ).flatten().forEachIndexed { index, model ->
-                    this.loopModels(model, index)
-                }
-
-            }
-            .build())
-    }
-
-    private fun TypeSpec.Builder.bindDelete(model: ClassModel) = apply {
-        addFunction(FunSpec.builder("bindToDeleteStatement")
-            .apply {
-                addModifiers(KModifier.OVERRIDE)
-                addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
-                addParameter(ParameterSpec("model", model.classType))
-                model.primaryFields.forEachIndexed { index, model ->
-                    this.loopModels(model, index)
-                }
-            }
-            .build())
     }
 
     private fun TypeSpec.Builder.insertStatementQuery(

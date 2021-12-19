@@ -84,7 +84,7 @@ val ClassModel.generatedClassName
         packageName = name.packageName,
         shortName = "${name.shortName}_${
             when (type) {
-                is ClassModel.ClassType.Normal -> "Adapter"
+                is ClassModel.ClassType.Normal -> "Table"
                 is ClassModel.ClassType.Query -> "Query"
                 is ClassModel.ClassType.View -> "View"
             }

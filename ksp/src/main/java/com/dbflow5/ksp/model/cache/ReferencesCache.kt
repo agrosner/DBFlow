@@ -1,6 +1,7 @@
 package com.dbflow5.ksp.model.cache
 
 import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.properties.ReferenceProperties
@@ -19,6 +20,13 @@ private sealed interface ReferenceType {
 class ReferencesCache {
 
     var allTables: List<ClassModel> = listOf()
+
+    /**
+     * If true, the field specified is a table.
+     */
+    fun isTable(fieldModel: FieldModel) = allTables.any {
+        it.classType == fieldModel.classType
+    }
 
     private val referenceMap = mutableMapOf<ReferenceType, List<SingleFieldModel>>()
 
