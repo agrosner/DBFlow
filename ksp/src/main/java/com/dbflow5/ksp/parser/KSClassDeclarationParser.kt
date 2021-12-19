@@ -3,6 +3,7 @@ package com.dbflow5.ksp.parser
 import com.dbflow5.annotation.*
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.*
+import com.dbflow5.ksp.parser.extractors.FieldSanitizer
 import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ParameterizedTypeName
@@ -14,7 +15,7 @@ import com.squareup.kotlinpoet.typeNameOf
  * Description:
  */
 class KSClassDeclarationParser(
-    private val propertyParser: KSPropertyDeclarationParser,
+    private val fieldSanitizer: FieldSanitizer,
     private val databasePropertyParser: DatabasePropertyParser,
     private val tablePropertyParser: TablePropertyParser,
     private val queryPropertyParser: QueryPropertyParser,
@@ -23,14 +24,7 @@ class KSClassDeclarationParser(
 ) : Parser<KSClassDeclaration, ObjectModel> {
 
     override fun parse(input: KSClassDeclaration): ObjectModel {
-        val fields = input.getAllProperties()
-            .filterNot { prop ->
-                prop.annotations.any {
-                    it.annotationType.toTypeName() == typeNameOf<ColumnIgnore>()
-                } || prop.type.toTypeName() == ClassNames.modelAdapter(ClassNames.BaseModel)
-            }
-            .map { propertyParser.parse(it) }
-            .toList()
+        val fields = fieldSanitizer.parse(input = input.getAllProperties())
 
         val classType = input.asStarProjectedType().toClassName()
         val name = input.qualifiedName!!
