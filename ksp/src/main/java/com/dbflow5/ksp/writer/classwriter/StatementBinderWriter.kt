@@ -32,39 +32,56 @@ class StatementBinderWriter(
     ): FunSpec.Builder = with(this) {
         when (model) {
             is ReferenceHolderModel -> {
-                // foreign key has nesting logic
-                this.beginControlFlow(
-                    "%L.%L.let { m -> ",
-                    modelName,
-                    model.accessName(useLastNull = true),
-                )
-
-                model.references(
-                    referencesCache,
-                    nameToNest = model.name
-                )
-                    .forEachIndexed { i, reference ->
-                        loopModels(
-                            model = reference, index = index + i,
-                            modelName = "m"
-                        )
-                    }
-                this.nextControlFlow("?: run")
-                this.addStatement("statement.bindNull(%L)", index)
-                this.endControlFlow()
+                if (referencesCache.isTable(model)) {
+                    writeReferenceModel(modelName, model, index)
+                } else {
+                    writeSingleModel(model, modelName, index)
+                }
             }
             is SingleFieldModel -> {
-                // simple field has access
-                this.addStatement(
-                    "%L.bind(%L.%L, statement, %L)",
-                    model.fieldWrapperName,
-                    modelName,
-                    model.name.shortName,
-                    index,
-                )
+                writeSingleModel(model, modelName, index)
             }
         }
     }
+
+    private fun FunSpec.Builder.writeReferenceModel(
+        modelName: String,
+        model: ReferenceHolderModel,
+        index: Int
+    ): FunSpec.Builder {
+        // foreign key has nesting logic
+        this.beginControlFlow(
+            "%L.%L.let { m -> ",
+            modelName,
+            model.accessName(useLastNull = true),
+        )
+
+        model.references(
+            referencesCache,
+            nameToNest = model.name
+        )
+            .forEachIndexed { i, reference ->
+                loopModels(
+                    model = reference, index = index + i,
+                    modelName = "m"
+                )
+            }
+        this.nextControlFlow("?: run")
+        this.addStatement("statement.bindNull(%L)", index)
+        return this.endControlFlow()
+    }
+
+    private fun FunSpec.Builder.writeSingleModel(
+        model: FieldModel,
+        modelName: String,
+        index: Int
+    ) = this.addStatement(
+        "%L.bind(%L.%L, statement, %L)",
+        model.fieldWrapperName,
+        modelName,
+        model.name.shortName,
+        index,
+    )
 
     private val simpleWriter = TypeCreator<StatementModel, FunSpec> { (model, name, fieldsToLoop) ->
         FunSpec.builder(name)

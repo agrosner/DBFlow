@@ -40,74 +40,18 @@ class LoadFromCursorWriter(
                         is ReferenceHolderModel -> {
                             when (field.type) {
                                 ReferenceHolderModel.Type.ForeignKey -> {
-                                    addCode(
-                                        "\t%N = ((%M %L %T::class) %L\n",
-                                        field.name.shortName,
-                                        MemberNames.select,
-                                        MemberNames.from,
-                                        field.nonNullClassType,
-                                        MemberNames.where,
-                                    )
-                                    field.references(referencesCache).zip(
-                                        field.references(referencesCache, field.name)
-                                    ).forEachIndexed { index, (plain, referenced) ->
-                                        addCode("\t\t")
-                                        if (index > 0) {
-                                            addCode("%L ", "and")
-                                        }
-                                        val className = field.nonNullClassType as ClassName
-                                        addCode(
-                                            "(%T.%L %L %L.%N.%M(%N))\n",
-                                            ClassName(
-                                                className.packageName,
-                                                className.simpleName + "_Table",
-                                            ),
-                                            plain.name.shortName,
-                                            MemberNames.eq,
-                                            "Companion",
-                                            referenced.propertyName,
-                                            MemberNames.infer,
-                                            "cursor"
-                                        )
+                                    if (referencesCache.isTable(field)) {
+                                        addForeignKeyLoadStatement(field, model)
+                                    } else {
+                                        addSingleField(field, model)
                                     }
-                                    addCode(
-                                        "\t).%L(%N)%L\n",
-                                        if (field.classType.isNullable)
-                                            MemberNames.querySingle
-                                        else MemberNames.requireSingle,
-                                        "wrapper",
-                                        model.memberSeparator,
-                                    )
                                 }
                                 ReferenceHolderModel.Type.ColumnMap -> {
                                     // todo
                                 }
                             }
                         }
-                        is SingleFieldModel -> {
-                            addCode(
-                                "\t%N = %L.%N.%M(%N",
-                                field.name.shortName,
-                                "Companion",
-                                field.name.shortName,
-                                MemberNames.infer,
-                                "cursor"
-                            )
-                            if (field.hasTypeConverter(typeConverterCache)) {
-                                addCode(
-                                    ", %L) { %L.%N.invertProperty().%M(%N) }%L\n",
-                                    field.typeConverter(typeConverterCache)
-                                        .name.shortName.lowercase(Locale.getDefault()),
-                                    "Companion",
-                                    field.name.shortName,
-                                    MemberNames.infer,
-                                    "cursor",
-                                    model.memberSeparator,
-                                )
-                            } else {
-                                addCode(")%L\n", model.memberSeparator)
-                            }
-                        }
+                        is SingleFieldModel -> addSingleField(field, model)
                     }
 
                 }
@@ -118,4 +62,76 @@ class LoadFromCursorWriter(
                 }
             }
             .build()
+
+    private fun FunSpec.Builder.addForeignKeyLoadStatement(
+        field: ReferenceHolderModel,
+        model: ClassModel
+    ) {
+        addCode(
+            "\t%N = ((%M %L %T::class) %L\n",
+            field.name.shortName,
+            MemberNames.select,
+            MemberNames.from,
+            field.nonNullClassType,
+            MemberNames.where,
+        )
+        field.references(referencesCache).zip(
+            field.references(referencesCache, field.name)
+        ).forEachIndexed { index, (plain, referenced) ->
+            addCode("\t\t")
+            if (index > 0) {
+                addCode("%L ", "and")
+            }
+            val className = field.nonNullClassType as ClassName
+            addCode(
+                "(%T.%L %L %L.%N.%M(%N))\n",
+                ClassName(
+                    className.packageName,
+                    className.simpleName + "_Table",
+                ),
+                plain.name.shortName,
+                MemberNames.eq,
+                "Companion",
+                referenced.propertyName,
+                MemberNames.infer,
+                "cursor"
+            )
+        }
+        addCode(
+            "\t).%L(%N)%L\n",
+            if (field.classType.isNullable)
+                MemberNames.querySingle
+            else MemberNames.requireSingle,
+            "wrapper",
+            model.memberSeparator,
+        )
+    }
+
+    private fun FunSpec.Builder.addSingleField(
+        field: FieldModel,
+        model: ClassModel
+    ) {
+        addCode(
+            "\t%N = %L.%N.%M(%N",
+            field.name.shortName,
+            "Companion",
+            field.propertyName,
+            MemberNames.infer,
+            "cursor"
+        )
+        if (field.hasTypeConverter(typeConverterCache)) {
+            addCode(
+                ", %L) { %L.%N.invertProperty().%M(%N) }%L\n",
+                field.typeConverter(typeConverterCache)
+                    .name.shortName.lowercase(Locale.getDefault()),
+                "Companion",
+                field.name.shortName,
+                MemberNames.infer,
+                "cursor",
+                model.memberSeparator,
+            )
+        } else {
+            addCode(")%L\n", model.memberSeparator)
+        }
+    }
 }

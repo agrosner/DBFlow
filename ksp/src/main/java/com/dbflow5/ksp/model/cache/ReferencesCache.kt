@@ -25,7 +25,9 @@ class ReferencesCache {
      * If true, the field specified is a table.
      */
     fun isTable(fieldModel: FieldModel) = allTables.any {
-        it.classType == fieldModel.classType
+        it.classType == fieldModel.classType.copy(
+            nullable = false
+        )
     }
 
     private val referenceMap = mutableMapOf<ReferenceType, List<SingleFieldModel>>()
