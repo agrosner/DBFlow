@@ -23,6 +23,7 @@ class ClassWriter(
     private val allColumnPropertiesWriter: AllColumnPropertiesWriter,
     private val primaryConditionClauseWriter: PrimaryConditionClauseWriter,
     private val statementBinderWriter: StatementBinderWriter,
+    private val typeConverterFieldWriter: TypeConverterFieldWriter,
 ) : TypeCreator<ClassModel, FileSpec> {
     override fun create(model: ClassModel): FileSpec {
         val tableParam = ParameterPropertySpec(
@@ -96,14 +97,12 @@ class ClassWriter(
                         if (model.isInternal) {
                             addModifiers(KModifier.INTERNAL)
                         }
-                        if (typeConverters.isNotEmpty()) {
-                            typeConverters.forEach { (name, model) ->
-                                addProperty(
-                                    PropertySpec.builder(name, model.classType)
-                                        .initializer("%T()", model.classType)
-                                        .build()
+                        typeConverters.forEach { (name, model) ->
+                            addProperty(
+                                typeConverterFieldWriter.create(
+                                    TypeConverterFieldWriter.Input(model, name)
                                 )
-                            }
+                            )
                         }
 
                         addProperty(tableParam.propertySpec)
@@ -120,7 +119,7 @@ class ClassWriter(
                             addProperty(allColumnPropertiesWriter.create(model))
                             addFunction(statementBinderWriter.deleteWriter.create(model))
                             addFunction(statementBinderWriter.insertWriter.create(model))
-                            addFunction(statementBinderWriter.deleteWriter.create(model))
+                            addFunction(statementBinderWriter.updateWriter.create(model))
                             insertStatementQuery(model, extractors, isSave = false)
                             insertStatementQuery(model, extractors, isSave = true)
                             updateStatement(model, extractors, primaryExtractors)
