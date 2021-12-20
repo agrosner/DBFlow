@@ -86,7 +86,7 @@ class LoadFromCursorWriter(
             }
             val className = field.nonNullClassType as ClassName
             addCode(
-                "(%T.%L %L %L.%N.%M(%N))\n",
+                "(%T.%L %L %L.%N.%M(%N",
                 ClassName(
                     className.packageName,
                     className.simpleName + "_Table",
@@ -98,6 +98,12 @@ class LoadFromCursorWriter(
                 MemberNames.infer,
                 "cursor"
             )
+            if (referenced.hasTypeConverter(typeConverterCache)) {
+                addTypeConverter(referenced)
+            } else {
+                addCode(")")
+            }
+            addCode(")\n", model.memberSeparator)
         }
         addCode(
             "\t).%L(%N)%L\n",
@@ -122,18 +128,24 @@ class LoadFromCursorWriter(
             "cursor"
         )
         if (field.hasTypeConverter(typeConverterCache)) {
-            addCode(
-                ", %L) { %L.%N.invertProperty().%M(%N) }%L\n",
-                field.typeConverter(typeConverterCache)
-                    .name.shortName.lowercase(Locale.getDefault()),
-                "Companion",
-                field.name.shortName,
-                MemberNames.infer,
-                "cursor",
-                model.memberSeparator,
-            )
+            addTypeConverter(field)
         } else {
-            addCode(")%L\n", model.memberSeparator)
+            addCode(")")
         }
+        addCode("%L\n", model.memberSeparator)
+    }
+
+    private fun FunSpec.Builder.addTypeConverter(
+        field: FieldModel,
+    ) {
+        addCode(
+            ", %L) { %L.%N.invertProperty().%M(%N) }",
+            field.typeConverter(typeConverterCache)
+                .name.shortName.lowercase(Locale.getDefault()),
+            "Companion",
+            field.propertyName,
+            MemberNames.infer,
+            "cursor"
+        )
     }
 }

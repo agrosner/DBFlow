@@ -1,5 +1,6 @@
 package com.dbflow5.converter
 
+import com.dbflow5.data.Blob
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.sql.Time
@@ -10,23 +11,41 @@ import java.util.*
  * Description: This class is responsible for converting the stored database value into the field value in
  * a Model.
  */
-abstract class TypeConverter<DataClass : Any, ModelClass : Any> {
+abstract class TypeConverter<Data : Any, Model : Any> {
 
     /**
-     * Converts the ModelClass into a DataClass
+     * Converts the Model into a Data
      *
      * @param model this will be called upon syncing
-     * @return The DataClass value that converts into a SQLite type
+     * @return The Data value that converts into a SQLite type
      */
-    abstract fun getDBValue(model: ModelClass): DataClass
+    abstract fun getDBValue(model: Model): Data
 
     /**
-     * Converts a DataClass from the DB into a ModelClass
+     * Converts a Data from the DB into a Model
      *
      * @param data This will be called when the model is loaded from the DB
-     * @return The ModelClass value that gets set in a Model that holds the data class.
+     * @return The Model value that gets set in a Model that holds the data class.
      */
-    abstract fun getModelValue(data: DataClass): ModelClass
+    abstract fun getModelValue(data: Data): Model
+}
+
+/**
+ * Combine two [TypeConverter] into one implementation.
+ */
+fun <Data : Any, Model1 : Any, Model2 : Any>
+    TypeConverter<Data, Model1>.chain(
+    typeConverter: TypeConverter<Model1, Model2>
+): TypeConverter<Data, Model2> {
+    return object : TypeConverter<Data, Model2>() {
+        override fun getDBValue(model: Model2): Data {
+            return getDBValue(typeConverter.getDBValue(model))
+        }
+
+        override fun getModelValue(data: Data): Model2 {
+            return typeConverter.getModelValue(this@chain.getModelValue(data))
+        }
+    }
 }
 
 /**
@@ -117,4 +136,11 @@ class UUIDConverter : TypeConverter<String, UUID>() {
     override fun getDBValue(model: UUID): String = model.toString()
 
     override fun getModelValue(data: String): UUID = UUID.fromString(data)
+}
+
+@com.dbflow5.annotation.TypeConverter
+class BlobConverter : TypeConverter<ByteArray, Blob>() {
+    override fun getDBValue(model: Blob) = model.blob
+
+    override fun getModelValue(data: ByteArray) = Blob(data)
 }

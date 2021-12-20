@@ -59,7 +59,10 @@ object ClassNames {
         ClassName(PackageNames.Property, "TypeConvertedPropertyStatementWrapper")
             .parameterizedBy(modelTypeName, dataTypeName)
 
-    fun nullableTypeConvertedPropertyStatementWrapper(modelTypeName: TypeName, dataTypeName: TypeName) =
+    fun nullableTypeConvertedPropertyStatementWrapper(
+        modelTypeName: TypeName,
+        dataTypeName: TypeName
+    ) =
         ClassName(PackageNames.Property, "NullableTypeConvertedPropertyStatementWrapper")
             .parameterizedBy(modelTypeName, dataTypeName)
 
@@ -96,4 +99,6 @@ object MemberNames {
     const val requireSingle = "requireSingle"
     const val querySingle = "querySingle"
     const val eq = "eq"
+
+    val chain = MemberName(PackageNames.Converter, "chain")
 }

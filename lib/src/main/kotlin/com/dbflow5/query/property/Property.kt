@@ -2,7 +2,6 @@ package com.dbflow5.query.property
 
 import com.dbflow5.config.FlowManager
 import com.dbflow5.converter.TypeConverter
-import com.dbflow5.data.Blob
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.*
 
@@ -366,11 +365,11 @@ fun Property<Short>.infer(cursor: FlowCursor): Short =
     cursor.getShortOrDefault(nameAlias.name())
 
 @JvmName("getNullable")
-fun Property<Blob?>.infer(cursor: FlowCursor): Blob? =
-    cursor.getBlobOrDefault(nameAlias.name())?.let { Blob(it) }
+fun Property<ByteArray?>.infer(cursor: FlowCursor): ByteArray? =
+    cursor.getBlobOrDefault(nameAlias.name())
 
-fun Property<Blob>.infer(cursor: FlowCursor): Blob =
-    Blob(cursor.getBlobOrDefault(nameAlias.name(), byteArrayOf()))
+fun Property<ByteArray>.infer(cursor: FlowCursor): ByteArray =
+    cursor.getBlobOrDefault(nameAlias.name(), byteArrayOf())
 
 @Suppress("unused")
 inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data, Model>.infer(

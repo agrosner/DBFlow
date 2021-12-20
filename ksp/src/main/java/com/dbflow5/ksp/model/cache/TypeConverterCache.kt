@@ -2,16 +2,15 @@ package com.dbflow5.ksp.model.cache
 
 import com.dbflow5.converter.*
 import com.dbflow5.ksp.ClassNames
+import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.properties.TypeConverterProperties
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.ParameterizedTypeName
-import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ksp.toTypeName
+import java.util.*
 
 /**
  * Description: Keeps all defined [TypeConverterModel]
@@ -78,8 +77,32 @@ class TypeConverterCache(
             SqlDateConverter::class,
             BooleanConverter::class,
             UUIDConverter::class,
-            CharConverter::class
+            CharConverter::class,
+            BlobConverter::class,
         )
     }
 }
 
+/**
+ * If a [TypeConverter] resolves to another, existing [TypeConverter] type,
+ * chain until resolved.
+ */
+fun TypeConverterCache.chainedReference(
+    codeBlock: CodeBlock.Builder,
+    typeName: TypeName,
+    name: String
+) {
+    var typeConverter = this[typeName, name]
+    codeBlock.add(
+        "(%L", typeConverter
+            .name.shortName.lowercase(Locale.getDefault())
+    )
+    while (has(typeConverter.dataClassType)) {
+        codeBlock.add(
+            ".%M(%L)", MemberNames.chain, typeConverter
+                .name.shortName.lowercase(Locale.getDefault())
+        )
+        typeConverter = this[typeConverter.dataClassType, name]
+    }
+    codeBlock.add(")")
+}

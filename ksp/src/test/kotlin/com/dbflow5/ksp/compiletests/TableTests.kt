@@ -98,6 +98,33 @@ class TableTests {
         assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
     }
 
+    @Test
+    fun `property has global type converter`() {
+        val source = SourceFile.kotlin(
+            "SimpleModel.kt",
+            """
+            package test
+            import com.dbflow5.annotation.Database
+            import com.dbflow5.annotation.Table
+            import com.dbflow5.annotation.PrimaryKey
+            import com.dbflow5.config.DBFlowDatabase
+            import com.dbflow5.data.Blob
+
+
+            @Database(version = 1)
+            abstract class TestDatabase: DBFlowDatabase()
+            
+            @Table(database = TestDatabase::class)
+            class SimpleModel(
+                @PrimaryKey val name: String,
+                val blob: Blob,
+            )  
+            """.trimIndent()
+        )
+        val result = compilation(temporaryFolder, sources = listOf(source)).compile()
+        assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+    }
+
 
     @AfterTest
     fun stop() {

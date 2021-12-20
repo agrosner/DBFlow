@@ -79,6 +79,7 @@ class KSPropertyDeclarationParser constructor(
                 inputType = input.type.resolve(),
                 isVal = isVal,
                 isColumnMap = columnMapKey != null,
+
             )
         }
         return SingleFieldModel(

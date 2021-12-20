@@ -4,6 +4,7 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.cache.TypeConverterCache
+import com.dbflow5.ksp.model.cache.chainedReference
 import com.dbflow5.ksp.model.hasTypeConverter
 import com.dbflow5.ksp.model.typeConverter
 import com.squareup.kotlinpoet.CodeBlock
@@ -54,9 +55,11 @@ class PropertyStatementWrapperWriter(
                     CodeBlock.builder().apply {
                         add("%T", type)
                         if (hasTypeConverter) {
-                            add(
-                                "(%L)", model.typeConverter(typeConverterCache)
-                                    .name.shortName.lowercase(Locale.getDefault())
+                            typeConverterCache.chainedReference(
+                                this,
+                                model.classType,
+                                model.properties?.typeConverterClassName?.toString()
+                                    ?: ""
                             )
                         }
                         add(
