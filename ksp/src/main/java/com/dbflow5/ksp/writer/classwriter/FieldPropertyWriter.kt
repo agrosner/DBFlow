@@ -1,4 +1,4 @@
-package com.dbflow5.ksp.writer
+package com.dbflow5.ksp.writer.classwriter
 
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
@@ -7,6 +7,7 @@ import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.hasTypeConverter
 import com.dbflow5.ksp.model.typeConverter
+import com.dbflow5.ksp.writer.TypeCreator
 import com.squareup.kotlinpoet.PropertySpec
 
 /**
@@ -42,7 +43,7 @@ class FieldPropertyWriter(
             model.propertyName,
             ClassNames.property(model.classType)
         )
-            .initializer("%M(%S)", MemberNames.property, model.name.shortName)
+            .initializer("%M(%S)", MemberNames.property, model.dbName)
             .build()
     }
 }

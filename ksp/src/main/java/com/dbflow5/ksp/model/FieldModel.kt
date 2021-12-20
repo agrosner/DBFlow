@@ -138,6 +138,10 @@ data class ReferenceHolderModel(
     ): List<SingleFieldModel> {
         when (type) {
             Type.ForeignKey -> {
+                // treat field of not table type as a single model type.
+                if (!referencesCache.isTable(this)) {
+                    return listOf(toSingleModel())
+                }
                 val tableTypeName = if (referenceHolderProperties.isInferredTable()) {
                     referenceHolderProperties.referencedTableTypeName
                 } else {
@@ -179,5 +183,17 @@ data class ReferenceHolderModel(
         }
     }
 }
+
+fun ReferenceHolderModel.toSingleModel() =
+    SingleFieldModel(
+        name,
+        classType,
+        fieldType,
+        properties,
+        enclosingClassType,
+        names,
+        isInlineClass,
+        isVal
+    )
 
 
