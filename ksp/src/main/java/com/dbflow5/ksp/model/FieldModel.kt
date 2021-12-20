@@ -121,6 +121,7 @@ data class ReferenceHolderModel(
     override val isInlineClass: Boolean,
     val inputType: KSType,
     override val isVal: Boolean,
+    val isColumnMap: Boolean,
 ) : ObjectModel, FieldModel {
 
     enum class Type {

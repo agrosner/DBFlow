@@ -32,7 +32,8 @@ class StatementBinderWriter(
     ): FunSpec.Builder = with(this) {
         when (model) {
             is ReferenceHolderModel -> {
-                if (referencesCache.isTable(model)) {
+                if (referencesCache.isTable(model)
+                    || model.isColumnMap) {
                     writeReferenceModel(modelName, model, index)
                 } else {
                     writeSingleModel(model, modelName, index)
