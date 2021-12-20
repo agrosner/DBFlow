@@ -259,8 +259,11 @@ data class Currency(
     @Column @Unique var name: String = ""
 ) // nullability of fields are respected. We will not assign a null value to this field.
 
-inline class Password(val value: String)
-inline class Email(val value: String)
+@JvmInline
+value class Password(val value: String)
+
+@JvmInline
+value class Email(val value: String)
 
 @Table(database = TestDatabase::class)
 class UserInfo(

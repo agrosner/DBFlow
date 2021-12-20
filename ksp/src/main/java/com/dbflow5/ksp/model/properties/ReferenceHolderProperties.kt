@@ -8,8 +8,8 @@ import com.squareup.kotlinpoet.asClassName
  * Description:
  */
 data class ReferenceHolderProperties(
-    val onDelete: ForeignKeyAction,
-    val onUpdate: ForeignKeyAction,
+    val onDelete: ForeignKeyAction = ForeignKeyAction.NO_ACTION,
+    val onUpdate: ForeignKeyAction = ForeignKeyAction.NO_ACTION,
     val referencesType: ReferencesType,
     val referencedTableTypeName: TypeName,
 ) {

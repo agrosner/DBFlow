@@ -8,8 +8,11 @@ import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.SingleFieldModel
+import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.Modifier
+import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.typeNameOf
@@ -35,6 +38,9 @@ class KSPropertyDeclarationParser constructor(
         } else {
             FieldModel.FieldType.Normal
         }
+        val inputType = input.type.resolve()
+        val isInlineClass = inputType
+            .declaration.modifiers.any { it == Modifier.VALUE }
         val column =
             input.annotations.find { it.annotationType.toTypeName() == typeNameOf<Column>() }
         val foreignKey =
@@ -42,38 +48,46 @@ class KSPropertyDeclarationParser constructor(
         val columnMapKey =
             input.annotations.find { it.annotationType.toTypeName() == typeNameOf<ColumnMap>() }
         val classType = input.type.toTypeName()
+        val name = NameModel(
+            input.simpleName,
+            input.packageName,
+            classType.isNullable,
+        )
+        val isVal = !input.isMutable
         if (foreignKey != null || columnMapKey != null) {
             return ReferenceHolderModel(
-                name = NameModel(
-                    input.simpleName,
-                    input.packageName,
-                    classType.isNullable,
-                ),
+                name = name,
                 classType = classType,
                 fieldType,
                 properties = column?.let { fieldPropertyParser.parse(column) },
-                referenceHolderProperties = referenceHolderPropertyParser.parse(
-                    foreignKey ?: columnMapKey!!
+                referenceHolderProperties = (foreignKey ?: columnMapKey)?.let {
+                    referenceHolderPropertyParser.parse(
+                        it
+                    )
+                } ?: ReferenceHolderProperties(
+                    referencesType = ReferenceHolderProperties.ReferencesType.All,
+                    referencedTableTypeName = Any::class.asTypeName(),
                 ),
                 enclosingClassType = input.parentDeclaration?.closestClassDeclaration()!!
                     .toClassName(),
                 type = if (foreignKey != null) {
                     ReferenceHolderModel.Type.ForeignKey
                 } else {
-                    ReferenceHolderModel.Type.ColumnMap
-                }
+                    ReferenceHolderModel.Type.Computed
+                },
+                isInlineClass = isInlineClass,
+                inputType = input.type.resolve(),
+                isVal = isVal,
             )
         }
         return SingleFieldModel(
-            name = NameModel(
-                input.simpleName,
-                input.packageName,
-                classType.isNullable,
-            ),
+            name = name,
             classType = classType,
             fieldType,
             properties = column?.let { fieldPropertyParser.parse(column) },
             enclosingClassType = input.parentDeclaration?.closestClassDeclaration()!!.toClassName(),
+            isInlineClass = isInlineClass,
+            isVal = isVal,
         )
     }
 }

@@ -7,6 +7,7 @@ import com.dbflow5.ksp.model.properties.FieldProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.dbflow5.ksp.model.properties.isInferredTable
 import com.dbflow5.ksp.model.properties.nameWithFallback
+import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.TypeName
 
 
@@ -27,6 +28,17 @@ sealed interface FieldModel {
     val classType: TypeName
     val nonNullClassType: TypeName
         get() = classType.copy(nullable = false)
+
+    /**
+     * If type is inline.
+     */
+    val isInlineClass: Boolean
+
+    /**
+     * If true, must exist in constructor, otherwise will be ignored.
+     */
+    val isVal: Boolean
+
     val fieldType: FieldType
     val properties: FieldProperties?
 
@@ -93,6 +105,8 @@ data class SingleFieldModel(
     override val properties: FieldProperties?,
     override val enclosingClassType: TypeName,
     override val names: List<NameModel> = listOf(name),
+    override val isInlineClass: Boolean,
+    override val isVal: Boolean,
 ) : ObjectModel, FieldModel
 
 data class ReferenceHolderModel(
@@ -104,38 +118,64 @@ data class ReferenceHolderModel(
     override val enclosingClassType: TypeName,
     override val names: List<NameModel> = listOf(name),
     val type: Type,
+    override val isInlineClass: Boolean,
+    val inputType: KSType,
+    override val isVal: Boolean,
 ) : ObjectModel, FieldModel {
 
     enum class Type {
         ForeignKey,
-        ColumnMap
+
+        /**
+         * These are either ColumnMap or inline classes.
+         */
+        Computed
     }
 
     fun references(
         referencesCache: ReferencesCache,
         nameToNest: NameModel? = null,
     ): List<SingleFieldModel> {
-        val tableTypeName = if (referenceHolderProperties.isInferredTable()) {
-            referenceHolderProperties.referencedTableTypeName
-        } else {
-            classType
-        }
-        return when (referenceHolderProperties.referencesType) {
-            is ReferenceHolderProperties.ReferencesType.All -> referencesCache[tableTypeName]
-            is ReferenceHolderProperties.ReferencesType.Specific -> {
-                referencesCache.references(
-                    referenceHolderProperties.referencesType.references,
-                    tableTypeName,
-                )
-            }
-        }.map { reference ->
-            if (nameToNest != null) {
-                reference.copy(
-                    names = reference.names.toMutableList().apply {
-                        add(0, nameToNest)
+        when (type) {
+            Type.ForeignKey -> {
+                val tableTypeName = if (referenceHolderProperties.isInferredTable()) {
+                    referenceHolderProperties.referencedTableTypeName
+                } else {
+                    classType
+                }
+                return when (referenceHolderProperties.referencesType) {
+                    is ReferenceHolderProperties.ReferencesType.All -> referencesCache.resolveExistingFields(
+                        tableTypeName
+                    )
+                    is ReferenceHolderProperties.ReferencesType.Specific -> {
+                        referencesCache.resolveReferencesOnExisting(
+                            referenceHolderProperties.referencesType.references,
+                            tableTypeName,
+                        )
                     }
-                )
-            } else reference
+                }.map { reference ->
+                    if (nameToNest != null) {
+                        reference.copy(
+                            names = reference.names.toMutableList().apply {
+                                add(0, nameToNest)
+                            }
+                        )
+                    } else reference
+                }
+            }
+            Type.Computed -> {
+                return when (referenceHolderProperties.referencesType) {
+                    is ReferenceHolderProperties.ReferencesType.All -> referencesCache.resolveComputedFields(
+                        inputType,
+                    )
+                    is ReferenceHolderProperties.ReferencesType.Specific -> {
+                        referencesCache.resolveReferencesOnComputedFields(
+                            referenceHolderProperties.referencesType.references,
+                            inputType,
+                        )
+                    }
+                }
+            }
         }
     }
 }

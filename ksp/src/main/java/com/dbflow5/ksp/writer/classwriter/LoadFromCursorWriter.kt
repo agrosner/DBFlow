@@ -35,26 +35,28 @@ class LoadFromCursorWriter(
                 } else {
                     beginControlFlow("return %T().apply", model.classType)
                 }
-                model.fields.forEach { field ->
-                    when (field) {
-                        is ReferenceHolderModel -> {
-                            when (field.type) {
-                                ReferenceHolderModel.Type.ForeignKey -> {
-                                    if (referencesCache.isTable(field)) {
-                                        addForeignKeyLoadStatement(field, model)
-                                    } else {
-                                        addSingleField(field, model)
+                model.fields
+                    .filter { model.hasPrimaryConstructor || !it.isVal }
+                    .forEach { field ->
+                        when (field) {
+                            is ReferenceHolderModel -> {
+                                when (field.type) {
+                                    ReferenceHolderModel.Type.ForeignKey -> {
+                                        if (referencesCache.isTable(field)) {
+                                            addForeignKeyLoadStatement(field, model)
+                                        } else {
+                                            addSingleField(field, model)
+                                        }
+                                    }
+                                    ReferenceHolderModel.Type.Computed -> {
+                                        // todo
                                     }
                                 }
-                                ReferenceHolderModel.Type.ColumnMap -> {
-                                    // todo
-                                }
                             }
+                            is SingleFieldModel -> addSingleField(field, model)
                         }
-                        is SingleFieldModel -> addSingleField(field, model)
-                    }
 
-                }
+                    }
                 if (model.hasPrimaryConstructor) {
                     addCode(")")
                 } else {

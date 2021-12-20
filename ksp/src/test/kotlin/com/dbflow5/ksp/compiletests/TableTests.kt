@@ -72,6 +72,33 @@ class TableTests {
         assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
     }
 
+    @Test
+    fun `inline class table`() {
+        val source = SourceFile.kotlin(
+            "SimpleModel.kt",
+            """
+            package test
+            import com.dbflow5.annotation.Database
+            import com.dbflow5.annotation.Table
+            import com.dbflow5.annotation.PrimaryKey
+            import com.dbflow5.config.DBFlowDatabase
+
+
+            @Database(version = 1)
+            abstract class TestDatabase: DBFlowDatabase()
+            
+            @JvmInline
+            value class Name(val value: String)
+            
+            @Table(database = TestDatabase::class)
+            class SimpleModel(@PrimaryKey val name: Name)  
+            """.trimIndent()
+        )
+        val result = compilation(temporaryFolder, sources = listOf(source)).compile()
+        assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+    }
+
+
     @AfterTest
     fun stop() {
         stopKoin()

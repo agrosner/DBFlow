@@ -25,11 +25,10 @@ class KSClassDeclarationParser(
 
     override fun parse(input: KSClassDeclaration): ObjectModel {
         val fields = fieldSanitizer.parse(input = input.getAllProperties())
-
         val classType = input.asStarProjectedType().toClassName()
         val name = input.qualifiedName!!
         val packageName = input.packageName
-        val hasPrimaryConstructor =
+        val hasDefaultConstructor =
             input.primaryConstructor?.parameters?.all { it.hasDefault } == true
         val isInternal = input.isInternal()
 
@@ -51,7 +50,7 @@ class KSClassDeclarationParser(
                     type = ClassModel.ClassType.Normal,
                     properties = tablePropertyParser.parse(annotation),
                     fields = fields,
-                    hasPrimaryConstructor = hasPrimaryConstructor,
+                    hasPrimaryConstructor = !hasDefaultConstructor,
                     isInternal = isInternal,
                 )
             }
@@ -62,7 +61,7 @@ class KSClassDeclarationParser(
                     type = ClassModel.ClassType.View,
                     properties = viewPropertyParser.parse(annotation),
                     fields = fields,
-                    hasPrimaryConstructor = hasPrimaryConstructor,
+                    hasPrimaryConstructor = !hasDefaultConstructor,
                     isInternal = isInternal,
                 )
             }
@@ -73,7 +72,7 @@ class KSClassDeclarationParser(
                     type = ClassModel.ClassType.Query,
                     properties = queryPropertyParser.parse(annotation),
                     fields = fields,
-                    hasPrimaryConstructor = hasPrimaryConstructor,
+                    hasPrimaryConstructor = !hasDefaultConstructor,
                     isInternal = isInternal,
                 )
             }
