@@ -25,7 +25,7 @@ class KSClassDeclarationParser(
 ) : Parser<KSClassDeclaration, ObjectModel> {
 
     override fun parse(input: KSClassDeclaration): ObjectModel {
-        val fields = fieldSanitizer.parse(input = input.getAllProperties())
+        val fields = fieldSanitizer.parse(input = input)
         val classType = input.asStarProjectedType().toClassName()
         val name = input.qualifiedName!!
         val packageName = input.packageName
