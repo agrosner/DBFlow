@@ -24,17 +24,16 @@ class FieldSanitizer(
 
     override fun parse(input: KSClassDeclaration): List<FieldModel> {
         // grabs all fields from current class and super class fields.
-        val allFields = input.getAllProperties()
-            .toList() + input.superTypes.mapNotNull {
+        return (input.getAllProperties() + input.superTypes.mapNotNull {
             it.resolve().declaration.closestClassDeclaration()
         }.mapNotNull { it.getAllProperties() }
-            .flatten()
+            .flatten())
             .filterNot { it.isAbstract() }
-        return allFields.filterNot { prop ->
-            isIgnoredColumn(prop) || isModelAdapter(prop)
-                || isOneToMany(prop)
-                || prop.isDelegated()
-        }
+            .distinctBy { it.simpleName.getShortName() }.filterNot { prop ->
+                isIgnoredColumn(prop) || isModelAdapter(prop)
+                    || isOneToMany(prop)
+                    || prop.isDelegated()
+            }
             .map(propertyParser::parse)
             .toList()
     }
