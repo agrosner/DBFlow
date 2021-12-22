@@ -1,9 +1,11 @@
-include ':lib', ':reactive-streams', ':coroutines',
+include ':lib',
+    ':reactive-streams',
+    ':coroutines',
     ':livedata',
     ':processor',
     ':core',
     ':sqlcipher',
     ':tests',
-    ':paging'
-
-include ':ksp'
+    ':paging',
+    ':ksp',
+    ':ksp-tests'

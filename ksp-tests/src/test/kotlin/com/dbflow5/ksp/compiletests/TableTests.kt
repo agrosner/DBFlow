@@ -125,6 +125,95 @@ class TableTests {
         assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
     }
 
+    @Test
+    fun `java class with constructor should apply constructor`() {
+        val source = SourceFile.java(
+            "TestDatabase.java",
+            """
+            package test;
+            import com.dbflow5.annotation.Database;
+            import com.dbflow5.config.DBFlowDatabase;
+
+
+            @Database(version = 1)
+            public abstract class TestDatabase extends DBFlowDatabase {
+            }
+            
+            """.trimIndent()
+        )
+        val databaseModelSource = SourceFile.java(
+            "DatabaseModel.java",
+            """
+                package test;
+                import com.dbflow5.annotation.PrimaryKey;
+                import com.dbflow5.structure.BaseModel;
+
+                public class DatabaseModel extends BaseModel {
+                    @PrimaryKey
+                    private Integer id;
+    
+                    public Integer getId() {
+                        return id;
+                    }
+    
+                    public void setId(Integer id) {
+                        this.id = id;
+                    }
+                }
+            """.trimIndent()
+        )
+        val exampleModel = SourceFile.java(
+            "ExampleModel.java",
+            """
+                 
+            package test;
+            import com.dbflow5.annotation.Table;
+            import com.dbflow5.annotation.ForeignKey;
+            import com.dbflow5.annotation.Column;
+            import test.TestDatabase;
+            import test.DatabaseModel;
+            import test.inner.JavaModel;
+            
+            @Table(database = TestDatabase.class)
+            public class ExampleModel extends DatabaseModel {
+                @Column
+                String name;
+            
+                @ForeignKey
+                JavaModel model;
+            }
+            """.trimIndent()
+        )
+        val otherPackageSource = SourceFile.java(
+            "JavaModel.java",
+            """
+            package test.inner;
+            
+            import com.dbflow5.annotation.Table;
+            import test.TestDatabase;
+            import com.dbflow5.annotation.PrimaryKey;
+
+            @Table(database = TestDatabase.class)
+            public class JavaModel {
+
+                @PrimaryKey
+                String id;
+            }
+
+            """.trimIndent()
+        )
+        val result = compilation(
+            temporaryFolder,
+            sources = listOf(
+                source,
+                otherPackageSource,
+                databaseModelSource,
+                exampleModel,
+            )
+        ).compile()
+        assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+    }
+
 
     @AfterTest
     fun stop() {
