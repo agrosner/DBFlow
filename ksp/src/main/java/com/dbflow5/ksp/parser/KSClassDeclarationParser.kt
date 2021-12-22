@@ -4,6 +4,7 @@ import com.dbflow5.annotation.*
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.*
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
+import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ParameterizedTypeName
@@ -30,6 +31,10 @@ class KSClassDeclarationParser(
         val packageName = input.packageName
         val hasDefaultConstructor =
             input.primaryConstructor?.parameters?.all { it.hasDefault } == true
+                || input.getConstructors().any { constructor ->
+                constructor.parameters.isEmpty() ||
+                    constructor.parameters.all { it.hasDefault }
+            }
         val isInternal = input.isInternal()
 
         // inspect annotations for what object it is.
