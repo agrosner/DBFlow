@@ -5,7 +5,7 @@ object Versions {
     const val MinSdkRX = 21
     const val SQLCipherMin = 21
     const val ArchMin = 21
-    const val KSP = "${Kotlin}-1.0.1"
+    const val KSP = "${Kotlin}-1.0.2"
 }
 
 object Dependencies {

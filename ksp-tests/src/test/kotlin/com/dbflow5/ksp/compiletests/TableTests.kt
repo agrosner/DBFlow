@@ -215,6 +215,34 @@ class TableTests {
     }
 
 
+    @Test
+    fun `ignore delegate`() {
+        val source = SourceFile.kotlin(
+            "SimpleModel.kt",
+            """
+            package test
+            import com.dbflow5.annotation.Database
+            import com.dbflow5.annotation.Table
+            import com.dbflow5.annotation.PrimaryKey
+            import com.dbflow5.config.DBFlowDatabase
+            import com.dbflow5.reactivestreams.structure.BaseRXModel 
+            import com.dbflow5.structure.BaseModel
+
+
+            @Database(version = 1)
+            abstract class TestDatabase: DBFlowDatabase()
+            
+            @Table(database = TestDatabase::class)
+            data class SimpleModel(@PrimaryKey val name: String)  : BaseModel()
+
+            @Table(database = TestDatabase::class)
+            data class SimpleRXModel(@PrimaryKey val name: String): BaseRXModel()
+            """.trimIndent()
+        )
+        val result = compilation(temporaryFolder, sources = listOf(source)).compile()
+        assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+    }
+
     @AfterTest
     fun stop() {
         stopKoin()

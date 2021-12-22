@@ -33,6 +33,7 @@ class FieldSanitizer(
         return allFields.filterNot { prop ->
             isIgnoredColumn(prop) || isModelAdapter(prop)
                 || isOneToMany(prop)
+                || prop.isDelegated()
         }
             .map(propertyParser::parse)
             .toList()
