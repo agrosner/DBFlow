@@ -4,6 +4,7 @@ import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.PrimaryKey
+import com.dbflow5.ksp.kotlinpoet.javaPlatformTypeName
 import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.ReferenceHolderModel
@@ -47,7 +48,7 @@ class KSPropertyDeclarationParser constructor(
             input.annotations.find { it.annotationType.toTypeName() == typeNameOf<ForeignKey>() }
         val columnMapKey =
             input.annotations.find { it.annotationType.toTypeName() == typeNameOf<ColumnMap>() }
-        val classType = input.type.toTypeName()
+        val classType = input.type.javaPlatformTypeName()
         val name = NameModel(
             input.simpleName,
             input.packageName,

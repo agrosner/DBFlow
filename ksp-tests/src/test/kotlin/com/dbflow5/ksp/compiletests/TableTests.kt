@@ -187,7 +187,7 @@ class TableTests {
         val otherPackageSource = SourceFile.java(
             "JavaModel.java",
             """
-            package test.inner;
+            package test;
             
             import com.dbflow5.annotation.Table;
             import test.TestDatabase;
