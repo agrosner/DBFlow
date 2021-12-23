@@ -1,13 +1,11 @@
 package com.dbflow5.ksp.writer.classwriter
 
 import com.dbflow5.ksp.ClassNames
-import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.FieldModel
-import com.dbflow5.ksp.model.ReferenceHolderModel
-import com.dbflow5.ksp.model.SingleFieldModel
+import com.dbflow5.ksp.MemberNames
+import com.dbflow5.ksp.model.*
 import com.dbflow5.ksp.model.cache.ReferencesCache
+import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.writer.TypeCreator
-import com.dbflow5.ksp.writer.fieldWrapperName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
@@ -23,6 +21,7 @@ data class StatementModel(
  */
 class StatementBinderWriter(
     private val referencesCache: ReferencesCache,
+    private val typeConverterCache: TypeConverterCache,
 ) {
 
     private fun FunSpec.Builder.loopModels(
@@ -33,7 +32,8 @@ class StatementBinderWriter(
         when (model) {
             is ReferenceHolderModel -> {
                 if (referencesCache.isTable(model)
-                    || model.isColumnMap) {
+                    || model.isColumnMap
+                ) {
                     writeReferenceModel(modelName, model, index)
                 } else {
                     writeSingleModel(model, modelName, index)
@@ -76,13 +76,29 @@ class StatementBinderWriter(
         model: FieldModel,
         modelName: String,
         index: Int
-    ) = this.addStatement(
-        "%L.bind(%L.%L, statement, %L)",
-        model.fieldWrapperName,
-        modelName,
-        model.name.shortName,
-        index,
-    )
+    ): FunSpec.Builder = apply {
+        addCode(
+            "%L.%L.%M(%L.%L,",
+            "Companion",
+            model.propertyName,
+            MemberNames.propertyBind,
+            modelName,
+            model.name.shortName,
+        )
+        if (model.hasTypeConverter(typeConverterCache)) {
+            addCode(
+                "%L) { statement.%M(%L, it) }",
+                model.typeConverter(typeConverterCache).name.shortName
+                    .lowercase(),
+                MemberNames.bind,
+                index,
+            )
+        } else {
+            addCode("statement, %L)", index)
+        }
+
+        addCode("\n")
+    }
 
     private val simpleWriter = TypeCreator<StatementModel, FunSpec> { (model, name, fieldsToLoop) ->
         FunSpec.builder(name)

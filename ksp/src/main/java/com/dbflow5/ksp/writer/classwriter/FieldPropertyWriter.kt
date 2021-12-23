@@ -8,6 +8,7 @@ import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.hasTypeConverter
 import com.dbflow5.ksp.model.typeConverter
 import com.dbflow5.ksp.writer.TypeCreator
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.PropertySpec
 
 /**
@@ -28,6 +29,10 @@ class FieldPropertyWriter(
                     model.classType,
                 )
             )
+                .addAnnotation(
+                    AnnotationSpec.builder(JvmStatic::class)
+                        .build()
+                )
                 .initializer(
                     "%M<%T, %T, %T>(%S) { %T() }",
                     MemberNames.typeConvertedProperty,
@@ -43,6 +48,10 @@ class FieldPropertyWriter(
             model.propertyName,
             ClassNames.property(model.classType)
         )
+            .addAnnotation(
+                AnnotationSpec.builder(JvmStatic::class)
+                    .build()
+            )
             .initializer("%M(%S)", MemberNames.property, model.dbName)
             .build()
     }

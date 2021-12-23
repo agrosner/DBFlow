@@ -15,7 +15,6 @@ import java.util.*
  */
 class ClassWriter(
     private val fieldPropertyWriter: FieldPropertyWriter,
-    private val propertyStatementWrapperWriter: PropertyStatementWrapperWriter,
     private val referencesCache: ReferencesCache,
     private val typeConverterCache: TypeConverterCache,
     private val loadFromCursorWriter: LoadFromCursorWriter,
@@ -109,10 +108,6 @@ class ClassWriter(
                         if (!model.isQuery) {
                             addProperty(tableNameParam.propertySpec)
                             creationQuery(model, extractors)
-
-                            model.flattenedFields(referencesCache).forEach { field ->
-                                addProperty(propertyStatementWrapperWriter.create(field))
-                            }
                         }
                         if (model.isNormal) {
                             addFunction(getPropertyMethodWriter.create(model))

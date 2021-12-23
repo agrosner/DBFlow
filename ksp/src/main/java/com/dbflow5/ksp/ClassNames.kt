@@ -47,25 +47,6 @@ object ClassNames {
     val FlowCursor = ClassName(PackageNames.Database, "FlowCursor")
     val DatabaseWrapper = ClassName(PackageNames.Database, "DatabaseWrapper")
 
-    fun propertyStatementWrapper(typeName: TypeName) =
-        ClassName(PackageNames.Property, "PropertyStatementWrapper")
-            .parameterizedBy(typeName)
-
-    fun nullablePropertyStatementWrapper(typeName: TypeName) =
-        ClassName(PackageNames.Property, "NullablePropertyStatementWrapper")
-            .parameterizedBy(typeName)
-
-    fun typeConvertedPropertyStatementWrapper(modelTypeName: TypeName, dataTypeName: TypeName) =
-        ClassName(PackageNames.Property, "TypeConvertedPropertyStatementWrapper")
-            .parameterizedBy(modelTypeName, dataTypeName)
-
-    fun nullableTypeConvertedPropertyStatementWrapper(
-        modelTypeName: TypeName,
-        dataTypeName: TypeName
-    ) =
-        ClassName(PackageNames.Property, "NullableTypeConvertedPropertyStatementWrapper")
-            .parameterizedBy(modelTypeName, dataTypeName)
-
     val DatabaseStatement = ClassName(PackageNames.Database, "DatabaseStatement")
 
     val ObjectType = ClassName(PackageNames.Adapter, "ObjectType")
@@ -92,6 +73,7 @@ object MemberNames {
     val infer = MemberName(PackageNames.Property, "infer")
 
     val bind = MemberName(PackageNames.Database, "bind")
+    val propertyBind = MemberName(PackageNames.Property, "bindProperty")
 
     val select = MemberName(PackageNames.Query, "select")
     const val from = "from"
