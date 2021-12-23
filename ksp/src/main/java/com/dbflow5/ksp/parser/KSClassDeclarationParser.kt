@@ -93,8 +93,9 @@ class KSClassDeclarationParser(
                     name = NameModel(name, packageName),
                     properties = typeConverterPropertyParser.parse(annotation),
                     classType = classType,
-                    dataClassType = typeConverterSuper.typeArguments[0],
-                    modelClassType = typeConverterSuper.typeArguments[1],
+                    dataTypeName = typeConverterSuper.typeArguments[0],
+                    modelTypeName = typeConverterSuper.typeArguments[1],
+                    modelClass = null,
                 )
             }
         }

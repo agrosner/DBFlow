@@ -8,6 +8,7 @@ import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.writer.ClassWriter
 import com.dbflow5.ksp.writer.DatabaseHolderWriter
 import com.dbflow5.ksp.writer.DatabaseWriter
+import com.dbflow5.ksp.writer.InlineTypeConverterWriter
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
@@ -26,6 +27,7 @@ class DBFlowKspProcessor(
     private val referencesCache: ReferencesCache,
     private val typeConverterCache: TypeConverterCache,
     private val environment: SymbolProcessorEnvironment,
+    private val typeConverterWriter: InlineTypeConverterWriter,
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -87,6 +89,7 @@ class DBFlowKspProcessor(
                 }
 
             listOf(
+                typeConverterCache.generatedTypeConverters.map(typeConverterWriter::create),
                 classes.map(classWriter::create),
                 databases.map(databaseWriter::create),
                 listOf(holderModel).map(databaseHolderWriter::create)

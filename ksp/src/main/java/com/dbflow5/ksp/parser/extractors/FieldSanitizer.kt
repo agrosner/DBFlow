@@ -4,6 +4,8 @@ import com.dbflow5.annotation.ColumnIgnore
 import com.dbflow5.annotation.OneToMany
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.FieldModel
+import com.dbflow5.ksp.model.cache.TypeConverterCache
+import com.dbflow5.ksp.model.generateTypeConverter
 import com.dbflow5.ksp.parser.KSPropertyDeclarationParser
 import com.dbflow5.ksp.parser.Parser
 import com.google.devtools.ksp.closestClassDeclaration
@@ -19,6 +21,7 @@ import com.squareup.kotlinpoet.typeNameOf
  */
 class FieldSanitizer(
     private val propertyParser: KSPropertyDeclarationParser,
+    private val typeConverterCache: TypeConverterCache,
 ) : Parser<KSClassDeclaration,
     List<FieldModel>> {
 
@@ -36,6 +39,15 @@ class FieldSanitizer(
             }
             .map(propertyParser::parse)
             .toList()
+            .also { list ->
+                // any inline class should put a generated type.
+                list.filter { it.isInlineClass }
+                    .forEach { inlineType ->
+                        typeConverterCache.putGeneratedTypeConverter(
+                            inlineType.generateTypeConverter()
+                        )
+                    }
+            }
     }
 
     private fun isModelAdapter(prop: KSPropertyDeclaration) =

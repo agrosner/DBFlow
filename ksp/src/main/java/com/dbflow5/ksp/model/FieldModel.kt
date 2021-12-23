@@ -3,12 +3,12 @@ package com.dbflow5.ksp.model
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
-import com.dbflow5.ksp.model.properties.FieldProperties
-import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
-import com.dbflow5.ksp.model.properties.isInferredTable
-import com.dbflow5.ksp.model.properties.nameWithFallback
+import com.dbflow5.ksp.model.properties.*
+import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.ksp.toTypeName
+import java.util.*
 
 
 sealed interface FieldModel {
@@ -28,6 +28,8 @@ sealed interface FieldModel {
     val classType: TypeName
     val nonNullClassType: TypeName
         get() = classType.copy(nullable = false)
+
+    val ksClassType: KSType
 
     /**
      * If type is inline.
@@ -94,6 +96,30 @@ fun FieldModel.typeConverter(typeConverterCache: TypeConverterCache) =
         ?: ""]
 
 /**
+ * Builds a new [TypeConverterModel] to generate on the fly.
+ */
+fun FieldModel.generateTypeConverter(): TypeConverterModel {
+    val newName = name.copy(
+        shortName = "${
+            name.shortName.replaceFirstChar {
+                if (it.isLowerCase())
+                    it.titlecase(Locale.getDefault()) else it.toString()
+            }
+        }Converter"
+    )
+    val inlineDeclaration = ksClassType.declaration.closestClassDeclaration()!!
+    val firstProperty = inlineDeclaration.getAllProperties().first()
+    return TypeConverterModel(
+        name = newName,
+        properties = TypeConverterProperties(listOf()),
+        classType = newName.className,
+        dataTypeName = firstProperty.type.toTypeName(),
+        modelTypeName = classType,
+        modelClass = inlineDeclaration,
+    )
+}
+
+/**
  * Description:
  */
 data class SingleFieldModel(
@@ -110,6 +136,7 @@ data class SingleFieldModel(
     override val isInlineClass: Boolean,
     override val isVal: Boolean,
     override val isEnum: Boolean,
+    override val ksClassType: KSType,
 ) : ObjectModel, FieldModel
 
 data class ReferenceHolderModel(
@@ -122,7 +149,7 @@ data class ReferenceHolderModel(
     override val names: List<NameModel> = listOf(name),
     val type: Type,
     override val isInlineClass: Boolean,
-    val inputType: KSType,
+    override val ksClassType: KSType,
     override val isVal: Boolean,
     val isColumnMap: Boolean,
     override val isEnum: Boolean,
@@ -175,12 +202,12 @@ data class ReferenceHolderModel(
             Type.Computed -> {
                 return when (referenceHolderProperties.referencesType) {
                     is ReferenceHolderProperties.ReferencesType.All -> referencesCache.resolveComputedFields(
-                        inputType,
+                        ksClassType,
                     )
                     is ReferenceHolderProperties.ReferencesType.Specific -> {
                         referencesCache.resolveReferencesOnComputedFields(
                             referenceHolderProperties.referencesType.references,
-                            inputType,
+                            ksClassType,
                         )
                     }
                 }
@@ -200,6 +227,7 @@ fun ReferenceHolderModel.toSingleModel() =
         isInlineClass = isInlineClass,
         isVal = isVal,
         isEnum = isEnum,
+        ksClassType = ksClassType,
     )
 
 

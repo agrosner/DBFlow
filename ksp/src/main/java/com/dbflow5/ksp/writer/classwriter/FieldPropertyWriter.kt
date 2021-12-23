@@ -25,7 +25,7 @@ class FieldPropertyWriter(
             return PropertySpec.builder(
                 model.propertyName,
                 ClassNames.typeConvertedProperty(
-                    typeConverterModel.dataClassType,
+                    typeConverterModel.dataTypeName,
                     model.classType,
                 )
             )
@@ -37,7 +37,7 @@ class FieldPropertyWriter(
                     "%M<%T, %T, %T>(%S) { %T() }",
                     MemberNames.typeConvertedProperty,
                     model.enclosingClassType,
-                    typeConverterModel.dataClassType,
+                    typeConverterModel.dataTypeName,
                     model.classType,
                     model.dbName,
                     typeConverterModel.classType,

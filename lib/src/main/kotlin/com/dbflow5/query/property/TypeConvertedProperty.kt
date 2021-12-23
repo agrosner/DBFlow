@@ -14,9 +14,9 @@ import kotlin.reflect.KClass
  * @author Andrew Grosner (fuzz)
  */
 
-class TypeConvertedProperty<Data, V> : Property<V> {
+class TypeConvertedProperty<Data, Model> : Property<Model> {
 
-    private var databaseProperty: TypeConvertedProperty<V, Data>? = null
+    private var databaseProperty: TypeConvertedProperty<Model, Data>? = null
 
     private val convertToDB: Boolean
     private val getter: TypeConverterGetter
@@ -33,7 +33,7 @@ class TypeConvertedProperty<Data, V> : Property<V> {
         fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *>
     }
 
-    override val operator: Operator<V>
+    override val operator: Operator<Model>
         get() = Operator.op(nameAlias, table, getter, convertToDB)
 
     constructor(
@@ -61,7 +61,7 @@ class TypeConvertedProperty<Data, V> : Property<V> {
         this.getter = getter
     }
 
-    override fun withTable(): TypeConvertedProperty<Data, V> {
+    override fun withTable(): TypeConvertedProperty<Data, Model> {
         val nameAlias = this.nameAlias
             .newBuilder()
             .withTable(FlowManager.getTableName(table))
@@ -74,13 +74,12 @@ class TypeConvertedProperty<Data, V> : Property<V> {
      * Provides a convenience for supplying type converted methods within the DataClass of the [TypeConverter]
      */
     fun invertProperty(): Property<Data> = databaseProperty
-        ?: TypeConvertedProperty<V, Data>(table, nameAlias,
-            !convertToDB, object : TypeConverterGetter {
-                override fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *> =
-                    getter.getTypeConverter(modelClass)
-            }).also { databaseProperty = it }
+        ?: TypeConvertedProperty<Model, Data>(
+            table, nameAlias,
+            !convertToDB
+        ) { modelClass -> getter.getTypeConverter(modelClass) }.also { databaseProperty = it }
 
-    override fun withTable(tableNameAlias: NameAlias): TypeConvertedProperty<Data, V> {
+    override fun withTable(tableNameAlias: NameAlias): TypeConvertedProperty<Data, Model> {
         val nameAlias = this.nameAlias
             .newBuilder()
             .withTable(tableNameAlias.tableName)

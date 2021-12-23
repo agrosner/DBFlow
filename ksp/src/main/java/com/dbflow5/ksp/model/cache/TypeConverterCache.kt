@@ -6,8 +6,10 @@ import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.properties.TypeConverterProperties
+import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ksp.toTypeName
 import java.util.*
@@ -19,7 +21,13 @@ class TypeConverterCache(
     private val logger: KSPLogger,
 ) {
 
-    private var typeConverters = mutableMapOf<TypeName, TypeConverterModel>()
+    private val typeConverters = mutableMapOf<TypeName, TypeConverterModel>()
+
+    /**
+     * Set of TypeConverters to generate
+     */
+    private val typeConvertersToWrite = mutableSetOf<TypeConverterModel>()
+    val generatedTypeConverters: Set<TypeConverterModel> = typeConvertersToWrite
 
     fun applyResolver(resolver: Resolver) {
         DEFAULT_TYPE_CONVERTERS.forEach { defaultType ->
@@ -28,9 +36,33 @@ class TypeConverterCache(
         }
     }
 
+    /**
+     * Add a type converter we generate on the fly - currently only used for Inline class types.
+     */
+    fun putGeneratedTypeConverter(typeConverterModel: TypeConverterModel) {
+        putTypeConverter(typeConverterModel)
+        typeConvertersToWrite.add(typeConverterModel)
+    }
+
     fun putTypeConverter(className: ClassName, resolver: Resolver) {
         val declaration =
             resolver.getClassDeclarationByName(resolver.getKSNameFromString(className.toString()))!!
+        val typeConverterSuper = extractTypeParameterType(declaration, className)
+        val classModel = TypeConverterModel(
+            name = NameModel(className),
+            properties = TypeConverterProperties(listOf()),
+            classType = className,
+            dataTypeName = typeConverterSuper.typeArguments[0],
+            modelTypeName = typeConverterSuper.typeArguments[1],
+            modelClass = declaration.asStarProjectedType().declaration.closestClassDeclaration(),
+        )
+        putTypeConverter(classModel)
+    }
+
+    private fun extractTypeParameterType(
+        declaration: KSClassDeclaration,
+        className: ClassName
+    ): ParameterizedTypeName {
         val typeConverterSuper = declaration.superTypes.firstNotNullOfOrNull { reference ->
             reference.resolve().toTypeName().let {
                 it as? ParameterizedTypeName
@@ -38,19 +70,12 @@ class TypeConverterCache(
                 type.rawType == ClassNames.TypeConverter
             }
         } ?: throw IllegalStateException("Error ${className}")
-        val classModel = TypeConverterModel(
-            name = NameModel(className),
-            properties = TypeConverterProperties(listOf()),
-            classType = className,
-            dataClassType = typeConverterSuper.typeArguments[0],
-            modelClassType = typeConverterSuper.typeArguments[1],
-        )
-        putTypeConverter(classModel)
+        return typeConverterSuper
     }
 
 
     fun putTypeConverter(typeConverterModel: TypeConverterModel) {
-        typeConverters[typeConverterModel.modelClassType.copy(nullable = false)] =
+        typeConverters[typeConverterModel.modelTypeName.copy(nullable = false)] =
             typeConverterModel
     }
 
@@ -97,12 +122,12 @@ fun TypeConverterCache.chainedReference(
         "(%L", typeConverter
             .name.shortName.lowercase(Locale.getDefault())
     )
-    while (has(typeConverter.dataClassType)) {
+    while (has(typeConverter.dataTypeName)) {
         codeBlock.add(
             ".%M(%L)", MemberNames.chain, typeConverter
                 .name.shortName.lowercase(Locale.getDefault())
         )
-        typeConverter = this[typeConverter.dataClassType, name]
+        typeConverter = this[typeConverter.dataTypeName, name]
     }
     codeBlock.add(")")
 }

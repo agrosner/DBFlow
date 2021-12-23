@@ -40,11 +40,11 @@ class KSPropertyDeclarationParser constructor(
         } else {
             FieldModel.FieldType.Normal
         }
-        val inputType = input.type.resolve()
-        val isInlineClass = inputType
+        val ksClassType = input.type.resolve()
+        val isInlineClass = ksClassType
             .declaration.modifiers.any { it == Modifier.VALUE }
         val isEnum =
-            inputType.declaration.closestClassDeclaration()?.classKind == ClassKind.ENUM_CLASS
+            ksClassType.declaration.closestClassDeclaration()?.classKind == ClassKind.ENUM_CLASS
         val column =
             input.annotations.find { it.annotationType.toTypeName() == typeNameOf<Column>() }
         val foreignKey =
@@ -80,7 +80,7 @@ class KSPropertyDeclarationParser constructor(
                     ReferenceHolderModel.Type.Computed
                 },
                 isInlineClass = isInlineClass,
-                inputType = input.type.resolve(),
+                ksClassType = ksClassType,
                 isVal = isVal,
                 isColumnMap = columnMapKey != null,
                 isEnum = isEnum,
@@ -95,6 +95,7 @@ class KSPropertyDeclarationParser constructor(
             isInlineClass = isInlineClass,
             isVal = isVal,
             isEnum = isEnum,
+            ksClassType = ksClassType,
         )
     }
 }
