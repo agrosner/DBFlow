@@ -113,6 +113,14 @@ fun DatabaseStatement.bind(index: Int, value: Boolean?) {
     }
 }
 
+/**
+ * Bind enum values
+ */
+fun DatabaseStatement.bind(index: Int, value: Enum<*>) {
+    bindString(index, value.name)
+}
 
-
-
+@JvmName("bindNullable")
+fun DatabaseStatement.bind(index: Int, value: Enum<*>?) {
+    bindStringOrNull(index, value?.name)
+}

@@ -98,10 +98,12 @@ class LoadFromCursorWriter(
                 MemberNames.infer,
                 "cursor"
             )
-            if (referenced.hasTypeConverter(typeConverterCache)) {
-                addTypeConverter(referenced)
-            } else {
-                addCode(")")
+            when {
+                referenced.hasTypeConverter(typeConverterCache) -> {
+                    addTypeConverter(referenced)
+                }
+                referenced.isEnum -> addEnumConstructor(referenced)
+                else -> addCode(")")
             }
             addCode(")\n", model.memberSeparator)
         }
@@ -127,10 +129,12 @@ class LoadFromCursorWriter(
             MemberNames.infer,
             "cursor"
         )
-        if (field.hasTypeConverter(typeConverterCache)) {
-            addTypeConverter(field)
-        } else {
-            addCode(")")
+        when {
+            field.hasTypeConverter(typeConverterCache) -> {
+                addTypeConverter(field)
+            }
+            field.isEnum -> addEnumConstructor(field)
+            else -> addCode(")")
         }
         addCode("%L\n", model.memberSeparator)
     }
@@ -146,6 +150,14 @@ class LoadFromCursorWriter(
             field.propertyName,
             MemberNames.infer,
             "cursor"
+        )
+    }
+
+    private fun FunSpec.Builder.addEnumConstructor(
+        field: FieldModel,
+    ) {
+        addCode(
+            ", %T::valueOf)", field.classType,
         )
     }
 }

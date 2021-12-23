@@ -11,6 +11,7 @@ import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.google.devtools.ksp.closestClassDeclaration
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.asTypeName
@@ -42,6 +43,8 @@ class KSPropertyDeclarationParser constructor(
         val inputType = input.type.resolve()
         val isInlineClass = inputType
             .declaration.modifiers.any { it == Modifier.VALUE }
+        val isEnum =
+            inputType.declaration.closestClassDeclaration()?.classKind == ClassKind.ENUM_CLASS
         val column =
             input.annotations.find { it.annotationType.toTypeName() == typeNameOf<Column>() }
         val foreignKey =
@@ -80,7 +83,7 @@ class KSPropertyDeclarationParser constructor(
                 inputType = input.type.resolve(),
                 isVal = isVal,
                 isColumnMap = columnMapKey != null,
-
+                isEnum = isEnum,
             )
         }
         return SingleFieldModel(
@@ -91,6 +94,7 @@ class KSPropertyDeclarationParser constructor(
             enclosingClassType = input.parentDeclaration?.closestClassDeclaration()!!.toClassName(),
             isInlineClass = isInlineClass,
             isVal = isVal,
+            isEnum = isEnum,
         )
     }
 }

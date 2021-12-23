@@ -34,6 +34,8 @@ sealed interface FieldModel {
      */
     val isInlineClass: Boolean
 
+    val isEnum: Boolean
+
     /**
      * If true, must exist in constructor, otherwise will be ignored.
      */
@@ -107,6 +109,7 @@ data class SingleFieldModel(
     override val names: List<NameModel> = listOf(name),
     override val isInlineClass: Boolean,
     override val isVal: Boolean,
+    override val isEnum: Boolean,
 ) : ObjectModel, FieldModel
 
 data class ReferenceHolderModel(
@@ -122,6 +125,7 @@ data class ReferenceHolderModel(
     val inputType: KSType,
     override val isVal: Boolean,
     val isColumnMap: Boolean,
+    override val isEnum: Boolean,
 ) : ObjectModel, FieldModel {
 
     enum class Type {
@@ -187,14 +191,15 @@ data class ReferenceHolderModel(
 
 fun ReferenceHolderModel.toSingleModel() =
     SingleFieldModel(
-        name,
-        classType,
-        fieldType,
-        properties,
-        enclosingClassType,
-        names,
-        isInlineClass,
-        isVal
+        name = name,
+        classType = classType,
+        fieldType = fieldType,
+        properties = properties,
+        enclosingClassType = enclosingClassType,
+        names = names,
+        isInlineClass = isInlineClass,
+        isVal = isVal,
+        isEnum = isEnum,
     )
 
 

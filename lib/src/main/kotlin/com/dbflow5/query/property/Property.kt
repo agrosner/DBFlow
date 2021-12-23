@@ -386,3 +386,15 @@ inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data, Model?>.infer(
 ): Model? =
     getData(cursor)?.let { typeConverter.getModelValue(it) }
 
+@JvmName("inferNullable")
+fun <E : Enum<*>?> Property<E>.infer(
+    cursor: FlowCursor,
+    enumValueOf: (value: String) -> E
+): E? =
+    cursor.getStringOrDefault(nameAlias.name())?.let(enumValueOf)
+
+fun <E : Enum<*>> Property<E>.infer(
+    cursor: FlowCursor,
+    enumValueOf: (value: String) -> E
+): E =
+    enumValueOf(cursor.getStringOrDefault(nameAlias.name(), ""))
