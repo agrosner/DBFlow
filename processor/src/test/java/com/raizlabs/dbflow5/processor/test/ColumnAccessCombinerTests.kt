@@ -237,7 +237,7 @@ class PrimaryReferenceAccessCombinerTest {
         }
 
         assertEquals("java.util.Date refid = model.id != null ? global_converter.getDBValue(model.id) : null;\n" +
-            "clause.and(id.invertProperty().eq(refid));",
+            "clause.and(id.dataProperty.eq(refid));",
             codeBuilder.build().toString().trim())
     }
 }

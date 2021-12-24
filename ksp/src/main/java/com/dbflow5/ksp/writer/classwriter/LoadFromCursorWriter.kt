@@ -10,7 +10,6 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
-import java.util.*
 
 /**
  * Description:
@@ -86,7 +85,7 @@ class LoadFromCursorWriter(
             }
             val className = field.nonNullClassType as ClassName
             addCode(
-                "(%T.%L %L %L.%N.%M(%N",
+                "(%T.%L %L %L.%N.%M(",
                 ClassName(
                     className.packageName,
                     className.simpleName + "_Table",
@@ -96,14 +95,13 @@ class LoadFromCursorWriter(
                 "Companion",
                 referenced.propertyName,
                 MemberNames.infer,
-                "cursor"
             )
             when {
                 referenced.hasTypeConverter(typeConverterCache) -> {
-                    addTypeConverter(referenced)
+                    addTypeConverter()
                 }
                 referenced.isEnum -> addEnumConstructor(referenced)
-                else -> addCode(")")
+                else -> addCode("cursor)")
             }
             addCode(")\n", model.memberSeparator)
         }
@@ -122,32 +120,25 @@ class LoadFromCursorWriter(
         model: ClassModel
     ) {
         addCode(
-            "\t%N = %L.%N.%M(%N",
+            "\t%N = %L.%N.%M(",
             field.name.shortName,
             "Companion",
             field.propertyName,
             MemberNames.infer,
-            "cursor"
         )
         when {
             field.hasTypeConverter(typeConverterCache) -> {
-                addTypeConverter(field)
+                addTypeConverter()
             }
             field.isEnum -> addEnumConstructor(field)
-            else -> addCode(")")
+            else -> addCode("cursor)")
         }
         addCode("%L\n", model.memberSeparator)
     }
 
-    private fun FunSpec.Builder.addTypeConverter(
-        field: FieldModel,
-    ) {
+    private fun FunSpec.Builder.addTypeConverter() {
         addCode(
-            ", %L) { %L.%N.invertProperty().%M(%N) }",
-            field.typeConverter(typeConverterCache)
-                .name.shortName.lowercase(Locale.getDefault()),
-            "Companion",
-            field.propertyName,
+            ") { dataProperty.%M(%N) }",
             MemberNames.infer,
             "cursor"
         )
@@ -157,7 +148,7 @@ class LoadFromCursorWriter(
         field: FieldModel,
     ) {
         addCode(
-            ", %T::valueOf)", field.classType,
+            "cursor, %T::valueOf)", field.classType,
         )
     }
 }

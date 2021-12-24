@@ -1,8 +1,6 @@
 package com.dbflow5.query.property
 
 import com.dbflow5.config.FlowManager
-import com.dbflow5.converter.TypeConverter
-import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.*
 
 /**
@@ -314,3 +312,10 @@ inline fun <reified T, Data, Model> typeConvertedProperty(
     getter: TypeConvertedProperty.TypeConverterGetter
 ) =
     TypeConvertedProperty<Data, Model>(T::class, columnName, getter = getter)
+
+fun <Data, Model> Property<Model>.toTypeConvertedProperty(
+    getter: TypeConvertedProperty.TypeConverterGetter,
+) = TypeConvertedProperty<Data, Model>(
+    table!!, nameAlias, convertToDB = true,
+    getter = getter
+)

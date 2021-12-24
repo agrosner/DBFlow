@@ -16,10 +16,13 @@ import kotlin.reflect.KClass
 
 class TypeConvertedProperty<Data, Model> : Property<Model> {
 
-    private var databaseProperty: TypeConvertedProperty<Model, Data>? = null
-
     private val convertToDB: Boolean
     private val getter: TypeConverterGetter
+
+    /**
+     * returns a [Property] of its [Data] type without type conversion.
+     */
+    val dataProperty: Property<Data>
 
     override val table: Class<*>
         get() = super.table!!
@@ -43,6 +46,7 @@ class TypeConvertedProperty<Data, Model> : Property<Model> {
     ) : super(table, nameAlias) {
         this.convertToDB = convertToDB
         this.getter = getter
+        this.dataProperty = Property(table, nameAlias)
     }
 
     constructor(
@@ -59,6 +63,7 @@ class TypeConvertedProperty<Data, Model> : Property<Model> {
     ) : super(table, columnName.nameAlias) {
         this.convertToDB = convertToDB
         this.getter = getter
+        this.dataProperty = Property(table, nameAlias)
     }
 
     override fun withTable(): TypeConvertedProperty<Data, Model> {
@@ -70,14 +75,26 @@ class TypeConvertedProperty<Data, Model> : Property<Model> {
     }
 
     /**
-     * @return A new [Property] that corresponds to the inverted type of the [TypeConvertedProperty].
-     * Provides a convenience for supplying type converted methods within the DataClass of the [TypeConverter]
+     * This method would cache a [TypeConvertedProperty] of the inverted type, though would
+     * keep its referenced type converter. This doesn't make much sense as the type converter
+     * did not get used or as a type.
      */
-    fun invertProperty(): Property<Data> = databaseProperty
-        ?: TypeConvertedProperty<Model, Data>(
-            table, nameAlias,
-            !convertToDB
-        ) { modelClass -> getter.getTypeConverter(modelClass) }.also { databaseProperty = it }
+    @Deprecated(
+        replaceWith = ReplaceWith("dataProperty"),
+        message = "invertProperty is now deprecated." +
+            " use the accessor dataProperty instead or invert() for true inversion."
+    )
+    fun invertProperty(): Property<Data> = TypeConvertedProperty<Model, Data>(
+        table, nameAlias,
+        !convertToDB
+    ) { modelClass -> getter.getTypeConverter(modelClass) }
+
+    /**
+     * Convenience operator used in library generated code.
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun <Data : Any, Model : Any> typeConverter(): TypeConverter<Data, Model> =
+        getter.getTypeConverter(table) as TypeConverter<Data, Model>
 
     override fun withTable(tableNameAlias: NameAlias): TypeConvertedProperty<Data, Model> {
         val nameAlias = this.nameAlias

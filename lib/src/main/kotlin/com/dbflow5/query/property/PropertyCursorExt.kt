@@ -1,6 +1,5 @@
 package com.dbflow5.query.property
 
-import com.dbflow5.converter.TypeConverter
 import com.dbflow5.database.FlowCursor
 
 
@@ -62,18 +61,29 @@ fun Property<ByteArray>.infer(cursor: FlowCursor): ByteArray =
 
 @Suppress("unused")
 inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data, Model>.infer(
-    cursor: FlowCursor, typeConverter: TypeConverter<Data, Model>,
-    getData: (cursor: FlowCursor) -> Data
+    getData: TypeConvertedProperty<Data, Model>.() -> Data
 ): Model =
-    typeConverter.getModelValue(getData(cursor))
+    typeConverter<Data, Model>().getModelValue(getData())
 
 @JvmName("inferNullable")
 @Suppress("unused")
 inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data, Model?>.infer(
-    cursor: FlowCursor, typeConverter: TypeConverter<Data, Model>,
-    getData: (cursor: FlowCursor) -> Data?
+    getData: TypeConvertedProperty<Data, Model?>.() -> Data?
 ): Model? =
-    getData(cursor)?.let { typeConverter.getModelValue(it) }
+    getData()?.let { typeConverter<Data, Model>().getModelValue(it) }
+
+@JvmName("inferNullableData")
+@Suppress("unused")
+inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data?, Model>.infer(
+    getData: TypeConvertedProperty<Data?, Model>.() -> Data
+): Model = typeConverter<Data, Model>().getModelValue(getData())
+
+@JvmName("inferNullableDataModel")
+@Suppress("unused")
+inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data?, Model?>.infer(
+    getData: TypeConvertedProperty<Data?, Model?>.() -> Data?
+): Model? =
+    getData()?.let { typeConverter<Data, Model>().getModelValue(it) }
 
 @JvmName("inferNullable")
 fun <E : Enum<*>?> Property<E>.infer(

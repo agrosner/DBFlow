@@ -84,14 +84,10 @@ class TypeConverterCache(
             throw IllegalStateException("Missing Key ${typeName}:${name}. Map is ${typeConverters}")
         }
 
-    fun has(typeName: TypeName): Boolean {
-        val containsKey = typeConverters.containsKey(
-            typeName
-                .copy(nullable = false)
-        )
-        logger.warn("Checking against ${typeName}:${containsKey}")
-        return containsKey
-    }
+    fun has(typeName: TypeName): Boolean = typeConverters.containsKey(
+        typeName
+            .copy(nullable = false)
+    )
 
     companion object {
         private val DEFAULT_TYPE_CONVERTERS = arrayOf(

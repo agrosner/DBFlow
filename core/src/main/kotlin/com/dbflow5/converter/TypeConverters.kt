@@ -31,6 +31,20 @@ abstract class TypeConverter<Data : Any, Model : Any> {
 }
 
 /**
+ * Reverses conversions.
+ */
+fun <Data : Any, Model : Any> TypeConverter<Data, Model>.invert() =
+    object : TypeConverter<Model, Data>() {
+        override fun getDBValue(model: Data): Model {
+            return getModelValue(model)
+        }
+
+        override fun getModelValue(data: Model): Data {
+            return getDBValue(data)
+        }
+    }
+
+/**
  * Combine two [TypeConverter] into one implementation.
  */
 fun <Data : Any, Model1 : Any, Model2 : Any>
