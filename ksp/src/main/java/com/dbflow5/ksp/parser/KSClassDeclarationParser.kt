@@ -22,9 +22,10 @@ class KSClassDeclarationParser(
     private val queryPropertyParser: QueryPropertyParser,
     private val viewPropertyParser: ViewPropertyParser,
     private val typeConverterPropertyParser: TypeConverterPropertyParser,
-) : Parser<KSClassDeclaration, ObjectModel> {
+    private val manyToManyPropertyParser: ManyToManyPropertyParser,
+) : Parser<KSClassDeclaration, List<ObjectModel>> {
 
-    override fun parse(input: KSClassDeclaration): ObjectModel {
+    override fun parse(input: KSClassDeclaration): List<ObjectModel> {
         val fields = fieldSanitizer.parse(input = input)
         val classType = input.asStarProjectedType().toClassName()
         val name = input.qualifiedName!!
@@ -38,69 +39,83 @@ class KSClassDeclarationParser(
         val isInternal = input.isInternal()
 
         // inspect annotations for what object it is.
-        // only allow one of these kinds
-        input.annotations.forEach { annotation ->
-            val annotationType = annotation.annotationType.toTypeName()
-            if (annotationType == typeNameOf<Database>()) {
-                return DatabaseModel(
-                    name = NameModel(name, packageName),
-                    classType = classType,
-                    properties = databasePropertyParser.parse(annotation)
-                )
-            }
-
-            if (annotationType == typeNameOf<Table>()) {
-                return ClassModel(
-                    name = NameModel(name, packageName),
-                    classType = classType,
-                    type = ClassModel.ClassType.Normal,
-                    properties = tablePropertyParser.parse(annotation),
-                    fields = fields,
-                    hasPrimaryConstructor = !hasDefaultConstructor,
-                    isInternal = isInternal,
-                )
-            }
-            if (annotationType == typeNameOf<ModelView>()) {
-                return ClassModel(
-                    name = NameModel(name, packageName),
-                    classType = classType,
-                    type = ClassModel.ClassType.View,
-                    properties = viewPropertyParser.parse(annotation),
-                    fields = fields,
-                    hasPrimaryConstructor = !hasDefaultConstructor,
-                    isInternal = isInternal,
-                )
-            }
-            if (annotationType == typeNameOf<QueryModel>()) {
-                return ClassModel(
-                    name = NameModel(name, packageName),
-                    classType = classType,
-                    type = ClassModel.ClassType.Query,
-                    properties = queryPropertyParser.parse(annotation),
-                    fields = fields,
-                    hasPrimaryConstructor = !hasDefaultConstructor,
-                    isInternal = isInternal,
-                )
-            }
-            if (annotationType == typeNameOf<TypeConverter>()) {
-                val typeConverterSuper = input.superTypes.firstNotNullOf { reference ->
-                    reference.resolve().toTypeName().let {
-                        it as? ParameterizedTypeName
-                    }?.takeIf { type ->
-                        type.rawType == ClassNames.TypeConverter
-                    }
+        return input.annotations.map { annotation ->
+            when (annotation.annotationType.toTypeName()) {
+                typeNameOf<Database>() -> {
+                    DatabaseModel(
+                        name = NameModel(name, packageName),
+                        classType = classType,
+                        properties = databasePropertyParser.parse(annotation)
+                    )
                 }
-                return TypeConverterModel.Simple(
-                    name = NameModel(name, packageName),
-                    properties = typeConverterPropertyParser.parse(annotation),
-                    classType = classType,
-                    dataTypeName = typeConverterSuper.typeArguments[0],
-                    modelTypeName = typeConverterSuper.typeArguments[1],
-                    modelClass = null,
-                )
+                typeNameOf<Table>() -> {
+                    ClassModel(
+                        name = NameModel(name, packageName),
+                        classType = classType,
+                        type = ClassModel.ClassType.Normal,
+                        properties = tablePropertyParser.parse(annotation),
+                        fields = fields,
+                        hasPrimaryConstructor = !hasDefaultConstructor,
+                        isInternal = isInternal,
+                    )
+                }
+                typeNameOf<ModelView>() -> {
+                    ClassModel(
+                        name = NameModel(name, packageName),
+                        classType = classType,
+                        type = ClassModel.ClassType.View,
+                        properties = viewPropertyParser.parse(annotation),
+                        fields = fields,
+                        hasPrimaryConstructor = !hasDefaultConstructor,
+                        isInternal = isInternal,
+                    )
+                }
+                typeNameOf<QueryModel>() -> {
+                    ClassModel(
+                        name = NameModel(name, packageName),
+                        classType = classType,
+                        type = ClassModel.ClassType.Query,
+                        properties = queryPropertyParser.parse(annotation),
+                        fields = fields,
+                        hasPrimaryConstructor = !hasDefaultConstructor,
+                        isInternal = isInternal,
+                    )
+                }
+                typeNameOf<TypeConverter>() -> {
+                    val typeConverterSuper = input.superTypes.firstNotNullOf { reference ->
+                        reference.resolve().toTypeName().let {
+                            it as? ParameterizedTypeName
+                        }?.takeIf { type ->
+                            type.rawType == ClassNames.TypeConverter
+                        }
+                    }
+                    TypeConverterModel.Simple(
+                        name = NameModel(name, packageName),
+                        properties = typeConverterPropertyParser.parse(annotation),
+                        classType = classType,
+                        dataTypeName = typeConverterSuper.typeArguments[0],
+                        modelTypeName = typeConverterSuper.typeArguments[1],
+                        modelClass = null,
+                    )
+                }
+                typeNameOf<ManyToMany>() -> {
+                    val tableAnnotation = input.annotations.first {
+                        it.annotationType.toTypeName() == typeNameOf<Table>()
+                    }
+                    val props = tablePropertyParser.parse(tableAnnotation)
+                    ManyToManyModel(
+                        name = NameModel(name, packageName),
+                        properties = manyToManyPropertyParser.parse(annotation),
+                        classType = classType,
+                        databaseTypeName = props.database,
+                        ksType = input.asStarProjectedType(),
+                    )
+                }
+                else -> {
+                    throw IllegalStateException("Invalid class type found ${name.asString()}")
+                }
             }
-        }
+        }.toList()
 
-        throw IllegalStateException("Invalid class type found ${name.asString()}")
     }
 }

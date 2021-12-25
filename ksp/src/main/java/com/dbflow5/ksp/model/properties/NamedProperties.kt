@@ -1,6 +1,5 @@
 package com.dbflow5.ksp.model.properties
 
-import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.TypeName
 
 /**
@@ -12,8 +11,11 @@ interface NamedProperties {
 }
 
 fun NamedProperties?.nameWithFallback(fallback: String) =
-    (this?.name.takeIf { it?.isNotBlank() == true }
-        ?: fallback).quoteIfNeeded()
+    this?.name.nameWithFallback(fallback)
+
+fun String?.nameWithFallback(fallback: String) =
+    (this?.takeIf { it.isNotBlank() }
+        ?: fallback)
 
 interface DatabaseScopedProperties {
     val database: TypeName

@@ -1,14 +1,21 @@
 package com.dbflow5.ksp
 
-import com.dbflow5.ksp.model.*
+import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.DatabaseHolderModel
+import com.dbflow5.ksp.model.DatabaseModel
+import com.dbflow5.ksp.model.ManyToManyModel
+import com.dbflow5.ksp.model.NameModel
+import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
+import com.dbflow5.ksp.model.partOfDatabaseAsType
 import com.dbflow5.ksp.model.properties.DatabaseHolderProperties
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.writer.ClassWriter
 import com.dbflow5.ksp.writer.DatabaseHolderWriter
 import com.dbflow5.ksp.writer.DatabaseWriter
 import com.dbflow5.ksp.writer.InlineTypeConverterWriter
+import com.dbflow5.ksp.writer.ManyToManyClassWriter
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
@@ -28,6 +35,7 @@ class DBFlowKspProcessor(
     private val typeConverterCache: TypeConverterCache,
     private val environment: SymbolProcessorEnvironment,
     private val typeConverterWriter: InlineTypeConverterWriter,
+    private val manyClassWriter: ManyToManyClassWriter,
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -39,6 +47,7 @@ class DBFlowKspProcessor(
                     it.qualifiedName
                 ).toList()
             }.flatten()
+                .distinct()
         if (symbols.isNotEmpty()) {
             val objects = symbols.mapNotNull { annotated ->
                 when (annotated) {
@@ -47,8 +56,14 @@ class DBFlowKspProcessor(
                     }
                     else -> null
                 }
-            }
+            }.flatten()
+            val manyToManyModels = objects.filterIsInstance<ManyToManyModel>()
             val classes = objects.filterIsInstance<ClassModel>()
+                // append all expected classes
+                .let {
+                    it.toMutableList()
+                        .apply { addAll(manyToManyModels.map { model -> model.classModel }) }
+                }
 
             // associate classes into DB.
             val databases = objects.filterIsInstance<DatabaseModel>()
@@ -94,7 +109,8 @@ class DBFlowKspProcessor(
                 typeConverterCache.generatedTypeConverters.map(typeConverterWriter::create),
                 classes.map(classWriter::create),
                 databases.map(databaseWriter::create),
-                listOf(holderModel).map(databaseHolderWriter::create)
+                listOf(holderModel).map(databaseHolderWriter::create),
+                manyToManyModels.map(manyClassWriter::create),
             )
                 .flatten()
                 .forEach {

@@ -2,12 +2,29 @@ package com.dbflow5.ksp.writer
 
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
-import com.dbflow5.ksp.model.*
+import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.ReferenceHolderModel
+import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
-import com.dbflow5.ksp.writer.classwriter.*
-import com.squareup.kotlinpoet.*
+import com.dbflow5.ksp.model.generatedClassName
+import com.dbflow5.ksp.model.hasTypeConverter
+import com.dbflow5.ksp.model.typeConverter
+import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
+import com.dbflow5.ksp.writer.classwriter.FieldPropertyWriter
+import com.dbflow5.ksp.writer.classwriter.GetPropertyMethodWriter
+import com.dbflow5.ksp.writer.classwriter.LoadFromCursorWriter
+import com.dbflow5.ksp.writer.classwriter.PrimaryConditionClauseWriter
+import com.dbflow5.ksp.writer.classwriter.StatementBinderWriter
+import com.dbflow5.ksp.writer.classwriter.TypeConverterFieldWriter
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asClassName
 import java.util.*
 
 /**
@@ -74,7 +91,7 @@ class ClassWriter(
             }
 
 
-        return FileSpec.builder(model.name.packageName, model.name.shortName)
+        return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
             .addType(
                 TypeSpec.classBuilder(model.generatedClassName.className)
                     .primaryConstructor(

@@ -3,6 +3,7 @@ package com.dbflow5.ksp.writer
 import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.SingleFieldModel
+import com.dbflow5.quoteIfNeeded
 
 /**
  * Description:
@@ -26,11 +27,11 @@ sealed interface FieldExtractor {
     ) : FieldExtractor {
 
 
-        override val commaNames: String = field.dbName
-        override val updateName: String = "${field.dbName}=?"
+        override val commaNames: String = field.dbName.quoteIfNeeded()
+        override val updateName: String = "${field.dbName.quoteIfNeeded()}=?"
 
         // TODO: use proper SQLiteType mapping.
-        override val createName: String = "${field.dbName} ${field.classType}"
+        override val createName: String = "${field.dbName.quoteIfNeeded()} ${field.classType}"
     }
 
     data class ForeignFieldExtractor(

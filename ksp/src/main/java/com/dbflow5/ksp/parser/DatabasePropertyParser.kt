@@ -124,3 +124,17 @@ class ForeignKeyReferencePropertyParser : Parser<KSAnnotation, ReferenceProperti
         )
     }
 }
+
+class ManyToManyPropertyParser : Parser<KSAnnotation, ManyToManyProperties> {
+    override fun parse(input: KSAnnotation): ManyToManyProperties {
+        val args = input.arguments.mapProperties()
+        return ManyToManyProperties(
+            referencedTableType = args.arg<KSType>("referencedTable").toClassName(),
+            referencedTableColumnName = args.arg("referencedTableColumnName"),
+            thisTableColumnName = args.arg("thisTableColumnName"),
+            generateAutoIncrement = args.arg("generateAutoIncrement"),
+            saveForeignKeyModels = args.arg("saveForeignKeyModels"),
+            name = args.arg("generatedTableClassName"),
+        )
+    }
+}

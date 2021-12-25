@@ -12,4 +12,5 @@ enum class Annotations(val qualifiedName: String) {
     View(ModelView::class.qualifiedName!!),
     Database(com.dbflow5.annotation.Database::class.qualifiedName!!),
     TypeConverter(com.dbflow5.annotation.TypeConverter::class.qualifiedName!!),
+    ManyToMany(com.dbflow5.annotation.ManyToMany::class.qualifiedName!!),
 }

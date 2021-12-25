@@ -8,6 +8,13 @@ interface ClassProperties : DatabaseScopedProperties, ReadableScopeProperties {
     val allFields: Boolean
 }
 
+data class SimpleClassProperties(
+    override val allFields: Boolean,
+    override val database: TypeName,
+    override val orderedCursorLookup: Boolean,
+    override val assignDefaultValuesFromCursor: Boolean
+) : ClassProperties
+
 /**
  * Description: Holder for Table Values.
  */

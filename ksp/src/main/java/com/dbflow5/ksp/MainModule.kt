@@ -4,10 +4,7 @@ import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.parser.*
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
-import com.dbflow5.ksp.writer.ClassWriter
-import com.dbflow5.ksp.writer.DatabaseHolderWriter
-import com.dbflow5.ksp.writer.DatabaseWriter
-import com.dbflow5.ksp.writer.InlineTypeConverterWriter
+import com.dbflow5.ksp.writer.*
 import com.dbflow5.ksp.writer.classwriter.*
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import org.koin.dsl.module
@@ -28,6 +25,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
             get(),
             environment,
             get(),
+            get(),
         )
     }
     single { TypeConverterPropertyParser() }
@@ -36,9 +34,10 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { ViewPropertyParser() }
     single { FieldPropertyParser() }
     single { ReferenceHolderProperyParser(get()) }
+    single { ManyToManyPropertyParser() }
     single { ForeignKeyReferencePropertyParser() }
     single { FieldSanitizer(get(), get()) }
-    single { KSClassDeclarationParser(get(), get(), get(), get(), get(), get()) }
+    single { KSClassDeclarationParser(get(), get(), get(), get(), get(), get(), get()) }
 
     single { LoadFromCursorWriter(get(), get()) }
     single { GetPropertyMethodWriter(get()) }
@@ -47,6 +46,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { StatementBinderWriter(get(), get()) }
     single { TypeConverterFieldWriter() }
     single { InlineTypeConverterWriter() }
+    single { ManyToManyClassWriter() }
 
     single {
         ClassWriter(
