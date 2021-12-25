@@ -71,6 +71,7 @@ object MemberNames {
     val typeConvertedProperty = MemberName(PackageNames.Property, "typeConvertedProperty")
     val quoteIfNeeded = MemberName(PackageNames.Core, "quoteIfNeeded")
     val infer = MemberName(PackageNames.Property, "infer")
+    val classToken = MemberName(PackageNames.Property, "classToken")
 
     val bind = MemberName(PackageNames.Database, "bind")
     val propertyBind = MemberName(PackageNames.Property, "bindProperty")

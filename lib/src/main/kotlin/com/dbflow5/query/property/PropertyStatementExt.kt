@@ -146,6 +146,13 @@ inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data, Model?>.bindPro
     statementBinder: (value: Data?) -> Unit,
 ) = statementBinder(value?.let { typeConverter.getDBValue(it) })
 
+@JvmName("bindBothNullable")
+inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data?, Model?>.bindProperty(
+    value: Model?,
+    typeConverter: TypeConverter<Data, Model>,
+    statementBinder: (value: Data?) -> Unit,
+) = statementBinder(value?.let { typeConverter.getDBValue(it) })
+
 
 inline fun <E : Enum<E>> Property<E>.bindProperty(
     value: E,

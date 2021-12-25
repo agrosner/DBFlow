@@ -6,8 +6,8 @@ import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.properties.TypeConverterProperties
+import com.dbflow5.ksp.model.toChained
 import com.google.devtools.ksp.closestClassDeclaration
-import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.*
@@ -17,9 +17,7 @@ import java.util.*
 /**
  * Description: Keeps all defined [TypeConverterModel]
  */
-class TypeConverterCache(
-    private val logger: KSPLogger,
-) {
+class TypeConverterCache {
 
     private val typeConverters = mutableMapOf<TypeName, TypeConverterModel>()
 
@@ -37,6 +35,31 @@ class TypeConverterCache(
     }
 
     /**
+     * Discover type converters in the map that are nested,
+     * and chain them
+     */
+    fun processNestedConverters() {
+        val reformedCache = typeConverters.map { (classType, converter) ->
+            if (typeConverters.containsKey(converter.dataTypeName)) {
+                var activeConverter = converter
+                var chainedConverter = when (converter) {
+                    is TypeConverterModel.Chained -> converter
+                    is TypeConverterModel.Simple -> converter.toChained()
+                }
+                while (typeConverters.containsKey(activeConverter.dataTypeName)) {
+                    activeConverter = typeConverters.getValue(activeConverter.dataTypeName)
+                    chainedConverter = chainedConverter.append(activeConverter)
+                }
+                classType to chainedConverter
+            } else {
+                classType to converter
+            }
+        }
+        typeConverters.clear()
+        typeConverters.putAll(reformedCache)
+    }
+
+    /**
      * Add a type converter we generate on the fly - currently only used for Inline class types.
      */
     fun putGeneratedTypeConverter(typeConverterModel: TypeConverterModel) {
@@ -48,7 +71,7 @@ class TypeConverterCache(
         val declaration =
             resolver.getClassDeclarationByName(resolver.getKSNameFromString(className.toString()))!!
         val typeConverterSuper = extractTypeParameterType(declaration, className)
-        val classModel = TypeConverterModel(
+        val classModel = TypeConverterModel.Simple(
             name = NameModel(className),
             properties = TypeConverterProperties(listOf()),
             classType = className,

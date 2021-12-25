@@ -109,7 +109,7 @@ fun FieldModel.generateTypeConverter(): TypeConverterModel {
     )
     val inlineDeclaration = ksClassType.declaration.closestClassDeclaration()!!
     val firstProperty = inlineDeclaration.getAllProperties().first()
-    return TypeConverterModel(
+    return TypeConverterModel.Simple(
         name = newName,
         properties = TypeConverterProperties(listOf()),
         classType = newName.className,

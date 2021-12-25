@@ -88,6 +88,8 @@ class DBFlowKspProcessor(
                     typeConverterCache.putTypeConverter(typeConverterName, resolver)
                 }
 
+            typeConverterCache.processNestedConverters()
+
             listOf(
                 typeConverterCache.generatedTypeConverters.map(typeConverterWriter::create),
                 classes.map(classWriter::create),

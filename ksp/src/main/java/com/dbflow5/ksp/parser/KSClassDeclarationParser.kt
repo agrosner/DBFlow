@@ -89,7 +89,7 @@ class KSClassDeclarationParser(
                         type.rawType == ClassNames.TypeConverter
                     }
                 }
-                return TypeConverterModel(
+                return TypeConverterModel.Simple(
                     name = NameModel(name, packageName),
                     properties = typeConverterPropertyParser.parse(annotation),
                     classType = classType,
