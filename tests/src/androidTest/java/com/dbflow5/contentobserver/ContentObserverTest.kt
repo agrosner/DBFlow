@@ -11,8 +11,6 @@ import com.dbflow5.config.database
 import com.dbflow5.config.databaseForTable
 import com.dbflow5.config.modelAdapter
 import com.dbflow5.config.tableName
-import com.dbflow5.contentobserver.User_Table.id
-import com.dbflow5.contentobserver.User_Table.name
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.getNotificationUri
@@ -63,8 +61,8 @@ class ContentObserverTest {
         assertEquals(uri.authority, contentUri)
         assertEquals(tableName<User>(), uri.getQueryParameter(TABLE_QUERY_PARAM))
         assertEquals(uri.fragment, ChangeAction.DELETE.name)
-        assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(id.query))), "5")
-        assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(name.query))), "Something")
+        assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.id.query))), "5")
+        assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.name.query))), "Something")
     }
 
     @Test
@@ -102,8 +100,8 @@ class ContentObserverTest {
 
         val ops = mockOnModelStateChangedListener.operators!!
         assertEquals(2, ops.size)
-        assertEquals(ops[0].columnName(), id.query)
-        assertEquals(ops[1].columnName(), name.query)
+        assertEquals(ops[0].columnName(), User_Table.id.query)
+        assertEquals(ops[1].columnName(), User_Table.name.query)
         assertEquals(ops[1].value(), "Something")
         assertEquals(ops[0].value(), "5")
         assertEquals(action, mockOnModelStateChangedListener.action)

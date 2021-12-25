@@ -21,9 +21,9 @@ class AuthorView(@Column var authorId: Int = 0, @Column var authorName: String =
     companion object {
         @JvmStatic
         @ModelViewQuery
-        fun getQuery(): From<Author> = (select(id.`as`("authorId"),
-            first_name.concatenate(" ".property as IProperty<out IProperty<*>>)
-                .concatenate(last_name as IProperty<out IProperty<*>>)
+        fun getQuery(): From<Author> = (select(Author_Table.id.`as`("authorId"),
+            Author_Table.first_name.concatenate(" ".property as IProperty<out IProperty<*>>)
+                .concatenate(Author_Table.last_name as IProperty<out IProperty<*>>)
                 .`as`("authorName"))
             from Author::class)
     }
@@ -35,6 +35,6 @@ class PriorityView(var name: String = "") {
     companion object {
         @JvmStatic
         @get:ModelViewQuery
-        val query: From<Author> = select((first_name + last_name).`as`("name")) from Author::class
+        val query: From<Author> = select((Author_Table.first_name + Author_Table.last_name).`as`("name")) from Author::class
     }
 }

@@ -4,7 +4,7 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.annotation.Collate
 import com.dbflow5.assertEquals
 import com.dbflow5.models.SimpleModel
-import com.dbflow5.models.TwoColumnModel_Table.id
+import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.op
 import com.dbflow5.query.select
 import org.junit.Test
@@ -51,13 +51,17 @@ class OperatorTest : BaseUnitTest() {
 
     @Test
     fun testBetween() {
-        "`id` BETWEEN 6 AND 7".assertEquals(id.between(6) and 7)
+        "`id` BETWEEN 6 AND 7".assertEquals(TwoColumnModel_Table.id.between(6) and 7)
     }
 
     @Test
     fun testIn() {
-        "`id` IN (5,6,7,8,9)".assertEquals(id.`in`(5, 6, 7, 8) and 9)
-        "`id` NOT IN (SELECT * FROM `SimpleModel`)".assertEquals(id.notIn(select from SimpleModel::class))
+        "`id` IN (5,6,7,8,9)".assertEquals(TwoColumnModel_Table.id.`in`(5, 6, 7, 8) and 9)
+        "`id` NOT IN (SELECT * FROM `SimpleModel`)".assertEquals(
+            TwoColumnModel_Table.id.notIn(
+                select from SimpleModel::class
+            )
+        )
     }
 
     @Test

@@ -684,20 +684,20 @@ internal constructor(
 
 }
 
-fun <T : Any> NameAlias.op() = Operator.op<T>(this)
+fun <T> NameAlias.op() = Operator.op<T>(this)
 
-fun <T : Any> String.op(): Operator<T> = nameAlias.op()
+fun <T> String.op(): Operator<T> = nameAlias.op()
 
-infix fun <T : Any> Operator<T>.and(sqlOperator: SQLOperator): OperatorGroup =
+infix fun <T> Operator<T>.and(sqlOperator: SQLOperator): OperatorGroup =
     OperatorGroup.clause(this).and(sqlOperator)
 
-infix fun <T : Any> Operator<T>.or(sqlOperator: SQLOperator): OperatorGroup =
+infix fun <T> Operator<T>.or(sqlOperator: SQLOperator): OperatorGroup =
     OperatorGroup.clause(this).or(sqlOperator)
 
-infix fun <T : Any> Operator<T>.andAll(sqlOperator: Collection<SQLOperator>): OperatorGroup =
+infix fun <T> Operator<T>.andAll(sqlOperator: Collection<SQLOperator>): OperatorGroup =
     OperatorGroup.clause(this).andAll(sqlOperator)
 
-infix fun <T : Any> Operator<T>.orAll(sqlOperator: Collection<SQLOperator>): OperatorGroup =
+infix fun <T> Operator<T>.orAll(sqlOperator: Collection<SQLOperator>): OperatorGroup =
     OperatorGroup.clause(this).orAll(sqlOperator)
 
 infix fun <T : Any> Operator<T>.`in`(values: Array<T>): Operator.In<T> = when (values.size) {

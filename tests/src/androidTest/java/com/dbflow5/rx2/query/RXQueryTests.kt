@@ -5,7 +5,7 @@ import com.dbflow5.config.databaseForTable
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.models.SimpleModel
-import com.dbflow5.models.SimpleModel_Table.name
+import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.insert
 import com.dbflow5.query.property.Property
 import com.dbflow5.query.select
@@ -26,10 +26,10 @@ class RXQueryTests : BaseUnitTest() {
             var cursor: FlowCursor? = null
 
             db.beginTransactionAsync { (select from SimpleModel::class).cursor(it) }
-                    .asMaybe()
-                    .subscribe {
-                        cursor = it
-                    }
+                .asMaybe()
+                .subscribe {
+                    cursor = it
+                }
 
             assertEquals(1, cursor!!.count)
             cursor!!.close()
@@ -41,11 +41,11 @@ class RXQueryTests : BaseUnitTest() {
         var databaseStatement: DatabaseStatement? = null
         databaseForTable<SimpleModel> { db ->
             db.beginTransactionAsync {
-                insert<SimpleModel>(name.`is`("name")).compileStatement(it)
+                insert<SimpleModel>(SimpleModel_Table.name.`is`("name")).compileStatement(it)
             }.asSingle()
-                    .subscribe { statement ->
-                        databaseStatement = statement
-                    }
+                .subscribe { statement ->
+                    databaseStatement = statement
+                }
             databaseStatement!!.close()
         }
     }
@@ -59,10 +59,10 @@ class RXQueryTests : BaseUnitTest() {
             db.beginTransactionAsync {
                 (selectCountOf(Property.ALL_PROPERTY) from SimpleModel::class).longValue(it)
             }
-                    .asSingle()
-                    .subscribe { value ->
-                        count = value
-                    }
+                .asSingle()
+                .subscribe { value ->
+                    count = value
+                }
 
             assertEquals(2, count)
         }
@@ -72,12 +72,12 @@ class RXQueryTests : BaseUnitTest() {
     fun testInsertMethod() {
         var count = 0L
         databaseForTable<SimpleModel>()
-                .beginTransactionAsync {
-                    (insert<SimpleModel>(name.eq("name"))).executeInsert(it)
-                }.asSingle()
-                .subscribe { c ->
-                    count = c
-                }
+            .beginTransactionAsync {
+                (insert<SimpleModel>(SimpleModel_Table.name.eq("name"))).executeInsert(it)
+            }.asSingle()
+            .subscribe { c ->
+                count = c
+            }
 
         assertEquals(1, count)
     }

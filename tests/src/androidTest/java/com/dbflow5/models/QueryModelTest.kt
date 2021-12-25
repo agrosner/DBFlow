@@ -3,9 +3,6 @@ package com.dbflow5.models
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
-import com.dbflow5.models.Author_Table.id
-import com.dbflow5.models.Blog_Table.author_id
-import com.dbflow5.models.Blog_Table.name
 import com.dbflow5.query.select
 import com.dbflow5.structure.exists
 import com.dbflow5.structure.save
@@ -28,10 +25,13 @@ class QueryModelTest : BaseUnitTest() {
             assert(author.exists(db))
             assert(blog.exists(db))
 
-            val result = (select(name.withTable().`as`("blogName"), id.withTable().`as`("authorId"),
-                    Blog_Table.id.withTable().`as`("blogId")) from Blog::class innerJoin
-                    Author::class on (author_id.withTable() eq id.withTable()))
-                    .queryCustomSingle(AuthorNameQuery::class.java, db)!!
+            val result = (select(
+                Blog_Table.name.withTable().`as`("blogName"),
+                Blog_Table.id.withTable().`as`("authorId"),
+                Blog_Table.id.withTable().`as`("blogId")
+            ) from Blog::class innerJoin
+                Author::class on (Blog_Table.author_id.withTable() eq Blog_Table.id.withTable()))
+                .queryCustomSingle(AuthorNameQuery::class.java, db)!!
             assertEquals(author.id, result.authorId)
             assertEquals(blog.id, result.blogId)
         }

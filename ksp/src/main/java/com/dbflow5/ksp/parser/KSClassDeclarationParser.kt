@@ -48,6 +48,7 @@ class KSClassDeclarationParser(
                     properties = databasePropertyParser.parse(annotation)
                 )
             }
+
             if (annotationType == typeNameOf<Table>()) {
                 return ClassModel(
                     name = NameModel(name, packageName),
