@@ -22,7 +22,7 @@ class DatabaseHolderWriter : TypeCreator<DatabaseHolderModel, FileSpec> {
                 model.name.shortName,
             ).stripQuotes()
         ).addType(
-            TypeSpec.objectBuilder(
+            TypeSpec.classBuilder(
                 model.properties.nameWithFallback(
                     model.name.shortName,
                 ).stripQuotes()

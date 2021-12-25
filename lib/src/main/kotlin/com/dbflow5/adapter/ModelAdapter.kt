@@ -16,8 +16,8 @@ import com.dbflow5.query.property.Property
 /**
  * Description: Used for generated classes from the combination of [Table] and [Model].
  */
-abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
-    : RetrievalAdapter<T>(databaseDefinition), InternalAdapter<T>, CreationAdapter {
+abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
+    RetrievalAdapter<T>(databaseDefinition), InternalAdapter<T>, CreationAdapter {
 
     private var _modelSaver: ModelSaver<T>? = null
 
@@ -50,13 +50,6 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
      */
     open val insertOnConflictAction: ConflictAction
         get() = ConflictAction.ABORT
-
-    init {
-        tableConfig?.modelSaver?.let { modelSaver ->
-            modelSaver.modelAdapter = this
-            _modelSaver = modelSaver
-        }
-    }
 
     /**
      * @param databaseWrapper The database used to do an insert statement.
@@ -132,8 +125,11 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
 
     private fun checkInTransaction(databaseWrapper: DatabaseWrapper) {
         if (!databaseWrapper.isInTransaction) {
-            FlowLog.log(FlowLog.Level.W, "Database Not Running in a Transaction. Performance may be impacted, observability " +
-                "will need manual updates via db.tableObserver.checkForTableUpdates()")
+            FlowLog.log(
+                FlowLog.Level.W,
+                "Database Not Running in a Transaction. Performance may be impacted, observability " +
+                    "will need manual updates via db.tableObserver.checkForTableUpdates()"
+            )
         }
     }
 
@@ -142,8 +138,10 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     }
 
     override fun bindToInsertValues(contentValues: ContentValues, model: T) {
-        throw RuntimeException("ContentValues are no longer generated automatically. To enable it," +
-            " set generateContentValues = true in @Table for $table.")
+        throw RuntimeException(
+            "ContentValues are no longer generated automatically. To enable it," +
+                " set generateContentValues = true in @Table for $table."
+        )
     }
 
     /**
@@ -176,7 +174,10 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
     override fun cachingEnabled(): Boolean = false
 
     var modelSaver: ModelSaver<T>
-        get() = _modelSaver
+        get() = tableConfig?.modelSaver?.let {
+            it.modelAdapter = this
+            it
+        }
             ?: createSingleModelSaver()
                 .apply { modelAdapter = this@ModelAdapter }
                 .also { _modelSaver = it }

@@ -47,8 +47,18 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
             this._listModelLoader = value
         }
 
-    protected var tableConfig: TableConfig<T>? = null
-        private set
+    protected val tableConfig: TableConfig<T>? by lazy {
+        val databaseConfig = FlowManager.getConfig()
+            .getConfigForDatabase(databaseDefinition.associatedDatabaseClassFile)
+        if (databaseConfig != null) {
+            databaseConfig.getTableConfigForTable(table)?.apply {
+                singleModelLoader?.let { _singleModelLoader = it }
+                listModelLoader?.let { _listModelLoader = it }
+            }
+        } else {
+            null
+        }
+    }
 
     /**
      * @return the model class this adapter corresponds to
@@ -69,26 +79,16 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     val nonCacheableListModelLoader: ListModelLoader<T>
         get() = ListModelLoader(table)
 
-    init {
-        val databaseConfig = FlowManager.getConfig()
-                .getConfigForDatabase(databaseDefinition.associatedDatabaseClassFile)
-        if (databaseConfig != null) {
-            tableConfig = databaseConfig.getTableConfigForTable(table)
-            if (tableConfig != null) {
-                tableConfig?.singleModelLoader?.let { _singleModelLoader = it }
-                tableConfig?.listModelLoader?.let { _listModelLoader = it }
-            }
-        }
-    }
-
     /**
      * Returns a new [model] based on the object passed in. Will not overwrite existing object.
      */
     open fun load(model: T, databaseWrapper: DatabaseWrapper): T? =
-            nonCacheableSingleModelLoader.load(databaseWrapper,
-                (select
-                    from table.kotlin
-                    where getPrimaryConditionClause(model)).query)
+        nonCacheableSingleModelLoader.load(
+            databaseWrapper,
+            (select
+                from table.kotlin
+                where getPrimaryConditionClause(model)).query
+        )
 
     /**
      * Converts the specified [FlowCursor] into a new [T]
