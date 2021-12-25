@@ -1,6 +1,7 @@
 package com.dbflow5.ksp.model
 
 import com.dbflow5.ksp.model.properties.DatabaseProperties
+import com.google.devtools.ksp.symbol.KSFile
 import com.squareup.kotlinpoet.TypeName
 
 /**
@@ -13,6 +14,7 @@ data class DatabaseModel(
     val tables: List<ClassModel> = listOf(),
     val views: List<ClassModel> = listOf(),
     val queryModels: List<ClassModel> = listOf(),
+    override val originatingFile: KSFile?,
 ) : ObjectModel
 
 val DatabaseModel.generatedClassName

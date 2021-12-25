@@ -7,6 +7,8 @@ import org.intellij.lang.annotations.Language
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
+import org.koin.core.context.stopKoin
+import kotlin.test.AfterTest
 import kotlin.test.assertEquals
 
 /**
@@ -46,5 +48,10 @@ class ManyToManyTests {
         )
         val result = compilation(temporaryFolder, sources = listOf(source)).compile()
         assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+    }
+
+    @AfterTest
+    fun stop() {
+        stopKoin()
     }
 }

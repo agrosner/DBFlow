@@ -4,6 +4,7 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.TypeConverterModel
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 
 /**
  * Description:
@@ -16,6 +17,7 @@ class InlineTypeConverterWriter : TypeCreator<
                 model.name.shortName,
             )
                 .apply {
+                    model.originatingFile?.let { addOriginatingKSFile(it) }
                     superclass(
                         ClassNames.TypeConverter
                             .parameterizedBy(

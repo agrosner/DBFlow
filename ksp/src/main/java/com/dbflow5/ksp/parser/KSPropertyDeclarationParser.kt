@@ -28,6 +28,7 @@ class KSPropertyDeclarationParser constructor(
 ) : Parser<KSPropertyDeclaration, FieldModel> {
 
     override fun parse(input: KSPropertyDeclaration): FieldModel {
+        val originatingFile = input.containingFile
         val primaryKey =
             input.annotations.find { it.annotationType.toTypeName() == typeNameOf<PrimaryKey>() }
         val fieldType = if (primaryKey != null) {
@@ -84,6 +85,7 @@ class KSPropertyDeclarationParser constructor(
                 isVal = isVal,
                 isColumnMap = columnMapKey != null,
                 isEnum = isEnum,
+                originatingFile = originatingFile,
             )
         }
         return SingleFieldModel(
@@ -96,6 +98,7 @@ class KSPropertyDeclarationParser constructor(
             isVal = isVal,
             isEnum = isEnum,
             ksClassType = ksClassType,
+            originatingFile = originatingFile,
         )
     }
 }

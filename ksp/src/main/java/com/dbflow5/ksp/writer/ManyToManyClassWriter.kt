@@ -10,6 +10,7 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 
 /**
  * Description: Writes join tables.
@@ -47,7 +48,7 @@ class ManyToManyClassWriter : TypeCreator<ManyToManyModel, FileSpec> {
                             .build()
                     )
                     .apply {
-                        
+                        model.originatingFile?.let { addOriginatingKSFile(it) }
                         // doesn't work quite yet.
                         /* addAnnotation(
                              AnnotationSpec.builder(

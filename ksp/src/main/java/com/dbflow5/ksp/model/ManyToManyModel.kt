@@ -4,6 +4,7 @@ import com.dbflow5.ksp.model.properties.ManyToManyProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.dbflow5.ksp.model.properties.SimpleClassProperties
 import com.dbflow5.ksp.model.properties.nameWithFallback
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
@@ -26,6 +27,7 @@ data class ManyToManyModel(
     val databaseTypeName: TypeName,
     val properties: ManyToManyProperties,
     val ksType: KSType,
+    override val originatingFile: KSFile?,
 ) : ObjectModel {
 
     val dbName = properties.nameWithFallback(
@@ -75,6 +77,7 @@ data class ManyToManyModel(
                     isVal = true,
                     isColumnMap = false,
                     isEnum = false,
+                    originatingFile = originatingFile,
                 ),
                 ReferenceHolderModel(
                     name = name.copy(
@@ -101,9 +104,11 @@ data class ManyToManyModel(
                     isEnum = false,
                     isVal = true,
                     ksClassType = ksType,
+                    originatingFile = originatingFile,
                 )
             ),
             hasPrimaryConstructor = true,
             isInternal = false,
+            originatingFile = originatingFile,
         )
 }

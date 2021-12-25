@@ -8,6 +8,7 @@ import com.dbflow5.stripQuotes
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 
 /**
  * Description:
@@ -26,6 +27,11 @@ class DatabaseHolderWriter : TypeCreator<DatabaseHolderModel, FileSpec> {
                     model.name.shortName,
                 ).stripQuotes()
             )
+                .apply {
+                    model.allOriginatingFiles.forEach {
+                        addOriginatingKSFile(it)
+                    }
+                }
                 .superclass(ClassNames.DatabaseHolder)
                 .addInitializerBlock(
                     CodeBlock.builder()

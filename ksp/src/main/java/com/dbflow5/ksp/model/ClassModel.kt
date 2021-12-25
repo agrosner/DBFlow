@@ -5,6 +5,7 @@ import com.dbflow5.ksp.model.properties.ClassProperties
 import com.dbflow5.ksp.model.properties.NamedProperties
 import com.dbflow5.ksp.model.properties.nameWithFallback
 import com.dbflow5.quoteIfNeeded
+import com.google.devtools.ksp.symbol.KSFile
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
 
@@ -26,6 +27,7 @@ data class ClassModel(
      * If true, generated adapter will also generate internal.
      */
     val isInternal: Boolean,
+    override val originatingFile: KSFile?,
 ) : ObjectModel {
 
     val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.PrimaryAuto }

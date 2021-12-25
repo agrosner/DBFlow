@@ -9,13 +9,14 @@ import com.dbflow5.ksp.model.properties.TypeConverterProperties
 import com.dbflow5.ksp.model.properties.isInferredTable
 import com.dbflow5.ksp.model.properties.nameWithFallback
 import com.google.devtools.ksp.closestClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import java.util.*
 
 
-sealed interface FieldModel {
+sealed interface FieldModel : ObjectModel {
     /**
      * The original name.
      */
@@ -120,6 +121,7 @@ fun FieldModel.generateTypeConverter(): TypeConverterModel {
         dataTypeName = firstProperty.type.toTypeName(),
         modelTypeName = classType,
         modelClass = inlineDeclaration,
+        originatingFile = originatingFile,
     )
 }
 
@@ -141,6 +143,7 @@ data class SingleFieldModel(
     override val isVal: Boolean,
     override val isEnum: Boolean,
     override val ksClassType: KSType,
+    override val originatingFile: KSFile?,
 ) : ObjectModel, FieldModel
 
 data class ReferenceHolderModel(
@@ -157,6 +160,7 @@ data class ReferenceHolderModel(
     override val isVal: Boolean,
     val isColumnMap: Boolean,
     override val isEnum: Boolean,
+    override val originatingFile: KSFile?,
 ) : ObjectModel, FieldModel {
 
     enum class Type {
@@ -232,6 +236,7 @@ fun ReferenceHolderModel.toSingleModel() =
         isVal = isVal,
         isEnum = isEnum,
         ksClassType = ksClassType,
+        originatingFile = originatingFile,
     )
 
 

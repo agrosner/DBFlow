@@ -2,6 +2,7 @@ package com.dbflow5.ksp.model
 
 import com.dbflow5.ksp.model.properties.TypeConverterProperties
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.squareup.kotlinpoet.TypeName
 
 /**
@@ -21,8 +22,8 @@ sealed interface TypeConverterModel : ObjectModel {
         override val classType: TypeName,
         override val dataTypeName: TypeName,
         override val modelTypeName: TypeName,
-        override val modelClass: KSClassDeclaration?
-
+        override val modelClass: KSClassDeclaration?,
+        override val originatingFile: KSFile?
     ) : TypeConverterModel
 
     /**
@@ -40,6 +41,7 @@ sealed interface TypeConverterModel : ObjectModel {
          * Nested versions
          */
         val chainedConverters: List<TypeConverterModel>,
+        override val originatingFile: KSFile?,
     ) : TypeConverterModel {
         // based off of last converter
         override val dataTypeName: TypeName
@@ -64,4 +66,5 @@ fun TypeConverterModel.Simple.toChained() =
         modelTypeName = modelTypeName,
         modelClass = modelClass,
         chainedConverters = listOf(),
+        originatingFile = originatingFile,
     )

@@ -172,7 +172,6 @@ class TableTests {
             import com.dbflow5.annotation.Column;
             import test.TestDatabase;
             import test.DatabaseModel;
-            import test.inner.JavaModel;
             
             @Table(database = TestDatabase.class)
             public class ExampleModel extends DatabaseModel {

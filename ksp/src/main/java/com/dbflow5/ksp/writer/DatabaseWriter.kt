@@ -6,7 +6,7 @@ import com.dbflow5.ksp.model.DatabaseModel
 import com.dbflow5.ksp.model.generatedClassName
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import kotlin.reflect.KClass
+import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 
 /**
  * Description:
@@ -68,6 +68,7 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
                                 .build()
                         )
                         .apply {
+                            model.originatingFile?.let { addOriginatingKSFile(it) }
                             superclass(model.classType)
                             addProperty(associatedClassName.propertySpec)
                             addProperty(version.propertySpec)

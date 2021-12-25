@@ -25,6 +25,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import java.util.*
 
 /**
@@ -110,6 +111,7 @@ class ClassWriter(
                     .superclass(superClass)
                     .addSuperclassConstructorParameter("dbFlowDataBase")
                     .apply {
+                        model.originatingFile?.let { addOriginatingKSFile(it) }
                         if (model.isInternal) {
                             addModifiers(KModifier.INTERNAL)
                         }

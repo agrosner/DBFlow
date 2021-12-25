@@ -84,7 +84,8 @@ class DBFlowKspProcessor(
             val holderModel = DatabaseHolderModel(
                 name = NameModel(ClassNames.GeneratedDatabaseHolder),
                 databases,
-                properties = DatabaseHolderProperties("")
+                properties = DatabaseHolderProperties(""),
+                allOriginatingFiles = objects.mapNotNull { it.originatingFile }
             )
 
             referencesCache.allTables = classes

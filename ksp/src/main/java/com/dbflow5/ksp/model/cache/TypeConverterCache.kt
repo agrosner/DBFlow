@@ -1,6 +1,15 @@
 package com.dbflow5.ksp.model.cache
 
-import com.dbflow5.converter.*
+import com.dbflow5.converter.BigDecimalConverter
+import com.dbflow5.converter.BigIntegerConverter
+import com.dbflow5.converter.BlobConverter
+import com.dbflow5.converter.BooleanConverter
+import com.dbflow5.converter.CalendarConverter
+import com.dbflow5.converter.CharConverter
+import com.dbflow5.converter.DateConverter
+import com.dbflow5.converter.SqlDateConverter
+import com.dbflow5.converter.TypeConverter
+import com.dbflow5.converter.UUIDConverter
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.model.NameModel
@@ -10,7 +19,11 @@ import com.dbflow5.ksp.model.toChained
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import java.util.*
 
@@ -67,7 +80,10 @@ class TypeConverterCache {
         typeConvertersToWrite.add(typeConverterModel)
     }
 
-    fun putTypeConverter(className: ClassName, resolver: Resolver) {
+    fun putTypeConverter(
+        className: ClassName,
+        resolver: Resolver
+    ) {
         val declaration =
             resolver.getClassDeclarationByName(resolver.getKSNameFromString(className.toString()))!!
         val typeConverterSuper = extractTypeParameterType(declaration, className)
@@ -78,6 +94,7 @@ class TypeConverterCache {
             dataTypeName = typeConverterSuper.typeArguments[0],
             modelTypeName = typeConverterSuper.typeArguments[1],
             modelClass = declaration.asStarProjectedType().declaration.closestClassDeclaration(),
+            originatingFile = declaration.containingFile,
         )
         putTypeConverter(classModel)
     }

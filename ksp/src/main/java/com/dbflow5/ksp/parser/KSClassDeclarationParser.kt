@@ -51,12 +51,14 @@ class KSClassDeclarationParser(
         // inspect annotations for what object it is.
         return input.annotations.mapNotNull { annotation ->
             val name = NameModel(qualifiedName, packageName)
+            val originatingFile = input.containingFile
             when (annotation.annotationType.toTypeName()) {
                 typeNameOf<Database>() -> {
                     DatabaseModel(
                         name = name,
                         classType = classType,
-                        properties = databasePropertyParser.parse(annotation)
+                        properties = databasePropertyParser.parse(annotation),
+                        originatingFile = originatingFile,
                     )
                 }
                 typeNameOf<Table>() -> {
@@ -68,6 +70,7 @@ class KSClassDeclarationParser(
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
+                        originatingFile = originatingFile,
                     )
                 }
                 typeNameOf<ModelView>() -> {
@@ -79,6 +82,7 @@ class KSClassDeclarationParser(
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
+                        originatingFile=originatingFile,
                     )
                 }
                 typeNameOf<QueryModel>() -> {
@@ -90,6 +94,7 @@ class KSClassDeclarationParser(
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
+                        originatingFile = originatingFile,
                     )
                 }
                 typeNameOf<TypeConverter>() -> {
@@ -107,6 +112,7 @@ class KSClassDeclarationParser(
                         dataTypeName = typeConverterSuper.typeArguments[0],
                         modelTypeName = typeConverterSuper.typeArguments[1],
                         modelClass = null,
+                        originatingFile = originatingFile,
                     )
                 }
                 typeNameOf<ManyToMany>() -> {
@@ -120,6 +126,7 @@ class KSClassDeclarationParser(
                         classType = classType,
                         databaseTypeName = props.database,
                         ksType = input.asStarProjectedType(),
+                        originatingFile = originatingFile,
                     )
                 }
                 else -> null
