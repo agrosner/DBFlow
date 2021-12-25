@@ -3,7 +3,14 @@ package com.dbflow5.ksp.parser
 import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKeyAction
-import com.dbflow5.ksp.model.properties.*
+import com.dbflow5.ksp.model.properties.DatabaseProperties
+import com.dbflow5.ksp.model.properties.FieldProperties
+import com.dbflow5.ksp.model.properties.ManyToManyProperties
+import com.dbflow5.ksp.model.properties.QueryProperties
+import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
+import com.dbflow5.ksp.model.properties.ReferenceProperties
+import com.dbflow5.ksp.model.properties.TableProperties
+import com.dbflow5.ksp.model.properties.ViewProperties
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.asTypeName

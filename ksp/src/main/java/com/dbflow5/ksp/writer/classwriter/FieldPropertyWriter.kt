@@ -2,10 +2,13 @@ package com.dbflow5.ksp.writer.classwriter
 
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
-import com.dbflow5.ksp.model.*
+import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.FieldModel
+import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.cache.TypeConverterCache
+import com.dbflow5.ksp.model.hasTypeConverter
+import com.dbflow5.ksp.model.typeConverter
 import com.dbflow5.ksp.writer.TypeCreator
-import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.PropertySpec
 
@@ -29,10 +32,7 @@ class FieldPropertyWriter(
                     model.classType,
                 )
             )
-                .addAnnotation(
-                    AnnotationSpec.builder(JvmStatic::class)
-                        .build()
-                )
+                .addAnnotation(JvmField::class)
                 .initializer(
                     CodeBlock.builder()
                         .apply {
@@ -79,10 +79,7 @@ class FieldPropertyWriter(
             model.propertyName,
             ClassNames.property(model.classType)
         )
-            .addAnnotation(
-                AnnotationSpec.builder(JvmStatic::class)
-                    .build()
-            )
+            .addAnnotation(JvmField::class)
             .initializer("%M(%S)", MemberNames.property, model.dbName)
             .build()
     }

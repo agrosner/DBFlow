@@ -82,8 +82,7 @@ data class ManyToManyModel(
                             .nameWithFallback(
                                 properties.referencedTableType.simpleName.replaceFirstChar { it.lowercase() },
                             ),
-
-                        ),
+                    ),
                     classType = properties.referencedTableType,
                     fieldType = FieldModel.FieldType.PrimaryAuto(
                         isAutoIncrement = false,

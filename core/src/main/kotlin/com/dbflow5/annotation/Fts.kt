@@ -9,7 +9,6 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 annotation class Fts3
 
-
 /**
  * Description: Creates a class using the SQLITE FTS4 [https://www.sqlite.org/fts3.html]
  */

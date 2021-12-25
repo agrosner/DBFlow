@@ -17,9 +17,9 @@ class ManyToManyTest : BaseUnitTest() {
             artist.save(db)
             song.save(db)
 
-            val artistSong = Artist_Song()
-            artistSong.artist = artist
-            artistSong.song = song
+            val artistSong = Artist_Song(
+                artist, song
+            )
             assertTrue(artistSong.save(db))
         }
     }

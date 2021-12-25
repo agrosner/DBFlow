@@ -90,7 +90,7 @@ class LoadFromCursorWriter(
                     className.packageName,
                     className.simpleName + "_Table",
                 ),
-                plain.name.shortName,
+                plain.propertyName,
                 MemberNames.eq,
                 "Companion",
                 referenced.propertyName,

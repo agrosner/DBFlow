@@ -1,8 +1,18 @@
 package com.dbflow5.ksp.parser
 
-import com.dbflow5.annotation.*
+import com.dbflow5.annotation.Database
+import com.dbflow5.annotation.ManyToMany
+import com.dbflow5.annotation.ModelView
+import com.dbflow5.annotation.QueryModel
+import com.dbflow5.annotation.Table
+import com.dbflow5.annotation.TypeConverter
 import com.dbflow5.ksp.ClassNames
-import com.dbflow5.ksp.model.*
+import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.DatabaseModel
+import com.dbflow5.ksp.model.ManyToManyModel
+import com.dbflow5.ksp.model.NameModel
+import com.dbflow5.ksp.model.ObjectModel
+import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.isInternal
@@ -28,7 +38,7 @@ class KSClassDeclarationParser(
     override fun parse(input: KSClassDeclaration): List<ObjectModel> {
         val fields = fieldSanitizer.parse(input = input)
         val classType = input.asStarProjectedType().toClassName()
-        val name = input.qualifiedName!!
+        val qualifiedName = input.qualifiedName!!
         val packageName = input.packageName
         val hasDefaultConstructor =
             input.primaryConstructor?.parameters?.all { it.hasDefault } == true
@@ -39,18 +49,19 @@ class KSClassDeclarationParser(
         val isInternal = input.isInternal()
 
         // inspect annotations for what object it is.
-        return input.annotations.map { annotation ->
+        return input.annotations.mapNotNull { annotation ->
+            val name = NameModel(qualifiedName, packageName)
             when (annotation.annotationType.toTypeName()) {
                 typeNameOf<Database>() -> {
                     DatabaseModel(
-                        name = NameModel(name, packageName),
+                        name = name,
                         classType = classType,
                         properties = databasePropertyParser.parse(annotation)
                     )
                 }
                 typeNameOf<Table>() -> {
                     ClassModel(
-                        name = NameModel(name, packageName),
+                        name = name,
                         classType = classType,
                         type = ClassModel.ClassType.Normal,
                         properties = tablePropertyParser.parse(annotation),
@@ -61,7 +72,7 @@ class KSClassDeclarationParser(
                 }
                 typeNameOf<ModelView>() -> {
                     ClassModel(
-                        name = NameModel(name, packageName),
+                        name = name,
                         classType = classType,
                         type = ClassModel.ClassType.View,
                         properties = viewPropertyParser.parse(annotation),
@@ -72,7 +83,7 @@ class KSClassDeclarationParser(
                 }
                 typeNameOf<QueryModel>() -> {
                     ClassModel(
-                        name = NameModel(name, packageName),
+                        name = name,
                         classType = classType,
                         type = ClassModel.ClassType.Query,
                         properties = queryPropertyParser.parse(annotation),
@@ -90,7 +101,7 @@ class KSClassDeclarationParser(
                         }
                     }
                     TypeConverterModel.Simple(
-                        name = NameModel(name, packageName),
+                        name = name,
                         properties = typeConverterPropertyParser.parse(annotation),
                         classType = classType,
                         dataTypeName = typeConverterSuper.typeArguments[0],
@@ -104,16 +115,14 @@ class KSClassDeclarationParser(
                     }
                     val props = tablePropertyParser.parse(tableAnnotation)
                     ManyToManyModel(
-                        name = NameModel(name, packageName),
+                        name = name,
                         properties = manyToManyPropertyParser.parse(annotation),
                         classType = classType,
                         databaseTypeName = props.database,
                         ksType = input.asStarProjectedType(),
                     )
                 }
-                else -> {
-                    throw IllegalStateException("Invalid class type found ${name.asString()}")
-                }
+                else -> null
             }
         }.toList()
 

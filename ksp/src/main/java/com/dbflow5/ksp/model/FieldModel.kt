@@ -3,7 +3,11 @@ package com.dbflow5.ksp.model
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
-import com.dbflow5.ksp.model.properties.*
+import com.dbflow5.ksp.model.properties.FieldProperties
+import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
+import com.dbflow5.ksp.model.properties.TypeConverterProperties
+import com.dbflow5.ksp.model.properties.isInferredTable
+import com.dbflow5.ksp.model.properties.nameWithFallback
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.TypeName
@@ -55,7 +59,7 @@ sealed interface FieldModel {
      *  Join by name for properties.
      */
     val propertyName
-        get() = names.joinToString("_") { it.shortName }
+        get() = properties.nameWithFallback(names.joinToString("_") { it.shortName })
 
     /**
      * [useLastNull] Last name if we want ? inserted
