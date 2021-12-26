@@ -4,7 +4,7 @@ import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKeyAction
 import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.cache.IndexGroupProperties
+import com.dbflow5.ksp.model.properties.IndexGroupProperties
 import com.dbflow5.ksp.model.properties.DatabaseProperties
 import com.dbflow5.ksp.model.properties.FieldProperties
 import com.dbflow5.ksp.model.properties.IndexProperties

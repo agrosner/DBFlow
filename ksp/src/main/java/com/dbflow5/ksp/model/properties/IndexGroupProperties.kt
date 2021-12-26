@@ -1,6 +1,4 @@
-package com.dbflow5.ksp.model.cache
-
-import com.dbflow5.ksp.model.properties.NamedProperties
+package com.dbflow5.ksp.model.properties
 
 data class IndexGroupProperties(
     val number: Int,

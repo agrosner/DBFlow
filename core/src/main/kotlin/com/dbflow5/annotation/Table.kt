@@ -43,6 +43,10 @@ annotation class Table(
      * @return If true, all private boolean fields will use "is" instead of "get" for its getter and
      * "set" without the "is" if it starts with "is"
      */
+    @Deprecated(
+        "This is used for KAPT java generation. in KSP, this is not " +
+            "used anymore."
+    )
     val useBooleanGetterSetters: Boolean = true,
     /**
      * @return If true, we throw away checks for column indexing and simply assume that the cursor returns
