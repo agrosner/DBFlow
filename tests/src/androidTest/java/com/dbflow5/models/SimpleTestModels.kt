@@ -1,7 +1,19 @@
 package com.dbflow5.models
 
 import com.dbflow5.TestDatabase
-import com.dbflow5.annotation.*
+import com.dbflow5.annotation.Column
+import com.dbflow5.annotation.ColumnIgnore
+import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.annotation.ForeignKey
+import com.dbflow5.annotation.ForeignKeyAction
+import com.dbflow5.annotation.Fts3
+import com.dbflow5.annotation.Fts4
+import com.dbflow5.annotation.ManyToMany
+import com.dbflow5.annotation.PrimaryKey
+import com.dbflow5.annotation.QueryModel
+import com.dbflow5.annotation.Table
+import com.dbflow5.annotation.Unique
+import com.dbflow5.annotation.UniqueGroup
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.data.Blob
 import com.dbflow5.database.DatabaseStatement
@@ -178,27 +190,6 @@ class DefaultModel(
     @Column(defaultValue = "5.0") var location: Double? = 0.0,
     @Column(defaultValue = "\"String\"") var name: String? = ""
 )
-
-@Table(database = TestDatabase::class)
-class TestModelChild : BaseModel() {
-    @PrimaryKey
-    var id: Long = 0
-
-    @Column
-    var name: String? = null
-}
-
-@Table(database = TestDatabase::class)
-class TestModelParent : BaseModel() {
-    @PrimaryKey
-    var id: Long = 0
-
-    @Column
-    var name: String? = null
-
-    @ForeignKey(stubbedRelationship = true)
-    var child: TestModelChild? = null
-}
 
 @Table(database = TestDatabase::class)
 class NullableNumbers(
