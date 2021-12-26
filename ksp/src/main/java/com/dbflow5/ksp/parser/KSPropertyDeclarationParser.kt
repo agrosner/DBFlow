@@ -10,6 +10,7 @@ import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.SingleFieldModel
+import com.dbflow5.ksp.model.properties.NotNullProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.ClassKind
@@ -25,6 +26,7 @@ class KSPropertyDeclarationParser constructor(
     private val fieldPropertyParser: FieldPropertyParser,
     private val referenceHolderPropertyParser: ReferenceHolderProperyParser,
     private val indexParser: IndexParser,
+    private val notNullPropertyParser: NotNullPropertyParser,
 ) : Parser<KSPropertyDeclaration, FieldModel> {
 
     override fun parse(input: KSPropertyDeclaration): FieldModel {
@@ -47,6 +49,11 @@ class KSPropertyDeclarationParser constructor(
             ksClassType.declaration.closestClassDeclaration()?.classKind == ClassKind.ENUM_CLASS
         val foreignKey = input.findSingle<ForeignKey>()
         val columnMapKey = input.findSingle<ColumnMap>()
+        val notNull = input.findSingle<NotNullPropertyParser>()?.let {
+            notNullPropertyParser.parse(it)
+            // if a field is non-null, then we treat it at DB level
+            // TODO: this should be opt-in most likely as it breaks with KAPT / legacy behavior.
+        } ?: if (!ksClassType.isMarkedNullable) NotNullProperties() else null
         val classType = input.type.javaPlatformTypeName()
         val name = NameModel(
             input.simpleName,
@@ -86,7 +93,8 @@ class KSPropertyDeclarationParser constructor(
                 isColumnMap = columnMapKey != null,
                 isEnum = isEnum,
                 originatingFile = originatingFile,
-                indexProperties = indexProperties
+                indexProperties = indexProperties,
+                notNullProperties = notNull,
             )
         }
         return SingleFieldModel(
@@ -100,7 +108,8 @@ class KSPropertyDeclarationParser constructor(
             isEnum = isEnum,
             ksClassType = ksClassType,
             originatingFile = originatingFile,
-            indexProperties = indexProperties
+            indexProperties = indexProperties,
+            notNullProperties = notNull,
         )
     }
 }

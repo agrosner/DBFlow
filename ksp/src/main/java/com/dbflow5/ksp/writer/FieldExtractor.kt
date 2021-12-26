@@ -1,5 +1,6 @@
 package com.dbflow5.ksp.writer
 
+import com.dbflow5.annotation.Collate
 import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.SQLiteLookup
@@ -61,6 +62,20 @@ sealed interface FieldExtractor {
                 // TODO: conflict action
                 retString += "AUTOINCREMENT"
             }
+            field.properties?.let { props ->
+                if (props.length > -1) {
+                    retString += "(${props.length})"
+                }
+                if (props.collate != Collate.NONE) {
+                    retString += " COLLATE ${props.collate}"
+                }
+            }
+            // TODO: unique
+
+            field.notNullProperties?.let { props ->
+                retString += " NOT NULL ON CONFLICT ${props.conflictAction}"
+            }
+
             return retString
         }
     }

@@ -5,6 +5,7 @@ import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.properties.FieldProperties
 import com.dbflow5.ksp.model.properties.IndexProperties
+import com.dbflow5.ksp.model.properties.NotNullProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.dbflow5.ksp.model.properties.TypeConverterProperties
 import com.dbflow5.ksp.model.properties.isInferredTable
@@ -52,6 +53,7 @@ sealed interface FieldModel : ObjectModel {
     val fieldType: FieldType
     val properties: FieldProperties?
     val indexProperties: IndexProperties?
+    val notNullProperties: NotNullProperties?
 
     /**
      * This can be View, Normal, or Query. Based on [ClassModel]
@@ -147,6 +149,7 @@ data class SingleFieldModel(
     override val ksClassType: KSType,
     override val originatingFile: KSFile?,
     override val indexProperties: IndexProperties?,
+    override val notNullProperties: NotNullProperties?,
 ) : ObjectModel, FieldModel
 
 data class ReferenceHolderModel(
@@ -168,6 +171,7 @@ data class ReferenceHolderModel(
      * Indexes on Reference models will apply to all reference fields.
      */
     override val indexProperties: IndexProperties?,
+    override val notNullProperties: NotNullProperties?,
 ) : ObjectModel, FieldModel {
 
     enum class Type {
@@ -252,6 +256,7 @@ fun ReferenceHolderModel.toSingleModel() =
         ksClassType = ksClassType,
         originatingFile = originatingFile,
         indexProperties = indexProperties,
+        notNullProperties = notNullProperties,
     )
 
 

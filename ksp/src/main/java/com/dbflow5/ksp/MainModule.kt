@@ -12,6 +12,7 @@ import com.dbflow5.ksp.parser.IndexParser
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.parser.KSPropertyDeclarationParser
 import com.dbflow5.ksp.parser.ManyToManyPropertyParser
+import com.dbflow5.ksp.parser.NotNullPropertyParser
 import com.dbflow5.ksp.parser.QueryPropertyParser
 import com.dbflow5.ksp.parser.ReferenceHolderProperyParser
 import com.dbflow5.ksp.parser.TablePropertyParser
@@ -39,7 +40,7 @@ import org.koin.dsl.module
  * Description:
  */
 fun getModule(environment: SymbolProcessorEnvironment) = module {
-    single { KSPropertyDeclarationParser(get(), get(), get()) }
+    single { KSPropertyDeclarationParser(get(), get(), get(), get()) }
     single { DatabasePropertyParser() }
     single { SQLiteLookup() }
     single {
@@ -79,6 +80,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { Fts4Parser() }
     single { IndexParser() }
     single { IndexGroupParser() }
+    single { NotNullPropertyParser() }
 
     single { LoadFromCursorWriter(get(), get()) }
     single { GetPropertyMethodWriter(get()) }

@@ -13,7 +13,7 @@ class SimpleTestModelsTest : BaseUnitTest() {
     @Test
     fun validateCreationQuery() {
         assertEquals("CREATE TABLE IF NOT EXISTS `TypeConverterModel`(" +
-            "`id` INTEGER, " +
+            "`id` INTEGER NOT NULL ON CONFLICT FAIL, " +
             "`opaqueData` BLOB, " +
             "`blob` BLOB, " +
             "`customType` INTEGER, " +

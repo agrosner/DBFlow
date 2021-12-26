@@ -2,6 +2,7 @@ package com.dbflow5.ksp.model
 
 import com.dbflow5.ksp.model.properties.IndexProperties
 import com.dbflow5.ksp.model.properties.ManyToManyProperties
+import com.dbflow5.ksp.model.properties.NotNullProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.dbflow5.ksp.model.properties.SimpleClassProperties
 import com.dbflow5.ksp.model.properties.nameWithFallback
@@ -63,6 +64,7 @@ data class ManyToManyModel(
                  * Index these for faster retrieval by default.
                  */
                 indexProperties = IndexProperties(listOf()),
+                notNullProperties = NotNullProperties(),
             )
         } else null,
         ReferenceHolderModel(
@@ -93,7 +95,8 @@ data class ManyToManyModel(
             isEnum = false,
             originatingFile = originatingFile,
             indexProperties = properties.generateAutoIncrement.takeIf { !it }
-                ?.let { IndexProperties(listOf()) }
+                ?.let { IndexProperties(listOf()) },
+            notNullProperties = NotNullProperties(),
         ),
         ReferenceHolderModel(
             name = name.copy(
@@ -124,7 +127,8 @@ data class ManyToManyModel(
             ksClassType = ksType,
             originatingFile = originatingFile,
             indexProperties = properties.generateAutoIncrement.takeIf { !it }
-                ?.let { IndexProperties(listOf()) }
+                ?.let { IndexProperties(listOf()) },
+            notNullProperties = NotNullProperties(),
         )
     )
 

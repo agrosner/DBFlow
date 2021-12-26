@@ -9,6 +9,7 @@ import com.dbflow5.ksp.model.properties.DatabaseProperties
 import com.dbflow5.ksp.model.properties.FieldProperties
 import com.dbflow5.ksp.model.properties.IndexProperties
 import com.dbflow5.ksp.model.properties.ManyToManyProperties
+import com.dbflow5.ksp.model.properties.NotNullProperties
 import com.dbflow5.ksp.model.properties.QueryProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.dbflow5.ksp.model.properties.ReferenceProperties
@@ -178,6 +179,15 @@ class IndexGroupParser : Parser<KSAnnotation, IndexGroupProperties> {
             number = args.arg("number"),
             name = args.arg("name"),
             unique = args.arg("unique"),
+        )
+    }
+}
+
+class NotNullPropertyParser : Parser<KSAnnotation, NotNullProperties> {
+    override fun parse(input: KSAnnotation): NotNullProperties {
+        val args = input.arguments.mapProperties()
+        return NotNullProperties(
+            conflictAction = args.enumArg("onNullConflict", ConflictAction::valueOf)
         )
     }
 }
