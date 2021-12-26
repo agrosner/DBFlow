@@ -9,6 +9,7 @@ import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.generatedClassName
 import com.dbflow5.ksp.model.hasTypeConverter
+import com.dbflow5.ksp.model.properties.CreatableScopeProperties
 import com.dbflow5.ksp.model.typeConverter
 import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
 import com.dbflow5.ksp.writer.classwriter.CreationQueryWriter
@@ -131,6 +132,7 @@ class ClassWriter(
                         if (!model.isQuery) {
                             addProperty(tableNameParam.propertySpec)
                             creationQuery(model, extractors)
+                            createWithDatabase(model)
                         }
                         if (model.isNormal) {
                             addFunction(getPropertyMethodWriter.create(model))
@@ -163,6 +165,22 @@ class ClassWriter(
             )
             .build()
 
+    }
+
+    private fun TypeSpec.Builder.createWithDatabase(
+        model: ClassModel,
+    ) {
+        if (model.properties is CreatableScopeProperties
+            && !model.properties.createWithDatabase
+        ) {
+            addFunction(
+                FunSpec.builder("createWithDatabase")
+                    .returns(Boolean::class)
+                    .addModifiers(KModifier.OVERRIDE)
+                    .addStatement("return %L", false)
+                    .build()
+            )
+        }
     }
 
     private fun TypeSpec.Builder.insertStatementQuery(
