@@ -5,59 +5,59 @@ import com.dbflow5.database.FlowCursor
 
 @JvmName("getNullable")
 fun Property<String?>.infer(cursor: FlowCursor): String? =
-    cursor.getStringOrDefault(nameAlias.name())
+    cursor.getStringOrDefault(nameAlias.nameRaw())
 
 fun Property<String>.infer(cursor: FlowCursor): String =
-    cursor.getStringOrDefault(nameAlias.name(), "")
+    cursor.getStringOrDefault(nameAlias.nameRaw(), "")
 
 @JvmName("getNullable")
 fun Property<Boolean?>.infer(cursor: FlowCursor): Boolean =
-    cursor.getBooleanOrDefault(nameAlias.name())
+    cursor.getBooleanOrDefault(nameAlias.nameRaw())
 
 fun Property<Boolean>.infer(cursor: FlowCursor): Boolean =
-    cursor.getBooleanOrDefault(nameAlias.name())
+    cursor.getBooleanOrDefault(nameAlias.nameRaw())
 
 @JvmName("getNullable")
 fun Property<Int?>.infer(cursor: FlowCursor): Int? =
-    cursor.getIntOrDefault(nameAlias.name(), null)
+    cursor.getIntOrDefault(nameAlias.nameRaw(), null)
 
 fun Property<Int>.infer(cursor: FlowCursor): Int =
-    cursor.getIntOrDefault(nameAlias.name())
+    cursor.getIntOrDefault(nameAlias.nameRaw())
 
 @JvmName("getNullable")
 fun Property<Double?>.infer(cursor: FlowCursor): Double? =
-    cursor.getDoubleOrDefault(nameAlias.name(), null)
+    cursor.getDoubleOrDefault(nameAlias.nameRaw(), null)
 
 fun Property<Double>.infer(cursor: FlowCursor): Double =
-    cursor.getDoubleOrDefault(nameAlias.name())
+    cursor.getDoubleOrDefault(nameAlias.nameRaw())
 
 @JvmName("getNullable")
 fun Property<Float?>.infer(cursor: FlowCursor): Float? =
-    cursor.getFloatOrDefault(nameAlias.name(), null)
+    cursor.getFloatOrDefault(nameAlias.nameRaw(), null)
 
 fun Property<Float>.infer(cursor: FlowCursor): Float =
-    cursor.getFloatOrDefault(nameAlias.name())
+    cursor.getFloatOrDefault(nameAlias.nameRaw())
 
 @JvmName("getNullable")
 fun Property<Long?>.infer(cursor: FlowCursor): Long? =
-    cursor.getLongOrDefault(nameAlias.name(), null)
+    cursor.getLongOrDefault(nameAlias.nameRaw(), null)
 
 fun Property<Long>.infer(cursor: FlowCursor): Long =
-    cursor.getLongOrDefault(nameAlias.name())
+    cursor.getLongOrDefault(nameAlias.nameRaw())
 
 @JvmName("getNullable")
 fun Property<Short?>.infer(cursor: FlowCursor): Short? =
-    cursor.getShortOrDefault(nameAlias.name(), null)
+    cursor.getShortOrDefault(nameAlias.nameRaw(), null)
 
 fun Property<Short>.infer(cursor: FlowCursor): Short =
-    cursor.getShortOrDefault(nameAlias.name())
+    cursor.getShortOrDefault(nameAlias.nameRaw())
 
 @JvmName("getNullable")
 fun Property<ByteArray?>.infer(cursor: FlowCursor): ByteArray? =
-    cursor.getBlobOrDefault(nameAlias.name())
+    cursor.getBlobOrDefault(nameAlias.nameRaw())
 
 fun Property<ByteArray>.infer(cursor: FlowCursor): ByteArray =
-    cursor.getBlobOrDefault(nameAlias.name(), byteArrayOf())
+    cursor.getBlobOrDefault(nameAlias.nameRaw(), byteArrayOf())
 
 @Suppress("unused")
 inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data, Model>.infer(
@@ -90,10 +90,10 @@ fun <E : Enum<*>?> Property<E>.infer(
     cursor: FlowCursor,
     enumValueOf: (value: String) -> E
 ): E? =
-    cursor.getStringOrDefault(nameAlias.name())?.let(enumValueOf)
+    cursor.getStringOrDefault(nameAlias.nameRaw())?.let(enumValueOf)
 
 fun <E : Enum<*>> Property<E>.infer(
     cursor: FlowCursor,
     enumValueOf: (value: String) -> E
 ): E =
-    enumValueOf(cursor.getStringOrDefault(nameAlias.name(), ""))
+    enumValueOf(cursor.getStringOrDefault(nameAlias.nameRaw(), ""))
