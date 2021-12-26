@@ -88,7 +88,11 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     lateinit var transactionManager: BaseTransactionManager
         private set
 
-    private var databaseConfig: DatabaseConfig? = null
+    private var databaseConfig: DatabaseConfig? by MutableLazy {
+        val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
+        applyDatabaseConfig(config)
+        config
+    }
 
     private var modelNotifier: ModelNotifier? = null
 
@@ -215,11 +219,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         TableObserver(this, tables = modelClasses.toMutableList().apply {
             addAll(modelViews)
         })
-    }
-
-    init {
-        @Suppress("LeakingThis")
-        applyDatabaseConfig(FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile])
     }
 
     /**

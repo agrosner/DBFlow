@@ -7,9 +7,10 @@ import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.transaction.BaseTransactionManager
 import com.nhaarman.mockitokotlin2.mock
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 
 /**
@@ -17,13 +18,10 @@ import org.junit.Test
  */
 class DatabaseConfigTest : BaseUnitTest() {
 
-    private lateinit var builder: FlowConfig.Builder
-
     @Before
     fun setup() {
         FlowManager.reset()
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
-        builder = FlowConfig.Builder(context)
     }
 
     @Test
@@ -35,53 +33,51 @@ class DatabaseConfigTest : BaseUnitTest() {
         val openHelperCreator = OpenHelperCreator { _, _ ->
             customOpenHelper
         }
-        var testTransactionManager: TestTransactionManager? = null
+        lateinit var testTransactionManager: TestTransactionManager
         val managerCreator = TransactionManagerCreator { databaseDefinition ->
             testTransactionManager = TestTransactionManager(databaseDefinition)
-            testTransactionManager!!
+            testTransactionManager
         }
 
-        FlowManager.init(builder.apply {
+        FlowManager.init(context) {
             database<TestDatabase>({
                 databaseName("Test")
                 helperListener(helperListener)
                 transactionManagerCreator(managerCreator)
             }, openHelperCreator)
-        }.build())
+        }
 
         val flowConfig = FlowManager.getConfig()
-        Assert.assertNotNull(flowConfig)
-
         val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class.java]!!
-        Assert.assertEquals("Test", databaseConfig.databaseName)
-        Assert.assertEquals(".db", databaseConfig.databaseExtensionName)
-        Assert.assertEquals(databaseConfig.transactionManagerCreator, managerCreator)
-        Assert.assertEquals(databaseConfig.databaseClass, TestDatabase::class.java)
-        Assert.assertEquals(databaseConfig.openHelperCreator, openHelperCreator)
-        Assert.assertEquals(databaseConfig.callback, helperListener)
-        Assert.assertTrue(databaseConfig.tableConfigMap.isEmpty())
+        assertEquals("Test", databaseConfig.databaseName)
+        assertEquals(".db", databaseConfig.databaseExtensionName)
+        assertEquals(databaseConfig.transactionManagerCreator, managerCreator)
+        assertEquals(databaseConfig.databaseClass, TestDatabase::class.java)
+        assertEquals(databaseConfig.openHelperCreator, openHelperCreator)
+        assertEquals(databaseConfig.callback, helperListener)
+        assertTrue(databaseConfig.tableConfigMap.isEmpty())
 
 
         val databaseDefinition = database<TestDatabase>()
-        Assert.assertEquals(databaseDefinition.transactionManager, testTransactionManager)
-        Assert.assertEquals(databaseDefinition.openHelper, customOpenHelper)
+        assertEquals(databaseDefinition.transactionManager, testTransactionManager)
+        assertEquals(databaseDefinition.openHelper, customOpenHelper)
     }
 
     @Test
     fun test_EmptyName() {
-        FlowManager.init(builder.apply {
+        FlowManager.init(context) {
             database<TestDatabase>({
                 databaseName("Test")
                 extensionName("")
             }, AndroidSQLiteOpenHelper.createHelperCreator(context))
-        }.build())
+        }
 
         val databaseConfig = FlowManager.getConfig().databaseConfigMap[TestDatabase::class.java]!!
-        Assert.assertEquals("Test", databaseConfig.databaseName)
-        Assert.assertEquals("", databaseConfig.databaseExtensionName)
+        assertEquals("Test", databaseConfig.databaseName)
+        assertEquals("", databaseConfig.databaseExtensionName)
     }
 
 }
 
-class TestTransactionManager(databaseDefinition: DBFlowDatabase)
-    : BaseTransactionManager(mock(), databaseDefinition)
+class TestTransactionManager(databaseDefinition: DBFlowDatabase) :
+    BaseTransactionManager(mock(), databaseDefinition)
