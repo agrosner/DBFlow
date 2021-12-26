@@ -35,14 +35,20 @@ sealed interface FieldExtractor {
      * Returned ? character.
      */
     val valuesName: String
-        get() = "?"
 
     data class SingleFieldExtractor(
         private val field: SingleFieldModel,
         override val classModel: ClassModel,
     ) : FieldExtractor {
 
-
+        override val valuesName: String
+            get() = if (this.field.fieldType is FieldModel.FieldType.PrimaryAuto
+                && this.field.fieldType.isAutoIncrement
+                && this.field.notNullProperties != null
+            ) {
+                // this patches in a null if value is 0 for non-null auto fields.
+                "nullif(?, 0)"
+            } else "?"
         override val commaNames: String = field.dbName.quoteIfNeeded()
         override val updateName: String = "${field.dbName.quoteIfNeeded()}=?"
 
