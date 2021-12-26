@@ -8,6 +8,7 @@ import com.dbflow5.ksp.model.properties.IndexProperties
 import com.dbflow5.ksp.model.properties.NotNullProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.dbflow5.ksp.model.properties.TypeConverterProperties
+import com.dbflow5.ksp.model.properties.UniqueProperties
 import com.dbflow5.ksp.model.properties.isInferredTable
 import com.dbflow5.ksp.model.properties.nameWithFallback
 import com.google.devtools.ksp.closestClassDeclaration
@@ -54,6 +55,7 @@ sealed interface FieldModel : ObjectModel {
     val properties: FieldProperties?
     val indexProperties: IndexProperties?
     val notNullProperties: NotNullProperties?
+    val uniqueProperties: UniqueProperties?
 
     /**
      * This can be View, Normal, or Query. Based on [ClassModel]
@@ -150,6 +152,7 @@ data class SingleFieldModel(
     override val originatingFile: KSFile?,
     override val indexProperties: IndexProperties?,
     override val notNullProperties: NotNullProperties?,
+    override val uniqueProperties: UniqueProperties?,
 ) : ObjectModel, FieldModel
 
 data class ReferenceHolderModel(
@@ -172,6 +175,7 @@ data class ReferenceHolderModel(
      */
     override val indexProperties: IndexProperties?,
     override val notNullProperties: NotNullProperties?,
+    override val uniqueProperties: UniqueProperties?,
 ) : ObjectModel, FieldModel {
 
     enum class Type {
@@ -257,6 +261,7 @@ fun ReferenceHolderModel.toSingleModel() =
         originatingFile = originatingFile,
         indexProperties = indexProperties,
         notNullProperties = notNullProperties,
+        uniqueProperties = uniqueProperties,
     )
 
 

@@ -65,6 +65,7 @@ data class ManyToManyModel(
                  */
                 indexProperties = IndexProperties(listOf()),
                 notNullProperties = NotNullProperties(),
+                uniqueProperties = null,
             )
         } else null,
         ReferenceHolderModel(
@@ -97,6 +98,7 @@ data class ManyToManyModel(
             indexProperties = properties.generateAutoIncrement.takeIf { !it }
                 ?.let { IndexProperties(listOf()) },
             notNullProperties = NotNullProperties(),
+            uniqueProperties = null,
         ),
         ReferenceHolderModel(
             name = name.copy(
@@ -129,6 +131,7 @@ data class ManyToManyModel(
             indexProperties = properties.generateAutoIncrement.takeIf { !it }
                 ?.let { IndexProperties(listOf()) },
             notNullProperties = NotNullProperties(),
+            uniqueProperties = null,
         )
     )
 
@@ -162,6 +165,7 @@ data class ManyToManyModel(
                     unique = false,
                     tableTypeName = generatedName.className,
                 )
-            )
+            ),
+            uniqueGroups = listOf(),
         )
 }

@@ -33,6 +33,7 @@ data class TableProperties(
     val primaryKeyConflict: ConflictAction,
     val temporary: Boolean,
     val indexGroupProperties: List<IndexGroupProperties>,
+    val uniqueGroupProperties: List<UniqueGroupProperties>,
 ) : ClassProperties, CreatableScopeProperties, NamedProperties
 
 /**

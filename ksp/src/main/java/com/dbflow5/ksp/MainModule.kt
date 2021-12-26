@@ -17,6 +17,8 @@ import com.dbflow5.ksp.parser.QueryPropertyParser
 import com.dbflow5.ksp.parser.ReferenceHolderProperyParser
 import com.dbflow5.ksp.parser.TablePropertyParser
 import com.dbflow5.ksp.parser.TypeConverterPropertyParser
+import com.dbflow5.ksp.parser.UniqueGroupPropertyParser
+import com.dbflow5.ksp.parser.UniquePropertyParser
 import com.dbflow5.ksp.parser.ViewPropertyParser
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
 import com.dbflow5.ksp.writer.ClassWriter
@@ -40,7 +42,7 @@ import org.koin.dsl.module
  * Description:
  */
 fun getModule(environment: SymbolProcessorEnvironment) = module {
-    single { KSPropertyDeclarationParser(get(), get(), get(), get()) }
+    single { KSPropertyDeclarationParser(get(), get(), get(), get(), get()) }
     single { DatabasePropertyParser() }
     single { SQLiteLookup() }
     single {
@@ -57,7 +59,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
         )
     }
     single { TypeConverterPropertyParser() }
-    single { TablePropertyParser(get()) }
+    single { TablePropertyParser(get(), get()) }
     single { QueryPropertyParser() }
     single { ViewPropertyParser() }
     single { FieldPropertyParser() }
@@ -81,6 +83,8 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { IndexParser() }
     single { IndexGroupParser() }
     single { NotNullPropertyParser() }
+    single { UniqueGroupPropertyParser() }
+    single { UniquePropertyParser() }
 
     single { LoadFromCursorWriter(get(), get()) }
     single { GetPropertyMethodWriter(get()) }

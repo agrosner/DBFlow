@@ -5,6 +5,7 @@ import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.Index
 import com.dbflow5.annotation.PrimaryKey
+import com.dbflow5.annotation.Unique
 import com.dbflow5.ksp.kotlinpoet.javaPlatformTypeName
 import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.NameModel
@@ -27,6 +28,7 @@ class KSPropertyDeclarationParser constructor(
     private val referenceHolderPropertyParser: ReferenceHolderProperyParser,
     private val indexParser: IndexParser,
     private val notNullPropertyParser: NotNullPropertyParser,
+    private val uniquePropertyParser: UniquePropertyParser,
 ) : Parser<KSPropertyDeclaration, FieldModel> {
 
     override fun parse(input: KSPropertyDeclaration): FieldModel {
@@ -65,6 +67,8 @@ class KSPropertyDeclarationParser constructor(
             ?.let { indexParser.parse(it) }
         val properties = input.findSingle<Column>()
             ?.let { fieldPropertyParser.parse(it) }
+        val uniqueProperties = input.findSingle<Unique>()
+            ?.let { uniquePropertyParser.parse(it) }
 
         if (foreignKey != null || columnMapKey != null) {
             return ReferenceHolderModel(
@@ -95,6 +99,7 @@ class KSPropertyDeclarationParser constructor(
                 originatingFile = originatingFile,
                 indexProperties = indexProperties,
                 notNullProperties = notNull,
+                uniqueProperties = uniqueProperties,
             )
         }
         return SingleFieldModel(
@@ -110,6 +115,7 @@ class KSPropertyDeclarationParser constructor(
             originatingFile = originatingFile,
             indexProperties = indexProperties,
             notNullProperties = notNull,
+            uniqueProperties = uniqueProperties,
         )
     }
 }

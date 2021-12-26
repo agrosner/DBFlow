@@ -19,6 +19,7 @@ data class ClassModel(
     val properties: ClassProperties,
     val fields: List<FieldModel>,
     val indexGroups: List<IndexGroupModel>,
+    val uniqueGroups: List<UniqueGroupModel>,
     /**
      * If true we use that, other wise expect all mutable fields
      * (to remain compatible with old DBFlow models).

@@ -5,6 +5,7 @@ import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.SQLiteLookup
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
+import com.dbflow5.ksp.model.createFlattenedFields
 import com.dbflow5.ksp.model.properties.TableProperties
 import com.dbflow5.ksp.writer.FieldExtractor
 import com.dbflow5.ksp.writer.TypeCreator
@@ -20,9 +21,9 @@ class CreationQueryWriter(
     private val referencesCache: ReferencesCache,
 ) : TypeCreator<CreationQueryWriter.Input, PropertySpec> {
     override fun create(model: Input): PropertySpec {
-        val (model, extractors) = model
-        val isTemporary = when (model.properties) {
-            is TableProperties -> model.properties.temporary
+        val (clsModel, extractors) = model
+        val isTemporary = when (clsModel.properties) {
+            is TableProperties -> clsModel.properties.temporary
             else -> false
         }
         return PropertySpec.builder("creationQuery", String::class.asClassName())
@@ -31,13 +32,13 @@ class CreationQueryWriter(
                 getter(
                     FunSpec.getterBuilder()
                         .apply {
-                            if (model.type is ClassModel.ClassType.Normal &&
-                                (model.type == ClassModel.ClassType.Normal.Fts3
-                                    || model.type is ClassModel.ClassType.Normal.Fts4)
+                            if (clsModel.type is ClassModel.ClassType.Normal &&
+                                (clsModel.type == ClassModel.ClassType.Normal.Fts3
+                                    || clsModel.type is ClassModel.ClassType.Normal.Fts4)
                             ) {
                                 addCode("return %S", buildString {
-                                    append("CREATE VIRTUAL TABLE IF NOT EXISTS ${model.dbName} USING ")
-                                    when (model.type) {
+                                    append("CREATE VIRTUAL TABLE IF NOT EXISTS ${clsModel.dbName} USING ")
+                                    when (clsModel.type) {
                                         ClassModel.ClassType.Normal.Fts3 -> append("FTS3")
                                         is ClassModel.ClassType.Normal.Fts4 -> append("FTS4")
                                         else -> append("")
@@ -46,28 +47,39 @@ class CreationQueryWriter(
                                     append(extractors.joinToString {
                                         it.commaNames
                                     })
-                                    if (model.type is ClassModel.ClassType.Normal.Fts4) {
+                                    if (clsModel.type is ClassModel.ClassType.Normal.Fts4) {
                                         if (extractors.isNotEmpty()) {
                                             append(",")
                                         }
                                         val classModel = referencesCache.allTables
-                                            .first { it.classType == model.type.contentTable }
+                                            .first { it.classType == clsModel.type.contentTable }
                                         append("content=${classModel.dbName}")
                                     }
                                     append(")")
                                 })
                             } else {
                                 addCode("return %S", buildString {
-                                    append("CREATE${if (isTemporary) " TEMP" else ""} TABLE IF NOT EXISTS ${model.dbName}(")
+                                    append("CREATE${if (isTemporary) " TEMP" else ""} TABLE IF NOT EXISTS ${clsModel.dbName}(")
                                     append(extractors.joinToString {
                                         it.createName(
                                             sqLiteLookup,
                                             typeConverterCache
                                         )
                                     })
-                                    val nonAutoFields = model.primaryFlattenedFields(referencesCache)
-                                        .filterNot { (it.fieldType as FieldModel.FieldType.PrimaryAuto).isAutoIncrement }
-
+                                    if (clsModel.uniqueGroups.isNotEmpty()) {
+                                        clsModel.uniqueGroups.forEach { group ->
+                                            append(", UNIQUE(")
+                                            append(createFlattenedFields(
+                                                referencesCache,
+                                                group.fields
+                                            )
+                                                .joinToString { it.dbName })
+                                            append(") ON CONFLICT ${group.conflictAction}")
+                                        }
+                                    }
+                                    val nonAutoFields =
+                                        clsModel.primaryFlattenedFields(referencesCache)
+                                            .filterNot { (it.fieldType as FieldModel.FieldType.PrimaryAuto).isAutoIncrement }
                                     if (nonAutoFields.isNotEmpty()) {
                                         append(", PRIMARY KEY(")
                                         append(nonAutoFields.joinToString { it.dbName.quoteIfNeeded() })

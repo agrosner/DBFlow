@@ -70,7 +70,11 @@ sealed interface FieldExtractor {
                     retString += " COLLATE ${props.collate}"
                 }
             }
-            // TODO: unique
+            field.uniqueProperties?.let { props ->
+                if (props.unique) {
+                    retString += " UNIQUE ON CONFLICT ${props.conflictAction}"
+                }
+            }
 
             field.notNullProperties?.let { props ->
                 retString += " NOT NULL ON CONFLICT ${props.conflictAction}"

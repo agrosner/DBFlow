@@ -16,6 +16,7 @@ import com.dbflow5.ksp.model.ManyToManyModel
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.ObjectModel
 import com.dbflow5.ksp.model.TypeConverterModel
+import com.dbflow5.ksp.model.UniqueGroupModel
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.isInternal
@@ -98,6 +99,18 @@ class KSClassDeclarationParser(
                                         ) == true
                                     }
                                 )
+                            },
+                        uniqueGroups = properties.uniqueGroupProperties
+                            .map { group ->
+                                UniqueGroupModel(
+                                    number = group.number,
+                                    conflictAction = group.conflictAction,
+                                    fields = fields.filter {
+                                        it.uniqueProperties?.groups?.contains(
+                                            group.number
+                                        ) == true
+                                    }
+                                )
                             }
                     )
                 }
@@ -112,6 +125,7 @@ class KSClassDeclarationParser(
                         isInternal = isInternal,
                         originatingFile = originatingFile,
                         indexGroups = listOf(),
+                        uniqueGroups = listOf(),
                     )
                 }
                 typeNameOf<QueryModel>() -> {
@@ -125,6 +139,7 @@ class KSClassDeclarationParser(
                         isInternal = isInternal,
                         originatingFile = originatingFile,
                         indexGroups = listOf(),
+                        uniqueGroups = listOf(),
                     )
                 }
                 typeNameOf<TypeConverter>() -> {

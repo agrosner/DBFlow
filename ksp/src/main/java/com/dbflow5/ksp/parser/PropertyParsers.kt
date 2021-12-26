@@ -4,9 +4,9 @@ import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKeyAction
 import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.properties.IndexGroupProperties
 import com.dbflow5.ksp.model.properties.DatabaseProperties
 import com.dbflow5.ksp.model.properties.FieldProperties
+import com.dbflow5.ksp.model.properties.IndexGroupProperties
 import com.dbflow5.ksp.model.properties.IndexProperties
 import com.dbflow5.ksp.model.properties.ManyToManyProperties
 import com.dbflow5.ksp.model.properties.NotNullProperties
@@ -14,6 +14,8 @@ import com.dbflow5.ksp.model.properties.QueryProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.dbflow5.ksp.model.properties.ReferenceProperties
 import com.dbflow5.ksp.model.properties.TableProperties
+import com.dbflow5.ksp.model.properties.UniqueGroupProperties
+import com.dbflow5.ksp.model.properties.UniqueProperties
 import com.dbflow5.ksp.model.properties.ViewProperties
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
@@ -38,6 +40,7 @@ class DatabasePropertyParser : Parser<KSAnnotation, DatabaseProperties> {
 
 class TablePropertyParser(
     private val indexGroupParser: IndexGroupParser,
+    private val uniqueGroupPropertyParser: UniqueGroupPropertyParser,
 ) : Parser<KSAnnotation, TableProperties> {
     override fun parse(input: KSAnnotation): TableProperties {
         val args = input.arguments.mapProperties()
@@ -53,7 +56,9 @@ class TablePropertyParser(
             primaryKeyConflict = args.enumArg("primaryKeyConflict", ConflictAction::valueOf),
             temporary = args.arg("temporary"),
             indexGroupProperties = args.arg<List<KSAnnotation>>("indexGroups")
-                .map { indexGroupParser.parse(it) }
+                .map { indexGroupParser.parse(it) },
+            uniqueGroupProperties = args.arg<List<KSAnnotation>>("uniqueColumnGroups")
+                .map { uniqueGroupPropertyParser.parse(it) }
         )
     }
 }
@@ -188,6 +193,27 @@ class NotNullPropertyParser : Parser<KSAnnotation, NotNullProperties> {
         val args = input.arguments.mapProperties()
         return NotNullProperties(
             conflictAction = args.enumArg("onNullConflict", ConflictAction::valueOf)
+        )
+    }
+}
+
+class UniqueGroupPropertyParser : Parser<KSAnnotation, UniqueGroupProperties> {
+    override fun parse(input: KSAnnotation): UniqueGroupProperties {
+        val args = input.arguments.mapProperties()
+        return UniqueGroupProperties(
+            number = args.arg("groupNumber"),
+            conflictAction = args.enumArg("uniqueConflict", ConflictAction::valueOf)
+        )
+    }
+}
+
+class UniquePropertyParser : Parser<KSAnnotation, UniqueProperties> {
+    override fun parse(input: KSAnnotation): UniqueProperties {
+        val args = input.arguments.mapProperties()
+        return UniqueProperties(
+            unique = args.arg("unique"),
+            groups = args.arg("uniqueGroups"),
+            conflictAction = args.enumArg("onUniqueConflict", ConflictAction::valueOf)
         )
     }
 }
