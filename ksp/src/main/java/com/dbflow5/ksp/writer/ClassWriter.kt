@@ -67,8 +67,9 @@ class ClassWriter(
         val extractors = model.fields.map {
             when (it) {
                 is ReferenceHolderModel -> FieldExtractor.ForeignFieldExtractor(
-                    it,
-                    referencesCache,
+                    field = it,
+                    referencesCache = referencesCache,
+                    classModel = model,
                 )
                 is SingleFieldModel -> FieldExtractor.SingleFieldExtractor(it, model)
             }
@@ -76,8 +77,9 @@ class ClassWriter(
         val primaryExtractors = model.primaryFields.map {
             when (it) {
                 is ReferenceHolderModel -> FieldExtractor.ForeignFieldExtractor(
-                    it,
-                    referencesCache,
+                    field = it,
+                    referencesCache = referencesCache,
+                    classModel = model,
                 )
                 is SingleFieldModel -> FieldExtractor.SingleFieldExtractor(it, model)
             }
@@ -164,9 +166,14 @@ class ClassWriter(
                                             .parameterizedBy(model.classType)
                                     )
                                         .addModifiers(KModifier.OVERRIDE)
-                                        .getter(FunSpec.getterBuilder()
-                                            .addStatement("return %T::class", model.classType)
-                                            .build())
+                                        .getter(
+                                            FunSpec.getterBuilder()
+                                                .addStatement(
+                                                    "return %T::class",
+                                                    model.classType
+                                                )
+                                                .build()
+                                        )
                                         .build()
                                 )
                                 model.flattenedFields(referencesCache).forEach { field ->
