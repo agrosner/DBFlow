@@ -53,6 +53,10 @@ object ClassNames {
     fun modelViewAdapter(typeName: TypeName) =
         ClassName(PackageNames.Adapter, "ModelViewAdapter").parameterizedBy(typeName)
 
+    fun adapterCompanion(typeName: TypeName) =
+        ClassName(PackageNames.Adapter, "AdapterCompanion")
+            .parameterizedBy(typeName)
+
     val DBFlowDatabase = ClassName(PackageNames.Config, "DBFlowDatabase")
     val MutableHolder = ClassName(PackageNames.Config, "MutableHolder")
     val GeneratedDatabaseHolder = ClassName(PackageNames.Config, "GeneratedDatabaseHolder")

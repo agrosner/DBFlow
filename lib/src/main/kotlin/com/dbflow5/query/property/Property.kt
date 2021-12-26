@@ -1,8 +1,14 @@
 package com.dbflow5.query.property
 
+import com.dbflow5.adapter.AdapterCompanion
 import com.dbflow5.config.FlowManager
 import com.dbflow5.converter.TypeConverter
-import com.dbflow5.query.*
+import com.dbflow5.query.BaseModelQueriable
+import com.dbflow5.query.IConditional
+import com.dbflow5.query.IOperator
+import com.dbflow5.query.NameAlias
+import com.dbflow5.query.Operator
+import com.dbflow5.query.OrderBy
 import kotlin.reflect.KClass
 
 /**
@@ -307,47 +313,48 @@ open class Property<T>(
     }
 }
 
-inline fun <reified T> property(columnName: String) = Property<T>(T::class.java, columnName)
+inline fun <reified T, Table : Any> AdapterCompanion<Table>.property(columnName: String) =
+    Property<T>(table.java, columnName)
 
-inline fun <reified T, Data : Any, Model : Any> typeConvertedProperty(
+inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedProperty(
     unusedData: KClass<Data>,
     unusedModel: KClass<Model>,
     columnName: String,
     crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
 ): TypeConvertedProperty<Data, Model> =
-    TypeConvertedProperty(T::class, columnName) {
+    TypeConvertedProperty(table, columnName) {
         getTypeConverter(it.kotlin)
     }
 
 @JvmName("nullableDataTypeConvertedProperty")
-inline fun <reified T, Data : Any, Model : Any> typeConvertedProperty(
+inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedProperty(
     unusedModel: KClass<Model>,
     columnName: String,
     crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
 ): TypeConvertedProperty<Data?, Model> =
-    TypeConvertedProperty(T::class, columnName) {
+    TypeConvertedProperty(table, columnName) {
         getTypeConverter(it.kotlin)
     }
 
-inline fun <reified T, Data : Any, Model : Any> typeConvertedProperty(
+inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedProperty(
     columnName: String,
     crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
 ): TypeConvertedProperty<Data?, Model?> =
-    TypeConvertedProperty(T::class, columnName) {
+    TypeConvertedProperty(table, columnName) {
         getTypeConverter(it.kotlin)
     }
 
 @JvmName("nullableModelTypeConvertedProperty")
-inline fun <reified T, Data : Any, Model : Any> typeConvertedProperty(
+inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedProperty(
     unusedModel: KClass<Data>,
     columnName: String,
     crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
 ): TypeConvertedProperty<Data, Model?> =
-    TypeConvertedProperty(T::class, columnName) {
+    TypeConvertedProperty(table, columnName) {
         getTypeConverter(it.kotlin)
     }
 
 /**
  * Used in code generation to infer property class type
  */
-inline fun <reified T: Any> classToken() = T::class
+inline fun <reified T : Any> classToken() = T::class

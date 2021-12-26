@@ -30,6 +30,7 @@ import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import java.util.*
+import kotlin.reflect.KClass
 
 /**
  * Description:
@@ -151,7 +152,23 @@ class ClassWriter(
                         getObjectType(model)
 
                         addType(TypeSpec.companionObjectBuilder()
+                            .addSuperinterface(
+                                ClassNames.adapterCompanion(
+                                    model.classType,
+                                )
+                            )
                             .apply {
+                                addProperty(
+                                    PropertySpec.builder(
+                                        "table", KClass::class.asClassName()
+                                            .parameterizedBy(model.classType)
+                                    )
+                                        .addModifiers(KModifier.OVERRIDE)
+                                        .getter(FunSpec.getterBuilder()
+                                            .addStatement("return %T::class", model.classType)
+                                            .build())
+                                        .build()
+                                )
                                 model.flattenedFields(referencesCache).forEach { field ->
                                     addProperty(fieldPropertyWriter.create(field))
                                 }

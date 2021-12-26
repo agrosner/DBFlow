@@ -37,11 +37,8 @@ class FieldPropertyWriter(
                     CodeBlock.builder()
                         .apply {
                             add(
-                                "%M<%T, %T, %T>(",
+                                "%M(",
                                 MemberNames.typeConvertedProperty,
-                                model.enclosingClassType,
-                                typeConverterModel.dataTypeName,
-                                model.nonNullClassType,
                             )
                             if (!nullableDataTypeName.isNullable) {
                                 add("%M(),", MemberNames.classToken)
