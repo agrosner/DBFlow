@@ -7,6 +7,8 @@ import com.dbflow5.ksp.parser.DatabasePropertyParser
 import com.dbflow5.ksp.parser.FieldPropertyParser
 import com.dbflow5.ksp.parser.ForeignKeyReferencePropertyParser
 import com.dbflow5.ksp.parser.Fts4Parser
+import com.dbflow5.ksp.parser.IndexGroupParser
+import com.dbflow5.ksp.parser.IndexParser
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.parser.KSPropertyDeclarationParser
 import com.dbflow5.ksp.parser.ManyToManyPropertyParser
@@ -25,6 +27,7 @@ import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
 import com.dbflow5.ksp.writer.classwriter.CreationQueryWriter
 import com.dbflow5.ksp.writer.classwriter.FieldPropertyWriter
 import com.dbflow5.ksp.writer.classwriter.GetPropertyMethodWriter
+import com.dbflow5.ksp.writer.classwriter.IndexPropertyWriter
 import com.dbflow5.ksp.writer.classwriter.LoadFromCursorWriter
 import com.dbflow5.ksp.writer.classwriter.PrimaryConditionClauseWriter
 import com.dbflow5.ksp.writer.classwriter.StatementBinderWriter
@@ -36,7 +39,7 @@ import org.koin.dsl.module
  * Description:
  */
 fun getModule(environment: SymbolProcessorEnvironment) = module {
-    single { KSPropertyDeclarationParser(get(), get()) }
+    single { KSPropertyDeclarationParser(get(), get(), get()) }
     single { DatabasePropertyParser() }
     single { SQLiteLookup() }
     single {
@@ -53,7 +56,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
         )
     }
     single { TypeConverterPropertyParser() }
-    single { TablePropertyParser() }
+    single { TablePropertyParser(get()) }
     single { QueryPropertyParser() }
     single { ViewPropertyParser() }
     single { FieldPropertyParser() }
@@ -74,6 +77,8 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
         )
     }
     single { Fts4Parser() }
+    single { IndexParser() }
+    single { IndexGroupParser() }
 
     single { LoadFromCursorWriter(get(), get()) }
     single { GetPropertyMethodWriter(get()) }
@@ -84,11 +89,13 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { InlineTypeConverterWriter() }
     single { ManyToManyClassWriter() }
     single { CreationQueryWriter(get(), get(), get()) }
+    single { IndexPropertyWriter(get()) }
 
     single {
         ClassWriter(
             get(), get(), get(), get(), get(),
             get(), get(), get(), get(), get(),
+            get(),
         )
     }
     single { DatabaseWriter() }

@@ -11,6 +11,7 @@ import com.dbflow5.annotation.TypeConverter
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.DatabaseModel
+import com.dbflow5.ksp.model.IndexGroupModel
 import com.dbflow5.ksp.model.ManyToManyModel
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.ObjectModel
@@ -71,21 +72,33 @@ class KSClassDeclarationParser(
                     val fts4 = input.annotations.firstOrNull {
                         it.annotationType.toTypeName() == typeNameOf<Fts4>()
                     }
+                    val properties = tablePropertyParser.parse(annotation)
                     ClassModel(
                         name = name,
                         classType = classType,
-                        type = if (fts3 != null) {
-                            ClassModel.ClassType.Normal.Fts3
-                        } else if (fts4 != null) {
-                            fts4Parser.parse(fts4)
-                        } else {
-                            ClassModel.ClassType.Normal.Normal
+                        type = when {
+                            fts3 != null -> ClassModel.ClassType.Normal.Fts3
+                            fts4 != null -> fts4Parser.parse(fts4)
+                            else -> ClassModel.ClassType.Normal.Normal
                         },
-                        properties = tablePropertyParser.parse(annotation),
+                        properties = properties,
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
                         originatingFile = originatingFile,
+                        indexGroups = properties.indexGroupProperties
+                            .map { group ->
+                                IndexGroupModel(
+                                    name = group.name,
+                                    unique = group.unique,
+                                    tableTypeName = classType,
+                                    fields = fields.filter {
+                                        it.indexProperties?.groups?.contains(
+                                            group.number
+                                        ) == true
+                                    }
+                                )
+                            }
                     )
                 }
                 typeNameOf<ModelView>() -> {
@@ -98,6 +111,7 @@ class KSClassDeclarationParser(
                         hasPrimaryConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
                         originatingFile = originatingFile,
+                        indexGroups = listOf(),
                     )
                 }
                 typeNameOf<QueryModel>() -> {
@@ -110,6 +124,7 @@ class KSClassDeclarationParser(
                         hasPrimaryConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
                         originatingFile = originatingFile,
+                        indexGroups = listOf(),
                     )
                 }
                 typeNameOf<TypeConverter>() -> {

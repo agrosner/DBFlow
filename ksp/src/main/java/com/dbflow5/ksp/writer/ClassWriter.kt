@@ -14,6 +14,7 @@ import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
 import com.dbflow5.ksp.writer.classwriter.CreationQueryWriter
 import com.dbflow5.ksp.writer.classwriter.FieldPropertyWriter
 import com.dbflow5.ksp.writer.classwriter.GetPropertyMethodWriter
+import com.dbflow5.ksp.writer.classwriter.IndexPropertyWriter
 import com.dbflow5.ksp.writer.classwriter.LoadFromCursorWriter
 import com.dbflow5.ksp.writer.classwriter.PrimaryConditionClauseWriter
 import com.dbflow5.ksp.writer.classwriter.StatementBinderWriter
@@ -43,6 +44,7 @@ class ClassWriter(
     private val statementBinderWriter: StatementBinderWriter,
     private val typeConverterFieldWriter: TypeConverterFieldWriter,
     private val creationQueryWriter: CreationQueryWriter,
+    private val indexPropertyWriter: IndexPropertyWriter,
 ) : TypeCreator<ClassModel, FileSpec> {
     override fun create(model: ClassModel): FileSpec {
         val tableParam = ParameterPropertySpec(
@@ -150,6 +152,9 @@ class ClassWriter(
                             .apply {
                                 model.flattenedFields(referencesCache).forEach { field ->
                                     addProperty(fieldPropertyWriter.create(field))
+                                }
+                                model.indexGroups.forEach {
+                                    addProperty(indexPropertyWriter.create(it))
                                 }
                             }
                             .build()

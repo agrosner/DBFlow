@@ -4,8 +4,10 @@ import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKeyAction
 import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.cache.IndexGroupProperties
 import com.dbflow5.ksp.model.properties.DatabaseProperties
 import com.dbflow5.ksp.model.properties.FieldProperties
+import com.dbflow5.ksp.model.properties.IndexProperties
 import com.dbflow5.ksp.model.properties.ManyToManyProperties
 import com.dbflow5.ksp.model.properties.QueryProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
@@ -33,7 +35,9 @@ class DatabasePropertyParser : Parser<KSAnnotation, DatabaseProperties> {
     }
 }
 
-class TablePropertyParser : Parser<KSAnnotation, TableProperties> {
+class TablePropertyParser(
+    private val indexGroupParser: IndexGroupParser,
+) : Parser<KSAnnotation, TableProperties> {
     override fun parse(input: KSAnnotation): TableProperties {
         val args = input.arguments.mapProperties()
         return TableProperties(
@@ -46,7 +50,9 @@ class TablePropertyParser : Parser<KSAnnotation, TableProperties> {
             updateConflict = args.enumArg("updateConflict", ConflictAction::valueOf),
             insertConflict = args.enumArg("insertConflict", ConflictAction::valueOf),
             primaryKeyConflict = args.enumArg("primaryKeyConflict", ConflictAction::valueOf),
-            temporary = args.arg("temporary")
+            temporary = args.arg("temporary"),
+            indexGroupProperties = args.arg<List<KSAnnotation>>("indexGroups")
+                .map { indexGroupParser.parse(it) }
         )
     }
 }
@@ -152,6 +158,26 @@ class Fts4Parser : Parser<KSAnnotation, ClassModel.ClassType.Normal.Fts4> {
         val args = input.arguments.mapProperties()
         return ClassModel.ClassType.Normal.Fts4(
             contentTable = args.arg<KSType>("contentTable").toTypeName(),
+        )
+    }
+}
+
+class IndexParser : Parser<KSAnnotation, IndexProperties> {
+    override fun parse(input: KSAnnotation): IndexProperties {
+        val args = input.arguments.mapProperties()
+        return IndexProperties(
+            groups = args.arg("indexGroups")
+        )
+    }
+}
+
+class IndexGroupParser : Parser<KSAnnotation, IndexGroupProperties> {
+    override fun parse(input: KSAnnotation): IndexGroupProperties {
+        val args = input.arguments.mapProperties()
+        return IndexGroupProperties(
+            number = args.arg("number"),
+            name = args.arg("name"),
+            unique = args.arg("unique"),
         )
     }
 }

@@ -1,6 +1,7 @@
 package com.dbflow5.ksp.model.properties
 
 import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.ksp.model.cache.IndexGroupProperties
 import com.squareup.kotlinpoet.TypeName
 
 
@@ -8,6 +9,9 @@ interface ClassProperties : DatabaseScopedProperties, ReadableScopeProperties {
     val allFields: Boolean
 }
 
+/**
+ * Used by ManyToMany for bare-bones use of common fields.
+ */
 data class SimpleClassProperties(
     override val allFields: Boolean,
     override val database: TypeName,
@@ -29,6 +33,7 @@ data class TableProperties(
     val insertConflict: ConflictAction,
     val primaryKeyConflict: ConflictAction,
     val temporary: Boolean,
+    val indexGroupProperties: List<IndexGroupProperties>,
 ) : ClassProperties, CreatableScopeProperties, NamedProperties
 
 /**

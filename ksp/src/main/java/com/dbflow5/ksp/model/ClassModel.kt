@@ -18,6 +18,7 @@ data class ClassModel(
     val type: ClassType,
     val properties: ClassProperties,
     val fields: List<FieldModel>,
+    val indexGroups: List<IndexGroupModel>,
     /**
      * If true we use that, other wise expect all mutable fields
      * (to remain compatible with old DBFlow models).
@@ -45,21 +46,6 @@ data class ClassModel(
 
     val isNormal
         get() = type is ClassType.Normal
-
-    private fun createFlattenedFields(
-        referencesCache: ReferencesCache,
-        primaryFields: List<FieldModel>
-    ): List<FieldModel> {
-        return primaryFields.map { field ->
-            when (field) {
-                is ReferenceHolderModel -> field.references(
-                    referencesCache,
-                    nameToNest = field.name,
-                )
-                is SingleFieldModel -> listOf(field)
-            }
-        }.flatten()
-    }
 
     fun flattenedFields(referencesCache: ReferencesCache) =
         createFlattenedFields(referencesCache, fields)

@@ -75,15 +75,17 @@ annotation class Table(
      * @return The set of INDEX clauses that specific columns can define to belong to, using the [Index] annotation.
      * The generated Index properties belong to the corresponding property class to this table.
      */
-    val indexGroups: Array<com.dbflow5.annotation.IndexGroup> = [],
+    val indexGroups: Array<IndexGroup> = [],
     /**
      * @return A set of inherited accessible fields not necessarily defined as columns in the super class of this table.
      * Each must be accessible via: public, package private, or protected or getter/setters.
      */
-    val inheritedColumns: Array<com.dbflow5.annotation.InheritedColumn> = [],
+    @Deprecated("use @ColumnMap fields instead.")
+    val inheritedColumns: Array<InheritedColumn> = [],
     /**
      * @return A set of inherited accessible fields not necessarily defined as columns in the super class of this table.
      * Each must be accessible via: public, package private, or protected or getter/setters.
      */
+    @Deprecated("use @ColumnMap fields instead.")
     val inheritedPrimaryKeys: Array<InheritedPrimaryKey> = []
 )

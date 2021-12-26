@@ -3,6 +3,7 @@ package com.dbflow5.ksp.parser
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ForeignKey
+import com.dbflow5.annotation.Index
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.ksp.kotlinpoet.javaPlatformTypeName
 import com.dbflow5.ksp.model.FieldModel
@@ -16,8 +17,6 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
-import com.squareup.kotlinpoet.ksp.toTypeName
-import com.squareup.kotlinpoet.typeNameOf
 
 /**
  * Description:
@@ -25,12 +24,12 @@ import com.squareup.kotlinpoet.typeNameOf
 class KSPropertyDeclarationParser constructor(
     private val fieldPropertyParser: FieldPropertyParser,
     private val referenceHolderPropertyParser: ReferenceHolderProperyParser,
+    private val indexParser: IndexParser,
 ) : Parser<KSPropertyDeclaration, FieldModel> {
 
     override fun parse(input: KSPropertyDeclaration): FieldModel {
         val originatingFile = input.containingFile
-        val primaryKey =
-            input.annotations.find { it.annotationType.toTypeName() == typeNameOf<PrimaryKey>() }
+        val primaryKey = input.findSingle<PrimaryKey>()
         val fieldType = if (primaryKey != null) {
             val props = primaryKey.arguments.mapProperties()
             FieldModel.FieldType.PrimaryAuto(
@@ -46,12 +45,8 @@ class KSPropertyDeclarationParser constructor(
             .declaration.modifiers.any { it == Modifier.VALUE }
         val isEnum =
             ksClassType.declaration.closestClassDeclaration()?.classKind == ClassKind.ENUM_CLASS
-        val column =
-            input.annotations.find { it.annotationType.toTypeName() == typeNameOf<Column>() }
-        val foreignKey =
-            input.annotations.find { it.annotationType.toTypeName() == typeNameOf<ForeignKey>() }
-        val columnMapKey =
-            input.annotations.find { it.annotationType.toTypeName() == typeNameOf<ColumnMap>() }
+        val foreignKey = input.findSingle<ForeignKey>()
+        val columnMapKey = input.findSingle<ColumnMap>()
         val classType = input.type.javaPlatformTypeName()
         val name = NameModel(
             input.simpleName,
@@ -59,12 +54,17 @@ class KSPropertyDeclarationParser constructor(
             classType.isNullable,
         )
         val isVal = !input.isMutable
+        val indexProperties = input.findSingle<Index>()
+            ?.let { indexParser.parse(it) }
+        val properties = input.findSingle<Column>()
+            ?.let { fieldPropertyParser.parse(it) }
+
         if (foreignKey != null || columnMapKey != null) {
             return ReferenceHolderModel(
                 name = name,
                 classType = classType,
                 fieldType,
-                properties = column?.let { fieldPropertyParser.parse(column) },
+                properties = properties,
                 referenceHolderProperties = (foreignKey ?: columnMapKey)?.let {
                     referenceHolderPropertyParser.parse(
                         it
@@ -86,19 +86,21 @@ class KSPropertyDeclarationParser constructor(
                 isColumnMap = columnMapKey != null,
                 isEnum = isEnum,
                 originatingFile = originatingFile,
+                indexProperties = indexProperties
             )
         }
         return SingleFieldModel(
             name = name,
             classType = classType,
             fieldType,
-            properties = column?.let { fieldPropertyParser.parse(column) },
+            properties = properties,
             enclosingClassType = input.parentDeclaration?.closestClassDeclaration()!!.toClassName(),
             isInlineClass = isInlineClass,
             isVal = isVal,
             isEnum = isEnum,
             ksClassType = ksClassType,
             originatingFile = originatingFile,
+            indexProperties = indexProperties
         )
     }
 }

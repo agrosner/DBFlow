@@ -1,5 +1,6 @@
 package com.dbflow5.ksp.model
 
+import com.dbflow5.ksp.model.properties.IndexProperties
 import com.dbflow5.ksp.model.properties.ManyToManyProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.dbflow5.ksp.model.properties.SimpleClassProperties
@@ -39,6 +40,94 @@ data class ManyToManyModel(
         shortName = dbName
     )
 
+    val fields = listOfNotNull(
+        if (properties.generateAutoIncrement) {
+            SingleFieldModel(
+                name = name.copy(
+                    shortName = "id",
+                ),
+                classType = INT,
+                fieldType = FieldModel.FieldType.PrimaryAuto(
+                    isAutoIncrement = true,
+                    isRowId = false,
+                    quickCheckPrimaryKey = true,
+                ),
+                properties = null,
+                enclosingClassType = generatedName.className,
+                isInlineClass = false,
+                ksClassType = ksType,
+                isVal = true,
+                isEnum = false,
+                originatingFile = originatingFile,
+                /**
+                 * Index these for faster retrieval by default.
+                 */
+                indexProperties = IndexProperties(listOf()),
+            )
+        } else null,
+        ReferenceHolderModel(
+            name = name.copy(shortName = properties.thisTableColumnName
+                .nameWithFallback(
+                    name.shortName.replaceFirstChar { it.lowercase() }
+                )
+            ),
+            classType = classType,
+            fieldType = if (properties.generateAutoIncrement) {
+                FieldModel.FieldType.Normal
+            } else FieldModel.FieldType.PrimaryAuto(
+                isAutoIncrement = false,
+                isRowId = false,
+                quickCheckPrimaryKey = true,
+            ),
+            properties = null,
+            referenceHolderProperties = ReferenceHolderProperties(
+                referencesType = ReferenceHolderProperties.ReferencesType.All,
+                referencedTableTypeName = classType,
+            ),
+            enclosingClassType = generatedName.className,
+            type = ReferenceHolderModel.Type.ForeignKey,
+            isInlineClass = false,
+            ksClassType = ksType,
+            isVal = true,
+            isColumnMap = false,
+            isEnum = false,
+            originatingFile = originatingFile,
+            indexProperties = properties.generateAutoIncrement.takeIf { !it }
+                ?.let { IndexProperties(listOf()) }
+        ),
+        ReferenceHolderModel(
+            name = name.copy(
+                shortName = properties.referencedTableColumnName
+                    .nameWithFallback(
+                        properties.referencedTableType.simpleName.replaceFirstChar { it.lowercase() },
+                    ),
+            ),
+            classType = properties.referencedTableType,
+            fieldType = if (properties.generateAutoIncrement) {
+                FieldModel.FieldType.Normal
+            } else FieldModel.FieldType.PrimaryAuto(
+                isAutoIncrement = false,
+                isRowId = false,
+                quickCheckPrimaryKey = true,
+            ),
+            properties = null,
+            referenceHolderProperties = ReferenceHolderProperties(
+                referencesType = ReferenceHolderProperties.ReferencesType.All,
+                referencedTableTypeName = properties.referencedTableType,
+            ),
+            enclosingClassType = generatedName.className,
+            type = ReferenceHolderModel.Type.ForeignKey,
+            isInlineClass = false,
+            isColumnMap = false,
+            isEnum = false,
+            isVal = true,
+            ksClassType = ksType,
+            originatingFile = originatingFile,
+            indexProperties = properties.generateAutoIncrement.takeIf { !it }
+                ?.let { IndexProperties(listOf()) }
+        )
+    )
+
     /**
      * Returns the generated class model to use.
      */
@@ -53,87 +142,22 @@ data class ManyToManyModel(
                 orderedCursorLookup = true,
                 assignDefaultValuesFromCursor = true,
             ),
-            fields = listOfNotNull(
-                if (properties.generateAutoIncrement) {
-                    SingleFieldModel(
-                        name = name.copy(
-                            shortName = "id",
-                        ),
-                        classType = INT,
-                        fieldType = FieldModel.FieldType.PrimaryAuto(
-                            isAutoIncrement = true,
-                            isRowId = false,
-                            quickCheckPrimaryKey = true,
-                        ),
-                        properties = null,
-                        enclosingClassType = generatedName.className,
-                        isInlineClass = false,
-                        ksClassType = ksType,
-                        isVal = true,
-                        isEnum = false,
-                        originatingFile = originatingFile,
-                    )
-                } else null,
-                ReferenceHolderModel(
-                    name = name.copy(shortName = properties.thisTableColumnName
-                        .nameWithFallback(
-                            name.shortName.replaceFirstChar { it.lowercase() }
-                        )
-                    ),
-                    classType = classType,
-                    fieldType = if (properties.generateAutoIncrement) {
-                        FieldModel.FieldType.Normal
-                    } else FieldModel.FieldType.PrimaryAuto(
-                        isAutoIncrement = false,
-                        isRowId = false,
-                        quickCheckPrimaryKey = true,
-                    ),
-                    properties = null,
-                    referenceHolderProperties = ReferenceHolderProperties(
-                        referencesType = ReferenceHolderProperties.ReferencesType.All,
-                        referencedTableTypeName = classType,
-                    ),
-                    enclosingClassType = generatedName.className,
-                    type = ReferenceHolderModel.Type.ForeignKey,
-                    isInlineClass = false,
-                    ksClassType = ksType,
-                    isVal = true,
-                    isColumnMap = false,
-                    isEnum = false,
-                    originatingFile = originatingFile,
-                ),
-                ReferenceHolderModel(
-                    name = name.copy(
-                        shortName = properties.referencedTableColumnName
-                            .nameWithFallback(
-                                properties.referencedTableType.simpleName.replaceFirstChar { it.lowercase() },
-                            ),
-                    ),
-                    classType = properties.referencedTableType,
-                    fieldType = if (properties.generateAutoIncrement) {
-                        FieldModel.FieldType.Normal
-                    } else FieldModel.FieldType.PrimaryAuto(
-                        isAutoIncrement = false,
-                        isRowId = false,
-                        quickCheckPrimaryKey = true,
-                    ),
-                    properties = null,
-                    referenceHolderProperties = ReferenceHolderProperties(
-                        referencesType = ReferenceHolderProperties.ReferencesType.All,
-                        referencedTableTypeName = properties.referencedTableType,
-                    ),
-                    enclosingClassType = generatedName.className,
-                    type = ReferenceHolderModel.Type.ForeignKey,
-                    isInlineClass = false,
-                    isColumnMap = false,
-                    isEnum = false,
-                    isVal = true,
-                    ksClassType = ksType,
-                    originatingFile = originatingFile,
-                )
-            ),
+            fields = fields,
             hasPrimaryConstructor = true,
             isInternal = false,
             originatingFile = originatingFile,
+            indexGroups = listOf(
+                IndexGroupModel(
+                    //
+                    name = name.shortName,
+                    // only primary fields on index and if they have index property (safeguard)
+                    fields = fields.filter {
+                        it.fieldType is FieldModel.FieldType.PrimaryAuto &&
+                            it.indexProperties != null
+                    },
+                    unique = false,
+                    tableTypeName = generatedName.className,
+                )
+            )
         )
 }

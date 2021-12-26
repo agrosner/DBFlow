@@ -1,7 +1,12 @@
 package com.dbflow5.ksp
 
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.WildcardTypeName
+import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.asTypeName
 
 object PackageNames {
     const val Core = "com.dbflow5"
@@ -27,6 +32,14 @@ object ClassNames {
         modelTypeName: TypeName,
     ) = ClassName(PackageNames.Property, "TypeConvertedProperty")
         .parameterizedBy(dataTypeName, modelTypeName)
+
+    fun indexProperty(
+        tableTypeName: TypeName,
+    ) = ClassName(
+        PackageNames.Property,
+        "IndexProperty"
+    )
+        .parameterizedBy(tableTypeName)
 
     val IProperty = ClassName(PackageNames.Property, "IProperty")
         .parameterizedBy(WildcardTypeName.producerOf(Any::class.asTypeName().copy(nullable = true)))
@@ -73,6 +86,7 @@ object MemberNames {
     val quoteIfNeeded = MemberName(PackageNames.Core, "quoteIfNeeded")
     val infer = MemberName(PackageNames.Property, "infer")
     val classToken = MemberName(PackageNames.Property, "classToken")
+    val indexProperty = MemberName(PackageNames.Property, "indexProperty")
 
     val bind = MemberName(PackageNames.Database, "bind")
     val propertyBind = MemberName(PackageNames.Property, "bindProperty")
