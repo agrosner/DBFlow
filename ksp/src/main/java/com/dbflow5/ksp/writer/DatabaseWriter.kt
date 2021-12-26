@@ -102,14 +102,10 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
                                             )
                                         }
 
-                                        val migrationMap =
-                                            model.migrations.groupBy { it.properties.version }
-
-                                        migrationMap
-                                            .keys
-                                            .sortedByDescending { it }
-                                            .forEach { version ->
-                                                migrationMap[version]
+                                        model.migrations.groupBy { it.properties.version }
+                                            .toSortedMap(reverseOrder())
+                                            .forEach { (version, migrations) ->
+                                                migrations
                                                     ?.sortedBy { it.properties.priority }
                                                     ?.forEach { definition ->
                                                         addStatement(
