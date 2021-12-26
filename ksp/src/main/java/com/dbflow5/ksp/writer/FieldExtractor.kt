@@ -1,9 +1,14 @@
 package com.dbflow5.ksp.writer
 
 import com.dbflow5.ksp.model.ReferenceHolderModel
-import com.dbflow5.ksp.model.cache.ReferencesCache
+import com.dbflow5.ksp.model.SQLiteLookup
 import com.dbflow5.ksp.model.SingleFieldModel
+import com.dbflow5.ksp.model.cache.ReferencesCache
+import com.dbflow5.ksp.model.cache.TypeConverterCache
+import com.dbflow5.ksp.model.hasTypeConverter
+import com.dbflow5.ksp.model.typeConverter
 import com.dbflow5.quoteIfNeeded
+import com.squareup.kotlinpoet.asTypeName
 
 /**
  * Description:
@@ -14,7 +19,10 @@ sealed interface FieldExtractor {
 
     val updateName: String
 
-    val createName: String
+    fun createName(
+        sqLiteLookup: SQLiteLookup,
+        typeConverterCache: TypeConverterCache
+    ): String
 
     /**
      * Returned ? character.
@@ -31,7 +39,21 @@ sealed interface FieldExtractor {
         override val updateName: String = "${field.dbName.quoteIfNeeded()}=?"
 
         // TODO: use proper SQLiteType mapping.
-        override val createName: String = "${field.dbName.quoteIfNeeded()} ${field.classType}"
+        override fun createName(
+            sqLiteLookup: SQLiteLookup,
+            typeConverterCache: TypeConverterCache
+        ): String {
+            val value = sqLiteLookup.sqliteName(
+                when {
+                    field.hasTypeConverter(typeConverterCache) -> {
+                        field.typeConverter(typeConverterCache).dataTypeName
+                    }
+                    field.isEnum -> String::class.asTypeName()
+                    else -> field.nonNullClassType
+                }
+            ).sqliteName
+            return "${field.dbName.quoteIfNeeded()} $value"
+        }
     }
 
     data class ForeignFieldExtractor(
@@ -57,8 +79,12 @@ sealed interface FieldExtractor {
                 it.updateName
             }
 
-        override val createName: String =
-            references.joinToString { it.createName }
+        override fun createName(
+            sqLiteLookup: SQLiteLookup,
+            typeConverterCache: TypeConverterCache
+        ): String =
+            references.joinToString { it.createName(sqLiteLookup, typeConverterCache) }
+
         override val valuesName: String =
             references.joinToString { "?" }
     }

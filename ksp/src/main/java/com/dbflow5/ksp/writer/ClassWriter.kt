@@ -4,6 +4,7 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.ReferenceHolderModel
+import com.dbflow5.ksp.model.SQLiteLookup
 import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
@@ -41,6 +42,7 @@ class ClassWriter(
     private val primaryConditionClauseWriter: PrimaryConditionClauseWriter,
     private val statementBinderWriter: StatementBinderWriter,
     private val typeConverterFieldWriter: TypeConverterFieldWriter,
+    private val sqLiteLookup: SQLiteLookup,
 ) : TypeCreator<ClassModel, FileSpec> {
     override fun create(model: ClassModel): FileSpec {
         val tableParam = ParameterPropertySpec(
@@ -239,7 +241,12 @@ class ClassWriter(
                     FunSpec.getterBuilder()
                         .addCode("return %S", buildString {
                             append("CREATE TABLE IF NOT EXISTS ${model.dbName}(")
-                            append(extractors.joinToString { it.createName })
+                            append(extractors.joinToString {
+                                it.createName(
+                                    sqLiteLookup,
+                                    typeConverterCache
+                                )
+                            })
                             append(")")
                         })
                         .build()

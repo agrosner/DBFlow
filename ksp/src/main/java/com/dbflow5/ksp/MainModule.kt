@@ -1,5 +1,6 @@
 package com.dbflow5.ksp
 
+import com.dbflow5.ksp.model.SQLiteLookup
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.parser.*
@@ -15,6 +16,7 @@ import org.koin.dsl.module
 fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { KSPropertyDeclarationParser(get(), get()) }
     single { DatabasePropertyParser() }
+    single { SQLiteLookup() }
     single {
         DBFlowKspProcessor(
             get(),
@@ -51,7 +53,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single {
         ClassWriter(
             get(), get(), get(), get(), get(),
-            get(), get(), get(), get()
+            get(), get(), get(), get(), get(),
         )
     }
     single { DatabaseWriter() }
