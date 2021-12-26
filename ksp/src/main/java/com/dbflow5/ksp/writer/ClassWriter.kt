@@ -79,7 +79,7 @@ class ClassWriter(
             }
         }
         val superClass = when (model.type) {
-            ClassModel.ClassType.Normal -> ClassNames.modelAdapter(model.classType)
+            is ClassModel.ClassType.Normal -> ClassNames.modelAdapter(model.classType)
             ClassModel.ClassType.View -> ClassNames.modelViewAdapter(model.classType)
             ClassModel.ClassType.Query -> ClassNames.retrievalAdapter(model.classType)
         }
@@ -250,7 +250,7 @@ class ClassWriter(
                         FunSpec.getterBuilder()
                             .addCode(
                                 "return %T.%L", ClassNames.ObjectType,
-                                if (model.type == ClassModel.ClassType.Normal) {
+                                if (model.type is ClassModel.ClassType.Normal) {
                                     "Table"
                                 } else "View"
                             )

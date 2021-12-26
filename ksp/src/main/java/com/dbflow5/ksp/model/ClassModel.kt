@@ -44,7 +44,7 @@ data class ClassModel(
         get() = type == ClassType.Query
 
     val isNormal
-        get() = type == ClassType.Normal
+        get() = type is ClassType.Normal
 
     private fun createFlattenedFields(
         referencesCache: ReferencesCache,
@@ -68,16 +68,23 @@ data class ClassModel(
         createFlattenedFields(referencesCache, primaryFields)
 
     sealed interface ClassType {
-        object Normal : ClassType
+        sealed interface Normal : ClassType {
+            object Fts3 : ClassType.Normal
+            data class Fts4(
+                val contentTable: TypeName,
+            ) : ClassType.Normal
+
+            object Normal : ClassType.Normal
+        }
+
         object View : ClassType
         object Query : ClassType
     }
 }
 
-fun ClassModel.partOfDatabaseAsType(
+inline fun <reified C : ClassModel.ClassType> ClassModel.partOfDatabaseAsType(
     databaseTypeName: TypeName,
-    type: ClassModel.ClassType,
-) = type == this.type &&
+) = this.type is C &&
     properties.database == databaseTypeName
 
 

@@ -70,13 +70,13 @@ class DBFlowKspProcessor(
                 .map { database ->
                     database.copy(
                         tables = classes.filter {
-                            it.partOfDatabaseAsType(database.classType, ClassModel.ClassType.Normal)
+                            it.partOfDatabaseAsType<ClassModel.ClassType.Normal>(database.classType)
                         },
                         views = classes.filter {
-                            it.partOfDatabaseAsType(database.classType, ClassModel.ClassType.View)
+                            it.partOfDatabaseAsType<ClassModel.ClassType.View>(database.classType)
                         },
                         queryModels = classes.filter {
-                            it.partOfDatabaseAsType(database.classType, ClassModel.ClassType.Query)
+                            it.partOfDatabaseAsType<ClassModel.ClassType.Query>(database.classType)
                         }
                     )
                 }

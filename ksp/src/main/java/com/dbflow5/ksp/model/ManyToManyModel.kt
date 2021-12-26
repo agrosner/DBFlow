@@ -45,7 +45,7 @@ data class ManyToManyModel(
         ClassModel(
             name = generatedName,
             classType = generatedName.className,
-            type = ClassModel.ClassType.Normal,
+            type = ClassModel.ClassType.Normal.Normal,
             properties = SimpleClassProperties(
                 allFields = true,
                 database = databaseTypeName,

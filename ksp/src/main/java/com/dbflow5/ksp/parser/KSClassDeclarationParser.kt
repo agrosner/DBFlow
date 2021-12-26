@@ -1,6 +1,8 @@
 package com.dbflow5.ksp.parser
 
 import com.dbflow5.annotation.Database
+import com.dbflow5.annotation.Fts3
+import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.QueryModel
@@ -33,6 +35,7 @@ class KSClassDeclarationParser(
     private val viewPropertyParser: ViewPropertyParser,
     private val typeConverterPropertyParser: TypeConverterPropertyParser,
     private val manyToManyPropertyParser: ManyToManyPropertyParser,
+    private val fts4Parser: Fts4Parser,
 ) : Parser<KSClassDeclaration, List<ObjectModel>> {
 
     override fun parse(input: KSClassDeclaration): List<ObjectModel> {
@@ -62,10 +65,22 @@ class KSClassDeclarationParser(
                     )
                 }
                 typeNameOf<Table>() -> {
+                    val fts3 = input.annotations.firstOrNull {
+                        it.annotationType.toTypeName() == typeNameOf<Fts3>()
+                    }
+                    val fts4 = input.annotations.firstOrNull {
+                        it.annotationType.toTypeName() == typeNameOf<Fts4>()
+                    }
                     ClassModel(
                         name = name,
                         classType = classType,
-                        type = ClassModel.ClassType.Normal,
+                        type = if (fts3 != null) {
+                            ClassModel.ClassType.Normal.Fts3
+                        } else if (fts4 != null) {
+                            fts4Parser.parse(fts4)
+                        } else {
+                            ClassModel.ClassType.Normal.Normal
+                        },
                         properties = tablePropertyParser.parse(annotation),
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,
@@ -82,7 +97,7 @@ class KSClassDeclarationParser(
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
-                        originatingFile=originatingFile,
+                        originatingFile = originatingFile,
                     )
                 }
                 typeNameOf<QueryModel>() -> {

@@ -3,6 +3,7 @@ package com.dbflow5.ksp.parser
 import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKeyAction
+import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.properties.DatabaseProperties
 import com.dbflow5.ksp.model.properties.FieldProperties
 import com.dbflow5.ksp.model.properties.ManyToManyProperties
@@ -142,6 +143,15 @@ class ManyToManyPropertyParser : Parser<KSAnnotation, ManyToManyProperties> {
             generateAutoIncrement = args.arg("generateAutoIncrement"),
             saveForeignKeyModels = args.arg("saveForeignKeyModels"),
             name = args.arg("generatedTableClassName"),
+        )
+    }
+}
+
+class Fts4Parser : Parser<KSAnnotation, ClassModel.ClassType.Normal.Fts4> {
+    override fun parse(input: KSAnnotation): ClassModel.ClassType.Normal.Fts4 {
+        val args = input.arguments.mapProperties()
+        return ClassModel.ClassType.Normal.Fts4(
+            contentTable = args.arg<KSType>("contentTable").toTypeName(),
         )
     }
 }
