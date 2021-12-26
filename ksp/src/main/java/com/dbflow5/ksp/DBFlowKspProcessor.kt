@@ -4,6 +4,7 @@ import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.DatabaseHolderModel
 import com.dbflow5.ksp.model.DatabaseModel
 import com.dbflow5.ksp.model.ManyToManyModel
+import com.dbflow5.ksp.model.MigrationModel
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
@@ -64,6 +65,7 @@ class DBFlowKspProcessor(
                     it.toMutableList()
                         .apply { addAll(manyToManyModels.map { model -> model.classModel }) }
                 }
+            val migrations = objects.filterIsInstance<MigrationModel>()
 
             // associate classes into DB.
             val databases = objects.filterIsInstance<DatabaseModel>()
@@ -77,7 +79,10 @@ class DBFlowKspProcessor(
                         },
                         queryModels = classes.filter {
                             it.partOfDatabaseAsType<ClassModel.ClassType.Query>(database.classType)
-                        }
+                        },
+                        migrations = migrations.filter {
+                            it.properties.database == database.classType
+                        },
                     )
                 }
 

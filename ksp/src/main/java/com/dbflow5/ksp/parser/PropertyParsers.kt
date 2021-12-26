@@ -9,6 +9,7 @@ import com.dbflow5.ksp.model.properties.FieldProperties
 import com.dbflow5.ksp.model.properties.IndexGroupProperties
 import com.dbflow5.ksp.model.properties.IndexProperties
 import com.dbflow5.ksp.model.properties.ManyToManyProperties
+import com.dbflow5.ksp.model.properties.MigrationProperties
 import com.dbflow5.ksp.model.properties.NotNullProperties
 import com.dbflow5.ksp.model.properties.QueryProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
@@ -18,10 +19,7 @@ import com.dbflow5.ksp.model.properties.UniqueGroupProperties
 import com.dbflow5.ksp.model.properties.UniqueProperties
 import com.dbflow5.ksp.model.properties.ViewProperties
 import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.asTypeName
-import com.squareup.kotlinpoet.ksp.toClassName
-import com.squareup.kotlinpoet.ksp.toTypeName
 
 class DatabasePropertyParser : Parser<KSAnnotation, DatabaseProperties> {
 
@@ -46,7 +44,7 @@ class TablePropertyParser(
         val args = input.arguments.mapProperties()
         return TableProperties(
             name = args.arg("name"),
-            database = args.arg<KSType>("database").toTypeName(),
+            database = args.typeName("database"),
             allFields = args.arg("allFields"),
             orderedCursorLookup = args.arg("orderedCursorLookUp"),
             assignDefaultValuesFromCursor = args.arg("assignDefaultValuesFromCursor"),
@@ -68,7 +66,7 @@ class ViewPropertyParser : Parser<KSAnnotation, ViewProperties> {
         val args = input.arguments.mapProperties()
         return ViewProperties(
             name = args.arg("name"),
-            database = args.arg<KSType>("database").toTypeName(),
+            database = args.typeName("database"),
             allFields = args.arg("allFields"),
             orderedCursorLookup = args.arg("orderedCursorLookUp"),
             assignDefaultValuesFromCursor = args.arg("assignDefaultValuesFromCursor"),
@@ -81,7 +79,7 @@ class QueryPropertyParser : Parser<KSAnnotation, QueryProperties> {
     override fun parse(input: KSAnnotation): QueryProperties {
         val args = input.arguments.mapProperties()
         return QueryProperties(
-            database = args.arg<KSType>("database").toTypeName(),
+            database = args.typeName("database"),
             allFields = args.arg("allFields"),
             orderedCursorLookup = args.arg("orderedCursorLookUp"),
             assignDefaultValuesFromCursor = args.arg("assignDefaultValuesFromCursor"),
@@ -97,7 +95,7 @@ class FieldPropertyParser : Parser<KSAnnotation, FieldProperties> {
             length = args.arg("length"),
             collate = args.enumArg("collate", Collate::valueOf),
             defaultValue = args.arg("defaultValue"),
-            typeConverterClassName = args.arg<KSType>("typeConverter").toClassName(),
+            typeConverterClassName = args.className("typeConverter"),
         )
     }
 }
@@ -124,7 +122,7 @@ constructor(
                 else -> ReferenceHolderProperties.ReferencesType.All
             },
             referencedTableTypeName = args.ifArg("tableClass") {
-                arg<KSType>("tableClass").toClassName()
+                className("tableClass")
             } ?: Any::class.asTypeName()
         )
     }
@@ -149,7 +147,7 @@ class ManyToManyPropertyParser : Parser<KSAnnotation, ManyToManyProperties> {
     override fun parse(input: KSAnnotation): ManyToManyProperties {
         val args = input.arguments.mapProperties()
         return ManyToManyProperties(
-            referencedTableType = args.arg<KSType>("referencedTable").toClassName(),
+            referencedTableType = args.className("referencedTable"),
             referencedTableColumnName = args.arg("referencedTableColumnName"),
             thisTableColumnName = args.arg("thisTableColumnName"),
             generateAutoIncrement = args.arg("generateAutoIncrement"),
@@ -163,7 +161,7 @@ class Fts4Parser : Parser<KSAnnotation, ClassModel.ClassType.Normal.Fts4> {
     override fun parse(input: KSAnnotation): ClassModel.ClassType.Normal.Fts4 {
         val args = input.arguments.mapProperties()
         return ClassModel.ClassType.Normal.Fts4(
-            contentTable = args.arg<KSType>("contentTable").toTypeName(),
+            contentTable = args.typeName("contentTable"),
         )
     }
 }
@@ -214,6 +212,17 @@ class UniquePropertyParser : Parser<KSAnnotation, UniqueProperties> {
             unique = args.arg("unique"),
             groups = args.arg("uniqueGroups"),
             conflictAction = args.enumArg("onUniqueConflict", ConflictAction::valueOf)
+        )
+    }
+}
+
+class MigrationParser : Parser<KSAnnotation, MigrationProperties> {
+    override fun parse(input: KSAnnotation): MigrationProperties {
+        val args = input.arguments.mapProperties()
+        return MigrationProperties(
+            version = args.arg("version"),
+            database = args.typeName("database"),
+            priority = args.arg("priority"),
         )
     }
 }

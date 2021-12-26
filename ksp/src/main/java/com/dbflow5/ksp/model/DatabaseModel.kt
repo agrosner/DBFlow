@@ -14,6 +14,7 @@ data class DatabaseModel(
     val tables: List<ClassModel> = listOf(),
     val views: List<ClassModel> = listOf(),
     val queryModels: List<ClassModel> = listOf(),
+    val migrations: List<MigrationModel> = listOf(),
     override val originatingFile: KSFile?,
 ) : ObjectModel
 

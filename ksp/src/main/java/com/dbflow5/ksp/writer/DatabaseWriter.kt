@@ -4,8 +4,13 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.DatabaseModel
 import com.dbflow5.ksp.model.generatedClassName
-import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.CodeBlock
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 
 /**
@@ -79,23 +84,41 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
                                 CodeBlock.builder()
                                     .apply {
                                         model.tables.forEach { table ->
-                                            add(
-                                                "addModelAdapter(%T(this), holder)\n",
+                                            addStatement(
+                                                "addModelAdapter(%T(this), holder)",
                                                 table.generatedClassName.className
                                             )
                                         }
                                         model.views.forEach { view ->
-                                            add(
-                                                "addModelViewAdapter(%T(this), holder)\n",
+                                            addStatement(
+                                                "addModelViewAdapter(%T(this), holder)",
                                                 view.generatedClassName.className
                                             )
                                         }
                                         model.queryModels.forEach { query ->
-                                            add(
-                                                "addRetrievalAdapter(%T(this), holder)\n",
+                                            addStatement(
+                                                "addRetrievalAdapter(%T(this), holder)",
                                                 query.generatedClassName.className
                                             )
                                         }
+
+                                        val migrationMap =
+                                            model.migrations.groupBy { it.properties.version }
+
+                                        migrationMap
+                                            .keys
+                                            .sortedByDescending { it }
+                                            .forEach { version ->
+                                                migrationMap[version]
+                                                    ?.sortedBy { it.properties.priority }
+                                                    ?.forEach { definition ->
+                                                        addStatement(
+                                                            "addMigration(%L, %T())",
+                                                            version,
+                                                            definition.classType,
+                                                        )
+                                                    }
+                                            }
                                     }
                                     .build()
                             )

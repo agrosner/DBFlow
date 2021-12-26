@@ -2,6 +2,8 @@ package com.dbflow5.ksp.parser
 
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueArgument
+import com.squareup.kotlinpoet.ksp.toClassName
+import com.squareup.kotlinpoet.ksp.toTypeName
 
 typealias ArgMap = Map<String, KSValueArgument>
 
@@ -25,3 +27,9 @@ inline fun <reified T : Enum<T>> ArgMap.enumArg(
 ): T {
     return valueOf(arg<KSType>(name).declaration.qualifiedName!!.getShortName())
 }
+
+fun ArgMap.typeName(name: String) =
+    arg<KSType>(name).toTypeName()
+
+fun ArgMap.className(name: String) =
+    arg<KSType>(name).toClassName()

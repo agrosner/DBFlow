@@ -4,6 +4,7 @@ import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.Fts3
 import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.ManyToMany
+import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
@@ -13,6 +14,7 @@ import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.DatabaseModel
 import com.dbflow5.ksp.model.IndexGroupModel
 import com.dbflow5.ksp.model.ManyToManyModel
+import com.dbflow5.ksp.model.MigrationModel
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.ObjectModel
 import com.dbflow5.ksp.model.TypeConverterModel
@@ -38,10 +40,10 @@ class KSClassDeclarationParser(
     private val typeConverterPropertyParser: TypeConverterPropertyParser,
     private val manyToManyPropertyParser: ManyToManyPropertyParser,
     private val fts4Parser: Fts4Parser,
+    private val migrationParser: MigrationParser,
 ) : Parser<KSClassDeclaration, List<ObjectModel>> {
 
     override fun parse(input: KSClassDeclaration): List<ObjectModel> {
-        val fields = fieldSanitizer.parse(input = input)
         val classType = input.asStarProjectedType().toClassName()
         val qualifiedName = input.qualifiedName!!
         val packageName = input.packageName
@@ -64,82 +66,6 @@ class KSClassDeclarationParser(
                         classType = classType,
                         properties = databasePropertyParser.parse(annotation),
                         originatingFile = originatingFile,
-                    )
-                }
-                typeNameOf<Table>() -> {
-                    val fts3 = input.annotations.firstOrNull {
-                        it.annotationType.toTypeName() == typeNameOf<Fts3>()
-                    }
-                    val fts4 = input.annotations.firstOrNull {
-                        it.annotationType.toTypeName() == typeNameOf<Fts4>()
-                    }
-                    val properties = tablePropertyParser.parse(annotation)
-                    ClassModel(
-                        name = name,
-                        classType = classType,
-                        type = when {
-                            fts3 != null -> ClassModel.ClassType.Normal.Fts3
-                            fts4 != null -> fts4Parser.parse(fts4)
-                            else -> ClassModel.ClassType.Normal.Normal
-                        },
-                        properties = properties,
-                        fields = fields,
-                        hasPrimaryConstructor = !hasDefaultConstructor,
-                        isInternal = isInternal,
-                        originatingFile = originatingFile,
-                        indexGroups = properties.indexGroupProperties
-                            .map { group ->
-                                IndexGroupModel(
-                                    name = group.name,
-                                    unique = group.unique,
-                                    tableTypeName = classType,
-                                    fields = fields.filter {
-                                        it.indexProperties?.groups?.contains(
-                                            group.number
-                                        ) == true
-                                    }
-                                )
-                            },
-                        uniqueGroups = properties.uniqueGroupProperties
-                            .map { group ->
-                                UniqueGroupModel(
-                                    number = group.number,
-                                    conflictAction = group.conflictAction,
-                                    fields = fields.filter {
-                                        it.uniqueProperties?.groups?.contains(
-                                            group.number
-                                        ) == true
-                                    }
-                                )
-                            }
-                    )
-                }
-                typeNameOf<ModelView>() -> {
-                    ClassModel(
-                        name = name,
-                        classType = classType,
-                        type = ClassModel.ClassType.View,
-                        properties = viewPropertyParser.parse(annotation),
-                        fields = fields,
-                        hasPrimaryConstructor = !hasDefaultConstructor,
-                        isInternal = isInternal,
-                        originatingFile = originatingFile,
-                        indexGroups = listOf(),
-                        uniqueGroups = listOf(),
-                    )
-                }
-                typeNameOf<QueryModel>() -> {
-                    ClassModel(
-                        name = name,
-                        classType = classType,
-                        type = ClassModel.ClassType.Query,
-                        properties = queryPropertyParser.parse(annotation),
-                        fields = fields,
-                        hasPrimaryConstructor = !hasDefaultConstructor,
-                        isInternal = isInternal,
-                        originatingFile = originatingFile,
-                        indexGroups = listOf(),
-                        uniqueGroups = listOf(),
                     )
                 }
                 typeNameOf<TypeConverter>() -> {
@@ -174,7 +100,96 @@ class KSClassDeclarationParser(
                         originatingFile = originatingFile,
                     )
                 }
-                else -> null
+                typeNameOf<Migration>() -> {
+                    MigrationModel(
+                        name = name,
+                        properties = migrationParser.parse(annotation),
+                        classType = classType,
+                        originatingFile = originatingFile,
+                    )
+                }
+                else -> {
+                    val fields = fieldSanitizer.parse(input = input)
+                    when(annotation.annotationType.toTypeName()) {
+                        typeNameOf<Table>() -> {
+                            val fts3 = input.annotations.firstOrNull {
+                                it.annotationType.toTypeName() == typeNameOf<Fts3>()
+                            }
+                            val fts4 = input.annotations.firstOrNull {
+                                it.annotationType.toTypeName() == typeNameOf<Fts4>()
+                            }
+                            val properties = tablePropertyParser.parse(annotation)
+                            ClassModel(
+                                name = name,
+                                classType = classType,
+                                type = when {
+                                    fts3 != null -> ClassModel.ClassType.Normal.Fts3
+                                    fts4 != null -> fts4Parser.parse(fts4)
+                                    else -> ClassModel.ClassType.Normal.Normal
+                                },
+                                properties = properties,
+                                fields = fields,
+                                hasPrimaryConstructor = !hasDefaultConstructor,
+                                isInternal = isInternal,
+                                originatingFile = originatingFile,
+                                indexGroups = properties.indexGroupProperties
+                                    .map { group ->
+                                        IndexGroupModel(
+                                            name = group.name,
+                                            unique = group.unique,
+                                            tableTypeName = classType,
+                                            fields = fields.filter {
+                                                it.indexProperties?.groups?.contains(
+                                                    group.number
+                                                ) == true
+                                            }
+                                        )
+                                    },
+                                uniqueGroups = properties.uniqueGroupProperties
+                                    .map { group ->
+                                        UniqueGroupModel(
+                                            number = group.number,
+                                            conflictAction = group.conflictAction,
+                                            fields = fields.filter {
+                                                it.uniqueProperties?.groups?.contains(
+                                                    group.number
+                                                ) == true
+                                            }
+                                        )
+                                    }
+                            )
+                        }
+                        typeNameOf<ModelView>() -> {
+                            ClassModel(
+                                name = name,
+                                classType = classType,
+                                type = ClassModel.ClassType.View,
+                                properties = viewPropertyParser.parse(annotation),
+                                fields = fields,
+                                hasPrimaryConstructor = !hasDefaultConstructor,
+                                isInternal = isInternal,
+                                originatingFile = originatingFile,
+                                indexGroups = listOf(),
+                                uniqueGroups = listOf(),
+                            )
+                        }
+                        typeNameOf<QueryModel>() -> {
+                            ClassModel(
+                                name = name,
+                                classType = classType,
+                                type = ClassModel.ClassType.Query,
+                                properties = queryPropertyParser.parse(annotation),
+                                fields = fields,
+                                hasPrimaryConstructor = !hasDefaultConstructor,
+                                isInternal = isInternal,
+                                originatingFile = originatingFile,
+                                indexGroups = listOf(),
+                                uniqueGroups = listOf(),
+                            )
+                        }
+                        else -> null
+                    }
+                }
             }
         }.toList()
 

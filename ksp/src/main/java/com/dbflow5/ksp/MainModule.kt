@@ -12,6 +12,7 @@ import com.dbflow5.ksp.parser.IndexParser
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.parser.KSPropertyDeclarationParser
 import com.dbflow5.ksp.parser.ManyToManyPropertyParser
+import com.dbflow5.ksp.parser.MigrationParser
 import com.dbflow5.ksp.parser.NotNullPropertyParser
 import com.dbflow5.ksp.parser.QueryPropertyParser
 import com.dbflow5.ksp.parser.ReferenceHolderProperyParser
@@ -77,6 +78,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
     single { Fts4Parser() }
@@ -85,6 +87,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { NotNullPropertyParser() }
     single { UniqueGroupPropertyParser() }
     single { UniquePropertyParser() }
+    single { MigrationParser() }
 
     single { LoadFromCursorWriter(get(), get()) }
     single { GetPropertyMethodWriter(get()) }
