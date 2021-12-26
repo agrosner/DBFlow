@@ -2,9 +2,14 @@ package com.dbflow5.ksp.writer.classwriter
 
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
-import com.dbflow5.ksp.model.*
+import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.FieldModel
+import com.dbflow5.ksp.model.ReferenceHolderModel
+import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
+import com.dbflow5.ksp.model.hasTypeConverter
+import com.dbflow5.ksp.model.typeConverter
 import com.dbflow5.ksp.writer.TypeCreator
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -107,7 +112,7 @@ class StatementBinderWriter(
                 addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
                 addParameter(ParameterSpec("model", model.classType))
                 fieldsToLoop.forEachIndexed { index, model ->
-                    this.loopModels(model, index)
+                    this.loopModels(model, index + 1)
                 }
             }
             .build()

@@ -4,7 +4,6 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.ReferenceHolderModel
-import com.dbflow5.ksp.model.SQLiteLookup
 import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
@@ -12,6 +11,7 @@ import com.dbflow5.ksp.model.generatedClassName
 import com.dbflow5.ksp.model.hasTypeConverter
 import com.dbflow5.ksp.model.typeConverter
 import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
+import com.dbflow5.ksp.writer.classwriter.CreationQueryWriter
 import com.dbflow5.ksp.writer.classwriter.FieldPropertyWriter
 import com.dbflow5.ksp.writer.classwriter.GetPropertyMethodWriter
 import com.dbflow5.ksp.writer.classwriter.LoadFromCursorWriter
@@ -42,7 +42,7 @@ class ClassWriter(
     private val primaryConditionClauseWriter: PrimaryConditionClauseWriter,
     private val statementBinderWriter: StatementBinderWriter,
     private val typeConverterFieldWriter: TypeConverterFieldWriter,
-    private val sqLiteLookup: SQLiteLookup,
+    private val creationQueryWriter: CreationQueryWriter,
 ) : TypeCreator<ClassModel, FileSpec> {
     override fun create(model: ClassModel): FileSpec {
         val tableParam = ParameterPropertySpec(
@@ -234,25 +234,11 @@ class ClassWriter(
         model: ClassModel,
         extractors: List<FieldExtractor>
     ) = apply {
-        addProperty(PropertySpec.builder("creationQuery", String::class.asClassName())
-            .apply {
-                addModifiers(KModifier.OVERRIDE)
-                getter(
-                    FunSpec.getterBuilder()
-                        .addCode("return %S", buildString {
-                            append("CREATE TABLE IF NOT EXISTS ${model.dbName}(")
-                            append(extractors.joinToString {
-                                it.createName(
-                                    sqLiteLookup,
-                                    typeConverterCache
-                                )
-                            })
-                            append(")")
-                        })
-                        .build()
-                )
-            }
-            .build())
+        addProperty(
+            creationQueryWriter.create(
+                CreationQueryWriter.Input(model, extractors)
+            )
+        )
     }
 
     private fun TypeSpec.Builder.getObjectType(model: ClassModel) = apply {

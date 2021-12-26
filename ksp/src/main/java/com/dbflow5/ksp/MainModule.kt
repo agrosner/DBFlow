@@ -49,6 +49,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { TypeConverterFieldWriter() }
     single { InlineTypeConverterWriter() }
     single { ManyToManyClassWriter() }
+    single { CreationQueryWriter(get(), get()) }
 
     single {
         ClassWriter(
