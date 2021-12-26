@@ -70,7 +70,7 @@ class ClassWriter(
                     it,
                     referencesCache,
                 )
-                is SingleFieldModel -> FieldExtractor.SingleFieldExtractor(it)
+                is SingleFieldModel -> FieldExtractor.SingleFieldExtractor(it, model)
             }
         }
         val primaryExtractors = model.primaryFields.map {
@@ -79,7 +79,7 @@ class ClassWriter(
                     it,
                     referencesCache,
                 )
-                is SingleFieldModel -> FieldExtractor.SingleFieldExtractor(it)
+                is SingleFieldModel -> FieldExtractor.SingleFieldExtractor(it, model)
             }
         }
         val superClass = when (model.type) {

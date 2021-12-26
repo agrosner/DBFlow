@@ -1,6 +1,8 @@
 package com.dbflow5.ksp.writer
 
 import com.dbflow5.annotation.Collate
+import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.SQLiteLookup
@@ -8,6 +10,7 @@ import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.hasTypeConverter
+import com.dbflow5.ksp.model.properties.TableProperties
 import com.dbflow5.ksp.model.typeConverter
 import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.asTypeName
@@ -16,6 +19,8 @@ import com.squareup.kotlinpoet.asTypeName
  * Description:
  */
 sealed interface FieldExtractor {
+
+    val classModel: ClassModel
 
     val commaNames: String
 
@@ -34,6 +39,7 @@ sealed interface FieldExtractor {
 
     data class SingleFieldExtractor(
         private val field: SingleFieldModel,
+        override val classModel: ClassModel,
     ) : FieldExtractor {
 
 
@@ -59,7 +65,12 @@ sealed interface FieldExtractor {
                 && field.fieldType.isAutoIncrement
             ) {
                 retString += " PRIMARY KEY "
-                // TODO: conflict action
+                val properties = classModel.properties
+                if (properties is TableProperties &&
+                    properties.primaryKeyConflict != ConflictAction.NONE
+                ) {
+                    retString += "ON CONFLICT ${properties.primaryKeyConflict}"
+                }
                 retString += "AUTOINCREMENT"
             }
             field.properties?.let { props ->
@@ -87,6 +98,7 @@ sealed interface FieldExtractor {
     data class ForeignFieldExtractor(
         private val field: ReferenceHolderModel,
         private val referencesCache: ReferencesCache,
+        override val classModel: ClassModel,
     ) : FieldExtractor {
 
         private val references = field.references(
@@ -94,7 +106,7 @@ sealed interface FieldExtractor {
             nameToNest = field.name,
         )
             .map {
-                SingleFieldExtractor(it)
+                SingleFieldExtractor(it, classModel)
             }
 
         override val commaNames: String =
