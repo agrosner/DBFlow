@@ -1,7 +1,11 @@
 package com.dbflow5.models
 
 import com.dbflow5.TestDatabase
-import com.dbflow5.annotation.*
+import com.dbflow5.annotation.ColumnIgnore
+import com.dbflow5.annotation.OneToMany
+import com.dbflow5.annotation.OneToManyMethod
+import com.dbflow5.annotation.PrimaryKey
+import com.dbflow5.annotation.Table
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.select
 import com.dbflow5.structure.BaseModel
@@ -17,10 +21,10 @@ class OneToManyModel(@PrimaryKey var name: String? = null) {
     var models: List<OneToManyBaseModel>? = null
 
     @get:OneToMany(oneToManyMethods = [OneToManyMethod.ALL])
-    var simpleModels by oneToMany { select from OneToManyBaseModel::class }
+    val simpleModels by oneToMany { select from OneToManyBaseModel::class }
 
     @get:OneToMany(oneToManyMethods = [OneToManyMethod.ALL])
-    var setBaseModels by oneToMany { select from OneToManyBaseModel::class }
+    val setBaseModels by oneToMany { select from OneToManyBaseModel::class }
 
     @OneToMany(
         oneToManyMethods = [OneToManyMethod.ALL],

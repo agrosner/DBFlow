@@ -28,7 +28,7 @@ class OneToManyModelTest : BaseUnitTest() {
 
             // assert loading works as expected.
             oneToManyModel = (select from OneToManyModel::class).requireSingle(db)
-            assertNotNull(oneToManyModel.getRelatedOrders(db))
+            assertNotNull(oneToManyModel.orders)
             assertTrue(!oneToManyModel.getRelatedOrders(db).isEmpty())
 
             // assert the deletion cleared the variable
