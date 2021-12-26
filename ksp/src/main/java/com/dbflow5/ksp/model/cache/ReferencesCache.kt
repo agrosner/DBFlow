@@ -42,7 +42,7 @@ class ReferencesCache(
         val nonNullVersion = classType.copy(false)
         return referenceMap.getOrPut(ReferenceType.AllFromClass(nonNullVersion)) {
             allTables.firstOrNull { it.classType == nonNullVersion }
-                ?.fields?.map {
+                ?.primaryFields?.map {
                     when (it) {
                         is ReferenceHolderModel -> it.references(
                             this,

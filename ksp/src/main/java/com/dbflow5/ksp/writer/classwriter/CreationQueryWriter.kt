@@ -65,8 +65,8 @@ class CreationQueryWriter(
                                             typeConverterCache
                                         )
                                     })
-                                    val nonAutoFields = model.primaryFields
-                                        .filter { !(it.fieldType as FieldModel.FieldType.PrimaryAuto).isAutoIncrement }
+                                    val nonAutoFields = model.primaryFlattenedFields(referencesCache)
+                                        .filterNot { (it.fieldType as FieldModel.FieldType.PrimaryAuto).isAutoIncrement }
 
                                     if (nonAutoFields.isNotEmpty()) {
                                         append(", PRIMARY KEY(")

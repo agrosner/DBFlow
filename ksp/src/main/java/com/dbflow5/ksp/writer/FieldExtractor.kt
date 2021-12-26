@@ -1,5 +1,6 @@
 package com.dbflow5.ksp.writer
 
+import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.SQLiteLookup
 import com.dbflow5.ksp.model.SingleFieldModel
@@ -52,7 +53,15 @@ sealed interface FieldExtractor {
                     else -> field.nonNullClassType
                 }
             ).sqliteName
-            return "${field.dbName.quoteIfNeeded()} $value"
+            var retString = "${field.dbName.quoteIfNeeded()} $value"
+            if (field.fieldType is FieldModel.FieldType.PrimaryAuto
+                && field.fieldType.isAutoIncrement
+            ) {
+                retString += " PRIMARY KEY "
+                // TODO: conflict action
+                retString += "AUTOINCREMENT"
+            }
+            return retString
         }
     }
 
