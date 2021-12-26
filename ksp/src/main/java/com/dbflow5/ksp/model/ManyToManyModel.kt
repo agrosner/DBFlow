@@ -7,6 +7,7 @@ import com.dbflow5.ksp.model.properties.nameWithFallback
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.TypeName
 
 /**
@@ -52,7 +53,27 @@ data class ManyToManyModel(
                 orderedCursorLookup = true,
                 assignDefaultValuesFromCursor = true,
             ),
-            fields = listOf(
+            fields = listOfNotNull(
+                if (properties.generateAutoIncrement) {
+                    SingleFieldModel(
+                        name = name.copy(
+                            shortName = "id",
+                        ),
+                        classType = INT,
+                        fieldType = FieldModel.FieldType.PrimaryAuto(
+                            isAutoIncrement = true,
+                            isRowId = false,
+                            quickCheckPrimaryKey = true,
+                        ),
+                        properties = null,
+                        enclosingClassType = generatedName.className,
+                        isInlineClass = false,
+                        ksClassType = ksType,
+                        isVal = true,
+                        isEnum = false,
+                        originatingFile = originatingFile,
+                    )
+                } else null,
                 ReferenceHolderModel(
                     name = name.copy(shortName = properties.thisTableColumnName
                         .nameWithFallback(
@@ -60,7 +81,9 @@ data class ManyToManyModel(
                         )
                     ),
                     classType = classType,
-                    fieldType = FieldModel.FieldType.PrimaryAuto(
+                    fieldType = if (properties.generateAutoIncrement) {
+                        FieldModel.FieldType.Normal
+                    } else FieldModel.FieldType.PrimaryAuto(
                         isAutoIncrement = false,
                         isRowId = false,
                         quickCheckPrimaryKey = true,
@@ -87,7 +110,9 @@ data class ManyToManyModel(
                             ),
                     ),
                     classType = properties.referencedTableType,
-                    fieldType = FieldModel.FieldType.PrimaryAuto(
+                    fieldType = if (properties.generateAutoIncrement) {
+                        FieldModel.FieldType.Normal
+                    } else FieldModel.FieldType.PrimaryAuto(
                         isAutoIncrement = false,
                         isRowId = false,
                         quickCheckPrimaryKey = true,

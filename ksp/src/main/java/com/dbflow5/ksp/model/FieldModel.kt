@@ -202,7 +202,14 @@ data class ReferenceHolderModel(
                         reference.copy(
                             names = reference.names.toMutableList().apply {
                                 add(0, nameToNest)
-                            }
+                            },
+                            // when referencing fields, we don't need to know it is autoincrement
+                            // or rowId and assumes the reference is primaryauto.
+                            fieldType = (reference.fieldType as FieldModel.FieldType.PrimaryAuto)
+                                .copy(
+                                    isAutoIncrement = false,
+                                    isRowId = false,
+                                )
                         )
                     } else reference
                 }
