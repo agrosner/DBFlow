@@ -102,9 +102,8 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
                 FlowLog.log(FlowLog.Level.W, "TableObserver already initialized")
                 return
             }
-
+            db.execSQL("PRAGMA temp_store = MEMORY;")
             db.executeTransaction {
-                db.execSQL("PRAGMA temp_store = MEMORY;")
                 db.execSQL("PRAGMA recursive_triggers='ON';")
                 db.execSQL("CREATE TEMP TABLE $TABLE_OBSERVER_NAME($TABLE_ID_COLUMN_NAME INTEGER PRIMARY KEY, $INVALIDATED_COLUMN_NAME INTEGER NOT NULL DEFAULT 0);")
             }
