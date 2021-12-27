@@ -18,14 +18,14 @@ class AutoIncrementTest : BaseUnitTest() {
     fun testCanInsertAutoIncrement() {
         val model = AutoIncrementingModel()
         val id = model.insert(databaseForTable<AutoIncrementingModel>())
-        assertEquals(1L, id)
+        assertEquals(1L, id.getOrThrow().id)
     }
 
     @Test
     fun testCanInsertExistingIdAutoIncrement() {
         val model = AutoIncrementingModel(3)
         val id = model.insert(databaseForTable<AutoIncrementingModel>())
-        assertEquals(3L, id)
+        assertEquals(3L, id.getOrThrow().id)
     }
 }
 
