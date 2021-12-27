@@ -25,7 +25,7 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
                         .map { SimpleModel("$it") }.awaitSave(db)
                 val list = (select from SimpleModel::class).queryList(db)
                 assertEquals(10, list.size)
-                assertEquals(10L, result)
+                assertEquals(10, result.getOrThrow().size)
             }
         }
     }
@@ -38,7 +38,7 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
                         .map { SimpleModel("$it") }.awaitInsert(db)
                 val list = (select from SimpleModel::class).queryList(db)
                 assertEquals(10, list.size)
-                assertEquals(10L, result)
+                assertEquals(10, result.getOrThrow().size)
             }
         }
     }
