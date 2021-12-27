@@ -67,6 +67,11 @@ sealed interface FieldExtractor {
                 }
             ).sqliteName
             var retString = "${field.dbName.quoteIfNeeded()} $value"
+            field.properties?.defaultValue?.let { value ->
+                if (value.isNotBlank()) {
+                    retString += " DEFAULT $value"
+                }
+            }
             if (field.fieldType is FieldModel.FieldType.PrimaryAuto
                 && field.fieldType.isAutoIncrement
             ) {
