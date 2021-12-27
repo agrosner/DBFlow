@@ -3,12 +3,14 @@ package com.dbflow5.ksp.writer
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.generatedClassName
 import com.dbflow5.ksp.model.hasTypeConverter
+import com.dbflow5.ksp.model.memberSeparator
 import com.dbflow5.ksp.model.properties.CreatableScopeProperties
 import com.dbflow5.ksp.model.typeConverter
 import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
@@ -20,12 +22,19 @@ import com.dbflow5.ksp.writer.classwriter.LoadFromCursorWriter
 import com.dbflow5.ksp.writer.classwriter.PrimaryConditionClauseWriter
 import com.dbflow5.ksp.writer.classwriter.StatementBinderWriter
 import com.dbflow5.ksp.writer.classwriter.TypeConverterFieldWriter
+import com.squareup.kotlinpoet.BYTE
+import com.squareup.kotlinpoet.DOUBLE
+import com.squareup.kotlinpoet.FLOAT
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LONG
+import com.squareup.kotlinpoet.NUMBER
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
+import com.squareup.kotlinpoet.SHORT
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
@@ -147,6 +156,7 @@ class ClassWriter(
                             insertStatementQuery(model, extractors, isSave = true)
                             updateStatement(model, extractors, primaryExtractors)
                             deleteStatement(model, primaryExtractors)
+                            updateAutoIncrement(model)
                         }
 
                         addFunction(loadFromCursorWriter.create(model))
@@ -306,5 +316,60 @@ class ClassWriter(
                     .build()
             )
         }
+    }
+}
+
+private fun TypeSpec.Builder.updateAutoIncrement(model: ClassModel) {
+    val autoincrementFields = model.primaryFields
+        .filter {
+            val fieldType = it.fieldType
+            fieldType is FieldModel.FieldType.PrimaryAuto
+                && fieldType.isAutoIncrement
+        }
+    if (autoincrementFields.isNotEmpty()) {
+        addFunction(FunSpec.builder("updateAutoIncrement")
+            .addParameter("model", model.classType)
+            .addParameter("id", Number::class.asClassName())
+            .returns(model.classType)
+            .addModifiers(KModifier.OVERRIDE)
+            .apply {
+                if (model.hasPrimaryConstructor) {
+                    addCode("return model.copy(\n")
+                } else {
+                    beginControlFlow("return model.apply")
+                }
+
+                autoincrementFields.forEach { field ->
+                    if (!model.hasPrimaryConstructor) {
+                        addCode("this.")
+                    }
+                    addCode(
+                        "%L = %L.%L()%L\n",
+                        field.name.shortName,
+                        "id",
+                        when (field.classType) {
+                            INT -> "toInt"
+                            DOUBLE -> "toDouble"
+                            FLOAT -> "toFloat"
+                            NUMBER -> ""
+                            BYTE -> "toByte"
+                            LONG -> "toLong"
+                            SHORT -> "toShort"
+                            else -> throw IllegalArgumentException(
+                                "Invalid auto primary key type ${field.classType}." +
+                                    "could not turn into a number."
+                            )
+                        },
+                        model.memberSeparator
+                    )
+                }
+
+                if (model.hasPrimaryConstructor) {
+                    addCode(")\n")
+                } else {
+                    endControlFlow()
+                }
+            }
+            .build())
     }
 }
