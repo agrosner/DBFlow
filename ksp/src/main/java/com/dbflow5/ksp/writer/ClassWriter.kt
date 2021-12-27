@@ -1,6 +1,7 @@
 package com.dbflow5.ksp.writer
 
 import com.dbflow5.ksp.ClassNames
+import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.FieldModel
@@ -157,6 +158,7 @@ class ClassWriter(
                             updateStatement(model, extractors, primaryExtractors)
                             deleteStatement(model, primaryExtractors)
                             updateAutoIncrement(model)
+                            saveForeignKeys(model)
                         }
 
                         addFunction(loadFromCursorWriter.create(model))
@@ -317,59 +319,99 @@ class ClassWriter(
             )
         }
     }
-}
 
-private fun TypeSpec.Builder.updateAutoIncrement(model: ClassModel) {
-    val autoincrementFields = model.primaryFields
-        .filter {
-            val fieldType = it.fieldType
-            fieldType is FieldModel.FieldType.PrimaryAuto
-                && fieldType.isAutoIncrement
-        }
-    if (autoincrementFields.isNotEmpty()) {
-        addFunction(FunSpec.builder("updateAutoIncrement")
-            .addParameter("model", model.classType)
-            .addParameter("id", Number::class.asClassName())
-            .returns(model.classType)
-            .addModifiers(KModifier.OVERRIDE)
-            .apply {
-                if (model.hasPrimaryConstructor) {
-                    addCode("return model.copy(\n")
-                } else {
-                    beginControlFlow("return model.apply")
-                }
-
-                autoincrementFields.forEach { field ->
-                    if (!model.hasPrimaryConstructor) {
-                        addCode("this.")
+    private fun TypeSpec.Builder.saveForeignKeys(model: ClassModel) {
+        val fields = model.fields.filter { referencesCache.isTable(it) }
+        if (fields.isNotEmpty()) {
+            addFunction(FunSpec.builder("saveForeignKeys")
+                .returns(model.classType)
+                .addParameter("model", model.classType)
+                .addParameter("wrapper", ClassNames.DatabaseWrapper)
+                .addModifiers(KModifier.OVERRIDE)
+                .apply {
+                    if (model.hasPrimaryConstructor) {
+                        addCode("return model.copy(\n")
+                    } else {
+                        beginControlFlow("return model.apply")
                     }
-                    addCode(
-                        "%L = %L.%L()%L\n",
-                        field.name.shortName,
-                        "id",
-                        when (field.classType) {
-                            INT -> "toInt"
-                            DOUBLE -> "toDouble"
-                            FLOAT -> "toFloat"
-                            NUMBER -> ""
-                            BYTE -> "toByte"
-                            LONG -> "toLong"
-                            SHORT -> "toShort"
-                            else -> throw IllegalArgumentException(
-                                "Invalid auto primary key type ${field.classType}." +
-                                    "could not turn into a number."
-                            )
-                        },
-                        model.memberSeparator
-                    )
-                }
 
-                if (model.hasPrimaryConstructor) {
-                    addCode(")\n")
-                } else {
-                    endControlFlow()
+                    fields.forEach { field ->
+                        addCode(
+                            "%L.%L = %L.%L.%M(wrapper)%L.%M()%L\n",
+                            if (!model.hasPrimaryConstructor) "this" else "",
+                            field.accessName(),
+                            "model",
+                            field.accessName(true),
+                            MemberNames.save,
+                            if (field.name.nullable) "?" else "",
+                            MemberNames.getOrThrow,
+                            model.memberSeparator,
+                        )
+                    }
+
+                    if (model.hasPrimaryConstructor) {
+                        addCode(")\n")
+                    } else {
+                        endControlFlow()
+                    }
                 }
+                .build())
+        }
+    }
+
+
+    private fun TypeSpec.Builder.updateAutoIncrement(model: ClassModel) {
+        val autoincrementFields = model.primaryFields
+            .filter {
+                val fieldType = it.fieldType
+                fieldType is FieldModel.FieldType.PrimaryAuto
+                    && fieldType.isAutoIncrement
             }
-            .build())
+        if (autoincrementFields.isNotEmpty()) {
+            addFunction(FunSpec.builder("updateAutoIncrement")
+                .addParameter("model", model.classType)
+                .addParameter("id", Number::class.asClassName())
+                .returns(model.classType)
+                .addModifiers(KModifier.OVERRIDE)
+                .apply {
+                    if (model.hasPrimaryConstructor) {
+                        addCode("return model.copy(\n")
+                    } else {
+                        beginControlFlow("return model.apply")
+                    }
+
+                    autoincrementFields.forEach { field ->
+                        if (!model.hasPrimaryConstructor) {
+                            addCode("this.")
+                        }
+                        addCode(
+                            "%L = %L.%L()%L\n",
+                            field.name.shortName,
+                            "id",
+                            when (field.classType) {
+                                INT -> "toInt"
+                                DOUBLE -> "toDouble"
+                                FLOAT -> "toFloat"
+                                NUMBER -> ""
+                                BYTE -> "toByte"
+                                LONG -> "toLong"
+                                SHORT -> "toShort"
+                                else -> throw IllegalArgumentException(
+                                    "Invalid auto primary key type ${field.classType}." +
+                                        "could not turn into a number."
+                                )
+                            },
+                            model.memberSeparator
+                        )
+                    }
+
+                    if (model.hasPrimaryConstructor) {
+                        addCode(")\n")
+                    } else {
+                        endControlFlow()
+                    }
+                }
+                .build())
+        }
     }
 }

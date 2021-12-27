@@ -100,5 +100,8 @@ object MemberNames {
     const val querySingle = "querySingle"
     const val eq = "eq"
 
+    val save = MemberName(PackageNames.Structure, "save")
     val chain = MemberName(PackageNames.Converter, "chain")
+
+    val getOrThrow = MemberName("kotlin", "getOrThrow")
 }
