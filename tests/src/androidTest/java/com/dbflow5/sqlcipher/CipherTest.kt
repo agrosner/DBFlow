@@ -5,6 +5,8 @@ import com.dbflow5.DemoApp
 import com.dbflow5.config.database
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
+import com.dbflow5.structure.exists
+import com.dbflow5.structure.save
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -17,7 +19,12 @@ class CipherTest {
     @JvmField
     @Rule
     var dblflowTestRule = DBFlowInstrumentedTestRule.create {
-        database<CipherDatabase>(openHelperCreator = SQLCipherOpenHelper.createHelperCreator(DemoApp.context, "dbflow-rules"))
+        database<CipherDatabase>(
+            openHelperCreator = SQLCipherOpenHelper.createHelperCreator(
+                DemoApp.context,
+                "dbflow-rules"
+            )
+        )
     }
 
     @Test
@@ -25,7 +32,8 @@ class CipherTest {
         database<CipherDatabase> { db ->
             (delete() from CipherModel::class).execute(db)
             val model = CipherModel(name = "name")
-            model.save(db)
+                .save(db)
+                .getOrThrow()
             assertTrue(model.exists(db))
 
             val retrieval = (select from CipherModel::class

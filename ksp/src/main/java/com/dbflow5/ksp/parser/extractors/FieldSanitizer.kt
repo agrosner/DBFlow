@@ -2,7 +2,6 @@ package com.dbflow5.ksp.parser.extractors
 
 import com.dbflow5.annotation.ColumnIgnore
 import com.dbflow5.annotation.OneToMany
-import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.generateTypeConverter
@@ -33,7 +32,7 @@ class FieldSanitizer(
             .flatten())
             .filterNot { it.isAbstract() }
             .distinctBy { it.simpleName.getShortName() }.filterNot { prop ->
-                isIgnoredColumn(prop) || isModelAdapter(prop)
+                isIgnoredColumn(prop)
                     || isOneToMany(prop)
                     || prop.isDelegated()
             }
@@ -49,9 +48,6 @@ class FieldSanitizer(
                     }
             }
     }
-
-    private fun isModelAdapter(prop: KSPropertyDeclaration) =
-        prop.type.toTypeName() == ClassNames.modelAdapter(ClassNames.BaseModel)
 
     private fun isIgnoredColumn(prop: KSPropertyDeclaration) =
         checkAllPropAnnotations(prop) {

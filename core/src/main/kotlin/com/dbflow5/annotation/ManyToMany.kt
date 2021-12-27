@@ -10,40 +10,34 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 annotation class ManyToMany(
-        /**
-         * @return The other table class by which this will get merged.
-         */
-        val referencedTable: KClass<*>,
-        /**
-         * @return A name that we use as the column name for the referenced table in the
-         * generated ManyToMany table class.
-         */
-        val referencedTableColumnName: String = "",
-        /**
-         * @return A name that we use as the column name for this specific table's name.
-         */
-        val thisTableColumnName: String = "",
-        /**
-         * @return By default, we generate an auto-incrementing [Long] [PrimaryKey].
-         * If false, all [PrimaryKey] of the corresponding tables will be placed as [ForeignKey] and [PrimaryKey]
-         * of the generated table instead of using an autoincrementing Long [PrimaryKey].
-         */
-        val generateAutoIncrement: Boolean = true,
-        /**
-         * @return by default, we append {selfTable}{generatedClassSeparator}{referencedTable} or "User_Follower",
-         * for example. If you want different name, change this.
-         */
-        val generatedTableClassName: String = "",
-        /**
-         * @return by default the Models referenced here are not saved prior to saving this
-         * object for obvious efficiency reasons.
-         * @see ForeignKey.saveForeignKeyModel
-         */
-        val saveForeignKeyModels: Boolean = false,
-
-        /**
-         * @return if true, it will generate a [BaseModel]. By default we do not generate basemodel
-         * compatibility due to it being deprecated now.
-         */
-        @Deprecated("This is for backwards compability with BaseModel")
-        val generateBaseModel: Boolean = false)
+    /**
+     * @return The other table class by which this will get merged.
+     */
+    val referencedTable: KClass<*>,
+    /**
+     * @return A name that we use as the column name for the referenced table in the
+     * generated ManyToMany table class.
+     */
+    val referencedTableColumnName: String = "",
+    /**
+     * @return A name that we use as the column name for this specific table's name.
+     */
+    val thisTableColumnName: String = "",
+    /**
+     * @return By default, we generate an auto-incrementing [Long] [PrimaryKey].
+     * If false, all [PrimaryKey] of the corresponding tables will be placed as [ForeignKey] and [PrimaryKey]
+     * of the generated table instead of using an autoincrementing Long [PrimaryKey].
+     */
+    val generateAutoIncrement: Boolean = true,
+    /**
+     * @return by default, we append {selfTable}{generatedClassSeparator}{referencedTable} or "User_Follower",
+     * for example. If you want different name, change this.
+     */
+    val generatedTableClassName: String = "",
+    /**
+     * @return by default the Models referenced here are not saved prior to saving this
+     * object for obvious efficiency reasons.
+     * @see ForeignKey.saveForeignKeyModel
+     */
+    val saveForeignKeyModels: Boolean = false
+)

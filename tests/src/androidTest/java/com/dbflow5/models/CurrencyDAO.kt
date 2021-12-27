@@ -24,7 +24,7 @@ interface DBProvider<out T : DBFlowDatabase> {
 
 interface CurrencyDAO : DBProvider<TestDatabase> {
 
-    fun coroutineStoreUSD(currency: Currency): Deferred<Boolean> =
+    fun coroutineStoreUSD(currency: Currency): Deferred<Result<Currency>> =
         database.beginTransactionAsync { db ->
             modelAdapter<Currency>().save(currency, db)
         }.defer()
@@ -38,7 +38,7 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
                 where (Currency_Table.symbol eq "$")).queryList(it)
         }.defer()
 
-    fun rxStoreUSD(currency: Currency): Single<Boolean> =
+    fun rxStoreUSD(currency: Currency): Single<Result<Currency>> =
         database.beginTransactionAsync { db ->
             modelAdapter<Currency>().save(currency, db)
         }.asSingle()
@@ -67,9 +67,10 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
     /**
      *  Utilize Paging Library from paging artifact.
      */
-    fun pagingRetrieveUSD(): QueryDataSource.Factory<Currency, Where<Currency>> = (select from Currency::class
-        where (Currency_Table.symbol eq "$"))
-        .toDataSourceFactory(database)
+    fun pagingRetrieveUSD(): QueryDataSource.Factory<Currency, Where<Currency>> =
+        (select from Currency::class
+            where (Currency_Table.symbol eq "$"))
+            .toDataSourceFactory(database)
 
 }
 

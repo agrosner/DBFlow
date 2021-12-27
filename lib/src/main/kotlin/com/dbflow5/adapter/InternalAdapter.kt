@@ -1,14 +1,12 @@
 package com.dbflow5.adapter
 
-import android.content.ContentValues
-import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 
 /**
  * Description: Used for our internal Adapter classes such as generated [ModelAdapter].
  */
-interface InternalAdapter<in TModel> {
+interface InternalAdapter<TModel> {
 
     /**
      * @return The table name of this adapter.
@@ -20,17 +18,18 @@ interface InternalAdapter<in TModel> {
      *
      * @param model           The model to save/insert/update
      * @param databaseWrapper The manually specified wrapper.
+     * @return model if save was successful, else null.
      */
-    fun save(model: TModel, databaseWrapper: DatabaseWrapper): Boolean
+    fun save(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
 
     /**
      * Saves a [Collection] of models to the DB.
      *
      * @param models          The [Collection] of models to save.
      * @param databaseWrapper The manually specified wrapper
-     * @return the count of models saved or updated.
+     * @return the models saved or updated, null if none successful.
      */
-    fun saveAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Long
+    fun saveAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
 
     /**
      * Inserts the specified model into the DB.
@@ -38,33 +37,34 @@ interface InternalAdapter<in TModel> {
      * @param model           The model to insert.
      * @param databaseWrapper The manually specified wrapper.
      */
-    fun insert(model: TModel, databaseWrapper: DatabaseWrapper): Long
+    fun insert(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
 
     /**
      * Inserts a [Collection] of models into the DB.
      *
      * @param models          The [Collection] of models to save.
      * @param databaseWrapper The manually specified wrapper
-     * @return the count inserted
+     * @return the inserted models.
      */
-    fun insertAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Long
+    fun insertAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
 
     /**
      * Updates the specified model into the DB.
      *
      * @param model           The model to update.
      * @param databaseWrapper The manually specified wrapper.
+     * @return the updated model, if successful, otherwise null.
      */
-    fun update(model: TModel, databaseWrapper: DatabaseWrapper): Boolean
+    fun update(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
 
     /**
      * Updates a [Collection] of models in the DB.
      *
      * @param models          The [Collection] of models to save.
      * @param databaseWrapper The manually specified wrapper
-     * @return count of successful updates.
+     * @return successful updates, if null none were successful.
      */
-    fun updateAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Long
+    fun updateAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
 
     /**
      * Deletes the model from the DB
@@ -72,7 +72,7 @@ interface InternalAdapter<in TModel> {
      * @param model           The model to delete
      * @param databaseWrapper The manually specified wrapper.
      */
-    fun delete(model: TModel, databaseWrapper: DatabaseWrapper): Boolean
+    fun delete(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
 
     /**
      * Updates a [Collection] of models in the DB.
@@ -81,7 +81,7 @@ interface InternalAdapter<in TModel> {
      * @param databaseWrapper The manually specified wrapper
      * @return count of successful deletions.
      */
-    fun deleteAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Long
+    fun deleteAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
 
     /**
      * Binds to a [DatabaseStatement] for insert.
@@ -90,23 +90,6 @@ interface InternalAdapter<in TModel> {
      * @param model           The model to read from.
      */
     fun bindToInsertStatement(sqLiteStatement: DatabaseStatement, model: TModel)
-
-    /**
-     * Binds a [TModel] to the specified db statement
-     *
-     * @param contentValues The content values to fill.
-     * @param model         The model values to put on the contentvalues
-     */
-    fun bindToContentValues(contentValues: ContentValues, model: TModel)
-
-    /**
-     * Binds a [TModel] to the specified db statement, leaving out the [PrimaryKey.autoincrement]
-     * column.
-     *
-     * @param contentValues The content values to fill.
-     * @param model         The model values to put on the content values.
-     */
-    fun bindToInsertValues(contentValues: ContentValues, model: TModel)
 
     /**
      * Binds values of the model to an update [DatabaseStatement]. It repeats each primary
@@ -126,10 +109,6 @@ interface InternalAdapter<in TModel> {
      * @param model The model object to store the key
      * @param id    The key to store
      */
-    fun updateAutoIncrement(model: TModel, id: Number)
+    fun updateAutoIncrement(model: TModel, id: Number): TModel
 
-    /**
-     * @return true if the [InternalAdapter] can be cached.
-     */
-    fun cachingEnabled(): Boolean
 }

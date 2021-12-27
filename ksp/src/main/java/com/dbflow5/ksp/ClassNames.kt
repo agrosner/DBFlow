@@ -22,8 +22,6 @@ object PackageNames {
 
 object ClassNames {
 
-    val BaseModel = ClassName(PackageNames.Structure, "BaseModel")
-
     fun property(typeName: TypeName) = ClassName(PackageNames.Property, "Property")
         .parameterizedBy(typeName)
 

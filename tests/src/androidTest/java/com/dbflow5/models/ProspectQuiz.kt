@@ -2,7 +2,6 @@ package com.dbflow5.models
 
 import com.dbflow5.TestDatabase
 import com.dbflow5.annotation.*
-import com.dbflow5.structure.BaseModel
 
 
 @TypeConverter
@@ -28,7 +27,7 @@ class MutableSetTypeConverter : com.dbflow5.converter.TypeConverter<String, Muta
     database = TestDatabase::class, allFields = true, useBooleanGetterSetters = false,
     indexGroups = [IndexGroup(number = 1, name = "modified")]
 )
-open internal class ProspectQuiz : BaseModel {
+open internal class ProspectQuiz {
     @NotNull
     @PrimaryKey
     lateinit var ID: String
@@ -79,7 +78,7 @@ open internal class ProspectQuiz : BaseModel {
     database = TestDatabase::class, allFields = true, useBooleanGetterSetters = false,
     indexGroups = [IndexGroup(number = 1, name = "quizid_answerts")]
 )
-open internal class ProspectQuizEntry : BaseModel {
+open internal class ProspectQuizEntry {
     @PrimaryKey
     @NotNull
     lateinit var profileID: String

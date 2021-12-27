@@ -18,7 +18,6 @@ import com.dbflow5.converter.TypeConverter
 import com.dbflow5.data.Blob
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.query.SQLiteStatementListener
-import com.dbflow5.structure.BaseModel
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.*
@@ -210,7 +209,7 @@ class NonNullKotlinModel(
 )
 
 @Table(database = TestDatabase::class)
-class Owner : BaseModel() {
+class Owner {
     @PrimaryKey(autoincrement = true)
     var id: Int = 0
 
@@ -219,7 +218,7 @@ class Owner : BaseModel() {
 }
 
 @Table(database = TestDatabase::class)
-class Dog : BaseModel() {
+class Dog {
     @ForeignKey(onDelete = ForeignKeyAction.CASCADE, stubbedRelationship = true)
     var owner: Owner? = null
 

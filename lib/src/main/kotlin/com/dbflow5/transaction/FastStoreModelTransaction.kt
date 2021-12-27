@@ -8,14 +8,15 @@ import com.dbflow5.structure.Model
 /**
  * Description: Simple interface for acting on a model in a Transaction or list of [Model]
  */
-private typealias ProcessModelList<TModel> = (List<TModel>, InternalAdapter<TModel>, DatabaseWrapper) -> Long
+private typealias ProcessModelList<TModel> = (List<TModel>, InternalAdapter<TModel>, DatabaseWrapper) -> Result<Collection<TModel>>
 
 /**
  * Description: Similiar to [ProcessModelTransaction] in that it allows you to store a [List] of
  * [Model], except that it performs it as efficiently as possible. Also due to way the class operates,
  * only one kind of [TModel] is allowed.
  */
-class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TModel>) : ITransaction<Long> {
+class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TModel>) :
+    ITransaction<Result<Collection<TModel>>> {
 
     internal val models: List<TModel>?
     internal val processModelList: ProcessModelList<TModel>
@@ -27,20 +28,19 @@ class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TM
         internalAdapter = builder.internalAdapter
     }
 
-    override fun execute(databaseWrapper: DatabaseWrapper): Long {
-        if (models != null) {
-            return processModelList(models, internalAdapter, databaseWrapper)
-        }
-        return 0L
-    }
+    override fun execute(databaseWrapper: DatabaseWrapper): Result<Collection<TModel>> =
+        models?.let { processModelList(models, internalAdapter, databaseWrapper) }
+            ?: Result.success(listOf())
 
     /**
      * Makes it easy to build a [ProcessModelTransaction].
      *
      * @param <TModel>
     </TModel> */
-    class Builder<TModel> internal constructor(internal val internalAdapter: InternalAdapter<TModel>,
-                                               internal val processModelList: ProcessModelList<TModel>) {
+    class Builder<TModel> internal constructor(
+        internal val internalAdapter: InternalAdapter<TModel>,
+        internal val processModelList: ProcessModelList<TModel>
+    ) {
         internal var models: MutableList<TModel> = arrayListOf()
 
         fun add(model: TModel) = apply {
@@ -75,31 +75,51 @@ class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TM
 
         @JvmStatic
         fun <TModel> saveBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
-                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.saveAll(tModels, wrapper) }
+            Builder(internalAdapter) { tModels, adapter, wrapper ->
+                adapter.saveAll(
+                    tModels,
+                    wrapper
+                )
+            }
 
         @JvmStatic
         fun <TModel> insertBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
-                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.insertAll(tModels, wrapper) }
+            Builder(internalAdapter) { tModels, adapter, wrapper ->
+                adapter.insertAll(
+                    tModels,
+                    wrapper
+                )
+            }
 
 
         @JvmStatic
         fun <TModel> updateBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
-                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.updateAll(tModels, wrapper) }
+            Builder(internalAdapter) { tModels, adapter, wrapper ->
+                adapter.updateAll(
+                    tModels,
+                    wrapper
+                )
+            }
 
         @JvmStatic
         fun <TModel> deleteBuilder(internalAdapter: InternalAdapter<TModel>): Builder<TModel> =
-                Builder(internalAdapter) { tModels, adapter, wrapper -> adapter.deleteAll(tModels, wrapper) }
+            Builder(internalAdapter) { tModels, adapter, wrapper ->
+                adapter.deleteAll(
+                    tModels,
+                    wrapper
+                )
+            }
     }
 }
 
 inline fun <reified T : Any> Collection<T>.fastSave(): FastStoreModelTransaction.Builder<T> =
-        FastStoreModelTransaction.saveBuilder(modelAdapter<T>()).addAll(this)
+    FastStoreModelTransaction.saveBuilder(modelAdapter<T>()).addAll(this)
 
 inline fun <reified T : Any> Collection<T>.fastInsert(): FastStoreModelTransaction.Builder<T> =
-        FastStoreModelTransaction.insertBuilder(modelAdapter<T>()).addAll(this)
+    FastStoreModelTransaction.insertBuilder(modelAdapter<T>()).addAll(this)
 
 inline fun <reified T : Any> Collection<T>.fastUpdate(): FastStoreModelTransaction.Builder<T> =
-        FastStoreModelTransaction.updateBuilder(modelAdapter<T>()).addAll(this)
+    FastStoreModelTransaction.updateBuilder(modelAdapter<T>()).addAll(this)
 
 inline fun <reified T : Any> Collection<T>.fastDelete(): FastStoreModelTransaction.Builder<T> =
-        FastStoreModelTransaction.deleteBuilder(modelAdapter<T>()).addAll(this)
+    FastStoreModelTransaction.deleteBuilder(modelAdapter<T>()).addAll(this)

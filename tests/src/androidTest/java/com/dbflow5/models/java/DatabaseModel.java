@@ -1,9 +1,8 @@
 package com.dbflow5.models.java;
 
 import com.dbflow5.annotation.PrimaryKey;
-import com.dbflow5.structure.BaseModel;
 
-public class DatabaseModel extends BaseModel {
+public class DatabaseModel {
     @PrimaryKey
     private Integer id;
 

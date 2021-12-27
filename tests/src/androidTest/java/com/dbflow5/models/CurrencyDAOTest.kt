@@ -29,7 +29,7 @@ class CurrencyDAOTest : BaseUnitTest() {
     @Test
     fun validateCoroutine() = runBlockingTest {
         val success = currencyDAO.coroutineStoreUSD(currency).await()
-        assert(success) { "Currency didn't save" }
+        assert(success.isSuccess) { "Currency didn't save" }
         val result = currencyDAO.coroutineRetrieveUSD().await()
         assert(result.size == 1) { "Results list was empty" }
         assert(result[0] == currency) { "Expected ${currency} but got ${result[0]}" }
@@ -38,7 +38,7 @@ class CurrencyDAOTest : BaseUnitTest() {
     @Test
     fun validateRx() {
         val success = currencyDAO.rxStoreUSD(currency).blockingGet()
-        assert(success) { "Currency didn't save" }
+        assert(success.isSuccess) { "Currency didn't save" }
         val result = currencyDAO.rxRetrieveUSD().blockingGet()
         assert(result.size == 1) { "Results list was empty" }
         assert(result[0] == currency) { "Expected ${currency} but got ${result[0]}" }

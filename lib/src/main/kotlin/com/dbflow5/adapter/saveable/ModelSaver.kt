@@ -15,82 +15,95 @@ open class ModelSaver<T : Any> {
     lateinit var modelAdapter: ModelAdapter<T>
 
     @Synchronized
-    fun save(model: T, wrapper: DatabaseWrapper): Boolean {
+    fun save(model: T, wrapper: DatabaseWrapper): Result<T> {
         val insertStatement = modelAdapter.getSaveStatement(wrapper)
         return insertStatement.use { save(model, insertStatement, wrapper) }
     }
 
     @Synchronized
-    fun save(model: T,
-             insertStatement: DatabaseStatement,
-             wrapper: DatabaseWrapper): Boolean {
-        modelAdapter.saveForeignKeys(model, wrapper)
-        modelAdapter.bindToInsertStatement(insertStatement, model)
+    fun save(
+        model: T,
+        insertStatement: DatabaseStatement,
+        wrapper: DatabaseWrapper
+    ): Result<T> {
+        var localModel = modelAdapter.saveForeignKeys(model, wrapper)
+        modelAdapter.bindToInsertStatement(insertStatement, localModel)
         val id = insertStatement.executeInsert()
         val success = id > INSERT_FAILED
         if (success) {
-            modelAdapter.updateAutoIncrement(model, id)
-            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.CHANGE)
+            localModel = modelAdapter.updateAutoIncrement(model, id)
+            NotifyDistributor().notifyModelChanged(localModel, modelAdapter, ChangeAction.CHANGE)
+            return Result.success(localModel)
         }
-        return success
+        return Result.failure(SaveOperationFailedException("save"))
     }
 
     @Synchronized
-    fun update(model: T, wrapper: DatabaseWrapper): Boolean {
+    fun update(model: T, wrapper: DatabaseWrapper): Result<T> {
         val updateStatement = modelAdapter.getUpdateStatement(wrapper)
         return updateStatement.use { update(model, it, wrapper) }
     }
 
     @Synchronized
-    fun update(model: T, databaseStatement: DatabaseStatement, wrapper: DatabaseWrapper): Boolean {
-        modelAdapter.saveForeignKeys(model, wrapper)
-        modelAdapter.bindToUpdateStatement(databaseStatement, model)
+    fun update(
+        model: T,
+        databaseStatement: DatabaseStatement,
+        wrapper: DatabaseWrapper
+    ): Result<T> {
+        val localModel = modelAdapter.saveForeignKeys(model, wrapper)
+        modelAdapter.bindToUpdateStatement(databaseStatement, localModel)
         val successful = databaseStatement.executeUpdateDelete() != 0L
         if (successful) {
-            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.UPDATE)
+            NotifyDistributor().notifyModelChanged(localModel, modelAdapter, ChangeAction.UPDATE)
+            return Result.success(localModel)
         }
-        return successful
+        return Result.failure(SaveOperationFailedException("update"))
     }
 
     @Synchronized
-    open fun insert(model: T, wrapper: DatabaseWrapper): Long {
+    open fun insert(model: T, wrapper: DatabaseWrapper): Result<T> {
         val insertStatement = modelAdapter.getInsertStatement(wrapper)
         return insertStatement.use { insert(model, it, wrapper) }
     }
 
     @Synchronized
-    open fun insert(model: T,
-                    insertStatement: DatabaseStatement,
-                    wrapper: DatabaseWrapper): Long {
-        modelAdapter.saveForeignKeys(model, wrapper)
-        modelAdapter.bindToInsertStatement(insertStatement, model)
+    open fun insert(
+        model: T,
+        insertStatement: DatabaseStatement,
+        wrapper: DatabaseWrapper
+    ): Result<T> {
+        var localModel = modelAdapter.saveForeignKeys(model, wrapper)
+        modelAdapter.bindToInsertStatement(insertStatement, localModel)
         val id = insertStatement.executeInsert()
         if (id > INSERT_FAILED) {
-            modelAdapter.updateAutoIncrement(model, id)
-            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.INSERT)
+            localModel = modelAdapter.updateAutoIncrement(localModel, id)
+            NotifyDistributor().notifyModelChanged(localModel, modelAdapter, ChangeAction.INSERT)
+            return Result.success(localModel)
         }
-        return id
+        return Result.failure(SaveOperationFailedException("insert"))
     }
 
     @Synchronized
-    fun delete(model: T, wrapper: DatabaseWrapper): Boolean {
+    fun delete(model: T, wrapper: DatabaseWrapper): Result<T> {
         val deleteStatement = modelAdapter.getDeleteStatement(wrapper)
         return deleteStatement.use { delete(model, it, wrapper) }
     }
 
     @Synchronized
-    fun delete(model: T,
-               deleteStatement: DatabaseStatement,
-               wrapper: DatabaseWrapper): Boolean {
-        modelAdapter.deleteForeignKeys(model, wrapper)
-        modelAdapter.bindToDeleteStatement(deleteStatement, model)
+    fun delete(
+        model: T,
+        deleteStatement: DatabaseStatement,
+        wrapper: DatabaseWrapper
+    ): Result<T> {
+        val localModel = modelAdapter.deleteForeignKeys(model, wrapper)
+        modelAdapter.bindToDeleteStatement(deleteStatement, localModel)
 
         val success = deleteStatement.executeUpdateDelete() != 0L
         if (success) {
-            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.DELETE)
+            NotifyDistributor().notifyModelChanged(localModel, modelAdapter, ChangeAction.DELETE)
+            return Result.success(modelAdapter.updateAutoIncrement(model, 0))
         }
-        modelAdapter.updateAutoIncrement(model, 0)
-        return success
+        return Result.failure(SaveOperationFailedException("delete"))
     }
 
     companion object {

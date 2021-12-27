@@ -1,6 +1,5 @@
 package com.dbflow5.adapter
 
-import android.content.ContentValues
 import com.dbflow5.adapter.saveable.ListModelSaver
 import com.dbflow5.adapter.saveable.ModelSaver
 import com.dbflow5.annotation.ConflictAction
@@ -83,42 +82,51 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
     fun getSaveStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
         databaseWrapper.compileStatement(saveStatementQuery)
 
-    override fun save(model: T, databaseWrapper: DatabaseWrapper): Boolean {
+    override fun save(model: T, databaseWrapper: DatabaseWrapper): Result<T> {
         checkInTransaction(databaseWrapper)
         return modelSaver.save(model, databaseWrapper)
     }
 
-    override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long {
+    override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Result<Collection<T>> {
         checkInTransaction(databaseWrapper)
         return listModelSaver.saveAll(models, databaseWrapper)
     }
 
-    override fun insert(model: T, databaseWrapper: DatabaseWrapper): Long {
+    override fun insert(model: T, databaseWrapper: DatabaseWrapper): Result<T> {
         checkInTransaction(databaseWrapper)
         return modelSaver.insert(model, databaseWrapper)
     }
 
-    override fun insertAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long {
+    override fun insertAll(
+        models: Collection<T>,
+        databaseWrapper: DatabaseWrapper
+    ): Result<Collection<T>> {
         checkInTransaction(databaseWrapper)
         return listModelSaver.insertAll(models, databaseWrapper)
     }
 
-    override fun update(model: T, databaseWrapper: DatabaseWrapper): Boolean {
+    override fun update(model: T, databaseWrapper: DatabaseWrapper): Result<T> {
         checkInTransaction(databaseWrapper)
         return modelSaver.update(model, databaseWrapper)
     }
 
-    override fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long {
+    override fun updateAll(
+        models: Collection<T>,
+        databaseWrapper: DatabaseWrapper
+    ): Result<Collection<T>> {
         checkInTransaction(databaseWrapper)
         return listModelSaver.updateAll(models, databaseWrapper)
     }
 
-    override fun delete(model: T, databaseWrapper: DatabaseWrapper): Boolean {
+    override fun delete(model: T, databaseWrapper: DatabaseWrapper): Result<T> {
         checkInTransaction(databaseWrapper)
         return modelSaver.delete(model, databaseWrapper)
     }
 
-    override fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Long {
+    override fun deleteAll(
+        models: Collection<T>,
+        databaseWrapper: DatabaseWrapper
+    ): Result<Collection<T>> {
         checkInTransaction(databaseWrapper)
         return listModelSaver.deleteAll(models, databaseWrapper)
     }
@@ -133,17 +141,6 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
         }
     }
 
-    override fun bindToContentValues(contentValues: ContentValues, model: T) {
-        bindToInsertValues(contentValues, model)
-    }
-
-    override fun bindToInsertValues(contentValues: ContentValues, model: T) {
-        throw RuntimeException(
-            "ContentValues are no longer generated automatically. To enable it," +
-                " set generateContentValues = true in @Table for $table."
-        )
-    }
-
     /**
      * If a [Model] has an auto-incrementing primary key, then
      * this method will be overridden.
@@ -151,27 +148,25 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
      * @param model The model object to store the key
      * @param id    The key to store
      */
-    override fun updateAutoIncrement(model: T, id: Number) {
-
+    override fun updateAutoIncrement(model: T, id: Number): T {
+        return model
     }
 
     /**
      * Called when we want to save our [ForeignKey] objects. usually during insert + update.
      * This method is overridden when [ForeignKey] specified
      */
-    open fun saveForeignKeys(model: T, wrapper: DatabaseWrapper) {
-
+    open fun saveForeignKeys(model: T, wrapper: DatabaseWrapper): T {
+        return model
     }
 
     /**
      * Called when we want to delete our [ForeignKey] objects. During deletion [.delete]
      * This method is overridden when [ForeignKey] specified
      */
-    open fun deleteForeignKeys(model: T, wrapper: DatabaseWrapper) {
-
+    open fun deleteForeignKeys(model: T, wrapper: DatabaseWrapper): T {
+        return model
     }
-
-    override fun cachingEnabled(): Boolean = false
 
     var modelSaver: ModelSaver<T>
         get() = tableConfig?.modelSaver?.let {

@@ -8,7 +8,6 @@ import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.select
-import com.dbflow5.structure.BaseModel
 import com.dbflow5.structure.oneToMany
 
 @Table(database = TestDatabase::class)
@@ -58,4 +57,4 @@ class OneToManyModel(@PrimaryKey var name: String? = null) {
 }
 
 @Table(database = TestDatabase::class)
-class OneToManyBaseModel(@PrimaryKey var id: Int = 0) : BaseModel()
+class OneToManyBaseModel(@PrimaryKey var id: Int = 0)

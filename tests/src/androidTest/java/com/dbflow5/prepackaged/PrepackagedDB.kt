@@ -10,7 +10,7 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.migration.AlterTableMigration
 import com.dbflow5.migration.BaseMigration
 import com.dbflow5.sql.SQLiteType
-import com.dbflow5.structure.BaseModel
+import com.dbflow5.structure.insert
 
 @Database(version = 1)
 abstract class PrepackagedDB : DBFlowDatabase()
@@ -39,7 +39,7 @@ class Dog(
     @PrimaryKey var id: Int = 0,
     @Column var breed: String? = null,
     @Column var color: String? = null,
-) : BaseModel()
+)
 
 @Table(database = MigratedPrepackagedDB::class, allFields = true, name = "Dog")
 class Dog2(
@@ -47,4 +47,4 @@ class Dog2(
     @Column var breed: String? = null,
     @Column var color: String? = null,
     @Column var newField: String? = null,
-) : BaseModel()
+)

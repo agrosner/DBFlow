@@ -24,7 +24,6 @@ import com.dbflow5.migration.Migration
 import com.dbflow5.observing.TableObserver
 import com.dbflow5.runtime.DirectModelNotifier
 import com.dbflow5.runtime.ModelNotifier
-import com.dbflow5.structure.BaseModelView
 import com.dbflow5.transaction.BaseTransactionManager
 import com.dbflow5.transaction.DefaultTransactionManager
 import com.dbflow5.transaction.DefaultTransactionQueue
@@ -102,9 +101,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     val modelClasses: List<Class<*>>
         get() = modelAdapterMap.keys.toList()
 
-    /**
-     * @return the [BaseModelView] list for this database.
-     */
     val modelViews: List<Class<*>>
         get() = modelViewAdapterMap.keys.toList()
 

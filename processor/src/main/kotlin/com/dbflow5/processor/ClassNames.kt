@@ -17,11 +17,8 @@ object ClassNames {
     val QUERY_PACKAGE = "$BASE_PACKAGE.query"
     val STRUCTURE = "$BASE_PACKAGE.structure"
     val DATABASE = "$BASE_PACKAGE.database"
-    val QUERIABLE = "$ADAPTER.queriable"
     val PROPERTY_PACKAGE = "$QUERY_PACKAGE.property"
     val CONFIG = "$BASE_PACKAGE.config"
-    val SAVEABLE = "$ADAPTER.saveable"
-    val PROVIDER = "$BASE_PACKAGE.provider"
 
     val DATABASE_HOLDER: ClassName = ClassName.get(CONFIG, "DatabaseHolder")
     val FLOW_MANAGER: ClassName = ClassName.get(CONFIG, "FlowManager")
@@ -65,26 +62,9 @@ object ClassNames {
 
     val ICONDITIONAL: ClassName = ClassName.get(QUERY_PACKAGE, "IConditional")
 
-    val BASE_MODEL: ClassName = ClassName.get(STRUCTURE, "BaseModel")
-    val SIMPLE_MAP_CACHE: ClassName = ClassName.get("$QUERY_PACKAGE.cache", "SimpleMapCache")
-
-    val CACHEABLE_MODEL_LOADER: ClassName = ClassName.get(QUERIABLE, "CacheableModelLoader")
-    val SINGLE_MODEL_LOADER: ClassName = ClassName.get(QUERIABLE, "SingleModelLoader")
-    val CACHEABLE_LIST_MODEL_LOADER: ClassName =
-        ClassName.get(QUERIABLE, "CacheableListModelLoader")
-    val LIST_MODEL_LOADER: ClassName = ClassName.get(QUERIABLE, "ListModelLoader")
-    val CACHE_ADAPTER: ClassName = ClassName.get(ADAPTER, "CacheAdapter")
-
     val DATABASE_WRAPPER: ClassName = ClassName.get(DATABASE, "DatabaseWrapper")
 
     val SQLITE: ClassName = ClassName.get(QUERY_PACKAGE, "SQLite")
-
-    val CACHEABLE_LIST_MODEL_SAVER: ClassName = ClassName.get(SAVEABLE, "CacheableListModelSaver")
-
-    val SINGLE_KEY_CACHEABLE_MODEL_LOADER: ClassName =
-        ClassName.get(QUERIABLE, "SingleKeyCacheableModelLoader")
-    val SINGLE_KEY_CACHEABLE_LIST_MODEL_LOADER: ClassName =
-        ClassName.get(QUERIABLE, "SingleKeyCacheableListModelLoader")
 
     val NON_NULL: ClassName = ClassName.get("android.support.annotation", "NonNull")
     val NON_NULL_X: ClassName = ClassName.get("androidx.annotation", "NonNull")

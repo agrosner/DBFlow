@@ -4,7 +4,6 @@ import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
-import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.dbflow5.processor.utils.isNullOrEmpty
@@ -30,25 +29,30 @@ import javax.lang.model.element.TypeElement
 /**
  * Description: Generates the Model class that is used in a many to many.
  */
-class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorManager,
-                           manyToMany: ManyToMany)
-    : BaseDefinition(element, processorManager) {
+class ManyToManyDefinition(
+    element: TypeElement, processorManager: ProcessorManager,
+    manyToMany: ManyToMany
+) : BaseDefinition(element, processorManager) {
 
     val databaseTypeName: TypeName? = element.extractTypeNameFromAnnotation<Table> { it.database }
 
-    private val referencedTable: TypeName = manyToMany.extractTypeNameFromAnnotation { it.referencedTable }
+    private val referencedTable: TypeName =
+        manyToMany.extractTypeNameFromAnnotation { it.referencedTable }
     private val generateAutoIncrement: Boolean = manyToMany.generateAutoIncrement
     private val sameTableReferenced: Boolean = referencedTable == elementTypeName
     private val generatedTableClassName = manyToMany.generatedTableClassName
     private val saveForeignKeyModels: Boolean = manyToMany.saveForeignKeyModels
     private val thisColumnName = manyToMany.thisTableColumnName
     private val referencedColumnName = manyToMany.referencedTableColumnName
-    private val generateBaseModel = manyToMany.generateBaseModel
 
     init {
         if (!thisColumnName.isNullOrEmpty() && !referencedColumnName.isNullOrEmpty()
-            && thisColumnName == referencedColumnName) {
-            manager.logError(ManyToManyDefinition::class, "The thisTableColumnName and referenceTableColumnName cannot be the same")
+            && thisColumnName == referencedColumnName
+        ) {
+            manager.logError(
+                ManyToManyDefinition::class,
+                "The thisTableColumnName and referenceTableColumnName cannot be the same"
+            )
         }
     }
 
@@ -63,14 +67,22 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
 
     override fun onWriteDefinition(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
-            addAnnotation(AnnotationSpec.builder(Table::class.java)
-                .addMember("database", "\$T.class", databaseTypeName).build())
+            addAnnotation(
+                AnnotationSpec.builder(Table::class.java)
+                    .addMember("database", "\$T.class", databaseTypeName).build()
+            )
 
             val referencedDefinition = manager.getTableDefinition(databaseTypeName, referencedTable)
             val selfDefinition = manager.getTableDefinition(databaseTypeName, elementTypeName)
 
             if (generateAutoIncrement) {
-                addField(field(`@`(PrimaryKey::class) { this["autoincrement"] = "true" }, TypeName.LONG, "_id").build())
+                addField(
+                    field(
+                        `@`(PrimaryKey::class) { this["autoincrement"] = "true" },
+                        TypeName.LONG,
+                        "_id"
+                    ).build()
+                )
 
                 `fun`(TypeName.LONG, "getId") {
                     modifiers(public, final)
@@ -83,10 +95,10 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
         }
     }
 
-    override val extendsClass: TypeName? = if (generateBaseModel) ClassNames.BASE_MODEL else null
-
-    private fun appendColumnDefinitions(typeBuilder: TypeSpec.Builder,
-                                        referencedDefinition: TableDefinition, index: Int, optionalName: String) {
+    private fun appendColumnDefinitions(
+        typeBuilder: TypeSpec.Builder,
+        referencedDefinition: TableDefinition, index: Int, optionalName: String
+    ) {
         var fieldName = referencedDefinition.elementName.lower()
         if (sameTableReferenced) {
             fieldName += index.toString()
@@ -101,14 +113,21 @@ class ManyToManyDefinition(element: TypeElement, processorManager: ProcessorMana
                 if (!generateAutoIncrement) {
                     `@`(PrimaryKey::class)
                 }
-                `@`(ForeignKey::class) { member("saveForeignKeyModel", saveForeignKeyModels.toString()) }
+                `@`(ForeignKey::class) {
+                    member(
+                        "saveForeignKeyModel",
+                        saveForeignKeyModels.toString()
+                    )
+                }
             }
             `fun`(referencedDefinition.elementClassName!!, "get${fieldName.capitalize()}") {
                 modifiers(public, final)
                 `return`(fieldName.L)
             }
-            `fun`(TypeName.VOID, "set${fieldName.capitalize()}",
-                param(referencedDefinition.elementClassName!!, "param")) {
+            `fun`(
+                TypeName.VOID, "set${fieldName.capitalize()}",
+                param(referencedDefinition.elementClassName!!, "param")
+            ) {
                 modifiers(public, final)
                 statement("$fieldName = param")
             }

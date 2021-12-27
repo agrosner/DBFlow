@@ -24,6 +24,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 /**
  * Description:
@@ -59,9 +60,9 @@ class CoroutinesTest : BaseUnitTest() {
             database<TestDatabase> { db ->
                 val simpleModel = SimpleModel("Name")
                 val result = simpleModel.awaitSave(db)
-                assert(result)
+                assert(result.isSuccess)
 
-                assert(simpleModel.awaitDelete(db))
+                assert(simpleModel.awaitDelete(db).isSuccess)
             }
         }
     }
@@ -72,8 +73,8 @@ class CoroutinesTest : BaseUnitTest() {
             database<TestDatabase> { db ->
                 val simpleModel = SimpleModel("Name")
                 val result = simpleModel.awaitInsert(db)
-                assert(result > 0)
-                assert(simpleModel.awaitDelete(db))
+                assert(result.isSuccess)
+                assert(simpleModel.awaitDelete(db).isSuccess)
             }
         }
     }
@@ -84,11 +85,11 @@ class CoroutinesTest : BaseUnitTest() {
             database<TestDatabase> { db ->
                 val simpleModel = TwoColumnModel(name = "Name", id = 5)
                 val result = simpleModel.awaitSave(db)
-                assert(result)
+                assert(result.isSuccess)
 
                 simpleModel.id = 5
                 val updated = simpleModel.awaitUpdate(db)
-                assert(updated)
+                assert(updated.isSuccess)
 
                 val loadedModel = (select from TwoColumnModel::class
                     where TwoColumnModel_Table.id.eq(5))
@@ -103,7 +104,7 @@ class CoroutinesTest : BaseUnitTest() {
         database<TestDatabase> { db ->
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
             val result = simpleModel.awaitSave(db)
-            assert(result)
+            assert(result.isSuccess)
         }
 
         val result = (select from TwoColumnModel::class where TwoColumnModel_Table.id.eq(5))
@@ -124,7 +125,7 @@ class CoroutinesTest : BaseUnitTest() {
         database<TestDatabase> { db ->
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
             val result = simpleModel.awaitSave(db)
-            assert(result)
+            assert(result.isSuccess)
         }
         job.cancel()
 

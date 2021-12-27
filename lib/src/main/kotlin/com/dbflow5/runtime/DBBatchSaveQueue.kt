@@ -5,7 +5,6 @@ import android.os.Process
 import android.os.Process.THREAD_PRIORITY_BACKGROUND
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
-import com.dbflow5.structure.Model
 import com.dbflow5.structure.save
 import com.dbflow5.transaction.Error
 import com.dbflow5.transaction.ProcessModelTransaction
@@ -48,7 +47,7 @@ internal constructor(private val databaseDefinition: DBFlowDatabase) : Thread("D
     private var emptyTransactionListener: Runnable? = null
 
     private val modelSaver = processModel<Any?> { model, _ ->
-        (model as? Model)?.save(databaseDefinition) ?: model?.save(databaseDefinition)
+        model?.save(databaseDefinition)
     }
 
     private val successCallback: Success<Unit> = { transaction: Transaction<Unit>, result: Unit ->

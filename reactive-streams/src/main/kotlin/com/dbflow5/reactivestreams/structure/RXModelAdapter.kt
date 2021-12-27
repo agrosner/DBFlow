@@ -15,7 +15,7 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
 
     constructor(table: Class<T>) : this(table.modelAdapter)
 
-    fun save(model: T, databaseWrapper: DatabaseWrapper): Single<Boolean> =
+    fun save(model: T, databaseWrapper: DatabaseWrapper): Single<Result<T>> =
         Single.fromCallable { modelAdapter.save(model, databaseWrapper) }
 
     fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Completable =
@@ -24,7 +24,7 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
             null
         }
 
-    fun insert(model: T, databaseWrapper: DatabaseWrapper): Single<Long> =
+    fun insert(model: T, databaseWrapper: DatabaseWrapper): Single<Result<T>> =
         Single.fromCallable { modelAdapter.insert(model, databaseWrapper) }
 
     fun insertAll(models: Collection<T>,
@@ -33,7 +33,7 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
         null
     }
 
-    fun update(model: T, databaseWrapper: DatabaseWrapper): Single<Boolean> =
+    fun update(model: T, databaseWrapper: DatabaseWrapper): Single<Result<T>> =
         Single.fromCallable { modelAdapter.update(model, databaseWrapper) }
 
     fun updateAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Completable =
@@ -42,7 +42,7 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
             null
         }
 
-    fun delete(model: T, databaseWrapper: DatabaseWrapper): Single<Boolean> =
+    fun delete(model: T, databaseWrapper: DatabaseWrapper): Single<Result<T>> =
         Single.fromCallable { modelAdapter.delete(model, databaseWrapper) }
 
     fun deleteAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Completable =
