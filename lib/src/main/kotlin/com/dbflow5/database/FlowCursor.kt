@@ -229,6 +229,19 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
         }
     }
 
+    @JvmName("getBlobOrDefaultOrNull")
+    fun getBlobOrDefault(index: Int, defValue: ByteArray?): ByteArray? {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
+            cursor.getBlob(index)
+        } else {
+            defValue
+        }
+    }
+
+    @JvmName("getBlobOrDefaultOrNull")
+    fun getBlobOrDefault(columnName: String, defValue: ByteArray?): ByteArray? =
+        getBlobOrDefault(cursor.getColumnIndex(columnName), defValue)
+
     fun getBooleanOrDefault(columnName: String): Boolean =
         getBooleanOrDefault(cursor.getColumnIndex(columnName))
 
@@ -239,6 +252,24 @@ class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper
             false
         }
     }
+
+    @JvmName("getBooleanOrDefaultOrNull")
+    fun getBooleanOrDefault(
+        index: Int,
+        defValue: Boolean? = null
+    ): Boolean? {
+        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
+            getBoolean(index)
+        } else {
+            defValue
+        }
+    }
+
+    @JvmName("getBooleanOrDefaultOrNull")
+    fun getBooleanOrDefault(
+        columnName: String,
+        defValue: Boolean? = null,
+    ): Boolean? = getBooleanOrDefault(getColumnIndex(columnName), defValue)
 
     fun getBooleanOrDefault(columnName: String, defValue: Boolean): Boolean =
         getBooleanOrDefault(cursor.getColumnIndex(columnName), defValue)

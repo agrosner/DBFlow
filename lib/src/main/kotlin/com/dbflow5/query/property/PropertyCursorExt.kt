@@ -4,60 +4,116 @@ import com.dbflow5.database.FlowCursor
 
 
 @JvmName("getNullable")
-fun Property<String?>.infer(cursor: FlowCursor): String? =
-    cursor.getStringOrDefault(nameAlias.nameRaw())
+fun Property<String?>.infer(
+    cursor: FlowCursor,
+    defValue: String? = null
+): String? =
+    defValue?.let {
+        cursor.getStringOrDefault(
+            nameAlias.nameRaw(),
+            it
+        )
+    } ?: cursor.getStringOrDefault(nameAlias.nameRaw())
 
-fun Property<String>.infer(cursor: FlowCursor): String =
-    cursor.getStringOrDefault(nameAlias.nameRaw(), "")
-
-@JvmName("getNullable")
-fun Property<Boolean?>.infer(cursor: FlowCursor): Boolean =
-    cursor.getBooleanOrDefault(nameAlias.nameRaw())
-
-fun Property<Boolean>.infer(cursor: FlowCursor): Boolean =
-    cursor.getBooleanOrDefault(nameAlias.nameRaw())
-
-@JvmName("getNullable")
-fun Property<Int?>.infer(cursor: FlowCursor): Int? =
-    cursor.getIntOrDefault(nameAlias.nameRaw(), null)
-
-fun Property<Int>.infer(cursor: FlowCursor): Int =
-    cursor.getIntOrDefault(nameAlias.nameRaw())
+fun Property<String>.infer(
+    cursor: FlowCursor,
+    defValue: String = ""
+): String =
+    cursor.getStringOrDefault(nameAlias.nameRaw(), defValue)
 
 @JvmName("getNullable")
-fun Property<Double?>.infer(cursor: FlowCursor): Double? =
-    cursor.getDoubleOrDefault(nameAlias.nameRaw(), null)
+fun Property<Boolean?>.infer(
+    cursor: FlowCursor,
+    defValue: Boolean? = null
+): Boolean? =
+    cursor.getBooleanOrDefault(
+        nameAlias.nameRaw(),
+        defValue
+    )
 
-fun Property<Double>.infer(cursor: FlowCursor): Double =
-    cursor.getDoubleOrDefault(nameAlias.nameRaw())
-
-@JvmName("getNullable")
-fun Property<Float?>.infer(cursor: FlowCursor): Float? =
-    cursor.getFloatOrDefault(nameAlias.nameRaw(), null)
-
-fun Property<Float>.infer(cursor: FlowCursor): Float =
-    cursor.getFloatOrDefault(nameAlias.nameRaw())
-
-@JvmName("getNullable")
-fun Property<Long?>.infer(cursor: FlowCursor): Long? =
-    cursor.getLongOrDefault(nameAlias.nameRaw(), null)
-
-fun Property<Long>.infer(cursor: FlowCursor): Long =
-    cursor.getLongOrDefault(nameAlias.nameRaw())
+fun Property<Boolean>.infer(
+    cursor: FlowCursor,
+    defValue: Boolean = false
+): Boolean =
+    cursor.getBooleanOrDefault(nameAlias.nameRaw(), defValue)
 
 @JvmName("getNullable")
-fun Property<Short?>.infer(cursor: FlowCursor): Short? =
-    cursor.getShortOrDefault(nameAlias.nameRaw(), null)
+fun Property<Int?>.infer(
+    cursor: FlowCursor,
+    defValue: Int? = null
+): Int? =
+    cursor.getIntOrDefault(nameAlias.nameRaw(), defValue)
 
-fun Property<Short>.infer(cursor: FlowCursor): Short =
-    cursor.getShortOrDefault(nameAlias.nameRaw())
+fun Property<Int>.infer(
+    cursor: FlowCursor,
+    defValue: Int = 0
+): Int =
+    cursor.getIntOrDefault(nameAlias.nameRaw(), defValue)
 
 @JvmName("getNullable")
-fun Property<ByteArray?>.infer(cursor: FlowCursor): ByteArray? =
-    cursor.getBlobOrDefault(nameAlias.nameRaw())
+fun Property<Double?>.infer(
+    cursor: FlowCursor,
+    defValue: Double? = null
+): Double? =
+    cursor.getDoubleOrDefault(nameAlias.nameRaw(), defValue)
 
-fun Property<ByteArray>.infer(cursor: FlowCursor): ByteArray =
-    cursor.getBlobOrDefault(nameAlias.nameRaw(), byteArrayOf())
+fun Property<Double>.infer(
+    cursor: FlowCursor,
+    defValue: Double = 0.0
+): Double =
+    cursor.getDoubleOrDefault(nameAlias.nameRaw(), defValue)
+
+@JvmName("getNullable")
+fun Property<Float?>.infer(
+    cursor: FlowCursor,
+    defValue: Float? = null
+): Float? =
+    cursor.getFloatOrDefault(nameAlias.nameRaw(), defValue)
+
+fun Property<Float>.infer(
+    cursor: FlowCursor,
+    defValue: Float = 0f
+): Float =
+    cursor.getFloatOrDefault(nameAlias.nameRaw(), defValue)
+
+@JvmName("getNullable")
+fun Property<Long?>.infer(
+    cursor: FlowCursor,
+    defValue: Long? = null
+): Long? =
+    cursor.getLongOrDefault(nameAlias.nameRaw(), defValue)
+
+fun Property<Long>.infer(
+    cursor: FlowCursor,
+    defValue: Long = 0L
+): Long =
+    cursor.getLongOrDefault(nameAlias.nameRaw(), defValue)
+
+@JvmName("getNullable")
+fun Property<Short?>.infer(
+    cursor: FlowCursor,
+    defValue: Short? = null
+): Short? =
+    cursor.getShortOrDefault(nameAlias.nameRaw(), defValue)
+
+fun Property<Short>.infer(
+    cursor: FlowCursor,
+    defValue: Short = 0
+): Short =
+    cursor.getShortOrDefault(nameAlias.nameRaw(), defValue)
+
+@JvmName("getNullable")
+fun Property<ByteArray?>.infer(
+    cursor: FlowCursor,
+    defValue: ByteArray? = null
+): ByteArray? =
+    cursor.getBlobOrDefault(nameAlias.nameRaw(), defValue)
+
+fun Property<ByteArray>.infer(
+    cursor: FlowCursor,
+    defValue: ByteArray = byteArrayOf()
+): ByteArray =
+    cursor.getBlobOrDefault(nameAlias.nameRaw(), defValue)
 
 @Suppress("unused")
 inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data, Model>.infer(

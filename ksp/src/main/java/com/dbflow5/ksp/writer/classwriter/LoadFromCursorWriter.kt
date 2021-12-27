@@ -2,9 +2,14 @@ package com.dbflow5.ksp.writer.classwriter
 
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
-import com.dbflow5.ksp.model.*
+import com.dbflow5.ksp.model.ClassModel
+import com.dbflow5.ksp.model.FieldModel
+import com.dbflow5.ksp.model.ReferenceHolderModel
+import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
+import com.dbflow5.ksp.model.hasTypeConverter
+import com.dbflow5.ksp.model.memberSeparator
 import com.dbflow5.ksp.writer.TypeCreator
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
@@ -101,7 +106,7 @@ class LoadFromCursorWriter(
                     addTypeConverter()
                 }
                 referenced.isEnum -> addEnumConstructor(referenced)
-                else -> addCode("cursor)")
+                else -> addPlainFieldWithDefaults(referenced)
             }
             addCode(")\n", model.memberSeparator)
         }
@@ -131,9 +136,19 @@ class LoadFromCursorWriter(
                 addTypeConverter()
             }
             field.isEnum -> addEnumConstructor(field)
-            else -> addCode("cursor)")
+            else -> addPlainFieldWithDefaults(field)
         }
         addCode("%L\n", model.memberSeparator)
+    }
+
+    private fun FunSpec.Builder.addPlainFieldWithDefaults(field: FieldModel) {
+        addCode("cursor")
+        field.properties?.defaultValue?.let { value ->
+            if (value.isNotBlank()) {
+                addCode(",$value")
+            }
+        }
+        addCode(")")
     }
 
     private fun FunSpec.Builder.addTypeConverter() {
