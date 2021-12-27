@@ -337,8 +337,8 @@ class ClassWriter(
 
                     fields.forEach { field ->
                         addCode(
-                            "%L.%L = %L.%L.%M(wrapper)%L.%M()%L\n",
-                            if (!model.hasPrimaryConstructor) "this" else "",
+                            "%L%L = %L.%L.%M(wrapper)%L.%M()%L\n",
+                            if (!model.hasPrimaryConstructor) "this." else "",
                             field.accessName(),
                             "model",
                             field.accessName(true),

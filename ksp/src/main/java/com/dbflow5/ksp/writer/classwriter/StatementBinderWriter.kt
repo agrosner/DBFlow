@@ -54,7 +54,7 @@ class StatementBinderWriter(
         modelName: String,
         model: ReferenceHolderModel,
         index: Int
-    ): FunSpec.Builder {
+    ) = apply {
         // foreign key has nesting logic
         this.beginControlFlow(
             "%L.%L.let { m -> ",
@@ -72,9 +72,11 @@ class StatementBinderWriter(
                     modelName = "m"
                 )
             }
-        this.nextControlFlow("?: run")
-        this.addStatement("statement.bindNull(%L)", index)
-        return this.endControlFlow()
+        if (model.name.nullable) {
+            this.nextControlFlow("?: run")
+            this.addStatement("statement.bindNull(%L)", index)
+        }
+        this.endControlFlow()
     }
 
     private fun FunSpec.Builder.writeSingleModel(
