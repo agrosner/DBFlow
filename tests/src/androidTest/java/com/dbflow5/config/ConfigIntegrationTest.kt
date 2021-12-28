@@ -24,7 +24,6 @@ class ConfigIntegrationTest : BaseUnitTest() {
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
     }
 
-
     @Test
     fun test_flowConfig() {
         val config = flowConfig(context) {

@@ -79,7 +79,6 @@ protected constructor(table: Class<TModel>) : BaseQueriable<TModel>(table), Mode
         return getSingleQueryModelLoader(queryModelClass).load(databaseWrapper, query)
     }
 
-
     protected fun <T : Any> getListQueryModelLoader(table: Class<T>): ListModelLoader<T> =
         table.retrievalAdapter.nonCacheableListModelLoader
 

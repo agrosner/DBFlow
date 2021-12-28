@@ -26,7 +26,8 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     private var _singleModelLoader: SingleModelLoader<T>? = null
 
     var singleModelLoader: SingleModelLoader<T>
-        get() = _singleModelLoader ?: createSingleModelLoader().also { _singleModelLoader = it }
+        get() = _singleModelLoader ?: (tableConfig?.singleModelLoader
+            ?: createSingleModelLoader()).also { _singleModelLoader = it }
         set(value) {
             this._singleModelLoader = value
         }
@@ -42,22 +43,16 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     private var _listModelLoader: ListModelLoader<T>? = null
 
     var listModelLoader: ListModelLoader<T>
-        get() = _listModelLoader ?: createListModelLoader().also { _listModelLoader = it }
+        get() = _listModelLoader ?: (tableConfig?.listModelLoader
+            ?: createListModelLoader()).also { _listModelLoader = it }
         set(value) {
             this._listModelLoader = value
         }
 
     protected val tableConfig: TableConfig<T>? by lazy {
-        val databaseConfig = FlowManager.getConfig()
+        FlowManager.getConfig()
             .getConfigForDatabase(databaseDefinition.associatedDatabaseClassFile)
-        if (databaseConfig != null) {
-            databaseConfig.getTableConfigForTable(table)?.apply {
-                singleModelLoader?.let { _singleModelLoader = it }
-                listModelLoader?.let { _listModelLoader = it }
-            }
-        } else {
-            null
-        }
+            ?.getTableConfigForTable(table)
     }
 
     /**
