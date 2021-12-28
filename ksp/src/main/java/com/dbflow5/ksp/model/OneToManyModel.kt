@@ -49,7 +49,8 @@ data class OneToManyModel(
                 referencedTableTypeName = classType,
             ),
             enclosingClassType = generatedName.className,
-            type = ReferenceHolderModel.Type.ForeignKey,
+            // we'll flatten this onto the object directly.
+            type = ReferenceHolderModel.Type.Computed,
             isInlineClass = false,
             ksClassType = ksType,
             isVal = true,

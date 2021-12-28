@@ -54,8 +54,10 @@ interface ModelQueriable<T : Any> : Queriable {
      * @param queryModelClass The query model class to use.
      * @return A list of custom models that are not tied to a table.
      */
-    fun <TQuery : Any> queryCustomList(queryModelClass: Class<TQuery>,
-                                       databaseWrapper: DatabaseWrapper): MutableList<TQuery>
+    fun <TQuery : Any> queryCustomList(
+        queryModelClass: Class<TQuery>,
+        databaseWrapper: DatabaseWrapper
+    ): MutableList<TQuery>
 
     /**
      * Returns a single [TQueryModel] from this query.
@@ -63,14 +65,18 @@ interface ModelQueriable<T : Any> : Queriable {
      * @param queryModelClass The class to use.
      * @return A single model from the query.
      */
-    fun <TQueryModel : Any> queryCustomSingle(queryModelClass: Class<TQueryModel>,
-                                              databaseWrapper: DatabaseWrapper): TQueryModel?
+    fun <TQueryModel : Any> queryCustomSingle(
+        queryModelClass: Class<TQueryModel>,
+        databaseWrapper: DatabaseWrapper
+    ): TQueryModel?
 
     /**
      * Begins an async DB transaction using the specified TransactionManager.
      */
-    fun <R : Any?> async(databaseWrapper: DBFlowDatabase,
-                         modelQueriableFn: ModelQueriable<T>.(DatabaseWrapper) -> R) =
+    fun <R : Any?> async(
+        databaseWrapper: DBFlowDatabase,
+        modelQueriableFn: ModelQueriable<T>.(DatabaseWrapper) -> R
+    ) =
         databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
 
     /**
@@ -94,12 +100,12 @@ interface ModelQueriable<T : Any> : Queriable {
 internal inline val <T : Any> ModelQueriable<T>.enclosedQuery
     get() = "(${query.trim { it <= ' ' }})"
 
-inline fun <reified T : Any> ModelQueriable<T>.queryCustomList(db: DatabaseWrapper) =
+inline fun <reified T : Any> ModelQueriable<*>.queryCustomList(db: DatabaseWrapper) =
     queryCustomList(T::class.java, db)
 
-inline fun <reified T : Any> ModelQueriable<T>.queryCustomSingle(db: DatabaseWrapper) =
+inline fun <reified T : Any> ModelQueriable<*>.queryCustomSingle(db: DatabaseWrapper) =
     queryCustomSingle(T::class.java, db)
 
-inline fun <reified T : Any> ModelQueriable<T>.requireCustomSingle(db: DatabaseWrapper) =
+inline fun <reified T : Any> ModelQueriable<*>.requireCustomSingle(db: DatabaseWrapper) =
     queryCustomSingle(T::class.java, db)
         ?: throw SQLiteException("QueryModel result not found for $this")

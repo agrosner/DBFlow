@@ -16,6 +16,7 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.TypeName
 
 /**
  * Description:
@@ -39,49 +40,94 @@ class LoadFromCursorWriter(
                 val constructorFields = model.fields
                     .filter { model.hasPrimaryConstructor || !it.isVal }
                 constructorFields
-                    .forEach { field ->
-                        when (field) {
-                            is ReferenceHolderModel -> {
-                                when (field.type) {
-                                    ReferenceHolderModel.Type.ForeignKey -> {
-                                        if (referencesCache.isTable(field)) {
-                                            addForeignKeyLoadStatement(field)
-                                        } else {
-                                            addSingleField(field)
-                                        }
-                                    }
-                                    ReferenceHolderModel.Type.Computed -> {
-                                        // todo
-                                    }
-                                    ReferenceHolderModel.Type.Reference -> {
-                                        addReferenceLoadStatement(field, model)
-                                    }
-                                }
-                            }
-                            is SingleFieldModel -> addSingleField(field)
-                        }
-
-                    }
-                if (model.hasPrimaryConstructor) {
-                    addCode("return %T(\n", model.classType)
-                } else {
-                    beginControlFlow("return %T().apply", model.classType)
-                }
-                // all local vals get placed here.
-                constructorFields.forEach { field ->
-                    addCode("\t")
-                    if (!model.hasPrimaryConstructor) {
-                        addCode("this.")
-                    }
-                    addStatement("%1N = %1N%2L", field.name.shortName, model.memberSeparator)
-                }
-                if (model.hasPrimaryConstructor) {
-                    addCode(")")
-                } else {
-                    endControlFlow()
-                }
+                    .forEach { field -> loopField(field, model) }
+                addCode("return ")
+                constructModel(
+                    model.classType,
+                    model.hasPrimaryConstructor,
+                    model.memberSeparator,
+                    constructorFields
+                )
             }
             .build()
+
+    private fun FunSpec.Builder.constructModel(
+        classType: TypeName,
+        hasPrimaryConstructor: Boolean,
+        memberSeparator: String,
+        constructorFields: List<FieldModel>
+    ) {
+        if (hasPrimaryConstructor) {
+            addCode("%T(\n", classType)
+        } else {
+            beginControlFlow("%T().apply", classType)
+        }
+        // all local vals get placed here.
+        constructorFields.forEach { field ->
+            addCode("\t")
+            if (!hasPrimaryConstructor) {
+                addCode("this.")
+            }
+            addStatement("%1N = %1N%2L", field.name.shortName, memberSeparator)
+        }
+        if (hasPrimaryConstructor) {
+            addCode(")")
+        } else {
+            endControlFlow()
+        }
+    }
+
+    private fun FunSpec.Builder.loopField(
+        field: FieldModel,
+        model: ClassModel
+    ) {
+        when (field) {
+            is ReferenceHolderModel -> {
+                when (field.type) {
+                    ReferenceHolderModel.Type.ForeignKey -> {
+                        if (referencesCache.isTable(field)) {
+                            addForeignKeyLoadStatement(field)
+                        } else {
+                            addSingleField(field)
+                        }
+                    }
+                    ReferenceHolderModel.Type.Computed -> {
+                        addComputedLoadStatement(field, model)
+                    }
+                    ReferenceHolderModel.Type.Reference -> {
+                        addReferenceLoadStatement(field, model)
+                    }
+                }
+            }
+            is SingleFieldModel -> addSingleField(field)
+        }
+    }
+
+    private fun FunSpec.Builder.addComputedLoadStatement(
+        field: ReferenceHolderModel,
+        model: ClassModel
+    ) {
+        val references = field.references(referencesCache)
+        references.zip(
+            field.references(referencesCache, field.name)
+        ).forEachIndexed { index, (plain, referenced) ->
+            loopField(
+                plain,
+                model,
+            )
+        }
+        addCode(
+            "val %N = ",
+            field.name.shortName,
+        )
+        constructModel(
+            classType = field.nonNullClassType,
+            hasPrimaryConstructor = true,
+            memberSeparator = ",",
+            constructorFields = references,
+        )
+        addStatement("")
+    }
 
     private fun FunSpec.Builder.addReferenceLoadStatement(
         field: ReferenceHolderModel,
