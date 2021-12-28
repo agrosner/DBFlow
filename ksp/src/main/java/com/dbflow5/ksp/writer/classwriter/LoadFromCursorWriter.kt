@@ -15,6 +15,7 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.ParameterizedTypeName
 
 /**
  * Description:
@@ -26,6 +27,7 @@ class LoadFromCursorWriter(
 
     override fun create(model: ClassModel): FunSpec =
         FunSpec.builder("loadFromCursor")
+            .returns(model.classType)
             .apply {
                 addModifiers(KModifier.OVERRIDE)
                 addParameter(
@@ -34,33 +36,45 @@ class LoadFromCursorWriter(
                 addParameter(
                     ParameterSpec("wrapper", ClassNames.DatabaseWrapper)
                 )
-                if (model.hasPrimaryConstructor) {
-                    addCode("return %T(\n", model.classType)
-                } else {
-                    beginControlFlow("return %T().apply", model.classType)
-                }
-                model.fields
+                val constructorFields = model.fields
                     .filter { model.hasPrimaryConstructor || !it.isVal }
+                constructorFields
                     .forEach { field ->
                         when (field) {
                             is ReferenceHolderModel -> {
                                 when (field.type) {
                                     ReferenceHolderModel.Type.ForeignKey -> {
                                         if (referencesCache.isTable(field)) {
-                                            addForeignKeyLoadStatement(field, model)
+                                            addForeignKeyLoadStatement(field)
                                         } else {
-                                            addSingleField(field, model)
+                                            addSingleField(field)
                                         }
                                     }
                                     ReferenceHolderModel.Type.Computed -> {
                                         // todo
                                     }
+                                    ReferenceHolderModel.Type.Reference -> {
+                                        addReferenceLoadStatement(field, model)
+                                    }
                                 }
                             }
-                            is SingleFieldModel -> addSingleField(field, model)
+                            is SingleFieldModel -> addSingleField(field)
                         }
 
                     }
+                if (model.hasPrimaryConstructor) {
+                    addCode("return %T(\n", model.classType)
+                } else {
+                    beginControlFlow("return %T().apply", model.classType)
+                }
+                // all local vals get placed here.
+                constructorFields.forEach { field ->
+                    addCode("\t")
+                    if (!model.hasPrimaryConstructor) {
+                        addCode("this.")
+                    }
+                    addStatement("%1N = %1N%2L", field.name.shortName, model.memberSeparator)
+                }
                 if (model.hasPrimaryConstructor) {
                     addCode(")")
                 } else {
@@ -69,12 +83,52 @@ class LoadFromCursorWriter(
             }
             .build()
 
-    private fun FunSpec.Builder.addForeignKeyLoadStatement(
+    private fun FunSpec.Builder.addReferenceLoadStatement(
         field: ReferenceHolderModel,
         model: ClassModel
     ) {
-        addCode(
-            "\t%N = ((%M %L %T::class) %L\n",
+        val childTableType = (field.nonNullClassType as ParameterizedTypeName).typeArguments[0]
+            as ClassName
+        addStatement(
+            "val %N = ((%M %L %T::class) %L ",
+            field.name.shortName,
+            MemberNames.select,
+            MemberNames.from,
+            childTableType, // hack since list
+            MemberNames.where,
+        )
+        field.references(referencesCache).zip(
+            field.references(referencesCache, field.name)
+        ).forEachIndexed { index, (plain, referenced) ->
+            addCode("\t\t")
+            if (index > 0) {
+                addCode("%L ", "and")
+            }
+            addStatement(
+                "(%T.%L %L %L)",
+                ClassName(
+                    childTableType.packageName,
+                    "${childTableType.simpleName}_Table",
+                ),
+                plain.propertyName,
+                MemberNames.eq,
+                (model.fields[0] as ReferenceHolderModel)
+                    .references(referencesCache, model.fields[0].name)[0]
+                    .accessName(), // dirty hack to grab referenced.
+            )
+        }
+        addStatement(
+            "\t).%L(%N)",
+            MemberNames.queryList,
+            "wrapper"
+        )
+    }
+
+    private fun FunSpec.Builder.addForeignKeyLoadStatement(
+        field: ReferenceHolderModel
+    ) {
+        addStatement(
+            "val %N = ((%M %L %T::class) %L",
             field.name.shortName,
             MemberNames.select,
             MemberNames.from,
@@ -88,12 +142,12 @@ class LoadFromCursorWriter(
             if (index > 0) {
                 addCode("%L ", "and")
             }
-            val className = field.nonNullClassType as ClassName
+            val className = field.name
             addCode(
                 "(%T.%L %L %L.%N.%M(",
                 ClassName(
                     className.packageName,
-                    className.simpleName + "_Table",
+                    "${field.ksClassType.declaration.simpleName.getShortName()}_Table",
                 ),
                 plain.propertyName,
                 MemberNames.eq,
@@ -108,24 +162,22 @@ class LoadFromCursorWriter(
                 referenced.isEnum -> addEnumConstructor(referenced)
                 else -> addPlainFieldWithDefaults(referenced)
             }
-            addCode(")\n", model.memberSeparator)
+            addStatement(")")
         }
-        addCode(
-            "\t).%L(%N)%L\n",
+        addStatement(
+            "\t).%L(%N)",
             if (field.classType.isNullable)
                 MemberNames.querySingle
             else MemberNames.requireSingle,
             "wrapper",
-            model.memberSeparator,
         )
     }
 
     private fun FunSpec.Builder.addSingleField(
-        field: FieldModel,
-        model: ClassModel
+        field: FieldModel
     ) {
         addCode(
-            "\t%N = %L.%N.%M(",
+            "val %N = %L.%N.%M(",
             field.name.shortName,
             "Companion",
             field.propertyName,
@@ -138,7 +190,7 @@ class LoadFromCursorWriter(
             field.isEnum -> addEnumConstructor(field)
             else -> addPlainFieldWithDefaults(field)
         }
-        addCode("%L\n", model.memberSeparator)
+        addStatement("")
     }
 
     private fun FunSpec.Builder.addPlainFieldWithDefaults(field: FieldModel) {

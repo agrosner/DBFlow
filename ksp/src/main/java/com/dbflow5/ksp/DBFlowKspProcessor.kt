@@ -6,6 +6,7 @@ import com.dbflow5.ksp.model.DatabaseModel
 import com.dbflow5.ksp.model.ManyToManyModel
 import com.dbflow5.ksp.model.MigrationModel
 import com.dbflow5.ksp.model.NameModel
+import com.dbflow5.ksp.model.OneToManyModel
 import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
@@ -17,6 +18,7 @@ import com.dbflow5.ksp.writer.DatabaseHolderWriter
 import com.dbflow5.ksp.writer.DatabaseWriter
 import com.dbflow5.ksp.writer.InlineTypeConverterWriter
 import com.dbflow5.ksp.writer.ManyToManyClassWriter
+import com.dbflow5.ksp.writer.OneToManyClassWriter
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
@@ -37,6 +39,7 @@ class DBFlowKspProcessor(
     private val environment: SymbolProcessorEnvironment,
     private val typeConverterWriter: InlineTypeConverterWriter,
     private val manyClassWriter: ManyToManyClassWriter,
+    private val oneToManyClassWriter: OneToManyClassWriter,
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
@@ -59,11 +62,15 @@ class DBFlowKspProcessor(
                 }
             }.flatten()
             val manyToManyModels = objects.filterIsInstance<ManyToManyModel>()
+            val oneToManyModels = objects.filterIsInstance<OneToManyModel>()
             val classes = objects.filterIsInstance<ClassModel>()
                 // append all expected classes
                 .let {
                     it.toMutableList()
-                        .apply { addAll(manyToManyModels.map { model -> model.classModel }) }
+                        .apply {
+                            addAll(manyToManyModels.map { model -> model.classModel })
+                            addAll(oneToManyModels.map { model -> model.classModel })
+                        }
                 }
             val migrations = objects.filterIsInstance<MigrationModel>()
 
@@ -117,6 +124,7 @@ class DBFlowKspProcessor(
                 databases.map(databaseWriter::create),
                 listOf(holderModel).map(databaseHolderWriter::create),
                 manyToManyModels.map(manyClassWriter::create),
+                oneToManyModels.map(oneToManyClassWriter::create),
             )
                 .flatten()
                 .forEach {

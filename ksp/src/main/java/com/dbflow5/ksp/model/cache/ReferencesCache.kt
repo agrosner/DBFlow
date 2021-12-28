@@ -15,6 +15,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 private sealed interface ReferenceType {
     data class AllFromClass(val classType: TypeName) : ReferenceType
     data class SpecificReferences(val hash: Int) : ReferenceType
+    data class OneToManyReference(val classType: TypeName) : ReferenceType
 }
 
 /**
@@ -50,6 +51,19 @@ class ReferencesCache(
                         )
                         is SingleFieldModel -> listOf(it)
                     }
+                }?.flatten() ?: listOf()
+        }
+    }
+
+    fun resolveOneToManyReferences(classType: TypeName): List<SingleFieldModel> {
+        val nonNullVersion = classType.copy(false)
+        return referenceMap.getOrPut(ReferenceType.OneToManyReference(nonNullVersion)) {
+            allTables.firstOrNull { it.classType == nonNullVersion }
+                ?.fields?.filterIsInstance<ReferenceHolderModel>()?.map {
+                    it.references(
+                        this,
+                        nameToNest = it.name,
+                    )
                 }?.flatten() ?: listOf()
         }
     }

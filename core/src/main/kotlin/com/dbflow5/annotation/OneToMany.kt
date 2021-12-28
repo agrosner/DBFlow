@@ -9,6 +9,7 @@ package com.dbflow5.annotation
         AnnotationTarget.PROPERTY_GETTER,
         AnnotationTarget.PROPERTY_SETTER)
 @Retention(AnnotationRetention.SOURCE)
+@Deprecated("Use The new OneToManyRelation annotation")
 annotation class OneToMany(
         /**
          * @return The methods you wish to call it from. By default it's loaded out of the DB.

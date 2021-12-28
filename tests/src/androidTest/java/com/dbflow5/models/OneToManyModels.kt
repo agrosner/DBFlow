@@ -2,8 +2,10 @@ package com.dbflow5.models
 
 import com.dbflow5.TestDatabase
 import com.dbflow5.annotation.ColumnIgnore
+import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.OneToMany
 import com.dbflow5.annotation.OneToManyMethod
+import com.dbflow5.annotation.OneToManyRelation
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.database.DatabaseWrapper
@@ -11,6 +13,9 @@ import com.dbflow5.query.select
 import com.dbflow5.structure.oneToMany
 
 @Table(database = TestDatabase::class)
+@OneToManyRelation(
+    childTable = OneToManyBaseModel::class,
+)
 class OneToManyModel(@PrimaryKey var name: String? = null) {
 
     @ColumnIgnore
@@ -57,4 +62,7 @@ class OneToManyModel(@PrimaryKey var name: String? = null) {
 }
 
 @Table(database = TestDatabase::class)
-class OneToManyBaseModel(@PrimaryKey var id: Int = 0)
+class OneToManyBaseModel(
+    @PrimaryKey var id: Int = 0,
+    @ForeignKey(tableClass = OneToManyModel::class) var parentName: String? = null
+)

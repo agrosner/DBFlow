@@ -98,6 +98,7 @@ object MemberNames {
     const val where = "where"
     const val requireSingle = "requireSingle"
     const val querySingle = "querySingle"
+    const val queryList = "queryList"
     const val eq = "eq"
 
     val save = MemberName(PackageNames.Structure, "save")

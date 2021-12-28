@@ -184,7 +184,12 @@ data class ReferenceHolderModel(
         /**
          * These are either ColumnMap or inline classes.
          */
-        Computed
+        Computed,
+
+        /**
+         * These are specifically used in [OneToManyReference] definitions.
+         */
+        Reference,
     }
 
     fun references(
@@ -192,6 +197,16 @@ data class ReferenceHolderModel(
         nameToNest: NameModel? = null,
     ): List<SingleFieldModel> {
         when (type) {
+            Type.Reference -> {
+                // we currently only create these virtually (i.e. no public API)
+                // so we can safely assume they will be of list type.
+                val tableTypeName = referenceHolderProperties.referencedTableTypeName
+
+                // for now only grab all references.
+                return referencesCache.resolveOneToManyReferences(
+                    tableTypeName
+                ).map(nestNameReference(nameToNest))
+            }
             Type.ForeignKey -> {
                 // treat field of not table type as a single model type.
                 if (!referencesCache.isTable(this)) {
@@ -212,22 +227,7 @@ data class ReferenceHolderModel(
                             tableTypeName,
                         )
                     }
-                }.map { reference ->
-                    if (nameToNest != null) {
-                        reference.copy(
-                            names = reference.names.toMutableList().apply {
-                                add(0, nameToNest)
-                            },
-                            // when referencing fields, we don't need to know it is autoincrement
-                            // or rowId and assumes the reference is primaryauto.
-                            fieldType = (reference.fieldType as FieldModel.FieldType.PrimaryAuto)
-                                .copy(
-                                    isAutoIncrement = false,
-                                    isRowId = false,
-                                )
-                        )
-                    } else reference
-                }
+                }.map(nestNameReference(nameToNest))
             }
             Type.Computed -> {
                 return when (referenceHolderProperties.referencesType) {
@@ -243,6 +243,25 @@ data class ReferenceHolderModel(
                 }
             }
         }
+    }
+
+    private fun nestNameReference(nameToNest: NameModel?) = { reference: SingleFieldModel ->
+        if (nameToNest != null) {
+            reference.copy(
+                names = reference.names.toMutableList().apply {
+                    add(0, nameToNest)
+                },
+                // when referencing fields, we don't need to know it is autoincrement
+                // or rowId and assumes the reference is primaryauto.
+                fieldType = when (reference.fieldType) {
+                    is FieldModel.FieldType.PrimaryAuto -> reference.fieldType.copy(
+                        isAutoIncrement = false,
+                        isRowId = false,
+                    )
+                    FieldModel.FieldType.Normal -> reference.fieldType
+                }
+            )
+        } else reference
     }
 }
 

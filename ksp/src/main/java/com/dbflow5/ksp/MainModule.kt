@@ -14,6 +14,7 @@ import com.dbflow5.ksp.parser.KSPropertyDeclarationParser
 import com.dbflow5.ksp.parser.ManyToManyPropertyParser
 import com.dbflow5.ksp.parser.MigrationParser
 import com.dbflow5.ksp.parser.NotNullPropertyParser
+import com.dbflow5.ksp.parser.OneToManyPropertyParser
 import com.dbflow5.ksp.parser.QueryPropertyParser
 import com.dbflow5.ksp.parser.ReferenceHolderProperyParser
 import com.dbflow5.ksp.parser.TablePropertyParser
@@ -27,6 +28,7 @@ import com.dbflow5.ksp.writer.DatabaseHolderWriter
 import com.dbflow5.ksp.writer.DatabaseWriter
 import com.dbflow5.ksp.writer.InlineTypeConverterWriter
 import com.dbflow5.ksp.writer.ManyToManyClassWriter
+import com.dbflow5.ksp.writer.OneToManyClassWriter
 import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
 import com.dbflow5.ksp.writer.classwriter.CreationQueryWriter
 import com.dbflow5.ksp.writer.classwriter.FieldPropertyWriter
@@ -57,6 +59,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
             environment,
             get(),
             get(),
+            get(),
         )
     }
     single { TypeConverterPropertyParser() }
@@ -66,10 +69,12 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { FieldPropertyParser() }
     single { ReferenceHolderProperyParser(get()) }
     single { ManyToManyPropertyParser() }
+    single { OneToManyPropertyParser() }
     single { ForeignKeyReferencePropertyParser() }
     single { FieldSanitizer(get(), get()) }
     single {
         KSClassDeclarationParser(
+            get(),
             get(),
             get(),
             get(),
@@ -97,6 +102,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { TypeConverterFieldWriter() }
     single { InlineTypeConverterWriter() }
     single { ManyToManyClassWriter() }
+    single { OneToManyClassWriter() }
     single { CreationQueryWriter(get(), get(), get()) }
     single { IndexPropertyWriter(get()) }
 

@@ -11,6 +11,7 @@ import com.dbflow5.ksp.model.properties.IndexProperties
 import com.dbflow5.ksp.model.properties.ManyToManyProperties
 import com.dbflow5.ksp.model.properties.MigrationProperties
 import com.dbflow5.ksp.model.properties.NotNullProperties
+import com.dbflow5.ksp.model.properties.OneToManyProperties
 import com.dbflow5.ksp.model.properties.QueryProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
 import com.dbflow5.ksp.model.properties.ReferenceProperties
@@ -153,6 +154,18 @@ class ManyToManyPropertyParser : Parser<KSAnnotation, ManyToManyProperties> {
             generateAutoIncrement = args.arg("generateAutoIncrement"),
             saveForeignKeyModels = args.arg("saveForeignKeyModels"),
             name = args.arg("generatedTableClassName"),
+        )
+    }
+}
+
+class OneToManyPropertyParser : Parser<KSAnnotation, OneToManyProperties> {
+    override fun parse(input: KSAnnotation): OneToManyProperties {
+        val args = input.arguments.mapProperties()
+        return OneToManyProperties(
+            childTableType = args.className("childTable"),
+            name = args.arg("generatedClassName"),
+            parentFieldName = args.arg("parentFieldName"),
+            childListFieldName = args.arg("childListFieldName"),
         )
     }
 }

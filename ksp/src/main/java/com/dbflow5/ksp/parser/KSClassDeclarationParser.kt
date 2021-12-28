@@ -6,6 +6,7 @@ import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
+import com.dbflow5.annotation.OneToManyRelation
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
@@ -17,6 +18,7 @@ import com.dbflow5.ksp.model.ManyToManyModel
 import com.dbflow5.ksp.model.MigrationModel
 import com.dbflow5.ksp.model.NameModel
 import com.dbflow5.ksp.model.ObjectModel
+import com.dbflow5.ksp.model.OneToManyModel
 import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.UniqueGroupModel
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
@@ -39,6 +41,7 @@ class KSClassDeclarationParser(
     private val viewPropertyParser: ViewPropertyParser,
     private val typeConverterPropertyParser: TypeConverterPropertyParser,
     private val manyToManyPropertyParser: ManyToManyPropertyParser,
+    private val oneToManyPropertyParser: OneToManyPropertyParser,
     private val fts4Parser: Fts4Parser,
     private val migrationParser: MigrationParser,
 ) : Parser<KSClassDeclaration, List<ObjectModel>> {
@@ -87,15 +90,23 @@ class KSClassDeclarationParser(
                     )
                 }
                 typeNameOf<ManyToMany>() -> {
-                    val tableAnnotation = input.annotations.first {
-                        it.annotationType.toTypeName() == typeNameOf<Table>()
-                    }
-                    val props = tablePropertyParser.parse(tableAnnotation)
+                    val tableProperties = tablePropertyParser.parse(input.first<Table>())
                     ManyToManyModel(
                         name = name,
                         properties = manyToManyPropertyParser.parse(annotation),
                         classType = classType,
-                        databaseTypeName = props.database,
+                        databaseTypeName = tableProperties.database,
+                        ksType = input.asStarProjectedType(),
+                        originatingFile = originatingFile,
+                    )
+                }
+                typeNameOf<OneToManyRelation>() -> {
+                    val tableProperties = tablePropertyParser.parse(input.first<Table>())
+                    OneToManyModel(
+                        name = name,
+                        properties = oneToManyPropertyParser.parse(annotation),
+                        classType = classType,
+                        databaseTypeName = tableProperties.database,
                         ksType = input.asStarProjectedType(),
                         originatingFile = originatingFile,
                     )
@@ -110,7 +121,7 @@ class KSClassDeclarationParser(
                 }
                 else -> {
                     val fields = fieldSanitizer.parse(input = input)
-                    when(annotation.annotationType.toTypeName()) {
+                    when (annotation.annotationType.toTypeName()) {
                         typeNameOf<Table>() -> {
                             val fts3 = input.annotations.firstOrNull {
                                 it.annotationType.toTypeName() == typeNameOf<Fts3>()
