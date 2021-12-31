@@ -57,6 +57,16 @@ class CreationQueryWriter(
                                     }
                                     append(")")
                                 })
+                            } else if (
+                                clsModel.type is ClassModel.ClassType.View
+                            ) {
+                                addStatement(
+                                    "return %T.%L.query",
+                                    clsModel.classType,
+                                    clsModel.type.properties.name.shortName + if (
+                                        !clsModel.type.properties.isProperty
+                                    ) "()" else "",
+                                )
                             } else {
                                 addCode("return %S", buildString {
                                     append("CREATE${if (isTemporary) " TEMP" else ""} TABLE IF NOT EXISTS ${clsModel.dbName}(")

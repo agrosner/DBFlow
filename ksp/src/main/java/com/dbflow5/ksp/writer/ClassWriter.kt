@@ -58,6 +58,7 @@ class ClassWriter(
     private val creationQueryWriter: CreationQueryWriter,
     private val indexPropertyWriter: IndexPropertyWriter,
 ) : TypeCreator<ClassModel, FileSpec> {
+
     override fun create(model: ClassModel): FileSpec {
         val tableParam = ParameterPropertySpec(
             name = "table",
@@ -96,7 +97,7 @@ class ClassWriter(
         }
         val superClass = when (model.type) {
             is ClassModel.ClassType.Normal -> ClassNames.modelAdapter(model.classType)
-            ClassModel.ClassType.View -> ClassNames.modelViewAdapter(model.classType)
+            is ClassModel.ClassType.View -> ClassNames.modelViewAdapter(model.classType)
             ClassModel.ClassType.Query -> ClassNames.retrievalAdapter(model.classType)
         }
 

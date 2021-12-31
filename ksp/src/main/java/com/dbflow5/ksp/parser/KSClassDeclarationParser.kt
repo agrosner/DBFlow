@@ -6,6 +6,7 @@ import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
+import com.dbflow5.annotation.ModelViewQuery
 import com.dbflow5.annotation.OneToManyRelation
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
@@ -21,10 +22,14 @@ import com.dbflow5.ksp.model.ObjectModel
 import com.dbflow5.ksp.model.OneToManyModel
 import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.UniqueGroupModel
+import com.dbflow5.ksp.model.properties.ModelViewQueryProperties
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
 import com.google.devtools.ksp.getConstructors
+import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.isInternal
+import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
@@ -45,6 +50,15 @@ class KSClassDeclarationParser(
     private val fts4Parser: Fts4Parser,
     private val migrationParser: MigrationParser,
 ) : Parser<KSClassDeclaration, List<ObjectModel>> {
+
+    private lateinit var resolver: Resolver
+
+    /**
+     * This needs injecting at execution time.
+     */
+    fun applyResolver(resolver: Resolver) {
+        this.resolver = resolver
+    }
 
     override fun parse(input: KSClassDeclaration): List<ObjectModel> {
         val classType = input.asStarProjectedType().toClassName()
@@ -171,10 +185,38 @@ class KSClassDeclarationParser(
                             )
                         }
                         typeNameOf<ModelView>() -> {
+                            val companion = resolver.getClassDeclarationByName(
+                                name = name
+                                    .copy(
+                                        shortName = name.shortName + ".Companion"
+                                    ).ksName
+                            )
+                                ?: input // java may have the field.
+                            val modelViewQuery = companion.getAllProperties()
+                                .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
+                                ?: companion.getAllFunctions()
+                                    .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
+                                ?: companion.getDeclaredFunctions()
+                                    .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
+                                ?: throw IllegalStateException(
+                                    "Could not find ModelViewQuery in definition " +
+                                        "${
+                                            companion.getAllFunctions().toList()
+                                        }: ${companion.getAllProperties().toList()}: " +
+                                        "${companion.getDeclaredFunctions().toList()}"
+                                )
                             ClassModel(
                                 name = name,
                                 classType = classType,
-                                type = ClassModel.ClassType.View,
+                                type = ClassModel.ClassType.View(
+                                    ModelViewQueryProperties(
+                                        NameModel(
+                                            modelViewQuery.simpleName,
+                                            modelViewQuery.packageName
+                                        ),
+                                        isProperty = modelViewQuery is KSPropertyDeclaration
+                                    )
+                                ),
                                 properties = viewPropertyParser.parse(annotation),
                                 fields = fields,
                                 hasPrimaryConstructor = !hasDefaultConstructor,

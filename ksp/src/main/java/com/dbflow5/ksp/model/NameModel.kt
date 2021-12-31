@@ -12,12 +12,12 @@ data class NameModel(
     val nullable: Boolean = false,
 ) {
     constructor(
-        ksName: KSName,
+        simpleName: KSName,
         packageName: KSName,
         nullable: Boolean = false,
     ) : this(
         packageName = packageName.asString(),
-        shortName = ksName.getShortName(),
+        shortName = simpleName.getShortName(),
         nullable = nullable,
     )
 
@@ -25,6 +25,14 @@ data class NameModel(
         packageName = className.packageName,
         shortName = className.simpleName,
     )
+
+    val ksName: KSName = object : KSName {
+        override fun asString(): String = "$packageName.$shortName"
+
+        override fun getQualifier(): String = packageName
+
+        override fun getShortName(): String = shortName
+    }
 
     val className = ClassName(packageName, shortName)
 

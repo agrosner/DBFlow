@@ -2,6 +2,7 @@ package com.dbflow5.ksp.model
 
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.properties.ClassProperties
+import com.dbflow5.ksp.model.properties.ModelViewQueryProperties
 import com.dbflow5.ksp.model.properties.NamedProperties
 import com.dbflow5.ksp.model.properties.nameWithFallback
 import com.dbflow5.quoteIfNeeded
@@ -64,7 +65,9 @@ data class ClassModel(
             object Normal : ClassType.Normal
         }
 
-        object View : ClassType
+        data class View(
+            val properties: ModelViewQueryProperties,
+        ) : ClassType
         object Query : ClassType
     }
 }

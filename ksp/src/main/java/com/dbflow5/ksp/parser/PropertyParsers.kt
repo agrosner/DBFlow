@@ -20,6 +20,7 @@ import com.dbflow5.ksp.model.properties.UniqueGroupProperties
 import com.dbflow5.ksp.model.properties.UniqueProperties
 import com.dbflow5.ksp.model.properties.ViewProperties
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.asTypeName
 
 class DatabasePropertyParser : Parser<KSAnnotation, DatabaseProperties> {
@@ -63,6 +64,7 @@ class TablePropertyParser(
 }
 
 class ViewPropertyParser : Parser<KSAnnotation, ViewProperties> {
+
     override fun parse(input: KSAnnotation): ViewProperties {
         val args = input.arguments.mapProperties()
         return ViewProperties(
