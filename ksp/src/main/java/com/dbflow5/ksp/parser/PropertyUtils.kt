@@ -38,6 +38,9 @@ fun ArgMap.typeName(name: String) =
 fun ArgMap.className(name: String) =
     arg<KSType>(name).toClassName()
 
+fun ArgMap.annotationMap(name: String) =
+    arg<KSAnnotation>(name).arguments.mapProperties()
+
 inline fun <reified T> Sequence<KSAnnotation>.anyAnnotation() = any { a ->
     a.annotationType.toTypeName() == typeNameOf<T>()
 }

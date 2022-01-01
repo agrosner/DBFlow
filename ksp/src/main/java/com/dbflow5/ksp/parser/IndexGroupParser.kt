@@ -2,17 +2,14 @@ package com.dbflow5.ksp.parser
 
 import com.dbflow5.ksp.model.properties.IndexGroupProperties
 import com.dbflow5.ksp.parser.validation.ValidationException
-import com.google.devtools.ksp.symbol.KSAnnotation
-import kotlin.jvm.Throws
 
-class IndexGroupParser : Parser<KSAnnotation, IndexGroupProperties> {
+class IndexGroupParser : AnnotationParser<IndexGroupProperties> {
     @Throws(ValidationException::class)
-    override fun parse(input: KSAnnotation): IndexGroupProperties {
-        val args = input.arguments.mapProperties()
+    override fun ArgMap.parse(): IndexGroupProperties {
         return IndexGroupProperties(
-            number = args.arg("number"),
-            name = args.arg("name"),
-            unique = args.arg("unique"),
+            number = arg("number"),
+            name = arg("name"),
+            unique = arg("unique"),
         )
     }
 }
