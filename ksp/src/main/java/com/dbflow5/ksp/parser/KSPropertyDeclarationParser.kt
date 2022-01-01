@@ -25,7 +25,7 @@ import com.squareup.kotlinpoet.ksp.toClassName
  */
 class KSPropertyDeclarationParser constructor(
     private val fieldPropertyParser: FieldPropertyParser,
-    private val referenceHolderPropertyParser: ReferenceHolderProperyParser,
+    private val referenceHolderPropertyParser: ReferenceHolderPropertyParser,
     private val indexParser: IndexParser,
     private val notNullPropertyParser: NotNullPropertyParser,
     private val uniquePropertyParser: UniquePropertyParser,

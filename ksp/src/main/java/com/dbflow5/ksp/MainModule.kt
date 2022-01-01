@@ -16,7 +16,7 @@ import com.dbflow5.ksp.parser.MigrationParser
 import com.dbflow5.ksp.parser.NotNullPropertyParser
 import com.dbflow5.ksp.parser.OneToManyPropertyParser
 import com.dbflow5.ksp.parser.QueryPropertyParser
-import com.dbflow5.ksp.parser.ReferenceHolderProperyParser
+import com.dbflow5.ksp.parser.ReferenceHolderPropertyParser
 import com.dbflow5.ksp.parser.TablePropertyParser
 import com.dbflow5.ksp.parser.TypeConverterPropertyParser
 import com.dbflow5.ksp.parser.UniqueGroupPropertyParser
@@ -67,7 +67,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { QueryPropertyParser() }
     single { ViewPropertyParser() }
     single { FieldPropertyParser() }
-    single { ReferenceHolderProperyParser(get()) }
+    single { ReferenceHolderPropertyParser(get()) }
     single { ManyToManyPropertyParser() }
     single { OneToManyPropertyParser() }
     single { ForeignKeyReferencePropertyParser() }

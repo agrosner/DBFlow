@@ -22,6 +22,7 @@ import com.dbflow5.ksp.model.ObjectModel
 import com.dbflow5.ksp.model.OneToManyModel
 import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.UniqueGroupModel
+import com.dbflow5.ksp.model.companion
 import com.dbflow5.ksp.model.properties.ModelViewQueryProperties
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
 import com.google.devtools.ksp.getConstructors
@@ -185,11 +186,9 @@ class KSClassDeclarationParser(
                             )
                         }
                         typeNameOf<ModelView>() -> {
+                            // retrieve companion to pull its query field.
                             val companion = resolver.getClassDeclarationByName(
-                                name = name
-                                    .copy(
-                                        shortName = name.shortName + ".Companion"
-                                    ).ksName
+                                name = name.companion().ksName
                             )
                                 ?: input // java may have the field.
                             val modelViewQuery = companion.getAllProperties()

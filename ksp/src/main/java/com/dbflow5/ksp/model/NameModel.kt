@@ -42,3 +42,7 @@ data class NameModel(
         shortName
     }
 }
+
+fun NameModel.companion() = copy(
+    shortName = "$shortName.Companion"
+)
