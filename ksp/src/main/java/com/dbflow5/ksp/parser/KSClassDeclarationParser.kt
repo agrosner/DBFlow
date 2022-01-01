@@ -24,6 +24,14 @@ import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.UniqueGroupModel
 import com.dbflow5.ksp.model.companion
 import com.dbflow5.ksp.model.properties.ModelViewQueryProperties
+import com.dbflow5.ksp.parser.annotation.DatabasePropertyParser
+import com.dbflow5.ksp.parser.annotation.ManyToManyPropertyParser
+import com.dbflow5.ksp.parser.annotation.MigrationParser
+import com.dbflow5.ksp.parser.annotation.OneToManyPropertyParser
+import com.dbflow5.ksp.parser.annotation.QueryPropertyParser
+import com.dbflow5.ksp.parser.annotation.TablePropertyParser
+import com.dbflow5.ksp.parser.annotation.TypeConverterPropertyParser
+import com.dbflow5.ksp.parser.annotation.ViewPropertyParser
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredFunctions

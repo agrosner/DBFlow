@@ -13,6 +13,11 @@ import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.properties.NotNullProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
+import com.dbflow5.ksp.parser.annotation.FieldPropertyParser
+import com.dbflow5.ksp.parser.annotation.IndexParser
+import com.dbflow5.ksp.parser.annotation.NotNullPropertyParser
+import com.dbflow5.ksp.parser.annotation.ReferenceHolderPropertyParser
+import com.dbflow5.ksp.parser.annotation.UniquePropertyParser
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
