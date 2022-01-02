@@ -141,7 +141,6 @@ class DBFlowKspProcessor(
                 )
                     .flatten()
                     .forEach {
-                        it.writeTo(System.out)
                         it.writeTo(
                             environment.codeGenerator,
                             aggregating = false,

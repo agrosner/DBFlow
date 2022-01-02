@@ -18,9 +18,11 @@ open class BaseCompileTest {
 
     fun assertRun(
         sources: List<SourceFile>,
-        exitCode: KotlinCompilation.ExitCode = KotlinCompilation.ExitCode.OK
+        exitCode: KotlinCompilation.ExitCode = KotlinCompilation.ExitCode.OK,
+        resultFn: KotlinCompilation.Result.() -> Unit = {}
     ) {
         val result = compilation(temporaryFolder, sources = sources).compile()
         assertEquals(exitCode, result.exitCode)
+        result.resultFn()
     }
 }

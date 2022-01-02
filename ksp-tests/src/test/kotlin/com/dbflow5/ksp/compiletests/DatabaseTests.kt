@@ -3,6 +3,7 @@ package com.dbflow5.ksp.compiletests
 import com.tschuchort.compiletesting.SourceFile
 import org.intellij.lang.annotations.Language
 import org.junit.Test
+import kotlin.test.assertTrue
 
 /**
  * Description:
@@ -77,6 +78,8 @@ class DatabaseTests : BaseCompileTest() {
 
         assertRun(
             sources = listOf(file)
-        )
+        ) {
+            assertTrue(this.generatedFiles.isNotEmpty())
+        }
     }
 }
