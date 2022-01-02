@@ -47,15 +47,15 @@ annotation class Database(
      */
     val updateConflict: ConflictAction = ConflictAction.NONE,
 
-    @DBFlowKSPOnly
+    @property:DBFlowKSPOnly
     val tables: Array<KClass<*>> = [],
 
-    @DBFlowKSPOnly
+    @property:DBFlowKSPOnly
     val views: Array<KClass<*>> = [],
 
-    @DBFlowKSPOnly
+    @property:DBFlowKSPOnly
     val queries: Array<KClass<*>> = [],
 
-    @DBFlowKSPOnly
+    @property:DBFlowKSPOnly
     val migrations: Array<KClass<*>> = [],
 )

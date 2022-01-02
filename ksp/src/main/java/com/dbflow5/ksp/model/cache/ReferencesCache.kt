@@ -82,17 +82,16 @@ class ReferencesCache(
         val nonNullVersion = classType.copy(false)
         return (referenceMap.getOrPut(ReferenceType.OneToManyReference(nonNullVersion)) {
             allTables.firstOrNull { it.classType == nonNullVersion }
-                ?.primaryFields?.map {
-                    when (it) {
-                        is ReferenceHolderModel -> it.references(
-                            this,
-                            nameToNest = it.name,
-                        )
-                        is SingleFieldModel -> listOf(it)
-                    }
+                // only look for foreign key types on the model as source for reference. it
+                // is required to work.
+                ?.fields?.filterIsInstance<ReferenceHolderModel>()?.map {
+                    it.references(
+                        this,
+                        nameToNest = it.name,
+                    )
                 }?.flatten() ?: listOf()
         }).takeIf { it.isNotEmpty() } ?: throw Validation.MissingReferences(
-            "any field",
+            "ForeignKey",
             classType,
             fieldModel,
         ).exception

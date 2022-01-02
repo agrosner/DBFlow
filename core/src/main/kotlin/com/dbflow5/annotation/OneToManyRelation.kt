@@ -7,6 +7,7 @@ import kotlin.reflect.KClass
  * This by default grabs the [PrimaryKey] of the defining table and [ForeignKey] on child table.
  * The child table must have a [ForeignKey] on the defining table.
  */
+@DBFlowKSPOnly
 annotation class OneToManyRelation(
     /**
      * The referenced child table.
