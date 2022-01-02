@@ -25,6 +25,7 @@ import com.dbflow5.ksp.model.UniqueGroupModel
 import com.dbflow5.ksp.model.companion
 import com.dbflow5.ksp.model.properties.ModelViewQueryProperties
 import com.dbflow5.ksp.parser.annotation.DatabasePropertyParser
+import com.dbflow5.ksp.parser.annotation.Fts4Parser
 import com.dbflow5.ksp.parser.annotation.ManyToManyPropertyParser
 import com.dbflow5.ksp.parser.annotation.MigrationParser
 import com.dbflow5.ksp.parser.annotation.OneToManyPropertyParser
@@ -33,12 +34,15 @@ import com.dbflow5.ksp.parser.annotation.TablePropertyParser
 import com.dbflow5.ksp.parser.annotation.TypeConverterPropertyParser
 import com.dbflow5.ksp.parser.annotation.ViewPropertyParser
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
+import com.dbflow5.ksp.parser.validation.ValidationException
+import com.dbflow5.ksp.parser.validation.ValidationExceptionProvider
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
@@ -60,6 +64,42 @@ class KSClassDeclarationParser(
     private val migrationParser: MigrationParser,
 ) : Parser<KSClassDeclaration, List<ObjectModel>> {
 
+    sealed interface Validation : ValidationExceptionProvider {
+        val message: String
+        override val exception: ValidationException
+            get() = ValidationException(
+                message
+            )
+
+        data class QualifiedName(
+            val className: ClassName
+        ) : Validation {
+            override val message: String = "Missing Qualified name for class $className"
+        }
+
+        data class CouldNotFindTypeConverter(
+            val className: ClassName,
+        ) : Validation {
+            override val message: String = "Could not find TypeConverter superclass for $className"
+        }
+
+        data class MissingTable(
+            val annotationName: String,
+            val className: ClassName,
+        ) : Validation {
+            override val message: String =
+                "$className must also declare a Table annotation with $annotationName"
+        }
+
+        data class MissingModelViewQuery(
+            val className: ClassName,
+        ) : Validation {
+            override val message: String =
+                "Could not find a ModelViewQuery for $className. It should " +
+                    "exist as a companion object field that is accessible."
+        }
+    }
+
     private lateinit var resolver: Resolver
 
     /**
@@ -69,9 +109,12 @@ class KSClassDeclarationParser(
         this.resolver = resolver
     }
 
+    @Throws(ValidationException::class)
     override fun parse(input: KSClassDeclaration): List<ObjectModel> {
         val classType = input.asStarProjectedType().toClassName()
-        val qualifiedName = input.qualifiedName!!
+        val qualifiedName = input.qualifiedName ?: throw Validation.QualifiedName(
+            input.toClassName()
+        ).exception
         val packageName = input.packageName
         val hasDefaultConstructor =
             input.primaryConstructor?.parameters?.all { it.hasDefault } == true
@@ -95,13 +138,13 @@ class KSClassDeclarationParser(
                     )
                 }
                 typeNameOf<TypeConverter>() -> {
-                    val typeConverterSuper = input.superTypes.firstNotNullOf { reference ->
+                    val typeConverterSuper = input.superTypes.firstNotNullOfOrNull { reference ->
                         reference.resolve().toTypeName().let {
                             it as? ParameterizedTypeName
                         }?.takeIf { type ->
                             type.rawType == ClassNames.TypeConverter
                         }
-                    }
+                    } ?: throw Validation.CouldNotFindTypeConverter(classType).exception
                     TypeConverterModel.Simple(
                         name = name,
                         properties = typeConverterPropertyParser.parse(annotation),
@@ -113,7 +156,11 @@ class KSClassDeclarationParser(
                     )
                 }
                 typeNameOf<ManyToMany>() -> {
-                    val tableProperties = tablePropertyParser.parse(input.first<Table>())
+                    val tableProperties = tablePropertyParser.parse(
+                        input.firstOrNull<Table>() ?: throw Validation.MissingTable(
+                            "ManyToMany", classType
+                        ).exception
+                    )
                     ManyToManyModel(
                         name = name,
                         properties = manyToManyPropertyParser.parse(annotation),
@@ -124,7 +171,13 @@ class KSClassDeclarationParser(
                     )
                 }
                 typeNameOf<OneToManyRelation>() -> {
-                    val tableProperties = tablePropertyParser.parse(input.first<Table>())
+                    val tableProperties = tablePropertyParser.parse(
+                        input.firstOrNull<Table>()
+                            ?: throw Validation.MissingTable(
+                                "OneToManyRelation",
+                                classType,
+                            ).exception
+                    )
                     OneToManyModel(
                         name = name,
                         properties = oneToManyPropertyParser.parse(annotation),
@@ -205,13 +258,9 @@ class KSClassDeclarationParser(
                                     .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
                                 ?: companion.getDeclaredFunctions()
                                     .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
-                                ?: throw IllegalStateException(
-                                    "Could not find ModelViewQuery in definition " +
-                                        "${
-                                            companion.getAllFunctions().toList()
-                                        }: ${companion.getAllProperties().toList()}: " +
-                                        "${companion.getDeclaredFunctions().toList()}"
-                                )
+                                ?: throw Validation.MissingModelViewQuery(
+                                    classType,
+                                ).exception
                             ClassModel(
                                 name = name,
                                 classType = classType,

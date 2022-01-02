@@ -14,5 +14,5 @@ inline fun <reified T> KSAnnotated.findSingle(): KSAnnotation? =
 /**
  * Gets a single annotation instance on a [KSAnnotated] type or throws if missing.
  */
-inline fun <reified T> KSAnnotated.first(): KSAnnotation =
-    annotations.first { it.annotationType.toTypeName() == typeNameOf<T>() }
+inline fun <reified T> KSAnnotated.firstOrNull(): KSAnnotation? =
+    annotations.firstOrNull { it.annotationType.toTypeName() == typeNameOf<T>() }

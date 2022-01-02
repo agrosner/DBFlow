@@ -6,7 +6,7 @@ import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.parser.annotation.DatabasePropertyParser
 import com.dbflow5.ksp.parser.annotation.FieldPropertyParser
 import com.dbflow5.ksp.parser.annotation.ForeignKeyReferencePropertyParser
-import com.dbflow5.ksp.parser.Fts4Parser
+import com.dbflow5.ksp.parser.annotation.Fts4Parser
 import com.dbflow5.ksp.parser.annotation.IndexGroupParser
 import com.dbflow5.ksp.parser.annotation.IndexParser
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
