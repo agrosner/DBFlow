@@ -6,6 +6,7 @@ import com.dbflow5.ksp.model.ReferenceHolderModel
 import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.properties.ReferenceProperties
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
+import com.dbflow5.ksp.parser.validation.ValidationExceptionProvider
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.TypeName
@@ -26,6 +27,16 @@ class ReferencesCache(
     private val fieldSanitizer: FieldSanitizer,
 ) {
 
+    sealed interface Validation : ValidationExceptionProvider {
+
+        data class MissingReferences(
+            val type: String,
+            val classType: TypeName,
+        ) : Validation {
+            override val message: String = "Could not find $type references for $classType."
+        }
+    }
+
     var allTables: List<ClassModel> = listOf()
 
     /**
@@ -41,7 +52,7 @@ class ReferencesCache(
 
     fun resolveExistingFields(classType: TypeName): List<SingleFieldModel> {
         val nonNullVersion = classType.copy(false)
-        return referenceMap.getOrPut(ReferenceType.AllFromClass(nonNullVersion)) {
+        return (referenceMap.getOrPut(ReferenceType.AllFromClass(nonNullVersion)) {
             allTables.firstOrNull { it.classType == nonNullVersion }
                 ?.primaryFields?.map {
                     when (it) {
@@ -52,12 +63,15 @@ class ReferencesCache(
                         is SingleFieldModel -> listOf(it)
                     }
                 }?.flatten() ?: listOf()
-        }
+        }).takeIf { it.isNotEmpty() } ?: throw Validation.MissingReferences(
+            "Primary",
+            classType,
+        ).exception
     }
 
     fun resolveOneToManyReferences(classType: TypeName): List<SingleFieldModel> {
         val nonNullVersion = classType.copy(false)
-        return referenceMap.getOrPut(ReferenceType.OneToManyReference(nonNullVersion)) {
+        return (referenceMap.getOrPut(ReferenceType.OneToManyReference(nonNullVersion)) {
             allTables.firstOrNull { it.classType == nonNullVersion }
                 ?.fields?.filterIsInstance<ReferenceHolderModel>()?.map {
                     it.references(
@@ -65,14 +79,17 @@ class ReferencesCache(
                         nameToNest = it.name,
                     )
                 }?.flatten() ?: listOf()
-        }
+        }).takeIf { it.isNotEmpty() } ?: throw Validation.MissingReferences(
+            "any field",
+            classType
+        ).exception
     }
 
     fun resolveComputedFields(
         ksType: KSType,
     ): List<SingleFieldModel> {
         val nonNullType = ksType.makeNotNullable()
-        return referenceMap.getOrPut(ReferenceType.AllFromClass(nonNullType.toTypeName())) {
+        return (referenceMap.getOrPut(ReferenceType.AllFromClass(nonNullType.toTypeName())) {
             val closest = nonNullType.declaration.closestClassDeclaration()
             closest?.let { fieldSanitizer.parse(it) }?.map {
                 when (it) {
@@ -80,7 +97,10 @@ class ReferencesCache(
                     is SingleFieldModel -> listOf(it)
                 }
             }?.flatten() ?: listOf()
-        }
+        }).takeIf { it.isNotEmpty() } ?: throw Validation.MissingReferences(
+            "computed",
+            nonNullType.toTypeName(),
+        ).exception
     }
 
     fun resolveReferencesOnExisting(

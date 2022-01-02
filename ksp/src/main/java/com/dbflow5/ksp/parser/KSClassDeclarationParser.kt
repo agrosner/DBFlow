@@ -65,12 +65,6 @@ class KSClassDeclarationParser(
 ) : Parser<KSClassDeclaration, List<ObjectModel>> {
 
     sealed interface Validation : ValidationExceptionProvider {
-        val message: String
-        override val exception: ValidationException
-            get() = ValidationException(
-                message
-            )
-
         data class QualifiedName(
             val className: ClassName
         ) : Validation {
@@ -98,6 +92,21 @@ class KSClassDeclarationParser(
                 "Could not find a ModelViewQuery for $className. It should " +
                     "exist as a companion object field that is accessible."
         }
+
+        data class InvalidConstructor(
+            val className: ClassName,
+            val fieldsCount: Int,
+            val constructorCount: Int? = null,
+        ) : Validation {
+            override val message: String =
+                "Could not find a valid constructor to create the model " +
+                    "$className. Ensure either all properties are in constructor, or a single, default " +
+                    "constructor exists. Found ($fieldsCount) fields " +
+                    "${
+                        if (constructorCount != null) " for ($constructorCount) " +
+                            "constructor fields" else ""
+                    }."
+        }
     }
 
     private lateinit var resolver: Resolver
@@ -116,12 +125,6 @@ class KSClassDeclarationParser(
             input.toClassName()
         ).exception
         val packageName = input.packageName
-        val hasDefaultConstructor =
-            input.primaryConstructor?.parameters?.all { it.hasDefault } == true
-                || input.getConstructors().any { constructor ->
-                constructor.parameters.isEmpty() ||
-                    constructor.parameters.all { it.hasDefault }
-            }
         val isInternal = input.isInternal()
 
         // inspect annotations for what object it is.
@@ -196,7 +199,35 @@ class KSClassDeclarationParser(
                     )
                 }
                 else -> {
+                    val emptyConstructor =
+                        input.primaryConstructor?.takeIf { declaration -> declaration.parameters.all { it.hasDefault } }
+                            ?: input.getConstructors().firstNotNullOfOrNull { constructor ->
+                                constructor.takeIf {
+                                    it.parameters.isEmpty() ||
+                                        it.parameters.all { it.hasDefault }
+                                }
+                            }
+                    val hasDefaultConstructor = emptyConstructor != null
                     val fields = fieldSanitizer.parse(input = input)
+                    if (emptyConstructor == null) {
+                        // find constructor that matches exactly by name.
+                        input.getConstructors().firstNotNullOf {
+                            if (fields.size != it.parameters.size) {
+                                throw Validation.InvalidConstructor(
+                                    classType,
+                                    fieldsCount = fields.size,
+                                    constructorCount = it.parameters.size,
+                                ).exception // not same length, throw error
+                            } else {
+                                fields.all { field ->
+                                    it.parameters.all { p ->
+                                        p.name == field.name.ksName &&
+                                            p.type.toTypeName() == field.classType
+                                    }
+                                }
+                            }
+                        }
+                    }
                     when (annotation.annotationType.toTypeName()) {
                         typeNameOf<Table>() -> {
                             val fts3 = input.annotations.firstOrNull {

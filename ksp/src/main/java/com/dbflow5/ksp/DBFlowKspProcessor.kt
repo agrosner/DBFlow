@@ -13,6 +13,7 @@ import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.partOfDatabaseAsType
 import com.dbflow5.ksp.model.properties.DatabaseHolderProperties
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
+import com.dbflow5.ksp.parser.validation.ValidationException
 import com.dbflow5.ksp.writer.ClassWriter
 import com.dbflow5.ksp.writer.DatabaseHolderWriter
 import com.dbflow5.ksp.writer.DatabaseWriter
@@ -43,98 +44,102 @@ class DBFlowKspProcessor(
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        typeConverterCache.applyResolver(resolver)
-        ksClassDeclarationParser.applyResolver(resolver)
+        try {
+            typeConverterCache.applyResolver(resolver)
+            ksClassDeclarationParser.applyResolver(resolver)
 
-        val symbols =
-            Annotations.values().map {
-                resolver.getSymbolsWithAnnotation(
-                    it.qualifiedName
-                ).toList()
-            }.flatten()
-                .distinct()
-        if (symbols.isNotEmpty()) {
-            val objects = symbols.mapNotNull { annotated ->
-                when (annotated) {
-                    is KSClassDeclaration -> {
-                        ksClassDeclarationParser.parse(annotated)
-                    }
-                    else -> null
-                }
-            }.flatten()
-            val manyToManyModels = objects.filterIsInstance<ManyToManyModel>()
-            val oneToManyModels = objects.filterIsInstance<OneToManyModel>()
-            val classes = objects.filterIsInstance<ClassModel>()
-                // append all expected classes
-                .let {
-                    it.toMutableList()
-                        .apply {
-                            addAll(manyToManyModels.map { model -> model.classModel })
-                            addAll(oneToManyModels.map { model -> model.classModel })
+            val symbols =
+                Annotations.values().map {
+                    resolver.getSymbolsWithAnnotation(
+                        it.qualifiedName
+                    ).toList()
+                }.flatten()
+                    .distinct()
+            if (symbols.isNotEmpty()) {
+                val objects = symbols.mapNotNull { annotated ->
+                    when (annotated) {
+                        is KSClassDeclaration -> {
+                            ksClassDeclarationParser.parse(annotated)
                         }
+                        else -> null
+                    }
+                }.flatten()
+                val manyToManyModels = objects.filterIsInstance<ManyToManyModel>()
+                val oneToManyModels = objects.filterIsInstance<OneToManyModel>()
+                val classes = objects.filterIsInstance<ClassModel>()
+                    // append all expected classes
+                    .let {
+                        it.toMutableList()
+                            .apply {
+                                addAll(manyToManyModels.map { model -> model.classModel })
+                                addAll(oneToManyModels.map { model -> model.classModel })
+                            }
+                    }
+                val migrations = objects.filterIsInstance<MigrationModel>()
+
+                // associate classes into DB.
+                val databases = objects.filterIsInstance<DatabaseModel>()
+                    .map { database ->
+                        database.copy(
+                            tables = classes.filter {
+                                it.partOfDatabaseAsType<ClassModel.ClassType.Normal>(database.classType)
+                            },
+                            views = classes.filter {
+                                it.partOfDatabaseAsType<ClassModel.ClassType.View>(database.classType)
+                            },
+                            queryModels = classes.filter {
+                                it.partOfDatabaseAsType<ClassModel.ClassType.Query>(database.classType)
+                            },
+                            migrations = migrations.filter {
+                                it.properties.database == database.classType
+                            },
+                        )
+                    }
+
+                val holderModel = DatabaseHolderModel(
+                    name = NameModel(ClassNames.GeneratedDatabaseHolder),
+                    databases,
+                    properties = DatabaseHolderProperties(""),
+                    allOriginatingFiles = objects.mapNotNull { it.originatingFile }
+                )
+
+                referencesCache.allTables = classes
+
+                objects.filterIsInstance<TypeConverterModel>().forEach { model ->
+                    typeConverterCache.putTypeConverter(model)
                 }
-            val migrations = objects.filterIsInstance<MigrationModel>()
 
-            // associate classes into DB.
-            val databases = objects.filterIsInstance<DatabaseModel>()
-                .map { database ->
-                    database.copy(
-                        tables = classes.filter {
-                            it.partOfDatabaseAsType<ClassModel.ClassType.Normal>(database.classType)
-                        },
-                        views = classes.filter {
-                            it.partOfDatabaseAsType<ClassModel.ClassType.View>(database.classType)
-                        },
-                        queryModels = classes.filter {
-                            it.partOfDatabaseAsType<ClassModel.ClassType.Query>(database.classType)
-                        },
-                        migrations = migrations.filter {
-                            it.properties.database == database.classType
-                        },
-                    )
-                }
+                objects.filterIsInstance<ClassModel>()
+                    .asSequence()
+                    .map { it.fields }
+                    .flatten()
+                    .mapNotNull { it.properties?.typeConverterClassName }
+                    .filter { it != ClassNames.TypeConverter }
+                    .forEach { typeConverterName ->
+                        typeConverterCache.putTypeConverter(typeConverterName, resolver)
+                    }
 
-            val holderModel = DatabaseHolderModel(
-                name = NameModel(ClassNames.GeneratedDatabaseHolder),
-                databases,
-                properties = DatabaseHolderProperties(""),
-                allOriginatingFiles = objects.mapNotNull { it.originatingFile }
-            )
+                typeConverterCache.processNestedConverters()
 
-            referencesCache.allTables = classes
-
-            objects.filterIsInstance<TypeConverterModel>().forEach { model ->
-                typeConverterCache.putTypeConverter(model)
+                listOf(
+                    typeConverterCache.generatedTypeConverters.map(typeConverterWriter::create),
+                    classes.map(classWriter::create),
+                    databases.map(databaseWriter::create),
+                    listOf(holderModel).map(databaseHolderWriter::create),
+                    manyToManyModels.map(manyClassWriter::create),
+                    oneToManyModels.map(oneToManyClassWriter::create),
+                )
+                    .flatten()
+                    .forEach {
+                        it.writeTo(System.out)
+                        it.writeTo(
+                            environment.codeGenerator,
+                            aggregating = false,
+                        )
+                    }
             }
-
-            objects.filterIsInstance<ClassModel>()
-                .asSequence()
-                .map { it.fields }
-                .flatten()
-                .mapNotNull { it.properties?.typeConverterClassName }
-                .filter { it != ClassNames.TypeConverter }
-                .forEach { typeConverterName ->
-                    typeConverterCache.putTypeConverter(typeConverterName, resolver)
-                }
-
-            typeConverterCache.processNestedConverters()
-
-            listOf(
-                typeConverterCache.generatedTypeConverters.map(typeConverterWriter::create),
-                classes.map(classWriter::create),
-                databases.map(databaseWriter::create),
-                listOf(holderModel).map(databaseHolderWriter::create),
-                manyToManyModels.map(manyClassWriter::create),
-                oneToManyModels.map(oneToManyClassWriter::create),
-            )
-                .flatten()
-                .forEach {
-                    it.writeTo(System.out)
-                    it.writeTo(
-                        environment.codeGenerator,
-                        aggregating = false,
-                    )
-                }
+        } catch (exception: ValidationException) {
+            environment.logger.exception(exception)
         }
 
         return listOf()

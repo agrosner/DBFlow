@@ -1,6 +1,7 @@
 package com.dbflow5.ksp.parser
 
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
@@ -50,3 +51,5 @@ inline fun <reified T> KSPropertyDeclaration.hasAnnotation() = annotations.anyAn
     || setter?.annotations?.anyAnnotation<T>() ?: false
 
 inline fun <reified T> KSFunctionDeclaration.hasAnnotation() = annotations.anyAnnotation<T>()
+
+inline fun <reified T> KSClassDeclaration.hasAnnotation() = annotations.anyAnnotation<T>()

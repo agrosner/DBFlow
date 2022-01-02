@@ -10,5 +10,9 @@ class ValidationException : Throwable {
 }
 
 interface ValidationExceptionProvider {
+    val message: String
     val exception: ValidationException
+        get() = ValidationException(
+            message
+        )
 }

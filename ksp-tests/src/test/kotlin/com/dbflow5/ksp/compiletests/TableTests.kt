@@ -1,8 +1,10 @@
 package com.dbflow5.ksp.compiletests
 
 import com.dbflow5.ksp.compilation
+import com.dbflow5.ksp.compiletests.sourcefiles.dbFile
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
+import org.intellij.lang.annotations.Language
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.koin.core.context.stopKoin
@@ -25,20 +27,14 @@ class TableTests {
             "SimpleModel.kt",
             """
             package test
-            import com.dbflow5.annotation.Database
             import com.dbflow5.annotation.Table
             import com.dbflow5.annotation.PrimaryKey
-            import com.dbflow5.config.DBFlowDatabase
 
-
-            @Database(version = 1)
-            abstract class TestDatabase: DBFlowDatabase()
-            
             @Table(database = TestDatabase::class)
             class SimpleModel(@PrimaryKey val name: String)  
             """.trimIndent()
         )
-        val result = compilation(temporaryFolder, sources = listOf(source)).compile()
+        val result = compilation(temporaryFolder, sources = listOf(dbFile, source)).compile()
         assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
     }
 
@@ -48,14 +44,9 @@ class TableTests {
             "ForeignKeyTable.kt",
             """
             package test
-            import com.dbflow5.annotation.Database
             import com.dbflow5.annotation.ForeignKey
             import com.dbflow5.annotation.Table
             import com.dbflow5.annotation.PrimaryKey
-            import com.dbflow5.config.DBFlowDatabase
-
-            @Database(version = 1)
-            abstract class TestDatabase: DBFlowDatabase()
             
             @Table(database = TestDatabase::class)
             class SimpleModel(@PrimaryKey val name: String)
@@ -68,7 +59,7 @@ class TableTests {
 
             """.trimIndent()
         )
-        val result = compilation(temporaryFolder, sources = listOf(source)).compile()
+        val result = compilation(temporaryFolder, sources = listOf(dbFile, source)).compile()
         assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
     }
 
@@ -78,14 +69,8 @@ class TableTests {
             "SimpleModel.kt",
             """
             package test
-            import com.dbflow5.annotation.Database
             import com.dbflow5.annotation.Table
             import com.dbflow5.annotation.PrimaryKey
-            import com.dbflow5.config.DBFlowDatabase
-
-
-            @Database(version = 1)
-            abstract class TestDatabase: DBFlowDatabase()
             
             @JvmInline
             value class Name(val value: String)
@@ -94,7 +79,7 @@ class TableTests {
             class SimpleModel(@PrimaryKey val name: Name)  
             """.trimIndent()
         )
-        val result = compilation(temporaryFolder, sources = listOf(source)).compile()
+        val result = compilation(temporaryFolder, sources = listOf(dbFile, source)).compile()
         assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
     }
 
@@ -104,16 +89,10 @@ class TableTests {
             "SimpleModel.kt",
             """
             package test
-            import com.dbflow5.annotation.Database
             import com.dbflow5.annotation.Table
             import com.dbflow5.annotation.PrimaryKey
-            import com.dbflow5.config.DBFlowDatabase
             import com.dbflow5.data.Blob
 
-
-            @Database(version = 1)
-            abstract class TestDatabase: DBFlowDatabase()
-            
             @Table(database = TestDatabase::class)
             class SimpleModel(
                 @PrimaryKey val name: String,
@@ -121,7 +100,7 @@ class TableTests {
             )  
             """.trimIndent()
         )
-        val result = compilation(temporaryFolder, sources = listOf(source)).compile()
+        val result = compilation(temporaryFolder, sources = listOf(dbFile, source)).compile()
         assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
     }
 
@@ -220,17 +199,12 @@ class TableTests {
             "SimpleModel.kt",
             """
             package test
-            import com.dbflow5.annotation.Database
             import com.dbflow5.annotation.Table
             import com.dbflow5.annotation.PrimaryKey
-            import com.dbflow5.config.DBFlowDatabase
             import com.dbflow5.reactivestreams.structure.BaseRXModel 
             import com.dbflow5.structure.BaseModel
 
 
-            @Database(version = 1)
-            abstract class TestDatabase: DBFlowDatabase()
-            
             @Table(database = TestDatabase::class)
             data class SimpleModel(@PrimaryKey val name: String)  : BaseModel()
 
@@ -238,8 +212,29 @@ class TableTests {
             data class SimpleRXModel(@PrimaryKey val name: String): BaseRXModel()
             """.trimIndent()
         )
-        val result = compilation(temporaryFolder, sources = listOf(source)).compile()
+        val result = compilation(temporaryFolder, sources = listOf(dbFile, source)).compile()
         assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+    }
+
+    @Test
+    fun `validate throws error on extra property out of constructor`() {
+        @Language("kotlin") val source = SourceFile.kotlin(
+            "primary.kt",
+            """
+                import com.dbflow5.annotation.PrimaryKey
+                import com.dbflow5.annotation.Table
+
+                @Table(database = TestDatabase::class)
+                data class SimplySimple(
+                    @PrimaryKey var name: String
+                ) {
+
+                    var wellHello: String = ""
+                }
+            """.trimIndent()
+        )
+        val result = compilation(temporaryFolder, sources = listOf(dbFile, source)).compile()
+        assertEquals(result.exitCode, KotlinCompilation.ExitCode.COMPILATION_ERROR)
     }
 
     @AfterTest
