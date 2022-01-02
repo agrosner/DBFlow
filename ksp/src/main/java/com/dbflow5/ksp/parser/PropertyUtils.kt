@@ -37,3 +37,6 @@ fun ArgMap.className(name: String) =
 
 fun ArgMap.annotationMap(name: String) =
     arg<KSAnnotation>(name).arguments.mapProperties()
+
+fun ArgMap.classNameList(name: String) =
+    arg<List<KSType>>(name).map { it.toClassName() }

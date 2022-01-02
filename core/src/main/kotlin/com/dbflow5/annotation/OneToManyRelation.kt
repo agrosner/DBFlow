@@ -3,7 +3,7 @@ package com.dbflow5.annotation
 import kotlin.reflect.KClass
 
 /**
- * Description: Code generates a parent-child relation using [QueryModel].
+ * Description: Code generates a parent-child relation using [Query].
  * This by default grabs the [PrimaryKey] of the defining table and [ForeignKey] on child table.
  * The child table must have a [ForeignKey] on the defining table.
  */

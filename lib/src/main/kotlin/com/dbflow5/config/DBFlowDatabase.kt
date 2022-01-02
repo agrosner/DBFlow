@@ -12,7 +12,7 @@ import com.dbflow5.adapter.queriable.ListModelLoader
 import com.dbflow5.adapter.queriable.SingleModelLoader
 import com.dbflow5.adapter.saveable.ModelSaver
 import com.dbflow5.annotation.Database
-import com.dbflow5.annotation.QueryModel
+import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseCallback
@@ -313,7 +313,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         modelViewAdapterMap[table] as ModelViewAdapter<T>?
 
     /**
-     * @param queryModel The [QueryModel] class
+     * @param queryModel The [Query] class
      * @return The adapter that corresponds to the specified class.
      */
     @Suppress("UNCHECKED_CAST")

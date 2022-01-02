@@ -5,6 +5,7 @@ import com.dbflow5.ksp.model.properties.DatabaseProperties
 import com.dbflow5.ksp.parser.AnnotationParser
 import com.dbflow5.ksp.parser.ArgMap
 import com.dbflow5.ksp.parser.arg
+import com.dbflow5.ksp.parser.classNameList
 import com.dbflow5.ksp.parser.enumArg
 import com.dbflow5.ksp.parser.validation.ValidationException
 
@@ -19,6 +20,10 @@ class DatabasePropertyParser : AnnotationParser<DatabaseProperties> {
             insertConflict = enumArg("insertConflict", ConflictAction::valueOf),
             areConsistencyChecksEnabled = arg("consistencyCheckEnabled"),
             backupEnabled = arg("backupEnabled"),
+            tables = classNameList("tables"),
+            views = classNameList("views"),
+            queries = classNameList("queries"),
+            migrations = classNameList("migrations"),
         )
     }
 }

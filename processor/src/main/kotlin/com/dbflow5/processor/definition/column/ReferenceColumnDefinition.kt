@@ -4,7 +4,7 @@ import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.ForeignKeyReference
-import com.dbflow5.annotation.QueryModel
+import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
@@ -542,7 +542,7 @@ private constructor(
         manager.logError(
             ReferenceColumnDefinition::class,
             "Could not find the referenced ${Table::class.java.simpleName} " +
-                "or ${QueryModel::class.java.simpleName} definition $referencedClassName" +
+                "or ${Query::class.java.simpleName} definition $referencedClassName" +
                 " from ${entityDefinition.elementName}. " +
                 "Ensure it exists in the same database as ${entityDefinition.associationalBehavior.databaseTypeName}"
         )

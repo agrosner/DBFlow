@@ -1,13 +1,15 @@
 package com.dbflow5.adapter
 
-import com.dbflow5.annotation.QueryModel
+import com.dbflow5.annotation.Query
 import com.dbflow5.config.DBFlowDatabase
 
 /**
- * Description: The baseclass for adapters to [QueryModel] that defines how it interacts with the DB. The
+ * Description: The baseclass for adapters to [Query] that defines how it interacts with the DB. The
  * where query is not defined here, rather its determined by the cursor used.
  */
-@Deprecated(replaceWith = ReplaceWith("RetrievalAdapter<T>", "com.dbflow5.adapter"),
-    message = "QueryModelAdapter is now redundant. Use Retrieval Adapter")
-abstract class QueryModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase)
-    : RetrievalAdapter<T>(databaseDefinition)
+@Deprecated(
+    replaceWith = ReplaceWith("RetrievalAdapter<T>", "com.dbflow5.adapter"),
+    message = "QueryModelAdapter is now redundant. Use Retrieval Adapter"
+)
+abstract class QueryModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
+    RetrievalAdapter<T>(databaseDefinition)

@@ -8,7 +8,7 @@ import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.ModelViewQuery
 import com.dbflow5.annotation.OneToManyRelation
-import com.dbflow5.annotation.QueryModel
+import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
 import com.dbflow5.ksp.ClassNames
@@ -327,7 +327,7 @@ class KSClassDeclarationParser(
                                 uniqueGroups = listOf(),
                             )
                         }
-                        typeNameOf<QueryModel>() -> {
+                        typeNameOf<Query>() -> {
                             ClassModel(
                                 name = name,
                                 classType = classType,

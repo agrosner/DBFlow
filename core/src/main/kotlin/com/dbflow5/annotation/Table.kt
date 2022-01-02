@@ -18,9 +18,11 @@ annotation class Table(
      */
     val name: String = "",
     /**
-     * @return Specify the database class that this table belongs to. It must have the [Database] annotation.
+     * @return Specify the database class that this table belongs to.
+     * It must have the [Database] annotation. If left blank, the corresponding [Database]
+     * should include it.
      */
-    val database: KClass<*>,
+    val database: KClass<*> = Any::class,
     /**
      * @return Specify the general conflict algorithm used by this table when updating records.
      */

@@ -3,7 +3,7 @@ package com.dbflow5.ksp.parser.extractors
 import com.dbflow5.annotation.ColumnIgnore
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.OneToMany
-import com.dbflow5.annotation.QueryModel
+import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.cache.TypeConverterCache
@@ -46,7 +46,7 @@ class FieldSanitizer(
     override fun parse(input: KSClassDeclaration): List<FieldModel> {
         val isTable = input.hasAnnotation<Table>()
         val isModelView = input.hasAnnotation<ModelView>()
-        val isQuery = input.hasAnnotation<QueryModel>()
+        val isQuery = input.hasAnnotation<Query>()
         if (listOf(isTable, isModelView, isQuery).count { it } > 1) {
             throw Validation.OnlyOneKind(input.toClassName()).exception
         }

@@ -95,7 +95,7 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
                                                 view.generatedClassName.className
                                             )
                                         }
-                                        model.queryModels.forEach { query ->
+                                        model.queries.forEach { query ->
                                             addStatement(
                                                 "addRetrievalAdapter(%T(this), holder)",
                                                 query.generatedClassName.className

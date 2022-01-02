@@ -68,14 +68,19 @@ data class ClassModel(
         data class View(
             val properties: ModelViewQueryProperties,
         ) : ClassType
+
         object Query : ClassType
     }
 }
 
+/**
+ * Returns true if element exists in DB declaration, or if it self-declares its DB.
+ */
 inline fun <reified C : ClassModel.ClassType> ClassModel.partOfDatabaseAsType(
     databaseTypeName: TypeName,
+    declaredDBElements: List<ClassName>,
 ) = this.type is C &&
-    properties.database == databaseTypeName
+    (properties.database == databaseTypeName || declaredDBElements.contains(this.classType))
 
 
 val ClassModel.generatedClassName

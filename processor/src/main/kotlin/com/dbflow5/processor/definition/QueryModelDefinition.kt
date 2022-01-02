@@ -2,7 +2,7 @@ package com.dbflow5.processor.definition
 
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
-import com.dbflow5.annotation.QueryModel
+import com.dbflow5.annotation.Query
 import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.ColumnValidator
 import com.dbflow5.processor.ProcessorManager
@@ -20,18 +20,23 @@ import javax.lang.model.element.TypeElement
 /**
  * Description:
  */
-class QueryModelDefinition(override val associationalBehavior: AssociationalBehavior,
-                           override val cursorHandlingBehavior: CursorHandlingBehavior,
-                           typeElement: TypeElement,
-                           processorManager: ProcessorManager)
-    : EntityDefinition(typeElement, processorManager) {
+class QueryModelDefinition(
+    override val associationalBehavior: AssociationalBehavior,
+    override val cursorHandlingBehavior: CursorHandlingBehavior,
+    typeElement: TypeElement,
+    processorManager: ProcessorManager
+) : EntityDefinition(typeElement, processorManager) {
 
-    override val methods: Array<MethodDefinition> = arrayOf(LoadFromCursorMethod(this),
+    override val methods: Array<MethodDefinition> = arrayOf(
+        LoadFromCursorMethod(this),
         ExistenceMethod(this),
-        PrimaryConditionMethod(this))
+        PrimaryConditionMethod(this)
+    )
 
-    constructor(queryModel: QueryModel, typeElement: TypeElement,
-                processorManager: ProcessorManager) : this(
+    constructor(
+        queryModel: Query, typeElement: TypeElement,
+        processorManager: ProcessorManager
+    ) : this(
         AssociationalBehavior(
             name = typeElement.simpleName.toString(),
             databaseTypeName = queryModel.extractTypeNameFromAnnotation { it.database },
@@ -41,25 +46,32 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
             orderedCursorLookup = queryModel.orderedCursorLookUp,
             assignDefaultValuesFromCursor = queryModel.assignDefaultValuesFromCursor
         ),
-        typeElement, processorManager)
+        typeElement, processorManager
+    )
 
     /**
      * [ColumnMap] constructor.
      */
-    constructor(typeElement: TypeElement,
-                databaseTypeName: TypeName,
-                processorManager: ProcessorManager) : this(
+    constructor(
+        typeElement: TypeElement,
+        databaseTypeName: TypeName,
+        processorManager: ProcessorManager
+    ) : this(
         AssociationalBehavior(
             name = typeElement.simpleName.toString(),
             databaseTypeName = databaseTypeName,
             allFields = true
         ),
         CursorHandlingBehavior(),
-        typeElement, processorManager)
+        typeElement, processorManager
+    )
 
     init {
         setOutputClassName("_QueryTable")
-        processorManager.addModelToDatabase(elementClassName, associationalBehavior.databaseTypeName)
+        processorManager.addModelToDatabase(
+            elementClassName,
+            associationalBehavior.databaseTypeName
+        )
     }
 
     override fun prepareForWriteInternal() {
@@ -94,7 +106,8 @@ class QueryModelDefinition(override val associationalBehavior: AssociationalBeha
         for (variableElement in variableElements) {
 
             // no private static or final fields
-            val isAllFields = ElementUtility.isValidAllFields(associationalBehavior.allFields, variableElement)
+            val isAllFields =
+                ElementUtility.isValidAllFields(associationalBehavior.allFields, variableElement)
             // package private, will generate helper
             val isColumnMap = variableElement.annotation<ColumnMap>() != null
 

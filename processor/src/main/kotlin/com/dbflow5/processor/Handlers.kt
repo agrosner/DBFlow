@@ -5,6 +5,7 @@ import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.MultipleManyToMany
+import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.QueryModel
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
@@ -128,15 +129,15 @@ class ModelViewHandler : AnnotatedHandler<ModelView>(ModelView::class) {
  * Description: Handles [QueryModel] annotations, writing QueryModelAdapter, and
  * adding them to the [ProcessorManager].
  */
-class QueryModelHandler : AnnotatedHandler<QueryModel>(QueryModel::class) {
+class QueryModelHandler : AnnotatedHandler<Query>(Query::class) {
 
     override fun onProcessElement(
-        annotation: QueryModel,
+        annotation: Query,
         element: Element,
         processorManager: ProcessorManager
     ) {
         if (element is TypeElement) {
-            element.annotation<QueryModel>()?.let { queryModel ->
+            element.annotation<Query>()?.let { queryModel ->
                 val queryModelDefinition =
                     QueryModelDefinition(queryModel, element, processorManager)
                 processorManager.addQueryModelDefinition(queryModelDefinition)

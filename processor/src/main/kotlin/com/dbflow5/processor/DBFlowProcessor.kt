@@ -7,7 +7,7 @@ import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.MultipleManyToMany
-import com.dbflow5.annotation.QueryModel
+import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
 import com.dbflow5.processor.definition.DatabaseHolderDefinition
@@ -36,7 +36,7 @@ class DBFlowProcessor : AbstractProcessor() {
         ModelView::class,
         Migration::class,
         ColumnIgnore::class,
-        QueryModel::class,
+        Query::class,
         Fts3::class,
         Fts4::class,
         MultipleManyToMany::class

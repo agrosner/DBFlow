@@ -10,7 +10,7 @@ import com.dbflow5.annotation.Fts3
 import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.PrimaryKey
-import com.dbflow5.annotation.QueryModel
+import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.Unique
 import com.dbflow5.annotation.UniqueGroup
@@ -29,7 +29,7 @@ import java.util.*
 @Table(database = TestDatabase::class)
 class SimpleModel(@PrimaryKey var name: String? = "")
 
-@QueryModel(database = TestDatabase::class)
+@Query(database = TestDatabase::class)
 class SimpleCustomModel(@Column var name: String? = "")
 
 @Table(database = TestDatabase::class)
