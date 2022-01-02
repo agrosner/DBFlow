@@ -79,7 +79,7 @@ class DatabaseTests : BaseCompileTest() {
         assertRun(
             sources = listOf(file)
         ) {
-            assertTrue(this.generatedFiles.isNotEmpty())
+
         }
     }
 }

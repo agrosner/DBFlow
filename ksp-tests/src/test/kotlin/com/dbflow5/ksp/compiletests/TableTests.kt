@@ -4,8 +4,6 @@ import com.dbflow5.ksp.compiletests.sourcefiles.dbFile
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import org.intellij.lang.annotations.Language
-import org.koin.core.context.stopKoin
-import kotlin.test.AfterTest
 import kotlin.test.Test
 
 /**
@@ -235,10 +233,5 @@ class TableTests : BaseCompileTest() {
             sources = listOf(dbFile, source),
             exitCode = KotlinCompilation.ExitCode.COMPILATION_ERROR
         )
-    }
-
-    @AfterTest
-    fun stop() {
-        stopKoin()
     }
 }

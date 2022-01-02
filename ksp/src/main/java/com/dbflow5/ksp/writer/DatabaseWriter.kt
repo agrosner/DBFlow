@@ -58,7 +58,7 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
             defaultValue("%L", model.properties.backupEnabled)
         }
 
-        return FileSpec.builder(model.name.packageName, model.name.shortName)
+        return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
             .apply {
                 addType(
                     TypeSpec.classBuilder(model.generatedClassName.className)

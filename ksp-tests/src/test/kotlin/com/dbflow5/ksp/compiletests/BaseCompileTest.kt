@@ -5,7 +5,10 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import org.koin.core.context.stopKoin
+import kotlin.test.AfterTest
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
  * Description:
@@ -23,6 +26,15 @@ open class BaseCompileTest {
     ) {
         val result = compilation(temporaryFolder, sources = sources).compile()
         assertEquals(exitCode, result.exitCode)
+        if (exitCode == KotlinCompilation.ExitCode.OK) {
+            val generatedSources = result.kspGeneratedSources
+            assertTrue(generatedSources.isNotEmpty())
+        }
         result.resultFn()
+    }
+
+    @AfterTest
+    fun stop() {
+        stopKoin()
     }
 }
