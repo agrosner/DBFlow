@@ -1,28 +1,21 @@
 package com.dbflow5.ksp.compiletests
 
-import com.dbflow5.ksp.compilation
 import com.dbflow5.ksp.compiletests.sourcefiles.dbFile
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import org.intellij.lang.annotations.Language
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import org.koin.core.context.stopKoin
 import kotlin.test.AfterTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 
 /**
  * Description:
  */
-class TableTests {
-
-    @Rule
-    @JvmField
-    val temporaryFolder: TemporaryFolder = TemporaryFolder()
+class TableTests : BaseCompileTest() {
 
     @Test
     fun `basic table`() {
+        @Language("kotlin")
         val source = SourceFile.kotlin(
             "SimpleModel.kt",
             """
@@ -34,12 +27,14 @@ class TableTests {
             class SimpleModel(@PrimaryKey val name: String)  
             """.trimIndent()
         )
-        val result = compilation(temporaryFolder, sources = listOf(dbFile, source)).compile()
-        assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+        assertRun(
+            sources = listOf(dbFile, source)
+        )
     }
 
     @Test
     fun `foreign key table`() {
+        @Language("kotlin")
         val source = SourceFile.kotlin(
             "ForeignKeyTable.kt",
             """
@@ -59,12 +54,14 @@ class TableTests {
 
             """.trimIndent()
         )
-        val result = compilation(temporaryFolder, sources = listOf(dbFile, source)).compile()
-        assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+        assertRun(
+            sources = listOf(dbFile, source)
+        )
     }
 
     @Test
     fun `inline class table`() {
+        @Language("kotlin")
         val source = SourceFile.kotlin(
             "SimpleModel.kt",
             """
@@ -79,12 +76,12 @@ class TableTests {
             class SimpleModel(@PrimaryKey val name: Name)  
             """.trimIndent()
         )
-        val result = compilation(temporaryFolder, sources = listOf(dbFile, source)).compile()
-        assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+        assertRun(sources = listOf(dbFile, source))
     }
 
     @Test
     fun `property has global type converter`() {
+        @Language("kotlin")
         val source = SourceFile.kotlin(
             "SimpleModel.kt",
             """
@@ -100,12 +97,12 @@ class TableTests {
             )  
             """.trimIndent()
         )
-        val result = compilation(temporaryFolder, sources = listOf(dbFile, source)).compile()
-        assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+        assertRun(sources = listOf(dbFile, source))
     }
 
     @Test
     fun `java class with constructor should apply constructor`() {
+        @Language("java")
         val source = SourceFile.java(
             "TestDatabase.java",
             """
@@ -120,14 +117,15 @@ class TableTests {
             
             """.trimIndent()
         )
+
+        @Language("java")
         val databaseModelSource = SourceFile.java(
             "DatabaseModel.java",
             """
                 package test;
                 import com.dbflow5.annotation.PrimaryKey;
-                import com.dbflow5.structure.BaseModel;
 
-                public class DatabaseModel extends BaseModel {
+                public class DatabaseModel {
                     @PrimaryKey
                     private Integer id;
     
@@ -141,6 +139,8 @@ class TableTests {
                 }
             """.trimIndent()
         )
+
+        @Language("java")
         val exampleModel = SourceFile.java(
             "ExampleModel.java",
             """
@@ -162,6 +162,8 @@ class TableTests {
             }
             """.trimIndent()
         )
+
+        @Language("java")
         val otherPackageSource = SourceFile.java(
             "JavaModel.java",
             """
@@ -180,45 +182,41 @@ class TableTests {
 
             """.trimIndent()
         )
-        val result = compilation(
-            temporaryFolder,
+        assertRun(
             sources = listOf(
                 source,
                 otherPackageSource,
                 databaseModelSource,
                 exampleModel,
             )
-        ).compile()
-        assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+        )
     }
 
 
     @Test
     fun `ignore delegate`() {
+        @Language("kotlin")
         val source = SourceFile.kotlin(
             "SimpleModel.kt",
             """
             package test
             import com.dbflow5.annotation.Table
             import com.dbflow5.annotation.PrimaryKey
-            import com.dbflow5.reactivestreams.structure.BaseRXModel 
-            import com.dbflow5.structure.BaseModel
-
 
             @Table(database = TestDatabase::class)
-            data class SimpleModel(@PrimaryKey val name: String)  : BaseModel()
+            data class SimpleModel(@PrimaryKey val name: String)
 
             @Table(database = TestDatabase::class)
-            data class SimpleRXModel(@PrimaryKey val name: String): BaseRXModel()
+            data class SimpleRXModel(@PrimaryKey val name: String)
             """.trimIndent()
         )
-        val result = compilation(temporaryFolder, sources = listOf(dbFile, source)).compile()
-        assertEquals(result.exitCode, KotlinCompilation.ExitCode.OK)
+        assertRun(sources = listOf(dbFile, source))
     }
 
     @Test
     fun `validate throws error on extra property out of constructor`() {
-        @Language("kotlin") val source = SourceFile.kotlin(
+        @Language("kotlin")
+        val source = SourceFile.kotlin(
             "primary.kt",
             """
                 import com.dbflow5.annotation.PrimaryKey
@@ -233,8 +231,10 @@ class TableTests {
                 }
             """.trimIndent()
         )
-        val result = compilation(temporaryFolder, sources = listOf(dbFile, source)).compile()
-        assertEquals(result.exitCode, KotlinCompilation.ExitCode.COMPILATION_ERROR)
+        assertRun(
+            sources = listOf(dbFile, source),
+            exitCode = KotlinCompilation.ExitCode.COMPILATION_ERROR
+        )
     }
 
     @AfterTest

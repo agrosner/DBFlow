@@ -10,6 +10,7 @@ import org.intellij.lang.annotations.Language
 val dbFile = SourceFile.kotlin(
     "Database.kt",
     """
+    package test
     import com.dbflow5.annotation.Database
     import com.dbflow5.config.DBFlowDatabase
 

@@ -1,14 +1,10 @@
 package com.dbflow5.ksp.parser
 
 import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueArgument
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
-import com.squareup.kotlinpoet.typeNameOf
 
 typealias ArgMap = Map<String, KSValueArgument>
 
@@ -41,15 +37,3 @@ fun ArgMap.className(name: String) =
 
 fun ArgMap.annotationMap(name: String) =
     arg<KSAnnotation>(name).arguments.mapProperties()
-
-inline fun <reified T> Sequence<KSAnnotation>.anyAnnotation() = any { a ->
-    a.annotationType.toTypeName() == typeNameOf<T>()
-}
-
-inline fun <reified T> KSPropertyDeclaration.hasAnnotation() = annotations.anyAnnotation<T>()
-    || getter?.annotations?.anyAnnotation<T>() ?: false
-    || setter?.annotations?.anyAnnotation<T>() ?: false
-
-inline fun <reified T> KSFunctionDeclaration.hasAnnotation() = annotations.anyAnnotation<T>()
-
-inline fun <reified T> KSClassDeclaration.hasAnnotation() = annotations.anyAnnotation<T>()

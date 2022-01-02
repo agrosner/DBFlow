@@ -32,8 +32,10 @@ class ReferencesCache(
         data class MissingReferences(
             val type: String,
             val classType: TypeName,
+            val field: FieldModel,
         ) : Validation {
-            override val message: String = "Could not find $type references for $classType."
+            override val message: String = "Could not find $type references for $classType on " +
+                "field ${field.name.shortName}."
         }
     }
 
@@ -50,7 +52,10 @@ class ReferencesCache(
 
     private val referenceMap = mutableMapOf<ReferenceType, List<SingleFieldModel>>()
 
-    fun resolveExistingFields(classType: TypeName): List<SingleFieldModel> {
+    fun resolveExistingFields(
+        fieldModel: FieldModel,
+        classType: TypeName
+    ): List<SingleFieldModel> {
         val nonNullVersion = classType.copy(false)
         return (referenceMap.getOrPut(ReferenceType.AllFromClass(nonNullVersion)) {
             allTables.firstOrNull { it.classType == nonNullVersion }
@@ -66,26 +71,35 @@ class ReferencesCache(
         }).takeIf { it.isNotEmpty() } ?: throw Validation.MissingReferences(
             "Primary",
             classType,
+            fieldModel,
         ).exception
     }
 
-    fun resolveOneToManyReferences(classType: TypeName): List<SingleFieldModel> {
+    fun resolveOneToManyReferences(
+        fieldModel: FieldModel,
+        classType: TypeName
+    ): List<SingleFieldModel> {
         val nonNullVersion = classType.copy(false)
         return (referenceMap.getOrPut(ReferenceType.OneToManyReference(nonNullVersion)) {
             allTables.firstOrNull { it.classType == nonNullVersion }
-                ?.fields?.filterIsInstance<ReferenceHolderModel>()?.map {
-                    it.references(
-                        this,
-                        nameToNest = it.name,
-                    )
+                ?.primaryFields?.map {
+                    when (it) {
+                        is ReferenceHolderModel -> it.references(
+                            this,
+                            nameToNest = it.name,
+                        )
+                        is SingleFieldModel -> listOf(it)
+                    }
                 }?.flatten() ?: listOf()
         }).takeIf { it.isNotEmpty() } ?: throw Validation.MissingReferences(
             "any field",
-            classType
+            classType,
+            fieldModel,
         ).exception
     }
 
     fun resolveComputedFields(
+        fieldModel: FieldModel,
         ksType: KSType,
     ): List<SingleFieldModel> {
         val nonNullType = ksType.makeNotNullable()
@@ -100,10 +114,12 @@ class ReferencesCache(
         }).takeIf { it.isNotEmpty() } ?: throw Validation.MissingReferences(
             "computed",
             nonNullType.toTypeName(),
+            fieldModel,
         ).exception
     }
 
     fun resolveReferencesOnExisting(
+        fieldModel: FieldModel,
         list: List<ReferenceProperties>,
         classType: TypeName
     ): List<SingleFieldModel> {
@@ -112,12 +128,13 @@ class ReferencesCache(
                 list.hashCode()
             )
         ) {
-            this.resolveExistingFields(classType)
+            this.resolveExistingFields(fieldModel, classType)
                 .filter { field -> list.any { it.referencedName == field.name.shortName } }
         }
     }
 
     fun resolveReferencesOnComputedFields(
+        fieldModel: FieldModel,
         list: List<ReferenceProperties>,
         ksType: KSType,
     ): List<SingleFieldModel> {
@@ -126,7 +143,7 @@ class ReferencesCache(
                 list.hashCode()
             )
         ) {
-            this.resolveComputedFields(ksType)
+            this.resolveComputedFields(fieldModel, ksType)
                 .filter { field -> list.any { it.referencedName == field.name.shortName } }
         }
     }

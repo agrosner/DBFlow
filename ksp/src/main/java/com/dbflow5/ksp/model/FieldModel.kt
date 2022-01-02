@@ -204,6 +204,7 @@ data class ReferenceHolderModel(
 
                 // for now only grab all references.
                 return referencesCache.resolveOneToManyReferences(
+                    this,
                     tableTypeName
                 ).map(nestNameReference(nameToNest))
             }
@@ -219,10 +220,12 @@ data class ReferenceHolderModel(
                 }
                 return when (referenceHolderProperties.referencesType) {
                     is ReferenceHolderProperties.ReferencesType.All -> referencesCache.resolveExistingFields(
+                        this,
                         tableTypeName
                     )
                     is ReferenceHolderProperties.ReferencesType.Specific -> {
                         referencesCache.resolveReferencesOnExisting(
+                            this,
                             referenceHolderProperties.referencesType.references,
                             tableTypeName,
                         )
@@ -232,10 +235,12 @@ data class ReferenceHolderModel(
             Type.Computed -> {
                 return when (referenceHolderProperties.referencesType) {
                     is ReferenceHolderProperties.ReferencesType.All -> referencesCache.resolveComputedFields(
+                        this,
                         ksClassType,
                     )
                     is ReferenceHolderProperties.ReferencesType.Specific -> {
                         referencesCache.resolveReferencesOnComputedFields(
+                            this,
                             referenceHolderProperties.referencesType.references,
                             ksClassType,
                         )

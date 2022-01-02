@@ -82,14 +82,14 @@ class KSClassDeclarationParser(
             val className: ClassName,
         ) : Validation {
             override val message: String =
-                "$className must also declare a Table annotation with $annotationName"
+                "Missing @Table: $className must also declare a Table annotation with $annotationName"
         }
 
         data class MissingModelViewQuery(
             val className: ClassName,
         ) : Validation {
             override val message: String =
-                "Could not find a ModelViewQuery for $className. It should " +
+                "Missing @ModelViewQuery: Could not find a ModelViewQuery for $className. It should " +
                     "exist as a companion object field that is accessible."
         }
 
@@ -99,13 +99,21 @@ class KSClassDeclarationParser(
             val constructorCount: Int? = null,
         ) : Validation {
             override val message: String =
-                "Could not find a valid constructor to create the model " +
+                "Invalid constructor: Could not find a valid constructor to create the model " +
                     "$className. Ensure either all properties are in constructor, or a single, default " +
                     "constructor exists. Found ($fieldsCount) fields " +
                     "${
                         if (constructorCount != null) " for ($constructorCount) " +
                             "constructor fields" else ""
                     }."
+        }
+
+        data class InvalidSuperType(
+            val className: ClassName,
+            val expectedSuperType: ClassName,
+        ) : Validation {
+            override val message: String =
+                "Invalid supertype: Expected $expectedSuperType for $className."
         }
     }
 
@@ -133,6 +141,12 @@ class KSClassDeclarationParser(
             val originatingFile = input.containingFile
             when (annotation.annotationType.toTypeName()) {
                 typeNameOf<Database>() -> {
+                    if (!input.hasSuperType(ClassNames.DBFlowDatabase)) {
+                        throw Validation.InvalidSuperType(
+                            classType,
+                            ClassNames.DBFlowDatabase,
+                        ).exception
+                    }
                     DatabaseModel(
                         name = name,
                         classType = classType,
