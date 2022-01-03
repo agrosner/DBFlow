@@ -1,5 +1,6 @@
 package com.dbflow5.ksp.writer.classwriter
 
+import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.SQLiteLookup
@@ -92,9 +93,15 @@ class CreationQueryWriter(
                                         clsModel.primaryFlattenedFields(referencesCache)
                                             .filterNot { (it.fieldType as FieldModel.FieldType.PrimaryAuto).isAutoIncrement }
                                     if (nonAutoFields.isNotEmpty()) {
+                                        val primaryKeyConflict =
+                                            (clsModel.properties as TableProperties)
+                                                .primaryKeyConflict
                                         append(", PRIMARY KEY(")
                                         append(nonAutoFields.joinToString { it.dbName.quoteIfNeeded() })
                                         append(")")
+                                        if (primaryKeyConflict != ConflictAction.NONE) {
+                                            append(" ON CONFLICT $primaryKeyConflict")
+                                        }
                                     }
                                     if (clsModel.referenceFields.isNotEmpty()) {
                                         clsModel.referenceFields
