@@ -52,7 +52,7 @@ class StatementBinderWriter(
         model: FieldModel,
         index: Int,
         modelName: String = "model",
-    ): FunSpec.Builder = with(this) {
+    ): Int = with(this) {
         when (model) {
             is ReferenceHolderModel -> {
                 if (referencesCache.isTable(model)
@@ -73,7 +73,7 @@ class StatementBinderWriter(
         modelName: String,
         model: ReferenceHolderModel,
         index: Int
-    ) = apply {
+    ): Int {
         // foreign key has nesting logic
         this.beginControlFlow(
             "%L.%L.let { m -> ",
@@ -81,13 +81,15 @@ class StatementBinderWriter(
             model.accessName(useLastNull = true),
         )
 
-        model.references(
+        val references = model.references(
             referencesCache,
             nameToNest = model.name
         )
-            .forEachIndexed { i, reference ->
-                loopModels(
-                    model = reference, index = index + i,
+        var currentIndex = index - 1
+        references
+            .forEach { reference ->
+                currentIndex = loopModels(
+                    model = reference, index = currentIndex + 1,
                     modelName = "m"
                 )
             }
@@ -96,13 +98,14 @@ class StatementBinderWriter(
             this.addStatement("statement.bindNull(%L)", index)
         }
         this.endControlFlow()
+        return currentIndex
     }
 
     private fun FunSpec.Builder.writeSingleModel(
         model: FieldModel,
         modelName: String,
         index: Int
-    ): FunSpec.Builder = apply {
+    ): Int {
         addCode(
             "%L.%L.%M(%L.%L",
             "Companion",
@@ -122,6 +125,7 @@ class StatementBinderWriter(
         }
 
         addCode("\n")
+        return index
     }
 
     private val simpleWriter =
@@ -131,8 +135,9 @@ class StatementBinderWriter(
                     addModifiers(KModifier.OVERRIDE)
                     addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
                     addParameter(ParameterSpec("model", model.classType))
-                    fieldsToLoop.forEachIndexed { index, model ->
-                        this.loopModels(model, index + 1)
+                    var currentIndex = 0
+                    fieldsToLoop.forEach { model ->
+                        currentIndex = this.loopModels(model, currentIndex + 1)
                     }
                     if (model.implementsSQLiteStatementListener) {
                         addStatement("model.%L(statement)", method.statementListenerName)
