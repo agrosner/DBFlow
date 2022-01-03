@@ -135,24 +135,20 @@ inline fun Property<ByteArray?>.bindProperty(
 
 inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data, Model>.bindProperty(
     value: Model,
-    typeConverter: TypeConverter<Data, Model>,
     statementBinder: (value: Data) -> Unit,
-) = statementBinder(typeConverter.getDBValue(value))
+) = statementBinder(typeConverter<Data, Model>().getDBValue(value))
 
 @JvmName("bindNullable")
 inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data, Model?>.bindProperty(
     value: Model?,
-    typeConverter: TypeConverter<Data, Model>,
     statementBinder: (value: Data?) -> Unit,
-) = statementBinder(value?.let { typeConverter.getDBValue(it) })
+) = statementBinder(value?.let { typeConverter<Data, Model>().getDBValue(it) })
 
 @JvmName("bindBothNullable")
 inline fun <Data : Any, Model : Any> TypeConvertedProperty<Data?, Model?>.bindProperty(
     value: Model?,
-    typeConverter: TypeConverter<Data, Model>,
     statementBinder: (value: Data?) -> Unit,
-) = statementBinder(value?.let { typeConverter.getDBValue(it) })
-
+) = statementBinder(value?.let { typeConverter<Data, Model>().getDBValue(it) })
 
 inline fun <E : Enum<E>> Property<E>.bindProperty(
     value: E,

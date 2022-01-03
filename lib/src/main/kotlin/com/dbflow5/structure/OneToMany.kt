@@ -8,11 +8,20 @@ import kotlin.reflect.KProperty
 /**
  * Description:
  */
+@Suppress("DeprecatedCallableAddReplaceWith")
+@Deprecated(
+    "This class encourages main thread reading. Use the @OneToManyRelation " +
+        "annotation to generate better safety for you."
+)
 fun <T : Any> oneToMany(query: () -> ModelQueriable<T>) = OneToMany(query)
 
 /**
  * Description: Wraps a [OneToMany] annotation getter into a concise property setter.
  */
+@Deprecated(
+    "This class encourages main thread reading. Use the @OneToManyRelation " +
+        "annotation to generate better safety for you."
+)
 class OneToMany<T : Any>(private val query: () -> ModelQueriable<T>) :
     ReadOnlyProperty<Any, List<T>?> {
 

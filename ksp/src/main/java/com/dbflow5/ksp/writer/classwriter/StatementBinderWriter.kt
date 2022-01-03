@@ -9,7 +9,6 @@ import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.hasTypeConverter
-import com.dbflow5.ksp.model.typeConverter
 import com.dbflow5.ksp.writer.TypeCreator
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -85,7 +84,7 @@ class StatementBinderWriter(
         index: Int
     ): FunSpec.Builder = apply {
         addCode(
-            "%L.%L.%M(%L.%L,",
+            "%L.%L.%M(%L.%L",
             "Companion",
             model.propertyName,
             MemberNames.propertyBind,
@@ -94,14 +93,12 @@ class StatementBinderWriter(
         )
         if (model.hasTypeConverter(typeConverterCache)) {
             addCode(
-                "%L) { statement.%M(%L, it) }",
-                model.typeConverter(typeConverterCache).name.shortName
-                    .lowercase(),
+                ") { statement.%M(%L, it) }",
                 MemberNames.bind,
                 index,
             )
         } else {
-            addCode("statement, %L)", index)
+            addCode(",statement, %L)", index)
         }
 
         addCode("\n")

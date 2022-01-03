@@ -10,10 +10,8 @@ import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.generatedClassName
-import com.dbflow5.ksp.model.hasTypeConverter
 import com.dbflow5.ksp.model.memberSeparator
 import com.dbflow5.ksp.model.properties.CreatableScopeProperties
-import com.dbflow5.ksp.model.typeConverter
 import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
 import com.dbflow5.ksp.writer.classwriter.CreationQueryWriter
 import com.dbflow5.ksp.writer.classwriter.FieldPropertyWriter
@@ -39,7 +37,6 @@ import com.squareup.kotlinpoet.SHORT
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
-import java.util.*
 import kotlin.reflect.KClass
 
 /**
@@ -101,16 +98,6 @@ class ClassWriter(
             ClassModel.ClassType.Query -> ClassNames.retrievalAdapter(model.classType)
         }
 
-        val typeConverters = model.flattenedFields(referencesCache)
-            .filter { it.hasTypeConverter(typeConverterCache) }
-            .associate {
-                val typeConverter = it.typeConverter(typeConverterCache)
-                typeConverter.name.shortName.lowercase(
-                    Locale.getDefault()
-                ) to typeConverter
-            }
-
-
         return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
             .addType(
                 TypeSpec.classBuilder(model.generatedClassName.className)
@@ -134,14 +121,6 @@ class ClassWriter(
                         if (model.isInternal) {
                             addModifiers(KModifier.INTERNAL)
                         }
-                        typeConverters.forEach { (name, model) ->
-                            addProperty(
-                                typeConverterFieldWriter.create(
-                                    TypeConverterFieldWriter.Input(model, name)
-                                )
-                            )
-                        }
-
                         addProperty(tableParam.propertySpec)
                         if (!model.isQuery) {
                             addProperty(tableNameParam.propertySpec)
