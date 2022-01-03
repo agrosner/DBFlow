@@ -45,13 +45,11 @@ import kotlin.reflect.KClass
 class ClassWriter(
     private val fieldPropertyWriter: FieldPropertyWriter,
     private val referencesCache: ReferencesCache,
-    private val typeConverterCache: TypeConverterCache,
     private val loadFromCursorWriter: LoadFromCursorWriter,
     private val getPropertyMethodWriter: GetPropertyMethodWriter,
     private val allColumnPropertiesWriter: AllColumnPropertiesWriter,
     private val primaryConditionClauseWriter: PrimaryConditionClauseWriter,
     private val statementBinderWriter: StatementBinderWriter,
-    private val typeConverterFieldWriter: TypeConverterFieldWriter,
     private val creationQueryWriter: CreationQueryWriter,
     private val indexPropertyWriter: IndexPropertyWriter,
 ) : TypeCreator<ClassModel, FileSpec> {
