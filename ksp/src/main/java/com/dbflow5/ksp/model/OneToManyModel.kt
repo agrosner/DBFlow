@@ -109,5 +109,6 @@ data class OneToManyModel(
             originatingFile = originatingFile,
             indexGroups = listOf(),
             uniqueGroups = listOf(),
+            implementsLoadFromCursorListener = false,
         )
 }

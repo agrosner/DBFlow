@@ -167,5 +167,6 @@ data class ManyToManyModel(
                 )
             ),
             uniqueGroups = listOf(),
+            implementsLoadFromCursorListener = false,
         )
 }

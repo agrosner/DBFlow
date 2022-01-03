@@ -35,8 +35,8 @@ annotation class ForeignKey(
      * the Select retrieval convenience.
      */
     @Deprecated(
-        "This property does not work with immutable models, replace " +
-            "with stub property type."
+        "This property does not work with immutable models and encourages main " +
+            "thread reading. Replace with basic fields for foreign key."
     )
     val stubbedRelationship: Boolean = false,
     /**

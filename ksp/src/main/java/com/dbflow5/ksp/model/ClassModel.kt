@@ -30,6 +30,7 @@ data class ClassModel(
      * If true, generated adapter will also generate internal.
      */
     val isInternal: Boolean,
+    val implementsLoadFromCursorListener: Boolean,
     override val originatingFile: KSFile?,
 ) : ObjectModel {
 

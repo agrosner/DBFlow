@@ -46,7 +46,8 @@ class LoadFromCursorWriter(
                     model.classType,
                     model.hasPrimaryConstructor,
                     model.memberSeparator,
-                    constructorFields
+                    constructorFields,
+                    model.implementsLoadFromCursorListener,
                 )
             }
             .build()
@@ -55,7 +56,8 @@ class LoadFromCursorWriter(
         classType: TypeName,
         hasPrimaryConstructor: Boolean,
         memberSeparator: String,
-        constructorFields: List<FieldModel>
+        constructorFields: List<FieldModel>,
+        implementsLoadFromCursorListener: Boolean,
     ) {
         if (hasPrimaryConstructor) {
             addCode("%T(\n", classType)
@@ -74,6 +76,10 @@ class LoadFromCursorWriter(
             addCode(")")
         } else {
             endControlFlow()
+        }
+
+        if (implementsLoadFromCursorListener) {
+            addStatement(".also { it.onLoadFromCursor(cursor) } ")
         }
     }
 
@@ -125,6 +131,7 @@ class LoadFromCursorWriter(
             hasPrimaryConstructor = true,
             memberSeparator = ",",
             constructorFields = references,
+            implementsLoadFromCursorListener = false,
         )
         addStatement("")
     }

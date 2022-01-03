@@ -223,6 +223,8 @@ class KSClassDeclarationParser(
                             }
                     val hasDefaultConstructor = emptyConstructor != null
                     val fields = fieldSanitizer.parse(input = input)
+                    val implementsLoadFromCursorListener = input
+                        .superTypes.any { it.toTypeName() == ClassNames.LoadFromCursorListener }
                     if (emptyConstructor == null) {
                         // find constructor that matches exactly by name.
                         input.getConstructors().firstNotNullOf {
@@ -264,6 +266,7 @@ class KSClassDeclarationParser(
                                 hasPrimaryConstructor = !hasDefaultConstructor,
                                 isInternal = isInternal,
                                 originatingFile = originatingFile,
+                                implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                                 indexGroups = properties.indexGroupProperties
                                     .map { group ->
                                         IndexGroupModel(
@@ -325,6 +328,7 @@ class KSClassDeclarationParser(
                                 originatingFile = originatingFile,
                                 indexGroups = listOf(),
                                 uniqueGroups = listOf(),
+                                implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                             )
                         }
                         typeNameOf<Query>() -> {
@@ -339,6 +343,7 @@ class KSClassDeclarationParser(
                                 originatingFile = originatingFile,
                                 indexGroups = listOf(),
                                 uniqueGroups = listOf(),
+                                implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                             )
                         }
                         else -> null

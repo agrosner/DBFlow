@@ -79,6 +79,7 @@ object ClassNames {
             ),
         ),
     )
+    val LoadFromCursorListener = ClassName(PackageNames.Query, "LoadFromCursorListener")
 }
 
 object MemberNames {
