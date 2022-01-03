@@ -14,9 +14,29 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 
-data class StatementModel(
+private sealed interface Method {
+    val name: String
+    val statementListenerName: String
+
+    object Insert : Method {
+        override val name: String = "bindToInsertStatement"
+        override val statementListenerName: String = "onBindToInsertStatement"
+    }
+
+    object Update : Method {
+        override val name: String = "bindToUpdateStatement"
+        override val statementListenerName: String = "onBindToUpdateStatement"
+    }
+
+    object Delete : Method {
+        override val name: String = "bindToDeleteStatement"
+        override val statementListenerName: String = "onBindToDeleteStatement"
+    }
+}
+
+private data class StatementModel(
     val classModel: ClassModel,
-    val methodName: String,
+    val method: Method,
     val fieldsToLoop: List<FieldModel>,
 )
 
@@ -104,26 +124,30 @@ class StatementBinderWriter(
         addCode("\n")
     }
 
-    private val simpleWriter = TypeCreator<StatementModel, FunSpec> { (model, name, fieldsToLoop) ->
-        FunSpec.builder(name)
-            .apply {
-                addModifiers(KModifier.OVERRIDE)
-                addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
-                addParameter(ParameterSpec("model", model.classType))
-                fieldsToLoop.forEachIndexed { index, model ->
-                    this.loopModels(model, index + 1)
+    private val simpleWriter =
+        TypeCreator<StatementModel, FunSpec> { (model, method, fieldsToLoop) ->
+            FunSpec.builder(method.name)
+                .apply {
+                    addModifiers(KModifier.OVERRIDE)
+                    addParameter(ParameterSpec("statement", ClassNames.DatabaseStatement))
+                    addParameter(ParameterSpec("model", model.classType))
+                    fieldsToLoop.forEachIndexed { index, model ->
+                        this.loopModels(model, index + 1)
+                    }
+                    if (model.implementsSQLiteStatementListener) {
+                        addStatement("model.%L(statement)", method.statementListenerName)
+                    }
                 }
-            }
-            .build()
-    }
+                .build()
+        }
 
 
     val insertWriter = TypeCreator<ClassModel, FunSpec> { model ->
         simpleWriter.create(
             StatementModel(
                 classModel = model,
-                methodName = "bindToInsertStatement",
-                fieldsToLoop = model.fields
+                method = Method.Insert,
+                fieldsToLoop = model.fields,
             )
         )
     }
@@ -132,8 +156,8 @@ class StatementBinderWriter(
         simpleWriter.create(
             StatementModel(
                 classModel = model,
-                methodName = "bindToUpdateStatement",
-                fieldsToLoop = listOf(model.fields, model.primaryFields).flatten()
+                method = Method.Update,
+                fieldsToLoop = listOf(model.fields, model.primaryFields).flatten(),
             )
         )
     }
@@ -142,7 +166,7 @@ class StatementBinderWriter(
         simpleWriter.create(
             StatementModel(
                 classModel = model,
-                methodName = "bindToDeleteStatement",
+                method = Method.Delete,
                 fieldsToLoop = model.primaryFields,
             )
         )

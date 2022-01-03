@@ -225,6 +225,8 @@ class KSClassDeclarationParser(
                     val fields = fieldSanitizer.parse(input = input)
                     val implementsLoadFromCursorListener = input
                         .superTypes.any { it.toTypeName() == ClassNames.LoadFromCursorListener }
+                    val implementsSQLiteStatementListener = input
+                        .superTypes.any { it.toTypeName() == ClassNames.SQLiteStatementListener }
                     if (emptyConstructor == null) {
                         // find constructor that matches exactly by name.
                         input.getConstructors().firstNotNullOf {
@@ -267,6 +269,7 @@ class KSClassDeclarationParser(
                                 isInternal = isInternal,
                                 originatingFile = originatingFile,
                                 implementsLoadFromCursorListener = implementsLoadFromCursorListener,
+                                implementsSQLiteStatementListener = implementsSQLiteStatementListener,
                                 indexGroups = properties.indexGroupProperties
                                     .map { group ->
                                         IndexGroupModel(
@@ -329,6 +332,7 @@ class KSClassDeclarationParser(
                                 indexGroups = listOf(),
                                 uniqueGroups = listOf(),
                                 implementsLoadFromCursorListener = implementsLoadFromCursorListener,
+                                implementsSQLiteStatementListener = implementsSQLiteStatementListener,
                             )
                         }
                         typeNameOf<Query>() -> {
@@ -344,6 +348,7 @@ class KSClassDeclarationParser(
                                 indexGroups = listOf(),
                                 uniqueGroups = listOf(),
                                 implementsLoadFromCursorListener = implementsLoadFromCursorListener,
+                                implementsSQLiteStatementListener = implementsSQLiteStatementListener,
                             )
                         }
                         else -> null

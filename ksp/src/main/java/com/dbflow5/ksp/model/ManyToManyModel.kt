@@ -168,5 +168,6 @@ data class ManyToManyModel(
             ),
             uniqueGroups = listOf(),
             implementsLoadFromCursorListener = false,
+            implementsSQLiteStatementListener = false,
         )
 }

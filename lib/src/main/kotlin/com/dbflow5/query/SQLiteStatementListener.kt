@@ -17,7 +17,7 @@ interface SQLiteStatementListener {
      *
      * @param databaseStatement The insert statement from the [ModelAdapter]
      */
-    fun onBindToInsertStatement(databaseStatement: DatabaseStatement)
+    fun onBindToInsertStatement(databaseStatement: DatabaseStatement) = Unit
 
     /**
      * Called at the end of [InternalAdapter.bindToUpdateStatement]
@@ -25,7 +25,7 @@ interface SQLiteStatementListener {
      *
      * @param databaseStatement The insert statement from the [ModelAdapter]
      */
-    fun onBindToUpdateStatement(databaseStatement: DatabaseStatement)
+    fun onBindToUpdateStatement(databaseStatement: DatabaseStatement) = Unit
 
-    fun onBindToDeleteStatement(databaseStatement: DatabaseStatement)
+    fun onBindToDeleteStatement(databaseStatement: DatabaseStatement) = Unit
 }

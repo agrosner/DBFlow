@@ -16,7 +16,6 @@ import com.dbflow5.annotation.Unique
 import com.dbflow5.annotation.UniqueGroup
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.data.Blob
-import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.query.SQLiteStatementListener
 import java.math.BigDecimal
 import java.math.BigInteger
@@ -147,20 +146,7 @@ data class Transfer2(
 data class Account(@PrimaryKey var id: UUID = UUID.randomUUID())
 
 @Table(database = TestDatabase::class)
-class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener {
-
-    override fun onBindToInsertStatement(databaseStatement: DatabaseStatement) {
-        TODO("not implemented")
-    }
-
-    override fun onBindToUpdateStatement(databaseStatement: DatabaseStatement) {
-        TODO("not implemented")
-    }
-
-    override fun onBindToDeleteStatement(databaseStatement: DatabaseStatement) {
-        TODO("not implemented")
-    }
-}
+class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener
 
 data class CustomType(val name: Int = 0)
 

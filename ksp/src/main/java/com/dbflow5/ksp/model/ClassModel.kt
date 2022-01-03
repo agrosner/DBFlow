@@ -31,6 +31,7 @@ data class ClassModel(
      */
     val isInternal: Boolean,
     val implementsLoadFromCursorListener: Boolean,
+    val implementsSQLiteStatementListener: Boolean,
     override val originatingFile: KSFile?,
 ) : ObjectModel {
 

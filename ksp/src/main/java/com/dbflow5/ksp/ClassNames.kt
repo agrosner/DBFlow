@@ -5,7 +5,6 @@ import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.WildcardTypeName
-import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 
 object PackageNames {
@@ -67,19 +66,8 @@ object ClassNames {
 
     val ObjectType = ClassName(PackageNames.Adapter, "ObjectType")
     val TypeConverter = ClassName(PackageNames.Converter, "TypeConverter")
-    val TypeConverterWithProjection = TypeConverter.parameterizedBy(
-        WildcardTypeName.producerOf(
-            Any::class.asClassName().copy(
-                nullable = true
-            ),
-        ),
-        WildcardTypeName.producerOf(
-            Any::class.asClassName().copy(
-                nullable = true
-            ),
-        ),
-    )
     val LoadFromCursorListener = ClassName(PackageNames.Query, "LoadFromCursorListener")
+    val SQLiteStatementListener = ClassName(PackageNames.Query, "SQLiteStatementListener")
 }
 
 object MemberNames {

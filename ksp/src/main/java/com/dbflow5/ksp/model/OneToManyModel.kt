@@ -110,5 +110,6 @@ data class OneToManyModel(
             indexGroups = listOf(),
             uniqueGroups = listOf(),
             implementsLoadFromCursorListener = false,
+            implementsSQLiteStatementListener = false,
         )
 }
