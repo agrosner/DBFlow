@@ -29,7 +29,10 @@ interface InternalAdapter<TModel> {
      * @param databaseWrapper The manually specified wrapper
      * @return the models saved or updated, null if none successful.
      */
-    fun saveAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
+    fun saveAll(
+        models: Collection<TModel>,
+        databaseWrapper: DatabaseWrapper
+    ): Result<Collection<TModel>>
 
     /**
      * Inserts the specified model into the DB.
@@ -46,7 +49,10 @@ interface InternalAdapter<TModel> {
      * @param databaseWrapper The manually specified wrapper
      * @return the inserted models.
      */
-    fun insertAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
+    fun insertAll(
+        models: Collection<TModel>,
+        databaseWrapper: DatabaseWrapper
+    ): Result<Collection<TModel>>
 
     /**
      * Updates the specified model into the DB.
@@ -64,7 +70,10 @@ interface InternalAdapter<TModel> {
      * @param databaseWrapper The manually specified wrapper
      * @return successful updates, if null none were successful.
      */
-    fun updateAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
+    fun updateAll(
+        models: Collection<TModel>,
+        databaseWrapper: DatabaseWrapper
+    ): Result<Collection<TModel>>
 
     /**
      * Deletes the model from the DB
@@ -81,26 +90,29 @@ interface InternalAdapter<TModel> {
      * @param databaseWrapper The manually specified wrapper
      * @return count of successful deletions.
      */
-    fun deleteAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
+    fun deleteAll(
+        models: Collection<TModel>,
+        databaseWrapper: DatabaseWrapper
+    ): Result<Collection<TModel>>
 
     /**
      * Binds to a [DatabaseStatement] for insert.
      *
-     * @param sqLiteStatement The statement to bind to.
-     * @param model           The model to read from.
+     * @param statement The statement to bind to.
+     * @param model     The model to read from.
      */
-    fun bindToInsertStatement(sqLiteStatement: DatabaseStatement, model: TModel)
+    fun bindToInsertStatement(statement: DatabaseStatement, model: TModel)
 
     /**
      * Binds values of the model to an update [DatabaseStatement]. It repeats each primary
      * key binding twice to ensure proper update statements.
      */
-    fun bindToUpdateStatement(updateStatement: DatabaseStatement, model: TModel)
+    fun bindToUpdateStatement(statement: DatabaseStatement, model: TModel)
 
     /**
      * Binds values of the model to a delete [DatabaseStatement].
      */
-    fun bindToDeleteStatement(deleteStatement: DatabaseStatement, model: TModel)
+    fun bindToDeleteStatement(statement: DatabaseStatement, model: TModel)
 
     /**
      * If a model has an autoincrementing primary key, then
