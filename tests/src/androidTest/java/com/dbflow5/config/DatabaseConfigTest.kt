@@ -5,7 +5,6 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.OpenHelper
-import com.dbflow5.transaction.BaseTransactionManager
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Test
@@ -33,17 +32,11 @@ class DatabaseConfigTest : BaseUnitTest() {
         val openHelperCreator = OpenHelperCreator { _, _ ->
             customOpenHelper
         }
-        lateinit var testTransactionManager: TestTransactionManager
-        val managerCreator = TransactionManagerCreator { databaseDefinition ->
-            testTransactionManager = TestTransactionManager(databaseDefinition)
-            testTransactionManager
-        }
 
         FlowManager.init(context) {
             database<TestDatabase>({
                 databaseName("Test")
                 helperListener(helperListener)
-                transactionManagerCreator(managerCreator)
             }, openHelperCreator)
         }
 
@@ -51,7 +44,6 @@ class DatabaseConfigTest : BaseUnitTest() {
         val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class.java]!!
         assertEquals("Test", databaseConfig.databaseName)
         assertEquals(".db", databaseConfig.databaseExtensionName)
-        assertEquals(databaseConfig.transactionManagerCreator, managerCreator)
         assertEquals(databaseConfig.databaseClass, TestDatabase::class.java)
         assertEquals(databaseConfig.openHelperCreator, openHelperCreator)
         assertEquals(databaseConfig.callback, helperListener)
@@ -59,7 +51,6 @@ class DatabaseConfigTest : BaseUnitTest() {
 
 
         val databaseDefinition = database<TestDatabase>()
-        assertEquals(databaseDefinition.transactionManager, testTransactionManager)
         assertEquals(databaseDefinition.openHelper, customOpenHelper)
     }
 
@@ -76,8 +67,4 @@ class DatabaseConfigTest : BaseUnitTest() {
         assertEquals("Test", databaseConfig.databaseName)
         assertEquals("", databaseConfig.databaseExtensionName)
     }
-
 }
-
-class TestTransactionManager(databaseDefinition: DBFlowDatabase) :
-    BaseTransactionManager(mock(), databaseDefinition)

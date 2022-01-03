@@ -16,20 +16,22 @@ import com.dbflow5.query.selectCountOf
  * Bridges the [ModelQueriable] into a [PositionalDataSource] that loads a [ModelQueriable].
  */
 class QueryDataSource<T : Any, TQuery>
-internal constructor(private val transformable: TQuery,
-                     private val database: DBFlowDatabase)
-    : PositionalDataSource<T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
+internal constructor(
+    private val transformable: TQuery,
+    private val database: DBFlowDatabase
+) : PositionalDataSource<T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
 
     private val associatedTables: Set<Class<*>> = transformable.extractFrom()?.associatedTables
         ?: setOf(transformable.table)
 
-    private val onTableChangedObserver = object : OnTableChangedObserver(associatedTables.toList()) {
-        override fun onChanged(tables: Set<Class<*>>) {
-            if (tables.isNotEmpty()) {
-                invalidate()
+    private val onTableChangedObserver =
+        object : OnTableChangedObserver(associatedTables.toList()) {
+            override fun onChanged(tables: Set<Class<*>>) {
+                if (tables.isNotEmpty()) {
+                    invalidate()
+                }
             }
         }
-    }
 
     init {
         if (transformable is WhereBase<*> && transformable.queryBuilderBase !is Select) {
@@ -47,31 +49,32 @@ internal constructor(private val transformable: TQuery,
     }
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>) {
-        database.beginTransactionAsync { db ->
-            transformable.constrain(params.startPosition.toLong(), params.loadSize.toLong())
-                .queryList(db)
-        }.execute { _, list -> callback.onResult(list) }
+        database.transact { db ->
+            val result =
+                transformable.constrain(params.startPosition.toLong(), params.loadSize.toLong())
+                    .queryList(db)
+            callback.onResult(result)
+        }
     }
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
-        database.beginTransactionAsync { db -> selectCountOf().from(transformable).longValue(db) }
-            .execute { _, count ->
-                val max = when {
-                    params.requestedLoadSize >= count - 1 -> count.toInt()
-                    else -> params.requestedLoadSize
-                }
-                database.beginTransactionAsync { db ->
-                    transformable.constrain(params.requestedStartPosition.toLong(), max.toLong()).queryList(db)
-                }.execute { _, list ->
-                    callback.onResult(list, params.requestedStartPosition, count.toInt())
-                }
+        database.transact { db ->
+            val count = selectCountOf().from(transformable).longValue(db)
+            val max = when {
+                params.requestedLoadSize >= count - 1 -> count.toInt()
+                else -> params.requestedLoadSize
             }
+            val list = transformable.constrain(params.requestedStartPosition.toLong(), max.toLong())
+                .queryList(db)
+            callback.onResult(list, params.requestedStartPosition, count.toInt())
+        }
     }
 
     class Factory<T : Any, TQuery>
-    internal constructor(private val transformable: TQuery,
-                         private val database: DBFlowDatabase)
-        : DataSource.Factory<Int, T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
+    internal constructor(
+        private val transformable: TQuery,
+        private val database: DBFlowDatabase
+    ) : DataSource.Factory<Int, T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
         override fun create(): DataSource<Int, T> = QueryDataSource(transformable, database)
     }
 

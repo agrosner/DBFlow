@@ -2,6 +2,7 @@ package com.dbflow5.database
 
 import android.content.Context
 import com.dbflow5.config.FlowLog
+import kotlinx.coroutines.runBlocking
 import java.io.IOException
 import java.io.InputStream
 
@@ -10,9 +11,12 @@ import java.io.InputStream
  */
 class AndroidMigrationFileHelper(private val context: Context) : MigrationFileHelper {
     override fun getListFiles(dbMigrationPath: String): List<String> =
-            context.assets.list(dbMigrationPath)?.toList() ?: listOf()
+        context.assets.list(dbMigrationPath)?.toList() ?: listOf()
 
-    override fun executeMigration(fileName: String, dbFunction: (queryString: String) -> Unit) {
+    override suspend fun executeMigration(
+        fileName: String,
+        dbFunction: suspend (queryString: String) -> Unit
+    ) {
         try {
             val input: InputStream = context.assets.open(fileName)
 
@@ -34,7 +38,9 @@ class AndroidMigrationFileHelper(private val context: Context) : MigrationFileHe
                 }
                 query.append(" ").append(line)
                 if (isEndOfQuery) {
-                    dbFunction(query.toString())
+                    runBlocking {
+                        dbFunction(query.toString())
+                    }
                     query = StringBuffer()
                 }
             }
@@ -44,7 +50,11 @@ class AndroidMigrationFileHelper(private val context: Context) : MigrationFileHe
                 dbFunction(queryString)
             }
         } catch (e: IOException) {
-            FlowLog.log(FlowLog.Level.E, "Failed to execute $fileName. App might be in an inconsistent state!", e)
+            FlowLog.log(
+                FlowLog.Level.E,
+                "Failed to execute $fileName. App might be in an inconsistent state!",
+                e
+            )
         }
     }
 }

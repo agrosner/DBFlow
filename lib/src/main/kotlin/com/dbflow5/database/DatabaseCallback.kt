@@ -41,5 +41,5 @@ interface DatabaseCallback {
      * Called when DB connection is being configured. Useful for checking foreign key support or enabling
      * write-ahead-logging.
      */
-    fun onConfigure(db: DatabaseWrapper) = Unit
+    suspend fun onConfigure(db: DatabaseWrapper) = Unit
 }

@@ -18,7 +18,7 @@ interface Migration {
      *
      * @param database The database to operate on
      */
-    fun migrate(database: DatabaseWrapper)
+    suspend fun migrate(database: DatabaseWrapper)
 
     /**
      * Called after the migration completes. Release migration data here.

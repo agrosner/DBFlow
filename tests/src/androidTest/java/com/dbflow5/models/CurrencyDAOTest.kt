@@ -4,6 +4,9 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
 import com.dbflow5.rx2.RXTestRule
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
@@ -28,11 +31,13 @@ class CurrencyDAOTest : BaseUnitTest() {
 
     @Test
     fun validateCoroutine() = runBlockingTest {
-        val success = currencyDAO.coroutineStoreUSD(currency).await()
-        assert(success.isSuccess) { "Currency didn't save" }
-        val result = currencyDAO.coroutineRetrieveUSD().await()
-        assert(result.size == 1) { "Results list was empty" }
-        assert(result[0] == currency) { "Expected ${currency} but got ${result[0]}" }
+        currencyDAO.coroutineStoreUSD(currency)
+            .onEach { assert(it.isSuccess) { "Currency didn't save" } }
+            .flatMapLatest { currencyDAO.coroutineRetrieveUSD() }
+            .collect { result ->
+                assert(result.size == 1) { "Results list was empty" }
+                assert(result[0] == currency) { "Expected ${currency} but got ${result[0]}" }
+            }
     }
 
     @Test

@@ -18,7 +18,7 @@ interface Queriable : Query {
     /**
      * @return A cursor from the DB based on this query
      */
-    fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor?
+    suspend fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor?
 
     /**
      * @return A new [DatabaseStatement] from this query.
@@ -28,34 +28,34 @@ interface Queriable : Query {
     /**
      * @return the long value of the results of a query or single-column result.
      */
-    fun longValue(databaseWrapper: DatabaseWrapper): Long
+    suspend fun longValue(databaseWrapper: DatabaseWrapper): Long
 
     /**
      * @return the string value for results of a query or single-column result.
      */
-    fun stringValue(databaseWrapper: DatabaseWrapper): String?
+    suspend fun stringValue(databaseWrapper: DatabaseWrapper): String?
 
     /**
      * @return This may return the number of rows affected from a [Set] or [Delete] statement.
      * If not, returns [Model.INVALID_ROW_ID]
      */
-    fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long
+    suspend fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long
 
     /**
      * @return This may return the number of rows affected from a [Insert]  statement.
      * If not, returns [Model.INVALID_ROW_ID]
      */
-    fun executeInsert(databaseWrapper: DatabaseWrapper): Long
+    suspend fun executeInsert(databaseWrapper: DatabaseWrapper): Long
 
     /**
      * @return True if this query has data. It will run a [.count] greater than 0.
      */
-    fun hasData(databaseWrapper: DatabaseWrapper): Boolean
+    suspend fun hasData(databaseWrapper: DatabaseWrapper): Boolean
 
     /**
      * Will not return a result, rather simply will execute a SQL statement. Use this for non-SELECT statements or when
      * you're not interested in the result.
      */
-    fun execute(databaseWrapper: DatabaseWrapper)
+    suspend fun execute(databaseWrapper: DatabaseWrapper)
 
 }

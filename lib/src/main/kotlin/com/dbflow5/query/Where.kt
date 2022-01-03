@@ -167,7 +167,7 @@ internal constructor(
     /**
      * @return the result of the query as a [FlowCursor].
      */
-    override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? =// Query the sql here
+    override suspend fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? =// Query the sql here
         when {
             whereBase.queryBuilderBase is Select -> databaseWrapper.rawQuery(query, null)
             else -> super.cursor(databaseWrapper)
@@ -178,7 +178,7 @@ internal constructor(
      *
      * @return All of the entries in the DB converted into [T]
      */
-    override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<T> {
+    override suspend fun queryList(databaseWrapper: DatabaseWrapper): MutableList<T> {
         checkSelect("cursor")
         return super.queryList(databaseWrapper)
     }
@@ -189,7 +189,7 @@ internal constructor(
      *
      * @return The first result of this query. Note: this cursor forces a limit of 1 from the database.
      */
-    override fun querySingle(databaseWrapper: DatabaseWrapper): T? {
+    override suspend fun querySingle(databaseWrapper: DatabaseWrapper): T? {
         checkSelect("cursor")
         limit(1)
         return super.querySingle(databaseWrapper)

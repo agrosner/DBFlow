@@ -7,9 +7,18 @@ import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table
-import com.dbflow5.query.*
+import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OrderBy.Companion.fromNameAlias
+import com.dbflow5.query.Where
+import com.dbflow5.query.groupBy
+import com.dbflow5.query.having
+import com.dbflow5.query.min
+import com.dbflow5.query.nameAlias
+import com.dbflow5.query.or
 import com.dbflow5.query.property.property
+import com.dbflow5.query.select
+import com.dbflow5.query.update
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -160,7 +169,7 @@ class WhereTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateNonSelectThrowError() {
+    fun validateNonSelectThrowError() = runBlockingTest {
         databaseForTable<SimpleModel> { db ->
             try {
                 update<SimpleModel>().set(SimpleModel_Table.name.`is`("name")).querySingle(db)

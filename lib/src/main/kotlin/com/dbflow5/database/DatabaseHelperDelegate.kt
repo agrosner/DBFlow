@@ -3,7 +3,6 @@ package com.dbflow5.database
 import android.content.Context
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
-import com.dbflow5.transaction.DefaultTransactionQueue
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -18,8 +17,8 @@ class DatabaseHelperDelegate(
     private val context: Context,
     private var databaseCallback: DatabaseCallback?,
     databaseDefinition: DBFlowDatabase,
-    private val backupHelper: OpenHelper?)
-    : DatabaseHelper(AndroidMigrationFileHelper(context), databaseDefinition), OpenHelperDelegate {
+    private val backupHelper: OpenHelper?
+) : DatabaseHelper(AndroidMigrationFileHelper(context), databaseDefinition), OpenHelperDelegate {
 
     /**
      * @return the temporary database file name for when we have backups enabled
@@ -42,13 +41,17 @@ class DatabaseHelperDelegate(
         get() = databaseDefinition
 
     override fun performRestoreFromBackup() {
-        movePrepackagedDB(databaseDefinition.databaseFileName,
-            databaseDefinition.databaseFileName)
+        movePrepackagedDB(
+            databaseDefinition.databaseFileName,
+            databaseDefinition.databaseFileName
+        )
 
         if (databaseDefinition.backupEnabled) {
             if (backupHelper == null) {
-                throw IllegalStateException("the passed backup helper was null, even though backup" +
-                    " is enabled. Ensure that its passed in.")
+                throw IllegalStateException(
+                    "the passed backup helper was null, even though backup" +
+                        " is enabled. Ensure that its passed in."
+                )
             }
             restoreDatabase(tempDbFileName, databaseDefinition.databaseFileName)
             backupHelper.database
@@ -65,7 +68,7 @@ class DatabaseHelperDelegate(
         this.databaseCallback = databaseCallback
     }
 
-    override fun onConfigure(db: DatabaseWrapper) {
+    override suspend fun onConfigure(db: DatabaseWrapper) {
         databaseCallback?.onConfigure(db)
         super.onConfigure(db)
     }
@@ -103,7 +106,8 @@ class DatabaseHelperDelegate(
         // If the database already exists, and is ok return
         if (dbPath.exists()
             && (!databaseDefinition.areConsistencyChecksEnabled
-                || (databaseDefinition.areConsistencyChecksEnabled && isDatabaseIntegrityOk(database)))) {
+                || (databaseDefinition.areConsistencyChecksEnabled && isDatabaseIntegrityOk(database)))
+        ) {
             return
         }
 
@@ -119,7 +123,8 @@ class DatabaseHelperDelegate(
                 && (!databaseDefinition.backupEnabled ||
                     (databaseDefinition.backupEnabled
                         && backupHelper != null
-                        && isDatabaseIntegrityOk(backupHelper.database)))) {
+                        && isDatabaseIntegrityOk(backupHelper.database)))
+            ) {
                 FileInputStream(existingDb)
             } else {
                 context.assets.open(prepackagedName)
@@ -157,7 +162,8 @@ class DatabaseHelperDelegate(
             // if it exists and the integrity is ok
             val inputStream = if (existingDb.exists()
                 && (databaseDefinition.backupEnabled && backupHelper != null
-                    && isDatabaseIntegrityOk(backupHelper.database))) {
+                    && isDatabaseIntegrityOk(backupHelper.database))
+            ) {
                 FileInputStream(existingDb)
             } else {
                 context.assets.open(prepackagedName)
@@ -182,7 +188,10 @@ class DatabaseHelperDelegate(
             val result = statement.simpleQueryForString()
             if (result == null || !result.equals("ok", ignoreCase = true)) {
                 // integrity_checker failed on main or attached databases
-                FlowLog.log(FlowLog.Level.E, "PRAGMA integrity_check on ${databaseDefinition.databaseName} returned: $result")
+                FlowLog.log(
+                    FlowLog.Level.E,
+                    "PRAGMA integrity_check on ${databaseDefinition.databaseName} returned: $result"
+                )
                 integrityOk = false
                 if (databaseDefinition.backupEnabled) {
                     integrityOk = restoreBackUp()
@@ -239,19 +248,21 @@ class DatabaseHelperDelegate(
     }
 
     /**
-     * Saves the database as a backup on the [DefaultTransactionQueue].
+     * Saves the database as a backup.
      * This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      */
     override fun backupDB() {
         if (!databaseDefinition.backupEnabled || !databaseDefinition.areConsistencyChecksEnabled) {
-            throw IllegalStateException("Backups are not enabled for : " +
-                "${databaseDefinition.databaseName}. Please consider adding both backupEnabled " +
-                "and consistency checks enabled to the Database annotation")
+            throw IllegalStateException(
+                "Backups are not enabled for : " +
+                    "${databaseDefinition.databaseName}. Please consider adding both backupEnabled " +
+                    "and consistency checks enabled to the Database annotation"
+            )
         }
-
-        databaseDefinition.beginTransactionAsync {
+        databaseDefinition.transact {
             val backup = context.getDatabasePath(tempDbFileName)
-            val temp = context.getDatabasePath("$TEMP_DB_NAME-2-${databaseDefinition.databaseFileName}")
+            val temp =
+                context.getDatabasePath("$TEMP_DB_NAME-2-${databaseDefinition.databaseFileName}")
 
             // if exists we want to delete it before rename
             if (temp.exists()) {
@@ -272,8 +283,7 @@ class DatabaseHelperDelegate(
                 FlowLog.logError(e)
 
             }
-        }.execute()
-
+        }
     }
 
     companion object {

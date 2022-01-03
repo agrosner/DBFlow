@@ -7,6 +7,7 @@ import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
 import com.dbflow5.structure.save
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
@@ -19,7 +20,7 @@ class DeleteTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateDeletion() {
+    fun validateDeletion() = runBlockingTest {
         databaseForTable<SimpleModel> { db ->
             SimpleModel("name").save(db)
             delete<SimpleModel>().execute(db)
@@ -28,7 +29,7 @@ class DeleteTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateDeletionWithQuery() {
+    fun validateDeletionWithQuery() = runBlockingTest {
         databaseForTable<SimpleModel> { db ->
             SimpleModel("name").save(db)
             SimpleModel("another name").save(db)

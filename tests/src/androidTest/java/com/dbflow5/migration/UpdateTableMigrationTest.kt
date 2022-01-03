@@ -4,6 +4,7 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.config.databaseForTable
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
 /**
@@ -14,7 +15,7 @@ class UpdateTableMigrationTest : BaseUnitTest() {
 
 
     @Test
-    fun testUpdateMigrationQuery() {
+    fun testUpdateMigrationQuery() = runBlockingTest {
         val update = UpdateTableMigration(SimpleModel::class.java)
         update.set(SimpleModel_Table.name.eq("yes"))
         update.migrate(databaseForTable<SimpleModel>())

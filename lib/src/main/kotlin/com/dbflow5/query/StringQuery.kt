@@ -22,29 +22,33 @@ class StringQuery<T : Any>
  * @param query   The sql statement to query the DB with. Does not work with [Delete],
  * this must be done with [DatabaseWrapper.execSQL]
  */
-(table: Class<T>,
- override val query: String)
-    : BaseModelQueriable<T>(table), Query, ModelQueriable<T> {
+    (
+    table: Class<T>,
+    override val query: String
+) : BaseModelQueriable<T>(table), Query, ModelQueriable<T> {
     private var args: Array<String>? = null
 
     override// we don't explicitly know the change, but something changed.
     val primaryAction: ChangeAction
         get() = ChangeAction.CHANGE
 
-    override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? = databaseWrapper.rawQuery(query, args)
+    override suspend fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor =
+        databaseWrapper.rawQuery(query, args)
 
-    override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<T> {
+    override suspend fun queryList(databaseWrapper: DatabaseWrapper): MutableList<T> {
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
         return listModelLoader.load(cursor(databaseWrapper), databaseWrapper)!!
     }
 
-    override fun querySingle(databaseWrapper: DatabaseWrapper): T? {
+    override suspend fun querySingle(databaseWrapper: DatabaseWrapper): T? {
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
         return singleModelLoader.load(cursor(databaseWrapper), databaseWrapper)!!
     }
 
-    override fun <QueryClass : Any> queryCustomList(queryModelClass: Class<QueryClass>,
-                                                    databaseWrapper: DatabaseWrapper)
+    override suspend fun <QueryClass : Any> queryCustomList(
+        queryModelClass: Class<QueryClass>,
+        databaseWrapper: DatabaseWrapper
+    )
         : MutableList<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
@@ -52,8 +56,10 @@ class StringQuery<T : Any>
             .load(cursor(databaseWrapper), databaseWrapper)!!
     }
 
-    override fun <QueryClass : Any> queryCustomSingle(queryModelClass: Class<QueryClass>,
-                                                      databaseWrapper: DatabaseWrapper)
+    override suspend fun <QueryClass : Any> queryCustomSingle(
+        queryModelClass: Class<QueryClass>,
+        databaseWrapper: DatabaseWrapper
+    )
         : QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: " + query)
@@ -63,7 +69,10 @@ class StringQuery<T : Any>
 
     override fun compileStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement {
         val query = query
-        FlowLog.log(FlowLog.Level.V, "Compiling Query Into Statement: query = $query , args = $args")
+        FlowLog.log(
+            FlowLog.Level.V,
+            "Compiling Query Into Statement: query = $query , args = $args"
+        )
         return DatabaseStatementWrapper(databaseWrapper.compileStatement(query, args), this)
     }
 

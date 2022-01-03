@@ -3,15 +3,14 @@ package com.dbflow5.models
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.modelAdapter
-import com.dbflow5.coroutines.defer
 import com.dbflow5.paging.QueryDataSource
 import com.dbflow5.paging.toDataSourceFactory
 import com.dbflow5.query.Where
 import com.dbflow5.query.select
-import com.dbflow5.reactivestreams.transaction.asSingle
-import com.dbflow5.transaction.Transaction
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.rx3.rxSingle
 
 /**
  *  Create this class in your own database module.
@@ -24,44 +23,42 @@ interface DBProvider<out T : DBFlowDatabase> {
 
 interface CurrencyDAO : DBProvider<TestDatabase> {
 
-    fun coroutineStoreUSD(currency: Currency): Deferred<Result<Currency>> =
-        database.beginTransactionAsync { db ->
-            modelAdapter<Currency>().save(currency, db)
-        }.defer()
+    fun coroutineStoreUSD(currency: Currency): Flow<Result<Currency>> =
+        flow {
+            emit(database.executeTransaction { db ->
+                modelAdapter<Currency>().save(currency, db)
+            })
+        }
 
     /**
      *  Utilize coroutines package
      */
-    fun coroutineRetrieveUSD(): Deferred<MutableList<Currency>> =
-        database.beginTransactionAsync {
-            (select from Currency::class
-                where (Currency_Table.symbol eq "$")).queryList(it)
-        }.defer()
+    fun coroutineRetrieveUSD(): Flow<MutableList<Currency>> =
+        flow {
+            emit(database.executeTransaction {
+                (select from Currency::class
+                    where (Currency_Table.symbol eq "$")).queryList(it)
+            })
+        }
 
     fun rxStoreUSD(currency: Currency): Single<Result<Currency>> =
-        database.beginTransactionAsync { db ->
-            modelAdapter<Currency>().save(currency, db)
-        }.asSingle()
+        rxSingle {
+            database.executeTransaction { db ->
+                modelAdapter<Currency>().save(currency, db)
+            }
+        }
 
     /**
      *  Utilize RXJava2 package.
      * Also can use asMaybe(), or asFlowable() (to register for changes and continue listening)
      */
     fun rxRetrieveUSD(): Single<MutableList<Currency>> =
-        database.beginTransactionAsync {
-            (select from Currency::class
-                where (Currency_Table.symbol eq "$"))
-                .queryList(it)
-        }.asSingle()
-
-    /**
-     *  Utilize Vanilla Transactions.
-     */
-    fun retrieveUSD(): Transaction.Builder<MutableList<Currency>> =
-        database.beginTransactionAsync {
-            (select from Currency::class
-                where (Currency_Table.symbol eq "$"))
-                .queryList(it)
+        rxSingle {
+            database.executeTransaction {
+                (select from Currency::class
+                    where (Currency_Table.symbol eq "$"))
+                    .queryList(it)
+            }
         }
 
     /**

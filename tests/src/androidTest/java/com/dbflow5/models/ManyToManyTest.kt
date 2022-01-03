@@ -3,12 +3,13 @@ package com.dbflow5.models
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.config.databaseForTable
 import com.dbflow5.structure.save
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
 class ManyToManyTest : BaseUnitTest() {
 
     @Test
-    fun testCanCreateManyToMany() {
+    fun testCanCreateManyToMany() = runBlockingTest {
         databaseForTable<Artist> { db ->
             val artist = Artist(name = "Andrew Grosner")
                 .save(db)

@@ -20,7 +20,7 @@ interface InternalAdapter<TModel> {
      * @param databaseWrapper The manually specified wrapper.
      * @return model if save was successful, else null.
      */
-    fun save(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
+    suspend fun save(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
 
     /**
      * Saves a [Collection] of models to the DB.
@@ -29,7 +29,7 @@ interface InternalAdapter<TModel> {
      * @param databaseWrapper The manually specified wrapper
      * @return the models saved or updated, null if none successful.
      */
-    fun saveAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
+    suspend fun saveAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
 
     /**
      * Inserts the specified model into the DB.
@@ -37,7 +37,7 @@ interface InternalAdapter<TModel> {
      * @param model           The model to insert.
      * @param databaseWrapper The manually specified wrapper.
      */
-    fun insert(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
+    suspend fun insert(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
 
     /**
      * Inserts a [Collection] of models into the DB.
@@ -46,7 +46,7 @@ interface InternalAdapter<TModel> {
      * @param databaseWrapper The manually specified wrapper
      * @return the inserted models.
      */
-    fun insertAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
+    suspend fun insertAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
 
     /**
      * Updates the specified model into the DB.
@@ -55,7 +55,7 @@ interface InternalAdapter<TModel> {
      * @param databaseWrapper The manually specified wrapper.
      * @return the updated model, if successful, otherwise null.
      */
-    fun update(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
+    suspend fun update(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
 
     /**
      * Updates a [Collection] of models in the DB.
@@ -64,7 +64,7 @@ interface InternalAdapter<TModel> {
      * @param databaseWrapper The manually specified wrapper
      * @return successful updates, if null none were successful.
      */
-    fun updateAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
+    suspend fun updateAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
 
     /**
      * Deletes the model from the DB
@@ -72,7 +72,7 @@ interface InternalAdapter<TModel> {
      * @param model           The model to delete
      * @param databaseWrapper The manually specified wrapper.
      */
-    fun delete(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
+    suspend fun delete(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
 
     /**
      * Updates a [Collection] of models in the DB.
@@ -81,7 +81,7 @@ interface InternalAdapter<TModel> {
      * @param databaseWrapper The manually specified wrapper
      * @return count of successful deletions.
      */
-    fun deleteAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
+    suspend fun deleteAll(models: Collection<TModel>, databaseWrapper: DatabaseWrapper): Result<Collection<TModel>>
 
     /**
      * Binds to a [DatabaseStatement] for insert.

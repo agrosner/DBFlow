@@ -25,7 +25,7 @@ class LiveDataTest : BaseUnitTest() {
     @Test
     fun live_data_executes_for_a_few_model_queries() {
         val data = (select from LiveDataModel::class)
-                .toLiveData { db -> queryList(db) }
+            .toLiveData { db -> queryList(db) }
 
         val observer = mock<Observer<MutableList<LiveDataModel>>>()
         val lifecycle = LifecycleRegistry(mock())
@@ -37,12 +37,11 @@ class LiveDataTest : BaseUnitTest() {
         assert(value.isEmpty())
 
         database<TestDatabase>()
-                .beginTransactionAsync { db ->
-                    (0..2).forEach {
-                        LiveDataModel(id = "$it", name = it).insert(db)
-                    }
+            .transact { db ->
+                (0..2).forEach {
+                    LiveDataModel(id = "$it", name = it).insert(db)
                 }
-                .execute()
+            }
 
         database<TestDatabase>().tableObserver.checkForTableUpdates()
 

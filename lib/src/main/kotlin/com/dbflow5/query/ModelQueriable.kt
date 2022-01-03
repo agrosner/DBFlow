@@ -1,13 +1,10 @@
 package com.dbflow5.query
 
-import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
-import com.dbflow5.query.list.FlowCursorList
-import com.dbflow5.query.list.FlowQueryList
 
 
-typealias ModelQueriableEvalFn<T, R> = ModelQueriable<T>.(DatabaseWrapper) -> R
+typealias ModelQueriableEvalFn<T, R> = suspend ModelQueriable<T>.(DatabaseWrapper) -> R
 
 /**
  * Description: An interface for query objects to enable you to cursor from the database in a structured way.
@@ -23,30 +20,18 @@ interface ModelQueriable<T : Any> : Queriable {
     /**
      * @return a list of model converted items
      */
-    fun queryList(databaseWrapper: DatabaseWrapper): MutableList<T>
+    suspend fun queryList(databaseWrapper: DatabaseWrapper): MutableList<T>
 
     /**
      * @return Single model, the first of potentially many results
      */
-    fun querySingle(databaseWrapper: DatabaseWrapper): T?
+    suspend fun querySingle(databaseWrapper: DatabaseWrapper): T?
 
     /**
      * A non-null result. throws a [SQLiteException] if the query reaches no result.
      */
-    fun requireSingle(db: DatabaseWrapper) = querySingle(db)
+    suspend fun requireSingle(db: DatabaseWrapper) = querySingle(db)
         ?: throw SQLiteException("Model result not found for $this")
-
-    /**
-     * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
-     * cache models dynamically by setting [FlowCursorList.setCacheModels] to true.
-     */
-    fun cursorList(databaseWrapper: DatabaseWrapper): FlowCursorList<T>
-
-    /**
-     * @return A cursor-backed [List] that handles conversion, retrieval, caching, content changes,
-     * and more.
-     */
-    fun flowQueryList(databaseWrapper: DatabaseWrapper): FlowQueryList<T>
 
     /**
      * Returns a [List] based on the custom [TQuery] you pass in.
@@ -54,7 +39,7 @@ interface ModelQueriable<T : Any> : Queriable {
      * @param queryModelClass The query model class to use.
      * @return A list of custom models that are not tied to a table.
      */
-    fun <TQuery : Any> queryCustomList(
+    suspend fun <TQuery : Any> queryCustomList(
         queryModelClass: Class<TQuery>,
         databaseWrapper: DatabaseWrapper
     ): MutableList<TQuery>
@@ -65,19 +50,10 @@ interface ModelQueriable<T : Any> : Queriable {
      * @param queryModelClass The class to use.
      * @return A single model from the query.
      */
-    fun <TQueryModel : Any> queryCustomSingle(
+    suspend fun <TQueryModel : Any> queryCustomSingle(
         queryModelClass: Class<TQueryModel>,
         databaseWrapper: DatabaseWrapper
     ): TQueryModel?
-
-    /**
-     * Begins an async DB transaction using the specified TransactionManager.
-     */
-    fun <R : Any?> async(
-        databaseWrapper: DBFlowDatabase,
-        modelQueriableFn: ModelQueriable<T>.(DatabaseWrapper) -> R
-    ) =
-        databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
 
     /**
      * Attempt to constrain this [ModelQueriable] if it supports it via [Transformable] methods. Otherwise,
@@ -100,12 +76,12 @@ interface ModelQueriable<T : Any> : Queriable {
 internal inline val <T : Any> ModelQueriable<T>.enclosedQuery
     get() = "(${query.trim { it <= ' ' }})"
 
-inline fun <reified T : Any> ModelQueriable<*>.queryCustomList(db: DatabaseWrapper) =
+suspend inline fun <reified T : Any> ModelQueriable<*>.queryCustomList(db: DatabaseWrapper) =
     queryCustomList(T::class.java, db)
 
-inline fun <reified T : Any> ModelQueriable<*>.queryCustomSingle(db: DatabaseWrapper) =
+suspend inline fun <reified T : Any> ModelQueriable<*>.queryCustomSingle(db: DatabaseWrapper) =
     queryCustomSingle(T::class.java, db)
 
-inline fun <reified T : Any> ModelQueriable<*>.requireCustomSingle(db: DatabaseWrapper) =
+suspend inline fun <reified T : Any> ModelQueriable<*>.requireCustomSingle(db: DatabaseWrapper) =
     queryCustomSingle(T::class.java, db)
         ?: throw SQLiteException("QueryModel result not found for $this")

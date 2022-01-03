@@ -14,7 +14,7 @@ abstract class IndexPropertyMigration(
 
     abstract val indexProperty: IndexProperty<*>
 
-    override fun migrate(database: DatabaseWrapper) {
+    override suspend fun migrate(database: DatabaseWrapper) {
         if (shouldCreate) {
             indexProperty.createIfNotExists(database)
         } else {

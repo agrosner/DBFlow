@@ -10,6 +10,7 @@ import com.dbflow5.database.DatabaseHelper
 import com.dbflow5.database.DatabaseHelperDelegate
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.OpenHelper
+import kotlinx.coroutines.runBlocking
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteOpenHelper
 
@@ -19,10 +20,12 @@ import net.sqlcipher.database.SQLiteOpenHelper
  */
 abstract class SQLCipherOpenHelper(
     private val context: Context,
-    databaseDefinition: DBFlowDatabase, listener: DatabaseCallback?)
-    : SQLiteOpenHelper(context,
+    databaseDefinition: DBFlowDatabase, listener: DatabaseCallback?
+) : SQLiteOpenHelper(
+    context,
     if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
-    null, databaseDefinition.databaseVersion), OpenHelper {
+    null, databaseDefinition.databaseVersion
+), OpenHelper {
 
     final override val delegate: DatabaseHelperDelegate
     private var cipherDatabase: SQLCipherDatabase? = null
@@ -46,12 +49,16 @@ abstract class SQLCipherOpenHelper(
 
     init {
         SQLiteDatabase.loadLibs(context)
-        delegate = DatabaseHelperDelegate(context, listener, databaseDefinition, if (databaseDefinition.backupEnabled) {
-            // Temp database mirrors existing
-            BackupHelper(context,
-                DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                databaseDefinition.databaseVersion, databaseDefinition)
-        } else null)
+        delegate = DatabaseHelperDelegate(
+            context, listener, databaseDefinition, if (databaseDefinition.backupEnabled) {
+                // Temp database mirrors existing
+                BackupHelper(
+                    context,
+                    DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
+                    databaseDefinition.databaseVersion, databaseDefinition
+                )
+            } else null
+        )
     }
 
     override fun performRestoreFromBackup() {
@@ -73,7 +80,9 @@ abstract class SQLCipherOpenHelper(
     }
 
     override fun onConfigure(db: SQLiteDatabase) {
-        delegate.onConfigure(SQLCipherDatabase.from(db))
+        runBlocking {
+            delegate.onConfigure(SQLCipherDatabase.from(db))
+        }
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -108,14 +117,16 @@ abstract class SQLCipherOpenHelper(
     /**
      * Simple helper to manage backup.
      */
-    private inner class BackupHelper(private val context: Context,
-                                     name: String,
-                                     version: Int,
-                                     databaseDefinition: DBFlowDatabase)
-        : SQLiteOpenHelper(context, name, null, version), OpenHelper {
+    private inner class BackupHelper(
+        private val context: Context,
+        name: String,
+        version: Int,
+        databaseDefinition: DBFlowDatabase
+    ) : SQLiteOpenHelper(context, name, null, version), OpenHelper {
 
         private var sqlCipherDatabase: SQLCipherDatabase? = null
-        private val databaseHelper: DatabaseHelper = DatabaseHelper(AndroidMigrationFileHelper(context), databaseDefinition)
+        private val databaseHelper: DatabaseHelper =
+            DatabaseHelper(AndroidMigrationFileHelper(context), databaseDefinition)
         private val _databaseName = databaseDefinition.databaseFileName
 
         override val database: DatabaseWrapper
@@ -139,7 +150,9 @@ abstract class SQLCipherOpenHelper(
         override fun setDatabaseListener(callback: DatabaseCallback?) = Unit
 
         override fun onConfigure(db: SQLiteDatabase) {
-            databaseHelper.onConfigure(SQLCipherDatabase.from(db))
+            runBlocking {
+                databaseHelper.onConfigure(SQLCipherDatabase.from(db))
+            }
         }
 
         override fun onCreate(db: SQLiteDatabase) {

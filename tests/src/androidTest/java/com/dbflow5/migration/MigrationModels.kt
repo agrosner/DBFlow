@@ -6,14 +6,14 @@ import com.dbflow5.database.DatabaseWrapper
 
 @Migration(database = TestDatabase::class, priority = 1, version = 1)
 class FirstMigration : BaseMigration() {
-    override fun migrate(database: DatabaseWrapper) {
+    override suspend fun migrate(database: DatabaseWrapper) {
 
     }
 }
 
 @Migration(database = TestDatabase::class, priority = 2, version = 1)
 class SecondMigration : BaseMigration() {
-    override fun migrate(database: DatabaseWrapper) {
+    override suspend fun migrate(database: DatabaseWrapper) {
 
     }
 }

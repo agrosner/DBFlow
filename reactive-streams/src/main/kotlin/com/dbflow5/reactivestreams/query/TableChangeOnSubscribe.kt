@@ -7,20 +7,21 @@ import com.dbflow5.query.Join
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.ModelQueriableEvalFn
 import com.dbflow5.query.extractFrom
-import com.dbflow5.reactivestreams.transaction.asMaybe
 import io.reactivex.rxjava3.core.FlowableEmitter
 import io.reactivex.rxjava3.core.FlowableOnSubscribe
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.rx3.rxMaybe
 import kotlin.reflect.KClass
 
 /**
  * Description: Emits when table changes occur for the related table on the [ModelQueriable].
  * If the [ModelQueriable] relates to a [Join], this can be multiple tables.
  */
-class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: ModelQueriable<T>,
-                                                private val evalFn: ModelQueriableEvalFn<T, R>)
-    : FlowableOnSubscribe<R> {
+class TableChangeOnSubscribe<T : Any, R : Any?>(
+    private val modelQueriable: ModelQueriable<T>,
+    private val evalFn: ModelQueriableEvalFn<T, R>
+) : FlowableOnSubscribe<R> {
 
     private lateinit var flowableEmitter: FlowableEmitter<R>
 
@@ -29,20 +30,21 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: Mode
     private val associatedTables: Set<Class<*>> = modelQueriable.extractFrom()?.associatedTables
         ?: setOf(modelQueriable.table)
 
-    private val onTableChangedObserver = object : OnTableChangedObserver(associatedTables.toList()) {
-        override fun onChanged(tables: Set<Class<*>>) {
-            if (tables.isNotEmpty()) {
-                evaluateEmission(tables.first().kotlin)
+    private val onTableChangedObserver =
+        object : OnTableChangedObserver(associatedTables.toList()) {
+            override fun onChanged(tables: Set<Class<*>>) {
+                if (tables.isNotEmpty()) {
+                    evaluateEmission(tables.first().kotlin)
+                }
             }
         }
-    }
 
     private fun evaluateEmission(table: KClass<*> = modelQueriable.table.kotlin) {
         if (this::flowableEmitter.isInitialized) {
-            currentTransactions.add(databaseForTable(table)
-                .beginTransactionAsync { modelQueriable.evalFn(it) }
-                .shouldRunInTransaction(false)
-                .asMaybe()
+            currentTransactions.add(rxMaybe {
+                databaseForTable(table)
+                    .executeTransaction { modelQueriable.evalFn(it) }
+            }
                 .subscribe {
                     flowableEmitter.onNext(it)
                 })

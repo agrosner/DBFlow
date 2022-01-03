@@ -8,11 +8,12 @@ import kotlin.reflect.KClass
 /**
  * Description: Defines and enables an Index structurally through a migration.
  */
-abstract class IndexMigration<T: Any>(
+abstract class IndexMigration<T : Any>(
     /**
      * The table to index on
      */
-    private var onTable: Class<T>) : BaseMigration() {
+    private var onTable: Class<T>
+) : BaseMigration() {
 
     private var unique: Boolean = false
     private val columns = arrayListOf<IProperty<*>>()
@@ -21,7 +22,7 @@ abstract class IndexMigration<T: Any>(
 
     constructor(onTable: KClass<T>) : this(onTable.java)
 
-    override fun migrate(database: DatabaseWrapper) {
+    override suspend fun migrate(database: DatabaseWrapper) {
         val index = index(name, onTable).unique(unique)
         columns.forEach { index.and(it) }
         database.execSQL(index.query)

@@ -102,14 +102,14 @@ class Index<TModel>
         }
     }
 
-    fun createIfNotExists(databaseWrapper: DatabaseWrapper) {
+    suspend fun createIfNotExists(databaseWrapper: DatabaseWrapper) {
         if (columns.isEmpty()) {
             throw IllegalStateException("There should be at least one column in this index")
         }
         databaseWrapper.execSQL(query)
     }
 
-    fun drop(databaseWrapper: DatabaseWrapper) {
+    suspend fun drop(databaseWrapper: DatabaseWrapper) {
         dropIndex(databaseWrapper, indexName)
     }
 }

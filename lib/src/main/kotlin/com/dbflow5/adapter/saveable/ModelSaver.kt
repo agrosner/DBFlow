@@ -14,14 +14,12 @@ open class ModelSaver<T : Any> {
 
     lateinit var modelAdapter: ModelAdapter<T>
 
-    @Synchronized
-    fun save(model: T, wrapper: DatabaseWrapper): Result<T> {
+    suspend fun save(model: T, wrapper: DatabaseWrapper): Result<T> {
         val insertStatement = modelAdapter.getSaveStatement(wrapper)
         return insertStatement.use { save(model, insertStatement, wrapper) }
     }
 
-    @Synchronized
-    fun save(
+    suspend fun save(
         model: T,
         insertStatement: DatabaseStatement,
         wrapper: DatabaseWrapper
@@ -38,14 +36,12 @@ open class ModelSaver<T : Any> {
         return Result.failure(SaveOperationFailedException("save"))
     }
 
-    @Synchronized
-    fun update(model: T, wrapper: DatabaseWrapper): Result<T> {
+    suspend fun update(model: T, wrapper: DatabaseWrapper): Result<T> {
         val updateStatement = modelAdapter.getUpdateStatement(wrapper)
         return updateStatement.use { update(model, it, wrapper) }
     }
 
-    @Synchronized
-    fun update(
+    suspend fun update(
         model: T,
         databaseStatement: DatabaseStatement,
         wrapper: DatabaseWrapper
@@ -60,14 +56,12 @@ open class ModelSaver<T : Any> {
         return Result.failure(SaveOperationFailedException("update"))
     }
 
-    @Synchronized
-    open fun insert(model: T, wrapper: DatabaseWrapper): Result<T> {
+    open suspend fun insert(model: T, wrapper: DatabaseWrapper): Result<T> {
         val insertStatement = modelAdapter.getInsertStatement(wrapper)
         return insertStatement.use { insert(model, it, wrapper) }
     }
 
-    @Synchronized
-    open fun insert(
+    open suspend fun insert(
         model: T,
         insertStatement: DatabaseStatement,
         wrapper: DatabaseWrapper
@@ -83,14 +77,12 @@ open class ModelSaver<T : Any> {
         return Result.failure(SaveOperationFailedException("insert"))
     }
 
-    @Synchronized
-    fun delete(model: T, wrapper: DatabaseWrapper): Result<T> {
+    suspend fun delete(model: T, wrapper: DatabaseWrapper): Result<T> {
         val deleteStatement = modelAdapter.getDeleteStatement(wrapper)
         return deleteStatement.use { delete(model, it, wrapper) }
     }
 
-    @Synchronized
-    fun delete(
+    suspend fun delete(
         model: T,
         deleteStatement: DatabaseStatement,
         wrapper: DatabaseWrapper

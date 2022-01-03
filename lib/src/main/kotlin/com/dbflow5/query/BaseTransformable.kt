@@ -13,8 +13,8 @@ abstract class BaseTransformable<TModel : Any>
  *
  * @param table the table that belongs to this query.
  */
-protected constructor(table: Class<TModel>)
-    : BaseModelQueriable<TModel>(table), Transformable<TModel>, WhereBase<TModel> {
+protected constructor(table: Class<TModel>) : BaseModelQueriable<TModel>(table),
+    Transformable<TModel>, WhereBase<TModel> {
 
     infix fun <T : Any> whereExists(where: Where<T>) = where().exists(where)
 
@@ -22,7 +22,8 @@ protected constructor(table: Class<TModel>)
 
     infix fun where(condition: SQLOperator): Where<TModel> = Where(this, condition)
 
-    override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? = where().cursor(databaseWrapper)
+    override suspend fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? =
+        where().cursor(databaseWrapper)
 
     override fun groupBy(vararg nameAliases: NameAlias): Where<TModel> =
         where().groupBy(*nameAliases)
@@ -36,7 +37,8 @@ protected constructor(table: Class<TModel>)
     override fun orderBy(property: IProperty<*>, ascending: Boolean): Where<TModel> =
         where().orderBy(property, ascending)
 
-    override fun orderByAll(orderByList: List<OrderBy>): Where<TModel> = where().orderByAll(orderByList)
+    override fun orderByAll(orderByList: List<OrderBy>): Where<TModel> =
+        where().orderByAll(orderByList)
 
     override fun orderBy(orderBy: OrderBy): Where<TModel> = where().orderBy(orderBy)
 
@@ -48,12 +50,12 @@ protected constructor(table: Class<TModel>)
 
     abstract override fun cloneSelf(): BaseTransformable<TModel>
 
-    override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<TModel> {
+    override suspend fun queryList(databaseWrapper: DatabaseWrapper): MutableList<TModel> {
         checkSelect("query")
         return super.queryList(databaseWrapper)
     }
 
-    override fun querySingle(databaseWrapper: DatabaseWrapper): TModel? {
+    override suspend fun querySingle(databaseWrapper: DatabaseWrapper): TModel? {
         checkSelect("query")
         limit(1)
         return super.querySingle(databaseWrapper)

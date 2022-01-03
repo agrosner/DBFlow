@@ -30,7 +30,7 @@ class LoadFromCursorWriter(
         FunSpec.builder("loadFromCursor")
             .returns(model.classType)
             .apply {
-                addModifiers(KModifier.OVERRIDE)
+                addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
                 addParameter(
                     ParameterSpec("cursor", ClassNames.FlowCursor),
                 )

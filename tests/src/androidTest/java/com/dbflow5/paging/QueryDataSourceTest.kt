@@ -11,6 +11,7 @@ import com.dbflow5.query.select
 import com.dbflow5.query.set
 import com.dbflow5.query.update
 import com.dbflow5.structure.save
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -21,16 +22,18 @@ import org.junit.Test
 class QueryDataSourceTest : BaseUnitTest() {
 
     @Test
-    fun testLoadInitialParams() {
+    fun testLoadInitialParams() = runBlockingTest {
         database<TestDatabase> { db ->
             (0 until 100).forEach { SimpleModel("$it").save(db) }
 
             val factory = (select from SimpleModel::class).toDataSourceFactory(db)
-            val list = PagedList.Builder(factory.create(),
+            val list = PagedList.Builder(
+                factory.create(),
                 PagedList.Config.Builder()
                     .setPageSize(3)
                     .setPrefetchDistance(6)
-                    .setEnablePlaceholders(true).build())
+                    .setEnablePlaceholders(true).build()
+            )
                 .setFetchExecutor { it.run() } // run on main
                 .setNotifyExecutor { it.run() }
                 .build()

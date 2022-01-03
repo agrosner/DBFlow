@@ -328,7 +328,7 @@ class ClassWriter(
                 .returns(model.classType)
                 .addParameter("model", model.classType)
                 .addParameter("wrapper", ClassNames.DatabaseWrapper)
-                .addModifiers(KModifier.OVERRIDE)
+                .addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
                 .apply {
                     if (model.hasPrimaryConstructor) {
                         addCode("return model.copy(\n")

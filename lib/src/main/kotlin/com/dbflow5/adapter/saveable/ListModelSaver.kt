@@ -7,8 +7,7 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
 
     val modelAdapter = modelSaver.modelAdapter
 
-    @Synchronized
-    open fun saveAll(
+    open suspend fun saveAll(
         tableCollection: Collection<T>,
         wrapper: DatabaseWrapper
     ): Result<Collection<T>> {
@@ -20,8 +19,7 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
         }
     }
 
-    @Synchronized
-    open fun insertAll(
+    open suspend fun insertAll(
         tableCollection: Collection<T>,
         wrapper: DatabaseWrapper
     ): Result<Collection<T>> {
@@ -33,8 +31,7 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
         }
     }
 
-    @Synchronized
-    open fun updateAll(
+    open suspend fun updateAll(
         tableCollection: Collection<T>,
         wrapper: DatabaseWrapper
     ): Result<Collection<T>> {
@@ -46,8 +43,7 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
         }
     }
 
-    @Synchronized
-    open fun deleteAll(
+    open suspend fun deleteAll(
         tableCollection: Collection<T>,
         wrapper: DatabaseWrapper
     ): Result<Collection<T>> {
@@ -59,10 +55,10 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
         }
     }
 
-    private inline fun applyAndCount(
+    private suspend inline fun applyAndCount(
         tableCollection: Collection<T>,
         databaseStatement: DatabaseStatement,
-        crossinline fn: (T, DatabaseStatement) -> Result<T>
+        crossinline fn: suspend (T, DatabaseStatement) -> Result<T>
     ): Result<Collection<T>> {
         // skip if empty.
         if (tableCollection.isEmpty()) {
@@ -71,9 +67,8 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
 
         val list = mutableListOf<T>()
         databaseStatement.use { statement ->
-            list.addAll(tableCollection
-                .asSequence()
-                .mapNotNull { fn(it, statement).getOrNull() })
+            tableCollection
+                .mapNotNullTo(list) { fn(it, statement).getOrNull() }
         }
         return list.takeIf { it.isNotEmpty() }
             ?.let { Result.success(it) }

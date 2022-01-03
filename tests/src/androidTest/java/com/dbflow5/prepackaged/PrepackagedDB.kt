@@ -27,7 +27,7 @@ abstract class MigratedPrepackagedDB : DBFlowDatabase() {
 
     @Migration(version = 2, database = MigratedPrepackagedDB::class, priority = 2)
     class AddSomeDataMigration : BaseMigration() {
-        override fun migrate(database: DatabaseWrapper) {
+        override suspend fun migrate(database: DatabaseWrapper) {
             Dog2(breed = "NewBreed", newField = "New Field Data").insert(database)
         }
     }

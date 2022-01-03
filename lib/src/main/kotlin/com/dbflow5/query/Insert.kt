@@ -260,7 +260,7 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
         return or(ConflictAction.IGNORE)
     }
 
-    override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long {
+    override suspend fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long {
         throw IllegalStateException("Cannot call executeUpdateDelete() from an Insert")
     }
 }

@@ -2,6 +2,7 @@ package com.dbflow5.structure
 
 import com.dbflow5.config.FlowManager
 import com.dbflow5.query.ModelQueriable
+import kotlinx.coroutines.runBlocking
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -20,7 +21,8 @@ class OneToMany<T : Any>(private val query: () -> ModelQueriable<T>) :
 
     override fun getValue(thisRef: Any, property: KProperty<*>): List<T>? {
         if (list?.isEmpty() != false) {
-            list = query().queryList(FlowManager.getDatabaseForTable(thisRef::class.java))
+            list =
+                runBlocking { query().queryList(FlowManager.getDatabaseForTable(thisRef::class.java)) }
         }
         return list
     }

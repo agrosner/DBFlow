@@ -12,21 +12,21 @@ object Model {
     const val INVALID_ROW_ID: Long = -1
 }
 
-inline fun <reified T : Any> T.save(databaseWrapper: DatabaseWrapper) =
+suspend inline fun <reified T : Any> T.save(databaseWrapper: DatabaseWrapper) =
     modelAdapter<T>().save(this, databaseWrapper)
 
-inline fun <reified T : Any> T.insert(databaseWrapper: DatabaseWrapper) =
+suspend inline fun <reified T : Any> T.insert(databaseWrapper: DatabaseWrapper) =
     modelAdapter<T>().insert(this, databaseWrapper)
 
-inline fun <reified T : Any> T.update(databaseWrapper: DatabaseWrapper) =
+suspend inline fun <reified T : Any> T.update(databaseWrapper: DatabaseWrapper) =
     modelAdapter<T>().update(this, databaseWrapper)
 
-inline fun <reified T : Any> T.delete(databaseWrapper: DatabaseWrapper) =
+suspend inline fun <reified T : Any> T.delete(databaseWrapper: DatabaseWrapper) =
     modelAdapter<T>().delete(this, databaseWrapper)
 
-inline fun <reified T : Any> T.exists(databaseWrapper: DatabaseWrapper) =
+suspend inline fun <reified T : Any> T.exists(databaseWrapper: DatabaseWrapper) =
     retrievalAdapter<T>().exists(this, databaseWrapper)
 
-inline fun <reified T : Any> T.load(databaseWrapper: DatabaseWrapper) =
+suspend inline fun <reified T : Any> T.load(databaseWrapper: DatabaseWrapper) =
     retrievalAdapter<T>().load(this, databaseWrapper)
 

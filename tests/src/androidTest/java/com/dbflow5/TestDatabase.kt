@@ -27,9 +27,7 @@ abstract class TestDatabase : DBFlowDatabase() {
 
     @Migration(version = 1, database = TestDatabase::class, priority = 1)
     class SecondMigration : BaseMigration() {
-        override fun migrate(database: DatabaseWrapper) {
-
-        }
+        override suspend fun migrate(database: DatabaseWrapper) = Unit
     }
 }
 
@@ -40,6 +38,8 @@ abstract class TestForeignKeyDatabase : DBFlowDatabase() {
     data class SimpleModel(@PrimaryKey var name: String = "")
 
     @Table(database = TestForeignKeyDatabase::class)
-    data class SimpleForeignModel(@PrimaryKey var id: Int = 0,
-                                  @ForeignKey var model: SimpleModel? = null)
+    data class SimpleForeignModel(
+        @PrimaryKey var id: Int = 0,
+        @ForeignKey var model: SimpleModel? = null
+    )
 }

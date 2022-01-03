@@ -4,9 +4,7 @@ import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import com.dbflow5.DBFlowInstrumentedTestRule
 import com.dbflow5.DemoApp
-import com.dbflow5.ImmediateTransactionManager
 import com.dbflow5.TABLE_QUERY_PARAM
-import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.database
 import com.dbflow5.config.databaseForTable
 import com.dbflow5.config.modelAdapter
@@ -19,6 +17,7 @@ import com.dbflow5.query.delete
 import com.dbflow5.runtime.ContentResolverNotifier
 import com.dbflow5.runtime.FlowContentObserver
 import com.dbflow5.structure.ChangeAction
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -32,9 +31,6 @@ class ContentObserverTest {
     var dblflowTestRule = DBFlowInstrumentedTestRule.create {
         database<ContentObserverDatabase>({
             modelNotifier(ContentResolverNotifier(DemoApp.context, "com.grosner.content"))
-            transactionManagerCreator { databaseDefinition: DBFlowDatabase ->
-                ImmediateTransactionManager(databaseDefinition)
-            }
         }, AndroidSQLiteOpenHelper.createHelperCreator(ApplicationProvider.getApplicationContext()))
     }
 
@@ -43,7 +39,7 @@ class ContentObserverTest {
     private lateinit var user: User
 
     @Before
-    fun setupUser() {
+    fun setupUser() = runBlockingTest {
         database<ContentObserverDatabase> { dbFlowDatabase ->
             delete<User>().execute(dbFlowDatabase)
         }
@@ -54,15 +50,20 @@ class ContentObserverTest {
     fun testSpecificUris() {
         val conditionGroup = User::class.modelAdapter
             .getPrimaryConditionClause(user)
-        val uri = getNotificationUri(contentUri,
+        val uri = getNotificationUri(
+            contentUri,
             User::class.java, ChangeAction.DELETE,
-            conditionGroup.conditions.toTypedArray())
+            conditionGroup.conditions.toTypedArray()
+        )
 
         assertEquals(uri.authority, contentUri)
         assertEquals(tableName<User>(), uri.getQueryParameter(TABLE_QUERY_PARAM))
         assertEquals(uri.fragment, ChangeAction.DELETE.name)
         assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.id.query))), "5")
-        assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.name.query))), "Something")
+        assertEquals(
+            Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.name.query))),
+            "Something"
+        )
     }
 
     @Test
@@ -88,7 +89,10 @@ class ContentObserverTest {
         // assertProperConditions(ChangeAction.DELETE) { user, db -> user.delete(db) }
     }
 
-    private fun assertProperConditions(action: ChangeAction, userFunc: (User, DatabaseWrapper) -> Unit) {
+    private fun assertProperConditions(
+        action: ChangeAction,
+        userFunc: (User, DatabaseWrapper) -> Unit
+    ) {
         val contentObserver = FlowContentObserver(contentUri)
         val countDownLatch = CountDownLatch(1)
         val mockOnModelStateChangedListener = MockOnModelStateChangedListener(countDownLatch)
@@ -110,15 +114,17 @@ class ContentObserverTest {
         contentObserver.unregisterForContentChanges(DemoApp.context)
     }
 
-    class MockOnModelStateChangedListener(val countDownLatch: CountDownLatch)
-        : FlowContentObserver.OnModelStateChangedListener {
+    class MockOnModelStateChangedListener(val countDownLatch: CountDownLatch) :
+        FlowContentObserver.OnModelStateChangedListener {
 
         var action: ChangeAction? = null
         var operators: Array<SQLOperator>? = null
 
 
-        override fun onModelStateChanged(table: Class<*>?, action: ChangeAction,
-                                         primaryKeyValues: Array<SQLOperator>) {
+        override fun onModelStateChanged(
+            table: Class<*>?, action: ChangeAction,
+            primaryKeyValues: Array<SQLOperator>
+        ) {
             this.action = action
             operators = primaryKeyValues
             countDownLatch.countDown()

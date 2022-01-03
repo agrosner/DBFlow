@@ -18,11 +18,12 @@ open class UpdateTableMigration<T : Any>
  *
  * @param table The table to update
  */
-(
+    (
     /**
      * The table to update
      */
-    private val table: Class<T>) : BaseMigration() {
+    private val table: Class<T>
+) : BaseMigration() {
 
     constructor(table: KClass<T>) : this(table.java)
 
@@ -55,7 +56,7 @@ open class UpdateTableMigration<T : Any>
         whereOperatorGroup.andAll(*conditions)
     }
 
-    override fun migrate(database: DatabaseWrapper) {
+    override suspend fun migrate(database: DatabaseWrapper) {
         updateStatement.execute(database)
     }
 }

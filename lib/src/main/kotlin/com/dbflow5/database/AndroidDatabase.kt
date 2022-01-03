@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteException
  */
 class AndroidDatabase internal constructor(val database: SQLiteDatabase) : AndroidDatabaseWrapper {
 
-    override fun execSQL(query: String) {
+    override suspend fun execSQL(query: String) {
         rethrowDBFlowException { database.execSQL(query) }
     }
 
@@ -35,7 +35,7 @@ class AndroidDatabase internal constructor(val database: SQLiteDatabase) : Andro
         AndroidDatabaseStatement.from(database.compileStatement(rawQuery), database)
     }
 
-    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
+    override suspend fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
         rethrowDBFlowException {
             FlowCursor.from(database.rawQuery(query, selectionArgs))
         }

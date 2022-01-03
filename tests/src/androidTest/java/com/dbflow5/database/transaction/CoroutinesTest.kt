@@ -3,28 +3,24 @@ package com.dbflow5.database.transaction
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
-import com.dbflow5.coroutines.awaitDelete
-import com.dbflow5.coroutines.awaitInsert
-import com.dbflow5.coroutines.awaitSave
-import com.dbflow5.coroutines.awaitTransact
-import com.dbflow5.coroutines.awaitUpdate
-import com.dbflow5.coroutines.toFlow
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
+import com.dbflow5.structure.delete
+import com.dbflow5.structure.insert
 import com.dbflow5.structure.save
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import com.dbflow5.structure.update
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 /**
  * Description:
@@ -41,14 +37,13 @@ class CoroutinesTest : BaseUnitTest() {
 
                 val query = (select from SimpleModel::class
                     where SimpleModel_Table.name.eq("5"))
-                    .awaitTransact(db) { queryList(it) }
+                    .queryList(db)
 
                 assert(query.size == 1)
 
-
                 val result = (delete<SimpleModel>()
                     where SimpleModel_Table.name.eq("5"))
-                    .awaitTransact(db) { executeUpdateDelete(it) }
+                    .executeUpdateDelete(db)
                 assert(result == 1L)
             }
         }
@@ -59,10 +54,10 @@ class CoroutinesTest : BaseUnitTest() {
         runBlocking {
             database<TestDatabase> { db ->
                 val simpleModel = SimpleModel("Name")
-                val result = simpleModel.awaitSave(db)
+                val result = simpleModel.save(db)
                 assert(result.isSuccess)
 
-                assert(simpleModel.awaitDelete(db).isSuccess)
+                assert(simpleModel.delete(db).isSuccess)
             }
         }
     }
@@ -72,9 +67,9 @@ class CoroutinesTest : BaseUnitTest() {
         runBlocking {
             database<TestDatabase> { db ->
                 val simpleModel = SimpleModel("Name")
-                val result = simpleModel.awaitInsert(db)
+                val result = simpleModel.insert(db)
                 assert(result.isSuccess)
-                assert(simpleModel.awaitDelete(db).isSuccess)
+                assert(simpleModel.delete(db).isSuccess)
             }
         }
     }
@@ -84,16 +79,16 @@ class CoroutinesTest : BaseUnitTest() {
         runBlocking {
             database<TestDatabase> { db ->
                 val simpleModel = TwoColumnModel(name = "Name", id = 5)
-                val result = simpleModel.awaitSave(db)
+                val result = simpleModel.save(db)
                 assert(result.isSuccess)
 
                 simpleModel.id = 5
-                val updated = simpleModel.awaitUpdate(db)
+                val updated = simpleModel.update(db)
                 assert(updated.isSuccess)
 
                 val loadedModel = (select from TwoColumnModel::class
                     where TwoColumnModel_Table.id.eq(5))
-                    .awaitTransact(db) { querySingle(it) }
+                    .querySingle(db)
                 assert(loadedModel?.id == 5)
             }
         }
@@ -103,35 +98,37 @@ class CoroutinesTest : BaseUnitTest() {
     fun testRetrievalFlow() = runBlockingTest {
         database<TestDatabase> { db ->
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
-            val result = simpleModel.awaitSave(db)
+            val result = simpleModel.save(db)
             assert(result.isSuccess)
+
+            val secondResult =
+                (select from TwoColumnModel::class where TwoColumnModel_Table.id.eq(5))
+                    .querySingle(db)
+            assert(secondResult != null)
         }
 
-        val result = (select from TwoColumnModel::class where TwoColumnModel_Table.id.eq(5))
-            .toFlow { querySingle(it) }.first()
-        assert(result != null)
+
     }
 
     @Test
     fun testObservingTableChanges() = runBlockingTest {
-        val count = ConflatedBroadcastChannel(0)
+        val count = MutableStateFlow(0)
         val job = launch {
             (select from TwoColumnModel::class)
-                .toFlow { queryList(it) }
+                .queryList(database<TestDatabase>())
+                .asFlow()
                 .collect {
-                    count.offer(count.value + 1)
+                    count.emit(count.value + 1)
                 }
         }
         database<TestDatabase> { db ->
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
-            val result = simpleModel.awaitSave(db)
+            val result = simpleModel.save(db)
             assert(result.isSuccess)
         }
         job.cancel()
 
         val value = count.value
-        count.close()
-
         // last value
         // 1 emission
         assertEquals(1, value)

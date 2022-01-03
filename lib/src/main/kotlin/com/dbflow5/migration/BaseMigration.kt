@@ -13,7 +13,7 @@ abstract class BaseMigration : Migration {
 
     }
 
-    abstract override fun migrate(database: DatabaseWrapper)
+    abstract override suspend fun migrate(database: DatabaseWrapper)
 
     override fun onPostMigrate() {
 

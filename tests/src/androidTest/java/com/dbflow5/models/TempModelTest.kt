@@ -9,16 +9,17 @@ import com.dbflow5.annotation.Table
 import com.dbflow5.config.database
 import com.dbflow5.config.modelAdapter
 import com.dbflow5.structure.save
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
 
 @Table(database = TestDatabase::class, temporary = true, createWithDatabase = false)
 class TempModel(@PrimaryKey var id: Int = 0)
 
-class TempModelTest: BaseUnitTest() {
+class TempModelTest : BaseUnitTest() {
 
     @Test
-    fun createTempTable() {
+    fun createTempTable() = runBlockingTest {
         database<TestDatabase> { db ->
             modelAdapter<TempModel>().createIfNotExists(db)
 

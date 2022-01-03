@@ -29,6 +29,7 @@ android {
 dependencies {
     api(project(":lib"))
     api(Dependencies.RX)
+    api(Dependencies.CoroutinesRX3)
 }
 
 apply(from = "../kotlin-artifacts.gradle.kts")

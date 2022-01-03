@@ -18,11 +18,12 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
     /**
      * @return The table associated with this INSERT
      */
-    val table: Class<TModel>) : Queriable, Actionable {
+    val table: Class<TModel>
+) : Queriable, Actionable {
 
     abstract override val primaryAction: ChangeAction
 
-    override fun longValue(databaseWrapper: DatabaseWrapper): Long {
+    override suspend fun longValue(databaseWrapper: DatabaseWrapper): Long {
         try {
             val query = query
             FlowLog.log(FlowLog.Level.V, "Executing query: $query")
@@ -35,7 +36,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
         return 0
     }
 
-    override fun stringValue(databaseWrapper: DatabaseWrapper): String? {
+    override suspend fun stringValue(databaseWrapper: DatabaseWrapper): String? {
         try {
             val query = query
             FlowLog.log(FlowLog.Level.V, "Executing query: $query")
@@ -48,9 +49,10 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
         return null
     }
 
-    override fun hasData(databaseWrapper: DatabaseWrapper): Boolean = longValue(databaseWrapper) > 0
+    override suspend fun hasData(databaseWrapper: DatabaseWrapper): Boolean =
+        longValue(databaseWrapper) > 0
 
-    override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? {
+    override suspend fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? {
         if (primaryAction == ChangeAction.INSERT) {
             // inserting, let's compile and insert
             compileStatement(databaseWrapper).use { it.executeInsert() }
@@ -62,10 +64,10 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
         return null
     }
 
-    override fun executeInsert(databaseWrapper: DatabaseWrapper): Long =
+    override suspend fun executeInsert(databaseWrapper: DatabaseWrapper): Long =
         compileStatement(databaseWrapper).use { it.executeInsert() }
 
-    override fun execute(databaseWrapper: DatabaseWrapper) {
+    override suspend fun execute(databaseWrapper: DatabaseWrapper) {
         val cursor = cursor(databaseWrapper)
         if (cursor != null) {
             cursor.close()

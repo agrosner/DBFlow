@@ -51,7 +51,7 @@ open internal class ProspectQuiz {
     var pendingUnanswered: MutableSet<String>
 
     @Index(indexGroups = [1])
-    @Column(defaultValue = "1L")
+    @Column(defaultValue = "1")
     var modifiedDate: Long? = null
 
     constructor(quizID: String) : this() {

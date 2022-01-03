@@ -3,7 +3,6 @@ package com.dbflow5.livedata
 import androidx.lifecycle.LiveData
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.databaseForTable
-import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.ModelQueriableEvalFn
@@ -16,24 +15,28 @@ import kotlin.reflect.KClass
 fun <T : Any, Q : ModelQueriable<T>, R> Q.toLiveData(evalFn: ModelQueriableEvalFn<T, R>): LiveData<R> =
     QueryLiveData(this, evalFn)
 
-class QueryLiveData<T : Any, R : Any?>(private val modelQueriable: ModelQueriable<T>,
-                                       private val evalFn: ModelQueriableEvalFn<T, R>) : LiveData<R>() {
+class QueryLiveData<T : Any, R : Any?>(
+    private val modelQueriable: ModelQueriable<T>,
+    private val evalFn: ModelQueriableEvalFn<T, R>
+) : LiveData<R>() {
 
     private val associatedTables: Set<Class<*>> = modelQueriable.extractFrom()?.associatedTables
         ?: setOf(modelQueriable.table)
 
-    private val onTableChangedObserver = object : OnTableChangedObserver(associatedTables.toList()) {
-        override fun onChanged(tables: Set<Class<*>>) {
-            if (tables.isNotEmpty()) {
-                evaluateEmission(tables.first().kotlin)
+    private val onTableChangedObserver =
+        object : OnTableChangedObserver(associatedTables.toList()) {
+            override fun onChanged(tables: Set<Class<*>>) {
+                if (tables.isNotEmpty()) {
+                    evaluateEmission(tables.first().kotlin)
+                }
             }
         }
-    }
 
     private fun evaluateEmission(table: KClass<*> = modelQueriable.table.kotlin) {
         databaseForTable(table)
-            .beginTransactionAsync { modelQueriable.evalFn(it) }
-            .execute { _, r -> value = r }
+            .transact {
+                value = modelQueriable.evalFn(it)
+            }
     }
 
     override fun onActive() {

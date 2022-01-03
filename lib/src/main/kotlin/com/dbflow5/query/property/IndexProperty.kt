@@ -33,9 +33,9 @@ class IndexProperty<T : Any>(
 
     val indexName = indexName.quoteIfNeeded() ?: ""
 
-    fun createIfNotExists(wrapper: DatabaseWrapper) = index.createIfNotExists(wrapper)
+    suspend fun createIfNotExists(wrapper: DatabaseWrapper) = index.createIfNotExists(wrapper)
 
-    fun drop(wrapper: DatabaseWrapper) = index.drop(wrapper)
+    suspend fun drop(wrapper: DatabaseWrapper) = index.drop(wrapper)
 }
 
 inline fun <reified T : Any> indexProperty(

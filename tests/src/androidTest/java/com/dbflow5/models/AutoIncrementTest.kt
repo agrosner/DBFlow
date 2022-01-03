@@ -6,6 +6,7 @@ import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.config.databaseForTable
 import com.dbflow5.structure.insert
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -15,14 +16,14 @@ import org.junit.Test
 class AutoIncrementTest : BaseUnitTest() {
 
     @Test
-    fun testCanInsertAutoIncrement() {
+    fun testCanInsertAutoIncrement() = runBlockingTest {
         val model = AutoIncrementingModel()
         val id = model.insert(databaseForTable<AutoIncrementingModel>())
         assertEquals(1L, id.getOrThrow().id)
     }
 
     @Test
-    fun testCanInsertExistingIdAutoIncrement() {
+    fun testCanInsertExistingIdAutoIncrement() = runBlockingTest {
         val model = AutoIncrementingModel(3)
         val id = model.insert(databaseForTable<AutoIncrementingModel>())
         assertEquals(3L, id.getOrThrow().id)

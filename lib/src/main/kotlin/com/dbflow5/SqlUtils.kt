@@ -29,10 +29,12 @@ val TABLE_QUERY_PARAM = "tableName"
  * @param conditions The set of key-value [SQLOperator] to construct into a uri.
  * @return The [Uri].
  */
-fun getNotificationUri(contentAuthority: String,
-                       modelClass: Class<*>,
-                       action: ChangeAction?,
-                       conditions: Iterable<SQLOperator>?): Uri {
+fun getNotificationUri(
+    contentAuthority: String,
+    modelClass: Class<*>,
+    action: ChangeAction?,
+    conditions: Iterable<SQLOperator>?
+): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
         .authority(contentAuthority)
         .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass))
@@ -41,7 +43,10 @@ fun getNotificationUri(contentAuthority: String,
     }
     if (conditions != null) {
         for (condition in conditions) {
-            uriBuilder.appendQueryParameter(Uri.encode(condition.columnName()), Uri.encode(condition.value().toString()))
+            uriBuilder.appendQueryParameter(
+                Uri.encode(condition.columnName()),
+                Uri.encode(condition.value().toString())
+            )
         }
     }
     return uriBuilder.build()
@@ -56,18 +61,22 @@ fun getNotificationUri(contentAuthority: String,
  * @param conditions The set of key-value [SQLOperator] to construct into a uri.
  * @return The [Uri].
  */
-fun getNotificationUri(contentAuthority: String,
-                       modelClass: Class<*>,
-                       action: ChangeAction?,
-                       conditions: Array<SQLOperator>?): Uri {
+fun getNotificationUri(
+    contentAuthority: String,
+    modelClass: Class<*>,
+    action: ChangeAction?,
+    conditions: Array<SQLOperator>?
+): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
         .authority(contentAuthority)
         .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass))
     action?.let { uriBuilder.fragment(action.name) }
     if (conditions != null && conditions.isNotEmpty()) {
         for (condition in conditions) {
-            uriBuilder.appendQueryParameter(Uri.encode(condition.columnName()),
-                Uri.encode(condition.value().toString()))
+            uriBuilder.appendQueryParameter(
+                Uri.encode(condition.columnName()),
+                Uri.encode(condition.value().toString())
+            )
         }
     }
     return uriBuilder.build()
@@ -83,17 +92,21 @@ fun getNotificationUri(contentAuthority: String,
  * @return Notification uri.
  */
 @JvmOverloads
-fun getNotificationUri(contentAuthority: String,
-                       modelClass: Class<*>,
-                       action: ChangeAction?,
-                       notifyKey: String = "",
-                       notifyValue: Any? = null): Uri {
+fun getNotificationUri(
+    contentAuthority: String,
+    modelClass: Class<*>,
+    action: ChangeAction?,
+    notifyKey: String = "",
+    notifyValue: Any? = null
+): Uri {
     var operator: Operator<Any>? = null
     if (notifyKey.isNotNullOrEmpty()) {
         operator = Operator.op<Any>(NameAlias.Builder(notifyKey).build()).value(notifyValue)
     }
-    return getNotificationUri(contentAuthority, modelClass, action,
-        if (operator != null) arrayOf<SQLOperator>(operator) else null)
+    return getNotificationUri(
+        contentAuthority, modelClass, action,
+        if (operator != null) arrayOf<SQLOperator>(operator) else null
+    )
 }
 
 
@@ -103,7 +116,7 @@ fun getNotificationUri(contentAuthority: String,
  * @param mOnTable    The table that this trigger runs on
  * @param triggerName The name of the trigger
  */
-fun dropTrigger(databaseWrapper: DatabaseWrapper, triggerName: String) {
+suspend fun dropTrigger(databaseWrapper: DatabaseWrapper, triggerName: String) {
     databaseWrapper.execSQL("DROP TRIGGER IF EXISTS " + triggerName)
 }
 
@@ -112,7 +125,7 @@ fun dropTrigger(databaseWrapper: DatabaseWrapper, triggerName: String) {
  *
  * @param indexName The name of the index.
  */
-fun dropIndex(databaseWrapper: DatabaseWrapper, indexName: String) {
+suspend fun dropIndex(databaseWrapper: DatabaseWrapper, indexName: String) {
     databaseWrapper.execSQL("DROP INDEX IF EXISTS ${indexName.quoteIfNeeded()}")
 }
 
@@ -126,8 +139,10 @@ fun addContentValues(contentValues: ContentValues, operatorGroup: OperatorGroup)
     val entries = contentValues.valueSet()
 
     for ((key) in entries) {
-        operatorGroup.and(Operator.op<Any>(NameAlias.Builder(key).build())
-            .`is`(contentValues.get(key)))
+        operatorGroup.and(
+            Operator.op<Any>(NameAlias.Builder(key).build())
+                .`is`(contentValues.get(key))
+        )
     }
 }
 

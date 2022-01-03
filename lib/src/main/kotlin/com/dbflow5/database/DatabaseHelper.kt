@@ -4,19 +4,22 @@ import com.dbflow5.adapter.createIfNotExists
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.NaturalOrderComparator
+import kotlinx.coroutines.runBlocking
 import java.io.IOException
 
 /**
  * Description: Manages creation, updating, and migrating ac [DBFlowDatabase]. It performs View creations.
  */
-open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
-                          val databaseDefinition: DBFlowDatabase) {
+open class DatabaseHelper(
+    private val migrationFileHelper: MigrationFileHelper,
+    val databaseDefinition: DBFlowDatabase
+) {
 
     // path to migration for the database.
     private val dbMigrationPath
         get() = "$MIGRATION_PATH/${databaseDefinition.databaseName}"
 
-    open fun onConfigure(db: DatabaseWrapper) {
+    open suspend fun onConfigure(db: DatabaseWrapper) {
         checkForeignKeySupport(db)
     }
 
@@ -27,7 +30,9 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
         // execute any initial migrations when DB is first created.
         // use the databaseversion of the definition, since onupgrade is not called oncreate on a version 0
         // then SQLCipher and Android set the DB to that version you choose.
-        executeMigrations(db, -1, databaseDefinition.databaseVersion)
+        runBlocking {
+            executeMigrations(db, -1, databaseDefinition.databaseVersion)
+        }
 
         // views reflect current db state.
         executeViewCreations(db)
@@ -38,7 +43,9 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
         executeTableCreations(db)
 
         // migrations run to get to DB newest version. adjusting any existing tables to new version
-        executeMigrations(db, oldVersion, newVersion)
+        runBlocking {
+            executeMigrations(db, oldVersion, newVersion)
+        }
 
         // views reflect current db state.
         executeViewCreations(db)
@@ -53,7 +60,7 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
     /**
      * If foreign keys are supported, we turn it on the DB specified.
      */
-    protected fun checkForeignKeySupport(database: DatabaseWrapper) {
+    protected suspend fun checkForeignKeySupport(database: DatabaseWrapper) {
         if (databaseDefinition.isForeignKeysSupported) {
             database.execSQL("PRAGMA foreign_keys=ON;")
             FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.")
@@ -94,8 +101,10 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
         }
     }
 
-    protected fun executeMigrations(db: DatabaseWrapper,
-                                    oldVersion: Int, newVersion: Int) {
+    protected suspend fun executeMigrations(
+        db: DatabaseWrapper,
+        oldVersion: Int, newVersion: Int
+    ) {
 
         // will try migrations file or execute migrations from code
         try {
@@ -142,7 +151,10 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
 
                             // after migration cleanup
                             migration.onPostMigrate()
-                            FlowLog.log(FlowLog.Level.I, "${migration.javaClass} executed successfully.")
+                            FlowLog.log(
+                                FlowLog.Level.I,
+                                "${migration.javaClass} executed successfully."
+                            )
                         }
                     }
                 }
@@ -151,7 +163,11 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
                 db.endTransaction()
             }
         } catch (e: IOException) {
-            FlowLog.log(FlowLog.Level.E, "Failed to execute migrations. App might be in an inconsistent state.", e)
+            FlowLog.log(
+                FlowLog.Level.E,
+                "Failed to execute migrations. App might be in an inconsistent state.",
+                e
+            )
         }
 
     }
@@ -162,8 +178,12 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
      * @param db   The database to run it on
      * @param file the file name in assets/migrations that we read from
      */
-    private fun executeSqlScript(db: DatabaseWrapper, file: String) {
-        migrationFileHelper.executeMigration("$dbMigrationPath/$file") { queryString -> db.execSQL(queryString) }
+    private suspend fun executeSqlScript(db: DatabaseWrapper, file: String) {
+        migrationFileHelper.executeMigration("$dbMigrationPath/$file") { queryString ->
+            db.execSQL(
+                queryString
+            )
+        }
     }
 
     companion object {

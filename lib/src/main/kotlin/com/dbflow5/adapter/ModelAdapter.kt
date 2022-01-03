@@ -82,22 +82,22 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
     fun getSaveStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement =
         databaseWrapper.compileStatement(saveStatementQuery)
 
-    override fun save(model: T, databaseWrapper: DatabaseWrapper): Result<T> {
+    override suspend fun save(model: T, databaseWrapper: DatabaseWrapper): Result<T> {
         checkInTransaction(databaseWrapper)
         return modelSaver.save(model, databaseWrapper)
     }
 
-    override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Result<Collection<T>> {
+    override suspend fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Result<Collection<T>> {
         checkInTransaction(databaseWrapper)
         return listModelSaver.saveAll(models, databaseWrapper)
     }
 
-    override fun insert(model: T, databaseWrapper: DatabaseWrapper): Result<T> {
+    override suspend fun insert(model: T, databaseWrapper: DatabaseWrapper): Result<T> {
         checkInTransaction(databaseWrapper)
         return modelSaver.insert(model, databaseWrapper)
     }
 
-    override fun insertAll(
+    override suspend fun insertAll(
         models: Collection<T>,
         databaseWrapper: DatabaseWrapper
     ): Result<Collection<T>> {
@@ -105,12 +105,12 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
         return listModelSaver.insertAll(models, databaseWrapper)
     }
 
-    override fun update(model: T, databaseWrapper: DatabaseWrapper): Result<T> {
+    override suspend fun update(model: T, databaseWrapper: DatabaseWrapper): Result<T> {
         checkInTransaction(databaseWrapper)
         return modelSaver.update(model, databaseWrapper)
     }
 
-    override fun updateAll(
+    override suspend fun updateAll(
         models: Collection<T>,
         databaseWrapper: DatabaseWrapper
     ): Result<Collection<T>> {
@@ -118,12 +118,12 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
         return listModelSaver.updateAll(models, databaseWrapper)
     }
 
-    override fun delete(model: T, databaseWrapper: DatabaseWrapper): Result<T> {
+    override suspend fun delete(model: T, databaseWrapper: DatabaseWrapper): Result<T> {
         checkInTransaction(databaseWrapper)
         return modelSaver.delete(model, databaseWrapper)
     }
 
-    override fun deleteAll(
+    override suspend fun deleteAll(
         models: Collection<T>,
         databaseWrapper: DatabaseWrapper
     ): Result<Collection<T>> {
@@ -156,7 +156,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
      * Called when we want to save our [ForeignKey] objects. usually during insert + update.
      * This method is overridden when [ForeignKey] specified
      */
-    open fun saveForeignKeys(model: T, wrapper: DatabaseWrapper): T {
+    open suspend fun saveForeignKeys(model: T, wrapper: DatabaseWrapper): T {
         return model
     }
 
@@ -164,7 +164,7 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
      * Called when we want to delete our [ForeignKey] objects. During deletion [.delete]
      * This method is overridden when [ForeignKey] specified
      */
-    open fun deleteForeignKeys(model: T, wrapper: DatabaseWrapper): T {
+    open suspend fun deleteForeignKeys(model: T, wrapper: DatabaseWrapper): T {
         return model
     }
 

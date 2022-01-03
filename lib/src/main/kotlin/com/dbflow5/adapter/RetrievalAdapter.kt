@@ -77,7 +77,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     /**
      * Returns a new [model] based on the object passed in. Will not overwrite existing object.
      */
-    open fun load(model: T, databaseWrapper: DatabaseWrapper): T? =
+    open suspend fun load(model: T, databaseWrapper: DatabaseWrapper): T? =
         nonCacheableSingleModelLoader.load(
             databaseWrapper,
             (select
@@ -91,13 +91,13 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
      * @param cursor The cursor to load into the model
      * @param wrapper The database instance to use.
      */
-    abstract fun loadFromCursor(cursor: FlowCursor, wrapper: DatabaseWrapper): T
+    abstract suspend fun loadFromCursor(cursor: FlowCursor, wrapper: DatabaseWrapper): T
 
     /**
      * @param model The model to query values from
      * @return True if it exists as a row in the corresponding database table
      */
-    open fun exists(model: T, databaseWrapper: DatabaseWrapper): Boolean = selectCountOf()
+    open suspend fun exists(model: T, databaseWrapper: DatabaseWrapper): Boolean = selectCountOf()
         .from(table)
         .where(getPrimaryConditionClause(model))
         .hasData(databaseWrapper)

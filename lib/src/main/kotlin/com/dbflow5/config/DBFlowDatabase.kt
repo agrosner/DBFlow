@@ -4,7 +4,6 @@ import android.app.ActivityManager
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.annotation.WorkerThread
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ModelViewAdapter
 import com.dbflow5.adapter.RetrievalAdapter
@@ -24,11 +23,10 @@ import com.dbflow5.migration.Migration
 import com.dbflow5.observing.TableObserver
 import com.dbflow5.runtime.DirectModelNotifier
 import com.dbflow5.runtime.ModelNotifier
-import com.dbflow5.transaction.BaseTransactionManager
-import com.dbflow5.transaction.DefaultTransactionManager
-import com.dbflow5.transaction.DefaultTransactionQueue
-import com.dbflow5.transaction.ITransaction
-import com.dbflow5.transaction.Transaction
+import com.dbflow5.transaction.createTransactionScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 
@@ -59,6 +57,8 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         }
     }
 
+    private val transactionScope = createTransactionScope()
+
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
 
     private val modelAdapterMap = hashMapOf<Class<*>, ModelAdapter<*>>()
@@ -83,9 +83,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * Used when resetting the DB
      */
     private var isResetting = false
-
-    lateinit var transactionManager: BaseTransactionManager
-        private set
 
     private var databaseConfig: DatabaseConfig? by MutableLazy {
         val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
@@ -242,11 +239,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             }
             callback = databaseConfig.callback
         }
-        transactionManager = if (databaseConfig?.transactionManagerCreator == null) {
-            DefaultTransactionManager(this)
-        } else {
-            databaseConfig.transactionManagerCreator.createManager(this)
-        }
     }
 
     protected fun <T : Any> addModelAdapter(modelAdapter: ModelAdapter<T>, holder: MutableHolder) {
@@ -334,27 +326,17 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         return notifier
     }
 
-    fun <R : Any?> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
-        Transaction.Builder(transaction, this)
-
-    inline fun <R : Any?> beginTransactionAsync(crossinline transaction: (DatabaseWrapper) -> R): Transaction.Builder<R> =
-        beginTransactionAsync(object : ITransaction<R> {
-            override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
-        })
-
     /**
-     * This should never get called on the main thread. Use [beginTransactionAsync] for an async-variant.
-     * Runs a transaction in the current thread.
+     * Runs a transaction on the [transactionScope]
      */
-    @WorkerThread
-    fun <R> executeTransaction(transaction: ITransaction<R>): R {
-        try {
-            beginTransaction()
-            val result = transaction.execute(writableDatabase)
-            setTransactionSuccessful()
-            return result
-        } finally {
-            endTransaction()
+    fun transact(
+        shouldRunInTransaction: Boolean = true,
+        transaction: suspend (DatabaseWrapper) -> Unit
+    ) = transactionScope.launch {
+        if (shouldRunInTransaction) {
+            executeTransaction(transaction)
+        } else {
+            transaction(this@DBFlowDatabase)
         }
     }
 
@@ -362,11 +344,16 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * This should never get called on the main thread. Use [beginTransactionAsync] for an async-variant.
      * Runs a transaction in the current thread.
      */
-    @WorkerThread
-    inline fun <R> executeTransaction(crossinline transaction: (DatabaseWrapper) -> R) =
-        executeTransaction(object : ITransaction<R> {
-            override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
-        })
+    suspend fun <R> executeTransaction(transaction: suspend (DatabaseWrapper) -> R): R {
+        try {
+            beginTransaction()
+            val result = transaction(writableDatabase)
+            setTransactionSuccessful()
+            return result
+        } finally {
+            endTransaction()
+        }
+    }
 
     /**
      * @return True if the [Database.consistencyCheckEnabled] annotation is true.
@@ -427,10 +414,10 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     }
 
     /**
-     * Closes the DB and stops the [BaseTransactionManager]
+     * Closes the DB
      */
     fun close() {
-        transactionManager.stopQueue()
+        transactionScope.cancel()
         if (isOpened) {
             try {
                 closeLock.lock()
@@ -443,7 +430,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     }
 
     /**
-     * Saves the database as a backup on the [DefaultTransactionQueue]. This will
+     * Saves the database as a backup. This will
      * create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      *
      * @throws java.lang.IllegalStateException if [Database.backupEnabled]
@@ -456,10 +443,12 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     override val version: Int
         get() = writableDatabase.version
 
-    override fun execSQL(query: String) = writableDatabase.execSQL(query)
+    override suspend fun execSQL(query: String) = writableDatabase.execSQL(query)
 
     override fun beginTransaction() {
-        tableObserver.syncTriggers(writableDatabase)
+        runBlocking {
+            tableObserver.syncTriggers(writableDatabase)
+        }
         writableDatabase.beginTransaction()
     }
 
@@ -475,7 +464,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     override fun compileStatement(rawQuery: String): DatabaseStatement =
         writableDatabase.compileStatement(rawQuery)
 
-    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
+    override suspend fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
         writableDatabase.rawQuery(query, selectionArgs)
 
     override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int =
@@ -503,8 +492,10 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     private val internalCallback: DatabaseCallback = object : DatabaseCallback {
         override fun onOpen(database: DatabaseWrapper) {
-            tableObserver.construct(database)
-            callback?.onOpen(database)
+            transact {
+                tableObserver.construct(database)
+                callback?.onOpen(database)
+            }
         }
 
         override fun onCreate(database: DatabaseWrapper) {
@@ -523,7 +514,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             callback?.onDowngrade(databaseWrapper, oldVersion, newVersion)
         }
 
-        override fun onConfigure(db: DatabaseWrapper) {
+        override suspend fun onConfigure(db: DatabaseWrapper) {
             callback?.onConfigure(db)
         }
     }

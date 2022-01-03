@@ -37,14 +37,14 @@ class CompletedTrigger<TModel> internal constructor(
     /**
      * Turns on this trigger
      */
-    fun enable(databaseWrapper: DatabaseWrapper) {
+    suspend fun enable(databaseWrapper: DatabaseWrapper) {
         databaseWrapper.execSQL(query)
     }
 
     /**
      * Disables this trigger
      */
-    fun disable(databaseWrapper: DatabaseWrapper) {
+    suspend fun disable(databaseWrapper: DatabaseWrapper) {
         dropTrigger(databaseWrapper, triggerMethod.trigger.name)
     }
 }

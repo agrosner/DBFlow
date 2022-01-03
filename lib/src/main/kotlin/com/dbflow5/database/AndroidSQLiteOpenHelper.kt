@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.OpenHelperCreator
+import kotlinx.coroutines.runBlocking
 
 /**
  * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.
@@ -50,7 +51,9 @@ open class AndroidSQLiteOpenHelper(
     }
 
     override fun onConfigure(db: SQLiteDatabase) {
-        databaseHelperDelegate.onConfigure(AndroidDatabase.from(db))
+        runBlocking {
+            databaseHelperDelegate.onConfigure(AndroidDatabase.from(db))
+        }
     }
 
     override fun onCreate(db: SQLiteDatabase) {
@@ -110,7 +113,9 @@ open class AndroidSQLiteOpenHelper(
         override fun setDatabaseListener(callback: DatabaseCallback?) {}
 
         override fun onConfigure(db: SQLiteDatabase) {
-            databaseHelper.onConfigure(AndroidDatabase.from(db))
+            runBlocking {
+                databaseHelper.onConfigure(AndroidDatabase.from(db))
+            }
         }
 
         override fun onCreate(db: SQLiteDatabase) {

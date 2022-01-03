@@ -6,6 +6,7 @@ import com.dbflow5.config.database
 import com.dbflow5.query.select
 import com.dbflow5.structure.exists
 import com.dbflow5.structure.save
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -15,7 +16,7 @@ import org.junit.Test
 class QueryModelTest : BaseUnitTest() {
 
     @Test
-    fun testCanLoadAuthorBlogs() {
+    fun testCanLoadAuthorBlogs() = runBlockingTest {
         database<TestDatabase> { db ->
             val author = Author(0, "Andrew", "Grosner")
             author.save(db)

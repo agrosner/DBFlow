@@ -16,7 +16,7 @@ interface DatabaseWrapper {
     /**
      * Execute an arbitrary SQL query.
      */
-    fun execSQL(query: String)
+    suspend fun execSQL(query: String)
 
     /**
      * Begin a transaction.
@@ -49,7 +49,7 @@ interface DatabaseWrapper {
     /**
      * For given query and selection args, return a [FlowCursor] to retrieve data.
      */
-    fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor
+    suspend fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor
 
     fun query(tableName: String, columns: Array<String>?, selection: String?,
               selectionArgs: Array<String>?, groupBy: String?,

@@ -7,5 +7,5 @@ interface MigrationFileHelper {
 
     fun getListFiles(dbMigrationPath: String): List<String>
 
-    fun executeMigration(fileName: String, dbFunction: (queryString: String) -> Unit)
+    suspend fun executeMigration(fileName: String, dbFunction: suspend (queryString: String) -> Unit)
 }

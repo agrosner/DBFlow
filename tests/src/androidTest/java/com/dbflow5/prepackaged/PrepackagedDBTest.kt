@@ -5,6 +5,7 @@ import com.dbflow5.DemoApp
 import com.dbflow5.config.database
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.query.select
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -26,7 +27,7 @@ class PrepackagedDBTest {
     }
 
     @Test
-    fun assertWeCanLoadFromDB() {
+    fun assertWeCanLoadFromDB() = runBlockingTest {
         database<PrepackagedDB> { db ->
             val list = (select from Dog::class).queryList(db)
             assertTrue(list.isNotEmpty())
@@ -34,7 +35,7 @@ class PrepackagedDBTest {
     }
 
     @Test
-    fun assertWeCanLoadFromDBPostMigrate() {
+    fun assertWeCanLoadFromDBPostMigrate() = runBlockingTest {
         database<MigratedPrepackagedDB> { db ->
             val list = (select from Dog2::class).queryList(db)
             assertTrue(list.isNotEmpty())

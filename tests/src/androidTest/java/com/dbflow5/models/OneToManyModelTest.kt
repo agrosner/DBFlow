@@ -6,13 +6,14 @@ import com.dbflow5.config.database
 import com.dbflow5.query.requireCustomSingle
 import com.dbflow5.query.select
 import com.dbflow5.structure.save
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import kotlin.test.assertEquals
 
 class OneToManyModelTest : BaseUnitTest() {
 
     @Test
-    fun testOneToManyModel() {
+    fun testOneToManyModel() = runBlockingTest {
         database(TestDatabase::class) { db ->
             OneToManyModel(
                 name = "name"
