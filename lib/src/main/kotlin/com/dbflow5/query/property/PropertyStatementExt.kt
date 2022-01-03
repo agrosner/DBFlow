@@ -2,7 +2,6 @@
 
 package com.dbflow5.query.property
 
-import com.dbflow5.converter.TypeConverter
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.bind
 
