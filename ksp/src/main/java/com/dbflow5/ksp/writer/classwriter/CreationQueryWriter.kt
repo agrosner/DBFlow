@@ -7,6 +7,7 @@ import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.createFlattenedFields
 import com.dbflow5.ksp.model.properties.TableProperties
+import com.dbflow5.ksp.model.toExtractor
 import com.dbflow5.ksp.writer.FieldExtractor
 import com.dbflow5.ksp.writer.TypeCreator
 import com.dbflow5.quoteIfNeeded
@@ -94,6 +95,43 @@ class CreationQueryWriter(
                                         append(", PRIMARY KEY(")
                                         append(nonAutoFields.joinToString { it.dbName.quoteIfNeeded() })
                                         append(")")
+                                    }
+                                    if (clsModel.referenceFields.isNotEmpty()) {
+                                        clsModel.referenceFields
+                                            .filter { referencesCache.isTable(it) }
+                                            .forEach { field ->
+                                                val reference = referencesCache.resolve(field)
+                                                val extractor =
+                                                    field.toExtractor(clsModel, referencesCache)
+                                                val references = field.references(
+                                                    referencesCache,
+                                                ).map { it.toExtractor(reference) }
+                                                append(", FOREIGN KEY(")
+                                                append(extractor.commaNames)
+                                                append(") REFERENCES ")
+                                                append(reference.dbName)
+                                                append("(")
+                                                append(references.joinToString { it.commaNames })
+                                                append(
+                                                    ") ON UPDATE ${
+                                                        field.referenceHolderProperties.onUpdate.name.replace(
+                                                            "_",
+                                                            " "
+                                                        )
+                                                    }"
+                                                )
+                                                append(
+                                                    " ON DELETE ${
+                                                        field.referenceHolderProperties.onDelete.name.replace(
+                                                            "_",
+                                                            " "
+                                                        )
+                                                    }"
+                                                )
+                                                if (field.referenceHolderProperties.deferred) {
+                                                    append(" DEFERRABLE INITIALLY DEFERRED")
+                                                }
+                                            }
                                     }
                                     append(")")
                                 })

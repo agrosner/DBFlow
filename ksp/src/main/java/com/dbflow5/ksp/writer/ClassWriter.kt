@@ -5,12 +5,11 @@ import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.FieldModel
-import com.dbflow5.ksp.model.ReferenceHolderModel
-import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
-import com.dbflow5.ksp.model.cache.TypeConverterCache
+import com.dbflow5.ksp.model.extractors
 import com.dbflow5.ksp.model.generatedClassName
 import com.dbflow5.ksp.model.memberSeparator
+import com.dbflow5.ksp.model.primaryExtractors
 import com.dbflow5.ksp.model.properties.CreatableScopeProperties
 import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
 import com.dbflow5.ksp.writer.classwriter.CreationQueryWriter
@@ -20,7 +19,6 @@ import com.dbflow5.ksp.writer.classwriter.IndexPropertyWriter
 import com.dbflow5.ksp.writer.classwriter.LoadFromCursorWriter
 import com.dbflow5.ksp.writer.classwriter.PrimaryConditionClauseWriter
 import com.dbflow5.ksp.writer.classwriter.StatementBinderWriter
-import com.dbflow5.ksp.writer.classwriter.TypeConverterFieldWriter
 import com.squareup.kotlinpoet.BYTE
 import com.squareup.kotlinpoet.DOUBLE
 import com.squareup.kotlinpoet.FLOAT
@@ -70,26 +68,8 @@ class ClassWriter(
             addModifiers(KModifier.OVERRIDE)
             defaultValue("%S", model.dbName)
         }
-        val extractors = model.fields.map {
-            when (it) {
-                is ReferenceHolderModel -> FieldExtractor.ForeignFieldExtractor(
-                    field = it,
-                    referencesCache = referencesCache,
-                    classModel = model,
-                )
-                is SingleFieldModel -> FieldExtractor.SingleFieldExtractor(it, model)
-            }
-        }
-        val primaryExtractors = model.primaryFields.map {
-            when (it) {
-                is ReferenceHolderModel -> FieldExtractor.ForeignFieldExtractor(
-                    field = it,
-                    referencesCache = referencesCache,
-                    classModel = model,
-                )
-                is SingleFieldModel -> FieldExtractor.SingleFieldExtractor(it, model)
-            }
-        }
+        val extractors = model.extractors(referencesCache)
+        val primaryExtractors = model.primaryExtractors(referencesCache)
         val superClass = when (model.type) {
             is ClassModel.ClassType.Normal -> ClassNames.modelAdapter(model.classType)
             is ClassModel.ClassType.View -> ClassNames.modelViewAdapter(model.classType)

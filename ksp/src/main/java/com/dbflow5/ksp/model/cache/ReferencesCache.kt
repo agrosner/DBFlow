@@ -41,6 +41,20 @@ class ReferencesCache(
 
     var allTables: List<ClassModel> = listOf()
 
+    fun resolve(referenceHolderModel: ReferenceHolderModel) =
+        allTables.firstOrNull {
+            it.classType ==
+                referenceHolderModel.referenceHolderProperties.referencedTableTypeName.copy(
+                    nullable = false
+                )
+                || it.classType == referenceHolderModel.classType.copy(nullable = false)
+        } ?: throw IllegalStateException(
+            "Cant find ${
+                referenceHolderModel.referenceHolderProperties.referencedTableTypeName
+                    .copy(nullable = false)
+            } ${referenceHolderModel.classType.copy(nullable = false)}: ${allTables.map { it.classType }}"
+        )
+
     /**
      * If true, the field specified is a table.
      */
@@ -84,7 +98,7 @@ class ReferencesCache(
             allTables.firstOrNull { it.classType == nonNullVersion }
                 // only look for foreign key types on the model as source for reference. it
                 // is required to work.
-                ?.fields?.filterIsInstance<ReferenceHolderModel>()?.map {
+                ?.referenceFields?.map {
                     it.references(
                         this,
                         nameToNest = it.name,

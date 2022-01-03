@@ -5,6 +5,7 @@ import com.dbflow5.ksp.model.properties.ClassProperties
 import com.dbflow5.ksp.model.properties.ModelViewQueryProperties
 import com.dbflow5.ksp.model.properties.NamedProperties
 import com.dbflow5.ksp.model.properties.nameWithFallback
+import com.dbflow5.ksp.writer.FieldExtractor
 import com.dbflow5.quoteIfNeeded
 import com.google.devtools.ksp.symbol.KSFile
 import com.squareup.kotlinpoet.ClassName
@@ -36,6 +37,7 @@ data class ClassModel(
 ) : ObjectModel {
 
     val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.PrimaryAuto }
+    val referenceFields = fields.filterIsInstance<ReferenceHolderModel>()
 
     /**
      * Name to use on the database.
@@ -99,3 +101,26 @@ val ClassModel.generatedClassName
 
 val ClassModel.memberSeparator
     get() = if (hasPrimaryConstructor) "," else ""
+
+fun ClassModel.extractors(referencesCache: ReferencesCache) = fields.map(
+    mapExtractorsFromFields(
+        referencesCache
+    )
+)
+
+fun ClassModel.primaryExtractors(referencesCache: ReferencesCache) = primaryFields.map(
+    mapExtractorsFromFields(referencesCache)
+)
+
+@Suppress("unchecked_cast")
+fun ClassModel.referenceExtractors(referencesCache: ReferencesCache) = referenceFields.map(
+    mapExtractorsFromFields(referencesCache)
+) as List<FieldExtractor.ForeignFieldExtractor>
+
+private fun ClassModel.mapExtractorsFromFields(referencesCache: ReferencesCache): (FieldModel) -> FieldExtractor =
+    {
+        when (it) {
+            is ReferenceHolderModel -> it.toExtractor(this, referencesCache)
+            is SingleFieldModel -> it.toExtractor(this)
+        }
+    }

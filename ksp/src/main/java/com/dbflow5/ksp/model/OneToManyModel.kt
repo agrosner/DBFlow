@@ -47,6 +47,7 @@ data class OneToManyModel(
             referenceHolderProperties = ReferenceHolderProperties(
                 referencesType = ReferenceHolderProperties.ReferencesType.All,
                 referencedTableTypeName = classType,
+                deferred = false,
             ),
             enclosingClassType = generatedName.className,
             // we'll flatten this onto the object directly.
@@ -74,6 +75,7 @@ data class OneToManyModel(
             referenceHolderProperties = ReferenceHolderProperties(
                 referencesType = ReferenceHolderProperties.ReferencesType.All,
                 referencedTableTypeName = properties.childTableType,
+                deferred = false,
             ),
             enclosingClassType = generatedName.className,
             type = ReferenceHolderModel.Type.Reference,

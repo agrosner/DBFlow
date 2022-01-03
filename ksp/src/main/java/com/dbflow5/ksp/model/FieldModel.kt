@@ -11,6 +11,7 @@ import com.dbflow5.ksp.model.properties.TypeConverterProperties
 import com.dbflow5.ksp.model.properties.UniqueProperties
 import com.dbflow5.ksp.model.properties.isInferredTable
 import com.dbflow5.ksp.model.properties.nameWithFallback
+import com.dbflow5.ksp.writer.FieldExtractor
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSType
@@ -303,3 +304,17 @@ fun createFlattenedFields(
         }
     }.flatten()
 }
+
+fun SingleFieldModel.toExtractor(classModel: ClassModel) = FieldExtractor.SingleFieldExtractor(
+    this,
+    classModel,
+)
+
+fun ReferenceHolderModel.toExtractor(
+    classModel: ClassModel,
+    referencesCache: ReferencesCache
+) = FieldExtractor.ForeignFieldExtractor(
+    this,
+    referencesCache,
+    classModel
+)

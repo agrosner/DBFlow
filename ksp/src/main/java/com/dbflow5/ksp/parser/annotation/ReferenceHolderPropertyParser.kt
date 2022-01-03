@@ -35,7 +35,10 @@ constructor(
             },
             referencedTableTypeName = ifArg("tableClass") {
                 className("tableClass")
-            } ?: Any::class.asTypeName()
+            } ?: Any::class.asTypeName(),
+            deferred = ifArg("deferred") {
+                arg(it)
+            } ?: false,
         )
     }
 }

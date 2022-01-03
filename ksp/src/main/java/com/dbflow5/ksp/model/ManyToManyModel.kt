@@ -86,6 +86,7 @@ data class ManyToManyModel(
             referenceHolderProperties = ReferenceHolderProperties(
                 referencesType = ReferenceHolderProperties.ReferencesType.All,
                 referencedTableTypeName = classType,
+                deferred = false,
             ),
             enclosingClassType = generatedName.className,
             type = ReferenceHolderModel.Type.ForeignKey,
@@ -119,6 +120,7 @@ data class ManyToManyModel(
             referenceHolderProperties = ReferenceHolderProperties(
                 referencesType = ReferenceHolderProperties.ReferencesType.All,
                 referencedTableTypeName = properties.referencedTableType,
+                deferred = false,
             ),
             enclosingClassType = generatedName.className,
             type = ReferenceHolderModel.Type.ForeignKey,

@@ -12,6 +12,7 @@ data class ReferenceHolderProperties(
     val onUpdate: ForeignKeyAction = ForeignKeyAction.NO_ACTION,
     val referencesType: ReferencesType,
     val referencedTableTypeName: TypeName,
+    val deferred: Boolean,
 ) {
 
     sealed interface ReferencesType {
