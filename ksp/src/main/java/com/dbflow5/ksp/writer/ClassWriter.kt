@@ -1,5 +1,6 @@
 package com.dbflow5.ksp.writer
 
+import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
@@ -11,6 +12,8 @@ import com.dbflow5.ksp.model.generatedClassName
 import com.dbflow5.ksp.model.memberSeparator
 import com.dbflow5.ksp.model.primaryExtractors
 import com.dbflow5.ksp.model.properties.CreatableScopeProperties
+import com.dbflow5.ksp.model.properties.TableProperties
+import com.dbflow5.ksp.model.properties.dbName
 import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
 import com.dbflow5.ksp.writer.classwriter.CreationQueryWriter
 import com.dbflow5.ksp.writer.classwriter.FieldPropertyWriter
@@ -117,6 +120,46 @@ class ClassWriter(
                             deleteStatement(model, primaryExtractors)
                             updateAutoIncrement(model)
                             saveForeignKeys(model)
+
+                            (model.properties as? TableProperties)?.let { props ->
+                                if (props.insertConflict != ConflictAction.NONE) {
+                                    addProperty(
+                                        PropertySpec.builder(
+                                            "insertOnConflictAction",
+                                            ConflictAction::class
+                                        )
+                                            .addModifiers(KModifier.OVERRIDE)
+                                            .getter(
+                                                FunSpec.getterBuilder()
+                                                    .addStatement(
+                                                        "return %T.%L",
+                                                        ConflictAction::class.asClassName(),
+                                                        props.insertConflict,
+                                                    ).build()
+                                            )
+                                            .build()
+                                    )
+                                }
+                                if (props.updateConflict != ConflictAction.NONE) {
+                                    addProperty(
+                                        PropertySpec.builder(
+                                            "updateOnConflictAction",
+                                            ConflictAction::class
+                                        )
+                                            .addModifiers(KModifier.OVERRIDE)
+                                            .getter(
+                                                FunSpec.getterBuilder()
+                                                    .addStatement(
+                                                        "return %T.%L",
+                                                        ConflictAction::class.asClassName(),
+                                                        props.updateConflict
+                                                    )
+                                                    .build()
+                                            )
+                                            .build()
+                                    )
+                                }
+                            }
                         }
 
                         addFunction(loadFromCursorWriter.create(model))
@@ -195,10 +238,22 @@ class ClassWriter(
                 getter(
                     FunSpec.getterBuilder()
                         .addCode("return %S", buildString {
-                            append("INSERT ${if (isSave) "OR REPLACE" else ""} INTO ${model.dbName}(")
+                            val insertConflict = (model.properties
+                                as? TableProperties)?.insertConflict ?: ConflictAction.NONE
+                            append(
+                                "INSERT ${
+                                    when {
+                                        isSave -> "OR ${ConflictAction.REPLACE.dbName}"
+                                        insertConflict !== ConflictAction.NONE -> {
+                                            insertConflict.dbName
+                                        }
+                                        else -> ""
+                                    }
+                                } INTO ${model.dbName}("
+                            )
                             append(joinToString)
-                            append(") VALUES (${extractors.joinToString { it.valuesName }}")
-                            append(")")
+                            append(") VALUES (${extractors.joinToString { it.valuesName }})")
+
                         })
                         .build()
                 )
@@ -217,7 +272,13 @@ class ClassWriter(
                 getter(
                     FunSpec.getterBuilder()
                         .addCode("return %S", buildString {
-                            append("UPDATE ${model.dbName} SET ")
+                            append("UPDATE")
+                            (model.properties as? TableProperties)?.updateConflict
+                                ?: ConflictAction.NONE
+                                    .takeIf { it != ConflictAction.NONE }?.let { action ->
+                                        append(" OR ${action.dbName}")
+                                    }
+                            append("${model.dbName} SET ")
                             append(extractors.joinToString { it.updateName })
                             append(" WHERE ")
                             append(primaryExtractors.joinToString { it.updateName })

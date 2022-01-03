@@ -8,6 +8,7 @@ import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.createFlattenedFields
 import com.dbflow5.ksp.model.properties.TableProperties
+import com.dbflow5.ksp.model.properties.dbName
 import com.dbflow5.ksp.model.toExtractor
 import com.dbflow5.ksp.writer.FieldExtractor
 import com.dbflow5.ksp.writer.TypeCreator
@@ -100,7 +101,7 @@ class CreationQueryWriter(
                                         append(nonAutoFields.joinToString { it.dbName.quoteIfNeeded() })
                                         append(")")
                                         if (primaryKeyConflict != ConflictAction.NONE) {
-                                            append(" ON CONFLICT $primaryKeyConflict")
+                                            append(" ON CONFLICT ${primaryKeyConflict.dbName}")
                                         }
                                     }
                                     if (clsModel.referenceFields.isNotEmpty()) {
@@ -121,18 +122,12 @@ class CreationQueryWriter(
                                                 append(references.joinToString { it.commaNames })
                                                 append(
                                                     ") ON UPDATE ${
-                                                        field.referenceHolderProperties.onUpdate.name.replace(
-                                                            "_",
-                                                            " "
-                                                        )
+                                                        field.referenceHolderProperties.onUpdate.dbName
                                                     }"
                                                 )
                                                 append(
                                                     " ON DELETE ${
-                                                        field.referenceHolderProperties.onDelete.name.replace(
-                                                            "_",
-                                                            " "
-                                                        )
+                                                        field.referenceHolderProperties.onDelete.dbName
                                                     }"
                                                 )
                                                 if (field.referenceHolderProperties.deferred) {
