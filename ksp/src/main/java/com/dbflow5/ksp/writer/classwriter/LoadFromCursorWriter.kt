@@ -40,7 +40,7 @@ class LoadFromCursorWriter(
                 val constructorFields = model.fields
                     .filter { model.hasPrimaryConstructor || !it.isVal }
                 constructorFields
-                    .forEach { field -> loopField(field, model) }
+                    .forEachIndexed { index, field -> loopField(field, model, index) }
                 addCode("return ")
                 constructModel(
                     model.classType,
@@ -85,16 +85,22 @@ class LoadFromCursorWriter(
 
     private fun FunSpec.Builder.loopField(
         field: FieldModel,
-        model: ClassModel
+        model: ClassModel,
+        index: Int,
     ) {
+        val orderedCursorLookup = model.properties.orderedCursorLookup
         when (field) {
             is ReferenceHolderModel -> {
                 when (field.type) {
                     ReferenceHolderModel.Type.ForeignKey -> {
                         if (referencesCache.isTable(field)) {
-                            addForeignKeyLoadStatement(field)
+                            addForeignKeyLoadStatement(
+                                orderedCursorLookup,
+                                field,
+                                index
+                            )
                         } else {
-                            addSingleField(field)
+                            addSingleField(orderedCursorLookup, field, index)
                         }
                     }
                     ReferenceHolderModel.Type.Computed -> {
@@ -105,7 +111,10 @@ class LoadFromCursorWriter(
                     }
                 }
             }
-            is SingleFieldModel -> addSingleField(field)
+            is SingleFieldModel -> addSingleField(
+                orderedCursorLookup = orderedCursorLookup,
+                field, index
+            )
         }
     }
 
@@ -120,6 +129,7 @@ class LoadFromCursorWriter(
             loopField(
                 plain,
                 model,
+                index,
             )
         }
         addCode(
@@ -178,7 +188,9 @@ class LoadFromCursorWriter(
     }
 
     private fun FunSpec.Builder.addForeignKeyLoadStatement(
-        field: ReferenceHolderModel
+        orderedCursorLookup: Boolean,
+        field: ReferenceHolderModel,
+        index: Int,
     ) {
         addStatement(
             "val %N = ((%M %L %T::class) %L",
@@ -190,9 +202,9 @@ class LoadFromCursorWriter(
         )
         field.references(referencesCache).zip(
             field.references(referencesCache, field.name)
-        ).forEachIndexed { index, (plain, referenced) ->
+        ).forEachIndexed { refIndex, (plain, referenced) ->
             addCode("\t\t")
-            if (index > 0) {
+            if (refIndex > 0) {
                 addCode("%L ", "and")
             }
             val className = field.name
@@ -210,10 +222,14 @@ class LoadFromCursorWriter(
             )
             when {
                 referenced.hasTypeConverter(typeConverterCache) -> {
-                    addTypeConverter()
+                    addTypeConverter(orderedCursorLookup, index + refIndex)
                 }
-                referenced.isEnum -> addEnumConstructor(referenced)
-                else -> addPlainFieldWithDefaults(referenced)
+                referenced.isEnum -> addEnumConstructor(
+                    orderedCursorLookup,
+                    referenced,
+                    index + refIndex
+                )
+                else -> addPlainFieldWithDefaults(orderedCursorLookup, referenced, index + refIndex)
             }
             addStatement(")")
         }
@@ -227,7 +243,9 @@ class LoadFromCursorWriter(
     }
 
     private fun FunSpec.Builder.addSingleField(
-        field: FieldModel
+        orderedCursorLookup: Boolean,
+        field: FieldModel,
+        index: Int,
     ) {
         addCode(
             "val %N = %L.%N.%M(",
@@ -238,37 +256,55 @@ class LoadFromCursorWriter(
         )
         when {
             field.hasTypeConverter(typeConverterCache) -> {
-                addTypeConverter()
+                addTypeConverter(orderedCursorLookup, index)
             }
-            field.isEnum -> addEnumConstructor(field)
-            else -> addPlainFieldWithDefaults(field)
+            field.isEnum -> addEnumConstructor(orderedCursorLookup, field, index)
+            else -> addPlainFieldWithDefaults(orderedCursorLookup, field, index)
         }
         addStatement("")
     }
 
-    private fun FunSpec.Builder.addPlainFieldWithDefaults(field: FieldModel) {
+    private fun FunSpec.Builder.addPlainFieldWithDefaults(
+        orderedCursorLookup: Boolean,
+        field: FieldModel,
+        index: Int,
+    ) {
         addCode("cursor")
+        if (orderedCursorLookup) {
+            addCode(", index = %L", index)
+        }
         field.properties?.defaultValue?.let { value ->
             if (value.isNotBlank()) {
-                addCode(",$value")
+                addCode(", defValue = $value")
             }
         }
         addCode(")")
     }
 
-    private fun FunSpec.Builder.addTypeConverter() {
+    private fun FunSpec.Builder.addTypeConverter(
+        orderedCursorLookup: Boolean,
+        index: Int
+    ) {
         addCode(
-            ") { dataProperty.%M(%N) }",
+            ") { dataProperty.%M(%N",
             MemberNames.infer,
             "cursor"
         )
+        if (orderedCursorLookup) {
+            addCode(", index = %L", index)
+        }
+        addCode(") }")
     }
 
     private fun FunSpec.Builder.addEnumConstructor(
+        orderedCursorLookup: Boolean,
         field: FieldModel,
+        index: Int,
     ) {
-        addCode(
-            "cursor, %T::valueOf)", field.classType,
-        )
+        addCode("cursor, ")
+        if (orderedCursorLookup) {
+            addCode("index = %L,", index)
+        }
+        addCode("%T::valueOf)", field.classType)
     }
 }
