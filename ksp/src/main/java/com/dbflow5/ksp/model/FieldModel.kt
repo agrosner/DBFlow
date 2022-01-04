@@ -90,7 +90,6 @@ sealed interface FieldModel : ObjectModel {
         data class PrimaryAuto(
             val isAutoIncrement: Boolean,
             val isRowId: Boolean,
-            val quickCheckPrimaryKey: Boolean,
         ) : FieldType
     }
 

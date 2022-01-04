@@ -44,7 +44,6 @@ class KSPropertyDeclarationParser constructor(
             FieldModel.FieldType.PrimaryAuto(
                 isAutoIncrement = props.arg("autoincrement"),
                 isRowId = props.arg("rowID"),
-                quickCheckPrimaryKey = props.arg("quickCheckAutoIncrement")
             )
         } else {
             FieldModel.FieldType.Normal

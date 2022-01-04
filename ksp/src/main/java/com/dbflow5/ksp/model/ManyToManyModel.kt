@@ -51,7 +51,6 @@ data class ManyToManyModel(
                 fieldType = FieldModel.FieldType.PrimaryAuto(
                     isAutoIncrement = true,
                     isRowId = false,
-                    quickCheckPrimaryKey = true,
                 ),
                 properties = null,
                 enclosingClassType = generatedName.className,

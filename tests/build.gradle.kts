@@ -60,7 +60,7 @@ dependencies {
     implementation(project(":paging"))
     implementation(project(":livedata"))
 
-    //kaptAndroidTest(project(":processor"))
+    kaptAndroidTest(project(":processor"))
     kspAndroidTest(project(":ksp"))
 
     androidTestImplementation(kotlin("test"))
