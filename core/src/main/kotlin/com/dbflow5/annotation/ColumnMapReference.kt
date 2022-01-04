@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
  * defined here will not be used.
  */
 @Retention(AnnotationRetention.BINARY)
-@Target(AnnotationTarget.FIELD)
+@Target(AnnotationTarget.ANNOTATION_CLASS)
 annotation class ColumnMapReference(
         /**
          * @return The local column name that will be referenced in the DB

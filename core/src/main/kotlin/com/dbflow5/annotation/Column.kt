@@ -36,6 +36,7 @@ annotation class Column(
      * So for "getAnotherName()" you would use "AnotherName" as the param.
      * Not used in KSP.
      */
+    @DBFlowKAPTOnly
     @Deprecated("Use property beans.")
     val getterName: String = "",
     /**
@@ -46,6 +47,7 @@ annotation class Column(
      * The params must align exactly to an expected setter, otherwise a compile error ensues.
      * Not used in KSP.
      */
+    @DBFlowKAPTOnly
     @Deprecated("Use property beans.")
     val setterName: String = "",
     /**

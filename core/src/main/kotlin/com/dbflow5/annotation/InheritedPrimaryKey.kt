@@ -3,6 +3,7 @@ package com.dbflow5.annotation
 /**
  * Description: Allows you to specify a non-Column to be inherited and used as a [PrimaryKey]
  */
+@DBFlowKAPTOnly
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 @Retention(AnnotationRetention.SOURCE)
 @Deprecated(

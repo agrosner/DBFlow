@@ -140,13 +140,12 @@ class Location2(
 class PositionWithTypeConverter(
     @PrimaryKey var id: Int = 0,
     @ColumnMap(
-        references = arrayOf(
+        references = [
             ColumnMapReference(
                 columnName = "latitude",
                 columnMapFieldName = "latitude", typeConverter = DoubleConverter::class
             ),
-            ColumnMapReference(columnName = "longitude", columnMapFieldName = "longitude")
-        )
+            ColumnMapReference(columnName = "longitude", columnMapFieldName = "longitude")]
     )
     var location: Location2? = null
 )

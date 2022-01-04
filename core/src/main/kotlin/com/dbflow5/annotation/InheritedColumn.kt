@@ -3,6 +3,7 @@ package com.dbflow5.annotation
 /**
  * Description: Allows [Table] to inherit fields from other objects to make it part of the DB table.
  */
+@DBFlowKAPTOnly
 @Target(AnnotationTarget.ANNOTATION_CLASS)
 @Retention(AnnotationRetention.SOURCE)
 @Deprecated("Use @ColumnMap for columns that are outside of class.")

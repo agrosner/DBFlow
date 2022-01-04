@@ -27,9 +27,11 @@ annotation class ForeignKey(
      * populate the model with the [ForeignKeyReference] defined in this field. This skips
      * the Select retrieval convenience.
      */
+    @DBFlowKAPTOnly
     @Deprecated(
         "This property does not work with immutable models and encourages main " +
-            "thread reading. Replace with basic fields for foreign key."
+            "thread reading. Replace with basic fields for foreign key and use @OneToManyRelation" +
+            " to load the full models from the DB."
     )
     val stubbedRelationship: Boolean = false,
     /**
