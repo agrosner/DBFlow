@@ -88,6 +88,7 @@ class KSPropertyDeclarationParser constructor(
                     referencesType = ReferenceHolderProperties.ReferencesType.All,
                     referencedTableTypeName = Any::class.asTypeName(),
                     deferred = false,
+                    saveForeignKeyModel = false,
                 ),
                 enclosingClassType = input.parentDeclaration?.closestClassDeclaration()!!
                     .toClassName(),

@@ -87,7 +87,10 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
         return modelSaver.save(model, databaseWrapper)
     }
 
-    override fun saveAll(models: Collection<T>, databaseWrapper: DatabaseWrapper): Result<Collection<T>> {
+    override fun saveAll(
+        models: Collection<T>,
+        databaseWrapper: DatabaseWrapper
+    ): Result<Collection<T>> {
         checkInTransaction(databaseWrapper)
         return listModelSaver.saveAll(models, databaseWrapper)
     }
@@ -157,14 +160,6 @@ abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
      * This method is overridden when [ForeignKey] specified
      */
     open fun saveForeignKeys(model: T, wrapper: DatabaseWrapper): T {
-        return model
-    }
-
-    /**
-     * Called when we want to delete our [ForeignKey] objects. During deletion [.delete]
-     * This method is overridden when [ForeignKey] specified
-     */
-    open fun deleteForeignKeys(model: T, wrapper: DatabaseWrapper): T {
         return model
     }
 

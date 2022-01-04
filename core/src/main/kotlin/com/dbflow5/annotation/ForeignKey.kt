@@ -23,13 +23,6 @@ annotation class ForeignKey(
      */
     val saveForeignKeyModel: Boolean = false,
     /**
-     * @return Default false. When this column is a [ForeignKey] and table object,
-     * returning true will delte the model before deleting its enclosing child class.
-     * If false, we expect the field to not change and must delete the model manually outside
-     * of the ModelAdapter before saving the child class.
-     */
-    val deleteForeignKeyModel: Boolean = false,
-    /**
      * @return This method instructs the code generator to only
      * populate the model with the [ForeignKeyReference] defined in this field. This skips
      * the Select retrieval convenience.

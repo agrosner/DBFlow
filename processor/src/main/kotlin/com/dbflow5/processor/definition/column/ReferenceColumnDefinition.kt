@@ -139,7 +139,6 @@ private constructor(
             foreignKeyColumnBehavior = ForeignKeyColumnBehavior(
                 onDelete = foreignKey.onDelete, onUpdate = foreignKey.onUpdate,
                 saveForeignKeyModel = foreignKey.saveForeignKeyModel,
-                deleteForeignKeyModel = foreignKey.deleteForeignKeyModel,
                 deferred = foreignKey.deferred
             ),
             references = foreignKey.references.map { reference ->

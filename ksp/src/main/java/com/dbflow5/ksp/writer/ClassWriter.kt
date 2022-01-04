@@ -5,7 +5,6 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.extractors
 import com.dbflow5.ksp.model.generatedClassName
@@ -340,7 +339,8 @@ class ClassWriter(
     }
 
     private fun TypeSpec.Builder.saveForeignKeys(model: ClassModel) {
-        val fields = model.fields.filter { referencesCache.isTable(it) }
+        val fields = model.referenceFields.filter { referencesCache.isTable(it) }
+            .filter { it.referenceHolderProperties.saveForeignKeyModel }
         if (fields.isNotEmpty()) {
             addFunction(FunSpec.builder("saveForeignKeys")
                 .returns(model.classType)
@@ -378,6 +378,45 @@ class ClassWriter(
         }
     }
 
+    private fun TypeSpec.Builder.deleteForeignKeys(model: ClassModel) {
+        val fields = model.referenceFields.filter { referencesCache.isTable(it) }
+            .filter { it.referenceHolderProperties.saveForeignKeyModel }
+        if (fields.isNotEmpty()) {
+            addFunction(FunSpec.builder("deleteForeignKeys")
+                .returns(model.classType)
+                .addParameter("model", model.classType)
+                .addParameter("wrapper", ClassNames.DatabaseWrapper)
+                .addModifiers(KModifier.OVERRIDE)
+                .apply {
+                    if (model.hasPrimaryConstructor) {
+                        addCode("return model.copy(\n")
+                    } else {
+                        beginControlFlow("return model.apply")
+                    }
+
+                    fields.forEach { field ->
+                        addCode(
+                            "%L%L = %L.%L.%M(wrapper)%L.%M()%L\n",
+                            if (!model.hasPrimaryConstructor) "this." else "",
+                            field.accessName(),
+                            "model",
+                            field.accessName(true),
+                            MemberNames.save,
+                            if (field.name.nullable) "?" else "",
+                            MemberNames.getOrThrow,
+                            model.memberSeparator,
+                        )
+                    }
+
+                    if (model.hasPrimaryConstructor) {
+                        addCode(")\n")
+                    } else {
+                        endControlFlow()
+                    }
+                }
+                .build())
+        }
+    }
 
     private fun TypeSpec.Builder.updateAutoIncrement(model: ClassModel) {
         val autoincrementFields = model.primaryAutoIncrementFields

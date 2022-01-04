@@ -13,6 +13,7 @@ data class ReferenceHolderProperties(
     val referencesType: ReferencesType,
     val referencedTableTypeName: TypeName,
     val deferred: Boolean,
+    val saveForeignKeyModel: Boolean,
 ) {
 
     sealed interface ReferencesType {

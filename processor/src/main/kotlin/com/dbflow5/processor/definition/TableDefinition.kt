@@ -548,26 +548,6 @@ class TableDefinition(
                 }
             }
 
-            val deleteForeignKeyFields = columnDefinitions
-                .asSequence()
-                .filter { (it is ReferenceColumnDefinition) && it.foreignKeyColumnBehavior?.deleteForeignKeyModel == true }
-                .map { it as ReferenceColumnDefinition }
-                .toList()
-            if (deleteForeignKeyFields.isNotEmpty()) {
-                val code = CodeBlock.builder()
-                deleteForeignKeyFields.forEach { it.appendDeleteMethod(code) }
-
-                `override fun`(
-                    TypeName.VOID,
-                    "deleteForeignKeys",
-                    param(elementClassName!!, ModelUtils.variable),
-                    param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
-                ) {
-                    modifiers(public, final)
-                    addCode(code.build())
-                }
-            }
-
             `override fun`(ArrayTypeName.of(ClassNames.IPROPERTY), "getAllColumnProperties") {
                 modifiers(public, final)
                 `return`("ALL_COLUMN_PROPERTIES")

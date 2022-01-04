@@ -86,21 +86,19 @@ open class ModelSaver<T : Any> {
     @Synchronized
     fun delete(model: T, wrapper: DatabaseWrapper): Result<T> {
         val deleteStatement = modelAdapter.getDeleteStatement(wrapper)
-        return deleteStatement.use { delete(model, it, wrapper) }
+        return deleteStatement.use { delete(model, it) }
     }
 
     @Synchronized
     fun delete(
         model: T,
-        deleteStatement: DatabaseStatement,
-        wrapper: DatabaseWrapper
+        deleteStatement: DatabaseStatement
     ): Result<T> {
-        val localModel = modelAdapter.deleteForeignKeys(model, wrapper)
-        modelAdapter.bindToDeleteStatement(deleteStatement, localModel)
+        modelAdapter.bindToDeleteStatement(deleteStatement, model)
 
         val success = deleteStatement.executeUpdateDelete() != 0L
         if (success) {
-            NotifyDistributor().notifyModelChanged(localModel, modelAdapter, ChangeAction.DELETE)
+            NotifyDistributor().notifyModelChanged(model, modelAdapter, ChangeAction.DELETE)
             return Result.success(modelAdapter.updateAutoIncrement(model, 0))
         }
         return Result.failure(SaveOperationFailedException("delete"))

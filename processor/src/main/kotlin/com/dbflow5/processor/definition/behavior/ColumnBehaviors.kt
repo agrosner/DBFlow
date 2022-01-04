@@ -22,6 +22,5 @@ data class ForeignKeyColumnBehavior(
     val onDelete: ForeignKeyAction,
     val onUpdate: ForeignKeyAction,
     val saveForeignKeyModel: Boolean,
-    val deleteForeignKeyModel: Boolean,
     val deferred: Boolean
 )

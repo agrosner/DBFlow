@@ -55,7 +55,7 @@ open class ListModelSaver<T : Any>(val modelSaver: ModelSaver<T>) {
             tableCollection,
             modelAdapter.getDeleteStatement(wrapper)
         ) { model, statement ->
-            modelSaver.delete(model, statement, wrapper)
+            modelSaver.delete(model, statement)
         }
     }
 

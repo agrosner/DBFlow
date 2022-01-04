@@ -39,6 +39,8 @@ constructor(
             deferred = ifArg("deferred") {
                 arg(it)
             } ?: false,
+            saveForeignKeyModel = ifArg("saveForeignKeyModel") { arg(it) }
+                ?: false
         )
     }
 }
