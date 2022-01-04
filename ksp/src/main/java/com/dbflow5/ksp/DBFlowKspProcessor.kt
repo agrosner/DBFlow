@@ -49,7 +49,7 @@ class DBFlowKspProcessor(
             ksClassDeclarationParser.applyResolver(resolver)
 
             val symbols =
-                Annotations.values().map {
+                Annotations.values.map {
                     resolver.getSymbolsWithAnnotation(
                         it.qualifiedName
                     ).toList()

@@ -378,46 +378,6 @@ class ClassWriter(
         }
     }
 
-    private fun TypeSpec.Builder.deleteForeignKeys(model: ClassModel) {
-        val fields = model.referenceFields.filter { referencesCache.isTable(it) }
-            .filter { it.referenceHolderProperties.saveForeignKeyModel }
-        if (fields.isNotEmpty()) {
-            addFunction(FunSpec.builder("deleteForeignKeys")
-                .returns(model.classType)
-                .addParameter("model", model.classType)
-                .addParameter("wrapper", ClassNames.DatabaseWrapper)
-                .addModifiers(KModifier.OVERRIDE)
-                .apply {
-                    if (model.hasPrimaryConstructor) {
-                        addCode("return model.copy(\n")
-                    } else {
-                        beginControlFlow("return model.apply")
-                    }
-
-                    fields.forEach { field ->
-                        addCode(
-                            "%L%L = %L.%L.%M(wrapper)%L.%M()%L\n",
-                            if (!model.hasPrimaryConstructor) "this." else "",
-                            field.accessName(),
-                            "model",
-                            field.accessName(true),
-                            MemberNames.save,
-                            if (field.name.nullable) "?" else "",
-                            MemberNames.getOrThrow,
-                            model.memberSeparator,
-                        )
-                    }
-
-                    if (model.hasPrimaryConstructor) {
-                        addCode(")\n")
-                    } else {
-                        endControlFlow()
-                    }
-                }
-                .build())
-        }
-    }
-
     private fun TypeSpec.Builder.updateAutoIncrement(model: ClassModel) {
         val autoincrementFields = model.primaryAutoIncrementFields
         if (autoincrementFields.isNotEmpty()) {

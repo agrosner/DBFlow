@@ -11,8 +11,10 @@ import com.dbflow5.ksp.parser.annotation.ForeignKeyReferencePropertyParser
 import com.dbflow5.ksp.parser.annotation.Fts4Parser
 import com.dbflow5.ksp.parser.annotation.IndexGroupParser
 import com.dbflow5.ksp.parser.annotation.IndexParser
+import com.dbflow5.ksp.parser.annotation.ManyToManyParser
 import com.dbflow5.ksp.parser.annotation.ManyToManyPropertyParser
 import com.dbflow5.ksp.parser.annotation.MigrationParser
+import com.dbflow5.ksp.parser.annotation.MultipleManyToManyParser
 import com.dbflow5.ksp.parser.annotation.NotNullPropertyParser
 import com.dbflow5.ksp.parser.annotation.OneToManyPropertyParser
 import com.dbflow5.ksp.parser.annotation.QueryPropertyParser
@@ -84,6 +86,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
     single { Fts4Parser() }
@@ -93,6 +96,8 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { UniqueGroupPropertyParser() }
     single { UniquePropertyParser() }
     single { MigrationParser() }
+    single { ManyToManyParser(get()) }
+    single { MultipleManyToManyParser(get()) }
 
     single { LoadFromCursorWriter(get(), get()) }
     single { GetPropertyMethodWriter(get()) }

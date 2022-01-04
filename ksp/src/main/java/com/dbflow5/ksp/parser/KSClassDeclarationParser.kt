@@ -7,6 +7,7 @@ import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.ModelViewQuery
+import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.OneToManyRelation
 import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
@@ -26,8 +27,9 @@ import com.dbflow5.ksp.model.companion
 import com.dbflow5.ksp.model.properties.ModelViewQueryProperties
 import com.dbflow5.ksp.parser.annotation.DatabasePropertyParser
 import com.dbflow5.ksp.parser.annotation.Fts4Parser
-import com.dbflow5.ksp.parser.annotation.ManyToManyPropertyParser
+import com.dbflow5.ksp.parser.annotation.ManyToManyParser
 import com.dbflow5.ksp.parser.annotation.MigrationParser
+import com.dbflow5.ksp.parser.annotation.MultipleManyToManyParser
 import com.dbflow5.ksp.parser.annotation.OneToManyPropertyParser
 import com.dbflow5.ksp.parser.annotation.QueryPropertyParser
 import com.dbflow5.ksp.parser.annotation.TablePropertyParser
@@ -40,7 +42,9 @@ import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
@@ -58,7 +62,8 @@ class KSClassDeclarationParser(
     private val queryPropertyParser: QueryPropertyParser,
     private val viewPropertyParser: ViewPropertyParser,
     private val typeConverterPropertyParser: TypeConverterPropertyParser,
-    private val manyToManyPropertyParser: ManyToManyPropertyParser,
+    private val manyToManyParser: ManyToManyParser,
+    private val multipleManyToManyParser: MultipleManyToManyParser,
     private val oneToManyPropertyParser: OneToManyPropertyParser,
     private val fts4Parser: Fts4Parser,
     private val migrationParser: MigrationParser,
@@ -147,11 +152,13 @@ class KSClassDeclarationParser(
                             ClassNames.DBFlowDatabase,
                         ).exception
                     }
-                    DatabaseModel(
-                        name = name,
-                        classType = classType,
-                        properties = databasePropertyParser.parse(annotation),
-                        originatingFile = originatingFile,
+                    listOf(
+                        DatabaseModel(
+                            name = name,
+                            classType = classType,
+                            properties = databasePropertyParser.parse(annotation),
+                            originatingFile = originatingFile,
+                        )
                     )
                 }
                 typeNameOf<TypeConverter>() -> {
@@ -162,29 +169,36 @@ class KSClassDeclarationParser(
                             type.rawType == ClassNames.TypeConverter
                         }
                     } ?: throw Validation.CouldNotFindTypeConverter(classType).exception
-                    TypeConverterModel.Simple(
-                        name = name,
-                        properties = typeConverterPropertyParser.parse(annotation),
-                        classType = classType,
-                        dataTypeName = typeConverterSuper.typeArguments[0],
-                        modelTypeName = typeConverterSuper.typeArguments[1],
-                        modelClass = null,
-                        originatingFile = originatingFile,
+                    listOf(
+                        TypeConverterModel.Simple(
+                            name = name,
+                            properties = typeConverterPropertyParser.parse(annotation),
+                            classType = classType,
+                            dataTypeName = typeConverterSuper.typeArguments[0],
+                            modelTypeName = typeConverterSuper.typeArguments[1],
+                            modelClass = null,
+                            originatingFile = originatingFile,
+                        )
                     )
                 }
                 typeNameOf<ManyToMany>() -> {
+                    listOf(manyToManyModel(input, classType, name, annotation, originatingFile))
+                }
+                typeNameOf<MultipleManyToMany>() -> {
                     val tableProperties = tablePropertyParser.parse(
                         input.firstOrNull<Table>() ?: throw Validation.MissingTable(
                             "ManyToMany", classType
                         ).exception
                     )
-                    ManyToManyModel(
-                        name = name,
-                        properties = manyToManyPropertyParser.parse(annotation),
-                        classType = classType,
-                        databaseTypeName = tableProperties.database,
-                        ksType = input.asStarProjectedType(),
-                        originatingFile = originatingFile,
+                    multipleManyToManyParser.parse(
+                        MultipleManyToManyParser.Input(
+                            annotation = annotation,
+                            name = name,
+                            classType = classType,
+                            databaseTypeName = tableProperties.database,
+                            ksClassDeclaration = input,
+                            originatingFile = originatingFile,
+                        )
                     )
                 }
                 typeNameOf<OneToManyRelation>() -> {
@@ -195,21 +209,25 @@ class KSClassDeclarationParser(
                                 classType,
                             ).exception
                     )
-                    OneToManyModel(
-                        name = name,
-                        properties = oneToManyPropertyParser.parse(annotation),
-                        classType = classType,
-                        databaseTypeName = tableProperties.database,
-                        ksType = input.asStarProjectedType(),
-                        originatingFile = originatingFile,
+                    listOf(
+                        OneToManyModel(
+                            name = name,
+                            properties = oneToManyPropertyParser.parse(annotation),
+                            classType = classType,
+                            databaseTypeName = tableProperties.database,
+                            ksType = input.asStarProjectedType(),
+                            originatingFile = originatingFile,
+                        )
                     )
                 }
                 typeNameOf<Migration>() -> {
-                    MigrationModel(
-                        name = name,
-                        properties = migrationParser.parse(annotation),
-                        classType = classType,
-                        originatingFile = originatingFile,
+                    listOf(
+                        MigrationModel(
+                            name = name,
+                            properties = migrationParser.parse(annotation),
+                            classType = classType,
+                            originatingFile = originatingFile,
+                        )
                     )
                 }
                 else -> {
@@ -255,47 +273,48 @@ class KSClassDeclarationParser(
                                 it.annotationType.toTypeName() == typeNameOf<Fts4>()
                             }
                             val properties = tablePropertyParser.parse(annotation)
-                            ClassModel(
-                                name = name,
-                                classType = classType,
-                                type = when {
-                                    fts3 != null -> ClassModel.ClassType.Normal.Fts3
-                                    fts4 != null -> fts4Parser.parse(fts4)
-                                    else -> ClassModel.ClassType.Normal.Normal
-                                },
-                                properties = properties,
-                                fields = fields,
-                                hasPrimaryConstructor = !hasDefaultConstructor,
-                                isInternal = isInternal,
-                                originatingFile = originatingFile,
-                                implementsLoadFromCursorListener = implementsLoadFromCursorListener,
-                                implementsSQLiteStatementListener = implementsSQLiteStatementListener,
-                                indexGroups = properties.indexGroupProperties
-                                    .map { group ->
-                                        IndexGroupModel(
-                                            name = group.name,
-                                            unique = group.unique,
-                                            tableTypeName = classType,
-                                            fields = fields.filter {
-                                                it.indexProperties?.groups?.contains(
-                                                    group.number
-                                                ) == true
-                                            }
-                                        )
+                            listOf(
+                                ClassModel(
+                                    name = name,
+                                    classType = classType,
+                                    type = when {
+                                        fts3 != null -> ClassModel.ClassType.Normal.Fts3
+                                        fts4 != null -> fts4Parser.parse(fts4)
+                                        else -> ClassModel.ClassType.Normal.Normal
                                     },
-                                uniqueGroups = properties.uniqueGroupProperties
-                                    .map { group ->
-                                        UniqueGroupModel(
-                                            number = group.number,
-                                            conflictAction = group.conflictAction,
-                                            fields = fields.filter {
-                                                it.uniqueProperties?.groups?.contains(
-                                                    group.number
-                                                ) == true
-                                            }
-                                        )
-                                    }
-                            )
+                                    properties = properties,
+                                    fields = fields,
+                                    hasPrimaryConstructor = !hasDefaultConstructor,
+                                    isInternal = isInternal,
+                                    originatingFile = originatingFile,
+                                    implementsLoadFromCursorListener = implementsLoadFromCursorListener,
+                                    implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                                    indexGroups = properties.indexGroupProperties
+                                        .map { group ->
+                                            IndexGroupModel(
+                                                name = group.name,
+                                                unique = group.unique,
+                                                tableTypeName = classType,
+                                                fields = fields.filter {
+                                                    it.indexProperties?.groups?.contains(
+                                                        group.number
+                                                    ) == true
+                                                }
+                                            )
+                                        },
+                                    uniqueGroups = properties.uniqueGroupProperties
+                                        .map { group ->
+                                            UniqueGroupModel(
+                                                number = group.number,
+                                                conflictAction = group.conflictAction,
+                                                fields = fields.filter {
+                                                    it.uniqueProperties?.groups?.contains(
+                                                        group.number
+                                                    ) == true
+                                                }
+                                            )
+                                        }
+                                ))
                         }
                         typeNameOf<ModelView>() -> {
                             // retrieve companion to pull its query field.
@@ -312,50 +331,80 @@ class KSClassDeclarationParser(
                                 ?: throw Validation.MissingModelViewQuery(
                                     classType,
                                 ).exception
-                            ClassModel(
-                                name = name,
-                                classType = classType,
-                                type = ClassModel.ClassType.View(
-                                    ModelViewQueryProperties(
-                                        NameModel(
-                                            modelViewQuery.simpleName,
-                                            modelViewQuery.packageName
-                                        ),
-                                        isProperty = modelViewQuery is KSPropertyDeclaration
-                                    )
-                                ),
-                                properties = viewPropertyParser.parse(annotation),
-                                fields = fields,
-                                hasPrimaryConstructor = !hasDefaultConstructor,
-                                isInternal = isInternal,
-                                originatingFile = originatingFile,
-                                indexGroups = listOf(),
-                                uniqueGroups = listOf(),
-                                implementsLoadFromCursorListener = implementsLoadFromCursorListener,
-                                implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                            listOf(
+                                ClassModel(
+                                    name = name,
+                                    classType = classType,
+                                    type = ClassModel.ClassType.View(
+                                        ModelViewQueryProperties(
+                                            NameModel(
+                                                modelViewQuery.simpleName,
+                                                modelViewQuery.packageName
+                                            ),
+                                            isProperty = modelViewQuery is KSPropertyDeclaration
+                                        )
+                                    ),
+                                    properties = viewPropertyParser.parse(annotation),
+                                    fields = fields,
+                                    hasPrimaryConstructor = !hasDefaultConstructor,
+                                    isInternal = isInternal,
+                                    originatingFile = originatingFile,
+                                    indexGroups = listOf(),
+                                    uniqueGroups = listOf(),
+                                    implementsLoadFromCursorListener = implementsLoadFromCursorListener,
+                                    implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                                )
                             )
                         }
                         typeNameOf<Query>() -> {
-                            ClassModel(
-                                name = name,
-                                classType = classType,
-                                type = ClassModel.ClassType.Query,
-                                properties = queryPropertyParser.parse(annotation),
-                                fields = fields,
-                                hasPrimaryConstructor = !hasDefaultConstructor,
-                                isInternal = isInternal,
-                                originatingFile = originatingFile,
-                                indexGroups = listOf(),
-                                uniqueGroups = listOf(),
-                                implementsLoadFromCursorListener = implementsLoadFromCursorListener,
-                                implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                            listOf(
+                                ClassModel(
+                                    name = name,
+                                    classType = classType,
+                                    type = ClassModel.ClassType.Query,
+                                    properties = queryPropertyParser.parse(annotation),
+                                    fields = fields,
+                                    hasPrimaryConstructor = !hasDefaultConstructor,
+                                    isInternal = isInternal,
+                                    originatingFile = originatingFile,
+                                    indexGroups = listOf(),
+                                    uniqueGroups = listOf(),
+                                    implementsLoadFromCursorListener = implementsLoadFromCursorListener,
+                                    implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                                )
                             )
                         }
-                        else -> null
+                        else -> listOf()
                     }
                 }
             }
-        }.toList()
+        }
+            .flatten()
+            .toList()
 
+    }
+
+    private fun manyToManyModel(
+        input: KSClassDeclaration,
+        classType: ClassName,
+        name: NameModel,
+        annotation: KSAnnotation,
+        originatingFile: KSFile?
+    ): ManyToManyModel {
+        val tableProperties = tablePropertyParser.parse(
+            input.firstOrNull<Table>() ?: throw Validation.MissingTable(
+                "ManyToMany", classType
+            ).exception
+        )
+        return manyToManyParser.parse(
+            ManyToManyParser.Input(
+                annotation = annotation,
+                name = name,
+                classType = classType,
+                databaseTypeName = tableProperties.database,
+                ksClassDeclaration = input,
+                originatingFile = originatingFile
+            )
+        )
     }
 }
