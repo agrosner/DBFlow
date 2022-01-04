@@ -10,7 +10,7 @@ import com.dbflow5.ksp.model.OneToManyModel
 import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
-import com.dbflow5.ksp.model.partOfDatabaseAsType
+import com.dbflow5.ksp.model.copyOverClasses
 import com.dbflow5.ksp.model.properties.DatabaseHolderProperties
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.parser.validation.ValidationException
@@ -79,32 +79,7 @@ class DBFlowKspProcessor(
 
                 // associate classes into DB.
                 val databases = objects.filterIsInstance<DatabaseModel>()
-                    .map { database ->
-                        database.copy(
-                            tables = classes.filter {
-                                it.partOfDatabaseAsType<ClassModel.ClassType.Normal>(
-                                    database.classType,
-                                    database.properties.tables,
-                                )
-                            },
-                            views = classes.filter {
-                                it.partOfDatabaseAsType<ClassModel.ClassType.View>(
-                                    database.classType,
-                                    database.properties.views,
-                                )
-                            },
-                            queries = classes.filter {
-                                it.partOfDatabaseAsType<ClassModel.ClassType.Query>(
-                                    database.classType,
-                                    database.properties.queries,
-                                )
-                            },
-                            migrations = migrations.filter { migration ->
-                                migration.properties.database == database.classType
-                                    || database.properties.migrations.contains(migration.classType)
-                            },
-                        )
-                    }
+                    .map(copyOverClasses(classes, migrations))
 
                 val holderModel = DatabaseHolderModel(
                     name = NameModel(ClassNames.GeneratedDatabaseHolder),

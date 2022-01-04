@@ -79,7 +79,6 @@ data class ManyToManyModel(
             } else FieldModel.FieldType.PrimaryAuto(
                 isAutoIncrement = false,
                 isRowId = false,
-                quickCheckPrimaryKey = true,
             ),
             properties = null,
             referenceHolderProperties = ReferenceHolderProperties(
@@ -113,7 +112,6 @@ data class ManyToManyModel(
             } else FieldModel.FieldType.PrimaryAuto(
                 isAutoIncrement = false,
                 isRowId = false,
-                quickCheckPrimaryKey = true,
             ),
             properties = null,
             referenceHolderProperties = ReferenceHolderProperties(

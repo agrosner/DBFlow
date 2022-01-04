@@ -10,38 +10,47 @@ import kotlin.reflect.KClass
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.FIELD)
 annotation class Column(
-        /**
-         * @return The name of the column. The default is the field name.
-         */
-        val name: String = "",
-        /**
-         * @return An optional column length
-         */
-        val length: Int = -1,
-        /**
-         * @return Marks the field as having a specified collation to use in it's creation.
-         */
-        val collate: Collate = Collate.NONE,
-        /**
-         * @return Adds a default value for this column when saving. This is a string representation
-         * of the value.
-         * Note this will place it in when saving
-         * to the DB because we cannot know the intention of missing data from a query.
-         */
-        val defaultValue: String = "",
-        /**
-         * @return If private, by default this is get{Name}() for "name". To define a custom one, this method specifies the name
-         * of the method only, and not any specific params. So for "getAnotherName()" you would use "AnotherName" as the param.
-         */
-        val getterName: String = "",
-        /**
-         * @return If private, by default this is set{Name}() for "name". To define a custom one, this method specifies the name
-         * of the method only, and not any specific params. So for "setAnotherName(String name)" you would use "AnotherName" as the param.
-         * The params must align exactly to an expected setter, otherwise a compile error ensues.
-         */
-        val setterName: String = "",
-        /**
-         * @return A custom type converter that's only used for this field. It will be created and used in
-         * the Adapter associated with this table.
-         */
-        val typeConverter: KClass<out TypeConverter<*, *>> = TypeConverter::class)
+    /**
+     * @return The name of the column. The default is the field name.
+     */
+    val name: String = "",
+    /**
+     * @return An optional column length
+     */
+    val length: Int = -1,
+    /**
+     * @return Marks the field as having a specified collation to use in it's creation.
+     */
+    val collate: Collate = Collate.NONE,
+    /**
+     * @return Adds a default value for this column when saving. This is a string representation
+     * of the value.
+     * Note this will place it in when saving
+     * to the DB because we cannot know the intention of missing data from a query.
+     */
+    val defaultValue: String = "",
+    /**
+     * @return If private, by default this is get{Name}() for "name".
+     * To define a custom one, this method specifies the name
+     * of the method only, and not any specific params.
+     * So for "getAnotherName()" you would use "AnotherName" as the param.
+     * Not used in KSP.
+     */
+    @Deprecated("Use property beans.")
+    val getterName: String = "",
+    /**
+     * @return If private, by default this is set{Name}() for "name".
+     * To define a custom one, this method specifies the name
+     * of the method only, and not any specific params.
+     * So for "setAnotherName(String name)" you would use "AnotherName" as the param.
+     * The params must align exactly to an expected setter, otherwise a compile error ensues.
+     * Not used in KSP.
+     */
+    @Deprecated("Use property beans.")
+    val setterName: String = "",
+    /**
+     * @return A custom type converter that's only used for this field. It will be created and used in
+     * the Adapter associated with this table.
+     */
+    val typeConverter: KClass<out TypeConverter<*, *>> = TypeConverter::class
+)
