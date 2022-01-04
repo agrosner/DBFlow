@@ -28,15 +28,6 @@ annotation class Database(
      */
     val foreignKeyConstraintsEnforced: Boolean = false,
     /**
-     * @return Checks for consistency in the DB, if true it will recopy over the prepackage database.
-     */
-    val consistencyCheckEnabled: Boolean = false,
-    /**
-     * @return Keeps a backup for whenever the database integrity fails a "PRAGMA quick_check(1)" that will
-     * replace the corrupted DB
-     */
-    val backupEnabled: Boolean = false,
-    /**
      * @return Global default insert conflict that can be applied to any table when it leaves
      * its [ConflictAction] as NONE.
      */

@@ -8,8 +8,6 @@ data class DatabaseProperties(
     val foreignKeyConstraintsEnforced: Boolean,
     val insertConflict: ConflictAction,
     val updateConflict: ConflictAction,
-    val areConsistencyChecksEnabled: Boolean,
-    val backupEnabled: Boolean,
     val tables: List<ClassName>,
     val views: List<ClassName>,
     val queries: List<ClassName>,

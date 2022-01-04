@@ -13,13 +13,11 @@ open class AndroidSQLiteOpenHelper(
     private val context: Context,
     dbFlowDatabase: DBFlowDatabase,
     listener: DatabaseCallback?,
-    private val databaseHelperDelegate: DatabaseHelperDelegate = DatabaseHelperDelegate(context, listener, dbFlowDatabase,
-        if (dbFlowDatabase.backupEnabled) {
-            // Temp database mirrors existing
-            BackupHelper(context,
-                DatabaseHelperDelegate.getTempDbFileName(dbFlowDatabase),
-                dbFlowDatabase.databaseVersion, dbFlowDatabase)
-        } else null),
+    private val databaseHelperDelegate: DatabaseHelperDelegate = DatabaseHelperDelegate(
+        context,
+        listener,
+        dbFlowDatabase
+    ),
 ) : SQLiteOpenHelper(
     context,
     if (dbFlowDatabase.isInMemory) null else dbFlowDatabase.databaseFileName,
@@ -75,65 +73,6 @@ open class AndroidSQLiteOpenHelper(
 
     override fun deleteDB() {
         context.deleteDatabase(_databaseName)
-    }
-
-    /**
-     * Simple helper to manage backup.
-     */
-    private class BackupHelper(private val context: Context,
-                               name: String, version: Int,
-                               databaseDefinition: DBFlowDatabase)
-        : SQLiteOpenHelper(context, name, null, version), OpenHelper {
-
-        private var androidDatabase: AndroidDatabase? = null
-        private val databaseHelper: DatabaseHelper = DatabaseHelper(AndroidMigrationFileHelper(context), databaseDefinition)
-        private val _databaseName = databaseDefinition.databaseFileName
-
-        override val database: DatabaseWrapper
-            get() {
-                if (androidDatabase == null) {
-                    androidDatabase = AndroidDatabase.from(writableDatabase)
-                }
-                return androidDatabase!!
-            }
-
-        override fun performRestoreFromBackup() = Unit
-
-        override val delegate: DatabaseHelperDelegate?
-            get() = null
-
-        override val isDatabaseIntegrityOk: Boolean
-            get() = false
-
-        override fun backupDB() {}
-
-        override fun setDatabaseListener(callback: DatabaseCallback?) {}
-
-        override fun onConfigure(db: SQLiteDatabase) {
-            databaseHelper.onConfigure(AndroidDatabase.from(db))
-        }
-
-        override fun onCreate(db: SQLiteDatabase) {
-            databaseHelper.onCreate(AndroidDatabase.from(db))
-        }
-
-        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            databaseHelper.onUpgrade(AndroidDatabase.from(db), oldVersion, newVersion)
-        }
-
-        override fun onOpen(db: SQLiteDatabase) {
-            databaseHelper.onOpen(AndroidDatabase.from(db))
-        }
-
-        override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            databaseHelper.onDowngrade(AndroidDatabase.from(db), oldVersion, newVersion)
-        }
-
-        override fun closeDB() = Unit
-
-        override fun deleteDB() {
-            context.deleteDatabase(_databaseName)
-        }
     }
 
     companion object {

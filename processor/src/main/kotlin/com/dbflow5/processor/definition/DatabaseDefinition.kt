@@ -34,8 +34,6 @@ class DatabaseDefinition(database: Database,
 
     private val databaseVersion: Int = database.version
     private val foreignKeysSupported = database.foreignKeyConstraintsEnforced
-    private val consistencyChecksEnabled = database.consistencyCheckEnabled
-    private val backupEnabled = database.backupEnabled
 
     val insertConflict: ConflictAction = database.insertConflict
     val updateConflict: ConflictAction = database.updateConflict
@@ -146,14 +144,6 @@ class DatabaseDefinition(database: Database,
             `override fun`(TypeName.BOOLEAN, "isForeignKeysSupported") {
                 modifiers(public, final)
                 `return`(foreignKeysSupported.L)
-            }
-            `override fun`(TypeName.BOOLEAN, "getBackupEnabled") {
-                modifiers(public, final)
-                `return`(backupEnabled.L)
-            }
-            `override fun`(TypeName.BOOLEAN, "getAreConsistencyChecksEnabled") {
-                modifiers(public, final)
-                `return`(consistencyChecksEnabled.L)
             }
             `override fun`(TypeName.INT, "getDatabaseVersion") {
                 modifiers(public, final)

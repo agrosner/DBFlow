@@ -42,22 +42,6 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
             defaultValue("%L", model.properties.foreignKeyConstraintsEnforced)
         }
 
-        val areConsistencyChecksEnabled = ParameterPropertySpec(
-            name = "areConsistencyChecksEnabled",
-            type = Boolean::class.asClassName(),
-        ) {
-            addModifiers(KModifier.OVERRIDE)
-            defaultValue("%L", model.properties.areConsistencyChecksEnabled)
-        }
-
-        val backupEnabled = ParameterPropertySpec(
-            name = "backupEnabled",
-            type = Boolean::class.asClassName(),
-        ) {
-            addModifiers(KModifier.OVERRIDE)
-            defaultValue("%L", model.properties.backupEnabled)
-        }
-
         return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
             .apply {
                 addType(
@@ -68,8 +52,6 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
                                 .addParameter(associatedClassName.parameterSpec)
                                 .addParameter(version.parameterSpec)
                                 .addParameter(foreignKeys.parameterSpec)
-                                .addParameter(areConsistencyChecksEnabled.parameterSpec)
-                                .addParameter(backupEnabled.parameterSpec)
                                 .build()
                         )
                         .apply {
@@ -78,8 +60,6 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
                             addProperty(associatedClassName.propertySpec)
                             addProperty(version.propertySpec)
                             addProperty(foreignKeys.propertySpec)
-                            addProperty(areConsistencyChecksEnabled.propertySpec)
-                            addProperty(backupEnabled.propertySpec)
                             addInitializerBlock(
                                 CodeBlock.builder()
                                     .apply {

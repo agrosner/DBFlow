@@ -4,9 +4,7 @@ import android.content.Context
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.DatabaseConfig
 import com.dbflow5.config.OpenHelperCreator
-import com.dbflow5.database.AndroidMigrationFileHelper
 import com.dbflow5.database.DatabaseCallback
-import com.dbflow5.database.DatabaseHelper
 import com.dbflow5.database.DatabaseHelperDelegate
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.OpenHelper
@@ -19,10 +17,12 @@ import net.sqlcipher.database.SQLiteOpenHelper
  */
 abstract class SQLCipherOpenHelper(
     private val context: Context,
-    databaseDefinition: DBFlowDatabase, listener: DatabaseCallback?)
-    : SQLiteOpenHelper(context,
+    databaseDefinition: DBFlowDatabase, listener: DatabaseCallback?
+) : SQLiteOpenHelper(
+    context,
     if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
-    null, databaseDefinition.databaseVersion), OpenHelper {
+    null, databaseDefinition.databaseVersion
+), OpenHelper {
 
     final override val delegate: DatabaseHelperDelegate
     private var cipherDatabase: SQLCipherDatabase? = null
@@ -46,12 +46,7 @@ abstract class SQLCipherOpenHelper(
 
     init {
         SQLiteDatabase.loadLibs(context)
-        delegate = DatabaseHelperDelegate(context, listener, databaseDefinition, if (databaseDefinition.backupEnabled) {
-            // Temp database mirrors existing
-            BackupHelper(context,
-                DatabaseHelperDelegate.getTempDbFileName(databaseDefinition),
-                databaseDefinition.databaseVersion, databaseDefinition)
-        } else null)
+        delegate = DatabaseHelperDelegate(context, listener, databaseDefinition)
     }
 
     override fun performRestoreFromBackup() {
@@ -103,62 +98,6 @@ abstract class SQLCipherOpenHelper(
 
     override fun deleteDB() {
         context.deleteDatabase(_databaseName)
-    }
-
-    /**
-     * Simple helper to manage backup.
-     */
-    private inner class BackupHelper(private val context: Context,
-                                     name: String,
-                                     version: Int,
-                                     databaseDefinition: DBFlowDatabase)
-        : SQLiteOpenHelper(context, name, null, version), OpenHelper {
-
-        private var sqlCipherDatabase: SQLCipherDatabase? = null
-        private val databaseHelper: DatabaseHelper = DatabaseHelper(AndroidMigrationFileHelper(context), databaseDefinition)
-        private val _databaseName = databaseDefinition.databaseFileName
-
-        override val database: DatabaseWrapper
-            get() {
-                if (sqlCipherDatabase == null) {
-                    sqlCipherDatabase = SQLCipherDatabase.from(getWritableDatabase(cipherSecret))
-                }
-                return sqlCipherDatabase!!
-            }
-
-        override val delegate: DatabaseHelperDelegate? = null
-
-        override val isDatabaseIntegrityOk: Boolean = false
-
-        override fun performRestoreFromBackup() = Unit
-
-        override fun backupDB() = Unit
-
-        override fun closeDB() = Unit
-
-        override fun setDatabaseListener(callback: DatabaseCallback?) = Unit
-
-        override fun onConfigure(db: SQLiteDatabase) {
-            databaseHelper.onConfigure(SQLCipherDatabase.from(db))
-        }
-
-        override fun onCreate(db: SQLiteDatabase) {
-            databaseHelper.onCreate(SQLCipherDatabase.from(db))
-        }
-
-        override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            databaseHelper.onUpgrade(SQLCipherDatabase.from(db), oldVersion, newVersion)
-        }
-
-        override fun onOpen(db: SQLiteDatabase) {
-            databaseHelper.onOpen(SQLCipherDatabase.from(db))
-        }
-
-        override fun setWriteAheadLoggingEnabled(enabled: Boolean) = Unit
-
-        override fun deleteDB() {
-            context.deleteDatabase(_databaseName)
-        }
     }
 
     companion object {

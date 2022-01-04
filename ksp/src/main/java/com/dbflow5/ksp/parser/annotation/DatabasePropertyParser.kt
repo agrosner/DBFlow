@@ -18,8 +18,6 @@ class DatabasePropertyParser : AnnotationParser<DatabaseProperties> {
             foreignKeyConstraintsEnforced = arg("foreignKeyConstraintsEnforced"),
             updateConflict = enumArg("updateConflict", ConflictAction::valueOf),
             insertConflict = enumArg("insertConflict", ConflictAction::valueOf),
-            areConsistencyChecksEnabled = arg("consistencyCheckEnabled"),
-            backupEnabled = arg("backupEnabled"),
             tables = classNameList("tables"),
             views = classNameList("views"),
             queries = classNameList("queries"),
