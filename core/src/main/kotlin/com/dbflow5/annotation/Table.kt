@@ -2,8 +2,6 @@ package com.dbflow5.annotation
 
 import kotlin.reflect.KClass
 
-val DEFAULT_CACHE_SIZE = 25
-
 /**
  * Author: andrewgrosner
  * Description: Marks a class as being a table for only ONE DB. It must implement the Model interface and all fields MUST be package private.

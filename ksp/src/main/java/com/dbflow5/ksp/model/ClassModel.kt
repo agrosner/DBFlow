@@ -38,6 +38,11 @@ data class ClassModel(
 
     val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.PrimaryAuto }
     val referenceFields = fields.filterIsInstance<ReferenceHolderModel>()
+    val primaryAutoIncrementFields = primaryFields.filter {
+        val fieldType = it.fieldType
+        fieldType is FieldModel.FieldType.PrimaryAuto
+            && fieldType.isAutoIncrement
+    }
 
     /**
      * Name to use on the database.

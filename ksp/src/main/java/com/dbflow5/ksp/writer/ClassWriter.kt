@@ -380,12 +380,7 @@ class ClassWriter(
 
 
     private fun TypeSpec.Builder.updateAutoIncrement(model: ClassModel) {
-        val autoincrementFields = model.primaryFields
-            .filter {
-                val fieldType = it.fieldType
-                fieldType is FieldModel.FieldType.PrimaryAuto
-                    && fieldType.isAutoIncrement
-            }
+        val autoincrementFields = model.primaryAutoIncrementFields
         if (autoincrementFields.isNotEmpty()) {
             addFunction(FunSpec.builder("updateAutoIncrement")
                 .addParameter("model", model.classType)

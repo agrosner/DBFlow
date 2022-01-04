@@ -358,17 +358,18 @@ class TableDefinition(
                     }
                     columnMap[columnDefinition.columnName] = columnDefinition
                     // check to ensure not null.
-                    when {
-                        columnDefinition.type is ColumnDefinition.Type.Primary ->
-                            _primaryColumnDefinitions.add(columnDefinition)
-                        columnDefinition.type is ColumnDefinition.Type.PrimaryAutoIncrement -> {
+                    when (columnDefinition.type) {
+                        is ColumnDefinition.Type.Primary -> _primaryColumnDefinitions.add(
+                            columnDefinition
+                        )
+                        is ColumnDefinition.Type.PrimaryAutoIncrement -> {
                             this.primaryKeyColumnBehavior = PrimaryKeyColumnBehavior(
                                 hasRowID = false,
                                 hasAutoIncrement = true,
                                 associatedColumn = columnDefinition
                             )
                         }
-                        columnDefinition.type is ColumnDefinition.Type.RowId -> {
+                        is ColumnDefinition.Type.RowId -> {
                             this.primaryKeyColumnBehavior = PrimaryKeyColumnBehavior(
                                 hasRowID = true,
                                 hasAutoIncrement = false,
@@ -515,13 +516,14 @@ class TableDefinition(
                 val autoIncrement = primaryKeyColumnBehavior.associatedColumn
                 autoIncrement?.let {
                     `override fun`(
-                        TypeName.VOID,
+                        elementClassName!!,
                         "updateAutoIncrement",
                         param(elementClassName!!, ModelUtils.variable),
                         param(Number::class, "id")
                     ) {
                         modifiers(public, final)
                         addCode(autoIncrement.updateAutoIncrementMethod)
+                        addStatement("return \$L", ModelUtils.variable)
                     }
                 }
             }

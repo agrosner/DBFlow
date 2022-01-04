@@ -10,10 +10,10 @@ import com.dbflow5.annotation.Table
 @OneToManyRelation(
     childTable = OneToManyBaseModel::class,
 )
-data class OneToManyModel(@PrimaryKey val name: String)
+data class OneToManyModel(@PrimaryKey var name: String = "")
 
 @Table(database = TestDatabase::class)
 data class OneToManyBaseModel(
-    @PrimaryKey val id: Int,
-    @ForeignKey(tableClass = OneToManyModel::class) val parentName: String?,
+    @PrimaryKey var id: Int = 0,
+    @ForeignKey(tableClass = OneToManyModel::class) var parentName: String? = "",
 )
