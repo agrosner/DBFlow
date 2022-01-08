@@ -25,7 +25,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 
 @RunWith(AndroidJUnit4::class)
 class DirectNotifierTest {
@@ -48,7 +47,7 @@ class DirectNotifierTest {
             val simpleModel = SimpleModel("Name")
 
             val modelChange = mock<DirectModelNotifier.OnModelStateChangedListener<SimpleModel>>()
-            DirectModelNotifier.get().registerForModelStateChanges(SimpleModel::class.java, modelChange)
+            DirectModelNotifier.get().registerForModelStateChanges(SimpleModel::class, modelChange)
 
             simpleModel.insert(db)
             verify(modelChange).onModelChanged(simpleModel, ChangeAction.INSERT)
@@ -67,23 +66,23 @@ class DirectNotifierTest {
     @Test
     fun validateCanNotifyWrapperClasses() {
         databaseForTable<SimpleModel> { db ->
-            val modelChange = Mockito.mock(OnTableChangedListener::class.java)
-            DirectModelNotifier.get().registerForTableChanges(SimpleModel::class.java, modelChange)
+            val modelChange = mock<OnTableChangedListener>()
+            DirectModelNotifier.get().registerForTableChanges(SimpleModel::class, modelChange)
 
             insertInto<SimpleModel>()
                 .columnValues(SimpleModel_Table.name to "name")
                 .executeInsert(db)
 
-            verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.INSERT)
+            verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.INSERT)
 
             (update<SimpleModel>() set SimpleModel_Table.name.eq("name2"))
                 .executeUpdateDelete(db)
 
-            verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.UPDATE)
+            verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.UPDATE)
 
             delete<SimpleModel>().executeUpdateDelete(db)
 
-            verify(modelChange).onTableChanged(SimpleModel::class.java, ChangeAction.DELETE)
+            verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.DELETE)
         }
     }
 

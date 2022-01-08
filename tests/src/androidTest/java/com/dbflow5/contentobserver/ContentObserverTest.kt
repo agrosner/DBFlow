@@ -24,6 +24,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
+import kotlin.reflect.KClass
 
 class ContentObserverTest {
 
@@ -54,15 +55,20 @@ class ContentObserverTest {
     fun testSpecificUris() {
         val conditionGroup = User::class.modelAdapter
             .getPrimaryConditionClause(user)
-        val uri = getNotificationUri(contentUri,
-            User::class.java, ChangeAction.DELETE,
-            conditionGroup.conditions.toTypedArray())
+        val uri = getNotificationUri(
+            contentUri,
+            User::class, ChangeAction.DELETE,
+            conditionGroup.conditions.toTypedArray()
+        )
 
         assertEquals(uri.authority, contentUri)
         assertEquals(tableName<User>(), uri.getQueryParameter(TABLE_QUERY_PARAM))
         assertEquals(uri.fragment, ChangeAction.DELETE.name)
         assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.id.query))), "5")
-        assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.name.query))), "Something")
+        assertEquals(
+            Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.name.query))),
+            "Something"
+        )
     }
 
     @Test
@@ -88,12 +94,15 @@ class ContentObserverTest {
         // assertProperConditions(ChangeAction.DELETE) { user, db -> user.delete(db) }
     }
 
-    private fun assertProperConditions(action: ChangeAction, userFunc: (User, DatabaseWrapper) -> Unit) {
+    private fun assertProperConditions(
+        action: ChangeAction,
+        userFunc: (User, DatabaseWrapper) -> Unit
+    ) {
         val contentObserver = FlowContentObserver(contentUri)
         val countDownLatch = CountDownLatch(1)
         val mockOnModelStateChangedListener = MockOnModelStateChangedListener(countDownLatch)
         contentObserver.addModelChangeListener(mockOnModelStateChangedListener)
-        contentObserver.registerForContentChanges(DemoApp.context, User::class.java)
+        contentObserver.registerForContentChanges(DemoApp.context, User::class)
 
         userFunc(user, databaseForTable<User>())
         countDownLatch.await()
@@ -110,15 +119,17 @@ class ContentObserverTest {
         contentObserver.unregisterForContentChanges(DemoApp.context)
     }
 
-    class MockOnModelStateChangedListener(val countDownLatch: CountDownLatch)
-        : FlowContentObserver.OnModelStateChangedListener {
+    class MockOnModelStateChangedListener(val countDownLatch: CountDownLatch) :
+        FlowContentObserver.OnModelStateChangedListener {
 
         var action: ChangeAction? = null
         var operators: Array<SQLOperator>? = null
 
 
-        override fun onModelStateChanged(table: Class<*>?, action: ChangeAction,
-                                         primaryKeyValues: Array<SQLOperator>) {
+        override fun onModelStateChanged(
+            table: KClass<*>?, action: ChangeAction,
+            primaryKeyValues: Array<SQLOperator>
+        ) {
             this.action = action
             operators = primaryKeyValues
             countDownLatch.countDown()

@@ -10,6 +10,7 @@ import com.dbflow5.longForQuery
 import com.dbflow5.runtime.NotifyDistributor
 import com.dbflow5.stringForQuery
 import com.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 
 /**
  * Description: Base implementation of something that can be queried from the database.
@@ -18,7 +19,8 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
     /**
      * @return The table associated with this INSERT
      */
-    val table: Class<TModel>) : Queriable, Actionable {
+    val table: KClass<TModel>
+) : Queriable, Actionable {
 
     abstract override val primaryAction: ChangeAction
 

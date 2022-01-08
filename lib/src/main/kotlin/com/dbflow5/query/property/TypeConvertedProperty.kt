@@ -24,7 +24,7 @@ class TypeConvertedProperty<Data, Model> : Property<Model> {
      */
     val dataProperty: Property<Data>
 
-    override val table: Class<*>
+    override val table: KClass<*>
         get() = super.table!!
 
     /**
@@ -33,14 +33,14 @@ class TypeConvertedProperty<Data, Model> : Property<Model> {
      */
     fun interface TypeConverterGetter {
 
-        fun getTypeConverter(modelClass: Class<*>): TypeConverter<*, *>
+        fun getTypeConverter(modelClass: KClass<*>): TypeConverter<*, *>
     }
 
     override val operator: Operator<Model>
         get() = Operator.op(nameAlias, table, getter, convertToDB)
 
     constructor(
-        table: Class<*>, nameAlias: NameAlias,
+        table: KClass<*>, nameAlias: NameAlias,
         convertToDB: Boolean,
         getter: TypeConverterGetter
     ) : super(table, nameAlias) {
@@ -53,12 +53,6 @@ class TypeConvertedProperty<Data, Model> : Property<Model> {
         table: KClass<*>,
         columnName: String,
         convertToDB: Boolean = true,
-        getter: TypeConverterGetter
-    ) : this(table.java, columnName, convertToDB, getter)
-
-    constructor(
-        table: Class<*>, columnName: String,
-        convertToDB: Boolean,
         getter: TypeConverterGetter
     ) : super(table, columnName.nameAlias) {
         this.convertToDB = convertToDB

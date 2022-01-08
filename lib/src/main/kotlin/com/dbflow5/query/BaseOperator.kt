@@ -129,7 +129,7 @@ abstract class BaseOperator internal constructor(
             } else {
                 var locVal = value
                 if (typeConvert) {
-                    val typeConverter: TypeConverter<*, Any>? = FlowManager.getTypeConverterForClass(locVal.javaClass) as TypeConverter<*, Any>?
+                    val typeConverter: TypeConverter<*, Any>? = FlowManager.getTypeConverterForClass(locVal::class) as TypeConverter<*, Any>?
                     if (typeConverter != null) {
                         locVal = typeConverter.getDBValue(locVal)
                     }

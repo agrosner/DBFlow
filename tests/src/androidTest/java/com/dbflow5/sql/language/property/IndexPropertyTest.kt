@@ -14,7 +14,7 @@ class IndexPropertyTest : BaseUnitTest() {
     @Test
     fun validateIndexProperty() {
         databaseForTable<SimpleModel> { db ->
-            val prop = IndexProperty("Index", true, SimpleModel::class.java,
+            val prop = IndexProperty("Index", true, SimpleModel::class,
                     SimpleModel_Table.name)
             prop.createIfNotExists(db)
             prop.drop(db)

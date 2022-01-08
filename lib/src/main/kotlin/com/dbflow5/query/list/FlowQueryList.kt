@@ -6,6 +6,7 @@ import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.ModelQueriable
+import kotlin.reflect.KClass
 
 /**
  * Description: A query-backed immutable [List]. Represents the results of a cursor without loading
@@ -181,7 +182,7 @@ class FlowQueryList<T : Any>(
 
     class Builder<T : Any> {
 
-        internal val table: Class<T>
+        internal val table: KClass<T>
 
         internal var cursor: FlowCursor? = null
         internal var modelQueriable: ModelQueriable<T>

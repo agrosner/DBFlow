@@ -4,24 +4,27 @@ import com.dbflow5.appendArray
 import com.dbflow5.config.FlowManager
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.sql.Query
+import kotlin.reflect.KClass
 
 /**
  * Description: Describes the method that the trigger uses.
  */
-class TriggerMethod<TModel>
-internal constructor(internal val trigger: Trigger, private val methodName: String,
-                     internal var onTable: Class<TModel>, vararg properties: IProperty<*>) : Query {
-    private var properties: List<IProperty<*>> = arrayListOf()
+class TriggerMethod<TModel : Any>
+internal constructor(
+    internal val trigger: Trigger, private val methodName: String,
+    internal var onTable: KClass<TModel>, vararg properties: IProperty<*>
+) : Query {
+    private var properties: List<IProperty<*>> = mutableListOf()
     private var forEachRow = false
     private var whenCondition: SQLOperator? = null
 
     override val query: String
         get() {
             val queryBuilder = StringBuilder(trigger.query)
-                    .append(methodName)
+                .append(methodName)
             if (properties.isNotEmpty()) {
                 queryBuilder.append(" OF ")
-                        .appendArray(properties.toTypedArray())
+                    .appendArray(properties.toTypedArray())
             }
             queryBuilder.append(" ON ").append(FlowManager.getTableName(onTable))
 
@@ -73,7 +76,7 @@ internal constructor(internal val trigger: Trigger, private val methodName: Stri
      * @return This trigger
      */
     infix fun begin(triggerLogicQuery: Query): CompletedTrigger<TModel> =
-            CompletedTrigger(this, triggerLogicQuery)
+        CompletedTrigger(this, triggerLogicQuery)
 
     companion object {
 

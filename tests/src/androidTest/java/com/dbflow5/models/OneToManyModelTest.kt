@@ -13,7 +13,7 @@ class OneToManyModelTest : BaseUnitTest() {
 
     @Test
     fun testOneToManyModel() {
-        database(TestDatabase::class) { db ->
+        database<TestDatabase> { db ->
             OneToManyModel(
                 name = "name"
             ).save(db)

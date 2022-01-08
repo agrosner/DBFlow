@@ -27,17 +27,17 @@ abstract class DatabaseHolder : MutableHolder {
      * @param clazz The model value class to get a [TypeConverter]
      * @return Type converter for the specified model value.
      */
-    fun getTypeConverterForClass(clazz: Class<*>): TypeConverter<*, *>? =
-        typeConverters[clazz.kotlin]
+    fun getTypeConverterForClass(clazz: KClass<*>): TypeConverter<*, *>? =
+        typeConverters[clazz]
 
     /**
      * @param table The model class
      * @return The database that the table belongs in
      */
-    fun getDatabaseForTable(table: Class<*>): DBFlowDatabase? = databaseDefinitionMap[table.kotlin]
+    fun getDatabaseForTable(table: KClass<*>): DBFlowDatabase? = databaseDefinitionMap[table]
 
-    fun getDatabase(databaseClass: Class<*>): DBFlowDatabase? =
-        databaseClassLookupMap[databaseClass.kotlin]
+    fun getDatabase(databaseClass: KClass<*>): DBFlowDatabase? =
+        databaseClassLookupMap[databaseClass]
 
     /**
      * @param databaseName The name of the database to retrieve
@@ -48,7 +48,7 @@ abstract class DatabaseHolder : MutableHolder {
     override fun put(databaseDefinition: DBFlowDatabase, table: KClass<*>) {
         databaseDefinitionMap[table] = databaseDefinition
         databaseNameMap[databaseDefinition.databaseName] = databaseDefinition
-        databaseClassLookupMap[databaseDefinition.associatedDatabaseClassFile.kotlin] =
+        databaseClassLookupMap[databaseDefinition.associatedDatabaseClassFile] =
             databaseDefinition
     }
 

@@ -18,26 +18,28 @@ import kotlin.reflect.KClass
  * Description: Emits when table changes occur for the related table on the [ModelQueriable].
  * If the [ModelQueriable] relates to a [Join], this can be multiple tables.
  */
-class TableChangeOnSubscribe<T : Any, R : Any?>(private val modelQueriable: ModelQueriable<T>,
-                                                private val evalFn: ModelQueriableEvalFn<T, R>)
-    : FlowableOnSubscribe<R> {
+class TableChangeOnSubscribe<T : Any, R : Any?>(
+    private val modelQueriable: ModelQueriable<T>,
+    private val evalFn: ModelQueriableEvalFn<T, R>
+) : FlowableOnSubscribe<R> {
 
     private lateinit var flowableEmitter: FlowableEmitter<R>
 
     private val currentTransactions = CompositeDisposable()
 
-    private val associatedTables: Set<Class<*>> = modelQueriable.extractFrom()?.associatedTables
+    private val associatedTables: Set<KClass<*>> = modelQueriable.extractFrom()?.associatedTables
         ?: setOf(modelQueriable.table)
 
-    private val onTableChangedObserver = object : OnTableChangedObserver(associatedTables.toList()) {
-        override fun onChanged(tables: Set<Class<*>>) {
-            if (tables.isNotEmpty()) {
-                evaluateEmission(tables.first().kotlin)
+    private val onTableChangedObserver =
+        object : OnTableChangedObserver(associatedTables.toList()) {
+            override fun onChanged(tables: Set<KClass<*>>) {
+                if (tables.isNotEmpty()) {
+                    evaluateEmission(tables.first())
+                }
             }
         }
-    }
 
-    private fun evaluateEmission(table: KClass<*> = modelQueriable.table.kotlin) {
+    private fun evaluateEmission(table: KClass<*> = modelQueriable.table) {
         if (this::flowableEmitter.isInitialized) {
             currentTransactions.add(databaseForTable(table)
                 .beginTransactionAsync { modelQueriable.evalFn(it) }

@@ -48,11 +48,11 @@ class DatabaseConfigTest : BaseUnitTest() {
         }
 
         val flowConfig = FlowManager.getConfig()
-        val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class.java]!!
+        val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class]!!
         assertEquals("Test", databaseConfig.databaseName)
         assertEquals(".db", databaseConfig.databaseExtensionName)
         assertEquals(databaseConfig.transactionManagerCreator, managerCreator)
-        assertEquals(databaseConfig.databaseClass, TestDatabase::class.java)
+        assertEquals(databaseConfig.databaseClass, TestDatabase::class)
         assertEquals(databaseConfig.openHelperCreator, openHelperCreator)
         assertEquals(databaseConfig.callback, helperListener)
         assertTrue(databaseConfig.tableConfigMap.isEmpty())
@@ -72,7 +72,7 @@ class DatabaseConfigTest : BaseUnitTest() {
             }, AndroidSQLiteOpenHelper.createHelperCreator(context))
         }
 
-        val databaseConfig = FlowManager.getConfig().databaseConfigMap[TestDatabase::class.java]!!
+        val databaseConfig = FlowManager.getConfig().databaseConfigMap[TestDatabase::class]!!
         assertEquals("Test", databaseConfig.databaseName)
         assertEquals("", databaseConfig.databaseExtensionName)
     }

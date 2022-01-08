@@ -19,8 +19,10 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(c: Char): Property<Char> {
-        return Property(null, NameAlias.rawBuilder("'$c'")
-            .build())
+        return Property(
+            null, NameAlias.rawBuilder("'$c'")
+                .build()
+        )
     }
 
     /**
@@ -31,8 +33,10 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(i: Int): Property<Int> {
-        return Property(null, NameAlias.rawBuilder(i.toString() + "")
-            .build())
+        return Property(
+            null, NameAlias.rawBuilder(i.toString() + "")
+                .build()
+        )
     }
 
     /**
@@ -43,8 +47,10 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(d: Double): Property<Double> {
-        return Property(null, NameAlias.rawBuilder(d.toString() + "")
-            .build())
+        return Property(
+            null, NameAlias.rawBuilder(d.toString() + "")
+                .build()
+        )
     }
 
     /**
@@ -55,8 +61,10 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(l: Long): Property<Long> {
-        return Property(null, NameAlias.rawBuilder(l.toString() + "")
-            .build())
+        return Property(
+            null, NameAlias.rawBuilder(l.toString() + "")
+                .build()
+        )
     }
 
     /**
@@ -67,8 +75,10 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(f: Float): Property<Float> {
-        return Property(null, NameAlias.rawBuilder(f.toString() + "")
-            .build())
+        return Property(
+            null, NameAlias.rawBuilder(f.toString() + "")
+                .build()
+        )
     }
 
     /**
@@ -79,8 +89,10 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(s: Short): Property<Short> {
-        return Property(null, NameAlias.rawBuilder(s.toString() + "")
-            .build())
+        return Property(
+            null, NameAlias.rawBuilder(s.toString() + "")
+                .build()
+        )
     }
 
     /**
@@ -91,8 +103,10 @@ object PropertyFactory {
      */
     @JvmStatic
     fun from(b: Byte): Property<Byte> {
-        return Property(null, NameAlias.rawBuilder(b.toString() + "")
-            .build())
+        return Property(
+            null, NameAlias.rawBuilder(b.toString() + "")
+                .build()
+        )
     }
 
     /**
@@ -109,9 +123,12 @@ object PropertyFactory {
      */
     @JvmStatic
     fun <T> from(type: T?): Property<T> {
-        return Property(null, NameAlias.rawBuilder(
-            Operator.convertValueToString(type) ?: "")
-            .build())
+        return Property(
+            null, NameAlias.rawBuilder(
+                Operator.convertValueToString(type) ?: ""
+            )
+                .build()
+        )
     }
 
 
@@ -146,9 +163,11 @@ object PropertyFactory {
      */
     @Suppress("UNUSED_PARAMETER")
     @JvmStatic
-    fun <T> from(table: Class<T>, stringRepresentation: String?): Property<T> {
-        return Property(null, NameAlias.rawBuilder(stringRepresentation ?: "")
-            .build())
+    fun <T : Any> from(table: KClass<T>, stringRepresentation: String?): Property<T> {
+        return Property(
+            null, NameAlias.rawBuilder(stringRepresentation ?: "")
+                .build()
+        )
     }
 }
 
@@ -182,14 +201,16 @@ val <T : Any> T?.property
 val <T : Any> ModelQueriable<T>.property
     get() = PropertyFactory.from(this)
 
-inline fun <reified T : Any> propertyString(stringRepresentation: String?) = PropertyFactory.from(T::class.java, stringRepresentation)
+inline fun <reified T : Any> propertyString(stringRepresentation: String?) =
+    PropertyFactory.from(T::class, stringRepresentation)
 
-inline fun <reified T : Any> KClass<T>.allProperty() = Property.allProperty(this.java)
+inline fun <reified T : Any> KClass<T>.allProperty() = Property.allProperty(this)
 
 /**
  * Convenience wrapper for creating a table name property used in queries.
  */
-inline fun <reified T : Any> tableName() = propertyString<Any>(FlowManager.getTableName(T::class.java))
+inline fun <reified T : Any> tableName() =
+    propertyString<Any>(FlowManager.getTableName(T::class))
 
 /**
  * For FTS tables, "docid" is allowed as an alias along with the usual "rowid", "oid" and "_oid_" identifiers.

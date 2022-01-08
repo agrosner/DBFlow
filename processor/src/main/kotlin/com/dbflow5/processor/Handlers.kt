@@ -196,7 +196,7 @@ class TypeConverterHandler : AnnotatedHandler<TypeConverter>(TypeConverter::clas
         annotatedElements: MutableSet<Element>
     ) {
         typeConverterElements = DEFAULT_TYPE_CONVERTERS.mapTo(mutableSetOf()) {
-            processorManager.elements.getTypeElement(it.name)
+            processorManager.elements.getTypeElement(it.qualifiedName)
         }
         annotatedElements.addAll(typeConverterElements)
     }
@@ -258,12 +258,12 @@ class TypeConverterHandler : AnnotatedHandler<TypeConverter>(TypeConverter::clas
 
     companion object {
         private val VALIDATOR = TypeConverterValidator()
-        private val DEFAULT_TYPE_CONVERTERS = arrayOf<Class<*>>(
-            CalendarConverter::class.java,
-            BigDecimalConverter::class.java, BigIntegerConverter::class.java,
-            DateConverter::class.java, SqlDateConverter::class.java,
-            BooleanConverter::class.java, UUIDConverter::class.java,
-            CharConverter::class.java
+        private val DEFAULT_TYPE_CONVERTERS = arrayOf<KClass<*>>(
+            CalendarConverter::class,
+            BigDecimalConverter::class, BigIntegerConverter::class,
+            DateConverter::class, SqlDateConverter::class,
+            BooleanConverter::class, UUIDConverter::class,
+            CharConverter::class
         )
     }
 }

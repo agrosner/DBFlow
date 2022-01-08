@@ -5,6 +5,7 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.query.list.FlowQueryList
+import kotlin.reflect.KClass
 
 
 typealias ModelQueriableEvalFn<T, R> = ModelQueriable<T>.(DatabaseWrapper) -> R
@@ -18,7 +19,7 @@ interface ModelQueriable<T : Any> : Queriable {
     /**
      * @return the table that this query comes from.
      */
-    val table: Class<T>
+    val table: KClass<T>
 
     /**
      * @return a list of model converted items
@@ -55,7 +56,7 @@ interface ModelQueriable<T : Any> : Queriable {
      * @return A list of custom models that are not tied to a table.
      */
     fun <TQuery : Any> queryCustomList(
-        queryModelClass: Class<TQuery>,
+        queryModelClass: KClass<TQuery>,
         databaseWrapper: DatabaseWrapper
     ): MutableList<TQuery>
 
@@ -66,7 +67,7 @@ interface ModelQueriable<T : Any> : Queriable {
      * @return A single model from the query.
      */
     fun <TQueryModel : Any> queryCustomSingle(
-        queryModelClass: Class<TQueryModel>,
+        queryModelClass: KClass<TQueryModel>,
         databaseWrapper: DatabaseWrapper
     ): TQueryModel?
 
@@ -101,11 +102,11 @@ internal inline val <T : Any> ModelQueriable<T>.enclosedQuery
     get() = "(${query.trim { it <= ' ' }})"
 
 inline fun <reified T : Any> ModelQueriable<*>.queryCustomList(db: DatabaseWrapper) =
-    queryCustomList(T::class.java, db)
+    queryCustomList(T::class, db)
 
 inline fun <reified T : Any> ModelQueriable<*>.queryCustomSingle(db: DatabaseWrapper) =
-    queryCustomSingle(T::class.java, db)
+    queryCustomSingle(T::class, db)
 
 inline fun <reified T : Any> ModelQueriable<*>.requireCustomSingle(db: DatabaseWrapper) =
-    queryCustomSingle(T::class.java, db)
+    queryCustomSingle(T::class, db)
         ?: throw SQLiteException("QueryModel result not found for $this")

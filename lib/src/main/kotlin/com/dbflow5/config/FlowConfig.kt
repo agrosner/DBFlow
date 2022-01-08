@@ -1,14 +1,17 @@
 package com.dbflow5.config
 
 import android.content.Context
+import kotlin.reflect.KClass
 
 /**
  * Description: The main configuration instance for DBFlow. This
  */
-class FlowConfig(val context: Context,
-                 val databaseHolders: Set<Class<out DatabaseHolder>> = setOf(),
-                 val databaseConfigMap: Map<Class<*>, DatabaseConfig> = mapOf(),
-                 val openDatabasesOnInit: Boolean = false) {
+class FlowConfig(
+    val context: Context,
+    val databaseHolders: Set<KClass<out DatabaseHolder>> = setOf(),
+    val databaseConfigMap: Map<KClass<*>, DatabaseConfig> = mapOf(),
+    val openDatabasesOnInit: Boolean = false
+) {
 
     internal constructor(builder: Builder) : this(
         databaseHolders = builder.databaseHolders.toSet(),
@@ -17,7 +20,7 @@ class FlowConfig(val context: Context,
         openDatabasesOnInit = builder.openDatabasesOnInit
     )
 
-    fun getConfigForDatabase(databaseClass: Class<*>): DatabaseConfig? {
+    fun getConfigForDatabase(databaseClass: KClass<*>): DatabaseConfig? {
         return databaseConfigMap[databaseClass]
     }
 
@@ -32,23 +35,24 @@ class FlowConfig(val context: Context,
                 key to (flowConfig.databaseConfigMap[key] ?: value)
             }.toMap(),
         databaseHolders = databaseHolders.plus(flowConfig.databaseHolders),
-        openDatabasesOnInit = flowConfig.openDatabasesOnInit)
+        openDatabasesOnInit = flowConfig.openDatabasesOnInit
+    )
 
     class Builder(context: Context) {
 
         internal val context: Context = context.applicationContext
-        internal var databaseHolders: MutableSet<Class<out DatabaseHolder>> = hashSetOf()
-        internal val databaseConfigMap: MutableMap<Class<*>, DatabaseConfig> = hashMapOf()
+        internal var databaseHolders: MutableSet<KClass<out DatabaseHolder>> = hashSetOf()
+        internal val databaseConfigMap: MutableMap<KClass<*>, DatabaseConfig> = hashMapOf()
         internal var openDatabasesOnInit: Boolean = false
 
-        fun addDatabaseHolder(databaseHolderClass: Class<out DatabaseHolder>) = apply {
+        fun addDatabaseHolder(databaseHolderClass: KClass<out DatabaseHolder>) = apply {
             databaseHolders.add(databaseHolderClass)
         }
 
-        inline fun <reified T : DatabaseHolder> databaseHolder() = addDatabaseHolder(T::class.java)
+        inline fun <reified T : DatabaseHolder> databaseHolder() = addDatabaseHolder(T::class)
 
         fun database(databaseConfig: DatabaseConfig) = apply {
-            databaseConfigMap.put(databaseConfig.databaseClass, databaseConfig)
+            databaseConfigMap[databaseConfig.databaseClass] = databaseConfig
         }
 
         inline fun <reified T : Any> database(

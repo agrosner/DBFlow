@@ -57,16 +57,15 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
      * @param [T] The class that implements [com.dbflow5.structure.Model]
      * @return the From part of this query
      */
-    fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
+    infix fun <T : Any> from(table: KClass<T>): From<T> = From(this, table)
 
-    inline fun <reified T : Any> from() = from(T::class.java)
-
-    infix fun <T : Any> from(table: KClass<T>) = from(table.java)
+    inline fun <reified T : Any> from() = from(T::class)
 
     /**
      * Constructs a [From] with a [ModelQueriable] expression.
      */
-    fun <T : Any> from(modelQueriable: ModelQueriable<T>) = From(this, modelQueriable.table, modelQueriable)
+    fun <T : Any> from(modelQueriable: ModelQueriable<T>) =
+        From(this, modelQueriable.table, modelQueriable)
 
     /**
      * appends [.DISTINCT] to the query

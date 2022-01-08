@@ -7,11 +7,12 @@ import com.dbflow5.sql.Query
 /**
  * Description: The last piece of a TRIGGER statement, this class contains the BEGIN...END and the logic in between.
  */
-class CompletedTrigger<TModel> internal constructor(
+class CompletedTrigger<TModel : Any> internal constructor(
     /**
      * The first pieces of this TRIGGER statement
      */
-    private val triggerMethod: TriggerMethod<TModel>, triggerLogicQuery: Query) : Query {
+    private val triggerMethod: TriggerMethod<TModel>, triggerLogicQuery: Query
+) : Query {
 
     /**
      * The query to run between the BEGIN and END of this statement

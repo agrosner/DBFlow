@@ -22,16 +22,16 @@ fun <T : Any, R : Any?> ModelQueriable<T>.toFlow(
 ): Flow<R> {
     return callbackFlow {
         val tables = extractFrom()?.associatedTables ?: setOf(table)
-        fun evaluateEmission(table: KClass<*> = this@toFlow.table.kotlin) {
+        fun evaluateEmission(table: KClass<*> = this@toFlow.table) {
             databaseForTable(table)
                 .beginTransactionAsync { evalFn(it) }
                 .execute { _, r -> channel.offer(r) }
         }
 
         val onTableChangedObserver = object : OnTableChangedObserver(tables.toList()) {
-            override fun onChanged(tables: Set<Class<*>>) {
+            override fun onChanged(tables: Set<KClass<*>>) {
                 if (tables.isNotEmpty()) {
-                    evaluateEmission(tables.first().kotlin)
+                    evaluateEmission(tables.first())
                 }
             }
         }

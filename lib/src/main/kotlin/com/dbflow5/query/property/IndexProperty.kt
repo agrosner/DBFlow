@@ -18,18 +18,11 @@ class IndexProperty<T : Any>(
     vararg properties: IProperty<*>
 ) {
 
-    constructor(
-        indexName: String,
-        unique: Boolean,
-        table: Class<T>,
-        vararg properties: IProperty<*>
-    ) : this(indexName, unique, table.kotlin, *properties)
-
     @Suppress("UNCHECKED_CAST")
     private val properties: Array<IProperty<*>> = properties as Array<IProperty<*>>
 
     val index: Index<T>
-        get() = Index(indexName, table.java).on(*properties).unique(unique)
+        get() = Index(indexName, table).on(*properties).unique(unique)
 
     val indexName = indexName.quoteIfNeeded() ?: ""
 

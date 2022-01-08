@@ -10,10 +10,12 @@ import kotlin.reflect.KClass
  * Description: Represents certain table configuration options. This allows you to easily specify
  * certain configuration options for a table.
  */
-class TableConfig<T : Any>(val tableClass: Class<T>,
-                           val modelSaver: ModelSaver<T>? = null,
-                           val singleModelLoader: SingleModelLoader<T>? = null,
-                           val listModelLoader: ListModelLoader<T>? = null) {
+class TableConfig<T : Any>(
+    val tableClass: KClass<T>,
+    val modelSaver: ModelSaver<T>? = null,
+    val singleModelLoader: SingleModelLoader<T>? = null,
+    val listModelLoader: ListModelLoader<T>? = null
+) {
 
     internal constructor(builder: Builder<T>) : this(
         tableClass = builder.tableClass,
@@ -25,12 +27,10 @@ class TableConfig<T : Any>(val tableClass: Class<T>,
     /**
      * Table builder for java consumers. use [TableConfig] directly if calling from Kotlin.
      */
-    class Builder<T : Any>(internal val tableClass: Class<T>) {
+    class Builder<T : Any>(internal val tableClass: KClass<T>) {
         internal var modelAdapterModelSaver: ModelSaver<T>? = null
         internal var singleModelLoader: SingleModelLoader<T>? = null
         internal var listModelLoader: ListModelLoader<T>? = null
-
-        constructor(tableClass: KClass<T>) : this(tableClass.java)
 
         /**
          * Define how the [ModelAdapter] saves data into the DB from its associated [T]. This
@@ -62,10 +62,6 @@ class TableConfig<T : Any>(val tableClass: Class<T>,
     }
 
     companion object {
-
-        @JvmStatic
-        fun <T : Any> builder(tableClass: Class<T>): Builder<T> =
-            Builder(tableClass)
 
         fun <T : Any> builder(tableClass: KClass<T>): Builder<T> =
             Builder(tableClass)

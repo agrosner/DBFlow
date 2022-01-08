@@ -37,8 +37,8 @@ class ConfigIntegrationTest : BaseUnitTest() {
     @Test
     fun test_tableConfig() {
 
-        val customListModelLoader = ListModelLoader(SimpleModel::class.java)
-        val singleModelLoader = SingleModelLoader(SimpleModel::class.java)
+        val customListModelLoader = ListModelLoader(SimpleModel::class)
+        val singleModelLoader = SingleModelLoader(SimpleModel::class)
         val modelSaver = ModelSaver<SimpleModel>()
 
         FlowManager.init(
@@ -55,11 +55,11 @@ class ConfigIntegrationTest : BaseUnitTest() {
         val flowConfig = FlowManager.getConfig()
         assertNotNull(flowConfig)
 
-        val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class.java] as DatabaseConfig
+        val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class] as DatabaseConfig
         assertNotNull(databaseConfig)
 
 
-        val config = databaseConfig.tableConfigMap[SimpleModel::class.java] as TableConfig
+        val config = databaseConfig.tableConfigMap[SimpleModel::class] as TableConfig
         assertNotNull(config)
 
         assertEquals(config.listModelLoader, customListModelLoader)

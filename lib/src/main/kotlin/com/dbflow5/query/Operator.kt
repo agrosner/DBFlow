@@ -10,6 +10,7 @@ import com.dbflow5.converter.TypeConverter
 import com.dbflow5.query.property.Property
 import com.dbflow5.query.property.TypeConvertedProperty
 import com.dbflow5.sql.Query
+import kotlin.reflect.KClass
 
 /**
  * Description: The class that contains a column name, Operator<T>, and value.
@@ -19,7 +20,7 @@ import com.dbflow5.sql.Query
 class Operator<T : Any?>
 internal constructor(
     nameAlias: NameAlias?,
-    private val table: Class<*>? = null,
+    private val table: KClass<*>? = null,
     private val getter: TypeConvertedProperty.TypeConverterGetter? = null,
     private val convertToDB: Boolean
 ) : BaseOperator(nameAlias), IOperator<T> {
@@ -355,7 +356,7 @@ internal constructor(
         var typeConverter: TypeConverter<*, Any>? = this.typeConverter as TypeConverter<*, Any>?
         if (typeConverter == null && _value != null) {
             typeConverter =
-                FlowManager.getTypeConverterForClass(_value.javaClass) as TypeConverter<*, Any>?
+                FlowManager.getTypeConverterForClass(_value::class) as TypeConverter<*, Any>?
         }
         if (typeConverter != null && convertToDB && _value != null) {
             _value = typeConverter.getDBValue(_value)
@@ -364,7 +365,7 @@ internal constructor(
             is String, is IOperator<*>, is Char -> "$operation ${Operation.CONCATENATE} "
             is Number -> "$operation ${Operation.PLUS} "
             else -> throw IllegalArgumentException(
-                "Cannot concatenate the ${if (_value != null) _value.javaClass else "null"}"
+                "Cannot concatenate the ${_value?.javaClass ?: "null"}"
             )
         }
         this.value = _value
@@ -675,11 +676,11 @@ internal constructor(
 
         @JvmStatic
         fun <T> op(
-            alias: NameAlias, table: Class<*>,
+            alias: NameAlias, table: KClass<*>,
             getter: TypeConvertedProperty.TypeConverterGetter,
             convertToDB: Boolean
-        ): Operator<T> =
-            Operator(alias, table, getter, convertToDB)
+        ) =
+            Operator<T>(alias, table, getter, convertToDB)
     }
 
 }

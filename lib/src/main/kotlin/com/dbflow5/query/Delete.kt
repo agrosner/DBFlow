@@ -18,9 +18,7 @@ class Delete internal constructor() : Query {
      * @param [T] The table class
      * @return [T]
      **/
-    infix fun <T : Any> from(table: Class<T>): From<T> = From(this, table)
-
-    infix fun <T : Any> from(table: KClass<T>): From<T> = from(table.java)
+    infix fun <T : Any> from(table: KClass<T>): From<T> = From(this, table)
 
 }
 

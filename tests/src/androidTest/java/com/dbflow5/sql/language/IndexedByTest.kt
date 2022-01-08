@@ -13,7 +13,14 @@ class IndexedByTest : BaseUnitTest() {
     @Test
     fun validateQuery() {
         val indexed = (select from SimpleModel::class)
-            .indexedBy(IndexProperty("Index", false, SimpleModel::class.java, SimpleModel_Table.name))
+            .indexedBy(
+                IndexProperty(
+                    "Index",
+                    false,
+                    SimpleModel::class,
+                    SimpleModel_Table.name
+                )
+            )
         assertEquals("SELECT * FROM `SimpleModel` INDEXED BY `Index`", indexed.query.trim())
     }
 }

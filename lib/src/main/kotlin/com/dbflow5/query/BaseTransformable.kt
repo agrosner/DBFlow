@@ -3,6 +3,7 @@ package com.dbflow5.query
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.property.IProperty
+import kotlin.reflect.KClass
 
 /**
  * Description: Combines basic transformations and query ops into a base class.
@@ -13,8 +14,8 @@ abstract class BaseTransformable<TModel : Any>
  *
  * @param table the table that belongs to this query.
  */
-protected constructor(table: Class<TModel>)
-    : BaseModelQueriable<TModel>(table), Transformable<TModel>, WhereBase<TModel> {
+protected constructor(table: KClass<TModel>) : BaseModelQueriable<TModel>(table),
+    Transformable<TModel>, WhereBase<TModel> {
 
     infix fun <T : Any> whereExists(where: Where<T>) = where().exists(where)
 
@@ -22,7 +23,8 @@ protected constructor(table: Class<TModel>)
 
     infix fun where(condition: SQLOperator): Where<TModel> = Where(this, condition)
 
-    override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? = where().cursor(databaseWrapper)
+    override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? =
+        where().cursor(databaseWrapper)
 
     override fun groupBy(vararg nameAliases: NameAlias): Where<TModel> =
         where().groupBy(*nameAliases)
@@ -36,7 +38,8 @@ protected constructor(table: Class<TModel>)
     override fun orderBy(property: IProperty<*>, ascending: Boolean): Where<TModel> =
         where().orderBy(property, ascending)
 
-    override fun orderByAll(orderByList: List<OrderBy>): Where<TModel> = where().orderByAll(orderByList)
+    override fun orderByAll(orderByList: List<OrderBy>): Where<TModel> =
+        where().orderByAll(orderByList)
 
     override fun orderBy(orderBy: OrderBy): Where<TModel> = where().orderBy(orderBy)
 

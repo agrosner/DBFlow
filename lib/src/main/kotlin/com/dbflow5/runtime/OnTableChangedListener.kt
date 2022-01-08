@@ -1,11 +1,12 @@
 package com.dbflow5.runtime
 
 import com.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 
 /**
  * Interface for when a generic change on a table occurs.
  */
-interface OnTableChangedListener {
+fun interface OnTableChangedListener {
 
     /**
      * Called when table changes.
@@ -14,5 +15,5 @@ interface OnTableChangedListener {
      * or higher.
      * @param action       The action that occurred.
      */
-    fun onTableChanged(table: Class<*>?, action: ChangeAction)
+    fun onTableChanged(table: KClass<*>?, action: ChangeAction)
 }

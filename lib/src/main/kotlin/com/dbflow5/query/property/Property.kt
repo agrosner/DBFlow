@@ -26,7 +26,7 @@ import kotlin.reflect.KClass
  * This is type parametrized so that all values passed to this class remain properly typed.
  */
 open class Property<T>(
-    override val table: Class<*>?,
+    override val table: KClass<*>?,
     override val nameAlias: NameAlias
 ) : IProperty<Property<T>>, IOperator<T> {
 
@@ -45,12 +45,12 @@ open class Property<T>(
     protected open val operator: Operator<T>
         get() = Operator.op(nameAlias)
 
-    constructor(table: Class<*>?, columnName: String) : this(
+    constructor(table: KClass<*>?, columnName: String) : this(
         table,
         NameAlias.Builder(columnName).build()
     )
 
-    constructor(table: Class<*>?, columnName: String, aliasName: String)
+    constructor(table: KClass<*>?, columnName: String, aliasName: String)
         : this(table, NameAlias.builder(columnName).`as`(aliasName).build())
 
     override fun withTable(): Property<T> = Property(
@@ -308,13 +308,13 @@ open class Property<T>(
         val WILDCARD: Property<*> = Property<Any>(null, NameAlias.rawBuilder("?").build())
 
         @JvmStatic
-        fun allProperty(table: Class<*>): Property<String> =
+        fun allProperty(table: KClass<*>): Property<String> =
             Property<String>(table, NameAlias.rawBuilder("*").build()).withTable()
     }
 }
 
 inline fun <reified T, Table : Any> AdapterCompanion<Table>.property(columnName: String) =
-    Property<T>(table.java, columnName)
+    Property<T>(table, columnName)
 
 inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedProperty(
     unusedData: KClass<Data>,
@@ -323,7 +323,7 @@ inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedP
     crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
 ): TypeConvertedProperty<Data, Model> =
     TypeConvertedProperty(table, columnName) {
-        getTypeConverter(it.kotlin)
+        getTypeConverter(it)
     }
 
 @JvmName("nullableDataTypeConvertedProperty")
@@ -333,7 +333,7 @@ inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedP
     crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
 ): TypeConvertedProperty<Data?, Model> =
     TypeConvertedProperty(table, columnName) {
-        getTypeConverter(it.kotlin)
+        getTypeConverter(it)
     }
 
 inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedProperty(
@@ -341,7 +341,7 @@ inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedP
     crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
 ): TypeConvertedProperty<Data?, Model?> =
     TypeConvertedProperty(table, columnName) {
-        getTypeConverter(it.kotlin)
+        getTypeConverter(it)
     }
 
 @JvmName("nullableModelTypeConvertedProperty")
@@ -351,7 +351,7 @@ inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedP
     crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
 ): TypeConvertedProperty<Data, Model?> =
     TypeConvertedProperty(table, columnName) {
-        getTypeConverter(it.kotlin)
+        getTypeConverter(it)
     }
 
 /**

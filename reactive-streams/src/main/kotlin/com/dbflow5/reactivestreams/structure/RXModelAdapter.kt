@@ -6,14 +6,15 @@ import com.dbflow5.database.DatabaseWrapper
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Completable.fromCallable
 import io.reactivex.rxjava3.core.Single
+import kotlin.reflect.KClass
 
 /**
  * Description: Wraps most [ModelAdapter] modification operations into RX-style constructs.
  */
-class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: ModelAdapter<T>)
-    : RXRetrievalAdapter<T>(modelAdapter) {
+class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: ModelAdapter<T>) :
+    RXRetrievalAdapter<T>(modelAdapter) {
 
-    constructor(table: Class<T>) : this(table.modelAdapter)
+    constructor(table: KClass<T>) : this(table.modelAdapter)
 
     fun save(model: T, databaseWrapper: DatabaseWrapper): Single<Result<T>> =
         Single.fromCallable { modelAdapter.save(model, databaseWrapper) }
@@ -27,8 +28,10 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
     fun insert(model: T, databaseWrapper: DatabaseWrapper): Single<Result<T>> =
         Single.fromCallable { modelAdapter.insert(model, databaseWrapper) }
 
-    fun insertAll(models: Collection<T>,
-                  databaseWrapper: DatabaseWrapper): Completable = fromCallable {
+    fun insertAll(
+        models: Collection<T>,
+        databaseWrapper: DatabaseWrapper
+    ): Completable = fromCallable {
         modelAdapter.insertAll(models, databaseWrapper)
         null
     }
@@ -55,9 +58,9 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
 
         @JvmStatic
         fun <T : Any> from(modelAdapter: ModelAdapter<T>): RXModelAdapter<T> =
-                RXModelAdapter(modelAdapter)
+            RXModelAdapter(modelAdapter)
 
         @JvmStatic
-        fun <T : Any> from(table: Class<T>): RXModelAdapter<T> = RXModelAdapter(table)
+        fun <T : Any> from(table: KClass<T>): RXModelAdapter<T> = RXModelAdapter(table)
     }
 }

@@ -2,14 +2,12 @@ package com.dbflow5.migration
 
 import androidx.annotation.CallSuper
 import com.dbflow5.appendQuotedIfNeeded
-import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.select
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.sql.SQLiteType
 import com.dbflow5.stripQuotes
-import java.util.*
 import kotlin.reflect.KClass
 
 /**
@@ -19,10 +17,8 @@ open class AlterTableMigration<T : Any>(
     /**
      * The table to ALTER
      */
-    private val table: Class<T>) : BaseMigration() {
-
-
-    constructor(table: KClass<T>) : this(table.java)
+    private val table: KClass<T>
+) : BaseMigration() {
 
     /**
      * The query to rename the table with
@@ -32,9 +28,9 @@ open class AlterTableMigration<T : Any>(
     /**
      * The columns to ALTER within a table
      */
-    private val internalColumnDefinitions: MutableList<String> by lazy { mutableListOf<String>() }
+    private val internalColumnDefinitions: MutableList<String> by lazy { mutableListOf() }
 
-    private val columnNames: MutableList<String> by lazy { arrayListOf<String>() }
+    private val columnNames: MutableList<String> by lazy { mutableListOf() }
 
     /**
      * The old name of the table before renaming it
@@ -60,7 +56,7 @@ open class AlterTableMigration<T : Any>(
         // We have column definitions to add here
         // ADD COLUMN columnName {type}
         if (internalColumnDefinitions.isNotEmpty()) {
-            (select from table.kotlin limit 0).cursor(database)?.use { cursor ->
+            (select from table limit 0).cursor(database)?.use { cursor ->
                 sql = "$sql$tableName"
                 for (i in internalColumnDefinitions.indices) {
                     val columnDefinition = internalColumnDefinitions[i]
@@ -104,14 +100,15 @@ open class AlterTableMigration<T : Any>(
      * @return This instance
      */
     @JvmOverloads
-    fun addColumn(sqLiteType: SQLiteType, columnName: String, defaultValue: String? = null) = apply {
-        var addStatement = "${columnName.quoteIfNeeded()} ${sqLiteType.name}"
-        if (defaultValue != null) {
-            addStatement += " DEFAULT $defaultValue"
+    fun addColumn(sqLiteType: SQLiteType, columnName: String, defaultValue: String? = null) =
+        apply {
+            var addStatement = "${columnName.quoteIfNeeded()} ${sqLiteType.name}"
+            if (defaultValue != null) {
+                addStatement += " DEFAULT $defaultValue"
+            }
+            internalColumnDefinitions.add(addStatement)
+            columnNames.add(columnName)
         }
-        internalColumnDefinitions.add(addStatement)
-        columnNames.add(columnName)
-    }
 
     /**
      * Add a column to the DB. This does not necessarily need to be reflected in the [T],
@@ -122,10 +119,11 @@ open class AlterTableMigration<T : Any>(
      * @param referenceClause The clause of the references that this foreign key points to.
      * @return This instance
      */
-    fun addForeignKeyColumn(sqLiteType: SQLiteType, columnName: String, referenceClause: String) = apply {
-        internalColumnDefinitions.add("${columnName.quoteIfNeeded()} ${sqLiteType.name} REFERENCES $referenceClause")
-        columnNames.add(columnName)
-    }
+    fun addForeignKeyColumn(sqLiteType: SQLiteType, columnName: String, referenceClause: String) =
+        apply {
+            internalColumnDefinitions.add("${columnName.quoteIfNeeded()} ${sqLiteType.name} REFERENCES $referenceClause")
+            columnNames.add(columnName)
+        }
 
     /**
      * @return The query that renames the table.

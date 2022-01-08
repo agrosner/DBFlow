@@ -31,6 +31,7 @@ import com.dbflow5.transaction.ITransaction
 import com.dbflow5.transaction.Transaction
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.reflect.KClass
 
 /**
  * Description: The main interface that all Database implementations extend from. Use this to
@@ -61,13 +62,13 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
 
-    private val modelAdapterMap = hashMapOf<Class<*>, ModelAdapter<*>>()
+    private val modelAdapterMap = hashMapOf<KClass<*>, ModelAdapter<*>>()
 
-    private val modelTableNames = hashMapOf<String, Class<*>>()
+    private val modelTableNames = hashMapOf<String, KClass<*>>()
 
-    private val modelViewAdapterMap = linkedMapOf<Class<*>, ModelViewAdapter<*>>()
+    private val modelViewAdapterMap = linkedMapOf<KClass<*>, ModelViewAdapter<*>>()
 
-    private val queryModelAdapterMap = linkedMapOf<Class<*>, RetrievalAdapter<*>>()
+    private val queryModelAdapterMap = linkedMapOf<KClass<*>, RetrievalAdapter<*>>()
 
     /**
      * The helper that manages database changes and initialization
@@ -98,10 +99,10 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * @return a list of all model classes in this database.
      */
-    val modelClasses: List<Class<*>>
+    val modelClasses: List<KClass<*>>
         get() = modelAdapterMap.keys.toList()
 
-    val modelViews: List<Class<*>>
+    val modelViews: List<KClass<*>>
         get() = modelViewAdapterMap.keys.toList()
 
     /**
@@ -164,7 +165,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * @return The name of this database as defined in [Database]
      */
     val databaseName: String
-        get() = databaseConfig?.databaseName ?: associatedDatabaseClassFile.simpleName
+        get() = databaseConfig?.databaseName ?: associatedDatabaseClassFile.simpleName!!
 
     /**
      * @return The file name that this database points to
@@ -197,7 +198,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * @return The class that defines the [Database] annotation.
      */
-    abstract val associatedDatabaseClassFile: Class<*>
+    abstract val associatedDatabaseClassFile: KClass<*>
 
     /**
      * @return True if the database is ok. If backups are enabled, we restore from backup and will
@@ -250,7 +251,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     }
 
     protected fun <T : Any> addModelAdapter(modelAdapter: ModelAdapter<T>, holder: MutableHolder) {
-        holder.put(this, modelAdapter.table.kotlin)
+        holder.put(this, modelAdapter.table)
         modelTableNames[modelAdapter.name] = modelAdapter.table
         modelAdapterMap[modelAdapter.table] = modelAdapter
     }
@@ -259,7 +260,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         modelViewAdapter: ModelViewAdapter<T>,
         holder: MutableHolder
     ) {
-        holder.put(this, modelViewAdapter.table.kotlin)
+        holder.put(this, modelViewAdapter.table)
         modelViewAdapterMap[modelViewAdapter.table] = modelViewAdapter
     }
 
@@ -267,7 +268,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         retrievalAdapter: RetrievalAdapter<T>,
         holder: MutableHolder
     ) {
-        holder.put(this, retrievalAdapter.table.kotlin)
+        holder.put(this, retrievalAdapter.table)
         queryModelAdapterMap[retrievalAdapter.table] = retrievalAdapter
     }
 
@@ -292,7 +293,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * @param table The model that exists in this database.
      * @return The ModelAdapter for the table.
      */
-    fun <T : Any> getModelAdapterForTable(table: Class<T>): ModelAdapter<T>? {
+    fun <T : Any> getModelAdapterForTable(table: KClass<T>): ModelAdapter<T>? {
         @Suppress("UNCHECKED_CAST")
         return modelAdapterMap[table] as ModelAdapter<T>?
     }
@@ -302,14 +303,14 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * @return The associated [ModelAdapter] within this database for the specified table name.
      * If the Model is missing the [Table] annotation, this will return null.
      */
-    fun getModelClassForName(tableName: String): Class<*>? = modelTableNames[tableName]
+    fun getModelClassForName(tableName: String): KClass<*>? = modelTableNames[tableName]
 
     /**
      * @param table the VIEW class to retrieve the ModelViewAdapter from.
      * @return the associated [ModelViewAdapter] for the specified table.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getModelViewAdapterForTable(table: Class<T>): ModelViewAdapter<T>? =
+    fun <T : Any> getModelViewAdapterForTable(table: KClass<T>): ModelViewAdapter<T>? =
         modelViewAdapterMap[table] as ModelViewAdapter<T>?
 
     /**
@@ -317,7 +318,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * @return The adapter that corresponds to the specified class.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getQueryModelAdapterForQueryClass(queryModel: Class<T>): RetrievalAdapter<T>? =
+    fun <T : Any> getQueryModelAdapterForQueryClass(queryModel: KClass<T>): RetrievalAdapter<T>? =
         queryModelAdapterMap[queryModel] as RetrievalAdapter<T>?
 
     fun getModelNotifier(): ModelNotifier {

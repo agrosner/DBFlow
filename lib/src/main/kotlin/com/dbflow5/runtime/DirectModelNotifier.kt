@@ -3,6 +3,7 @@ package com.dbflow5.runtime
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.config.DatabaseConfig
 import com.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 
 /**
  * Description: Directly notifies about model changes. Users should use [.get] to use the shared
@@ -14,9 +15,11 @@ class DirectModelNotifier
  */
 private constructor() : ModelNotifier {
 
-    private val modelChangedListenerMap = linkedMapOf<Class<*>, MutableSet<OnModelStateChangedListener<*>>>()
+    private val modelChangedListenerMap =
+        linkedMapOf<KClass<*>, MutableSet<OnModelStateChangedListener<*>>>()
 
-    private val tableChangedListenerMap = linkedMapOf<Class<*>, MutableSet<OnTableChangedListener>>()
+    private val tableChangedListenerMap =
+        linkedMapOf<KClass<*>, MutableSet<OnTableChangedListener>>()
 
     interface OnModelStateChangedListener<in T> {
         fun onModelChanged(model: T, action: ChangeAction)
@@ -32,63 +35,82 @@ private constructor() : ModelNotifier {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> notifyModelChanged(model: T, adapter: ModelAdapter<T>,
-                                              action: ChangeAction) {
+    override fun <T : Any> notifyModelChanged(
+        model: T, adapter: ModelAdapter<T>,
+        action: ChangeAction
+    ) {
         modelChangedListenerMap[adapter.table]
-                ?.forEach { listener ->
-                    (listener as OnModelStateChangedListener<T>).onModelChanged(model, action)
-                }
+            ?.forEach { listener ->
+                (listener as OnModelStateChangedListener<T>).onModelChanged(model, action)
+            }
         tableChangedListenerMap[adapter.table]
-                ?.forEach { listener -> listener.onTableChanged(adapter.table, action) }
+            ?.forEach { listener -> listener.onTableChanged(adapter.table, action) }
     }
 
-    override fun <T : Any> notifyTableChanged(table: Class<T>, action: ChangeAction) {
-        tableChangedListenerMap[table]?.forEach { listener -> listener.onTableChanged(table, action) }
+    override fun <T : Any> notifyTableChanged(table: KClass<T>, action: ChangeAction) {
+        tableChangedListenerMap[table]?.forEach { listener ->
+            listener.onTableChanged(
+                table,
+                action
+            )
+        }
     }
 
     override fun newRegister(): TableNotifierRegister = DirectTableNotifierRegister(this)
 
-    fun <T : Any> registerForModelChanges(table: Class<T>,
-                                          listener: ModelChangedListener<T>) {
+    fun <T : Any> registerForModelChanges(
+        table: KClass<T>,
+        listener: ModelChangedListener<T>
+    ) {
         registerForModelStateChanges(table, listener)
         registerForTableChanges(table, listener)
     }
 
-    fun <T : Any> registerForModelStateChanges(table: Class<T>,
-                                               listener: OnModelStateChangedListener<T>) {
+    fun <T : Any> registerForModelStateChanges(
+        table: KClass<T>,
+        listener: OnModelStateChangedListener<T>
+    ) {
         var listeners = modelChangedListenerMap[table]
         if (listeners == null) {
             listeners = linkedSetOf()
-            modelChangedListenerMap.put(table, listeners)
+            modelChangedListenerMap[table] = listeners
         }
         listeners.add(listener)
     }
 
-    fun <T> registerForTableChanges(table: Class<T>,
-                                    listener: OnTableChangedListener) {
+    fun <T : Any> registerForTableChanges(
+        table: KClass<T>,
+        listener: OnTableChangedListener
+    ) {
         var listeners = tableChangedListenerMap[table]
         if (listeners == null) {
             listeners = linkedSetOf()
-            tableChangedListenerMap.put(table, listeners)
+            tableChangedListenerMap[table] = listeners
         }
         listeners.add(listener)
     }
 
-    fun <T : Any> unregisterForModelChanges(table: Class<T>,
-                                            listener: ModelChangedListener<T>) {
+    fun <T : Any> unregisterForModelChanges(
+        table: KClass<T>,
+        listener: ModelChangedListener<T>
+    ) {
         unregisterForModelStateChanges(table, listener)
         unregisterForTableChanges(table, listener)
     }
 
 
-    fun <T : Any> unregisterForModelStateChanges(table: Class<T>,
-                                                 listener: OnModelStateChangedListener<T>) {
+    fun <T : Any> unregisterForModelStateChanges(
+        table: KClass<T>,
+        listener: OnModelStateChangedListener<T>
+    ) {
         val listeners = modelChangedListenerMap[table]
         listeners?.remove(listener)
     }
 
-    fun <T> unregisterForTableChanges(table: Class<T>,
-                                      listener: OnTableChangedListener) {
+    fun <T : Any> unregisterForTableChanges(
+        table: KClass<T>,
+        listener: OnTableChangedListener
+    ) {
         val listeners = tableChangedListenerMap[table]
         listeners?.remove(listener)
     }
@@ -98,24 +120,24 @@ private constructor() : ModelNotifier {
      */
     fun clearListeners() = tableChangedListenerMap.clear()
 
-    private class DirectTableNotifierRegister(private val directModelNotifier: DirectModelNotifier)
-        : TableNotifierRegister {
-        private val registeredTables = arrayListOf<Class<*>>()
+    private class DirectTableNotifierRegister(private val directModelNotifier: DirectModelNotifier) :
+        TableNotifierRegister {
+        private val registeredTables = arrayListOf<KClass<*>>()
 
         private var modelChangedListener: OnTableChangedListener? = null
 
         private val internalChangeListener = object : OnTableChangedListener {
-            override fun onTableChanged(table: Class<*>?, action: ChangeAction) {
+            override fun onTableChanged(table: KClass<*>?, action: ChangeAction) {
                 modelChangedListener?.onTableChanged(table, action)
             }
         }
 
-        override fun <T> register(tClass: Class<T>) {
+        override fun <T: Any> register(tClass: KClass<T>) {
             registeredTables.add(tClass)
             directModelNotifier.registerForTableChanges(tClass, internalChangeListener)
         }
 
-        override fun <T> unregister(tClass: Class<T>) {
+        override fun <T: Any> unregister(tClass: KClass<T>) {
             registeredTables.remove(tClass)
             directModelNotifier.unregisterForTableChanges(tClass, internalChangeListener)
         }

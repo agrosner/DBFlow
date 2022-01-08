@@ -3,6 +3,7 @@ package com.dbflow5.models
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
+import com.dbflow5.query.queryCustomSingle
 import com.dbflow5.query.select
 import com.dbflow5.structure.exists
 import com.dbflow5.structure.save
@@ -25,13 +26,13 @@ class QueryModelTest : BaseUnitTest() {
             assert(author.exists(db))
             assert(blog.exists(db))
 
-            val result = (select(
+            val result: AuthorNameQuery = (select(
                 Blog_Table.name.withTable().`as`("blogName"),
                 Blog_Table.id.withTable().`as`("authorId"),
                 Blog_Table.id.withTable().`as`("blogId")
             ) from Blog::class innerJoin
                 Author::class on (Blog_Table.author_id.withTable() eq Blog_Table.id.withTable()))
-                .queryCustomSingle(AuthorNameQuery::class.java, db)!!
+                .queryCustomSingle(db)!!
             assertEquals(author.id, result.authorId)
             assertEquals(blog.id, result.blogId)
         }

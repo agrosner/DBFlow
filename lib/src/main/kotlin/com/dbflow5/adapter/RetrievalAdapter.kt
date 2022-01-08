@@ -10,6 +10,7 @@ import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query.select
 import com.dbflow5.query.selectCountOf
+import kotlin.reflect.KClass
 
 /**
  * Description: Provides a base retrieval class for all [Model] backed
@@ -58,7 +59,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     /**
      * @return the model class this adapter corresponds to
      */
-    abstract val table: Class<T>
+    abstract val table: KClass<T>
 
     /**
      * @return A new instance of a [SingleModelLoader]. Subsequent calls do not cache
@@ -81,7 +82,7 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
         nonCacheableSingleModelLoader.load(
             databaseWrapper,
             (select
-                from table.kotlin
+                from table
                 where getPrimaryConditionClause(model)).query
         )
 

@@ -4,15 +4,17 @@ import android.content.ContentValues
 import com.dbflow5.addContentValues
 import com.dbflow5.sql.Query
 import com.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 
 /**
  * Description: Used to specify the SET part of an [com.dbflow5.query.Update] query.
  */
 class Set<T : Any> internal constructor(
-        override val queryBuilderBase: Query, table: Class<T>)
-    : BaseTransformable<T>(table), WhereBase<T> {
+    override val queryBuilderBase: Query, table: KClass<T>
+) : BaseTransformable<T>(table), WhereBase<T> {
 
-    private val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause().setAllCommaSeparated(true)
+    private val operatorGroup: OperatorGroup =
+        OperatorGroup.nonGroupingClause().setAllCommaSeparated(true)
 
     override val query: String
         get() = " ${queryBuilderBase.query}SET ${operatorGroup.query} "
@@ -49,7 +51,8 @@ class Set<T : Any> internal constructor(
             when (queryBuilderBase) {
                 is Update<*> -> queryBuilderBase.cloneSelf()
                 else -> queryBuilderBase
-            }, table)
+            }, table
+        )
         set.operatorGroup.andAll(operatorGroup.conditions)
         return set
     }

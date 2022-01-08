@@ -10,6 +10,7 @@ import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.Property
 import com.dbflow5.sql.Query
 import com.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 
 /**
  * Description: The SQLite INSERT command
@@ -20,8 +21,8 @@ class Insert<TModel : Any>
  *
  * @param table The table to insert into
  */
-internal constructor(table: Class<TModel>, vararg columns: Property<*>)
-    : BaseQueriable<TModel>(table), Query {
+internal constructor(table: KClass<TModel>, vararg columns: Property<*>) :
+    BaseQueriable<TModel>(table), Query {
 
     /**
      * The columns to specify in this query (optional)
@@ -61,8 +62,10 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
                     append(" ${selectFrom.query}")
                 } else {
                     if (valuesList.size < 1) {
-                        throw IllegalStateException("The insert of ${FlowManager.getTableName(table)} " +
-                            "should have at least one value specified for the insert")
+                        throw IllegalStateException(
+                            "The insert of ${FlowManager.getTableName(table)} " +
+                                "should have at least one value specified for the insert"
+                        )
                     } else columns?.takeIf { it.isNotEmpty() }?.let { columns ->
                         valuesList.asSequence()
                             .filter { it.size != columns.size }
@@ -70,7 +73,8 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
                                 throw IllegalStateException(
                                     """The Insert of ${FlowManager.getTableName(table)}
                                             |when specifying columns needs to have the same amount
-                                            |of values and columns. found ${it.size} != ${columns.size}""".trimMargin())
+                                            |of values and columns. found ${it.size} != ${columns.size}""".trimMargin()
+                                )
                             }
                     }
 
@@ -265,14 +269,19 @@ internal constructor(table: Class<TModel>, vararg columns: Property<*>)
     }
 }
 
-infix fun <T : Any> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) = orReplace().columnValues(*into)
+infix fun <T : Any> Insert<T>.orReplace(into: Array<out Pair<IProperty<*>, *>>) =
+    orReplace().columnValues(*into)
 
-infix fun <T : Any> Insert<T>.orRollback(into: Array<out Pair<IProperty<*>, *>>) = orRollback().columnValues(*into)
+infix fun <T : Any> Insert<T>.orRollback(into: Array<out Pair<IProperty<*>, *>>) =
+    orRollback().columnValues(*into)
 
-infix fun <T : Any> Insert<T>.orAbort(into: Array<out Pair<IProperty<*>, *>>) = orAbort().columnValues(*into)
+infix fun <T : Any> Insert<T>.orAbort(into: Array<out Pair<IProperty<*>, *>>) =
+    orAbort().columnValues(*into)
 
-infix fun <T : Any> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) = orFail().columnValues(*into)
+infix fun <T : Any> Insert<T>.orFail(into: Array<out Pair<IProperty<*>, *>>) =
+    orFail().columnValues(*into)
 
-infix fun <T : Any> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) = orIgnore().columnValues(*into)
+infix fun <T : Any> Insert<T>.orIgnore(into: Array<out Pair<IProperty<*>, *>>) =
+    orIgnore().columnValues(*into)
 
 infix fun <T : Any> Insert<T>.select(from: From<*>): Insert<T> = select(from)

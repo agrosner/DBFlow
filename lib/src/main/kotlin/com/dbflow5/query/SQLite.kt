@@ -24,57 +24,37 @@ fun select(vararg properties: IProperty<*>): Select = Select(*properties)
  */
 fun selectCountOf(vararg properties: IProperty<*>): Select = Select(count(*properties))
 
-inline fun <reified T : Any> update() = update(T::class.java)
+inline fun <reified T : Any> update() = update(T::class)
 
 /**
  * @param table    The tablet to update.
  * @return A new UPDATE statement.
  */
-fun <T : Any> update(table: Class<T>): Update<T> = Update(table)
+fun <T : Any> update(table: KClass<T>): Update<T> = Update(table)
 
-/**
- * @param table    The table to update.
- * @return A new UPDATE statement.
- */
-fun <T : Any> update(table: KClass<T>) = update(table.java)
-
-inline fun <reified T: Any> insertInto() = insert<T>(columns = arrayOf())
+inline fun <reified T : Any> insertInto() = insert<T>(columns = arrayOf())
 
 inline fun <reified T : Any> insert(vararg columns: Property<*>) = insert(T::class, *columns)
 
-inline fun <reified T: Any> insert(vararg columnValues: Pair<Property<*>, Any?>) = insert(T::class)
-        .columnValues(*columnValues)
+inline fun <reified T : Any> insert(vararg columnValues: Pair<Property<*>, Any?>) = insert(T::class)
+    .columnValues(*columnValues)
 
-inline fun <reified T: Any> insert(vararg operators: SQLOperator) = insert(T::class)
-        .columnValues(*operators)
-
-/**
- * @param table    The table to insert.
- * @return A new INSERT statement.
- */
-fun <T : Any> insert(table: Class<T>, vararg columns: Property<*>): Insert<T> = Insert(table, *columns)
+inline fun <reified T : Any> insert(vararg operators: SQLOperator) = insert(T::class)
+    .columnValues(*operators)
 
 /**
  * @param table    The table to insert.
  * @return A new INSERT statement.
  */
-fun <T : Any> insert(table: KClass<T>, vararg columns: Property<*>) = insert(table.java, *columns)
+fun <T : Any> insert(table: KClass<T>, vararg columns: Property<*>): Insert<T> =
+    Insert(table, *columns)
 
 /**
  * @return Begins a DELETE statement.
  */
 fun delete(): Delete = Delete()
 
-inline fun <reified T : Any> delete() = delete(T::class.java)
-
-/**
- * Starts a DELETE statement on the specified table.
- *
- * @param table    The table to delete from.
- * @param [T] The class that implements [Model].
- * @return A [From] with specified DELETE on table.
- */
-fun <T : Any> delete(table: Class<T>): From<T> = delete().from(table)
+inline fun <reified T : Any> delete() = delete(T::class)
 
 /**
  * Starts a DELETE statement on the specified table.
@@ -92,17 +72,8 @@ fun <T : Any> delete(table: KClass<T>): From<T> = delete().from(table)
  * @param [T] The class that implements [Model].
  * @return A new INDEX statement.
  */
-fun <T> index(name: String, table: Class<T>): Index<T> = Index(name, table)
+fun <T : Any> index(name: String, table: KClass<T>): Index<T> = Index(name, table)
 
-
-/**
- * Starts an INDEX statement on specified table.
- *
- * @param name     The name of the index.
- * @param [T] The class that implements [Model].
- * @return A new INDEX statement.
- */
-fun <T : Any> index(name: String, table: KClass<T>): Index<T> = Index(name, table.java)
 
 /**
  * Starts a TRIGGER statement.

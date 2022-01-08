@@ -19,6 +19,7 @@ import com.dbflow5.structure.ChangeAction
 import com.dbflow5.structure.Model
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.reflect.KClass
 
 /**
  * Description: Listens for [Model] changes. Register for specific
@@ -36,7 +37,7 @@ open class FlowContentObserver(
 
     private val modelChangeListeners = CopyOnWriteArraySet<OnModelStateChangedListener>()
     private val onTableChangedListeners = CopyOnWriteArraySet<OnTableChangedListener>()
-    private val registeredTables = hashMapOf<String, Class<*>>()
+    private val registeredTables = hashMapOf<String, KClass<*>>()
     private val notificationUris = hashSetOf<Uri>()
     private val tableUris = hashSetOf<Uri>()
 
@@ -64,7 +65,7 @@ open class FlowContentObserver(
          * and [SQLOperator.value] to get each information.
          */
         fun onModelStateChanged(
-            table: Class<*>?,
+            table: KClass<*>?,
             action: ChangeAction,
             primaryKeyValues: Array<SQLOperator>
         )
@@ -175,7 +176,7 @@ open class FlowContentObserver(
      */
     open fun registerForContentChanges(
         context: Context,
-        table: Class<*>
+        table: KClass<*>
     ) {
         registerForContentChanges(context.contentResolver, table)
     }
@@ -185,7 +186,7 @@ open class FlowContentObserver(
      */
     fun registerForContentChanges(
         contentResolver: ContentResolver,
-        table: Class<*>
+        table: KClass<*>
     ) {
         contentResolver.registerContentObserver(
             getNotificationUri(contentAuthority, table, null), true, this

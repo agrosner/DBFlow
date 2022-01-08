@@ -5,13 +5,14 @@ import com.dbflow5.config.FlowManager
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.PropertyFactory
 import com.dbflow5.sql.Query
+import kotlin.reflect.KClass
 
 /**
  * Description: Specifies a SQLite JOIN statement
  */
 class Join<TModel : Any, TFromModel : Any> : Query {
 
-    val table: Class<TModel>
+    val table: KClass<TModel>
 
     /**
      * The type of JOIN to use
@@ -46,19 +47,19 @@ class Join<TModel : Any, TFromModel : Any> : Query {
             queryBuilder.append(type.name.replace("_", " ")).append(" ")
 
             queryBuilder.append("JOIN")
-                    .append(" ")
-                    .append(alias.fullQuery)
-                    .append(" ")
+                .append(" ")
+                .append(alias.fullQuery)
+                .append(" ")
             if (JoinType.NATURAL != type) {
                 onGroup?.let { onGroup ->
                     queryBuilder.append("ON")
-                            .append(" ")
-                            .append(onGroup.query)
-                            .append(" ")
+                        .append(" ")
+                        .append(onGroup.query)
+                        .append(" ")
                 } ?: if (!using.isEmpty()) {
                     queryBuilder.append("USING (")
-                            .appendList(using)
-                            .append(") ")
+                        .appendList(using)
+                        .append(") ")
                 }
             }
             return queryBuilder.toString()
@@ -103,15 +104,17 @@ class Join<TModel : Any, TFromModel : Any> : Query {
         NATURAL
     }
 
-    constructor(from: From<TFromModel>, table: Class<TModel>, joinType: JoinType) {
+    constructor(from: From<TFromModel>, table: KClass<TModel>, joinType: JoinType) {
         this.from = from
         this.table = table
         type = joinType
         alias = NameAlias.Builder(FlowManager.getTableName(table)).build()
     }
 
-    constructor(from: From<TFromModel>, joinType: JoinType,
-                modelQueriable: ModelQueriable<TModel>) {
+    constructor(
+        from: From<TFromModel>, joinType: JoinType,
+        modelQueriable: ModelQueriable<TModel>
+    ) {
         table = modelQueriable.table
         this.from = from
         type = joinType
@@ -126,9 +129,9 @@ class Join<TModel : Any, TFromModel : Any> : Query {
      */
     fun `as`(alias: String) = apply {
         this.alias = this.alias
-                .newBuilder()
-                .`as`(alias)
-                .build()
+            .newBuilder()
+            .`as`(alias)
+            .build()
     }
 
     /**
@@ -186,8 +189,10 @@ class Join<TModel : Any, TFromModel : Any> : Query {
 
     private fun checkNatural() {
         if (JoinType.NATURAL == type) {
-            throw IllegalArgumentException("Cannot specify a clause for this join if its NATURAL."
-                    + " Specifying a clause would have no effect. Call end() to continue the query.")
+            throw IllegalArgumentException(
+                "Cannot specify a clause for this join if its NATURAL."
+                    + " Specifying a clause would have no effect. Call end() to continue the query."
+            )
         }
     }
 }

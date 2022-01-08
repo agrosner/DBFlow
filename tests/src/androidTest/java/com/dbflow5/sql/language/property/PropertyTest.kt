@@ -12,7 +12,7 @@ class PropertyTest : BaseUnitTest() {
 
     @Test
     fun testOperators() {
-        val prop = Property<String>(SimpleModel::class.java, "Prop")
+        val prop = Property<String>(SimpleModel::class, "Prop")
         "`Prop`='5'".assertEquals(prop `is` "5")
         "`Prop`='5'".assertEquals(prop eq "5")
         "`Prop`!='5'".assertEquals(prop notEq "5")
@@ -33,10 +33,10 @@ class PropertyTest : BaseUnitTest() {
 
     @Test
     fun testAlias() {
-        val prop = Property<String>(SimpleModel::class.java, "Prop", "Alias")
+        val prop = Property<String>(SimpleModel::class, "Prop", "Alias")
         assertEquals("`Prop` AS `Alias`", prop.toString().trim())
 
-        val prop2 = Property<String>(SimpleModel::class.java,
+        val prop2 = Property<String>(SimpleModel::class,
                 NameAlias.builder("Prop")
                         .shouldAddIdentifierToName(false)
                         .`as`("Alias")

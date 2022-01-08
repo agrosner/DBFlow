@@ -29,7 +29,7 @@ class OneToMany<T : Any>(private val query: () -> ModelQueriable<T>) :
 
     override fun getValue(thisRef: Any, property: KProperty<*>): List<T>? {
         if (list?.isEmpty() != false) {
-            list = query().queryList(FlowManager.getDatabaseForTable(thisRef::class.java))
+            list = query().queryList(FlowManager.getDatabaseForTable(thisRef::class))
         }
         return list
     }

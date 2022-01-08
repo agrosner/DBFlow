@@ -57,11 +57,11 @@ class ClassWriter(
     override fun create(model: ClassModel): FileSpec {
         val tableParam = ParameterPropertySpec(
             name = "table",
-            type = Class::class.asClassName()
+            type = KClass::class.asClassName()
                 .parameterizedBy(model.classType),
         ) {
             addModifiers(KModifier.OVERRIDE)
-            defaultValue("%T::class.java", model.classType)
+            defaultValue("%T::class", model.classType)
         }
         val tableNameParam = ParameterPropertySpec(
             name = "name",

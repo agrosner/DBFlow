@@ -12,6 +12,7 @@ import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
+import kotlin.reflect.KClass
 
 /**
  * Description:
@@ -21,11 +22,11 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
     override fun create(model: DatabaseModel): FileSpec {
         val associatedClassName = ParameterPropertySpec(
             name = "associatedDatabaseClassFile",
-            type = Class::class.asClassName()
+            type = KClass::class.asClassName()
                 .parameterizedBy(model.classType),
         ) {
             addModifiers(KModifier.OVERRIDE)
-            defaultValue("%T::class.java", model.classType)
+            defaultValue("%T::class", model.classType)
         }
         val version = ParameterPropertySpec(
             name = "databaseVersion",

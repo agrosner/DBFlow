@@ -226,7 +226,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
         messager.printMessage(Diagnostic.Kind.WARNING, error ?: "")
     }
 
-    fun logWarning(callingClass: Class<*>, error: String) {
+    fun logWarning(callingClass: KClass<*>, error: String) {
         logWarning("$callingClass : $error")
     }
 

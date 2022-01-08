@@ -4,14 +4,21 @@ import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
+import kotlin.reflect.KClass
 
 /**
  * Description: Represents how models load from DB. It will query a [DatabaseWrapper]
  * and query for a [FlowCursor]. Then the cursor is used to convert itself into an object.
  */
-abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Class<TModel>) {
+abstract class ModelLoader<TModel : Any, out TReturn : Any>(
+    private val modelClass: KClass<TModel>
+) {
 
-    protected val instanceAdapter: RetrievalAdapter<TModel> by lazy { FlowManager.getRetrievalAdapter(modelClass) }
+    protected val instanceAdapter: RetrievalAdapter<TModel> by lazy {
+        FlowManager.getRetrievalAdapter(
+            modelClass
+        )
+    }
 
     /**
      * Loads the data from a query and returns it as a [TReturn].
@@ -21,7 +28,7 @@ abstract class ModelLoader<TModel : Any, out TReturn : Any>(val modelClass: Clas
      * @return The data loaded from the database.
      */
     open fun load(databaseWrapper: DatabaseWrapper, query: String): TReturn? =
-            load(databaseWrapper.rawQuery(query, null), databaseWrapper)
+        load(databaseWrapper.rawQuery(query, null), databaseWrapper)
 
     open fun load(cursor: FlowCursor?, databaseWrapper: DatabaseWrapper): TReturn? {
         var data: TReturn? = null

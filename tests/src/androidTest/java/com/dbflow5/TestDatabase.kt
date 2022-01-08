@@ -18,7 +18,7 @@ import com.dbflow5.models.SimpleModel
 abstract class TestDatabase : DBFlowDatabase() {
 
     @Migration(version = 1, database = TestDatabase::class, priority = 5)
-    class TestMigration : UpdateTableMigration<SimpleModel>(SimpleModel::class.java) {
+    class TestMigration : UpdateTableMigration<SimpleModel>(SimpleModel::class) {
         override fun onPreMigrate() {
             super.onPreMigrate()
             set(SimpleModel_Table.name.eq("Test")).where(SimpleModel_Table.name.eq("Test1"))
@@ -40,6 +40,8 @@ abstract class TestForeignKeyDatabase : DBFlowDatabase() {
     data class SimpleModel(@PrimaryKey var name: String = "")
 
     @Table(database = TestForeignKeyDatabase::class)
-    data class SimpleForeignModel(@PrimaryKey var id: Int = 0,
-                                  @ForeignKey var model: SimpleModel? = null)
+    data class SimpleForeignModel(
+        @PrimaryKey var id: Int = 0,
+        @ForeignKey var model: SimpleModel? = null
+    )
 }

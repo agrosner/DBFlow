@@ -18,13 +18,12 @@ open class UpdateTableMigration<T : Any>
  *
  * @param table The table to update
  */
-(
+    (
     /**
      * The table to update
      */
-    private val table: Class<T>) : BaseMigration() {
-
-    constructor(table: KClass<T>) : this(table.java)
+    private val table: KClass<T>
+) : BaseMigration() {
 
     /**
      * Builds the conditions for the WHERE part of our query

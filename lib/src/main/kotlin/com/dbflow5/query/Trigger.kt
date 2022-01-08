@@ -17,13 +17,14 @@ class Trigger
  * @param name What we should call this trigger
  */
 private constructor(
-        /**
-         * The name in the DB
-         */
-        /**
-         * @return The name of this TRIGGER
-         */
-        val name: String) : Query {
+    /**
+     * The name in the DB
+     */
+    /**
+     * @return The name of this TRIGGER
+     */
+    val name: String
+) : Query {
 
     /**
      * If it's [.BEFORE], [.AFTER], or [.INSTEAD_OF]
@@ -39,8 +40,8 @@ private constructor(
                 queryBuilder.append("TEMP ")
             }
             queryBuilder.append("TRIGGER IF NOT EXISTS ")
-                    .appendQuotedIfNeeded(name).append(" ")
-                    .appendOptional("$beforeOrAfter ")
+                .appendQuotedIfNeeded(name).append(" ")
+                .appendOptional("$beforeOrAfter ")
 
             return queryBuilder.toString()
         }
@@ -78,16 +79,16 @@ private constructor(
      *
      * @param onTable The table ON
      */
-    infix fun <TModel> deleteOn(onTable: Class<TModel>): TriggerMethod<TModel> =
-            TriggerMethod(this, TriggerMethod.DELETE, onTable)
+    infix fun <TModel : Any> deleteOn(onTable: KClass<TModel>): TriggerMethod<TModel> =
+        TriggerMethod(this, TriggerMethod.DELETE, onTable)
 
     /**
      * Starts a INSERT ON command
      *
      * @param onTable The table ON
      */
-    infix fun <TModel> insertOn(onTable: Class<TModel>): TriggerMethod<TModel> =
-            TriggerMethod(this, TriggerMethod.INSERT, onTable)
+    infix fun <TModel : Any> insertOn(onTable: KClass<TModel>): TriggerMethod<TModel> =
+        TriggerMethod(this, TriggerMethod.INSERT, onTable)
 
     /**
      * Starts an UPDATE ON command
@@ -96,8 +97,11 @@ private constructor(
      * @param properties if empty, will not execute an OF command. If you specify columns,
      * the UPDATE OF column1, column2,... will be used.
      */
-    fun <TModel> updateOn(onTable: Class<TModel>, vararg properties: IProperty<*>): TriggerMethod<TModel> =
-            TriggerMethod(this, TriggerMethod.UPDATE, onTable, *properties)
+    fun <TModel : Any> updateOn(
+        onTable: KClass<TModel>,
+        vararg properties: IProperty<*>
+    ): TriggerMethod<TModel> =
+        TriggerMethod(this, TriggerMethod.UPDATE, onTable, *properties)
 
     companion object {
 
@@ -128,8 +132,4 @@ private constructor(
     }
 }
 
-infix fun <T : Any> Trigger.deleteOn(kClass: KClass<T>) = deleteOn(kClass.java)
-
-infix fun <T : Any> Trigger.insertOn(kClass: KClass<T>) = insertOn(kClass.java)
-
-infix fun <T : Any> Trigger.updateOn(kClass: KClass<T>) = updateOn(kClass.java)
+infix fun <T : Any> Trigger.updateOn(kClass: KClass<T>) = updateOn(kClass)

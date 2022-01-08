@@ -11,25 +11,28 @@ import com.dbflow5.query.Transformable
 import com.dbflow5.query.WhereBase
 import com.dbflow5.query.extractFrom
 import com.dbflow5.query.selectCountOf
+import kotlin.reflect.KClass
 
 /**
  * Bridges the [ModelQueriable] into a [PositionalDataSource] that loads a [ModelQueriable].
  */
 class QueryDataSource<T : Any, TQuery>
-internal constructor(private val transformable: TQuery,
-                     private val database: DBFlowDatabase)
-    : PositionalDataSource<T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
+internal constructor(
+    private val transformable: TQuery,
+    private val database: DBFlowDatabase
+) : PositionalDataSource<T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
 
-    private val associatedTables: Set<Class<*>> = transformable.extractFrom()?.associatedTables
+    private val associatedTables: Set<KClass<*>> = transformable.extractFrom()?.associatedTables
         ?: setOf(transformable.table)
 
-    private val onTableChangedObserver = object : OnTableChangedObserver(associatedTables.toList()) {
-        override fun onChanged(tables: Set<Class<*>>) {
-            if (tables.isNotEmpty()) {
-                invalidate()
+    private val onTableChangedObserver =
+        object : OnTableChangedObserver(associatedTables.toList()) {
+            override fun onChanged(tables: Set<KClass<*>>) {
+                if (tables.isNotEmpty()) {
+                    invalidate()
+                }
             }
         }
-    }
 
     init {
         if (transformable is WhereBase<*> && transformable.queryBuilderBase !is Select) {
@@ -61,7 +64,8 @@ internal constructor(private val transformable: TQuery,
                     else -> params.requestedLoadSize
                 }
                 database.beginTransactionAsync { db ->
-                    transformable.constrain(params.requestedStartPosition.toLong(), max.toLong()).queryList(db)
+                    transformable.constrain(params.requestedStartPosition.toLong(), max.toLong())
+                        .queryList(db)
                 }.execute { _, list ->
                     callback.onResult(list, params.requestedStartPosition, count.toInt())
                 }
@@ -69,9 +73,10 @@ internal constructor(private val transformable: TQuery,
     }
 
     class Factory<T : Any, TQuery>
-    internal constructor(private val transformable: TQuery,
-                         private val database: DBFlowDatabase)
-        : DataSource.Factory<Int, T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
+    internal constructor(
+        private val transformable: TQuery,
+        private val database: DBFlowDatabase
+    ) : DataSource.Factory<Int, T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
         override fun create(): DataSource<Int, T> = QueryDataSource(transformable, database)
     }
 

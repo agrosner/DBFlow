@@ -8,27 +8,30 @@ import com.dbflow5.database.SQLiteException
 import com.dbflow5.dropIndex
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.sql.Query
+import kotlin.reflect.KClass
 
 /**
  * Description: an INDEX class that enables you to index a specific column from a table. This enables
  * faster retrieval on tables, while increasing the database file size. So enable/disable these as necessary.
  */
-class Index<TModel>
+class Index<TModel : Any>
 /**
  * Creates a new index with the specified name
  *
  * @param indexName The name of this index.
  */
-(
+    (
     /**
      * @return The name of this index.
      */
-    val indexName: String,
+    private val indexName: String,
     /**
      * @return The table this INDEX belongs to.
      */
-    val table: Class<TModel>) : Query {
+    private val table: KClass<TModel>
+) : Query {
     private val columns: MutableList<NameAlias> = arrayListOf()
+
     /**
      * @return true if the index is unique
      */
@@ -115,11 +118,13 @@ class Index<TModel>
 }
 
 
-inline fun <reified T : Any> indexOn(indexName: String,
-                                     vararg property: IProperty<*>)
-    = index(indexName, T::class).on(*property)
+inline fun <reified T : Any> indexOn(
+    indexName: String,
+    vararg property: IProperty<*>
+) = index(indexName, T::class).on(*property)
 
-inline fun <reified T : Any> indexOn(indexName: String, firstNameAlias: NameAlias,
-                                     vararg arrayOfNameAlias: NameAlias)
-    = index(indexName, T::class).on(firstNameAlias, *arrayOfNameAlias)
+inline fun <reified T : Any> indexOn(
+    indexName: String, firstNameAlias: NameAlias,
+    vararg arrayOfNameAlias: NameAlias
+) = index(indexName, T::class).on(firstNameAlias, *arrayOfNameAlias)
 

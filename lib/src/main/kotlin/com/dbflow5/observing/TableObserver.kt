@@ -11,19 +11,23 @@ import com.dbflow5.query.TriggerMethod
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.stripQuotes
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.reflect.KClass
 
 /**
  * Description: Tracks table changes in the DB via Triggers. This more efficient than utilizing
  * in the app space.
  */
-class TableObserver internal constructor(private val db: DBFlowDatabase,
-                                         private val tables: List<Class<*>>) {
+class TableObserver internal constructor(
+    private val db: DBFlowDatabase,
+    private val tables: List<KClass<*>>
+) {
 
-    private val tableReferenceMap = hashMapOf<Class<*>, Int>()
-    private val tableIndexToNameMap = hashMapOf<Int, Class<*>>()
+    private val tableReferenceMap = hashMapOf<KClass<*>, Int>()
+    private val tableIndexToNameMap = hashMapOf<Int, KClass<*>>()
 
     private val observingTableTracker = ObservingTableTracker(tableCount = tables.size)
-    private val observerToObserverWithIdsMap = mutableMapOf<OnTableChangedObserver, OnTableChangedObserverWithIds>()
+    private val observerToObserverWithIdsMap =
+        mutableMapOf<OnTableChangedObserver, OnTableChangedObserverWithIds>()
 
     private val tableStatus = BooleanArray(tables.size)
 
@@ -136,7 +140,10 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
                             @Suppress("UNUSED_VARIABLE")
                             val exhaustive = when (operation) {
                                 ObservingTableTracker.Operation.Add -> observeTable(db, index)
-                                ObservingTableTracker.Operation.Remove -> stopObservingTable(db, index)
+                                ObservingTableTracker.Operation.Remove -> stopObservingTable(
+                                    db,
+                                    index
+                                )
                                 ObservingTableTracker.Operation.None -> {
                                     // don't do anything
                                 }
@@ -173,7 +180,10 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
                 db.openHelper.database
             }
             if (!initialized) {
-                FlowLog.log(FlowLog.Level.E, "Database is not initialized even though open. Is this an error?")
+                FlowLog.log(
+                    FlowLog.Level.E,
+                    "Database is not initialized even though open. Is this an error?"
+                )
                 return
             }
 
@@ -190,7 +200,11 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
         } catch (e: Exception) {
             when (e) {
                 is IllegalStateException, is SQLiteException -> {
-                    FlowLog.log(FlowLog.Level.E, "Cannot check for table updates. is the db closed?", e)
+                    FlowLog.log(
+                        FlowLog.Level.E,
+                        "Cannot check for table updates. is the db closed?",
+                        e
+                    )
                 }
                 else -> throw e
             }
@@ -231,11 +245,15 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
 
         TriggerMethod.METHODS.forEach { method ->
             // utilize raw query, since we're using dynamic tables not supported by query language.
-            db.execSQL("CREATE TEMP TRIGGER IF NOT EXISTS ${getTriggerName(tableName, method)} " +
-                "AFTER $method ON ${FlowManager.getTableName(tableName).quoteIfNeeded()} BEGIN UPDATE $TABLE_OBSERVER_NAME " +
-                "SET $INVALIDATED_COLUMN_NAME = 1 " +
-                "WHERE $TABLE_ID_COLUMN_NAME = $tableId " +
-                "AND $INVALIDATED_COLUMN_NAME = 0; END")
+            db.execSQL(
+                "CREATE TEMP TRIGGER IF NOT EXISTS ${getTriggerName(tableName, method)} " +
+                    "AFTER $method ON ${
+                        FlowManager.getTableName(tableName).quoteIfNeeded()
+                    } BEGIN UPDATE $TABLE_OBSERVER_NAME " +
+                    "SET $INVALIDATED_COLUMN_NAME = 1 " +
+                    "WHERE $TABLE_ID_COLUMN_NAME = $tableId " +
+                    "AND $INVALIDATED_COLUMN_NAME = 0; END"
+            )
         }
     }
 
@@ -246,7 +264,7 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
         }
     }
 
-    private fun getTriggerName(table: Class<*>, method: String) =
+    private fun getTriggerName(table: KClass<*>, method: String) =
         "`${TRIGGER_PREFIX}_${FlowManager.getTableName(table).stripQuotes()}_$method`"
 
     companion object {
@@ -255,6 +273,7 @@ class TableObserver internal constructor(private val db: DBFlowDatabase,
         private const val TRIGGER_PREFIX = "dbflow_table_trigger"
         private const val INVALIDATED_COLUMN_NAME = "invalidated"
         private const val TABLE_ID_COLUMN_NAME = "table_id"
-        private const val SELECT_UPDATED_TABLES_SQL = "SELECT * FROM $TABLE_OBSERVER_NAME WHERE $INVALIDATED_COLUMN_NAME = 1;"
+        private const val SELECT_UPDATED_TABLES_SQL =
+            "SELECT * FROM $TABLE_OBSERVER_NAME WHERE $INVALIDATED_COLUMN_NAME = 1;"
     }
 }

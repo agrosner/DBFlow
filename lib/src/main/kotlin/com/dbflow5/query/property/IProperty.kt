@@ -6,6 +6,7 @@ import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OrderBy
 import com.dbflow5.sql.Query
 import com.dbflow5.structure.Model
+import kotlin.reflect.KClass
 
 /**
  * Description: Defines the base interface all property classes implement.
@@ -20,7 +21,7 @@ interface IProperty<P : IProperty<P>> : Query {
     /**
      * @return the table this property belongs to.
      */
-    val table: Class<*>?
+    val table: KClass<*>?
 
     /**
      * @param aliasName The name of the alias.
