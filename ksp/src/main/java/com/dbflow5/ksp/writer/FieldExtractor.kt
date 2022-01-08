@@ -100,6 +100,11 @@ sealed interface FieldExtractor {
 
             field.notNullProperties?.let { props ->
                 retString += " NOT NULL ON CONFLICT ${props.conflictAction}"
+            } ?: run {
+                // not null, fail on conflict.
+                if (!field.classType.isNullable) {
+                    retString += " NOT NULL ON CONFLICT ${ConflictAction.FAIL}"
+                }
             }
 
             return retString

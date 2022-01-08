@@ -36,7 +36,6 @@ import java.util.regex.Pattern
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
-import kotlin.jvm.internal.Reflection
 
 open class ColumnDefinition @JvmOverloads
 constructor(
@@ -73,8 +72,8 @@ constructor(
     var notNull = false
     var isNotNullType = false
     var isNullableType = true
-    var onNullConflict: ConflictAction? = null
-    var onUniqueConflict: ConflictAction? = null
+    var onNullConflict: ConflictAction = ConflictAction.FAIL
+    var onUniqueConflict: ConflictAction = ConflictAction.FAIL
     var unique = false
 
     var uniqueGroups: MutableList<Int> = arrayListOf()
@@ -474,7 +473,7 @@ constructor(
                 codeBlockBuilder.add(" UNIQUE ON CONFLICT \$L", onUniqueConflict)
             }
 
-            if (notNull) {
+            if (notNull || isNotNullType) {
                 codeBlockBuilder.add(" NOT NULL ON CONFLICT \$L", onNullConflict)
             }
 

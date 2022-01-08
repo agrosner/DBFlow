@@ -68,7 +68,8 @@ class TriggerTest : BaseUnitTest() {
                     TwoColumnModel_Table.name to NameAlias.ofTable(
                         "new",
                         "name"
-                    )
+                    ),
+                    TwoColumnModel_Table.id to 1,
                 )
             trigger.enable(db)
             SimpleModel("Test").insert(db)
