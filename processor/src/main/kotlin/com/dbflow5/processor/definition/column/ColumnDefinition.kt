@@ -285,9 +285,9 @@ constructor(
             if (isNonPrimitiveTypeConverter) {
                 val codeBlock = CodeBlock.builder()
                 codeBlock.add(
-                    "new \$T(\$T.getOrCreateKotlinClass(\$T.class), \$S, true,",
+                    "new \$T(\$T.getKotlinClass(\$T.class), \$S, true,",
                     propParam,
-                    ClassName.get(Reflection::class.java),
+                    ClassNames.JVM_CLASS_MAPPING,
                     tableClass, columnName
                 )
                 codeBlock.add(
@@ -307,9 +307,9 @@ constructor(
                 fieldBuilder.initializer(codeBlock.build())
             } else {
                 fieldBuilder.initializer(
-                    "new \$T(\$T.getOrCreateKotlinClass(\$T.class), \$S)",
+                    "new \$T(\$T.getKotlinClass(\$T.class), \$S)",
                     propParam,
-                    ClassName.get(Reflection::class.java),
+                    ClassNames.JVM_CLASS_MAPPING,
                     tableClass,
                     columnName
                 )

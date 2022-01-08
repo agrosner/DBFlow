@@ -17,7 +17,6 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.TypeName
-import kotlin.jvm.internal.Reflection
 
 data class Combiner(
     val fieldLevelAccessor: ColumnAccessor,
@@ -138,11 +137,11 @@ class ExistenceAccessCombiner(
                 }
 
                 add(
-                    "\$T.selectCountOf()\n.from(\$T.getOrCreateKotlinClass(\$T.class))\n" +
+                    "\$T.selectCountOf()\n.from(\$T.getKotlinClass(\$T.class))\n" +
                         ".where(getPrimaryConditionClause(\$L))\n" +
                         ".hasData(wrapper)",
                     ClassNames.SQLITE,
-                    ClassName.get(Reflection::class.java),
+                    ClassNames.JVM_CLASS_MAPPING,
                     tableClassName, modelBlock
                 )
             }
@@ -413,10 +412,10 @@ class SaveModelAccessCombiner(combiner: Combiner) : ColumnAccessCombiner(combine
             val access = getFieldAccessBlock(this@addCode, modelBlock)
             `if`("$access != null") {
                 statement(
-                    "\$T.getModelAdapter(\$T.getOrCreateKotlinClass(\$T.class))" +
-                        ".save($access, ${ModelUtils.wrapper})",
+                    "\$T.getModelAdapter(\$T.getKotlinClass(\$T.class))" +
+                        ".jvmSave($access, ${ModelUtils.wrapper})",
                     ClassNames.FLOW_MANAGER,
-                    ClassName.get(Reflection::class.java),
+                    ClassNames.JVM_CLASS_MAPPING,
                     fieldTypeName
                 )
             }.end()
@@ -436,10 +435,10 @@ class DeleteModelAccessCombiner(
             val access = getFieldAccessBlock(this@addCode, modelBlock)
             `if`("$access != null") {
                 statement(
-                    "\$T.getModelAdapter(\$T.getOrCreateKotlinClass(\$T.class))" +
+                    "\$T.getModelAdapter(\$T.getKotlinClass(\$T.class))" +
                         ".delete($access, ${ModelUtils.wrapper})",
                     ClassNames.FLOW_MANAGER,
-                    ClassName.get(Reflection::class.java),
+                    ClassNames.JVM_CLASS_MAPPING,
                     fieldTypeName
                 )
             }.end()

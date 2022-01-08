@@ -42,16 +42,16 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
 
             processorManager.getTypeConverters().forEach { tc ->
                 statement(
-                    "putTypeConverter(\$T.getOrCreateKotlinClass(\$T.class), new \$T())",
-                    ClassName.get(Reflection::class.java),
+                    "putTypeConverter(\$T.getKotlinClass(\$T.class), new \$T())",
+                    ClassNames.JVM_CLASS_MAPPING,
                     tc.modelTypeName?.rawTypeName(),
                     tc.className
                 )
 
                 tc.allowedSubTypes.forEach { subType ->
                     statement(
-                        "putTypeConverter(\$T.getOrCreateKotlinClass(\$T.class), new \$T())",
-                        ClassName.get(Reflection::class.java),
+                        "putTypeConverter(\$T.getKotlinClass(\$T.class), new \$T())",
+                        ClassNames.JVM_CLASS_MAPPING,
                         subType.rawTypeName(),
                         tc.className
                     )

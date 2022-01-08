@@ -194,10 +194,10 @@ class OneToManyDefinition(
                 // need to load adapter for non-model classes
                 if (!extendsModel || efficientCodeMethods) {
                     statement(
-                        "\$T adapter = \$T.getModelAdapter(\$T.getOrCreateKotlinClass(\$T.class))",
+                        "\$T adapter = \$T.getModelAdapter(\$T.getKotlinClass(\$T.class))",
                         ParameterizedTypeName.get(ClassNames.MODEL_ADAPTER, referencedTableType),
                         ClassNames.FLOW_MANAGER,
-                        ClassName.get(Reflection::class.java),
+                        ClassNames.JVM_CLASS_MAPPING,
                         referencedTableType
                     )
                 }

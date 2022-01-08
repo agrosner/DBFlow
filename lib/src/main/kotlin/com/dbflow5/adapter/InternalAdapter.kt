@@ -22,6 +22,11 @@ interface InternalAdapter<TModel> {
      */
     fun save(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
 
+    fun jvmSave(model: TModel, databaseWrapper: DatabaseWrapper): TModel? {
+        val result = save(model, databaseWrapper)
+        return result.getOrNull()
+    }
+
     /**
      * Saves a [Collection] of models to the DB.
      *

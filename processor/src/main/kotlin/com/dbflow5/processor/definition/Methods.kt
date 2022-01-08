@@ -347,9 +347,9 @@ class CustomTypeConverterPropertyMethod(private val entityDefinition: EntityDefi
             firstDef?.typeConverterElementNames?.forEach { elementName ->
                 code.statement(
                     "global_typeConverter${it.simpleName()} " +
-                        "= (\$T) holder.getTypeConverterForClass(\$T.getOrCreateKotlinClass(\$T.class))",
+                        "= (\$T) holder.getTypeConverterForClass(\$T.getKotlinClass(\$T.class))",
                     it,
-                    ClassName.get(Reflection::class.java),
+                    ClassNames.JVM_CLASS_MAPPING,
                     elementName
                 )
             }

@@ -72,4 +72,6 @@ object ClassNames {
     val GENERATED: ClassName = ClassName.get("javax.annotation", "Generated")
 
     val STRING_UTILS: ClassName = ClassName.get(BASE_PACKAGE, "StringUtils")
+
+    val JVM_CLASS_MAPPING = ClassName.get("kotlin.jvm", "JvmClassMappingKt")
 }

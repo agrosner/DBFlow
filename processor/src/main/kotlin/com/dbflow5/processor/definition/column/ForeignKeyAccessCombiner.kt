@@ -1,5 +1,6 @@
 package com.dbflow5.processor.definition.column
 
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.SQLiteHelper
 import com.dbflow5.processor.utils.statement
 import com.squareup.javapoet.ClassName
@@ -80,9 +81,9 @@ class ForeignKeyLoadFromCursorCombiner(
 
         if (!isStubbed) {
             setterBlock.add(
-                "\$T.select().from(\$T.getOrCreateKotlinClass(\$T.class)).where()",
-                com.dbflow5.processor.ClassNames.SQLITE,
-                ClassName.get(Reflection::class.java),
+                "\$T.select().from(\$T.getKotlinClass(\$T.class)).where()",
+                ClassNames.SQLITE,
+                ClassNames.JVM_CLASS_MAPPING,
                 referencedTypeName
             )
         } else {

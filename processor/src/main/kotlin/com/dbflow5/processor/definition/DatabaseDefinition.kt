@@ -141,8 +141,8 @@ class DatabaseDefinition(database: Database,
             `override fun`(ParameterizedTypeName.get(ClassName.get(KClass::class.java), WildcardTypeName.subtypeOf(Any::class.java)),
                 "getAssociatedDatabaseClassFile") {
                 modifiers(public, final)
-                `return`("\$T.getOrCreateKotlinClass(\$T.class)",
-                    ClassName.get(Reflection::class.java),
+                `return`("\$T.getKotlinClass(\$T.class)",
+                    ClassNames.JVM_CLASS_MAPPING,
                     elementTypeName)
             }
             `override fun`(TypeName.BOOLEAN, "isForeignKeysSupported") {

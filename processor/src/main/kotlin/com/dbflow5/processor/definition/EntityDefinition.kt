@@ -160,8 +160,8 @@ abstract class EntityDefinition(typeElement: TypeElement, processorManager: Proc
             ) {
                 modifiers(public, final)
                 `return`(
-                    "\$T.getOrCreateKotlinClass(\$T.class)",
-                    ClassName.get(Reflection::class.java),
+                    "\$T.getKotlinClass(\$T.class)",
+                    ClassNames.JVM_CLASS_MAPPING,
                     modelClassName
                 )
             }

@@ -1,6 +1,7 @@
 package com.dbflow5.processor.definition
 
 import com.dbflow5.annotation.IndexGroup
+import com.dbflow5.processor.ClassNames
 import com.dbflow5.processor.definition.column.ColumnDefinition
 import com.grosner.kpoet.S
 import com.grosner.kpoet.`=`
@@ -27,7 +28,7 @@ class IndexGroupsDefinition(private val tableDefinition: TableDefinition, indexG
     val fieldSpec
         get() = field(
             ParameterizedTypeName.get(
-                com.dbflow5.processor.ClassNames.INDEX_PROPERTY,
+                ClassNames.INDEX_PROPERTY,
                 tableDefinition.elementClassName
             ),
             "index_$indexName"
@@ -35,9 +36,9 @@ class IndexGroupsDefinition(private val tableDefinition: TableDefinition, indexG
             addModifiers(public, static, final)
             `=` {
                 add(
-                    "new \$T<>(${indexName.S}, $isUnique, \$T.getOrCreateKotlinClass(\$T.class)",
-                    com.dbflow5.processor.ClassNames.INDEX_PROPERTY,
-                    ClassName.get(Reflection::class.java),
+                    "new \$T<>(${indexName.S}, $isUnique, \$T.getKotlinClass(\$T.class)",
+                    ClassNames.INDEX_PROPERTY,
+                    ClassNames.JVM_CLASS_MAPPING,
                     tableDefinition.elementTypeName
                 )
 

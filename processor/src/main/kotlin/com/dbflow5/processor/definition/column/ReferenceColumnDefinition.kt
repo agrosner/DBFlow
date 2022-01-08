@@ -37,7 +37,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.type.TypeMirror
-import kotlin.jvm.internal.Reflection
 
 /**
  * Description: Represents both a [ForeignKey] and [ColumnMap]. Builds up the model of fields
@@ -215,9 +214,9 @@ private constructor(
                     Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL
                 )
                     .initializer(
-                        "new \$T(\$T.getOrCreateKotlinClass(\$T.class), \$S)",
+                        "new \$T(\$T.getKotlinClass(\$T.class), \$S)",
                         propParam,
-                        ClassName.get(Reflection::class.java),
+                        ClassNames.JVM_CLASS_MAPPING,
                         tableClass,
                         referenceDefinition.columnName
                     )
@@ -431,25 +430,6 @@ private constructor(
                     )
                 )
                 saveAccessor.addCode(codeBuilder, 0, modelBlock)
-            }
-        }
-    }
-
-    fun appendDeleteMethod(codeBuilder: CodeBlock.Builder) {
-        if (!nonModelColumn && columnAccessor !is TypeConverterScopeColumnAccessor) {
-            referencedClassName?.let { referencedTableClassName ->
-                val deleteAccessor = ForeignKeyAccessField(
-                    columnName,
-                    DeleteModelAccessCombiner(
-                        Combiner(
-                            columnAccessor, referencedTableClassName,
-                            complexColumnBehavior.wrapperAccessor,
-                            complexColumnBehavior.wrapperTypeName,
-                            complexColumnBehavior.subWrapperAccessor
-                        )
-                    )
-                )
-                deleteAccessor.addCode(codeBuilder, 0, modelBlock)
             }
         }
     }
