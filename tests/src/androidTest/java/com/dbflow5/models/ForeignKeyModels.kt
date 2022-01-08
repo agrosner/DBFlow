@@ -78,13 +78,13 @@ class BlogPrimary(@PrimaryKey @ForeignKey var author: Author? = null, @Column va
 
 /**
  * Example of simple foreign key object with one foreign key object thats [ForeignKey.stubbedRelationship]
- *  and [ForeignKey.deleteForeignKeyModel] and [ForeignKey.saveForeignKeyModel]
+ *  and [ForeignKey.saveForeignKeyModel]
  */
 @Table(database = TestDatabase::class)
 class BlogStubbed(
     @PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
     @ForeignKey(
-        stubbedRelationship = true, deleteForeignKeyModel = true, saveForeignKeyModel = true,
+        stubbedRelationship = true, saveForeignKeyModel = true,
         onDelete = ForeignKeyAction.CASCADE, onUpdate = ForeignKeyAction.RESTRICT
     )
     var author: Author? = null,

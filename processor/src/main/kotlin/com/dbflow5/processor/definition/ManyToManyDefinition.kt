@@ -14,6 +14,7 @@ import com.grosner.kpoet.L
 import com.grosner.kpoet.`@`
 import com.grosner.kpoet.`fun`
 import com.grosner.kpoet.`return`
+import com.grosner.kpoet.constructor
 import com.grosner.kpoet.field
 import com.grosner.kpoet.final
 import com.grosner.kpoet.member
@@ -90,6 +91,45 @@ class ManyToManyDefinition(
                 }
             }
 
+            val params = listOfNotNull(
+                if (generateAutoIncrement) {
+                    param(
+                        TypeName.LONG,
+                        "_id"
+                    )
+                } else null,
+                selfDefinition?.let { table ->
+                    param(
+                        table.elementTypeName!!,
+                        makeFieldName(table, 1, thisColumnName)
+                    )
+                },
+                referencedDefinition?.let { table ->
+                    param(
+                        table.elementTypeName!!,
+                        makeFieldName(table, 0, referencedColumnName)
+                    )
+                },
+            )
+            constructor {
+                modifiers(public)
+            }
+            constructor(*params.toTypedArray()) {
+                modifiers(public)
+                if (generateAutoIncrement) {
+                    addStatement("this._id = _id")
+                }
+                selfDefinition?.let { table ->
+                    val name = makeFieldName(table, 1, thisColumnName)
+                    addStatement("this.${name} = $name")
+                }
+                referencedDefinition?.let { table ->
+                    val name = makeFieldName(table, 0, referencedColumnName)
+                    addStatement("this.${name} = $name")
+                }
+                this
+            }
+
             referencedDefinition?.let { appendColumnDefinitions(this, it, 0, referencedColumnName) }
             selfDefinition?.let { appendColumnDefinitions(this, it, 1, thisColumnName) }
         }
@@ -99,15 +139,7 @@ class ManyToManyDefinition(
         typeBuilder: TypeSpec.Builder,
         referencedDefinition: TableDefinition, index: Int, optionalName: String
     ) {
-        var fieldName = referencedDefinition.elementName.lower()
-        if (sameTableReferenced) {
-            fieldName += index.toString()
-        }
-        // override with the name (if specified)
-        if (!optionalName.isNullOrEmpty()) {
-            fieldName = optionalName
-        }
-
+        val fieldName = makeFieldName(referencedDefinition, index, optionalName)
         typeBuilder.apply {
             `field`(referencedDefinition.elementClassName!!, fieldName) {
                 if (!generateAutoIncrement) {
@@ -132,5 +164,21 @@ class ManyToManyDefinition(
                 statement("$fieldName = param")
             }
         }
+    }
+
+    private fun makeFieldName(
+        referencedDefinition: TableDefinition,
+        index: Int,
+        optionalName: String
+    ): String {
+        var fieldName = referencedDefinition.elementName.lower()
+        if (sameTableReferenced) {
+            fieldName += index.toString()
+        }
+        // override with the name (if specified)
+        if (!optionalName.isNullOrEmpty()) {
+            fieldName = optionalName
+        }
+        return fieldName
     }
 }
