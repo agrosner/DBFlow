@@ -35,6 +35,7 @@ fun copyOverClasses(
             it.partOfDatabaseAsType<ClassModel.ClassType.Normal>(
                 database.classType,
                 database.properties.tables,
+                database.properties.classes,
             )
         }.map { clazz ->
             // patch globular conflicts.
@@ -54,12 +55,14 @@ fun copyOverClasses(
             it.partOfDatabaseAsType<ClassModel.ClassType.View>(
                 database.classType,
                 database.properties.views,
+                database.properties.classes,
             )
         },
         queries = classes.filter {
             it.partOfDatabaseAsType<ClassModel.ClassType.Query>(
                 database.classType,
                 database.properties.queries,
+                database.properties.classes,
             )
         },
         migrations = migrations.filter { migration ->

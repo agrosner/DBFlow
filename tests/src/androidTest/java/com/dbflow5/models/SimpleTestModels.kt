@@ -1,6 +1,5 @@
 package com.dbflow5.models
 
-import com.dbflow5.TestDatabase
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnIgnore
 import com.dbflow5.annotation.ConflictAction
@@ -25,13 +24,13 @@ import java.util.*
 /**
  * Description:
  */
-@Table(database = TestDatabase::class)
+@Table
 class SimpleModel(@PrimaryKey var name: String? = "")
 
-@Query(database = TestDatabase::class)
+@Query
 class SimpleCustomModel(@Column var name: String? = "")
 
-@Table(database = TestDatabase::class)
+@Table
 class SimpleQuickCheckModel(
     @PrimaryKey(
         quickCheckAutoIncrement = true,
@@ -40,22 +39,21 @@ class SimpleQuickCheckModel(
 )
 
 @Table(
-    database = TestDatabase::class,
     insertConflict = ConflictAction.FAIL,
     updateConflict = ConflictAction.FAIL
 )
 class NumberModel(@PrimaryKey var id: Int = 0)
 
-@Table(database = TestDatabase::class)
+@Table
 class CharModel(@PrimaryKey var id: Int = 0, @Column var exampleChar: Char? = null)
 
-@Table(database = TestDatabase::class)
+@Table
 class TwoColumnModel(
     @PrimaryKey var name: String? = "",
     @Column(defaultValue = "56") var id: Int = 0
 )
 
-@Table(database = TestDatabase::class, createWithDatabase = false)
+@Table(createWithDatabase = false)
 class DontCreateModel(@PrimaryKey var id: Int = 0)
 
 enum class Difficulty {
@@ -64,10 +62,10 @@ enum class Difficulty {
     HARD
 }
 
-@Table(database = TestDatabase::class)
+@Table
 class EnumModel(@PrimaryKey var id: Int = 0, @Column var difficulty: Difficulty? = Difficulty.EASY)
 
-@Table(database = TestDatabase::class, allFields = true)
+@Table
 open class AllFieldsModel(
     @PrimaryKey var name: String? = null,
     var count: Int? = 0,
@@ -84,24 +82,24 @@ open class AllFieldsModel(
     }
 }
 
-@Table(database = TestDatabase::class, allFields = true)
+@Table
 class SubclassAllFields(@Column var order: Int = 0) : AllFieldsModel()
 
-@Table(database = TestDatabase::class, assignDefaultValuesFromCursor = false)
+@Table(assignDefaultValuesFromCursor = false)
 class DontAssignDefaultModel(
     @PrimaryKey var name: String? = null,
     @Column(getterName = "getNullableBool") var nullableBool: Boolean? = null,
     @Column var index: Int = 0
 )
 
-@Table(database = TestDatabase::class, orderedCursorLookUp = true)
+@Table(orderedCursorLookUp = true)
 class OrderCursorModel(
     @Column var age: Int = 0,
     @PrimaryKey var id: Int = 0,
     @Column var name: String? = ""
 )
 
-@Table(database = TestDatabase::class)
+@Table
 class TypeConverterModel(
     @PrimaryKey var id: Int = 0,
     @Column var opaqueData: ByteArray? = null,
@@ -110,7 +108,7 @@ class TypeConverterModel(
     @PrimaryKey var customType: CustomType? = null
 )
 
-@Table(database = TestDatabase::class)
+@Table
 class EnumTypeConverterModel(
     @PrimaryKey var id: Int = 0,
     @Column var blob: Blob? = null,
@@ -119,14 +117,14 @@ class EnumTypeConverterModel(
     var difficulty: Difficulty = Difficulty.EASY
 )
 
-@Table(database = TestDatabase::class, allFields = true)
+@Table
 class FeedEntry(
     @PrimaryKey var id: Int = 0,
     var title: String? = null,
     var subtitle: String? = null
 )
 
-@Table(database = TestDatabase::class)
+@Table
 @ManyToMany(
     generatedTableClassName = "Refund", referencedTable = Transfer::class,
     referencedTableColumnName = "refund_in", thisTableColumnName = "refund_out",
@@ -134,7 +132,7 @@ class FeedEntry(
 )
 data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 
-@Table(database = TestDatabase::class)
+@Table
 data class Transfer2(
     @PrimaryKey
     var id: UUID = UUID.randomUUID(),
@@ -142,10 +140,10 @@ data class Transfer2(
     var origin: Account? = null
 )
 
-@Table(database = TestDatabase::class)
+@Table
 data class Account(@PrimaryKey var id: UUID = UUID.randomUUID())
 
-@Table(database = TestDatabase::class)
+@Table
 class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener
 
 data class CustomType(val name: Int = 0)
@@ -169,14 +167,14 @@ class CustomEnumTypeConverter : TypeConverter<String, Difficulty>() {
 
 }
 
-@Table(database = TestDatabase::class)
+@Table
 class DefaultModel(
     @PrimaryKey @Column(defaultValue = "5") var id: Int? = 0,
     @Column(defaultValue = "5.0") var location: Double? = 0.0,
     @Column(defaultValue = "\"String\"") var name: String? = ""
 )
 
-@Table(database = TestDatabase::class)
+@Table
 class NullableNumbers(
     @PrimaryKey var id: Int = 0,
     @Column var f: Float? = null,
@@ -187,14 +185,14 @@ class NullableNumbers(
     @Column var bigInteger: BigInteger? = null
 )
 
-@Table(database = TestDatabase::class)
+@Table
 class NonNullKotlinModel(
     @PrimaryKey var name: String = "",
     @Column var date: Date = Date(),
     @Column var numb: Int = 0
 )
 
-@Table(database = TestDatabase::class)
+@Table
 class Owner {
     @PrimaryKey(autoincrement = true)
     var id: Int = 0
@@ -203,7 +201,7 @@ class Owner {
     var name: String? = null
 }
 
-@Table(database = TestDatabase::class)
+@Table
 class Dog {
     @ForeignKey(onDelete = ForeignKeyAction.CASCADE, stubbedRelationship = true)
     var owner: Owner? = null
@@ -215,7 +213,7 @@ class Dog {
     var name: String? = null
 }
 
-@Table(database = TestDatabase::class)
+@Table
 data class Currency(
     @PrimaryKey(autoincrement = true) var id: Long = 0,
     @Column @Unique var symbol: String? = null,
@@ -229,7 +227,7 @@ value class Password(val value: String)
 @JvmInline
 value class Email(val value: String)
 
-@Table(database = TestDatabase::class)
+@Table
 class UserInfo(
     @PrimaryKey
     @set:JvmName("setEmail")
@@ -243,7 +241,7 @@ class UserInfo(
 }
 
 
-@Table(database = TestDatabase::class)
+@Table
 class InternalClass internal constructor(
     @PrimaryKey
     @get:JvmName("getId")
@@ -251,24 +249,24 @@ class InternalClass internal constructor(
     internal var id: String = ""
 )
 
-@Table(database = TestDatabase::class, uniqueColumnGroups = [UniqueGroup(1)])
+@Table(uniqueColumnGroups = [UniqueGroup(1)])
 class UniqueModel(
     @PrimaryKey var id: String = "",
     @Unique(uniqueGroups = [1]) var name: String = "",
     @ForeignKey @Unique(uniqueGroups = [1]) var model: TypeConverterModel? = null
 )
 
-@Table(database = TestDatabase::class)
+@Table
 @Fts3
 class Fts3Model(var name: String = "")
 
-@Table(database = TestDatabase::class)
+@Table
 class Fts4Model(
     @PrimaryKey(autoincrement = true)
     var id: Int = 0,
     var name: String = ""
 )
 
-@Table(database = TestDatabase::class)
+@Table
 @Fts4(contentTable = Fts4Model::class)
 class Fts4VirtualModel2(var name: String = "")

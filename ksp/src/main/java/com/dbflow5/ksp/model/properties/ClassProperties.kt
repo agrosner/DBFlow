@@ -9,13 +9,17 @@ interface ClassProperties : DatabaseScopedProperties, ReadableScopeProperties {
 }
 
 /**
- * Used by ManyToMany for bare-bones use of common fields.
+ * Used by ManyToMany / OneToMany for bare-bones use of common fields.
  */
-data class SimpleClassProperties(
+data class GeneratedClassProperties(
     override val allFields: Boolean,
     override val database: TypeName,
     override val orderedCursorLookup: Boolean,
-    override val assignDefaultValuesFromCursor: Boolean
+    override val assignDefaultValuesFromCursor: Boolean,
+    /**
+     * Which class it came from.
+     */
+    val generatedFromClassType: TypeName,
 ) : ClassProperties
 
 /**

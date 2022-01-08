@@ -15,7 +15,7 @@ class SQLCipherOpenHelperImpl(
     override var cipherSecret = "dbflow-rules"
 }
 
-@Table(database = CipherDatabase::class)
+@Table
 class CipherModel(
     @PrimaryKey(autoincrement = true) var id: Long = 0,
     @Column var name: String? = null

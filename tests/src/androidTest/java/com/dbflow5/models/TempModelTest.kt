@@ -12,10 +12,10 @@ import com.dbflow5.structure.save
 import org.junit.Test
 
 
-@Table(database = TestDatabase::class, temporary = true, createWithDatabase = false)
+@Table(temporary = true, createWithDatabase = false)
 class TempModel(@PrimaryKey var id: Int = 0)
 
-class TempModelTest: BaseUnitTest() {
+class TempModelTest : BaseUnitTest() {
 
     @Test
     fun createTempTable() {

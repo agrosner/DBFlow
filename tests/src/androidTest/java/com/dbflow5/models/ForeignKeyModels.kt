@@ -1,14 +1,23 @@
 package com.dbflow5.models
 
-import com.dbflow5.TestDatabase
-import com.dbflow5.annotation.*
+import com.dbflow5.annotation.Column
+import com.dbflow5.annotation.ColumnMap
+import com.dbflow5.annotation.ColumnMapReference
+import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.annotation.ForeignKey
+import com.dbflow5.annotation.ForeignKeyAction
+import com.dbflow5.annotation.ForeignKeyReference
+import com.dbflow5.annotation.NotNull
+import com.dbflow5.annotation.PrimaryKey
+import com.dbflow5.annotation.Table
+import com.dbflow5.annotation.TypeConverter
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.LoadFromCursorListener
 
 /**
  * Example of simple foreign key object with one foreign key object.
  */
-@Table(database = TestDatabase::class)
+@Table
 class Blog(
     @PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
     @ForeignKey(saveForeignKeyModel = true) var author: Author? = null
@@ -17,7 +26,7 @@ class Blog(
 /**
  * Parent used as foreign key reference.
  */
-@Table(database = TestDatabase::class)
+@Table
 class Author(
     @PrimaryKey(autoincrement = true) var id: Int = 0,
     @Column(name = "first_name") var firstName: String = "",
@@ -27,7 +36,7 @@ class Author(
 /**
  * Example of simple foreign key object with its [ForeignKey] deferred.
  */
-@Table(database = TestDatabase::class)
+@Table
 class BlogDeferred(
     @PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
     @ForeignKey(deferred = true) var author: Author? = null
@@ -36,7 +45,7 @@ class BlogDeferred(
 /**
  * Class has example of single foreign key with [ForeignKeyReference] specified
  */
-@Table(database = TestDatabase::class)
+@Table
 class BlogRef(
     @PrimaryKey var id: Int = 0, @PrimaryKey var name: String = "",
     @ForeignKey(
@@ -53,7 +62,7 @@ class BlogRef(
 /**
  * Class has example of single foreign key with [ForeignKeyReference] specified that is not the model object.
  */
-@Table(database = TestDatabase::class)
+@Table
 class BlogRefNoModel(
     @PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
     @ForeignKey(
@@ -73,14 +82,14 @@ class BlogRefNoModel(
 /**
  * Class has example of single foreign key with [ForeignKeyReference] as [PrimaryKey]
  */
-@Table(database = TestDatabase::class)
+@Table
 class BlogPrimary(@PrimaryKey @ForeignKey var author: Author? = null, @Column var id: Int = 0)
 
 /**
  * Example of simple foreign key object with one foreign key object thats [ForeignKey.stubbedRelationship]
  *  and [ForeignKey.saveForeignKeyModel]
  */
-@Table(database = TestDatabase::class)
+@Table
 class BlogStubbed(
     @PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
     @ForeignKey(
@@ -110,10 +119,10 @@ class Location(
     var longitude: DoubleToDouble? = DoubleToDouble(0.0)
 )
 
-@Table(database = TestDatabase::class)
+@Table
 class Position(@PrimaryKey var id: Int = 0, @ColumnMap var location: Location? = null)
 
-@Table(database = TestDatabase::class)
+@Table
 class Position2(
     @PrimaryKey var id: Int = 0,
     @ColumnMap(
@@ -136,7 +145,7 @@ class Location2(
     var longitude: Double? = 0.0
 )
 
-@Table(database = TestDatabase::class)
+@Table
 class PositionWithTypeConverter(
     @PrimaryKey var id: Int = 0,
     @ColumnMap(
@@ -150,7 +159,7 @@ class PositionWithTypeConverter(
     var location: Location2? = null
 )
 
-@Table(database = TestDatabase::class)
+@Table
 class NotNullReferenceModel(
     @PrimaryKey var name: String = "",
     @NotNull @ForeignKey var model: SimpleModel? = null

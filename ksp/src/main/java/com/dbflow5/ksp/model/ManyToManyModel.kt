@@ -1,10 +1,10 @@
 package com.dbflow5.ksp.model
 
+import com.dbflow5.ksp.model.properties.GeneratedClassProperties
 import com.dbflow5.ksp.model.properties.IndexProperties
 import com.dbflow5.ksp.model.properties.ManyToManyProperties
 import com.dbflow5.ksp.model.properties.NotNullProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
-import com.dbflow5.ksp.model.properties.SimpleClassProperties
 import com.dbflow5.ksp.model.properties.nameWithFallback
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSType
@@ -25,7 +25,7 @@ data class ManyToManyModel(
      */
     val name: NameModel,
     /**
-     * The database it references.
+     * The database it references, could be Any if inferred from DB inclusion.
      */
     val databaseTypeName: TypeName,
     val properties: ManyToManyProperties,
@@ -139,36 +139,39 @@ data class ManyToManyModel(
     /**
      * Returns the generated class model to use.
      */
-    val classModel: ClassModel =
-        ClassModel(
-            name = generatedName,
-            classType = generatedName.className,
-            type = ClassModel.ClassType.Normal.Normal,
-            properties = SimpleClassProperties(
-                allFields = true,
-                database = databaseTypeName,
-                orderedCursorLookup = true,
-                assignDefaultValuesFromCursor = true,
-            ),
-            fields = fields,
-            hasPrimaryConstructor = true,
-            isInternal = false,
-            originatingFile = originatingFile,
-            indexGroups = listOf(
-                IndexGroupModel(
-                    //
-                    name = name.shortName,
-                    // only primary fields on index and if they have index property (safeguard)
-                    fields = fields.filter {
-                        it.fieldType is FieldModel.FieldType.PrimaryAuto &&
-                            it.indexProperties != null
-                    },
-                    unique = false,
-                    tableTypeName = generatedName.className,
-                )
-            ),
-            uniqueGroups = listOf(),
-            implementsLoadFromCursorListener = false,
-            implementsSQLiteStatementListener = false,
-        )
+    /**
+     * Returns the generated class model to use.
+     */
+    val classModel: ClassModel = ClassModel(
+        name = generatedName,
+        classType = generatedName.className,
+        type = ClassModel.ClassType.Normal.Normal,
+        properties = GeneratedClassProperties(
+            allFields = true,
+            database = databaseTypeName,
+            orderedCursorLookup = true,
+            assignDefaultValuesFromCursor = true,
+            generatedFromClassType = classType,
+        ),
+        fields = fields,
+        hasPrimaryConstructor = true,
+        isInternal = false,
+        originatingFile = originatingFile,
+        indexGroups = listOf(
+            IndexGroupModel(
+                //
+                name = name.shortName,
+                // only primary fields on index and if they have index property (safeguard)
+                fields = fields.filter {
+                    it.fieldType is FieldModel.FieldType.PrimaryAuto &&
+                        it.indexProperties != null
+                },
+                unique = false,
+                tableTypeName = generatedName.className,
+            )
+        ),
+        uniqueGroups = listOf(),
+        implementsLoadFromCursorListener = false,
+        implementsSQLiteStatementListener = false,
+    )
 }

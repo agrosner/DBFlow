@@ -13,14 +13,18 @@ class DatabasePropertyParser : AnnotationParser<DatabaseProperties> {
 
     @Throws(ValidationException::class)
     override fun ArgMap.parse(): DatabaseProperties {
+        val tables = classNameList("tables")
+        val views = classNameList("views")
+        val queries = classNameList("queries")
         return DatabaseProperties(
             version = arg("version"),
             foreignKeyConstraintsEnforced = arg("foreignKeyConstraintsEnforced"),
             updateConflict = enumArg("updateConflict", ConflictAction::valueOf),
             insertConflict = enumArg("insertConflict", ConflictAction::valueOf),
-            tables = classNameList("tables"),
-            views = classNameList("views"),
-            queries = classNameList("queries"),
+            tables = tables,
+            views = views,
+            queries = queries,
+            classes = listOf(tables, views, queries).flatten(),
             migrations = classNameList("migrations"),
         )
     }

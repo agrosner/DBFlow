@@ -1,6 +1,5 @@
 package com.dbflow5.models
 
-import com.dbflow5.TestDatabase
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.Index
 import com.dbflow5.annotation.IndexGroup
@@ -12,12 +11,13 @@ import java.util.*
  * Description:
  */
 
-@Table(database = TestDatabase::class,
+@Table(
     indexGroups = [
         IndexGroup(number = 1, name = "firstIndex"),
         IndexGroup(number = 2, name = "secondIndex"),
         IndexGroup(number = 3, name = "thirdIndex"),
-    ])
+    ]
+)
 class IndexModel {
     @Index(indexGroups = [1, 2, 3])
     @PrimaryKey

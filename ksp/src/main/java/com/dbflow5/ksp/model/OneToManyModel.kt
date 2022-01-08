@@ -3,7 +3,7 @@ package com.dbflow5.ksp.model
 import com.dbflow5.ksp.model.properties.NotNullProperties
 import com.dbflow5.ksp.model.properties.OneToManyProperties
 import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
-import com.dbflow5.ksp.model.properties.SimpleClassProperties
+import com.dbflow5.ksp.model.properties.GeneratedClassProperties
 import com.dbflow5.ksp.model.properties.nameWithFallback
 import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSType
@@ -101,11 +101,12 @@ data class OneToManyModel(
             name = generatedName,
             classType = generatedName.className,
             type = ClassModel.ClassType.Query,
-            properties = SimpleClassProperties(
+            properties = GeneratedClassProperties(
                 allFields = true,
                 database = databaseTypeName,
                 orderedCursorLookup = true,
                 assignDefaultValuesFromCursor = true,
+                generatedFromClassType = classType,
             ),
             fields = fields,
             hasPrimaryConstructor = true,

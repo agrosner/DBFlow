@@ -11,5 +11,6 @@ data class DatabaseProperties(
     val tables: List<ClassName>,
     val views: List<ClassName>,
     val queries: List<ClassName>,
+    val classes: List<ClassName>,
     val migrations: List<ClassName>,
 )

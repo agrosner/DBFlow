@@ -12,20 +12,34 @@ import com.dbflow5.migration.BaseMigration
 import com.dbflow5.sql.SQLiteType
 import com.dbflow5.structure.insert
 
-@Database(version = 1)
+@Database(
+    version = 1,
+    tables = [
+        Dog::class,
+    ]
+)
 abstract class PrepackagedDB : DBFlowDatabase()
 
-@Database(version = 2)
+@Database(
+    version = 2,
+    tables = [
+        Dog2::class,
+    ],
+    migrations = [
+        MigratedPrepackagedDB.AddNewFieldMigration::class,
+        MigratedPrepackagedDB.AddSomeDataMigration::class,
+    ]
+)
 abstract class MigratedPrepackagedDB : DBFlowDatabase() {
 
-    @Migration(version = 2, database = MigratedPrepackagedDB::class, priority = 1)
+    @Migration(version = 2, priority = 1)
     class AddNewFieldMigration : AlterTableMigration<Dog2>(Dog2::class) {
         override fun onPreMigrate() {
             addColumn(SQLiteType.TEXT, "newField")
         }
     }
 
-    @Migration(version = 2, database = MigratedPrepackagedDB::class, priority = 2)
+    @Migration(version = 2, priority = 2)
     class AddSomeDataMigration : BaseMigration() {
         override fun migrate(database: DatabaseWrapper) {
             Dog2(breed = "NewBreed", newField = "New Field Data").insert(database)
@@ -34,14 +48,14 @@ abstract class MigratedPrepackagedDB : DBFlowDatabase() {
 
 }
 
-@Table(database = PrepackagedDB::class, allFields = true)
+@Table
 class Dog(
     @PrimaryKey var id: Int = 0,
     @Column var breed: String? = null,
     @Column var color: String? = null,
 )
 
-@Table(database = MigratedPrepackagedDB::class, allFields = true, name = "Dog")
+@Table(name = "Dog")
 class Dog2(
     @PrimaryKey var id: Int = 0,
     @Column var breed: String? = null,

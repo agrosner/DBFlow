@@ -2,6 +2,7 @@ package com.dbflow5.ksp.model
 
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.properties.ClassProperties
+import com.dbflow5.ksp.model.properties.GeneratedClassProperties
 import com.dbflow5.ksp.model.properties.ModelViewQueryProperties
 import com.dbflow5.ksp.model.properties.NamedProperties
 import com.dbflow5.ksp.model.properties.nameWithFallback
@@ -88,8 +89,13 @@ data class ClassModel(
 inline fun <reified C : ClassModel.ClassType> ClassModel.partOfDatabaseAsType(
     databaseTypeName: TypeName,
     declaredDBElements: List<ClassName>,
+    /**
+     * Used for generated class.
+     */
+    allDBElements: List<ClassName>,
 ) = this.type is C &&
-    (properties.database == databaseTypeName || declaredDBElements.contains(this.classType))
+    (properties.database == databaseTypeName || declaredDBElements.contains(this.classType)
+        || (properties is GeneratedClassProperties && allDBElements.contains(properties.generatedFromClassType)))
 
 
 val ClassModel.generatedClassName

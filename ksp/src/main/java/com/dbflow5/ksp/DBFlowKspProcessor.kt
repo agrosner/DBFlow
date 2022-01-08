@@ -88,7 +88,7 @@ class DBFlowKspProcessor(
                     allOriginatingFiles = objects.mapNotNull { it.originatingFile }
                 )
 
-                referencesCache.allTables = classes
+                referencesCache.allClasses = classes
 
                 objects.filterIsInstance<TypeConverterModel>().forEach { model ->
                     typeConverterCache.putTypeConverter(model)

@@ -1,7 +1,14 @@
 package com.dbflow5.models
 
-import com.dbflow5.TestDatabase
-import com.dbflow5.annotation.*
+import com.dbflow5.annotation.Column
+import com.dbflow5.annotation.ForeignKey
+import com.dbflow5.annotation.ForeignKeyAction
+import com.dbflow5.annotation.Index
+import com.dbflow5.annotation.IndexGroup
+import com.dbflow5.annotation.NotNull
+import com.dbflow5.annotation.PrimaryKey
+import com.dbflow5.annotation.Table
+import com.dbflow5.annotation.TypeConverter
 
 
 @TypeConverter
@@ -24,7 +31,7 @@ class MutableSetTypeConverter : com.dbflow5.converter.TypeConverter<String, Muta
  * specified in the request.
  */
 @Table(
-    database = TestDatabase::class, allFields = true, useBooleanGetterSetters = false,
+    allFields = true, useBooleanGetterSetters = false,
     indexGroups = [IndexGroup(number = 1, name = "modified")]
 )
 open internal class ProspectQuiz {
@@ -75,7 +82,7 @@ open internal class ProspectQuiz {
  * deleted or deactivated the account, the entry for the deleted user will disappear from the response.
  */
 @Table(
-    database = TestDatabase::class, allFields = true, useBooleanGetterSetters = false,
+    allFields = true, useBooleanGetterSetters = false,
     indexGroups = [IndexGroup(number = 1, name = "quizid_answerts")]
 )
 open internal class ProspectQuizEntry {

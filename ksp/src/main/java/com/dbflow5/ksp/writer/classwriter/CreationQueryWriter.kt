@@ -54,7 +54,7 @@ class CreationQueryWriter(
                                         if (extractors.isNotEmpty()) {
                                             append(",")
                                         }
-                                        val classModel = referencesCache.allTables
+                                        val classModel = referencesCache.allClasses
                                             .first { it.classType == clsModel.type.contentTable }
                                         append("content=${classModel.dbName}")
                                     }

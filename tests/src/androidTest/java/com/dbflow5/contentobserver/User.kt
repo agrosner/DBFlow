@@ -4,5 +4,9 @@ import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 
-@Table(database = ContentObserverDatabase::class)
-class User(@PrimaryKey var id: Int = 0, @PrimaryKey var name: String = "", @Column var age: Int = 0)
+@Table
+class User(
+    @PrimaryKey var id: Int = 0,
+    @PrimaryKey var name: String = "",
+    @Column var age: Int = 0
+)

@@ -39,10 +39,12 @@ class ReferencesCache(
         }
     }
 
-    var allTables: List<ClassModel> = listOf()
+    var allClasses: List<ClassModel> = listOf()
+
+    fun classByType(typeName: TypeName) = allClasses.first { it.classType == typeName }
 
     fun resolve(referenceHolderModel: ReferenceHolderModel) =
-        allTables.firstOrNull {
+        allClasses.firstOrNull {
             it.classType ==
                 referenceHolderModel.referenceHolderProperties.referencedTableTypeName.copy(
                     nullable = false
@@ -52,13 +54,13 @@ class ReferencesCache(
             "Cant find ${
                 referenceHolderModel.referenceHolderProperties.referencedTableTypeName
                     .copy(nullable = false)
-            } ${referenceHolderModel.classType.copy(nullable = false)}: ${allTables.map { it.classType }}"
+            } ${referenceHolderModel.classType.copy(nullable = false)}: ${allClasses.map { it.classType }}"
         )
 
     /**
      * If true, the field specified is a table.
      */
-    fun isTable(fieldModel: FieldModel) = allTables.any {
+    fun isTable(fieldModel: FieldModel) = allClasses.any {
         it.classType == fieldModel.classType.copy(
             nullable = false
         )
@@ -72,7 +74,7 @@ class ReferencesCache(
     ): List<SingleFieldModel> {
         val nonNullVersion = classType.copy(false)
         return (referenceMap.getOrPut(ReferenceType.AllFromClass(nonNullVersion)) {
-            allTables.firstOrNull { it.classType == nonNullVersion }
+            allClasses.firstOrNull { it.classType == nonNullVersion }
                 ?.primaryFields?.map {
                     when (it) {
                         is ReferenceHolderModel -> it.references(
@@ -95,7 +97,7 @@ class ReferencesCache(
     ): List<SingleFieldModel> {
         val nonNullVersion = classType.copy(false)
         return (referenceMap.getOrPut(ReferenceType.OneToManyReference(nonNullVersion)) {
-            allTables.firstOrNull { it.classType == nonNullVersion }
+            allClasses.firstOrNull { it.classType == nonNullVersion }
                 // only look for foreign key types on the model as source for reference. it
                 // is required to work.
                 ?.referenceFields?.map {

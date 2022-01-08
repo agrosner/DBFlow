@@ -1,7 +1,6 @@
 package com.dbflow5.models
 
 import com.dbflow5.BaseUnitTest
-import com.dbflow5.TestDatabase
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.config.databaseForTable
@@ -30,5 +29,5 @@ class AutoIncrementTest : BaseUnitTest() {
 }
 
 
-@Table(database = TestDatabase::class)
+@Table
 class AutoIncrementingModel(@PrimaryKey(autoincrement = true) var id: Long = 0)

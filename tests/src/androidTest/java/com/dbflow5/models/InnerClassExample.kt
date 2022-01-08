@@ -1,6 +1,5 @@
 package com.dbflow5.models
 
-import com.dbflow5.TestDatabase
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 
@@ -9,6 +8,6 @@ import com.dbflow5.annotation.Table
  */
 class Outer {
 
-    @Table(database = TestDatabase::class)
+    @Table
     class Inner(@PrimaryKey var id: Int = 0)
 }
