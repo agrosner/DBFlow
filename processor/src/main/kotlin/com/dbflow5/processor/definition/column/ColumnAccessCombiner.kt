@@ -17,6 +17,7 @@ import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.TypeName
+import kotlin.jvm.internal.Reflection
 
 data class Combiner(
     val fieldLevelAccessor: ColumnAccessor,
@@ -137,10 +138,12 @@ class ExistenceAccessCombiner(
                 }
 
                 add(
-                    "\$T.selectCountOf()\n.from(\$T.class)\n" +
+                    "\$T.selectCountOf()\n.from(\$T.getOrCreateKotlinClass(\$T.class))\n" +
                         ".where(getPrimaryConditionClause(\$L))\n" +
                         ".hasData(wrapper)",
-                    ClassNames.SQLITE, tableClassName, modelBlock
+                    ClassNames.SQLITE,
+                    ClassName.get(Reflection::class.java),
+                    tableClassName, modelBlock
                 )
             }
             add(";\n")
@@ -410,8 +413,11 @@ class SaveModelAccessCombiner(combiner: Combiner) : ColumnAccessCombiner(combine
             val access = getFieldAccessBlock(this@addCode, modelBlock)
             `if`("$access != null") {
                 statement(
-                    "\$T.getModelAdapter(\$T.class).save($access, ${ModelUtils.wrapper})",
-                    ClassNames.FLOW_MANAGER, fieldTypeName
+                    "\$T.getModelAdapter(\$T.getOrCreateKotlinClass(\$T.class))" +
+                        ".save($access, ${ModelUtils.wrapper})",
+                    ClassNames.FLOW_MANAGER,
+                    ClassName.get(Reflection::class.java),
+                    fieldTypeName
                 )
             }.end()
         }
@@ -430,8 +436,11 @@ class DeleteModelAccessCombiner(
             val access = getFieldAccessBlock(this@addCode, modelBlock)
             `if`("$access != null") {
                 statement(
-                    "\$T.getModelAdapter(\$T.class).delete($access, ${ModelUtils.wrapper})",
-                    ClassNames.FLOW_MANAGER, fieldTypeName
+                    "\$T.getModelAdapter(\$T.getOrCreateKotlinClass(\$T.class))" +
+                        ".delete($access, ${ModelUtils.wrapper})",
+                    ClassNames.FLOW_MANAGER,
+                    ClassName.get(Reflection::class.java),
+                    fieldTypeName
                 )
             }.end()
         }

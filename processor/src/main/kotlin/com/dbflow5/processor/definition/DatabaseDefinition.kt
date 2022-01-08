@@ -23,6 +23,8 @@ import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
+import kotlin.jvm.internal.Reflection
+import kotlin.reflect.KClass
 
 /**
  * Description: Writes [Database] definitions,
@@ -136,10 +138,12 @@ class DatabaseDefinition(database: Database,
 
     private fun writeGetters(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
-            `override fun`(ParameterizedTypeName.get(ClassName.get(Class::class.java), WildcardTypeName.subtypeOf(Any::class.java)),
+            `override fun`(ParameterizedTypeName.get(ClassName.get(KClass::class.java), WildcardTypeName.subtypeOf(Any::class.java)),
                 "getAssociatedDatabaseClassFile") {
                 modifiers(public, final)
-                `return`("\$T.class", elementTypeName)
+                `return`("\$T.getOrCreateKotlinClass(\$T.class)",
+                    ClassName.get(Reflection::class.java),
+                    elementTypeName)
             }
             `override fun`(TypeName.BOOLEAN, "isForeignKeysSupported") {
                 modifiers(public, final)

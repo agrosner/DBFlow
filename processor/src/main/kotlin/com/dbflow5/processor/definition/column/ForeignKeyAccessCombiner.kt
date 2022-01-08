@@ -7,6 +7,7 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.NameAllocator
 import com.squareup.javapoet.TypeName
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.jvm.internal.Reflection
 
 /**
  * Description: Provides structured way to combine ForeignKey for both SQLiteStatement and ContentValues
@@ -18,8 +19,10 @@ class ForeignKeyAccessCombiner(private val fieldAccessor: ColumnAccessor) {
 
     var fieldAccesses: List<ForeignKeyAccessField> = arrayListOf()
 
-    fun addCode(code: CodeBlock.Builder, index: AtomicInteger, useStart: Boolean = true,
-                defineProperty: Boolean = true) {
+    fun addCode(
+        code: CodeBlock.Builder, index: AtomicInteger, useStart: Boolean = true,
+        defineProperty: Boolean = true
+    ) {
         val modelAccessBlock = fieldAccessor.get(modelBlock)
         code.beginControlFlow("if (\$L != null)", modelAccessBlock)
         val nullAccessBlock = CodeBlock.builder()
@@ -33,21 +36,27 @@ class ForeignKeyAccessCombiner(private val fieldAccessor: ColumnAccessor) {
             }
         }
         code.nextControlFlow("else")
-                .add(nullAccessBlock.build().toString())
-                .endControlFlow()
+            .add(nullAccessBlock.build().toString())
+            .endControlFlow()
     }
 }
 
-class ForeignKeyAccessField(private val columnRepresentation: String,
-                            private val columnAccessCombiner: ColumnAccessCombiner,
-                            private val defaultValue: CodeBlock? = null) {
+class ForeignKeyAccessField(
+    private val columnRepresentation: String,
+    private val columnAccessCombiner: ColumnAccessCombiner,
+    private val defaultValue: CodeBlock? = null
+) {
 
-    fun addCode(code: CodeBlock.Builder, index: Int, modelAccessBlock: CodeBlock,
-                useStart: Boolean = true,
-                defineProperty: Boolean = true) {
+    fun addCode(
+        code: CodeBlock.Builder, index: Int, modelAccessBlock: CodeBlock,
+        useStart: Boolean = true,
+        defineProperty: Boolean = true
+    ) {
         columnAccessCombiner.apply {
-            code.addCode(if (useStart) columnRepresentation else "", defaultValue, index,
-                    modelAccessBlock, defineProperty)
+            code.addCode(
+                if (useStart) columnRepresentation else "", defaultValue, index,
+                modelAccessBlock, defineProperty
+            )
         }
     }
 
@@ -56,11 +65,13 @@ class ForeignKeyAccessField(private val columnRepresentation: String,
     }
 }
 
-class ForeignKeyLoadFromCursorCombiner(private val fieldAccessor: ColumnAccessor,
-                                       private val referencedTypeName: TypeName,
-                                       private val referencedTableTypeName: TypeName,
-                                       private val isStubbed: Boolean,
-                                       private val nameAllocator: NameAllocator) {
+class ForeignKeyLoadFromCursorCombiner(
+    private val fieldAccessor: ColumnAccessor,
+    private val referencedTypeName: TypeName,
+    private val referencedTableTypeName: TypeName,
+    private val isStubbed: Boolean,
+    private val nameAllocator: NameAllocator
+) {
     var fieldAccesses: List<PartialLoadFromCursorAccessCombiner> = arrayListOf()
 
     fun addCode(code: CodeBlock.Builder, index: AtomicInteger) {
@@ -68,17 +79,31 @@ class ForeignKeyLoadFromCursorCombiner(private val fieldAccessor: ColumnAccessor
         val setterBlock = CodeBlock.builder()
 
         if (!isStubbed) {
-            setterBlock.add("\$T.select().from(\$T.class).where()",
-                    com.dbflow5.processor.ClassNames.SQLITE, referencedTypeName)
+            setterBlock.add(
+                "\$T.select().from(\$T.getOrCreateKotlinClass(\$T.class)).where()",
+                com.dbflow5.processor.ClassNames.SQLITE,
+                ClassName.get(Reflection::class.java),
+                referencedTypeName
+            )
         } else {
             setterBlock.statement(
-                    fieldAccessor.set(CodeBlock.of("new \$T()", referencedTypeName), modelBlock))
+                fieldAccessor.set(CodeBlock.of("new \$T()", referencedTypeName), modelBlock)
+            )
         }
         for ((i, it) in fieldAccesses.withIndex()) {
-            it.addRetrieval(setterBlock, index.get(), referencedTableTypeName, isStubbed, fieldAccessor, nameAllocator)
+            it.addRetrieval(
+                setterBlock,
+                index.get(),
+                referencedTableTypeName,
+                isStubbed,
+                fieldAccessor,
+                nameAllocator
+            )
             it.addColumnIndex(code, index.get(), referencedTableTypeName, nameAllocator)
-            it.addIndexCheckStatement(ifChecker, index.get(), referencedTableTypeName,
-                    i == fieldAccesses.size - 1, nameAllocator)
+            it.addIndexCheckStatement(
+                ifChecker, index.get(), referencedTableTypeName,
+                i == fieldAccesses.size - 1, nameAllocator
+            )
 
             if (i < fieldAccesses.size - 1) {
                 index.incrementAndGet()
@@ -94,28 +119,38 @@ class ForeignKeyLoadFromCursorCombiner(private val fieldAccessor: ColumnAccessor
             code.add(setterBlock.build())
         }
         code.nextControlFlow("else")
-                .statement(fieldAccessor.set(CodeBlock.of("null"), modelBlock))
-                .endControlFlow()
+            .statement(fieldAccessor.set(CodeBlock.of("null"), modelBlock))
+            .endControlFlow()
     }
 }
 
 class PartialLoadFromCursorAccessCombiner(
-        private val columnRepresentation: String,
-        private val propertyRepresentation: String,
-        private val fieldTypeName: TypeName,
-        private val orderedCursorLookup: Boolean = false,
-        private val fieldLevelAccessor: ColumnAccessor? = null,
-        private val subWrapperAccessor: ColumnAccessor? = null,
-        private val subWrapperTypeName: TypeName? = null) {
+    private val columnRepresentation: String,
+    private val propertyRepresentation: String,
+    private val fieldTypeName: TypeName,
+    private val orderedCursorLookup: Boolean = false,
+    private val fieldLevelAccessor: ColumnAccessor? = null,
+    private val subWrapperAccessor: ColumnAccessor? = null,
+    private val subWrapperTypeName: TypeName? = null
+) {
 
     private var indexName: CodeBlock? = null
 
-    private fun getIndexName(index: Int, nameAllocator: NameAllocator, referencedTypeName: TypeName): CodeBlock {
+    private fun getIndexName(
+        index: Int,
+        nameAllocator: NameAllocator,
+        referencedTypeName: TypeName
+    ): CodeBlock {
         if (indexName == null) {
             indexName = if (!orderedCursorLookup) {
                 // post fix with referenced type name simple name
-                CodeBlock.of(nameAllocator.newName("index_${columnRepresentation}_" +
-                        if (referencedTypeName is ClassName) referencedTypeName.simpleName() else "", columnRepresentation))
+                CodeBlock.of(
+                    nameAllocator.newName(
+                        "index_${columnRepresentation}_" +
+                            if (referencedTypeName is ClassName) referencedTypeName.simpleName() else "",
+                        columnRepresentation
+                    )
+                )
             } else {
                 CodeBlock.of(index.toString())
             }
@@ -124,34 +159,51 @@ class PartialLoadFromCursorAccessCombiner(
     }
 
 
-    fun addRetrieval(code: CodeBlock.Builder, index: Int, referencedTableTypeName: TypeName,
-                     isStubbed: Boolean, parentAccessor: ColumnAccessor,
-                     nameAllocator: NameAllocator) {
-        val cursorAccess = CodeBlock.of("cursor.\$L(\$L)",
-                SQLiteHelper.getMethod(subWrapperTypeName ?: fieldTypeName),
-                getIndexName(index, nameAllocator, referencedTableTypeName))
+    fun addRetrieval(
+        code: CodeBlock.Builder, index: Int, referencedTableTypeName: TypeName,
+        isStubbed: Boolean, parentAccessor: ColumnAccessor,
+        nameAllocator: NameAllocator
+    ) {
+        val cursorAccess = CodeBlock.of(
+            "cursor.\$L(\$L)",
+            SQLiteHelper.getMethod(subWrapperTypeName ?: fieldTypeName),
+            getIndexName(index, nameAllocator, referencedTableTypeName)
+        )
         val fieldAccessBlock = subWrapperAccessor?.set(cursorAccess) ?: cursorAccess
 
         if (!isStubbed) {
-            code.add(CodeBlock.of("\n.and(\$T.\$L.eq(\$L))",
-                    referencedTableTypeName, propertyRepresentation, fieldAccessBlock))
+            code.add(
+                CodeBlock.of(
+                    "\n.and(\$T.\$L.eq(\$L))",
+                    referencedTableTypeName, propertyRepresentation, fieldAccessBlock
+                )
+            )
         } else if (fieldLevelAccessor != null) {
             code.statement(fieldLevelAccessor.set(fieldAccessBlock, parentAccessor.get(modelBlock)))
         }
     }
 
-    fun addColumnIndex(code: CodeBlock.Builder, index: Int,
-                       referencedTableTypeName: TypeName,
-                       nameAllocator: NameAllocator) {
+    fun addColumnIndex(
+        code: CodeBlock.Builder, index: Int,
+        referencedTableTypeName: TypeName,
+        nameAllocator: NameAllocator
+    ) {
         if (!orderedCursorLookup) {
-            code.statement(CodeBlock.of("int \$L = cursor.getColumnIndex(\$S)",
-                    getIndexName(index, nameAllocator, referencedTableTypeName), columnRepresentation))
+            code.statement(
+                CodeBlock.of(
+                    "int \$L = cursor.getColumnIndex(\$S)",
+                    getIndexName(index, nameAllocator, referencedTableTypeName),
+                    columnRepresentation
+                )
+            )
         }
     }
 
-    fun addIndexCheckStatement(code: CodeBlock.Builder, index: Int,
-                               referencedTableTypeName: TypeName,
-                               isLast: Boolean, nameAllocator: NameAllocator) {
+    fun addIndexCheckStatement(
+        code: CodeBlock.Builder, index: Int,
+        referencedTableTypeName: TypeName,
+        isLast: Boolean, nameAllocator: NameAllocator
+    ) {
         val indexName = getIndexName(index, nameAllocator, referencedTableTypeName)
         if (!orderedCursorLookup) code.add("$indexName != -1 && ")
 

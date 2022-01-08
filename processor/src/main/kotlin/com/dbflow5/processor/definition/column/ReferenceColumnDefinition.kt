@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.type.TypeMirror
+import kotlin.jvm.internal.Reflection
 
 /**
  * Description: Represents both a [ForeignKey] and [ColumnMap]. Builds up the model of fields
@@ -214,8 +215,9 @@ private constructor(
                     Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL
                 )
                     .initializer(
-                        "new \$T(\$T.class, \$S)",
+                        "new \$T(\$T.getOrCreateKotlinClass(\$T.class), \$S)",
                         propParam,
+                        ClassName.get(Reflection::class.java),
                         tableClass,
                         referenceDefinition.columnName
                     )
@@ -528,7 +530,7 @@ private constructor(
                     && !it.defaultValue.isNullOrEmpty()
                 ) {
                     manager.logWarning(
-                        ColumnValidator::class.java,
+                        ColumnValidator::class,
                         "Default value of \"${it.defaultValue}\" from " +
                             "${entityDefinition.elementName}.$elementName is ignored for primitive columns."
                     )

@@ -58,12 +58,12 @@ abstract class DatabaseHolder : MutableHolder {
      * @param table              The model table
      * @param databaseDefinition The database definition
      */
-    fun putDatabaseForTable(table: Class<*>, databaseDefinition: DBFlowDatabase) {
-        put(databaseDefinition, table.kotlin)
+    fun putDatabaseForTable(table: KClass<*>, databaseDefinition: DBFlowDatabase) {
+        put(databaseDefinition, table)
     }
 
-    fun putTypeConverter(type: Class<*>, typeConverter: TypeConverter<*, *>) {
-        typeConverters[type.kotlin] = typeConverter
+    fun putTypeConverter(type: KClass<*>, typeConverter: TypeConverter<*, *>) {
+        typeConverters[type] = typeConverter
     }
 
     fun reset() {

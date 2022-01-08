@@ -544,7 +544,9 @@ class TableDefinition(
                     param(ClassNames.DATABASE_WRAPPER, ModelUtils.wrapper)
                 ) {
                     modifiers(public, final)
+                    returns(elementClassName!!)
                     addCode(code.build())
+                    addStatement("return \$L", ModelUtils.variable)
                 }
             }
 

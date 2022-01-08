@@ -89,7 +89,7 @@ class ColumnValidator : Validator<ColumnDefinition> {
                 )
             } else if (typeName?.isPrimitive == true) {
                 processorManager.logWarning(
-                    ColumnValidator::class.java,
+                    ColumnValidator::class,
                     "Default value of ${validatorDefinition.defaultValue} from" +
                         " ${validatorDefinition.entityDefinition.elementName}.${validatorDefinition.elementName}" +
                         " is ignored for primitive columns."

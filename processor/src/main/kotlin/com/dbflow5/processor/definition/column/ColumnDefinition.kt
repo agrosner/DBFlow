@@ -36,6 +36,7 @@ import java.util.regex.Pattern
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import kotlin.jvm.internal.Reflection
 
 open class ColumnDefinition @JvmOverloads
 constructor(
@@ -134,7 +135,8 @@ constructor(
                 .any {
                     val className = it.annotationType.toTypeElement().toClassName()
                     return@any className == ClassNames.NON_NULL || className == ClassNames.NON_NULL_X
-                }) {
+                }
+        ) {
             isNotNullType = true
             isNullableType = false
         }
@@ -161,12 +163,14 @@ constructor(
         val isString = (elementTypeName == ClassName.get(String::class.java))
         if (defaultValue != null
             && isString
-            && !QUOTE_PATTERN.matcher(defaultValue).find()) {
+            && !QUOTE_PATTERN.matcher(defaultValue).find()
+        ) {
             defaultValue = "\"$defaultValue\""
         }
 
         if (isNotNullType && defaultValue == null
-            && isString) {
+            && isString
+        ) {
             defaultValue = "\"\""
         }
 
@@ -174,12 +178,15 @@ constructor(
         propertyFieldName = nameAllocator.newName(this.columnName)
 
         if (isPackagePrivate) {
-            columnAccessor = PackagePrivateScopeColumnAccessor(elementName, packageName,
-                ClassName.get(element.enclosingElement as TypeElement).simpleName())
+            columnAccessor = PackagePrivateScopeColumnAccessor(
+                elementName, packageName,
+                ClassName.get(element.enclosingElement as TypeElement).simpleName()
+            )
 
             PackagePrivateScopeColumnAccessor.putElement(
                 (columnAccessor as PackagePrivateScopeColumnAccessor).helperClassName,
-                columnName)
+                columnName
+            )
 
         } else {
             val isPrivate = element.modifiers.contains(Modifier.PRIVATE)
@@ -233,9 +240,11 @@ constructor(
             manager = manager
         )
 
-        combiner = Combiner(columnAccessor, elementTypeName!!, complexColumnBehavior.wrapperAccessor,
+        combiner = Combiner(
+            columnAccessor, elementTypeName!!, complexColumnBehavior.wrapperAccessor,
             complexColumnBehavior.wrapperTypeName,
-            complexColumnBehavior.subWrapperAccessor)
+            complexColumnBehavior.subWrapperAccessor
+        )
     }
 
     override fun toString(): String {
@@ -249,26 +258,43 @@ constructor(
 
     open fun addPropertyDefinition(typeBuilder: TypeSpec.Builder, tableClass: TypeName) {
         elementTypeName?.let { elementTypeName ->
-            val isNonPrimitiveTypeConverter = !complexColumnBehavior.wrapperAccessor.isPrimitiveTarget()
-                && complexColumnBehavior.wrapperAccessor is TypeConverterScopeColumnAccessor
+            val isNonPrimitiveTypeConverter =
+                !complexColumnBehavior.wrapperAccessor.isPrimitiveTarget()
+                    && complexColumnBehavior.wrapperAccessor is TypeConverterScopeColumnAccessor
             val propParam: TypeName = if (isNonPrimitiveTypeConverter) {
-                ParameterizedTypeName.get(ClassNames.TYPE_CONVERTED_PROPERTY, complexColumnBehavior.wrapperTypeName, elementTypeName.box())
+                ParameterizedTypeName.get(
+                    ClassNames.TYPE_CONVERTED_PROPERTY,
+                    complexColumnBehavior.wrapperTypeName,
+                    elementTypeName.box()
+                )
             } else if (!complexColumnBehavior.wrapperAccessor.isPrimitiveTarget()) {
-                ParameterizedTypeName.get(ClassNames.WRAPPER_PROPERTY, complexColumnBehavior.wrapperTypeName, elementTypeName.box())
+                ParameterizedTypeName.get(
+                    ClassNames.WRAPPER_PROPERTY,
+                    complexColumnBehavior.wrapperTypeName,
+                    elementTypeName.box()
+                )
             } else {
                 ParameterizedTypeName.get(ClassNames.PROPERTY, elementTypeName.box())
             }
 
-            val fieldBuilder = FieldSpec.builder(propParam,
-                propertyFieldName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+            val fieldBuilder = FieldSpec.builder(
+                propParam,
+                propertyFieldName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL
+            )
 
             if (isNonPrimitiveTypeConverter) {
                 val codeBlock = CodeBlock.builder()
-                codeBlock.add("new \$T(\$T.class, \$S, true,", propParam, tableClass, columnName)
-                codeBlock.add("""
+                codeBlock.add(
+                    "new \$T(\$T.getOrCreateKotlinClass(\$T.class), \$S, true,",
+                    propParam,
+                    ClassName.get(Reflection::class.java),
+                    tableClass, columnName
+                )
+                codeBlock.add(
+                    """
                     new ${"$"}T() {
                     @Override
-                    public ${"$"}T getTypeConverter(Class<?> modelClass) {
+                    public ${"$"}T getTypeConverter(KClass<?> modelClass) {
                         ${"$"}T adapter = (${"$"}T) ${"$"}T.getRetrievalAdapter(modelClass);
                         return adapter.${"$"}L;
                     }
@@ -276,10 +302,17 @@ constructor(
                     ClassNames.TYPE_CONVERTER_GETTER, ClassNames.TYPE_CONVERTER,
                     entityDefinition.outputClassName, entityDefinition.outputClassName,
                     ClassNames.FLOW_MANAGER,
-                    (complexColumnBehavior.wrapperAccessor as TypeConverterScopeColumnAccessor).typeConverterFieldName)
+                    (complexColumnBehavior.wrapperAccessor as TypeConverterScopeColumnAccessor).typeConverterFieldName
+                )
                 fieldBuilder.initializer(codeBlock.build())
             } else {
-                fieldBuilder.initializer("new \$T(\$T.class, \$S)", propParam, tableClass, columnName)
+                fieldBuilder.initializer(
+                    "new \$T(\$T.getOrCreateKotlinClass(\$T.class), \$S)",
+                    propParam,
+                    ClassName.get(Reflection::class.java),
+                    tableClass,
+                    columnName
+                )
             }
             if (type is Type.Primary) {
                 fieldBuilder.addJavadoc("Primary Key")
@@ -323,14 +356,18 @@ constructor(
 
     open fun getSQLiteStatementMethod(index: AtomicInteger, defineProperty: Boolean = true) = code {
         SqliteStatementAccessCombiner(combiner).apply {
-            addCode("", getDefaultValueBlock(), index.get(), modelBlock,
-                defineProperty)
+            addCode(
+                "", getDefaultValueBlock(), index.get(), modelBlock,
+                defineProperty
+            )
         }
         this
     }
 
-    open fun getLoadFromCursorMethod(endNonPrimitiveIf: Boolean, index: AtomicInteger,
-                                     nameAllocator: NameAllocator) = code {
+    open fun getLoadFromCursorMethod(
+        endNonPrimitiveIf: Boolean, index: AtomicInteger,
+        nameAllocator: NameAllocator
+    ) = code {
         val (orderedCursorLookup, assignDefaultValuesFromCursor) = entityDefinition.cursorHandlingBehavior
         var assignDefaultValue = assignDefaultValuesFromCursor
         val defaultValueBlock = getDefaultValueBlock()
@@ -338,9 +375,11 @@ constructor(
             assignDefaultValue = false
         }
 
-        LoadFromCursorAccessCombiner(combiner, defaultValue != null,
+        LoadFromCursorAccessCombiner(
+            combiner, defaultValue != null,
             nameAllocator,
-            CursorHandlingBehavior(orderedCursorLookup, assignDefaultValue)).apply {
+            CursorHandlingBehavior(orderedCursorLookup, assignDefaultValue)
+        ).apply {
             addCode(columnName, getDefaultValueBlock(), index.get(), modelBlock)
         }
         this
@@ -384,9 +423,11 @@ constructor(
     }
 
     open fun appendExistenceMethod(codeBuilder: CodeBlock.Builder) {
-        ExistenceAccessCombiner(combiner, isAutoRowId,
+        ExistenceAccessCombiner(
+            combiner, isAutoRowId,
             quickCheckPrimaryKey,
-            entityDefinition.elementClassName!!)
+            entityDefinition.elementClassName!!
+        )
             .apply {
                 codeBuilder.addCode(columnName, getDefaultValueBlock(), 0, modelBlock)
             }
@@ -400,14 +441,22 @@ constructor(
 
     open val creationName: CodeBlock
         get() {
-            val codeBlockBuilder = DefinitionUtils.getCreationStatement(elementTypeName, complexColumnBehavior.wrapperTypeName, columnName)
+            val codeBlockBuilder = DefinitionUtils.getCreationStatement(
+                elementTypeName,
+                complexColumnBehavior.wrapperTypeName,
+                columnName
+            )
 
             if (type is Type.PrimaryAutoIncrement) {
                 codeBlockBuilder.add(" PRIMARY KEY ")
 
                 if (entityDefinition is TableDefinition &&
-                    !entityDefinition.primaryKeyConflictActionName.isNullOrEmpty()) {
-                    codeBlockBuilder.add("ON CONFLICT \$L ", entityDefinition.primaryKeyConflictActionName)
+                    !entityDefinition.primaryKeyConflictActionName.isNullOrEmpty()
+                ) {
+                    codeBlockBuilder.add(
+                        "ON CONFLICT \$L ",
+                        entityDefinition.primaryKeyConflictActionName
+                    )
                 }
 
                 codeBlockBuilder.add("AUTOINCREMENT")
@@ -442,7 +491,8 @@ constructor(
                 defaultValue = "false"
             } else if (elementTypeName == TypeName.BYTE || elementTypeName == TypeName.INT
                 || elementTypeName == TypeName.DOUBLE || elementTypeName == TypeName.FLOAT
-                || elementTypeName == TypeName.LONG || elementTypeName == TypeName.SHORT) {
+                || elementTypeName == TypeName.LONG || elementTypeName == TypeName.SHORT
+            ) {
                 defaultValue = "($elementTypeName) 0"
             } else if (elementTypeName == TypeName.CHAR) {
                 defaultValue = "'\\u0000'"

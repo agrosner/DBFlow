@@ -31,6 +31,7 @@ import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
 import java.util.concurrent.atomic.AtomicInteger
 import javax.lang.model.element.Modifier
+import kotlin.jvm.internal.Reflection
 
 /**
  * Description:
@@ -346,7 +347,10 @@ class CustomTypeConverterPropertyMethod(private val entityDefinition: EntityDefi
             firstDef?.typeConverterElementNames?.forEach { elementName ->
                 code.statement(
                     "global_typeConverter${it.simpleName()} " +
-                        "= (\$T) holder.getTypeConverterForClass(\$T.class)", it, elementName
+                        "= (\$T) holder.getTypeConverterForClass(\$T.getOrCreateKotlinClass(\$T.class))",
+                    it,
+                    ClassName.get(Reflection::class.java),
+                    elementName
                 )
             }
         }

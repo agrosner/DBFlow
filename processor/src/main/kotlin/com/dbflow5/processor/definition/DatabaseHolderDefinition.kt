@@ -1,7 +1,6 @@
 package com.dbflow5.processor.definition
 
 import com.dbflow5.processor.ClassNames
-import com.dbflow5.processor.DatabaseHandler
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.utils.rawTypeName
 import com.grosner.kpoet.`public final class`
@@ -10,7 +9,9 @@ import com.grosner.kpoet.extends
 import com.grosner.kpoet.modifiers
 import com.grosner.kpoet.public
 import com.grosner.kpoet.statement
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeSpec
+import kotlin.jvm.internal.Reflection
 
 /**
  * Description: Top-level writer that handles writing all [DatabaseDefinition]
@@ -40,13 +41,20 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
             modifiers(public)
 
             processorManager.getTypeConverters().forEach { tc ->
-                statement("putTypeConverter(\$T.class, new \$T())",
+                statement(
+                    "putTypeConverter(\$T.getOrCreateKotlinClass(\$T.class), new \$T())",
+                    ClassName.get(Reflection::class.java),
                     tc.modelTypeName?.rawTypeName(),
-                    tc.className)
+                    tc.className
+                )
 
                 tc.allowedSubTypes.forEach { subType ->
-                    statement("putTypeConverter(\$T.class, new \$T())",
-                        subType.rawTypeName(), tc.className)
+                    statement(
+                        "putTypeConverter(\$T.getOrCreateKotlinClass(\$T.class), new \$T())",
+                        ClassName.get(Reflection::class.java),
+                        subType.rawTypeName(),
+                        tc.className
+                    )
                 }
             }
 
