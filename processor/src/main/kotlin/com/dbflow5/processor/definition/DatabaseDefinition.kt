@@ -59,7 +59,7 @@ class DatabaseDefinition(
             || element.modifiers.contains(Modifier.PRIVATE)
             || !typeElement.isSubclass(
                 manager.processingEnvironment,
-                ClassNames.BASE_DATABASE_DEFINITION_
+                ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME
             )
         ) {
             manager.logError(
