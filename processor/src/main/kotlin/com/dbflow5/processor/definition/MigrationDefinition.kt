@@ -15,11 +15,12 @@ import javax.lang.model.element.TypeElement
 /**
  * Description: Used in holding data about migration files.
  */
-class MigrationDefinition(migration: Migration,
-                          processorManager: ProcessorManager, typeElement: TypeElement)
-    : BaseDefinition(typeElement, processorManager) {
+class MigrationDefinition(
+    migration: Migration,
+    processorManager: ProcessorManager, typeElement: TypeElement
+) : BaseDefinition(typeElement, processorManager) {
 
-    val databaseName: TypeName?
+    var databaseName: TypeName?
     val version: Int
     val priority: Int
 
@@ -36,9 +37,12 @@ class MigrationDefinition(migration: Migration,
         elements.forEach { element ->
             if (element is ExecutableElement && element.simpleName.toString() == "<init>") {
                 if (!constructorName.isNullOrEmpty()) {
-                    manager.logError(MigrationDefinition::class, "Migrations cannot have more than one constructor. " +
-                        "They can only have an Empty() or single-parameter constructor Empty(Empty.class) that specifies " +
-                        "the .class of this migration class.")
+                    manager.logError(
+                        MigrationDefinition::class,
+                        "Migrations cannot have more than one constructor. " +
+                            "They can only have an Empty() or single-parameter constructor Empty(Empty.class) that specifies " +
+                            "the .class of this migration class."
+                    )
                 }
 
                 if (element.parameters.isEmpty()) {
@@ -52,7 +56,10 @@ class MigrationDefinition(migration: Migration,
                         val containedType = type.typeArguments[0]
                         constructorName = CodeBlock.of("(\$T.class)", containedType).toString()
                     } else {
-                        manager.logError(MigrationDefinition::class, "Wrong parameter type found for $typeElement. Found $type but required ModelClass.class")
+                        manager.logError(
+                            MigrationDefinition::class,
+                            "Wrong parameter type found for $typeElement. Found $type but required ModelClass.class"
+                        )
                     }
                 }
             }

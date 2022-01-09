@@ -39,6 +39,12 @@ interface DatabaseObjectHolder {
     val manyToManys: List<ManyToManyDefinition>
     fun clearManyToMany()
 
+    val migrations: Map<Int, List<MigrationDefinition>>
+    fun putMigrationDefinition(
+        migrationDefinition: MigrationDefinition,
+        processorManager: ProcessorManager
+    )
+
     /**
      * Retrieve what database class they're trying to reference.
      */
@@ -81,6 +87,8 @@ open class UniqueDatabaseObjectHolder : DatabaseObjectHolder {
     private var modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition> = hashMapOf()
     private val manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> =
         hashMapOf()
+
+    private val migrationMap = mutableMapOf<Int, MutableList<MigrationDefinition>>()
 
     protected fun associateTable(
         tableDefinition: TableDefinition,
@@ -178,10 +186,29 @@ open class UniqueDatabaseObjectHolder : DatabaseObjectHolder {
         }
     }
 
-    override val manyToManys: List<ManyToManyDefinition> = manyToManyDefinitionMap.values.flatten()
+    override val manyToManys: List<ManyToManyDefinition>
+        get() = manyToManyDefinitionMap.values.flatten()
 
     override fun clearManyToMany() {
         manyToManyDefinitionMap.values.clear()
+    }
+
+    override val migrations: Map<Int, List<MigrationDefinition>>
+        get() = migrationMap
+
+    override fun putMigrationDefinition(
+        migrationDefinition: MigrationDefinition,
+        processorManager: ProcessorManager
+    ) {
+        val migrationDefinitions =
+            migrationMap.getOrPut(migrationDefinition.version) { arrayListOf() }
+        if (!migrationDefinitions.contains(migrationDefinition)) {
+            migrationDefinitions.add(migrationDefinition)
+        }
+        // patch migration if added here with definition.
+        databaseDefinition?.let { databaseDefinition ->
+            migrationDefinition.databaseName = databaseDefinition.elementClassName
+        }
     }
 
     private fun reassociateIfDefinition(entityDefinition: EntityDefinition) {

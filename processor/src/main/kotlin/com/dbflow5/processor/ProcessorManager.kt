@@ -42,9 +42,6 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     private val uniqueDatabases = arrayListOf<TypeName>()
     private val modelToDatabaseMap = hashMapOf<TypeName, TypeName>()
     val typeConverters = linkedMapOf<TypeName?, TypeConverterDefinition>()
-    private val migrations =
-        hashMapOf<TypeName?, MutableMap<Int, MutableList<MigrationDefinition>>>()
-
     private val databaseDefinitionMap = hashMapOf<TypeName?, DatabaseObjectHolder>()
     private val handlers = mutableSetOf<AnnotatedHandler<*>>()
 
@@ -171,17 +168,14 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
     }
 
     fun addMigrationDefinition(migrationDefinition: MigrationDefinition) {
-        val migrationDefinitionMap =
-            migrations.getOrPut(migrationDefinition.databaseName) { hashMapOf() }
-        val migrationDefinitions =
-            migrationDefinitionMap.getOrPut(migrationDefinition.version) { arrayListOf() }
-        if (!migrationDefinitions.contains(migrationDefinition)) {
-            migrationDefinitions.add(migrationDefinition)
-        }
+        getOrPutDatabase(migrationDefinition.databaseName).putMigrationDefinition(
+            migrationDefinition,
+            this
+        )
     }
 
-    fun getMigrationsForDatabase(databaseName: TypeName) = migrations[databaseName]
-        ?: hashMapOf<Int, List<MigrationDefinition>>()
+    fun getMigrationsForDatabase(databaseName: TypeName) =
+        getOrPutDatabase(databaseName).migrations
 
     fun logError(callingClass: KClass<*>?, error: String?, vararg args: Any?) {
         messager.printMessage(
@@ -226,11 +220,12 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                 // patch any declared objects
                 val definition = db.databaseDefinition!!
                 definition.declaredTables.forEach { table ->
-                    db.putTable(nullHolder.tables.firstOrNull { it.elementClassName == table }
-                        ?: throw IllegalStateException(
-                            "Floating $table reference not found. Is it marked with @Table?"
-                        ),
-                        this
+                    db.putTable(
+                        nullHolder.tables.firstOrNull { it.elementClassName == table }
+                            ?: throw IllegalStateException(
+                                "Floating $table reference not found. Is it marked with @Table?"
+                            ),
+                        this,
                     )
                 }
                 definition.declaredQueries.forEach { query ->
@@ -241,7 +236,7 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                                     "" +
                                     "${nullHolder}: ${nullHolder.databaseDefinition}"
                             ),
-                        this
+                        this,
                     )
                 }
                 definition.declaredViews.forEach { view ->
@@ -250,7 +245,17 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                             ?: throw IllegalStateException(
                                 "Floating $view reference not found. Is it marked with @ModelView?"
                             ),
-                        this
+                        this,
+                    )
+                }
+                definition.declaredMigrations.forEach { migration ->
+                    db.putMigrationDefinition(
+                        nullHolder.migrations.values.flatten()
+                            .firstOrNull { it.elementClassName == migration }
+                            ?: throw IllegalStateException(
+                                "Floating $migration reference not found. Is it marked with @Migration?"
+                            ),
+                        this,
                     )
                 }
             }
