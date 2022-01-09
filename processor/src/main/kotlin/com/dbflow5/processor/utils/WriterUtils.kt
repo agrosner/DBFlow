@@ -13,6 +13,7 @@ fun BaseDefinition.writeBaseDefinition(processorManager: ProcessorManager): Bool
         success = true
     } catch (e: IOException) {
         // ignored
+        processorManager.logWarning(e.toString())
     } catch (i: IllegalStateException) {
         processorManager.logError(this::class, "Found error for class: $elementName")
         processorManager.logError(this::class, i.message)

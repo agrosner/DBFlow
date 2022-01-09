@@ -227,6 +227,15 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                             ),
                         this,
                     )
+                    // any many to many, add table also part of DB.
+                    nullHolder.manyToManys.find { it.referencedTable == table }
+                        ?.let { manyDefinition ->
+                            nullHolder.tables.find { it.elementClassName == manyDefinition.outputClassName }
+                                ?.let { table ->
+                                    db.putTable(table, this)
+                                }
+                            db.putManyToMany(manyDefinition, this)
+                        }
                 }
                 definition.declaredQueries.forEach { query ->
                     db.putQueryModel(
@@ -265,13 +274,13 @@ class ProcessorManager internal constructor(val processingEnvironment: Processin
                     manager.logError(databaseHolderDefinition.getMissingDBRefs().joinToString("\n"))
                     continue
                 }
-
                 val manyToManyDefinitions = databaseHolderDefinition.manyToManys
 
                 val flattenedList =
                     manyToManyDefinitions.sortedBy { it.outputClassName?.simpleName() }
                 for (manyToManyList in flattenedList) {
                     manyToManyList.prepareForWrite()
+                    logWarning("Writing many to many ${manyToManyList.outputClassName}")
                     manyToManyList.writeBaseDefinition(processorManager)
                 }
 

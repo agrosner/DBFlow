@@ -39,7 +39,7 @@ interface DatabaseObjectHolder {
     val manyToManys: List<ManyToManyDefinition>
     fun clearManyToMany()
 
-    val migrations: Map<Int, List<MigrationDefinition>>
+    val migrations: Map<Int, Set<MigrationDefinition>>
     fun putMigrationDefinition(
         migrationDefinition: MigrationDefinition,
         processorManager: ProcessorManager
@@ -85,10 +85,11 @@ open class UniqueDatabaseObjectHolder : DatabaseObjectHolder {
 
     private val queryModelDefinitionMap: MutableMap<TypeName, QueryModelDefinition> = hashMapOf()
     private var modelViewDefinitionMap: MutableMap<TypeName, ModelViewDefinition> = hashMapOf()
-    private val manyToManyDefinitionMap: MutableMap<TypeName, MutableList<ManyToManyDefinition>> =
+    private val manyToManyDefinitionMap: MutableMap<TypeName, MutableSet<ManyToManyDefinition>> =
         hashMapOf()
+    private var isClearedManyToManyMap = false
 
-    private val migrationMap = mutableMapOf<Int, MutableList<MigrationDefinition>>()
+    private val migrationMap = mutableMapOf<Int, MutableSet<MigrationDefinition>>()
 
     protected fun associateTable(
         tableDefinition: TableDefinition,
@@ -181,19 +182,21 @@ open class UniqueDatabaseObjectHolder : DatabaseObjectHolder {
         processorManager: ProcessorManager
     ) {
         manyToManyDefinition.elementClassName?.let { elementClassName ->
-            manyToManyDefinitionMap.getOrPut(elementClassName) { arrayListOf() }
+            manyToManyDefinitionMap.getOrPut(elementClassName) { mutableSetOf() }
                 .add(manyToManyDefinition)
         }
     }
 
     override val manyToManys: List<ManyToManyDefinition>
-        get() = manyToManyDefinitionMap.values.flatten()
+        get() = isClearedManyToManyMap.takeIf { !it }
+            ?.let { manyToManyDefinitionMap.values.flatten() }
+            ?: emptyList()
 
     override fun clearManyToMany() {
-        manyToManyDefinitionMap.values.clear()
+        isClearedManyToManyMap = true
     }
 
-    override val migrations: Map<Int, List<MigrationDefinition>>
+    override val migrations: Map<Int, Set<MigrationDefinition>>
         get() = migrationMap
 
     override fun putMigrationDefinition(
@@ -201,7 +204,7 @@ open class UniqueDatabaseObjectHolder : DatabaseObjectHolder {
         processorManager: ProcessorManager
     ) {
         val migrationDefinitions =
-            migrationMap.getOrPut(migrationDefinition.version) { arrayListOf() }
+            migrationMap.getOrPut(migrationDefinition.version) { mutableSetOf() }
         if (!migrationDefinitions.contains(migrationDefinition)) {
             migrationDefinitions.add(migrationDefinition)
         }

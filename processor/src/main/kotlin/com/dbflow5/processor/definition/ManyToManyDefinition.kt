@@ -37,11 +37,11 @@ class ManyToManyDefinition(
 
     val databaseTypeName: TypeName? = element.extractTypeNameFromAnnotation<Table> { it.database }
 
-    private val referencedTable: TypeName =
+    val referencedTable: TypeName =
         manyToMany.extractTypeNameFromAnnotation { it.referencedTable }
     private val generateAutoIncrement: Boolean = manyToMany.generateAutoIncrement
     private val sameTableReferenced: Boolean = referencedTable == elementTypeName
-    private val generatedTableClassName = manyToMany.generatedTableClassName
+    val generatedTableClassName = manyToMany.generatedTableClassName
     private val saveForeignKeyModels: Boolean = manyToMany.saveForeignKeyModels
     private val thisColumnName = manyToMany.thisTableColumnName
     private val referencedColumnName = manyToMany.referencedTableColumnName
