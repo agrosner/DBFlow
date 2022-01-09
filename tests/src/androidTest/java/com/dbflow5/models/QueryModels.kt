@@ -11,7 +11,6 @@ class AuthorNameQuery(
     var authorId: Int = 0, var blogId: Int = 0
 )
 
-
 @Query
 class CustomBlobModel(@Column var myBlob: MyBlob? = null) {
 

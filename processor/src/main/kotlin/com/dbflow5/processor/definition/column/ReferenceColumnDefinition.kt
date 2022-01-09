@@ -119,7 +119,8 @@ private constructor(
         typeElement?.let { typeElement ->
             QueryModelDefinition(
                 typeElement,
-                tableDefinition.associationalBehavior.databaseTypeName,
+                tableDefinition.associationalBehavior.databaseTypeName.takeIf { it != TypeName.OBJECT }
+                    ?: entityDefinition.declaredDefinition?.elementClassName!!,
                 manager
             ).apply {
                 manager.addQueryModelDefinition(this)
@@ -439,8 +440,11 @@ private constructor(
      * table. We do this post-evaluation so all of the [TableDefinition] can be generated.
      */
     fun checkNeedsReferences() {
+        val databaseName = (entityDefinition.associationalBehavior.databaseTypeName
+            .takeIf { it != TypeName.OBJECT }
+            ?: entityDefinition.declaredDefinition?.elementClassName)
         val referencedTableDefinition = manager.getReferenceDefinition(
-            entityDefinition.associationalBehavior.databaseTypeName,
+            databaseName,
             referencedClassName
         )
         if (referencedTableDefinition == null) {

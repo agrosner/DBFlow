@@ -110,7 +110,6 @@ import com.dbflow5.rx2.query.SimpleRXModel
         ProspectQuizEntry::class,
         SimpleRXModel::class,
         SimpleModel::class,
-        SimpleCustomModel::class,
         SimpleQuickCheckModel::class,
         NumberModel::class,
         CharModel::class,
@@ -160,6 +159,7 @@ import com.dbflow5.rx2.query.SimpleRXModel
         AuthorNameQuery::class,
         CustomBlobModel::class,
         AllFieldsQueryModel::class,
+        SimpleCustomModel::class,
     ],
 )
 abstract class TestDatabase : DBFlowDatabase() {

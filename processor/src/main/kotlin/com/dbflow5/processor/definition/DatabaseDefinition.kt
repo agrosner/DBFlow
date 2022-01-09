@@ -7,6 +7,7 @@ import com.dbflow5.processor.ModelViewValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.TableValidator
 import com.dbflow5.processor.utils.`override fun`
+import com.dbflow5.processor.utils.extractTypeNamesFromAnnotation
 import com.dbflow5.processor.utils.isSubclass
 import com.grosner.kpoet.L
 import com.grosner.kpoet.`return`
@@ -23,16 +24,17 @@ import com.squareup.javapoet.TypeSpec
 import com.squareup.javapoet.WildcardTypeName
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
-import kotlin.jvm.internal.Reflection
 import kotlin.reflect.KClass
 
 /**
  * Description: Writes [Database] definitions,
  * which contain [Table], [ModelView], and [Migration]
  */
-class DatabaseDefinition(database: Database,
-                         manager: ProcessorManager, element: Element)
-    : BaseDefinition(element, manager, packageName = ClassNames.FLOW_MANAGER_PACKAGE), TypeDefinition {
+class DatabaseDefinition(
+    database: Database,
+    manager: ProcessorManager, element: Element
+) : BaseDefinition(element, manager, packageName = ClassNames.FLOW_MANAGER_PACKAGE),
+    TypeDefinition {
 
     private val databaseVersion: Int = database.version
     private val foreignKeysSupported = database.foreignKeyConstraintsEnforced
@@ -42,14 +44,28 @@ class DatabaseDefinition(database: Database,
 
     var objectHolder: DatabaseObjectHolder? = null
 
+    val declaredTables = element.extractTypeNamesFromAnnotation<Database> { it.tables } ?: listOf()
+    val declaredViews =
+        element.extractTypeNamesFromAnnotation<Database> { database.views } ?: listOf()
+    val declaredQueries =
+        element.extractTypeNamesFromAnnotation<Database> { database.queries } ?: listOf()
+    val declaredMigrations =
+        element.extractTypeNamesFromAnnotation<Database> { database.migrations } ?: listOf()
+
     init {
         setOutputClassName("${elementName}_Database")
 
         if (!element.modifiers.contains(Modifier.ABSTRACT)
             || element.modifiers.contains(Modifier.PRIVATE)
-            || !typeElement.isSubclass(manager.processingEnvironment, ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME)) {
-            manager.logError("$elementClassName must be a visible abstract class that " +
-                "extends ${ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME}")
+            || !typeElement.isSubclass(
+                manager.processingEnvironment,
+                ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME
+            )
+        ) {
+            manager.logError(
+                "$elementClassName must be a visible abstract class that " +
+                    "extends ${ClassNames.BASE_DATABASE_DEFINITION_CLASSNAME}"
+            )
         }
     }
 
@@ -78,7 +94,14 @@ class DatabaseDefinition(database: Database,
             val modelViewValidator = ModelViewValidator()
             manager.getModelViewDefinitions(className)
                 .filter { modelViewValidator.validate(ProcessorManager.manager, it) }
-                .forEach { it.elementClassName?.let { className -> modelViewDefinitionMap.put(className, it) } }
+                .forEach {
+                    it.elementClassName?.let { className ->
+                        modelViewDefinitionMap.put(
+                            className,
+                            it
+                        )
+                    }
+                }
             manager.setModelViewDefinitions(modelViewDefinitionMap, className)
         }
     }
@@ -87,7 +110,8 @@ class DatabaseDefinition(database: Database,
         elementClassName?.let { className ->
             manager.getTableDefinitions(className).forEach(TableDefinition::prepareForWrite)
             manager.getModelViewDefinitions(className).forEach(ModelViewDefinition::prepareForWrite)
-            manager.getQueryModelDefinitions(className).forEach(QueryModelDefinition::prepareForWrite)
+            manager.getQueryModelDefinitions(className)
+                .forEach(QueryModelDefinition::prepareForWrite)
         }
     }
 
@@ -98,25 +122,43 @@ class DatabaseDefinition(database: Database,
             this@DatabaseDefinition.elementClassName?.let { elementClassName ->
                 for (definition in manager.getTableDefinitions(elementClassName)) {
                     if (definition.hasGlobalTypeConverters) {
-                        statement("addModelAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                        statement(
+                            "addModelAdapter(new \$T(holder, this), holder)",
+                            definition.outputClassName
+                        )
                     } else {
-                        statement("addModelAdapter(new \$T(this), holder)", definition.outputClassName)
+                        statement(
+                            "addModelAdapter(new \$T(this), holder)",
+                            definition.outputClassName
+                        )
                     }
                 }
 
                 for (definition in manager.getModelViewDefinitions(elementClassName)) {
                     if (definition.hasGlobalTypeConverters) {
-                        statement("addModelViewAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                        statement(
+                            "addModelViewAdapter(new \$T(holder, this), holder)",
+                            definition.outputClassName
+                        )
                     } else {
-                        statement("addModelViewAdapter(new \$T(this), holder)", definition.outputClassName)
+                        statement(
+                            "addModelViewAdapter(new \$T(this), holder)",
+                            definition.outputClassName
+                        )
                     }
                 }
 
                 for (definition in manager.getQueryModelDefinitions(elementClassName)) {
                     if (definition.hasGlobalTypeConverters) {
-                        statement("addRetrievalAdapter(new \$T(holder, this), holder)", definition.outputClassName)
+                        statement(
+                            "addRetrievalAdapter(new \$T(holder, this), holder)",
+                            definition.outputClassName
+                        )
                     } else {
-                        statement("addRetrievalAdapter(new \$T(this), holder)", definition.outputClassName)
+                        statement(
+                            "addRetrievalAdapter(new \$T(this), holder)",
+                            definition.outputClassName
+                        )
                     }
                 }
 
@@ -127,7 +169,10 @@ class DatabaseDefinition(database: Database,
                         migrationDefinitionMap[version]
                             ?.sortedBy { it.priority }
                             ?.forEach { migrationDefinition ->
-                                statement("addMigration($version, new \$T${migrationDefinition.constructorName})", migrationDefinition.elementClassName)
+                                statement(
+                                    "addMigration($version, new \$T${migrationDefinition.constructorName})",
+                                    migrationDefinition.elementClassName
+                                )
                             }
                     }
             }
@@ -138,12 +183,19 @@ class DatabaseDefinition(database: Database,
 
     private fun writeGetters(typeBuilder: TypeSpec.Builder) {
         typeBuilder.apply {
-            `override fun`(ParameterizedTypeName.get(ClassName.get(KClass::class.java), WildcardTypeName.subtypeOf(Any::class.java)),
-                "getAssociatedDatabaseClassFile") {
+            `override fun`(
+                ParameterizedTypeName.get(
+                    ClassName.get(KClass::class.java),
+                    WildcardTypeName.subtypeOf(Any::class.java)
+                ),
+                "getAssociatedDatabaseClassFile"
+            ) {
                 modifiers(public, final)
-                `return`("\$T.getKotlinClass(\$T.class)",
+                `return`(
+                    "\$T.getKotlinClass(\$T.class)",
                     ClassNames.JVM_CLASS_MAPPING,
-                    elementTypeName)
+                    elementTypeName
+                )
             }
             `override fun`(TypeName.BOOLEAN, "isForeignKeysSupported") {
                 modifiers(public, final)

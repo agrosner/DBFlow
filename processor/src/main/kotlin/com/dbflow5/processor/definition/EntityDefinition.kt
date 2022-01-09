@@ -34,7 +34,6 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
-import kotlin.jvm.internal.Reflection
 import kotlin.reflect.KClass
 
 fun Collection<EntityDefinition>.safeWritePackageHelper(processorManager: ProcessorManager) =
@@ -64,8 +63,11 @@ abstract class EntityDefinition(typeElement: TypeElement, processorManager: Proc
     val classElementLookUpMap: MutableMap<String, Element> = mutableMapOf()
 
     val modelClassName = typeElement.simpleName.toString()
+
+    internal var declaredDefinition: DatabaseDefinition? = null
     val databaseDefinition: DatabaseDefinition by lazy {
-        manager.getDatabaseHolderDefinition(associationalBehavior.databaseTypeName)?.databaseDefinition
+        declaredDefinition
+            ?: manager.getDatabaseHolderDefinition(associationalBehavior.databaseTypeName)?.databaseDefinition
             ?: throw RuntimeException(
                 "DatabaseDefinition not found for DB element named ${associationalBehavior.name}" +
                     " for db type: ${associationalBehavior.databaseTypeName}."
@@ -181,7 +183,7 @@ abstract class EntityDefinition(typeElement: TypeElement, processorManager: Proc
                 }_Helper"
                 if (columnDefinition is ReferenceColumnDefinition) {
                     val tableDefinition: TableDefinition? =
-                        databaseDefinition.objectHolder?.tableDefinitionMap?.get(columnDefinition.referencedClassName as TypeName)
+                        databaseDefinition.objectHolder?.table(columnDefinition.referencedClassName as TypeName)
                     if (tableDefinition != null) {
                         helperClassName = "${tableDefinition.element.getPackage()}.${
                             ClassName.get(tableDefinition.element as TypeElement).simpleName()

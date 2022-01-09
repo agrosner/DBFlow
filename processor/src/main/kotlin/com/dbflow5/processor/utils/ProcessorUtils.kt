@@ -9,14 +9,17 @@ import javax.lang.model.element.Element
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.MirroredTypeException
+import javax.lang.model.type.MirroredTypesException
 import javax.lang.model.type.TypeMirror
 import javax.tools.Diagnostic
 
 /**
  * Whether the specified element implements the [ClassName]
  */
-fun TypeElement?.implementsClass(processingEnvironment: ProcessingEnvironment
-                                 = manager.processingEnvironment, className: ClassName) = implementsClass(processingEnvironment, className.toString())
+fun TypeElement?.implementsClass(
+    processingEnvironment: ProcessingEnvironment
+    = manager.processingEnvironment, className: ClassName
+) = implementsClass(processingEnvironment, className.toString())
 
 /**
  * Whether the specified element is assignable to the fqTn parameter
@@ -29,11 +32,16 @@ fun TypeElement?.implementsClass(processingEnvironment: ProcessingEnvironment
  * *
  * @return true if element implements the fqTn
  */
-fun TypeElement?.implementsClass(processingEnvironment: ProcessingEnvironment, fqTn: String): Boolean {
+fun TypeElement?.implementsClass(
+    processingEnvironment: ProcessingEnvironment,
+    fqTn: String
+): Boolean {
     val typeElement = processingEnvironment.elementUtils.getTypeElement(fqTn)
     if (typeElement == null) {
-        processingEnvironment.messager.printMessage(Diagnostic.Kind.ERROR,
-                "Type Element was null for: $fqTn ensure that the visibility of the class is not private.")
+        processingEnvironment.messager.printMessage(
+            Diagnostic.Kind.ERROR,
+            "Type Element was null for: $fqTn ensure that the visibility of the class is not private."
+        )
         return false
     } else {
         val classMirror: TypeMirror? = typeElement.asType().erasure()
@@ -41,15 +49,20 @@ fun TypeElement?.implementsClass(processingEnvironment: ProcessingEnvironment, f
             return false
         }
         val elementType = this.asType()
-        return elementType != null && (processingEnvironment.typeUtils.isAssignable(elementType, classMirror) || elementType == classMirror)
+        return elementType != null && (processingEnvironment.typeUtils.isAssignable(
+            elementType,
+            classMirror
+        ) || elementType == classMirror)
     }
 }
 
 /**
  * Whether the specified element is assignable to the [className] parameter
  */
-fun TypeElement?.isSubclass(processingEnvironment: ProcessingEnvironment
-                            = manager.processingEnvironment, className: ClassName) = isSubclass(processingEnvironment, className.toString())
+fun TypeElement?.isSubclass(
+    processingEnvironment: ProcessingEnvironment
+    = manager.processingEnvironment, className: ClassName
+) = isSubclass(processingEnvironment, className.toString())
 
 /**
  * Whether the specified element is assignable to the [fqTn] parameter
@@ -57,11 +70,17 @@ fun TypeElement?.isSubclass(processingEnvironment: ProcessingEnvironment
 fun TypeElement?.isSubclass(processingEnvironment: ProcessingEnvironment, fqTn: String): Boolean {
     val typeElement = processingEnvironment.elementUtils.getTypeElement(fqTn)
     if (typeElement == null) {
-        processingEnvironment.messager.printMessage(Diagnostic.Kind.ERROR, "Type Element was null for: $fqTn ensure that the visibility of the class is not private.")
+        processingEnvironment.messager.printMessage(
+            Diagnostic.Kind.ERROR,
+            "Type Element was null for: $fqTn ensure that the visibility of the class is not private."
+        )
         return false
     } else {
         val classMirror = typeElement.asType()
-        return classMirror != null && this != null && this.asType() != null && processingEnvironment.typeUtils.isSubtype(this.asType(), classMirror)
+        return classMirror != null && this != null && this.asType() != null && processingEnvironment.typeUtils.isSubtype(
+            this.asType(),
+            classMirror
+        )
     }
 }
 
@@ -75,7 +94,7 @@ fun fromTypeMirror(typeMirror: TypeMirror, processorManager: ProcessorManager): 
 }
 
 fun getTypeElement(element: Element): TypeElement? = element as? TypeElement
-        ?: getTypeElement(element.asType())
+    ?: getTypeElement(element.asType())
 
 fun getTypeElement(typeMirror: TypeMirror): TypeElement? {
     val manager = manager
@@ -87,10 +106,13 @@ fun getTypeElement(typeMirror: TypeMirror): TypeElement? {
     return typeElement
 }
 
-fun ensureVisibleStatic(element: Element, typeElement: TypeElement,
-                        name: String) {
+fun ensureVisibleStatic(
+    element: Element, typeElement: TypeElement,
+    name: String
+) {
     if (element.modifiers.contains(Modifier.PRIVATE)
-            || element.modifiers.contains(Modifier.PROTECTED)) {
+        || element.modifiers.contains(Modifier.PROTECTED)
+    ) {
         manager.logError("$name must be visible from: " + typeElement)
     }
     if (!element.modifiers.contains(Modifier.STATIC)) {
@@ -103,19 +125,32 @@ fun ensureVisibleStatic(element: Element, typeElement: TypeElement,
 }
 
 inline fun <reified A : Annotation>
-        Element.extractTypeNameFromAnnotation(invoker: (A) -> Unit): TypeName? = annotation<A>()?.let { a ->
-    try {
-        invoker(a)
-    } catch (mte: MirroredTypeException) {
-        return@let TypeName.get(mte.typeMirror)
+    Element.extractTypeNameFromAnnotation(invoker: (A) -> Unit): TypeName? =
+    annotation<A>()?.let { a ->
+        try {
+            invoker(a)
+        } catch (mte: MirroredTypeException) {
+            return@let TypeName.get(mte.typeMirror)
+        }
+        return@let null
     }
-    return@let null
-}
+
+inline fun <reified A : Annotation>
+    Element.extractTypeNamesFromAnnotation(invoker: (A) -> Unit): List<TypeName>? =
+    annotation<A>()?.let { a ->
+        try {
+            invoker(a)
+        } catch (mte: MirroredTypesException) {
+            return@let mte.typeMirrors.map { TypeName.get(it) }
+        }
+        return@let null
+    }
 
 inline fun <reified A : Annotation> A.extractTypeMirrorFromAnnotation(
-        exceptionHandler: (MirroredTypeException) -> Unit = {},
-        invoker: (A) -> Unit)
-        : TypeMirror? {
+    exceptionHandler: (MirroredTypeException) -> Unit = {},
+    invoker: (A) -> Unit
+)
+    : TypeMirror? {
     var mirror: TypeMirror? = null
     try {
         invoker(this)
@@ -127,5 +162,6 @@ inline fun <reified A : Annotation> A.extractTypeMirrorFromAnnotation(
 }
 
 inline fun <reified A : Annotation> A.extractTypeNameFromAnnotation(
-        exceptionHandler: (MirroredTypeException) -> Unit = {},
-        invoker: (A) -> Unit): TypeName = TypeName.get(extractTypeMirrorFromAnnotation(exceptionHandler, invoker))
+    exceptionHandler: (MirroredTypeException) -> Unit = {},
+    invoker: (A) -> Unit
+): TypeName = TypeName.get(extractTypeMirrorFromAnnotation(exceptionHandler, invoker))
