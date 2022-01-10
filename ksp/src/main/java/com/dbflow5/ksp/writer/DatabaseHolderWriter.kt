@@ -5,6 +5,7 @@ import com.dbflow5.ksp.model.interop.ksFile
 import com.dbflow5.model.DatabaseHolderModel
 import com.dbflow5.model.generatedClassName
 import com.dbflow5.model.properties.nameWithFallback
+import com.dbflow5.model.writer.TypeCreator
 import com.dbflow5.stripQuotes
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec

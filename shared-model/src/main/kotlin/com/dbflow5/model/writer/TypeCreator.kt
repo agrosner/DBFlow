@@ -1,4 +1,4 @@
-package com.dbflow5.ksp.writer
+package com.dbflow5.model.writer
 
 /**
  * Description:

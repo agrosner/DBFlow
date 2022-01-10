@@ -5,7 +5,7 @@ import com.dbflow5.ksp.MemberNames
 import com.dbflow5.model.ClassModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.flattenedFields
-import com.dbflow5.ksp.writer.TypeCreator
+import com.dbflow5.model.writer.TypeCreator
 import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.*
 

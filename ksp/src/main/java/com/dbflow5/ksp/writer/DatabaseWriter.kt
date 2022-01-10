@@ -5,6 +5,7 @@ import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.interop.ksFile
 import com.dbflow5.model.DatabaseModel
 import com.dbflow5.model.generatedClassName
+import com.dbflow5.model.writer.TypeCreator
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec

@@ -5,7 +5,7 @@ import com.dbflow5.ksp.MemberNames
 import com.dbflow5.model.IndexGroupModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.createFlattenedFields
-import com.dbflow5.ksp.writer.TypeCreator
+import com.dbflow5.model.writer.TypeCreator
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.PropertySpec
 

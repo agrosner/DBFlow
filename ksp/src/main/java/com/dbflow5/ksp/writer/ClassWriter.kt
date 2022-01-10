@@ -23,6 +23,7 @@ import com.dbflow5.model.memberSeparator
 import com.dbflow5.model.properties.CreatableScopeProperties
 import com.dbflow5.model.properties.TableProperties
 import com.dbflow5.model.properties.dbName
+import com.dbflow5.model.writer.TypeCreator
 import com.squareup.kotlinpoet.BYTE
 import com.squareup.kotlinpoet.DOUBLE
 import com.squareup.kotlinpoet.FLOAT

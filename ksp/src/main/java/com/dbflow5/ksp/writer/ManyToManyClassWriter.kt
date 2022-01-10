@@ -6,6 +6,7 @@ import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
 import com.dbflow5.ksp.model.interop.ksFile
 import com.dbflow5.model.ManyToManyModel
 import com.dbflow5.model.ReferenceHolderModel
+import com.dbflow5.model.writer.TypeCreator
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec

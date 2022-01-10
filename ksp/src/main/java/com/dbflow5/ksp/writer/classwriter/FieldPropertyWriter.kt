@@ -5,7 +5,7 @@ import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.hasTypeConverter
 import com.dbflow5.ksp.model.typeConverter
-import com.dbflow5.ksp.writer.TypeCreator
+import com.dbflow5.model.writer.TypeCreator
 import com.dbflow5.model.ClassModel
 import com.dbflow5.model.FieldModel
 import com.dbflow5.model.TypeConverterModel

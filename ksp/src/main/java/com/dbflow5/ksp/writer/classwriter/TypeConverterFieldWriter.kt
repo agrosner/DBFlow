@@ -1,7 +1,7 @@
 package com.dbflow5.ksp.writer.classwriter
 
 import com.dbflow5.model.TypeConverterModel
-import com.dbflow5.ksp.writer.TypeCreator
+import com.dbflow5.model.writer.TypeCreator
 import com.squareup.kotlinpoet.PropertySpec
 
 

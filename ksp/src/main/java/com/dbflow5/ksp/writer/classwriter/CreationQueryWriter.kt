@@ -8,7 +8,7 @@ import com.dbflow5.ksp.model.primaryFlattenedFields
 import com.dbflow5.ksp.model.references
 import com.dbflow5.ksp.model.toExtractor
 import com.dbflow5.ksp.writer.FieldExtractor
-import com.dbflow5.ksp.writer.TypeCreator
+import com.dbflow5.model.writer.TypeCreator
 import com.dbflow5.model.ClassModel
 import com.dbflow5.model.FieldModel
 import com.dbflow5.model.SQLiteLookup
