@@ -2,17 +2,17 @@ package com.dbflow5.ksp.writer
 
 import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.ksp.model.cache.ReferencesCache
+import com.dbflow5.codegen.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.hasTypeConverter
-import com.dbflow5.ksp.model.references
 import com.dbflow5.ksp.model.typeConverter
-import com.dbflow5.model.ClassModel
-import com.dbflow5.model.FieldModel
-import com.dbflow5.model.ReferenceHolderModel
-import com.dbflow5.model.SQLiteLookup
-import com.dbflow5.model.SingleFieldModel
-import com.dbflow5.model.properties.TableProperties
+import com.dbflow5.codegen.model.ClassModel
+import com.dbflow5.codegen.model.FieldModel
+import com.dbflow5.codegen.model.ReferenceHolderModel
+import com.dbflow5.codegen.model.SQLiteLookup
+import com.dbflow5.codegen.model.SingleFieldModel
+import com.dbflow5.codegen.model.properties.TableProperties
+import com.dbflow5.codegen.model.references
 import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.asTypeName
 

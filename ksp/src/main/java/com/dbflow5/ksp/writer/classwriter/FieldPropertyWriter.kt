@@ -5,10 +5,10 @@ import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.hasTypeConverter
 import com.dbflow5.ksp.model.typeConverter
-import com.dbflow5.model.writer.TypeCreator
-import com.dbflow5.model.ClassModel
-import com.dbflow5.model.FieldModel
-import com.dbflow5.model.TypeConverterModel
+import com.dbflow5.codegen.writer.TypeCreator
+import com.dbflow5.codegen.model.ClassModel
+import com.dbflow5.codegen.model.FieldModel
+import com.dbflow5.codegen.model.TypeConverterModel
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.PropertySpec
 

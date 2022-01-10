@@ -4,8 +4,8 @@ import com.dbflow5.ksp.parser.AnnotationParser
 import com.dbflow5.ksp.parser.ArgMap
 import com.dbflow5.ksp.parser.arg
 import com.dbflow5.ksp.parser.className
-import com.dbflow5.ksp.parser.validation.ValidationException
-import com.dbflow5.model.properties.OneToManyProperties
+import com.dbflow5.codegen.parser.validation.ValidationException
+import com.dbflow5.codegen.model.properties.OneToManyProperties
 
 class OneToManyPropertyParser : AnnotationParser<OneToManyProperties> {
     @Throws(ValidationException::class)

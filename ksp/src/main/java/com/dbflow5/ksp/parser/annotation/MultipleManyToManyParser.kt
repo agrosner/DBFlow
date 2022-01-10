@@ -1,11 +1,11 @@
 package com.dbflow5.ksp.parser.annotation
 
 import com.dbflow5.ksp.model.interop.KSPOriginatingFile
-import com.dbflow5.ksp.parser.Parser
+import com.dbflow5.codegen.parser.Parser
 import com.dbflow5.ksp.parser.arg
 import com.dbflow5.ksp.parser.mapProperties
-import com.dbflow5.model.ManyToManyModel
-import com.dbflow5.model.NameModel
+import com.dbflow5.codegen.model.ManyToManyModel
+import com.dbflow5.codegen.model.NameModel
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ClassName

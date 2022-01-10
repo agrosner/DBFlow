@@ -14,10 +14,10 @@ import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.dbflow5.ksp.model.interop.KSPOriginatingFile
-import com.dbflow5.model.NameModel
-import com.dbflow5.model.TypeConverterModel
-import com.dbflow5.model.properties.TypeConverterProperties
-import com.dbflow5.model.toChained
+import com.dbflow5.codegen.model.NameModel
+import com.dbflow5.codegen.model.TypeConverterModel
+import com.dbflow5.codegen.model.properties.TypeConverterProperties
+import com.dbflow5.codegen.model.toChained
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration

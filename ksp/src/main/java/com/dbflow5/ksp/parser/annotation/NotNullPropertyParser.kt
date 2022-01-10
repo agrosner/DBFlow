@@ -4,8 +4,8 @@ import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.ksp.parser.AnnotationParser
 import com.dbflow5.ksp.parser.ArgMap
 import com.dbflow5.ksp.parser.enumArg
-import com.dbflow5.ksp.parser.validation.ValidationException
-import com.dbflow5.model.properties.NotNullProperties
+import com.dbflow5.codegen.parser.validation.ValidationException
+import com.dbflow5.codegen.model.properties.NotNullProperties
 
 class NotNullPropertyParser : AnnotationParser<NotNullProperties> {
     @Throws(ValidationException::class)

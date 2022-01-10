@@ -7,8 +7,8 @@ import com.dbflow5.ksp.parser.arg
 import com.dbflow5.ksp.parser.className
 import com.dbflow5.ksp.parser.enumArg
 import com.dbflow5.ksp.parser.ifArg
-import com.dbflow5.ksp.parser.validation.ValidationException
-import com.dbflow5.model.properties.ReferenceHolderProperties
+import com.dbflow5.codegen.parser.validation.ValidationException
+import com.dbflow5.codegen.model.properties.ReferenceHolderProperties
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.squareup.kotlinpoet.asTypeName
 

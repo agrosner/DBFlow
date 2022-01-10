@@ -1,16 +1,16 @@
 package com.dbflow5.ksp.writer.classwriter
 
+import com.dbflow5.codegen.model.ClassModel
+import com.dbflow5.codegen.model.FieldModel
+import com.dbflow5.codegen.model.ReferenceHolderModel
+import com.dbflow5.codegen.model.SingleFieldModel
+import com.dbflow5.codegen.model.cache.ReferencesCache
+import com.dbflow5.codegen.model.references
+import com.dbflow5.codegen.writer.TypeCreator
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
-import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.hasTypeConverter
-import com.dbflow5.ksp.model.references
-import com.dbflow5.model.writer.TypeCreator
-import com.dbflow5.model.ClassModel
-import com.dbflow5.model.FieldModel
-import com.dbflow5.model.ReferenceHolderModel
-import com.dbflow5.model.SingleFieldModel
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec

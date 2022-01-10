@@ -1,6 +1,6 @@
 package com.dbflow5.ksp.model.interop
 
-import com.dbflow5.model.interop.OriginatingFileType
+import com.dbflow5.codegen.model.interop.OriginatingFileType
 import com.google.devtools.ksp.symbol.KSFile
 
 /**

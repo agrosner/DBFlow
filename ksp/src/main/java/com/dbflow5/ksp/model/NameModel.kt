@@ -1,6 +1,6 @@
 package com.dbflow5.ksp.model
 
-import com.dbflow5.model.NameModel
+import com.dbflow5.codegen.model.NameModel
 import com.google.devtools.ksp.symbol.KSName
 
 operator fun NameModel.Companion.invoke(

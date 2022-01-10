@@ -1,11 +1,11 @@
 package com.dbflow5.ksp.writer.classwriter
 
+import com.dbflow5.codegen.model.IndexGroupModel
+import com.dbflow5.codegen.model.cache.ReferencesCache
+import com.dbflow5.codegen.model.createFlattenedFields
+import com.dbflow5.codegen.writer.TypeCreator
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
-import com.dbflow5.model.IndexGroupModel
-import com.dbflow5.ksp.model.cache.ReferencesCache
-import com.dbflow5.ksp.model.createFlattenedFields
-import com.dbflow5.model.writer.TypeCreator
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.PropertySpec
 

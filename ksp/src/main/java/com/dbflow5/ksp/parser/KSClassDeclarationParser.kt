@@ -12,8 +12,24 @@ import com.dbflow5.annotation.OneToManyRelation
 import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
+import com.dbflow5.codegen.model.ClassModel
+import com.dbflow5.codegen.model.DatabaseModel
+import com.dbflow5.codegen.model.IndexGroupModel
+import com.dbflow5.codegen.model.ManyToManyModel
+import com.dbflow5.codegen.model.MigrationModel
+import com.dbflow5.codegen.model.NameModel
+import com.dbflow5.codegen.model.ObjectModel
+import com.dbflow5.codegen.model.OneToManyModel
+import com.dbflow5.codegen.model.TypeConverterModel
+import com.dbflow5.codegen.model.UniqueGroupModel
+import com.dbflow5.codegen.model.properties.ModelViewQueryProperties
+import com.dbflow5.codegen.parser.Parser
+import com.dbflow5.codegen.parser.FieldSanitizer
+import com.dbflow5.codegen.parser.validation.ValidationException
+import com.dbflow5.codegen.parser.validation.ValidationExceptionProvider
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.companion
+import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.dbflow5.ksp.model.interop.KSPClassType
 import com.dbflow5.ksp.model.interop.KSPOriginatingFile
 import com.dbflow5.ksp.model.invoke
@@ -28,20 +44,6 @@ import com.dbflow5.ksp.parser.annotation.QueryPropertyParser
 import com.dbflow5.ksp.parser.annotation.TablePropertyParser
 import com.dbflow5.ksp.parser.annotation.TypeConverterPropertyParser
 import com.dbflow5.ksp.parser.annotation.ViewPropertyParser
-import com.dbflow5.ksp.parser.extractors.FieldSanitizer
-import com.dbflow5.ksp.parser.validation.ValidationException
-import com.dbflow5.ksp.parser.validation.ValidationExceptionProvider
-import com.dbflow5.model.ClassModel
-import com.dbflow5.model.DatabaseModel
-import com.dbflow5.model.IndexGroupModel
-import com.dbflow5.model.ManyToManyModel
-import com.dbflow5.model.MigrationModel
-import com.dbflow5.model.NameModel
-import com.dbflow5.model.ObjectModel
-import com.dbflow5.model.OneToManyModel
-import com.dbflow5.model.TypeConverterModel
-import com.dbflow5.model.UniqueGroupModel
-import com.dbflow5.model.properties.ModelViewQueryProperties
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.isInternal
@@ -243,7 +245,7 @@ class KSClassDeclarationParser(
                                 }
                             }
                     val hasDefaultConstructor = emptyConstructor != null
-                    val fields = fieldSanitizer.parse(input = input)
+                    val fields = fieldSanitizer.parse(input = KSPClassDeclaration(input))
                     val implementsLoadFromCursorListener = input
                         .superTypes.any { it.toTypeName() == ClassNames.LoadFromCursorListener }
                     val implementsSQLiteStatementListener = input

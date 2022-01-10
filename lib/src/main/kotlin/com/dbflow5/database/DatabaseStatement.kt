@@ -46,66 +46,66 @@ interface DatabaseStatement : Closeable {
     fun bindAllArgsAsStrings(selectionArgs: Array<String>?)
 }
 
-fun DatabaseStatement.bind(index: Int, value: String) {
+inline fun DatabaseStatement.bind(index: Int, value: String) {
     bindString(index, value)
 }
 
 @JvmName("bindNullable")
-fun DatabaseStatement.bind(index: Int, value: String?) {
+inline fun DatabaseStatement.bind(index: Int, value: String?) {
     bindStringOrNull(index, value)
 }
 
-fun DatabaseStatement.bind(index: Int, value: Long) {
+inline fun DatabaseStatement.bind(index: Int, value: Long) {
     bindLong(index, value)
 }
 
 @JvmName("bindNullable")
-fun DatabaseStatement.bind(index: Int, value: Long?) {
+inline fun DatabaseStatement.bind(index: Int, value: Long?) {
     bindLongOrNull(index, value)
 }
 
-fun DatabaseStatement.bind(index: Int, value: Number) {
+inline fun DatabaseStatement.bind(index: Int, value: Number) {
     bindNumber(index, value)
 }
 
 @JvmName("bindNullable")
-fun DatabaseStatement.bind(index: Int, value: Number?) {
+inline fun DatabaseStatement.bind(index: Int, value: Number?) {
     bindNumberOrNull(index, value)
 }
 
-fun DatabaseStatement.bind(index: Int, value: Double) {
+inline fun DatabaseStatement.bind(index: Int, value: Double) {
     bindDouble(index, value)
 }
 
 @JvmName("bindNullable")
-fun DatabaseStatement.bind(index: Int, value: Double?) {
+inline fun DatabaseStatement.bind(index: Int, value: Double?) {
     bindDoubleOrNull(index, value)
 }
 
 
-fun DatabaseStatement.bind(index: Int, value: Float) {
+inline fun DatabaseStatement.bind(index: Int, value: Float) {
     bindDouble(index, value.toDouble())
 }
 
 @JvmName("bindNullable")
-fun DatabaseStatement.bind(index: Int, value: Float?) {
+inline fun DatabaseStatement.bind(index: Int, value: Float?) {
     bindFloatOrNull(index, value)
 }
 
-fun DatabaseStatement.bind(index: Int, value: ByteArray) {
+inline fun DatabaseStatement.bind(index: Int, value: ByteArray) {
     bindBlob(index, value)
 }
 
 @JvmName("bindNullable")
-fun DatabaseStatement.bind(index: Int, value: ByteArray?) {
+inline fun DatabaseStatement.bind(index: Int, value: ByteArray?) {
     bindBlobOrNull(index, value)
 }
 
-fun DatabaseStatement.bind(index: Int, value: Boolean) {
+inline fun DatabaseStatement.bind(index: Int, value: Boolean) {
     bindLong(index, if (value) 1 else 0)
 }
 
-fun DatabaseStatement.bind(index: Int, value: Boolean?) {
+inline fun DatabaseStatement.bind(index: Int, value: Boolean?) {
     if (value != null) {
         bind(index, value)
     } else {
@@ -116,11 +116,11 @@ fun DatabaseStatement.bind(index: Int, value: Boolean?) {
 /**
  * Bind enum values
  */
-fun DatabaseStatement.bind(index: Int, value: Enum<*>) {
+inline fun DatabaseStatement.bind(index: Int, value: Enum<*>) {
     bindString(index, value.name)
 }
 
 @JvmName("bindNullable")
-fun DatabaseStatement.bind(index: Int, value: Enum<*>?) {
+inline fun DatabaseStatement.bind(index: Int, value: Enum<*>?) {
     bindStringOrNull(index, value?.name)
 }

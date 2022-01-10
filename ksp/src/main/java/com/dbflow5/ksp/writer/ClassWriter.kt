@@ -1,12 +1,18 @@
 package com.dbflow5.ksp.writer
 
 import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.codegen.model.ClassModel
+import com.dbflow5.codegen.model.cache.ReferencesCache
+import com.dbflow5.codegen.model.generatedClassName
+import com.dbflow5.codegen.model.memberSeparator
+import com.dbflow5.codegen.model.properties.CreatableScopeProperties
+import com.dbflow5.codegen.model.properties.TableProperties
+import com.dbflow5.codegen.model.properties.dbName
+import com.dbflow5.codegen.writer.TypeCreator
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
-import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.extractors
-import com.dbflow5.ksp.model.flattenedFields
 import com.dbflow5.ksp.model.interop.ksFile
 import com.dbflow5.ksp.model.primaryExtractors
 import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
@@ -17,13 +23,6 @@ import com.dbflow5.ksp.writer.classwriter.IndexPropertyWriter
 import com.dbflow5.ksp.writer.classwriter.LoadFromCursorWriter
 import com.dbflow5.ksp.writer.classwriter.PrimaryConditionClauseWriter
 import com.dbflow5.ksp.writer.classwriter.StatementBinderWriter
-import com.dbflow5.model.ClassModel
-import com.dbflow5.model.generatedClassName
-import com.dbflow5.model.memberSeparator
-import com.dbflow5.model.properties.CreatableScopeProperties
-import com.dbflow5.model.properties.TableProperties
-import com.dbflow5.model.properties.dbName
-import com.dbflow5.model.writer.TypeCreator
 import com.squareup.kotlinpoet.BYTE
 import com.squareup.kotlinpoet.DOUBLE
 import com.squareup.kotlinpoet.FLOAT

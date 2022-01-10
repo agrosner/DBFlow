@@ -1,7 +1,7 @@
 package com.dbflow5.ksp.model.interop
 
-import com.dbflow5.model.interop.ClassDeclaration
-import com.dbflow5.model.interop.PropertyDeclaration
+import com.dbflow5.codegen.model.interop.ClassDeclaration
+import com.dbflow5.codegen.model.interop.PropertyDeclaration
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 

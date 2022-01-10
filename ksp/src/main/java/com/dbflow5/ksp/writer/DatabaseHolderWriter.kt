@@ -2,10 +2,10 @@ package com.dbflow5.ksp.writer
 
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.model.interop.ksFile
-import com.dbflow5.model.DatabaseHolderModel
-import com.dbflow5.model.generatedClassName
-import com.dbflow5.model.properties.nameWithFallback
-import com.dbflow5.model.writer.TypeCreator
+import com.dbflow5.codegen.model.DatabaseHolderModel
+import com.dbflow5.codegen.model.generatedClassName
+import com.dbflow5.codegen.model.properties.nameWithFallback
+import com.dbflow5.codegen.writer.TypeCreator
 import com.dbflow5.stripQuotes
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec

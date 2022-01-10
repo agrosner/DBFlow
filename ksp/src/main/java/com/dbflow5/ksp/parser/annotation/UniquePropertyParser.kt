@@ -5,8 +5,8 @@ import com.dbflow5.ksp.parser.AnnotationParser
 import com.dbflow5.ksp.parser.ArgMap
 import com.dbflow5.ksp.parser.arg
 import com.dbflow5.ksp.parser.enumArg
-import com.dbflow5.ksp.parser.validation.ValidationException
-import com.dbflow5.model.properties.UniqueProperties
+import com.dbflow5.codegen.parser.validation.ValidationException
+import com.dbflow5.codegen.model.properties.UniqueProperties
 
 class UniquePropertyParser : AnnotationParser<UniqueProperties> {
     @Throws(ValidationException::class)

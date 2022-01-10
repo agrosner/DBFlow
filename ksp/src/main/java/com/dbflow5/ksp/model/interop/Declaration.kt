@@ -1,9 +1,9 @@
 package com.dbflow5.ksp.model.interop
 
 import com.dbflow5.ksp.model.invoke
-import com.dbflow5.model.NameModel
-import com.dbflow5.model.interop.ClassDeclaration
-import com.dbflow5.model.interop.Declaration
+import com.dbflow5.codegen.model.NameModel
+import com.dbflow5.codegen.model.interop.ClassDeclaration
+import com.dbflow5.codegen.model.interop.Declaration
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.Modifier

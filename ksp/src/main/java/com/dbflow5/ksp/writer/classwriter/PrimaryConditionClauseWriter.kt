@@ -2,10 +2,9 @@ package com.dbflow5.ksp.writer.classwriter
 
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
-import com.dbflow5.model.ClassModel
-import com.dbflow5.ksp.model.cache.ReferencesCache
-import com.dbflow5.ksp.model.primaryFlattenedFields
-import com.dbflow5.model.writer.TypeCreator
+import com.dbflow5.codegen.model.ClassModel
+import com.dbflow5.codegen.model.cache.ReferencesCache
+import com.dbflow5.codegen.writer.TypeCreator
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
