@@ -1,87 +1,20 @@
 package com.dbflow5.ksp.model
 
 import com.dbflow5.ksp.model.cache.ReferencesCache
-import com.dbflow5.ksp.model.properties.ClassProperties
-import com.dbflow5.ksp.model.properties.GeneratedClassProperties
-import com.dbflow5.ksp.model.properties.ModelViewQueryProperties
-import com.dbflow5.ksp.model.properties.NamedProperties
-import com.dbflow5.ksp.model.properties.nameWithFallback
 import com.dbflow5.ksp.writer.FieldExtractor
-import com.dbflow5.quoteIfNeeded
-import com.google.devtools.ksp.symbol.KSFile
+import com.dbflow5.model.ClassModel
+import com.dbflow5.model.FieldModel
+import com.dbflow5.model.ReferenceHolderModel
+import com.dbflow5.model.SingleFieldModel
+import com.dbflow5.model.properties.GeneratedClassProperties
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
 
-data class ClassModel(
-    val name: NameModel,
-    /**
-     * Declared type of the class.
-     */
-    val classType: ClassName,
-    val type: ClassType,
-    val properties: ClassProperties,
-    val fields: List<FieldModel>,
-    val indexGroups: List<IndexGroupModel>,
-    val uniqueGroups: List<UniqueGroupModel>,
-    /**
-     * If true we use that, other wise expect all mutable fields
-     * (to remain compatible with old DBFlow models).
-     */
-    val hasPrimaryConstructor: Boolean,
-    /**
-     * If true, generated adapter will also generate internal.
-     */
-    val isInternal: Boolean,
-    val implementsLoadFromCursorListener: Boolean,
-    val implementsSQLiteStatementListener: Boolean,
-    override val originatingFile: KSFile?,
-) : ObjectModel {
+fun ClassModel.flattenedFields(referencesCache: ReferencesCache) =
+    createFlattenedFields(referencesCache, fields)
 
-    val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.PrimaryAuto }
-    val referenceFields = fields.filterIsInstance<ReferenceHolderModel>()
-    val primaryAutoIncrementFields = primaryFields.filter {
-        val fieldType = it.fieldType
-        fieldType is FieldModel.FieldType.PrimaryAuto
-            && fieldType.isAutoIncrement
-    }
-
-    /**
-     * Name to use on the database.
-     */
-    val dbName = when (properties) {
-        is NamedProperties -> properties.nameWithFallback(name.shortName)
-        else -> name.shortName
-    }.quoteIfNeeded()
-
-    val isQuery
-        get() = type == ClassType.Query
-
-    val isNormal
-        get() = type is ClassType.Normal
-
-    fun flattenedFields(referencesCache: ReferencesCache) =
-        createFlattenedFields(referencesCache, fields)
-
-    fun primaryFlattenedFields(referencesCache: ReferencesCache) =
-        createFlattenedFields(referencesCache, primaryFields)
-
-    sealed interface ClassType {
-        sealed interface Normal : ClassType {
-            object Fts3 : ClassType.Normal
-            data class Fts4(
-                val contentTable: TypeName,
-            ) : ClassType.Normal
-
-            object Normal : ClassType.Normal
-        }
-
-        data class View(
-            val properties: ModelViewQueryProperties,
-        ) : ClassType
-
-        object Query : ClassType
-    }
-}
+fun ClassModel.primaryFlattenedFields(referencesCache: ReferencesCache) =
+    createFlattenedFields(referencesCache, primaryFields)
 
 /**
  * Returns true if element exists in DB declaration, or if it self-declares its DB.
@@ -95,23 +28,12 @@ inline fun <reified C : ClassModel.ClassType> ClassModel.partOfDatabaseAsType(
     allDBElements: List<ClassName>,
 ) = this.type is C &&
     (properties.database == databaseTypeName || declaredDBElements.contains(this.classType)
-        || (properties is GeneratedClassProperties && allDBElements.contains(properties.generatedFromClassType)))
+        || properties.let { properties ->
+        (properties is GeneratedClassProperties && allDBElements.contains(
+            properties.generatedFromClassType
+        ))
+    })
 
-
-val ClassModel.generatedClassName
-    get() = NameModel(
-        packageName = name.packageName,
-        shortName = "${name.shortName}_${
-            when (type) {
-                is ClassModel.ClassType.Normal -> "Table"
-                is ClassModel.ClassType.Query -> "Query"
-                is ClassModel.ClassType.View -> "View"
-            }
-        }"
-    )
-
-val ClassModel.memberSeparator
-    get() = if (hasPrimaryConstructor) "," else ""
 
 fun ClassModel.extractors(referencesCache: ReferencesCache) = fields.map(
     mapExtractorsFromFields(

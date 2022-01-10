@@ -2,7 +2,7 @@ package com.dbflow5.ksp.writer.classwriter
 
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
-import com.dbflow5.ksp.model.IndexGroupModel
+import com.dbflow5.model.IndexGroupModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.createFlattenedFields
 import com.dbflow5.ksp.writer.TypeCreator

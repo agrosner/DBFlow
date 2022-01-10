@@ -7,21 +7,22 @@ import com.dbflow5.annotation.Index
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Unique
 import com.dbflow5.ksp.kotlinpoet.javaPlatformTypeName
-import com.dbflow5.ksp.model.FieldModel
-import com.dbflow5.ksp.model.NameModel
-import com.dbflow5.ksp.model.ReferenceHolderModel
-import com.dbflow5.ksp.model.SingleFieldModel
-import com.dbflow5.ksp.model.properties.NotNullProperties
-import com.dbflow5.ksp.model.properties.ReferenceHolderProperties
+import com.dbflow5.ksp.model.interop.KSPClassType
+import com.dbflow5.ksp.model.interop.KSPOriginatingFile
+import com.dbflow5.ksp.model.invoke
 import com.dbflow5.ksp.parser.annotation.FieldPropertyParser
 import com.dbflow5.ksp.parser.annotation.IndexParser
 import com.dbflow5.ksp.parser.annotation.NotNullPropertyParser
 import com.dbflow5.ksp.parser.annotation.ReferenceHolderPropertyParser
 import com.dbflow5.ksp.parser.annotation.UniquePropertyParser
+import com.dbflow5.model.FieldModel
+import com.dbflow5.model.NameModel
+import com.dbflow5.model.ReferenceHolderModel
+import com.dbflow5.model.SingleFieldModel
+import com.dbflow5.model.properties.NotNullProperties
+import com.dbflow5.model.properties.ReferenceHolderProperties
 import com.google.devtools.ksp.closestClassDeclaration
-import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 
@@ -37,7 +38,7 @@ class KSPropertyDeclarationParser constructor(
 ) : Parser<KSPropertyDeclaration, FieldModel> {
 
     override fun parse(input: KSPropertyDeclaration): FieldModel {
-        val originatingFile = input.containingFile
+        val originatingFile = KSPOriginatingFile(input.containingFile)
         val primaryKey = input.findSingle<PrimaryKey>()
         val fieldType = if (primaryKey != null) {
             val props = primaryKey.arguments.mapProperties()
@@ -48,11 +49,11 @@ class KSPropertyDeclarationParser constructor(
         } else {
             FieldModel.FieldType.Normal
         }
-        val ksClassType = input.type.resolve()
+        val ksClassType = KSPClassType(input.type.resolve())
         val isInlineClass = ksClassType
-            .declaration.modifiers.any { it == Modifier.VALUE }
+            .declaration.hasValueModifier()
         val isEnum =
-            ksClassType.declaration.closestClassDeclaration()?.classKind == ClassKind.ENUM_CLASS
+            ksClassType.declaration.closestClassDeclaration?.isEnum ?: false
         val foreignKey = input.findSingle<ForeignKey>()
         val columnMapKey = input.findSingle<ColumnMap>()
         val notNull = input.findSingle<NotNullPropertyParser>()?.let {

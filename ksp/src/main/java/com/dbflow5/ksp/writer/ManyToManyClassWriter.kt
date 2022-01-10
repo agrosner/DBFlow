@@ -3,8 +3,9 @@ package com.dbflow5.ksp.writer
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
-import com.dbflow5.ksp.model.ManyToManyModel
-import com.dbflow5.ksp.model.ReferenceHolderModel
+import com.dbflow5.ksp.model.interop.ksFile
+import com.dbflow5.model.ManyToManyModel
+import com.dbflow5.model.ReferenceHolderModel
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -48,7 +49,7 @@ class ManyToManyClassWriter : TypeCreator<ManyToManyModel, FileSpec> {
                             .build()
                     )
                     .apply {
-                        model.originatingFile?.let { addOriginatingKSFile(it) }
+                        model.originatingFile?.ksFile()?.let { addOriginatingKSFile(it) }
                         // doesn't work quite yet.
                         /* addAnnotation(
                              AnnotationSpec.builder(

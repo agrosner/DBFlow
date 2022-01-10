@@ -1,9 +1,10 @@
 package com.dbflow5.ksp.writer
 
 import com.dbflow5.ksp.ClassNames
-import com.dbflow5.ksp.model.DatabaseHolderModel
-import com.dbflow5.ksp.model.generatedClassName
-import com.dbflow5.ksp.model.properties.nameWithFallback
+import com.dbflow5.ksp.model.interop.ksFile
+import com.dbflow5.model.DatabaseHolderModel
+import com.dbflow5.model.generatedClassName
+import com.dbflow5.model.properties.nameWithFallback
 import com.dbflow5.stripQuotes
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -28,8 +29,8 @@ class DatabaseHolderWriter : TypeCreator<DatabaseHolderModel, FileSpec> {
                 ).stripQuotes()
             )
                 .apply {
-                    model.allOriginatingFiles.forEach {
-                        addOriginatingKSFile(it)
+                    model.allOriginatingFiles.forEach { fileType ->
+                        fileType.ksFile()?.let { addOriginatingKSFile(it) }
                     }
                 }
                 .superclass(ClassNames.DatabaseHolder)

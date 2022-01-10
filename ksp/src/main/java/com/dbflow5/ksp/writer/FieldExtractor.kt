@@ -2,16 +2,17 @@ package com.dbflow5.ksp.writer
 
 import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.FieldModel
-import com.dbflow5.ksp.model.ReferenceHolderModel
-import com.dbflow5.ksp.model.SQLiteLookup
-import com.dbflow5.ksp.model.SingleFieldModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.hasTypeConverter
-import com.dbflow5.ksp.model.properties.TableProperties
+import com.dbflow5.ksp.model.references
 import com.dbflow5.ksp.model.typeConverter
+import com.dbflow5.model.ClassModel
+import com.dbflow5.model.FieldModel
+import com.dbflow5.model.ReferenceHolderModel
+import com.dbflow5.model.SQLiteLookup
+import com.dbflow5.model.SingleFieldModel
+import com.dbflow5.model.properties.TableProperties
 import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.asTypeName
 
@@ -42,13 +43,15 @@ sealed interface FieldExtractor {
     ) : FieldExtractor {
 
         override val valuesName: String
-            get() = if (this.field.fieldType is FieldModel.FieldType.PrimaryAuto
-                && this.field.fieldType.isAutoIncrement
-                && this.field.notNullProperties != null
-            ) {
-                // this patches in a null if value is 0 for non-null auto fields.
-                "nullif(?, 0)"
-            } else "?"
+            get() = this.field.fieldType.let { type ->
+                if (type is FieldModel.FieldType.PrimaryAuto
+                    && type.isAutoIncrement
+                    && this.field.notNullProperties != null
+                ) {
+                    // this patches in a null if value is 0 for non-null auto fields.
+                    "nullif(?, 0)"
+                } else "?"
+            }
         override val commaNames: String = field.dbName.quoteIfNeeded()
         override val updateName: String = "${field.dbName.quoteIfNeeded()}=?"
 
@@ -72,17 +75,20 @@ sealed interface FieldExtractor {
                     retString += " DEFAULT $value"
                 }
             }
-            if (field.fieldType is FieldModel.FieldType.PrimaryAuto
-                && field.fieldType.isAutoIncrement
-            ) {
-                retString += " PRIMARY KEY "
-                val properties = classModel.properties
-                if (properties is TableProperties &&
-                    properties.primaryKeyConflict != ConflictAction.NONE
+
+            field.fieldType.let { fieldType ->
+                if (fieldType is FieldModel.FieldType.PrimaryAuto
+                    && fieldType.isAutoIncrement
                 ) {
-                    retString += "ON CONFLICT ${properties.primaryKeyConflict}"
+                    retString += " PRIMARY KEY "
+                    val properties = classModel.properties
+                    if (properties is TableProperties &&
+                        properties.primaryKeyConflict != ConflictAction.NONE
+                    ) {
+                        retString += "ON CONFLICT ${properties.primaryKeyConflict}"
+                    }
+                    retString += "AUTOINCREMENT"
                 }
-                retString += "AUTOINCREMENT"
             }
             field.properties?.let { props ->
                 if (props.length > -1) {

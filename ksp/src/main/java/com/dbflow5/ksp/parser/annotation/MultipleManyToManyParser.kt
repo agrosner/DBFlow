@@ -1,13 +1,13 @@
 package com.dbflow5.ksp.parser.annotation
 
-import com.dbflow5.ksp.model.ManyToManyModel
-import com.dbflow5.ksp.model.NameModel
+import com.dbflow5.ksp.model.interop.KSPOriginatingFile
 import com.dbflow5.ksp.parser.Parser
 import com.dbflow5.ksp.parser.arg
 import com.dbflow5.ksp.parser.mapProperties
+import com.dbflow5.model.ManyToManyModel
+import com.dbflow5.model.NameModel
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFile
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
 
@@ -23,7 +23,7 @@ class MultipleManyToManyParser(
         val classType: ClassName,
         val databaseTypeName: TypeName,
         val ksClassDeclaration: KSClassDeclaration,
-        val originatingFile: KSFile?,
+        val originatingFile: KSPOriginatingFile,
     )
 
     override fun parse(input: Input): List<ManyToManyModel> {

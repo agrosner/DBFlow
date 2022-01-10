@@ -5,7 +5,6 @@ import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.OneToMany
 import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
-import com.dbflow5.ksp.model.FieldModel
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.generateTypeConverter
 import com.dbflow5.ksp.parser.KSPropertyDeclarationParser
@@ -13,6 +12,7 @@ import com.dbflow5.ksp.parser.Parser
 import com.dbflow5.ksp.parser.hasAnnotation
 import com.dbflow5.ksp.parser.validation.ValidationException
 import com.dbflow5.ksp.parser.validation.ValidationExceptionProvider
+import com.dbflow5.model.FieldModel
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.symbol.KSAnnotation

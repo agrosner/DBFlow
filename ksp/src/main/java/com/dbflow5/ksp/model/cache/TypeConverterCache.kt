@@ -12,10 +12,12 @@ import com.dbflow5.converter.TypeConverter
 import com.dbflow5.converter.UUIDConverter
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
-import com.dbflow5.ksp.model.NameModel
-import com.dbflow5.ksp.model.TypeConverterModel
-import com.dbflow5.ksp.model.properties.TypeConverterProperties
-import com.dbflow5.ksp.model.toChained
+import com.dbflow5.ksp.model.interop.KSPClassDeclaration
+import com.dbflow5.ksp.model.interop.KSPOriginatingFile
+import com.dbflow5.model.NameModel
+import com.dbflow5.model.TypeConverterModel
+import com.dbflow5.model.properties.TypeConverterProperties
+import com.dbflow5.model.toChained
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSClassDeclaration
@@ -93,8 +95,8 @@ class TypeConverterCache {
             classType = className,
             dataTypeName = typeConverterSuper.typeArguments[0],
             modelTypeName = typeConverterSuper.typeArguments[1],
-            modelClass = declaration.asStarProjectedType().declaration.closestClassDeclaration(),
-            originatingFile = declaration.containingFile,
+            modelClass = KSPClassDeclaration(declaration.asStarProjectedType().declaration.closestClassDeclaration()),
+            originatingFile = KSPOriginatingFile(declaration.containingFile),
         )
         putTypeConverter(classModel)
     }

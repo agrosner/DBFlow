@@ -2,8 +2,9 @@ package com.dbflow5.ksp.writer
 
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
-import com.dbflow5.ksp.model.DatabaseModel
-import com.dbflow5.ksp.model.generatedClassName
+import com.dbflow5.ksp.model.interop.ksFile
+import com.dbflow5.model.DatabaseModel
+import com.dbflow5.model.generatedClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -56,7 +57,7 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
                                 .build()
                         )
                         .apply {
-                            model.originatingFile?.let { addOriginatingKSFile(it) }
+                            model.originatingFile?.ksFile()?.let { addOriginatingKSFile(it) }
                             superclass(model.classType)
                             addProperty(associatedClassName.propertySpec)
                             addProperty(version.propertySpec)

@@ -1,6 +1,6 @@
 package com.dbflow5.ksp
 
-import com.dbflow5.ksp.model.SQLiteLookup
+import com.dbflow5.model.SQLiteLookup
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.parser.KSClassDeclarationParser

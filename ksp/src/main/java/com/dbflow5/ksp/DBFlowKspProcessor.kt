@@ -1,17 +1,7 @@
 package com.dbflow5.ksp
 
-import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.DatabaseHolderModel
-import com.dbflow5.ksp.model.DatabaseModel
-import com.dbflow5.ksp.model.ManyToManyModel
-import com.dbflow5.ksp.model.MigrationModel
-import com.dbflow5.ksp.model.NameModel
-import com.dbflow5.ksp.model.OneToManyModel
-import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.cache.TypeConverterCache
-import com.dbflow5.ksp.model.copyOverClasses
-import com.dbflow5.ksp.model.properties.DatabaseHolderProperties
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.parser.validation.ValidationException
 import com.dbflow5.ksp.writer.ClassWriter
@@ -20,6 +10,16 @@ import com.dbflow5.ksp.writer.DatabaseWriter
 import com.dbflow5.ksp.writer.InlineTypeConverterWriter
 import com.dbflow5.ksp.writer.ManyToManyClassWriter
 import com.dbflow5.ksp.writer.OneToManyClassWriter
+import com.dbflow5.model.ClassModel
+import com.dbflow5.model.DatabaseHolderModel
+import com.dbflow5.model.DatabaseModel
+import com.dbflow5.model.ManyToManyModel
+import com.dbflow5.model.MigrationModel
+import com.dbflow5.model.NameModel
+import com.dbflow5.model.OneToManyModel
+import com.dbflow5.model.TypeConverterModel
+import com.dbflow5.model.copyOverClasses
+import com.dbflow5.model.properties.DatabaseHolderProperties
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment

@@ -4,15 +4,11 @@ import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
-import com.dbflow5.ksp.model.ClassModel
 import com.dbflow5.ksp.model.cache.ReferencesCache
 import com.dbflow5.ksp.model.extractors
-import com.dbflow5.ksp.model.generatedClassName
-import com.dbflow5.ksp.model.memberSeparator
+import com.dbflow5.ksp.model.flattenedFields
+import com.dbflow5.ksp.model.interop.ksFile
 import com.dbflow5.ksp.model.primaryExtractors
-import com.dbflow5.ksp.model.properties.CreatableScopeProperties
-import com.dbflow5.ksp.model.properties.TableProperties
-import com.dbflow5.ksp.model.properties.dbName
 import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
 import com.dbflow5.ksp.writer.classwriter.CreationQueryWriter
 import com.dbflow5.ksp.writer.classwriter.FieldPropertyWriter
@@ -21,6 +17,12 @@ import com.dbflow5.ksp.writer.classwriter.IndexPropertyWriter
 import com.dbflow5.ksp.writer.classwriter.LoadFromCursorWriter
 import com.dbflow5.ksp.writer.classwriter.PrimaryConditionClauseWriter
 import com.dbflow5.ksp.writer.classwriter.StatementBinderWriter
+import com.dbflow5.model.ClassModel
+import com.dbflow5.model.generatedClassName
+import com.dbflow5.model.memberSeparator
+import com.dbflow5.model.properties.CreatableScopeProperties
+import com.dbflow5.model.properties.TableProperties
+import com.dbflow5.model.properties.dbName
 import com.squareup.kotlinpoet.BYTE
 import com.squareup.kotlinpoet.DOUBLE
 import com.squareup.kotlinpoet.FLOAT
@@ -97,7 +99,7 @@ class ClassWriter(
                     .superclass(superClass)
                     .addSuperclassConstructorParameter("dbFlowDataBase")
                     .apply {
-                        model.originatingFile?.let { addOriginatingKSFile(it) }
+                        model.originatingFile?.ksFile()?.let { addOriginatingKSFile(it) }
                         if (model.isInternal) {
                             addModifiers(KModifier.INTERNAL)
                         }
@@ -206,16 +208,18 @@ class ClassWriter(
     private fun TypeSpec.Builder.createWithDatabase(
         model: ClassModel,
     ) {
-        if (model.properties is CreatableScopeProperties
-            && !model.properties.createWithDatabase
-        ) {
-            addFunction(
-                FunSpec.builder("createWithDatabase")
-                    .returns(Boolean::class)
-                    .addModifiers(KModifier.OVERRIDE)
-                    .addStatement("return %L", false)
-                    .build()
-            )
+        model.properties.let { props ->
+            if (props is CreatableScopeProperties
+                && !props.createWithDatabase
+            ) {
+                addFunction(
+                    FunSpec.builder("createWithDatabase")
+                        .returns(Boolean::class)
+                        .addModifiers(KModifier.OVERRIDE)
+                        .addStatement("return %L", false)
+                        .build()
+                )
+            }
         }
     }
 

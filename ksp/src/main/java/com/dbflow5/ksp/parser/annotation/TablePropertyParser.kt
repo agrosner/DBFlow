@@ -1,13 +1,13 @@
 package com.dbflow5.ksp.parser.annotation
 
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.ksp.model.properties.TableProperties
 import com.dbflow5.ksp.parser.AnnotationParser
 import com.dbflow5.ksp.parser.ArgMap
 import com.dbflow5.ksp.parser.arg
 import com.dbflow5.ksp.parser.enumArg
 import com.dbflow5.ksp.parser.typeName
 import com.dbflow5.ksp.parser.validation.ValidationException
+import com.dbflow5.model.properties.TableProperties
 import com.google.devtools.ksp.symbol.KSAnnotation
 
 class TablePropertyParser(

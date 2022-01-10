@@ -1,7 +1,8 @@
 package com.dbflow5.ksp.writer
 
 import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
-import com.dbflow5.ksp.model.OneToManyModel
+import com.dbflow5.ksp.model.interop.ksFile
+import com.dbflow5.model.OneToManyModel
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -36,7 +37,7 @@ class OneToManyClassWriter : TypeCreator<OneToManyModel, FileSpec> {
                             .build()
                     )
                     .apply {
-                        model.originatingFile?.let { addOriginatingKSFile(it) }
+                        model.originatingFile?.ksFile()?.let { addOriginatingKSFile(it) }
                         addModifiers(KModifier.DATA)
                         addProperties(paramProperties.map { it.propertySpec })
                     }

@@ -14,6 +14,7 @@ compileKotlin.kotlinOptions {
 
 dependencies {
     api(project(":core"))
+    api(project(":shared-model"))
     api(Dependencies.KotlinPoet)
     api(Dependencies.Koin)
     api(Dependencies.KSP)

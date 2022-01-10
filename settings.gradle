@@ -8,4 +8,5 @@ include ':lib',
     ':tests',
     ':paging',
     ':ksp',
-    ':ksp-tests'
+    ':ksp-tests',
+    ':shared-model'

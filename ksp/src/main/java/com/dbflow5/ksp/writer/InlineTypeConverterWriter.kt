@@ -1,9 +1,14 @@
 package com.dbflow5.ksp.writer
 
 import com.dbflow5.ksp.ClassNames
-import com.dbflow5.ksp.model.TypeConverterModel
-import com.squareup.kotlinpoet.*
+import com.dbflow5.ksp.model.interop.ksFile
+import com.dbflow5.model.TypeConverterModel
+import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 
 /**
@@ -17,7 +22,7 @@ class InlineTypeConverterWriter : TypeCreator<
                 model.name.shortName,
             )
                 .apply {
-                    model.originatingFile?.let { addOriginatingKSFile(it) }
+                    model.originatingFile?.ksFile()?.let { addOriginatingKSFile(it) }
                     superclass(
                         ClassNames.TypeConverter
                             .parameterizedBy(
@@ -26,7 +31,7 @@ class InlineTypeConverterWriter : TypeCreator<
                             )
                     )
                     val singleInlineField =
-                        model.modelClass?.getAllProperties()?.first()
+                        model.modelClass?.properties?.first()
                             ?: throw IllegalStateException("ModelClass not set on declaration.")
                     addFunction(
                         FunSpec.builder("getDBValue")
@@ -35,7 +40,7 @@ class InlineTypeConverterWriter : TypeCreator<
                             .addParameter(ParameterSpec("model", model.modelTypeName))
                             .addStatement(
                                 "return model.%L",
-                                singleInlineField.simpleName.getShortName()
+                                singleInlineField.simpleName.shortName
                             )
                             .build()
                     )
@@ -47,7 +52,7 @@ class InlineTypeConverterWriter : TypeCreator<
                             .addStatement(
                                 "return %T(%L = %L)",
                                 model.modelTypeName,
-                                singleInlineField.simpleName.getShortName(),
+                                singleInlineField.simpleName.shortName,
                                 "data"
                             )
                             .build()

@@ -2,13 +2,13 @@ package com.dbflow5.ksp.writer.classwriter
 
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
-import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.FieldModel
-import com.dbflow5.ksp.model.TypeConverterModel
 import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.hasTypeConverter
 import com.dbflow5.ksp.model.typeConverter
 import com.dbflow5.ksp.writer.TypeCreator
+import com.dbflow5.model.ClassModel
+import com.dbflow5.model.FieldModel
+import com.dbflow5.model.TypeConverterModel
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.PropertySpec
 

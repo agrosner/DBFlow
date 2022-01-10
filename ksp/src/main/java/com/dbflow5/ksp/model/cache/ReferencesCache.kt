@@ -1,16 +1,16 @@
 package com.dbflow5.ksp.model.cache
 
-import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.FieldModel
-import com.dbflow5.ksp.model.ReferenceHolderModel
-import com.dbflow5.ksp.model.SingleFieldModel
-import com.dbflow5.ksp.model.properties.ReferenceProperties
+import com.dbflow5.ksp.model.interop.KSPClassDeclaration
+import com.dbflow5.ksp.model.references
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
 import com.dbflow5.ksp.parser.validation.ValidationExceptionProvider
-import com.google.devtools.ksp.closestClassDeclaration
-import com.google.devtools.ksp.symbol.KSType
+import com.dbflow5.model.ClassModel
+import com.dbflow5.model.FieldModel
+import com.dbflow5.model.ReferenceHolderModel
+import com.dbflow5.model.SingleFieldModel
+import com.dbflow5.model.interop.ClassType
+import com.dbflow5.model.properties.ReferenceProperties
 import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.ksp.toTypeName
 
 
 private sealed interface ReferenceType {
@@ -115,11 +115,12 @@ class ReferencesCache(
 
     fun resolveComputedFields(
         fieldModel: FieldModel,
-        ksType: KSType,
+        ksType: ClassType,
     ): List<SingleFieldModel> {
         val nonNullType = ksType.makeNotNullable()
         return (referenceMap.getOrPut(ReferenceType.AllFromClass(nonNullType.toTypeName())) {
-            val closest = nonNullType.declaration.closestClassDeclaration()
+            val closest =
+                (nonNullType.declaration.closestClassDeclaration as KSPClassDeclaration?)?.ksClassDeclaration
             closest?.let { fieldSanitizer.parse(it) }?.map {
                 when (it) {
                     is ReferenceHolderModel -> it.references(this, nameToNest = it.name)
@@ -151,7 +152,7 @@ class ReferencesCache(
     fun resolveReferencesOnComputedFields(
         fieldModel: FieldModel,
         list: List<ReferenceProperties>,
-        ksType: KSType,
+        ksType: ClassType,
     ): List<SingleFieldModel> {
         return referenceMap.getOrPut(
             ReferenceType.SpecificReferences(

@@ -13,18 +13,11 @@ import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
 import com.dbflow5.ksp.ClassNames
-import com.dbflow5.ksp.model.ClassModel
-import com.dbflow5.ksp.model.DatabaseModel
-import com.dbflow5.ksp.model.IndexGroupModel
-import com.dbflow5.ksp.model.ManyToManyModel
-import com.dbflow5.ksp.model.MigrationModel
-import com.dbflow5.ksp.model.NameModel
-import com.dbflow5.ksp.model.ObjectModel
-import com.dbflow5.ksp.model.OneToManyModel
-import com.dbflow5.ksp.model.TypeConverterModel
-import com.dbflow5.ksp.model.UniqueGroupModel
 import com.dbflow5.ksp.model.companion
-import com.dbflow5.ksp.model.properties.ModelViewQueryProperties
+import com.dbflow5.ksp.model.interop.KSPClassType
+import com.dbflow5.ksp.model.interop.KSPOriginatingFile
+import com.dbflow5.ksp.model.invoke
+import com.dbflow5.ksp.model.ksName
 import com.dbflow5.ksp.parser.annotation.DatabasePropertyParser
 import com.dbflow5.ksp.parser.annotation.Fts4Parser
 import com.dbflow5.ksp.parser.annotation.ManyToManyParser
@@ -38,13 +31,23 @@ import com.dbflow5.ksp.parser.annotation.ViewPropertyParser
 import com.dbflow5.ksp.parser.extractors.FieldSanitizer
 import com.dbflow5.ksp.parser.validation.ValidationException
 import com.dbflow5.ksp.parser.validation.ValidationExceptionProvider
+import com.dbflow5.model.ClassModel
+import com.dbflow5.model.DatabaseModel
+import com.dbflow5.model.IndexGroupModel
+import com.dbflow5.model.ManyToManyModel
+import com.dbflow5.model.MigrationModel
+import com.dbflow5.model.NameModel
+import com.dbflow5.model.ObjectModel
+import com.dbflow5.model.OneToManyModel
+import com.dbflow5.model.TypeConverterModel
+import com.dbflow5.model.UniqueGroupModel
+import com.dbflow5.model.properties.ModelViewQueryProperties
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFile
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
@@ -143,7 +146,7 @@ class KSClassDeclarationParser(
         // inspect annotations for what object it is.
         return input.annotations.mapNotNull { annotation ->
             val name = NameModel(qualifiedName, packageName)
-            val originatingFile = input.containingFile
+            val originatingFile = KSPOriginatingFile(input.containingFile)
             when (annotation.annotationType.toTypeName()) {
                 typeNameOf<Database>() -> {
                     if (!input.hasSuperType(ClassNames.DBFlowDatabase)) {
@@ -215,7 +218,7 @@ class KSClassDeclarationParser(
                             properties = oneToManyPropertyParser.parse(annotation),
                             classType = classType,
                             databaseTypeName = tableProperties.database,
-                            ksType = input.asStarProjectedType(),
+                            ksType = KSPClassType(input.asStarProjectedType()),
                             originatingFile = originatingFile,
                         )
                     )
@@ -389,7 +392,7 @@ class KSClassDeclarationParser(
         classType: ClassName,
         name: NameModel,
         annotation: KSAnnotation,
-        originatingFile: KSFile?
+        originatingFile: KSPOriginatingFile
     ): ManyToManyModel {
         val tableProperties = tablePropertyParser.parse(
             input.firstOrNull<Table>() ?: throw Validation.MissingTable(
