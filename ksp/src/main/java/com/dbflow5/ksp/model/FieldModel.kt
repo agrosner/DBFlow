@@ -7,14 +7,10 @@ import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.dbflow5.ksp.writer.FieldExtractor
 import com.dbflow5.codegen.model.ClassModel
 import com.dbflow5.codegen.model.FieldModel
-import com.dbflow5.codegen.model.NameModel
 import com.dbflow5.codegen.model.ReferenceHolderModel
 import com.dbflow5.codegen.model.SingleFieldModel
 import com.dbflow5.codegen.model.TypeConverterModel
-import com.dbflow5.codegen.model.properties.ReferenceHolderProperties
 import com.dbflow5.codegen.model.properties.TypeConverterProperties
-import com.dbflow5.codegen.model.properties.isInferredTable
-import com.dbflow5.codegen.model.references
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import java.util.*

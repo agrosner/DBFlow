@@ -1,15 +1,5 @@
 package com.dbflow5.ksp
 
-import com.dbflow5.codegen.model.cache.ReferencesCache
-import com.dbflow5.ksp.model.cache.TypeConverterCache
-import com.dbflow5.ksp.parser.KSClassDeclarationParser
-import com.dbflow5.codegen.parser.validation.ValidationException
-import com.dbflow5.ksp.writer.ClassWriter
-import com.dbflow5.ksp.writer.DatabaseHolderWriter
-import com.dbflow5.ksp.writer.DatabaseWriter
-import com.dbflow5.ksp.writer.InlineTypeConverterWriter
-import com.dbflow5.ksp.writer.ManyToManyClassWriter
-import com.dbflow5.ksp.writer.OneToManyClassWriter
 import com.dbflow5.codegen.model.ClassModel
 import com.dbflow5.codegen.model.DatabaseHolderModel
 import com.dbflow5.codegen.model.DatabaseModel
@@ -18,8 +8,19 @@ import com.dbflow5.codegen.model.MigrationModel
 import com.dbflow5.codegen.model.NameModel
 import com.dbflow5.codegen.model.OneToManyModel
 import com.dbflow5.codegen.model.TypeConverterModel
+import com.dbflow5.codegen.model.cache.ReferencesCache
 import com.dbflow5.codegen.model.copyOverClasses
 import com.dbflow5.codegen.model.properties.DatabaseHolderProperties
+import com.dbflow5.codegen.parser.validation.ValidationException
+import com.dbflow5.ksp.model.cache.TypeConverterCache
+import com.dbflow5.ksp.model.interop.KSPResolver
+import com.dbflow5.ksp.parser.KSClassDeclarationParser
+import com.dbflow5.ksp.writer.ClassWriter
+import com.dbflow5.ksp.writer.DatabaseHolderWriter
+import com.dbflow5.ksp.writer.DatabaseWriter
+import com.dbflow5.ksp.writer.InlineTypeConverterWriter
+import com.dbflow5.ksp.writer.ManyToManyClassWriter
+import com.dbflow5.ksp.writer.OneToManyClassWriter
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
@@ -45,7 +46,8 @@ class DBFlowKspProcessor(
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         try {
-            typeConverterCache.applyResolver(resolver)
+            val kspResolver = KSPResolver(resolver)
+            typeConverterCache.applyResolver(kspResolver)
             ksClassDeclarationParser.applyResolver(resolver)
 
             val symbols =
@@ -101,7 +103,7 @@ class DBFlowKspProcessor(
                     .mapNotNull { it.properties?.typeConverterClassName }
                     .filter { it != ClassNames.TypeConverter }
                     .forEach { typeConverterName ->
-                        typeConverterCache.putTypeConverter(typeConverterName, resolver)
+                        typeConverterCache.putTypeConverter(typeConverterName, kspResolver)
                     }
 
                 typeConverterCache.processNestedConverters()

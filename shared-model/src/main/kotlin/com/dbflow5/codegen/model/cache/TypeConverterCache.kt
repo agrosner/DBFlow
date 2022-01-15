@@ -1,5 +1,11 @@
-package com.dbflow5.ksp.model.cache
+package com.dbflow5.codegen.model.cache
 
+import com.dbflow5.codegen.model.NameModel
+import com.dbflow5.codegen.model.TypeConverterModel
+import com.dbflow5.codegen.model.interop.ClassDeclaration
+import com.dbflow5.codegen.model.interop.ClassNameResolver
+import com.dbflow5.codegen.model.properties.TypeConverterProperties
+import com.dbflow5.codegen.model.toChained
 import com.dbflow5.converter.BigDecimalConverter
 import com.dbflow5.converter.BigIntegerConverter
 import com.dbflow5.converter.BlobConverter
@@ -8,26 +14,12 @@ import com.dbflow5.converter.CalendarConverter
 import com.dbflow5.converter.CharConverter
 import com.dbflow5.converter.DateConverter
 import com.dbflow5.converter.SqlDateConverter
-import com.dbflow5.converter.TypeConverter
 import com.dbflow5.converter.UUIDConverter
 import com.dbflow5.ksp.ClassNames
-import com.dbflow5.ksp.MemberNames
-import com.dbflow5.ksp.model.interop.KSPClassDeclaration
-import com.dbflow5.ksp.model.interop.KSPOriginatingFile
-import com.dbflow5.codegen.model.NameModel
-import com.dbflow5.codegen.model.TypeConverterModel
-import com.dbflow5.codegen.model.properties.TypeConverterProperties
-import com.dbflow5.codegen.model.toChained
-import com.google.devtools.ksp.closestClassDeclaration
-import com.google.devtools.ksp.processing.Resolver
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.ksp.toTypeName
-import java.util.*
 
 /**
  * Description: Keeps all defined [TypeConverterModel]
@@ -42,7 +34,7 @@ class TypeConverterCache {
     private val typeConvertersToWrite = mutableSetOf<TypeConverterModel>()
     val generatedTypeConverters: Set<TypeConverterModel> = typeConvertersToWrite
 
-    fun applyResolver(resolver: Resolver) {
+    fun applyResolver(resolver: ClassNameResolver) {
         DEFAULT_TYPE_CONVERTERS.forEach { defaultType ->
             val typeName = defaultType.asClassName()
             putTypeConverter(typeName, resolver)
@@ -84,10 +76,9 @@ class TypeConverterCache {
 
     fun putTypeConverter(
         className: ClassName,
-        resolver: Resolver
+        resolver: ClassNameResolver
     ) {
-        val declaration =
-            resolver.getClassDeclarationByName(resolver.getKSNameFromString(className.toString()))!!
+        val declaration = resolver.classDeclarationByClassName(className)!!
         val typeConverterSuper = extractTypeParameterType(declaration, className)
         val classModel = TypeConverterModel.Simple(
             name = NameModel(className),
@@ -95,22 +86,21 @@ class TypeConverterCache {
             classType = className,
             dataTypeName = typeConverterSuper.typeArguments[0],
             modelTypeName = typeConverterSuper.typeArguments[1],
-            modelClass = KSPClassDeclaration(declaration.asStarProjectedType().declaration.closestClassDeclaration()),
-            originatingFile = KSPOriginatingFile(declaration.containingFile),
+            modelClass = declaration.asStarProjectedType(),
+            originatingFile = declaration.containingFile,
         )
         putTypeConverter(classModel)
     }
 
     private fun extractTypeParameterType(
-        declaration: KSClassDeclaration,
+        declaration: ClassDeclaration,
         className: ClassName
     ): ParameterizedTypeName {
         val typeConverterSuper = declaration.superTypes.firstNotNullOfOrNull { reference ->
-            reference.resolve().toTypeName().let {
-                it as? ParameterizedTypeName
-            }?.takeIf { type ->
-                type.rawType == ClassNames.TypeConverter
-            }
+            (reference as? ParameterizedTypeName)
+                ?.takeIf { type ->
+                    type.rawType == ClassNames.TypeConverter
+                }
         } ?: throw IllegalStateException("Error ${className}")
         return typeConverterSuper
     }
@@ -144,28 +134,4 @@ class TypeConverterCache {
             BlobConverter::class,
         )
     }
-}
-
-/**
- * If a [TypeConverter] resolves to another, existing [TypeConverter] type,
- * chain until resolved.
- */
-fun TypeConverterCache.chainedReference(
-    codeBlock: CodeBlock.Builder,
-    typeName: TypeName,
-    name: String
-) {
-    var typeConverter = this[typeName, name]
-    codeBlock.add(
-        "(%L", typeConverter
-            .name.shortName.lowercase(Locale.getDefault())
-    )
-    while (has(typeConverter.dataTypeName)) {
-        codeBlock.add(
-            ".%M(%L)", MemberNames.chain, typeConverter
-                .name.shortName.lowercase(Locale.getDefault())
-        )
-        typeConverter = this[typeConverter.dataTypeName, name]
-    }
-    codeBlock.add(")")
 }
