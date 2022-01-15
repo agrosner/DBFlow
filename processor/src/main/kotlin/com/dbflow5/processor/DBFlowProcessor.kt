@@ -1,15 +1,6 @@
 package com.dbflow5.processor
 
-import com.dbflow5.annotation.Column
-import com.dbflow5.annotation.ColumnIgnore
-import com.dbflow5.annotation.Fts3
-import com.dbflow5.annotation.Fts4
-import com.dbflow5.annotation.Migration
-import com.dbflow5.annotation.ModelView
-import com.dbflow5.annotation.MultipleManyToMany
-import com.dbflow5.annotation.Query
-import com.dbflow5.annotation.Table
-import com.dbflow5.annotation.TypeConverter
+import com.dbflow5.codegen.model.Annotations
 import com.dbflow5.processor.definition.DatabaseHolderDefinition
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
@@ -29,18 +20,8 @@ class DBFlowProcessor : AbstractProcessor() {
      * @return the names of the annotation types supported by this
      * * processor, or an empty set if none
      */
-    override fun getSupportedAnnotationTypes() = listOf(
-        Table::class,
-        Column::class,
-        TypeConverter::class,
-        ModelView::class,
-        Migration::class,
-        ColumnIgnore::class,
-        Query::class,
-        Fts3::class,
-        Fts4::class,
-        MultipleManyToMany::class
-    ).mapTo(linkedSetOf<String>()) { it.java.canonicalName }
+    override fun getSupportedAnnotationTypes() =
+        Annotations.values.mapTo(linkedSetOf()) { it.qualifiedName }
 
     override fun getSupportedOptions() =
         linkedSetOf(DatabaseHolderDefinition.OPTION_TARGET_MODULE_NAME)

@@ -1,5 +1,6 @@
 package com.dbflow5.ksp
 
+import com.dbflow5.codegen.model.Annotations
 import com.dbflow5.codegen.model.ClassModel
 import com.dbflow5.codegen.model.DatabaseHolderModel
 import com.dbflow5.codegen.model.DatabaseModel

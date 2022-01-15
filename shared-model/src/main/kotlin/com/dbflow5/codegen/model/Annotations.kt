@@ -1,4 +1,4 @@
-package com.dbflow5.ksp
+package com.dbflow5.codegen.model
 
 import com.dbflow5.annotation.DBFlowKSPOnly
 import com.dbflow5.annotation.ModelView
