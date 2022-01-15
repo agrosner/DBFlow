@@ -1,6 +1,7 @@
 package com.dbflow5.codegen.model
 
 import com.dbflow5.codegen.model.cache.ReferencesCache
+import com.dbflow5.codegen.model.cache.TypeConverterCache
 import com.dbflow5.codegen.model.interop.ClassType
 import com.dbflow5.codegen.model.interop.OriginatingFileType
 import com.dbflow5.codegen.model.properties.FieldProperties
@@ -10,6 +11,7 @@ import com.dbflow5.codegen.model.properties.ReferenceHolderProperties
 import com.dbflow5.codegen.model.properties.UniqueProperties
 import com.dbflow5.codegen.model.properties.isInferredTable
 import com.dbflow5.codegen.model.properties.nameWithFallback
+import com.dbflow5.ksp.ClassNames
 import com.squareup.kotlinpoet.TypeName
 import java.util.*
 
@@ -267,3 +269,14 @@ private fun nestNameReference(nameToNest: NameModel?) = { reference: SingleField
         )
     } else reference
 }
+
+fun FieldModel.hasTypeConverter(typeConverterCache: TypeConverterCache) =
+    properties?.let { properties ->
+        properties.typeConverterClassName as TypeName != ClassNames.TypeConverter
+            || typeConverterCache.has(classType)
+    }
+        ?: typeConverterCache.has(classType)
+
+fun FieldModel.typeConverter(typeConverterCache: TypeConverterCache) =
+    typeConverterCache[classType, properties?.typeConverterClassName?.toString()
+        ?: ""]

@@ -9,10 +9,10 @@ import com.dbflow5.codegen.model.NameModel
 import com.dbflow5.codegen.model.OneToManyModel
 import com.dbflow5.codegen.model.TypeConverterModel
 import com.dbflow5.codegen.model.cache.ReferencesCache
+import com.dbflow5.codegen.model.cache.TypeConverterCache
 import com.dbflow5.codegen.model.copyOverClasses
 import com.dbflow5.codegen.model.properties.DatabaseHolderProperties
 import com.dbflow5.codegen.parser.validation.ValidationException
-import com.dbflow5.ksp.model.cache.TypeConverterCache
 import com.dbflow5.ksp.model.interop.KSPResolver
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.writer.ClassWriter
