@@ -6,6 +6,7 @@ object Versions {
     const val SQLCipherMin = 21
     const val ArchMin = 21
     const val KSP = "${Kotlin}-1.0.2"
+    const val KotlinCompileTesting = "1.4.7"
 }
 
 object Dependencies {
@@ -23,7 +24,10 @@ object Dependencies {
     const val KoinTest = "io.insert-koin:koin-test-junit4:3.1.4"
     const val MockitoKotlin = "org.mockito.kotlin:mockito-kotlin:4.0.0"
 
-    const val KotlinCompileTestingKSP = "com.github.tschuchortdev:kotlin-compile-testing-ksp:1.4.6"
+    const val KotlinCompileTesting =
+        "com.github.tschuchortdev:kotlin-compile-testing:${Versions.KotlinCompileTesting}"
+    const val KotlinCompileTestingKSP =
+        "com.github.tschuchortdev:kotlin-compile-testing-ksp:${Versions.KotlinCompileTesting}"
 
 
     object AndroidX {

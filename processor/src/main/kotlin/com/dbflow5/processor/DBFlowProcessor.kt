@@ -2,13 +2,16 @@ package com.dbflow5.processor
 
 import com.dbflow5.codegen.model.Annotations
 import com.dbflow5.processor.definition.DatabaseHolderDefinition
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import org.koin.core.context.startKoin
 import javax.annotation.processing.AbstractProcessor
 import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.TypeElement
 
-class DBFlowProcessor : AbstractProcessor() {
+class DBFlowProcessor : AbstractProcessor(), KoinComponent {
 
     private lateinit var manager: ProcessorManager
 
@@ -46,10 +49,18 @@ class DBFlowProcessor : AbstractProcessor() {
             QueryModelHandler(),
             ModelViewHandler(),
         )
+        startKoin {
+            modules(
+                getModule(
+                    processingEnv.elementUtils,
+                    processingEnv.messager
+                )
+            )
+        }
     }
 
     override fun process(annotations: Set<TypeElement>, roundEnv: RoundEnvironment): Boolean {
-        manager.handle(manager, roundEnv)
+        inject<DBFlowKaptProcessor>().value.process(roundEnv)
 
         // return true if we successfully processed the Annotation.
         return true

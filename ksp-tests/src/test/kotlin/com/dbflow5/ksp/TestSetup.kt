@@ -1,5 +1,6 @@
 package com.dbflow5.ksp
 
+import com.dbflow5.processor.DBFlowProcessor
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.symbolProcessorProviders

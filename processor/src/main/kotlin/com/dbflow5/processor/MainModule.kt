@@ -1,5 +1,6 @@
 package com.dbflow5.processor
 
+import com.dbflow5.codegen.model.cache.TypeConverterCache
 import com.dbflow5.processor.parser.ColumnMapParser
 import com.dbflow5.processor.parser.DatabasePropertyParser
 import com.dbflow5.processor.parser.FieldPropertyParser
@@ -8,6 +9,7 @@ import com.dbflow5.processor.parser.ForeignKeyReferencePropertyParser
 import com.dbflow5.processor.parser.Fts4Parser
 import com.dbflow5.processor.parser.IndexGroupParser
 import com.dbflow5.processor.parser.IndexParser
+import com.dbflow5.processor.parser.KaptElementProcessor
 import com.dbflow5.processor.parser.ManyToManyPropertyParser
 import com.dbflow5.processor.parser.MigrationParser
 import com.dbflow5.processor.parser.NotNullPropertyParser
@@ -19,11 +21,16 @@ import com.dbflow5.processor.parser.UniqueGroupPropertyParser
 import com.dbflow5.processor.parser.UniquePropertyParser
 import com.dbflow5.processor.parser.ViewPropertyParser
 import org.koin.dsl.module
+import javax.annotation.processing.Messager
+import javax.lang.model.util.Elements
 
 /**
  * Description:
  */
-fun getModule() = module {
+fun getModule(
+    elements: Elements,
+    messager: Messager,
+) = module {
     single { DatabasePropertyParser() }
     single { FieldPropertyParser() }
     single { ForeignKeyParser(get()) }
@@ -42,4 +49,15 @@ fun getModule() = module {
     single { UniqueGroupPropertyParser() }
     single { UniquePropertyParser() }
     single { ViewPropertyParser() }
+    single { TypeConverterCache() }
+    single {
+        KaptElementProcessor(
+            elements, get(), get(), get(),
+            get()
+        )
+    }
+
+    single {
+        DBFlowKaptProcessor(elements, get(), messager, get())
+    }
 }

@@ -79,7 +79,7 @@ class TypeConverterCache {
         resolver: ClassNameResolver
     ) {
         val declaration = resolver.classDeclarationByClassName(className)!!
-        val typeConverterSuper = extractTypeParameterType(declaration, className)
+        val typeConverterSuper = extractTypeConverter(declaration, className)
         val classModel = TypeConverterModel.Simple(
             name = NameModel(className),
             properties = TypeConverterProperties(listOf()),
@@ -91,20 +91,6 @@ class TypeConverterCache {
         )
         putTypeConverter(classModel)
     }
-
-    private fun extractTypeParameterType(
-        declaration: ClassDeclaration,
-        className: ClassName
-    ): ParameterizedTypeName {
-        val typeConverterSuper = declaration.superTypes.firstNotNullOfOrNull { reference ->
-            (reference as? ParameterizedTypeName)
-                ?.takeIf { type ->
-                    type.rawType == ClassNames.TypeConverter
-                }
-        } ?: throw IllegalStateException("Error ${className}")
-        return typeConverterSuper
-    }
-
 
     fun putTypeConverter(typeConverterModel: TypeConverterModel) {
         typeConverters[typeConverterModel.modelTypeName.copy(nullable = false)] =
@@ -134,4 +120,18 @@ class TypeConverterCache {
             BlobConverter::class,
         )
     }
+}
+
+fun extractTypeConverter(
+    declaration: ClassDeclaration,
+    className: ClassName
+): ParameterizedTypeName {
+    val typeConverterSuper = declaration.superTypes.firstNotNullOfOrNull { reference ->
+        (reference as? ParameterizedTypeName)
+            ?.takeIf { type ->
+                type.rawType == ClassNames.TypeConverter
+            }
+    } ?: throw IllegalStateException("Error typeConverter super for ${className} not found." +
+        "${declaration.superTypes.toList()}")
+    return typeConverterSuper
 }

@@ -4,9 +4,9 @@ import com.dbflow5.codegen.model.interop.ClassDeclaration
 import com.dbflow5.codegen.model.interop.OriginatingFileType
 import com.dbflow5.codegen.model.interop.PropertyDeclaration
 import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.utils.toTypeElement
+import com.dbflow5.processor.utils.asStarProjectedType
 import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.asTypeName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
@@ -35,16 +35,12 @@ class KaptClassDeclaration(
     override val containingFile: OriginatingFileType? = null
 
     override val superTypes: Sequence<TypeName> =
-        generateSequence(typeElement?.superclass.toTypeElement()) { prev ->
-            prev.superclass.toTypeElement()
-        }.map { it.asClassName() }
+        ProcessorManager.manager.typeUtils.directSupertypes(
+            typeElement?.asType()
+        ).asSequence()
+            .map { it.asTypeName() }
 
     override fun asStarProjectedType(): ClassDeclaration {
-        return KaptClassDeclaration(
-            typeElement?.let {
-                ProcessorManager.manager.typeUtils
-                    .erasure(it.asType()).toTypeElement()
-            }
-        )
+        return KaptClassDeclaration(typeElement?.asStarProjectedType())
     }
 }

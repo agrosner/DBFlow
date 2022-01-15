@@ -136,15 +136,26 @@ inline fun <reified A : Annotation>
     }
 
 inline fun <reified A : Annotation>
-    Element.extractTypeNamesFromAnnotation(invoker: (A) -> Unit): List<TypeName>? =
+    Element.extractClassNamesFromAnnotation(invoker: (A) -> Unit): List<TypeName>? =
     annotation<A>()?.let { a ->
-        try {
-            invoker(a)
-        } catch (mte: MirroredTypesException) {
-            return@let mte.typeMirrors.map { TypeName.get(it) }
-        }
-        return@let null
+        a.extractTypeMirrorsFromAnnotation(invoker = invoker)?.map { TypeName.get(it) }
     }
+
+inline fun <reified A : Annotation>
+    A.extractClassNamesFromAnnotation(invoker: (A) -> Unit): List<ClassName> =
+    extractTypeMirrorsFromAnnotation(invoker = invoker)?.map {
+        val toTypeElement = it.toTypeElement()!!
+        val packageElement = toTypeElement.getPackage()!!
+        ClassName.get(packageElement.toString(), toTypeElement.simpleString)
+    }
+        ?: listOf()
+
+inline fun <reified A : Annotation>
+    A.extractTypeNamesFromAnnotation(invoker: (A) -> Unit): List<TypeName> =
+    extractTypeMirrorsFromAnnotation(invoker = invoker)?.map {
+        TypeName.get(it)
+    }
+        ?: listOf()
 
 inline fun <reified A : Annotation> A.extractTypeMirrorFromAnnotation(
     exceptionHandler: (MirroredTypeException) -> Unit = {},
@@ -161,7 +172,31 @@ inline fun <reified A : Annotation> A.extractTypeMirrorFromAnnotation(
     return mirror
 }
 
+inline fun <reified A : Annotation> A.extractTypeMirrorsFromAnnotation(
+    exceptionHandler: (MirroredTypesException) -> Unit = {},
+    invoker: (A) -> Unit
+)
+    : List<TypeMirror>? {
+    try {
+        invoker(this)
+    } catch (mte: MirroredTypesException) {
+        exceptionHandler(mte)
+        return mte.typeMirrors
+    }
+    return null
+}
+
 inline fun <reified A : Annotation> A.extractTypeNameFromAnnotation(
     exceptionHandler: (MirroredTypeException) -> Unit = {},
     invoker: (A) -> Unit
 ): TypeName = TypeName.get(extractTypeMirrorFromAnnotation(exceptionHandler, invoker))
+
+inline fun <reified A : Annotation> A.extractClassNameFromAnnotation(
+    exceptionHandler: (MirroredTypeException) -> Unit = {},
+    invoker: (A) -> Unit
+): ClassName = extractTypeMirrorFromAnnotation(exceptionHandler, invoker)
+    .let {
+        val toTypeElement = it.toTypeElement()!!
+        val packageElement = toTypeElement.getPackage()!!
+        ClassName.get(packageElement.toString(), toTypeElement.simpleString)
+    }

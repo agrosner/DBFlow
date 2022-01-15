@@ -22,9 +22,10 @@ import com.dbflow5.codegen.model.ObjectModel
 import com.dbflow5.codegen.model.OneToManyModel
 import com.dbflow5.codegen.model.TypeConverterModel
 import com.dbflow5.codegen.model.UniqueGroupModel
+import com.dbflow5.codegen.model.cache.extractTypeConverter
 import com.dbflow5.codegen.model.properties.ModelViewQueryProperties
-import com.dbflow5.codegen.parser.Parser
 import com.dbflow5.codegen.parser.FieldSanitizer
+import com.dbflow5.codegen.parser.Parser
 import com.dbflow5.codegen.parser.validation.ValidationException
 import com.dbflow5.codegen.parser.validation.ValidationExceptionProvider
 import com.dbflow5.ksp.ClassNames
@@ -52,7 +53,6 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.typeNameOf
@@ -144,11 +144,11 @@ class KSClassDeclarationParser(
         ).exception
         val packageName = input.packageName
         val isInternal = input.isInternal()
+        val name = NameModel(qualifiedName, packageName)
+        val originatingFile = KSPOriginatingFile(input.containingFile)
 
         // inspect annotations for what object it is.
         return input.annotations.mapNotNull { annotation ->
-            val name = NameModel(qualifiedName, packageName)
-            val originatingFile = KSPOriginatingFile(input.containingFile)
             when (annotation.annotationType.toTypeName()) {
                 typeNameOf<Database>() -> {
                     if (!input.hasSuperType(ClassNames.DBFlowDatabase)) {
@@ -167,13 +167,10 @@ class KSClassDeclarationParser(
                     )
                 }
                 typeNameOf<TypeConverter>() -> {
-                    val typeConverterSuper = input.superTypes.firstNotNullOfOrNull { reference ->
-                        reference.resolve().toTypeName().let {
-                            it as? ParameterizedTypeName
-                        }?.takeIf { type ->
-                            type.rawType == ClassNames.TypeConverter
-                        }
-                    } ?: throw Validation.CouldNotFindTypeConverter(classType).exception
+                    val typeConverterSuper = extractTypeConverter(
+                        KSPClassDeclaration(input),
+                        classType
+                    )
                     listOf(
                         TypeConverterModel.Simple(
                             name = name,

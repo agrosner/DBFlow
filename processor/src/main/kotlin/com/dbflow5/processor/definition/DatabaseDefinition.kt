@@ -7,7 +7,7 @@ import com.dbflow5.processor.ModelViewValidator
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.TableValidator
 import com.dbflow5.processor.utils.`override fun`
-import com.dbflow5.processor.utils.extractTypeNamesFromAnnotation
+import com.dbflow5.processor.utils.extractClassNamesFromAnnotation
 import com.dbflow5.processor.utils.isSubclass
 import com.grosner.kpoet.L
 import com.grosner.kpoet.`return`
@@ -44,13 +44,13 @@ class DatabaseDefinition(
 
     var objectHolder: DatabaseObjectHolder? = null
 
-    val declaredTables = element.extractTypeNamesFromAnnotation<Database> { it.tables } ?: listOf()
+    val declaredTables = element.extractClassNamesFromAnnotation<Database> { it.tables } ?: listOf()
     val declaredViews =
-        element.extractTypeNamesFromAnnotation<Database> { database.views } ?: listOf()
+        element.extractClassNamesFromAnnotation<Database> { database.views } ?: listOf()
     val declaredQueries =
-        element.extractTypeNamesFromAnnotation<Database> { database.queries } ?: listOf()
+        element.extractClassNamesFromAnnotation<Database> { database.queries } ?: listOf()
     val declaredMigrations =
-        element.extractTypeNamesFromAnnotation<Database> { database.migrations } ?: listOf()
+        element.extractClassNamesFromAnnotation<Database> { database.migrations } ?: listOf()
 
     init {
         setOutputClassName("${elementName}_Database")

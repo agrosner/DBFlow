@@ -2,6 +2,7 @@ plugins {
     id("com.google.devtools.ksp") version Versions.KSP
     id("com.android.library")
     kotlin("android")
+    kotlin("kapt")
 }
 
 android {
@@ -29,7 +30,6 @@ android {
 }
 
 dependencies {
-    implementation("androidx.appcompat:appcompat:1.4.0")
     implementation(project(":lib"))
     implementation(project(":sqlcipher"))
     implementation(project(":reactive-streams"))
@@ -42,7 +42,10 @@ dependencies {
     testImplementation(Dependencies.MockitoKotlin)
     testImplementation(Dependencies.KoinTest)
     testImplementation(project(":ksp"))
+    testImplementation(project(":processor"))
     kspTest(project(":ksp"))
+    kaptTest(project(":processor"))
+    testImplementation(Dependencies.KotlinCompileTesting)
     testImplementation(Dependencies.KotlinCompileTestingKSP)
     testImplementation(kotlin("test"))
     testImplementation(Dependencies.JavaXAnnotation)
