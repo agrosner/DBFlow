@@ -9,6 +9,9 @@ interface ClassDeclaration {
 
     val isEnum: Boolean
 
+    /**
+     * Returns non-inherited members.
+     */
     val properties: List<PropertyDeclaration>
 
     val containingFile: OriginatingFileType?

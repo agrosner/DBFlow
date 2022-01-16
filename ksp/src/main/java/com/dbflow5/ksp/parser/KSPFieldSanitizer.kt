@@ -9,33 +9,22 @@ import com.dbflow5.codegen.model.FieldModel
 import com.dbflow5.codegen.model.cache.TypeConverterCache
 import com.dbflow5.codegen.model.interop.ClassDeclaration
 import com.dbflow5.codegen.parser.FieldSanitizer
+import com.dbflow5.codegen.parser.FieldSanitizer.Validation.OnlyOneKind
 import com.dbflow5.codegen.parser.validation.ValidationException
-import com.dbflow5.codegen.parser.validation.ValidationExceptionProvider
 import com.dbflow5.ksp.model.generateTypeConverter
 import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.typeNameOf
 
-class FieldSanitizerImpl(
+class KSPFieldSanitizer(
     private val propertyParser: KSPropertyDeclarationParser,
     private val typeConverterCache: TypeConverterCache,
 ) : FieldSanitizer {
-
-    sealed interface Validation : ValidationExceptionProvider {
-
-        data class OnlyOneKind(
-            val className: ClassName,
-        ) : Validation {
-            override val message: String = "$className can only contain one of " +
-                "the following types: Table, ModelView, or QueryModel"
-        }
-    }
 
     @Throws(ValidationException::class)
     override fun parse(input: ClassDeclaration): List<FieldModel> {
@@ -44,7 +33,7 @@ class FieldSanitizerImpl(
         val isModelView = declaration.hasAnnotation<ModelView>()
         val isQuery = declaration.hasAnnotation<Query>()
         if (listOf(isTable, isModelView, isQuery).count { it } > 1) {
-            throw Validation.OnlyOneKind(declaration.toClassName()).exception
+            throw OnlyOneKind(declaration.toClassName()).exception
         }
         // grabs all fields from current class and super class fields.
         return (declaration.getAllProperties() + declaration.superTypes.mapNotNull {

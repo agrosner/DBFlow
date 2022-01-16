@@ -10,24 +10,28 @@ import com.squareup.kotlinpoet.asTypeName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
+import javax.lang.model.type.TypeMirror
 
 /**
  * Description:
  */
 class KaptClassDeclaration(
-    private val typeElement: TypeElement?,
+    internal val typeElement: TypeElement?,
 ) : ClassDeclaration {
 
     override val isEnum: Boolean = typeElement?.kind == ElementKind.ENUM
 
     override val properties: List<PropertyDeclaration> =
-        typeElement?.enclosedElements
-            ?.filterIsInstance<VariableElement>()
+        propertyElements
             ?.map {
                 KaptPropertyDeclaration(
                     it
                 )
             } ?: emptyList()
+
+    val propertyElements: List<VariableElement>?
+        get() = typeElement?.enclosedElements
+            ?.filterIsInstance<VariableElement>()
 
     /**
      * KAPT doesn't need to track these, so we leave null.
@@ -35,10 +39,13 @@ class KaptClassDeclaration(
     override val containingFile: OriginatingFileType? = null
 
     override val superTypes: Sequence<TypeName> =
-        ProcessorManager.manager.typeUtils.directSupertypes(
-            typeElement?.asType()
-        ).asSequence()
+        superElements.asSequence()
             .map { it.asTypeName() }
+
+    val superElements: List<TypeMirror>
+        get() = ProcessorManager.manager.typeUtils.directSupertypes(
+            typeElement?.asType()
+        )
 
     override fun asStarProjectedType(): ClassDeclaration {
         return KaptClassDeclaration(typeElement?.asStarProjectedType())

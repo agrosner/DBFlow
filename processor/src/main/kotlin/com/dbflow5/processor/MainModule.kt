@@ -1,6 +1,7 @@
 package com.dbflow5.processor
 
 import com.dbflow5.codegen.model.cache.TypeConverterCache
+import com.dbflow5.codegen.parser.FieldSanitizer
 import com.dbflow5.processor.parser.ColumnMapParser
 import com.dbflow5.processor.parser.DatabasePropertyParser
 import com.dbflow5.processor.parser.FieldPropertyParser
@@ -22,6 +23,7 @@ import com.dbflow5.processor.parser.UniquePropertyParser
 import com.dbflow5.processor.parser.ViewPropertyParser
 import org.koin.dsl.module
 import javax.annotation.processing.Messager
+import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.util.Elements
 
 /**
@@ -30,6 +32,7 @@ import javax.lang.model.util.Elements
 fun getModule(
     elements: Elements,
     messager: Messager,
+    env: ProcessingEnvironment,
 ) = module {
     single { DatabasePropertyParser() }
     single { FieldPropertyParser() }
@@ -50,9 +53,13 @@ fun getModule(
     single { UniquePropertyParser() }
     single { ViewPropertyParser() }
     single { TypeConverterCache() }
+    single { KaptFieldSanitizer() }
     single {
         KaptElementProcessor(
-            elements, get(), get(), get(),
+            elements,
+            env,
+            get(), get(), get(),
+            get(), get(), get(),
             get()
         )
     }

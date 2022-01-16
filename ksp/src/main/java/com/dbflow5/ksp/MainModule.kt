@@ -4,7 +4,7 @@ import com.dbflow5.codegen.model.SQLiteLookup
 import com.dbflow5.codegen.model.cache.ReferencesCache
 import com.dbflow5.codegen.model.cache.TypeConverterCache
 import com.dbflow5.codegen.parser.FieldSanitizer
-import com.dbflow5.ksp.parser.FieldSanitizerImpl
+import com.dbflow5.ksp.parser.KSPFieldSanitizer
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.parser.KSPropertyDeclarationParser
 import com.dbflow5.ksp.parser.annotation.DatabasePropertyParser
@@ -74,7 +74,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { ManyToManyPropertyParser() }
     single { OneToManyPropertyParser() }
     single { ForeignKeyReferencePropertyParser() }
-    single<FieldSanitizer> { FieldSanitizerImpl(get(), get()) }
+    single<FieldSanitizer> { KSPFieldSanitizer(get(), get()) }
     single {
         KSClassDeclarationParser(
             get(),
