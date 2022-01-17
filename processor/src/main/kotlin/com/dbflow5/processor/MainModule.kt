@@ -13,8 +13,10 @@ import com.dbflow5.processor.parser.Fts4Parser
 import com.dbflow5.processor.parser.IndexGroupParser
 import com.dbflow5.processor.parser.IndexParser
 import com.dbflow5.processor.parser.KaptElementProcessor
+import com.dbflow5.processor.parser.ManyToManyParser
 import com.dbflow5.processor.parser.ManyToManyPropertyParser
 import com.dbflow5.processor.parser.MigrationParser
+import com.dbflow5.processor.parser.MultipleManyToManyParser
 import com.dbflow5.processor.parser.NotNullPropertyParser
 import com.dbflow5.processor.parser.OneToManyPropertyParser
 import com.dbflow5.processor.parser.QueryPropertyParser
@@ -67,9 +69,12 @@ fun getModule(
             env.elementUtils,
             get(), get(), get(),
             get(), get(), get(),
-            get()
+            get(), get(), get(),
+            get(),
         )
     }
+    single { ManyToManyParser(get()) }
+    single { MultipleManyToManyParser(get()) }
 
     single {
         DBFlowKaptProcessor(

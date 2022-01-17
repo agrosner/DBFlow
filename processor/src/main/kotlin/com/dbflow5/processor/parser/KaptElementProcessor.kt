@@ -5,11 +5,13 @@ import com.dbflow5.annotation.Fts3
 import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
+import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.OneToManyRelation
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
 import com.dbflow5.codegen.model.ClassModel
 import com.dbflow5.codegen.model.DatabaseModel
+import com.dbflow5.codegen.model.ManyToManyModel
 import com.dbflow5.codegen.model.MigrationModel
 import com.dbflow5.codegen.model.NameModel
 import com.dbflow5.codegen.model.ObjectModel
@@ -27,9 +29,11 @@ import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.asStarProjectedType
 import com.dbflow5.processor.utils.getPackage
 import com.dbflow5.processor.utils.toTypeErasedElement
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.typeNameOf
+import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 
@@ -45,6 +49,9 @@ class KaptElementProcessor(
     private val migrationParser: MigrationParser,
     private val fts4Parser: Fts4Parser,
     private val fieldSanitizer: FieldSanitizer,
+    private val manyToManyParser: ManyToManyParser,
+    private val queryPropertyParser: QueryPropertyParser,
+    private val multipleManyToManyParser: MultipleManyToManyParser,
 ) : Parser<TypeElement,
     List<ObjectModel>> {
 
@@ -88,7 +95,24 @@ class KaptElementProcessor(
                     )
                 }
                 typeNameOf<ManyToMany>() -> {
-                    listOf() // TODO: many to many
+                    listOf(
+                        manyToManyModel(input, classType, name, input.annotation())
+                    )
+                }
+                typeNameOf<MultipleManyToMany>() -> {
+                    // TODO: validation
+                    val tableProperties = tablePropertyParser.parse(
+                        input.annotation()
+                    )
+                    multipleManyToManyParser.parse(
+                        MultipleManyToManyParser.Input(
+                            annotation = input.annotation(),
+                            name = name,
+                            classType = classType,
+                            databaseTypeName = tableProperties.database,
+                            element = input,
+                        )
+                    )
                 }
                 typeNameOf<OneToManyRelation>() -> {
                     val tableProperties = tablePropertyParser.parse(
@@ -158,5 +182,27 @@ class KaptElementProcessor(
                 }
             }
         }.flatten()
+    }
+
+
+    private fun manyToManyModel(
+        input: Element,
+        classType: ClassName,
+        name: NameModel,
+        annotation: ManyToMany,
+    ): ManyToManyModel {
+        // TODO: validation
+        val tableProperties = tablePropertyParser.parse(
+            input.annotation()
+        )
+        return manyToManyParser.parse(
+            ManyToManyParser.Input(
+                manyToMany = annotation,
+                name = name,
+                classType = classType,
+                databaseTypeName = tableProperties.database,
+                element = input,
+            )
+        )
     }
 }
