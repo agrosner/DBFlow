@@ -30,7 +30,6 @@ import com.dbflow5.processor.utils.toTypeErasedElement
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.typeNameOf
-import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 
@@ -39,7 +38,6 @@ import javax.lang.model.util.Elements
  */
 class KaptElementProcessor(
     private val elements: Elements,
-    private val processingEnvironment: ProcessingEnvironment,
     private val databasePropertyParser: DatabasePropertyParser,
     private val typeConverterPropertyParser: TypeConverterPropertyParser,
     private val oneToManyPropertyParser: OneToManyPropertyParser,
@@ -102,7 +100,10 @@ class KaptElementProcessor(
                             properties = oneToManyPropertyParser.parse(input.annotation()),
                             classType = classType,
                             databaseTypeName = tableProperties.database,
-                            ksType = KaptClassType(input.asStarProjectedType()),
+                            ksType = KaptClassType(
+                                input.asType().asStarProjectedType(),
+                                input
+                            ),
                             originatingFile = KaptOriginatingFileType,
                         )
                     )

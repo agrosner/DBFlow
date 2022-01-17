@@ -5,7 +5,9 @@ import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.ForeignKeyAction
 import com.dbflow5.codegen.model.properties.ReferenceHolderProperties
 import com.dbflow5.codegen.parser.Parser
+import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.javapoet.toKTypeName
 
 class ForeignKeyParser(
     private val foreignKeyReferencePropertyParser: ForeignKeyReferencePropertyParser,
@@ -22,7 +24,8 @@ class ForeignKeyParser(
                 )
                 else -> ReferenceHolderProperties.ReferencesType.All
             },
-            referencedTableTypeName = input.tableClass.asTypeName(),
+            referencedTableTypeName = input.extractTypeNameFromAnnotation { it.tableClass }
+                .toKTypeName(),
             deferred = input.deferred,
             saveForeignKeyModel = input.saveForeignKeyModel,
         )

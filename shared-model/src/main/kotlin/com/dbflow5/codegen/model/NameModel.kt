@@ -1,6 +1,7 @@
 package com.dbflow5.codegen.model
 
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.TypeName
 
 /**
  * Description:

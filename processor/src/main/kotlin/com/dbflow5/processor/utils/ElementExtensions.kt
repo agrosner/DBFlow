@@ -62,6 +62,6 @@ fun TypeName.rawTypeName(): TypeName {
     return this
 }
 
-fun TypeElement.asStarProjectedType(): TypeElement =
+fun TypeMirror.asStarProjectedType(): TypeMirror =
     ProcessorManager.manager.typeUtils
-        .erasure(asType()).toTypeElement()!!
+        .erasure(this)

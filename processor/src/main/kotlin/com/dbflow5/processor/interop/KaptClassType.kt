@@ -3,26 +3,27 @@ package com.dbflow5.processor.interop
 import com.dbflow5.codegen.model.interop.ClassType
 import com.dbflow5.codegen.model.interop.Declaration
 import com.squareup.kotlinpoet.TypeName
-import javax.lang.model.element.TypeElement
+import com.squareup.kotlinpoet.asTypeName
+import javax.lang.model.element.Element
+import javax.lang.model.type.TypeMirror
 
 /**
  * Description:
  */
-class KaptClassType(
-    private val typeElement: TypeElement,
+data class KaptClassType(
+    private val typeMirror: TypeMirror,
+    private val element: Element,
 ) : ClassType {
 
     override fun makeNotNullable(): ClassType {
         // nullability not usable in Kapt without meta
-        return KaptClassType(typeElement)
+        return KaptClassType(typeMirror, element)
     }
 
     override val declaration: Declaration =
-        KaptDeclaration(typeElement)
+        KaptDeclaration(typeMirror, element)
 
-    override fun toTypeName(): TypeName {
-        TODO("Not yet implemented")
-    }
+    override fun toTypeName(): TypeName = typeMirror.asTypeName()
 
     // TODO: use annotation inference to try to gauge.
     override val isMarkedNullable: Boolean = false

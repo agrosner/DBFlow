@@ -7,11 +7,11 @@ import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.codegen.model.FieldModel
 import com.dbflow5.codegen.model.cache.TypeConverterCache
+import com.dbflow5.codegen.model.generateTypeConverter
 import com.dbflow5.codegen.model.interop.ClassDeclaration
 import com.dbflow5.codegen.parser.FieldSanitizer
 import com.dbflow5.codegen.parser.FieldSanitizer.Validation.OnlyOneKind
 import com.dbflow5.codegen.parser.validation.ValidationException
-import com.dbflow5.ksp.model.generateTypeConverter
 import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.isAbstract

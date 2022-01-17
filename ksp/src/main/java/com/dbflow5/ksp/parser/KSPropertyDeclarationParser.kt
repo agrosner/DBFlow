@@ -4,9 +4,10 @@ import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.Index
+import com.dbflow5.annotation.NotNull
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Unique
-import com.dbflow5.ksp.kotlinpoet.javaPlatformTypeName
+import com.dbflow5.ksp.kotlinpoet.nullablePlatformType
 import com.dbflow5.ksp.model.interop.KSPClassType
 import com.dbflow5.ksp.model.interop.KSPOriginatingFile
 import com.dbflow5.ksp.model.invoke
@@ -57,12 +58,12 @@ class KSPropertyDeclarationParser constructor(
             ksClassType.declaration.closestClassDeclaration?.isEnum ?: false
         val foreignKey = input.findSingle<ForeignKey>()
         val columnMapKey = input.findSingle<ColumnMap>()
-        val notNull = input.findSingle<NotNullPropertyParser>()?.let {
+        val notNull = input.findSingle<NotNull>()?.let {
             notNullPropertyParser.parse(it)
             // if a field is non-null, then we treat it at DB level
             // TODO: this should be opt-in most likely as it breaks with KAPT / legacy behavior.
         } ?: if (!ksClassType.isMarkedNullable) NotNullProperties() else null
-        val classType = input.type.javaPlatformTypeName()
+        val classType = input.type.nullablePlatformType()
         val name = NameModel(
             input.simpleName,
             input.packageName,
@@ -80,7 +81,7 @@ class KSPropertyDeclarationParser constructor(
             return ReferenceHolderModel(
                 name = name,
                 classType = classType,
-                fieldType,
+                fieldType = fieldType,
                 properties = properties,
                 referenceHolderProperties = (foreignKey ?: columnMapKey)?.let {
                     referenceHolderPropertyParser.parse(

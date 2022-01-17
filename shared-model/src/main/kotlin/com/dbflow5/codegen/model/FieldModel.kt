@@ -8,6 +8,7 @@ import com.dbflow5.codegen.model.properties.FieldProperties
 import com.dbflow5.codegen.model.properties.IndexProperties
 import com.dbflow5.codegen.model.properties.NotNullProperties
 import com.dbflow5.codegen.model.properties.ReferenceHolderProperties
+import com.dbflow5.codegen.model.properties.TypeConverterProperties
 import com.dbflow5.codegen.model.properties.UniqueProperties
 import com.dbflow5.codegen.model.properties.isInferredTable
 import com.dbflow5.codegen.model.properties.nameWithFallback
@@ -280,3 +281,30 @@ fun FieldModel.hasTypeConverter(typeConverterCache: TypeConverterCache) =
 fun FieldModel.typeConverter(typeConverterCache: TypeConverterCache) =
     typeConverterCache[classType, properties?.typeConverterClassName?.toString()
         ?: ""]
+
+
+/**
+ * Builds a new [TypeConverterModel] to generate on the fly.
+ */
+fun FieldModel.generateTypeConverter(): TypeConverterModel {
+    val newName = name.copy(
+        shortName = "${
+            name.shortName.replaceFirstChar {
+                if (it.isLowerCase())
+                    it.titlecase(Locale.getDefault()) else it.toString()
+            }
+        }Converter"
+    )
+    val classDeclaration = ksClassType.declaration.closestClassDeclaration
+    val properties = classDeclaration!!.properties
+    val firstProperty = properties.first()
+    return TypeConverterModel.Simple(
+        name = newName,
+        properties = TypeConverterProperties(listOf()),
+        classType = newName.className,
+        dataTypeName = firstProperty.typeName,
+        modelTypeName = classType,
+        modelClass = classDeclaration,
+        originatingFile = originatingFile,
+    )
+}

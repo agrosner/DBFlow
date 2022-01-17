@@ -2,7 +2,9 @@ package com.dbflow5.processor
 
 import com.dbflow5.codegen.model.cache.TypeConverterCache
 import com.dbflow5.codegen.parser.FieldSanitizer
+import com.dbflow5.processor.interop.KaptFieldSanitizer
 import com.dbflow5.processor.parser.ColumnMapParser
+import com.dbflow5.processor.parser.ColumnMapReferencePropertyParser
 import com.dbflow5.processor.parser.DatabasePropertyParser
 import com.dbflow5.processor.parser.FieldPropertyParser
 import com.dbflow5.processor.parser.ForeignKeyParser
@@ -20,18 +22,15 @@ import com.dbflow5.processor.parser.TablePropertyParser
 import com.dbflow5.processor.parser.TypeConverterPropertyParser
 import com.dbflow5.processor.parser.UniqueGroupPropertyParser
 import com.dbflow5.processor.parser.UniquePropertyParser
+import com.dbflow5.processor.parser.VariableElementParser
 import com.dbflow5.processor.parser.ViewPropertyParser
 import org.koin.dsl.module
-import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.util.Elements
 
 /**
  * Description:
  */
 fun getModule(
-    elements: Elements,
-    messager: Messager,
     env: ProcessingEnvironment,
 ) = module {
     single { DatabasePropertyParser() }
@@ -53,11 +52,19 @@ fun getModule(
     single { UniquePropertyParser() }
     single { ViewPropertyParser() }
     single { TypeConverterCache() }
-    single { KaptFieldSanitizer() }
+    single<FieldSanitizer> { KaptFieldSanitizer(get(), get()) }
+    single { ColumnMapReferencePropertyParser() }
+    single {
+        VariableElementParser(
+            get(),
+            get(), get(),
+            get(), get(),
+            get(),
+        )
+    }
     single {
         KaptElementProcessor(
-            elements,
-            env,
+            env.elementUtils,
             get(), get(), get(),
             get(), get(), get(),
             get()
@@ -65,6 +72,11 @@ fun getModule(
     }
 
     single {
-        DBFlowKaptProcessor(elements, get(), messager, get())
+        DBFlowKaptProcessor(
+            env.elementUtils,
+            get(),
+            env.messager,
+            get()
+        )
     }
 }

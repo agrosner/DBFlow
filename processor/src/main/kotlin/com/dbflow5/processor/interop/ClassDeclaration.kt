@@ -5,6 +5,7 @@ import com.dbflow5.codegen.model.interop.OriginatingFileType
 import com.dbflow5.codegen.model.interop.PropertyDeclaration
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.utils.asStarProjectedType
+import com.dbflow5.processor.utils.toTypeElement
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
 import javax.lang.model.element.ElementKind
@@ -15,7 +16,7 @@ import javax.lang.model.type.TypeMirror
 /**
  * Description:
  */
-class KaptClassDeclaration(
+data class KaptClassDeclaration(
     internal val typeElement: TypeElement?,
 ) : ClassDeclaration {
 
@@ -43,11 +44,15 @@ class KaptClassDeclaration(
             .map { it.asTypeName() }
 
     val superElements: List<TypeMirror>
-        get() = ProcessorManager.manager.typeUtils.directSupertypes(
-            typeElement?.asType()
-        )
+        get() = typeElement?.asType()?.let {
+            ProcessorManager.manager.typeUtils.directSupertypes(
+                it
+            )
+        } ?: emptyList()
 
     override fun asStarProjectedType(): ClassDeclaration {
-        return KaptClassDeclaration(typeElement?.asStarProjectedType())
+        return KaptClassDeclaration(
+            typeElement?.asType()?.asStarProjectedType()?.toTypeElement()
+        )
     }
 }

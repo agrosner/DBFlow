@@ -8,7 +8,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 /**
  * Marks all platform types as nullable.
  */
-fun KSTypeReference.javaPlatformTypeName(): TypeName {
+fun KSTypeReference.nullablePlatformType(): TypeName {
     val type = resolve()
     if (type.nullability == Nullability.PLATFORM) {
         return type.toTypeName()

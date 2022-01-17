@@ -51,10 +51,7 @@ class DBFlowProcessor : AbstractProcessor(), KoinComponent {
         )
         startKoin {
             modules(
-                getModule(
-                    processingEnv.elementUtils,
-                    processingEnv.messager
-                )
+                getModule(processingEnv)
             )
         }
     }
