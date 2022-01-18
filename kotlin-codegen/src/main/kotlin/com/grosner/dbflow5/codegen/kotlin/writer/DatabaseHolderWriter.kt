@@ -1,21 +1,22 @@
-package com.dbflow5.ksp.writer
+package com.grosner.dbflow5.codegen.kotlin.writer
 
-import com.dbflow5.ksp.ClassNames
-import com.dbflow5.ksp.model.interop.ksFile
 import com.dbflow5.codegen.model.DatabaseHolderModel
 import com.dbflow5.codegen.model.generatedClassName
+import com.dbflow5.codegen.model.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.model.properties.nameWithFallback
 import com.dbflow5.codegen.writer.TypeCreator
+import com.dbflow5.ksp.ClassNames
 import com.dbflow5.stripQuotes
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 
 /**
  * Description:
  */
-class DatabaseHolderWriter : TypeCreator<DatabaseHolderModel, FileSpec> {
+class DatabaseHolderWriter(
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
+) : TypeCreator<DatabaseHolderModel, FileSpec> {
 
     override fun create(model: DatabaseHolderModel) =
         FileSpec.builder(
@@ -31,7 +32,12 @@ class DatabaseHolderWriter : TypeCreator<DatabaseHolderModel, FileSpec> {
             )
                 .apply {
                     model.allOriginatingFiles.forEach { fileType ->
-                        fileType.ksFile()?.let { addOriginatingKSFile(it) }
+                        fileType.let {
+                            originatingFileTypeSpecAdder.addOriginatingFileType(
+                                this,
+                                it
+                            )
+                        }
                     }
                 }
                 .superclass(ClassNames.DatabaseHolder)

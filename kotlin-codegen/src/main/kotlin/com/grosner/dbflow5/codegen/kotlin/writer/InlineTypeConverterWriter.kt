@@ -1,21 +1,22 @@
-package com.dbflow5.ksp.writer
+package com.grosner.dbflow5.codegen.kotlin.writer
 
-import com.dbflow5.ksp.ClassNames
-import com.dbflow5.ksp.model.interop.ksFile
 import com.dbflow5.codegen.model.TypeConverterModel
+import com.dbflow5.codegen.model.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.writer.TypeCreator
+import com.dbflow5.ksp.ClassNames
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 
 /**
  * Description:
  */
-class InlineTypeConverterWriter : TypeCreator<
+class InlineTypeConverterWriter(
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
+) : TypeCreator<
     TypeConverterModel, FileSpec> {
     override fun create(model: TypeConverterModel): FileSpec {
         return FileSpec.builder(model.name.packageName, model.name.shortName)
@@ -23,7 +24,9 @@ class InlineTypeConverterWriter : TypeCreator<
                 model.name.shortName,
             )
                 .apply {
-                    model.originatingFile?.ksFile()?.let { addOriginatingKSFile(it) }
+                    model.originatingFile?.let {
+                        originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
+                    }
                     superclass(
                         ClassNames.TypeConverter
                             .parameterizedBy(

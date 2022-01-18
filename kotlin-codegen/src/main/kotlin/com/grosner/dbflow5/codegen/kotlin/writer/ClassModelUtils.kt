@@ -1,11 +1,10 @@
-package com.dbflow5.ksp.model
+package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.codegen.model.ClassModel
 import com.dbflow5.codegen.model.FieldModel
 import com.dbflow5.codegen.model.ReferenceHolderModel
 import com.dbflow5.codegen.model.SingleFieldModel
 import com.dbflow5.codegen.model.cache.ReferencesCache
-import com.dbflow5.ksp.writer.FieldExtractor
 
 
 fun ClassModel.extractors(referencesCache: ReferencesCache) = fields.map(

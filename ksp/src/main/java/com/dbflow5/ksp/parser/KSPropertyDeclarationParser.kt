@@ -7,7 +7,7 @@ import com.dbflow5.annotation.Index
 import com.dbflow5.annotation.NotNull
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Unique
-import com.dbflow5.ksp.kotlinpoet.nullablePlatformType
+import com.dbflow5.ksp.nullablePlatformType
 import com.dbflow5.ksp.model.interop.KSPClassType
 import com.dbflow5.ksp.model.interop.KSPOriginatingFile
 import com.dbflow5.ksp.model.invoke

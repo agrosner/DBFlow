@@ -15,10 +15,7 @@ compileKotlin.kotlinOptions {
 dependencies {
     api(project(":core"))
     api(project(":shared-model"))
-    api(project(":kotlin-codegen"))
     api(Dependencies.KotlinPoet)
-    api(Dependencies.Koin)
-    api(Dependencies.KSP)
 }
 
 apply(from = "../kotlin-artifacts.gradle.kts")

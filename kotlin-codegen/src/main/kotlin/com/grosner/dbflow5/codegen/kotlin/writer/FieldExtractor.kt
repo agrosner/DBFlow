@@ -1,4 +1,4 @@
-package com.dbflow5.ksp.writer
+package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.ConflictAction

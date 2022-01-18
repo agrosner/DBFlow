@@ -146,7 +146,7 @@ class KSClassDeclarationParser(
 
         // inspect annotations for what object it is.
         return input.annotations.mapNotNull { annotation ->
-            when (annotation.annotationType.toTypeName()) {
+            return@mapNotNull when (annotation.annotationType.toTypeName()) {
                 typeNameOf<Database>() -> {
                     if (!input.hasSuperType(ClassNames.DBFlowDatabase)) {
                         throw Validation.InvalidSuperType(
@@ -249,7 +249,7 @@ class KSClassDeclarationParser(
         annotation: KSAnnotation,
         name: NameModel,
         originatingFile: KSPOriginatingFile,
-    ) {
+    ): List<ObjectModel> {
         val isInternal = input.isInternal()
         val emptyConstructor =
             input.primaryConstructor?.takeIf { declaration -> declaration.parameters.all { it.hasDefault } }
@@ -284,7 +284,7 @@ class KSClassDeclarationParser(
                 }
             }
         }
-        when (annotation.annotationType.toTypeName()) {
+        return when (annotation.annotationType.toTypeName()) {
             typeNameOf<Table>() -> {
                 val fts3 = input.annotations.firstOrNull {
                     it.annotationType.toTypeName() == typeNameOf<Fts3>()

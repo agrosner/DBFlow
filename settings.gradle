@@ -9,4 +9,5 @@ include ':lib',
     ':paging',
     ':ksp',
     ':ksp-tests',
-    ':shared-model'
+    ':shared-model',
+    ':kotlin-codegen'

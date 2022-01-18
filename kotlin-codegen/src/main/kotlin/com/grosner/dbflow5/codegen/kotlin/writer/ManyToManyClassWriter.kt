@@ -1,23 +1,24 @@
-package com.dbflow5.ksp.writer
+package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.PrimaryKey
-import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
-import com.dbflow5.ksp.model.interop.ksFile
 import com.dbflow5.codegen.model.ManyToManyModel
 import com.dbflow5.codegen.model.ReferenceHolderModel
+import com.dbflow5.codegen.model.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.writer.TypeCreator
+import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 
 /**
  * Description: Writes join tables.
  */
-class ManyToManyClassWriter : TypeCreator<ManyToManyModel, FileSpec> {
+class ManyToManyClassWriter(
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
+) : TypeCreator<ManyToManyModel, FileSpec> {
 
     override fun create(model: ManyToManyModel): FileSpec {
         val classModel = model.classModel
@@ -50,7 +51,9 @@ class ManyToManyClassWriter : TypeCreator<ManyToManyModel, FileSpec> {
                             .build()
                     )
                     .apply {
-                        model.originatingFile?.ksFile()?.let { addOriginatingKSFile(it) }
+                        model.originatingFile?.let {
+                            originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
+                        }
                         // doesn't work quite yet.
                         /* addAnnotation(
                              AnnotationSpec.builder(

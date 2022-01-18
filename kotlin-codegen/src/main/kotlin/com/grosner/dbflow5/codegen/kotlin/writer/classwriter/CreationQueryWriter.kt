@@ -1,9 +1,9 @@
-package com.dbflow5.ksp.writer.classwriter
+package com.grosner.dbflow5.codegen.kotlin.writer.classwriter
 
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.codegen.model.cache.ReferencesCache
-import com.dbflow5.ksp.model.toExtractor
-import com.dbflow5.ksp.writer.FieldExtractor
+import com.grosner.dbflow5.codegen.kotlin.writer.toExtractor
+import com.grosner.dbflow5.codegen.kotlin.writer.FieldExtractor
 import com.dbflow5.codegen.writer.TypeCreator
 import com.dbflow5.codegen.model.ClassModel
 import com.dbflow5.codegen.model.FieldModel

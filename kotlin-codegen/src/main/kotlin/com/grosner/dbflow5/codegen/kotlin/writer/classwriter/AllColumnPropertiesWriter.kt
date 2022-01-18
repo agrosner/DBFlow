@@ -1,4 +1,4 @@
-package com.dbflow5.ksp.writer.classwriter
+package com.grosner.dbflow5.codegen.kotlin.writer.classwriter
 
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.codegen.model.ClassModel

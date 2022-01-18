@@ -61,7 +61,7 @@ dependencies {
     implementation(project(":livedata"))
 
     kaptAndroidTest(project(":processor"))
-    //kspAndroidTest(project(":ksp"))
+    kspAndroidTest(project(":ksp"))
 
     androidTestImplementation(kotlin("test"))
     androidTestImplementation(Dependencies.JavaXAnnotation)

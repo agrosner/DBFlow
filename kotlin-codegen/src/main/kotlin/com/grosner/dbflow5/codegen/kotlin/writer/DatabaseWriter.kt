@@ -1,11 +1,11 @@
-package com.dbflow5.ksp.writer
+package com.grosner.dbflow5.codegen.kotlin.writer
 
-import com.dbflow5.ksp.ClassNames
-import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
-import com.dbflow5.ksp.model.interop.ksFile
 import com.dbflow5.codegen.model.DatabaseModel
 import com.dbflow5.codegen.model.generatedClassName
+import com.dbflow5.codegen.model.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.writer.TypeCreator
+import com.dbflow5.ksp.ClassNames
+import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -13,13 +13,14 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import kotlin.reflect.KClass
 
 /**
  * Description:
  */
-class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
+class DatabaseWriter(
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
+) : TypeCreator<DatabaseModel, FileSpec> {
 
     override fun create(model: DatabaseModel): FileSpec {
         val associatedClassName = ParameterPropertySpec(
@@ -58,7 +59,12 @@ class DatabaseWriter : TypeCreator<DatabaseModel, FileSpec> {
                                 .build()
                         )
                         .apply {
-                            model.originatingFile?.ksFile()?.let { addOriginatingKSFile(it) }
+                            model.originatingFile?.let {
+                                originatingFileTypeSpecAdder.addOriginatingFileType(
+                                    this,
+                                    it
+                                )
+                            }
                             superclass(model.classType)
                             addProperty(associatedClassName.propertySpec)
                             addProperty(version.propertySpec)

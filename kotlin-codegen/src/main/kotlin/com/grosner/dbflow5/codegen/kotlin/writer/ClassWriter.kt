@@ -1,9 +1,10 @@
-package com.dbflow5.ksp.writer
+package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.codegen.model.ClassModel
 import com.dbflow5.codegen.model.cache.ReferencesCache
 import com.dbflow5.codegen.model.generatedClassName
+import com.dbflow5.codegen.model.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.model.memberSeparator
 import com.dbflow5.codegen.model.properties.CreatableScopeProperties
 import com.dbflow5.codegen.model.properties.TableProperties
@@ -11,18 +12,15 @@ import com.dbflow5.codegen.model.properties.dbName
 import com.dbflow5.codegen.writer.TypeCreator
 import com.dbflow5.ksp.ClassNames
 import com.dbflow5.ksp.MemberNames
-import com.dbflow5.ksp.kotlinpoet.ParameterPropertySpec
-import com.dbflow5.ksp.model.extractors
-import com.dbflow5.ksp.model.interop.ksFile
-import com.dbflow5.ksp.model.primaryExtractors
-import com.dbflow5.ksp.writer.classwriter.AllColumnPropertiesWriter
-import com.dbflow5.ksp.writer.classwriter.CreationQueryWriter
-import com.dbflow5.ksp.writer.classwriter.FieldPropertyWriter
-import com.dbflow5.ksp.writer.classwriter.GetPropertyMethodWriter
-import com.dbflow5.ksp.writer.classwriter.IndexPropertyWriter
-import com.dbflow5.ksp.writer.classwriter.LoadFromCursorWriter
-import com.dbflow5.ksp.writer.classwriter.PrimaryConditionClauseWriter
-import com.dbflow5.ksp.writer.classwriter.StatementBinderWriter
+import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
+import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.AllColumnPropertiesWriter
+import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.CreationQueryWriter
+import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.FieldPropertyWriter
+import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.GetPropertyMethodWriter
+import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.IndexPropertyWriter
+import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.LoadFromCursorWriter
+import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.PrimaryConditionClauseWriter
+import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.StatementBinderWriter
 import com.squareup.kotlinpoet.BYTE
 import com.squareup.kotlinpoet.DOUBLE
 import com.squareup.kotlinpoet.FLOAT
@@ -38,7 +36,6 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.SHORT
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.asClassName
-import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 import kotlin.reflect.KClass
 
 /**
@@ -54,6 +51,7 @@ class ClassWriter(
     private val statementBinderWriter: StatementBinderWriter,
     private val creationQueryWriter: CreationQueryWriter,
     private val indexPropertyWriter: IndexPropertyWriter,
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
 ) : TypeCreator<ClassModel, FileSpec> {
 
     override fun create(model: ClassModel): FileSpec {
@@ -99,7 +97,9 @@ class ClassWriter(
                     .superclass(superClass)
                     .addSuperclassConstructorParameter("dbFlowDataBase")
                     .apply {
-                        model.originatingFile?.ksFile()?.let { addOriginatingKSFile(it) }
+                        model.originatingFile?.let {
+                            originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
+                        }
                         if (model.isInternal) {
                             addModifiers(KModifier.INTERNAL)
                         }

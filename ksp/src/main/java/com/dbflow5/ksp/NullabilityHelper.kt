@@ -1,4 +1,4 @@
-package com.dbflow5.ksp.kotlinpoet
+package com.dbflow5.ksp
 
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Nullability

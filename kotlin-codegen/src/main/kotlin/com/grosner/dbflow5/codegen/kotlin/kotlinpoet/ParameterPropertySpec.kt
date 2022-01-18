@@ -1,4 +1,4 @@
-package com.dbflow5.ksp.kotlinpoet
+package com.grosner.dbflow5.codegen.kotlin.kotlinpoet
 
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.PropertySpec
