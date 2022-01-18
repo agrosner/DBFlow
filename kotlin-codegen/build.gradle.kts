@@ -16,6 +16,7 @@ dependencies {
     api(project(":core"))
     api(project(":shared-model"))
     api(Dependencies.KotlinPoet)
+    api(Dependencies.Koin)
 }
 
 apply(from = "../kotlin-artifacts.gradle.kts")

@@ -1,9 +1,9 @@
 package com.grosner.dbflow5.codegen.kotlin.writer
 
-import com.dbflow5.codegen.model.TypeConverterModel
-import com.dbflow5.codegen.model.interop.OriginatingFileTypeSpecAdder
-import com.dbflow5.codegen.writer.TypeCreator
-import com.dbflow5.ksp.ClassNames
+import com.dbflow5.codegen.shared.TypeConverterModel
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
+import com.dbflow5.codegen.shared.writer.TypeCreator
+import com.dbflow5.codegen.shared.ClassNames
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier

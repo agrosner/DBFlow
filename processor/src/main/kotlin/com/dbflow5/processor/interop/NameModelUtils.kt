@@ -1,6 +1,6 @@
 package com.dbflow5.processor.interop
 
-import com.dbflow5.codegen.model.NameModel
+import com.dbflow5.codegen.shared.NameModel
 import javax.lang.model.element.Name
 import javax.lang.model.element.PackageElement
 

@@ -1,8 +1,8 @@
 package com.dbflow5.processor.parser
 
 import com.dbflow5.annotation.Unique
-import com.dbflow5.codegen.model.properties.UniqueProperties
-import com.dbflow5.codegen.parser.Parser
+import com.dbflow5.codegen.shared.properties.UniqueProperties
+import com.dbflow5.codegen.shared.parser.Parser
 
 class UniquePropertyParser : Parser<Unique, UniqueProperties> {
     override fun parse(input: Unique): UniqueProperties {

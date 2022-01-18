@@ -1,8 +1,8 @@
 package com.grosner.dbflow5.codegen.kotlin.writer
 
-import com.dbflow5.codegen.model.OneToManyModel
-import com.dbflow5.codegen.model.interop.OriginatingFileTypeSpecAdder
-import com.dbflow5.codegen.writer.TypeCreator
+import com.dbflow5.codegen.shared.OneToManyModel
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
+import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec

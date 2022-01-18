@@ -1,7 +1,7 @@
 package com.dbflow5.processor.interop
 
-import com.dbflow5.codegen.model.NameModel
-import com.dbflow5.codegen.model.interop.PropertyDeclaration
+import com.dbflow5.codegen.shared.NameModel
+import com.dbflow5.codegen.shared.interop.PropertyDeclaration
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.utils.getPackage
 import com.grosner.kpoet.typeName

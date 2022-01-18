@@ -1,8 +1,8 @@
 package com.dbflow5.processor.interop
 
-import com.dbflow5.codegen.model.interop.ClassDeclaration
-import com.dbflow5.codegen.model.interop.OriginatingFileType
-import com.dbflow5.codegen.model.interop.PropertyDeclaration
+import com.dbflow5.codegen.shared.interop.ClassDeclaration
+import com.dbflow5.codegen.shared.interop.OriginatingFileType
+import com.dbflow5.codegen.shared.interop.PropertyDeclaration
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.utils.asStarProjectedType
 import com.dbflow5.processor.utils.toTypeElement

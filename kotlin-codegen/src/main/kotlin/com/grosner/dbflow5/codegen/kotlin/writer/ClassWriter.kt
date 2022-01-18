@@ -1,16 +1,16 @@
 package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.codegen.model.ClassModel
-import com.dbflow5.codegen.model.cache.ReferencesCache
-import com.dbflow5.codegen.model.generatedClassName
-import com.dbflow5.codegen.model.interop.OriginatingFileTypeSpecAdder
-import com.dbflow5.codegen.model.memberSeparator
-import com.dbflow5.codegen.model.properties.CreatableScopeProperties
-import com.dbflow5.codegen.model.properties.TableProperties
-import com.dbflow5.codegen.model.properties.dbName
-import com.dbflow5.codegen.writer.TypeCreator
-import com.dbflow5.ksp.ClassNames
+import com.dbflow5.codegen.shared.ClassModel
+import com.dbflow5.codegen.shared.cache.ReferencesCache
+import com.dbflow5.codegen.shared.generatedClassName
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
+import com.dbflow5.codegen.shared.memberSeparator
+import com.dbflow5.codegen.shared.properties.CreatableScopeProperties
+import com.dbflow5.codegen.shared.properties.TableProperties
+import com.dbflow5.codegen.shared.properties.dbName
+import com.dbflow5.codegen.shared.writer.TypeCreator
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.AllColumnPropertiesWriter

@@ -1,7 +1,7 @@
 package com.dbflow5.processor.interop
 
-import com.dbflow5.codegen.model.interop.ClassType
-import com.dbflow5.codegen.model.interop.Declaration
+import com.dbflow5.codegen.shared.interop.ClassType
+import com.dbflow5.codegen.shared.interop.Declaration
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
 import javax.lang.model.element.Element

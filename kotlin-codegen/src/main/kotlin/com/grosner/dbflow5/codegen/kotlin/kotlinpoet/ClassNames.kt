@@ -1,5 +1,6 @@
 package com.dbflow5.ksp
 
+import com.dbflow5.codegen.shared.PackageNames
 import com.squareup.kotlinpoet.MemberName
 
 object MemberNames {

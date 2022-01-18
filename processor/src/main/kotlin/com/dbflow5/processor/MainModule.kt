@@ -1,8 +1,9 @@
 package com.dbflow5.processor
 
-import com.dbflow5.codegen.model.cache.TypeConverterCache
-import com.dbflow5.codegen.parser.FieldSanitizer
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
+import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.processor.interop.KaptFieldSanitizer
+import com.dbflow5.processor.interop.KaptOriginatingFileTypeSpecAdder
 import com.dbflow5.processor.parser.ColumnMapParser
 import com.dbflow5.processor.parser.ColumnMapReferencePropertyParser
 import com.dbflow5.processor.parser.DatabasePropertyParser
@@ -53,7 +54,6 @@ fun getModule(
     single { UniqueGroupPropertyParser() }
     single { UniquePropertyParser() }
     single { ViewPropertyParser() }
-    single { TypeConverterCache() }
     single<FieldSanitizer> { KaptFieldSanitizer(get(), get()) }
     single { ColumnMapReferencePropertyParser() }
     single {
@@ -75,7 +75,6 @@ fun getModule(
     }
     single { ManyToManyParser(get()) }
     single { MultipleManyToManyParser(get()) }
-
     single {
         DBFlowKaptProcessor(
             env.elementUtils,
@@ -92,4 +91,6 @@ fun getModule(
             get()
         )
     }
+
+    single<OriginatingFileTypeSpecAdder> { KaptOriginatingFileTypeSpecAdder() }
 }

@@ -2,8 +2,8 @@ package com.dbflow5.processor.parser
 
 import com.dbflow5.annotation.ColumnMapReference
 import com.dbflow5.annotation.ForeignKeyReference
-import com.dbflow5.codegen.model.properties.ReferenceProperties
-import com.dbflow5.codegen.parser.Parser
+import com.dbflow5.codegen.shared.properties.ReferenceProperties
+import com.dbflow5.codegen.shared.parser.Parser
 
 /**
  * Description:

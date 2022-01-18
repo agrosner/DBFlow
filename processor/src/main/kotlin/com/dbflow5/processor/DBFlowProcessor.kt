@@ -1,7 +1,9 @@
 package com.dbflow5.processor
 
-import com.dbflow5.codegen.model.Annotations
+import com.dbflow5.codegen.shared.Annotations
+import com.dbflow5.codegen.shared.sharedModule
 import com.dbflow5.processor.definition.DatabaseHolderDefinition
+import com.grosner.dbflow5.codegen.kotlin.codeGenModule
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.context.startKoin
@@ -51,6 +53,8 @@ class DBFlowProcessor : AbstractProcessor(), KoinComponent {
         )
         startKoin {
             modules(
+                sharedModule,
+                codeGenModule,
                 getModule(processingEnv)
             )
         }

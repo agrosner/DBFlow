@@ -2,10 +2,10 @@ package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.PrimaryKey
-import com.dbflow5.codegen.model.ManyToManyModel
-import com.dbflow5.codegen.model.ReferenceHolderModel
-import com.dbflow5.codegen.model.interop.OriginatingFileTypeSpecAdder
-import com.dbflow5.codegen.writer.TypeCreator
+import com.dbflow5.codegen.shared.ManyToManyModel
+import com.dbflow5.codegen.shared.ReferenceHolderModel
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
+import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec

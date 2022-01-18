@@ -5,10 +5,10 @@ import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.OneToMany
 import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
-import com.dbflow5.codegen.model.FieldModel
-import com.dbflow5.codegen.model.cache.TypeConverterCache
-import com.dbflow5.codegen.model.interop.ClassDeclaration
-import com.dbflow5.codegen.parser.FieldSanitizer
+import com.dbflow5.codegen.shared.FieldModel
+import com.dbflow5.codegen.shared.cache.TypeConverterCache
+import com.dbflow5.codegen.shared.interop.ClassDeclaration
+import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.processor.parser.VariableElementParser
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.simpleString

@@ -1,10 +1,10 @@
 package com.grosner.dbflow5.codegen.kotlin.writer
 
-import com.dbflow5.codegen.model.DatabaseModel
-import com.dbflow5.codegen.model.generatedClassName
-import com.dbflow5.codegen.model.interop.OriginatingFileTypeSpecAdder
-import com.dbflow5.codegen.writer.TypeCreator
-import com.dbflow5.ksp.ClassNames
+import com.dbflow5.codegen.shared.DatabaseModel
+import com.dbflow5.codegen.shared.generatedClassName
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
+import com.dbflow5.codegen.shared.writer.TypeCreator
+import com.dbflow5.codegen.shared.ClassNames
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec

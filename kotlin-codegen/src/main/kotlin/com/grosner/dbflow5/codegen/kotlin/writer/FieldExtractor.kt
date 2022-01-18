@@ -2,17 +2,17 @@ package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.codegen.model.cache.ReferencesCache
-import com.dbflow5.codegen.model.ClassModel
-import com.dbflow5.codegen.model.FieldModel
-import com.dbflow5.codegen.model.ReferenceHolderModel
-import com.dbflow5.codegen.model.SQLiteLookup
-import com.dbflow5.codegen.model.SingleFieldModel
-import com.dbflow5.codegen.model.cache.TypeConverterCache
-import com.dbflow5.codegen.model.hasTypeConverter
-import com.dbflow5.codegen.model.properties.TableProperties
-import com.dbflow5.codegen.model.references
-import com.dbflow5.codegen.model.typeConverter
+import com.dbflow5.codegen.shared.cache.ReferencesCache
+import com.dbflow5.codegen.shared.ClassModel
+import com.dbflow5.codegen.shared.FieldModel
+import com.dbflow5.codegen.shared.ReferenceHolderModel
+import com.dbflow5.codegen.shared.SQLiteLookup
+import com.dbflow5.codegen.shared.SingleFieldModel
+import com.dbflow5.codegen.shared.cache.TypeConverterCache
+import com.dbflow5.codegen.shared.hasTypeConverter
+import com.dbflow5.codegen.shared.properties.TableProperties
+import com.dbflow5.codegen.shared.references
+import com.dbflow5.codegen.shared.typeConverter
 import com.dbflow5.quoteIfNeeded
 import com.squareup.kotlinpoet.asTypeName
 

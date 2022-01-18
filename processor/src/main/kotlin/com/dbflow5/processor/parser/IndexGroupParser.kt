@@ -1,8 +1,8 @@
 package com.dbflow5.processor.parser
 
 import com.dbflow5.annotation.IndexGroup
-import com.dbflow5.codegen.model.properties.IndexGroupProperties
-import com.dbflow5.codegen.parser.Parser
+import com.dbflow5.codegen.shared.properties.IndexGroupProperties
+import com.dbflow5.codegen.shared.parser.Parser
 
 class IndexGroupParser : Parser<IndexGroup, IndexGroupProperties> {
 

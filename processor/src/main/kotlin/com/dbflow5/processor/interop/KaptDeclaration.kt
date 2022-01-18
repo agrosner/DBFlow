@@ -1,8 +1,8 @@
 package com.dbflow5.processor.interop
 
-import com.dbflow5.codegen.model.NameModel
-import com.dbflow5.codegen.model.interop.ClassDeclaration
-import com.dbflow5.codegen.model.interop.Declaration
+import com.dbflow5.codegen.shared.NameModel
+import com.dbflow5.codegen.shared.interop.ClassDeclaration
+import com.dbflow5.codegen.shared.interop.Declaration
 import com.dbflow5.processor.utils.getPackage
 import com.dbflow5.processor.utils.toTypeElement
 import javax.lang.model.element.Element

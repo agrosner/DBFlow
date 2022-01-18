@@ -1,10 +1,10 @@
 package com.grosner.dbflow5.codegen.kotlin.writer.classwriter
 
-import com.dbflow5.codegen.model.IndexGroupModel
-import com.dbflow5.codegen.model.cache.ReferencesCache
-import com.dbflow5.codegen.model.createFlattenedFields
-import com.dbflow5.codegen.writer.TypeCreator
-import com.dbflow5.ksp.ClassNames
+import com.dbflow5.codegen.shared.IndexGroupModel
+import com.dbflow5.codegen.shared.cache.ReferencesCache
+import com.dbflow5.codegen.shared.createFlattenedFields
+import com.dbflow5.codegen.shared.writer.TypeCreator
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.PropertySpec

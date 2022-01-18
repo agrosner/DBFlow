@@ -6,8 +6,8 @@ import com.dbflow5.ksp.parser.ArgMap
 import com.dbflow5.ksp.parser.arg
 import com.dbflow5.ksp.parser.enumArg
 import com.dbflow5.ksp.parser.typeName
-import com.dbflow5.codegen.parser.validation.ValidationException
-import com.dbflow5.codegen.model.properties.TableProperties
+import com.dbflow5.codegen.shared.parser.validation.ValidationException
+import com.dbflow5.codegen.shared.properties.TableProperties
 import com.google.devtools.ksp.symbol.KSAnnotation
 
 class TablePropertyParser(

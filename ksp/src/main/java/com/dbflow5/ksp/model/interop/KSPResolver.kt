@@ -1,7 +1,7 @@
 package com.dbflow5.ksp.model.interop
 
-import com.dbflow5.codegen.model.interop.ClassDeclaration
-import com.dbflow5.codegen.model.interop.ClassNameResolver
+import com.dbflow5.codegen.shared.interop.ClassDeclaration
+import com.dbflow5.codegen.shared.interop.ClassNameResolver
 import com.google.devtools.ksp.processing.Resolver
 import com.squareup.kotlinpoet.ClassName
 

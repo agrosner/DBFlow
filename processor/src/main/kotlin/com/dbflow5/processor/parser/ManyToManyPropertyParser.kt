@@ -1,8 +1,8 @@
 package com.dbflow5.processor.parser
 
 import com.dbflow5.annotation.ManyToMany
-import com.dbflow5.codegen.model.properties.ManyToManyProperties
-import com.dbflow5.codegen.parser.Parser
+import com.dbflow5.codegen.shared.properties.ManyToManyProperties
+import com.dbflow5.codegen.shared.parser.Parser
 import com.dbflow5.processor.utils.extractClassNameFromAnnotation
 import com.squareup.kotlinpoet.javapoet.toKClassName
 

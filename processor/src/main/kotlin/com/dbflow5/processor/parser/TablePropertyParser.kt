@@ -1,8 +1,8 @@
 package com.dbflow5.processor.parser
 
 import com.dbflow5.annotation.Table
-import com.dbflow5.codegen.model.properties.TableProperties
-import com.dbflow5.codegen.parser.Parser
+import com.dbflow5.codegen.shared.properties.TableProperties
+import com.dbflow5.codegen.shared.parser.Parser
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.squareup.kotlinpoet.javapoet.toKTypeName
 

@@ -1,7 +1,7 @@
 package com.grosner.dbflow5.codegen.kotlin.writer.classwriter
 
-import com.dbflow5.codegen.model.TypeConverterModel
-import com.dbflow5.codegen.writer.TypeCreator
+import com.dbflow5.codegen.shared.TypeConverterModel
+import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.squareup.kotlinpoet.PropertySpec
 
 

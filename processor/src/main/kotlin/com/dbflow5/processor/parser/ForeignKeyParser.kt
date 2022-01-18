@@ -3,8 +3,8 @@ package com.dbflow5.processor.parser
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.ForeignKeyAction
-import com.dbflow5.codegen.model.properties.ReferenceHolderProperties
-import com.dbflow5.codegen.parser.Parser
+import com.dbflow5.codegen.shared.properties.ReferenceHolderProperties
+import com.dbflow5.codegen.shared.parser.Parser
 import com.dbflow5.processor.utils.extractTypeNameFromAnnotation
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.javapoet.toKTypeName

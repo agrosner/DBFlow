@@ -1,16 +1,16 @@
 package com.grosner.dbflow5.codegen.kotlin.writer.classwriter
 
-import com.dbflow5.codegen.model.ClassModel
-import com.dbflow5.codegen.model.FieldModel
-import com.dbflow5.codegen.model.ReferenceHolderModel
-import com.dbflow5.codegen.model.SingleFieldModel
-import com.dbflow5.codegen.model.cache.ReferencesCache
-import com.dbflow5.codegen.model.cache.TypeConverterCache
-import com.dbflow5.codegen.model.hasTypeConverter
-import com.dbflow5.codegen.model.memberSeparator
-import com.dbflow5.codegen.model.references
-import com.dbflow5.codegen.writer.TypeCreator
-import com.dbflow5.ksp.ClassNames
+import com.dbflow5.codegen.shared.ClassModel
+import com.dbflow5.codegen.shared.FieldModel
+import com.dbflow5.codegen.shared.ReferenceHolderModel
+import com.dbflow5.codegen.shared.SingleFieldModel
+import com.dbflow5.codegen.shared.cache.ReferencesCache
+import com.dbflow5.codegen.shared.cache.TypeConverterCache
+import com.dbflow5.codegen.shared.hasTypeConverter
+import com.dbflow5.codegen.shared.memberSeparator
+import com.dbflow5.codegen.shared.references
+import com.dbflow5.codegen.shared.writer.TypeCreator
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
