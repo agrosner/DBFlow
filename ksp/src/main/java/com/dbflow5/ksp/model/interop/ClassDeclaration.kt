@@ -1,7 +1,7 @@
 package com.dbflow5.ksp.model.interop
 
 import com.dbflow5.codegen.shared.interop.ClassDeclaration
-import com.dbflow5.codegen.shared.interop.OriginatingFileType
+import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.interop.PropertyDeclaration
 import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.symbol.ClassKind
@@ -19,8 +19,8 @@ class KSPClassDeclaration(
             ?.toList()
             ?: listOf()
 
-    override val containingFile: OriginatingFileType? =
-        ksClassDeclaration?.containingFile?.let { KSPOriginatingFile(it) }
+    override val containingFile: OriginatingSource? =
+        ksClassDeclaration?.containingFile?.let { KSPOriginatingSource(it) }
 
     override val superTypes: Sequence<TypeName>
         get() = ksClassDeclaration?.superTypes?.map { it.resolve().toTypeName() }

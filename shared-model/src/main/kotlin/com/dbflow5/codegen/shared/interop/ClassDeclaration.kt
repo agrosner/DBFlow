@@ -14,7 +14,7 @@ interface ClassDeclaration {
      */
     val properties: List<PropertyDeclaration>
 
-    val containingFile: OriginatingFileType?
+    val containingFile: OriginatingSource?
 
     fun asStarProjectedType(): ClassDeclaration
 

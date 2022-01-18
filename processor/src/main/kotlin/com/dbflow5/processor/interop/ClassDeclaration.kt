@@ -1,7 +1,7 @@
 package com.dbflow5.processor.interop
 
 import com.dbflow5.codegen.shared.interop.ClassDeclaration
-import com.dbflow5.codegen.shared.interop.OriginatingFileType
+import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.interop.PropertyDeclaration
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.utils.asStarProjectedType
@@ -37,7 +37,7 @@ data class KaptClassDeclaration(
     /**
      * KAPT doesn't need to track these, so we leave null.
      */
-    override val containingFile: OriginatingFileType? = null
+    override val containingFile: OriginatingSource? = null
 
     override val superTypes: Sequence<TypeName> =
         superElements.asSequence()

@@ -3,7 +3,7 @@ package com.dbflow5.codegen.shared
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.interop.ClassType
-import com.dbflow5.codegen.shared.interop.OriginatingFileType
+import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.properties.FieldProperties
 import com.dbflow5.codegen.shared.properties.IndexProperties
 import com.dbflow5.codegen.shared.properties.NotNullProperties
@@ -109,7 +109,7 @@ data class SingleFieldModel(
     override val isVal: Boolean,
     override val isEnum: Boolean,
     override val ksClassType: ClassType,
-    override val originatingFile: OriginatingFileType?,
+    override val originatingSource: OriginatingSource?,
     override val indexProperties: IndexProperties?,
     override val notNullProperties: NotNullProperties?,
     override val uniqueProperties: UniqueProperties?,
@@ -129,7 +129,7 @@ data class ReferenceHolderModel(
     override val isVal: Boolean,
     val isColumnMap: Boolean,
     override val isEnum: Boolean,
-    override val originatingFile: OriginatingFileType?,
+    override val originatingSource: OriginatingSource?,
     /**
      * Indexes on Reference models will apply to all reference fields.
      */
@@ -166,7 +166,7 @@ fun ReferenceHolderModel.toSingleModel() =
         isVal = isVal,
         isEnum = isEnum,
         ksClassType = ksClassType,
-        originatingFile = originatingFile,
+        originatingSource = originatingSource,
         indexProperties = indexProperties,
         notNullProperties = notNullProperties,
         uniqueProperties = uniqueProperties,
@@ -304,6 +304,6 @@ fun FieldModel.generateTypeConverter(): TypeConverterModel {
         dataTypeName = firstProperty.typeName,
         modelTypeName = classType,
         modelClass = classDeclaration,
-        originatingFile = originatingFile,
+        originatingSource = originatingSource,
     )
 }

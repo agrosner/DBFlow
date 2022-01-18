@@ -51,7 +51,7 @@ class ManyToManyClassWriter(
                             .build()
                     )
                     .apply {
-                        model.originatingFile?.let {
+                        model.originatingSource?.let {
                             originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
                         }
                         // doesn't work quite yet.

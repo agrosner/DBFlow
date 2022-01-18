@@ -1,7 +1,7 @@
 package com.dbflow5.codegen.shared
 
 import com.dbflow5.codegen.shared.interop.ClassType
-import com.dbflow5.codegen.shared.interop.OriginatingFileType
+import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.properties.GeneratedClassProperties
 import com.dbflow5.codegen.shared.properties.NotNullProperties
 import com.dbflow5.codegen.shared.properties.OneToManyProperties
@@ -24,7 +24,7 @@ data class OneToManyModel(
     val databaseTypeName: TypeName,
     val properties: OneToManyProperties,
     val ksType: ClassType,
-    override val originatingFile: OriginatingFileType?,
+    override val originatingSource: OriginatingSource?,
 ) : ObjectModel {
     val dbName = properties.nameWithFallback(
         "${name.shortName}_${properties.childTableType.simpleName}",
@@ -58,7 +58,7 @@ data class OneToManyModel(
             isVal = true,
             isColumnMap = false,
             isEnum = false,
-            originatingFile = originatingFile,
+            originatingSource = originatingSource,
             indexProperties = null,
             notNullProperties = NotNullProperties(),
             uniqueProperties = null,
@@ -86,7 +86,7 @@ data class OneToManyModel(
             isEnum = false,
             isVal = true,
             ksClassType = ksType,
-            originatingFile = originatingFile,
+            originatingSource = originatingSource,
             indexProperties = null,
             notNullProperties = NotNullProperties(),
             uniqueProperties = null,
@@ -111,7 +111,7 @@ data class OneToManyModel(
             fields = fields,
             hasPrimaryConstructor = true,
             isInternal = false,
-            originatingFile = originatingFile,
+            originatingSource = originatingSource,
             indexGroups = listOf(),
             uniqueGroups = listOf(),
             implementsLoadFromCursorListener = false,

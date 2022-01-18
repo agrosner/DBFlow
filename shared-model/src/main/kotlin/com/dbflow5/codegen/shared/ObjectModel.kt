@@ -1,10 +1,10 @@
 package com.dbflow5.codegen.shared
 
-import com.dbflow5.codegen.shared.interop.OriginatingFileType
+import com.dbflow5.codegen.shared.interop.OriginatingSource
 
 /**
  * Description:
  */
 sealed interface ObjectModel {
-    val originatingFile: OriginatingFileType?
+    val originatingSource: OriginatingSource?
 }

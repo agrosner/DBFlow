@@ -15,7 +15,7 @@ import com.dbflow5.codegen.shared.properties.NotNullProperties
 import com.dbflow5.codegen.shared.properties.ReferenceHolderProperties
 import com.dbflow5.codegen.shared.parser.Parser
 import com.dbflow5.processor.interop.KaptClassType
-import com.dbflow5.processor.interop.KaptOriginatingFileType
+import com.dbflow5.processor.interop.KaptOriginatingSource
 import com.dbflow5.processor.interop.invoke
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.getPackage
@@ -38,6 +38,7 @@ class VariableElementParser(
 ) : Parser<VariableElement, FieldModel> {
 
     override fun parse(input: VariableElement): FieldModel {
+        val source = KaptOriginatingSource(input)
         val primaryKey = input.annotation<PrimaryKey>()
         val fieldType = if (primaryKey != null) {
             FieldModel.FieldType.PrimaryAuto(
@@ -99,7 +100,7 @@ class VariableElementParser(
                 isVal = isVal,
                 isColumnMap = columnMapKey != null,
                 isEnum = isEnum,
-                originatingFile = KaptOriginatingFileType,
+                originatingSource = source,
                 indexProperties = indexProperties,
                 notNullProperties = notNull,
                 uniqueProperties = uniqueProperties,
@@ -115,7 +116,7 @@ class VariableElementParser(
             isVal = isVal,
             isEnum = isEnum,
             ksClassType = kaptClassType,
-            originatingFile = KaptOriginatingFileType,
+            originatingSource = source,
             indexProperties = indexProperties,
             notNullProperties = notNull,
             uniqueProperties = uniqueProperties,

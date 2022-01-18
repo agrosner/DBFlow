@@ -1,7 +1,7 @@
 package com.dbflow5.codegen.shared
 
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.codegen.shared.interop.OriginatingFileType
+import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.properties.DatabaseProperties
 import com.dbflow5.codegen.shared.properties.TableProperties
 import com.squareup.kotlinpoet.TypeName
@@ -17,7 +17,7 @@ data class DatabaseModel(
     val views: List<ClassModel> = listOf(),
     val queries: List<ClassModel> = listOf(),
     val migrations: List<MigrationModel> = listOf(),
-    override val originatingFile: OriginatingFileType?,
+    override val originatingSource: OriginatingSource?,
 ) : ObjectModel
 
 val DatabaseModel.generatedClassName

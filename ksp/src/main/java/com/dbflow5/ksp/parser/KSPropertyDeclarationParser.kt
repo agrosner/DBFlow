@@ -9,7 +9,7 @@ import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Unique
 import com.dbflow5.ksp.nullablePlatformType
 import com.dbflow5.ksp.model.interop.KSPClassType
-import com.dbflow5.ksp.model.interop.KSPOriginatingFile
+import com.dbflow5.ksp.model.interop.KSPOriginatingSource
 import com.dbflow5.ksp.model.invoke
 import com.dbflow5.ksp.parser.annotation.FieldPropertyParser
 import com.dbflow5.ksp.parser.annotation.IndexParser
@@ -40,7 +40,7 @@ class KSPropertyDeclarationParser constructor(
 ) : Parser<KSPropertyDeclaration, FieldModel> {
 
     override fun parse(input: KSPropertyDeclaration): FieldModel {
-        val originatingFile = KSPOriginatingFile(input.containingFile)
+        val originatingFile = KSPOriginatingSource(input.containingFile)
         val primaryKey = input.findSingle<PrimaryKey>()
         val fieldType = if (primaryKey != null) {
             val props = primaryKey.arguments.mapProperties()
@@ -105,7 +105,7 @@ class KSPropertyDeclarationParser constructor(
                 isVal = isVal,
                 isColumnMap = columnMapKey != null,
                 isEnum = isEnum,
-                originatingFile = originatingFile,
+                originatingSource = originatingFile,
                 indexProperties = indexProperties,
                 notNullProperties = notNull,
                 uniqueProperties = uniqueProperties,
@@ -121,7 +121,7 @@ class KSPropertyDeclarationParser constructor(
             isVal = isVal,
             isEnum = isEnum,
             ksClassType = ksClassType,
-            originatingFile = originatingFile,
+            originatingSource = originatingFile,
             indexProperties = indexProperties,
             notNullProperties = notNull,
             uniqueProperties = uniqueProperties,

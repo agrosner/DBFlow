@@ -10,6 +10,7 @@ import com.dbflow5.annotation.OneToManyRelation
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
 import com.dbflow5.codegen.shared.ClassModel
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseModel
 import com.dbflow5.codegen.shared.ManyToManyModel
 import com.dbflow5.codegen.shared.MigrationModel
@@ -20,10 +21,9 @@ import com.dbflow5.codegen.shared.TypeConverterModel
 import com.dbflow5.codegen.shared.cache.extractTypeConverter
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.parser.Parser
-import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.processor.interop.KaptClassDeclaration
 import com.dbflow5.processor.interop.KaptClassType
-import com.dbflow5.processor.interop.KaptOriginatingFileType
+import com.dbflow5.processor.interop.KaptOriginatingSource
 import com.dbflow5.processor.interop.invoke
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.asStarProjectedType
@@ -56,6 +56,7 @@ class KaptElementProcessor(
     List<ObjectModel>> {
 
     override fun parse(input: TypeElement): List<ObjectModel> {
+        val source = KaptOriginatingSource(input)
         val classDeclaration = KaptClassDeclaration(input)
         val annotations = elements.getAllAnnotationMirrors(input)
         val name = NameModel(
@@ -73,7 +74,7 @@ class KaptElementProcessor(
                             name = name,
                             classType = classType,
                             properties = databasePropertyParser.parse(input.annotation()!!),
-                            originatingFile = KaptOriginatingFileType,
+                            originatingSource = source,
                         )
                     )
                 }
@@ -90,7 +91,7 @@ class KaptElementProcessor(
                             dataTypeName = typeConverterSuper.typeArguments[0],
                             modelTypeName = typeConverterSuper.typeArguments[1],
                             modelClass = null,
-                            originatingFile = KaptOriginatingFileType,
+                            originatingSource = source,
                         )
                     )
                 }
@@ -128,7 +129,7 @@ class KaptElementProcessor(
                                 input.asType().asStarProjectedType(),
                                 input
                             ),
-                            originatingFile = KaptOriginatingFileType,
+                            originatingSource = source,
                         )
                     )
                 }
@@ -138,7 +139,7 @@ class KaptElementProcessor(
                             name = name,
                             properties = migrationParser.parse(input.annotation()),
                             classType = classType,
-                            originatingFile = KaptOriginatingFileType,
+                            originatingSource = source,
                         )
                     )
                 }
@@ -167,7 +168,7 @@ class KaptElementProcessor(
                                     // TODO: calculate
                                     hasPrimaryConstructor = false,
                                     isInternal = false,
-                                    originatingFile = KaptOriginatingFileType,
+                                    originatingSource = source,
                                     implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                                     implementsSQLiteStatementListener = implementsSQLiteStatementListener,
                                     indexGroups = properties.indexGroupProperties

@@ -90,7 +90,7 @@ class DBFlowKaptProcessor(
                     name = NameModel(ClassNames.GeneratedDatabaseHolder),
                     databases,
                     properties = DatabaseHolderProperties(""),
-                    allOriginatingFiles = objects.mapNotNull { it.originatingFile }
+                    allOriginatingFiles = objects.mapNotNull { it.originatingSource }
                 )
 
                 referencesCache.allClasses = classes

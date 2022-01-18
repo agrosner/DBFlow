@@ -1,7 +1,7 @@
 package com.dbflow5.ksp.parser.annotation
 
 import com.dbflow5.ksp.model.interop.KSPClassType
-import com.dbflow5.ksp.model.interop.KSPOriginatingFile
+import com.dbflow5.ksp.model.interop.KSPOriginatingSource
 import com.dbflow5.codegen.shared.parser.Parser
 import com.dbflow5.codegen.shared.parser.validation.ValidationException
 import com.dbflow5.codegen.shared.ManyToManyModel
@@ -24,7 +24,7 @@ class ManyToManyParser(
         val classType: ClassName,
         val databaseTypeName: TypeName,
         val ksClassDeclaration: KSClassDeclaration,
-        val originatingFile: KSPOriginatingFile,
+        val originatingSource: KSPOriginatingSource,
     )
 
     @Throws(ValidationException::class)
@@ -35,7 +35,7 @@ class ManyToManyParser(
             classType = input.classType,
             databaseTypeName = input.databaseTypeName,
             ksType = KSPClassType(input.ksClassDeclaration.asStarProjectedType()),
-            originatingFile = input.originatingFile,
+            originatingSource = input.originatingSource,
         )
     }
 }

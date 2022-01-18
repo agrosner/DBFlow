@@ -59,7 +59,7 @@ class DatabaseWriter(
                                 .build()
                         )
                         .apply {
-                            model.originatingFile?.let {
+                            model.originatingSource?.let {
                                 originatingFileTypeSpecAdder.addOriginatingFileType(
                                     this,
                                     it

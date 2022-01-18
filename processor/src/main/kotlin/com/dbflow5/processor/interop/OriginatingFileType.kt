@@ -1,11 +1,11 @@
 package com.dbflow5.processor.interop
 
-import com.dbflow5.codegen.shared.interop.OriginatingFileType
+import com.dbflow5.codegen.shared.interop.OriginatingSource
 import javax.lang.model.element.Element
 
-class KaptOriginatingFileType(
+class KaptOriginatingSource(
     val element: Element?
-) : OriginatingFileType
+) : OriginatingSource
 
-fun OriginatingFileType.element() = (this as KaptOriginatingFileType).element
+fun OriginatingSource.element() = (this as KaptOriginatingSource).element
 

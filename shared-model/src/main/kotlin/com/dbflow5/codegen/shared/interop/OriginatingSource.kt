@@ -5,7 +5,7 @@ import com.squareup.kotlinpoet.TypeSpec
 /**
  * Description:
  */
-interface OriginatingFileType {
+interface OriginatingSource {
 }
 
 
@@ -13,5 +13,5 @@ interface OriginatingFileTypeSpecAdder {
 
     fun addOriginatingFileType(
         typeSpec: TypeSpec.Builder,
-        originatingFileType: OriginatingFileType)
+        originatingSource: OriginatingSource)
 }

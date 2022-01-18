@@ -97,7 +97,7 @@ class ClassWriter(
                     .superclass(superClass)
                     .addSuperclassConstructorParameter("dbFlowDataBase")
                     .apply {
-                        model.originatingFile?.let {
+                        model.originatingSource?.let {
                             originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
                         }
                         if (model.isInternal) {

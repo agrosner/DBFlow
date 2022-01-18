@@ -1,7 +1,7 @@
 package com.dbflow5.codegen.shared
 
 import com.dbflow5.codegen.shared.interop.ClassType
-import com.dbflow5.codegen.shared.interop.OriginatingFileType
+import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.properties.GeneratedClassProperties
 import com.dbflow5.codegen.shared.properties.IndexProperties
 import com.dbflow5.codegen.shared.properties.ManyToManyProperties
@@ -30,7 +30,7 @@ data class ManyToManyModel(
     val databaseTypeName: TypeName,
     val properties: ManyToManyProperties,
     val ksType: ClassType,
-    override val originatingFile: OriginatingFileType?,
+    override val originatingSource: OriginatingSource?,
 ) : ObjectModel {
 
     val dbName = properties.nameWithFallback(
@@ -58,7 +58,7 @@ data class ManyToManyModel(
                 ksClassType = ksType,
                 isVal = true,
                 isEnum = false,
-                originatingFile = originatingFile,
+                originatingSource = originatingSource,
                 /**
                  * Index these for faster retrieval by default.
                  */
@@ -94,7 +94,7 @@ data class ManyToManyModel(
             isVal = true,
             isColumnMap = false,
             isEnum = false,
-            originatingFile = originatingFile,
+            originatingSource = originatingSource,
             indexProperties = properties.generateAutoIncrement.takeIf { !it }
                 ?.let { IndexProperties(listOf()) },
             notNullProperties = NotNullProperties(),
@@ -128,7 +128,7 @@ data class ManyToManyModel(
             isEnum = false,
             isVal = true,
             ksClassType = ksType,
-            originatingFile = originatingFile,
+            originatingSource = originatingSource,
             indexProperties = properties.generateAutoIncrement.takeIf { !it }
                 ?.let { IndexProperties(listOf()) },
             notNullProperties = NotNullProperties(),
@@ -156,7 +156,7 @@ data class ManyToManyModel(
         fields = fields,
         hasPrimaryConstructor = true,
         isInternal = false,
-        originatingFile = originatingFile,
+        originatingSource = originatingSource,
         indexGroups = listOf(
             IndexGroupModel(
                 //

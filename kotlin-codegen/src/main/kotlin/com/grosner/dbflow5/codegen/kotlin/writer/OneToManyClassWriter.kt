@@ -39,7 +39,7 @@ class OneToManyClassWriter(
                             .build()
                     )
                     .apply {
-                        model.originatingFile?.let {
+                        model.originatingSource?.let {
                             originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
                         }
                         addModifiers(KModifier.DATA)

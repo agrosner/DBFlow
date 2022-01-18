@@ -1,7 +1,7 @@
 package com.dbflow5.codegen.shared
 
 import com.dbflow5.codegen.shared.cache.ReferencesCache
-import com.dbflow5.codegen.shared.interop.OriginatingFileType
+import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.properties.ClassProperties
 import com.dbflow5.codegen.shared.properties.GeneratedClassProperties
 import com.dbflow5.codegen.shared.properties.ModelViewQueryProperties
@@ -33,7 +33,7 @@ data class ClassModel(
     val isInternal: Boolean,
     val implementsLoadFromCursorListener: Boolean,
     val implementsSQLiteStatementListener: Boolean,
-    override val originatingFile: OriginatingFileType?,
+    override val originatingSource: OriginatingSource?,
 ) : ObjectModel {
 
     val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.PrimaryAuto }

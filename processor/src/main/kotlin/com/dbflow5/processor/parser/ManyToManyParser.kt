@@ -6,7 +6,7 @@ import com.dbflow5.codegen.shared.NameModel
 import com.dbflow5.codegen.shared.parser.Parser
 import com.dbflow5.codegen.shared.parser.validation.ValidationException
 import com.dbflow5.processor.interop.KaptClassType
-import com.dbflow5.processor.interop.KaptOriginatingFileType
+import com.dbflow5.processor.interop.KaptOriginatingSource
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
 import javax.lang.model.element.Element
@@ -34,7 +34,7 @@ class ManyToManyParser(
             classType = input.classType,
             databaseTypeName = input.databaseTypeName,
             ksType = KaptClassType(input.element.asType(), input.element),
-            originatingFile = KaptOriginatingFileType,
+            originatingSource = KaptOriginatingSource(input.element),
         )
     }
 }

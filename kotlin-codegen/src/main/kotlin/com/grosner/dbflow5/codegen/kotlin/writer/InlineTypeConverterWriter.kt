@@ -24,7 +24,7 @@ class InlineTypeConverterWriter(
                 model.name.shortName,
             )
                 .apply {
-                    model.originatingFile?.let {
+                    model.originatingSource?.let {
                         originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
                     }
                     superclass(

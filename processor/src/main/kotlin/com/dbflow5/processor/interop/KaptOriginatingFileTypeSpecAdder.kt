@@ -1,6 +1,6 @@
 package com.dbflow5.processor.interop
 
-import com.dbflow5.codegen.shared.interop.OriginatingFileType
+import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.squareup.kotlinpoet.TypeSpec
 
@@ -10,9 +10,9 @@ import com.squareup.kotlinpoet.TypeSpec
 class KaptOriginatingFileTypeSpecAdder : OriginatingFileTypeSpecAdder {
     override fun addOriginatingFileType(
         typeSpec: TypeSpec.Builder,
-        originatingFileType: OriginatingFileType
+        originatingSource: OriginatingSource
     ) {
-        originatingFileType.element()?.let {
+        originatingSource.element()?.let {
             typeSpec.addOriginatingElement(it)
         }
     }

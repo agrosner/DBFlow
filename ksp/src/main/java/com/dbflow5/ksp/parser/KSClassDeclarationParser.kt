@@ -30,7 +30,7 @@ import com.dbflow5.codegen.shared.parser.validation.ValidationExceptionProvider
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.dbflow5.ksp.model.interop.KSPClassType
-import com.dbflow5.ksp.model.interop.KSPOriginatingFile
+import com.dbflow5.ksp.model.interop.KSPOriginatingSource
 import com.dbflow5.ksp.model.invoke
 import com.dbflow5.ksp.model.ksName
 import com.dbflow5.ksp.parser.annotation.DatabasePropertyParser
@@ -142,7 +142,7 @@ class KSClassDeclarationParser(
         ).exception
         val packageName = input.packageName
         val name = NameModel(qualifiedName, packageName)
-        val originatingFile = KSPOriginatingFile(input.containingFile)
+        val originatingFile = KSPOriginatingSource(input.containingFile)
 
         // inspect annotations for what object it is.
         return input.annotations.mapNotNull { annotation ->
@@ -159,7 +159,7 @@ class KSClassDeclarationParser(
                             name = name,
                             classType = classType,
                             properties = databasePropertyParser.parse(annotation),
-                            originatingFile = originatingFile,
+                            originatingSource = originatingFile,
                         )
                     )
                 }
@@ -176,7 +176,7 @@ class KSClassDeclarationParser(
                             dataTypeName = typeConverterSuper.typeArguments[0],
                             modelTypeName = typeConverterSuper.typeArguments[1],
                             modelClass = null,
-                            originatingFile = originatingFile,
+                            originatingSource = originatingFile,
                         )
                     )
                 }
@@ -196,7 +196,7 @@ class KSClassDeclarationParser(
                             classType = classType,
                             databaseTypeName = tableProperties.database,
                             ksClassDeclaration = input,
-                            originatingFile = originatingFile,
+                            originatingSource = originatingFile,
                         )
                     )
                 }
@@ -215,7 +215,7 @@ class KSClassDeclarationParser(
                             classType = classType,
                             databaseTypeName = tableProperties.database,
                             ksType = KSPClassType(input.asStarProjectedType()),
-                            originatingFile = originatingFile,
+                            originatingSource = originatingFile,
                         )
                     )
                 }
@@ -225,7 +225,7 @@ class KSClassDeclarationParser(
                             name = name,
                             properties = migrationParser.parse(annotation),
                             classType = classType,
-                            originatingFile = originatingFile,
+                            originatingSource = originatingFile,
                         )
                     )
                 }
@@ -248,7 +248,7 @@ class KSClassDeclarationParser(
         classType: ClassName,
         annotation: KSAnnotation,
         name: NameModel,
-        originatingFile: KSPOriginatingFile,
+        originatingSource: KSPOriginatingSource,
     ): List<ObjectModel> {
         val isInternal = input.isInternal()
         val emptyConstructor =
@@ -306,7 +306,7 @@ class KSClassDeclarationParser(
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
-                        originatingFile = originatingFile,
+                        originatingSource = originatingSource,
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                         implementsSQLiteStatementListener = implementsSQLiteStatementListener,
                         indexGroups = properties.indexGroupProperties
@@ -347,7 +347,7 @@ class KSClassDeclarationParser(
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
-                        originatingFile = originatingFile,
+                        originatingSource = originatingSource,
                         indexGroups = listOf(),
                         uniqueGroups = listOf(),
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
@@ -365,7 +365,7 @@ class KSClassDeclarationParser(
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
-                        originatingFile = originatingFile,
+                        originatingSource = originatingSource,
                         indexGroups = listOf(),
                         uniqueGroups = listOf(),
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
@@ -382,7 +382,7 @@ class KSClassDeclarationParser(
         classType: ClassName,
         name: NameModel,
         annotation: KSAnnotation,
-        originatingFile: KSPOriginatingFile
+        originatingSource: KSPOriginatingSource
     ): ManyToManyModel {
         val tableProperties = tablePropertyParser.parse(
             input.firstOrNull<Table>() ?: throw Validation.MissingTable(
@@ -396,7 +396,7 @@ class KSClassDeclarationParser(
                 classType = classType,
                 databaseTypeName = tableProperties.database,
                 ksClassDeclaration = input,
-                originatingFile = originatingFile
+                originatingSource = originatingSource
             )
         )
     }

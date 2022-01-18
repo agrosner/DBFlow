@@ -1,6 +1,6 @@
 package com.dbflow5.ksp.parser.annotation
 
-import com.dbflow5.ksp.model.interop.KSPOriginatingFile
+import com.dbflow5.ksp.model.interop.KSPOriginatingSource
 import com.dbflow5.codegen.shared.parser.Parser
 import com.dbflow5.ksp.parser.arg
 import com.dbflow5.ksp.parser.mapProperties
@@ -23,7 +23,7 @@ class MultipleManyToManyParser(
         val classType: ClassName,
         val databaseTypeName: TypeName,
         val ksClassDeclaration: KSClassDeclaration,
-        val originatingFile: KSPOriginatingFile,
+        val originatingSource: KSPOriginatingSource,
     )
 
     override fun parse(input: Input): List<ManyToManyModel> {
@@ -36,7 +36,7 @@ class MultipleManyToManyParser(
                         classType = input.classType,
                         databaseTypeName = input.databaseTypeName,
                         ksClassDeclaration = input.ksClassDeclaration,
-                        originatingFile = input.originatingFile,
+                        originatingSource = input.originatingSource,
                     )
                 )
             }
