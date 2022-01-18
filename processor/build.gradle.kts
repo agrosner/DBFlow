@@ -17,6 +17,7 @@ dependencies {
     api(Dependencies.KPoet)
     api(project(":shared-model"))
     api(Dependencies.Koin)
+    api(project(":kotlin-codegen"))
 
     compileOnly(Dependencies.JavaXAnnotation)
     testImplementation(Dependencies.JUnit)

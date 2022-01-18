@@ -79,8 +79,16 @@ fun getModule(
     single {
         DBFlowKaptProcessor(
             env.elementUtils,
+            env.filer,
             get(),
             env.messager,
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
+            get(),
             get()
         )
     }
