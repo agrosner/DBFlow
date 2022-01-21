@@ -11,4 +11,6 @@ interface PropertyDeclaration {
     val simpleName: NameModel
 
     val typeName: TypeName
+
+    val isAbstract: Boolean
 }

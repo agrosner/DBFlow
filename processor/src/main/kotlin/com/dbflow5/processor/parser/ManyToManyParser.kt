@@ -5,11 +5,12 @@ import com.dbflow5.codegen.shared.ManyToManyModel
 import com.dbflow5.codegen.shared.NameModel
 import com.dbflow5.codegen.shared.parser.Parser
 import com.dbflow5.codegen.shared.parser.validation.ValidationException
-import com.dbflow5.processor.interop.KaptClassType
 import com.dbflow5.processor.interop.KaptOriginatingSource
+import com.dbflow5.processor.interop.KaptTypeElementClassType
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
 import javax.lang.model.element.Element
+import javax.lang.model.element.TypeElement
 
 /**
  * Description:
@@ -23,7 +24,7 @@ class ManyToManyParser(
         val name: NameModel,
         val classType: ClassName,
         val databaseTypeName: TypeName,
-        val element: Element,
+        val element: TypeElement,
     )
 
     @Throws(ValidationException::class)
@@ -33,7 +34,7 @@ class ManyToManyParser(
             properties = manyToManyPropertyParser.parse(input.manyToMany),
             classType = input.classType,
             databaseTypeName = input.databaseTypeName,
-            ksType = KaptClassType(input.element.asType(), input.element),
+            ksType = KaptTypeElementClassType(input.element.asType(), input.element),
             originatingSource = KaptOriginatingSource(input.element),
         )
     }

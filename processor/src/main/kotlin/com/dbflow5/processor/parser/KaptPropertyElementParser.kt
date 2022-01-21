@@ -8,37 +8,33 @@ import com.dbflow5.annotation.NotNull
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Unique
 import com.dbflow5.codegen.shared.FieldModel
-import com.dbflow5.codegen.shared.NameModel
 import com.dbflow5.codegen.shared.ReferenceHolderModel
 import com.dbflow5.codegen.shared.SingleFieldModel
+import com.dbflow5.codegen.shared.parser.Parser
 import com.dbflow5.codegen.shared.properties.NotNullProperties
 import com.dbflow5.codegen.shared.properties.ReferenceHolderProperties
-import com.dbflow5.codegen.shared.parser.Parser
-import com.dbflow5.processor.interop.KaptClassType
 import com.dbflow5.processor.interop.KaptOriginatingSource
-import com.dbflow5.processor.interop.invoke
-import com.dbflow5.processor.utils.annotation
-import com.dbflow5.processor.utils.getPackage
+import com.dbflow5.processor.interop.KaptPropertyDeclaration
+import com.dbflow5.processor.interop.KaptVariableElementClassType
+import com.dbflow5.processor.interop.annotation
 import com.dbflow5.processor.utils.toClassName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.javapoet.toKTypeName
-import javax.lang.model.element.ElementKind
-import javax.lang.model.element.VariableElement
 
 /**
  * Description:
  */
-class VariableElementParser(
+class KaptPropertyElementParser(
     private val notNullPropertyParser: NotNullPropertyParser,
     private val indexParser: IndexParser,
     private val fieldPropertyParser: FieldPropertyParser,
     private val uniquePropertyParser: UniquePropertyParser,
     private val foreignKeyParser: ForeignKeyParser,
     private val columnMapParser: ColumnMapParser,
-) : Parser<VariableElement, FieldModel> {
+) : Parser<KaptPropertyDeclaration, FieldModel> {
 
-    override fun parse(input: VariableElement): FieldModel {
-        val source = KaptOriginatingSource(input)
+    override fun parse(input: KaptPropertyDeclaration): FieldModel {
+        val source = KaptOriginatingSource(input.element)
         val primaryKey = input.annotation<PrimaryKey>()
         val fieldType = if (primaryKey != null) {
             FieldModel.FieldType.PrimaryAuto(
@@ -48,8 +44,9 @@ class VariableElementParser(
         } else {
             FieldModel.FieldType.Normal
         }
-        val kaptClassType = KaptClassType(input.asType(), input)
-        val isEnum = input.kind == ElementKind.ENUM
+        val kaptClassType = KaptVariableElementClassType(input)
+        val isEnum = kaptClassType.declaration.closestClassDeclaration?.isEnum
+            ?: false
         val foreignKey = input.annotation<ForeignKey>()
         val columnMapKey = input.annotation<ColumnMap>()
         val notNull = input.annotation<NotNull>()?.let {
@@ -57,12 +54,7 @@ class VariableElementParser(
         } ?: if (!kaptClassType.isMarkedNullable) NotNullProperties() else null
         // in KSP this turns java platform into nullable.
         val classType = kaptClassType.makeNotNullable()
-        val name = NameModel(
-            input.simpleName,
-            input.getPackage(),
-            // TODO: infer from annotation
-            nullable = false,
-        )
+        val name = input.simpleName
         // TODO: infer mutability from enclosing class by finding setter
         val isVal = false
         val indexProperties = input.annotation<Index>()
@@ -71,7 +63,7 @@ class VariableElementParser(
             ?.let { fieldPropertyParser.parse(it) }
         val uniqueProperties = input.annotation<Unique>()
             ?.let { uniquePropertyParser.parse(it) }
-        val enclosingClassType = input.enclosingElement
+        val enclosingClassType = input.element.enclosingElement
             .toClassName()!!.toKTypeName()
         if (foreignKey != null || columnMapKey != null) {
             return ReferenceHolderModel(

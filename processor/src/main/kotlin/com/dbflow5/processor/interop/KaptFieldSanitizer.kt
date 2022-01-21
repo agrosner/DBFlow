@@ -9,44 +9,36 @@ import com.dbflow5.codegen.shared.FieldModel
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.interop.ClassDeclaration
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
-import com.dbflow5.processor.parser.VariableElementParser
+import com.dbflow5.processor.parser.KaptPropertyElementParser
 import com.dbflow5.processor.utils.annotation
-import com.dbflow5.processor.utils.simpleString
-import com.dbflow5.processor.utils.toTypeElement
 import com.squareup.kotlinpoet.asClassName
-import javax.lang.model.element.Modifier
-import javax.lang.model.element.VariableElement
 
 /**
  * Description:
  */
 class KaptFieldSanitizer(
     private val typeConverterCache: TypeConverterCache,
-    private val variableElementParser: VariableElementParser,
+    private val kaptPropertyElementParser: KaptPropertyElementParser,
 ) : FieldSanitizer {
 
     override fun parse(input: ClassDeclaration): List<FieldModel> {
         input as KaptClassDeclaration
-        val typeElement = input.typeElement!!
+        val typeElement = input.typeElement
         val isTable = typeElement.annotation<Table>() != null
         val isModelView = typeElement.annotation<ModelView>() != null
         val isQuery = typeElement.annotation<Query>() != null
         if (listOf(isTable, isModelView, isQuery).count { it } > 1) {
             throw FieldSanitizer.Validation.OnlyOneKind(typeElement.asClassName()).exception
         }
-        return ((input.propertyElements ?: listOf()) + input.superElements.mapNotNull {
-            it.toTypeElement()
-        }
-            .map { it.enclosedElements.filterIsInstance<VariableElement>() }
-            .flatten())
-            .asSequence()
-            .filterNot { it.modifiers.contains(Modifier.ABSTRACT) }
-            .distinctBy { it.simpleString }
+        return input.properties
+            .distinctBy { it.simpleName.shortName }
+            .map { it as KaptPropertyDeclaration }
             .filterNot {
-                it.annotation<ColumnIgnore>() != null
+                it.isAbstract ||
+                    it.annotation<ColumnIgnore>() != null
                     || it.annotation<OneToMany>() != null
             }
-            .map(variableElementParser::parse)
+            .map(kaptPropertyElementParser::parse)
             .toList()
     }
 }

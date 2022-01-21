@@ -9,10 +9,12 @@ interface ClassDeclaration {
 
     val isEnum: Boolean
 
+    val isInternal: Boolean
+
     /**
-     * Returns non-inherited members.
+     * Returns all members including inherited.
      */
-    val properties: List<PropertyDeclaration>
+    val properties: Sequence<PropertyDeclaration>
 
     val containingFile: OriginatingSource?
 

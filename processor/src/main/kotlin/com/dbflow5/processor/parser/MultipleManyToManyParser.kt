@@ -7,6 +7,7 @@ import com.dbflow5.codegen.shared.parser.Parser
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
 import javax.lang.model.element.Element
+import javax.lang.model.element.TypeElement
 
 /**
  * Description:
@@ -19,7 +20,7 @@ class MultipleManyToManyParser(
         val name: NameModel,
         val classType: ClassName,
         val databaseTypeName: TypeName,
-        val element: Element,
+        val element: TypeElement,
     )
 
     override fun parse(input: Input): List<ManyToManyModel> {

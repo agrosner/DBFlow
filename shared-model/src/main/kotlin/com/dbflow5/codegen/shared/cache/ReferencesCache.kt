@@ -119,6 +119,7 @@ class ReferencesCache(
         val nonNullType = ksType.makeNotNullable()
         return (referenceMap.getOrPut(ReferenceType.AllFromClass(nonNullType.toTypeName())) {
             val closest = nonNullType.declaration.closestClassDeclaration
+            println("Looking at closest from ${nonNullType} -> ${closest}")
             closest?.let { fieldSanitizer.parse(it) }?.map {
                 when (it) {
                     is ReferenceHolderModel -> it.references(this, nameToNest = it.name)

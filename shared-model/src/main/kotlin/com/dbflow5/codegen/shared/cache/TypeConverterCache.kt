@@ -1,5 +1,7 @@
 package com.dbflow5.codegen.shared.cache
 
+import com.dbflow5.codegen.shared.AssociatedType
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.NameModel
 import com.dbflow5.codegen.shared.TypeConverterModel
 import com.dbflow5.codegen.shared.interop.ClassDeclaration
@@ -15,18 +17,18 @@ import com.dbflow5.converter.CharConverter
 import com.dbflow5.converter.DateConverter
 import com.dbflow5.converter.SqlDateConverter
 import com.dbflow5.converter.UUIDConverter
-import com.dbflow5.codegen.shared.ClassNames
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.javapoet.toJTypeName
 
 /**
  * Description: Keeps all defined [TypeConverterModel]
  */
 class TypeConverterCache {
 
-    private val typeConverters = mutableMapOf<TypeName, TypeConverterModel>()
+    private val typeConverters = mutableMapOf<AssociatedType, TypeConverterModel>()
 
     /**
      * Set of TypeConverters to generate
@@ -47,14 +49,15 @@ class TypeConverterCache {
      */
     fun processNestedConverters() {
         val reformedCache = typeConverters.map { (classType, converter) ->
-            if (typeConverters.containsKey(converter.dataTypeName)) {
+            if (typeConverters.any { converter.dataTypeName in it.key }) {
                 var activeConverter = converter
                 var chainedConverter = when (converter) {
                     is TypeConverterModel.Chained -> converter
                     is TypeConverterModel.Simple -> converter.toChained()
                 }
-                while (typeConverters.containsKey(activeConverter.dataTypeName)) {
-                    activeConverter = typeConverters.getValue(activeConverter.dataTypeName)
+                while (typeConverters.any { activeConverter.dataTypeName in it.key }) {
+                    activeConverter =
+                        typeConverters.entries.first { activeConverter.dataTypeName in it.key }.value
                     chainedConverter = chainedConverter.append(activeConverter)
                 }
                 classType to chainedConverter
@@ -80,6 +83,7 @@ class TypeConverterCache {
     ) {
         val declaration = resolver.classDeclarationByClassName(className)!!
         val typeConverterSuper = extractTypeConverter(declaration, className)
+        println("Putting Type Converter for ${className}:${typeConverterSuper}")
         val classModel = TypeConverterModel.Simple(
             name = NameModel(className),
             properties = TypeConverterProperties(listOf()),
@@ -93,19 +97,20 @@ class TypeConverterCache {
     }
 
     fun putTypeConverter(typeConverterModel: TypeConverterModel) {
-        typeConverters[typeConverterModel.modelTypeName.copy(nullable = false)] =
+        val typeName = typeConverterModel.modelTypeName.copy(nullable = false)
+        typeConverters[AssociatedType(typeName, typeName.toJTypeName(true))] =
             typeConverterModel
     }
 
     operator fun get(typeName: TypeName, name: String) =
-        typeConverters.getOrElse(typeName.copy(nullable = false)) {
-            throw IllegalStateException("Missing Key ${typeName}:${name}. Map is ${typeConverters}")
-        }
+        typeConverters.entries.firstOrNull { typeName.copy(nullable = false) in it.key }
+            ?.value
+            ?: throw IllegalStateException("Missing Key ${typeName}:${name}. Map is ${typeConverters}")
 
-    fun has(typeName: TypeName): Boolean = typeConverters.containsKey(
+    fun has(typeName: TypeName): Boolean = typeConverters.any {
         typeName
-            .copy(nullable = false)
-    )
+            .copy(nullable = false) in it.key
+    }
 
     companion object {
         private val DEFAULT_TYPE_CONVERTERS = arrayOf(
@@ -124,14 +129,16 @@ class TypeConverterCache {
 
 fun extractTypeConverter(
     declaration: ClassDeclaration,
-    className: ClassName
+    typeName: TypeName
 ): ParameterizedTypeName {
     val typeConverterSuper = declaration.superTypes.firstNotNullOfOrNull { reference ->
         (reference as? ParameterizedTypeName)
             ?.takeIf { type ->
                 type.rawType == ClassNames.TypeConverter
             }
-    } ?: throw IllegalStateException("Error typeConverter super for ${className} not found." +
-        "${declaration.superTypes.toList()}")
+    } ?: throw IllegalStateException(
+        "Error typeConverter super for $typeName not found." +
+            "${declaration.superTypes.toList()}"
+    )
     return typeConverterSuper
 }

@@ -1,5 +1,6 @@
 package com.dbflow5.codegen.shared
 
+import com.squareup.javapoet.ArrayTypeName
 import com.squareup.kotlinpoet.BYTE
 import com.squareup.kotlinpoet.BYTE_ARRAY
 import com.squareup.kotlinpoet.CHAR
@@ -12,35 +13,46 @@ import com.squareup.kotlinpoet.SHORT
 import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.javapoet.JTypeName
 
 /**
  * Description:
  */
 enum class SQLiteModel(
     val sqliteName: String,
-    vararg val associatedTypes: TypeName
+    vararg val associatedTypes: AssociatedType
 ) {
     Integer(
         "INTEGER",
-        BYTE,
-        SHORT,
-        LONG,
-        INT,
+        AssociatedType(BYTE, JTypeName.BYTE),
+        AssociatedType(SHORT, JTypeName.SHORT),
+        AssociatedType(LONG, JTypeName.LONG),
+        AssociatedType(INT, JTypeName.INT),
     ),
     Real(
         "REAL",
-        FLOAT,
-        DOUBLE,
+        AssociatedType(FLOAT, JTypeName.FLOAT),
+        AssociatedType(DOUBLE, JTypeName.DOUBLE),
     ),
     Blob(
         "BLOB",
-        Array::class.asClassName().parameterizedBy(BYTE),
-        BYTE_ARRAY,
+        AssociatedType(
+            Array::class.asClassName().parameterizedBy(BYTE),
+            ArrayTypeName.of(
+                JTypeName.BYTE.box(),
+            ),
+        ),
+        AssociatedType(
+            BYTE_ARRAY,
+            ArrayTypeName.of(
+                JTypeName.BYTE,
+            ),
+        ),
     ),
     Text(
         "TEXT",
-        CHAR,
-        STRING,
+        AssociatedType(CHAR, JTypeName.CHAR),
+        AssociatedType(STRING, JTypeName.get(String::class.java)),
     )
 }
 
@@ -49,7 +61,17 @@ class SQLiteLookup {
     /**
      * Retrieves the [SQLiteModel] for [TypeName]
      */
-    fun sqliteName(typeName: TypeName): SQLiteModel = SQLiteModel.values()
-        .firstOrNull { it.associatedTypes.contains(typeName) }
-        ?: throw IllegalArgumentException("Could not find $typeName in ${SQLiteModel::class}")
+    fun sqliteName(typeName: TypeName): SQLiteModel {
+        return SQLiteModel.values()
+            .firstOrNull {
+                it.associatedTypes
+                    .asSequence()
+                    .any { (kTypeName, jTypeName) ->
+                        val typeString = typeName.toString()
+                        kTypeName.toString() == typeString
+                            || jTypeName.toString() == typeString
+                            || jTypeName.box().toString() == typeString
+                    }
+            } ?: throw IllegalArgumentException("Could not find $typeName in ${SQLiteModel::class}")
+    }
 }

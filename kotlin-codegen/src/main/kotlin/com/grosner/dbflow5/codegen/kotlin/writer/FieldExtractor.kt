@@ -2,12 +2,12 @@ package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.annotation.Collate
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.FieldModel
 import com.dbflow5.codegen.shared.ReferenceHolderModel
 import com.dbflow5.codegen.shared.SQLiteLookup
 import com.dbflow5.codegen.shared.SingleFieldModel
+import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.hasTypeConverter
 import com.dbflow5.codegen.shared.properties.TableProperties
@@ -55,11 +55,13 @@ sealed interface FieldExtractor {
         override val commaNames: String = field.dbName.quoteIfNeeded()
         override val updateName: String = "${field.dbName.quoteIfNeeded()}=?"
 
-        // TODO: use proper SQLiteType mapping.
         override fun createName(
             sqLiteLookup: SQLiteLookup,
             typeConverterCache: TypeConverterCache
         ): String {
+            if (!field.isEnum) {
+                println("Field ${field.classType} is not an enum.")
+            }
             val value = sqLiteLookup.sqliteName(
                 when {
                     field.hasTypeConverter(typeConverterCache) -> {

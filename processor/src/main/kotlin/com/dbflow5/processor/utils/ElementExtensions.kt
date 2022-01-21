@@ -14,7 +14,10 @@ import kotlin.reflect.KClass
 fun Element?.toTypeElement(manager: ProcessorManager = ProcessorManager.manager) =
     this?.asType().toTypeElement(manager)
 
+fun Element.toTypeErasedElement(manager: ProcessorManager = ProcessorManager.manager) =
+    this.asType().erasure(manager).toTypeElement(manager)
 
+@JvmName("toNullableTypeErasedElement")
 fun Element?.toTypeErasedElement(manager: ProcessorManager = ProcessorManager.manager) =
     this?.asType().erasure(manager).toTypeElement(manager)
 
@@ -23,12 +26,22 @@ val Element.simpleString
 
 // TypeMirror extensions
 
-fun TypeMirror?.toTypeElement(manager: ProcessorManager = ProcessorManager.manager): TypeElement? =
-    manager.elements.getTypeElement(toString())
+fun TypeMirror.toTypeElement(manager: ProcessorManager = ProcessorManager.manager) =
+    manager.typeUtils.asElement(this) as TypeElement
 
-fun TypeMirror?.erasure(manager: ProcessorManager = ProcessorManager.manager): TypeMirror? =
+fun TypeMirror.toTypeElementOrNull(manager: ProcessorManager = ProcessorManager.manager) =
+    manager.typeUtils.asElement(this) as TypeElement?
+
+@JvmName("toNullableTypeElement")
+fun TypeMirror?.toTypeElement(manager: ProcessorManager = ProcessorManager.manager): TypeElement? =
+    manager.typeUtils.asElement(this) as TypeElement?
+
+fun TypeMirror.erasure(manager: ProcessorManager = ProcessorManager.manager): TypeMirror =
     manager.typeUtils.erasure(this)
 
+@JvmName("nullableErasure")
+fun TypeMirror?.erasure(manager: ProcessorManager = ProcessorManager.manager): TypeMirror? =
+    manager.typeUtils.erasure(this)
 
 // TypeName
 
@@ -61,7 +74,3 @@ fun TypeName.rawTypeName(): TypeName {
     }
     return this
 }
-
-fun TypeMirror.asStarProjectedType(): TypeMirror =
-    ProcessorManager.manager.typeUtils
-        .erasure(this)

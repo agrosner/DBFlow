@@ -7,6 +7,7 @@ object Versions {
     const val ArchMin = 21
     const val KSP = "${Kotlin}-1.0.2"
     const val KotlinCompileTesting = "1.4.7"
+    const val KotlinPoet = "1.10.2"
 }
 
 object Dependencies {
@@ -17,8 +18,11 @@ object Dependencies {
     const val KPoet = "com.github.agrosner:KPoet:1.0.0"
     const val JavaXAnnotation = "org.glassfish:javax.annotation:10.0-b28"
     const val JUnit = "junit:junit:4.12"
-    const val KotlinPoet = "com.squareup:kotlinpoet-ksp:1.10.2"
-    const val KotlinPoetJavaPoetInterop = "com.squareup:kotlinpoet-javapoet:1.10.2"
+
+    const val KotlinPoet = "com.squareup:kotlinpoet-ksp:${Versions.KotlinPoet}"
+    const val KotlinPoetJavaPoetInterop = "com.squareup:kotlinpoet-javapoet:${Versions.KotlinPoet}"
+    const val KotlinPoetMetadata = "com.squareup:kotlinpoet-metadata:${Versions.KotlinPoet}"
+
     const val KSP = "com.google.devtools.ksp:symbol-processing-api:${Versions.KSP}"
     const val Koin = "io.insert-koin:koin-core:3.1.4"
     const val KoinTest = "io.insert-koin:koin-test-junit4:3.1.4"

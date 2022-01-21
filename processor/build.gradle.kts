@@ -8,6 +8,7 @@ compileKotlin.kotlinOptions {
         "-Xopt-in=com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview",
         "-Xopt-in=kotlin.ExperimentalStdlibApi",
         "-Xopt-in=com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview",
+        "-Xopt-in=com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview",
     )
 }
 
@@ -18,6 +19,9 @@ dependencies {
     api(project(":shared-model"))
     api(Dependencies.Koin)
     api(project(":kotlin-codegen"))
+    api(Dependencies.KotlinPoetMetadata)
+
+    implementation(kotlin("reflect"))
 
     compileOnly(Dependencies.JavaXAnnotation)
     testImplementation(Dependencies.JUnit)

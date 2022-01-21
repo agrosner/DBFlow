@@ -3,6 +3,7 @@ package com.dbflow5.ksp.model.interop
 import com.dbflow5.codegen.shared.NameModel
 import com.dbflow5.codegen.shared.interop.PropertyDeclaration
 import com.dbflow5.ksp.model.invoke
+import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.ksp.toTypeName
@@ -17,5 +18,7 @@ data class KSPPropertyDeclaration(
     override val simpleName: NameModel = NameModel(
         property.simpleName,
         property.packageName,
+        nullable = typeName.isNullable,
     )
+    override val isAbstract: Boolean = property.isAbstract()
 }

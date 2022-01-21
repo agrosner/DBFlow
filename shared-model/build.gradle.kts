@@ -8,7 +8,8 @@ val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     freeCompilerArgs = listOf(
         "-Xopt-in=com.squareup.kotlinpoet.ksp.KotlinPoetKspPreview",
-        "-Xopt-in=kotlin.ExperimentalStdlibApi"
+        "-Xopt-in=kotlin.ExperimentalStdlibApi",
+        "-Xopt-in=com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview",
     )
 }
 

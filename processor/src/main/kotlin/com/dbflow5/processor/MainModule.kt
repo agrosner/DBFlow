@@ -25,7 +25,7 @@ import com.dbflow5.processor.parser.TablePropertyParser
 import com.dbflow5.processor.parser.TypeConverterPropertyParser
 import com.dbflow5.processor.parser.UniqueGroupPropertyParser
 import com.dbflow5.processor.parser.UniquePropertyParser
-import com.dbflow5.processor.parser.VariableElementParser
+import com.dbflow5.processor.parser.KaptPropertyElementParser
 import com.dbflow5.processor.parser.ViewPropertyParser
 import org.koin.dsl.module
 import javax.annotation.processing.ProcessingEnvironment
@@ -57,7 +57,7 @@ fun getModule(
     single<FieldSanitizer> { KaptFieldSanitizer(get(), get()) }
     single { ColumnMapReferencePropertyParser() }
     single {
-        VariableElementParser(
+        KaptPropertyElementParser(
             get(),
             get(), get(),
             get(), get(),

@@ -36,10 +36,10 @@ class TypeConverterDefinition(
 
         val types = manager.typeUtils
 
-        var typeConverterSuper: DeclaredType? = null
         val typeConverterType = manager.typeUtils.getDeclaredType(manager.elements
             .getTypeElement(ClassNames.TYPE_CONVERTER.toString()))
 
+        var typeConverterSuper: DeclaredType? = null
         for (superType in types.directSupertypes(typeMirror)) {
             val erasure = types.erasure(superType)
             if (types.isAssignable(erasure, typeConverterType) || erasure.toString() == typeConverterType.toString()) {

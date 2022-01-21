@@ -270,12 +270,14 @@ private fun nestNameReference(nameToNest: NameModel?) = { reference: SingleField
     } else reference
 }
 
-fun FieldModel.hasTypeConverter(typeConverterCache: TypeConverterCache) =
-    properties?.let { properties ->
+fun FieldModel.hasTypeConverter(typeConverterCache: TypeConverterCache): Boolean {
+    println("Checking if ${classType} has converter ${properties}")
+    return properties?.let { properties ->
         properties.typeConverterClassName as TypeName != ClassNames.TypeConverter
             || typeConverterCache.has(classType)
     }
         ?: typeConverterCache.has(classType)
+}
 
 fun FieldModel.typeConverter(typeConverterCache: TypeConverterCache) =
     typeConverterCache[classType, properties?.typeConverterClassName?.toString()

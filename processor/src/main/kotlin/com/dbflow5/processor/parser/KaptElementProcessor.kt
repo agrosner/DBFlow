@@ -22,18 +22,17 @@ import com.dbflow5.codegen.shared.cache.extractTypeConverter
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.parser.Parser
 import com.dbflow5.processor.interop.KaptClassDeclaration
-import com.dbflow5.processor.interop.KaptClassType
 import com.dbflow5.processor.interop.KaptOriginatingSource
+import com.dbflow5.processor.interop.KaptTypeElementClassType
 import com.dbflow5.processor.interop.invoke
 import com.dbflow5.processor.utils.annotation
-import com.dbflow5.processor.utils.asStarProjectedType
+import com.dbflow5.processor.utils.erasure
 import com.dbflow5.processor.utils.getPackage
+import com.dbflow5.processor.utils.javaToKotlinType
 import com.dbflow5.processor.utils.toTypeErasedElement
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.typeNameOf
-import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 
@@ -63,7 +62,7 @@ class KaptElementProcessor(
             input.simpleName,
             input.getPackage(),
         )
-        val classType = input.toTypeErasedElement()!!.asClassName()
+        val classType = input.toTypeErasedElement().javaToKotlinType() as ClassName
         return annotations.mapNotNull { annotation ->
             val typeName = annotation.annotationType.asTypeName()
             when (typeName) {
@@ -125,8 +124,8 @@ class KaptElementProcessor(
                             properties = oneToManyPropertyParser.parse(input.annotation()),
                             classType = classType,
                             databaseTypeName = tableProperties.database,
-                            ksType = KaptClassType(
-                                input.asType().asStarProjectedType(),
+                            ksType = KaptTypeElementClassType(
+                                input.asType().erasure(),
                                 input
                             ),
                             originatingSource = source,
@@ -167,7 +166,7 @@ class KaptElementProcessor(
                                     fields = fields,
                                     // TODO: calculate
                                     hasPrimaryConstructor = false,
-                                    isInternal = false,
+                                    isInternal = classDeclaration.isInternal,
                                     originatingSource = source,
                                     implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                                     implementsSQLiteStatementListener = implementsSQLiteStatementListener,
@@ -187,7 +186,7 @@ class KaptElementProcessor(
 
 
     private fun manyToManyModel(
-        input: Element,
+        input: TypeElement,
         classType: ClassName,
         name: NameModel,
         annotation: ManyToMany,
