@@ -14,6 +14,7 @@ import com.dbflow5.processor.parser.Fts4Parser
 import com.dbflow5.processor.parser.IndexGroupParser
 import com.dbflow5.processor.parser.IndexParser
 import com.dbflow5.processor.parser.KaptElementProcessor
+import com.dbflow5.processor.parser.KaptPropertyElementParser
 import com.dbflow5.processor.parser.ManyToManyParser
 import com.dbflow5.processor.parser.ManyToManyPropertyParser
 import com.dbflow5.processor.parser.MigrationParser
@@ -25,7 +26,6 @@ import com.dbflow5.processor.parser.TablePropertyParser
 import com.dbflow5.processor.parser.TypeConverterPropertyParser
 import com.dbflow5.processor.parser.UniqueGroupPropertyParser
 import com.dbflow5.processor.parser.UniquePropertyParser
-import com.dbflow5.processor.parser.KaptPropertyElementParser
 import com.dbflow5.processor.parser.ViewPropertyParser
 import org.koin.dsl.module
 import javax.annotation.processing.ProcessingEnvironment
@@ -79,16 +79,9 @@ fun getModule(
         DBFlowKaptProcessor(
             env.elementUtils,
             env.filer,
-            get(),
             env.messager,
             get(),
             get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get()
         )
     }
 

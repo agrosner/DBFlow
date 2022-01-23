@@ -37,14 +37,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single {
         DBFlowKspProcessor(
             get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
             environment,
-            get(),
-            get(),
             get(),
         )
     }
