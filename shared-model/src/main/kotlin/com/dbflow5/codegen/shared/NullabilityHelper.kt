@@ -7,8 +7,7 @@ import org.jetbrains.annotations.NotNull
 /**
  * Description:
  */
-fun TypeName.shouldBeNonNull(): Boolean {
+fun TypeName.shouldBeNonNull(): Boolean =
     this == ClassNames.AndroidNonNull
         || this == ClassNames.AndroidXNonNull
         || this == typeNameOf<NotNull>()
-}
