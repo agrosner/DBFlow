@@ -22,8 +22,9 @@ data class DatabaseModel(
 
 val DatabaseModel.generatedClassName
     get() = NameModel(
-        name.packageName,
-        "${name.shortName}_Database"
+        packageName = name.packageName,
+        shortName = "${name.shortName}_Database",
+        nullable = false
     )
 
 fun copyOverClasses(

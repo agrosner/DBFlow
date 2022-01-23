@@ -4,17 +4,31 @@ import com.dbflow5.codegen.shared.interop.ClassType
 import com.dbflow5.codegen.shared.interop.Declaration
 import com.dbflow5.processor.utils.javaToKotlinType
 import com.dbflow5.processor.utils.toTypeElement
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.javapoet.toJTypeName
+import kotlinx.metadata.KmClass
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
 
+fun KaptTypeElementClassType(
+    typeMirror: TypeMirror,
+    element: TypeElement,
+): ClassType {
+    return safeResolveMetaData(element, {
+        KaptTypeElementJavaClassType(typeMirror, element)
+    }) { typeSpec, kmClass ->
+        KaptTypeElementKotlinClassType(typeSpec, element, kmClass)
+    }
+}
+
 /**
  * Description:
  */
-data class KaptTypeElementClassType(
+data class KaptTypeElementJavaClassType(
     private val typeMirror: TypeMirror,
     private val element: TypeElement,
 ) : ClassType {
@@ -23,12 +37,29 @@ data class KaptTypeElementClassType(
     override fun makeNotNullable(): ClassType = this
 
     override val declaration: Declaration =
-        KaptDeclaration(typeMirror, element)
+        KaptJavaDeclaration(typeMirror, element)
 
     override fun toTypeName(): TypeName = element.javaToKotlinType()
 
     // TODO: use annotation inference to try to gauge.
     override val isMarkedNullable: Boolean = false
+}
+
+data class KaptTypeElementKotlinClassType(
+    private val typeSpec: TypeSpec,
+    private val typeElement: TypeElement,
+    private val kmClass: KmClass,
+) : ClassType {
+    // top level elements don't need nullability.
+    override fun makeNotNullable(): ClassType = this
+
+    override val declaration: Declaration = KaptKotlinDeclaration(
+        typeElement, typeSpec, kmClass
+    )
+
+    override fun toTypeName(): TypeName = ClassName.bestGuess(kmClass.name)
+
+    override val isMarkedNullable: Boolean = toTypeName().isNullable
 }
 
 fun KaptVariableElementClassType(

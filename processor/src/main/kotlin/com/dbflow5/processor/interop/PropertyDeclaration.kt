@@ -37,6 +37,7 @@ data class KaptJavaPropertyDeclaration(
         NameModel(
             packageName = element.getPackage(ProcessorManager.manager).simpleName.toString(),
             shortName = element.simpleName.toString(),
+            nullable = false, // TODO: detect nullable
         )
 }
 
@@ -53,6 +54,7 @@ data class KaptKotlinPropertyDeclaration(
     override val simpleName: NameModel = NameModel(
         packageName = packageName,
         shortName = propertySpec.name,
+        nullable = propertySpec.type.isNullable,
     )
     override val typeName: TypeName = propertySpec.type
 }

@@ -55,7 +55,7 @@ class KaptPropertyElementParser(
             notNullPropertyParser.parse(it)
         } ?: if (!kaptClassType.isMarkedNullable) NotNullProperties() else null
         // in KSP this turns java platform into nullable.
-        val classType = kaptClassType.makeNotNullable()
+        val classType = kaptClassType.toTypeName()
         val name = input.simpleName
         // TODO: infer mutability from enclosing class by finding setter
         val isVal = false
@@ -70,7 +70,7 @@ class KaptPropertyElementParser(
         if (foreignKey != null || columnMapKey != null) {
             return ReferenceHolderModel(
                 name = name,
-                classType = classType.toTypeName(),
+                classType = classType,
                 fieldType = fieldType,
                 properties = properties,
                 referenceHolderProperties = foreignKey?.let {
@@ -102,7 +102,7 @@ class KaptPropertyElementParser(
         }
         return SingleFieldModel(
             name = name,
-            classType = classType.toTypeName(),
+            classType = classType,
             fieldType = fieldType,
             properties = properties,
             enclosingClassType = enclosingClassType,

@@ -106,7 +106,8 @@ val ClassModel.generatedClassName
                 is ClassModel.ClassType.Query -> "Query"
                 is ClassModel.ClassType.View -> "View"
             }
-        }"
+        }",
+        nullable = false,
     )
 
 val ClassModel.memberSeparator
