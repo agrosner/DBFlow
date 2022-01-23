@@ -63,7 +63,7 @@ class KSPropertyDeclarationParser constructor(
             // if a field is non-null, then we treat it at DB level
             // TODO: this should be opt-in most likely as it breaks with KAPT / legacy behavior.
         } ?: if (!ksClassType.isMarkedNullable) NotNullProperties() else null
-        val classType = input.type.nullablePlatformType()
+        val classType = input.nullablePlatformType()
         val name = NameModel(
             input.simpleName,
             input.packageName,

@@ -122,8 +122,10 @@ class TableTests : BaseCompileTest() {
             """
                 package test;
                 import com.dbflow5.annotation.PrimaryKey;
+                import org.jetbrains.annotations.NotNull;
 
                 public class DatabaseModel {
+                    @NotNull
                     @PrimaryKey
                     private Integer id;
     
