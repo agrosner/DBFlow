@@ -5,6 +5,7 @@ import com.dbflow5.annotation.Fts3
 import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
+import com.dbflow5.annotation.ModelViewQuery
 import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.OneToManyRelation
 import com.dbflow5.annotation.Query
@@ -20,11 +21,16 @@ import com.dbflow5.codegen.shared.ObjectModel
 import com.dbflow5.codegen.shared.OneToManyModel
 import com.dbflow5.codegen.shared.TypeConverterModel
 import com.dbflow5.codegen.shared.cache.extractTypeConverter
+import com.dbflow5.codegen.shared.companion
+import com.dbflow5.codegen.shared.interop.ClassNameResolver
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.parser.Parser
+import com.dbflow5.codegen.shared.properties.ModelViewQueryProperties
 import com.dbflow5.processor.interop.KaptClassDeclaration
 import com.dbflow5.processor.interop.KaptOriginatingSource
+import com.dbflow5.processor.interop.KaptPropertyDeclaration
 import com.dbflow5.processor.interop.KaptTypeElementClassType
+import com.dbflow5.processor.interop.annotation
 import com.dbflow5.processor.interop.invoke
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.erasure
@@ -52,8 +58,15 @@ class KaptElementProcessor(
     private val manyToManyParser: ManyToManyParser,
     private val queryPropertyParser: QueryPropertyParser,
     private val multipleManyToManyParser: MultipleManyToManyParser,
+    private val viewPropertyParser: ViewPropertyParser,
 ) : Parser<TypeElement,
     List<ObjectModel>> {
+
+    private lateinit var resolver: ClassNameResolver
+
+    fun applyResolver(resolver: ClassNameResolver) {
+        this.resolver = resolver
+    }
 
     override fun parse(input: TypeElement): List<ObjectModel> {
         val source = KaptOriginatingSource(input)
@@ -176,6 +189,38 @@ class KaptElementProcessor(
                                         .map { it.toModel(classType, fields) },
                                     uniqueGroups = properties.uniqueGroupProperties
                                         .map { it.toModel(fields) },
+                                )
+                            )
+                        }
+                        typeNameOf<ModelViewQuery>() -> {
+                            val companion = resolver.classDeclarationByClassName(
+                                name.companion().className,
+                            ) ?: KaptClassDeclaration(input)
+
+                            // TODO: check methods
+                            val modelViewQuery = companion.properties
+                                .firstOrNull { (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null }
+                                ?: throw IllegalStateException("Missing modelview query")
+
+                            listOf(
+                                ClassModel(
+                                    name = name,
+                                    classType = classType,
+                                    type = ClassModel.ClassType.View(
+                                        ModelViewQueryProperties(
+                                            modelViewQuery.simpleName,
+                                            isProperty = true, // TODO property check
+                                        ),
+                                    ),
+                                    properties = viewPropertyParser.parse(input.annotation()),
+                                    fields = fields,
+                                    hasPrimaryConstructor = !hasDefaultConstructor,
+                                    isInternal = isInternal,
+                                    originatingSource = source,
+                                    indexGroups = listOf(),
+                                    uniqueGroups = listOf(),
+                                    implementsLoadFromCursorListener = implementsLoadFromCursorListener,
+                                    implementsSQLiteStatementListener = implementsSQLiteStatementListener,
                                 )
                             )
                         }

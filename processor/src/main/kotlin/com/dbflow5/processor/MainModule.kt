@@ -70,7 +70,7 @@ fun getModule(
             get(), get(), get(),
             get(), get(), get(),
             get(), get(), get(),
-            get(),
+            get(), get(),
         )
     }
     single { ManyToManyParser(get()) }
