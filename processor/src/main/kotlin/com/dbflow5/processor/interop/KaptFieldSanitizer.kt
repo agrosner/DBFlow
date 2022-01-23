@@ -7,6 +7,7 @@ import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.codegen.shared.FieldModel
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
+import com.dbflow5.codegen.shared.generateTypeConverter
 import com.dbflow5.codegen.shared.interop.ClassDeclaration
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.processor.parser.KaptPropertyElementParser
@@ -40,5 +41,13 @@ class KaptFieldSanitizer(
             }
             .map(kaptPropertyElementParser::parse)
             .toList()
+            .also { list ->
+                list.filter { it.isInlineClass }
+                    .forEach { inlineType ->
+                        typeConverterCache.putGeneratedTypeConverter(
+                            inlineType.generateTypeConverter()
+                        )
+                    }
+            }
     }
 }

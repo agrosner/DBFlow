@@ -45,6 +45,8 @@ class KaptPropertyElementParser(
             FieldModel.FieldType.Normal
         }
         val kaptClassType = KaptVariableElementClassType(input)
+        val isInlineClass = kaptClassType
+            .declaration.hasValueModifier()
         val isEnum = kaptClassType.declaration.closestClassDeclaration?.isEnum
             ?: false
         val foreignKey = input.annotation<ForeignKey>()
@@ -87,7 +89,7 @@ class KaptPropertyElementParser(
                     ReferenceHolderModel.Type.Computed
                 },
                 // don't exist in KAPT, do they?
-                isInlineClass = false,
+                isInlineClass = isInlineClass,
                 ksClassType = kaptClassType,
                 isVal = isVal,
                 isColumnMap = columnMapKey != null,
@@ -104,7 +106,7 @@ class KaptPropertyElementParser(
             fieldType = fieldType,
             properties = properties,
             enclosingClassType = enclosingClassType,
-            isInlineClass = false,
+            isInlineClass = isInlineClass,
             isVal = isVal,
             isEnum = isEnum,
             ksClassType = kaptClassType,

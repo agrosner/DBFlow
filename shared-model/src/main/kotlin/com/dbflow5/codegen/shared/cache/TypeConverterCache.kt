@@ -83,7 +83,6 @@ class TypeConverterCache {
     ) {
         val declaration = resolver.classDeclarationByClassName(className)!!
         val typeConverterSuper = extractTypeConverter(declaration, className)
-        println("Putting Type Converter for ${className}:${typeConverterSuper}")
         val classModel = TypeConverterModel.Simple(
             name = NameModel(className),
             properties = TypeConverterProperties(listOf()),

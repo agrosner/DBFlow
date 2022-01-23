@@ -3,10 +3,13 @@ package com.dbflow5.processor.interop
 import com.dbflow5.codegen.shared.NameModel
 import com.dbflow5.codegen.shared.interop.ClassDeclaration
 import com.dbflow5.codegen.shared.interop.Declaration
+import com.dbflow5.processor.utils.getPackage
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import kotlinx.metadata.KmClass
 import javax.lang.model.element.TypeElement
+import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
 
 fun KaptDeclaration(
@@ -50,4 +53,16 @@ data class KaptKotlinDeclaration(
 
     override fun hasValueModifier(): Boolean = typeSpec.modifiers
         .contains(KModifier.VALUE)
+}
+
+data class KaptPrimitiveKotlinDeclaration(
+    private val variableElement: VariableElement,
+    private val propertySpec: PropertySpec,
+) : Declaration {
+    override val simpleName: NameModel = NameModel(
+        variableElement.simpleName,
+        variableElement.getPackage(),
+    )
+    override val closestClassDeclaration: ClassDeclaration? = null
+    override fun hasValueModifier(): Boolean = false
 }

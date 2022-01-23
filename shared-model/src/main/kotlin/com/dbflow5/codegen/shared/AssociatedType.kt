@@ -9,7 +9,6 @@ data class AssociatedType(
 ) {
     operator fun contains(typeName: KTypeName): Boolean {
         val typeString = typeName.toString()
-        println("Checking ${typeString}->> ${kTypeName}:${jTypeName}")
         return kTypeName.toString() == typeString
             || jTypeName.toString() == typeString
             || jTypeName.box().toString() == typeString

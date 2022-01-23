@@ -6,6 +6,7 @@ import com.dbflow5.processor.utils.javaToKotlinType
 import com.dbflow5.processor.utils.toTypeElement
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
+import com.squareup.kotlinpoet.javapoet.toJTypeName
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
@@ -79,8 +80,15 @@ data class KaptVariableElementKotlinClassType(
     )
 
     override val declaration: Declaration by lazy {
-        val mirror = variableElement.enclosingElement.asType()
-        KaptDeclaration(mirror, mirror.toTypeElement())
+        val type = variableElement.asType()
+        val toTypeElementOrNull = propertySpec.type
+            .toJTypeName().toTypeElement()
+        toTypeElementOrNull?.let {
+            KaptDeclaration(type, toTypeElementOrNull)
+        } ?: KaptPrimitiveKotlinDeclaration(
+            variableElement,
+            propertySpec,
+        )
     }
 
     override fun toTypeName(): TypeName = propertySpec.type
