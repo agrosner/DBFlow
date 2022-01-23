@@ -11,7 +11,7 @@ import com.dbflow5.codegen.shared.properties.TableProperties
 import com.dbflow5.codegen.shared.properties.dbName
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.codegen.shared.ClassNames
-import com.dbflow5.ksp.MemberNames
+import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.AllColumnPropertiesWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.CreationQueryWriter

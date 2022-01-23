@@ -1,7 +1,7 @@
 package com.grosner.dbflow5.codegen.kotlin.writer.classwriter
 
 import com.dbflow5.codegen.shared.ClassNames
-import com.dbflow5.ksp.MemberNames
+import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.writer.TypeCreator

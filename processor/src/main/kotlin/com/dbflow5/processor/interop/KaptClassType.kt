@@ -2,6 +2,7 @@ package com.dbflow5.processor.interop
 
 import com.dbflow5.codegen.shared.interop.ClassType
 import com.dbflow5.codegen.shared.interop.Declaration
+import com.dbflow5.processor.utils.isNullable
 import com.dbflow5.processor.utils.javaToKotlinType
 import com.dbflow5.processor.utils.toKTypeName
 import com.dbflow5.processor.utils.toTypeElement
@@ -42,9 +43,9 @@ data class KaptTypeElementJavaClassType(
         KaptJavaDeclaration(typeMirror, element)
 
     override fun toTypeName(): TypeName = typeMirror.toKTypeName()
+        .copy(nullable = isMarkedNullable)
 
-    // TODO: use annotation inference to try to gauge.
-    override val isMarkedNullable: Boolean = false
+    override val isMarkedNullable: Boolean = element.isNullable()
 }
 
 data class KaptTypeElementKotlinClassType(
@@ -101,9 +102,9 @@ data class KaptVariableElementJavaClassType(
     }
 
     override fun toTypeName(): TypeName = variableElement.javaToKotlinType()
+        .copy(nullable = isMarkedNullable)
 
-    // TODO: infer nullability annotations
-    override val isMarkedNullable: Boolean = false
+    override val isMarkedNullable: Boolean = variableElement.isNullable()
 
     // TODO: infer mutability from setters?
     override val isMutable: Boolean = true

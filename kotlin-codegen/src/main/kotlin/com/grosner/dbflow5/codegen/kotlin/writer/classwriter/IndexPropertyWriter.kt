@@ -5,7 +5,7 @@ import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.createFlattenedFields
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.codegen.shared.ClassNames
-import com.dbflow5.ksp.MemberNames
+import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.PropertySpec
 

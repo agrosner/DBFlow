@@ -1,4 +1,4 @@
-package com.dbflow5.ksp
+package com.grosner.dbflow5.codegen.kotlin.kotlinpoet
 
 import com.dbflow5.codegen.shared.PackageNames
 import com.squareup.kotlinpoet.MemberName

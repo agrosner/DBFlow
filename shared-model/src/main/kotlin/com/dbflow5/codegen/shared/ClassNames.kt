@@ -59,4 +59,7 @@ object ClassNames {
     val TypeConverter = ClassName(PackageNames.Converter, "TypeConverter")
     val LoadFromCursorListener = ClassName(PackageNames.Query, "LoadFromCursorListener")
     val SQLiteStatementListener = ClassName(PackageNames.Query, "SQLiteStatementListener")
+
+    val AndroidNonNull = ClassName("android.support.annotation", "NonNull")
+    val AndroidXNonNull = ClassName("androidx.annotation", "NonNull")
 }

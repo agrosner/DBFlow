@@ -1,5 +1,6 @@
 package com.dbflow5.processor.utils
 
+import com.dbflow5.codegen.shared.shouldBeNonNull
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -33,4 +34,20 @@ fun TypeName.javaToKotlinType(): TypeName {
             ClassName.bestGuess(className)
         }
     }
+}
+
+/**
+ *  Best-guess on nullability. If cannot be determined, then
+ *  assumed nullable. This matches the KSP artifact where java "platform" types
+ *  are considered nullable.
+ */
+fun Element.isNullable(): Boolean {
+    // check annotation mirrors
+    if (annotationMirrors.any {
+            it.annotationType.asTypeName()
+                .shouldBeNonNull()
+        }) {
+        return false
+    }
+    return true
 }
