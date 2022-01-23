@@ -59,9 +59,6 @@ sealed interface FieldExtractor {
             sqLiteLookup: SQLiteLookup,
             typeConverterCache: TypeConverterCache
         ): String {
-            if (!field.isEnum) {
-                println("Field ${field.classType} is not an enum.")
-            }
             val value = sqLiteLookup.sqliteName(
                 when {
                     field.hasTypeConverter(typeConverterCache) -> {

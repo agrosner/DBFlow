@@ -2,6 +2,7 @@ package com.dbflow5.processor
 
 import com.dbflow5.codegen.shared.Annotations
 import com.dbflow5.codegen.shared.ClassModel
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseHolderModel
 import com.dbflow5.codegen.shared.DatabaseModel
 import com.dbflow5.codegen.shared.ManyToManyModel
@@ -12,9 +13,8 @@ import com.dbflow5.codegen.shared.TypeConverterModel
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.copyOverClasses
-import com.dbflow5.codegen.shared.properties.DatabaseHolderProperties
 import com.dbflow5.codegen.shared.parser.validation.ValidationException
-import com.dbflow5.codegen.shared.ClassNames
+import com.dbflow5.codegen.shared.properties.DatabaseHolderProperties
 import com.dbflow5.processor.interop.KaptResolver
 import com.dbflow5.processor.parser.KaptElementProcessor
 import com.grosner.dbflow5.codegen.kotlin.writer.ClassWriter
@@ -121,14 +121,18 @@ class DBFlowKaptProcessor(
                 )
                     .flatten()
                     .forEach {
-                        it.writeTo(filer)
+                        try {
+                            println("Writing file ${it.name}")
+                            it.writeTo(filer)
+                        } catch (e: Throwable) {
+                            messager.printMessage(Diagnostic.Kind.WARNING, e.message)
+                        }
                     }
             }
         } catch (exception: ValidationException) {
             messager.printMessage(Diagnostic.Kind.ERROR, exception.localizedMessage)
         } catch (e: Throwable) {
-            e.printStackTrace()
-            messager.printMessage(Diagnostic.Kind.ERROR, e.message)
+            messager.printMessage(Diagnostic.Kind.WARNING, e.message)
         }
     }
 }

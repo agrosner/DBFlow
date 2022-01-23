@@ -5,10 +5,10 @@ import com.dbflow5.codegen.shared.FieldModel
 import com.dbflow5.codegen.shared.ReferenceHolderModel
 import com.dbflow5.codegen.shared.SingleFieldModel
 import com.dbflow5.codegen.shared.interop.ClassType
-import com.dbflow5.codegen.shared.properties.ReferenceProperties
-import com.dbflow5.codegen.shared.references
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.parser.validation.ValidationExceptionProvider
+import com.dbflow5.codegen.shared.properties.ReferenceProperties
+import com.dbflow5.codegen.shared.references
 import com.squareup.kotlinpoet.TypeName
 
 
@@ -119,7 +119,6 @@ class ReferencesCache(
         val nonNullType = ksType.makeNotNullable()
         return (referenceMap.getOrPut(ReferenceType.AllFromClass(nonNullType.toTypeName())) {
             val closest = nonNullType.declaration.closestClassDeclaration
-            println("Looking at closest from ${nonNullType} -> ${closest}")
             closest?.let { fieldSanitizer.parse(it) }?.map {
                 when (it) {
                     is ReferenceHolderModel -> it.references(this, nameToNest = it.name)

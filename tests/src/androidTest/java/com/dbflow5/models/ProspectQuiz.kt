@@ -18,7 +18,7 @@ class MutableSetTypeConverter : com.dbflow5.converter.TypeConverter<String, Muta
     }
 
     override fun getModelValue(data: String): MutableSet<String> {
-        return data.split("")?.toMutableSet()
+        return data.split("").toMutableSet()
     }
 }
 
@@ -55,7 +55,7 @@ open internal class ProspectQuiz {
     // with determining who can still be added.
     @NotNull
     @Column(typeConverter = MutableSetTypeConverter::class)
-    var pendingUnanswered: MutableSet<String>
+    var pendingUnanswered: Set<String>
 
     @Index(indexGroups = [1])
     @Column(defaultValue = "1L")
