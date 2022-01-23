@@ -6,7 +6,6 @@ import com.dbflow5.codegen.shared.interop.Declaration
 import com.dbflow5.processor.utils.getPackage
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
-import kotlinx.metadata.KmClass
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
@@ -16,8 +15,8 @@ fun KaptDeclaration(
     element: TypeElement,
 ): Declaration {
     return safeResolveMetaData(element,
-        fallback = { KaptJavaDeclaration(typeMirror, element) }) { typeSpec, kmClass ->
-        KaptKotlinDeclaration(element, typeSpec, kmClass)
+        fallback = { KaptJavaDeclaration(typeMirror, element) }) { typeSpec, _ ->
+        KaptKotlinDeclaration(element, typeSpec)
     }
 }
 
@@ -42,12 +41,11 @@ data class KaptJavaDeclaration(
 data class KaptKotlinDeclaration(
     private val typeElement: TypeElement,
     private val typeSpec: TypeSpec,
-    private val kmClass: KmClass,
 ) : Declaration {
     override val simpleName: NameModel = typeElement.name()
 
     override val closestClassDeclaration: ClassDeclaration? by lazy {
-        KaptKotlinClassDeclaration(typeElement, typeSpec, kmClass)
+        KaptKotlinClassDeclaration(typeElement, typeSpec)
     }
 
     override fun hasValueModifier(): Boolean = typeSpec.modifiers

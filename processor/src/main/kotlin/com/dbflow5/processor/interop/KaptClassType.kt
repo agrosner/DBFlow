@@ -57,7 +57,7 @@ data class KaptTypeElementKotlinClassType(
     override fun makeNotNullable(): ClassType = this
 
     override val declaration: Declaration = KaptKotlinDeclaration(
-        typeElement, typeSpec, kmClass
+        typeElement, typeSpec
     )
 
     override fun toTypeName(): TypeName = ClassName.bestGuess(kmClass.name)

@@ -10,7 +10,6 @@ import com.dbflow5.processor.utils.toTypeErasedElement
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
-import kotlinx.metadata.KmClass
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
@@ -21,9 +20,9 @@ fun KaptClassDeclaration(typeElement: TypeElement): ClassDeclaration {
     return safeResolveMetaData(
         typeElement = typeElement,
         fallback = { KaptJavaClassDeclaration(typeElement) },
-    ) { typeSpec, kmClass ->
+    ) { typeSpec, _ ->
         KaptKotlinClassDeclaration(
-            typeElement, typeSpec, kmClass
+            typeElement, typeSpec
         )
     }
 }
@@ -71,7 +70,6 @@ internal data class KaptJavaClassDeclaration(
 internal data class KaptKotlinClassDeclaration(
     override val typeElement: TypeElement,
     private val typeSpec: TypeSpec,
-    private val kmClass: KmClass,
 ) : KaptClassDeclaration {
     override val containingFile: OriginatingSource = KaptOriginatingSource(typeElement)
     override val isInternal: Boolean = typeSpec.modifiers.contains(KModifier.INTERNAL)
@@ -82,7 +80,6 @@ internal data class KaptKotlinClassDeclaration(
             typeElement.toTypeErasedElement(),
             typeSpec = typeSpec.toBuilder()
                 .build(),
-            kmClass = kmClass,
         )
     }
 

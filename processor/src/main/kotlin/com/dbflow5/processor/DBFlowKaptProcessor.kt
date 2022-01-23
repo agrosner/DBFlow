@@ -45,18 +45,14 @@ class DBFlowKaptProcessor(
                     KaptResolver(this.elements),
                     objects
                 ) {
-                    try {
-                        println("Writing file ${it.name}")
-                        it.writeTo(filer)
-                    } catch (e: Throwable) {
-                        messager.printMessage(Diagnostic.Kind.WARNING, e.message)
-                    }
+                    println("Writing file ${it.name}")
+                    it.writeTo(filer)
                 }
             }
         } catch (exception: ValidationException) {
             messager.printMessage(Diagnostic.Kind.ERROR, exception.localizedMessage)
         } catch (e: Throwable) {
-            messager.printMessage(Diagnostic.Kind.WARNING, e.message)
+            messager.printMessage(Diagnostic.Kind.ERROR, e.message)
         }
     }
 }
