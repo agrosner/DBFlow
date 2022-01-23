@@ -1,18 +1,22 @@
 package com.dbflow5.processor.parser
 
 import com.dbflow5.annotation.Database
-import com.dbflow5.codegen.shared.properties.DatabaseProperties
 import com.dbflow5.codegen.shared.parser.Parser
-import com.dbflow5.processor.utils.extractClassNamesFromAnnotation
-import com.squareup.kotlinpoet.javapoet.toKClassName
+import com.dbflow5.codegen.shared.properties.DatabaseProperties
+import com.dbflow5.processor.utils.extractTypeNamesFromAnnotation
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.javapoet.toKTypeName
 
 class DatabasePropertyParser : Parser<Database, DatabaseProperties> {
 
     override fun parse(input: Database): DatabaseProperties {
-        val tables = input.extractClassNamesFromAnnotation { it.tables }.map { it.toKClassName() }
-        val views = input.extractClassNamesFromAnnotation { it.views }.map { it.toKClassName() }
+        val tables =
+            input.extractTypeNamesFromAnnotation { it.tables }.map { it.toKTypeName() as ClassName }
+        val views =
+            input.extractTypeNamesFromAnnotation { it.views }.map { it.toKTypeName() as ClassName }
         val queries =
-            input.extractClassNamesFromAnnotation { it.queries }.map { it.toKClassName() }
+            input.extractTypeNamesFromAnnotation { it.queries }
+                .map { it.toKTypeName() as ClassName }
         return DatabaseProperties(
             version = input.version,
             foreignKeyConstraintsEnforced = input.foreignKeyConstraintsEnforced,
@@ -22,8 +26,8 @@ class DatabasePropertyParser : Parser<Database, DatabaseProperties> {
             views = views,
             queries = queries,
             classes = listOf(tables, views, queries).flatten(),
-            migrations = input.extractClassNamesFromAnnotation { it.migrations }
-                .map { it.toKClassName() },
+            migrations = input.extractTypeNamesFromAnnotation { it.migrations }
+                .map { it.toKTypeName() as ClassName },
         )
     }
 }
