@@ -7,6 +7,7 @@ import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.OneToManyRelation
+import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
 import com.dbflow5.codegen.shared.ClassModel
@@ -144,15 +145,17 @@ class KaptElementProcessor(
                 }
                 else -> {
                     val fields = fieldSanitizer.parse(KaptClassDeclaration(input))
+                    val hasDefaultConstructor = true
+                    val isInternal = classDeclaration.isInternal
+                    val implementsLoadFromCursorListener = classDeclaration
+                        .superTypes.any { it == ClassNames.LoadFromCursorListener }
+                    val implementsSQLiteStatementListener = classDeclaration
+                        .superTypes.any { it == ClassNames.SQLiteStatementListener }
                     when (typeName) {
                         typeNameOf<Table>() -> {
                             val fts3: Fts3? = input.annotation()
                             val fts4: Fts4? = input.annotation()
                             val properties = tablePropertyParser.parse(input.annotation())
-                            val implementsLoadFromCursorListener = classDeclaration
-                                .superTypes.any { it == ClassNames.LoadFromCursorListener }
-                            val implementsSQLiteStatementListener = classDeclaration
-                                .superTypes.any { it == ClassNames.SQLiteStatementListener }
                             listOf(
                                 ClassModel(
                                     name = name,
@@ -164,9 +167,8 @@ class KaptElementProcessor(
                                     },
                                     properties = properties,
                                     fields = fields,
-                                    // TODO: calculate
-                                    hasPrimaryConstructor = false,
-                                    isInternal = classDeclaration.isInternal,
+                                    hasPrimaryConstructor = !hasDefaultConstructor,
+                                    isInternal = isInternal,
                                     originatingSource = source,
                                     implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                                     implementsSQLiteStatementListener = implementsSQLiteStatementListener,
@@ -174,6 +176,24 @@ class KaptElementProcessor(
                                         .map { it.toModel(classType, fields) },
                                     uniqueGroups = properties.uniqueGroupProperties
                                         .map { it.toModel(fields) },
+                                )
+                            )
+                        }
+                        typeNameOf<Query>() -> {
+                            listOf(
+                                ClassModel(
+                                    name = name,
+                                    classType = classType,
+                                    type = ClassModel.ClassType.Query,
+                                    properties = queryPropertyParser.parse(input.annotation()),
+                                    fields = fields,
+                                    hasPrimaryConstructor = !hasDefaultConstructor,
+                                    isInternal = isInternal,
+                                    originatingSource = source,
+                                    indexGroups = listOf(),
+                                    uniqueGroups = listOf(),
+                                    implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                                    implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                                 )
                             )
                         }
