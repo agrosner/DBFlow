@@ -3,7 +3,9 @@ package com.dbflow5.processor.interop
 import com.dbflow5.codegen.shared.interop.ClassType
 import com.dbflow5.codegen.shared.interop.Declaration
 import com.dbflow5.processor.utils.javaToKotlinType
+import com.dbflow5.processor.utils.toKTypeName
 import com.dbflow5.processor.utils.toTypeElement
+import com.dbflow5.processor.utils.toTypeElementOrNull
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeName
@@ -39,7 +41,7 @@ data class KaptTypeElementJavaClassType(
     override val declaration: Declaration =
         KaptJavaDeclaration(typeMirror, element)
 
-    override fun toTypeName(): TypeName = element.javaToKotlinType()
+    override fun toTypeName(): TypeName = typeMirror.toKTypeName()
 
     // TODO: use annotation inference to try to gauge.
     override val isMarkedNullable: Boolean = false
@@ -62,9 +64,13 @@ data class KaptTypeElementKotlinClassType(
     override val isMarkedNullable: Boolean = toTypeName().isNullable
 }
 
+interface KaptVariableElementClassType : ClassType {
+    val isMutable: Boolean
+}
+
 fun KaptVariableElementClassType(
     input: KaptPropertyDeclaration,
-): ClassType = when (input) {
+): KaptVariableElementClassType = when (input) {
     is KaptJavaPropertyDeclaration -> {
         KaptVariableElementJavaClassType(
             input.element,
@@ -82,13 +88,15 @@ fun KaptVariableElementClassType(
 data class KaptVariableElementJavaClassType(
     private val variableElement: VariableElement,
     private val typeMirror: TypeMirror,
-) : ClassType {
+) : KaptVariableElementClassType {
     override fun makeNotNullable(): ClassType = this
 
     override val declaration: Declaration by lazy {
-        val mirror = variableElement.enclosingElement.asType()
-        KaptDeclaration(
-            mirror, mirror.toTypeElement(),
+        val toTypeElementOrNull = typeMirror.toTypeElementOrNull()
+        toTypeElementOrNull?.let {
+            KaptDeclaration(typeMirror, toTypeElementOrNull)
+        } ?: KaptPrimitiveDeclaration(
+            variableElement,
         )
     }
 
@@ -96,13 +104,16 @@ data class KaptVariableElementJavaClassType(
 
     // TODO: infer nullability annotations
     override val isMarkedNullable: Boolean = false
+
+    // TODO: infer mutability from setters?
+    override val isMutable: Boolean = true
 }
 
 data class KaptVariableElementKotlinClassType(
     private val variableElement: VariableElement,
     private val typeMirror: TypeMirror,
     private val propertySpec: PropertySpec,
-) : ClassType {
+) : KaptVariableElementClassType {
     override fun makeNotNullable(): ClassType = KaptVariableElementKotlinClassType(
         variableElement,
         typeMirror,
@@ -116,11 +127,12 @@ data class KaptVariableElementKotlinClassType(
             .toJTypeName().toTypeElement()
         toTypeElementOrNull?.let {
             KaptDeclaration(type, toTypeElementOrNull)
-        } ?: KaptPrimitiveKotlinDeclaration(
+        } ?: KaptPrimitiveDeclaration(
             variableElement,
-            propertySpec,
         )
     }
+
+    override val isMutable: Boolean = propertySpec.mutable
 
     override fun toTypeName(): TypeName = propertySpec.type
 

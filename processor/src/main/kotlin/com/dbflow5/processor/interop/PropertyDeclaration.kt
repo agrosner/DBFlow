@@ -35,7 +35,7 @@ data class KaptJavaPropertyDeclaration(
 
     override val simpleName: NameModel =
         NameModel(
-            packageName = element.getPackage(ProcessorManager.manager).simpleName.toString(),
+            packageName = element.getPackage(ProcessorManager.manager).qualifiedName.toString(),
             shortName = element.simpleName.toString(),
             nullable = false, // TODO: detect nullable
         )

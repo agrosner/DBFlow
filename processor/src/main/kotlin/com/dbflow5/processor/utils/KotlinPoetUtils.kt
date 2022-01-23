@@ -5,9 +5,15 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.javapoet.JTypeName
+import com.squareup.kotlinpoet.javapoet.toKTypeName
 import javax.lang.model.element.Element
+import javax.lang.model.type.TypeMirror
 import kotlin.reflect.jvm.internal.impl.builtins.jvm.JavaToKotlinClassMap
 import kotlin.reflect.jvm.internal.impl.name.FqName
+
+fun TypeMirror.toKTypeName() = JTypeName.get(this).toKTypeName()
+    .javaToKotlinType()
 
 fun Element.javaToKotlinType(): TypeName =
     asType().asTypeName().javaToKotlinType()

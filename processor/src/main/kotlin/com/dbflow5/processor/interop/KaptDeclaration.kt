@@ -5,7 +5,6 @@ import com.dbflow5.codegen.shared.interop.ClassDeclaration
 import com.dbflow5.codegen.shared.interop.Declaration
 import com.dbflow5.processor.utils.getPackage
 import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 import kotlinx.metadata.KmClass
 import javax.lang.model.element.TypeElement
@@ -55,9 +54,8 @@ data class KaptKotlinDeclaration(
         .contains(KModifier.VALUE)
 }
 
-data class KaptPrimitiveKotlinDeclaration(
+data class KaptPrimitiveDeclaration(
     private val variableElement: VariableElement,
-    private val propertySpec: PropertySpec,
 ) : Declaration {
     override val simpleName: NameModel = NameModel(
         variableElement.simpleName,

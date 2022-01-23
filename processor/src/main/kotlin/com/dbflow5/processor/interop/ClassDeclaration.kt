@@ -5,12 +5,11 @@ import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.interop.PropertyDeclaration
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.utils.getPackage
-import com.dbflow5.processor.utils.javaToKotlinType
+import com.dbflow5.processor.utils.toKTypeName
 import com.dbflow5.processor.utils.toTypeErasedElement
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
-import com.squareup.kotlinpoet.asTypeName
 import kotlinx.metadata.KmClass
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.Modifier
@@ -35,7 +34,7 @@ interface KaptClassDeclaration : ClassDeclaration {
     override val superTypes: Sequence<TypeName>
         get() = typeElement.asType()?.let { mirror ->
             ProcessorManager.manager.typeUtils.directSupertypes(mirror)
-                .mapNotNull { it.asTypeName().javaToKotlinType() }
+                .mapNotNull { it.toKTypeName() }
         }?.asSequence() ?: emptySequence()
 
     val propertyElements: List<VariableElement>

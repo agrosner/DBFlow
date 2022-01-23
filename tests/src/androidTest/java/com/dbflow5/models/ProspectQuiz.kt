@@ -53,9 +53,10 @@ open internal class ProspectQuiz {
 
     // We have a list of prospect IDs that have been invited but not answered. Just IDs to be used
     // with determining who can still be added.
-    @NotNull
+    // TODO: fix generics
+    /*@NotNull
     @Column(typeConverter = MutableSetTypeConverter::class)
-    var pendingUnanswered: Set<String>
+    var pendingUnanswered: Set<String>*/
 
     @Index(indexGroups = [1])
     @Column(defaultValue = "1L")
@@ -70,7 +71,7 @@ open internal class ProspectQuiz {
         pendingResponseCount = 0
         resolvedResponseCount = 0
         newResponseCount = 0
-        pendingUnanswered = mutableSetOf()
+        //pendingUnanswered = mutableSetOf()
     }
 }
 

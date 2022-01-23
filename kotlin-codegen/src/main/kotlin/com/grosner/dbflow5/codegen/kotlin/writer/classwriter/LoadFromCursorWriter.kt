@@ -1,6 +1,7 @@
 package com.grosner.dbflow5.codegen.kotlin.writer.classwriter
 
 import com.dbflow5.codegen.shared.ClassModel
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.FieldModel
 import com.dbflow5.codegen.shared.ReferenceHolderModel
 import com.dbflow5.codegen.shared.SingleFieldModel
@@ -10,7 +11,6 @@ import com.dbflow5.codegen.shared.hasTypeConverter
 import com.dbflow5.codegen.shared.memberSeparator
 import com.dbflow5.codegen.shared.references
 import com.dbflow5.codegen.shared.writer.TypeCreator
-import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.ksp.MemberNames
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
@@ -158,6 +158,7 @@ class LoadFromCursorWriter(
         model: ClassModel,
         currentIndex: Int,
     ): Int {
+        // we know class type is a list, so take parameterize type here.
         val childTableType = (field.nonNullClassType as ParameterizedTypeName).typeArguments[0]
             as ClassName
         addStatement(
@@ -202,6 +203,11 @@ class LoadFromCursorWriter(
         field: ReferenceHolderModel,
         currentIndex: Int,
     ): Int {
+        val className = field.name
+        val generatedTableClassName = ClassName(
+            className.packageName,
+            "${field.ksClassType.declaration.simpleName.shortName}_Table",
+        )
         addStatement(
             "val %N = ((%M %L %T::class) %L",
             field.name.shortName,
@@ -218,13 +224,9 @@ class LoadFromCursorWriter(
             if (refIndex > 0) {
                 addCode("%L ", "and")
             }
-            val className = field.name
             addCode(
                 "(%T.%L %L %L.%N.%M(",
-                ClassName(
-                    className.packageName,
-                    "${field.ksClassType.declaration.simpleName.shortName}_Table",
-                ),
+                generatedTableClassName,
                 plain.propertyName,
                 MemberNames.eq,
                 "Companion",

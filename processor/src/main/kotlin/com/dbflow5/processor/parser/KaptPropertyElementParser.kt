@@ -58,7 +58,7 @@ class KaptPropertyElementParser(
         val classType = kaptClassType.toTypeName()
         val name = input.simpleName
         // TODO: infer mutability from enclosing class by finding setter
-        val isVal = false
+        val isVal = !kaptClassType.isMutable
         val indexProperties = input.annotation<Index>()
             ?.let { indexParser.parse(it) }
         val properties = input.annotation<Column>()
