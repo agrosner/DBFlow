@@ -6,8 +6,8 @@ import com.dbflow5.codegen.shared.interop.Declaration
 import com.dbflow5.processor.utils.getPackage
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
+import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
 
 fun KaptDeclaration(
@@ -53,7 +53,7 @@ data class KaptKotlinDeclaration(
 }
 
 data class KaptPrimitiveDeclaration(
-    private val variableElement: VariableElement,
+    private val variableElement: Element,
 ) : Declaration {
     override val simpleName: NameModel = NameModel(
         variableElement.simpleName,

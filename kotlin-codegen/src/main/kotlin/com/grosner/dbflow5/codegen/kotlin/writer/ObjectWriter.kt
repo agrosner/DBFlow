@@ -54,12 +54,6 @@ class ObjectWriter(
         // associate classes into DB.
         val databases = objects.filterIsInstance<DatabaseModel>()
             .map(copyOverClasses(classes, migrations))
-            .onEach { db ->
-                println("Found DB:${db.name} ${db.properties.tables} : ${db.tables.map { it.name }}")
-            }
-        classes.forEach { clazz ->
-            println("Found Classes:${clazz.name}:${clazz.classType} from DB: ${clazz.properties.database}")
-        }
 
         val holderModel = DatabaseHolderModel(
             name = NameModel(ClassNames.GeneratedDatabaseHolder),

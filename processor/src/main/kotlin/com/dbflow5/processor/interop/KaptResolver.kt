@@ -11,7 +11,7 @@ import javax.lang.model.util.Elements
 class KaptResolver(
     private val elements: Elements,
 ) : ClassNameResolver {
-    override fun classDeclarationByClassName(className: ClassName): ClassDeclaration {
-        return KaptClassDeclaration(elements.getTypeElement(className.canonicalName))
+    override fun classDeclarationByClassName(className: ClassName): ClassDeclaration? {
+        return elements.getTypeElement(className.canonicalName)?.let { KaptClassDeclaration(it) }
     }
 }

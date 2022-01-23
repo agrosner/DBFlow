@@ -19,15 +19,17 @@ class AuthorView(
 ) {
 
     companion object {
+        // TODO: switch back to method
         @JvmStatic
-        @ModelViewQuery
-        fun getQuery(): From<Author> = (select(
-            Author_Table.id.`as`("authorId"),
-            Author_Table.first_name.concatenate(" ".property as IProperty<out IProperty<*>>)
-                .concatenate(Author_Table.last_name as IProperty<out IProperty<*>>)
-                .`as`("authorName")
-        )
-            from Author::class)
+        @get:ModelViewQuery
+        val query: From<Author>
+            get() = (select(
+                Author_Table.id.`as`("authorId"),
+                Author_Table.first_name.concatenate(" ".property as IProperty<out IProperty<*>>)
+                    .concatenate(Author_Table.last_name as IProperty<out IProperty<*>>)
+                    .`as`("authorName")
+            )
+                from Author::class)
     }
 }
 

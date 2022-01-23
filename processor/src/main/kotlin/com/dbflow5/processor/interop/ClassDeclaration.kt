@@ -4,13 +4,16 @@ import com.dbflow5.codegen.shared.interop.ClassDeclaration
 import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.interop.PropertyDeclaration
 import com.dbflow5.processor.ProcessorManager
+import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.getPackage
+import com.dbflow5.processor.utils.simpleString
 import com.dbflow5.processor.utils.toKTypeName
 import com.dbflow5.processor.utils.toTypeErasedElement
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import javax.lang.model.element.ElementKind
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
@@ -36,17 +39,38 @@ interface KaptClassDeclaration : ClassDeclaration {
                 .mapNotNull { it.toKTypeName() }
         }?.asSequence() ?: emptySequence()
 
-    val propertyElements: List<VariableElement>
-        get() = ProcessorManager.manager.elements.getAllMembers(typeElement)
-            ?.filterIsInstance<VariableElement>()
-            ?.filter { element ->
-                element.modifiers.none {
-                    it == Modifier.ABSTRACT
-                        || it == Modifier.STATIC
-                }
-            } ?: listOf()
-}
+    private val allMembers
+        get() = ElementUtility.getAllElements(typeElement, ProcessorManager.manager)
+    val getters
+        get() = allMembers.filterIsInstance<ExecutableElement>()
+            .filter { it.simpleName.startsWith("get") }
+    val setters
+        get() = allMembers.filterIsInstance<ExecutableElement>()
+            .filter { it.simpleName.startsWith("set") }
 
+    /**
+     * Collects
+     */
+    val propertyElements: List<JavaPropertyDeclaration>
+        get() {
+            return allMembers
+                .filterIsInstance<VariableElement>()
+                .map { elm ->
+                    val propertyDeclaration = JavaPropertyDeclaration(
+                        element = elm,
+                        getter = getters.firstOrNull {
+                            val propName = it.simpleName.toString().replaceFirst("get", "")
+                            propName == it.simpleName.toString()
+                        },
+                        setter = setters.firstOrNull {
+                            val propName = it.simpleName.toString().replaceFirst("set", "")
+                            propName == it.simpleName.toString()
+                        },
+                    )
+                    propertyDeclaration
+                }
+        }
+}
 
 internal data class KaptJavaClassDeclaration(
     override val typeElement: TypeElement,
@@ -58,8 +82,11 @@ internal data class KaptJavaClassDeclaration(
     override val properties: Sequence<PropertyDeclaration> =
         propertyElements
             .asSequence()
-            .map { variableElement ->
-                KaptJavaPropertyDeclaration(variableElement)
+            .map { prop ->
+                KaptJavaPropertyDeclaration(
+                    prop.element,
+                    prop
+                )
             }
 
     override fun asStarProjectedType(): ClassDeclaration {
@@ -92,7 +119,19 @@ internal data class KaptKotlinClassDeclaration(
                     KaptKotlinPropertyDeclaration(
                         packageName,
                         spec,
-                        propertyElements.first { prop -> prop.simpleName.toString() == spec.name }
+                        propertyElements
+                            .firstOrNull { prop -> prop.simpleName.shortName == spec.name }
+                            ?.element
+                            ?: getters
+                                .firstOrNull { prop ->
+                                    prop.simpleString
+                                        .lowercase()
+                                        .replaceFirst("get", "") == spec.name
+                                }
+                            ?: throw IllegalStateException(
+                                "Cant find property for ${spec.name}: " +
+                                    "from ${this.typeElement} -> ${propertyElements.size}"
+                            )
                     )
                 }
         }

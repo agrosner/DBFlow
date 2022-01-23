@@ -5,6 +5,7 @@ import com.dbflow5.annotation.Fts3
 import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
+import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.ModelViewQuery
 import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.OneToManyRelation
@@ -192,7 +193,7 @@ class KaptElementProcessor(
                                 )
                             )
                         }
-                        typeNameOf<ModelViewQuery>() -> {
+                        typeNameOf<ModelView>() -> {
                             val companion = resolver.classDeclarationByClassName(
                                 name.companion().className,
                             ) ?: KaptClassDeclaration(input)
@@ -200,7 +201,7 @@ class KaptElementProcessor(
                             // TODO: check methods
                             val modelViewQuery = companion.properties
                                 .firstOrNull { (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null }
-                                ?: throw IllegalStateException("Missing modelview query")
+                                ?: throw IllegalStateException("Missing modelview query ${companion.properties.count()}")
 
                             listOf(
                                 ClassModel(

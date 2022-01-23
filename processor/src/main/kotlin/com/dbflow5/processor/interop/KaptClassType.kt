@@ -13,6 +13,7 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.javapoet.toJTypeName
 import kotlinx.metadata.KmClass
+import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeMirror
@@ -87,7 +88,7 @@ fun KaptVariableElementClassType(
 }
 
 data class KaptVariableElementJavaClassType(
-    private val variableElement: VariableElement,
+    private val variableElement: Element,
     private val typeMirror: TypeMirror,
 ) : KaptVariableElementClassType {
     override fun makeNotNullable(): ClassType = this
@@ -111,7 +112,7 @@ data class KaptVariableElementJavaClassType(
 }
 
 data class KaptVariableElementKotlinClassType(
-    private val variableElement: VariableElement,
+    private val variableElement: Element,
     private val typeMirror: TypeMirror,
     private val propertySpec: PropertySpec,
 ) : KaptVariableElementClassType {

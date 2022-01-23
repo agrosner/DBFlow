@@ -10,11 +10,11 @@ class ModelViewTest : BaseUnitTest() {
     @Test
     fun validateModelViewQuery() {
         "SELECT `id` AS `authorId`,`first_name` || ' ' || `last_name` AS `authorName` FROM `Author`"
-                .assertEquals(AuthorView.getQuery())
+                .assertEquals(AuthorView.query)
     }
 
     @Test
     fun validateJavaModelViewQuery() {
-        "SELECT `first_name` AS `firstName`,`id` AS `id`".assertEquals(JavaModelView.getQuery())
+        "SELECT `first_name` AS `firstName`,`id` AS `id`".assertEquals(JavaModelView.query)
     }
 }

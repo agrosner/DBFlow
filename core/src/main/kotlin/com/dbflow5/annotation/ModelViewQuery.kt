@@ -8,9 +8,10 @@ import com.dbflow5.sql.Query
  * the view.
  */
 @Target(
-    AnnotationTarget.FUNCTION,
     AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.FUNCTION,
 )
 @Retention(AnnotationRetention.SOURCE)
 annotation class ModelViewQuery

@@ -13,6 +13,7 @@ import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.processor.parser.KaptPropertyElementParser
 import com.dbflow5.processor.utils.annotation
 import com.squareup.kotlinpoet.asClassName
+import javax.lang.model.element.Modifier
 
 /**
  * Description:
@@ -38,6 +39,7 @@ class KaptFieldSanitizer(
                 it.isAbstract ||
                     it.annotation<ColumnIgnore>() != null
                     || it.annotation<OneToMany>() != null
+                    || it.element.modifiers.contains(Modifier.STATIC)
             }
             .map(kaptPropertyElementParser::parse)
             .toList()

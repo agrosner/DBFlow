@@ -25,6 +25,7 @@ class DBFlowKaptProcessor(
 
     fun process(roundEnvironment: RoundEnvironment) {
         try {
+            kaptElementProcessor.applyResolver(KaptResolver(elements))
             val elements = Annotations.values.map {
                 roundEnvironment.getElementsAnnotatedWith(
                     elements.getTypeElement(it.qualifiedName)
@@ -52,6 +53,7 @@ class DBFlowKaptProcessor(
         } catch (exception: ValidationException) {
             messager.printMessage(Diagnostic.Kind.ERROR, exception.localizedMessage)
         } catch (e: Throwable) {
+            e.printStackTrace()
             messager.printMessage(Diagnostic.Kind.ERROR, e.message)
         }
     }
