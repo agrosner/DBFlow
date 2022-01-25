@@ -14,7 +14,6 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 
@@ -39,7 +38,7 @@ interface KaptClassDeclaration : ClassDeclaration {
                 .mapNotNull { it.toKTypeName() }
         }?.asSequence() ?: emptySequence()
 
-    private val allMembers
+    val allMembers
         get() = ElementUtility.getAllElements(typeElement, ProcessorManager.manager)
     val getters
         get() = allMembers.filterIsInstance<ExecutableElement>()
@@ -113,8 +112,12 @@ internal data class KaptKotlinClassDeclaration(
     override val properties: Sequence<PropertyDeclaration>
         get() {
             val packageName = typeElement.getPackage().qualifiedName.toString()
-            return typeSpec.propertySpecs
+            return allMembers
                 .asSequence()
+                .map { it.simpleName.toString() }
+                // preserve same order as how they are declared
+                // kotlin metadata returns types in alphabetical vs declared order.
+                .mapNotNull { typeSpec.propertySpecs.firstOrNull { prop -> prop.name == it } }
                 .map { spec ->
                     KaptKotlinPropertyDeclaration(
                         packageName,

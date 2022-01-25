@@ -46,7 +46,6 @@ class DBFlowKaptProcessor(
                     KaptResolver(this.elements),
                     objects
                 ) {
-                    println("Writing file ${it.name}")
                     it.writeTo(filer)
                 }
             }

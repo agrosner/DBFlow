@@ -415,7 +415,7 @@ class ClassWriter(
                                 SHORT -> "toShort"
                                 else -> throw IllegalArgumentException(
                                     "Invalid auto primary key type ${field.classType}." +
-                                        "could not turn into a number."
+                                        "could not turn into a number. ${model.name.shortName}:${field.name.shortName}"
                                 )
                             },
                             model.memberSeparator

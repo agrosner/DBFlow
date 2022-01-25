@@ -43,7 +43,7 @@ fun TypeName.javaToKotlinType(): TypeName {
  */
 fun Element.isNullable(): Boolean {
     // check annotation mirrors
-    if (annotationMirrors.any {
+    if (asType().kind.isPrimitive || annotationMirrors.any {
             it.annotationType.asTypeName()
                 .shouldBeNonNull()
         }) {
