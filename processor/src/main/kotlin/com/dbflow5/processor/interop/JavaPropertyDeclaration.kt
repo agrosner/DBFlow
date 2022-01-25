@@ -26,7 +26,7 @@ data class JavaPropertyDeclaration(
     override val isAbstract: Boolean = element.modifiers.contains(Modifier.ABSTRACT),
     override val simpleName: NameModel = NameModel(
         packageName = element.getPackage(ProcessorManager.manager).qualifiedName.toString(),
-        shortName = (getter ?: element).simpleString,
+        shortName = element.simpleString,
         nullable = element.isNullable(),
     ),
     val isVal: Boolean = (setter == null ||

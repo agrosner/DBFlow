@@ -196,12 +196,15 @@ class KaptElementProcessor(
                         typeNameOf<ModelView>() -> {
                             val companion = resolver.classDeclarationByClassName(
                                 name.companion().className,
-                            ) ?: KaptClassDeclaration(input)
+                            )
 
                             // TODO: check methods
-                            val modelViewQuery = companion.properties
-                                .firstOrNull { (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null }
-                                ?: throw IllegalStateException("Missing modelview query ${companion.properties.count()}")
+                            val modelViewQuery = companion?.properties
+                                ?.firstOrNull { (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null }
+                                ?: classDeclaration.properties.firstOrNull {
+                                    (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null
+                                }
+                                ?: throw IllegalStateException("Missing modelview query ${name} ${companion?.properties?.count()}")
 
                             listOf(
                                 ClassModel(
