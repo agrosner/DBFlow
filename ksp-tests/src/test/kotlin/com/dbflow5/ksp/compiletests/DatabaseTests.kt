@@ -1,9 +1,8 @@
 package com.dbflow5.ksp.compiletests
 
-import com.tschuchort.compiletesting.SourceFile
+import com.dbflow5.ksp.compiletests.sourcefiles.Source
 import org.intellij.lang.annotations.Language
 import org.junit.Test
-import kotlin.test.assertTrue
 
 /**
  * Description:
@@ -13,8 +12,8 @@ class DatabaseTests : BaseCompileTest() {
     @Test
     fun `database with inclusive objects`() {
         // has specific tables, views, queries
-        @Language("kotlin") val file = SourceFile.kotlin(
-            "Inclusive.kt",
+        @Language("kotlin") val file = Source.KotlinSource(
+            "Inclusive",
             """
         import com.dbflow5.annotation.Database
         import com.dbflow5.annotation.Migration

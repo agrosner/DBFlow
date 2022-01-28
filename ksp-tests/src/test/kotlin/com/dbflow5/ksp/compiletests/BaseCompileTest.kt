@@ -1,8 +1,8 @@
 package com.dbflow5.ksp.compiletests
 
 import com.dbflow5.ksp.compilation
+import com.dbflow5.ksp.compiletests.sourcefiles.Source
 import com.tschuchort.compiletesting.KotlinCompilation
-import com.tschuchort.compiletesting.SourceFile
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.koin.core.context.stopKoin
@@ -20,11 +20,16 @@ open class BaseCompileTest {
     val temporaryFolder: TemporaryFolder = TemporaryFolder()
 
     fun assertRun(
-        sources: List<SourceFile>,
+        sources: List<Source>,
         exitCode: KotlinCompilation.ExitCode = KotlinCompilation.ExitCode.OK,
         resultFn: KotlinCompilation.Result.() -> Unit = {}
     ) {
-        val result = compilation(temporaryFolder, sources = sources).compile()
+        val result = compilation(temporaryFolder, sources = sources.map {
+            it.toKotlinSourceFile(temporaryFolder.root)
+        }).compile()
+        if (result.exitCode == KotlinCompilation.ExitCode.COMPILATION_ERROR) {
+            println(result.messages)
+        }
         assertEquals(exitCode, result.exitCode)
         if (exitCode == KotlinCompilation.ExitCode.OK) {
             val generatedSources = result.kspGeneratedSources

@@ -13,6 +13,7 @@ import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
 import com.dbflow5.codegen.shared.ClassModel
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseModel
 import com.dbflow5.codegen.shared.ManyToManyModel
 import com.dbflow5.codegen.shared.MigrationModel
@@ -22,12 +23,11 @@ import com.dbflow5.codegen.shared.OneToManyModel
 import com.dbflow5.codegen.shared.TypeConverterModel
 import com.dbflow5.codegen.shared.cache.extractTypeConverter
 import com.dbflow5.codegen.shared.companion
-import com.dbflow5.codegen.shared.properties.ModelViewQueryProperties
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.parser.Parser
 import com.dbflow5.codegen.shared.parser.validation.ValidationException
 import com.dbflow5.codegen.shared.parser.validation.ValidationExceptionProvider
-import com.dbflow5.codegen.shared.ClassNames
+import com.dbflow5.codegen.shared.properties.ModelViewQueryProperties
 import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.dbflow5.ksp.model.interop.KSPClassType
 import com.dbflow5.ksp.model.interop.KSPOriginatingSource
@@ -44,11 +44,12 @@ import com.dbflow5.ksp.parser.annotation.TablePropertyParser
 import com.dbflow5.ksp.parser.annotation.TypeConverterPropertyParser
 import com.dbflow5.ksp.parser.annotation.ViewPropertyParser
 import com.google.devtools.ksp.getConstructors
-import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -320,13 +321,8 @@ class KSClassDeclarationParser(
                 val companion = resolver.getClassDeclarationByName(
                     name = name.companion().ksName
                 )
-                    ?: input // java may have the field.
-                val modelViewQuery = companion.getAllProperties()
-                    .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
-                    ?: companion.getAllFunctions()
-                        .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
-                    ?: companion.getDeclaredFunctions()
-                        .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
+                val modelViewQuery = companion?.let { modelViewQueryOrNull(companion) }
+                    ?: modelViewQueryOrNull(input)
                     ?: throw Validation.MissingModelViewQuery(
                         classType,
                     ).exception
@@ -375,6 +371,17 @@ class KSClassDeclarationParser(
             }
             else -> listOf()
         }
+    }
+
+    private fun modelViewQueryOrNull(
+        declaration: KSClassDeclaration,
+    ): KSDeclaration? {
+        return declaration.getAllProperties()
+            .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
+            ?: declaration.getDeclaredProperties()
+                .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
+            ?: declaration.getAllFunctions()
+                .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
     }
 
     private fun manyToManyModel(

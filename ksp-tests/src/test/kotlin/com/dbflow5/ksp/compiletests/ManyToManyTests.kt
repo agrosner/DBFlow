@@ -1,5 +1,6 @@
 package com.dbflow5.ksp.compiletests
 
+import com.dbflow5.ksp.compiletests.sourcefiles.Source
 import com.dbflow5.ksp.compiletests.sourcefiles.dbFile
 import com.tschuchort.compiletesting.SourceFile
 import org.intellij.lang.annotations.Language
@@ -12,8 +13,8 @@ class ManyToManyTests : BaseCompileTest() {
     @Test
     fun `basic many to many`() {
         @Language("kotlin")
-        val source = SourceFile.kotlin(
-            "ManyToMany.kt",
+        val source = Source.KotlinSource(
+            "test.ManyToMany",
             """
             package test
             import com.dbflow5.annotation.Column

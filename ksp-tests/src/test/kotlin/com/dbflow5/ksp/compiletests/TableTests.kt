@@ -1,5 +1,6 @@
 package com.dbflow5.ksp.compiletests
 
+import com.dbflow5.ksp.compiletests.sourcefiles.Source
 import com.dbflow5.ksp.compiletests.sourcefiles.dbFile
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.SourceFile
@@ -14,8 +15,8 @@ class TableTests : BaseCompileTest() {
     @Test
     fun `basic table`() {
         @Language("kotlin")
-        val source = SourceFile.kotlin(
-            "SimpleModel.kt",
+        val source = Source.KotlinSource(
+            "test.SimpleModel",
             """
             package test
             import com.dbflow5.annotation.Table
@@ -33,8 +34,8 @@ class TableTests : BaseCompileTest() {
     @Test
     fun `foreign key table`() {
         @Language("kotlin")
-        val source = SourceFile.kotlin(
-            "ForeignKeyTable.kt",
+        val source = Source.KotlinSource(
+            "test.ForeignKeyTable",
             """
             package test
             import com.dbflow5.annotation.ForeignKey
@@ -60,8 +61,8 @@ class TableTests : BaseCompileTest() {
     @Test
     fun `inline class table`() {
         @Language("kotlin")
-        val source = SourceFile.kotlin(
-            "SimpleModel.kt",
+        val source = Source.KotlinSource(
+            "test.SimpleModel",
             """
             package test
             import com.dbflow5.annotation.Table
@@ -80,8 +81,8 @@ class TableTests : BaseCompileTest() {
     @Test
     fun `property has global type converter`() {
         @Language("kotlin")
-        val source = SourceFile.kotlin(
-            "SimpleModel.kt",
+        val source = Source.KotlinSource(
+            "test.SimpleModel",
             """
             package test
             import com.dbflow5.annotation.Table
@@ -101,8 +102,8 @@ class TableTests : BaseCompileTest() {
     @Test
     fun `java class with constructor should apply constructor`() {
         @Language("java")
-        val source = SourceFile.java(
-            "TestDatabase.java",
+        val source = Source.JavaSource(
+            "test.TestDatabase",
             """
             package test;
             import com.dbflow5.annotation.Database;
@@ -117,8 +118,8 @@ class TableTests : BaseCompileTest() {
         )
 
         @Language("java")
-        val databaseModelSource = SourceFile.java(
-            "DatabaseModel.java",
+        val databaseModelSource = Source.JavaSource(
+            "test.DatabaseModel",
             """
                 package test;
                 import com.dbflow5.annotation.PrimaryKey;
@@ -141,8 +142,8 @@ class TableTests : BaseCompileTest() {
         )
 
         @Language("java")
-        val exampleModel = SourceFile.java(
-            "ExampleModel.java",
+        val exampleModel = Source.JavaSource(
+            "test.ExampleModel",
             """
                  
             package test;
@@ -164,8 +165,8 @@ class TableTests : BaseCompileTest() {
         )
 
         @Language("java")
-        val otherPackageSource = SourceFile.java(
-            "JavaModel.java",
+        val otherPackageSource = Source.JavaSource(
+            "test.JavaModel",
             """
             package test;
             
@@ -196,8 +197,8 @@ class TableTests : BaseCompileTest() {
     @Test
     fun `ignore delegate`() {
         @Language("kotlin")
-        val source = SourceFile.kotlin(
-            "SimpleModel.kt",
+        val source = Source.KotlinSource(
+            "test.SimpleModel",
             """
             package test
             import com.dbflow5.annotation.Table
@@ -216,8 +217,8 @@ class TableTests : BaseCompileTest() {
     @Test
     fun `validate throws error on extra property out of constructor`() {
         @Language("kotlin")
-        val source = SourceFile.kotlin(
-            "primary.kt",
+        val source = Source.KotlinSource(
+            "primary",
             """
                 import com.dbflow5.annotation.PrimaryKey
                 import com.dbflow5.annotation.Table

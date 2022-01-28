@@ -1,5 +1,6 @@
 package com.dbflow5.ksp.compiletests
 
+import com.dbflow5.ksp.compiletests.sourcefiles.Source
 import com.dbflow5.ksp.compiletests.sourcefiles.dbFile
 import com.tschuchort.compiletesting.SourceFile
 import org.intellij.lang.annotations.Language
@@ -12,8 +13,8 @@ class TypeConverterTests : BaseCompileTest() {
     @Test
     fun `standard type converter`() {
         @Language("kotlin")
-        val source = SourceFile.kotlin(
-            "TypeConverterExample.kt",
+        val source = Source.KotlinSource(
+            "test.TypeConverterExample",
             """
             package test
             import com.dbflow5.annotation.TypeConverter
@@ -38,8 +39,8 @@ class TypeConverterTests : BaseCompileTest() {
     @Test
     fun `type converter field`() {
         @Language("kotlin")
-        val source = SourceFile.kotlin(
-            "TypeConverterExample.kt",
+        val source = Source.KotlinSource(
+            "test.TypeConverterExample",
             """
             package test
             import com.dbflow5.annotation.*
@@ -71,8 +72,8 @@ class TypeConverterTests : BaseCompileTest() {
     @Test
     fun `nested converters`() {
         @Language("kotlin")
-        val source = SourceFile.kotlin(
-            "Converters.kt",
+        val source = Source.KotlinSource(
+            "Converters",
             """
          import com.dbflow5.converter.TypeConverter
          import com.dbflow5.data.Blob

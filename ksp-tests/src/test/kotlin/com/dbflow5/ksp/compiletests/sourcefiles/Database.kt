@@ -1,14 +1,13 @@
 package com.dbflow5.ksp.compiletests.sourcefiles
 
-import com.tschuchort.compiletesting.SourceFile
 import org.intellij.lang.annotations.Language
 
 /**
  * Description:
  */
 @Language("kotlin")
-val dbFile = SourceFile.kotlin(
-    "Database.kt",
+val dbFile = Source.KotlinSource(
+    "test.Database",
     """
     package test
     import com.dbflow5.annotation.Database
