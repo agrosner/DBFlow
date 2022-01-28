@@ -50,7 +50,12 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single { ManyToManyPropertyParser() }
     single { OneToManyPropertyParser() }
     single { ForeignKeyReferencePropertyParser() }
-    single<FieldSanitizer> { KSPFieldSanitizer(get(), get()) }
+    single<FieldSanitizer> {
+        KSPFieldSanitizer(
+            get(), get(),
+            get()
+        )
+    }
     single {
         KSClassDeclarationParser(
             get(),

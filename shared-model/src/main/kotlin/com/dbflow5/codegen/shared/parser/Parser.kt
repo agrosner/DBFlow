@@ -1,6 +1,6 @@
 package com.dbflow5.codegen.shared.parser
 
-import com.dbflow5.codegen.shared.parser.validation.ValidationException
+import com.dbflow5.codegen.shared.validation.ValidationException
 
 /**
  * Description:

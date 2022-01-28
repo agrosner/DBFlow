@@ -1,7 +1,7 @@
 package com.dbflow5.processor
 
 import com.dbflow5.codegen.shared.Annotations
-import com.dbflow5.codegen.shared.parser.validation.ValidationException
+import com.dbflow5.codegen.shared.validation.ValidationException
 import com.dbflow5.processor.interop.KaptResolver
 import com.dbflow5.processor.parser.KaptElementProcessor
 import com.grosner.dbflow5.codegen.kotlin.writer.ObjectWriter

@@ -1,7 +1,7 @@
 package com.dbflow5.ksp
 
 import com.dbflow5.codegen.shared.Annotations
-import com.dbflow5.codegen.shared.parser.validation.ValidationException
+import com.dbflow5.codegen.shared.validation.ValidationException
 import com.dbflow5.ksp.model.interop.KSPResolver
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.google.devtools.ksp.processing.Resolver

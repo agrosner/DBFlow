@@ -6,7 +6,7 @@ import com.dbflow5.codegen.shared.ReferenceHolderModel
 import com.dbflow5.codegen.shared.SingleFieldModel
 import com.dbflow5.codegen.shared.interop.ClassType
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
-import com.dbflow5.codegen.shared.parser.validation.ValidationExceptionProvider
+import com.dbflow5.codegen.shared.validation.ValidationExceptionProvider
 import com.dbflow5.codegen.shared.properties.ReferenceProperties
 import com.dbflow5.codegen.shared.references
 import com.squareup.kotlinpoet.TypeName

@@ -1,4 +1,4 @@
-package com.dbflow5.codegen.shared.parser.validation
+package com.dbflow5.codegen.shared.validation
 
 /**
  * Description: Main validation error that happens.

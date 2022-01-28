@@ -4,12 +4,11 @@ import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.codegen.shared.ManyToManyModel
 import com.dbflow5.codegen.shared.NameModel
 import com.dbflow5.codegen.shared.parser.Parser
-import com.dbflow5.codegen.shared.parser.validation.ValidationException
+import com.dbflow5.codegen.shared.validation.ValidationException
 import com.dbflow5.processor.interop.KaptOriginatingSource
 import com.dbflow5.processor.interop.KaptTypeElementClassType
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
-import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 
 /**

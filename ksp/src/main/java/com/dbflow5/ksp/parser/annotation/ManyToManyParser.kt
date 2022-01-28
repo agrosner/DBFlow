@@ -3,7 +3,7 @@ package com.dbflow5.ksp.parser.annotation
 import com.dbflow5.ksp.model.interop.KSPClassType
 import com.dbflow5.ksp.model.interop.KSPOriginatingSource
 import com.dbflow5.codegen.shared.parser.Parser
-import com.dbflow5.codegen.shared.parser.validation.ValidationException
+import com.dbflow5.codegen.shared.validation.ValidationException
 import com.dbflow5.codegen.shared.ManyToManyModel
 import com.dbflow5.codegen.shared.NameModel
 import com.google.devtools.ksp.symbol.KSAnnotation

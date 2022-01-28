@@ -54,7 +54,12 @@ fun getModule(
     single { UniqueGroupPropertyParser() }
     single { UniquePropertyParser() }
     single { ViewPropertyParser() }
-    single<FieldSanitizer> { KaptFieldSanitizer(get(), get()) }
+    single<FieldSanitizer> {
+        KaptFieldSanitizer(
+            get(), get(),
+            get()
+        )
+    }
     single { ColumnMapReferencePropertyParser() }
     single {
         KaptPropertyElementParser(

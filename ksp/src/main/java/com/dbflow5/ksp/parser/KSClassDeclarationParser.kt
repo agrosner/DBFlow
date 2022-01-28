@@ -25,8 +25,8 @@ import com.dbflow5.codegen.shared.cache.extractTypeConverter
 import com.dbflow5.codegen.shared.companion
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.parser.Parser
-import com.dbflow5.codegen.shared.parser.validation.ValidationException
-import com.dbflow5.codegen.shared.parser.validation.ValidationExceptionProvider
+import com.dbflow5.codegen.shared.validation.ValidationException
+import com.dbflow5.codegen.shared.validation.ValidationExceptionProvider
 import com.dbflow5.codegen.shared.properties.ModelViewQueryProperties
 import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.dbflow5.ksp.model.interop.KSPClassType

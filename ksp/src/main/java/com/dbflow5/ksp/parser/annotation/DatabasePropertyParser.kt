@@ -6,7 +6,7 @@ import com.dbflow5.ksp.parser.ArgMap
 import com.dbflow5.ksp.parser.arg
 import com.dbflow5.ksp.parser.classNameList
 import com.dbflow5.ksp.parser.enumArg
-import com.dbflow5.codegen.shared.parser.validation.ValidationException
+import com.dbflow5.codegen.shared.validation.ValidationException
 import com.dbflow5.codegen.shared.properties.DatabaseProperties
 
 class DatabasePropertyParser : AnnotationParser<DatabaseProperties> {

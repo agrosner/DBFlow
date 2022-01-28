@@ -4,7 +4,7 @@ import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.ksp.parser.AnnotationParser
 import com.dbflow5.ksp.parser.ArgMap
 import com.dbflow5.ksp.parser.typeName
-import com.dbflow5.codegen.shared.parser.validation.ValidationException
+import com.dbflow5.codegen.shared.validation.ValidationException
 
 class Fts4Parser : AnnotationParser<ClassModel.ClassType.Normal.Fts4> {
     @Throws(ValidationException::class)
