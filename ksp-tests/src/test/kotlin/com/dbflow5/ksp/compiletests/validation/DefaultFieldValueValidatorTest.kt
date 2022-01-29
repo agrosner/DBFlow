@@ -1,6 +1,7 @@
-package com.dbflow5.ksp.compiletests
+package com.dbflow5.ksp.compiletests.validation
 
 import com.dbflow5.codegen.shared.validation.DefaultFieldValueValidator
+import com.dbflow5.ksp.compiletests.BaseCompileTest
 import com.dbflow5.ksp.compiletests.sourcefiles.Source
 import com.dbflow5.ksp.compiletests.sourcefiles.simpleModelFile
 import com.tschuchort.compiletesting.KotlinCompilation
