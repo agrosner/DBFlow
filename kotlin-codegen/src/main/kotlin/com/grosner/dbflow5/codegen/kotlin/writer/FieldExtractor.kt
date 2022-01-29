@@ -44,7 +44,7 @@ sealed interface FieldExtractor {
 
         override val valuesName: String
             get() = this.field.fieldType.let { type ->
-                if (type is FieldModel.FieldType.PrimaryAuto
+                if (type is FieldModel.FieldType.Primary
                     && type.isAutoIncrement
                     && this.field.notNullProperties != null
                 ) {
@@ -76,7 +76,7 @@ sealed interface FieldExtractor {
             }
 
             field.fieldType.let { fieldType ->
-                if (fieldType is FieldModel.FieldType.PrimaryAuto
+                if (fieldType is FieldModel.FieldType.Primary
                     && fieldType.isAutoIncrement
                 ) {
                     retString += " PRIMARY KEY "

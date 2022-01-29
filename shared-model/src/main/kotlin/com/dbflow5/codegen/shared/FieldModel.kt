@@ -83,7 +83,7 @@ sealed interface FieldModel : ObjectModel {
 
     sealed interface FieldType {
         object Normal : FieldType
-        data class PrimaryAuto(
+        data class Primary(
             val isAutoIncrement: Boolean,
             val isRowId: Boolean,
         ) : FieldType
@@ -259,7 +259,7 @@ private fun nestNameReference(nameToNest: NameModel?) = { reference: SingleField
             // or rowId and assumes the reference is primaryauto.
             fieldType = reference.fieldType.let { referenceFieldType ->
                 when (referenceFieldType) {
-                    is FieldModel.FieldType.PrimaryAuto -> referenceFieldType.copy(
+                    is FieldModel.FieldType.Primary -> referenceFieldType.copy(
                         isAutoIncrement = false,
                         isRowId = false,
                     )

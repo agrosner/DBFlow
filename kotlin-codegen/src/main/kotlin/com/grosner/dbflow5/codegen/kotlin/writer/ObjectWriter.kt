@@ -14,7 +14,9 @@ import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.copyOverClasses
 import com.dbflow5.codegen.shared.interop.ClassNameResolver
+import com.dbflow5.codegen.shared.interop.OriginatingSourceCollection
 import com.dbflow5.codegen.shared.properties.DatabaseHolderProperties
+import com.dbflow5.codegen.shared.validation.ObjectValidatorMap
 import com.squareup.kotlinpoet.FileSpec
 
 /**
@@ -29,6 +31,7 @@ class ObjectWriter(
     private val manyClassWriter: ManyToManyClassWriter,
     private val oneToManyClassWriter: OneToManyClassWriter,
     private val typeConverterWriter: InlineTypeConverterWriter,
+    private val objectValidatorMap: ObjectValidatorMap,
 ) {
 
     fun write(
@@ -59,7 +62,7 @@ class ObjectWriter(
             name = NameModel(ClassNames.GeneratedDatabaseHolder),
             databases,
             properties = DatabaseHolderProperties(""),
-            allOriginatingFiles = objects.mapNotNull { it.originatingSource }
+            originatingSource = OriginatingSourceCollection(objects.mapNotNull { it.originatingSource })
         )
 
         referencesCache.allClasses = classes
@@ -81,6 +84,17 @@ class ObjectWriter(
         typeConverterCache.processNestedConverters()
 
         listOf(
+            typeConverterCache.generatedTypeConverters,
+            classes,
+            databases,
+            listOf(holderModel),
+            manyToManyModels,
+            oneToManyModels
+        )
+            .flatten()
+            .forEach { objectValidatorMap.validate(it) }
+
+        listOf(
             typeConverterCache.generatedTypeConverters.map(typeConverterWriter::create),
             classes.map(classWriter::create),
             databases.map(databaseWriter::create),
@@ -89,6 +103,8 @@ class ObjectWriter(
             oneToManyModels.map(oneToManyClassWriter::create),
         )
             .flatten()
-            .forEach { writerFn(it) }
+            .forEach {
+                writerFn(it)
+            }
     }
 }

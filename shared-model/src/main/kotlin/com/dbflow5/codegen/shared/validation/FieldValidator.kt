@@ -1,18 +1,20 @@
 package com.dbflow5.codegen.shared.validation
 
+import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.FieldModel
 
-/**
- * Description: Collects and runs set of validations against a collection of fields.
- */
-class FieldValidator {
-
-    private val validators = listOf(
-        DefaultFieldValueValidator()
-    )
-
+class ClassToFieldValidator(
+    private val fieldValidator: FieldValidator,
+) : Validator<ClassModel> {
     @Throws(ValidationException::class)
-    fun validate(fieldModel: FieldModel) {
-        validators.forEach { it.validate(fieldModel) }
+    override fun validate(value: ClassModel) {
+        value.fields.forEach { fieldValidator.validate(it) }
     }
 }
+
+/**
+ * Description: Collection of field checks.
+ */
+class FieldValidator : GroupedValidator<FieldModel>(
+    listOf(DefaultFieldValueValidator())
+)

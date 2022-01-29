@@ -15,7 +15,7 @@ class DefaultFieldValueValidator : Validator<FieldModel> {
             value.properties?.defaultValue.isNotNullOrEmpty()
         ) {
             throw ValidationException(
-                ERROR_MSG + " from ${value.name}"
+                "$ERROR_MSG from ${value.name.print()}"
             )
         }
     }

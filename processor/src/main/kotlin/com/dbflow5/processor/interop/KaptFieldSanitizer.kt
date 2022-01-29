@@ -22,10 +22,9 @@ import javax.lang.model.element.Modifier
 class KaptFieldSanitizer(
     private val typeConverterCache: TypeConverterCache,
     private val kaptPropertyElementParser: KaptPropertyElementParser,
-    fieldValidator: FieldValidator,
-) : FieldSanitizer(fieldValidator) {
+) : FieldSanitizer {
 
-    override fun parseFields(input: ClassDeclaration): List<FieldModel> {
+    override fun parse(input: ClassDeclaration): List<FieldModel> {
         input as KaptClassDeclaration
         val typeElement = input.typeElement
         val isTable = typeElement.annotation<Table>() != null

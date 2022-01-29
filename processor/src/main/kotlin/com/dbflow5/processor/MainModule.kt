@@ -57,7 +57,6 @@ fun getModule(
     single<FieldSanitizer> {
         KaptFieldSanitizer(
             get(), get(),
-            get()
         )
     }
     single { ColumnMapReferencePropertyParser() }

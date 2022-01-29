@@ -36,11 +36,11 @@ data class ClassModel(
     override val originatingSource: OriginatingSource?,
 ) : ObjectModel {
 
-    val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.PrimaryAuto }
+    val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.Primary }
     val referenceFields = fields.filterIsInstance<ReferenceHolderModel>()
     val primaryAutoIncrementFields = primaryFields.filter {
         val fieldType = it.fieldType
-        fieldType is FieldModel.FieldType.PrimaryAuto
+        fieldType is FieldModel.FieldType.Primary
             && fieldType.isAutoIncrement
     }
 

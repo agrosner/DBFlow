@@ -39,6 +39,7 @@ import com.dbflow5.processor.utils.getPackage
 import com.dbflow5.processor.utils.javaToKotlinType
 import com.dbflow5.processor.utils.toTypeErasedElement
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.typeNameOf
 import javax.lang.model.element.TypeElement
@@ -157,100 +158,117 @@ class KaptElementProcessor(
                         )
                     )
                 }
-                else -> {
-                    val fields = fieldSanitizer.parse(KaptClassDeclaration(input))
-                    val hasDefaultConstructor = true
-                    val isInternal = classDeclaration.isInternal
-                    val implementsLoadFromCursorListener = classDeclaration
-                        .superTypes.any { it == ClassNames.LoadFromCursorListener }
-                    val implementsSQLiteStatementListener = classDeclaration
-                        .superTypes.any { it == ClassNames.SQLiteStatementListener }
-                    when (typeName) {
-                        typeNameOf<Table>() -> {
-                            val fts3: Fts3? = input.annotation()
-                            val fts4: Fts4? = input.annotation()
-                            val properties = tablePropertyParser.parse(input.annotation())
-                            listOf(
-                                ClassModel(
-                                    name = name,
-                                    classType = classType,
-                                    type = when {
-                                        fts3 != null -> ClassModel.ClassType.Normal.Fts3
-                                        fts4 != null -> fts4Parser.parse(fts4)
-                                        else -> ClassModel.ClassType.Normal.Normal
-                                    },
-                                    properties = properties,
-                                    fields = fields,
-                                    hasPrimaryConstructor = !hasDefaultConstructor,
-                                    isInternal = isInternal,
-                                    originatingSource = source,
-                                    implementsLoadFromCursorListener = implementsLoadFromCursorListener,
-                                    implementsSQLiteStatementListener = implementsSQLiteStatementListener,
-                                    indexGroups = properties.indexGroupProperties
-                                        .map { it.toModel(classType, fields) },
-                                    uniqueGroups = properties.uniqueGroupProperties
-                                        .map { it.toModel(fields) },
-                                )
-                            )
-                        }
-                        typeNameOf<ModelView>() -> {
-                            val companion = resolver.classDeclarationByClassName(
-                                name.companion().className,
-                            )
-
-                            // TODO: check methods
-                            val modelViewQuery = companion?.properties
-                                ?.firstOrNull { (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null }
-                                ?: classDeclaration.properties.firstOrNull {
-                                    (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null
-                                }
-                                ?: throw IllegalStateException("Missing modelview query ${name} ${companion?.properties?.count()}")
-
-                            listOf(
-                                ClassModel(
-                                    name = name,
-                                    classType = classType,
-                                    type = ClassModel.ClassType.View(
-                                        ModelViewQueryProperties(
-                                            modelViewQuery.simpleName,
-                                            isProperty = true, // TODO property check
-                                        ),
-                                    ),
-                                    properties = viewPropertyParser.parse(input.annotation()),
-                                    fields = fields,
-                                    hasPrimaryConstructor = !hasDefaultConstructor,
-                                    isInternal = isInternal,
-                                    originatingSource = source,
-                                    indexGroups = listOf(),
-                                    uniqueGroups = listOf(),
-                                    implementsLoadFromCursorListener = implementsLoadFromCursorListener,
-                                    implementsSQLiteStatementListener = implementsSQLiteStatementListener,
-                                )
-                            )
-                        }
-                        typeNameOf<Query>() -> {
-                            listOf(
-                                ClassModel(
-                                    name = name,
-                                    classType = classType,
-                                    type = ClassModel.ClassType.Query,
-                                    properties = queryPropertyParser.parse(input.annotation()),
-                                    fields = fields,
-                                    hasPrimaryConstructor = !hasDefaultConstructor,
-                                    isInternal = isInternal,
-                                    originatingSource = source,
-                                    indexGroups = listOf(),
-                                    uniqueGroups = listOf(),
-                                    implementsSQLiteStatementListener = implementsSQLiteStatementListener,
-                                    implementsLoadFromCursorListener = implementsLoadFromCursorListener,
-                                )
-                            )
-                        }
-                        else -> listOf()
-                    }
-                }
+                else -> handleClass(
+                    input,
+                    classDeclaration,
+                    typeName,
+                    name,
+                    classType,
+                    source
+                )
             }
         }.flatten()
+    }
+
+    private fun handleClass(
+        input: TypeElement,
+        classDeclaration: KaptClassDeclaration,
+        typeName: TypeName,
+        name: NameModel,
+        classType: ClassName,
+        source: KaptOriginatingSource
+    ): List<ObjectModel> {
+        val fields = fieldSanitizer.parse(KaptClassDeclaration(input))
+        val hasDefaultConstructor = true
+        val isInternal = classDeclaration.isInternal
+        val implementsLoadFromCursorListener = classDeclaration
+            .superTypes.any { it == ClassNames.LoadFromCursorListener }
+        val implementsSQLiteStatementListener = classDeclaration
+            .superTypes.any { it == ClassNames.SQLiteStatementListener }
+        return when (typeName) {
+            typeNameOf<Table>() -> {
+                val fts3: Fts3? = input.annotation()
+                val fts4: Fts4? = input.annotation()
+                val properties = tablePropertyParser.parse(input.annotation())
+                listOf(
+                    ClassModel(
+                        name = name,
+                        classType = classType,
+                        type = when {
+                            fts3 != null -> ClassModel.ClassType.Normal.Fts3
+                            fts4 != null -> fts4Parser.parse(fts4)
+                            else -> ClassModel.ClassType.Normal.Normal
+                        },
+                        properties = properties,
+                        fields = fields,
+                        hasPrimaryConstructor = !hasDefaultConstructor,
+                        isInternal = isInternal,
+                        originatingSource = source,
+                        implementsLoadFromCursorListener = implementsLoadFromCursorListener,
+                        implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                        indexGroups = properties.indexGroupProperties
+                            .map { it.toModel(classType, fields) },
+                        uniqueGroups = properties.uniqueGroupProperties
+                            .map { it.toModel(fields) },
+                    )
+                )
+            }
+            typeNameOf<ModelView>() -> {
+                val companion = resolver.classDeclarationByClassName(
+                    name.companion().className,
+                )
+
+                // TODO: check methods
+                val modelViewQuery = companion?.properties
+                    ?.firstOrNull { (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null }
+                    ?: classDeclaration.properties.firstOrNull {
+                        (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null
+                    }
+                    ?: throw IllegalStateException("Missing modelview query ${name} ${companion?.properties?.count()}")
+
+                listOf(
+                    ClassModel(
+                        name = name,
+                        classType = classType,
+                        type = ClassModel.ClassType.View(
+                            ModelViewQueryProperties(
+                                modelViewQuery.simpleName,
+                                isProperty = true, // TODO property check
+                            ),
+                        ),
+                        properties = viewPropertyParser.parse(input.annotation()),
+                        fields = fields,
+                        hasPrimaryConstructor = !hasDefaultConstructor,
+                        isInternal = isInternal,
+                        originatingSource = source,
+                        indexGroups = listOf(),
+                        uniqueGroups = listOf(),
+                        implementsLoadFromCursorListener = implementsLoadFromCursorListener,
+                        implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                    )
+                )
+            }
+            typeNameOf<Query>() -> {
+                listOf(
+                    ClassModel(
+                        name = name,
+                        classType = classType,
+                        type = ClassModel.ClassType.Query,
+                        properties = queryPropertyParser.parse(input.annotation()),
+                        fields = fields,
+                        hasPrimaryConstructor = !hasDefaultConstructor,
+                        isInternal = isInternal,
+                        originatingSource = source,
+                        indexGroups = listOf(),
+                        uniqueGroups = listOf(),
+                        implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                        implementsLoadFromCursorListener = implementsLoadFromCursorListener,
+                    )
+                )
+            }
+            else -> listOf()
+        }
+            .onEach {  }
     }
 
 

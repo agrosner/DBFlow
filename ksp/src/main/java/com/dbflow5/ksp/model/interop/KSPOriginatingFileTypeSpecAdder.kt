@@ -1,7 +1,7 @@
 package com.dbflow5.ksp.model.interop
 
-import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
+import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
 
@@ -10,11 +10,11 @@ import com.squareup.kotlinpoet.ksp.addOriginatingKSFile
  */
 class KSPOriginatingFileTypeSpecAdder : OriginatingFileTypeSpecAdder {
 
-    override fun addOriginatingFileType(
+    override fun addOriginatingFile(
         typeSpec: TypeSpec.Builder,
-        originatingSource: OriginatingSource
+        source: OriginatingSource
     ) {
-        originatingSource.ksFile()?.let {
+        source.ksFile()?.let {
             typeSpec.addOriginatingKSFile(it)
         }
     }

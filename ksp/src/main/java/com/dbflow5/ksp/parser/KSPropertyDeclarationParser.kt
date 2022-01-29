@@ -44,7 +44,7 @@ class KSPropertyDeclarationParser constructor(
         val primaryKey = input.findSingle<PrimaryKey>()
         val fieldType = if (primaryKey != null) {
             val props = primaryKey.arguments.mapProperties()
-            FieldModel.FieldType.PrimaryAuto(
+            FieldModel.FieldType.Primary(
                 isAutoIncrement = props.arg("autoincrement"),
                 isRowId = props.arg("rowID"),
             )

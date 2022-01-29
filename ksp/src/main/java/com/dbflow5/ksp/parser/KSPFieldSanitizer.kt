@@ -11,7 +11,6 @@ import com.dbflow5.codegen.shared.generateTypeConverter
 import com.dbflow5.codegen.shared.interop.ClassDeclaration
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.parser.FieldSanitizer.Validation.OnlyOneKind
-import com.dbflow5.codegen.shared.validation.FieldValidator
 import com.dbflow5.codegen.shared.validation.ValidationException
 import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.google.devtools.ksp.closestClassDeclaration
@@ -25,11 +24,10 @@ import com.squareup.kotlinpoet.typeNameOf
 class KSPFieldSanitizer(
     private val propertyParser: KSPropertyDeclarationParser,
     private val typeConverterCache: TypeConverterCache,
-    fieldValidator: FieldValidator,
-) : FieldSanitizer(fieldValidator) {
+) : FieldSanitizer {
 
     @Throws(ValidationException::class)
-    override fun parseFields(input: ClassDeclaration): List<FieldModel> {
+    override fun parse(input: ClassDeclaration): List<FieldModel> {
         val declaration = (input as KSPClassDeclaration).ksClassDeclaration!!
         val isTable = declaration.hasAnnotation<Table>()
         val isModelView = declaration.hasAnnotation<ModelView>()

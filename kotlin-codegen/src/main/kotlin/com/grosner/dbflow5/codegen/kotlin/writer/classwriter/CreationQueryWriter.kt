@@ -96,7 +96,7 @@ class CreationQueryWriter(
                                         }
                                         val nonAutoFields =
                                             clsModel.primaryFlattenedFields(referencesCache)
-                                                .filterNot { (it.fieldType as FieldModel.FieldType.PrimaryAuto).isAutoIncrement }
+                                                .filterNot { (it.fieldType as FieldModel.FieldType.Primary).isAutoIncrement }
                                         if (nonAutoFields.isNotEmpty()) {
                                             val primaryKeyConflict =
                                                 (clsModel.properties as TableProperties)

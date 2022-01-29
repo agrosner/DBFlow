@@ -30,6 +30,13 @@ data class NameModel(
         shortName
     }
 
+    /**
+     * Print FQN with "?" if nullable
+     */
+    fun print(): String {
+        return "${packageName}.${shortName}${if (nullable) "?" else ""}"
+    }
+
     companion object
 }
 

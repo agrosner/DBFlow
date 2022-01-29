@@ -53,7 +53,6 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
     single<FieldSanitizer> {
         KSPFieldSanitizer(
             get(), get(),
-            get()
         )
     }
     single {

@@ -48,7 +48,7 @@ data class ManyToManyModel(
                     shortName = "id",
                 ),
                 classType = INT,
-                fieldType = FieldModel.FieldType.PrimaryAuto(
+                fieldType = FieldModel.FieldType.Primary(
                     isAutoIncrement = true,
                     isRowId = false,
                 ),
@@ -76,7 +76,7 @@ data class ManyToManyModel(
             classType = classType,
             fieldType = if (properties.generateAutoIncrement) {
                 FieldModel.FieldType.Normal
-            } else FieldModel.FieldType.PrimaryAuto(
+            } else FieldModel.FieldType.Primary(
                 isAutoIncrement = false,
                 isRowId = false,
             ),
@@ -110,7 +110,7 @@ data class ManyToManyModel(
             classType = properties.referencedTableType,
             fieldType = if (properties.generateAutoIncrement) {
                 FieldModel.FieldType.Normal
-            } else FieldModel.FieldType.PrimaryAuto(
+            } else FieldModel.FieldType.Primary(
                 isAutoIncrement = false,
                 isRowId = false,
             ),
@@ -163,7 +163,7 @@ data class ManyToManyModel(
                 name = name.shortName,
                 // only primary fields on index and if they have index property (safeguard)
                 fields = fields.filter {
-                    it.fieldType is FieldModel.FieldType.PrimaryAuto &&
+                    it.fieldType is FieldModel.FieldType.Primary &&
                         it.indexProperties != null
                 },
                 unique = false,

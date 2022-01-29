@@ -37,7 +37,7 @@ class KaptPropertyElementParser(
         val source = KaptOriginatingSource(input.element)
         val primaryKey = input.annotation<PrimaryKey>()
         val fieldType = if (primaryKey != null) {
-            FieldModel.FieldType.PrimaryAuto(
+            FieldModel.FieldType.Primary(
                 isAutoIncrement = primaryKey.autoincrement,
                 isRowId = primaryKey.rowID,
             )

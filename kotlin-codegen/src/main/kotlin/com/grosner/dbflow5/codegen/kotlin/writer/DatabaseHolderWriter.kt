@@ -1,11 +1,11 @@
 package com.grosner.dbflow5.codegen.kotlin.writer
 
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseHolderModel
 import com.dbflow5.codegen.shared.generatedClassName
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.properties.nameWithFallback
 import com.dbflow5.codegen.shared.writer.TypeCreator
-import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.stripQuotes
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -31,14 +31,10 @@ class DatabaseHolderWriter(
                 ).stripQuotes()
             )
                 .apply {
-                    model.allOriginatingFiles.forEach { fileType ->
-                        fileType.let {
-                            originatingFileTypeSpecAdder.addOriginatingFileType(
-                                this,
-                                it
-                            )
-                        }
-                    }
+                    originatingFileTypeSpecAdder.addOriginatingFileType(
+                        this,
+                        model.originatingSource,
+                    )
                 }
                 .superclass(ClassNames.DatabaseHolder)
                 .addInitializerBlock(
