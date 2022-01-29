@@ -10,6 +10,7 @@ import javax.annotation.processing.Messager
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
+import javax.lang.model.util.Types
 import javax.tools.Diagnostic
 
 /**
@@ -19,13 +20,15 @@ class DBFlowKaptProcessor(
     private val elements: Elements,
     private val filer: Filer,
     private val messager: Messager,
+    private val types: Types,
     private val kaptElementProcessor: KaptElementProcessor,
     private val objectWriter: ObjectWriter,
 ) {
 
     fun process(roundEnvironment: RoundEnvironment) {
         try {
-            kaptElementProcessor.applyResolver(KaptResolver(elements))
+            val resolver = KaptResolver(elements, types)
+            kaptElementProcessor.applyResolver(resolver)
             val elements = Annotations.values.map {
                 roundEnvironment.getElementsAnnotatedWith(
                     elements.getTypeElement(it.qualifiedName)
@@ -43,7 +46,7 @@ class DBFlowKaptProcessor(
                 }.flatten()
 
                 objectWriter.write(
-                    KaptResolver(this.elements),
+                    resolver,
                     objects
                 ) {
                     it.writeTo(filer)

@@ -14,6 +14,7 @@ class TypeConverterValidator : Validator<TypeConverterModel> {
                 SAME_TYPE_MSG, value.name,
             )
         }
+
     }
 
     companion object {

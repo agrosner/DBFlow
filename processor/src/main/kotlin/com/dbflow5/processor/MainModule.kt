@@ -84,6 +84,7 @@ fun getModule(
             env.elementUtils,
             env.filer,
             env.messager,
+            env.typeUtils,
             get(),
             get(),
         )

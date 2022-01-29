@@ -8,6 +8,7 @@ import com.dbflow5.codegen.shared.interop.ClassDeclaration
 import com.dbflow5.codegen.shared.interop.ClassNameResolver
 import com.dbflow5.codegen.shared.properties.TypeConverterProperties
 import com.dbflow5.codegen.shared.toChained
+import com.dbflow5.codegen.shared.validation.ValidationException
 import com.dbflow5.converter.BigDecimalConverter
 import com.dbflow5.converter.BigIntegerConverter
 import com.dbflow5.converter.BlobConverter
@@ -91,6 +92,7 @@ class TypeConverterCache {
             modelTypeName = typeConverterSuper.typeArguments[1],
             modelClass = declaration.asStarProjectedType(),
             originatingSource = declaration.containingFile,
+            ksClassType = resolver.classTypeByClassName(className),
         )
         putTypeConverter(classModel)
     }
@@ -135,8 +137,9 @@ fun extractTypeConverter(
             ?.takeIf { type ->
                 type.rawType == ClassNames.TypeConverter
             }
-    } ?: throw IllegalStateException(
-        "Error typeConverter super for $typeName not found." +
+    } ?: throw ValidationException(
+        "Error typeConverter super for $typeName not found. Ensure your class directly " +
+            "extends TypeConverter. Subclass hierachies are not allowed!" +
             "${declaration.superTypes.toList()}"
     )
     return typeConverterSuper

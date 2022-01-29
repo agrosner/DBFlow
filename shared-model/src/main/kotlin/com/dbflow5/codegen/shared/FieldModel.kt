@@ -2,6 +2,7 @@ package com.dbflow5.codegen.shared
 
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
+import com.dbflow5.codegen.shared.interop.ClassNameResolver
 import com.dbflow5.codegen.shared.interop.ClassType
 import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.properties.FieldProperties
@@ -286,7 +287,7 @@ fun FieldModel.typeConverter(typeConverterCache: TypeConverterCache) =
 /**
  * Builds a new [TypeConverterModel] to generate on the fly.
  */
-fun FieldModel.generateTypeConverter(): TypeConverterModel {
+fun FieldModel.generateTypeConverter(resolver: ClassNameResolver): TypeConverterModel {
     val newName = name.copy(
         shortName = "${
             name.shortName.replaceFirstChar {
@@ -306,5 +307,6 @@ fun FieldModel.generateTypeConverter(): TypeConverterModel {
         modelTypeName = classType,
         modelClass = classDeclaration,
         originatingSource = originatingSource,
+        ksClassType = resolver.classTypeByClassName(newName.className),
     )
 }

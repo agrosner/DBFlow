@@ -1,6 +1,7 @@
 package com.dbflow5.codegen.shared
 
 import com.dbflow5.codegen.shared.interop.ClassDeclaration
+import com.dbflow5.codegen.shared.interop.ClassType
 import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.properties.TypeConverterProperties
 import com.squareup.kotlinpoet.TypeName
@@ -10,6 +11,7 @@ import com.squareup.kotlinpoet.TypeName
  */
 sealed interface TypeConverterModel : ObjectModel {
     val name: NameModel
+    val ksClassType: ClassType
     val properties: TypeConverterProperties
     val classType: TypeName
     val dataTypeName: TypeName
@@ -23,7 +25,8 @@ sealed interface TypeConverterModel : ObjectModel {
         override val dataTypeName: TypeName,
         override val modelTypeName: TypeName,
         override val modelClass: ClassDeclaration?,
-        override val originatingSource: OriginatingSource?
+        override val originatingSource: OriginatingSource?,
+        override val ksClassType: ClassType,
     ) : TypeConverterModel
 
     /**
@@ -42,6 +45,7 @@ sealed interface TypeConverterModel : ObjectModel {
          */
         val chainedConverters: List<TypeConverterModel>,
         override val originatingSource: OriginatingSource?,
+        override val ksClassType: ClassType,
     ) : TypeConverterModel {
         // based off of last converter
         override val dataTypeName: TypeName
@@ -67,4 +71,5 @@ fun TypeConverterModel.Simple.toChained() =
         modelClass = modelClass,
         chainedConverters = listOf(),
         originatingSource = originatingSource,
+        ksClassType = ksClassType,
     )

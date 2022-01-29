@@ -36,4 +36,31 @@ class TypeConverterValidatorTest : BaseCompileTest() {
             assertContains(messages, TypeConverterValidator.SAME_TYPE_MSG)
         }
     }
+
+    @Test
+    fun `disallow extends typeconverter`() {
+        @Language("kotlin")
+        val source = Source.KotlinSource(
+            "Converters",
+            """
+            import com.dbflow5.converter.TypeConverter
+            import com.dbflow5.data.Blob
+
+            abstract class SpecialConverter<T>: TypeConverter<String, T>() 
+
+            @com.dbflow5.annotation.TypeConverter
+            class ActualConverter: SpecialConverter<Blob> {
+              override fun getDBValue(model: Blob): String{TODO("Not yet implemented") }
+              override fun getModelValue(data: String): Blob{TODO("Not yet implemented") }    
+            }
+            """
+        )
+
+        assertRun(
+            sources = listOf(source),
+            exitCode = KotlinCompilation.ExitCode.COMPILATION_ERROR
+        ) {
+            assertContains(messages, "Error typeConverter super for")
+        }
+    }
 }

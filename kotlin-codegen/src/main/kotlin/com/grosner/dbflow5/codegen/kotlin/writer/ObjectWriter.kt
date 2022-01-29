@@ -15,6 +15,7 @@ import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.copyOverClasses
 import com.dbflow5.codegen.shared.interop.ClassNameResolver
 import com.dbflow5.codegen.shared.interop.OriginatingSourceCollection
+import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.properties.DatabaseHolderProperties
 import com.dbflow5.codegen.shared.validation.ObjectValidatorMap
 import com.squareup.kotlinpoet.FileSpec
@@ -32,6 +33,7 @@ class ObjectWriter(
     private val oneToManyClassWriter: OneToManyClassWriter,
     private val typeConverterWriter: InlineTypeConverterWriter,
     private val objectValidatorMap: ObjectValidatorMap,
+    private val fieldSanitizer: FieldSanitizer,
 ) {
 
     fun write(
@@ -40,6 +42,7 @@ class ObjectWriter(
         writerFn: (FileSpec) -> Unit
     ) {
         typeConverterCache.applyResolver(resolver)
+        fieldSanitizer.applyResolver(resolver)
 
         val manyToManyModels = objects.filterIsInstance<ManyToManyModel>()
         val oneToManyModels = objects.filterIsInstance<OneToManyModel>()

@@ -55,6 +55,7 @@ val codeGenModule = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
 }

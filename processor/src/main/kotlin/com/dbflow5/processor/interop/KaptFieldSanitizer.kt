@@ -10,7 +10,6 @@ import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.generateTypeConverter
 import com.dbflow5.codegen.shared.interop.ClassDeclaration
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
-import com.dbflow5.codegen.shared.validation.FieldValidator
 import com.dbflow5.processor.parser.KaptPropertyElementParser
 import com.dbflow5.processor.utils.annotation
 import com.squareup.kotlinpoet.asClassName
@@ -22,7 +21,7 @@ import javax.lang.model.element.Modifier
 class KaptFieldSanitizer(
     private val typeConverterCache: TypeConverterCache,
     private val kaptPropertyElementParser: KaptPropertyElementParser,
-) : FieldSanitizer {
+) : FieldSanitizer() {
 
     override fun parse(input: ClassDeclaration): List<FieldModel> {
         input as KaptClassDeclaration
@@ -48,7 +47,7 @@ class KaptFieldSanitizer(
                 list.filter { it.isInlineClass }
                     .forEach { inlineType ->
                         typeConverterCache.putGeneratedTypeConverter(
-                            inlineType.generateTypeConverter()
+                            inlineType.generateTypeConverter(resolver)
                         )
                     }
             }

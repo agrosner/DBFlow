@@ -24,7 +24,7 @@ import com.squareup.kotlinpoet.typeNameOf
 class KSPFieldSanitizer(
     private val propertyParser: KSPropertyDeclarationParser,
     private val typeConverterCache: TypeConverterCache,
-) : FieldSanitizer {
+) : FieldSanitizer() {
 
     @Throws(ValidationException::class)
     override fun parse(input: ClassDeclaration): List<FieldModel> {
@@ -53,7 +53,7 @@ class KSPFieldSanitizer(
                 list.filter { it.isInlineClass }
                     .forEach { inlineType ->
                         typeConverterCache.putGeneratedTypeConverter(
-                            inlineType.generateTypeConverter()
+                            inlineType.generateTypeConverter(resolver)
                         )
                     }
             }

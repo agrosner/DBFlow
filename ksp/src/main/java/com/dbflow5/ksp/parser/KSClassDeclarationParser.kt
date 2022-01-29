@@ -144,6 +144,7 @@ class KSClassDeclarationParser(
         val packageName = input.packageName
         val name = NameModel(qualifiedName, packageName)
         val originatingFile = KSPOriginatingSource(input.containingFile)
+        val ksClassType = KSPClassType(input.asStarProjectedType())
 
         // inspect annotations for what object it is.
         return input.annotations.mapNotNull { annotation ->
@@ -178,6 +179,7 @@ class KSClassDeclarationParser(
                             modelTypeName = typeConverterSuper.typeArguments[1],
                             modelClass = null,
                             originatingSource = originatingFile,
+                            ksClassType = ksClassType,
                         )
                     )
                 }
