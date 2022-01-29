@@ -14,6 +14,31 @@ import kotlin.test.assertContains
 class PrimaryValidatorTest : BaseCompileTest() {
 
     @Test
+    fun `no primary keys`() {
+        @Language("kotlin")
+        val source = Source.KotlinSource(
+            "none",
+            """
+                import com.dbflow5.annotation.PrimaryKey
+                import com.dbflow5.annotation.Table
+                
+                @Table
+                data class NoPrimaryKeys(
+                    val id: String,
+                    val name: String,
+                )
+            """.trimIndent()
+        )
+
+        assertRun(
+            listOf(source),
+            exitCode = KotlinCompilation.ExitCode.COMPILATION_ERROR
+        ) {
+            assertContains(messages, PrimaryValidator.AT_LEAST_ONE_PRIMARY_MSG)
+        }
+    }
+
+    @Test
     fun `multiple autoincrement fails`() {
         @Language("kotlin")
         val source = Source.KotlinSource(

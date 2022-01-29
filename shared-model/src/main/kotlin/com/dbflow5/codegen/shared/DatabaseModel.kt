@@ -33,7 +33,7 @@ fun copyOverClasses(
 ): (DatabaseModel) -> DatabaseModel = { database ->
     database.copy(
         tables = classes.filter {
-            it.partOfDatabaseAsType<ClassModel.ClassType.Normal>(
+            it.partOfDatabaseAsType<ClassModel.Type.Normal>(
                 database.classType,
                 database.properties.tables,
                 database.properties.classes,
@@ -53,14 +53,14 @@ fun copyOverClasses(
             } ?: clazz
         },
         views = classes.filter {
-            it.partOfDatabaseAsType<ClassModel.ClassType.View>(
+            it.partOfDatabaseAsType<ClassModel.Type.View>(
                 database.classType,
                 database.properties.views,
                 database.properties.classes,
             )
         },
         queries = classes.filter {
-            it.partOfDatabaseAsType<ClassModel.ClassType.Query>(
+            it.partOfDatabaseAsType<ClassModel.Type.Query>(
                 database.classType,
                 database.properties.queries,
                 database.properties.classes,

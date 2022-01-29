@@ -185,6 +185,7 @@ class KaptElementProcessor(
             .superTypes.any { it == ClassNames.LoadFromCursorListener }
         val implementsSQLiteStatementListener = classDeclaration
             .superTypes.any { it == ClassNames.SQLiteStatementListener }
+        val type = KaptTypeElementClassType(input.asType(), input)
         return when (typeName) {
             typeNameOf<Table>() -> {
                 val fts3: Fts3? = input.annotation()
@@ -195,9 +196,9 @@ class KaptElementProcessor(
                         name = name,
                         classType = classType,
                         type = when {
-                            fts3 != null -> ClassModel.ClassType.Normal.Fts3
+                            fts3 != null -> ClassModel.Type.Normal.Fts3
                             fts4 != null -> fts4Parser.parse(fts4)
-                            else -> ClassModel.ClassType.Normal.Normal
+                            else -> ClassModel.Type.Normal.Normal
                         },
                         properties = properties,
                         fields = fields,
@@ -210,6 +211,7 @@ class KaptElementProcessor(
                             .map { it.toModel(classType, fields) },
                         uniqueGroups = properties.uniqueGroupProperties
                             .map { it.toModel(fields) },
+                        ksClassType = type,
                     )
                 )
             }
@@ -230,7 +232,7 @@ class KaptElementProcessor(
                     ClassModel(
                         name = name,
                         classType = classType,
-                        type = ClassModel.ClassType.View(
+                        type = ClassModel.Type.View(
                             ModelViewQueryProperties(
                                 modelViewQuery.simpleName,
                                 isProperty = true, // TODO property check
@@ -245,6 +247,7 @@ class KaptElementProcessor(
                         uniqueGroups = listOf(),
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                         implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                        ksClassType = type,
                     )
                 )
             }
@@ -253,7 +256,7 @@ class KaptElementProcessor(
                     ClassModel(
                         name = name,
                         classType = classType,
-                        type = ClassModel.ClassType.Query,
+                        type = ClassModel.Type.Query,
                         properties = queryPropertyParser.parse(input.annotation()),
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,
@@ -263,12 +266,13 @@ class KaptElementProcessor(
                         uniqueGroups = listOf(),
                         implementsSQLiteStatementListener = implementsSQLiteStatementListener,
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
+                        ksClassType = type,
                     )
                 )
             }
             else -> listOf()
         }
-            .onEach {  }
+            .onEach { }
     }
 
 

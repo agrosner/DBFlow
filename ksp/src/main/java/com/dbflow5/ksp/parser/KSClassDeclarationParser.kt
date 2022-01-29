@@ -25,9 +25,9 @@ import com.dbflow5.codegen.shared.cache.extractTypeConverter
 import com.dbflow5.codegen.shared.companion
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.parser.Parser
+import com.dbflow5.codegen.shared.properties.ModelViewQueryProperties
 import com.dbflow5.codegen.shared.validation.ValidationException
 import com.dbflow5.codegen.shared.validation.ValidationExceptionProvider
-import com.dbflow5.codegen.shared.properties.ModelViewQueryProperties
 import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.dbflow5.ksp.model.interop.KSPClassType
 import com.dbflow5.ksp.model.interop.KSPOriginatingSource
@@ -285,6 +285,7 @@ class KSClassDeclarationParser(
                 }
             }
         }
+        val type = KSPClassType(input.asStarProjectedType())
         return when (annotation.annotationType.toTypeName()) {
             typeNameOf<Table>() -> {
                 val fts3 = input.annotations.firstOrNull {
@@ -298,10 +299,11 @@ class KSClassDeclarationParser(
                     ClassModel(
                         name = name,
                         classType = classType,
+                        ksClassType = type,
                         type = when {
-                            fts3 != null -> ClassModel.ClassType.Normal.Fts3
+                            fts3 != null -> ClassModel.Type.Normal.Fts3
                             fts4 != null -> fts4Parser.parse(fts4)
-                            else -> ClassModel.ClassType.Normal.Normal
+                            else -> ClassModel.Type.Normal.Normal
                         },
                         properties = properties,
                         fields = fields,
@@ -330,7 +332,8 @@ class KSClassDeclarationParser(
                     ClassModel(
                         name = name,
                         classType = classType,
-                        type = ClassModel.ClassType.View(
+                        ksClassType = type,
+                        type = ClassModel.Type.View(
                             ModelViewQueryProperties(
                                 NameModel(
                                     modelViewQuery.simpleName,
@@ -356,7 +359,8 @@ class KSClassDeclarationParser(
                     ClassModel(
                         name = name,
                         classType = classType,
-                        type = ClassModel.ClassType.Query,
+                        ksClassType = type,
+                        type = ClassModel.Type.Query,
                         properties = queryPropertyParser.parse(annotation),
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,

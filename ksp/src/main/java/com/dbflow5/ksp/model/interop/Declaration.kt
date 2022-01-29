@@ -22,6 +22,8 @@ data class KSPDeclaration(
         declaration.packageName
     )
 
-    override fun hasValueModifier(): Boolean =
-        declaration.modifiers.any { it == Modifier.VALUE }
+    override val isValue: Boolean = declaration.modifiers.any { it == Modifier.VALUE }
+
+    override val isAbstract: Boolean = declaration.modifiers.any { it == Modifier.ABSTRACT }
+
 }

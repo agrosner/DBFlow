@@ -75,7 +75,7 @@ internal data class KaptJavaClassDeclaration(
     override val containingFile: OriginatingSource = KaptOriginatingSource(typeElement)
     override val isInternal: Boolean = false
     override val isEnum: Boolean = typeElement.kind == ElementKind.ENUM
-
+    override val isObject: Boolean = false
     override val properties: Sequence<PropertyDeclaration> =
         propertyElements
             .asSequence()
@@ -98,6 +98,7 @@ internal data class KaptKotlinClassDeclaration(
     override val containingFile: OriginatingSource = KaptOriginatingSource(typeElement)
     override val isInternal: Boolean = typeSpec.modifiers.contains(KModifier.INTERNAL)
     override val isEnum: Boolean = typeSpec.isEnum
+    override val isObject: Boolean = typeSpec.kind == TypeSpec.Kind.OBJECT
 
     override fun asStarProjectedType(): ClassDeclaration {
         return KaptKotlinClassDeclaration(

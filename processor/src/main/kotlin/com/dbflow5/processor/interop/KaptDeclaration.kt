@@ -7,6 +7,7 @@ import com.dbflow5.processor.utils.getPackage
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 import javax.lang.model.element.Element
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
 
@@ -33,9 +34,11 @@ data class KaptJavaDeclaration(
         KaptJavaClassDeclaration(element)
     }
 
-    override fun hasValueModifier(): Boolean {
-        return false // kapt has no clue
-    }
+    override val isValue: Boolean
+        get() {
+            return false // kapt has no clue
+        }
+    override val isAbstract: Boolean = element.modifiers.contains(Modifier.ABSTRACT)
 }
 
 data class KaptKotlinDeclaration(
@@ -48,8 +51,11 @@ data class KaptKotlinDeclaration(
         KaptKotlinClassDeclaration(typeElement, typeSpec)
     }
 
-    override fun hasValueModifier(): Boolean = typeSpec.modifiers
+    override val isValue: Boolean = typeSpec.modifiers
         .contains(KModifier.VALUE)
+
+    override val isAbstract: Boolean = typeSpec.modifiers
+        .contains(KModifier.ABSTRACT)
 }
 
 data class KaptPrimitiveDeclaration(
@@ -60,5 +66,8 @@ data class KaptPrimitiveDeclaration(
         variableElement.getPackage(),
     )
     override val closestClassDeclaration: ClassDeclaration? = null
-    override fun hasValueModifier(): Boolean = false
+    override val isValue: Boolean = false
+
+    override val isAbstract: Boolean = variableElement.modifiers
+        .contains(Modifier.ABSTRACT)
 }

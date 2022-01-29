@@ -1,6 +1,7 @@
 package com.dbflow5.codegen.shared
 
 import com.dbflow5.codegen.shared.cache.ReferencesCache
+import com.dbflow5.codegen.shared.interop.ClassType
 import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.properties.ClassProperties
 import com.dbflow5.codegen.shared.properties.GeneratedClassProperties
@@ -17,7 +18,8 @@ data class ClassModel(
      * Declared type of the class.
      */
     val classType: ClassName,
-    val type: ClassType,
+    val type: Type,
+    val ksClassType: ClassType,
     val properties: ClassProperties,
     val fields: List<FieldModel>,
     val indexGroups: List<IndexGroupModel>,
@@ -53,10 +55,10 @@ data class ClassModel(
     }.quoteIfNeeded()
 
     val isQuery
-        get() = type == ClassType.Query
+        get() = type == Type.Query
 
     val isNormal
-        get() = type is ClassType.Normal
+        get() = type is Type.Normal
 
     fun flattenedFields(referencesCache: ReferencesCache) =
         createFlattenedFields(referencesCache, fields)
@@ -64,28 +66,28 @@ data class ClassModel(
     fun primaryFlattenedFields(referencesCache: ReferencesCache) =
         createFlattenedFields(referencesCache, primaryFields)
 
-    sealed interface ClassType {
-        sealed interface Normal : ClassType {
-            object Fts3 : ClassType.Normal
+    sealed interface Type {
+        sealed interface Normal : Type {
+            object Fts3 : Type.Normal
             data class Fts4(
                 val contentTable: TypeName,
-            ) : ClassType.Normal
+            ) : Type.Normal
 
-            object Normal : ClassType.Normal
+            object Normal : Type.Normal
         }
 
         data class View(
             val properties: ModelViewQueryProperties,
-        ) : ClassType
+        ) : Type
 
-        object Query : ClassType
+        object Query : Type
     }
 }
 
 /**
  * Returns true if element exists in DB declaration, or if it self-declares its DB.
  */
-inline fun <reified C : ClassModel.ClassType> ClassModel.partOfDatabaseAsType(
+inline fun <reified C : ClassModel.Type> ClassModel.partOfDatabaseAsType(
     databaseTypeName: TypeName,
     declaredDBElements: List<ClassName>,
     /**
@@ -102,9 +104,9 @@ val ClassModel.generatedClassName
         packageName = name.packageName,
         shortName = "${name.shortName}_${
             when (type) {
-                is ClassModel.ClassType.Normal -> "Table"
-                is ClassModel.ClassType.Query -> "Query"
-                is ClassModel.ClassType.View -> "View"
+                is ClassModel.Type.Normal -> "Table"
+                is ClassModel.Type.Query -> "Query"
+                is ClassModel.Type.View -> "View"
             }
         }",
         nullable = false,

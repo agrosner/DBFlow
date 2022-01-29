@@ -11,6 +11,8 @@ interface ClassDeclaration {
 
     val isInternal: Boolean
 
+    val isObject: Boolean
+
     /**
      * Returns all members including inherited.
      */

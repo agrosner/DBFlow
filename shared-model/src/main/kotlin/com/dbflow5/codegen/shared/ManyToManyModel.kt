@@ -145,7 +145,7 @@ data class ManyToManyModel(
     val classModel: ClassModel = ClassModel(
         name = generatedName,
         classType = generatedName.className,
-        type = ClassModel.ClassType.Normal.Normal,
+        type = ClassModel.Type.Normal.Normal,
         properties = GeneratedClassProperties(
             allFields = true,
             database = databaseTypeName,
@@ -173,5 +173,6 @@ data class ManyToManyModel(
         uniqueGroups = listOf(),
         implementsLoadFromCursorListener = false,
         implementsSQLiteStatementListener = false,
+        ksClassType = ksType,
     )
 }

@@ -7,6 +7,7 @@ class ClassValidator(
 ) : GroupedValidator<ClassModel>(
     listOf(
         PrimaryValidator(),
-        ClassToFieldValidator(fieldValidator)
+        ClassToFieldValidator(fieldValidator),
+        ClassCharacteristicsValidator(),
     )
 )

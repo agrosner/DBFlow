@@ -9,6 +9,14 @@ import com.dbflow5.codegen.shared.FieldModel
 class PrimaryValidator : Validator<ClassModel> {
 
     override fun validate(value: ClassModel) {
+        // must have 1 primary key
+        if (value.type is ClassModel.Type.Normal &&
+            value.primaryFields.isEmpty()
+        ) {
+            throw ValidationException(AT_LEAST_ONE_PRIMARY_MSG, value.name)
+        }
+
+
         // assert only one autoincrement
         value.primaryFields
             .filter {
@@ -16,7 +24,7 @@ class PrimaryValidator : Validator<ClassModel> {
                 type.isAutoIncrement
             }.takeIf { it.size > 1 }
             ?.run {
-                throw ValidationException("$MORE_THAN_ONE_PRIMARY_AUTO_MSG from ${value.name.print()}")
+                throw ValidationException(MORE_THAN_ONE_PRIMARY_AUTO_MSG, value.name)
             }
 
         // assert can't mix and match
@@ -27,14 +35,14 @@ class PrimaryValidator : Validator<ClassModel> {
             }
             .let { (ai, regular) ->
                 if (ai.isNotEmpty() && regular.isNotEmpty()) {
-                    throw ValidationException(
-                        "$MIX_AND_MATCH_PRIMARY_MSG from ${value.name.print()}"
-                    )
+                    throw ValidationException(MIX_AND_MATCH_PRIMARY_MSG, value.name)
                 }
             }
     }
 
     companion object {
+        const val AT_LEAST_ONE_PRIMARY_MSG = "Tables must have a least one defined primary key."
+
         const val MORE_THAN_ONE_PRIMARY_AUTO_MSG =
             "Only 1 autoincrementing key is allowed on a table."
 

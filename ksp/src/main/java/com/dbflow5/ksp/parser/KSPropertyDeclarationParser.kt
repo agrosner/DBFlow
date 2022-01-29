@@ -53,7 +53,7 @@ class KSPropertyDeclarationParser constructor(
         }
         val ksClassType = KSPClassType(input.type.resolve())
         val isInlineClass = ksClassType
-            .declaration.hasValueModifier()
+            .declaration.isValue
         val isEnum =
             ksClassType.declaration.closestClassDeclaration?.isEnum ?: false
         val foreignKey = input.findSingle<ForeignKey>()

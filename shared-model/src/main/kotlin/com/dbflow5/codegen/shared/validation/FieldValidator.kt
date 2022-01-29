@@ -9,7 +9,7 @@ class ClassToFieldValidator(
     @Throws(ValidationException::class)
     override fun validate(value: ClassModel) {
         if (value.fields.isEmpty()) {
-            throw ValidationException("$EMPTY_FIELDS_MSG from: ${value.name.print()}")
+            throw ValidationException(EMPTY_FIELDS_MSG, value.name)
         }
 
         value.fields.forEach { fieldValidator.validate(it) }

@@ -46,7 +46,7 @@ class KaptPropertyElementParser(
         }
         val kaptClassType = KaptVariableElementClassType(input)
         val isInlineClass = kaptClassType
-            .declaration.hasValueModifier()
+            .declaration.isValue
         val isEnum = kaptClassType.declaration.closestClassDeclaration?.isEnum
             ?: false
         val foreignKey = input.annotation<ForeignKey>()

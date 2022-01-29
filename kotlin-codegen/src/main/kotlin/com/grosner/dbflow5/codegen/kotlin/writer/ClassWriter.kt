@@ -73,9 +73,9 @@ class ClassWriter(
         val extractors = model.extractors(referencesCache)
         val primaryExtractors = model.primaryExtractors(referencesCache)
         val superClass = when (model.type) {
-            is ClassModel.ClassType.Normal -> ClassNames.modelAdapter(model.classType)
-            is ClassModel.ClassType.View -> ClassNames.modelViewAdapter(model.classType)
-            ClassModel.ClassType.Query -> ClassNames.retrievalAdapter(model.classType)
+            is ClassModel.Type.Normal -> ClassNames.modelAdapter(model.classType)
+            is ClassModel.Type.View -> ClassNames.modelViewAdapter(model.classType)
+            ClassModel.Type.Query -> ClassNames.retrievalAdapter(model.classType)
         }
 
         return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
@@ -323,7 +323,7 @@ class ClassWriter(
     }
 
     private fun TypeSpec.Builder.getObjectType(model: ClassModel) = apply {
-        if (model.type !== ClassModel.ClassType.Query) {
+        if (model.type !== ClassModel.Type.Query) {
             addProperty(
                 PropertySpec.builder("type", ClassNames.ObjectType)
                     .addModifiers(KModifier.OVERRIDE)
@@ -331,7 +331,7 @@ class ClassWriter(
                         FunSpec.getterBuilder()
                             .addCode(
                                 "return %T.%L", ClassNames.ObjectType,
-                                if (model.type is ClassModel.ClassType.Normal) {
+                                if (model.type is ClassModel.Type.Normal) {
                                     "Table"
                                 } else "View"
                             )

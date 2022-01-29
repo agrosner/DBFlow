@@ -39,22 +39,22 @@ class CreationQueryWriter(
                     FunSpec.getterBuilder()
                         .apply {
                             clsModel.type.let { classType ->
-                                if (classType is ClassModel.ClassType.Normal &&
-                                    (classType == ClassModel.ClassType.Normal.Fts3
-                                        || classType is ClassModel.ClassType.Normal.Fts4)
+                                if (classType is ClassModel.Type.Normal &&
+                                    (classType == ClassModel.Type.Normal.Fts3
+                                        || classType is ClassModel.Type.Normal.Fts4)
                                 ) {
                                     addCode("return %S", buildString {
                                         append("CREATE VIRTUAL TABLE IF NOT EXISTS ${clsModel.dbName} USING ")
                                         when (classType) {
-                                            ClassModel.ClassType.Normal.Fts3 -> append("FTS3")
-                                            is ClassModel.ClassType.Normal.Fts4 -> append("FTS4")
+                                            ClassModel.Type.Normal.Fts3 -> append("FTS3")
+                                            is ClassModel.Type.Normal.Fts4 -> append("FTS4")
                                             else -> append("")
                                         }
                                         append("(")
                                         append(extractors.joinToString {
                                             it.commaNames
                                         })
-                                        if (classType is ClassModel.ClassType.Normal.Fts4) {
+                                        if (classType is ClassModel.Type.Normal.Fts4) {
                                             if (extractors.isNotEmpty()) {
                                                 append(",")
                                             }
@@ -65,7 +65,7 @@ class CreationQueryWriter(
                                         append(")")
                                     })
                                 } else if (
-                                    classType is ClassModel.ClassType.View
+                                    classType is ClassModel.Type.View
                                 ) {
                                     addStatement(
                                         "return %T.%L.query",

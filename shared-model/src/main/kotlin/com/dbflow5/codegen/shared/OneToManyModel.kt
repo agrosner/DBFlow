@@ -100,7 +100,7 @@ data class OneToManyModel(
         ClassModel(
             name = generatedName,
             classType = generatedName.className,
-            type = ClassModel.ClassType.Query,
+            type = ClassModel.Type.Query,
             properties = GeneratedClassProperties(
                 allFields = true,
                 database = databaseTypeName,
@@ -116,5 +116,6 @@ data class OneToManyModel(
             uniqueGroups = listOf(),
             implementsLoadFromCursorListener = false,
             implementsSQLiteStatementListener = false,
+            ksClassType = ksType,
         )
 }

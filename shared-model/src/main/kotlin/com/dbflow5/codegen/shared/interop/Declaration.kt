@@ -11,5 +11,7 @@ interface Declaration {
 
     val closestClassDeclaration: ClassDeclaration?
 
-    fun hasValueModifier(): Boolean
+    val isValue: Boolean
+
+    val isAbstract: Boolean
 }

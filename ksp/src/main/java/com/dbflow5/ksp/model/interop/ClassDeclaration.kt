@@ -14,7 +14,7 @@ class KSPClassDeclaration(
     val ksClassDeclaration: KSClassDeclaration?
 ) : ClassDeclaration {
     override val isEnum: Boolean = ksClassDeclaration?.classKind == ClassKind.ENUM_CLASS
-
+    override val isObject: Boolean = ksClassDeclaration?.classKind == ClassKind.OBJECT
     override val isInternal: Boolean = ksClassDeclaration?.isInternal() ?: false
     override val properties: Sequence<PropertyDeclaration>
         get() = ksClassDeclaration?.getAllProperties()
