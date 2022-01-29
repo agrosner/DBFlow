@@ -82,4 +82,30 @@ class ClassValidatorTest : BaseCompileTest() {
         }
     }
 
+
+    @Test
+    fun `enum class fails`() {
+        @Language("kotlin")
+        val source = Source.KotlinSource(
+            "badtype",
+            """
+            import com.dbflow5.annotation.PrimaryKey
+            import com.dbflow5.annotation.Table
+
+            @Table
+            enum class SimpleObject{
+                Name,
+                Two,
+            }
+            """.trimIndent()
+        )
+        assertRun(
+            listOf(source),
+            exitCode = KotlinCompilation.ExitCode.COMPILATION_ERROR
+        ) {
+            assertContains(messages, ClassCharacteristicsValidator.ENUM_MSG)
+        }
+    }
+
+
 }

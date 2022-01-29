@@ -6,8 +6,9 @@ class ClassValidator(
     fieldValidator: FieldValidator,
 ) : GroupedValidator<ClassModel>(
     listOf(
+        // order matters. checks top-level first for clarity
+        ClassCharacteristicsValidator(),
         PrimaryValidator(),
         ClassToFieldValidator(fieldValidator),
-        ClassCharacteristicsValidator(),
     )
 )
