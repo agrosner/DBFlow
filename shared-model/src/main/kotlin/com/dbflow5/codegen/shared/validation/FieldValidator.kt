@@ -8,7 +8,15 @@ class ClassToFieldValidator(
 ) : Validator<ClassModel> {
     @Throws(ValidationException::class)
     override fun validate(value: ClassModel) {
+        if (value.fields.isEmpty()) {
+            throw ValidationException("$EMPTY_FIELDS_MSG from: ${value.name.print()}")
+        }
+
         value.fields.forEach { fieldValidator.validate(it) }
+    }
+
+    companion object {
+        const val EMPTY_FIELDS_MSG = "Table needs to define at least one column."
     }
 }
 
