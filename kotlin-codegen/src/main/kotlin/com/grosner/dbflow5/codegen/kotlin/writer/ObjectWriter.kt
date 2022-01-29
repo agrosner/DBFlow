@@ -81,18 +81,17 @@ class ObjectWriter(
                 typeConverterCache.putTypeConverter(typeConverterName, resolver)
             }
 
-        typeConverterCache.processNestedConverters()
-
         listOf(
             typeConverterCache.generatedTypeConverters,
-            classes,
-            databases,
+            objects,
             listOf(holderModel),
-            manyToManyModels,
-            oneToManyModels
         )
             .flatten()
             .forEach { objectValidatorMap.validate(it) }
+
+        // order is important of this check. TypeConverter validator
+        // ensures we don't produce a reference cycle of types.
+        typeConverterCache.processNestedConverters()
 
         listOf(
             typeConverterCache.generatedTypeConverters.map(typeConverterWriter::create),

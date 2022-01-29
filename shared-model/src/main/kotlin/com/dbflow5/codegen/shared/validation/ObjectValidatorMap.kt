@@ -15,7 +15,7 @@ class ObjectValidatorMap(
     @Throws(ValidationException::class)
     override fun validate(value: ObjectModel) {
         validators[value::class]?.let { validator ->
-            (validator as GroupedValidator<ObjectModel>).validate(value)
+            (validator as Validator<ObjectModel>).validate(value)
         }
     }
 }
