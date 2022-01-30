@@ -20,7 +20,7 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
     @Test
     fun testSaveBuilder() {
         runBlocking {
-            database(TestDatabase::class) { db ->
+            database<TestDatabase> {
                 val result = (0..9)
                         .map { SimpleModel("$it") }.awaitSave(db)
                 val list = (select from SimpleModel::class).queryList(db)
@@ -33,7 +33,7 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
     @Test
     fun testInsertBuilder() {
         runBlocking {
-            database(TestDatabase::class) { db ->
+            database<TestDatabase> {
                 val result = (0..9)
                         .map { SimpleModel("$it") }.awaitInsert(db)
                 val list = (select from SimpleModel::class).queryList(db)
@@ -46,7 +46,7 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
     @Test
     fun testUpdateBuilder() {
         runBlocking {
-            database(TestDatabase::class) { db ->
+            database<TestDatabase> {
                 val oldList = (0..9).map { TwoColumnModel("$it", Random().nextInt()) }
                 oldList.awaitInsert(db)
 

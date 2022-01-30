@@ -57,5 +57,4 @@ interface Queriable : Query {
      * you're not interested in the result.
      */
     fun execute(databaseWrapper: DatabaseWrapper)
-
 }

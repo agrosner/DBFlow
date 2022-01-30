@@ -21,7 +21,7 @@ class DeleteTest : BaseUnitTest() {
 
     @Test
     fun validateDeletion() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             SimpleModel("name").save(db)
             delete<SimpleModel>().execute(db)
             assertFalse((select from SimpleModel::class).hasData(db))
@@ -30,7 +30,7 @@ class DeleteTest : BaseUnitTest() {
 
     @Test
     fun validateDeletionWithQuery() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             SimpleModel("name").save(db)
             SimpleModel("another name").save(db)
 

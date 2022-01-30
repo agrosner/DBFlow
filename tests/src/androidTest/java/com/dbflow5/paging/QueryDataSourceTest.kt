@@ -22,7 +22,7 @@ class QueryDataSourceTest : BaseUnitTest() {
 
     @Test
     fun testLoadInitialParams() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             (0 until 100).forEach { SimpleModel("$it").save(db) }
 
             val factory = (select from SimpleModel::class).toDataSourceFactory(db)
@@ -49,7 +49,7 @@ class QueryDataSourceTest : BaseUnitTest() {
 
     @Test
     fun testThrowsErrorOnInvalidType() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             assertThrowsException(IllegalArgumentException::class) {
                 (update<SimpleModel>() set (SimpleModel_Table.name.eq("name")))
                     .toDataSourceFactory(db)

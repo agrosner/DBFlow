@@ -44,8 +44,8 @@ class ContentObserverTest {
 
     @Before
     fun setupUser() {
-        database<ContentObserverDatabase> { dbFlowDatabase ->
-            delete<User>().execute(dbFlowDatabase)
+        database<ContentObserverDatabase> {
+            delete<User>().execute(db)
         }
         user = User(5, "Something", 55)
     }

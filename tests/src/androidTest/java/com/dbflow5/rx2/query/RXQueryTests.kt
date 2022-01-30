@@ -21,7 +21,7 @@ class RXQueryTests : BaseUnitTest() {
 
     @Test
     fun testCanQuery() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             SimpleModel("Name").save(db)
 
             var cursor: FlowCursor? = null
@@ -40,7 +40,7 @@ class RXQueryTests : BaseUnitTest() {
     @Test
     fun testCanCompileStatement() {
         var databaseStatement: DatabaseStatement? = null
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             db.beginTransactionAsync {
                 insert<SimpleModel>(SimpleModel_Table.name.`is`("name")).compileStatement(it)
             }.asSingle()
@@ -53,7 +53,7 @@ class RXQueryTests : BaseUnitTest() {
 
     @Test
     fun testCountMethod() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             SimpleModel("name").save(db)
             SimpleModel("name2").save(db)
             var count = 0L

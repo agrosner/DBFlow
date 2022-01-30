@@ -10,7 +10,7 @@ class ManyToManyTest : BaseUnitTest() {
 
     @Test
     fun testCanCreateManyToMany() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val artist = Artist(name = "Andrew Grosner")
                 .save(db)
                 .getOrThrow()

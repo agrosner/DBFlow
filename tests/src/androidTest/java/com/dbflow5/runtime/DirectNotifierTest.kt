@@ -43,7 +43,7 @@ class DirectNotifierTest {
 
     @Test
     fun validateCanNotifyDirect() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val simpleModel = SimpleModel("Name")
 
             val modelChange = mock<DirectModelNotifier.OnModelStateChangedListener<SimpleModel>>()
@@ -66,7 +66,7 @@ class DirectNotifierTest {
 
     @Test
     fun validateCanNotifyWrapperClasses() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val modelChange = mock<OnTableChangedListener>()
             DirectModelNotifier.get(db).registerForTableChanges(SimpleModel::class, modelChange)
 

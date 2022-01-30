@@ -23,7 +23,7 @@ class RXFlowableTest : BaseUnitTest() {
 
     @Test
     fun testCanObserveChanges() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             (0..100).forEach { SimpleModel("$it").save(db) }
 
             var list = mutableListOf<SimpleModel>()
@@ -47,7 +47,7 @@ class RXFlowableTest : BaseUnitTest() {
 
     @Test
     fun testObservesJoinTables() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val joinOn = Blog_Table.name.withTable()
                 .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
             assertEquals(

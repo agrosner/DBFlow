@@ -19,7 +19,7 @@ class TempModelTest : BaseUnitTest() {
 
     @Test
     fun createTempTable() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             modelAdapter<TempModel>().createIfNotExists(db)
 
             TempModel(id = 5).save(db)

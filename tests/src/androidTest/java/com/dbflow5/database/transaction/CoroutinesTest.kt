@@ -33,7 +33,7 @@ class CoroutinesTest : BaseUnitTest() {
     @Test
     fun testTransact() {
         runBlocking {
-            database<TestDatabase> { db ->
+            database<TestDatabase> {
                 (0..9).forEach {
                     SimpleModel("$it").save(db)
                 }
@@ -56,7 +56,7 @@ class CoroutinesTest : BaseUnitTest() {
     @Test
     fun testAwaitSaveAndDelete() {
         runBlocking {
-            database<TestDatabase> { db ->
+            database<TestDatabase> {
                 val simpleModel = SimpleModel("Name")
                 val result = simpleModel.awaitSave(db)
                 assert(result.isSuccess)
@@ -69,7 +69,7 @@ class CoroutinesTest : BaseUnitTest() {
     @Test
     fun testAwaitInsertAndDelete() {
         runBlocking {
-            database<TestDatabase> { db ->
+            database<TestDatabase> {
                 val simpleModel = SimpleModel("Name")
                 val result = simpleModel.awaitInsert(db)
                 assert(result.isSuccess)
@@ -81,7 +81,7 @@ class CoroutinesTest : BaseUnitTest() {
     @Test
     fun testAwaitUpdate() {
         runBlocking {
-            database<TestDatabase> { db ->
+            database<TestDatabase> {
                 val simpleModel = TwoColumnModel(name = "Name", id = 5)
                 val result = simpleModel.awaitSave(db)
                 assert(result.isSuccess)
@@ -100,7 +100,7 @@ class CoroutinesTest : BaseUnitTest() {
 
     @Test
     fun testRetrievalFlow() = runBlockingTest {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
             val saveResult = simpleModel.awaitSave(db)
             assert(saveResult.isSuccess)
@@ -120,7 +120,7 @@ class CoroutinesTest : BaseUnitTest() {
                     count.offer(count.value + 1)
                 }
         }
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
             val result = simpleModel.awaitSave(db)
             assert(result.isSuccess)

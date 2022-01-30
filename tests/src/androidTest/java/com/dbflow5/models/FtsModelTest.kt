@@ -19,7 +19,7 @@ class FtsModelTest : BaseUnitTest() {
 
     @Test
     fun validate_fts4_created() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val model = Fts4Model(name = "FTSBABY")
             model.save(db)
 
@@ -36,7 +36,7 @@ class FtsModelTest : BaseUnitTest() {
     @Test
     fun match_query() {
         validate_fts4_created()
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val model = (select from Fts4VirtualModel2::class where (tableName<Fts4VirtualModel2>() match "FTSBABY"))
                 .querySingle(db)
             assert(model != null)
@@ -46,7 +46,7 @@ class FtsModelTest : BaseUnitTest() {
     @Test
     fun offsets_query() {
         validate_fts4_created()
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val value = (select(offsets<Fts4VirtualModel2>()) from Fts4VirtualModel2::class
                 where (tableName<Fts4VirtualModel2>() match "FTSBaby"))
                 .stringValue(db)
@@ -57,7 +57,7 @@ class FtsModelTest : BaseUnitTest() {
 
     @Test
     fun snippet_query() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val model = Fts4Model(name = "During 30 Nov-1 Dec, 2-3oC drops. Cool in the upper portion, minimum temperature 14-16oC \n" +
                 "  and cool elsewhere, minimum temperature 17-20oC. Cold to very cold on mountaintops, \n" +
                 "  minimum temperature 6-12oC. Northeasterly winds 15-30 km/hr. After that, temperature \n" +

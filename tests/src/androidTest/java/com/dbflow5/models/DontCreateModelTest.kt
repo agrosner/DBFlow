@@ -15,7 +15,7 @@ class DontCreateModelTest : BaseUnitTest() {
 
     @Test
     fun testModelNotCreated() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             assertThrowsException(SQLiteException::class) {
                 (select from DontCreateModel::class).queryList(db)
             }

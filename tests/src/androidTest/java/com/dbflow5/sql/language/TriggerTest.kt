@@ -69,7 +69,7 @@ class TriggerTest : BaseUnitTest() {
 
     @Test
     fun validateTriggerWorks() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val trigger = createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
                 insert(TwoColumnModel::class).columnValues(
                     TwoColumnModel_Table.name to NameAlias.ofTable(

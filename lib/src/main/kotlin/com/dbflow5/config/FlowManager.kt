@@ -9,6 +9,7 @@ import com.dbflow5.adapter.ModelViewAdapter
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.converter.TypeConverter
+import com.dbflow5.database.DatabaseScope
 import com.dbflow5.structure.InvalidDBConfiguration
 import com.dbflow5.structure.Model
 import kotlin.reflect.KClass
@@ -111,6 +112,7 @@ object FlowManager {
      * that are part of a module. Building once will give you the ability to add the class.
      */
     @JvmStatic
+    @Deprecated(message = "Use FlowConfig instead to add modules.")
     fun initModule(generatedClassName: KClass<out DatabaseHolder>) {
         loadDatabaseHolder(generatedClassName)
     }
@@ -318,7 +320,10 @@ object FlowManager {
         getDatabase(databaseName).openHelper.isDatabaseIntegrityOk
 
     private fun throwCannotFindAdapter(type: String, clazz: KClass<*>): Nothing =
-        throw IllegalArgumentException("Cannot find $type for $clazz. Ensure the class is annotated with proper annotation.")
+        throw IllegalArgumentException(
+            "Cannot find $type for $clazz. " +
+                "Ensure the class is annotated with proper annotation."
+        )
 
     private fun checkDatabaseHolder() {
         if (!databaseHolder.isInitialized) {
@@ -343,14 +348,12 @@ object FlowManager {
 /**
  * Easily get access to its [DBFlowDatabase] directly.
  */
-inline fun <T : DBFlowDatabase> database(kClass: KClass<T>, f: (db: T) -> Unit = {}): T =
-    FlowManager.getDatabase(kClass).apply(f)
-
-/**
- * Easily get access to its [DBFlowDatabase] directly.
- */
-inline fun <reified T : DBFlowDatabase> database(f: (db: T) -> Unit = {}): T =
-    FlowManager.getDatabase(T::class).apply(f)
+inline fun <reified DB : DBFlowDatabase> database(fn: DatabaseScope<DB>.() -> Unit = {}): DB =
+    FlowManager.getDatabase(DB::class).apply {
+        object : DatabaseScope<DB> {
+            override val db: DBFlowDatabase = this@apply
+        }.fn()
+    }
 
 /**
  * Easily get its table name.

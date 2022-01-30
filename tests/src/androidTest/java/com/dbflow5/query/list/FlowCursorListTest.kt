@@ -16,7 +16,7 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateCursorPassed() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val cursor = (select from SimpleModel::class).cursor(db)
             val list = FlowCursorList.Builder(select from SimpleModel::class, db)
                 .cursor(cursor)
@@ -28,7 +28,7 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateModelQueriable() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val modelQueriable = (select from SimpleModel::class)
             val list = FlowCursorList.Builder(modelQueriable, db)
                 .build()
@@ -39,7 +39,7 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateGetAll() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             (0..9).forEach {
                 SimpleModel("$it").save(db)
             }
@@ -52,7 +52,7 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateCursorChange() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             (0..9).forEach {
                 SimpleModel("$it").save(db)
             }

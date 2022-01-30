@@ -29,7 +29,7 @@ class CipherTest {
 
     @Test
     fun testCipherModel() {
-        database<CipherDatabase> { db ->
+        database<CipherDatabase> {
             (delete() from CipherModel::class).execute(db)
             val model = CipherModel(name = "name")
                 .save(db)

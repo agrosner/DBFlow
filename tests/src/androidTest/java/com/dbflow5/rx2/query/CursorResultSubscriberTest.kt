@@ -20,7 +20,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
     @Test
     fun testCanQueryStreamResults() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             (0..9).forEach { SimpleModel("$it").save(db) }
 
             var count = 0
@@ -54,7 +54,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
     @Test
     fun testCanObserveOnTableChangesWithTableOps() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             delete<SimpleModel>().executeUpdateDelete(db)
             var count = 0
             var curList: MutableList<SimpleModel> = arrayListOf()

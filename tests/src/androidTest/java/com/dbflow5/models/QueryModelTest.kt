@@ -17,7 +17,7 @@ class QueryModelTest : BaseUnitTest() {
 
     @Test
     fun testCanLoadAuthorBlogs() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val author = Author(0, "Andrew", "Grosner")
             author.save(db)
             val blog = Blog(0, "My First Blog", author)

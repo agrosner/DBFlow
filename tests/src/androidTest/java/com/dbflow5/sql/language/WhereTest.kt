@@ -170,7 +170,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateNonSelectThrowError() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             try {
                 update<SimpleModel>().set(SimpleModel_Table.name.`is`("name")).querySingle(db)
                 fail("Non select passed")
