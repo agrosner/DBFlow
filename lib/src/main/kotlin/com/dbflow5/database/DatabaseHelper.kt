@@ -3,14 +3,17 @@ package com.dbflow5.database
 import com.dbflow5.adapter.createIfNotExists
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
+import com.dbflow5.config.FlowManager
 import com.dbflow5.config.NaturalOrderComparator
 import java.io.IOException
 
 /**
  * Description: Manages creation, updating, and migrating ac [DBFlowDatabase]. It performs View creations.
  */
-open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
-                          val databaseDefinition: DBFlowDatabase) {
+open class DatabaseHelper(
+    private val migrationFileHelper: MigrationFileHelper,
+    val databaseDefinition: DBFlowDatabase
+) {
 
     // path to migration for the database.
     private val dbMigrationPath
@@ -62,8 +65,9 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
 
     protected fun executeTableCreations(database: DatabaseWrapper) {
         database.executeTransaction {
-            databaseDefinition.modelAdapters
+            databaseDefinition.tables
                 .asSequence()
+                .map { FlowManager.getModelAdapter(it) }
                 .filter { it.createWithDatabase() }
                 .forEach {
                     try {
@@ -80,8 +84,9 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
      */
     protected fun executeViewCreations(database: DatabaseWrapper) {
         database.executeTransaction {
-            databaseDefinition.modelViewAdapters
+            databaseDefinition.views
                 .asSequence()
+                .map { FlowManager.getModelViewAdapter(it) }
                 .filter { it.createWithDatabase() }
                 .forEach {
                     try {
@@ -89,13 +94,14 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
                     } catch (e: SQLiteException) {
                         FlowLog.logError(e)
                     }
-
                 }
         }
     }
 
-    protected fun executeMigrations(db: DatabaseWrapper,
-                                    oldVersion: Int, newVersion: Int) {
+    protected fun executeMigrations(
+        db: DatabaseWrapper,
+        oldVersion: Int, newVersion: Int
+    ) {
 
         // will try migrations file or execute migrations from code
         try {
@@ -142,7 +148,10 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
 
                             // after migration cleanup
                             migration.onPostMigrate()
-                            FlowLog.log(FlowLog.Level.I, "${migration.javaClass} executed successfully.")
+                            FlowLog.log(
+                                FlowLog.Level.I,
+                                "${migration.javaClass} executed successfully."
+                            )
                         }
                     }
                 }
@@ -151,7 +160,11 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
                 db.endTransaction()
             }
         } catch (e: IOException) {
-            FlowLog.log(FlowLog.Level.E, "Failed to execute migrations. App might be in an inconsistent state.", e)
+            FlowLog.log(
+                FlowLog.Level.E,
+                "Failed to execute migrations. App might be in an inconsistent state.",
+                e
+            )
         }
 
     }
@@ -163,7 +176,11 @@ open class DatabaseHelper(private val migrationFileHelper: MigrationFileHelper,
      * @param file the file name in assets/migrations that we read from
      */
     private fun executeSqlScript(db: DatabaseWrapper, file: String) {
-        migrationFileHelper.executeMigration("$dbMigrationPath/$file") { queryString -> db.execSQL(queryString) }
+        migrationFileHelper.executeMigration("$dbMigrationPath/$file") { queryString ->
+            db.execSQL(
+                queryString
+            )
+        }
     }
 
     companion object {

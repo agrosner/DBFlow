@@ -1,14 +1,17 @@
 package com.dbflow5.runtime
 
 import com.dbflow5.adapter.ModelAdapter
-import com.dbflow5.config.FlowManager
+import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.structure.ChangeAction
 import kotlin.reflect.KClass
 
 /**
  * Description: Distributes notifications to the [ModelNotifier].
  */
-class NotifyDistributor : ModelNotifier {
+class NotifyDistributor
+private constructor(
+    override val db: DatabaseWrapper
+) : ModelNotifier {
 
     override fun newRegister(): TableNotifierRegister {
         throw RuntimeException("Cannot create a register from the distributor class")
@@ -19,7 +22,7 @@ class NotifyDistributor : ModelNotifier {
         adapter: ModelAdapter<T>,
         action: ChangeAction
     ) {
-        FlowManager.getModelNotifierForTable(adapter.table)
+        db.associatedDBFlowDatabase.getModelNotifier()
             .notifyModelChanged(model, adapter, action)
     }
 
@@ -30,14 +33,16 @@ class NotifyDistributor : ModelNotifier {
         table: KClass<T>,
         action: ChangeAction
     ) {
-        FlowManager.getModelNotifierForTable(table).notifyTableChanged(table, action)
+        db.associatedDBFlowDatabase.getModelNotifier().notifyTableChanged(table, action)
     }
 
     companion object {
 
-        private val distributor by lazy { NotifyDistributor() }
+        private val distributorMap = mutableMapOf<DatabaseWrapper, NotifyDistributor>()
 
-        @JvmStatic
-        fun get(): NotifyDistributor = distributor
+        operator fun invoke(db: DatabaseWrapper): NotifyDistributor =
+            distributorMap.getOrPut(db) {
+                NotifyDistributor(db)
+            }
     }
 }

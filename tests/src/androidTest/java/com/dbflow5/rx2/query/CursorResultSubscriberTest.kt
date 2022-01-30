@@ -1,7 +1,8 @@
 package com.dbflow5.rx2.query
 
 import com.dbflow5.BaseUnitTest
-import com.dbflow5.config.databaseForTable
+import com.dbflow5.TestDatabase
+import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.delete
@@ -19,7 +20,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
     @Test
     fun testCanQueryStreamResults() {
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             (0..9).forEach { SimpleModel("$it").save(db) }
 
             var count = 0
@@ -38,12 +39,12 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     fun testCanObserveOnTableChangesWithModelOps() {
         var count = 0
         (select from SimpleModel::class)
-            .asFlowable { db -> queryList(db) }
+            .asFlowable(database<TestDatabase>()) { db -> queryList(db) }
             .subscribe {
                 count++
             }
         val model = SimpleModel("test")
-        databaseForTable<SimpleModel>().executeTransaction { db ->
+        database<TestDatabase>().executeTransaction { db ->
             model.save(db)
             model.delete(db)
             model.insert(db)
@@ -53,12 +54,12 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
     @Test
     fun testCanObserveOnTableChangesWithTableOps() {
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             delete<SimpleModel>().executeUpdateDelete(db)
             var count = 0
             var curList: MutableList<SimpleModel> = arrayListOf()
             (select from SimpleModel::class)
-                .asFlowable { db -> queryList(db) }
+                .asFlowable(db) { queryList(it) }
                 .subscribe {
                     curList = it
                     count++

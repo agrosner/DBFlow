@@ -58,7 +58,7 @@ data class ClassModel(
         get() = type == Type.Query
 
     val isNormal
-        get() = type is Type.Normal
+        get() = type is Type.Table
 
     fun flattenedFields(referencesCache: ReferencesCache) =
         createFlattenedFields(referencesCache, fields)
@@ -67,13 +67,13 @@ data class ClassModel(
         createFlattenedFields(referencesCache, primaryFields)
 
     sealed interface Type {
-        sealed interface Normal : Type {
-            object Fts3 : Type.Normal
+        sealed interface Table : Type {
+            object Fts3 : Table
             data class Fts4(
                 val contentTable: TypeName,
-            ) : Type.Normal
+            ) : Table
 
-            object Normal : Type.Normal
+            object Normal : Table
         }
 
         data class View(
@@ -104,7 +104,7 @@ val ClassModel.generatedClassName
         packageName = name.packageName,
         shortName = "${name.shortName}_${
             when (type) {
-                is ClassModel.Type.Normal -> "Table"
+                is ClassModel.Type.Table -> "Table"
                 is ClassModel.Type.Query -> "Query"
                 is ClassModel.Type.View -> "View"
             }

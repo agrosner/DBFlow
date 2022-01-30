@@ -1,5 +1,6 @@
 package com.dbflow5.database
 
+import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.query.BaseQueriable
 import com.dbflow5.runtime.NotifyDistributor
 
@@ -9,13 +10,18 @@ import com.dbflow5.runtime.NotifyDistributor
  */
 class DatabaseStatementWrapper<T : Any>(
     private val databaseStatement: DatabaseStatement,
-    private val modelQueriable: BaseQueriable<T>) : BaseDatabaseStatement() {
+    private val modelQueriable: BaseQueriable<T>,
+    private val databaseWrapper: DatabaseWrapper,
+) : BaseDatabaseStatement() {
 
     override fun executeUpdateDelete(): Long {
         val affected = databaseStatement.executeUpdateDelete()
         if (affected > 0) {
-            NotifyDistributor.get().notifyTableChanged(modelQueriable.table,
-                modelQueriable.primaryAction)
+            NotifyDistributor(databaseWrapper)
+                .notifyTableChanged(
+                    modelQueriable.table,
+                    modelQueriable.primaryAction
+                )
         }
         return affected
     }
@@ -23,8 +29,11 @@ class DatabaseStatementWrapper<T : Any>(
     override fun executeInsert(): Long {
         val affected = databaseStatement.executeInsert()
         if (affected > 0) {
-            NotifyDistributor.get().notifyTableChanged(modelQueriable.table,
-                modelQueriable.primaryAction)
+            NotifyDistributor(databaseWrapper)
+                .notifyTableChanged(
+                    modelQueriable.table,
+                    modelQueriable.primaryAction
+                )
         }
         return affected
     }

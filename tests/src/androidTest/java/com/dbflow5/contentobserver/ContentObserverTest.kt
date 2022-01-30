@@ -8,7 +8,6 @@ import com.dbflow5.ImmediateTransactionManager
 import com.dbflow5.TABLE_QUERY_PARAM
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.database
-import com.dbflow5.config.databaseForTable
 import com.dbflow5.config.modelAdapter
 import com.dbflow5.config.tableName
 import com.dbflow5.database.AndroidSQLiteOpenHelper
@@ -32,7 +31,7 @@ class ContentObserverTest {
     @Rule
     var dblflowTestRule = DBFlowInstrumentedTestRule.create {
         database<ContentObserverDatabase>({
-            modelNotifier(ContentResolverNotifier(DemoApp.context, "com.grosner.content"))
+            modelNotifier { ContentResolverNotifier(DemoApp.context, "com.grosner.content", it) }
             transactionManagerCreator { databaseDefinition: DBFlowDatabase ->
                 ImmediateTransactionManager(databaseDefinition)
             }
@@ -104,7 +103,7 @@ class ContentObserverTest {
         contentObserver.addModelChangeListener(mockOnModelStateChangedListener)
         contentObserver.registerForContentChanges(DemoApp.context, User::class)
 
-        userFunc(user, databaseForTable<User>())
+        userFunc(user, database<ContentObserverDatabase>())
         countDownLatch.await()
 
         val ops = mockOnModelStateChangedListener.operators!!

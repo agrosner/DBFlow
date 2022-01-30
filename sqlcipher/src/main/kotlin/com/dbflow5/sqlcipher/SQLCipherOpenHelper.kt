@@ -17,7 +17,8 @@ import net.sqlcipher.database.SQLiteOpenHelper
  */
 abstract class SQLCipherOpenHelper(
     private val context: Context,
-    databaseDefinition: DBFlowDatabase, listener: DatabaseCallback?
+    private val databaseDefinition: DBFlowDatabase,
+    listener: DatabaseCallback?,
 ) : SQLiteOpenHelper(
     context,
     if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
@@ -34,7 +35,10 @@ abstract class SQLCipherOpenHelper(
     override val database: DatabaseWrapper
         get() {
             if (cipherDatabase == null || !cipherDatabase!!.database.isOpen) {
-                cipherDatabase = SQLCipherDatabase.from(getWritableDatabase(cipherSecret))
+                cipherDatabase = SQLCipherDatabase.from(
+                    getWritableDatabase(cipherSecret),
+                    databaseDefinition
+                )
             }
             return cipherDatabase!!
         }
@@ -68,19 +72,19 @@ abstract class SQLCipherOpenHelper(
     }
 
     override fun onConfigure(db: SQLiteDatabase) {
-        delegate.onConfigure(SQLCipherDatabase.from(db))
+        delegate.onConfigure(SQLCipherDatabase.from(db, databaseDefinition))
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        delegate.onCreate(SQLCipherDatabase.from(db))
+        delegate.onCreate(SQLCipherDatabase.from(db, databaseDefinition))
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        delegate.onUpgrade(SQLCipherDatabase.from(db), oldVersion, newVersion)
+        delegate.onUpgrade(SQLCipherDatabase.from(db, databaseDefinition), oldVersion, newVersion)
     }
 
     override fun onOpen(db: SQLiteDatabase) {
-        delegate.onOpen(SQLCipherDatabase.from(db))
+        delegate.onOpen(SQLCipherDatabase.from(db, databaseDefinition))
     }
 
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {

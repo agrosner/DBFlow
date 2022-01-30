@@ -1,7 +1,8 @@
 package com.dbflow5.query.list
 
 import com.dbflow5.BaseUnitTest
-import com.dbflow5.config.databaseForTable
+import com.dbflow5.TestDatabase
+import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.select
 import com.dbflow5.structure.save
@@ -15,11 +16,11 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateCursorPassed() {
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             val cursor = (select from SimpleModel::class).cursor(db)
             val list = FlowCursorList.Builder(select from SimpleModel::class, db)
-                    .cursor(cursor)
-                    .build()
+                .cursor(cursor)
+                .build()
 
             assertEquals(cursor, list.cursor)
         }
@@ -27,10 +28,10 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateModelQueriable() {
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             val modelQueriable = (select from SimpleModel::class)
             val list = FlowCursorList.Builder(modelQueriable, db)
-                    .build()
+                .build()
 
             assertEquals(modelQueriable, list.modelQueriable)
         }
@@ -38,7 +39,7 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateGetAll() {
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             (0..9).forEach {
                 SimpleModel("$it").save(db)
             }
@@ -51,7 +52,7 @@ class FlowCursorListTest : BaseUnitTest() {
 
     @Test
     fun validateCursorChange() {
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             (0..9).forEach {
                 SimpleModel("$it").save(db)
             }

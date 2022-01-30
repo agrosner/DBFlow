@@ -1,5 +1,6 @@
 package com.dbflow5.query
 
+import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseStatementWrapper
@@ -73,14 +74,18 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
             cursor.close()
         } else {
             // we dont query, we're executing something here.
-            NotifyDistributor.get().notifyTableChanged(table, primaryAction)
+            NotifyDistributor(databaseWrapper)
+                .notifyTableChanged(table, primaryAction)
         }
     }
 
     override fun compileStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Compiling Query Into Statement: " + query)
-        return DatabaseStatementWrapper(databaseWrapper.compileStatement(query), this)
+        return DatabaseStatementWrapper(
+            databaseWrapper.compileStatement(query), this,
+            databaseWrapper
+        )
     }
 
     override fun toString(): String = query

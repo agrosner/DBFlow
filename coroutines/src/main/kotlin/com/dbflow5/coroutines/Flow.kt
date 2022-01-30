@@ -1,7 +1,6 @@
 package com.dbflow5.coroutines
 
-import com.dbflow5.config.FlowManager
-import com.dbflow5.config.databaseForTable
+import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.ModelQueriableEvalFn
@@ -18,12 +17,13 @@ import kotlin.reflect.KClass
  */
 @ExperimentalCoroutinesApi
 fun <T : Any, R : Any?> ModelQueriable<T>.toFlow(
+    db: DBFlowDatabase,
     evalFn: ModelQueriableEvalFn<T, R>
 ): Flow<R> {
     return callbackFlow {
         val tables = extractFrom()?.associatedTables ?: setOf(table)
-        fun evaluateEmission(table: KClass<*> = this@toFlow.table) {
-            databaseForTable(table)
+        fun evaluateEmission() {
+            db
                 .beginTransactionAsync { evalFn(it) }
                 .execute { _, r -> channel.offer(r) }
         }
@@ -31,13 +31,11 @@ fun <T : Any, R : Any?> ModelQueriable<T>.toFlow(
         val onTableChangedObserver = object : OnTableChangedObserver(tables.toList()) {
             override fun onChanged(tables: Set<KClass<*>>) {
                 if (tables.isNotEmpty()) {
-                    evaluateEmission(tables.first())
+                    evaluateEmission()
                 }
             }
         }
 
-
-        val db = FlowManager.getDatabaseForTable(tables.first())
         // force initialize the db
         db.writableDatabase
 

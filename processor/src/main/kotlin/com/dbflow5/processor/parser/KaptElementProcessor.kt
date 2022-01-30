@@ -79,7 +79,6 @@ class KaptElementProcessor(
             input.getPackage(),
         )
         val classType = input.toTypeErasedElement().javaToKotlinType() as ClassName
-        val ksClassType = KaptTypeElementClassType(input.asType(), input)
         return annotations.mapNotNull { annotation ->
             val typeName = annotation.annotationType.asTypeName()
             when (typeName) {
@@ -108,7 +107,6 @@ class KaptElementProcessor(
                             modelTypeName = typeConverterSuper.typeArguments[1],
                             modelClass = null,
                             originatingSource = source,
-                            ksClassType = ksClassType,
                         )
                     )
                 }
@@ -198,9 +196,9 @@ class KaptElementProcessor(
                         name = name,
                         classType = classType,
                         type = when {
-                            fts3 != null -> ClassModel.Type.Normal.Fts3
+                            fts3 != null -> ClassModel.Type.Table.Fts3
                             fts4 != null -> fts4Parser.parse(fts4)
-                            else -> ClassModel.Type.Normal.Normal
+                            else -> ClassModel.Type.Table.Normal
                         },
                         properties = properties,
                         fields = fields,

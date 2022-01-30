@@ -10,7 +10,7 @@ class PrimaryValidator : Validator<ClassModel> {
 
     override fun validate(value: ClassModel) {
         // must have 1 primary key
-        if (value.type is ClassModel.Type.Normal &&
+        if (value.type is ClassModel.Type.Table.Normal &&
             value.primaryFields.isEmpty()
         ) {
             throw ValidationException(AT_LEAST_ONE_PRIMARY_MSG, value.name)

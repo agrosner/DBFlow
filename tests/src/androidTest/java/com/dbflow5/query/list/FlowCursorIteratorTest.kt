@@ -1,7 +1,8 @@
 package com.dbflow5.query.list
 
 import com.dbflow5.BaseUnitTest
-import com.dbflow5.config.databaseForTable
+import com.dbflow5.TestDatabase
+import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.select
 import com.dbflow5.structure.save
@@ -19,7 +20,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
     @Test
     fun testCanIterateFullList() {
         var count = 0
-        databaseForTable<SimpleModel>().beginTransactionAsync { db ->
+        database<TestDatabase>().beginTransactionAsync { db ->
             (0..9).forEach {
                 SimpleModel("$it").save(db)
             }
@@ -38,7 +39,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
 
     @Test
     fun testCanIteratePartialList() {
-        databaseForTable<SimpleModel>().beginTransactionAsync { db ->
+        database<TestDatabase>().beginTransactionAsync { db ->
             (0..9).forEach {
                 SimpleModel("$it").save(db)
             }
@@ -57,7 +58,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
 
     @Test
     fun testCanSupplyBadMaximumValue() {
-        databaseForTable<SimpleModel>().beginTransactionAsync { db ->
+        database<TestDatabase>().beginTransactionAsync { db ->
             (0..9).forEach {
                 SimpleModel("$it").save(db)
             }

@@ -74,7 +74,10 @@ class StringQuery<T : Any>
             FlowLog.Level.V,
             "Compiling Query Into Statement: query = $query , args = $args"
         )
-        return DatabaseStatementWrapper(databaseWrapper.compileStatement(query, args), this)
+        return DatabaseStatementWrapper(
+            databaseWrapper.compileStatement(query, args), this,
+            databaseWrapper
+        )
     }
 
     /**

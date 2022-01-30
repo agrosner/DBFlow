@@ -39,22 +39,22 @@ class CreationQueryWriter(
                     FunSpec.getterBuilder()
                         .apply {
                             clsModel.type.let { classType ->
-                                if (classType is ClassModel.Type.Normal &&
-                                    (classType == ClassModel.Type.Normal.Fts3
-                                        || classType is ClassModel.Type.Normal.Fts4)
+                                if (classType is ClassModel.Type.Table &&
+                                    (classType == ClassModel.Type.Table.Fts3
+                                        || classType is ClassModel.Type.Table.Fts4)
                                 ) {
                                     addCode("return %S", buildString {
                                         append("CREATE VIRTUAL TABLE IF NOT EXISTS ${clsModel.dbName} USING ")
                                         when (classType) {
-                                            ClassModel.Type.Normal.Fts3 -> append("FTS3")
-                                            is ClassModel.Type.Normal.Fts4 -> append("FTS4")
+                                            ClassModel.Type.Table.Fts3 -> append("FTS3")
+                                            is ClassModel.Type.Table.Fts4 -> append("FTS4")
                                             else -> append("")
                                         }
                                         append("(")
                                         append(extractors.joinToString {
                                             it.commaNames
                                         })
-                                        if (classType is ClassModel.Type.Normal.Fts4) {
+                                        if (classType is ClassModel.Type.Table.Fts4) {
                                             if (extractors.isNotEmpty()) {
                                                 append(",")
                                             }

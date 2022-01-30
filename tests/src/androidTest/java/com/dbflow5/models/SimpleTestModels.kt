@@ -18,7 +18,8 @@ import com.dbflow5.data.Blob
 import com.dbflow5.query.SQLiteStatementListener
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.util.*
+import java.util.Date
+import java.util.UUID
 
 
 /**
@@ -83,7 +84,7 @@ open class AllFieldsModel(
 }
 
 @Table
-class SubclassAllFields(@Column var order: Int = 0) : AllFieldsModel()
+class SubclassAllFields(@PrimaryKey var order: Int = 0) : AllFieldsModel()
 
 @Table(assignDefaultValuesFromCursor = false)
 class DontAssignDefaultModel(

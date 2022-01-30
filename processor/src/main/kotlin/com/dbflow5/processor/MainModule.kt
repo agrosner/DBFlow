@@ -87,6 +87,7 @@ fun getModule(
             env.typeUtils,
             get(),
             get(),
+            get(),
         )
     }
 

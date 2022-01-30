@@ -1,18 +1,22 @@
 package com.grosner.dbflow5.codegen.kotlin.writer
 
+import com.dbflow5.codegen.shared.ClassModel
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseModel
 import com.dbflow5.codegen.shared.generatedClassName
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
-import com.dbflow5.codegen.shared.ClassNames
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.WildcardTypeName
 import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.asTypeName
 import kotlin.reflect.KClass
 
 /**
@@ -69,24 +73,27 @@ class DatabaseWriter(
                             addProperty(associatedClassName.propertySpec)
                             addProperty(version.propertySpec)
                             addProperty(foreignKeys.propertySpec)
+                            addProperty(classProperty("queries", model.queries))
+                            addProperty(classProperty("tables", model.tables))
+                            addProperty(classProperty("views", model.views))
                             addInitializerBlock(
                                 CodeBlock.builder()
                                     .apply {
                                         model.tables.forEach { table ->
                                             addStatement(
-                                                "addModelAdapter(%T(this), holder)",
+                                                "holder.putModelAdapter(%T(this))",
                                                 table.generatedClassName.className
                                             )
                                         }
                                         model.views.forEach { view ->
                                             addStatement(
-                                                "addModelViewAdapter(%T(this), holder)",
+                                                "holder.putViewAdapter(%T(this))",
                                                 view.generatedClassName.className
                                             )
                                         }
                                         model.queries.forEach { query ->
                                             addStatement(
-                                                "addRetrievalAdapter(%T(this), holder)",
+                                                "holder.putQueryAdapter(%T(this))",
                                                 query.generatedClassName.className
                                             )
                                         }
@@ -113,4 +120,29 @@ class DatabaseWriter(
             }
             .build()
     }
+
+    private fun classProperty(
+        name: String,
+        objects: List<ClassModel>,
+    ) = PropertySpec.builder(
+        name,
+        List::class.asTypeName().parameterizedBy(
+            KClass::class.asTypeName()
+                .parameterizedBy(WildcardTypeName.producerOf(Any::class.asTypeName()))
+        )
+    )
+        .addModifiers(KModifier.OVERRIDE)
+        .initializer(CodeBlock.builder()
+            .apply {
+                addStatement("listOf(")
+                objects.forEach {
+                    addStatement(
+                        "%T::class,",
+                        it.classType
+                    )
+                }
+                addStatement(")")
+            }
+            .build())
+        .build()
 }

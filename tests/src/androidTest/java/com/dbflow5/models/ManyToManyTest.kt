@@ -1,7 +1,8 @@
 package com.dbflow5.models
 
 import com.dbflow5.BaseUnitTest
-import com.dbflow5.config.databaseForTable
+import com.dbflow5.TestDatabase
+import com.dbflow5.config.database
 import com.dbflow5.structure.save
 import org.junit.Test
 
@@ -9,7 +10,7 @@ class ManyToManyTest : BaseUnitTest() {
 
     @Test
     fun testCanCreateManyToMany() {
-        databaseForTable<Artist> { db ->
+        database<TestDatabase> { db ->
             val artist = Artist(name = "Andrew Grosner")
                 .save(db)
                 .getOrThrow()

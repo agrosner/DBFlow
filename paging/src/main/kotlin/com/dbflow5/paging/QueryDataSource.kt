@@ -3,7 +3,6 @@ package com.dbflow5.paging
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
 import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.config.FlowManager
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.Select
@@ -18,8 +17,8 @@ import kotlin.reflect.KClass
  */
 class QueryDataSource<T : Any, TQuery>
 internal constructor(
+    private val db: DBFlowDatabase,
     private val transformable: TQuery,
-    private val database: DBFlowDatabase
 ) : PositionalDataSource<T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
 
     private val associatedTables: Set<KClass<*>> = transformable.extractFrom()?.associatedTables
@@ -39,7 +38,6 @@ internal constructor(
             throw IllegalArgumentException("Cannot pass a non-SELECT cursor into this data source.")
         }
 
-        val db = FlowManager.getDatabaseForTable(associatedTables.first())
         // force initialize the db
         db.writableDatabase
 
@@ -50,20 +48,20 @@ internal constructor(
     }
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>) {
-        database.beginTransactionAsync { db ->
+        db.beginTransactionAsync { db ->
             transformable.constrain(params.startPosition.toLong(), params.loadSize.toLong())
                 .queryList(db)
         }.execute { _, list -> callback.onResult(list) }
     }
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
-        database.beginTransactionAsync { db -> selectCountOf().from(transformable).longValue(db) }
+        db.beginTransactionAsync { db -> selectCountOf().from(transformable).longValue(db) }
             .execute { _, count ->
                 val max = when {
                     params.requestedLoadSize >= count - 1 -> count.toInt()
                     else -> params.requestedLoadSize
                 }
-                database.beginTransactionAsync { db ->
+                db.beginTransactionAsync { db ->
                     transformable.constrain(params.requestedStartPosition.toLong(), max.toLong())
                         .queryList(db)
                 }.execute { _, list ->
@@ -77,7 +75,7 @@ internal constructor(
         private val transformable: TQuery,
         private val database: DBFlowDatabase
     ) : DataSource.Factory<Int, T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
-        override fun create(): DataSource<Int, T> = QueryDataSource(transformable, database)
+        override fun create(): DataSource<Int, T> = QueryDataSource(database, transformable)
     }
 
     companion object {

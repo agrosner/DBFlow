@@ -123,12 +123,12 @@ class DatabaseDefinition(
                 for (definition in manager.getTableDefinitions(elementClassName)) {
                     if (definition.hasGlobalTypeConverters) {
                         statement(
-                            "addModelAdapter(new \$T(holder, this), holder)",
+                            "holder.putModelAdapter(new \$T(holder, this))",
                             definition.outputClassName
                         )
                     } else {
                         statement(
-                            "addModelAdapter(new \$T(this), holder)",
+                            "holder.putModelAdapter(new \$T(this))",
                             definition.outputClassName
                         )
                     }
@@ -137,12 +137,12 @@ class DatabaseDefinition(
                 for (definition in manager.getModelViewDefinitions(elementClassName)) {
                     if (definition.hasGlobalTypeConverters) {
                         statement(
-                            "addModelViewAdapter(new \$T(holder, this), holder)",
+                            "holder.putViewAdapter(new \$T(holder, this))",
                             definition.outputClassName
                         )
                     } else {
                         statement(
-                            "addModelViewAdapter(new \$T(this), holder)",
+                            "holder.putViewAdapter(new \$T(this))",
                             definition.outputClassName
                         )
                     }
@@ -151,12 +151,12 @@ class DatabaseDefinition(
                 for (definition in manager.getQueryModelDefinitions(elementClassName)) {
                     if (definition.hasGlobalTypeConverters) {
                         statement(
-                            "addRetrievalAdapter(new \$T(holder, this), holder)",
+                            "holder.putQueryAdapter(new \$T(holder, this))",
                             definition.outputClassName
                         )
                     } else {
                         statement(
-                            "addRetrievalAdapter(new \$T(this), holder)",
+                            "holder.putQueryAdapter(new \$T(this))",
                             definition.outputClassName
                         )
                     }

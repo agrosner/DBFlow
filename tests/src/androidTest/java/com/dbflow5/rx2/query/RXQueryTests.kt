@@ -1,7 +1,8 @@
 package com.dbflow5.rx2.query
 
 import com.dbflow5.BaseUnitTest
-import com.dbflow5.config.databaseForTable
+import com.dbflow5.TestDatabase
+import com.dbflow5.config.database
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.models.SimpleModel
@@ -20,7 +21,7 @@ class RXQueryTests : BaseUnitTest() {
 
     @Test
     fun testCanQuery() {
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             SimpleModel("Name").save(db)
 
             var cursor: FlowCursor? = null
@@ -39,7 +40,7 @@ class RXQueryTests : BaseUnitTest() {
     @Test
     fun testCanCompileStatement() {
         var databaseStatement: DatabaseStatement? = null
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             db.beginTransactionAsync {
                 insert<SimpleModel>(SimpleModel_Table.name.`is`("name")).compileStatement(it)
             }.asSingle()
@@ -52,7 +53,7 @@ class RXQueryTests : BaseUnitTest() {
 
     @Test
     fun testCountMethod() {
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             SimpleModel("name").save(db)
             SimpleModel("name2").save(db)
             var count = 0L
@@ -71,7 +72,7 @@ class RXQueryTests : BaseUnitTest() {
     @Test
     fun testInsertMethod() {
         var count = 0L
-        databaseForTable<SimpleModel>()
+        database<TestDatabase>()
             .beginTransactionAsync {
                 (insert<SimpleModel>(SimpleModel_Table.name.eq("name"))).executeInsert(it)
             }.asSingle()

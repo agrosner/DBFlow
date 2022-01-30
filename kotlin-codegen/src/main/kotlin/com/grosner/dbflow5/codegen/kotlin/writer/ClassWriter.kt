@@ -73,7 +73,7 @@ class ClassWriter(
         val extractors = model.extractors(referencesCache)
         val primaryExtractors = model.primaryExtractors(referencesCache)
         val superClass = when (model.type) {
-            is ClassModel.Type.Normal -> ClassNames.modelAdapter(model.classType)
+            is ClassModel.Type.Table -> ClassNames.modelAdapter(model.classType)
             is ClassModel.Type.View -> ClassNames.modelViewAdapter(model.classType)
             ClassModel.Type.Query -> ClassNames.retrievalAdapter(model.classType)
         }
@@ -331,7 +331,7 @@ class ClassWriter(
                         FunSpec.getterBuilder()
                             .addCode(
                                 "return %T.%L", ClassNames.ObjectType,
-                                if (model.type is ClassModel.Type.Normal) {
+                                if (model.type is ClassModel.Type.Table) {
                                     "Table"
                                 } else "View"
                             )

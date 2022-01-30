@@ -1,7 +1,6 @@
 package com.dbflow5.reactivestreams.query
 
-import com.dbflow5.config.FlowManager
-import com.dbflow5.config.databaseForTable
+import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.Join
 import com.dbflow5.query.ModelQueriable
@@ -19,6 +18,7 @@ import kotlin.reflect.KClass
  * If the [ModelQueriable] relates to a [Join], this can be multiple tables.
  */
 class TableChangeOnSubscribe<T : Any, R : Any?>(
+    private val db: DBFlowDatabase,
     private val modelQueriable: ModelQueriable<T>,
     private val evalFn: ModelQueriableEvalFn<T, R>
 ) : FlowableOnSubscribe<R> {
@@ -41,7 +41,7 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(
 
     private fun evaluateEmission(table: KClass<*> = modelQueriable.table) {
         if (this::flowableEmitter.isInitialized) {
-            currentTransactions.add(databaseForTable(table)
+            currentTransactions.add(db
                 .beginTransactionAsync { modelQueriable.evalFn(it) }
                 .shouldRunInTransaction(false)
                 .asMaybe()
@@ -56,7 +56,6 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(
     override fun subscribe(e: FlowableEmitter<R>) {
         flowableEmitter = e
 
-        val db = FlowManager.getDatabaseForTable(associatedTables.first())
         // force initialize the dbr
         db.writableDatabase
 

@@ -92,7 +92,6 @@ class TypeConverterCache {
             modelTypeName = typeConverterSuper.typeArguments[1],
             modelClass = declaration.asStarProjectedType(),
             originatingSource = declaration.containingFile,
-            ksClassType = resolver.classTypeByClassName(className),
         )
         putTypeConverter(classModel)
     }

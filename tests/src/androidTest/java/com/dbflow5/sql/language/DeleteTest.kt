@@ -1,7 +1,8 @@
 package com.dbflow5.sql.language
 
 import com.dbflow5.BaseUnitTest
-import com.dbflow5.config.databaseForTable
+import com.dbflow5.TestDatabase
+import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.delete
@@ -20,7 +21,7 @@ class DeleteTest : BaseUnitTest() {
 
     @Test
     fun validateDeletion() {
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             SimpleModel("name").save(db)
             delete<SimpleModel>().execute(db)
             assertFalse((select from SimpleModel::class).hasData(db))
@@ -29,7 +30,7 @@ class DeleteTest : BaseUnitTest() {
 
     @Test
     fun validateDeletionWithQuery() {
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             SimpleModel("name").save(db)
             SimpleModel("another name").save(db)
 

@@ -43,7 +43,7 @@ class DatabaseHolderWriter(
                             // type converters
 
                             model.databases.forEach { db ->
-                                addStatement("%T(this)", db.generatedClassName.className)
+                                addStatement("putDatabase(%T(this))", db.generatedClassName.className)
                             }
                         }
                         .build()

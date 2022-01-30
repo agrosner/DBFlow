@@ -30,7 +30,7 @@ class KaptFieldSanitizer(
         val isModelView = typeElement.annotation<ModelView>() != null
         val isQuery = typeElement.annotation<Query>() != null
         if (listOf(isTable, isModelView, isQuery).count { it } > 1) {
-            throw FieldSanitizer.Validation.OnlyOneKind(typeElement.asClassName()).exception
+            throw Validation.OnlyOneKind(typeElement.asClassName()).exception
         }
         return input.properties
             .distinctBy { it.simpleName.shortName }

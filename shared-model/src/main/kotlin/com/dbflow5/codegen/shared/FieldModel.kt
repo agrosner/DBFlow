@@ -307,6 +307,5 @@ fun FieldModel.generateTypeConverter(resolver: ClassNameResolver): TypeConverter
         modelTypeName = classType,
         modelClass = classDeclaration,
         originatingSource = originatingSource,
-        ksClassType = resolver.classTypeByClassName(newName.className),
     )
 }

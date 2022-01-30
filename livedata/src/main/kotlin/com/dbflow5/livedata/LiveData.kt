@@ -1,8 +1,7 @@
 package com.dbflow5.livedata
 
 import androidx.lifecycle.LiveData
-import com.dbflow5.config.FlowManager
-import com.dbflow5.config.databaseForTable
+import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.ModelQueriableEvalFn
@@ -12,12 +11,16 @@ import kotlin.reflect.KClass
 /**
  * Return a new [LiveData] instance. Specify using the [evalFn] what query to run.
  */
-fun <T : Any, Q : ModelQueriable<T>, R> Q.toLiveData(evalFn: ModelQueriableEvalFn<T, R>): LiveData<R> =
-    QueryLiveData(this, evalFn)
+fun <T : Any, Q : ModelQueriable<T>, R> Q.toLiveData(
+    db: DBFlowDatabase,
+    evalFn: ModelQueriableEvalFn<T, R>
+): LiveData<R> =
+    QueryLiveData(this, evalFn, db)
 
 class QueryLiveData<T : Any, R : Any?>(
     private val modelQueriable: ModelQueriable<T>,
-    private val evalFn: ModelQueriableEvalFn<T, R>
+    private val evalFn: ModelQueriableEvalFn<T, R>,
+    private val db: DBFlowDatabase,
 ) : LiveData<R>() {
 
     private val associatedTables: Set<KClass<*>> = modelQueriable.extractFrom()?.associatedTables
@@ -27,13 +30,13 @@ class QueryLiveData<T : Any, R : Any?>(
         object : OnTableChangedObserver(associatedTables.toList()) {
             override fun onChanged(tables: Set<KClass<*>>) {
                 if (tables.isNotEmpty()) {
-                    evaluateEmission(tables.first())
+                    evaluateEmission()
                 }
             }
         }
 
-    private fun evaluateEmission(table: KClass<*> = modelQueriable.table) {
-        databaseForTable(table)
+    private fun evaluateEmission() {
+        db
             .beginTransactionAsync { modelQueriable.evalFn(it) }
             .execute { _, r -> value = r }
     }
@@ -41,7 +44,6 @@ class QueryLiveData<T : Any, R : Any?>(
     override fun onActive() {
         super.onActive()
 
-        val db = FlowManager.getDatabaseForTable(associatedTables.first())
         // force initialize the db
         db.writableDatabase
 
@@ -54,7 +56,6 @@ class QueryLiveData<T : Any, R : Any?>(
 
     override fun onInactive() {
         super.onInactive()
-        val db = FlowManager.getDatabaseForTable(associatedTables.first())
         val observer = db.tableObserver
         observer.removeOnTableChangedObserver(onTableChangedObserver)
     }

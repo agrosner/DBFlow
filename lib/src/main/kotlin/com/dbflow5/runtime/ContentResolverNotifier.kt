@@ -3,6 +3,7 @@ package com.dbflow5.runtime
 import android.content.ContentResolver
 import android.content.Context
 import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.getNotificationUri
 import com.dbflow5.query.SQLOperator
 import com.dbflow5.structure.ChangeAction
@@ -16,7 +17,8 @@ import kotlin.reflect.KClass
  */
 class ContentResolverNotifier(
     private val context: Context,
-    val authority: String
+    val authority: String,
+    override val db: DBFlowDatabase,
 ) : ModelNotifier {
 
     override fun <T : Any> notifyModelChanged(

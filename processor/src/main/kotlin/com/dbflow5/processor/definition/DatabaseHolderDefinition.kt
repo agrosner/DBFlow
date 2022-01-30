@@ -9,9 +9,7 @@ import com.grosner.kpoet.extends
 import com.grosner.kpoet.modifiers
 import com.grosner.kpoet.public
 import com.grosner.kpoet.statement
-import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeSpec
-import kotlin.jvm.internal.Reflection
 
 /**
  * Description: Top-level writer that handles writing all [DatabaseDefinition]
@@ -62,7 +60,7 @@ class DatabaseHolderDefinition(private val processorManager: ProcessorManager) :
                 .asSequence()
                 .mapNotNull { it.databaseDefinition?.outputClassName }
                 .sortedBy { it.simpleName() }
-                .forEach { statement("new \$T(this)", it) }
+                .forEach { statement("putDatabase(new \$T(this))", it) }
             this
         }
     }

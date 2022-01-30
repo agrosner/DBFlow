@@ -43,7 +43,7 @@ class DatabaseConfig(
     val transactionManagerCreator: TransactionManagerCreator? = null,
     val callback: DatabaseCallback? = null,
     val tableConfigMap: Map<KClass<*>, TableConfig<*>> = mapOf(),
-    val modelNotifier: ModelNotifier? = null,
+    val modelNotifier: ((DBFlowDatabase) -> ModelNotifier)? = null,
     val isInMemory: Boolean = false,
     val databaseName: String? = null,
     val databaseExtensionName: String? = null,
@@ -90,7 +90,7 @@ class DatabaseConfig(
         internal var transactionManagerCreator: TransactionManagerCreator? = null
         internal var callback: DatabaseCallback? = null
         internal val tableConfigMap: MutableMap<KClass<*>, TableConfig<*>> = hashMapOf()
-        internal var modelNotifier: ModelNotifier? = null
+        internal var modelNotifier: ((DBFlowDatabase) -> ModelNotifier)? = null
         internal var inMemory = false
         internal var databaseName: String? = null
         internal var databaseExtensionName: String? = null
@@ -111,7 +111,7 @@ class DatabaseConfig(
         inline fun <reified T : Any> table(fn: TableConfig.Builder<T>.() -> Unit) =
             addTableConfig(TableConfig.builder(T::class).apply(fn).build())
 
-        fun modelNotifier(modelNotifier: ModelNotifier) = apply {
+        fun modelNotifier(modelNotifier: (DBFlowDatabase) -> ModelNotifier) = apply {
             this.modelNotifier = modelNotifier
         }
 

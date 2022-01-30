@@ -5,15 +5,7 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
-import com.dbflow5.adapter.ModelAdapter
-import com.dbflow5.adapter.ModelViewAdapter
-import com.dbflow5.adapter.RetrievalAdapter
-import com.dbflow5.adapter.queriable.ListModelLoader
-import com.dbflow5.adapter.queriable.SingleModelLoader
-import com.dbflow5.adapter.saveable.ModelSaver
 import com.dbflow5.annotation.Database
-import com.dbflow5.annotation.Query
-import com.dbflow5.annotation.Table
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseStatement
@@ -60,15 +52,10 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         }
     }
 
+    override val associatedDBFlowDatabase: DBFlowDatabase
+        get() = this
+
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
-
-    private val modelAdapterMap = hashMapOf<KClass<*>, ModelAdapter<*>>()
-
-    private val modelTableNames = hashMapOf<String, KClass<*>>()
-
-    private val modelViewAdapterMap = linkedMapOf<KClass<*>, ModelViewAdapter<*>>()
-
-    private val queryModelAdapterMap = linkedMapOf<KClass<*>, RetrievalAdapter<*>>()
 
     /**
      * The helper that manages database changes and initialization
@@ -96,27 +83,9 @@ abstract class DBFlowDatabase : DatabaseWrapper {
 
     private var modelNotifier: ModelNotifier? = null
 
-    /**
-     * @return a list of all model classes in this database.
-     */
-    val modelClasses: List<KClass<*>>
-        get() = modelAdapterMap.keys.toList()
-
-    val modelViews: List<KClass<*>>
-        get() = modelViewAdapterMap.keys.toList()
-
-    /**
-     * @return The list of [ModelViewAdapter]. Internal method for
-     * creating model views in the DB.
-     */
-    val modelViewAdapters: List<ModelViewAdapter<*>>
-        get() = modelViewAdapterMap.values.toList()
-
-    /**
-     * @return The list of [RetrievalAdapter]. Internal method for creating query models in the DB.
-     */
-    val queryModelAdapters: List<RetrievalAdapter<*>>
-        get() = queryModelAdapterMap.values.toList()
+    abstract val tables: List<KClass<*>>
+    abstract val views: List<KClass<*>>
+    abstract val queries: List<KClass<*>>
 
     /**
      * @return The map of migrations to DB version
@@ -213,8 +182,8 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     val tableObserver: TableObserver by lazy {
         // observe all tables
-        TableObserver(this, tables = modelClasses.toMutableList().apply {
-            addAll(modelViews)
+        TableObserver(this, tables = tables.toMutableList().apply {
+            addAll(views)
         })
     }
 
@@ -225,22 +194,23 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     private fun applyDatabaseConfig(databaseConfig: DatabaseConfig?) {
         this.databaseConfig = databaseConfig
         if (databaseConfig != null) {
-            // initialize configuration if exists.
-            val tableConfigCollection = databaseConfig.tableConfigMap.values
-            for (tableConfig in tableConfigCollection) {
-                val modelAdapter: ModelAdapter<Any> =
-                    modelAdapterMap[tableConfig.tableClass] as ModelAdapter<Any>?
-                        ?: continue
-                tableConfig.listModelLoader?.let { loader ->
-                    modelAdapter.listModelLoader = loader as ListModelLoader<Any>
-                }
-                tableConfig.singleModelLoader?.let { loader ->
-                    modelAdapter.singleModelLoader = loader as SingleModelLoader<Any>
-                }
-                tableConfig.modelSaver?.let { saver ->
-                    modelAdapter.modelSaver = saver as ModelSaver<Any>
-                }
-            }
+            // TODO: figure out configuration solution for multiple DBs.
+            /* // initialize configuration if exists.
+             val tableConfigCollection = databaseConfig.tableConfigMap.values
+             for (tableConfig in tableConfigCollection) {
+                 val modelAdapter: ModelAdapter<Any> =
+                     modelAdapterMap[tableConfig.tableClass] as ModelAdapter<Any>?
+                         ?: continue
+                 tableConfig.listModelLoader?.let { loader ->
+                     modelAdapter.listModelLoader = loader as ListModelLoader<Any>
+                 }
+                 tableConfig.singleModelLoader?.let { loader ->
+                     modelAdapter.singleModelLoader = loader as SingleModelLoader<Any>
+                 }
+                 tableConfig.modelSaver?.let { saver ->
+                     modelAdapter.modelSaver = saver as ModelSaver<Any>
+                 }
+             }*/
             callback = databaseConfig.callback
         }
         transactionManager = if (databaseConfig?.transactionManagerCreator == null) {
@@ -250,85 +220,19 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         }
     }
 
-    protected fun <T : Any> addModelAdapter(modelAdapter: ModelAdapter<T>, holder: MutableHolder) {
-        holder.put(this, modelAdapter.table)
-        modelTableNames[modelAdapter.name] = modelAdapter.table
-        modelAdapterMap[modelAdapter.table] = modelAdapter
-    }
-
-    protected fun <T : Any> addModelViewAdapter(
-        modelViewAdapter: ModelViewAdapter<T>,
-        holder: MutableHolder
-    ) {
-        holder.put(this, modelViewAdapter.table)
-        modelViewAdapterMap[modelViewAdapter.table] = modelViewAdapter
-    }
-
-    protected fun <T : Any> addRetrievalAdapter(
-        retrievalAdapter: RetrievalAdapter<T>,
-        holder: MutableHolder
-    ) {
-        holder.put(this, retrievalAdapter.table)
-        queryModelAdapterMap[retrievalAdapter.table] = retrievalAdapter
-    }
-
     protected fun addMigration(version: Int, migration: Migration) {
         val list = migrationMap.getOrPut(version) { arrayListOf() }
         list += migration
     }
-
-    /**
-     * Internal method used to create the database schema.
-     *
-     * @return List of Model Adapters
-     */
-    val modelAdapters: List<ModelAdapter<*>>
-        get() = modelAdapterMap.values.toList()
-
-    /**
-     * Returns the associated [ModelAdapter] within this database for
-     * the specified table. If the Model is missing the [Table] annotation,
-     * this will return null.
-     *
-     * @param table The model that exists in this database.
-     * @return The ModelAdapter for the table.
-     */
-    fun <T : Any> getModelAdapterForTable(table: KClass<T>): ModelAdapter<T>? {
-        @Suppress("UNCHECKED_CAST")
-        return modelAdapterMap[table] as ModelAdapter<T>?
-    }
-
-    /**
-     * @param tableName The name of the table in this db.
-     * @return The associated [ModelAdapter] within this database for the specified table name.
-     * If the Model is missing the [Table] annotation, this will return null.
-     */
-    fun getModelClassForName(tableName: String): KClass<*>? = modelTableNames[tableName]
-
-    /**
-     * @param table the VIEW class to retrieve the ModelViewAdapter from.
-     * @return the associated [ModelViewAdapter] for the specified table.
-     */
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getModelViewAdapterForTable(table: KClass<T>): ModelViewAdapter<T>? =
-        modelViewAdapterMap[table] as ModelViewAdapter<T>?
-
-    /**
-     * @param queryModel The [Query] class
-     * @return The adapter that corresponds to the specified class.
-     */
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getQueryModelAdapterForQueryClass(queryModel: KClass<T>): RetrievalAdapter<T>? =
-        queryModelAdapterMap[queryModel] as RetrievalAdapter<T>?
 
     fun getModelNotifier(): ModelNotifier {
         var notifier = modelNotifier
         if (notifier == null) {
             val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
             notifier = if (config?.modelNotifier == null) {
-                DirectModelNotifier()
+                DirectModelNotifier.get(this)
             } else {
-                config.modelNotifier
+                config.modelNotifier.invoke(this)
             }
         }
         modelNotifier = notifier

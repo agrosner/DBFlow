@@ -3,11 +3,15 @@ package com.dbflow5.database
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
+import com.dbflow5.config.DBFlowDatabase
 
 /**
  * Description: Specifies the android default implementation of a database.
  */
-class AndroidDatabase internal constructor(val database: SQLiteDatabase) : AndroidDatabaseWrapper {
+class AndroidDatabase internal constructor(
+    val database: SQLiteDatabase,
+    override val associatedDBFlowDatabase: DBFlowDatabase,
+) : AndroidDatabaseWrapper {
 
     override fun execSQL(query: String) {
         rethrowDBFlowException { database.execSQL(query) }
@@ -90,7 +94,13 @@ class AndroidDatabase internal constructor(val database: SQLiteDatabase) : Andro
     companion object {
 
         @JvmStatic
-        fun from(database: SQLiteDatabase): AndroidDatabase = AndroidDatabase(database)
+        fun from(
+            database: SQLiteDatabase,
+            dbFlowDatabase: DBFlowDatabase
+        ): AndroidDatabase = AndroidDatabase(
+            database,
+            dbFlowDatabase,
+        )
     }
 }
 

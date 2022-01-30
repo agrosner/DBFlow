@@ -1,7 +1,9 @@
 package com.dbflow5.runtime
 
 import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.DatabaseConfig
+import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.structure.ChangeAction
 import kotlin.reflect.KClass
 
@@ -13,7 +15,9 @@ class DirectModelNotifier
 /**
  * Private constructor. Use shared [.get] to ensure singular instance.
  */
-private constructor() : ModelNotifier {
+private constructor(
+    override val db: DBFlowDatabase,
+) : ModelNotifier {
 
     private val modelChangedListenerMap =
         linkedMapOf<KClass<*>, MutableSet<OnModelStateChangedListener<*>>>()
@@ -26,13 +30,6 @@ private constructor() : ModelNotifier {
     }
 
     interface ModelChangedListener<in T> : OnModelStateChangedListener<T>, OnTableChangedListener
-
-    init {
-        if (instanceCount > 0) {
-            throw IllegalStateException("Cannot instantiate more than one DirectNotifier. Use DirectNotifier.get()")
-        }
-        instanceCount++
-    }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> notifyModelChanged(
@@ -132,12 +129,12 @@ private constructor() : ModelNotifier {
             }
         }
 
-        override fun <T: Any> register(tClass: KClass<T>) {
+        override fun <T : Any> register(tClass: KClass<T>) {
             registeredTables.add(tClass)
             directModelNotifier.registerForTableChanges(tClass, internalChangeListener)
         }
 
-        override fun <T: Any> unregister(tClass: KClass<T>) {
+        override fun <T : Any> unregister(tClass: KClass<T>) {
             registeredTables.remove(tClass)
             directModelNotifier.unregisterForTableChanges(tClass, internalChangeListener)
         }
@@ -158,17 +155,12 @@ private constructor() : ModelNotifier {
     }
 
     companion object {
+        private val notifierMap = mutableMapOf<DatabaseWrapper, DirectModelNotifier>()
 
-        internal var instanceCount = 0
-
-        private val notifier: DirectModelNotifier by lazy {
-            DirectModelNotifier()
-        }
-
-        @JvmStatic
-        fun get(): DirectModelNotifier = notifier
-
-        operator fun invoke() = get()
+        fun get(db: DBFlowDatabase): DirectModelNotifier =
+            notifierMap.getOrPut(db) {
+                DirectModelNotifier(db)
+            }
     }
 
 }

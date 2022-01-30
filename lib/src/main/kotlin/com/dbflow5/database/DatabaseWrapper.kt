@@ -1,10 +1,14 @@
 package com.dbflow5.database
 
+import com.dbflow5.config.DBFlowDatabase
+
 /**
  * Description: Provides a base implementation that wraps a database, so other databaseForTable engines potentially can
  * be used.
  */
 interface DatabaseWrapper {
+
+    val associatedDBFlowDatabase: DBFlowDatabase
 
     val isInTransaction: Boolean
 

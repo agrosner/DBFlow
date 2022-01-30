@@ -24,7 +24,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 /**
  * Description:
@@ -103,13 +102,12 @@ class CoroutinesTest : BaseUnitTest() {
     fun testRetrievalFlow() = runBlockingTest {
         database<TestDatabase> { db ->
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
-            val result = simpleModel.awaitSave(db)
-            assert(result.isSuccess)
+            val saveResult = simpleModel.awaitSave(db)
+            assert(saveResult.isSuccess)
+            val result = (select from TwoColumnModel::class where TwoColumnModel_Table.id.eq(5))
+                .toFlow(db) { querySingle(it) }.first()
+            assert(result != null)
         }
-
-        val result = (select from TwoColumnModel::class where TwoColumnModel_Table.id.eq(5))
-            .toFlow { querySingle(it) }.first()
-        assert(result != null)
     }
 
     @Test
@@ -117,7 +115,7 @@ class CoroutinesTest : BaseUnitTest() {
         val count = ConflatedBroadcastChannel(0)
         val job = launch {
             (select from TwoColumnModel::class)
-                .toFlow { queryList(it) }
+                .toFlow(database<TestDatabase>()) { queryList(it) }
                 .collect {
                     count.offer(count.value + 1)
                 }

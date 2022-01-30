@@ -11,7 +11,7 @@ import com.dbflow5.config.OpenHelperCreator
  */
 open class AndroidSQLiteOpenHelper(
     private val context: Context,
-    dbFlowDatabase: DBFlowDatabase,
+    private val dbFlowDatabase: DBFlowDatabase,
     listener: DatabaseCallback?,
     private val databaseHelperDelegate: DatabaseHelperDelegate = DatabaseHelperDelegate(
         context,
@@ -32,7 +32,7 @@ open class AndroidSQLiteOpenHelper(
     override val database: DatabaseWrapper
         get() {
             if (androidDatabase == null || androidDatabase?.database?.isOpen == false) {
-                androidDatabase = AndroidDatabase.from(writableDatabase)
+                androidDatabase = AndroidDatabase.from(writableDatabase, dbFlowDatabase)
             }
             return androidDatabase!!
         }
@@ -48,23 +48,37 @@ open class AndroidSQLiteOpenHelper(
     }
 
     override fun onConfigure(db: SQLiteDatabase) {
-        databaseHelperDelegate.onConfigure(AndroidDatabase.from(db))
+        databaseHelperDelegate.onConfigure(AndroidDatabase.from(db, dbFlowDatabase))
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        databaseHelperDelegate.onCreate(AndroidDatabase.from(db))
+        databaseHelperDelegate.onCreate(AndroidDatabase.from(db, dbFlowDatabase))
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        databaseHelperDelegate.onUpgrade(AndroidDatabase.from(db), oldVersion, newVersion)
+        databaseHelperDelegate.onUpgrade(
+            AndroidDatabase.from(db, dbFlowDatabase),
+            oldVersion,
+            newVersion
+        )
     }
 
     override fun onOpen(db: SQLiteDatabase) {
-        databaseHelperDelegate.onOpen(AndroidDatabase.from(db))
+        databaseHelperDelegate.onOpen(
+            AndroidDatabase.from(
+                db,
+                dbFlowDatabase
+            )
+        )
     }
 
     override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        databaseHelperDelegate.onDowngrade(AndroidDatabase.from(db), oldVersion, newVersion)
+        databaseHelperDelegate.onDowngrade(
+            AndroidDatabase.from(
+                db,
+                dbFlowDatabase
+            ), oldVersion, newVersion
+        )
     }
 
     override fun closeDB() {

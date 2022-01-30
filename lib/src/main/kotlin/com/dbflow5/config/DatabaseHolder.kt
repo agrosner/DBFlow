@@ -1,10 +1,16 @@
 package com.dbflow5.config
 
+import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter.ModelViewAdapter
+import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.converter.TypeConverter
 import kotlin.reflect.KClass
 
 interface MutableHolder {
-    fun put(databaseDefinition: DBFlowDatabase, table: KClass<*>)
+    fun putDatabase(databaseDefinition: DBFlowDatabase)
+    fun putModelAdapter(modelAdapter: ModelAdapter<*>)
+    fun putQueryAdapter(retrievalAdapter: RetrievalAdapter<*>)
+    fun putViewAdapter(modelViewAdapter: ModelViewAdapter<*>)
 }
 
 /**
@@ -13,7 +19,10 @@ interface MutableHolder {
  */
 abstract class DatabaseHolder : MutableHolder {
 
-    val databaseDefinitionMap: MutableMap<KClass<*>, DBFlowDatabase> = hashMapOf()
+    val modelAdapterMap = hashMapOf<KClass<*>, ModelAdapter<*>>()
+    val modelViewAdapterMap = linkedMapOf<KClass<*>, ModelViewAdapter<*>>()
+    val queryModelAdapterMap = linkedMapOf<KClass<*>, RetrievalAdapter<*>>()
+
     val databaseNameMap: MutableMap<String, DBFlowDatabase> = hashMapOf()
     val databaseClassLookupMap: MutableMap<KClass<*>, DBFlowDatabase> = hashMapOf()
 
@@ -30,12 +39,6 @@ abstract class DatabaseHolder : MutableHolder {
     fun getTypeConverterForClass(clazz: KClass<*>): TypeConverter<*, *>? =
         typeConverters[clazz]
 
-    /**
-     * @param table The model class
-     * @return The database that the table belongs in
-     */
-    fun getDatabaseForTable(table: KClass<*>): DBFlowDatabase? = databaseDefinitionMap[table]
-
     fun getDatabase(databaseClass: KClass<*>): DBFlowDatabase? =
         databaseClassLookupMap[databaseClass]
 
@@ -45,21 +48,31 @@ abstract class DatabaseHolder : MutableHolder {
      */
     fun getDatabase(databaseName: String): DBFlowDatabase? = databaseNameMap[databaseName]
 
-    override fun put(databaseDefinition: DBFlowDatabase, table: KClass<*>) {
-        databaseDefinitionMap[table] = databaseDefinition
+    fun <T : Any> getModelAdapterOrNull(table: KClass<T>): ModelAdapter<T>? =
+        modelAdapterMap[table] as ModelAdapter<T>?
+
+    fun <T : Any> getViewAdapterOrNull(table: KClass<T>): ModelViewAdapter<T>? =
+        modelViewAdapterMap[table] as ModelViewAdapter<T>?
+
+    fun <T : Any> getQueryAdapterOrNull(query: KClass<T>): RetrievalAdapter<T>? =
+        queryModelAdapterMap[query] as RetrievalAdapter<T>?
+
+    override fun putDatabase(databaseDefinition: DBFlowDatabase) {
         databaseNameMap[databaseDefinition.databaseName] = databaseDefinition
         databaseClassLookupMap[databaseDefinition.associatedDatabaseClassFile] =
             databaseDefinition
     }
 
-    /**
-     * Helper method used to store a database for the specified table.
-     *
-     * @param table              The model table
-     * @param databaseDefinition The database definition
-     */
-    fun putDatabaseForTable(table: KClass<*>, databaseDefinition: DBFlowDatabase) {
-        put(databaseDefinition, table)
+    override fun putModelAdapter(modelAdapter: ModelAdapter<*>) {
+        modelAdapterMap[modelAdapter.table] = modelAdapter
+    }
+
+    override fun putQueryAdapter(retrievalAdapter: RetrievalAdapter<*>) {
+        queryModelAdapterMap[retrievalAdapter.table] = retrievalAdapter
+    }
+
+    override fun putViewAdapter(modelViewAdapter: ModelViewAdapter<*>) {
+        modelViewAdapterMap[modelViewAdapter.table] = modelViewAdapter
     }
 
     fun putTypeConverter(type: KClass<*>, typeConverter: TypeConverter<*, *>) {
@@ -67,9 +80,11 @@ abstract class DatabaseHolder : MutableHolder {
     }
 
     fun reset() {
-        databaseDefinitionMap.clear()
         databaseNameMap.clear()
         databaseClassLookupMap.clear()
         typeConverters.clear()
+        modelViewAdapterMap.clear()
+        modelAdapterMap.clear()
+        queryModelAdapterMap.clear()
     }
 }

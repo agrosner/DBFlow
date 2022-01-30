@@ -6,7 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.dbflow5.ImmediateTransactionManager
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.FlowManager
-import com.dbflow5.config.databaseForTable
+import com.dbflow5.config.database
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
@@ -43,11 +43,12 @@ class DirectNotifierTest {
 
     @Test
     fun validateCanNotifyDirect() {
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             val simpleModel = SimpleModel("Name")
 
             val modelChange = mock<DirectModelNotifier.OnModelStateChangedListener<SimpleModel>>()
-            DirectModelNotifier.get().registerForModelStateChanges(SimpleModel::class, modelChange)
+            DirectModelNotifier.get(db)
+                .registerForModelStateChanges(SimpleModel::class, modelChange)
 
             simpleModel.insert(db)
             verify(modelChange).onModelChanged(simpleModel, ChangeAction.INSERT)
@@ -65,9 +66,9 @@ class DirectNotifierTest {
 
     @Test
     fun validateCanNotifyWrapperClasses() {
-        databaseForTable<SimpleModel> { db ->
+        database<TestDatabase> { db ->
             val modelChange = mock<OnTableChangedListener>()
-            DirectModelNotifier.get().registerForTableChanges(SimpleModel::class, modelChange)
+            DirectModelNotifier.get(db).registerForTableChanges(SimpleModel::class, modelChange)
 
             insertInto<SimpleModel>()
                 .columnValues(SimpleModel_Table.name to "name")

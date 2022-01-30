@@ -145,7 +145,7 @@ data class ManyToManyModel(
     val classModel: ClassModel = ClassModel(
         name = generatedName,
         classType = generatedName.className,
-        type = ClassModel.Type.Normal.Normal,
+        type = ClassModel.Type.Table.Normal,
         properties = GeneratedClassProperties(
             allFields = true,
             database = databaseTypeName,

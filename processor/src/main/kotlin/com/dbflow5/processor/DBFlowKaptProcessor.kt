@@ -1,6 +1,7 @@
 package com.dbflow5.processor
 
 import com.dbflow5.codegen.shared.Annotations
+import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.validation.ValidationException
 import com.dbflow5.processor.interop.KaptResolver
 import com.dbflow5.processor.parser.KaptElementProcessor
@@ -23,12 +24,15 @@ class DBFlowKaptProcessor(
     private val types: Types,
     private val kaptElementProcessor: KaptElementProcessor,
     private val objectWriter: ObjectWriter,
+    private val fieldSanitizer: FieldSanitizer,
 ) {
 
     fun process(roundEnvironment: RoundEnvironment) {
         try {
             val resolver = KaptResolver(elements, types)
             kaptElementProcessor.applyResolver(resolver)
+            fieldSanitizer.applyResolver(resolver)
+
             val elements = Annotations.values.map {
                 roundEnvironment.getElementsAnnotatedWith(
                     elements.getTypeElement(it.qualifiedName)
