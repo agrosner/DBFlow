@@ -6,6 +6,8 @@ import com.dbflow5.codegen.shared.DatabaseModel
 import com.dbflow5.codegen.shared.generatedClassName
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
+import com.dbflow5.stripQuotes
+import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -117,6 +119,33 @@ class DatabaseWriter(
                         }
                         .build()
                 )
+
+                // extension methods for db scope
+
+                model.tables
+                    .forEach { clazz ->
+                        addProperty(
+                            PropertySpec.builder(
+                                clazz.dbName.stripQuotes().replaceFirstChar { it.lowercase() },
+                                ClassNames.modelAdapter(clazz.classType)
+                            )
+                                .apply {
+                                    if (clazz.isInternal) {
+                                        addModifiers(KModifier.INTERNAL)
+                                    }
+                                }
+                                .receiver(ClassNames.dbScope(model.classType))
+                                .getter(
+                                    FunSpec.getterBuilder()
+                                        .addStatement(
+                                            "return %M<%T>()", MemberNames.modelAdapter,
+                                            clazz.classType
+                                        )
+                                        .build()
+                                )
+                                .build()
+                        )
+                    }
             }
             .build()
     }

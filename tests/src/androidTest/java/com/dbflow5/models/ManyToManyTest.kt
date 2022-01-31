@@ -2,8 +2,10 @@ package com.dbflow5.models
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
+import com.dbflow5.artist
+import com.dbflow5.artist_Song
 import com.dbflow5.config.database
-import com.dbflow5.structure.save
+import com.dbflow5.song
 import org.junit.Test
 
 class ManyToManyTest : BaseUnitTest() {
@@ -11,18 +13,18 @@ class ManyToManyTest : BaseUnitTest() {
     @Test
     fun testCanCreateManyToMany() {
         database<TestDatabase> {
-            val artist = Artist(name = "Andrew Grosner")
-                .save(db)
-                .getOrThrow()
-            val song = Song(name = "Livin' on A Prayer")
-                .save(db)
-                .getOrThrow()
+            val artistModel =
+                artist.save(Artist(name = "Andrew Grosner"))
+                    .getOrThrow()
+            val songModel =
+                song.save(Song(name = "Livin' on A Prayer"))
+                    .getOrThrow()
             val artistSong = Artist_Song(
                 0,
-                artist,
-                song
+                artistModel,
+                songModel
             )
-            assert(artistSong.save(db).isSuccess)
+            assert(artist_Song.save(artistSong).isSuccess)
         }
     }
 }

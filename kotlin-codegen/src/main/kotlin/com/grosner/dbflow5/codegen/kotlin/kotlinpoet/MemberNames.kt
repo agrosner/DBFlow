@@ -16,6 +16,9 @@ object MemberNames {
     val propertyBind = MemberName(PackageNames.Property, "bindProperty")
 
     val select = MemberName(PackageNames.Query, "select")
+
+    val modelAdapter = MemberName(PackageNames.Config, "modelAdapter")
+
     const val from = "from"
     const val where = "where"
     const val requireSingle = "requireSingle"

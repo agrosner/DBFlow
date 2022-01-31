@@ -7,8 +7,7 @@ import com.dbflow5.adapter.drop
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.config.database
-import com.dbflow5.config.modelAdapter
-import com.dbflow5.structure.save
+import com.dbflow5.tempModel
 import org.junit.Test
 
 
@@ -20,11 +19,9 @@ class TempModelTest : BaseUnitTest() {
     @Test
     fun createTempTable() {
         database<TestDatabase> {
-            modelAdapter<TempModel>().createIfNotExists(db)
-
-            TempModel(id = 5).save(db)
-
-            modelAdapter<TempModel>().drop(db)
+            tempModel.createIfNotExists(db)
+            tempModel.save(TempModel(id = 5), db)
+            tempModel.drop(db)
         }
     }
 }

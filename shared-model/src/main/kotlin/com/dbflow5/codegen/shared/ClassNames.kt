@@ -45,6 +45,10 @@ object ClassNames {
         ClassName(PackageNames.Adapter, "AdapterCompanion")
             .parameterizedBy(typeName)
 
+    fun dbScope(dbTypeName: TypeName) =
+        ClassName("${PackageNames.Database}.scope", "DatabaseScope")
+            .parameterizedBy(dbTypeName)
+
     val DBFlowDatabase = ClassName(PackageNames.Config, "DBFlowDatabase")
     val MutableHolder = ClassName(PackageNames.Config, "MutableHolder")
     val GeneratedDatabaseHolder = ClassName(PackageNames.Config, "GeneratedDatabaseHolder")

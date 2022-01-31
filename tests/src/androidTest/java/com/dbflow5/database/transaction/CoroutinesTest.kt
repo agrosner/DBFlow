@@ -15,7 +15,7 @@ import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
-import com.dbflow5.structure.save
+import com.dbflow5.simpleModel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -35,7 +35,7 @@ class CoroutinesTest : BaseUnitTest() {
         runBlocking {
             database<TestDatabase> {
                 (0..9).forEach {
-                    SimpleModel("$it").save(db)
+                    simpleModel.save(SimpleModel("$it"), db)
                 }
 
                 val query = (select from SimpleModel::class

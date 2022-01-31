@@ -38,8 +38,8 @@ class CipherTest {
 
             val retrieval = (select from CipherModel::class
                 where CipherModel_Table.name.eq("name"))
-                .querySingle(db)
-            assertTrue(retrieval!!.id == model.id)
+                .requireSingle(db)
+            assertTrue(retrieval.id == model.id)
             (delete() from CipherModel::class).execute(db)
         }
     }

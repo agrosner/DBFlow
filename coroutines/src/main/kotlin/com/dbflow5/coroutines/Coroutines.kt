@@ -1,12 +1,8 @@
 package com.dbflow5.coroutines
 
 import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.modelAdapter
 import com.dbflow5.query.Queriable
-import com.dbflow5.structure.delete
-import com.dbflow5.structure.insert
-import com.dbflow5.structure.load
-import com.dbflow5.structure.save
-import com.dbflow5.structure.update
 import com.dbflow5.transaction.FastStoreModelTransaction
 import com.dbflow5.transaction.Transaction
 import com.dbflow5.transaction.fastDelete
@@ -79,7 +75,12 @@ suspend inline fun <Q : Queriable, R : Any?> Q.awaitTransact(
  */
 suspend inline fun <reified M : Any> M.awaitSave(databaseDefinition: DBFlowDatabase) =
     suspendCancellableCoroutine<Result<M>> { continuation ->
-        constructCoroutine(continuation, databaseDefinition) { save(databaseDefinition) }
+        constructCoroutine(continuation, databaseDefinition) {
+            modelAdapter<M>().save(
+                this,
+                databaseDefinition
+            )
+        }
     }
 
 /**
@@ -88,7 +89,12 @@ suspend inline fun <reified M : Any> M.awaitSave(databaseDefinition: DBFlowDatab
  */
 suspend inline fun <reified M : Any> M.awaitInsert(databaseDefinition: DBFlowDatabase) =
     suspendCancellableCoroutine<Result<M>> { continuation ->
-        constructCoroutine(continuation, databaseDefinition) { insert(databaseDefinition) }
+        constructCoroutine(continuation, databaseDefinition) {
+            modelAdapter<M>().insert(
+                this,
+                databaseDefinition
+            )
+        }
     }
 
 /**
@@ -97,7 +103,9 @@ suspend inline fun <reified M : Any> M.awaitInsert(databaseDefinition: DBFlowDat
  */
 suspend inline fun <reified M : Any> M.awaitDelete(databaseDefinition: DBFlowDatabase) =
     suspendCancellableCoroutine<Result<M>> { continuation ->
-        constructCoroutine(continuation, databaseDefinition) { delete(databaseDefinition) }
+        constructCoroutine(continuation, databaseDefinition) {
+            modelAdapter<M>().delete(this, databaseDefinition)
+        }
     }
 
 /**
@@ -106,7 +114,9 @@ suspend inline fun <reified M : Any> M.awaitDelete(databaseDefinition: DBFlowDat
  */
 suspend inline fun <reified M : Any> M.awaitUpdate(databaseDefinition: DBFlowDatabase) =
     suspendCancellableCoroutine<Result<M>> { continuation ->
-        constructCoroutine(continuation, databaseDefinition) { update(databaseDefinition) }
+        constructCoroutine(continuation, databaseDefinition) {
+            modelAdapter<M>().update(this, databaseDefinition)
+        }
     }
 
 /**
@@ -115,7 +125,9 @@ suspend inline fun <reified M : Any> M.awaitUpdate(databaseDefinition: DBFlowDat
  */
 suspend inline fun <reified M : Any> M.awaitLoad(databaseDefinition: DBFlowDatabase) =
     suspendCancellableCoroutine<Unit> { continuation ->
-        constructCoroutine(continuation, databaseDefinition) { load(databaseDefinition) }
+        constructCoroutine(continuation, databaseDefinition) {
+            modelAdapter<M>().load(this, databaseDefinition)
+        }
     }
 
 /**
