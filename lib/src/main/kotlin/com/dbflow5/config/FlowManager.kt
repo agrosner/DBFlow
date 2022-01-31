@@ -9,8 +9,7 @@ import com.dbflow5.adapter.ModelViewAdapter
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.converter.TypeConverter
-import com.dbflow5.database.scope.DatabaseScope
-import com.dbflow5.database.scope.DatabaseScopeImpl
+import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.structure.InvalidDBConfiguration
 import com.dbflow5.structure.Model
 import kotlin.reflect.KClass
@@ -349,9 +348,9 @@ object FlowManager {
 /**
  * Easily get access to its [DBFlowDatabase] directly.
  */
-inline fun <reified DB : DBFlowDatabase> database(fn: DatabaseScope<DB>.() -> Unit = {}): DB =
+inline fun <reified DB : DBFlowDatabase> database(fn: WritableDatabaseScope<DB>.() -> Unit = {}): DB =
     FlowManager.getDatabase(DB::class).apply {
-        DatabaseScopeImpl<DB>(this).fn()
+        WritableDatabaseScope<DB>(this).fn()
     }
 
 /**

@@ -172,14 +172,14 @@ class WhereTest : BaseUnitTest() {
     fun validateNonSelectThrowError() {
         database<TestDatabase> {
             try {
-                update<SimpleModel>().set(SimpleModel_Table.name.`is`("name")).querySingle(db)
+                update<SimpleModel>().set(SimpleModel_Table.name.`is`("name")).querySingle(this.db)
                 fail("Non select passed")
             } catch (i: IllegalArgumentException) {
                 // expected
             }
 
             try {
-                update<SimpleModel>().set(SimpleModel_Table.name.`is`("name")).queryList(db)
+                update<SimpleModel>().set(SimpleModel_Table.name.`is`("name")).queryList(this.db)
                 fail("Non select passed")
             } catch (i: IllegalArgumentException) {
                 // expected

@@ -5,11 +5,12 @@ import com.dbflow5.config.DBFlowDatabase
 /**
  * Description: The main handle into the database.
  */
-interface DatabaseScope<DB : DBFlowDatabase>: WritableScope {
+interface DatabaseScope<DB : DBFlowDatabase> {
 
     /**
      * Database handle.
      */
-    val db: DBFlowDatabase
+    val db: DB
 }
 
+interface WritableDatabaseScope<DB : DBFlowDatabase> : DatabaseScope<DB>, WritableScope

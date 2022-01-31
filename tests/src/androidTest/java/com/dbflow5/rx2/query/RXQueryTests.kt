@@ -22,11 +22,11 @@ class RXQueryTests : BaseUnitTest() {
     @Test
     fun testCanQuery() {
         database<TestDatabase> {
-            SimpleModel("Name").save(db)
+            SimpleModel("Name").save(this.db)
 
             var cursor: FlowCursor? = null
 
-            db.beginTransactionAsync { (select from SimpleModel::class).cursor(it) }
+            this.db.beginTransactionAsync { (select from SimpleModel::class).cursor(it) }
                 .asMaybe()
                 .subscribe {
                     cursor = it
@@ -41,7 +41,7 @@ class RXQueryTests : BaseUnitTest() {
     fun testCanCompileStatement() {
         var databaseStatement: DatabaseStatement? = null
         database<TestDatabase> {
-            db.beginTransactionAsync {
+            this.db.beginTransactionAsync {
                 insert<SimpleModel>(SimpleModel_Table.name.`is`("name")).compileStatement(it)
             }.asSingle()
                 .subscribe { statement ->
@@ -54,10 +54,10 @@ class RXQueryTests : BaseUnitTest() {
     @Test
     fun testCountMethod() {
         database<TestDatabase> {
-            SimpleModel("name").save(db)
-            SimpleModel("name2").save(db)
+            SimpleModel("name").save(this.db)
+            SimpleModel("name2").save(this.db)
             var count = 0L
-            db.beginTransactionAsync {
+            this.db.beginTransactionAsync {
                 (selectCountOf(Property.ALL_PROPERTY) from SimpleModel::class).longValue(it)
             }
                 .asSingle()

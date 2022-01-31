@@ -28,7 +28,7 @@ class PrepackagedDBTest {
     @Test
     fun assertWeCanLoadFromDB() {
         database<PrepackagedDB> {
-            val list = (select from Dog::class).queryList(db)
+            val list = (select from Dog::class).queryList(this.db)
             assertTrue(list.isNotEmpty())
         }
     }
@@ -36,14 +36,14 @@ class PrepackagedDBTest {
     @Test
     fun assertWeCanLoadFromDBPostMigrate() {
         database<MigratedPrepackagedDB> {
-            val list = (select from Dog2::class).queryList(db)
+            val list = (select from Dog2::class).queryList(this.db)
             assertTrue(list.isNotEmpty())
 
             val newData = (select
                 from Dog2::class
                 where Dog2_Table.breed.eq("NewBreed")
                 and Dog2_Table.newField.eq("New Field Data"))
-                .querySingle(db)
+                .querySingle(this.db)
             assertTrue(newData != null)
         }
     }

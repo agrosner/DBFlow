@@ -19,8 +19,8 @@ class IndexPropertyTest : BaseUnitTest() {
                 "Index", true, SimpleModel::class,
                 SimpleModel_Table.name
             )
-            prop.createIfNotExists(db)
-            prop.drop(db)
+            prop.createIfNotExists(this.db)
+            prop.drop(this.db)
             assertEquals("`Index`", prop.indexName)
         }
     }

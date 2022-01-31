@@ -30,17 +30,17 @@ class CipherTest {
     @Test
     fun testCipherModel() {
         database<CipherDatabase> {
-            (delete() from CipherModel::class).execute(db)
+            (delete() from CipherModel::class).execute(this.db)
             val model = CipherModel(name = "name")
-                .save(db)
+                .save(this.db)
                 .getOrThrow()
-            assertTrue(model.exists(db))
+            assertTrue(model.exists(this.db))
 
             val retrieval = (select from CipherModel::class
                 where CipherModel_Table.name.eq("name"))
-                .requireSingle(db)
+                .requireSingle(this.db)
             assertTrue(retrieval.id == model.id)
-            (delete() from CipherModel::class).execute(db)
+            (delete() from CipherModel::class).execute(this.db)
         }
     }
 }

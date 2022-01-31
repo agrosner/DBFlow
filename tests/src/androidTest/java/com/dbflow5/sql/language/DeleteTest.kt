@@ -22,23 +22,23 @@ class DeleteTest : BaseUnitTest() {
     @Test
     fun validateDeletion() {
         database<TestDatabase> {
-            SimpleModel("name").save(db)
-            delete<SimpleModel>().execute(db)
-            assertFalse((select from SimpleModel::class).hasData(db))
+            SimpleModel("name").save(this.db)
+            delete<SimpleModel>().execute(this.db)
+            assertFalse((select from SimpleModel::class).hasData(this.db))
         }
     }
 
     @Test
     fun validateDeletionWithQuery() {
         database<TestDatabase> {
-            SimpleModel("name").save(db)
-            SimpleModel("another name").save(db)
+            SimpleModel("name").save(this.db)
+            SimpleModel("another name").save(this.db)
 
             val where = delete<SimpleModel>().where(SimpleModel_Table.name.`is`("name"))
             assertEquals("DELETE FROM `SimpleModel` WHERE `name`='name'", where.query.trim())
-            where.execute(db)
+            where.execute(this.db)
 
-            assertEquals(1, (select from SimpleModel::class).queryList(db).size)
+            assertEquals(1, (select from SimpleModel::class).queryList(this.db).size)
         }
     }
 }

@@ -19,12 +19,12 @@ class QueryModelTest : BaseUnitTest() {
     fun testCanLoadAuthorBlogs() {
         database<TestDatabase> {
             val author = Author(0, "Andrew", "Grosner")
-            author.save(db)
+            author.save(this.db)
             val blog = Blog(0, "My First Blog", author)
-            blog.save(db)
+            blog.save(this.db)
 
-            assert(author.exists(db))
-            assert(blog.exists(db))
+            assert(author.exists(this.db))
+            assert(blog.exists(this.db))
 
             val result: AuthorNameQuery = (select(
                 Blog_Table.name.withTable().`as`("blogName"),
@@ -32,7 +32,7 @@ class QueryModelTest : BaseUnitTest() {
                 Blog_Table.id.withTable().`as`("blogId")
             ) from Blog::class innerJoin
                 Author::class on (Blog_Table.author_id.withTable() eq Blog_Table.id.withTable()))
-                .queryCustomSingle(db)!!
+                .queryCustomSingle(this.db)!!
             assertEquals(author.id, result.authorId)
             assertEquals(blog.id, result.blogId)
         }

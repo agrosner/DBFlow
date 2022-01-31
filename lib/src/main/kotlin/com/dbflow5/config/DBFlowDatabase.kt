@@ -6,12 +6,14 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import com.dbflow5.annotation.Database
+import com.dbflow5.coroutines.defer
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.OpenHelper
+import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.migration.Migration
 import com.dbflow5.observing.TableObserver
 import com.dbflow5.runtime.DirectModelNotifier
@@ -21,6 +23,7 @@ import com.dbflow5.transaction.DefaultTransactionManager
 import com.dbflow5.transaction.DefaultTransactionQueue
 import com.dbflow5.transaction.ITransaction
 import com.dbflow5.transaction.Transaction
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.reflect.KClass
@@ -422,4 +425,16 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             callback?.onConfigure(db)
         }
     }
+}
+
+/**
+ * Easily get access to its [DBFlowDatabase] directly.
+ */
+suspend inline fun <reified DB : DBFlowDatabase, R> DB.withTransaction(
+    crossinline fn: suspend WritableDatabaseScope<DB>.() -> R
+): R {
+    val defer = beginTransactionAsync {
+        runBlocking { WritableDatabaseScope<DB>(this@withTransaction).fn() }
+    }.defer()
+    return defer.await()
 }

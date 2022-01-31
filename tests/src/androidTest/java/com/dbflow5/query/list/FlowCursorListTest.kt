@@ -17,8 +17,8 @@ class FlowCursorListTest : BaseUnitTest() {
     @Test
     fun validateCursorPassed() {
         database<TestDatabase> {
-            val cursor = (select from SimpleModel::class).cursor(db)
-            val list = FlowCursorList.Builder(select from SimpleModel::class, db)
+            val cursor = (select from SimpleModel::class).cursor(this.db)
+            val list = FlowCursorList.Builder(select from SimpleModel::class, this.db)
                 .cursor(cursor)
                 .build()
 
@@ -30,7 +30,7 @@ class FlowCursorListTest : BaseUnitTest() {
     fun validateModelQueriable() {
         database<TestDatabase> {
             val modelQueriable = (select from SimpleModel::class)
-            val list = FlowCursorList.Builder(modelQueriable, db)
+            val list = FlowCursorList.Builder(modelQueriable, this.db)
                 .build()
 
             assertEquals(modelQueriable, list.modelQueriable)
@@ -41,10 +41,10 @@ class FlowCursorListTest : BaseUnitTest() {
     fun validateGetAll() {
         database<TestDatabase> {
             (0..9).forEach {
-                SimpleModel("$it").save(db)
+                SimpleModel("$it").save(this.db)
             }
 
-            val list = (select from SimpleModel::class).cursorList(db)
+            val list = (select from SimpleModel::class).cursorList(this.db)
             val all = list.all
             assertEquals(list.count, all.size.toLong())
         }
@@ -54,10 +54,10 @@ class FlowCursorListTest : BaseUnitTest() {
     fun validateCursorChange() {
         database<TestDatabase> {
             (0..9).forEach {
-                SimpleModel("$it").save(db)
+                SimpleModel("$it").save(this.db)
             }
 
-            val list = (select from SimpleModel::class).cursorList(db)
+            val list = (select from SimpleModel::class).cursorList(this.db)
 
             var cursorListFound: FlowCursorList<SimpleModel>? = null
             var count = 0
@@ -67,7 +67,7 @@ class FlowCursorListTest : BaseUnitTest() {
             }
             list.addOnCursorRefreshListener(listener)
             assertEquals(10, list.count)
-            SimpleModel("10").save(db)
+            SimpleModel("10").save(this.db)
             list.refresh()
             assertEquals(11, list.count)
 

@@ -1,7 +1,6 @@
 package com.dbflow5.coroutines
 
 import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.config.modelAdapter
 import com.dbflow5.query.Queriable
 import com.dbflow5.transaction.FastStoreModelTransaction
 import com.dbflow5.transaction.Transaction
@@ -68,67 +67,6 @@ suspend inline fun <Q : Queriable, R : Any?> Q.awaitTransact(
         )
     }
 }
-
-/**
- * Description: Puts a [Model] operation inside a coroutine. Inside the [queriableFunction]
- * execute the db operation.
- */
-suspend inline fun <reified M : Any> M.awaitSave(databaseDefinition: DBFlowDatabase) =
-    suspendCancellableCoroutine<Result<M>> { continuation ->
-        constructCoroutine(continuation, databaseDefinition) {
-            modelAdapter<M>().save(
-                this,
-                databaseDefinition
-            )
-        }
-    }
-
-/**
- * Description: Puts a [Model] operation inside a coroutine. Inside the [queriableFunction]
- * execute the db operation.
- */
-suspend inline fun <reified M : Any> M.awaitInsert(databaseDefinition: DBFlowDatabase) =
-    suspendCancellableCoroutine<Result<M>> { continuation ->
-        constructCoroutine(continuation, databaseDefinition) {
-            modelAdapter<M>().insert(
-                this,
-                databaseDefinition
-            )
-        }
-    }
-
-/**
- * Description: Puts a [Model] operation inside a coroutine. Inside the [queriableFunction]
- * execute the db operation.
- */
-suspend inline fun <reified M : Any> M.awaitDelete(databaseDefinition: DBFlowDatabase) =
-    suspendCancellableCoroutine<Result<M>> { continuation ->
-        constructCoroutine(continuation, databaseDefinition) {
-            modelAdapter<M>().delete(this, databaseDefinition)
-        }
-    }
-
-/**
- * Description: Puts a [Model] operation inside a coroutine. Inside the [queriableFunction]
- * execute the db operation.
- */
-suspend inline fun <reified M : Any> M.awaitUpdate(databaseDefinition: DBFlowDatabase) =
-    suspendCancellableCoroutine<Result<M>> { continuation ->
-        constructCoroutine(continuation, databaseDefinition) {
-            modelAdapter<M>().update(this, databaseDefinition)
-        }
-    }
-
-/**
- * Description: Puts a [Model] operation inside a coroutine. Inside the [queriableFunction]
- * execute the db operation.
- */
-suspend inline fun <reified M : Any> M.awaitLoad(databaseDefinition: DBFlowDatabase) =
-    suspendCancellableCoroutine<Unit> { continuation ->
-        constructCoroutine(continuation, databaseDefinition) {
-            modelAdapter<M>().load(this, databaseDefinition)
-        }
-    }
 
 /**
  * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.

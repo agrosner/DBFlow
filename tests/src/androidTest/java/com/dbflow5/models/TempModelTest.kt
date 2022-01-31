@@ -19,9 +19,9 @@ class TempModelTest : BaseUnitTest() {
     @Test
     fun createTempTable() {
         database<TestDatabase> {
-            tempModel.createIfNotExists(db)
-            tempModel.save(TempModel(id = 5), db)
-            tempModel.drop(db)
+            tempModel.createIfNotExists(this.db)
+            tempModel.save(TempModel(id = 5), this.db)
+            tempModel.drop(this.db)
         }
     }
 }

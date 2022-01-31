@@ -1,6 +1,5 @@
 include ':lib',
     ':reactive-streams',
-    ':coroutines',
     ':livedata',
     ':processor',
     ':core',

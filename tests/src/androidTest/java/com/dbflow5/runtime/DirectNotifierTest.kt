@@ -47,19 +47,19 @@ class DirectNotifierTest {
             val simpleModel = SimpleModel("Name")
 
             val modelChange = mock<DirectModelNotifier.OnModelStateChangedListener<SimpleModel>>()
-            DirectModelNotifier.get(db)
+            DirectModelNotifier.get(this.db)
                 .registerForModelStateChanges(SimpleModel::class, modelChange)
 
-            simpleModel.insert(db)
+            simpleModel.insert(this.db)
             verify(modelChange).onModelChanged(simpleModel, ChangeAction.INSERT)
 
-            simpleModel.update(db)
+            simpleModel.update(this.db)
             verify(modelChange).onModelChanged(simpleModel, ChangeAction.UPDATE)
 
-            simpleModel.save(db)
+            simpleModel.save(this.db)
             verify(modelChange).onModelChanged(simpleModel, ChangeAction.CHANGE)
 
-            simpleModel.delete(db)
+            simpleModel.delete(this.db)
             verify(modelChange).onModelChanged(simpleModel, ChangeAction.DELETE)
         }
     }
@@ -68,20 +68,20 @@ class DirectNotifierTest {
     fun validateCanNotifyWrapperClasses() {
         database<TestDatabase> {
             val modelChange = mock<OnTableChangedListener>()
-            DirectModelNotifier.get(db).registerForTableChanges(SimpleModel::class, modelChange)
+            DirectModelNotifier.get(this.db).registerForTableChanges(SimpleModel::class, modelChange)
 
             insertInto<SimpleModel>()
                 .columnValues(SimpleModel_Table.name to "name")
-                .executeInsert(db)
+                .executeInsert(this.db)
 
             verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.INSERT)
 
             (update<SimpleModel>() set SimpleModel_Table.name.eq("name2"))
-                .executeUpdateDelete(db)
+                .executeUpdateDelete(this.db)
 
             verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.UPDATE)
 
-            delete<SimpleModel>().executeUpdateDelete(db)
+            delete<SimpleModel>().executeUpdateDelete(this.db)
 
             verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.DELETE)
         }

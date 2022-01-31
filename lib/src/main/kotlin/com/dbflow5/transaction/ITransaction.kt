@@ -6,7 +6,7 @@ import com.dbflow5.database.DatabaseWrapper
  * Description: Simplest form of a transaction. It represents an interface by which code is executed
  * inside a database transaction.
  */
-interface ITransaction<out R> {
+fun interface ITransaction<out R> {
 
     /**
      * Called within a database transaction.

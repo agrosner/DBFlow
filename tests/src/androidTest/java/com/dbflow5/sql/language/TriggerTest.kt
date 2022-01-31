@@ -78,8 +78,8 @@ class TriggerTest : BaseUnitTest() {
                     ),
                     TwoColumnModel_Table.id to 1,
                 )
-            trigger.enable(db)
-            SimpleModel("Test").insert(db)
+            trigger.enable(this.db)
+            SimpleModel("Test").insert(this.db)
 
             val result =
                 select from TwoColumnModel::class where (TwoColumnModel_Table.name eq "Test")

@@ -13,12 +13,12 @@ class OneToManyModelTest : BaseUnitTest() {
         database<TestDatabase> {
             OneToManyModel(
                 name = "name"
-            ).save(db)
+            ).save(this.db)
 
             OneToManyBaseModel(
                 id = 1,
                 parentName = "name"
-            ).save(db)
+            ).save(this.db)
 
             /*val items =
                 (select from OneToManyModel::class).requireCustomSingle<OneToManyModel_OneToManyBaseModel>(

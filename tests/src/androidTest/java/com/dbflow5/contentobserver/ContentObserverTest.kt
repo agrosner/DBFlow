@@ -45,7 +45,7 @@ class ContentObserverTest {
     @Before
     fun setupUser() {
         database<ContentObserverDatabase> {
-            delete<User>().execute(db)
+            delete<User>().execute(this.db)
         }
         user = User(5, "Something", 55)
     }

@@ -21,11 +21,11 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     @Test
     fun testCanQueryStreamResults() {
         database<TestDatabase> {
-            (0..9).forEach { SimpleModel("$it").save(db) }
+            (0..9).forEach { SimpleModel("$it").save(this.db) }
 
             var count = 0
             (select from SimpleModel::class)
-                .queryStreamResults(db)
+                .queryStreamResults(this.db)
                 .subscribe {
                     count++
                     assert(it != null)
@@ -55,16 +55,16 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     @Test
     fun testCanObserveOnTableChangesWithTableOps() {
         database<TestDatabase> {
-            delete<SimpleModel>().executeUpdateDelete(db)
+            delete<SimpleModel>().executeUpdateDelete(this.db)
             var count = 0
             var curList: MutableList<SimpleModel> = arrayListOf()
             (select from SimpleModel::class)
-                .asFlowable(db) { queryList(it) }
+                .asFlowable(this.db) { queryList(it) }
                 .subscribe {
                     curList = it
                     count++
                 }
-            db.executeTransaction { d ->
+            this.db.executeTransaction { d ->
                 insert(SimpleModel::class, SimpleModel_Table.name)
                     .values("test")
                     .executeInsert(d)
@@ -79,13 +79,13 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
             assertEquals(3, curList.size)
 
-            db.executeTransaction { d ->
+            this.db.executeTransaction { d ->
                 val model = (select
                     from SimpleModel::class
                     where SimpleModel_Table.name.eq("test")).requireSingle(d)
                 model.delete(d)
             }
-            db.tableObserver.checkForTableUpdates()
+            this.db.tableObserver.checkForTableUpdates()
 
             assertEquals(2, curList.size)
             assertEquals(3, count) // once for subscription, 2 for transactions

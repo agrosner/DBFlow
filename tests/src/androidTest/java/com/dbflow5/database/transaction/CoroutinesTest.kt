@@ -3,11 +3,7 @@ package com.dbflow5.database.transaction
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
-import com.dbflow5.coroutines.awaitDelete
-import com.dbflow5.coroutines.awaitInsert
-import com.dbflow5.coroutines.awaitSave
 import com.dbflow5.coroutines.awaitTransact
-import com.dbflow5.coroutines.awaitUpdate
 import com.dbflow5.coroutines.toFlow
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
@@ -16,6 +12,7 @@ import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
 import com.dbflow5.simpleModel
+import com.dbflow5.twoColumnModel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -35,7 +32,7 @@ class CoroutinesTest : BaseUnitTest() {
         runBlocking {
             database<TestDatabase> {
                 (0..9).forEach {
-                    simpleModel.save(SimpleModel("$it"), db)
+                    simpleModel.save(SimpleModel("$it"), this.db)
                 }
 
                 val query = (select from SimpleModel::class
@@ -57,11 +54,11 @@ class CoroutinesTest : BaseUnitTest() {
     fun testAwaitSaveAndDelete() {
         runBlocking {
             database<TestDatabase> {
-                val simpleModel = SimpleModel("Name")
-                val result = simpleModel.awaitSave(db)
+                val model = SimpleModel("Name")
+                val result = simpleModel.save(model)
                 assert(result.isSuccess)
 
-                assert(simpleModel.awaitDelete(db).isSuccess)
+                assert(simpleModel.delete(model).isSuccess)
             }
         }
     }
@@ -70,10 +67,10 @@ class CoroutinesTest : BaseUnitTest() {
     fun testAwaitInsertAndDelete() {
         runBlocking {
             database<TestDatabase> {
-                val simpleModel = SimpleModel("Name")
-                val result = simpleModel.awaitInsert(db)
+                val model = SimpleModel("Name")
+                val result = simpleModel.insert(model)
                 assert(result.isSuccess)
-                assert(simpleModel.awaitDelete(db).isSuccess)
+                assert(simpleModel.delete(model).isSuccess)
             }
         }
     }
@@ -83,11 +80,11 @@ class CoroutinesTest : BaseUnitTest() {
         runBlocking {
             database<TestDatabase> {
                 val simpleModel = TwoColumnModel(name = "Name", id = 5)
-                val result = simpleModel.awaitSave(db)
+                val result = twoColumnModel.save(simpleModel)
                 assert(result.isSuccess)
 
                 simpleModel.id = 5
-                val updated = simpleModel.awaitUpdate(db)
+                val updated = twoColumnModel.update(simpleModel)
                 assert(updated.isSuccess)
 
                 val loadedModel = (select from TwoColumnModel::class
@@ -102,7 +99,7 @@ class CoroutinesTest : BaseUnitTest() {
     fun testRetrievalFlow() = runBlockingTest {
         database<TestDatabase> {
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
-            val saveResult = simpleModel.awaitSave(db)
+            val saveResult = twoColumnModel.save(simpleModel)
             assert(saveResult.isSuccess)
             val result = (select from TwoColumnModel::class where TwoColumnModel_Table.id.eq(5))
                 .toFlow(db) { querySingle(it) }.first()
@@ -122,7 +119,7 @@ class CoroutinesTest : BaseUnitTest() {
         }
         database<TestDatabase> {
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
-            val result = simpleModel.awaitSave(db)
+            val result = twoColumnModel.save(simpleModel)
             assert(result.isSuccess)
         }
         job.cancel()

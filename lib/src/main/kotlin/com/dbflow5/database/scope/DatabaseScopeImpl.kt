@@ -6,29 +6,38 @@ import com.dbflow5.config.DBFlowDatabase
 /**
  * Description:
  */
-class DatabaseScopeImpl<DB : DBFlowDatabase>(override val db: DBFlowDatabase) : DatabaseScope<DB> {
+class DatabaseScopeImpl<DB : DBFlowDatabase>
+internal constructor(
+    override val db: DB
+) :
+    WritableDatabaseScope<DB> {
 
-    override fun <T : Any> ModelAdapter<T>.save(model: T): Result<T> {
+    override suspend fun <T : Any> ModelAdapter<T>.save(model: T): Result<T> {
         return save(model, db)
     }
 
-    override fun <T : Any> ModelAdapter<T>.insert(model: T): Result<T> {
+    override suspend fun <T : Any> ModelAdapter<T>.insert(model: T): Result<T> {
         return insert(model, db)
     }
 
-    override fun <T : Any> ModelAdapter<T>.update(model: T): Result<T> {
+    override suspend fun <T : Any> ModelAdapter<T>.update(model: T): Result<T> {
         return update(model, db)
     }
 
-    override fun <T : Any> ModelAdapter<T>.delete(model: T): Result<T> {
+    override suspend fun <T : Any> ModelAdapter<T>.delete(model: T): Result<T> {
         return delete(model, db)
     }
 
-    override fun <T : Any> ModelAdapter<T>.exists(model: T): Boolean {
+    override suspend fun <T : Any> ModelAdapter<T>.exists(model: T): Boolean {
         return exists(model, db)
     }
 
-    override fun <T : Any> ModelAdapter<T>.load(model: T): T? {
+    override suspend fun <T : Any> ModelAdapter<T>.load(model: T): T? {
         return load(model, db)
     }
 }
+
+fun <DB : DBFlowDatabase> WritableDatabaseScope(
+    db: DB,
+):
+    WritableDatabaseScope<DB> = DatabaseScopeImpl(db)

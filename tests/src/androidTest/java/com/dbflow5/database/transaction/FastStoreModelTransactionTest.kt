@@ -13,7 +13,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
-import java.util.*
+import java.util.Random
 
 class FastStoreModelTransactionTest : BaseUnitTest() {
 
@@ -22,8 +22,8 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
         runBlocking {
             database<TestDatabase> {
                 val result = (0..9)
-                        .map { SimpleModel("$it") }.awaitSave(db)
-                val list = (select from SimpleModel::class).queryList(db)
+                    .map { SimpleModel("$it") }.awaitSave(db)
+                val list = (select from SimpleModel::class).queryList(this.db)
                 assertEquals(10, list.size)
                 assertEquals(10, result.getOrThrow().size)
             }
@@ -35,8 +35,8 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
         runBlocking {
             database<TestDatabase> {
                 val result = (0..9)
-                        .map { SimpleModel("$it") }.awaitInsert(db)
-                val list = (select from SimpleModel::class).queryList(db)
+                    .map { SimpleModel("$it") }.awaitInsert(db)
+                val list = (select from SimpleModel::class).queryList(this.db)
                 assertEquals(10, list.size)
                 assertEquals(10, result.getOrThrow().size)
             }
@@ -52,7 +52,7 @@ class FastStoreModelTransactionTest : BaseUnitTest() {
 
                 (0..9).map { TwoColumnModel("$it", Random().nextInt()) }.awaitUpdate(db)
 
-                val list = (select from TwoColumnModel::class).queryList(db)
+                val list = (select from TwoColumnModel::class).queryList(this.db)
                 assertEquals(10, list.size)
                 list.forEachIndexed { index, model ->
                     assertNotEquals(model, oldList[index])

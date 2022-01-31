@@ -24,13 +24,13 @@ class RXFlowableTest : BaseUnitTest() {
     @Test
     fun testCanObserveChanges() {
         database<TestDatabase> {
-            (0..100).forEach { SimpleModel("$it").save(db) }
+            (0..100).forEach { SimpleModel("$it").save(this.db) }
 
             var list = mutableListOf<SimpleModel>()
             var triggerCount = 0
             val subscription = (select from SimpleModel::class
                 where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
-                .asFlowable(db) { queryList(it) }
+                .asFlowable(this.db) { queryList(it) }
                 .subscribe {
                     list = it
                     triggerCount += 1
@@ -39,7 +39,7 @@ class RXFlowableTest : BaseUnitTest() {
             assertEquals(50, list.size)
             subscription.dispose()
 
-            SimpleModel("should not trigger").save(db)
+            SimpleModel("should not trigger").save(this.db)
             assertEquals(1, triggerCount)
         }
 
@@ -60,7 +60,7 @@ class RXFlowableTest : BaseUnitTest() {
             (select from Blog::class
                 leftOuterJoin Author::class
                 on joinOn)
-                .asFlowable(db) { queryList(it) }
+                .asFlowable(this.db) { queryList(it) }
                 .subscribe {
                     calls++
                     list = it
@@ -68,7 +68,7 @@ class RXFlowableTest : BaseUnitTest() {
 
             val authors =
                 (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
-            db.executeTransaction { d ->
+            this.db.executeTransaction { d ->
                 (1 until 11).forEach {
                     Blog(it, name = "${it}name ${it}last", author = authors[it - 1]).save(d)
                 }

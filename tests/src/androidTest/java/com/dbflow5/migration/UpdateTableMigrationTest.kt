@@ -19,7 +19,7 @@ class UpdateTableMigrationTest : BaseUnitTest() {
         database<TestDatabase> {
             val update = UpdateTableMigration(SimpleModel::class)
             update.set(SimpleModel_Table.name.eq("yes"))
-            update.migrate(db)
+            update.migrate(this.db)
         }
     }
 }

@@ -6,6 +6,8 @@ import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.autoIncrementingModel
 import com.dbflow5.config.database
+import com.dbflow5.config.withTransaction
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -15,8 +17,8 @@ import org.junit.Test
 class AutoIncrementTest : BaseUnitTest() {
 
     @Test
-    fun testCanInsertAutoIncrement() {
-        database<TestDatabase> {
+    fun testCanInsertAutoIncrement() = runBlockingTest {
+        database<TestDatabase>().withTransaction {
             val model = AutoIncrementingModel()
             val id = autoIncrementingModel.save(model)
             assertEquals(1L, id.getOrThrow().id)
@@ -24,8 +26,8 @@ class AutoIncrementTest : BaseUnitTest() {
     }
 
     @Test
-    fun testCanInsertExistingIdAutoIncrement() {
-        database<TestDatabase> {
+    fun testCanInsertExistingIdAutoIncrement() = runBlockingTest {
+        database<TestDatabase>().withTransaction {
             val model = AutoIncrementingModel(3)
             val id = autoIncrementingModel.insert(model)
             assertEquals(3L, id.getOrThrow().id)
