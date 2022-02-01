@@ -5,6 +5,7 @@ import com.dbflow5.config.TransactionElement
 import com.dbflow5.config.acquireTransaction
 import com.dbflow5.database.DatabaseWrapper
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -54,7 +55,13 @@ internal class DefaultTransactionDispatcher(
         transaction: SuspendableTransaction<R>,
     ): R {
         // reuse transaction if nesting calls.
-        return withContext(transactionContext(coroutineContext)) {
+        return withContext(
+            transactionContext(
+                coroutineContext, if (transaction is Transaction<*>) {
+                    transaction.name
+                } else null
+            )
+        ) {
             coroutineContext.acquireTransaction {
                 db.executeTransactionForResult(transaction)
             }
@@ -67,11 +74,14 @@ internal class DefaultTransactionDispatcher(
  * Reuses the [TransactionElement] if its within the same coroutineContext.
  */
 internal suspend fun TransactionDispatcher.transactionContext(
-    coroutineContext: CoroutineContext
+    coroutineContext: CoroutineContext,
+    coroutineName: String?,
 ) = (coroutineContext[TransactionElement]?.transactionDispatcher
-    ?: createTransactionContext())
+    ?: createTransactionContext(coroutineName))
 
-private suspend fun TransactionDispatcher.createTransactionContext(): CoroutineContext {
+private suspend fun TransactionDispatcher.createTransactionContext(
+    coroutineName: String?,
+): CoroutineContext {
     val controlJob = Job()
     // make sure to tie the control job to this context to avoid blocking the transaction if
     // context get cancelled before we can even start using this job. Otherwise, the acquired
@@ -81,7 +91,12 @@ private suspend fun TransactionDispatcher.createTransactionContext(): CoroutineC
         controlJob.cancel()
     }
     val element = TransactionElement(controlJob, dispatcher)
-    return coroutineContext + element
+    val context = coroutineContext + element
+    //
+    if (!coroutineName.isNullOrEmpty()) {
+        return context + CoroutineName(coroutineName)
+    }
+    return context
 }
 
 /**

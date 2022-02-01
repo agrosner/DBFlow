@@ -7,8 +7,8 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.ModelQueriableEvalFn
 import com.dbflow5.reactivestreams.query.TableChangeOnSubscribe
-import com.dbflow5.transaction.ITransactionQueue
 import com.dbflow5.transaction.Transaction
+import com.dbflow5.transaction.TransactionDispatcher
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.Maybe
@@ -31,7 +31,7 @@ fun <R : Any> Transaction.Builder<R>.asSingle(): SingleTransaction<R> = SingleTr
  * Observes any kind of table change from this [ModelQueriable], including individual model and global
  * table changes. The passed [evalFn] is used to determine by you what to run and return on the subscribe
  *  of the [Flowable]. Use the passed [DatabaseWrapper] in your [ModelQueriable] statement.
- *  The [evalFn] runs on the [ITransactionQueue].
+ *  The [evalFn] runs on the [TransactionDispatcher].
  */
 fun <T : Any, R : Any> ModelQueriable<T>.asFlowable(
     db: DBFlowDatabase,

@@ -7,16 +7,10 @@ import java.util.regex.Pattern
 
 
 /**
- * @return true if the string is not null, empty string "", or the length is greater than 0
- */
-fun String?.isNullOrEmpty(): Boolean =
-    this == null || this == "" || isEmpty()
-
-/**
  * @return true if the string is null, empty string "", or the length is less than equal to 0
  */
 fun String?.isNotNullOrEmpty(): Boolean =
-    this != null && this != "" && isNotEmpty()
+    !isNullOrEmpty()
 
 fun StringBuilder.appendQuotedIfNeeded(string: String?) = apply {
     if (string == "*")

@@ -177,10 +177,10 @@ data class Transaction<R : Any?>(
         }
 
         /**
-         * Give this transaction a name. This will allow you to call [ITransactionQueue.cancel].
+         * Give this transaction a name.
          *
          * @param name The name of this transaction. Should be unique for any transaction currently
-         * running in the [ITransactionQueue].
+         * running in the [TransactionDispatcher].
          */
         fun name(name: String?) = apply {
             this.name = name
