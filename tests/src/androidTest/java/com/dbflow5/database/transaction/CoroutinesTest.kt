@@ -24,14 +24,17 @@ class CoroutinesTest : BaseUnitTest() {
 
     @Test
     fun testRetrievalFlow() = runBlockingTest {
-        database<TestDatabase>().writableTransaction {
+        val database = database<TestDatabase>()
+        database.writableTransaction {
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
             val saveResult = twoColumnModel.save(simpleModel)
             assert(saveResult.isSuccess)
-            val result = (select from TwoColumnModel::class where TwoColumnModel_Table.id.eq(5))
-                .toFlow(db) { querySingle(it) }.first()
-            assert(result != null)
         }
+
+        val result = (select from TwoColumnModel::class where TwoColumnModel_Table.id.eq(5))
+            .toFlow(database) { querySingle(it) }.first()
+        println("RESULT ${result}")
+        assert(result != null)
     }
 
     @Test

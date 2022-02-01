@@ -14,8 +14,10 @@ abstract class OnTableChangedObserver(internal val tables: List<KClass<*>>) {
 
 }
 
-class OnTableChangedObserverWithIds(internal val observer: OnTableChangedObserver,
-                                    internal val tableIds: IntArray) {
+class OnTableChangedObserverWithIds(
+    internal val observer: OnTableChangedObserver,
+    internal val tableIds: IntArray
+) {
 
     private var singleTableSet: MutableSet<KClass<*>>? = when {
         tableIds.size == 1 -> mutableSetOf(observer.tables[0])
@@ -37,6 +39,8 @@ class OnTableChangedObserverWithIds(internal val observer: OnTableChangedObserve
                 }
             }
         }
-        invalidatedTables?.let { observer.onChanged(it) }
+        invalidatedTables
+            ?.takeIf { it.isNotEmpty() }
+            ?.let { observer.onChanged(it) }
     }
 }
