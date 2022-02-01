@@ -22,11 +22,10 @@ typealias OnModelProcessListener<TModel> = (current: Long, total: Long, modified
  * can operate on a set of [Model] to [Model.save], [Model.update], etc.
  */
 class ProcessModelTransaction<TModel>(
-        private val models: List<TModel> = arrayListOf(),
-        private val processListener: OnModelProcessListener<TModel>? = null,
-        private val processModel: ProcessModel<TModel>,
-        private val runProcessListenerOnSameThread: Boolean) : ITransaction<Unit> {
-
+    private val models: List<TModel> = arrayListOf(),
+    private val processListener: OnModelProcessListener<TModel>? = null,
+    private val processModel: ProcessModel<TModel>,
+) : ITransaction<Unit> {
 
     /**
      * Description: Simple interface for acting on a model in a Transaction or list of [Model]
@@ -43,10 +42,9 @@ class ProcessModelTransaction<TModel>(
     }
 
     internal constructor(builder: Builder<TModel>) : this(
-            processListener = builder.processListener,
-            models = builder.models,
-            processModel = builder.processModel,
-            runProcessListenerOnSameThread = builder.runProcessListenerOnSameThread
+        processListener = builder.processListener,
+        models = builder.models,
+        processModel = builder.processModel,
     )
 
     override fun execute(databaseWrapper: DatabaseWrapper) {
@@ -54,16 +52,7 @@ class ProcessModelTransaction<TModel>(
         for (i in 0 until size) {
             val model = models[i]
             processModel.processModel(model, databaseWrapper)
-
-            if (processListener != null) {
-                if (runProcessListenerOnSameThread) {
-                    processListener.invoke(i.toLong(), size.toLong(), model)
-                } else {
-                    Transaction.transactionHandler.post {
-                        processListener.invoke(i.toLong(), size.toLong(), model)
-                    }
-                }
-            }
+            processListener?.invoke(i.toLong(), size.toLong(), model)
         }
     }
 
@@ -77,8 +66,6 @@ class ProcessModelTransaction<TModel>(
         internal val processModel: ProcessModel<TModel>
         internal var processListener: OnModelProcessListener<TModel>? = null
         internal var models: MutableList<TModel> = arrayListOf()
-        internal var runProcessListenerOnSameThread: Boolean = false
-
 
         constructor(processModel: ProcessModel<TModel>) {
             this.processModel = processModel
@@ -124,15 +111,6 @@ class ProcessModelTransaction<TModel>(
         }
 
         /**
-         * @param runProcessListenerOnSameThread Default is false. If true we return callback
-         * on same calling thread, if false we push the callback
-         * to the UI thread.
-         */
-        fun runProcessListenerOnSameThread(runProcessListenerOnSameThread: Boolean) = apply {
-            this.runProcessListenerOnSameThread = runProcessListenerOnSameThread
-        }
-
-        /**
          * @return A new [ProcessModelTransaction]. Subsequent calls to this method produce
          * new instances.
          */
@@ -140,11 +118,18 @@ class ProcessModelTransaction<TModel>(
     }
 }
 
-inline fun <T> processModel(crossinline function: (T, DatabaseWrapper) -> Unit) = object : ProcessModelTransaction.ProcessModel<T> {
-    override fun processModel(model: T, wrapper: DatabaseWrapper) = function(model, wrapper)
-}
+inline fun <T> processModel(crossinline function: (T, DatabaseWrapper) -> Unit) =
+    object : ProcessModelTransaction.ProcessModel<T> {
+        override fun processModel(model: T, wrapper: DatabaseWrapper) = function(model, wrapper)
+    }
 
 inline fun <reified T : Any> Collection<T>.processTransaction(
-        crossinline processFunction: ProcessFunction<T>): ProcessModelTransaction.Builder<T> =
-        ProcessModelTransaction.Builder<T>(processModel { model, wrapper -> processFunction(model, wrapper) })
-                .addAll(this)
+    crossinline processFunction: ProcessFunction<T>
+): ProcessModelTransaction.Builder<T> =
+    ProcessModelTransaction.Builder<T>(processModel { model, wrapper ->
+        processFunction(
+            model,
+            wrapper
+        )
+    })
+        .addAll(this)

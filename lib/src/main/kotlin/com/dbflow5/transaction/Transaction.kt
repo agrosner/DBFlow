@@ -1,11 +1,9 @@
 package com.dbflow5.transaction
 
-import android.os.Handler
-import android.os.Looper
-import androidx.annotation.WorkerThread
-
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
+import com.dbflow5.database.DatabaseWrapper
+import kotlinx.coroutines.Job
 
 typealias Ready<R> = (Transaction<R>) -> Unit
 typealias Success<R> = (Transaction<R>, R) -> Unit
@@ -21,47 +19,61 @@ typealias Completion<R> = (Transaction<R>) -> Unit
  *
  * To create one, the recommended method is to use the [DBFlowDatabase.beginTransactionAsync].
  */
-class Transaction<R : Any?>(
-        @get:JvmName("transaction")
-        val transaction: ITransaction<R>,
-        private val databaseDefinition: DBFlowDatabase,
-        @get:JvmName("ready")
-        val ready: Ready<R>? = null,
-        @get:JvmName("error")
-        val error: Error<R>? = null,
-        @get:JvmName("success")
-        val success: Success<R>? = null,
-        @get:JvmName("completion")
-        val completion: Completion<R>? = null,
-        @get:JvmName("name")
-        val name: String?,
-        private val shouldRunInTransaction: Boolean = true,
-        private val runCallbacksOnSameThread: Boolean = true) {
+data class Transaction<R : Any?>(
+    @get:JvmName("transaction")
+    val transaction: ITransaction<R>,
+    private val databaseDefinition: DBFlowDatabase,
+    @get:JvmName("ready")
+    val ready: Ready<R>? = null,
+    @get:JvmName("error")
+    val error: Error<R>? = null,
+    @get:JvmName("success")
+    val success: Success<R>? = null,
+    @get:JvmName("completion")
+    val completion: Completion<R>? = null,
+    @get:JvmName("name")
+    val name: String?,
+    private val shouldRunInTransaction: Boolean = true,
+    private val runCallbacksOnSameThread: Boolean = true
+) : SuspendableTransaction<Result<R>> {
 
+    /**
+     * Used with [enqueue], when active will enable cancellation.
+     */
+    private var activeJob: Job? = null
 
     internal constructor(builder: Builder<R>) : this(
-            databaseDefinition = builder.database,
-            error = builder.errorCallback,
-            success = builder.successCallback,
-            completion = builder.completion,
-            transaction = builder.transaction,
-            name = builder.name,
-            shouldRunInTransaction = builder.shouldRunInTransaction,
-            runCallbacksOnSameThread = builder.runCallbacksOnSameThread
+        databaseDefinition = builder.database,
+        error = builder.errorCallback,
+        success = builder.successCallback,
+        completion = builder.completion,
+        transaction = builder.transaction,
+        name = builder.name,
+        shouldRunInTransaction = builder.shouldRunInTransaction,
+        runCallbacksOnSameThread = builder.runCallbacksOnSameThread
     )
 
     /**
      * Runs the transaction in the [BaseTransactionManager] of the associated database.
+     *
+     * Suspends until its completion.
      */
-    fun execute() = apply {
-        databaseDefinition.transactionManager.addTransaction(this)
+    suspend fun execute() = apply {
+        databaseDefinition.executeTransaction(this)
+    }
+
+    /**
+     * Enqueues the transaction result, and returns the associated Job.
+     */
+    fun enqueue() = apply {
+        this.activeJob = databaseDefinition.enqueueTransaction(this)
     }
 
     /**
      * Cancels a transaction that has not run yet.
      */
     fun cancel() {
-        databaseDefinition.transactionManager.cancelTransaction(this)
+        this.activeJob?.cancel()
     }
 
     /**
@@ -69,42 +81,32 @@ class Transaction<R : Any?>(
      * the [DBFlowDatabase.executeTransactionSync] method, which runs the
      * [.transaction] in a database transaction.
      */
-    @WorkerThread
-    fun executeSync() {
-        try {
-            ready?.invoke(this)
+    override suspend fun execute(db: DatabaseWrapper): Result<R> = try {
+        ready?.invoke(this)
 
-            val result: R = if (shouldRunInTransaction) {
-                databaseDefinition.executeTransactionSync(transaction)
-            } else {
-                transaction.execute(databaseDefinition)
-            }
-            if (success != null) {
-                if (runCallbacksOnSameThread) {
-                    success.invoke(this, result)
-                    complete()
-                } else {
-                    transactionHandler.post {
-                        success.invoke(this@Transaction, result)
-                        complete()
-                    }
-                }
-            }
-        } catch (throwable: Throwable) {
-            FlowLog.logError(throwable)
-            if (error != null) {
-                if (runCallbacksOnSameThread) {
-                    error.invoke(this, throwable)
-                    complete()
-                } else {
-                    transactionHandler.post {
-                        error.invoke(this@Transaction, throwable)
-                        complete()
-                    }
-                }
-            } else {
-                throw RuntimeException("An exception occurred while executing a transaction", throwable)
-            }
+        val result: R = if (shouldRunInTransaction) {
+            databaseDefinition.executeTransactionSync(transaction)
+        } else {
+            transaction.execute(databaseDefinition)
+        }
+        if (success != null) {
+            success.invoke(this, result)
+            complete()
+        }
+        Result.success(result)
+    } catch (throwable: Throwable) {
+        FlowLog.logError(throwable)
+        if (error != null) {
+            error.invoke(this, throwable)
+            complete()
+            Result.failure(throwable)
+        } else {
+            Result.failure(
+                RuntimeException(
+                    "An exception occurred while executing a transaction",
+                    throwable
+                )
+            )
         }
     }
 
@@ -112,11 +114,10 @@ class Transaction<R : Any?>(
 
     fun newBuilder(): Builder<R> {
         return Builder(transaction, databaseDefinition)
-                .error(error)
-                .success(success)
-                .name(name)
-                .shouldRunInTransaction(shouldRunInTransaction)
-                .runCallbacksOnSameThread(runCallbacksOnSameThread)
+            .error(error)
+            .success(success)
+            .name(name)
+            .shouldRunInTransaction(shouldRunInTransaction)
     }
 
     /**
@@ -128,7 +129,7 @@ class Transaction<R : Any?>(
      * @param database The database this transaction will run on. Should be the same
      * DB as the code that the transaction runs in.
      */
-    (internal val transaction: ITransaction<R>, internal val database: DBFlowDatabase) {
+        (internal val transaction: ITransaction<R>, internal val database: DBFlowDatabase) {
         internal var ready: Ready<R>? = null
         internal var errorCallback: Error<R>? = null
         internal var successCallback: Success<R>? = null
@@ -193,15 +194,6 @@ class Transaction<R : Any?>(
         }
 
         /**
-         * @param runCallbacksOnSameThread Default is false. If true we return the callbacks from
-         * this [Transaction] on the same thread we call
-         * [.execute] from.
-         */
-        fun runCallbacksOnSameThread(runCallbacksOnSameThread: Boolean) = apply {
-            this.runCallbacksOnSameThread = runCallbacksOnSameThread
-        }
-
-        /**
          * @return A new instance of [Transaction]. Subsequent calls to this method produce
          * new instances.
          */
@@ -211,23 +203,36 @@ class Transaction<R : Any?>(
          * Convenience method to simply execute a transaction.
          */
         @JvmOverloads
-        fun execute(
-                ready: Ready<R>? = null,
-                error: Error<R>? = null,
-                completion: Completion<R>? = null,
-                success: Success<R>? = null
+        fun enqueue(
+            ready: Ready<R>? = null,
+            error: Error<R>? = null,
+            completion: Completion<R>? = null,
+            success: Success<R>? = null
         ) =
-                this.apply {
-                    ready?.let(this::ready)
-                    success?.let(this::success)
-                    error?.let(this::error)
-                    completion?.let(this::completion)
-                }.build().execute()
+            this.apply {
+                ready?.let(this::ready)
+                success?.let(this::success)
+                error?.let(this::error)
+                completion?.let(this::completion)
+            }.build().enqueue()
+
+        /**
+         * Convenience method to simply execute a transaction.
+         */
+        @JvmOverloads
+        suspend fun execute(
+            ready: Ready<R>? = null,
+            error: Error<R>? = null,
+            completion: Completion<R>? = null,
+            success: Success<R>? = null
+        ) =
+            this.apply {
+                ready?.let(this::ready)
+                success?.let(this::success)
+                error?.let(this::error)
+                completion?.let(this::completion)
+            }.build().execute()
     }
 
-    companion object {
-
-        internal val transactionHandler: Handler by lazy { Handler(Looper.getMainLooper()) }
-    }
 }
 

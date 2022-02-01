@@ -4,6 +4,7 @@ import android.app.ActivityManager
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import com.dbflow5.annotation.Database
 import com.dbflow5.database.AndroidSQLiteOpenHelper
@@ -18,19 +19,17 @@ import com.dbflow5.migration.Migration
 import com.dbflow5.observing.TableObserver
 import com.dbflow5.runtime.DirectModelNotifier
 import com.dbflow5.runtime.ModelNotifier
-import com.dbflow5.transaction.BaseTransactionManager
-import com.dbflow5.transaction.DefaultTransactionManager
-import com.dbflow5.transaction.DefaultTransactionQueue
 import com.dbflow5.transaction.ITransaction
+import com.dbflow5.transaction.SuspendableTransaction
 import com.dbflow5.transaction.Transaction
+import com.dbflow5.transaction.TransactionDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.withContext
-import java.util.concurrent.Executors
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.coroutineContext
 import kotlin.reflect.KClass
 
 /**
@@ -80,13 +79,16 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     private var isResetting = false
 
-    lateinit var transactionManager: BaseTransactionManager
-        private set
-
     /**
      * Coroutine dispatcher, TODO: move to constructor / config.
      */
-    private val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    private lateinit var transactionDispatcher: TransactionDispatcher
+
+    @VisibleForTesting
+    val dispatcher: TransactionDispatcher
+        get() = transactionDispatcher
+
+    private val scope by lazy { CoroutineScope(transactionDispatcher.dispatcher) }
 
     private var databaseConfig: DatabaseConfig? by MutableLazy {
         val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
@@ -131,13 +133,15 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     }
 
     private fun onOpenWithConfig(config: DatabaseConfig?, helper: OpenHelper) {
-        helper.performRestoreFromBackup()
+        runBlocking {
+            helper.performRestoreFromBackup()
 
-        val wal = config != null &&
-            config.journalMode.adjustIfAutomatic(FlowManager.context) == JournalMode.WriteAheadLogging
-        helper.setWriteAheadLoggingEnabled(wal)
-        writeAheadLoggingEnabled = wal
-        isOpened = true
+            val wal = config != null &&
+                config.journalMode.adjustIfAutomatic(FlowManager.context) == JournalMode.WriteAheadLogging
+            helper.setWriteAheadLoggingEnabled(wal)
+            writeAheadLoggingEnabled = wal
+            isOpened = true
+        }
     }
 
     val writableDatabase: DatabaseWrapper
@@ -229,10 +233,10 @@ abstract class DBFlowDatabase : DatabaseWrapper {
              }*/
             callback = databaseConfig.callback
         }
-        transactionManager = if (databaseConfig?.transactionManagerCreator == null) {
-            DefaultTransactionManager(this)
+        transactionDispatcher = if (databaseConfig?.transactionDispatcherFactory == null) {
+            TransactionDispatcher()
         } else {
-            databaseConfig.transactionManagerCreator.createManager(this)
+            databaseConfig.transactionDispatcherFactory.create()
         }
     }
 
@@ -264,41 +268,18 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         })
 
     /**
-     * Runs the transaction within the [dispatcher]
+     * Runs the transaction within the [transactionDispatcher]
      */
-    suspend fun <R : Any> executeTransaction(transaction: suspend (DatabaseWrapper) -> R): R {
-        // reuse transaction if nesting calls.
-        val context = coroutineContext[TransactionElement]?.transactionDispatcher
-            ?: createTransactionContext()
-        return withContext(context) {
-            val transactionElement = coroutineContext[TransactionElement]!!
-            transactionElement.acquire()
-            try {
-                try {
-                    beginTransaction()
-                    val result = transaction(writableDatabase)
-                    setTransactionSuccessful()
-                    result
-                } finally {
-                    endTransaction()
-                }
-            } finally {
-                transactionElement.release()
-            }
-        }
-    }
+    suspend fun <R> executeTransaction(transaction: SuspendableTransaction<R>): R =
+        transactionDispatcher.executeTransaction(this, transaction)
 
-    private suspend fun createTransactionContext(): CoroutineContext {
-        val controlJob = Job()
-        // make sure to tie the control job to this context to avoid blocking the transaction if
-        // context get cancelled before we can even start using this job. Otherwise, the acquired
-        // transaction thread will forever wait for the controlJob to be cancelled.
-        // see b/148181325
-        coroutineContext[Job]?.invokeOnCompletion {
-            controlJob.cancel()
+    /**
+     * Enqueues the transaction without waiting for the result.
+     */
+    fun <R> enqueueTransaction(transaction: SuspendableTransaction<R>): Job {
+        return scope.launch {
+            executeTransaction(transaction)
         }
-        val element = TransactionElement(controlJob, dispatcher)
-        return coroutineContext + element
     }
 
     /**
@@ -307,6 +288,17 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     @WorkerThread
     fun <R> executeTransactionSync(transaction: ITransaction<R>): R {
+        try {
+            beginTransaction()
+            val result = transaction.execute(writableDatabase)
+            setTransactionSuccessful()
+            return result
+        } finally {
+            endTransaction()
+        }
+    }
+
+    internal suspend fun <R> executeTransactionForResult(transaction: SuspendableTransaction<R>): R {
         try {
             beginTransaction()
             val result = transaction.execute(writableDatabase)
@@ -369,7 +361,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * Closes the DB and stops the [BaseTransactionManager]
      */
     fun close() {
-        transactionManager.stopQueue()
+        transactionDispatcher.dispatcher.cancel()
         if (isOpened) {
             try {
                 closeLock.lock()
@@ -389,7 +381,9 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * or [Database.consistencyCheckEnabled] is not enabled.
      */
     fun backupDatabase() {
-        openHelper.backupDB()
+        scope.launch {
+            openHelper.backupDB()
+        }
     }
 
     override val version: Int

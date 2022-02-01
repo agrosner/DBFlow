@@ -10,6 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
 /**
@@ -23,9 +24,11 @@ fun <T : Any, R : Any?> ModelQueriable<T>.toFlow(
     return callbackFlow {
         val tables = extractFrom()?.associatedTables ?: setOf(table)
         fun evaluateEmission() {
-            db
-                .beginTransactionAsync { evalFn(it) }
-                .execute { _, r -> channel.offer(r) }
+            launch {
+                db
+                    .beginTransactionAsync { evalFn(it) }
+                    .enqueue { _, r -> channel.trySend(r) }
+            }
         }
 
         val onTableChangedObserver = object : OnTableChangedObserver(tables.toList()) {
@@ -56,11 +59,11 @@ fun <T : Any, R : Any?> ModelQueriable<T>.toFlow(
 @ExperimentalCoroutinesApi
 fun <R : Any?> Transaction.Builder<R>.toFlow(): Flow<R> {
     return callbackFlow {
-        val transaction = success { _, r -> channel.offer(r) }
+        val transaction = success { _, r -> channel.trySend(r) }
             .error { _, throwable -> channel.close(throwable) }
             .completion { channel.close() }
             .build()
-        transaction.execute()
+        transaction.enqueue()
         awaitClose { transaction.cancel() }
     }
 }

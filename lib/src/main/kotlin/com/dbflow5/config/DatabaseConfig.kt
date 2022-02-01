@@ -4,7 +4,7 @@ import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.isNotNullOrEmpty
 import com.dbflow5.runtime.ModelNotifier
-import com.dbflow5.transaction.BaseTransactionManager
+import com.dbflow5.transaction.TransactionDispatcher
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
 
@@ -12,8 +12,8 @@ fun interface OpenHelperCreator {
     fun createHelper(db: DBFlowDatabase, callback: DatabaseCallback?): OpenHelper
 }
 
-fun interface TransactionManagerCreator {
-    fun createManager(db: DBFlowDatabase): BaseTransactionManager
+fun interface TransactionDispatcherFactory {
+    fun create(): TransactionDispatcher
 }
 
 
@@ -40,7 +40,7 @@ private fun isValidDatabaseName(databaseName: String?): Boolean {
 class DatabaseConfig(
     val databaseClass: KClass<*>,
     val openHelperCreator: OpenHelperCreator? = null,
-    val transactionManagerCreator: TransactionManagerCreator? = null,
+    val transactionDispatcherFactory: TransactionDispatcherFactory? = null,
     val callback: DatabaseCallback? = null,
     val tableConfigMap: Map<KClass<*>, TableConfig<*>> = mapOf(),
     val modelNotifier: ((DBFlowDatabase) -> ModelNotifier)? = null,
@@ -55,7 +55,7 @@ class DatabaseConfig(
         // convert java interface to kotlin function.
         openHelperCreator = builder.openHelperCreator,
         databaseClass = builder.databaseClass,
-        transactionManagerCreator = builder.transactionManagerCreator,
+        transactionDispatcherFactory = builder.transactionDispatcherFactory,
         callback = builder.callback,
         tableConfigMap = builder.tableConfigMap,
         modelNotifier = builder.modelNotifier,
@@ -89,7 +89,7 @@ class DatabaseConfig(
         internal val openHelperCreator: OpenHelperCreator? = null
     ) {
 
-        internal var transactionManagerCreator: TransactionManagerCreator? = null
+        internal var transactionDispatcherFactory: TransactionDispatcherFactory? = null
         internal var callback: DatabaseCallback? = null
         internal val tableConfigMap: MutableMap<KClass<*>, TableConfig<*>> = hashMapOf()
         internal var modelNotifier: ((DBFlowDatabase) -> ModelNotifier)? = null
@@ -99,8 +99,8 @@ class DatabaseConfig(
         internal var journalMode: DBFlowDatabase.JournalMode = DBFlowDatabase.JournalMode.Automatic
         internal var throwExceptionsOnCreate: Boolean = true
 
-        fun transactionManagerCreator(creator: TransactionManagerCreator) = apply {
-            this.transactionManagerCreator = creator
+        fun transactionDispatcherFactory(creator: TransactionDispatcherFactory) = apply {
+            this.transactionDispatcherFactory = creator
         }
 
         fun helperListener(callback: DatabaseCallback) = apply {

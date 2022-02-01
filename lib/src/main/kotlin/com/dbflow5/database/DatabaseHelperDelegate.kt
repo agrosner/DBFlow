@@ -3,7 +3,6 @@ package com.dbflow5.database
 import android.content.Context
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
-import com.dbflow5.transaction.DefaultTransactionQueue
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -40,7 +39,7 @@ class DatabaseHelperDelegate(
     override val database: DatabaseWrapper
         get() = databaseDefinition
 
-    override fun performRestoreFromBackup() {
+    override suspend fun performRestoreFromBackup() {
         movePrepackagedDB(
             databaseDefinition.databaseFileName,
             databaseDefinition.databaseFileName
@@ -224,7 +223,7 @@ class DatabaseHelperDelegate(
      * Saves the database as a backup on the [DefaultTransactionQueue].
      * This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      */
-    override fun backupDB() {
+    override suspend fun backupDB() {
         databaseDefinition.beginTransactionAsync {
             val backup = context.getDatabasePath(tempDbFileName)
             val temp =
@@ -250,7 +249,6 @@ class DatabaseHelperDelegate(
 
             }
         }.execute()
-
     }
 
     companion object {

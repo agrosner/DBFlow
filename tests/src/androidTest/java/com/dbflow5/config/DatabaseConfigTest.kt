@@ -5,8 +5,9 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.OpenHelper
-import com.dbflow5.transaction.BaseTransactionManager
+import com.dbflow5.transaction.TransactionDispatcher
 import com.nhaarman.mockitokotlin2.mock
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -33,9 +34,9 @@ class DatabaseConfigTest : BaseUnitTest() {
         val openHelperCreator = OpenHelperCreator { _, _ ->
             customOpenHelper
         }
-        lateinit var testTransactionManager: TestTransactionManager
-        val managerCreator = TransactionManagerCreator { databaseDefinition ->
-            testTransactionManager = TestTransactionManager(databaseDefinition)
+        lateinit var testTransactionManager: TransactionDispatcher
+        val managerCreator = TransactionDispatcherFactory {
+            testTransactionManager = TransactionDispatcher(TestCoroutineDispatcher())
             testTransactionManager
         }
 
@@ -43,7 +44,7 @@ class DatabaseConfigTest : BaseUnitTest() {
             database<TestDatabase>({
                 databaseName("Test")
                 helperListener(helperListener)
-                transactionManagerCreator(managerCreator)
+                transactionDispatcherFactory(managerCreator)
             }, openHelperCreator)
         }
 
@@ -51,7 +52,7 @@ class DatabaseConfigTest : BaseUnitTest() {
         val databaseConfig = flowConfig.databaseConfigMap[TestDatabase::class]!!
         assertEquals("Test", databaseConfig.databaseName)
         assertEquals(".db", databaseConfig.databaseExtensionName)
-        assertEquals(databaseConfig.transactionManagerCreator, managerCreator)
+        assertEquals(databaseConfig.transactionDispatcherFactory, managerCreator)
         assertEquals(databaseConfig.databaseClass, TestDatabase::class)
         assertEquals(databaseConfig.openHelperCreator, openHelperCreator)
         assertEquals(databaseConfig.callback, helperListener)
@@ -59,7 +60,7 @@ class DatabaseConfigTest : BaseUnitTest() {
 
 
         val databaseDefinition = database<TestDatabase>()
-        assertEquals(databaseDefinition.transactionManager, testTransactionManager)
+        assertEquals(databaseDefinition.dispatcher, testTransactionManager)
         assertEquals(databaseDefinition.openHelper, customOpenHelper)
     }
 
@@ -78,6 +79,3 @@ class DatabaseConfigTest : BaseUnitTest() {
     }
 
 }
-
-class TestTransactionManager(databaseDefinition: DBFlowDatabase) :
-    BaseTransactionManager(mock(), databaseDefinition)

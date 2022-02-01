@@ -4,9 +4,8 @@ import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import com.dbflow5.DBFlowInstrumentedTestRule
 import com.dbflow5.DemoApp
-import com.dbflow5.ImmediateTransactionManager
 import com.dbflow5.TABLE_QUERY_PARAM
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.TestTransactionDispatcherFactory
 import com.dbflow5.config.database
 import com.dbflow5.config.modelAdapter
 import com.dbflow5.config.tableName
@@ -19,6 +18,7 @@ import com.dbflow5.query.delete
 import com.dbflow5.runtime.ContentResolverNotifier
 import com.dbflow5.runtime.FlowContentObserver
 import com.dbflow5.structure.ChangeAction
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -34,9 +34,7 @@ class ContentObserverTest {
     var dblflowTestRule = DBFlowInstrumentedTestRule.create {
         database<ContentObserverDatabase>({
             modelNotifier { ContentResolverNotifier(DemoApp.context, "com.grosner.content", it) }
-            transactionManagerCreator { databaseDefinition: DBFlowDatabase ->
-                ImmediateTransactionManager(databaseDefinition)
-            }
+            transactionDispatcherFactory(TestTransactionDispatcherFactory(TestCoroutineDispatcher()))
         }, AndroidSQLiteOpenHelper.createHelperCreator(ApplicationProvider.getApplicationContext()))
     }
 

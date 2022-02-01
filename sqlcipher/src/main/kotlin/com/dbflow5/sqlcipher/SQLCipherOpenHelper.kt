@@ -53,11 +53,11 @@ abstract class SQLCipherOpenHelper(
         delegate = DatabaseHelperDelegate(context, listener, databaseDefinition)
     }
 
-    override fun performRestoreFromBackup() {
+    override suspend fun performRestoreFromBackup() {
         delegate.performRestoreFromBackup()
     }
 
-    override fun backupDB() {
+    override suspend fun backupDB() {
         delegate.backupDB()
     }
 

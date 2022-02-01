@@ -67,7 +67,7 @@ class SingleTransaction<R : Any>(private val builder: Transaction.Builder<R>) : 
             .build()
         observer.onSubscribe(TransactionDisposable(transaction))
         this.transaction = transaction
-        transaction.execute()
+        transaction.enqueue()
     }
 }
 
@@ -92,6 +92,6 @@ class MaybeTransaction<R : Any?>(private val builder: Transaction.Builder<R>) : 
             .build()
         observer.onSubscribe(TransactionDisposable(transaction))
         this.transaction = transaction
-        transaction.execute()
+        transaction.enqueue()
     }
 }

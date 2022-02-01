@@ -3,8 +3,8 @@ package com.dbflow5.runtime
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.dbflow5.ImmediateTransactionManager
 import com.dbflow5.TestDatabase
+import com.dbflow5.TestTransactionDispatcherFactory
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
@@ -19,6 +19,7 @@ import com.dbflow5.simpleModel
 import com.dbflow5.structure.ChangeAction
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Before
@@ -35,7 +36,11 @@ class DirectNotifierTest {
     fun setupTest() {
         FlowManager.init(context) {
             database<TestDatabase>({
-                transactionManagerCreator(::ImmediateTransactionManager)
+                transactionDispatcherFactory(
+                    TestTransactionDispatcherFactory(
+                        TestCoroutineDispatcher()
+                    )
+                )
             }, AndroidSQLiteOpenHelper.createHelperCreator(context))
         }
     }

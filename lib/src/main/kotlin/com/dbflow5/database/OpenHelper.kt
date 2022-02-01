@@ -6,9 +6,9 @@ interface OpenHelperDelegate {
 
     val isDatabaseIntegrityOk: Boolean
 
-    fun performRestoreFromBackup()
+    suspend fun performRestoreFromBackup()
 
-    fun backupDB()
+    suspend fun backupDB()
 }
 
 

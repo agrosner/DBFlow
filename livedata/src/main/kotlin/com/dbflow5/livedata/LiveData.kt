@@ -38,7 +38,7 @@ class QueryLiveData<T : Any, R : Any?>(
     private fun evaluateEmission() {
         db
             .beginTransactionAsync { modelQueriable.evalFn(it) }
-            .execute { _, r -> value = r }
+            .enqueue { _, r -> value = r }
     }
 
     override fun onActive() {

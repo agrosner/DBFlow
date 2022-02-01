@@ -42,7 +42,7 @@ class LiveDataTest : BaseUnitTest() {
                     LiveDataModel(id = "$it", name = it).insert(db)
                 }
             }
-                .execute()
+                .enqueue()
 
             db.tableObserver.checkForTableUpdates()
 

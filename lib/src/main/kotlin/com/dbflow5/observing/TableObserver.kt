@@ -88,7 +88,7 @@ class TableObserver internal constructor(
                     checkForTableUpdates(db as DBFlowDatabase)
                 } else throw RuntimeException("Invalid DB object passed. Must be a ${DBFlowDatabase::class}")
             }.shouldRunInTransaction(false)
-                .execute(error = { _, e ->
+                .enqueue(error = { _, e ->
                     FlowLog.log(FlowLog.Level.E, "Could not check for table updates", e)
                 })
         }

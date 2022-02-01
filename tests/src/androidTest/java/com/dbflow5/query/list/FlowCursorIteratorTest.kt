@@ -34,7 +34,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
                 }
             }
             assertTrue(iterator.isClosed)
-        }.execute()
+        }.enqueue()
     }
 
     @Test
@@ -53,7 +53,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
                 count++
             }
             assertEquals(7, count)
-        }.execute()
+        }.enqueue()
     }
 
     @Test
@@ -72,6 +72,6 @@ class FlowCursorIteratorTest : BaseUnitTest() {
                 count++
             }
             assertEquals(8, count)
-        }.execute()
+        }.enqueue()
     }
 }

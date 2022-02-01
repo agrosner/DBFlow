@@ -27,7 +27,7 @@ fun <R : Any?> Transaction.Builder<R>.defer(): Deferred<R> {
             transaction.cancel()
         }
     }
-    transaction.execute()
+    transaction.enqueue()
     return deferred
 }
 
@@ -76,7 +76,7 @@ inline fun <R : Any?> constructFastCoroutine(
             if (continuation.isCancelled) return@error
             continuation.resumeWithException(throwable)
         }.build()
-    transaction.execute()
+    transaction.enqueue()
 
     continuation.invokeOnCancellation {
         transaction.cancel()

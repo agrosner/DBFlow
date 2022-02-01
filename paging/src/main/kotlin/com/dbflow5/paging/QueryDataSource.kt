@@ -51,12 +51,12 @@ internal constructor(
         db.beginTransactionAsync { db ->
             transformable.constrain(params.startPosition.toLong(), params.loadSize.toLong())
                 .queryList(db)
-        }.execute { _, list -> callback.onResult(list) }
+        }.enqueue { _, list -> callback.onResult(list) }
     }
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
         db.beginTransactionAsync { db -> selectCountOf().from(transformable).longValue(db) }
-            .execute { _, count ->
+            .enqueue { _, count ->
                 val max = when {
                     params.requestedLoadSize >= count - 1 -> count.toInt()
                     else -> params.requestedLoadSize
@@ -64,7 +64,7 @@ internal constructor(
                 db.beginTransactionAsync { db ->
                     transformable.constrain(params.requestedStartPosition.toLong(), max.toLong())
                         .queryList(db)
-                }.execute { _, list ->
+                }.enqueue { _, list ->
                     callback.onResult(list, params.requestedStartPosition, count.toInt())
                 }
             }
