@@ -4,6 +4,7 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.assertEquals
 import com.dbflow5.config.database
+import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel
@@ -19,6 +20,7 @@ import com.dbflow5.query.or
 import com.dbflow5.query.property.property
 import com.dbflow5.query.select
 import com.dbflow5.query.update
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -169,17 +171,17 @@ class WhereTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateNonSelectThrowError() {
-        database<TestDatabase> {
+    fun validateNonSelectThrowError() = runBlockingTest {
+        database<TestDatabase>().writableTransaction {
             try {
-                update<SimpleModel>().set(SimpleModel_Table.name.`is`("name")).querySingle(this.db)
+                update<SimpleModel>().set(SimpleModel_Table.name.`is`("name")).querySingle()
                 fail("Non select passed")
             } catch (i: IllegalArgumentException) {
                 // expected
             }
 
             try {
-                update<SimpleModel>().set(SimpleModel_Table.name.`is`("name")).queryList(this.db)
+                update<SimpleModel>().set(SimpleModel_Table.name.`is`("name")).querySingle()
                 fail("Non select passed")
             } catch (i: IllegalArgumentException) {
                 // expected

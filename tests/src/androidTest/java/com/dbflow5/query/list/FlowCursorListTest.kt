@@ -3,9 +3,13 @@ package com.dbflow5.query.list
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
+import com.dbflow5.config.readableTransaction
+import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.select
+import com.dbflow5.simpleModel
 import com.dbflow5.structure.save
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -15,9 +19,9 @@ import org.junit.Test
 class FlowCursorListTest : BaseUnitTest() {
 
     @Test
-    fun validateCursorPassed() {
-        database<TestDatabase> {
-            val cursor = (select from SimpleModel::class).cursor(this.db)
+    fun validateCursorPassed() = runBlockingTest {
+        database<TestDatabase>().readableTransaction {
+            val cursor = (select from SimpleModel::class).cursor()
             val list = FlowCursorList.Builder(select from SimpleModel::class, this.db)
                 .cursor(cursor)
                 .build()
@@ -27,8 +31,8 @@ class FlowCursorListTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateModelQueriable() {
-        database<TestDatabase> {
+    fun validateModelQueriable() = runBlockingTest {
+        database<TestDatabase>().writableTransaction {
             val modelQueriable = (select from SimpleModel::class)
             val list = FlowCursorList.Builder(modelQueriable, this.db)
                 .build()
@@ -38,10 +42,10 @@ class FlowCursorListTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateGetAll() {
-        database<TestDatabase> {
+    fun validateGetAll() = runBlockingTest {
+        database<TestDatabase>().writableTransaction {
             (0..9).forEach {
-                SimpleModel("$it").save(this.db)
+                simpleModel.save(SimpleModel("$it"))
             }
 
             val list = (select from SimpleModel::class).cursorList(this.db)
@@ -51,10 +55,10 @@ class FlowCursorListTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateCursorChange() {
-        database<TestDatabase> {
+    fun validateCursorChange() = runBlockingTest {
+        database<TestDatabase>().writableTransaction {
             (0..9).forEach {
-                SimpleModel("$it").save(this.db)
+                simpleModel.save(SimpleModel("$it"))
             }
 
             val list = (select from SimpleModel::class).cursorList(this.db)

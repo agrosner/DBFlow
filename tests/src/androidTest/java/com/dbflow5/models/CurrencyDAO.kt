@@ -32,7 +32,7 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
     /**
      *  Utilize coroutines package
      */
-    fun coroutineRetrieveUSD(): Deferred<MutableList<Currency>> =
+    fun coroutineRetrieveUSD(): Deferred<List<Currency>> =
         database.beginTransactionAsync {
             (select from Currency::class
                 where (Currency_Table.symbol eq "$")).queryList(it)
@@ -47,7 +47,7 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
      *  Utilize RXJava2 package.
      * Also can use asMaybe(), or asFlowable() (to register for changes and continue listening)
      */
-    fun rxRetrieveUSD(): Single<MutableList<Currency>> =
+    fun rxRetrieveUSD(): Single<List<Currency>> =
         database.beginTransactionAsync {
             (select from Currency::class
                 where (Currency_Table.symbol eq "$"))
@@ -57,7 +57,7 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
     /**
      *  Utilize Vanilla Transactions.
      */
-    fun retrieveUSD(): Transaction.Builder<MutableList<Currency>> =
+    fun retrieveUSD(): Transaction.Builder<List<Currency>> =
         database.beginTransactionAsync {
             (select from Currency::class
                 where (Currency_Table.symbol eq "$"))

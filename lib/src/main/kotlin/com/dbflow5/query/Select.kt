@@ -59,6 +59,8 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
      */
     infix fun <T : Any> from(table: KClass<T>): From<T> = From(this, table)
 
+    fun <T: Any> from(table: Class<T>) = from(table.kotlin)
+
     inline fun <reified T : Any> from() = from(T::class)
 
     /**

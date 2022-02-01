@@ -3,10 +3,10 @@ package com.dbflow5.sqlcipher
 import com.dbflow5.DBFlowInstrumentedTestRule
 import com.dbflow5.DemoApp
 import com.dbflow5.config.database
+import com.dbflow5.config.writableTransaction
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
-import com.dbflow5.structure.exists
-import com.dbflow5.structure.save
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -28,19 +28,19 @@ class CipherTest {
     }
 
     @Test
-    fun testCipherModel() {
-        database<CipherDatabase> {
-            (delete() from CipherModel::class).execute(this.db)
-            val model = CipherModel(name = "name")
-                .save(this.db)
-                .getOrThrow()
-            assertTrue(model.exists(this.db))
+    fun testCipherModel() = runBlockingTest {
+        database<CipherDatabase>().writableTransaction {
+            (delete() from CipherModel::class).execute()
+            val model =
+                cipherModel.save(CipherModel(name = "name"))
+                    .getOrThrow()
+            assertTrue(cipherModel.exists(model))
 
             val retrieval = (select from CipherModel::class
                 where CipherModel_Table.name.eq("name"))
-                .requireSingle(this.db)
+                .requireSingle()
             assertTrue(retrieval.id == model.id)
-            (delete() from CipherModel::class).execute(this.db)
+            (delete() from CipherModel::class).execute()
         }
     }
 }

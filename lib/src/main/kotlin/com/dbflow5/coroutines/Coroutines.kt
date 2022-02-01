@@ -1,7 +1,6 @@
 package com.dbflow5.coroutines
 
 import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.query.Queriable
 import com.dbflow5.transaction.FastStoreModelTransaction
 import com.dbflow5.transaction.Transaction
 import com.dbflow5.transaction.fastDelete
@@ -32,41 +31,6 @@ fun <R : Any?> Transaction.Builder<R>.defer(): Deferred<R> {
     return deferred
 }
 
-inline fun <R : Any?> constructCoroutine(
-    continuation: CancellableContinuation<R>,
-    databaseDefinition: DBFlowDatabase,
-    crossinline fn: () -> R
-) {
-    val transaction = databaseDefinition.beginTransactionAsync { fn() }
-        .success { _, result -> continuation.resume(result) }
-        .error { _, throwable ->
-            if (continuation.isCancelled) return@error
-            continuation.resumeWithException(throwable)
-        }.build()
-    transaction.execute()
-
-    continuation.invokeOnCancellation {
-        if (continuation.isCancelled) {
-            transaction.cancel()
-        }
-    }
-}
-
-
-/**
- * Description: Puts this [Queriable] operation inside a coroutine. Inside the [queriableFunction]
- * execute the db operation.
- */
-suspend inline fun <Q : Queriable, R : Any?> Q.awaitTransact(
-    dbFlowDatabase: DBFlowDatabase,
-    crossinline queriableFunction: Q.(DBFlowDatabase) -> R
-) = suspendCancellableCoroutine<R> { continuation ->
-    com.dbflow5.coroutines.constructCoroutine(continuation, dbFlowDatabase) {
-        queriableFunction(
-            dbFlowDatabase
-        )
-    }
-}
 
 /**
  * Description: Puts the [Collection] inside a [FastStoreModelTransaction] coroutine.

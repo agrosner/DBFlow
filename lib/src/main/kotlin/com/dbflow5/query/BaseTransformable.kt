@@ -51,7 +51,7 @@ protected constructor(table: KClass<TModel>) : BaseModelQueriable<TModel>(table)
 
     abstract override fun cloneSelf(): BaseTransformable<TModel>
 
-    override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<TModel> {
+    override fun queryList(databaseWrapper: DatabaseWrapper): List<TModel> {
         checkSelect("query")
         return super.queryList(databaseWrapper)
     }

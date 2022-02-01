@@ -178,7 +178,7 @@ internal constructor(
      *
      * @return All of the entries in the DB converted into [T]
      */
-    override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<T> {
+    override fun queryList(databaseWrapper: DatabaseWrapper): List<T> {
         checkSelect("cursor")
         return super.queryList(databaseWrapper)
     }

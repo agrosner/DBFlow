@@ -47,7 +47,8 @@ class DatabaseConfig(
     val isInMemory: Boolean = false,
     val databaseName: String? = null,
     val databaseExtensionName: String? = null,
-    val journalMode: DBFlowDatabase.JournalMode = DBFlowDatabase.JournalMode.Automatic
+    val journalMode: DBFlowDatabase.JournalMode = DBFlowDatabase.JournalMode.Automatic,
+    val throwExceptionsOnCreate: Boolean = true,
 ) {
 
     internal constructor(builder: Builder) : this(
@@ -65,7 +66,8 @@ class DatabaseConfig(
             builder.databaseExtensionName.isNotNullOrEmpty() -> ".${builder.databaseExtensionName}"
             else -> ""
         },
-        journalMode = builder.journalMode
+        journalMode = builder.journalMode,
+        throwExceptionsOnCreate = builder.throwExceptionsOnCreate,
     ) {
         if (!isValidDatabaseName(databaseName)) {
             throw IllegalArgumentException(
@@ -95,6 +97,7 @@ class DatabaseConfig(
         internal var databaseName: String? = null
         internal var databaseExtensionName: String? = null
         internal var journalMode: DBFlowDatabase.JournalMode = DBFlowDatabase.JournalMode.Automatic
+        internal var throwExceptionsOnCreate: Boolean = true
 
         fun transactionManagerCreator(creator: TransactionManagerCreator) = apply {
             this.transactionManagerCreator = creator
@@ -136,6 +139,10 @@ class DatabaseConfig(
          */
         fun extensionName(name: String) = apply {
             databaseExtensionName = name
+        }
+
+        fun throwExceptionsOnCreate(throwExceptionsOnCreate: Boolean) = apply {
+            this.throwExceptionsOnCreate = throwExceptionsOnCreate
         }
 
         fun build() = DatabaseConfig(this)

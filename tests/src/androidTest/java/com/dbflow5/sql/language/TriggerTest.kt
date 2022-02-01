@@ -4,6 +4,7 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.assertEquals
 import com.dbflow5.config.database
+import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table
@@ -15,8 +16,9 @@ import com.dbflow5.query.insert
 import com.dbflow5.query.property.property
 import com.dbflow5.query.select
 import com.dbflow5.query.updateOn
+import com.dbflow5.simpleModel
 import com.dbflow5.sql.SQLiteType
-import com.dbflow5.structure.insert
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 
@@ -68,8 +70,8 @@ class TriggerTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateTriggerWorks() {
-        database<TestDatabase> {
+    fun validateTriggerWorks() = runBlockingTest {
+        database<TestDatabase>().writableTransaction {
             val trigger = createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
                 insert(TwoColumnModel::class).columnValues(
                     TwoColumnModel_Table.name to NameAlias.ofTable(
@@ -78,8 +80,8 @@ class TriggerTest : BaseUnitTest() {
                     ),
                     TwoColumnModel_Table.id to 1,
                 )
-            trigger.enable(this.db)
-            SimpleModel("Test").insert(this.db)
+            trigger.enable(db)
+            simpleModel.insert(SimpleModel("Test"))
 
             val result =
                 select from TwoColumnModel::class where (TwoColumnModel_Table.name eq "Test")

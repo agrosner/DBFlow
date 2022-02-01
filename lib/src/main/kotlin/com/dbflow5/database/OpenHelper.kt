@@ -2,7 +2,6 @@ package com.dbflow5.database
 
 interface OpenHelperDelegate {
     val database: DatabaseWrapper
-
     val delegate: DatabaseHelperDelegate?
 
     val isDatabaseIntegrityOk: Boolean

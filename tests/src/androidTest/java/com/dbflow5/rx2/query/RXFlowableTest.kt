@@ -3,6 +3,7 @@ package com.dbflow5.rx2.query
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
+import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.Author
 import com.dbflow5.models.Author_Table
 import com.dbflow5.models.Blog
@@ -12,7 +13,9 @@ import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.cast
 import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.transaction.asFlowable
+import com.dbflow5.simpleModel
 import com.dbflow5.structure.save
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -22,11 +25,13 @@ import org.junit.Test
 class RXFlowableTest : BaseUnitTest() {
 
     @Test
-    fun testCanObserveChanges() {
-        database<TestDatabase> {
-            (0..100).forEach { SimpleModel("$it").save(this.db) }
+    fun testCanObserveChanges() = runBlockingTest {
+        database<TestDatabase>().writableTransaction {
+            simpleModel.saveAll((0..100).map {
+                SimpleModel("$it")
+            })
 
-            var list = mutableListOf<SimpleModel>()
+            var list = listOf<SimpleModel>()
             var triggerCount = 0
             val subscription = (select from SimpleModel::class
                 where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
@@ -47,7 +52,7 @@ class RXFlowableTest : BaseUnitTest() {
 
     @Test
     fun testObservesJoinTables() {
-        database<TestDatabase> {
+        database<TestDatabase> { db ->
             val joinOn = Blog_Table.name.withTable()
                 .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
             assertEquals(
@@ -55,12 +60,12 @@ class RXFlowableTest : BaseUnitTest() {
                 joinOn.query
             )
 
-            var list = mutableListOf<Blog>()
+            var list = listOf<Blog>()
             var calls = 0
             (select from Blog::class
                 leftOuterJoin Author::class
                 on joinOn)
-                .asFlowable(this.db) { queryList(it) }
+                .asFlowable(db) { queryList(it) }
                 .subscribe {
                     calls++
                     list = it
@@ -68,7 +73,7 @@ class RXFlowableTest : BaseUnitTest() {
 
             val authors =
                 (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
-            this.db.executeTransaction { d ->
+            db.executeTransactionSync { d ->
                 (1 until 11).forEach {
                     Blog(it, name = "${it}name ${it}last", author = authors[it - 1]).save(d)
                 }

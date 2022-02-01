@@ -3,11 +3,13 @@ package com.dbflow5.sql.language
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
+import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
-import com.dbflow5.structure.save
+import com.dbflow5.simpleModel
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
@@ -20,25 +22,29 @@ class DeleteTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateDeletion() {
-        database<TestDatabase> {
-            SimpleModel("name").save(this.db)
-            delete<SimpleModel>().execute(this.db)
-            assertFalse((select from SimpleModel::class).hasData(this.db))
+    fun validateDeletion() = runBlockingTest {
+        database<TestDatabase>().writableTransaction {
+            simpleModel.save(SimpleModel("name"))
+            delete<SimpleModel>().execute()
+            assertFalse((select from SimpleModel::class).hasData())
         }
     }
 
     @Test
-    fun validateDeletionWithQuery() {
-        database<TestDatabase> {
-            SimpleModel("name").save(this.db)
-            SimpleModel("another name").save(this.db)
+    fun validateDeletionWithQuery() = runBlockingTest {
+        database<TestDatabase>().writableTransaction {
+            simpleModel.saveAll(
+                listOf(
+                    SimpleModel("name"),
+                    SimpleModel("another name"),
+                )
+            )
 
             val where = delete<SimpleModel>().where(SimpleModel_Table.name.`is`("name"))
             assertEquals("DELETE FROM `SimpleModel` WHERE `name`='name'", where.query.trim())
-            where.execute(this.db)
+            where.execute()
 
-            assertEquals(1, (select from SimpleModel::class).queryList(this.db).size)
+            assertEquals(1, (select from SimpleModel::class).queryList().size)
         }
     }
 }

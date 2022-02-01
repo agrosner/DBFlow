@@ -10,7 +10,7 @@ fun String.assertEquals(query: Query) = assertEquals(this, query.query.trim())
 
 fun Query.assertEquals(actual: Query) = assertEquals(query.trim(), actual.query.trim())
 
-fun assertThrowsException(expectedException: KClass<out Exception>, function: () -> Unit) {
+inline fun assertThrowsException(expectedException: KClass<out Exception>, function: () -> Unit) {
     try {
         function()
         fail("Expected call to fail. Unexpectedly passed")

@@ -33,10 +33,10 @@ class StringQuery<T : Any>
     val primaryAction: ChangeAction
         get() = ChangeAction.CHANGE
 
-    override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor? =
+    override fun cursor(databaseWrapper: DatabaseWrapper): FlowCursor =
         databaseWrapper.rawQuery(query, args)
 
-    override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<T> {
+    override fun queryList(databaseWrapper: DatabaseWrapper): List<T> {
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
         return listModelLoader.load(cursor(databaseWrapper), databaseWrapper)!!
     }
@@ -50,7 +50,7 @@ class StringQuery<T : Any>
         queryModelClass: KClass<QueryClass>,
         databaseWrapper: DatabaseWrapper
     )
-        : MutableList<QueryClass> {
+        : List<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
         return getListQueryModelLoader(queryModelClass)

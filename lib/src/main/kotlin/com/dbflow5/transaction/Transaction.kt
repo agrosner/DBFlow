@@ -66,7 +66,7 @@ class Transaction<R : Any?>(
 
     /**
      * Executes the transaction immediately on the same thread from which it is called. This calls
-     * the [DBFlowDatabase.executeTransaction] method, which runs the
+     * the [DBFlowDatabase.executeTransactionSync] method, which runs the
      * [.transaction] in a database transaction.
      */
     @WorkerThread
@@ -75,7 +75,7 @@ class Transaction<R : Any?>(
             ready?.invoke(this)
 
             val result: R = if (shouldRunInTransaction) {
-                databaseDefinition.executeTransaction(transaction)
+                databaseDefinition.executeTransactionSync(transaction)
             } else {
                 transaction.execute(databaseDefinition)
             }

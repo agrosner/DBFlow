@@ -24,7 +24,7 @@ interface ModelQueriable<T : Any> : Queriable {
     /**
      * @return a list of model converted items
      */
-    fun queryList(databaseWrapper: DatabaseWrapper): MutableList<T>
+    fun queryList(databaseWrapper: DatabaseWrapper): List<T>
 
     /**
      * @return Single model, the first of potentially many results
@@ -58,7 +58,7 @@ interface ModelQueriable<T : Any> : Queriable {
     fun <TQuery : Any> queryCustomList(
         queryModelClass: KClass<TQuery>,
         databaseWrapper: DatabaseWrapper
-    ): MutableList<TQuery>
+    ): List<TQuery>
 
     /**
      * Returns a single [TQueryModel] from this query.
@@ -70,6 +70,18 @@ interface ModelQueriable<T : Any> : Queriable {
         queryModelClass: KClass<TQueryModel>,
         databaseWrapper: DatabaseWrapper
     ): TQueryModel?
+
+    /**
+     * Returns a single [TQueryModel] from this query.
+     *
+     * @param queryModelClass The class to use.
+     * @return A single model from the query.
+     */
+    fun <TQueryModel : Any> requireCustomSingle(
+        queryModelClass: KClass<TQueryModel>,
+        databaseWrapper: DatabaseWrapper
+    ) = queryCustomSingle(queryModelClass, databaseWrapper)
+        ?: throw SQLiteException("QueryModel result not found for $this")
 
     /**
      * Begins an async DB transaction using the specified TransactionManager.
@@ -108,5 +120,4 @@ inline fun <reified T : Any> ModelQueriable<*>.queryCustomSingle(db: DatabaseWra
     queryCustomSingle(T::class, db)
 
 inline fun <reified T : Any> ModelQueriable<*>.requireCustomSingle(db: DatabaseWrapper) =
-    queryCustomSingle(T::class, db)
-        ?: throw SQLiteException("QueryModel result not found for $this")
+    requireCustomSingle(T::class, db)

@@ -6,11 +6,11 @@ import com.dbflow5.config.DBFlowDatabase
  * Description: The main handle into the database.
  */
 interface DatabaseScope<DB : DBFlowDatabase> {
-
-    /**
-     * Database handle.
-     */
-    val db: DB
+    val db: DBFlowDatabase
 }
 
-interface WritableDatabaseScope<DB : DBFlowDatabase> : DatabaseScope<DB>, WritableScope
+interface ReadableDatabaseScope<DB : DBFlowDatabase> : DatabaseScope<DB>, ReadableScope,
+    ReadableQueriableScope
+
+interface WritableDatabaseScope<DB : DBFlowDatabase> : ReadableDatabaseScope<DB>, WritableScope,
+    WritableQueriableScope

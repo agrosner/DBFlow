@@ -16,10 +16,10 @@ class UpdateTableMigrationTest : BaseUnitTest() {
 
     @Test
     fun testUpdateMigrationQuery() {
-        database<TestDatabase> {
+        database<TestDatabase> { db ->
             val update = UpdateTableMigration(SimpleModel::class)
             update.set(SimpleModel_Table.name.eq("yes"))
-            update.migrate(this.db)
+            update.migrate(db)
         }
     }
 }

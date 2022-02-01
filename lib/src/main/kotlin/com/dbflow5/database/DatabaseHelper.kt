@@ -1,5 +1,6 @@
 package com.dbflow5.database
 
+import com.dbflow5.adapter.CreationAdapter
 import com.dbflow5.adapter.createIfNotExists
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
@@ -69,13 +70,7 @@ open class DatabaseHelper(
                 .asSequence()
                 .map { FlowManager.getModelAdapter(it) }
                 .filter { it.createWithDatabase() }
-                .forEach {
-                    try {
-                        it.createIfNotExists(this)
-                    } catch (e: SQLiteException) {
-                        FlowLog.logError(e)
-                    }
-                }
+                .forEach { it.logOrThrow(this) }
         }
     }
 
@@ -88,13 +83,22 @@ open class DatabaseHelper(
                 .asSequence()
                 .map { FlowManager.getModelViewAdapter(it) }
                 .filter { it.createWithDatabase() }
-                .forEach {
-                    try {
-                        it.createIfNotExists(this)
-                    } catch (e: SQLiteException) {
-                        FlowLog.logError(e)
-                    }
-                }
+                .forEach { it.logOrThrow(this) }
+        }
+    }
+
+    /**
+     * Logs or throws an exception depending on db config.
+     */
+    private fun CreationAdapter.logOrThrow(databaseWrapper: DatabaseWrapper) {
+        try {
+            createIfNotExists(databaseWrapper)
+        } catch (e: SQLiteException) {
+            if (databaseDefinition.throwExceptionsOnCreate) {
+                throw e
+            } else {
+                FlowLog.logError(e)
+            }
         }
     }
 

@@ -2,11 +2,12 @@ package com.dbflow5.models
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
+import com.dbflow5.author
+import com.dbflow5.blog
 import com.dbflow5.config.database
-import com.dbflow5.query.queryCustomSingle
+import com.dbflow5.config.writableTransaction
 import com.dbflow5.query.select
-import com.dbflow5.structure.exists
-import com.dbflow5.structure.save
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -16,15 +17,15 @@ import org.junit.Test
 class QueryModelTest : BaseUnitTest() {
 
     @Test
-    fun testCanLoadAuthorBlogs() {
-        database<TestDatabase> {
-            val author = Author(0, "Andrew", "Grosner")
-            author.save(this.db)
-            val blog = Blog(0, "My First Blog", author)
-            blog.save(this.db)
+    fun testCanLoadAuthorBlogs() = runBlockingTest {
+        database<TestDatabase>().writableTransaction {
+            val authorModel = Author(0, "Andrew", "Grosner")
+            author.save(authorModel)
+            val blogModel = Blog(0, "My First Blog", authorModel)
+            blog.save(blogModel)
 
-            assert(author.exists(this.db))
-            assert(blog.exists(this.db))
+            assert(author.exists(authorModel))
+            assert(blog.exists(blogModel))
 
             val result: AuthorNameQuery = (select(
                 Blog_Table.name.withTable().`as`("blogName"),
@@ -32,9 +33,9 @@ class QueryModelTest : BaseUnitTest() {
                 Blog_Table.id.withTable().`as`("blogId")
             ) from Blog::class innerJoin
                 Author::class on (Blog_Table.author_id.withTable() eq Blog_Table.id.withTable()))
-                .queryCustomSingle(this.db)!!
-            assertEquals(author.id, result.authorId)
-            assertEquals(blog.id, result.blogId)
+                .requireCustomSingle(AuthorNameQuery::class)
+            assertEquals(authorModel.id, result.authorId)
+            assertEquals(blogModel.id, result.blogId)
         }
     }
 }

@@ -10,6 +10,7 @@ import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.database
 import com.dbflow5.config.modelAdapter
 import com.dbflow5.config.tableName
+import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.getNotificationUri
@@ -18,6 +19,7 @@ import com.dbflow5.query.delete
 import com.dbflow5.runtime.ContentResolverNotifier
 import com.dbflow5.runtime.FlowContentObserver
 import com.dbflow5.structure.ChangeAction
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -43,9 +45,9 @@ class ContentObserverTest {
     private lateinit var user: User
 
     @Before
-    fun setupUser() {
-        database<ContentObserverDatabase> {
-            delete<User>().execute(this.db)
+    fun setupUser() = runBlockingTest {
+        database<ContentObserverDatabase>().writableTransaction {
+            delete<User>().execute()
         }
         user = User(5, "Something", 55)
     }

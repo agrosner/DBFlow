@@ -7,6 +7,7 @@ import com.dbflow5.ImmediateTransactionManager
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.database
+import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
@@ -14,13 +15,11 @@ import com.dbflow5.query.delete
 import com.dbflow5.query.insertInto
 import com.dbflow5.query.set
 import com.dbflow5.query.update
+import com.dbflow5.simpleModel
 import com.dbflow5.structure.ChangeAction
-import com.dbflow5.structure.delete
-import com.dbflow5.structure.insert
-import com.dbflow5.structure.save
-import com.dbflow5.structure.update
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -42,46 +41,47 @@ class DirectNotifierTest {
     }
 
     @Test
-    fun validateCanNotifyDirect() {
-        database<TestDatabase> {
-            val simpleModel = SimpleModel("Name")
+    fun validateCanNotifyDirect() = runBlockingTest {
+        database<TestDatabase>().writableTransaction {
+            val model = SimpleModel("Name")
 
             val modelChange = mock<DirectModelNotifier.OnModelStateChangedListener<SimpleModel>>()
             DirectModelNotifier.get(this.db)
                 .registerForModelStateChanges(SimpleModel::class, modelChange)
 
-            simpleModel.insert(this.db)
-            verify(modelChange).onModelChanged(simpleModel, ChangeAction.INSERT)
+            simpleModel.insert(model)
+            verify(modelChange).onModelChanged(model, ChangeAction.INSERT)
 
-            simpleModel.update(this.db)
-            verify(modelChange).onModelChanged(simpleModel, ChangeAction.UPDATE)
+            simpleModel.update(model)
+            verify(modelChange).onModelChanged(model, ChangeAction.UPDATE)
 
-            simpleModel.save(this.db)
-            verify(modelChange).onModelChanged(simpleModel, ChangeAction.CHANGE)
+            simpleModel.save(model)
+            verify(modelChange).onModelChanged(model, ChangeAction.CHANGE)
 
-            simpleModel.delete(this.db)
-            verify(modelChange).onModelChanged(simpleModel, ChangeAction.DELETE)
+            simpleModel.delete(model)
+            verify(modelChange).onModelChanged(model, ChangeAction.DELETE)
         }
     }
 
     @Test
-    fun validateCanNotifyWrapperClasses() {
-        database<TestDatabase> {
+    fun validateCanNotifyWrapperClasses() = runBlockingTest {
+        database<TestDatabase>().writableTransaction {
             val modelChange = mock<OnTableChangedListener>()
-            DirectModelNotifier.get(this.db).registerForTableChanges(SimpleModel::class, modelChange)
+            DirectModelNotifier.get(this.db)
+                .registerForTableChanges(SimpleModel::class, modelChange)
 
             insertInto<SimpleModel>()
                 .columnValues(SimpleModel_Table.name to "name")
-                .executeInsert(this.db)
+                .executeInsert()
 
             verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.INSERT)
 
             (update<SimpleModel>() set SimpleModel_Table.name.eq("name2"))
-                .executeUpdateDelete(this.db)
+                .executeUpdateDelete()
 
             verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.UPDATE)
 
-            delete<SimpleModel>().executeUpdateDelete(this.db)
+            delete<SimpleModel>().executeUpdateDelete()
 
             verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.DELETE)
         }

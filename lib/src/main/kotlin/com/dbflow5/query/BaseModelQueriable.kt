@@ -39,7 +39,7 @@ protected constructor(table: KClass<TModel>) : BaseQueriable<TModel>(table), Mod
     protected val singleModelLoader: SingleModelLoader<TModel>
         get() = retrievalAdapter.nonCacheableSingleModelLoader
 
-    override fun queryList(databaseWrapper: DatabaseWrapper): MutableList<TModel> {
+    override fun queryList(databaseWrapper: DatabaseWrapper): List<TModel> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
         return listModelLoader.load(databaseWrapper, query)!!
@@ -64,7 +64,7 @@ protected constructor(table: KClass<TModel>) : BaseQueriable<TModel>(table), Mod
         queryModelClass: KClass<QueryClass>,
         databaseWrapper: DatabaseWrapper
     )
-        : MutableList<QueryClass> {
+        : List<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
         return getListQueryModelLoader(queryModelClass).load(databaseWrapper, query)!!
