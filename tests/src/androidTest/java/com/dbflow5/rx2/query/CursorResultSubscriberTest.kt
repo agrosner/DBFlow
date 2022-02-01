@@ -18,6 +18,7 @@ import com.dbflow5.structure.save
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import kotlin.test.assertNull
 
 class CursorResultSubscriberTest : BaseUnitTest() {
 
@@ -67,27 +68,28 @@ class CursorResultSubscriberTest : BaseUnitTest() {
                     curList = it
                     count++
                 }
-            db.executeTransaction { d ->
+            db.writableTransaction {
                 insert(SimpleModel::class, SimpleModel_Table.name)
                     .values("test")
-                    .executeInsert(d)
+                    .executeInsert()
                 insert(SimpleModel::class, SimpleModel_Table.name)
                     .values("test1")
-                    .executeInsert(d)
+                    .executeInsert()
                 insert(SimpleModel::class, SimpleModel_Table.name)
                     .values("test2")
-                    .executeInsert(d)
+                    .executeInsert()
             }
 
 
             assertEquals(3, curList.size)
 
-            db.executeTransaction { d ->
-                val model = (select
-                    from SimpleModel::class
-                    where SimpleModel_Table.name.eq("test")).requireSingle(d)
-                model.delete(d)
-            }
+            val model = (select
+                from SimpleModel::class
+                where SimpleModel_Table.name.eq("test"))
+                .requireSingle(db)
+
+            val deleted = db.executeTransaction { d -> model.delete(d) }
+            assertNull(deleted.getOrThrow().name)
             db.tableObserver.checkForTableUpdates()
 
             assertEquals(2, curList.size)

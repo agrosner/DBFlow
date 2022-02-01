@@ -21,8 +21,10 @@ class DBFlowInstrumentedTestRule(private val dbConfigBlock: FlowConfig.Builder.(
                 FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
                 FlowManager.init(DemoApp.context) {
                     database<TestDatabase>({
-                        TestTransactionDispatcherFactory(
-                            TestCoroutineDispatcher()
+                        transactionDispatcherFactory(
+                            TestTransactionDispatcherFactory(
+                                TestCoroutineDispatcher()
+                            )
                         )
                     }, AndroidSQLiteOpenHelper.createHelperCreator(DemoApp.context))
                     dbConfigBlock()

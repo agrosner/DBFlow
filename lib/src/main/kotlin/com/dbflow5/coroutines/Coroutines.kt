@@ -76,7 +76,7 @@ inline fun <R : Any?> constructFastCoroutine(
             if (continuation.isCancelled) return@error
             continuation.resumeWithException(throwable)
         }.build()
-    transaction.enqueue()
+        .enqueue()
 
     continuation.invokeOnCancellation {
         transaction.cancel()
