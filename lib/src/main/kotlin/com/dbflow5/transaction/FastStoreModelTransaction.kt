@@ -16,7 +16,7 @@ private typealias ProcessModelList<TModel> = (List<TModel>, InternalAdapter<TMod
  * only one kind of [TModel] is allowed.
  */
 class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TModel>) :
-    ITransaction<Result<Collection<TModel>>> {
+    SuspendableTransaction<Result<Collection<TModel>>> {
 
     internal val models: List<TModel>?
     internal val processModelList: ProcessModelList<TModel>
@@ -28,8 +28,8 @@ class FastStoreModelTransaction<TModel> internal constructor(builder: Builder<TM
         internalAdapter = builder.internalAdapter
     }
 
-    override fun execute(databaseWrapper: DatabaseWrapper): Result<Collection<TModel>> =
-        models?.let { processModelList(models, internalAdapter, databaseWrapper) }
+    override suspend fun execute(db: DatabaseWrapper): Result<Collection<TModel>> =
+        models?.let { processModelList(models, internalAdapter, db) }
             ?: Result.success(listOf())
 
     /**

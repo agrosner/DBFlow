@@ -6,7 +6,7 @@ import com.dbflow5.structure.Model
 typealias ProcessFunction<T> = (T, DatabaseWrapper) -> Unit
 
 /**
- * Listener for providing callbacks as models are processed in this [ITransaction].
+ * Listener for providing callbacks as models are processed in this [SuspendableTransaction].
  *
  * Called when model has been operated on.
  *
@@ -25,7 +25,7 @@ class ProcessModelTransaction<TModel>(
     private val models: List<TModel> = arrayListOf(),
     private val processListener: OnModelProcessListener<TModel>? = null,
     private val processModel: ProcessModel<TModel>,
-) : ITransaction<Unit> {
+) : SuspendableTransaction<Unit> {
 
     /**
      * Description: Simple interface for acting on a model in a Transaction or list of [Model]
@@ -47,11 +47,11 @@ class ProcessModelTransaction<TModel>(
         processModel = builder.processModel,
     )
 
-    override fun execute(databaseWrapper: DatabaseWrapper) {
+    override suspend fun execute(db: DatabaseWrapper) {
         val size = models.size
         for (i in 0 until size) {
             val model = models[i]
-            processModel.processModel(model, databaseWrapper)
+            processModel.processModel(model, db)
             processListener?.invoke(i.toLong(), size.toLong(), model)
         }
     }

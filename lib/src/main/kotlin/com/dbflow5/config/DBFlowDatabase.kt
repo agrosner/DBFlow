@@ -5,7 +5,6 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
-import androidx.annotation.WorkerThread
 import com.dbflow5.annotation.Database
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseCallback
@@ -19,7 +18,6 @@ import com.dbflow5.migration.Migration
 import com.dbflow5.observing.TableObserver
 import com.dbflow5.runtime.DirectModelNotifier
 import com.dbflow5.runtime.ModelNotifier
-import com.dbflow5.transaction.ITransaction
 import com.dbflow5.transaction.SuspendableTransaction
 import com.dbflow5.transaction.Transaction
 import com.dbflow5.transaction.TransactionDispatcher
@@ -259,13 +257,8 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         return notifier
     }
 
-    fun <R : Any?> beginTransactionAsync(transaction: ITransaction<R>): Transaction.Builder<R> =
+    fun <R : Any?> beginTransactionAsync(transaction: SuspendableTransaction<R>): Transaction.Builder<R> =
         Transaction.Builder(transaction, this)
-
-    inline fun <R : Any?> beginTransactionAsync(crossinline transaction: (DatabaseWrapper) -> R): Transaction.Builder<R> =
-        beginTransactionAsync(object : ITransaction<R> {
-            override fun execute(databaseWrapper: DatabaseWrapper) = transaction(databaseWrapper)
-        })
 
     /**
      * Runs the transaction within the [transactionDispatcher]
@@ -279,22 +272,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     fun <R> enqueueTransaction(transaction: SuspendableTransaction<R>): Job {
         return scope.launch {
             executeTransaction(transaction)
-        }
-    }
-
-    /**
-     * This should never get called on the main thread. Use [beginTransactionAsync] for an async-variant.
-     * Runs a transaction in the current thread.
-     */
-    @WorkerThread
-    fun <R> executeTransactionSync(transaction: ITransaction<R>): R {
-        try {
-            beginTransaction()
-            val result = transaction.execute(writableDatabase)
-            setTransactionSuccessful()
-            return result
-        } finally {
-            endTransaction()
         }
     }
 

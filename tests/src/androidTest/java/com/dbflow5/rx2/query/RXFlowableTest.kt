@@ -2,6 +2,7 @@ package com.dbflow5.rx2.query
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
+import com.dbflow5.blog
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.Author
@@ -51,7 +52,7 @@ class RXFlowableTest : BaseUnitTest() {
     }
 
     @Test
-    fun testObservesJoinTables() {
+    fun testObservesJoinTables() = runBlockingTest {
         database<TestDatabase> { db ->
             val joinOn = Blog_Table.name.withTable()
                 .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
@@ -73,9 +74,9 @@ class RXFlowableTest : BaseUnitTest() {
 
             val authors =
                 (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
-            db.executeTransactionSync { d ->
+            db.writableTransaction {
                 (1 until 11).forEach {
-                    Blog(it, name = "${it}name ${it}last", author = authors[it - 1]).save(d)
+                    blog.save(Blog(it, name = "${it}name ${it}last", author = authors[it - 1]))
                 }
             }
 

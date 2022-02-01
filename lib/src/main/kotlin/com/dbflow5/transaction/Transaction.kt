@@ -21,7 +21,7 @@ typealias Completion<R> = (Transaction<R>) -> Unit
  */
 data class Transaction<R : Any?>(
     @get:JvmName("transaction")
-    val transaction: ITransaction<R>,
+    val transaction: SuspendableTransaction<R>,
     private val databaseDefinition: DBFlowDatabase,
     @get:JvmName("ready")
     val ready: Ready<R>? = null,
@@ -78,14 +78,14 @@ data class Transaction<R : Any?>(
 
     /**
      * Executes the transaction immediately on the same thread from which it is called. This calls
-     * the [DBFlowDatabase.executeTransactionSync] method, which runs the
+     * the [DBFlowDatabase.executeTransactionForResult] method, which runs the
      * [.transaction] in a database transaction.
      */
     override suspend fun execute(db: DatabaseWrapper): Result<R> = try {
         ready?.invoke(this)
 
         val result: R = if (shouldRunInTransaction) {
-            databaseDefinition.executeTransactionSync(transaction)
+            databaseDefinition.executeTransactionForResult { transaction.execute(it) }
         } else {
             transaction.execute(databaseDefinition)
         }
@@ -129,7 +129,10 @@ data class Transaction<R : Any?>(
      * @param database The database this transaction will run on. Should be the same
      * DB as the code that the transaction runs in.
      */
-        (internal val transaction: ITransaction<R>, internal val database: DBFlowDatabase) {
+        (
+        internal val transaction: SuspendableTransaction<R>,
+        internal val database: DBFlowDatabase
+    ) {
         internal var ready: Ready<R>? = null
         internal var errorCallback: Error<R>? = null
         internal var successCallback: Success<R>? = null
@@ -155,7 +158,7 @@ data class Transaction<R : Any?>(
         }
 
         /**
-         * Specify a listener for successful transactions. This is called when the [ITransaction]
+         * Specify a listener for successful transactions. This is called when the [SuspendableTransaction]
          * specified is finished and it is posted on the UI thread.
          *
          * @param success The callback, invoked on the UI thread, unless [runCallbacksOnSameThread] is true.
