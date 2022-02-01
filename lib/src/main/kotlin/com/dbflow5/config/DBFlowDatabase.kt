@@ -298,12 +298,16 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         }
     }
 
+    @Suppress("unchecked_cast")
     internal suspend fun <R> executeTransactionForResult(transaction: SuspendableTransaction<R>): R {
-        try {
+        // if we use transaction, let the class define if we want DB transaction.
+        return if (transaction is Transaction<*>) {
+            transaction.execute(writableDatabase) as R
+        } else try {
             beginTransaction()
             val result = transaction.execute(writableDatabase)
             setTransactionSuccessful()
-            return result
+            result
         } finally {
             endTransaction()
         }

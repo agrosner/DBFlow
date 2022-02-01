@@ -33,7 +33,7 @@ fun <R : Any> Transaction.Builder<R>.asSingle(): SingleTransaction<R> = SingleTr
  *  of the [Flowable]. Use the passed [DatabaseWrapper] in your [ModelQueriable] statement.
  *  The [evalFn] runs on the [ITransactionQueue].
  */
-fun <T : Any, R> ModelQueriable<T>.asFlowable(
+fun <T : Any, R : Any> ModelQueriable<T>.asFlowable(
     db: DBFlowDatabase,
     evalFn: ModelQueriableEvalFn<T, R>
 ): Flowable<R> =

@@ -33,13 +33,11 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(
     private val onTableChangedObserver =
         object : OnTableChangedObserver(associatedTables.toList()) {
             override fun onChanged(tables: Set<KClass<*>>) {
-                if (tables.isNotEmpty()) {
-                    evaluateEmission(tables.first())
-                }
+                evaluateEmission()
             }
         }
 
-    private fun evaluateEmission(table: KClass<*> = modelQueriable.table) {
+    private fun evaluateEmission() {
         if (this::flowableEmitter.isInitialized) {
             currentTransactions.add(db
                 .beginTransactionAsync { modelQueriable.evalFn(it) }
