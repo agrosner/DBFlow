@@ -28,5 +28,5 @@ inline fun <reified T : Any> T.exists(databaseWrapper: DatabaseWrapper) =
     retrievalAdapter<T>().exists(this, databaseWrapper)
 
 inline fun <reified T : Any> T.load(databaseWrapper: DatabaseWrapper) =
-    retrievalAdapter<T>().load(this, databaseWrapper)
+    retrievalAdapter<T>().loadSingle(this, databaseWrapper)
 

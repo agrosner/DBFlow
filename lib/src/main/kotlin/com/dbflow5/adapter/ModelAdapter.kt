@@ -17,9 +17,7 @@ import com.dbflow5.query.property.Property
 abstract class ModelAdapter<T : Any> :
     RetrievalAdapter<T>(), InternalAdapter<T>, CreationAdapter {
 
-    private var _modelSaver: ModelSaver<T>? = null
-
-    val listModelSaver: ListModelSaver<T> by lazy { createListModelSaver() }
+    private val listModelSaver: ListModelSaver<T> by lazy { ListModelSaver(modelSaver) }
 
     /**
      * @return An array of column properties, in order of declaration.
@@ -162,20 +160,14 @@ abstract class ModelAdapter<T : Any> :
         return model
     }
 
-    var modelSaver: ModelSaver<T>
-        get() = tableConfig?.modelSaver?.let {
+    val modelSaver: ModelSaver<T> by lazy {
+        tableConfig?.modelSaver?.let {
             it.modelAdapter = this
             it
         }
-            ?: createSingleModelSaver()
+            ?: ModelSaver<T>()
                 .apply { modelAdapter = this@ModelAdapter }
-                .also { _modelSaver = it }
-        set(value) {
-            this._modelSaver = value
-            value.modelAdapter = this
-        }
-
-    protected open fun createSingleModelSaver(): ModelSaver<T> = ModelSaver()
+    }
 
     protected open fun createListModelSaver(): ListModelSaver<T> = ListModelSaver(modelSaver)
 

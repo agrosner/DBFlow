@@ -18,14 +18,13 @@ data class DatabaseModel(
     val queries: List<ClassModel> = listOf(),
     val migrations: List<MigrationModel> = listOf(),
     override val originatingSource: OriginatingSource?,
-) : ObjectModel
-
-val DatabaseModel.generatedClassName
-    get() = NameModel(
+) : ObjectModel, GeneratedClassModel {
+    override val generatedClassName: NameModel = NameModel(
         packageName = name.packageName,
         shortName = "${name.shortName}_Database",
         nullable = false
     )
+}
 
 fun copyOverClasses(
     classes: List<ClassModel>,

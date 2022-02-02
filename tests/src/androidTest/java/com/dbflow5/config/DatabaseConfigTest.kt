@@ -21,7 +21,7 @@ class DatabaseConfigTest : BaseUnitTest() {
 
     @Before
     fun setup() {
-        FlowManager.reset()
+        FlowManager.close()
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
     }
 

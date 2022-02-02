@@ -3,7 +3,6 @@ package com.dbflow5.query
 import android.os.Handler
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.queriable.ListModelLoader
-import com.dbflow5.adapter.queriable.SingleModelLoader
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.retrievalAdapter
@@ -26,27 +25,24 @@ abstract class BaseModelQueriable<TModel : Any>
 protected constructor(table: KClass<TModel>) : BaseQueriable<TModel>(table), ModelQueriable<TModel>,
     Query {
 
-    private val retrievalAdapter: RetrievalAdapter<TModel> by lazy {
+    protected val retrievalAdapter: RetrievalAdapter<TModel> by lazy {
         FlowManager.getRetrievalAdapter(
             table
         )
     }
 
     private var _cacheListModelLoader: ListModelLoader<TModel>? = null
-    protected val listModelLoader: ListModelLoader<TModel> = retrievalAdapter.listModelLoader
-
-    protected val singleModelLoader: SingleModelLoader<TModel> = retrievalAdapter.singleModelLoader
 
     override fun queryList(databaseWrapper: DatabaseWrapper): List<TModel> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return listModelLoader.load(databaseWrapper, query)!!
+        return retrievalAdapter.loadList(databaseWrapper, query)!!
     }
 
     override fun querySingle(databaseWrapper: DatabaseWrapper): TModel? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return singleModelLoader.load(databaseWrapper, query)
+        return retrievalAdapter.loadSingle(databaseWrapper, query)
     }
 
     override fun cursorList(databaseWrapper: DatabaseWrapper): FlowCursorList<TModel> =
@@ -65,7 +61,7 @@ protected constructor(table: KClass<TModel>) : BaseQueriable<TModel>(table), Mod
         : List<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return getListQueryModelLoader(queryModelClass).load(databaseWrapper, query)!!
+        return queryModelClass.retrievalAdapter.loadList(databaseWrapper, query)!!
     }
 
     override fun <QueryClass : Any> queryCustomSingle(
@@ -75,14 +71,8 @@ protected constructor(table: KClass<TModel>) : BaseQueriable<TModel>(table), Mod
         : QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return getSingleQueryModelLoader(queryModelClass).load(databaseWrapper, query)
+        return queryModelClass.retrievalAdapter.loadSingle(databaseWrapper, query)
     }
-
-    protected fun <T : Any> getListQueryModelLoader(table: KClass<T>): ListModelLoader<T> =
-        table.retrievalAdapter.listModelLoader
-
-    protected fun <T : Any> getSingleQueryModelLoader(table: KClass<T>): SingleModelLoader<T> =
-        table.retrievalAdapter.singleModelLoader
 }
 
 /**

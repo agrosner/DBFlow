@@ -20,6 +20,7 @@ abstract class RetrievalAdapter<T : Any> {
     val singleModelLoader: SingleModelLoader<T> by lazy {
         tableConfig?.singleModelLoader ?: SingleModelLoader(table)
     }
+
     val listModelLoader: ListModelLoader<T> by lazy {
         tableConfig?.listModelLoader ?: ListModelLoader(table)
     }
@@ -36,13 +37,25 @@ abstract class RetrievalAdapter<T : Any> {
     /**
      * Returns a new [model] based on the object passed in. Will not overwrite existing object.
      */
-    open fun load(model: T, databaseWrapper: DatabaseWrapper): T? =
+    fun loadSingle(model: T, databaseWrapper: DatabaseWrapper): T? =
         singleModelLoader.load(
             databaseWrapper,
             (select
                 from table
                 where getPrimaryConditionClause(model)).query
         )
+
+    fun loadSingle(databaseWrapper: DatabaseWrapper, query: String) =
+        singleModelLoader.load(databaseWrapper, query)
+
+    fun loadSingle(flowCursor: FlowCursor?, databaseWrapper: DatabaseWrapper) =
+        singleModelLoader.load(flowCursor, databaseWrapper)
+
+    fun loadList(databaseWrapper: DatabaseWrapper, query: String) =
+        listModelLoader.load(databaseWrapper, query)
+
+    fun loadList(flowCursor: FlowCursor?, databaseWrapper: DatabaseWrapper) =
+        listModelLoader.load(flowCursor, databaseWrapper)
 
     /**
      * Converts the specified [FlowCursor] into a new [T]

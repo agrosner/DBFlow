@@ -2,6 +2,7 @@ package com.dbflow5.query
 
 import android.database.sqlite.SQLiteDatabase
 import com.dbflow5.config.FlowLog
+import com.dbflow5.config.retrievalAdapter
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseStatementWrapper
 import com.dbflow5.database.DatabaseWrapper
@@ -38,12 +39,12 @@ class StringQuery<T : Any>
 
     override fun queryList(databaseWrapper: DatabaseWrapper): List<T> {
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return listModelLoader.load(cursor(databaseWrapper), databaseWrapper)!!
+        return retrievalAdapter.loadList(cursor(databaseWrapper), databaseWrapper)!!
     }
 
     override fun querySingle(databaseWrapper: DatabaseWrapper): T? {
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return singleModelLoader.load(cursor(databaseWrapper), databaseWrapper)!!
+        return retrievalAdapter.loadSingle(cursor(databaseWrapper), databaseWrapper)!!
     }
 
     override fun <QueryClass : Any> queryCustomList(
@@ -53,8 +54,8 @@ class StringQuery<T : Any>
         : List<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return getListQueryModelLoader(queryModelClass)
-            .load(cursor(databaseWrapper), databaseWrapper)!!
+        return queryModelClass.retrievalAdapter
+            .loadList(cursor(databaseWrapper), databaseWrapper)!!
     }
 
     override fun <QueryClass : Any> queryCustomSingle(
@@ -64,8 +65,8 @@ class StringQuery<T : Any>
         : QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return getSingleQueryModelLoader(queryModelClass)
-            .load(cursor(databaseWrapper), databaseWrapper)
+        return queryModelClass.retrievalAdapter
+            .loadSingle(cursor(databaseWrapper), databaseWrapper)
     }
 
     override fun compileStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement {

@@ -2,15 +2,14 @@ package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.codegen.shared.ClassModel
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.cache.ReferencesCache
-import com.dbflow5.codegen.shared.generatedClassName
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.memberSeparator
 import com.dbflow5.codegen.shared.properties.CreatableScopeProperties
 import com.dbflow5.codegen.shared.properties.TableProperties
 import com.dbflow5.codegen.shared.properties.dbName
 import com.dbflow5.codegen.shared.writer.TypeCreator
-import com.dbflow5.codegen.shared.ClassNames
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.AllColumnPropertiesWriter
@@ -30,7 +29,6 @@ import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LONG
 import com.squareup.kotlinpoet.NUMBER
-import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.SHORT

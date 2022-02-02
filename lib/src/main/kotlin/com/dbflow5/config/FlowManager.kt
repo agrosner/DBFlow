@@ -23,7 +23,12 @@ object FlowManager {
     @SuppressLint("StaticFieldLeak")
     internal var config: FlowConfig? = null
 
-    private var databaseHolder = GlobalDatabaseHolder()
+    private var databaseHolder: DatabaseHolder = DatabaseHolder()
+
+    /**
+     * This is set at first "merge" of the holder.
+     */
+    private var databaseHolderInitialized: Boolean = false
 
     private val loadedModules = hashSetOf<KClass<out DatabaseHolder>>()
 
@@ -48,22 +53,6 @@ object FlowManager {
                     " We recommend calling init() in your application class."
             )
 
-    private class GlobalDatabaseHolder : DatabaseHolder() {
-
-        var isInitialized = false
-            private set
-
-        fun add(holder: DatabaseHolder) {
-            databaseNameMap.putAll(holder.databaseNameMap)
-            typeConverters.putAll(holder.typeConverters)
-            databaseClassLookupMap.putAll(holder.databaseClassLookupMap)
-            modelAdapterMap.putAll(holder.modelAdapterMap)
-            modelViewAdapterMap.putAll(holder.modelViewAdapterMap)
-            queryModelAdapterMap.putAll(holder.queryModelAdapterMap)
-            isInitialized = true
-        }
-    }
-
     /**
      * Returns the table name for the specific model class
      *
@@ -84,20 +73,6 @@ object FlowManager {
         return databaseHolder.getDatabase(databaseClass) as? T
             ?: throw InvalidDBConfiguration(
                 "Database: ${databaseClass.simpleName} is not a registered Database. " +
-                    "Did you forget the @Database annotation?"
-            )
-    }
-
-    /**
-     * @param databaseName The name of the database. Will throw an exception if the databaseForTable doesn't exist.
-     * @return the [DBFlowDatabase] for the specified database
-     */
-    @JvmStatic
-    fun getDatabase(databaseName: String): DBFlowDatabase {
-        checkDatabaseHolder()
-        return databaseHolder.getDatabase(databaseName)
-            ?: throw InvalidDBConfiguration(
-                "The specified database $databaseName was not found. " +
                     "Did you forget the @Database annotation?"
             )
     }
@@ -135,7 +110,8 @@ object FlowManager {
             // Load the database holder, and add it to the global collection.
             val dbHolder: DatabaseHolder? = holderClass.java.newInstance()
             if (dbHolder != null) {
-                databaseHolder.add(dbHolder)
+                databaseHolder += dbHolder
+                databaseHolderInitialized = true
 
                 // Cache the holder for future reference.
                 loadedModules.add(holderClass)
@@ -148,17 +124,6 @@ object FlowManager {
     }
 
     /**
-     * Resets all databases and associated files.
-     */
-    @Synchronized
-    @JvmStatic
-    fun reset() {
-        databaseHolder.databaseClassLookupMap.values.forEach { it.reset() }
-        databaseHolder.reset()
-        loadedModules.clear()
-    }
-
-    /**
      * Close all DB files and resets [FlowConfig] and the [GlobalDatabaseHolder]. Brings
      * DBFlow back to initial application state.
      */
@@ -167,7 +132,8 @@ object FlowManager {
     fun close() {
         databaseHolder.databaseClassLookupMap.values.forEach { it.close() }
         config = null
-        databaseHolder = GlobalDatabaseHolder()
+        databaseHolder = DatabaseHolder()
+        databaseHolderInitialized = false
         loadedModules.clear()
     }
 
@@ -214,7 +180,7 @@ object FlowManager {
         flowConfig.databaseHolders.forEach { loadDatabaseHolder(it) }
 
         if (flowConfig.openDatabasesOnInit) {
-            databaseHolder.databaseDefinitions.forEach {
+            databaseHolder.databases.forEach {
                 // triggers open, create, migrations.
                 it.writableDatabase
             }
@@ -243,7 +209,8 @@ object FlowManager {
         databaseHolder.databaseClassLookupMap.values.forEach { it.destroy() }
         config = null
         // Reset the global database holder.
-        databaseHolder = GlobalDatabaseHolder()
+        databaseHolder = DatabaseHolder()
+        databaseHolderInitialized = false
         loadedModules.clear()
     }
 
@@ -315,8 +282,8 @@ object FlowManager {
      * @return true if it's integrity is OK.
      */
     @JvmStatic
-    fun isDatabaseIntegrityOk(databaseName: String) =
-        getDatabase(databaseName).openHelper.isDatabaseIntegrityOk
+    fun <T : DBFlowDatabase> isDatabaseIntegrityOk(clazz: KClass<T>) =
+        getDatabase(clazz).openHelper.isDatabaseIntegrityOk
 
     private fun throwCannotFindAdapter(type: String, clazz: KClass<*>): Nothing =
         throw IllegalArgumentException(
@@ -325,7 +292,7 @@ object FlowManager {
         )
 
     private fun checkDatabaseHolder() {
-        if (!databaseHolder.isInitialized) {
+        if (!databaseHolderInitialized) {
             throw IllegalStateException(
                 "The global databaseForTable holder is not initialized. " +
                     "Ensure you call FlowManager.init() before accessing the databaseForTable."

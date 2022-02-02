@@ -57,7 +57,7 @@ internal constructor(
     }
 
     override suspend fun <T : Any> ModelAdapter<T>.load(model: T): T? {
-        return load(model, db)
+        return loadSingle(model, db)
     }
 
     override suspend fun <T : Any> ModelQueriable<T>.queryList(): List<T> {

@@ -3,7 +3,6 @@ package com.grosner.dbflow5.codegen.kotlin.writer
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseModel
-import com.dbflow5.codegen.shared.generatedClassName
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.stripQuotes

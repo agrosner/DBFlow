@@ -70,7 +70,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * Allows for the app to listen for database changes.
      */
-    private var callback: DatabaseCallback? = null
+    private val callback: DatabaseCallback? by lazy { databaseConfig?.callback }
 
     /**
      * Used when resetting the DB
@@ -80,7 +80,15 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * Coroutine dispatcher, TODO: move to constructor / config.
      */
-    private lateinit var transactionDispatcher: TransactionDispatcher
+    private val transactionDispatcher: TransactionDispatcher by lazy {
+        databaseConfig.let { databaseConfig ->
+            if (databaseConfig?.transactionDispatcherFactory == null) {
+                TransactionDispatcher()
+            } else {
+                databaseConfig.transactionDispatcherFactory.create()
+            }
+        }
+    }
 
     @VisibleForTesting
     val dispatcher: TransactionDispatcher
@@ -89,9 +97,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     private val scope by lazy { CoroutineScope(transactionDispatcher.dispatcher) }
 
     private var databaseConfig: DatabaseConfig? by MutableLazy {
-        val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
-        applyDatabaseConfig(config)
-        config
+        FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
     }
 
     private var modelNotifier: ModelNotifier? = null
@@ -210,7 +216,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      */
     @Suppress("UNCHECKED_CAST")
     private fun applyDatabaseConfig(databaseConfig: DatabaseConfig?) {
-        this.databaseConfig = databaseConfig
         if (databaseConfig != null) {
             // TODO: figure out configuration solution for multiple DBs.
             /* // initialize configuration if exists.
@@ -229,12 +234,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
                      modelAdapter.modelSaver = saver as ModelSaver<Any>
                  }
              }*/
-            callback = databaseConfig.callback
-        }
-        transactionDispatcher = if (databaseConfig?.transactionDispatcherFactory == null) {
-            TransactionDispatcher()
-        } else {
-            databaseConfig.transactionDispatcherFactory.create()
         }
     }
 
@@ -301,7 +300,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         if (!isResetting) {
             destroy()
             // reapply configuration before opening it.
-            applyDatabaseConfig(databaseConfig)
+            this.databaseConfig = databaseConfig
             openHelper.database
         }
     }
@@ -318,7 +317,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
             close()
             _openHelper = null
             isOpened = false
-            applyDatabaseConfig(databaseConfig)
+            this.databaseConfig = databaseConfig
             openHelper.database
             isResetting = false
         }

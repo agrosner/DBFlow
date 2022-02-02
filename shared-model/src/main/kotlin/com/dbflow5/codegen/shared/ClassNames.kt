@@ -50,7 +50,6 @@ object ClassNames {
             .parameterizedBy(dbTypeName)
 
     val DBFlowDatabase = ClassName(PackageNames.Config, "DBFlowDatabase")
-    val MutableHolder = ClassName(PackageNames.Config, "MutableHolder")
     val GeneratedDatabaseHolder = ClassName(PackageNames.Config, "GeneratedDatabaseHolder")
     val DatabaseHolder = ClassName(PackageNames.Config, "DatabaseHolder")
 

@@ -8,3 +8,7 @@ import com.dbflow5.codegen.shared.interop.OriginatingSource
 sealed interface ObjectModel {
     val originatingSource: OriginatingSource?
 }
+
+interface GeneratedClassModel {
+    val generatedClassName: NameModel
+}

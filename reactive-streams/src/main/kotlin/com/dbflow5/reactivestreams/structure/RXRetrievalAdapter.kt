@@ -17,7 +17,7 @@ internal constructor(private val retrievalAdapter: RetrievalAdapter<T>) {
     internal constructor(table: KClass<T>) : this(FlowManager.getRetrievalAdapter<T>(table))
 
     fun load(model: T, databaseWrapper: DatabaseWrapper): Completable = Completable.fromCallable {
-        retrievalAdapter.load(model, databaseWrapper)
+        retrievalAdapter.loadSingle(model, databaseWrapper)
         null
     }
 

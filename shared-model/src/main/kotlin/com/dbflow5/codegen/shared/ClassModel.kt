@@ -36,7 +36,19 @@ data class ClassModel(
     val implementsLoadFromCursorListener: Boolean,
     val implementsSQLiteStatementListener: Boolean,
     override val originatingSource: OriginatingSource?,
-) : ObjectModel {
+) : ObjectModel, GeneratedClassModel {
+
+    override val generatedClassName: NameModel = NameModel(
+        packageName = name.packageName,
+        shortName = "${name.shortName}_${
+            when (type) {
+                is Type.Table -> "Table"
+                is Type.Query -> "Query"
+                is Type.View -> "View"
+            }
+        }",
+        nullable = false,
+    )
 
     val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.Primary }
     val referenceFields = fields.filterIsInstance<ReferenceHolderModel>()
@@ -101,19 +113,6 @@ inline fun <reified C : ClassModel.Type> ClassModel.partOfDatabaseAsType(
     (properties.database == databaseTypeName || declaredDBElements.contains(this.classType)
         || (properties is GeneratedClassProperties && allDBElements.contains(properties.generatedFromClassType)))
 
-
-val ClassModel.generatedClassName
-    get() = NameModel(
-        packageName = name.packageName,
-        shortName = "${name.shortName}_${
-            when (type) {
-                is ClassModel.Type.Table -> "Table"
-                is ClassModel.Type.Query -> "Query"
-                is ClassModel.Type.View -> "View"
-            }
-        }",
-        nullable = false,
-    )
 
 val ClassModel.memberSeparator
     get() = if (hasPrimaryConstructor) "," else ""
