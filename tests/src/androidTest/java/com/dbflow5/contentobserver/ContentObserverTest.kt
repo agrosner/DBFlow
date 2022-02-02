@@ -8,7 +8,6 @@ import com.dbflow5.TABLE_QUERY_PARAM
 import com.dbflow5.TestTransactionDispatcherFactory
 import com.dbflow5.config.database
 import com.dbflow5.config.modelAdapter
-import com.dbflow5.config.tableName
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseWrapper
@@ -61,7 +60,10 @@ class ContentObserverTest {
         )
 
         assertEquals(uri.authority, contentUri)
-        assertEquals(tableName<User>(), uri.getQueryParameter(TABLE_QUERY_PARAM))
+        assertEquals(
+            database<ContentObserverDatabase>().userAdapter.name,
+            uri.getQueryParameter(TABLE_QUERY_PARAM)
+        )
         assertEquals(uri.fragment, ChangeAction.DELETE.name)
         assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.id.query))), "5")
         assertEquals(

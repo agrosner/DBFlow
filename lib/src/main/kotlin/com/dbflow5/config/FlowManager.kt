@@ -315,11 +315,6 @@ inline fun <reified DB : DBFlowDatabase> database(fn: (DB) -> Unit = {}): DB =
     FlowManager.getDatabase(DB::class).apply(fn)
 
 /**
- * Easily get its table name.
- */
-inline fun <reified T : Any> tableName(): String = FlowManager.getTableName(T::class)
-
-/**
  * Easily get its [ModelAdapter].
  */
 inline fun <reified T : Any> modelAdapter() = FlowManager.getModelAdapter(T::class)
@@ -327,23 +322,5 @@ inline fun <reified T : Any> modelAdapter() = FlowManager.getModelAdapter(T::cla
 inline val <T : Any> KClass<T>.modelAdapter
     get() = FlowManager.getModelAdapter(this)
 
-inline fun <reified T : Any> queryModelAdapter() = FlowManager.getQueryModelAdapter(T::class)
-
-inline val <T : Any> KClass<T>.queryModelAdapter
-    get() = FlowManager.getQueryModelAdapter(this)
-
-/**
- * Easily get its [RetrievalAdapter].
- */
-inline fun <reified T : Any> retrievalAdapter() = FlowManager.getRetrievalAdapter(T::class)
-
 inline val <T : Any> KClass<T>.retrievalAdapter
     get() = FlowManager.getRetrievalAdapter(this)
-
-/**
- * Easily get its [ModelViewAdapter]
- */
-inline fun <reified T : Any> modelViewAdapter() = FlowManager.getModelViewAdapter(T::class)
-
-inline val <T : Any> KClass<T>.modelViewAdapter
-    get() = FlowManager.getModelViewAdapter(this)

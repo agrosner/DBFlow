@@ -24,9 +24,4 @@ inline fun <reified T : Any> T.update(databaseWrapper: DatabaseWrapper) =
 inline fun <reified T : Any> T.delete(databaseWrapper: DatabaseWrapper) =
     modelAdapter<T>().delete(this, databaseWrapper)
 
-inline fun <reified T : Any> T.exists(databaseWrapper: DatabaseWrapper) =
-    retrievalAdapter<T>().exists(this, databaseWrapper)
-
-inline fun <reified T : Any> T.load(databaseWrapper: DatabaseWrapper) =
-    retrievalAdapter<T>().loadSingle(this, databaseWrapper)
 

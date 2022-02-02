@@ -1,5 +1,6 @@
 package com.dbflow5.contentobserver
 
+import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.config.DBFlowDatabase
 
@@ -10,4 +11,8 @@ import com.dbflow5.config.DBFlowDatabase
         com.dbflow5.User::class
     ],
 )
-abstract class ContentObserverDatabase : DBFlowDatabase()
+abstract class ContentObserverDatabase : DBFlowDatabase() {
+
+    abstract val userAdapter: ModelAdapter<User>
+    abstract val user2Adapter: ModelAdapter<com.dbflow5.User>
+}
