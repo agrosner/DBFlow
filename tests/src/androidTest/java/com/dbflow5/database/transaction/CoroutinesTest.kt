@@ -8,7 +8,7 @@ import com.dbflow5.coroutines.toFlow
 import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.select
-import com.dbflow5.twoColumnModel
+import com.dbflow5.twoColumnModelAdapter
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -27,7 +27,7 @@ class CoroutinesTest : BaseUnitTest() {
         val database = database<TestDatabase>()
         database.writableTransaction {
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
-            val saveResult = twoColumnModel.save(simpleModel)
+            val saveResult = twoColumnModelAdapter.save(simpleModel)
             assert(saveResult.isSuccess)
         }
 
@@ -49,7 +49,7 @@ class CoroutinesTest : BaseUnitTest() {
         }
         database<TestDatabase>().writableTransaction {
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
-            val result = twoColumnModel.save(simpleModel)
+            val result = twoColumnModelAdapter.save(simpleModel)
             assert(result.isSuccess)
         }
         job.cancel()

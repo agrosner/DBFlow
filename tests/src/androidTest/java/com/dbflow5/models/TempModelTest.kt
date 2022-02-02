@@ -8,7 +8,7 @@ import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
-import com.dbflow5.tempModel
+import com.dbflow5.tempModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
@@ -21,9 +21,9 @@ class TempModelTest : BaseUnitTest() {
     @Test
     fun createTempTable() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            tempModel.createIfNotExists(this.db)
-            tempModel.save(TempModel(id = 5), this.db)
-            tempModel.drop(this.db)
+            tempModelAdapter.createIfNotExists(this.db)
+            tempModelAdapter.save(TempModel(id = 5), this.db)
+            tempModelAdapter.drop(this.db)
         }
     }
 }

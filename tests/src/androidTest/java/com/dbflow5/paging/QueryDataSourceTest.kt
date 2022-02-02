@@ -11,7 +11,7 @@ import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.select
 import com.dbflow5.query.set
 import com.dbflow5.query.update
-import com.dbflow5.simpleModel
+import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -26,7 +26,7 @@ class QueryDataSourceTest : BaseUnitTest() {
     fun testLoadInitialParams() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             (0 until 100).forEach {
-                simpleModel.save(SimpleModel("$it"))
+                simpleModelAdapter.save(SimpleModel("$it"))
             }
 
             val factory = (select from SimpleModel::class).toDataSourceFactory(this.db)

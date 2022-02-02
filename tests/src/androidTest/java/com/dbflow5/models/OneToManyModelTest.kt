@@ -4,8 +4,8 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
-import com.dbflow5.oneToManyBaseModel
-import com.dbflow5.oneToManyModel
+import com.dbflow5.oneToManyBaseModelAdapter
+import com.dbflow5.oneToManyModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 
@@ -14,13 +14,13 @@ class OneToManyModelTest : BaseUnitTest() {
     @Test
     fun testOneToManyModel() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            oneToManyModel.save(
+            oneToManyModelAdapter.save(
                 OneToManyModel(
                     name = "name"
                 )
             )
 
-            oneToManyBaseModel.save(
+            oneToManyBaseModelAdapter.save(
                 OneToManyBaseModel(
                     id = 1,
                     parentName = "name"

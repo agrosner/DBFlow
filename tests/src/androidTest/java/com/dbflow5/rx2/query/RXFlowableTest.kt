@@ -2,7 +2,7 @@ package com.dbflow5.rx2.query
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
-import com.dbflow5.blog
+import com.dbflow5.blogAdapter
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.Author
@@ -14,7 +14,7 @@ import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.cast
 import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.transaction.asFlowable
-import com.dbflow5.simpleModel
+import com.dbflow5.simpleModelAdapter
 import com.dbflow5.structure.save
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
@@ -28,7 +28,7 @@ class RXFlowableTest : BaseUnitTest() {
     @Test
     fun testCanObserveChanges() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            simpleModel.saveAll((0..100).map {
+            simpleModelAdapter.saveAll((0..100).map {
                 SimpleModel("$it")
             })
 
@@ -76,7 +76,13 @@ class RXFlowableTest : BaseUnitTest() {
                 (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
             db.writableTransaction {
                 (1 until 11).forEach {
-                    blog.save(Blog(it, name = "${it}name ${it}last", author = authors[it - 1]))
+                    blogAdapter.save(
+                        Blog(
+                            it,
+                            name = "${it}name ${it}last",
+                            author = authors[it - 1]
+                        )
+                    )
                 }
             }
 

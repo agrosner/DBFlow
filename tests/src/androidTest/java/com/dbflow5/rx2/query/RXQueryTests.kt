@@ -14,7 +14,7 @@ import com.dbflow5.query.select
 import com.dbflow5.query.selectCountOf
 import com.dbflow5.reactivestreams.transaction.asMaybe
 import com.dbflow5.reactivestreams.transaction.asSingle
-import com.dbflow5.simpleModel
+import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -24,7 +24,7 @@ class RXQueryTests : BaseUnitTest() {
     @Test
     fun testCanQuery() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            simpleModel.save(SimpleModel("Name"))
+            simpleModelAdapter.save(SimpleModel("Name"))
 
             var cursor: FlowCursor? = null
 
@@ -56,7 +56,7 @@ class RXQueryTests : BaseUnitTest() {
     @Test
     fun testCountMethod() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            simpleModel.saveAll(
+            simpleModelAdapter.saveAll(
                 listOf(
                     SimpleModel("name"),
                     SimpleModel("name2")

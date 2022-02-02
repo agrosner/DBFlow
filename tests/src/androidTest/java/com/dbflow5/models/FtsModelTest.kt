@@ -5,7 +5,7 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
 import com.dbflow5.config.readableTransaction
 import com.dbflow5.config.writableTransaction
-import com.dbflow5.fts4Model
+import com.dbflow5.fts4ModelAdapter
 import com.dbflow5.query.insert
 import com.dbflow5.query.offsets
 import com.dbflow5.query.property.docId
@@ -24,7 +24,7 @@ class FtsModelTest : BaseUnitTest() {
     fun validate_fts4_created() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             val model = Fts4Model(name = "FTSBABY")
-            fts4Model.save(model)
+            fts4ModelAdapter.save(model)
 
             val rows = (insert<Fts4VirtualModel2>(
                 docId,
@@ -67,7 +67,7 @@ class FtsModelTest : BaseUnitTest() {
                     "  minimum temperature 6-12oC. Northeasterly winds 15-30 km/hr. After that, temperature \n" +
                     "  increases. Northeasterly winds 15-30 km/hr. "
             )
-            fts4Model.save(model)
+            fts4ModelAdapter.save(model)
             val rows = (insert<Fts4VirtualModel2>(
                 docId,
                 Fts4VirtualModel2_Table.name

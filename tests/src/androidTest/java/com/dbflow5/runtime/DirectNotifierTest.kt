@@ -15,7 +15,7 @@ import com.dbflow5.query.delete
 import com.dbflow5.query.insertInto
 import com.dbflow5.query.set
 import com.dbflow5.query.update
-import com.dbflow5.simpleModel
+import com.dbflow5.simpleModelAdapter
 import com.dbflow5.structure.ChangeAction
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
@@ -54,16 +54,16 @@ class DirectNotifierTest {
             DirectModelNotifier.get(this.db)
                 .registerForModelStateChanges(SimpleModel::class, modelChange)
 
-            simpleModel.insert(model)
+            simpleModelAdapter.insert(model)
             verify(modelChange).onModelChanged(model, ChangeAction.INSERT)
 
-            simpleModel.update(model)
+            simpleModelAdapter.update(model)
             verify(modelChange).onModelChanged(model, ChangeAction.UPDATE)
 
-            simpleModel.save(model)
+            simpleModelAdapter.save(model)
             verify(modelChange).onModelChanged(model, ChangeAction.CHANGE)
 
-            simpleModel.delete(model)
+            simpleModelAdapter.delete(model)
             verify(modelChange).onModelChanged(model, ChangeAction.DELETE)
         }
     }

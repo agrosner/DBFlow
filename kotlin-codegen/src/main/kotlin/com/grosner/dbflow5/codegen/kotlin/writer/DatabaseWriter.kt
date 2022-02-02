@@ -5,8 +5,6 @@ import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseModel
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
-import com.dbflow5.stripQuotes
-import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
@@ -113,24 +111,23 @@ class DatabaseWriter(
 
                 // extension methods for db scope
 
-                model.tables
+                model.adapterFields
                     .forEach { clazz ->
                         addProperty(
                             PropertySpec.builder(
-                                clazz.dbName.stripQuotes().replaceFirstChar { it.lowercase() },
-                                ClassNames.modelAdapter(clazz.classType)
+                                clazz.name.shortName,
+                                clazz.typeName,
                             )
                                 .apply {
-                                    if (clazz.isInternal) {
-                                        addModifiers(KModifier.INTERNAL)
-                                    }
+                                    //if (clazz.isInternal) {
+                                    //    addModifiers(KModifier.INTERNAL)
+                                    //}
                                 }
                                 .receiver(ClassNames.dbScope(model.classType))
                                 .getter(
                                     FunSpec.getterBuilder()
                                         .addStatement(
-                                            "return %M<%T>()", MemberNames.modelAdapter,
-                                            clazz.classType
+                                            "return db.%L", clazz.name.shortName,
                                         )
                                         .build()
                                 )

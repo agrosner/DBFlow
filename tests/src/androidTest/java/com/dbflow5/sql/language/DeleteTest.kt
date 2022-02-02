@@ -8,7 +8,7 @@ import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
-import com.dbflow5.simpleModel
+import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -24,7 +24,7 @@ class DeleteTest : BaseUnitTest() {
     @Test
     fun validateDeletion() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            simpleModel.save(SimpleModel("name"))
+            simpleModelAdapter.save(SimpleModel("name"))
             delete<SimpleModel>().execute()
             assertFalse((select from SimpleModel::class).hasData())
         }
@@ -33,7 +33,7 @@ class DeleteTest : BaseUnitTest() {
     @Test
     fun validateDeletionWithQuery() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            simpleModel.saveAll(
+            simpleModelAdapter.saveAll(
                 listOf(
                     SimpleModel("name"),
                     SimpleModel("another name"),

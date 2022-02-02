@@ -16,7 +16,7 @@ import com.dbflow5.query.insert
 import com.dbflow5.query.property.property
 import com.dbflow5.query.select
 import com.dbflow5.query.updateOn
-import com.dbflow5.simpleModel
+import com.dbflow5.simpleModelAdapter
 import com.dbflow5.sql.SQLiteType
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertNotNull
@@ -81,7 +81,7 @@ class TriggerTest : BaseUnitTest() {
                     TwoColumnModel_Table.id to 1,
                 )
             trigger.enable(db)
-            simpleModel.insert(SimpleModel("Test"))
+            simpleModelAdapter.insert(SimpleModel("Test"))
 
             val result =
                 select from TwoColumnModel::class where (TwoColumnModel_Table.name eq "Test")

@@ -7,7 +7,7 @@ import com.dbflow5.config.readableTransaction
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.select
-import com.dbflow5.simpleModel
+import com.dbflow5.simpleModelAdapter
 import com.dbflow5.structure.save
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
@@ -45,7 +45,7 @@ class FlowCursorListTest : BaseUnitTest() {
     fun validateGetAll() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             (0..9).forEach {
-                simpleModel.save(SimpleModel("$it"))
+                simpleModelAdapter.save(SimpleModel("$it"))
             }
 
             val list = (select from SimpleModel::class).cursorList(this.db)
@@ -58,7 +58,7 @@ class FlowCursorListTest : BaseUnitTest() {
     fun validateCursorChange() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             (0..9).forEach {
-                simpleModel.save(SimpleModel("$it"))
+                simpleModelAdapter.save(SimpleModel("$it"))
             }
 
             val list = (select from SimpleModel::class).cursorList(this.db)

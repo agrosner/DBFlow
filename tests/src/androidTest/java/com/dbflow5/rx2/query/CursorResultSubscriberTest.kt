@@ -11,7 +11,7 @@ import com.dbflow5.query.insert
 import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.query.queryStreamResults
 import com.dbflow5.reactivestreams.transaction.asFlowable
-import com.dbflow5.simpleModel
+import com.dbflow5.simpleModelAdapter
 import com.dbflow5.structure.delete
 import com.dbflow5.structure.insert
 import com.dbflow5.structure.save
@@ -24,7 +24,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     @Test
     fun testCanQueryStreamResults() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            (0..9).forEach { simpleModel.save(SimpleModel("$it")) }
+            (0..9).forEach { simpleModelAdapter.save(SimpleModel("$it")) }
 
             var count = 0
             (select from SimpleModel::class)

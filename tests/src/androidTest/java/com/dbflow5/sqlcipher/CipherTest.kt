@@ -32,9 +32,9 @@ class CipherTest {
         database<CipherDatabase>().writableTransaction {
             (delete() from CipherModel::class).execute()
             val model =
-                cipherModel.save(CipherModel(name = "name"))
+                cipherAdapter.save(CipherModel(name = "name"))
                     .getOrThrow()
-            assertTrue(cipherModel.exists(model))
+            assertTrue(cipherAdapter.exists(model))
 
             val retrieval = (select from CipherModel::class
                 where CipherModel_Table.name.eq("name"))
