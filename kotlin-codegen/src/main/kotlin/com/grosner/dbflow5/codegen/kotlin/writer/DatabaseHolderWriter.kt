@@ -1,5 +1,6 @@
 package com.grosner.dbflow5.codegen.kotlin.writer
 
+import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseHolderModel
 import com.dbflow5.codegen.shared.generatedClassName
@@ -43,12 +44,27 @@ class DatabaseHolderWriter(
                             // type converters
 
                             model.databases.forEach { db ->
-                                addStatement("putDatabase(%T(this))", db.generatedClassName.className)
+                                addStatement(
+                                    "putDatabase(%T())",
+                                    db.generatedClassName.className
+                                )
                             }
+                            putAdapter("Model", model.tables)
+                            putAdapter("Query", model.queries)
+                            putAdapter("View", model.views)
                         }
                         .build()
                 )
                 .build()
         )
             .build()
+
+    private fun CodeBlock.Builder.putAdapter(name: String, models: List<ClassModel>) {
+        models.forEach { view ->
+            addStatement(
+                "put${name}Adapter(%T())",
+                view.generatedClassName.className
+            )
+        }
+    }
 }

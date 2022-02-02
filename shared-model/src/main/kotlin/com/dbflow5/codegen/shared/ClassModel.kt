@@ -60,6 +60,9 @@ data class ClassModel(
     val isNormal
         get() = type is Type.Table
 
+    val isView
+        get() = type is Type.View
+
     fun flattenedFields(referencesCache: ReferencesCache) =
         createFlattenedFields(referencesCache, fields)
 

@@ -63,7 +63,10 @@ class ObjectWriter(
 
         val holderModel = DatabaseHolderModel(
             name = NameModel(ClassNames.GeneratedDatabaseHolder),
-            databases,
+            databases = databases,
+            tables = classes.filter { it.isNormal },
+            queries = classes.filter { it.isQuery },
+            views = classes.filter { it.isView },
             properties = DatabaseHolderProperties(""),
             originatingSource = OriginatingSourceCollection(objects.mapNotNull { it.originatingSource })
         )

@@ -58,7 +58,6 @@ class DatabaseWriter(
                     TypeSpec.classBuilder(model.generatedClassName.className)
                         .primaryConstructor(
                             FunSpec.constructorBuilder()
-                                .addParameter("holder", ClassNames.MutableHolder)
                                 .addParameter(associatedClassName.parameterSpec)
                                 .addParameter(version.parameterSpec)
                                 .addParameter(foreignKeys.parameterSpec)
@@ -81,25 +80,6 @@ class DatabaseWriter(
                             addInitializerBlock(
                                 CodeBlock.builder()
                                     .apply {
-                                        model.tables.forEach { table ->
-                                            addStatement(
-                                                "holder.putModelAdapter(%T())",
-                                                table.generatedClassName.className
-                                            )
-                                        }
-                                        model.views.forEach { view ->
-                                            addStatement(
-                                                "holder.putViewAdapter(%T())",
-                                                view.generatedClassName.className
-                                            )
-                                        }
-                                        model.queries.forEach { query ->
-                                            addStatement(
-                                                "holder.putQueryAdapter(%T())",
-                                                query.generatedClassName.className
-                                            )
-                                        }
-
                                         model.migrations.groupBy { it.properties.version }
                                             .toSortedMap(reverseOrder())
                                             .forEach { (version, migrations) ->
