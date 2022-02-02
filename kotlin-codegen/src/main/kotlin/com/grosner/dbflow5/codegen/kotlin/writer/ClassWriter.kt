@@ -70,12 +70,7 @@ class ClassWriter(
         }
         val extractors = model.extractors(referencesCache)
         val primaryExtractors = model.primaryExtractors(referencesCache)
-        val superClass = when (model.type) {
-            is ClassModel.Type.Table -> ClassNames.modelAdapter(model.classType)
-            is ClassModel.Type.View -> ClassNames.modelViewAdapter(model.classType)
-            ClassModel.Type.Query -> ClassNames.retrievalAdapter(model.classType)
-        }
-
+        val superClass = model.generatedSuperClass
         return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
             .addType(
                 TypeSpec.classBuilder(model.generatedClassName.className)

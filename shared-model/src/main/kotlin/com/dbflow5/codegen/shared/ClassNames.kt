@@ -1,6 +1,7 @@
 package com.dbflow5.codegen.shared
 
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.WildcardTypeName
@@ -32,14 +33,15 @@ object ClassNames {
             )
         )
     val OperatorGroup = ClassName(PackageNames.Query, "OperatorGroup")
-    fun modelAdapter(typeName: TypeName) =
-        ClassName(PackageNames.Adapter, "ModelAdapter").parameterizedBy(typeName)
 
-    fun retrievalAdapter(typeName: TypeName) =
-        ClassName(PackageNames.Adapter, "RetrievalAdapter").parameterizedBy(typeName)
-
-    fun modelViewAdapter(typeName: TypeName) =
-        ClassName(PackageNames.Adapter, "ModelViewAdapter").parameterizedBy(typeName)
+    val ModelAdapter = ClassName(PackageNames.Adapter, "ModelAdapter")
+    fun modelAdapter(typeName: TypeName) = ModelAdapter.parameterizedBy(typeName)
+    val RetrievalAdapter = ClassName(PackageNames.Adapter, "RetrievalAdapter")
+    fun retrievalAdapter(typeName: TypeName): ParameterizedTypeName {
+        return RetrievalAdapter.parameterizedBy(typeName)
+    }
+    val ModelViewAdapter = ClassName(PackageNames.Adapter, "ModelViewAdapter")
+    fun modelViewAdapter(typeName: TypeName) = ModelViewAdapter.parameterizedBy(typeName)
 
     fun adapterCompanion(typeName: TypeName) =
         ClassName(PackageNames.Adapter, "AdapterCompanion")
@@ -50,7 +52,9 @@ object ClassNames {
             .parameterizedBy(dbTypeName)
 
     val DBFlowDatabase = ClassName(PackageNames.Config, "DBFlowDatabase")
-    val GeneratedDatabaseHolder = ClassName(PackageNames.Config, "GeneratedDatabaseHolder")
+    val GeneratedDatabaseHolderFactory =
+        ClassName(PackageNames.Config, "GeneratedDatabaseHolderFactory")
+    val DatabaseHolderFactory = ClassName(PackageNames.Config, "DatabaseHolderFactory")
     val DatabaseHolder = ClassName(PackageNames.Config, "DatabaseHolder")
 
     val FlowCursor = ClassName(PackageNames.Database, "FlowCursor")

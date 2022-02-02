@@ -6,16 +6,20 @@ import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.converter.TypeConverter
 import kotlin.reflect.KClass
 
+interface DatabaseHolderFactory {
+    fun create(): DatabaseHolder
+}
+
 /**
  * Description: The base interface for interacting with all of the database and top-level data that's shared
  * between them.
  */
-open class DatabaseHolder(
+class DatabaseHolder(
     val databases: Set<DBFlowDatabase>,
     val tables: Set<ModelAdapter<*>>,
     val views: Set<ModelViewAdapter<*>>,
     val queries: Set<RetrievalAdapter<*>>,
-    val typeConverters: Map<KClass<*>, TypeConverter<*, *>> = mapOf(),
+    private val typeConverters: Map<KClass<*>, TypeConverter<*, *>> = mapOf(),
 ) {
 
     constructor() : this(
@@ -26,10 +30,10 @@ open class DatabaseHolder(
         typeConverters = mapOf(),
     )
 
-    val modelAdapterMap = tables.associateBy { it.table }
-    val modelViewAdapterMap = views.associateBy { it.table }
-    val queryModelAdapterMap = queries.associateBy { it.table }
-    val databaseClassLookupMap = databases.associateBy { it.associatedDatabaseClassFile }
+    private val modelAdapterMap = tables.associateBy { it.table }
+    private val modelViewAdapterMap = views.associateBy { it.table }
+    private val queryModelAdapterMap = queries.associateBy { it.table }
+    internal val databaseClassLookupMap = databases.associateBy { it.associatedDatabaseClassFile }
 
     /**
      * @param clazz The model value class to get a [TypeConverter]

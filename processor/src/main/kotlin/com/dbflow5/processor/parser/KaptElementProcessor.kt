@@ -12,6 +12,7 @@ import com.dbflow5.annotation.OneToManyRelation
 import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
+import com.dbflow5.codegen.shared.ClassAdapterFieldModel
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseModel
@@ -39,6 +40,7 @@ import com.dbflow5.processor.utils.getPackage
 import com.dbflow5.processor.utils.javaToKotlinType
 import com.dbflow5.processor.utils.toTypeErasedElement
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asTypeName
 import com.squareup.kotlinpoet.typeNameOf
@@ -90,6 +92,20 @@ class KaptElementProcessor(
                             classType = classType,
                             properties = databasePropertyParser.parse(input.annotation()!!),
                             originatingSource = source,
+                            adapterFields = classDeclaration.getters
+                                .filter { it.isAbstract }
+                                .filter {
+                                    val toClassName = it.typeName
+                                    toClassName is ParameterizedTypeName &&
+                                        toClassName.rawType in ClassAdapterFieldModel.Type.values()
+                                        .map { type -> type.className }
+
+                                }.map {
+                                    ClassAdapterFieldModel(
+                                        it.propertyName,
+                                        typeName = it.typeName as ParameterizedTypeName,
+                                    )
+                                }.toList(),
                         )
                     )
                 }

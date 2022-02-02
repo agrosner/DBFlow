@@ -12,6 +12,7 @@ import com.dbflow5.annotation.OneToManyRelation
 import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
+import com.dbflow5.codegen.shared.ClassAdapterFieldModel
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseModel
@@ -45,6 +46,7 @@ import com.dbflow5.ksp.parser.annotation.TypeConverterPropertyParser
 import com.dbflow5.ksp.parser.annotation.ViewPropertyParser
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.getDeclaredProperties
+import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotation
@@ -52,6 +54,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.typeNameOf
@@ -161,6 +164,20 @@ class KSClassDeclarationParser(
                             classType = classType,
                             properties = databasePropertyParser.parse(annotation),
                             originatingSource = originatingFile,
+                            adapterFields = input.getAllProperties()
+                                .filter { it.isAbstract() }
+                                .filter {
+                                    val toClassName = it.type.resolve().toTypeName()
+                                    toClassName is ParameterizedTypeName &&
+                                        (toClassName.rawType in ClassAdapterFieldModel.Type.values()
+                                            .map { type -> type.className })
+                                }
+                                .map {
+                                    ClassAdapterFieldModel(
+                                        NameModel(it.simpleName, it.packageName),
+                                        typeName = it.type.toTypeName() as ParameterizedTypeName,
+                                    )
+                                }.toList(),
                         )
                     )
                 }

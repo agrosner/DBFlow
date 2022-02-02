@@ -50,6 +50,12 @@ data class ClassModel(
         nullable = false,
     )
 
+    val generatedSuperClass = when (type) {
+        is ClassModel.Type.Table -> ClassNames.modelAdapter(classType)
+        is ClassModel.Type.View -> ClassNames.modelViewAdapter(classType)
+        ClassModel.Type.Query -> ClassNames.retrievalAdapter(classType)
+    }
+
     val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.Primary }
     val referenceFields = fields.filterIsInstance<ReferenceHolderModel>()
     val primaryAutoIncrementFields = primaryFields.filter {

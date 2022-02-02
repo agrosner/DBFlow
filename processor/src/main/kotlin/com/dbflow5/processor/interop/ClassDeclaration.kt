@@ -55,7 +55,7 @@ abstract class KaptClassDeclaration : ClassDeclaration {
                 val propertyDeclaration = JavaPropertyDeclaration(
                     element = elm,
                     getter = getters.firstOrNull {
-                        it.propertyName == elm.simpleName.toString()
+                        it.propertyNameString == elm.simpleName.toString()
                     }?.element,
                     setter = setters.firstOrNull {
                         val propName = it.simpleName.toString()
@@ -112,13 +112,13 @@ internal data class KaptKotlinClassDeclaration(
         get() {
             val packageName = typeElement.getPackage().qualifiedName.toString()
             println("Specs ${typeSpec.name}  ${typeSpec.propertySpecs.map { it.name }}")
-            println("Properties ${typeElement.simpleName} ${propertyElements.map { it.simpleName.shortName }} ${getters.map { it.propertyName }}")
+            println("Properties ${typeElement.simpleName} ${propertyElements.map { it.simpleName.shortName }} ${getters.map { it.propertyNameString }}")
             return propertyElements
                 .asSequence()
                 .map { it.simpleName.shortName }
                 .run {
                     toMutableList().apply {
-                        addAll(getters.map { it.propertyName })
+                        addAll(getters.map { it.propertyNameString })
                     }.asSequence()
                 }
                 // preserve same order as how they are declared
@@ -132,7 +132,7 @@ internal data class KaptKotlinClassDeclaration(
                             .firstOrNull { prop -> prop.simpleName.shortName == spec.name }
                             ?.element
                             ?: getters
-                                .firstOrNull { prop -> prop.propertyName == spec.name }
+                                .firstOrNull { prop -> prop.propertyNameString == spec.name }
                                 ?.element
                             ?: throw IllegalStateException(
                                 "Cant find property for ${spec.name}: " +

@@ -17,6 +17,7 @@ data class DatabaseModel(
     val views: List<ClassModel> = listOf(),
     val queries: List<ClassModel> = listOf(),
     val migrations: List<MigrationModel> = listOf(),
+    val adapterFields: List<ClassAdapterFieldModel>,
     override val originatingSource: OriginatingSource?,
 ) : ObjectModel, GeneratedClassModel {
     override val generatedClassName: NameModel = NameModel(

@@ -51,6 +51,16 @@ class DatabaseWriter(
             defaultValue("%L", model.properties.foreignKeyConstraintsEnforced)
         }
 
+        val adapterFields = model.adapterFields
+            .map {
+                ParameterPropertySpec(
+                    name = it.name.shortName,
+                    type = it.typeName,
+                ) {
+                    addModifiers(KModifier.OVERRIDE)
+                }
+            }
+
         return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
             .apply {
                 addType(
@@ -60,6 +70,7 @@ class DatabaseWriter(
                                 .addParameter(associatedClassName.parameterSpec)
                                 .addParameter(version.parameterSpec)
                                 .addParameter(foreignKeys.parameterSpec)
+                                .addParameters(adapterFields.map { it.parameterSpec })
                                 .build()
                         )
                         .apply {
@@ -76,6 +87,7 @@ class DatabaseWriter(
                             addProperty(classProperty("queries", model.queries))
                             addProperty(classProperty("tables", model.tables))
                             addProperty(classProperty("views", model.views))
+                            addProperties(adapterFields.map { it.propertySpec })
                             addInitializerBlock(
                                 CodeBlock.builder()
                                     .apply {

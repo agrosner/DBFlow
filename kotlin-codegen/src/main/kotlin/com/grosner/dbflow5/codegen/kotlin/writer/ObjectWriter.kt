@@ -62,7 +62,7 @@ class ObjectWriter(
             .map(copyOverClasses(classes, migrations))
 
         val holderModel = DatabaseHolderModel(
-            name = NameModel(ClassNames.GeneratedDatabaseHolder),
+            name = NameModel(ClassNames.GeneratedDatabaseHolderFactory),
             databases = databases,
             tables = classes.filter { it.isNormal },
             queries = classes.filter { it.isQuery },
