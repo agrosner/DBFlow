@@ -30,9 +30,9 @@ object FlowManager {
      */
     private var databaseHolderInitialized: Boolean = false
 
-    private val loadedModules = hashSetOf<KClass<out DatabaseHolder>>()
+    private val loadedModules = hashSetOf<DatabaseHolderFactory>()
 
-    private val DEFAULT_DATABASE_HOLDER_NAME = "GeneratedDatabaseHolder"
+    private val DEFAULT_DATABASE_HOLDER_NAME = "GeneratedDatabaseHolderFactory"
 
     @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
     private val DEFAULT_DATABASE_HOLDER_PACKAGE_NAME = FlowManager::class.java.`package`.name
@@ -87,8 +87,8 @@ object FlowManager {
      */
     @JvmStatic
     @Deprecated(message = "Use FlowConfig instead to add modules.")
-    fun initModule(generatedClassName: KClass<out DatabaseHolder>) {
-        loadDatabaseHolder(generatedClassName)
+    fun initModule(holderFactory: DatabaseHolderFactory) {
+        loadDatabaseHolder(holderFactory)
     }
 
     @JvmStatic
@@ -101,24 +101,21 @@ object FlowManager {
     /**
      * @return The database holder, creating if necessary using reflection.
      */
-    private fun loadDatabaseHolder(holderClass: KClass<out DatabaseHolder>) {
-        if (loadedModules.contains(holderClass)) {
+    private fun loadDatabaseHolder(holderFactory: DatabaseHolderFactory) {
+        if (loadedModules.contains(holderFactory)) {
             return
         }
 
         try {
             // Load the database holder, and add it to the global collection.
-            val dbHolder: DatabaseHolder? = holderClass.java.newInstance()
-            if (dbHolder != null) {
-                databaseHolder += dbHolder
-                databaseHolderInitialized = true
+            databaseHolder += holderFactory.create()
+            databaseHolderInitialized = true
 
-                // Cache the holder for future reference.
-                loadedModules.add(holderClass)
-            }
+            // Cache the holder for future reference.
+            loadedModules.add(holderFactory)
         } catch (e: Throwable) {
             e.printStackTrace()
-            throw ModuleNotFoundException("Cannot load $holderClass", e)
+            throw ModuleNotFoundException("Cannot load $holderFactory", e)
         }
 
     }
@@ -162,8 +159,8 @@ object FlowManager {
         @Suppress("UNCHECKED_CAST")
         try {
             val defaultHolderClass =
-                Class.forName(DEFAULT_DATABASE_HOLDER_CLASSNAME) as Class<out DatabaseHolder>
-            loadDatabaseHolder(defaultHolderClass.kotlin)
+                Class.forName(DEFAULT_DATABASE_HOLDER_CLASSNAME) as Class<out DatabaseHolderFactory>
+            loadDatabaseHolder(defaultHolderClass.newInstance())
         } catch (e: ModuleNotFoundException) {
             // Ignore this exception sinc`e it means the application does not have its
             // own database. The initialization happens because the application is using

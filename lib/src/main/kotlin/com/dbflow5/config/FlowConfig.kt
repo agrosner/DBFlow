@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
  */
 class FlowConfig(
     val context: Context,
-    val databaseHolders: Set<KClass<out DatabaseHolder>> = setOf(),
+    val databaseHolders: Set<DatabaseHolderFactory> = setOf(),
     val databaseConfigMap: Map<KClass<*>, DatabaseConfig> = mapOf(),
     val tableConfigMap: Map<KClass<*>, TableConfig<*>> = mapOf(),
     val openDatabasesOnInit: Boolean = false
@@ -45,16 +45,14 @@ class FlowConfig(
     class Builder(context: Context) {
 
         internal val context: Context = context.applicationContext
-        internal var databaseHolders = mutableSetOf<KClass<out DatabaseHolder>>()
+        internal var databaseHolders = mutableSetOf<DatabaseHolderFactory>()
         internal val databaseConfigMap = mutableMapOf<KClass<*>, DatabaseConfig>()
         internal val tableConfigMap = mutableMapOf<KClass<*>, TableConfig<*>>()
         internal var openDatabasesOnInit: Boolean = false
 
-        fun addDatabaseHolder(databaseHolderClass: KClass<out DatabaseHolder>) = apply {
+        fun addDatabaseHolder(databaseHolderClass: DatabaseHolderFactory) = apply {
             databaseHolders.add(databaseHolderClass)
         }
-
-        inline fun <reified T : DatabaseHolder> databaseHolder() = addDatabaseHolder(T::class)
 
         fun database(databaseConfig: DatabaseConfig) = apply {
             databaseConfigMap[databaseConfig.databaseClass] = databaseConfig
