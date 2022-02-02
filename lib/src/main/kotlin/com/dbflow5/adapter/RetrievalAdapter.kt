@@ -2,7 +2,6 @@ package com.dbflow5.adapter
 
 import com.dbflow5.adapter.queriable.ListModelLoader
 import com.dbflow5.adapter.queriable.SingleModelLoader
-import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.TableConfig
 import com.dbflow5.database.DatabaseWrapper
@@ -16,15 +15,17 @@ import kotlin.reflect.KClass
  * Description: Provides a base retrieval class for all [Model] backed
  * adapters.
  */
-abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
+abstract class RetrievalAdapter<T : Any> {
 
-    val singleModelLoader: SingleModelLoader<T> by lazy { SingleModelLoader(table) }
-    val listModelLoader: ListModelLoader<T> by lazy { ListModelLoader(table) }
+    val singleModelLoader: SingleModelLoader<T> by lazy {
+        tableConfig?.singleModelLoader ?: SingleModelLoader(table)
+    }
+    val listModelLoader: ListModelLoader<T> by lazy {
+        tableConfig?.listModelLoader ?: ListModelLoader(table)
+    }
 
     protected val tableConfig: TableConfig<T>? by lazy {
-        FlowManager.getConfig()
-            .getConfigForDatabase(databaseDefinition.associatedDatabaseClassFile)
-            ?.getTableConfigForTable(table)
+        FlowManager.getConfig().getConfigForTable(table)
     }
 
     /**

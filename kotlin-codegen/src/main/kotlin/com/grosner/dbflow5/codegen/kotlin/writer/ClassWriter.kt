@@ -83,9 +83,6 @@ class ClassWriter(
                 TypeSpec.classBuilder(model.generatedClassName.className)
                     .primaryConstructor(
                         FunSpec.constructorBuilder()
-                            .addParameter(
-                                ParameterSpec("dbFlowDataBase", ClassNames.DBFlowDatabase)
-                            )
                             .addParameter(tableParam.parameterSpec)
                             .apply {
                                 if (!model.isQuery) {
@@ -95,7 +92,6 @@ class ClassWriter(
                             .build()
                     )
                     .superclass(superClass)
-                    .addSuperclassConstructorParameter("dbFlowDataBase")
                     .apply {
                         model.originatingSource?.let {
                             originatingFileTypeSpecAdder.addOriginatingFileType(this, it)

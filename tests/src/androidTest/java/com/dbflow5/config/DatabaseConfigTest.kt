@@ -56,8 +56,6 @@ class DatabaseConfigTest : BaseUnitTest() {
         assertEquals(databaseConfig.databaseClass, TestDatabase::class)
         assertEquals(databaseConfig.openHelperCreator, openHelperCreator)
         assertEquals(databaseConfig.callback, helperListener)
-        assertTrue(databaseConfig.tableConfigMap.isEmpty())
-
 
         val databaseDefinition = database<TestDatabase>()
         assertEquals(databaseDefinition.dispatcher, testTransactionManager)

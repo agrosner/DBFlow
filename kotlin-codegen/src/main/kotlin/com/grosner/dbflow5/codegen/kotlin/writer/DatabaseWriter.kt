@@ -83,19 +83,19 @@ class DatabaseWriter(
                                     .apply {
                                         model.tables.forEach { table ->
                                             addStatement(
-                                                "holder.putModelAdapter(%T(this))",
+                                                "holder.putModelAdapter(%T())",
                                                 table.generatedClassName.className
                                             )
                                         }
                                         model.views.forEach { view ->
                                             addStatement(
-                                                "holder.putViewAdapter(%T(this))",
+                                                "holder.putViewAdapter(%T())",
                                                 view.generatedClassName.className
                                             )
                                         }
                                         model.queries.forEach { query ->
                                             addStatement(
-                                                "holder.putQueryAdapter(%T(this))",
+                                                "holder.putQueryAdapter(%T())",
                                                 query.generatedClassName.className
                                             )
                                         }

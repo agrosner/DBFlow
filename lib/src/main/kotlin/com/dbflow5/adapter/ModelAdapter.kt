@@ -5,7 +5,6 @@ import com.dbflow5.adapter.saveable.ModelSaver
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.Table
-import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
@@ -15,8 +14,8 @@ import com.dbflow5.query.property.Property
 /**
  * Description: Used for generated classes from the combination of [Table] and [Model].
  */
-abstract class ModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
-    RetrievalAdapter<T>(databaseDefinition), InternalAdapter<T>, CreationAdapter {
+abstract class ModelAdapter<T : Any> :
+    RetrievalAdapter<T>(), InternalAdapter<T>, CreationAdapter {
 
     private var _modelSaver: ModelSaver<T>? = null
 

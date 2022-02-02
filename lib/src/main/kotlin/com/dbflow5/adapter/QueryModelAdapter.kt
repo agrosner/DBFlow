@@ -1,7 +1,6 @@
 package com.dbflow5.adapter
 
 import com.dbflow5.annotation.Query
-import com.dbflow5.config.DBFlowDatabase
 
 /**
  * Description: The baseclass for adapters to [Query] that defines how it interacts with the DB. The
@@ -11,5 +10,5 @@ import com.dbflow5.config.DBFlowDatabase
     replaceWith = ReplaceWith("RetrievalAdapter<T>", "com.dbflow5.adapter"),
     message = "QueryModelAdapter is now redundant. Use Retrieval Adapter"
 )
-abstract class QueryModelAdapter<T : Any>(databaseDefinition: DBFlowDatabase) :
-    RetrievalAdapter<T>(databaseDefinition)
+abstract class QueryModelAdapter<T : Any> :
+    RetrievalAdapter<T>()

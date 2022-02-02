@@ -1,6 +1,7 @@
 package com.dbflow5.ksp
 
 import com.dbflow5.codegen.shared.Annotations
+import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.validation.ValidationException
 import com.dbflow5.ksp.model.interop.KSPResolver
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
@@ -19,10 +20,12 @@ class DBFlowKspProcessor(
     private val ksClassDeclarationParser: KSClassDeclarationParser,
     private val environment: SymbolProcessorEnvironment,
     private val objectWriter: ObjectWriter,
+    private val fieldSanitizer: FieldSanitizer,
 ) : SymbolProcessor {
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         try {
+            fieldSanitizer.applyResolver(KSPResolver(resolver))
             ksClassDeclarationParser.applyResolver(resolver)
             val symbols =
                 Annotations.values.map {

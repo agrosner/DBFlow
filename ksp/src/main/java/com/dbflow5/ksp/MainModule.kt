@@ -39,6 +39,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
             get(),
             environment,
             get(),
+            get(),
         )
     }
     single { TypeConverterPropertyParser() }

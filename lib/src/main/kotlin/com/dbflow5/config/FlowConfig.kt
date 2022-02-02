@@ -10,6 +10,7 @@ class FlowConfig(
     val context: Context,
     val databaseHolders: Set<KClass<out DatabaseHolder>> = setOf(),
     val databaseConfigMap: Map<KClass<*>, DatabaseConfig> = mapOf(),
+    val tableConfigMap: Map<KClass<*>, TableConfig<*>> = mapOf(),
     val openDatabasesOnInit: Boolean = false
 ) {
 
@@ -17,11 +18,16 @@ class FlowConfig(
         databaseHolders = builder.databaseHolders.toSet(),
         databaseConfigMap = builder.databaseConfigMap,
         context = builder.context,
-        openDatabasesOnInit = builder.openDatabasesOnInit
+        openDatabasesOnInit = builder.openDatabasesOnInit,
+        tableConfigMap = builder.tableConfigMap,
     )
 
     fun getConfigForDatabase(databaseClass: KClass<*>): DatabaseConfig? {
         return databaseConfigMap[databaseClass]
+    }
+
+    fun <T : Any> getConfigForTable(tableClass: KClass<T>): TableConfig<T>? {
+        return tableConfigMap[tableClass] as TableConfig<T>?
     }
 
     /**
@@ -30,19 +36,18 @@ class FlowConfig(
      */
     internal fun merge(flowConfig: FlowConfig): FlowConfig = FlowConfig(
         context = flowConfig.context,
-        databaseConfigMap = databaseConfigMap.entries
-            .map { (key, value) ->
-                key to (flowConfig.databaseConfigMap[key] ?: value)
-            }.toMap(),
+        databaseConfigMap = databaseConfigMap + flowConfig.databaseConfigMap,
         databaseHolders = databaseHolders.plus(flowConfig.databaseHolders),
-        openDatabasesOnInit = flowConfig.openDatabasesOnInit
+        openDatabasesOnInit = flowConfig.openDatabasesOnInit,
+        tableConfigMap = tableConfigMap + flowConfig.tableConfigMap,
     )
 
     class Builder(context: Context) {
 
         internal val context: Context = context.applicationContext
-        internal var databaseHolders: MutableSet<KClass<out DatabaseHolder>> = hashSetOf()
-        internal val databaseConfigMap: MutableMap<KClass<*>, DatabaseConfig> = hashMapOf()
+        internal var databaseHolders = mutableSetOf<KClass<out DatabaseHolder>>()
+        internal val databaseConfigMap = mutableMapOf<KClass<*>, DatabaseConfig>()
+        internal val tableConfigMap = mutableMapOf<KClass<*>, TableConfig<*>>()
         internal var openDatabasesOnInit: Boolean = false
 
         fun addDatabaseHolder(databaseHolderClass: KClass<out DatabaseHolder>) = apply {
@@ -59,6 +64,13 @@ class FlowConfig(
             fn: DatabaseConfig.Builder.() -> Unit = {},
             openHelperCreator: OpenHelperCreator? = null,
         ) = database(DatabaseConfig.builder(T::class, openHelperCreator).apply(fn).build())
+
+        fun table(tableConfig: TableConfig<*>) = apply {
+            tableConfigMap[tableConfig.tableClass] = tableConfig
+        }
+
+        inline fun <reified T : Any> table(fn: TableConfig.Builder<T>.() -> Unit) =
+            table(TableConfig.builder(T::class).apply(fn).build())
 
         inline fun <reified T : Any> inMemoryDatabase(
             fn: DatabaseConfig.Builder.() -> Unit = {},

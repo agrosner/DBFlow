@@ -42,7 +42,6 @@ class DatabaseConfig(
     val openHelperCreator: OpenHelperCreator? = null,
     val transactionDispatcherFactory: TransactionDispatcherFactory? = null,
     val callback: DatabaseCallback? = null,
-    val tableConfigMap: Map<KClass<*>, TableConfig<*>> = mapOf(),
     val modelNotifier: ((DBFlowDatabase) -> ModelNotifier)? = null,
     val isInMemory: Boolean = false,
     val databaseName: String? = null,
@@ -57,7 +56,6 @@ class DatabaseConfig(
         databaseClass = builder.databaseClass,
         transactionDispatcherFactory = builder.transactionDispatcherFactory,
         callback = builder.callback,
-        tableConfigMap = builder.tableConfigMap,
         modelNotifier = builder.modelNotifier,
         isInMemory = builder.inMemory,
         databaseName = builder.databaseName ?: builder.databaseClass.simpleName,
@@ -77,10 +75,6 @@ class DatabaseConfig(
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Any> getTableConfigForTable(modelClass: KClass<T>): TableConfig<T>? =
-        tableConfigMap[modelClass] as TableConfig<T>?
-
     /**
      * Build compatibility class for Java. Use the [DatabaseConfig] class directly if Kotlin consumer.
      */
@@ -91,7 +85,6 @@ class DatabaseConfig(
 
         internal var transactionDispatcherFactory: TransactionDispatcherFactory? = null
         internal var callback: DatabaseCallback? = null
-        internal val tableConfigMap: MutableMap<KClass<*>, TableConfig<*>> = hashMapOf()
         internal var modelNotifier: ((DBFlowDatabase) -> ModelNotifier)? = null
         internal var inMemory = false
         internal var databaseName: String? = null
@@ -106,13 +99,6 @@ class DatabaseConfig(
         fun helperListener(callback: DatabaseCallback) = apply {
             this.callback = callback
         }
-
-        fun addTableConfig(tableConfig: TableConfig<*>) = apply {
-            tableConfigMap[tableConfig.tableClass] = tableConfig
-        }
-
-        inline fun <reified T : Any> table(fn: TableConfig.Builder<T>.() -> Unit) =
-            addTableConfig(TableConfig.builder(T::class).apply(fn).build())
 
         fun modelNotifier(modelNotifier: (DBFlowDatabase) -> ModelNotifier) = apply {
             this.modelNotifier = modelNotifier

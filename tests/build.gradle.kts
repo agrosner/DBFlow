@@ -56,12 +56,11 @@ dependencies {
     implementation(project(":lib"))
     implementation(project(":sqlcipher"))
     implementation(project(":reactive-streams"))
-    implementation(project(":coroutines"))
     implementation(project(":paging"))
     implementation(project(":livedata"))
 
     kaptAndroidTest(project(":processor"))
-    kspAndroidTest(project(":ksp"))
+    //kspAndroidTest(project(":ksp"))
 
     androidTestImplementation(kotlin("test"))
     androidTestImplementation(Dependencies.JavaXAnnotation)

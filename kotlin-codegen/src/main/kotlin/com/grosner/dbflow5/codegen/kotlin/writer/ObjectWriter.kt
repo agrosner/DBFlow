@@ -41,8 +41,8 @@ class ObjectWriter(
         objects: List<ObjectModel>,
         writerFn: (FileSpec) -> Unit
     ) {
-        typeConverterCache.applyResolver(resolver)
         fieldSanitizer.applyResolver(resolver)
+        typeConverterCache.applyResolver(resolver)
 
         val manyToManyModels = objects.filterIsInstance<ManyToManyModel>()
         val oneToManyModels = objects.filterIsInstance<OneToManyModel>()

@@ -43,13 +43,16 @@ class ConfigIntegrationTest : BaseUnitTest() {
 
         FlowManager.init(
             flowConfig(context) {
-                database<TestDatabase>({
-                    table<SimpleModel> {
-                        singleModelLoader(singleModelLoader)
-                        listModelLoader(customListModelLoader)
-                        modelAdapterModelSaver(modelSaver)
-                    }
-                }, AndroidSQLiteOpenHelper.createHelperCreator(context))
+                database<TestDatabase>(
+                    openHelperCreator = AndroidSQLiteOpenHelper.createHelperCreator(
+                        context
+                    )
+                )
+                table<SimpleModel> {
+                    singleModelLoader(singleModelLoader)
+                    listModelLoader(customListModelLoader)
+                    modelAdapterModelSaver(modelSaver)
+                }
             })
 
         val flowConfig = FlowManager.getConfig()
@@ -59,7 +62,7 @@ class ConfigIntegrationTest : BaseUnitTest() {
         assertNotNull(databaseConfig)
 
 
-        val config = databaseConfig.tableConfigMap[SimpleModel::class] as TableConfig
+        val config = flowConfig.tableConfigMap[SimpleModel::class] as TableConfig
         assertNotNull(config)
 
         assertEquals(config.listModelLoader, customListModelLoader)
