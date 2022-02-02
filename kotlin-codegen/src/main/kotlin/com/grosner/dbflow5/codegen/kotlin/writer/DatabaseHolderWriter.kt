@@ -95,16 +95,21 @@ class DatabaseHolderWriter(
                         "%T(${db.adapterFields.joinToString { "%L = %N" }})",
                         db.generatedClassName.className,
                         *db.adapterFields
-                            .map { it.name.shortName }.toTypedArray(),
-                        *db.adapterFields
                             .map { fieldModel ->
-                                when (fieldModel.type) {
+                                fieldModel.name.shortName to when (fieldModel.type) {
                                     Type.Normal -> model.tables.first { it.classType == fieldModel.modelType }
                                     Type.Query -> model.queries.first { it.classType == fieldModel.modelType }
                                     Type.View -> model.views.first { it.classType == fieldModel.modelType }
                                 }
                             }
-                            .map { nameAllocator[it.generatedClassName] }.toTypedArray(),
+                            .map { (name, type) -> name to nameAllocator[type.generatedClassName] }
+                            .fold(mutableListOf<String>()) { acc, (x, y) ->
+                                acc.apply {
+                                    add(x)
+                                    add(y)
+                                }
+                            }
+                            .toTypedArray(),
                     )
                     .build()
             )

@@ -1,5 +1,8 @@
 package com.dbflow5
 
+import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter.ModelViewAdapter
+import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.Migration
@@ -163,6 +166,77 @@ import com.dbflow5.rx2.query.SimpleRXModel
     ],
 )
 abstract class TestDatabase : DBFlowDatabase() {
+
+    abstract val exampleAdapter: ModelAdapter<ExampleModel>
+    abstract val javaModelAdapter: ModelAdapter<JavaModel>
+    abstract val simpleCacheObjectAdapter: ModelAdapter<SimpleCacheObject>
+    abstract val coordinateAdapter: ModelAdapter<Coordinate>
+    abstract val pathAdapter: ModelAdapter<Path>
+    abstract val blogAdapter: ModelAdapter<Blog>
+    abstract val authorAdapter: ModelAdapter<Author>
+    abstract val blogDeferredAdapter: ModelAdapter<BlogDeferred>
+    abstract val blogRefAdapter: ModelAdapter<BlogRef>
+    abstract val blogRefNoModelAdapter: ModelAdapter<BlogRefNoModel>
+    abstract val blogPrimaryAdapter: ModelAdapter<BlogPrimary>
+    abstract val blogStubbedAdapter: ModelAdapter<BlogStubbed>
+    abstract val positionAdapter: ModelAdapter<Position>
+    abstract val position2Adapter: ModelAdapter<Position2>
+    abstract val positionWithTypeConverterAdapter: ModelAdapter<PositionWithTypeConverter>
+    abstract val notNullReferenceModelAdapter: ModelAdapter<NotNullReferenceModel>
+    abstract val outerInnerAdapter: ModelAdapter<Outer.Inner>
+    abstract val liveDataModelAdapter: ModelAdapter<LiveDataModel>
+    abstract val artistAdapter: ModelAdapter<Artist>
+    abstract val songAdapter: ModelAdapter<Song>
+    abstract val indexModelAdapter: ModelAdapter<IndexModel>
+    abstract val autoIncrementingModelAdapter: ModelAdapter<AutoIncrementingModel>
+
+    // TODO: internal support in KAPT.
+    // internal abstract val prospectQuizAdapter: ModelAdapter<ProspectQuiz>
+    // internal abstract val prospectQuizEntryAdapter: ModelAdapter<ProspectQuizEntry>
+    abstract val simpleRXModelAdapter: ModelAdapter<SimpleRXModel>
+    abstract val simpleModelAdapter: ModelAdapter<SimpleModel>
+    abstract val simpleQuickCheckModelAdapter: ModelAdapter<SimpleQuickCheckModel>
+    abstract val numberModelAdapter: ModelAdapter<NumberModel>
+    abstract val charModelAdapter: ModelAdapter<CharModel>
+    abstract val twoColumnModelAdapter: ModelAdapter<TwoColumnModel>
+    abstract val dontCreateModelAdapter: ModelAdapter<DontCreateModel>
+    abstract val enumModelAdapter: ModelAdapter<EnumModel>
+    abstract val allFieldsModelAdapter: ModelAdapter<AllFieldsModel>
+    abstract val subclassAllFieldsAdapter: ModelAdapter<SubclassAllFields>
+    abstract val dontAssignDefaultModelAdapter: ModelAdapter<DontAssignDefaultModel>
+    abstract val orderCursorModelAdapter: ModelAdapter<OrderCursorModel>
+    abstract val typeConverterModelAdapter: ModelAdapter<TypeConverterModel>
+    abstract val enumTypeConverterModelAdapter: ModelAdapter<EnumTypeConverterModel>
+    abstract val feedEntryAdapter: ModelAdapter<FeedEntry>
+    abstract val transferAdapter: ModelAdapter<Transfer>
+    abstract val transfer2Adapter: ModelAdapter<Transfer2>
+    abstract val accountAdapter: ModelAdapter<Account>
+    abstract val sqlListenerModelAdapter: ModelAdapter<SqlListenerModel>
+    abstract val defaultModelAdapter: ModelAdapter<DefaultModel>
+    abstract val nullableNumbersAdapter: ModelAdapter<NullableNumbers>
+    abstract val nonNullKotlinModelAdapter: ModelAdapter<NonNullKotlinModel>
+    abstract val ownerAdapter: ModelAdapter<Owner>
+    abstract val dogAdapter: ModelAdapter<Dog>
+    abstract val currencyAdapter: ModelAdapter<Currency>
+    abstract val userInfoAdapter: ModelAdapter<UserInfo>
+    abstract val internalClassAdapter: ModelAdapter<InternalClass>
+    abstract val uniqueModelAdapter: ModelAdapter<UniqueModel>
+    abstract val fts3ModelAdapter: ModelAdapter<Fts3Model>
+    abstract val fts4ModelAdapter: ModelAdapter<Fts4Model>
+    abstract val fts4VirtualModel2Adapter: ModelAdapter<Fts4VirtualModel2>
+    abstract val tempModelAdapter: ModelAdapter<TempModel>
+    abstract val nonTypicalClassNameAdapter: ModelAdapter<nonTypicalClassName>
+    abstract val oneToManyModelAdapter: ModelAdapter<OneToManyModel>
+    abstract val oneToManyBaseModelAdapter: ModelAdapter<OneToManyBaseModel>
+
+    abstract val javaModelViewAdapter: ModelViewAdapter<JavaModelView>
+    abstract val authorViewAdapter: ModelViewAdapter<AuthorView>
+    abstract val priorityViewAdapter: ModelViewAdapter<PriorityView>
+
+    abstract val authorNameQuery: RetrievalAdapter<AuthorNameQuery>
+    abstract val customBlobModel: RetrievalAdapter<CustomBlobModel>
+    abstract val allFieldsQueryModel: RetrievalAdapter<AllFieldsQueryModel>
+    abstract val simpleCustomModel: RetrievalAdapter<SimpleCustomModel>
 
     @Migration(version = 1, priority = 5)
     class TestMigration : UpdateTableMigration<SimpleModel>(SimpleModel::class) {
