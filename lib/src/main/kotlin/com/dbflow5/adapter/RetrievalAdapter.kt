@@ -18,37 +18,8 @@ import kotlin.reflect.KClass
  */
 abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
 
-    /**
-     * Overrides the default implementation and allows you to provide your own implementation. Defines
-     * how a single [T] is loaded.
-     *
-     * @param singleModelLoader The loader to use.
-     */
-    private var _singleModelLoader: SingleModelLoader<T>? = null
-
-    var singleModelLoader: SingleModelLoader<T>
-        get() = _singleModelLoader ?: (tableConfig?.singleModelLoader
-            ?: createSingleModelLoader()).also { _singleModelLoader = it }
-        set(value) {
-            this._singleModelLoader = value
-        }
-    /**
-     * @return A new [ListModelLoader], caching will override this loader instance.
-     */
-    /**
-     * Overrides the default implementation and allows you to provide your own implementation. Defines
-     * how a list of [T] are loaded.
-     *
-     * @param listModelLoader The loader to use.
-     */
-    private var _listModelLoader: ListModelLoader<T>? = null
-
-    var listModelLoader: ListModelLoader<T>
-        get() = _listModelLoader ?: (tableConfig?.listModelLoader
-            ?: createListModelLoader()).also { _listModelLoader = it }
-        set(value) {
-            this._listModelLoader = value
-        }
+    val singleModelLoader: SingleModelLoader<T> by lazy { SingleModelLoader(table) }
+    val listModelLoader: ListModelLoader<T> by lazy { ListModelLoader(table) }
 
     protected val tableConfig: TableConfig<T>? by lazy {
         FlowManager.getConfig()
@@ -62,24 +33,10 @@ abstract class RetrievalAdapter<T : Any>(databaseDefinition: DBFlowDatabase) {
     abstract val table: KClass<T>
 
     /**
-     * @return A new instance of a [SingleModelLoader]. Subsequent calls do not cache
-     * this object so it's recommended only calling this in bulk if possible.
-     */
-    val nonCacheableSingleModelLoader: SingleModelLoader<T>
-        get() = SingleModelLoader(table)
-
-    /**
-     * @return A new instance of a [ListModelLoader]. Subsequent calls do not cache
-     * this object so it's recommended only calling this in bulk if possible.
-     */
-    val nonCacheableListModelLoader: ListModelLoader<T>
-        get() = ListModelLoader(table)
-
-    /**
      * Returns a new [model] based on the object passed in. Will not overwrite existing object.
      */
     open fun load(model: T, databaseWrapper: DatabaseWrapper): T? =
-        nonCacheableSingleModelLoader.load(
+        singleModelLoader.load(
             databaseWrapper,
             (select
                 from table

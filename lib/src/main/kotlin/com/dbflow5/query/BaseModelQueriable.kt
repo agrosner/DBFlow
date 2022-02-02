@@ -33,11 +33,9 @@ protected constructor(table: KClass<TModel>) : BaseQueriable<TModel>(table), Mod
     }
 
     private var _cacheListModelLoader: ListModelLoader<TModel>? = null
-    protected val listModelLoader: ListModelLoader<TModel>
-        get() = retrievalAdapter.nonCacheableListModelLoader
+    protected val listModelLoader: ListModelLoader<TModel> = retrievalAdapter.listModelLoader
 
-    protected val singleModelLoader: SingleModelLoader<TModel>
-        get() = retrievalAdapter.nonCacheableSingleModelLoader
+    protected val singleModelLoader: SingleModelLoader<TModel> = retrievalAdapter.singleModelLoader
 
     override fun queryList(databaseWrapper: DatabaseWrapper): List<TModel> {
         val query = query
@@ -81,10 +79,10 @@ protected constructor(table: KClass<TModel>) : BaseQueriable<TModel>(table), Mod
     }
 
     protected fun <T : Any> getListQueryModelLoader(table: KClass<T>): ListModelLoader<T> =
-        table.retrievalAdapter.nonCacheableListModelLoader
+        table.retrievalAdapter.listModelLoader
 
     protected fun <T : Any> getSingleQueryModelLoader(table: KClass<T>): SingleModelLoader<T> =
-        table.retrievalAdapter.nonCacheableSingleModelLoader
+        table.retrievalAdapter.singleModelLoader
 }
 
 /**
