@@ -9,6 +9,7 @@ import com.dbflow5.codegen.shared.properties.ModelViewQueryProperties
 import com.dbflow5.codegen.shared.properties.NamedProperties
 import com.dbflow5.codegen.shared.properties.nameWithFallback
 import com.dbflow5.quoteIfNeeded
+import com.dbflow5.stripQuotes
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
 
@@ -51,10 +52,13 @@ data class ClassModel(
     )
 
     val generatedSuperClass = when (type) {
-        is ClassModel.Type.Table -> ClassNames.modelAdapter(classType)
-        is ClassModel.Type.View -> ClassNames.modelViewAdapter(classType)
-        ClassModel.Type.Query -> ClassNames.retrievalAdapter(classType)
+        is Type.Table -> ClassNames.modelAdapter(classType)
+        is Type.View -> ClassNames.modelViewAdapter(classType)
+        Type.Query -> ClassNames.retrievalAdapter(classType)
     }
+
+    val generatedFieldName
+        get() = dbName.stripQuotes().replaceFirstChar { it.lowercase() }
 
     val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.Primary }
     val referenceFields = fields.filterIsInstance<ReferenceHolderModel>()
@@ -122,3 +126,12 @@ inline fun <reified C : ClassModel.Type> ClassModel.partOfDatabaseAsType(
 
 val ClassModel.memberSeparator
     get() = if (hasPrimaryConstructor) "," else ""
+
+fun ClassModel.tableReferences(referencesCache: ReferencesCache) = referenceFields
+    .filter { referencesCache.isTable(it) }
+
+fun ClassModel.distinctAdapterGetters(referencesCache: ReferencesCache) =
+    tableReferences(referencesCache)
+        .filter { it.referenceHolderProperties.saveForeignKeyModel }
+        .map { referencesCache.resolve(it) }
+        .distinctBy { it.generatedSuperClass }

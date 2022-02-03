@@ -5,6 +5,8 @@ import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseHolderModel
 import com.dbflow5.codegen.shared.GeneratedClassModel
+import com.dbflow5.codegen.shared.cache.ReferencesCache
+import com.dbflow5.codegen.shared.distinctAdapterGetters
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.properties.nameWithFallback
 import com.dbflow5.codegen.shared.writer.TypeCreator
@@ -21,6 +23,7 @@ import com.squareup.kotlinpoet.TypeSpec
  */
 class DatabaseHolderWriter(
     private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
+    private val referencesCache: ReferencesCache,
 ) : TypeCreator<DatabaseHolderModel, FileSpec> {
 
     private val nameAllocator = NameAllocator()
@@ -44,9 +47,9 @@ class DatabaseHolderWriter(
                     )
                 }
                 .addSuperinterface(ClassNames.DatabaseHolderFactory)
-                .addClassProperties(model.tables)
-                .addClassProperties(model.queries)
-                .addClassProperties(model.views)
+                .addClassProperties(model.tables, referencesCache)
+                .addClassProperties(model.queries, referencesCache)
+                .addClassProperties(model.views, referencesCache)
                 .addDatabaseProperties(model)
                 .addFunction(
                     FunSpec.builder("create")
@@ -118,20 +121,39 @@ class DatabaseHolderWriter(
 
     private fun TypeSpec.Builder.addClassProperties(
         objects: List<ClassModel>,
+        referencesCache: ReferencesCache,
     ) = apply {
+        // prime the name allocator
         objects.forEach { obj ->
-            val name =
-                nameAllocator.newName(
-                    obj.dbName.stripQuotes().replaceFirstChar { it.lowercase() },
-                    obj.generatedClassName
-                )
+            nameAllocator.newName(
+                obj.generatedFieldName,
+                obj.generatedClassName
+            )
+        }
+        objects.forEach { obj ->
+            val name = nameAllocator[obj.generatedClassName]
+            val adapterGetters = obj.distinctAdapterGetters(referencesCache)
             addProperty(
                 PropertySpec.builder(
                     name,
                     obj.generatedSuperClass,
                 )
                     .addModifiers(KModifier.PRIVATE)
-                    .initializer("%T()", obj.generatedClassName.className)
+                    .initializer(
+                        "%T(${adapterGetters.joinToString { "%N = { %N }" }})",
+                        obj.generatedClassName.className,
+                        *adapterGetters.map {
+                            "${it.generatedFieldName}Getter" to nameAllocator[
+                                it.generatedClassName
+                            ]
+                        }
+                            .fold(mutableListOf<String>()) { acc, (x, y) ->
+                                acc.apply {
+                                    add(x)
+                                    add(y)
+                                }
+                            }.toTypedArray()
+                    )
                     .build()
             )
         }

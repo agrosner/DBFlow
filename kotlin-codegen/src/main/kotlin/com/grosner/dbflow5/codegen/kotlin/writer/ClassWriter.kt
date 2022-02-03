@@ -4,11 +4,13 @@ import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.cache.ReferencesCache
+import com.dbflow5.codegen.shared.distinctAdapterGetters
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.memberSeparator
 import com.dbflow5.codegen.shared.properties.CreatableScopeProperties
 import com.dbflow5.codegen.shared.properties.TableProperties
 import com.dbflow5.codegen.shared.properties.dbName
+import com.dbflow5.codegen.shared.tableReferences
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
@@ -28,7 +30,9 @@ import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LONG
+import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.NUMBER
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.SHORT
@@ -71,6 +75,28 @@ class ClassWriter(
         val extractors = model.extractors(referencesCache)
         val primaryExtractors = model.primaryExtractors(referencesCache)
         val superClass = model.generatedSuperClass
+
+        val resolveTableReferences = model.distinctAdapterGetters(referencesCache)
+        val adapterGetters = resolveTableReferences.map { classModel ->
+            ParameterSpec(
+                "${classModel.generatedFieldName}Getter",
+                LambdaTypeName.get(
+                    returnType = classModel.generatedSuperClass,
+                )
+            )
+        }
+        val adapterLazies = resolveTableReferences.map { classModel ->
+            PropertySpec.builder(
+                classModel.generatedFieldName,
+                classModel.generatedSuperClass,
+            )
+                .delegate(
+                    "lazy { %L() }",
+                    "${classModel.generatedFieldName}Getter"
+                )
+                .build()
+        }
+
         return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
             .addType(
                 TypeSpec.classBuilder(model.generatedClassName.className)
@@ -81,6 +107,7 @@ class ClassWriter(
                                 if (!model.isQuery) {
                                     addParameter(tableNameParam.parameterSpec)
                                 }
+                                addParameters(adapterGetters)
                             }
                             .build()
                     )
@@ -92,6 +119,7 @@ class ClassWriter(
                         if (model.isInternal) {
                             addModifiers(KModifier.INTERNAL)
                         }
+                        addProperties(adapterLazies)
                         addProperty(tableParam.propertySpec)
                         if (!model.isQuery) {
                             addProperty(tableNameParam.propertySpec)
@@ -332,7 +360,7 @@ class ClassWriter(
     }
 
     private fun TypeSpec.Builder.saveForeignKeys(model: ClassModel) {
-        val fields = model.referenceFields.filter { referencesCache.isTable(it) }
+        val fields = model.tableReferences(referencesCache)
             .filter { it.referenceHolderProperties.saveForeignKeyModel }
         if (fields.isNotEmpty()) {
             addFunction(FunSpec.builder("saveForeignKeys")
@@ -348,13 +376,16 @@ class ClassWriter(
                     }
 
                     fields.forEach { field ->
+                        val reference = referencesCache.resolve(field)
                         addCode(
-                            "%L%L = %L.%L.%M(wrapper)%L.%M()%L\n",
+                            "%L%L = %L.%L.let { this@%L.%L" +
+                                ".save(it, wrapper) }%L.%M()%L\n",
                             if (!model.hasPrimaryConstructor) "this." else "",
                             field.accessName(),
                             "model",
                             field.accessName(true),
-                            MemberNames.save,
+                            model.generatedClassName.shortName,
+                            reference.generatedFieldName,
                             if (field.name.nullable) "?" else "",
                             MemberNames.getOrThrow,
                             model.memberSeparator,
