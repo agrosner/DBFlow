@@ -314,11 +314,6 @@ object FlowManager {
 inline fun <reified DB : DBFlowDatabase> database(fn: (DB) -> Unit = {}): DB =
     FlowManager.getDatabase(DB::class).apply(fn)
 
-/**
- * Easily get its [ModelAdapter].
- */
-inline fun <reified T : Any> modelAdapter() = FlowManager.getModelAdapter(T::class)
-
 inline val <T : Any> KClass<T>.modelAdapter
     get() = FlowManager.getModelAdapter(this)
 

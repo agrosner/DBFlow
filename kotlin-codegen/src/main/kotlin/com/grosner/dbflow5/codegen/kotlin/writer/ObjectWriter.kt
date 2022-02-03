@@ -61,16 +61,6 @@ class ObjectWriter(
         val databases = objects.filterIsInstance<DatabaseModel>()
             .map(copyOverClasses(classes, migrations))
 
-        val holderModel = DatabaseHolderModel(
-            name = NameModel(ClassNames.GeneratedDatabaseHolderFactory),
-            databases = databases,
-            tables = classes.filter { it.isNormal },
-            queries = classes.filter { it.isQuery },
-            views = classes.filter { it.isView },
-            properties = DatabaseHolderProperties(""),
-            originatingSource = OriginatingSourceCollection(objects.mapNotNull { it.originatingSource })
-        )
-
         referencesCache.allClasses = classes
 
         objects.filterIsInstance<TypeConverterModel>().forEach { model ->
@@ -86,6 +76,16 @@ class ObjectWriter(
             .forEach { typeConverterName ->
                 typeConverterCache.putTypeConverter(typeConverterName, resolver)
             }
+
+        val holderModel = DatabaseHolderModel(
+            name = NameModel(ClassNames.GeneratedDatabaseHolderFactory),
+            databases = databases,
+            tables = classes.filter { it.isNormal },
+            queries = classes.filter { it.isQuery },
+            views = classes.filter { it.isView },
+            properties = DatabaseHolderProperties(""),
+            originatingSource = OriginatingSourceCollection(objects.mapNotNull { it.originatingSource })
+        )
 
         listOf(
             typeConverterCache.generatedTypeConverters,

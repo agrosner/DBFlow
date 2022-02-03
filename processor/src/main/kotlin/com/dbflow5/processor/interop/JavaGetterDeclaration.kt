@@ -21,5 +21,5 @@ data class JavaGetterDeclaration(val element: ExecutableElement) {
 
     val isAbstract = element.modifiers.contains(Modifier.ABSTRACT)
 
-    val typeName = element.returnType.asTypeName()
+    val returnTypeName = element.returnType.asTypeName()
 }

@@ -1,6 +1,5 @@
 package com.grosner.dbflow5.codegen.kotlin.writer
 
-import com.dbflow5.codegen.shared.ClassAdapterFieldModel.Type
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseHolderModel
@@ -98,13 +97,7 @@ class DatabaseHolderWriter(
                         "%T(${db.adapterFields.joinToString { "%L = %N" }})",
                         db.generatedClassName.className,
                         *db.adapterFields
-                            .map { fieldModel ->
-                                fieldModel.name.shortName to when (fieldModel.type) {
-                                    Type.Normal -> model.tables.first { it.classType == fieldModel.modelType }
-                                    Type.Query -> model.queries.first { it.classType == fieldModel.modelType }
-                                    Type.View -> model.views.first { it.classType == fieldModel.modelType }
-                                }
-                            }
+                            .map { fieldModel -> fieldModel.name.shortName to fieldModel.associatedClassModel }
                             .map { (name, type) -> name to nameAllocator[type.generatedClassName] }
                             .fold(mutableListOf<String>()) { acc, (x, y) ->
                                 acc.apply {

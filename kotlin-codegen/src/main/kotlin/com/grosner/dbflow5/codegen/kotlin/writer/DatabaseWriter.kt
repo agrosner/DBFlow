@@ -53,7 +53,7 @@ class DatabaseWriter(
             .map {
                 ParameterPropertySpec(
                     name = it.name.shortName,
-                    type = it.typeName,
+                    type = it.adapterTypeName,
                 ) {
                     addModifiers(KModifier.OVERRIDE)
                 }
@@ -116,7 +116,7 @@ class DatabaseWriter(
                         addProperty(
                             PropertySpec.builder(
                                 clazz.name.shortName,
-                                clazz.typeName,
+                                clazz.adapterTypeName,
                             )
                                 .apply {
                                     //if (clazz.isInternal) {

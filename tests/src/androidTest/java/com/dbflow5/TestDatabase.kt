@@ -19,6 +19,7 @@ import com.dbflow5.models.Account
 import com.dbflow5.models.AllFieldsModel
 import com.dbflow5.models.AllFieldsQueryModel
 import com.dbflow5.models.Artist
+import com.dbflow5.models.Artist_Song
 import com.dbflow5.models.Author
 import com.dbflow5.models.AuthorNameQuery
 import com.dbflow5.models.AuthorView
@@ -187,6 +188,7 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val liveDataModelAdapter: ModelAdapter<LiveDataModel>
     abstract val artistAdapter: ModelAdapter<Artist>
     abstract val songAdapter: ModelAdapter<Song>
+    abstract val artistSongAdapter: ModelAdapter<Artist_Song>
     abstract val indexModelAdapter: ModelAdapter<IndexModel>
     abstract val autoIncrementingModelAdapter: ModelAdapter<AutoIncrementingModel>
 

@@ -111,8 +111,6 @@ internal data class KaptKotlinClassDeclaration(
     override val properties: Sequence<PropertyDeclaration>
         get() {
             val packageName = typeElement.getPackage().qualifiedName.toString()
-            println("Specs ${typeSpec.name}  ${typeSpec.propertySpecs.map { it.name }}")
-            println("Properties ${typeElement.simpleName} ${propertyElements.map { it.simpleName.shortName }} ${getters.map { it.propertyNameString }}")
             return propertyElements
                 .asSequence()
                 .map { it.simpleName.shortName }

@@ -8,6 +8,11 @@ plugins {
     kotlin("kapt")
 }
 
+kapt {
+    // needed to use generated types properly.
+    correctErrorTypes = true
+}
+
 android {
 
     useLibrary("org.apache.http.legacy")

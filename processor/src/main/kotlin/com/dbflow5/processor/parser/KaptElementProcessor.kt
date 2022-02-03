@@ -95,7 +95,7 @@ class KaptElementProcessor(
                             adapterFields = classDeclaration.getters
                                 .filter { it.isAbstract }
                                 .filter {
-                                    val toClassName = it.typeName
+                                    val toClassName = it.returnTypeName
                                     toClassName is ParameterizedTypeName &&
                                         toClassName.rawType in ClassAdapterFieldModel.Type.values()
                                         .map { type -> type.className }
@@ -103,7 +103,7 @@ class KaptElementProcessor(
                                 }.map {
                                     ClassAdapterFieldModel(
                                         it.propertyName,
-                                        typeName = it.typeName as ParameterizedTypeName,
+                                        typeName = it.returnTypeName as ParameterizedTypeName,
                                     )
                                 }.toList(),
                         )

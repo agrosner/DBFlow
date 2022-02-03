@@ -3,8 +3,8 @@ package com.dbflow5.models
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.artistAdapter
+import com.dbflow5.artistSongAdapter
 import com.dbflow5.config.database
-import com.dbflow5.config.modelAdapter
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.songAdapter
 import kotlinx.coroutines.test.runBlockingTest
@@ -27,7 +27,7 @@ class ManyToManyTest : BaseUnitTest() {
                 songModel
             )
             // TODO: generated join table
-            assert(modelAdapter<Artist_Song>().save(artistSong).isSuccess)
+            assert(artistSongAdapter.save(artistSong).isSuccess)
         }
     }
 }
