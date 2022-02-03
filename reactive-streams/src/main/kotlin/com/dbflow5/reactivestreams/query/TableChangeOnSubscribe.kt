@@ -7,7 +7,7 @@ import com.dbflow5.query.Join
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.ModelQueriableEvalFn
 import com.dbflow5.query.extractFrom
-import com.dbflow5.reactivestreams.transaction.asMaybe
+import com.dbflow5.reactivestreams.transaction.asSingle
 import io.reactivex.rxjava3.core.FlowableEmitter
 import io.reactivex.rxjava3.core.FlowableOnSubscribe
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -40,13 +40,13 @@ class TableChangeOnSubscribe<T : Any, R : Any>(
 
     private fun evaluateEmission() {
         if (this::flowableEmitter.isInitialized) {
-            currentTransactions.add(db
-                .beginTransactionAsync { modelQueriable.evalFn(db) }
-                .shouldRunInTransaction(false)
-                .asMaybe()
-                .subscribe {
-                    flowableEmitter.onNext(it)
-                })
+            currentTransactions.add(
+                db
+                    .beginTransactionAsync { modelQueriable.evalFn(db) }
+                    .shouldRunInTransaction(false)
+                    .asSingle()
+                    .subscribe { result -> flowableEmitter.onNext(result) }
+            )
         }
     }
 

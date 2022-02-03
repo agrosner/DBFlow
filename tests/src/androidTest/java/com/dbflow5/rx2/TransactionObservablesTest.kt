@@ -6,11 +6,9 @@ import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.select
-import com.dbflow5.reactivestreams.transaction.asMaybe
 import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.simpleModelAdapter
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -42,17 +40,5 @@ class TransactionObservablesTest : BaseUnitTest() {
 
         assertTrue(successCalled)
         assertEquals(10, list!!.size)
-    }
-
-    @Test
-    fun testMaybe() {
-        var simpleModel: SimpleModel? = SimpleModel()
-        database<TestDatabase>()
-            .beginTransactionAsync { (select from SimpleModel::class).requireSingle() }
-            .asMaybe()
-            .subscribe {
-                simpleModel = it
-            }
-        assertNull(simpleModel)
     }
 }

@@ -29,10 +29,10 @@ class RXQueryTests : BaseUnitTest() {
 
             var cursor: FlowCursor? = null
 
-            this.db.beginTransactionAsync { (select from SimpleModel::class).cursor()!! }
+            this.db.beginTransactionAsync { Result.success((select from SimpleModel::class).cursor()) }
                 .asMaybe()
                 .subscribe {
-                    cursor = it
+                    cursor = it.getOrNull()
                 }
 
             assertEquals(1, cursor!!.count)
