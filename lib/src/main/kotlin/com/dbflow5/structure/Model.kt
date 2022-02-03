@@ -1,8 +1,5 @@
 package com.dbflow5.structure
 
-import com.dbflow5.config.modelAdapter
-import com.dbflow5.database.DatabaseWrapper
-
 object Model {
 
     /**
@@ -10,7 +7,3 @@ object Model {
      */
     const val INVALID_ROW_ID: Long = -1
 }
-
-inline fun <reified T : Any> T.insert(databaseWrapper: DatabaseWrapper) =
-    modelAdapter<T>().insert(this, databaseWrapper)
-

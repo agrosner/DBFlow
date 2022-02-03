@@ -52,44 +52,44 @@ class RXFlowableTest : BaseUnitTest() {
         assertEquals(1, triggerCount)
     }
 
-}
 
-@Test
-fun testObservesJoinTables() = runBlockingTest {
-    database<TestDatabase> { db ->
-        val joinOn = Blog_Table.name.withTable()
-            .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
-        assertEquals(
-            "`Blog`.`name`=`Author`.`first_name`+' '+`Author`.`last_name`",
-            joinOn.query
-        )
+    @Test
+    fun testObservesJoinTables() = runBlockingTest {
+        database<TestDatabase> { db ->
+            val joinOn = Blog_Table.name.withTable()
+                .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
+            assertEquals(
+                "`Blog`.`name`=`Author`.`first_name`+' '+`Author`.`last_name`",
+                joinOn.query
+            )
 
-        var list = listOf<Blog>()
-        var calls = 0
-        (select from Blog::class
-            leftOuterJoin Author::class
-            on joinOn)
-            .asFlowable(db) { queryList(it) }
-            .subscribe {
-                calls++
-                list = it
-            }
+            var list = listOf<Blog>()
+            var calls = 0
+            (select from Blog::class
+                leftOuterJoin Author::class
+                on joinOn)
+                .asFlowable(db) { queryList(it) }
+                .subscribe {
+                    calls++
+                    list = it
+                }
 
-        val authors =
-            (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
-        db.writableTransaction {
-            (1 until 11).forEach {
-                blogAdapter.save(
-                    Blog(
-                        it,
-                        name = "${it}name ${it}last",
-                        author = authors[it - 1]
+            val authors =
+                (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
+            db.writableTransaction {
+                (1 until 11).forEach {
+                    blogAdapter.save(
+                        Blog(
+                            it,
+                            name = "${it}name ${it}last",
+                            author = authors[it - 1]
+                        )
                     )
-                )
+                }
             }
-        }
 
-        assertEquals(10, list.size)
-        assertEquals(2, calls) // 1 for initial, 1 for batch of changes
+            assertEquals(10, list.size)
+            assertEquals(2, calls) // 1 for initial, 1 for batch of changes
+        }
     }
 }
