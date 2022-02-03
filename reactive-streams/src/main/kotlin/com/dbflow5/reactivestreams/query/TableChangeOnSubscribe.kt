@@ -1,6 +1,7 @@
 package com.dbflow5.reactivestreams.query
 
 import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.Join
 import com.dbflow5.query.ModelQueriable
@@ -17,7 +18,7 @@ import kotlin.reflect.KClass
  * Description: Emits when table changes occur for the related table on the [ModelQueriable].
  * If the [ModelQueriable] relates to a [Join], this can be multiple tables.
  */
-class TableChangeOnSubscribe<T : Any, R : Any?>(
+class TableChangeOnSubscribe<T : Any, R : Any>(
     private val db: DBFlowDatabase,
     private val modelQueriable: ModelQueriable<T>,
     private val evalFn: ModelQueriableEvalFn<T, R>
@@ -40,7 +41,7 @@ class TableChangeOnSubscribe<T : Any, R : Any?>(
     private fun evaluateEmission() {
         if (this::flowableEmitter.isInitialized) {
             currentTransactions.add(db
-                .beginTransactionAsync { modelQueriable.evalFn(it) }
+                .beginTransactionAsync { modelQueriable.evalFn(db) }
                 .shouldRunInTransaction(false)
                 .asMaybe()
                 .subscribe {

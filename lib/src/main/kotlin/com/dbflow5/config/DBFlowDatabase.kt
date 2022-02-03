@@ -80,7 +80,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * Coroutine dispatcher, TODO: move to constructor / config.
      */
-    private val transactionDispatcher: TransactionDispatcher by lazy {
+    internal val transactionDispatcher: TransactionDispatcher by lazy {
         databaseConfig.let { databaseConfig ->
             if (databaseConfig?.transactionDispatcherFactory == null) {
                 TransactionDispatcher()
@@ -94,7 +94,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     val dispatcher: TransactionDispatcher
         get() = transactionDispatcher
 
-    private val scope by lazy { CoroutineScope(transactionDispatcher.dispatcher) }
+    internal val enqueueScope by lazy { CoroutineScope(transactionDispatcher.dispatcher) }
 
     private var databaseConfig: DatabaseConfig? by MutableLazy {
         FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
@@ -204,7 +204,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * Returns the associated table observer that tracks changes to tables during transactions on
      * the DB.
      */
-    val tableObserver: TableObserver by lazy {
+    val tableObserver: TableObserver<DBFlowDatabase> by lazy {
         // observe all tables
         TableObserver(this, tables = tables.toMutableList().apply {
             addAll(views)
@@ -254,39 +254,6 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         }
         modelNotifier = notifier
         return notifier
-    }
-
-    fun <R : Any?> beginTransactionAsync(transaction: SuspendableTransaction<R>): Transaction.Builder<R> =
-        Transaction.Builder(transaction, this)
-
-    /**
-     * Runs the transaction within the [transactionDispatcher]
-     */
-    suspend fun <R> executeTransaction(transaction: SuspendableTransaction<R>): R =
-        transactionDispatcher.executeTransaction(this, transaction)
-
-    /**
-     * Enqueues the transaction without waiting for the result.
-     */
-    fun <R> enqueueTransaction(transaction: SuspendableTransaction<R>): Job {
-        return scope.launch {
-            executeTransaction(transaction)
-        }
-    }
-
-    @Suppress("unchecked_cast")
-    internal suspend fun <R> executeTransactionForResult(transaction: SuspendableTransaction<R>): R {
-        // if we use transaction, let the class define if we want DB transaction.
-        return if (transaction is Transaction<*>) {
-            transaction.execute(writableDatabase) as R
-        } else try {
-            beginTransaction()
-            val result = transaction.execute(writableDatabase)
-            setTransactionSuccessful()
-            result
-        } finally {
-            endTransaction()
-        }
     }
 
     /**
@@ -361,7 +328,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * or [Database.consistencyCheckEnabled] is not enabled.
      */
     fun backupDatabase() {
-        scope.launch {
+        enqueueScope.launch {
             openHelper.backupDB()
         }
     }
@@ -442,15 +409,49 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     }
 }
 
+fun <DB : DBFlowDatabase, R : Any?> DB.beginTransactionAsync(transaction: SuspendableTransaction<DB, R>):
+    Transaction.Builder<DB, R> =
+    Transaction.Builder(transaction, this)
+
+/**
+ * Runs the transaction within the [transactionDispatcher]
+ */
+suspend fun <DB : DBFlowDatabase, R> DB.executeTransaction(transaction: SuspendableTransaction<DB, R>): R =
+    transactionDispatcher.executeTransaction(this, transaction)
+
+/**
+ * Enqueues the transaction without waiting for the result.
+ */
+fun <DB : DBFlowDatabase, R> DB.enqueueTransaction(transaction: SuspendableTransaction<DB, R>): Job {
+    return enqueueScope.launch {
+        executeTransaction(transaction)
+    }
+}
+
+@Suppress("unchecked_cast")
+internal suspend fun <DB : DBFlowDatabase, R> WritableDatabaseScope<DB>.executeTransactionForResult(
+    transaction: SuspendableTransaction<DB, R>
+): R {
+    // if we use transaction, let the class define if we want DB transaction.
+    return if (transaction is Transaction<*, *>) {
+        transaction.run { this@executeTransactionForResult.execute() } as R
+    } else try {
+        db.beginTransaction()
+        val result = transaction.run { this@executeTransactionForResult.execute() }
+        db.setTransactionSuccessful()
+        result
+    } finally {
+        db.endTransaction()
+    }
+}
+
 /**
  * Runs the [fn] block within the [WritableDatabaseScope] asynchronously using coroutines.
  * Enables DB writing which may block until ability to write.
  */
 suspend inline fun <reified DB : DBFlowDatabase, R : Any> DB.writableTransaction(
     crossinline fn: suspend WritableDatabaseScope<DB>.() -> R
-): R = executeTransaction {
-    WritableDatabaseScope(this@writableTransaction).fn()
-}
+): R = executeTransaction { fn() }
 
 /**
  * Runs the [fn] block within the [ReadableDatabaseScope] asynchronously using coroutines.
@@ -458,6 +459,4 @@ suspend inline fun <reified DB : DBFlowDatabase, R : Any> DB.writableTransaction
  */
 suspend inline fun <reified DB : DBFlowDatabase, R : Any> DB.readableTransaction(
     crossinline fn: suspend ReadableDatabaseScope<DB>.() -> R
-): R = executeTransaction {
-    ReadableDatabaseScope(this@readableTransaction).fn()
-}
+): R = executeTransaction { fn() }

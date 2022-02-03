@@ -2,13 +2,16 @@ package com.dbflow5.transaction
 
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.config.enqueueTransaction
+import com.dbflow5.config.executeTransaction
+import com.dbflow5.config.executeTransactionForResult
+import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.Job
 
-typealias Ready<R> = (Transaction<R>) -> Unit
-typealias Success<R> = (Transaction<R>, R) -> Unit
-typealias Error<R> = (Transaction<R>, Throwable) -> Unit
-typealias Completion<R> = (Transaction<R>) -> Unit
+typealias Ready<DB, R> = (Transaction<DB, R>) -> Unit
+typealias Success<DB, R> = (Transaction<DB, R>, R) -> Unit
+typealias Error<DB, R> = (Transaction<DB, R>, Throwable) -> Unit
+typealias Completion<DB, R> = (Transaction<DB, R>) -> Unit
 
 /**
  * Description: The main transaction class. It represents a transaction that occurs in the database.
@@ -19,30 +22,30 @@ typealias Completion<R> = (Transaction<R>) -> Unit
  *
  * To create one, the recommended method is to use the [DBFlowDatabase.beginTransactionAsync].
  */
-data class Transaction<R : Any?>(
+data class Transaction<DB : DBFlowDatabase, R : Any?>(
     @get:JvmName("transaction")
-    val transaction: SuspendableTransaction<R>,
-    private val databaseDefinition: DBFlowDatabase,
+    val transaction: SuspendableTransaction<DB, R>,
+    private val databaseDefinition: DB,
     @get:JvmName("ready")
-    val ready: Ready<R>? = null,
+    val ready: Ready<DB, R>? = null,
     @get:JvmName("error")
-    val error: Error<R>? = null,
+    val error: Error<DB, R>? = null,
     @get:JvmName("success")
-    val success: Success<R>? = null,
+    val success: Success<DB, R>? = null,
     @get:JvmName("completion")
-    val completion: Completion<R>? = null,
+    val completion: Completion<DB, R>? = null,
     @get:JvmName("name")
     val name: String?,
     private val shouldRunInTransaction: Boolean = true,
     private val runCallbacksOnSameThread: Boolean = true
-) : SuspendableTransaction<Result<R>> {
+) : SuspendableTransaction<DB, Result<R>> {
 
     /**
      * Used with [enqueue], when active will enable cancellation.
      */
     private var activeJob: Job? = null
 
-    internal constructor(builder: Builder<R>) : this(
+    internal constructor(builder: Builder<DB, R>) : this(
         databaseDefinition = builder.database,
         error = builder.errorCallback,
         success = builder.successCallback,
@@ -81,23 +84,23 @@ data class Transaction<R : Any?>(
      * the [DBFlowDatabase.executeTransactionForResult] method, which runs the
      * [.transaction] in a database transaction.
      */
-    override suspend fun execute(db: DatabaseWrapper): Result<R> = try {
-        ready?.invoke(this)
+    override suspend fun WritableDatabaseScope<DB>.execute(): Result<R> = try {
+        ready?.invoke(this@Transaction)
 
         val result: R = if (shouldRunInTransaction) {
-            databaseDefinition.executeTransactionForResult { transaction.execute(it) }
+            executeTransactionForResult { transaction.run { this@execute.execute() } }
         } else {
-            transaction.execute(databaseDefinition)
+            transaction.run { this@execute.execute() }
         }
         if (success != null) {
-            success.invoke(this, result)
+            success.invoke(this@Transaction, result)
             complete()
         }
         Result.success(result)
     } catch (throwable: Throwable) {
         FlowLog.logError(throwable)
         if (error != null) {
-            error.invoke(this, throwable)
+            error.invoke(this@Transaction, throwable)
             complete()
             Result.failure(throwable)
         } else {
@@ -112,8 +115,8 @@ data class Transaction<R : Any?>(
 
     private fun complete() = completion?.invoke(this)
 
-    fun newBuilder(): Builder<R> {
-        return Builder(transaction, databaseDefinition)
+    fun newBuilder(): Builder<DB, R> {
+        return Builder<DB, R>(transaction, databaseDefinition)
             .error(error)
             .success(success)
             .name(name)
@@ -123,20 +126,20 @@ data class Transaction<R : Any?>(
     /**
      * The main entry point into [Transaction], this provides an easy way to build up transactions.
      */
-    class Builder<R : Any?>
+    class Builder<DB : DBFlowDatabase, R : Any?>
     /**
      * @param transaction        The interface that actually executes the transaction.
      * @param database The database this transaction will run on. Should be the same
      * DB as the code that the transaction runs in.
      */
         (
-        internal val transaction: SuspendableTransaction<R>,
-        internal val database: DBFlowDatabase
+        internal val transaction: SuspendableTransaction<DB, R>,
+        internal val database: DB
     ) {
-        internal var ready: Ready<R>? = null
-        internal var errorCallback: Error<R>? = null
-        internal var successCallback: Success<R>? = null
-        internal var completion: Completion<R>? = null
+        internal var ready: Ready<DB, R>? = null
+        internal var errorCallback: Error<DB, R>? = null
+        internal var successCallback: Success<DB, R>? = null
+        internal var completion: Completion<DB, R>? = null
         internal var name: String? = null
         internal var shouldRunInTransaction = true
         internal var runCallbacksOnSameThread: Boolean = false
@@ -145,7 +148,7 @@ data class Transaction<R : Any?>(
          * Specify a callback when the transaction is ready to execute. Do an initialization here,
          * and cleanup on [completion]
          */
-        fun ready(ready: Ready<R>?) = apply {
+        fun ready(ready: Ready<DB, R>?) = apply {
             this.ready = ready
         }
 
@@ -153,7 +156,7 @@ data class Transaction<R : Any?>(
          * Specify an error callback to return all and any [Throwable] that occurred during a [Transaction].
          * @param error Invoked on the UI thread, unless [runCallbacksOnSameThread] is true.
          */
-        fun error(error: Error<R>?) = apply {
+        fun error(error: Error<DB, R>?) = apply {
             this.errorCallback = error
         }
 
@@ -163,7 +166,7 @@ data class Transaction<R : Any?>(
          *
          * @param success The callback, invoked on the UI thread, unless [runCallbacksOnSameThread] is true.
          */
-        fun success(success: Success<R>?) = apply {
+        fun success(success: Success<DB, R>?) = apply {
             this.successCallback = success
         }
 
@@ -172,7 +175,7 @@ data class Transaction<R : Any?>(
          * of this transaction.
          * @param completion Invoked on the UI thread, unless [runCallbacksOnSameThread] is true.
          */
-        fun completion(completion: Completion<R>?) = apply {
+        fun completion(completion: Completion<DB, R>?) = apply {
             this.completion = completion
         }
 
@@ -200,17 +203,17 @@ data class Transaction<R : Any?>(
          * @return A new instance of [Transaction]. Subsequent calls to this method produce
          * new instances.
          */
-        fun build(): Transaction<R> = Transaction(this)
+        fun build(): Transaction<DB, R> = Transaction(this)
 
         /**
          * Convenience method to simply execute a transaction.
          */
         @JvmOverloads
         fun enqueue(
-            ready: Ready<R>? = null,
-            error: Error<R>? = null,
-            completion: Completion<R>? = null,
-            success: Success<R>? = null
+            ready: Ready<DB, R>? = null,
+            error: Error<DB, R>? = null,
+            completion: Completion<DB, R>? = null,
+            success: Success<DB, R>? = null
         ) =
             this.apply {
                 ready?.let(this::ready)
@@ -224,10 +227,10 @@ data class Transaction<R : Any?>(
          */
         @JvmOverloads
         suspend fun execute(
-            ready: Ready<R>? = null,
-            error: Error<R>? = null,
-            completion: Completion<R>? = null,
-            success: Success<R>? = null
+            ready: Ready<DB, R>? = null,
+            error: Error<DB, R>? = null,
+            completion: Completion<DB, R>? = null,
+            success: Success<DB, R>? = null
         ) =
             this.apply {
                 ready?.let(this::ready)

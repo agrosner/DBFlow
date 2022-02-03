@@ -2,8 +2,9 @@ package com.dbflow5.models
 
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.config.modelAdapter
+import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.coroutines.defer
+import com.dbflow5.currencyAdapter
 import com.dbflow5.paging.QueryDataSource
 import com.dbflow5.paging.toDataSourceFactory
 import com.dbflow5.query.Where
@@ -25,9 +26,7 @@ interface DBProvider<out T : DBFlowDatabase> {
 interface CurrencyDAO : DBProvider<TestDatabase> {
 
     fun coroutineStoreUSD(currency: Currency): Deferred<Result<Currency>> =
-        database.beginTransactionAsync { db ->
-            modelAdapter<Currency>().save(currency, db)
-        }.defer()
+        database.beginTransactionAsync { currencyAdapter.save(currency) }.defer()
 
     /**
      *  Utilize coroutines package
@@ -35,13 +34,11 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
     fun coroutineRetrieveUSD(): Deferred<List<Currency>> =
         database.beginTransactionAsync {
             (select from Currency::class
-                where (Currency_Table.symbol eq "$")).queryList(it)
+                where (Currency_Table.symbol eq "$")).queryList()
         }.defer()
 
     fun rxStoreUSD(currency: Currency): Single<Result<Currency>> =
-        database.beginTransactionAsync { db ->
-            modelAdapter<Currency>().save(currency, db)
-        }.asSingle()
+        database.beginTransactionAsync { currencyAdapter.save(currency) }.asSingle()
 
     /**
      *  Utilize RXJava2 package.
@@ -51,17 +48,17 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
         database.beginTransactionAsync {
             (select from Currency::class
                 where (Currency_Table.symbol eq "$"))
-                .queryList(it)
+                .queryList()
         }.asSingle()
 
     /**
      *  Utilize Vanilla Transactions.
      */
-    fun retrieveUSD(): Transaction.Builder<List<Currency>> =
+    fun retrieveUSD(): Transaction.Builder<TestDatabase, List<Currency>> =
         database.beginTransactionAsync {
             (select from Currency::class
                 where (Currency_Table.symbol eq "$"))
-                .queryList(it)
+                .queryList()
         }
 
     /**

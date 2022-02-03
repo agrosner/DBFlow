@@ -3,6 +3,7 @@ package com.dbflow5.database
 import android.content.Context
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
+import com.dbflow5.config.beginTransactionAsync
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream

@@ -2,10 +2,11 @@ package com.dbflow5.query.list
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
+import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.select
-import com.dbflow5.structure.save
+import com.dbflow5.simpleModelAdapter
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -20,9 +21,9 @@ class FlowCursorIteratorTest : BaseUnitTest() {
     @Test
     fun testCanIterateFullList() {
         var count = 0
-        database<TestDatabase>().beginTransactionAsync { db ->
+        database<TestDatabase>().beginTransactionAsync {
             (0..9).forEach {
-                SimpleModel("$it").save(db)
+                simpleModelAdapter.save(SimpleModel("$it"))
             }
             (select from SimpleModel::class).cursorList(db).iterator()
         }.success { _, iterator ->
@@ -39,9 +40,9 @@ class FlowCursorIteratorTest : BaseUnitTest() {
 
     @Test
     fun testCanIteratePartialList() {
-        database<TestDatabase>().beginTransactionAsync { db ->
+        database<TestDatabase>().beginTransactionAsync {
             (0..9).forEach {
-                SimpleModel("$it").save(db)
+                simpleModelAdapter.save(SimpleModel("$it"))
             }
 
             (select from SimpleModel::class).cursorList(db)
@@ -58,9 +59,9 @@ class FlowCursorIteratorTest : BaseUnitTest() {
 
     @Test
     fun testCanSupplyBadMaximumValue() {
-        database<TestDatabase>().beginTransactionAsync { db ->
+        database<TestDatabase>().beginTransactionAsync {
             (0..9).forEach {
-                SimpleModel("$it").save(db)
+                simpleModelAdapter.save(SimpleModel("$it"))
             }
 
             (select from SimpleModel::class).cursorList(db)

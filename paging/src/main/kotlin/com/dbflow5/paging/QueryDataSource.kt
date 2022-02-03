@@ -3,6 +3,7 @@ package com.dbflow5.paging
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
 import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.Select
@@ -48,20 +49,20 @@ internal constructor(
     }
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>) {
-        db.beginTransactionAsync { db ->
+        db.beginTransactionAsync {
             transformable.constrain(params.startPosition.toLong(), params.loadSize.toLong())
                 .queryList(db)
         }.enqueue { _, list -> callback.onResult(list) }
     }
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
-        db.beginTransactionAsync { db -> selectCountOf().from(transformable).longValue(db) }
+        db.beginTransactionAsync { selectCountOf().from(transformable).longValue(db) }
             .enqueue { _, count ->
                 val max = when {
                     params.requestedLoadSize >= count - 1 -> count.toInt()
                     else -> params.requestedLoadSize
                 }
-                db.beginTransactionAsync { db ->
+                db.beginTransactionAsync {
                     transformable.constrain(params.requestedStartPosition.toLong(), max.toLong())
                         .queryList(db)
                 }.enqueue { _, list ->

@@ -3,6 +3,7 @@ package com.dbflow5.observing
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.FlowManager
+import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
@@ -17,8 +18,8 @@ import kotlin.reflect.KClass
  * Description: Tracks table changes in the DB via Triggers. This more efficient than utilizing
  * in the app space.
  */
-class TableObserver internal constructor(
-    private val db: DBFlowDatabase,
+class TableObserver<DB : DBFlowDatabase> internal constructor(
+    private val db: DB,
     private val tables: List<KClass<*>>
 ) {
 
@@ -82,12 +83,8 @@ class TableObserver internal constructor(
      */
     fun enqueueTableUpdateCheck() {
         if (!pendingRefresh.compareAndSet(false, true)) {
-            db.beginTransactionAsync { db ->
-                // TODO: ugly cast check here.
-                if (db == this.db) {
-                    checkForTableUpdates(db as DBFlowDatabase)
-                } else throw RuntimeException("Invalid DB object passed. Must be a ${DBFlowDatabase::class}")
-            }.shouldRunInTransaction(false)
+            db.beginTransactionAsync { checkForTableUpdates(db) }
+                .shouldRunInTransaction(false)
                 .enqueue(error = { _, e ->
                     FlowLog.log(FlowLog.Level.E, "Could not check for table updates", e)
                 })
@@ -165,7 +162,7 @@ class TableObserver internal constructor(
         }
     }
 
-    internal fun checkForTableUpdates(db: DBFlowDatabase) {
+    internal fun checkForTableUpdates(db: DB) {
         val lock = db.closeLock
         var hasUpdatedTable = false
 

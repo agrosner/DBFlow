@@ -2,6 +2,7 @@ package com.dbflow5.reactivestreams.query
 
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
+import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.reactivestreams.transaction.asSingle
@@ -17,17 +18,18 @@ import java.util.concurrent.atomic.AtomicLong
  * Description: Wraps a [ModelQueriable] into a [Flowable] that emits each item from the
  * result of the [ModelQueriable] one at a time.
  */
-class CursorListFlowable<T : Any>(private val modelQueriable: ModelQueriable<T>,
-                                  private val database: DBFlowDatabase)
-    : Flowable<T>() {
+class CursorListFlowable<DB : DBFlowDatabase, T : Any>(
+    private val modelQueriable: ModelQueriable<T>,
+    private val database: DB
+) : Flowable<T>() {
 
     override fun subscribeActual(subscriber: Subscriber<in T>) {
         subscriber.onSubscribe(object : Subscription {
-            private var transaction: Transaction<FlowCursorList<T>>? = null
+            private var transaction: Transaction<DB, FlowCursorList<T>>? = null
 
             override fun request(n: Long) {
                 val single = database
-                    .beginTransactionAsync { modelQueriable.cursorList(it) }
+                    .beginTransactionAsync { modelQueriable.cursorList(db) }
                     .asSingle()
                 transaction = single.transaction
                 single.subscribe(CursorResultObserver(subscriber, n))
@@ -40,8 +42,8 @@ class CursorListFlowable<T : Any>(private val modelQueriable: ModelQueriable<T>,
     }
 
     internal class CursorResultObserver<T : Any>(
-        private val subscriber: Subscriber<in T>, private val count: Long)
-        : SingleObserver<FlowCursorList<T>> {
+        private val subscriber: Subscriber<in T>, private val count: Long
+    ) : SingleObserver<FlowCursorList<T>> {
         private val emitted: AtomicLong = AtomicLong()
         private val requested: AtomicLong = AtomicLong()
         private var disposable: Disposable? = null

@@ -2,6 +2,7 @@ package com.dbflow5.livedata
 
 import androidx.lifecycle.LiveData
 import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.ModelQueriableEvalFn
@@ -37,7 +38,7 @@ class QueryLiveData<T : Any, R : Any?>(
 
     private fun evaluateEmission() {
         db
-            .beginTransactionAsync { modelQueriable.evalFn(it) }
+            .beginTransactionAsync { modelQueriable.evalFn(db) }
             .enqueue { _, r -> value = r }
     }
 

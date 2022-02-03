@@ -2,6 +2,7 @@ package com.dbflow5.rx2.query
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
+import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.DatabaseStatement
@@ -28,7 +29,7 @@ class RXQueryTests : BaseUnitTest() {
 
             var cursor: FlowCursor? = null
 
-            this.db.beginTransactionAsync { (select from SimpleModel::class).cursor(it) }
+            this.db.beginTransactionAsync { (select from SimpleModel::class).cursor()!! }
                 .asMaybe()
                 .subscribe {
                     cursor = it
@@ -44,7 +45,7 @@ class RXQueryTests : BaseUnitTest() {
         var databaseStatement: DatabaseStatement? = null
         database<TestDatabase> { db ->
             db.beginTransactionAsync {
-                insert<SimpleModel>(SimpleModel_Table.name.`is`("name")).compileStatement(it)
+                insert<SimpleModel>(SimpleModel_Table.name.`is`("name")).compileStatement()
             }.asSingle()
                 .subscribe { statement ->
                     databaseStatement = statement
@@ -64,7 +65,7 @@ class RXQueryTests : BaseUnitTest() {
             )
             var count = 0L
             this.db.beginTransactionAsync {
-                (selectCountOf(Property.ALL_PROPERTY) from SimpleModel::class).longValue(it)
+                (selectCountOf(Property.ALL_PROPERTY) from SimpleModel::class).longValue()
             }
                 .asSingle()
                 .subscribe { value ->
@@ -80,7 +81,7 @@ class RXQueryTests : BaseUnitTest() {
         var count = 0L
         database<TestDatabase>()
             .beginTransactionAsync {
-                (insert<SimpleModel>(SimpleModel_Table.name.eq("name"))).executeInsert(it)
+                (insert<SimpleModel>(SimpleModel_Table.name.eq("name"))).executeInsert()
             }.asSingle()
             .subscribe { c ->
                 count = c

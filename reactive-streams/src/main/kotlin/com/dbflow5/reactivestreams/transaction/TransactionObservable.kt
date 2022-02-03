@@ -20,12 +20,14 @@ import io.reactivex.rxjava3.disposables.Disposable
 /**
  * Description: Returns a [Maybe] that executes the [this@beginMaybe] when called.
  */
-fun <R : Any?> Transaction.Builder<R>.asMaybe(): MaybeTransaction<R> = MaybeTransaction(this)
+fun <DB : DBFlowDatabase, R : Any> Transaction.Builder<DB, R>.asMaybe(): MaybeTransaction<DB, R> =
+    MaybeTransaction(this)
 
 /**
  * Description: Returns a [Observable] that executes the [this@beginObservable] when called.
  */
-fun <R : Any> Transaction.Builder<R>.asSingle(): SingleTransaction<R> = SingleTransaction(this)
+fun <DB : DBFlowDatabase, R : Any> Transaction.Builder<DB, R>.asSingle(): SingleTransaction<DB, R> =
+    SingleTransaction(this)
 
 /**
  * Observes any kind of table change from this [ModelQueriable], including individual model and global
@@ -39,7 +41,7 @@ fun <T : Any, R : Any> ModelQueriable<T>.asFlowable(
 ): Flowable<R> =
     Flowable.create(TableChangeOnSubscribe(db, this, evalFn), BackpressureStrategy.LATEST)
 
-open class TransactionDisposable(private val transaction: Transaction<*>) : Disposable {
+open class TransactionDisposable(private val transaction: Transaction<*, *>) : Disposable {
     private var disposed = false
 
     override fun isDisposed() = disposed
@@ -53,20 +55,24 @@ open class TransactionDisposable(private val transaction: Transaction<*>) : Disp
  * Description: Wraps a [Transaction.Builder] in a transaction. Please note that the [Transaction.Builder]
  * success will get consumed by the [Observer].
  */
-class SingleTransaction<R : Any>(private val builder: Transaction.Builder<R>) : Single<R>() {
+class SingleTransaction<DB : DBFlowDatabase, R : Any>(private val builder: Transaction.Builder<DB, R>) :
+    Single<R>() {
 
     /**
      * The transaction on this [SingleObserver]. Will be null when not running.
      */
-    var transaction: Transaction<R>? = null
+    private var _transaction: Transaction<DB, R>? = null
+
+    val transaction: Transaction<DB, R>?
+        get() = _transaction
 
     override fun subscribeActual(observer: SingleObserver<in R>) {
         val transaction = builder.success { _, r -> observer.onSuccess(r) }
             .error { _, throwable -> observer.onError(throwable) }
-            .completion { transaction = null }
+            .completion { _transaction = null }
             .build()
         observer.onSubscribe(TransactionDisposable(transaction))
-        this.transaction = transaction
+        this._transaction = transaction
         transaction.enqueue()
     }
 }
@@ -75,23 +81,26 @@ class SingleTransaction<R : Any>(private val builder: Transaction.Builder<R>) : 
  * Description: Wraps a [Transaction.Builder] in a transaction. Please note that the [Transaction.Builder]
  * success will get consumed by the [Observer].
  */
-class MaybeTransaction<R : Any?>(private val builder: Transaction.Builder<R>) : Maybe<R>() {
+class MaybeTransaction<DB : DBFlowDatabase, R : Any>(private val builder: Transaction.Builder<DB, R>) :
+    Maybe<R>() {
 
     /**
      * The transaction on this [SingleObserver]. Will be null when not running.
      */
-    var transaction: Transaction<R>? = null
+    private var _transaction: Transaction<DB, R>? = null
+    val transaction: Transaction<DB, R>?
+        get() = _transaction
 
     override fun subscribeActual(observer: MaybeObserver<in R>) {
         val transaction = builder.success { _, r -> observer.onSuccess(r) }
             .completion {
-                transaction = null
+                _transaction = null
                 observer.onComplete()
             }
             .error { _, throwable -> observer.onError(throwable) }
             .build()
         observer.onSubscribe(TransactionDisposable(transaction))
-        this.transaction = transaction
+        this._transaction = transaction
         transaction.enqueue()
     }
 }

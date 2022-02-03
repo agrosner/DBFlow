@@ -1,6 +1,7 @@
 package com.dbflow5.query
 
 import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.list.FlowCursorList
@@ -86,11 +87,11 @@ interface ModelQueriable<T : Any> : Queriable {
     /**
      * Begins an async DB transaction using the specified TransactionManager.
      */
-    fun <R : Any?> async(
-        databaseWrapper: DBFlowDatabase,
+    fun <DB : DBFlowDatabase, R : Any?> async(
+        databaseWrapper: DB,
         modelQueriableFn: ModelQueriable<T>.(DatabaseWrapper) -> R
     ) =
-        databaseWrapper.beginTransactionAsync { modelQueriableFn(it) }
+        databaseWrapper.beginTransactionAsync { modelQueriableFn(db) }
 
     /**
      * Attempt to constrain this [ModelQueriable] if it supports it via [Transformable] methods. Otherwise,

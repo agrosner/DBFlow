@@ -3,7 +3,8 @@ package com.dbflow5.transaction
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.TransactionElement
 import com.dbflow5.config.acquireTransaction
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.config.executeTransactionForResult
+import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Job
@@ -13,8 +14,8 @@ import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
-fun interface SuspendableTransaction<R> {
-    suspend fun execute(db: DatabaseWrapper): R
+fun interface SuspendableTransaction<DB : DBFlowDatabase, R> {
+    suspend fun WritableDatabaseScope<DB>.execute(): R
 }
 
 /**
@@ -33,9 +34,9 @@ interface TransactionDispatcher {
     /**
      * Executes the transaction and suspends until result is returned.
      */
-    suspend fun <R> executeTransaction(
-        db: DBFlowDatabase,
-        transaction: SuspendableTransaction<R>,
+    suspend fun <DB : DBFlowDatabase, R> executeTransaction(
+        db: DB,
+        transaction: SuspendableTransaction<DB, R>,
     ): R
 }
 
@@ -50,20 +51,20 @@ internal class DefaultTransactionDispatcher(
     /**
      * Runs the transaction within the [dispatcher]
      */
-    override suspend fun <R> executeTransaction(
-        db: DBFlowDatabase,
-        transaction: SuspendableTransaction<R>,
+    override suspend fun <DB : DBFlowDatabase, R> executeTransaction(
+        db: DB,
+        transaction: SuspendableTransaction<DB, R>,
     ): R {
         // reuse transaction if nesting calls.
         return withContext(
             transactionContext(
-                coroutineContext, if (transaction is Transaction<*>) {
+                coroutineContext, if (transaction is Transaction<DB, *>) {
                     transaction.name
                 } else null
             )
         ) {
             coroutineContext.acquireTransaction {
-                db.executeTransactionForResult(transaction)
+                WritableDatabaseScope(db).executeTransactionForResult(transaction)
             }
         }
     }

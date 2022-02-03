@@ -1,6 +1,7 @@
 package com.dbflow5.coroutines
 
 import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.enqueueTransaction
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.ModelQueriableEvalFn
@@ -24,7 +25,7 @@ fun <T : Any, R : Any?> ModelQueriable<T>.toFlow(
         val tables = extractFrom()?.associatedTables ?: setOf(table)
         fun evaluateEmission() {
             db.enqueueTransaction {
-                channel.send(evalFn(it))
+                channel.send(evalFn(db))
             }
         }
 
@@ -52,7 +53,7 @@ fun <T : Any, R : Any?> ModelQueriable<T>.toFlow(
  * [Flow] that will close itself when transacion executes.
  */
 @ExperimentalCoroutinesApi
-fun <R : Any?> Transaction.Builder<R>.toFlow(): Flow<R> {
+fun <DB : DBFlowDatabase, R : Any?> Transaction.Builder<DB, R>.toFlow(): Flow<R> {
     return callbackFlow {
         val transaction = success { _, r -> channel.trySend(r) }
             .error { _, throwable -> channel.close(throwable) }
