@@ -15,7 +15,6 @@ import com.dbflow5.query.cast
 import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.transaction.asFlowable
 import com.dbflow5.simpleModelAdapter
-import com.dbflow5.structure.save
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -27,67 +26,70 @@ class RXFlowableTest : BaseUnitTest() {
 
     @Test
     fun testCanObserveChanges() = runBlockingTest {
-        database<TestDatabase>().writableTransaction {
+        val database = database<TestDatabase>()
+        database.writableTransaction {
             simpleModelAdapter.saveAll((0..100).map {
                 SimpleModel("$it")
             })
-
-            var list = listOf<SimpleModel>()
-            var triggerCount = 0
-            val subscription = (select from SimpleModel::class
-                where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
-                .asFlowable(this.db) { queryList(it) }
-                .subscribe {
-                    list = it
-                    triggerCount += 1
-                }
-
-            assertEquals(50, list.size)
-            subscription.dispose()
-
-            SimpleModel("should not trigger").save(this.db)
-            assertEquals(1, triggerCount)
         }
 
-    }
-
-    @Test
-    fun testObservesJoinTables() = runBlockingTest {
-        database<TestDatabase> { db ->
-            val joinOn = Blog_Table.name.withTable()
-                .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
-            assertEquals(
-                "`Blog`.`name`=`Author`.`first_name`+' '+`Author`.`last_name`",
-                joinOn.query
-            )
-
-            var list = listOf<Blog>()
-            var calls = 0
-            (select from Blog::class
-                leftOuterJoin Author::class
-                on joinOn)
-                .asFlowable(db) { queryList(it) }
-                .subscribe {
-                    calls++
-                    list = it
-                }
-
-            val authors =
-                (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
-            db.writableTransaction {
-                (1 until 11).forEach {
-                    blogAdapter.save(
-                        Blog(
-                            it,
-                            name = "${it}name ${it}last",
-                            author = authors[it - 1]
-                        )
-                    )
-                }
+        var list = listOf<SimpleModel>()
+        var triggerCount = 0
+        val subscription = (select from SimpleModel::class
+            where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
+            .asFlowable(database) { queryList(it) }
+            .subscribe {
+                list = it
+                triggerCount += 1
             }
 
-            assertEquals(10, list.size)
-            assertEquals(2, calls) // 1 for initial, 1 for batch of changes
+        assertEquals(50, list.size)
+        subscription.dispose()
+
+        database.writableTransaction {
+            simpleModelAdapter.save(SimpleModel("should not trigger"))
         }
+        assertEquals(1, triggerCount)
+    }
+
+}
+
+@Test
+fun testObservesJoinTables() = runBlockingTest {
+    database<TestDatabase> { db ->
+        val joinOn = Blog_Table.name.withTable()
+            .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
+        assertEquals(
+            "`Blog`.`name`=`Author`.`first_name`+' '+`Author`.`last_name`",
+            joinOn.query
+        )
+
+        var list = listOf<Blog>()
+        var calls = 0
+        (select from Blog::class
+            leftOuterJoin Author::class
+            on joinOn)
+            .asFlowable(db) { queryList(it) }
+            .subscribe {
+                calls++
+                list = it
+            }
+
+        val authors =
+            (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
+        db.writableTransaction {
+            (1 until 11).forEach {
+                blogAdapter.save(
+                    Blog(
+                        it,
+                        name = "${it}name ${it}last",
+                        author = authors[it - 1]
+                    )
+                )
+            }
+        }
+
+        assertEquals(10, list.size)
+        assertEquals(2, calls) // 1 for initial, 1 for batch of changes
     }
 }

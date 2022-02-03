@@ -8,7 +8,6 @@ import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.select
 import com.dbflow5.simpleModelAdapter
-import com.dbflow5.structure.save
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -71,7 +70,7 @@ class FlowCursorListTest : BaseUnitTest() {
             }
             list.addOnCursorRefreshListener(listener)
             assertEquals(10, list.count)
-            SimpleModel("10").save(this.db)
+            simpleModelAdapter.save(SimpleModel("10"))
             list.refresh()
             assertEquals(11, list.count)
 
