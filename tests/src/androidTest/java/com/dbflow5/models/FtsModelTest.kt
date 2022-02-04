@@ -15,6 +15,9 @@ import com.dbflow5.query.select
 import com.dbflow5.query.snippet
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Description:
@@ -33,7 +36,7 @@ class FtsModelTest : BaseUnitTest() {
                 Fts4VirtualModel2_Table.name
             ) select (select(Fts4Model_Table.id, Fts4Model_Table.name) from fts4ModelAdapter))
                 .executeInsert()
-            assert(rows > 0)
+            assertTrue(rows > 0)
         }
     }
 
@@ -41,10 +44,8 @@ class FtsModelTest : BaseUnitTest() {
     fun match_query() = runBlockingTest {
         validate_fts4_created()
         database<TestDatabase>().readableTransaction {
-            val model =
-                (select from fts4VirtualModel2Adapter where (tableName<Fts4VirtualModel2>() match "FTSBABY"))
-                    .querySingle()
-            assert(model != null)
+            (select from fts4VirtualModel2Adapter where (tableName<Fts4VirtualModel2>() match "FTSBABY"))
+                .requireSingle()
         }
     }
 
@@ -55,8 +56,8 @@ class FtsModelTest : BaseUnitTest() {
             val value = (select(offsets<Fts4VirtualModel2>()) from fts4ModelAdapter
                 where (tableName<Fts4VirtualModel2>() match "FTSBaby"))
                 .stringValue()
-            assert(value != null)
-            assert(value == "0 0 0 7")
+            assertNotNull(value)
+            assertEquals(value, "0 0 0 7")
         }
     }
 
@@ -86,9 +87,9 @@ class FtsModelTest : BaseUnitTest() {
             ) from fts4VirtualModel2Adapter
                 where (tableName<Fts4VirtualModel2>() match "\"min* tem*\""))
                 .stringValue()
-            assert(value != null)
-            assert(
-                value == "...the upper portion, [minimum] [temperature] 14-16oC \n" +
+            assertNotNull(value)
+            assertEquals(
+                value, "...the upper portion, [minimum] [temperature] 14-16oC \n" +
                     "  and cool elsewhere, [minimum] [temperature] 17-20oC. Cold..."
             )
         }

@@ -62,14 +62,12 @@ class CursorResultSubscriberTest : BaseUnitTest() {
             db.writableTransaction { delete(simpleModelAdapter).executeUpdateDelete() }
             var count = 0
             var curList: List<SimpleModel> = arrayListOf()
-            db.readableTransaction {
-                (select from simpleModelAdapter)
-                    .asFlowable(db) { queryList(it) }
-                    .subscribe {
-                        curList = it
-                        count++
-                    }
-            }
+            (select from db.simpleModelAdapter)
+                .asFlowable(db) { queryList(it) }
+                .subscribe {
+                    curList = it
+                    count++
+                }
             db.writableTransaction {
                 insert(simpleModelAdapter, SimpleModel_Table.name)
                     .values("test")

@@ -262,6 +262,7 @@ class UniqueModel(
 class Fts3Model(var name: String = "")
 
 @Table
+@Fts4
 class Fts4Model(
     @PrimaryKey(autoincrement = true)
     var id: Int = 0,

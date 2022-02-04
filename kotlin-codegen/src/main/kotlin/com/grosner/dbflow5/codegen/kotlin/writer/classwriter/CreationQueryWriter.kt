@@ -1,19 +1,19 @@
 package com.grosner.dbflow5.codegen.kotlin.writer.classwriter
 
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.codegen.shared.cache.ReferencesCache
-import com.grosner.dbflow5.codegen.kotlin.writer.toExtractor
-import com.grosner.dbflow5.codegen.kotlin.writer.FieldExtractor
-import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.FieldModel
 import com.dbflow5.codegen.shared.SQLiteLookup
+import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.createFlattenedFields
 import com.dbflow5.codegen.shared.properties.TableProperties
 import com.dbflow5.codegen.shared.properties.dbName
 import com.dbflow5.codegen.shared.references
+import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.quoteIfNeeded
+import com.grosner.dbflow5.codegen.kotlin.writer.FieldExtractor
+import com.grosner.dbflow5.codegen.kotlin.writer.toExtractor
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
@@ -58,9 +58,11 @@ class CreationQueryWriter(
                                             if (extractors.isNotEmpty()) {
                                                 append(",")
                                             }
-                                            val classModel = referencesCache.allClasses
-                                                .first { it.classType == classType.contentTable }
-                                            append("content=${classModel.dbName}")
+                                            referencesCache.allClasses
+                                                .firstOrNull { it.classType == classType.contentTable }
+                                                ?.let { classModel ->
+                                                    append("content=${classModel.dbName}")
+                                                }
                                         }
                                         append(")")
                                     })
