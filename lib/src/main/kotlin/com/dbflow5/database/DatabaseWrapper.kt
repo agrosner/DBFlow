@@ -55,19 +55,22 @@ interface DatabaseWrapper {
      */
     fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor
 
-    fun query(tableName: String, columns: Array<String>?, selection: String?,
-              selectionArgs: Array<String>?, groupBy: String?,
-              having: String?, orderBy: String?): FlowCursor
+    fun query(
+        tableName: String, columns: Array<String>?, selection: String?,
+        selectionArgs: Array<String>?, groupBy: String?,
+        having: String?, orderBy: String?
+    ): FlowCursor
 
     fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int
 
 }
 
-inline fun DatabaseWrapper.executeTransaction(dbFn: DatabaseWrapper.() -> Unit) {
+inline fun <R> DatabaseWrapper.executeTransaction(dbFn: DatabaseWrapper.() -> R): R {
     try {
         beginTransaction()
-        dbFn()
+        val result = dbFn()
         setTransactionSuccessful()
+        return result
     } finally {
         endTransaction()
     }

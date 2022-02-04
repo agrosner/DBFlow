@@ -185,7 +185,7 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
             }
 
             if (!pendingRefresh.compareAndSet(true, false)) {
-                return
+                FlowLog.log(FlowLog.Level.W, "TableObserver pending refresh had completed.")
             }
 
             if (db.isInTransaction) {

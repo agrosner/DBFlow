@@ -17,6 +17,7 @@ import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import kotlin.test.assertTrue
 
 class CursorResultSubscriberTest : BaseUnitTest() {
 
@@ -40,13 +41,11 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     fun testCanObserveOnTableChangesWithModelOps() = runBlockingTest {
         var count = 0
         val database = database<TestDatabase>()
-        database.readableTransaction {
-            (select from simpleModelAdapter)
-                .asFlowable(database) { db -> queryList(db) }
-                .subscribe {
-                    count++
-                }
-        }
+        (select from database.simpleModelAdapter)
+            .asFlowable(database) { db -> queryList(db) }
+            .subscribe {
+                count++
+            }
         val model = SimpleModel("test")
         database.executeTransaction {
             simpleModelAdapter.save(model)
@@ -69,15 +68,21 @@ class CursorResultSubscriberTest : BaseUnitTest() {
                     count++
                 }
             db.writableTransaction {
-                insert(simpleModelAdapter, SimpleModel_Table.name)
-                    .values("test")
-                    .executeInsert()
-                insert(simpleModelAdapter, SimpleModel_Table.name)
-                    .values("test1")
-                    .executeInsert()
-                insert(simpleModelAdapter, SimpleModel_Table.name)
-                    .values("test2")
-                    .executeInsert()
+                assertTrue(
+                    insert(simpleModelAdapter, SimpleModel_Table.name)
+                        .values("test")
+                        .executeInsert() > 0
+                )
+                assertTrue(
+                    insert(simpleModelAdapter, SimpleModel_Table.name)
+                        .values("test1")
+                        .executeInsert() > 0
+                )
+                assertTrue(
+                    insert(simpleModelAdapter, SimpleModel_Table.name)
+                        .values("test2")
+                        .executeInsert() > 0
+                )
             }
 
 

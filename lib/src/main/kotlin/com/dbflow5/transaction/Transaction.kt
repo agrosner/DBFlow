@@ -5,6 +5,7 @@ import com.dbflow5.config.FlowLog
 import com.dbflow5.config.enqueueTransaction
 import com.dbflow5.config.executeTransaction
 import com.dbflow5.config.executeTransactionForResult
+import com.dbflow5.database.executeTransaction
 import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.Job
 
@@ -88,20 +89,17 @@ data class Transaction<DB : DBFlowDatabase, R : Any?>(
         ready?.invoke(this@Transaction)
 
         val result: R = if (shouldRunInTransaction) {
-            executeTransactionForResult { transaction.run { this@execute.execute() } }
+            db.executeTransaction { transaction.run { this@execute.execute() } }
         } else {
             transaction.run { this@execute.execute() }
         }
-        if (success != null) {
-            success.invoke(this@Transaction, result)
-            complete()
-        }
+        success?.invoke(this@Transaction, result)
+        complete()
         Result.success(result)
     } catch (throwable: Throwable) {
         FlowLog.logError(throwable)
-        if (error != null) {
+        val result: Result<R> = if (error != null) {
             error.invoke(this@Transaction, throwable)
-            complete()
             Result.failure(throwable)
         } else {
             Result.failure(
@@ -111,6 +109,8 @@ data class Transaction<DB : DBFlowDatabase, R : Any?>(
                 )
             )
         }
+        complete()
+        result
     }
 
     private fun complete() = completion?.invoke(this)
