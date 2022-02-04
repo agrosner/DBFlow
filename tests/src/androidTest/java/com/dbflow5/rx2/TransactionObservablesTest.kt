@@ -30,7 +30,7 @@ class TransactionObservablesTest : BaseUnitTest() {
             .asSingle()
             .doAfterSuccess {
                 database<TestDatabase>()
-                    .beginTransactionAsync { (select from SimpleModel::class).queryList() }
+                    .beginTransactionAsync { (select from simpleModelAdapter).queryList() }
                     .asSingle()
                     .subscribe { loadedList: List<SimpleModel> ->
                         list = loadedList

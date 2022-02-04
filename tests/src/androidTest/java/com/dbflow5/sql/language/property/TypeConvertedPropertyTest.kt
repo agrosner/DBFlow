@@ -1,6 +1,8 @@
 package com.dbflow5.sql.language.property
 
 import com.dbflow5.BaseUnitTest
+import com.dbflow5.TestDatabase
+import com.dbflow5.config.database
 import com.dbflow5.converter.DateConverter
 import com.dbflow5.models.Difficulty
 import com.dbflow5.models.EnumTypeConverterModel_Table
@@ -13,11 +15,13 @@ import java.util.*
 
 class TypeConvertedPropertyTest : BaseUnitTest() {
 
+    private val simpleModelAdapter
+        get() = database<TestDatabase>().simpleModelAdapter
 
     @Test
     fun testTypeConverter() {
         val property = TypeConvertedProperty<Long, Date>(
-            SimpleModel::class, "Prop", true
+            simpleModelAdapter, "Prop", true
         ) { DateConverter() }
         assertEquals("`Prop`", property.toString())
 

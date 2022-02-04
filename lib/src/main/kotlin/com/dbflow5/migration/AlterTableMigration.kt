@@ -1,24 +1,25 @@
 package com.dbflow5.migration
 
 import androidx.annotation.CallSuper
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.appendQuotedIfNeeded
-import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.select
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.sql.SQLiteType
 import com.dbflow5.stripQuotes
-import kotlin.reflect.KClass
 
 /**
  * Description: Provides a very nice way to alter a single table quickly and easily.
  */
 open class AlterTableMigration<T : Any>(
     /**
-     * The table to ALTER
+     * The table adapter to ALTER
      */
-    private val table: KClass<T>
+    adapterGetter: () -> SQLObjectAdapter<T>
 ) : BaseMigration() {
+
+    protected val adapter by lazy(adapterGetter)
 
     /**
      * The query to rename the table with
@@ -40,7 +41,7 @@ open class AlterTableMigration<T : Any>(
     override fun migrate(database: DatabaseWrapper) {
         // "ALTER TABLE "
         var sql = ALTER_TABLE
-        val tableName = FlowManager.getTableName(table)
+        val tableName = adapter.name
 
         // "{oldName}  RENAME TO {newName}"
         // Since the structure has been updated already, the manager knows only the new name.
@@ -56,7 +57,7 @@ open class AlterTableMigration<T : Any>(
         // We have column definitions to add here
         // ADD COLUMN columnName {type}
         if (internalColumnDefinitions.isNotEmpty()) {
-            (select from table limit 0).cursor(database)?.use { cursor ->
+            (select from adapter limit 0).cursor(database)?.use { cursor ->
                 sql = "$sql$tableName"
                 for (i in internalColumnDefinitions.indices) {
                     val columnDefinition = internalColumnDefinitions[i]
@@ -132,14 +133,14 @@ open class AlterTableMigration<T : Any>(
         append(ALTER_TABLE)
         appendQuotedIfNeeded(oldTableName)
         append(renameQuery)
-        append(FlowManager.getTableName(table))
+        append(adapter.name)
     }
 
     /**
      * @return A List of column definitions that add op to a table in the DB.
      */
     fun getColumnDefinitions(): List<String> {
-        val sql = "$ALTER_TABLE ${FlowManager.getTableName(table)}"
+        val sql = "$ALTER_TABLE ${adapter.name}"
         return internalColumnDefinitions.map { "$sql ADD COLUMN $it" }
     }
 

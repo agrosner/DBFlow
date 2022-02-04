@@ -2,8 +2,10 @@ package com.dbflow5.rx2.query
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
+import com.dbflow5.authorAdapter
 import com.dbflow5.blogAdapter
 import com.dbflow5.config.database
+import com.dbflow5.config.readableTransaction
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.Author
 import com.dbflow5.models.Author_Table
@@ -35,13 +37,15 @@ class RXFlowableTest : BaseUnitTest() {
 
         var list = listOf<SimpleModel>()
         var triggerCount = 0
-        val subscription = (select from SimpleModel::class
-            where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
-            .asFlowable(database) { queryList(it) }
-            .subscribe {
-                list = it
-                triggerCount += 1
-            }
+        val subscription = database.readableTransaction {
+            (select from simpleModelAdapter
+                where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
+                .asFlowable(database) { queryList(it) }
+                .subscribe {
+                    list = it
+                    triggerCount += 1
+                }
+        }
 
         assertEquals(50, list.size)
         subscription.dispose()
@@ -51,7 +55,6 @@ class RXFlowableTest : BaseUnitTest() {
         }
         assertEquals(1, triggerCount)
     }
-
 
     @Test
     fun testObservesJoinTables() = runBlockingTest {
@@ -65,14 +68,16 @@ class RXFlowableTest : BaseUnitTest() {
 
             var list = listOf<Blog>()
             var calls = 0
-            (select from Blog::class
-                leftOuterJoin Author::class
-                on joinOn)
-                .asFlowable(db) { queryList(it) }
-                .subscribe {
-                    calls++
-                    list = it
-                }
+            db.readableTransaction {
+                (select from blogAdapter
+                    leftOuterJoin authorAdapter
+                    on joinOn)
+                    .asFlowable(db) { queryList(it) }
+                    .subscribe {
+                        calls++
+                        list = it
+                    }
+            }
 
             val authors =
                 (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }

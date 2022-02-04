@@ -1,9 +1,11 @@
 package com.dbflow5.models
 
+import com.dbflow5.TestDatabase
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.ModelViewQuery
+import com.dbflow5.config.database
 import com.dbflow5.query.From
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.property
@@ -29,7 +31,7 @@ class AuthorView(
                     .concatenate(Author_Table.last_name as IProperty<out IProperty<*>>)
                     .`as`("authorName")
             )
-                from Author::class)
+                from database<TestDatabase>().authorAdapter)
     }
 }
 
@@ -39,7 +41,9 @@ class PriorityView(var name: String = "") {
     companion object {
         @JvmStatic
         @get:ModelViewQuery
-        val query: From<Author> =
-            select((Author_Table.first_name + Author_Table.last_name).`as`("name")) from Author::class
+        val query: From<Author>
+            get() = select(
+                (Author_Table.first_name + Author_Table.last_name).`as`("name")
+            ) from database<TestDatabase>().authorAdapter
     }
 }

@@ -23,7 +23,7 @@ internal constructor(
 ) : PositionalDataSource<T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
 
     private val associatedTables: Set<KClass<*>> = transformable.extractFrom()?.associatedTables
-        ?: setOf(transformable.table)
+        ?: setOf(transformable.adapter.table)
 
     private val onTableChangedObserver =
         object : OnTableChangedObserver(associatedTables.toList()) {

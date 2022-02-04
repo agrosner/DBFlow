@@ -152,7 +152,7 @@ object PropertyFactory {
      */
     @JvmStatic
     fun <T : Any> from(queriable: ModelQueriable<T>): Property<T> =
-        from(queriable.table, "(${queriable.query.trim { it <= ' ' }})")
+        from(queriable.adapter.table, "(${queriable.query.trim { it <= ' ' }})")
 
     /**
      * Creates a new type-parameterized [Property] to be used as its value represented by the string passed in.
@@ -203,8 +203,6 @@ val <T : Any> ModelQueriable<T>.property
 
 inline fun <reified T : Any> propertyString(stringRepresentation: String?) =
     PropertyFactory.from(T::class, stringRepresentation)
-
-inline fun <reified T : Any> KClass<T>.allProperty() = Property.allProperty(this)
 
 /**
  * Convenience wrapper for creating a table name property used in queries.

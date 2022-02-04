@@ -1,10 +1,9 @@
 package com.dbflow5.query
 
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.config.FlowManager
 import com.dbflow5.sql.Query
 import com.dbflow5.sql.QueryCloneable
-import kotlin.reflect.KClass
 
 /**
  * Description: The SQLite UPDATE query. Will update rows in the DB.
@@ -15,7 +14,7 @@ class Update<T : Any>
  *
  * @param table The table to use.
  */
-internal constructor(val table: KClass<T>) : Query, QueryCloneable<Update<T>> {
+internal constructor(val adapter: SQLObjectAdapter<T>) : Query, QueryCloneable<Update<T>> {
 
     /**
      * The conflict action to resolve updates.
@@ -28,11 +27,11 @@ internal constructor(val table: KClass<T>) : Query, QueryCloneable<Update<T>> {
             if (conflictAction != ConflictAction.NONE) {
                 queryBuilder.append("OR").append(" ${conflictAction.name} ")
             }
-            queryBuilder.append(FlowManager.getTableName(table)).append(" ")
+            queryBuilder.append(adapter.name).append(" ")
             return queryBuilder.toString()
         }
 
-    override fun cloneSelf(): Update<T> = Update(table)
+    override fun cloneSelf(): Update<T> = Update(adapter)
         .conflictAction(conflictAction)
 
     fun conflictAction(conflictAction: ConflictAction) = apply {
@@ -77,7 +76,7 @@ internal constructor(val table: KClass<T>) : Query, QueryCloneable<Update<T>> {
      * @param conditions The array of conditions that define this SET statement
      * @return A SET query piece of this statement
      */
-    fun set(vararg conditions: SQLOperator): Set<T> = Set(this, table)
+    fun set(vararg conditions: SQLOperator): Set<T> = Set(this, adapter)
         .conditions(*conditions)
 }
 

@@ -22,7 +22,7 @@ internal constructor(
      * The first chunk of the SQL statement before this query.
      */
     val whereBase: WhereBase<T>, vararg conditions: SQLOperator
-) : BaseModelQueriable<T>(whereBase.table),
+) : BaseModelQueriable<T>(whereBase.adapter),
     ModelQueriable<T>, Transformable<T>, QueryCloneable<Where<T>> {
 
     /**

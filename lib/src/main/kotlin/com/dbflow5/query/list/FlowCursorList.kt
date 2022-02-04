@@ -3,11 +3,9 @@ package com.dbflow5.query.list
 import android.widget.ListView
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.config.FlowLog
-import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.ModelQueriable
-import kotlin.reflect.KClass
 
 /**
  * Interface for callbacks when cursor gets refreshed.
@@ -19,7 +17,7 @@ typealias OnCursorRefreshListener<T> = (cursorList: FlowCursorList<T>) -> Unit
  */
 class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCursorIterator<T> {
 
-    val table = builder.modelClass
+    val table = builder.adapter
     val modelQueriable = builder.modelQueriable
     val databaseWrapper = builder.databaseWrapper
     private var _cursor: FlowCursor? = null
@@ -28,7 +26,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
     override var trackingCursor: Boolean = false
         private set
 
-    internal val instanceAdapter: RetrievalAdapter<T>
+    internal val adapter: RetrievalAdapter<T>
 
     private val cursorRefreshListenerSet = hashSetOf<OnCursorRefreshListener<T>>()
 
@@ -42,7 +40,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
             throwIfCursorClosed()
             warnEmptyCursor()
             return _cursor?.let { cursor ->
-                instanceAdapter.listModelLoader.convertToData(cursor, databaseWrapper)
+                adapter.listModelLoader.convertToData(cursor, databaseWrapper)
             } ?: listOf()
         }
 
@@ -63,7 +61,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
                 ?: modelQueriable.cursor(databaseWrapper)
                 ?: throw IllegalStateException("The object must evaluate to a cursor")
         }
-        instanceAdapter = FlowManager.getRetrievalAdapter(builder.modelClass)
+        adapter = builder.adapter
     }
 
     override val isClosed: Boolean
@@ -116,7 +114,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
 
         val cursor = unpackCursor()
         return if (cursor.moveToPosition(index.toInt())) {
-            instanceAdapter.singleModelLoader.convertToData(
+            adapter.singleModelLoader.convertToData(
                 FlowCursor.from(cursor), false,
                 databaseWrapper
             )
@@ -180,11 +178,11 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
      * @param [T]
      */
     class Builder<T : Any>(
-        internal var modelQueriable: ModelQueriable<T>,
+        internal val modelQueriable: ModelQueriable<T>,
         internal val databaseWrapper: DatabaseWrapper
     ) {
 
-        internal val modelClass: KClass<T> = modelQueriable.table
+        internal val adapter = modelQueriable.adapter
         internal var cursor: FlowCursor? = null
 
         fun cursor(cursor: FlowCursor?) = apply {

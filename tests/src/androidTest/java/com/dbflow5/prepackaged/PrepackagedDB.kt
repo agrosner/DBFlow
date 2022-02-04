@@ -1,11 +1,13 @@
 package com.dbflow5.prepackaged
 
+import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.database
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.migration.AlterTableMigration
 import com.dbflow5.migration.BaseMigration
@@ -19,7 +21,9 @@ import com.dbflow5.sql.SQLiteType
         Dog::class,
     ]
 )
-abstract class PrepackagedDB : DBFlowDatabase()
+abstract class PrepackagedDB : DBFlowDatabase() {
+    abstract val dogAdapter: ModelAdapter<Dog>
+}
 
 @Database(
     version = 2,
@@ -33,8 +37,12 @@ abstract class PrepackagedDB : DBFlowDatabase()
 )
 abstract class MigratedPrepackagedDB : DBFlowDatabase() {
 
+    abstract val dog2Adapter: ModelAdapter<Dog2>
+
     @Migration(version = 2, priority = 1)
-    class AddNewFieldMigration : AlterTableMigration<Dog2>(Dog2::class) {
+    class AddNewFieldMigration : AlterTableMigration<Dog2>({
+        database<MigratedPrepackagedDB>().dog2Adapter
+    }) {
         override fun onPreMigrate() {
             addColumn(SQLiteType.TEXT, "newField")
         }
@@ -43,7 +51,7 @@ abstract class MigratedPrepackagedDB : DBFlowDatabase() {
     @Migration(version = 2, priority = 2)
     class AddSomeDataMigration : BaseMigration() {
         override fun migrate(database: DatabaseWrapper) {
-            insertInto<Dog2>().columnValues(
+            insertInto(database<MigratedPrepackagedDB>().dog2Adapter).columnValues(
                 propertyString<Dog2>("`breed`") to "NewBreed",
                 propertyString<Dog2>("`newField`") to "New Field Data",
             ).executeInsert(database)

@@ -25,7 +25,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
             (0..9).forEach {
                 simpleModelAdapter.save(SimpleModel("$it"))
             }
-            (select from SimpleModel::class).cursorList(db).iterator()
+            (select from simpleModelAdapter).cursorList(db).iterator()
         }.success { _, iterator ->
             assertFalse(iterator.isClosed)
             iterator.use { cursorIterator ->
@@ -45,7 +45,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
                 simpleModelAdapter.save(SimpleModel("$it"))
             }
 
-            (select from SimpleModel::class).cursorList(db)
+            (select from simpleModelAdapter).cursorList(db)
                 .iterator(2, 7)
         }.success { _, iterator ->
             var count = 0
@@ -64,7 +64,7 @@ class FlowCursorIteratorTest : BaseUnitTest() {
                 simpleModelAdapter.save(SimpleModel("$it"))
             }
 
-            (select from SimpleModel::class).cursorList(db)
+            (select from simpleModelAdapter).cursorList(db)
                 .iterator(2, Long.MAX_VALUE)
         }.success { _, iterator ->
             var count = 0

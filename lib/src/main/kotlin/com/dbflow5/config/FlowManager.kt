@@ -7,7 +7,9 @@ import android.content.Context
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ModelViewAdapter
 import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.annotation.Table
+import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.structure.InvalidDBConfiguration
 import com.dbflow5.structure.Model
@@ -75,6 +77,12 @@ object FlowManager {
                 "Database: ${databaseClass.simpleName} is not a registered Database. " +
                     "Did you forget the @Database annotation?"
             )
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    @JvmStatic
+    fun <T : DBFlowDatabase> getDatabase(databaseClass: Class<T>): T {
+        return getDatabase(databaseClass.kotlin)
     }
 
     /**
@@ -227,6 +235,22 @@ object FlowManager {
         return retrievalAdapter ?: throwCannotFindAdapter("RetrievalAdapter", modelClass)
     }
 
+    /**
+     * @param modelClass The class that contains the [Table] annotation to find an adapter for.
+     * @return The adapter associated with the class. If its not a [ModelAdapter],
+     * it checks both the [ModelViewAdapter] and [RetrievalAdapter].
+     */
+    @DelicateDBFlowApi
+    @JvmStatic
+    fun <T : Any> getSQLObjectAdapter(modelClass: KClass<T>): SQLObjectAdapter<T> {
+        var retrievalAdapter: SQLObjectAdapter<T>? =
+            databaseHolder.getModelAdapterOrNull(modelClass)
+        if (retrievalAdapter == null) {
+            retrievalAdapter = databaseHolder.getViewAdapterOrNull(modelClass)
+        }
+        return retrievalAdapter ?: throwCannotFindAdapter("SQLObjectAdapter", modelClass)
+    }
+
 
     /**
      * @param modelClass The class of the table
@@ -237,6 +261,7 @@ object FlowManager {
      * @return The associated model adapter (DAO) that is generated from a [Table] class. Handles
      * interactions with the database.
      */
+    @DelicateDBFlowApi
     @JvmStatic
     fun <T : Any> getModelAdapter(modelClass: KClass<T>): ModelAdapter<T> =
         databaseHolder.getModelAdapterOrNull(modelClass) ?: throwCannotFindAdapter(
@@ -253,24 +278,11 @@ object FlowManager {
      * @param [T]  The class that has a [com.dbflow5.annotation.ModelView] annotation.
      * @return The model view adapter for the specified class.
      */
+    @DelicateDBFlowApi
     @JvmStatic
     fun <T : Any> getModelViewAdapter(modelViewClass: KClass<T>): ModelViewAdapter<T> =
         databaseHolder.getViewAdapterOrNull(modelViewClass)
             ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
-
-    /**
-     * Returns the query model adapter for the model class. These are only created with the [QueryModel] annotation.
-     *
-     * @throws IllegalArgumentException if the adapter does not exist.
-     *
-     * @param queryModelClass The class of the query
-     * @param [T]  The class that has a [QueryModel] annotation.
-     * @return The query model adapter for the specified class.
-     */
-    @JvmStatic
-    fun <T : Any> getQueryModelAdapter(queryModelClass: KClass<T>): RetrievalAdapter<T> =
-        databaseHolder.getQueryAdapterOrNull(queryModelClass)
-            ?: throwCannotFindAdapter("RetrievalAdapter", queryModelClass)
 
     /**
      * Checks a standard database helper for integrity using quick_check(1).
@@ -316,6 +328,3 @@ inline fun <reified DB : DBFlowDatabase> database(fn: (DB) -> Unit = {}): DB =
 
 inline val <T : Any> KClass<T>.modelAdapter
     get() = FlowManager.getModelAdapter(this)
-
-inline val <T : Any> KClass<T>.retrievalAdapter
-    get() = FlowManager.getRetrievalAdapter(this)

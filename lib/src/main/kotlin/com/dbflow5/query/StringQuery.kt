@@ -1,15 +1,14 @@
 package com.dbflow5.query
 
 import android.database.sqlite.SQLiteDatabase
+import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.config.FlowLog
-import com.dbflow5.config.retrievalAdapter
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseStatementWrapper
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.sql.Query
 import com.dbflow5.structure.ChangeAction
-import kotlin.reflect.KClass
 
 /**
  * Description: Provides a very basic query mechanism for strings. Allows you to easily perform custom SQL cursor string
@@ -25,9 +24,9 @@ class StringQuery<T : Any>
  * this must be done with [DatabaseWrapper.execSQL]
  */
     (
-    table: KClass<T>,
+    adapter: RetrievalAdapter<T>,
     override val query: String
-) : BaseModelQueriable<T>(table), Query, ModelQueriable<T> {
+) : BaseModelQueriable<T>(adapter), Query, ModelQueriable<T> {
     private var args: Array<String>? = null
 
     override// we don't explicitly know the change, but something changed.
@@ -39,34 +38,32 @@ class StringQuery<T : Any>
 
     override fun queryList(databaseWrapper: DatabaseWrapper): List<T> {
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return retrievalAdapter.loadList(cursor(databaseWrapper), databaseWrapper)!!
+        return adapter.loadList(cursor(databaseWrapper), databaseWrapper)!!
     }
 
     override fun querySingle(databaseWrapper: DatabaseWrapper): T? {
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return retrievalAdapter.loadSingle(cursor(databaseWrapper), databaseWrapper)!!
+        return adapter.loadSingle(cursor(databaseWrapper), databaseWrapper)!!
     }
 
     override fun <QueryClass : Any> queryCustomList(
-        queryModelClass: KClass<QueryClass>,
+        retrievalAdapter: RetrievalAdapter<QueryClass>,
         databaseWrapper: DatabaseWrapper
     )
         : List<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return queryModelClass.retrievalAdapter
-            .loadList(cursor(databaseWrapper), databaseWrapper)!!
+        return retrievalAdapter.loadList(cursor(databaseWrapper), databaseWrapper)!!
     }
 
     override fun <QueryClass : Any> queryCustomSingle(
-        queryModelClass: KClass<QueryClass>,
+        retrievalAdapter: RetrievalAdapter<QueryClass>,
         databaseWrapper: DatabaseWrapper
     )
         : QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return queryModelClass.retrievalAdapter
-            .loadSingle(cursor(databaseWrapper), databaseWrapper)
+        return retrievalAdapter.loadSingle(cursor(databaseWrapper), databaseWrapper)
     }
 
     override fun compileStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement {

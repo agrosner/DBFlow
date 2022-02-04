@@ -9,8 +9,6 @@ import com.dbflow5.sql.Query
  */
 @Target(
     AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY,
-    AnnotationTarget.FIELD,
     AnnotationTarget.FUNCTION,
 )
 @Retention(AnnotationRetention.SOURCE)

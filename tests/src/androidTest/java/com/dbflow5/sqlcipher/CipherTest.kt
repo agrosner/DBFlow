@@ -30,17 +30,17 @@ class CipherTest {
     @Test
     fun testCipherModel() = runBlockingTest {
         database<CipherDatabase>().writableTransaction {
-            (delete() from CipherModel::class).execute()
+            (delete() from cipherAdapter).execute()
             val model =
                 cipherAdapter.save(CipherModel(name = "name"))
                     .getOrThrow()
             assertTrue(cipherAdapter.exists(model))
 
-            val retrieval = (select from CipherModel::class
+            val retrieval = (select from cipherAdapter
                 where CipherModel_Table.name.eq("name"))
                 .requireSingle()
             assertTrue(retrieval.id == model.id)
-            (delete() from CipherModel::class).execute()
+            (delete() from cipherAdapter).execute()
         }
     }
 }

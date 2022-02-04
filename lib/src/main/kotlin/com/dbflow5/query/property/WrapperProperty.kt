@@ -1,5 +1,6 @@
 package com.dbflow5.query.property
 
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.config.FlowManager
 import com.dbflow5.query.NameAlias
 import kotlin.reflect.KClass
@@ -13,19 +14,19 @@ class WrapperProperty<T, V> : Property<V> {
 
     private var databaseProperty: WrapperProperty<V, T>? = null
 
-    override val table: KClass<*>
-        get() = super.table!!
+    override val adapter: SQLObjectAdapter<*>
+        get() = super.adapter!!
 
-    constructor(table: KClass<*>, nameAlias: NameAlias) : super(table, nameAlias)
+    constructor(adapter: SQLObjectAdapter<*>, nameAlias: NameAlias) : super(adapter, nameAlias)
 
-    constructor(table: KClass<*>, columnName: String) : super(table, columnName)
+    constructor(adapter: SQLObjectAdapter<*>, columnName: String) : super(adapter, columnName)
 
     override fun withTable(): WrapperProperty<T, V> {
         val nameAlias = this.nameAlias
             .newBuilder()
-            .withTable(FlowManager.getTableName(table))
+            .withTable(adapter.name)
             .build()
-        return WrapperProperty(this.table, nameAlias)
+        return WrapperProperty(this.adapter, nameAlias)
     }
 
     override fun withTable(tableNameAlias: NameAlias): WrapperProperty<T, V> {
@@ -33,7 +34,7 @@ class WrapperProperty<T, V> : Property<V> {
             .newBuilder()
             .withTable(tableNameAlias.tableName)
             .build()
-        return WrapperProperty(this.table, nameAlias)
+        return WrapperProperty(this.adapter, nameAlias)
     }
 
     /**
@@ -41,5 +42,5 @@ class WrapperProperty<T, V> : Property<V> {
      * for types that have different DB representations.
      */
     fun invertProperty(): WrapperProperty<V, T> = databaseProperty
-        ?: WrapperProperty<V, T>(table, nameAlias).also { databaseProperty = it }
+        ?: WrapperProperty<V, T>(adapter, nameAlias).also { databaseProperty = it }
 }

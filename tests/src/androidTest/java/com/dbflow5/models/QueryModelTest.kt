@@ -3,6 +3,7 @@ package com.dbflow5.models
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.authorAdapter
+import com.dbflow5.authorNameQuery
 import com.dbflow5.blogAdapter
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
@@ -31,9 +32,9 @@ class QueryModelTest : BaseUnitTest() {
                 Blog_Table.name.withTable().`as`("blogName"),
                 Blog_Table.id.withTable().`as`("authorId"),
                 Blog_Table.id.withTable().`as`("blogId")
-            ) from Blog::class innerJoin
-                Author::class on (Blog_Table.author_id.withTable() eq Blog_Table.id.withTable()))
-                .requireCustomSingle(AuthorNameQuery::class)
+            ) from blogAdapter innerJoin
+                authorAdapter on (Blog_Table.author_id.withTable() eq Blog_Table.id.withTable()))
+                .requireCustomSingle(authorNameQuery)
             assertEquals(authorModel.id, result.authorId)
             assertEquals(blogModel.id, result.blogId)
         }

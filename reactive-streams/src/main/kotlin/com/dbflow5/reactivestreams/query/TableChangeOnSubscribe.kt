@@ -29,7 +29,7 @@ class TableChangeOnSubscribe<T : Any, R : Any>(
     private val currentTransactions = CompositeDisposable()
 
     private val associatedTables: Set<KClass<*>> = modelQueriable.extractFrom()?.associatedTables
-        ?: setOf(modelQueriable.table)
+        ?: setOf(modelQueriable.adapter.table)
 
     private val onTableChangedObserver =
         object : OnTableChangedObserver(associatedTables.toList()) {

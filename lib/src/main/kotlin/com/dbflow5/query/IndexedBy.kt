@@ -15,9 +15,10 @@ class IndexedBy<TModel : Any>
  * @param indexProperty The index property generated.
  * @param whereBase     The base piece of this query
  */
-(private val indexProperty: IndexProperty<TModel>,
- private val whereBase: WhereBase<TModel>)
-    : BaseTransformable<TModel>(whereBase.table) {
+    (
+    private val indexProperty: IndexProperty<TModel>,
+    private val whereBase: WhereBase<TModel>
+) : BaseTransformable<TModel>(whereBase.adapter) {
 
     override val queryBuilderBase: Query
         get() = whereBase.queryBuilderBase

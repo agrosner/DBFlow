@@ -3,10 +3,11 @@
 
 package com.dbflow5.query
 
+import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.Property
 import com.dbflow5.structure.Model
-import kotlin.reflect.KClass
 
 
 /**
@@ -24,37 +25,42 @@ fun select(vararg properties: IProperty<*>): Select = Select(*properties)
  */
 fun selectCountOf(vararg properties: IProperty<*>): Select = Select(count(*properties))
 
-inline fun <reified T : Any> update() = update(T::class)
-
 /**
  * @param table    The tablet to update.
  * @return A new UPDATE statement.
  */
-fun <T : Any> update(table: KClass<T>): Update<T> = Update(table)
+fun <T : Any> update(adapter: SQLObjectAdapter<T>): Update<T> = Update(adapter)
 
-inline fun <reified T : Any> insertInto() = insert<T>(columns = arrayOf())
+fun <T : Any> insertInto(adapter: RetrievalAdapter<T>) =
+    insert(adapter, columns = arrayOf())
 
-inline fun <reified T : Any> insert(vararg columns: Property<*>) = insert(T::class, *columns)
+fun <T : Any> insert(
+    adapter: RetrievalAdapter<T>
+) = Insert(adapter)
 
-inline fun <reified T : Any> insert(vararg columnValues: Pair<Property<*>, Any?>) = insert(T::class)
+fun <T : Any> insert(
+    adapter: RetrievalAdapter<T>,
+    vararg columnValues: Pair<Property<*>, Any?>
+) = Insert(adapter)
     .columnValues(*columnValues)
 
-inline fun <reified T : Any> insert(vararg operators: SQLOperator) = insert(T::class)
+fun <T : Any> insert(
+    adapter: RetrievalAdapter<T>,
+    vararg operators: SQLOperator
+) = Insert(adapter)
     .columnValues(*operators)
 
 /**
  * @param table    The table to insert.
  * @return A new INSERT statement.
  */
-fun <T : Any> insert(table: KClass<T>, vararg columns: Property<*>): Insert<T> =
-    Insert(table, *columns)
+fun <T : Any> insert(adapter: RetrievalAdapter<T>, vararg columns: Property<*>): Insert<T> =
+    Insert(adapter, *columns)
 
 /**
  * @return Begins a DELETE statement.
  */
 fun delete(): Delete = Delete()
-
-inline fun <reified T : Any> delete() = delete(T::class)
 
 /**
  * Starts a DELETE statement on the specified table.
@@ -63,7 +69,7 @@ inline fun <reified T : Any> delete() = delete(T::class)
  * @param [T] The class that implements [Model].
  * @return A [From] with specified DELETE on table.
  */
-fun <T : Any> delete(table: KClass<T>): From<T> = delete().from(table)
+fun <T : Any> delete(adapter: SQLObjectAdapter<T>): From<T> = delete().from(adapter)
 
 /**
  * Starts an INDEX statement on specified table.
@@ -72,7 +78,7 @@ fun <T : Any> delete(table: KClass<T>): From<T> = delete().from(table)
  * @param [T] The class that implements [Model].
  * @return A new INDEX statement.
  */
-fun <T : Any> index(name: String, table: KClass<T>): Index<T> = Index(name, table)
+fun <T : Any> index(name: String, adapter: SQLObjectAdapter<T>): Index<T> = Index(name, adapter)
 
 
 /**

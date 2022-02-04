@@ -8,9 +8,11 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.config.database
+import com.dbflow5.config.readableTransaction
 import com.dbflow5.liveDataModelAdapter
 import com.dbflow5.query.select
 import com.nhaarman.mockitokotlin2.mock
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -24,10 +26,12 @@ class LiveDataTest : BaseUnitTest() {
     val rule: TestRule = InstantTaskExecutorRule()
 
     @Test
-    fun live_data_executes_for_a_few_model_queries() {
+    fun live_data_executes_for_a_few_model_queries() = runBlockingTest {
         database<TestDatabase> { db ->
-            val data = (select from LiveDataModel::class)
-                .toLiveData(db) { queryList(it) }
+            val data = db.readableTransaction {
+                (select from liveDataModelAdapter)
+                    .toLiveData(db) { queryList(it) }
+            }
 
             val observer = mock<Observer<List<LiveDataModel>>>()
             val lifecycle = LifecycleRegistry(mock())

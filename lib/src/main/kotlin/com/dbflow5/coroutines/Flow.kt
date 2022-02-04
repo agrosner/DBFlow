@@ -22,7 +22,7 @@ fun <T : Any, R : Any?> ModelQueriable<T>.toFlow(
     evalFn: ModelQueriableEvalFn<T, R>
 ): Flow<R> {
     return callbackFlow {
-        val tables = extractFrom()?.associatedTables ?: setOf(table)
+        val tables = extractFrom()?.associatedTables ?: setOf(adapter.table)
         fun evaluateEmission() {
             db.enqueueTransaction {
                 channel.send(evalFn(db))

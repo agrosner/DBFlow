@@ -105,12 +105,14 @@ open class Method(methodName: String, vararg properties: IProperty<*>) : Propert
          * @return A new [Method] that represents the statement.
          */
         fun `as`(sqLiteType: SQLiteType): Property<Any?> {
-            val newProperty = Property<Any?>(property.table,
+            val newProperty = Property<Any?>(
+                property.adapter,
                 property.nameAlias
                     .newBuilder()
                     .shouldAddIdentifierToAliasName(false)
                     .`as`(sqLiteType.name)
-                    .build())
+                    .build()
+            )
             return Method("CAST", newProperty)
         }
 
@@ -187,13 +189,20 @@ fun total(vararg properties: IProperty<*>): Method = Method("TOTAL", *properties
 fun cast(property: IProperty<*>): Method.Cast = Method.Cast(property)
 
 fun replace(property: IProperty<*>, findString: String, replacement: String): Method =
-    Method("REPLACE", property, PropertyFactory.from<Any>(findString), PropertyFactory.from<Any>(replacement))
+    Method(
+        "REPLACE",
+        property,
+        PropertyFactory.from<Any>(findString),
+        PropertyFactory.from<Any>(replacement)
+    )
 
 /**
  * SQLite standard "strftime()" method. See SQLite documentation on this method.
  */
-fun strftime(formatString: String,
-             timeString: String, vararg modifiers: String): Method {
+fun strftime(
+    formatString: String,
+    timeString: String, vararg modifiers: String
+): Method {
     val propertyList = arrayListOf<IProperty<*>>()
     propertyList.add(PropertyFactory.from<Any>(formatString))
     propertyList.add(PropertyFactory.from<Any>(timeString))
@@ -214,8 +223,10 @@ fun datetime(timeStamp: Long, vararg modifiers: String): Method {
 /**
  * Sqlite "date" method. See SQLite documentation on this method.
  */
-fun date(timeString: String,
-         vararg modifiers: String): Method {
+fun date(
+    timeString: String,
+    vararg modifiers: String
+): Method {
     val propertyList = arrayListOf<IProperty<*>>()
     propertyList.add(PropertyFactory.from<Any>(timeString))
     modifiers.mapTo(propertyList) { PropertyFactory.from<Any>(it) }
@@ -226,15 +237,19 @@ fun date(timeString: String,
  * @return Constructs using the "IFNULL" method in SQLite. It will pick the first non null
  * value and set that. If both are NULL then it will use NULL.
  */
-fun ifNull(first: IProperty<*>,
-           secondIfFirstNull: IProperty<*>): Method = Method("IFNULL", first, secondIfFirstNull)
+fun ifNull(
+    first: IProperty<*>,
+    secondIfFirstNull: IProperty<*>
+): Method = Method("IFNULL", first, secondIfFirstNull)
 
 /**
  * @return Constructs using the "NULLIF" method in SQLite. If both expressions are equal, then
  * NULL is set into the DB.
  */
-fun nullIf(first: IProperty<*>,
-           second: IProperty<*>): Method = Method("NULLIF", first, second)
+fun nullIf(
+    first: IProperty<*>,
+    second: IProperty<*>
+): Method = Method("NULLIF", first, second)
 
 @JvmField
 val random: Method = Method("RANDOM", Property.NO_PROPERTY)

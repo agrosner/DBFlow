@@ -1,11 +1,11 @@
 package com.dbflow5.migration
 
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.BaseQueriable
 import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query.SQLOperator
 import com.dbflow5.query.update
-import kotlin.reflect.KClass
 
 /**
  * Description: Provides a simple way to update a table's field or fields quickly in a migration.
@@ -22,8 +22,10 @@ open class UpdateTableMigration<T : Any>
     /**
      * The table to update
      */
-    private val table: KClass<T>
+    adapterGetter: () -> SQLObjectAdapter<T>
 ) : BaseMigration() {
+
+    protected val adapter by lazy(adapterGetter)
 
     /**
      * Builds the conditions for the WHERE part of our query
@@ -36,7 +38,7 @@ open class UpdateTableMigration<T : Any>
     private val setOperatorGroup: OperatorGroup by lazy { OperatorGroup.nonGroupingClause() }
 
     val updateStatement: BaseQueriable<T>
-        get() = update(table)
+        get() = update(adapter)
             .set(setOperatorGroup)
             .where(whereOperatorGroup)
 

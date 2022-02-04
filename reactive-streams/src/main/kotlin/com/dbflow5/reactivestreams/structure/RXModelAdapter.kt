@@ -1,20 +1,16 @@
 package com.dbflow5.reactivestreams.structure
 
 import com.dbflow5.adapter.ModelAdapter
-import com.dbflow5.config.modelAdapter
 import com.dbflow5.database.DatabaseWrapper
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Completable.fromCallable
 import io.reactivex.rxjava3.core.Single
-import kotlin.reflect.KClass
 
 /**
  * Description: Wraps most [ModelAdapter] modification operations into RX-style constructs.
  */
 class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: ModelAdapter<T>) :
     RXRetrievalAdapter<T>(modelAdapter) {
-
-    constructor(table: KClass<T>) : this(table.modelAdapter)
 
     fun save(model: T, databaseWrapper: DatabaseWrapper): Single<Result<T>> =
         Single.fromCallable { modelAdapter.save(model, databaseWrapper) }
@@ -60,7 +56,5 @@ class RXModelAdapter<T : Any> internal constructor(private val modelAdapter: Mod
         fun <T : Any> from(modelAdapter: ModelAdapter<T>): RXModelAdapter<T> =
             RXModelAdapter(modelAdapter)
 
-        @JvmStatic
-        fun <T : Any> from(table: KClass<T>): RXModelAdapter<T> = RXModelAdapter(table)
     }
 }

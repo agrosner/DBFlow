@@ -1,5 +1,6 @@
 package com.dbflow5.query
 
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.config.FlowManager
 import com.dbflow5.query.Join.JoinType
 import com.dbflow5.query.property.IndexProperty
@@ -24,13 +25,13 @@ internal constructor(
      * @return The base query, usually a [Delete], [Select], or [Update]
      */
     override val queryBuilderBase: Query,
-    table: KClass<TModel>,
+    adapter: SQLObjectAdapter<TModel>,
 
     /**
      * If specified, we use this as the subquery for the FROM statement.
      */
     private val modelQueriable: ModelQueriable<TModel>? = null
-) : BaseTransformable<TModel>(table) {
+) : BaseTransformable<TModel>(adapter) {
 
     /**
      * An alias for the table
@@ -74,7 +75,7 @@ internal constructor(
                 is Select -> queryBuilderBase.cloneSelf()
                 else -> queryBuilderBase
             },
-            table
+            adapter as SQLObjectAdapter<TModel>,
         )
         from.joins.addAll(joins)
         from.tableAlias = tableAlias
@@ -86,10 +87,8 @@ internal constructor(
      * [Join] on another table, this adds another [Class].
      */
     val associatedTables: KSet<KClass<*>>
-        get() {
-            val tables = linkedSetOf<KClass<out Any>>(table)
-            joins.mapTo(tables) { it.table }
-            return tables
+        get() = linkedSetOf<KClass<out Any>>(table).apply {
+            joins.mapTo(this) { it.adapter.table }
         }
 
     private fun getTableAlias(): NameAlias = tableAlias
@@ -112,8 +111,11 @@ internal constructor(
      * @param table    The table this corresponds to
      * @param joinType The type of join to use
      */
-    fun <TJoin : Any> join(table: KClass<TJoin>, joinType: JoinType): Join<TJoin, TModel> {
-        return Join(this, table, joinType).also { joins.add(it) }
+    fun <TJoin : Any> join(
+        adapter: SQLObjectAdapter<TJoin>,
+        joinType: JoinType
+    ): Join<TJoin, TModel> {
+        return Join(this, adapter, joinType).also { joins.add(it) }
     }
 
     /**
@@ -135,8 +137,8 @@ internal constructor(
      * @param table   The table to join on.
      * @param <TJoin> The class of the join table.
     </TJoin> */
-    infix fun <TJoin : Any> crossJoin(table: KClass<TJoin>): Join<TJoin, TModel> =
-        join(table, JoinType.CROSS)
+    infix fun <TJoin : Any> crossJoin(adapter: SQLObjectAdapter<TJoin>): Join<TJoin, TModel> =
+        join(adapter, JoinType.CROSS)
 
     /**
      * Adds a [JoinType.CROSS] join on a specific table for this query.
@@ -153,8 +155,8 @@ internal constructor(
      * @param table   The table to join on.
      * @param <TJoin> The class of the join table.
     </TJoin> */
-    infix fun <TJoin : Any> innerJoin(table: KClass<TJoin>): Join<TJoin, TModel> =
-        join(table, JoinType.INNER)
+    infix fun <TJoin : Any> innerJoin(adapter: SQLObjectAdapter<TJoin>): Join<TJoin, TModel> =
+        join(adapter, JoinType.INNER)
 
     /**
      * Adds a [JoinType.INNER] join on a specific table for this query.
@@ -171,8 +173,8 @@ internal constructor(
      * @param table   The table to join on.
      * @param <TJoin> The class of the join table.
     </TJoin> */
-    infix fun <TJoin : Any> leftOuterJoin(table: KClass<TJoin>): Join<TJoin, TModel> =
-        join(table, JoinType.LEFT_OUTER)
+    infix fun <TJoin : Any> leftOuterJoin(adapter: SQLObjectAdapter<TJoin>): Join<TJoin, TModel> =
+        join(adapter, JoinType.LEFT_OUTER)
 
     /**
      * Adds a [JoinType.LEFT_OUTER] join on a specific table for this query.
@@ -187,11 +189,11 @@ internal constructor(
     /**
      * Adds a [JoinType.NATURAL] join on a specific table for this query.
      *
-     * @param table   The table to join on.
+     * @param adapter   The table to join on.
      * @param <TJoin> The class of the join table.
     </TJoin> */
-    infix fun <TJoin : Any> naturalJoin(table: KClass<TJoin>): Join<TJoin, TModel> =
-        join(table, JoinType.NATURAL)
+    infix fun <TJoin : Any> naturalJoin(adapter: SQLObjectAdapter<TJoin>): Join<TJoin, TModel> =
+        join(adapter, JoinType.NATURAL)
 
     /**
      * Adds a [JoinType.NATURAL] join on a specific table for this query.

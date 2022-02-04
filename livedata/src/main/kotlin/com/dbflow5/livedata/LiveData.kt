@@ -25,7 +25,7 @@ class QueryLiveData<T : Any, R : Any?>(
 ) : LiveData<R>() {
 
     private val associatedTables: Set<KClass<*>> = modelQueriable.extractFrom()?.associatedTables
-        ?: setOf(modelQueriable.table)
+        ?: setOf(modelQueriable.adapter.table)
 
     private val onTableChangedObserver =
         object : OnTableChangedObserver(associatedTables.toList()) {

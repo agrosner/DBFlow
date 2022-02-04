@@ -158,15 +158,13 @@ class LoadFromCursorWriter(
         model: ClassModel,
         currentIndex: Int,
     ): Int {
-        // we know class type is a list, so take parameterize type here.
-        val childTableType = (field.nonNullClassType as ParameterizedTypeName).typeArguments[0]
-            as ClassName
+        val reference = referencesCache.resolve(field)
         addStatement(
-            "val %N = ((%M %L %T::class) %L ",
+            "val %N = ((%M %L %N) %L ",
             field.name.shortName,
             MemberNames.select,
             MemberNames.from,
-            childTableType, // hack since list
+            reference.generatedFieldName,
             MemberNames.where,
         )
         val zip = field.references(referencesCache).zip(
@@ -180,8 +178,8 @@ class LoadFromCursorWriter(
             addStatement(
                 "(%T.%L %L %L)",
                 ClassName(
-                    childTableType.packageName,
-                    "${childTableType.simpleName}_Table",
+                    reference.classType.packageName,
+                    "${reference.classType.simpleName}_Table",
                 ),
                 plain.propertyName,
                 MemberNames.eq,
@@ -208,12 +206,13 @@ class LoadFromCursorWriter(
             className.packageName,
             "${field.ksClassType.declaration.simpleName.shortName}_Table",
         )
+        val resolvedField = referencesCache.resolve(field)
         addStatement(
-            "val %N = ((%M %L %T::class) %L",
+            "val %N = ((%M %L %N) %L",
             field.name.shortName,
             MemberNames.select,
             MemberNames.from,
-            field.nonNullClassType,
+            resolvedField.generatedFieldName,
             MemberNames.where,
         )
         val zip = field.references(referencesCache).zip(

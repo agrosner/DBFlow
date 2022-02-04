@@ -1,14 +1,13 @@
 package com.dbflow5.query
 
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.appendList
 import com.dbflow5.appendQuotedIfNeeded
-import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.dropIndex
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.sql.Query
-import kotlin.reflect.KClass
 
 /**
  * Description: an INDEX class that enables you to index a specific column from a table. This enables
@@ -28,7 +27,7 @@ class Index<TModel : Any>
     /**
      * @return The table this INDEX belongs to.
      */
-    private val table: KClass<TModel>
+    private val adapter: SQLObjectAdapter<TModel>,
 ) : Query {
     private val columns: MutableList<NameAlias> = arrayListOf()
 
@@ -44,7 +43,7 @@ class Index<TModel : Any>
             append(if (isUnique) "UNIQUE " else "")
             append("INDEX IF NOT EXISTS ")
             appendQuotedIfNeeded(indexName)
-            append(" ON ").append(FlowManager.getTableName(table))
+            append(" ON ").append(adapter.name)
             append("(").appendList(columns).append(")")
         }
 
@@ -118,13 +117,16 @@ class Index<TModel : Any>
 }
 
 
-inline fun <reified T : Any> indexOn(
+fun <T : Any> indexOn(
     indexName: String,
+    adapter: SQLObjectAdapter<T>,
     vararg property: IProperty<*>
-) = index(indexName, T::class).on(*property)
+) = index(indexName, adapter).on(*property)
 
-inline fun <reified T : Any> indexOn(
-    indexName: String, firstNameAlias: NameAlias,
+fun <T : Any> indexOn(
+    indexName: String,
+    adapter: SQLObjectAdapter<T>,
+    firstNameAlias: NameAlias,
     vararg arrayOfNameAlias: NameAlias
-) = index(indexName, T::class).on(firstNameAlias, *arrayOfNameAlias)
+) = index(indexName, adapter).on(firstNameAlias, *arrayOfNameAlias)
 

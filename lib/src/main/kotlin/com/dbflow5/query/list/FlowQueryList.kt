@@ -6,7 +6,6 @@ import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.ModelQueriable
-import kotlin.reflect.KClass
 
 /**
  * Description: A query-backed immutable [List]. Represents the results of a cursor without loading
@@ -30,7 +29,7 @@ class FlowQueryList<T : Any>(
         get() = internalCursorList.all
 
     internal val retrievalAdapter: RetrievalAdapter<T>
-        get() = internalCursorList.instanceAdapter
+        get() = internalCursorList.adapter
 
     override val size: Int
         get() = internalCursorList.count.toInt()
@@ -92,15 +91,15 @@ class FlowQueryList<T : Any>(
 
 
     /**
-     * Checks to see if the table contains the object only if its a [T]
+     * Checks to see if the query contains the object only if its a [T]
      *
-     * @param element A model class. For interface purposes, this must be an Object.
-     * @return always false if its anything other than the current table. True if [com.dbflow5.structure.Model.exists] passes.
+     * @param element The model type.
+     * @return always false if its anything other than the current table.
+     * True if [com.dbflow5.structure.Model.exists] passes.
      */
     override operator fun contains(element: T): Boolean {
-        return internalCursorList.instanceAdapter.exists(
+        return internalCursorList.contains(
             element,
-            internalCursorList.databaseWrapper
         )
     }
 
@@ -182,7 +181,7 @@ class FlowQueryList<T : Any>(
 
     class Builder<T : Any> {
 
-        internal val table: KClass<T>
+        internal val adapter: RetrievalAdapter<T>
 
         internal var cursor: FlowCursor? = null
         internal var modelQueriable: ModelQueriable<T>
@@ -194,7 +193,7 @@ class FlowQueryList<T : Any>(
             refreshHandler: Handler = globalRefreshHandler
         ) {
             this.databaseWrapper = cursorList.databaseWrapper
-            table = cursorList.table
+            adapter = cursorList.adapter
             cursor = cursorList.cursor
             modelQueriable = cursorList.modelQueriable
             this.refreshHandler = refreshHandler
@@ -206,7 +205,7 @@ class FlowQueryList<T : Any>(
             refreshHandler: Handler = globalRefreshHandler
         ) {
             this.databaseWrapper = databaseWrapper
-            this.table = modelQueriable.table
+            this.adapter = modelQueriable.adapter
             this.modelQueriable = modelQueriable
             this.refreshHandler = refreshHandler
         }

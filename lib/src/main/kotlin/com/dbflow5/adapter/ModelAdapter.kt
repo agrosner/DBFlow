@@ -15,7 +15,7 @@ import com.dbflow5.query.property.Property
  * Description: Used for generated classes from the combination of [Table] and [Model].
  */
 abstract class ModelAdapter<T : Any> :
-    RetrievalAdapter<T>(), InternalAdapter<T>, CreationAdapter {
+    SQLObjectAdapter<T>(), InternalAdapter<T> {
 
     private val listModelSaver: ListModelSaver<T> by lazy { ListModelSaver(modelSaver) }
 

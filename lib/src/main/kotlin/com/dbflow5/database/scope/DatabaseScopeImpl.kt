@@ -3,13 +3,13 @@
 package com.dbflow5.database.scope
 
 import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.Queriable
-import kotlin.reflect.KClass
 
 /**
  * Description:
@@ -73,16 +73,22 @@ internal constructor(
         return requireSingle(db)
     }
 
-    override suspend fun <T : Any, R : Any> ModelQueriable<T>.customList(queryModelClass: KClass<R>): List<R> {
-        return queryCustomList(queryModelClass, db)
+    override suspend fun <T : Any, R : Any> ModelQueriable<T>.customList(
+        retrievalAdapter: RetrievalAdapter<R>
+    ): List<R> {
+        return queryCustomList(retrievalAdapter, db)
     }
 
-    override suspend fun <T : Any, R : Any> ModelQueriable<T>.customSingle(queryModelClass: KClass<R>): R? {
-        return queryCustomSingle(queryModelClass, db)
+    override suspend fun <T : Any, R : Any> ModelQueriable<T>.customSingle(
+        retrievalAdapter: RetrievalAdapter<R>
+    ): R? {
+        return queryCustomSingle(retrievalAdapter, db)
     }
 
-    override suspend fun <T : Any, R : Any> ModelQueriable<T>.requireCustomSingle(queryModelClass: KClass<R>): R {
-        return requireCustomSingle(queryModelClass, db)
+    override suspend fun <T : Any, R : Any> ModelQueriable<T>.requireCustomSingle(
+        retrievalAdapter: RetrievalAdapter<R>
+    ): R {
+        return requireCustomSingle(retrievalAdapter, db)
     }
 
     override suspend fun Queriable.cursor(): FlowCursor? {

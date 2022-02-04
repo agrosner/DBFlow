@@ -3,6 +3,7 @@ package com.dbflow5.database.transaction
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
+import com.dbflow5.config.readableTransaction
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.coroutines.toFlow
 import com.dbflow5.models.TwoColumnModel
@@ -31,23 +32,26 @@ class CoroutinesTest : BaseUnitTest() {
             assert(saveResult.isSuccess)
         }
 
-        val result = (select from TwoColumnModel::class where TwoColumnModel_Table.id.eq(5))
-            .toFlow(database) { querySingle(it) }.first()
-        println("RESULT ${result}")
-        assert(result != null)
+        database.readableTransaction {
+            (select from twoColumnModelAdapter where TwoColumnModel_Table.id.eq(5))
+                .toFlow(database) { requireSingle(it) }.first()
+        }
     }
 
     @Test
     fun testObservingTableChanges() = runBlockingTest {
         val count = ConflatedBroadcastChannel(0)
+        val database = database<TestDatabase>()
         val job = launch {
-            (select from TwoColumnModel::class)
-                .toFlow(database<TestDatabase>()) { queryList(it) }
-                .collect {
-                    count.offer(count.value + 1)
-                }
+            database.readableTransaction {
+                (select from twoColumnModelAdapter)
+                    .toFlow(database) { queryList(it) }
+                    .collect {
+                        count.offer(count.value + 1)
+                    }
+            }
         }
-        database<TestDatabase>().writableTransaction {
+        database.writableTransaction {
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
             val result = twoColumnModelAdapter.save(simpleModel)
             assert(result.isSuccess)

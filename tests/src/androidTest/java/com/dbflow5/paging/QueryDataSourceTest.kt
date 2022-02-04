@@ -29,7 +29,7 @@ class QueryDataSourceTest : BaseUnitTest() {
                 simpleModelAdapter.save(SimpleModel("$it"))
             }
 
-            val factory = (select from SimpleModel::class).toDataSourceFactory(this.db)
+            val factory = (select from simpleModelAdapter).toDataSourceFactory(this.db)
             val list = PagedList.Builder(
                 factory.create(),
                 PagedList.Config.Builder()
@@ -57,7 +57,7 @@ class QueryDataSourceTest : BaseUnitTest() {
     fun testThrowsErrorOnInvalidType() {
         database<TestDatabase> { db ->
             assertThrowsException(IllegalArgumentException::class) {
-                (update<SimpleModel>() set (SimpleModel_Table.name.eq("name")))
+                (update(db.simpleModelAdapter) set (SimpleModel_Table.name.eq("name")))
                     .toDataSourceFactory(db)
                     .create()
             }

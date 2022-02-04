@@ -1,18 +1,17 @@
 package com.dbflow5.query
 
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.appendList
-import com.dbflow5.config.FlowManager
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.PropertyFactory
 import com.dbflow5.sql.Query
-import kotlin.reflect.KClass
 
 /**
  * Description: Specifies a SQLite JOIN statement
  */
 class Join<TModel : Any, TFromModel : Any> : Query {
 
-    val table: KClass<TModel>
+    val adapter: SQLObjectAdapter<TModel>
 
     /**
      * The type of JOIN to use
@@ -104,18 +103,19 @@ class Join<TModel : Any, TFromModel : Any> : Query {
         NATURAL
     }
 
-    constructor(from: From<TFromModel>, table: KClass<TModel>, joinType: JoinType) {
+    constructor(from: From<TFromModel>, adapter: SQLObjectAdapter<TModel>, joinType: JoinType) {
         this.from = from
-        this.table = table
+        this.adapter = adapter
         type = joinType
-        alias = NameAlias.Builder(FlowManager.getTableName(table)).build()
+        alias = NameAlias.Builder(adapter.name).build()
     }
 
     constructor(
         from: From<TFromModel>, joinType: JoinType,
         modelQueriable: ModelQueriable<TModel>
     ) {
-        table = modelQueriable.table
+        adapter = (modelQueriable.adapter as? SQLObjectAdapter<TModel>)
+            ?: throw IllegalStateException("To use a Join, you must provide a valid DB adapter type (View or Table).")
         this.from = from
         type = joinType
         alias = PropertyFactory.from(modelQueriable).nameAlias

@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("com.android.library")
     kotlin("android")
@@ -26,7 +28,20 @@ android {
     }
 
     kotlinOptions {
-        freeCompilerArgs = listOf("-Xinline-classes")
+        freeCompilerArgs = listOf(
+            "-Xopt-in=com.dbflow5.annotation.opts.DelicateDBFlowApi",
+            "-Xopt-in=com.dbflow5.annotation.opts.InternalDBFlowApi"
+        )
+    }
+
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions {
+        freeCompilerArgs = listOf(
+            "-Xopt-in=com.dbflow5.annotation.opts.DelicateDBFlowApi",
+            "-Xopt-in=com.dbflow5.annotation.opts.InternalDBFlowApi"
+        )
     }
 }
 

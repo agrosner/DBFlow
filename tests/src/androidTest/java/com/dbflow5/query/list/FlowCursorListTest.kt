@@ -20,8 +20,8 @@ class FlowCursorListTest : BaseUnitTest() {
     @Test
     fun validateCursorPassed() = runBlockingTest {
         database<TestDatabase>().readableTransaction {
-            val cursor = (select from SimpleModel::class).cursor()
-            val list = FlowCursorList.Builder(select from SimpleModel::class, this.db)
+            val cursor = (select from simpleModelAdapter).cursor()
+            val list = FlowCursorList.Builder(select from simpleModelAdapter, this.db)
                 .cursor(cursor)
                 .build()
 
@@ -32,7 +32,7 @@ class FlowCursorListTest : BaseUnitTest() {
     @Test
     fun validateModelQueriable() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            val modelQueriable = (select from SimpleModel::class)
+            val modelQueriable = (select from simpleModelAdapter)
             val list = FlowCursorList.Builder(modelQueriable, this.db)
                 .build()
 
@@ -47,7 +47,7 @@ class FlowCursorListTest : BaseUnitTest() {
                 simpleModelAdapter.save(SimpleModel("$it"))
             }
 
-            val list = (select from SimpleModel::class).cursorList(this.db)
+            val list = (select from simpleModelAdapter).cursorList(this.db)
             val all = list.all
             assertEquals(list.count, all.size.toLong())
         }
@@ -60,7 +60,7 @@ class FlowCursorListTest : BaseUnitTest() {
                 simpleModelAdapter.save(SimpleModel("$it"))
             }
 
-            val list = (select from SimpleModel::class).cursorList(this.db)
+            val list = (select from simpleModelAdapter).cursorList(this.db)
 
             var cursorListFound: FlowCursorList<SimpleModel>? = null
             var count = 0

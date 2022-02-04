@@ -4,6 +4,7 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
 import com.dbflow5.config.executeTransaction
+import com.dbflow5.config.readableTransaction
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
@@ -25,11 +26,10 @@ class CursorResultSubscriberTest : BaseUnitTest() {
             (0..9).forEach { simpleModelAdapter.save(SimpleModel("$it")) }
 
             var count = 0
-            (select from SimpleModel::class)
+            (select from simpleModelAdapter)
                 .queryStreamResults(this.db)
                 .subscribe {
                     count++
-                    assert(it != null)
                 }
 
             assertEquals(10, count)
@@ -39,13 +39,16 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     @Test
     fun testCanObserveOnTableChangesWithModelOps() = runBlockingTest {
         var count = 0
-        (select from SimpleModel::class)
-            .asFlowable(database<TestDatabase>()) { db -> queryList(db) }
-            .subscribe {
-                count++
-            }
+        val database = database<TestDatabase>()
+        database.readableTransaction {
+            (select from simpleModelAdapter)
+                .asFlowable(database) { db -> queryList(db) }
+                .subscribe {
+                    count++
+                }
+        }
         val model = SimpleModel("test")
-        database<TestDatabase>().executeTransaction {
+        database.executeTransaction {
             simpleModelAdapter.save(model)
             simpleModelAdapter.delete(model)
             simpleModelAdapter.insert(model)
@@ -56,23 +59,25 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     @Test
     fun testCanObserveOnTableChangesWithTableOps() = runBlockingTest {
         database<TestDatabase> { db ->
-            delete<SimpleModel>().executeUpdateDelete(db)
+            db.writableTransaction { delete(simpleModelAdapter).executeUpdateDelete() }
             var count = 0
             var curList: List<SimpleModel> = arrayListOf()
-            (select from SimpleModel::class)
-                .asFlowable(db) { queryList(it) }
-                .subscribe {
-                    curList = it
-                    count++
-                }
+            db.readableTransaction {
+                (select from simpleModelAdapter)
+                    .asFlowable(db) { queryList(it) }
+                    .subscribe {
+                        curList = it
+                        count++
+                    }
+            }
             db.writableTransaction {
-                insert(SimpleModel::class, SimpleModel_Table.name)
+                insert(simpleModelAdapter, SimpleModel_Table.name)
                     .values("test")
                     .executeInsert()
-                insert(SimpleModel::class, SimpleModel_Table.name)
+                insert(simpleModelAdapter, SimpleModel_Table.name)
                     .values("test1")
                     .executeInsert()
-                insert(SimpleModel::class, SimpleModel_Table.name)
+                insert(simpleModelAdapter, SimpleModel_Table.name)
                     .values("test2")
                     .executeInsert()
             }
@@ -80,10 +85,12 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
             assertEquals(3, curList.size)
 
-            val model = (select
-                from SimpleModel::class
-                where SimpleModel_Table.name.eq("test"))
-                .requireSingle(db)
+            val model = db.readableTransaction {
+                (select
+                    from simpleModelAdapter
+                    where SimpleModel_Table.name.eq("test"))
+                    .requireSingle()
+            }
 
             db.executeTransaction { simpleModelAdapter.delete(model) }
             db.tableObserver.checkForTableUpdates()
@@ -92,5 +99,4 @@ class CursorResultSubscriberTest : BaseUnitTest() {
             assertEquals(3, count) // once for subscription, 2 for transactions
         }
     }
-
 }

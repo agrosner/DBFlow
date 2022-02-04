@@ -34,17 +34,6 @@ abstract class RetrievalAdapter<T : Any> {
      */
     abstract val table: KClass<T>
 
-    /**
-     * Returns a new [model] based on the object passed in. Will not overwrite existing object.
-     */
-    fun loadSingle(model: T, databaseWrapper: DatabaseWrapper): T? =
-        singleModelLoader.load(
-            databaseWrapper,
-            (select
-                from table
-                where getPrimaryConditionClause(model)).query
-        )
-
     fun loadSingle(databaseWrapper: DatabaseWrapper, query: String) =
         singleModelLoader.load(databaseWrapper, query)
 
@@ -64,15 +53,6 @@ abstract class RetrievalAdapter<T : Any> {
      * @param wrapper The database instance to use.
      */
     abstract fun loadFromCursor(cursor: FlowCursor, wrapper: DatabaseWrapper): T
-
-    /**
-     * @param model The model to query values from
-     * @return True if it exists as a row in the corresponding database table
-     */
-    open fun exists(model: T, databaseWrapper: DatabaseWrapper): Boolean = selectCountOf()
-        .from(table)
-        .where(getPrimaryConditionClause(model))
-        .hasData(databaseWrapper)
 
     /**
      * @param model The primary condition clause.

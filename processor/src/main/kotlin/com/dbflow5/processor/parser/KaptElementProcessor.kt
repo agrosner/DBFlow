@@ -6,7 +6,6 @@ import com.dbflow5.annotation.Fts4
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
-import com.dbflow5.annotation.ModelViewQuery
 import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.OneToManyRelation
 import com.dbflow5.annotation.Query
@@ -23,20 +22,17 @@ import com.dbflow5.codegen.shared.ObjectModel
 import com.dbflow5.codegen.shared.OneToManyModel
 import com.dbflow5.codegen.shared.TypeConverterModel
 import com.dbflow5.codegen.shared.cache.extractTypeConverter
-import com.dbflow5.codegen.shared.companion
 import com.dbflow5.codegen.shared.interop.ClassNameResolver
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.parser.Parser
 import com.dbflow5.codegen.shared.properties.ModelViewQueryProperties
 import com.dbflow5.processor.interop.KaptClassDeclaration
 import com.dbflow5.processor.interop.KaptOriginatingSource
-import com.dbflow5.processor.interop.KaptPropertyDeclaration
 import com.dbflow5.processor.interop.KaptTypeElementClassType
-import com.dbflow5.processor.interop.annotation
-import com.dbflow5.processor.interop.invoke
+import com.dbflow5.processor.interop.modelViewQueryNameOrThrow
+import com.dbflow5.processor.interop.name
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.erasure
-import com.dbflow5.processor.utils.getPackage
 import com.dbflow5.processor.utils.javaToKotlinType
 import com.dbflow5.processor.utils.toTypeErasedElement
 import com.squareup.kotlinpoet.ClassName
@@ -76,10 +72,7 @@ class KaptElementProcessor(
         val source = KaptOriginatingSource(input)
         val classDeclaration = KaptClassDeclaration(input)
         val annotations = elements.getAllAnnotationMirrors(input)
-        val name = NameModel(
-            input.simpleName,
-            input.getPackage(),
-        )
+        val name = input.name()
         val classType = input.toTypeErasedElement().javaToKotlinType() as ClassName
         return annotations.mapNotNull { annotation ->
             val typeName = annotation.annotationType.asTypeName()
@@ -178,7 +171,6 @@ class KaptElementProcessor(
                     input,
                     classDeclaration,
                     typeName,
-                    name,
                     classType,
                     source
                 )
@@ -190,10 +182,10 @@ class KaptElementProcessor(
         input: TypeElement,
         classDeclaration: KaptClassDeclaration,
         typeName: TypeName,
-        name: NameModel,
         classType: ClassName,
         source: KaptOriginatingSource
     ): List<ObjectModel> {
+        val name = input.name()
         val fields = fieldSanitizer.parse(KaptClassDeclaration(input))
         val hasDefaultConstructor = true
         val isInternal = classDeclaration.isInternal
@@ -232,26 +224,20 @@ class KaptElementProcessor(
                 )
             }
             typeNameOf<ModelView>() -> {
-                val companion = resolver.classDeclarationByClassName(
-                    name.companion().className,
-                )
-
-                // TODO: check methods
-                val modelViewQuery = companion?.properties
-                    ?.firstOrNull { (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null }
-                    ?: classDeclaration.properties.firstOrNull {
-                        (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null
-                    }
-                    ?: throw IllegalStateException("Missing modelview query ${name} ${companion?.properties?.count()}")
-
+                val (modelViewQueryName, isProperty) =
+                    classDeclaration.modelViewQueryNameOrThrow(
+                        name = name,
+                        classDeclaration = classDeclaration,
+                        resolver = resolver
+                    )
                 listOf(
                     ClassModel(
                         name = name,
                         classType = classType,
                         type = ClassModel.Type.View(
                             ModelViewQueryProperties(
-                                modelViewQuery.simpleName,
-                                isProperty = true, // TODO property check
+                                modelViewQueryName,
+                                isProperty = isProperty, // TODO property check
                             ),
                         ),
                         properties = viewPropertyParser.parse(input.annotation()),

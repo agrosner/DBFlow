@@ -75,18 +75,18 @@ class DirectNotifierTest {
             DirectModelNotifier.get(this.db)
                 .registerForTableChanges(SimpleModel::class, modelChange)
 
-            insertInto<SimpleModel>()
+            insertInto(simpleModelAdapter)
                 .columnValues(SimpleModel_Table.name to "name")
                 .executeInsert()
 
             verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.INSERT)
 
-            (update<SimpleModel>() set SimpleModel_Table.name.eq("name2"))
+            (update(simpleModelAdapter) set SimpleModel_Table.name.eq("name2"))
                 .executeUpdateDelete()
 
             verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.UPDATE)
 
-            delete<SimpleModel>().executeUpdateDelete()
+            delete(simpleModelAdapter).executeUpdateDelete()
 
             verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.DELETE)
         }

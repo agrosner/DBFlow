@@ -9,6 +9,7 @@ import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.database
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.livedata.LiveDataModel
 import com.dbflow5.migration.BaseMigration
@@ -241,7 +242,9 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val simpleCustomModel: RetrievalAdapter<SimpleCustomModel>
 
     @Migration(version = 1, priority = 5)
-    class TestMigration : UpdateTableMigration<SimpleModel>(SimpleModel::class) {
+    class TestMigration : UpdateTableMigration<SimpleModel>({
+        database<TestDatabase>().simpleModelAdapter
+    }) {
         override fun onPreMigrate() {
             super.onPreMigrate()
             set(SimpleModel_Table.name.eq("Test")).where(SimpleModel_Table.name.eq("Test1"))

@@ -33,7 +33,7 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
      */
     fun coroutineRetrieveUSD(): Deferred<List<Currency>> =
         database.beginTransactionAsync {
-            (select from Currency::class
+            (select from currencyAdapter
                 where (Currency_Table.symbol eq "$")).queryList()
         }.defer()
 
@@ -46,7 +46,7 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
      */
     fun rxRetrieveUSD(): Single<List<Currency>> =
         database.beginTransactionAsync {
-            (select from Currency::class
+            (select from currencyAdapter
                 where (Currency_Table.symbol eq "$"))
                 .queryList()
         }.asSingle()
@@ -56,7 +56,7 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
      */
     fun retrieveUSD(): Transaction.Builder<TestDatabase, List<Currency>> =
         database.beginTransactionAsync {
-            (select from Currency::class
+            (select from currencyAdapter
                 where (Currency_Table.symbol eq "$"))
                 .queryList()
         }
@@ -65,7 +65,7 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
      *  Utilize Paging Library from paging artifact.
      */
     fun pagingRetrieveUSD(): QueryDataSource.Factory<Currency, Where<Currency>> =
-        (select from Currency::class
+        (select from database.currencyAdapter
             where (Currency_Table.symbol eq "$"))
             .toDataSourceFactory(database)
 

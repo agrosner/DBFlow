@@ -1,10 +1,15 @@
 package com.dbflow5.processor.interop
 
+import com.dbflow5.annotation.ModelViewQuery
+import com.dbflow5.codegen.shared.NameModel
+import com.dbflow5.codegen.shared.companion
 import com.dbflow5.codegen.shared.interop.ClassDeclaration
+import com.dbflow5.codegen.shared.interop.ClassNameResolver
 import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.interop.PropertyDeclaration
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.utils.ElementUtility
+import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.getPackage
 import com.dbflow5.processor.utils.toKTypeName
 import com.dbflow5.processor.utils.toTypeErasedElement
@@ -139,4 +144,36 @@ internal data class KaptKotlinClassDeclaration(
                     )
                 }
         }
+}
+
+fun KaptClassDeclaration.modelViewQueryNameOrThrow(
+    name: NameModel,
+    classDeclaration: KaptClassDeclaration,
+    resolver: ClassNameResolver,
+): Pair<NameModel, Boolean> {
+    val companion = resolver.classDeclarationByClassName(
+        name.companion().className,
+    )
+
+    // TODO: check methods
+    val modelViewQuery = (companion?.properties
+        ?.firstOrNull { (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null }
+        ?: classDeclaration.properties.firstOrNull {
+            (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null
+        }) as? KaptPropertyDeclaration
+    val gettersWithModelViewQuery =
+        classDeclaration.getters.firstOrNull { it.element.annotation<ModelViewQuery>() != null }
+    val name = modelViewQuery?.simpleName
+        ?: gettersWithModelViewQuery?.simpleName
+    val element = modelViewQuery?.element
+        ?: gettersWithModelViewQuery?.element
+    return if (name != null) {
+        // TODO: this property check is pretty rough. will need a real way.
+        name to (modelViewQuery != null || gettersWithModelViewQuery == null)
+    } else throw IllegalStateException(
+        "Missing modelview query ${name} ${
+            companion ?: (classDeclaration
+                as KaptJavaClassDeclaration).allMembers
+        }"
+    )
 }

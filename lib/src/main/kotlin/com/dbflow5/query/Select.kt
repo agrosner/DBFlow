@@ -1,10 +1,10 @@
 package com.dbflow5.query
 
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.Property
 import com.dbflow5.sql.Query
 import com.dbflow5.sql.QueryCloneable
-import kotlin.reflect.KClass
 
 private inline class QualifierType(val value: String)
 
@@ -57,17 +57,13 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
      * @param [T] The class that implements [com.dbflow5.structure.Model]
      * @return the From part of this query
      */
-    infix fun <T : Any> from(table: KClass<T>): From<T> = From(this, table)
-
-    fun <T: Any> from(table: Class<T>) = from(table.kotlin)
-
-    inline fun <reified T : Any> from() = from(T::class)
+    infix fun <T : Any> from(adapter: SQLObjectAdapter<T>): From<T> = From(this, adapter)
 
     /**
      * Constructs a [From] with a [ModelQueriable] expression.
      */
     fun <T : Any> from(modelQueriable: ModelQueriable<T>) =
-        From(this, modelQueriable.table, modelQueriable)
+        From(this, modelQueriable.adapter as SQLObjectAdapter<T>, modelQueriable)
 
     /**
      * appends [.DISTINCT] to the query

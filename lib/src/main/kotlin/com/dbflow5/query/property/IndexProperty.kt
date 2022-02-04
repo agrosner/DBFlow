@@ -1,10 +1,11 @@
 package com.dbflow5.query.property
 
+import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter.makeLazySQLObjectAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.Index
 import com.dbflow5.quoteIfNeeded
-import kotlin.reflect.KClass
 
 /**
  * Description: Defines an INDEX in Sqlite. It basically speeds up data retrieval over large datasets.
@@ -14,7 +15,7 @@ import kotlin.reflect.KClass
 class IndexProperty<T : Any>(
     indexName: String,
     private val unique: Boolean,
-    private val table: KClass<T>,
+    private val adapter: SQLObjectAdapter<T>,
     vararg properties: IProperty<*>
 ) {
 
@@ -22,7 +23,7 @@ class IndexProperty<T : Any>(
     private val properties: Array<IProperty<*>> = properties as Array<IProperty<*>>
 
     val index: Index<T>
-        get() = Index(indexName, table).on(*properties).unique(unique)
+        get() = Index(indexName, adapter).on(*properties).unique(unique)
 
     val indexName = indexName.quoteIfNeeded() ?: ""
 
@@ -35,4 +36,9 @@ inline fun <reified T : Any> indexProperty(
     indexName: String,
     unique: Boolean,
     vararg properties: IProperty<*>
-) = IndexProperty(indexName, unique, T::class, *properties)
+) = IndexProperty(
+    indexName,
+    unique,
+    makeLazySQLObjectAdapter(T::class),
+    *properties
+)

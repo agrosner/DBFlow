@@ -25,6 +25,10 @@ data class DatabaseModel(
         shortName = "${name.shortName}_Database",
         nullable = false
     )
+
+    override val generatedSuperClass: TypeName = ClassNames.DBFlowDatabase
+
+    override val generatedFieldName: String = name.shortName.replaceFirstChar { it.lowercase() }
 }
 
 fun copyOverClasses(

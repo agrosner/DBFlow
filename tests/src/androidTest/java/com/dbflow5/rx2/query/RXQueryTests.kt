@@ -29,7 +29,7 @@ class RXQueryTests : BaseUnitTest() {
 
             var cursor: FlowCursor? = null
 
-            this.db.beginTransactionAsync { Result.success((select from SimpleModel::class).cursor()) }
+            this.db.beginTransactionAsync { Result.success((select from simpleModelAdapter).cursor()) }
                 .asMaybe()
                 .subscribe {
                     cursor = it.getOrNull()
@@ -45,7 +45,10 @@ class RXQueryTests : BaseUnitTest() {
         var databaseStatement: DatabaseStatement? = null
         database<TestDatabase> { db ->
             db.beginTransactionAsync {
-                insert<SimpleModel>(SimpleModel_Table.name.`is`("name")).compileStatement()
+                insert(
+                    simpleModelAdapter,
+                    SimpleModel_Table.name.`is`("name")
+                ).compileStatement()
             }.asSingle()
                 .subscribe { statement ->
                     databaseStatement = statement
@@ -65,7 +68,7 @@ class RXQueryTests : BaseUnitTest() {
             )
             var count = 0L
             this.db.beginTransactionAsync {
-                (selectCountOf(Property.ALL_PROPERTY) from SimpleModel::class).longValue()
+                (selectCountOf(Property.ALL_PROPERTY) from simpleModelAdapter).longValue()
             }
                 .asSingle()
                 .subscribe { value ->
@@ -81,7 +84,10 @@ class RXQueryTests : BaseUnitTest() {
         var count = 0L
         database<TestDatabase>()
             .beginTransactionAsync {
-                (insert<SimpleModel>(SimpleModel_Table.name.eq("name"))).executeInsert()
+                (insert(
+                    simpleModelAdapter,
+                    SimpleModel_Table.name.eq("name")
+                )).executeInsert()
             }.asSingle()
             .subscribe { c ->
                 count = c

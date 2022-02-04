@@ -2,6 +2,7 @@
 
 package com.dbflow5.query
 
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.annotation.Collate
 import com.dbflow5.appendOptional
 import com.dbflow5.config.FlowLog
@@ -10,7 +11,6 @@ import com.dbflow5.converter.TypeConverter
 import com.dbflow5.query.property.Property
 import com.dbflow5.query.property.TypeConvertedProperty
 import com.dbflow5.sql.Query
-import kotlin.reflect.KClass
 
 /**
  * Description: The class that contains a column name, Operator<T>, and value.
@@ -20,13 +20,13 @@ import kotlin.reflect.KClass
 class Operator<T : Any?>
 internal constructor(
     nameAlias: NameAlias?,
-    private val table: KClass<*>? = null,
+    private val adapter: SQLObjectAdapter<*>? = null,
     private val getter: TypeConvertedProperty.TypeConverterGetter? = null,
     private val convertToDB: Boolean
 ) : BaseOperator(nameAlias), IOperator<T> {
 
     private val typeConverter: TypeConverter<*, *>? by lazy {
-        table?.let { table ->
+        adapter?.table?.let { table ->
             getter?.getTypeConverter(
                 table
             )
@@ -40,7 +40,7 @@ internal constructor(
 
 
     internal constructor(operator: Operator<*>)
-        : this(operator.nameAlias, operator.table, operator.getter, operator.convertToDB) {
+        : this(operator.nameAlias, operator.adapter, operator.getter, operator.convertToDB) {
         this.value = operator.value
     }
 
@@ -676,11 +676,11 @@ internal constructor(
 
         @JvmStatic
         fun <T> op(
-            alias: NameAlias, table: KClass<*>,
+            alias: NameAlias, adapter: SQLObjectAdapter<*>,
             getter: TypeConvertedProperty.TypeConverterGetter,
             convertToDB: Boolean
         ) =
-            Operator<T>(alias, table, getter, convertToDB)
+            Operator<T>(alias, adapter, getter, convertToDB)
     }
 
 }

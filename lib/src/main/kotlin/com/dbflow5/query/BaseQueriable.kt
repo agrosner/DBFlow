@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.config.FlowLog
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseStatementWrapper
@@ -17,11 +17,10 @@ import kotlin.reflect.KClass
  * Description: Base implementation of something that can be queried from the database.
  */
 abstract class BaseQueriable<TModel : Any> protected constructor(
-    /**
-     * @return The table associated with this INSERT
-     */
-    val table: KClass<TModel>
+    val adapter: RetrievalAdapter<TModel>,
 ) : Queriable, Actionable {
+
+    val table: KClass<TModel> = adapter.table
 
     abstract override val primaryAction: ChangeAction
 

@@ -1,7 +1,7 @@
 package com.dbflow5.query
 
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.sql.Query
-import kotlin.reflect.KClass
 
 /**
  * Description: Constructs the beginning of a SQL DELETE query
@@ -18,7 +18,7 @@ class Delete internal constructor() : Query {
      * @param [T] The table class
      * @return [T]
      **/
-    infix fun <T : Any> from(table: KClass<T>): From<T> = From(this, table)
+    infix fun <T : Any> from(adapter: SQLObjectAdapter<T>): From<T> = From(this, adapter)
 
 }
 

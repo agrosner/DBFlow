@@ -7,7 +7,6 @@ import com.dbflow5.DemoApp
 import com.dbflow5.TABLE_QUERY_PARAM
 import com.dbflow5.TestTransactionDispatcherFactory
 import com.dbflow5.config.database
-import com.dbflow5.config.modelAdapter
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseWrapper
@@ -44,14 +43,15 @@ class ContentObserverTest {
     @Before
     fun setupUser() = runBlockingTest {
         database<ContentObserverDatabase>().writableTransaction {
-            delete<User>().execute()
+            delete(userAdapter).execute()
         }
         user = User(5, "Something", 55)
     }
 
     @Test
     fun testSpecificUris() {
-        val conditionGroup = User::class.modelAdapter
+        val database = database<ContentObserverDatabase>()
+        val conditionGroup = database.userAdapter
             .getPrimaryConditionClause(user)
         val uri = getNotificationUri(
             contentUri,
@@ -61,7 +61,7 @@ class ContentObserverTest {
 
         assertEquals(uri.authority, contentUri)
         assertEquals(
-            database<ContentObserverDatabase>().userAdapter.name,
+            database.userAdapter.name,
             uri.getQueryParameter(TABLE_QUERY_PARAM)
         )
         assertEquals(uri.fragment, ChangeAction.DELETE.name)

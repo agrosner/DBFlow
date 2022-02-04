@@ -6,9 +6,11 @@ import com.dbflow5.codegen.shared.ReferenceHolderModel
 import com.dbflow5.codegen.shared.SingleFieldModel
 import com.dbflow5.codegen.shared.interop.ClassType
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
-import com.dbflow5.codegen.shared.validation.ValidationExceptionProvider
 import com.dbflow5.codegen.shared.properties.ReferenceProperties
 import com.dbflow5.codegen.shared.references
+import com.dbflow5.codegen.shared.validation.ValidationExceptionProvider
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 
 
@@ -42,19 +44,36 @@ class ReferencesCache(
 
     fun classByType(typeName: TypeName) = allClasses.first { it.classType == typeName }
 
-    fun resolve(referenceHolderModel: ReferenceHolderModel) =
-        allClasses.firstOrNull {
+
+    /**
+     * Returns the referenced [ClassModel] for the [ReferenceHolderModel]. It performs an [allClasses]
+     * lookup.
+     *
+     * When [ReferenceHolderModel.Type] is [ReferenceHolderModel.Type.Reference],
+     * this extracts the first type parameter as the field.
+     */
+    fun resolve(referenceHolderModel: ReferenceHolderModel): ClassModel {
+        val classType = referenceChildClassType(referenceHolderModel)
+        return allClasses.firstOrNull {
             it.classType ==
                 referenceHolderModel.referenceHolderProperties.referencedTableTypeName.copy(
                     nullable = false
                 )
-                || it.classType == referenceHolderModel.classType.copy(nullable = false)
+                || it.classType == classType
         } ?: throw IllegalStateException(
             "Cant find ${
                 referenceHolderModel.referenceHolderProperties.referencedTableTypeName
                     .copy(nullable = false)
-            } ${referenceHolderModel.classType.copy(nullable = false)}: ${allClasses.map { it.classType }}"
+            } ${classType}: ${allClasses.map { it.classType }}"
         )
+    }
+
+    private fun referenceChildClassType(referenceHolderModel: ReferenceHolderModel) =
+        when (referenceHolderModel.type) {
+            ReferenceHolderModel.Type.Reference -> (referenceHolderModel.nonNullClassType as ParameterizedTypeName).typeArguments[0]
+                    as ClassName
+            else -> referenceHolderModel.classType
+        }.copy(nullable = false)
 
     /**
      * If true, the field specified is a table.

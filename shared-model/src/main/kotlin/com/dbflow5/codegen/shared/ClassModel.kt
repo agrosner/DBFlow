@@ -51,13 +51,13 @@ data class ClassModel(
         nullable = false,
     )
 
-    val generatedSuperClass = when (type) {
+    override val generatedSuperClass = when (type) {
         is Type.Table -> ClassNames.modelAdapter(classType)
         is Type.View -> ClassNames.modelViewAdapter(classType)
         Type.Query -> ClassNames.retrievalAdapter(classType)
     }
 
-    val generatedFieldName
+    override val generatedFieldName
         get() = dbName.stripQuotes().replaceFirstChar { it.lowercase() }
 
     val primaryFields = fields.filter { it.fieldType is FieldModel.FieldType.Primary }
@@ -128,10 +128,10 @@ val ClassModel.memberSeparator
     get() = if (hasPrimaryConstructor) "," else ""
 
 fun ClassModel.tableReferences(referencesCache: ReferencesCache) = referenceFields
-    .filter { referencesCache.isTable(it) }
+    .filter { referencesCache.isTable(it) || it.type == ReferenceHolderModel.Type.Reference }
 
-fun ClassModel.distinctAdapterGetters(referencesCache: ReferencesCache) =
+fun ClassModel.distinctAdapterGetters(referencesCache: ReferencesCache): List<GeneratedClassModel> =
     tableReferences(referencesCache)
-        .filter { it.referenceHolderProperties.saveForeignKeyModel }
+        .onEach { println("Looking at ${it.classType}") }
         .map { referencesCache.resolve(it) }
         .distinctBy { it.generatedSuperClass }

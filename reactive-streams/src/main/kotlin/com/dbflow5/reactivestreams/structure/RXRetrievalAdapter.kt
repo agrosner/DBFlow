@@ -1,24 +1,19 @@
 package com.dbflow5.reactivestreams.structure
 
 import com.dbflow5.adapter.RetrievalAdapter
-import com.dbflow5.config.FlowManager
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.database.DatabaseWrapper
-import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Single
-import kotlin.reflect.KClass
 
 /**
  * Description: Mirrors the [RetrievalAdapter] with subset of exposed methods, mostly for
  * [.load] and [.exists]
  */
 open class RXRetrievalAdapter<T : Any>
-internal constructor(private val retrievalAdapter: RetrievalAdapter<T>) {
+internal constructor(private val retrievalAdapter: SQLObjectAdapter<T>) {
 
-    internal constructor(table: KClass<T>) : this(FlowManager.getRetrievalAdapter<T>(table))
-
-    fun load(model: T, databaseWrapper: DatabaseWrapper): Completable = Completable.fromCallable {
+    fun load(model: T, databaseWrapper: DatabaseWrapper): Single<T> = Single.fromCallable {
         retrievalAdapter.loadSingle(model, databaseWrapper)
-        null
     }
 
     /**
@@ -31,10 +26,7 @@ internal constructor(private val retrievalAdapter: RetrievalAdapter<T>) {
     companion object {
 
         @JvmStatic
-        fun <T : Any> from(modelAdapter: RetrievalAdapter<T>): RXRetrievalAdapter<T> =
+        fun <T : Any> from(modelAdapter: SQLObjectAdapter<T>): RXRetrievalAdapter<T> =
             RXRetrievalAdapter(modelAdapter)
-
-        @JvmStatic
-        fun <T : Any> from(table: KClass<T>): RXRetrievalAdapter<T> = RXRetrievalAdapter(table)
     }
 }

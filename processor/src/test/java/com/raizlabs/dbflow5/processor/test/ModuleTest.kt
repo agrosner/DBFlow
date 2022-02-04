@@ -21,7 +21,6 @@ class ModuleTest : KoinTest {
         modules(
             getModule(
                 mock(),
-                mock(),
             )
         )
     }

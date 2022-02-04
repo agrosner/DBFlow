@@ -4,13 +4,10 @@ import android.os.Handler
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.queriable.ListModelLoader
 import com.dbflow5.config.FlowLog
-import com.dbflow5.config.FlowManager
-import com.dbflow5.config.retrievalAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.query.list.FlowQueryList
 import com.dbflow5.sql.Query
-import kotlin.reflect.KClass
 
 /**
  * Description: Provides a base implementation of [ModelQueriable] to simplify a lot of code. It provides the
@@ -22,27 +19,22 @@ abstract class BaseModelQueriable<TModel : Any>
  *
  * @param table the table that belongs to this query.
  */
-protected constructor(table: KClass<TModel>) : BaseQueriable<TModel>(table), ModelQueriable<TModel>,
+protected constructor(adapter: RetrievalAdapter<TModel>) :
+    BaseQueriable<TModel>(adapter), ModelQueriable<TModel>,
     Query {
-
-    protected val retrievalAdapter: RetrievalAdapter<TModel> by lazy {
-        FlowManager.getRetrievalAdapter(
-            table
-        )
-    }
 
     private var _cacheListModelLoader: ListModelLoader<TModel>? = null
 
     override fun queryList(databaseWrapper: DatabaseWrapper): List<TModel> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return retrievalAdapter.loadList(databaseWrapper, query)!!
+        return adapter.loadList(databaseWrapper, query)!!
     }
 
     override fun querySingle(databaseWrapper: DatabaseWrapper): TModel? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return retrievalAdapter.loadSingle(databaseWrapper, query)
+        return adapter.loadSingle(databaseWrapper, query)
     }
 
     override fun cursorList(databaseWrapper: DatabaseWrapper): FlowCursorList<TModel> =
@@ -55,23 +47,23 @@ protected constructor(table: KClass<TModel>) : BaseQueriable<TModel>(table), Mod
         compileStatement(databaseWrapper).use { it.executeUpdateDelete() }
 
     override fun <QueryClass : Any> queryCustomList(
-        queryModelClass: KClass<QueryClass>,
+        retrievalAdapter: RetrievalAdapter<QueryClass>,
         databaseWrapper: DatabaseWrapper
     )
         : List<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return queryModelClass.retrievalAdapter.loadList(databaseWrapper, query)!!
+        return retrievalAdapter.loadList(databaseWrapper, query)!!
     }
 
     override fun <QueryClass : Any> queryCustomSingle(
-        queryModelClass: KClass<QueryClass>,
+        retrievalAdapter: RetrievalAdapter<QueryClass>,
         databaseWrapper: DatabaseWrapper
     )
         : QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return queryModelClass.retrievalAdapter.loadSingle(databaseWrapper, query)
+        return retrievalAdapter.loadSingle(databaseWrapper, query)
     }
 }
 

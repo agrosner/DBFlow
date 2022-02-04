@@ -1,7 +1,8 @@
 package com.dbflow5.sql.language.property
 
 import com.dbflow5.BaseUnitTest
-import com.dbflow5.models.SimpleModel
+import com.dbflow5.TestDatabase
+import com.dbflow5.config.database
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.property.Property
 import org.junit.Assert.assertEquals
@@ -9,9 +10,12 @@ import org.junit.Test
 
 class FloatPropertyTest : BaseUnitTest() {
 
+    private val simpleModelAdapter
+        get() = database<TestDatabase>().simpleModelAdapter
+
     @Test
     fun testOperators() {
-        val prop = Property<Float>(SimpleModel::class, "Prop")
+        val prop = Property<Float>(simpleModelAdapter, "Prop")
         assertEquals("`Prop`=5.0", prop.`is`(5f).query.trim())
         assertEquals("`Prop`=5.0", prop.eq(5f).query.trim())
         assertEquals("`Prop`!=5.0", prop.notEq(5f).query.trim())
@@ -28,15 +32,17 @@ class FloatPropertyTest : BaseUnitTest() {
 
     @Test
     fun testAlias() {
-        val prop = Property<Float>(SimpleModel::class, "Prop", "Alias")
+        val prop = Property<Float>(simpleModelAdapter, "Prop", "Alias")
         assertEquals("`Prop` AS `Alias`", prop.toString().trim())
 
-        val prop2 = Property<Float>(SimpleModel::class,
-                NameAlias.builder("Prop")
-                        .shouldAddIdentifierToName(false)
-                        .`as`("Alias")
-                        .shouldAddIdentifierToAliasName(false)
-                        .build())
+        val prop2 = Property<Float>(
+            simpleModelAdapter,
+            NameAlias.builder("Prop")
+                .shouldAddIdentifierToName(false)
+                .`as`("Alias")
+                .shouldAddIdentifierToAliasName(false)
+                .build()
+        )
         assertEquals("Prop AS Alias", prop2.toString().trim())
     }
 }

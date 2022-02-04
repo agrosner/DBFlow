@@ -3,7 +3,6 @@ package com.dbflow5.sql.language.property
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
-import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.property.IndexProperty
 import org.junit.Assert.assertEquals
@@ -16,7 +15,7 @@ class IndexPropertyTest : BaseUnitTest() {
     fun validateIndexProperty() {
         database<TestDatabase> { db ->
             val prop = IndexProperty(
-                "Index", true, SimpleModel::class,
+                "Index", true, db.simpleModelAdapter,
                 SimpleModel_Table.name
             )
             prop.createIfNotExists(db)

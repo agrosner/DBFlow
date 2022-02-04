@@ -1,9 +1,9 @@
 package com.dbflow5.query
 
+import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.property.IProperty
-import kotlin.reflect.KClass
 
 /**
  * Description: Combines basic transformations and query ops into a base class.
@@ -14,7 +14,8 @@ abstract class BaseTransformable<TModel : Any>
  *
  * @param table the table that belongs to this query.
  */
-protected constructor(table: KClass<TModel>) : BaseModelQueriable<TModel>(table),
+protected constructor(adapter: RetrievalAdapter<TModel>) :
+    BaseModelQueriable<TModel>(adapter),
     Transformable<TModel>, WhereBase<TModel> {
 
     infix fun <T : Any> whereExists(where: Where<T>) = where().exists(where)

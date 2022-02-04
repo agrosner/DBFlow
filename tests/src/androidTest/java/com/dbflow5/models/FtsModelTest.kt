@@ -6,6 +6,7 @@ import com.dbflow5.config.database
 import com.dbflow5.config.readableTransaction
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.fts4ModelAdapter
+import com.dbflow5.fts4VirtualModel2Adapter
 import com.dbflow5.query.insert
 import com.dbflow5.query.offsets
 import com.dbflow5.query.property.docId
@@ -26,10 +27,11 @@ class FtsModelTest : BaseUnitTest() {
             val model = Fts4Model(name = "FTSBABY")
             fts4ModelAdapter.save(model)
 
-            val rows = (insert<Fts4VirtualModel2>(
+            val rows = (insert(
+                fts4ModelAdapter,
                 docId,
                 Fts4VirtualModel2_Table.name
-            ) select (select(Fts4Model_Table.id, Fts4Model_Table.name) from Fts4Model::class))
+            ) select (select(Fts4Model_Table.id, Fts4Model_Table.name) from fts4ModelAdapter))
                 .executeInsert()
             assert(rows > 0)
         }
@@ -40,7 +42,7 @@ class FtsModelTest : BaseUnitTest() {
         validate_fts4_created()
         database<TestDatabase>().readableTransaction {
             val model =
-                (select from Fts4VirtualModel2::class where (tableName<Fts4VirtualModel2>() match "FTSBABY"))
+                (select from fts4VirtualModel2Adapter where (tableName<Fts4VirtualModel2>() match "FTSBABY"))
                     .querySingle()
             assert(model != null)
         }
@@ -50,7 +52,7 @@ class FtsModelTest : BaseUnitTest() {
     fun offsets_query() = runBlockingTest {
         validate_fts4_created()
         database<TestDatabase>().readableTransaction {
-            val value = (select(offsets<Fts4VirtualModel2>()) from Fts4VirtualModel2::class
+            val value = (select(offsets<Fts4VirtualModel2>()) from fts4ModelAdapter
                 where (tableName<Fts4VirtualModel2>() match "FTSBaby"))
                 .stringValue()
             assert(value != null)
@@ -68,10 +70,11 @@ class FtsModelTest : BaseUnitTest() {
                     "  increases. Northeasterly winds 15-30 km/hr. "
             )
             fts4ModelAdapter.save(model)
-            val rows = (insert<Fts4VirtualModel2>(
+            val rows = (insert(
+                fts4ModelAdapter,
                 docId,
                 Fts4VirtualModel2_Table.name
-            ) select (select(Fts4Model_Table.id, Fts4Model_Table.name) from Fts4Model::class))
+            ) select (select(Fts4Model_Table.id, Fts4Model_Table.name) from fts4ModelAdapter))
                 .executeInsert()
             assert(rows > 0)
             val value = (select(
@@ -80,7 +83,7 @@ class FtsModelTest : BaseUnitTest() {
                     end = "]",
                     ellipses = "...",
                 )
-            ) from Fts4VirtualModel2::class
+            ) from fts4VirtualModel2Adapter
                 where (tableName<Fts4VirtualModel2>() match "\"min* tem*\""))
                 .stringValue()
             assert(value != null)

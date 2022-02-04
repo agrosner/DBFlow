@@ -1,7 +1,8 @@
 package com.dbflow5.query.property
 
 import com.dbflow5.adapter.AdapterCompanion
-import com.dbflow5.config.FlowManager
+import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter.makeLazySQLObjectAdapter
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.query.BaseModelQueriable
 import com.dbflow5.query.IConditional
@@ -26,7 +27,7 @@ import kotlin.reflect.KClass
  * This is type parametrized so that all values passed to this class remain properly typed.
  */
 open class Property<T>(
-    override val table: KClass<*>?,
+    override val adapter: SQLObjectAdapter<*>?,
     override val nameAlias: NameAlias
 ) : IProperty<Property<T>>, IOperator<T> {
 
@@ -45,18 +46,18 @@ open class Property<T>(
     protected open val operator: Operator<T>
         get() = Operator.op(nameAlias)
 
-    constructor(table: KClass<*>?, columnName: String) : this(
-        table,
+    constructor(adapter: SQLObjectAdapter<*>?, columnName: String) : this(
+        adapter,
         NameAlias.Builder(columnName).build()
     )
 
-    constructor(table: KClass<*>?, columnName: String, aliasName: String)
-        : this(table, NameAlias.builder(columnName).`as`(aliasName).build())
+    constructor(adapter: SQLObjectAdapter<*>?, columnName: String, aliasName: String)
+        : this(adapter, NameAlias.builder(columnName).`as`(aliasName).build())
 
     override fun withTable(): Property<T> = Property(
-        table, nameAlias
+        adapter, nameAlias
             .newBuilder()
-            .withTable(FlowManager.getTableName(table!!))
+            .withTable(adapter!!.name)
             .build()
     )
 
@@ -180,7 +181,7 @@ open class Property<T>(
 
     override fun plus(property: IProperty<*>): Property<T> {
         return Property(
-            table, NameAlias.joinNames(
+            adapter, NameAlias.joinNames(
                 Operator.Operation.PLUS,
                 nameAlias.fullName(), property.toString()
             )
@@ -189,7 +190,7 @@ open class Property<T>(
 
     override fun minus(property: IProperty<*>): Property<T> {
         return Property(
-            table, NameAlias.joinNames(
+            adapter, NameAlias.joinNames(
                 Operator.Operation.MINUS,
                 nameAlias.fullName(), property.toString()
             )
@@ -198,7 +199,7 @@ open class Property<T>(
 
     override fun div(property: IProperty<*>): Property<T> {
         return Property(
-            table, NameAlias.joinNames(
+            adapter, NameAlias.joinNames(
                 Operator.Operation.DIVISION,
                 nameAlias.fullName(), property.toString()
             )
@@ -207,7 +208,7 @@ open class Property<T>(
 
     override fun times(property: IProperty<*>): Property<T> {
         return Property(
-            table, NameAlias.joinNames(
+            adapter, NameAlias.joinNames(
                 Operator.Operation.MULTIPLY,
                 nameAlias.fullName(), property.toString()
             )
@@ -216,7 +217,7 @@ open class Property<T>(
 
     override fun rem(property: IProperty<*>): Property<T> {
         return Property(
-            table, NameAlias.joinNames(
+            adapter, NameAlias.joinNames(
                 Operator.Operation.MOD,
                 nameAlias.fullName(), property.toString()
             )
@@ -225,7 +226,7 @@ open class Property<T>(
 
     override fun concatenate(property: IProperty<*>): Property<T> {
         return Property(
-            table, NameAlias.joinNames(
+            adapter, NameAlias.joinNames(
                 Operator.Operation.CONCATENATE,
                 nameAlias.fullName(), property.toString()
             )
@@ -234,18 +235,18 @@ open class Property<T>(
 
     override fun `as`(aliasName: String): Property<T> {
         return Property(
-            table, nameAlias
+            adapter, nameAlias
                 .newBuilder()
                 .`as`(aliasName)
                 .build()
         )
     }
 
-    override fun distinct(): Property<T> = Property(table, distinctAliasName)
+    override fun distinct(): Property<T> = Property(adapter, distinctAliasName)
 
     override fun withTable(tableNameAlias: NameAlias): Property<T> {
         return Property(
-            table, nameAlias
+            adapter, nameAlias
                 .newBuilder()
                 .withTable(tableNameAlias.tableName)
                 .build()
@@ -308,13 +309,13 @@ open class Property<T>(
         val WILDCARD: Property<*> = Property<Any>(null, NameAlias.rawBuilder("?").build())
 
         @JvmStatic
-        fun allProperty(table: KClass<*>): Property<String> =
-            Property<String>(table, NameAlias.rawBuilder("*").build()).withTable()
+        fun allProperty(adapter: SQLObjectAdapter<*>): Property<String> =
+            Property<String>(adapter, NameAlias.rawBuilder("*").build()).withTable()
     }
 }
 
 inline fun <reified T, Table : Any> AdapterCompanion<Table>.property(columnName: String) =
-    Property<T>(table, columnName)
+    Property<T>(makeLazySQLObjectAdapter(table), columnName)
 
 inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedProperty(
     unusedData: KClass<Data>,
@@ -322,7 +323,7 @@ inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedP
     columnName: String,
     crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
 ): TypeConvertedProperty<Data, Model> =
-    TypeConvertedProperty(table, columnName) {
+    TypeConvertedProperty(makeLazySQLObjectAdapter(table), columnName) {
         getTypeConverter(it)
     }
 
@@ -332,7 +333,7 @@ inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedP
     columnName: String,
     crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
 ): TypeConvertedProperty<Data?, Model> =
-    TypeConvertedProperty(table, columnName) {
+    TypeConvertedProperty(makeLazySQLObjectAdapter(table), columnName) {
         getTypeConverter(it)
     }
 
@@ -340,7 +341,7 @@ inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedP
     columnName: String,
     crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
 ): TypeConvertedProperty<Data?, Model?> =
-    TypeConvertedProperty(table, columnName) {
+    TypeConvertedProperty(makeLazySQLObjectAdapter(table), columnName) {
         getTypeConverter(it)
     }
 
@@ -350,7 +351,7 @@ inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedP
     columnName: String,
     crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
 ): TypeConvertedProperty<Data, Model?> =
-    TypeConvertedProperty(table, columnName) {
+    TypeConvertedProperty(makeLazySQLObjectAdapter(table), columnName) {
         getTypeConverter(it)
     }
 

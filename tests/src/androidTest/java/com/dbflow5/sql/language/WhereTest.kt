@@ -5,7 +5,6 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
-import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table
@@ -27,9 +26,15 @@ import org.junit.Test
 
 class WhereTest : BaseUnitTest() {
 
+    private val simpleModelAdapter
+        get() = database<TestDatabase>().simpleModelAdapter
+
+    private val twoColumnModelAdapter
+        get() = database<TestDatabase>().twoColumnModelAdapter
+
     @Test
     fun validateBasicWhere() {
-        val query = select from SimpleModel::class where SimpleModel_Table.name.`is`("name")
+        val query = select from simpleModelAdapter where SimpleModel_Table.name.`is`("name")
         "SELECT * FROM `SimpleModel` WHERE `name`='name'".assertEquals(query)
         assertCanCopyQuery(query)
     }
@@ -37,7 +42,7 @@ class WhereTest : BaseUnitTest() {
     @Test
     fun validateComplexQueryWhere() {
         val query =
-            select from TwoColumnModel::class where TwoColumnModel_Table.name.`is`("name") or TwoColumnModel_Table.id.eq(
+            select from twoColumnModelAdapter where TwoColumnModel_Table.name.`is`("name") or TwoColumnModel_Table.id.eq(
                 1
             ) and (TwoColumnModel_Table.id.`is`(0) or TwoColumnModel_Table.name.eq("hi"))
         "SELECT * FROM `TwoColumnModel` WHERE `name`='name' OR `id`=1 AND (`id`=0 OR `name`='hi')".assertEquals(
@@ -49,7 +54,7 @@ class WhereTest : BaseUnitTest() {
     @Test
     fun validateGroupBy() {
         val query =
-            select from SimpleModel::class where SimpleModel_Table.name.`is`("name") groupBy SimpleModel_Table.name
+            select from simpleModelAdapter where SimpleModel_Table.name.`is`("name") groupBy SimpleModel_Table.name
         "SELECT * FROM `SimpleModel` WHERE `name`='name' GROUP BY `name`".assertEquals(query)
         assertCanCopyQuery(query)
     }
@@ -57,7 +62,7 @@ class WhereTest : BaseUnitTest() {
     @Test
     fun validateGroupByNameAlias() {
         val query =
-            (select from SimpleModel::class where SimpleModel_Table.name.`is`("name")).groupBy(
+            (select from simpleModelAdapter where SimpleModel_Table.name.`is`("name")).groupBy(
                 "name".nameAlias,
                 "id".nameAlias
             )
@@ -68,7 +73,7 @@ class WhereTest : BaseUnitTest() {
     @Test
     fun validateGroupByNameProps() {
         val query =
-            (select from TwoColumnModel::class where TwoColumnModel_Table.name.`is`("name")).groupBy(
+            (select from twoColumnModelAdapter where TwoColumnModel_Table.name.`is`("name")).groupBy(
                 TwoColumnModel_Table.name,
                 TwoColumnModel_Table.id
             )
@@ -79,7 +84,7 @@ class WhereTest : BaseUnitTest() {
     @Test
     fun validateHaving() {
         val query =
-            select from SimpleModel::class where SimpleModel_Table.name.`is`("name") having SimpleModel_Table.name.like(
+            select from simpleModelAdapter where SimpleModel_Table.name.`is`("name") having SimpleModel_Table.name.like(
                 "That"
             )
         "SELECT * FROM `SimpleModel` WHERE `name`='name' HAVING `name` LIKE 'That'".assertEquals(
@@ -88,7 +93,7 @@ class WhereTest : BaseUnitTest() {
         assertCanCopyQuery(query)
 
         "SELECT * FROM `SimpleModel` GROUP BY exampleValue HAVING MIN(ROWID)>5".assertEquals(
-            (select from SimpleModel::class
+            (select from simpleModelAdapter
                 groupBy NameAlias.rawBuilder("exampleValue").build()
                 having min(NameAlias.rawBuilder("ROWID").build().property).greaterThan(5))
         )
@@ -97,7 +102,7 @@ class WhereTest : BaseUnitTest() {
     @Test
     fun validateLimit() {
         val query =
-            select from SimpleModel::class where SimpleModel_Table.name.`is`("name") limit 10
+            select from simpleModelAdapter where SimpleModel_Table.name.`is`("name") limit 10
         "SELECT * FROM `SimpleModel` WHERE `name`='name' LIMIT 10".assertEquals(query)
         assertCanCopyQuery(query)
     }
@@ -105,15 +110,15 @@ class WhereTest : BaseUnitTest() {
     @Test
     fun validateOffset() {
         val query =
-            select from SimpleModel::class where SimpleModel_Table.name.`is`("name") offset 10
+            select from simpleModelAdapter where SimpleModel_Table.name.`is`("name") offset 10
         "SELECT * FROM `SimpleModel` WHERE `name`='name' OFFSET 10".assertEquals(query)
         assertCanCopyQuery(query)
     }
 
     @Test
     fun validateWhereExists() {
-        val query = (select from SimpleModel::class
-            whereExists (select(SimpleModel_Table.name) from SimpleModel::class where SimpleModel_Table.name.like(
+        val query = (select from simpleModelAdapter
+            whereExists (select(SimpleModel_Table.name) from simpleModelAdapter where SimpleModel_Table.name.like(
             "Andrew"
         )))
         ("SELECT * FROM `SimpleModel` " +
@@ -125,7 +130,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOrderByWhere() {
-        val query = (select from SimpleModel::class
+        val query = (select from simpleModelAdapter
             where SimpleModel_Table.name.eq("name")).orderBy(SimpleModel_Table.name, true)
         ("SELECT * FROM `SimpleModel` WHERE `name`='name' ORDER BY `name` ASC").assertEquals(query)
         assertCanCopyQuery(query)
@@ -133,7 +138,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOrderByWhereAlias() {
-        val query = (select from SimpleModel::class
+        val query = (select from simpleModelAdapter
             where SimpleModel_Table.name.eq("name")).orderBy("name".nameAlias, true)
         ("SELECT * FROM `SimpleModel` " +
             "WHERE `name`='name' ORDER BY `name` ASC").assertEquals(query)
@@ -142,7 +147,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOrderBy() {
-        val query = (select from SimpleModel::class
+        val query = (select from simpleModelAdapter
             where SimpleModel_Table.name.eq("name") orderBy fromNameAlias("name".nameAlias).ascending())
         ("SELECT * FROM `SimpleModel` " +
             "WHERE `name`='name' ORDER BY `name` ASC").assertEquals(query)
@@ -157,7 +162,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateOrderByAll() {
-        val query = (select from TwoColumnModel::class
+        val query = (select from twoColumnModelAdapter
             where TwoColumnModel_Table.name.eq("name"))
             .orderByAll(
                 listOf(
@@ -174,14 +179,14 @@ class WhereTest : BaseUnitTest() {
     fun validateNonSelectThrowError() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             try {
-                update<SimpleModel>().set(SimpleModel_Table.name.`is`("name")).querySingle()
+                update(simpleModelAdapter).set(SimpleModel_Table.name.`is`("name")).querySingle()
                 fail("Non select passed")
             } catch (i: IllegalArgumentException) {
                 // expected
             }
 
             try {
-                update<SimpleModel>().set(SimpleModel_Table.name.`is`("name")).querySingle()
+                update(simpleModelAdapter).set(SimpleModel_Table.name.`is`("name")).querySingle()
                 fail("Non select passed")
             } catch (i: IllegalArgumentException) {
                 // expected
@@ -191,7 +196,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validate_match_operator() {
-        val query = (select from SimpleModel::class where (SimpleModel_Table.name match "%s"))
+        val query = (select from simpleModelAdapter where (SimpleModel_Table.name match "%s"))
         ("SELECT * FROM `SimpleModel` WHERE `name` MATCH '%s'").assertEquals(query)
         assertCanCopyQuery(query)
     }

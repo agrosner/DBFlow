@@ -1,16 +1,17 @@
 package com.dbflow5.query
 
 import android.content.ContentValues
+import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.appendArray
 import com.dbflow5.config.FlowManager
-import com.dbflow5.config.modelAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.Property
 import com.dbflow5.sql.Query
 import com.dbflow5.structure.ChangeAction
-import kotlin.reflect.KClass
 
 /**
  * Description: The SQLite INSERT command
@@ -21,8 +22,8 @@ class Insert<TModel : Any>
  *
  * @param table The table to insert into
  */
-internal constructor(table: KClass<TModel>, vararg columns: Property<*>) :
-    BaseQueriable<TModel>(table), Query {
+internal constructor(adapter: RetrievalAdapter<TModel>, vararg columns: Property<*>) :
+    BaseQueriable<TModel>(adapter), Query {
 
     /**
      * The columns to specify in this query (optional)
@@ -105,8 +106,7 @@ internal constructor(table: KClass<TModel>, vararg columns: Property<*>) :
      * @param columns The columns to use
      */
     fun columns(vararg columns: String) = apply {
-        val modelClassModelAdapter = table.modelAdapter
-        this.columns = columns.map { modelClassModelAdapter.getProperty(it) }
+        this.columns = columns.map { (adapter as ModelAdapter).getProperty(it) }
     }
 
     fun columns(vararg properties: IProperty<*>) = apply {
@@ -121,12 +121,13 @@ internal constructor(table: KClass<TModel>, vararg columns: Property<*>) :
      * @return Appends a list of columns to this INSERT statement from the associated [TModel].
      */
     fun asColumns() = apply {
-        columns(*table.modelAdapter.allColumnProperties)
+        columns(*(adapter as ModelAdapter).allColumnProperties)
     }
 
     /**
      * @return Appends a list of columns to this INSERT and ? as the values.
      */
+    @DelicateDBFlowApi
     fun asColumnValues() = apply {
         asColumns()
         columns?.let { columns ->
