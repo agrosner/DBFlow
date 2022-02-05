@@ -11,7 +11,7 @@ import com.dbflow5.config.database
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.migration.AlterTableMigration
 import com.dbflow5.migration.BaseMigration
-import com.dbflow5.query.insertInto
+import com.dbflow5.query.insert
 import com.dbflow5.query.property.propertyString
 import com.dbflow5.sql.SQLiteType
 
@@ -51,7 +51,7 @@ abstract class MigratedPrepackagedDB : DBFlowDatabase() {
     @Migration(version = 2, priority = 2)
     class AddSomeDataMigration : BaseMigration() {
         override fun migrate(database: DatabaseWrapper) {
-            database<MigratedPrepackagedDB>().dog2Adapter.insertInto().columnValues(
+            database<MigratedPrepackagedDB>().dog2Adapter.insert().columnValues(
                 propertyString<Dog2>("`breed`") to "NewBreed",
                 propertyString<Dog2>("`newField`") to "New Field Data",
             ).executeInsert(database)

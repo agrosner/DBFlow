@@ -12,7 +12,7 @@ import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.delete
-import com.dbflow5.query.insertInto
+import com.dbflow5.query.insert
 import com.dbflow5.query.set
 import com.dbflow5.query.update
 import com.dbflow5.simpleModelAdapter
@@ -75,7 +75,7 @@ class DirectNotifierTest {
             DirectModelNotifier.get(this.db)
                 .registerForTableChanges(SimpleModel::class, modelChange)
 
-            simpleModelAdapter.insertInto()
+            simpleModelAdapter.insert()
                 .columnValues(SimpleModel_Table.name to "name")
                 .executeInsert()
 

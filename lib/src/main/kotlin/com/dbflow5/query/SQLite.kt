@@ -25,14 +25,11 @@ fun select(vararg properties: IProperty<*>): Select = Select(*properties)
  */
 fun selectCountOf(vararg properties: IProperty<*>): Select = Select(count(*properties))
 
-/**
- * @param table    The tablet to update.
- * @return A new UPDATE statement.
- */
-fun <T : Any> SQLObjectAdapter<T>.update(): Update<T> = Update(this)
+fun <T : Any> SQLObjectAdapter<T>.selectCountOf(vararg properties: IProperty<*>): From<T> =
+    Select(count(*properties))
+        .from(this)
 
-fun <T : Any> RetrievalAdapter<T>.insertInto() =
-    insert(columns = arrayOf())
+fun <T : Any> SQLObjectAdapter<T>.update(): Update<T> = Update(this)
 
 fun <T : Any> RetrievalAdapter<T>.insert() = Insert(this)
 
@@ -41,10 +38,9 @@ fun <T : Any> RetrievalAdapter<T>.insert(
 ) = Insert(this)
     .columnValues(*columnValues)
 
-fun <T : Any> insert(
-    adapter: RetrievalAdapter<T>,
+fun <T : Any> RetrievalAdapter<T>.insert(
     vararg operators: SQLOperator
-) = Insert(adapter)
+) = Insert(this)
     .columnValues(*operators)
 
 /**

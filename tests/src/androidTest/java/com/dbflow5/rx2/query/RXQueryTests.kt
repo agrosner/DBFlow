@@ -45,8 +45,7 @@ class RXQueryTests : BaseUnitTest() {
         var databaseStatement: DatabaseStatement? = null
         database<TestDatabase> { db ->
             db.beginTransactionAsync {
-                insert(
-                    simpleModelAdapter,
+                simpleModelAdapter.insert(
                     SimpleModel_Table.name.`is`("name")
                 ).compileStatement()
             }.asSingle()
@@ -84,8 +83,7 @@ class RXQueryTests : BaseUnitTest() {
         var count = 0L
         database<TestDatabase>()
             .beginTransactionAsync {
-                (insert(
-                    simpleModelAdapter,
+                (simpleModelAdapter.insert(
                     SimpleModel_Table.name.eq("name")
                 )).executeInsert()
             }.asSingle()

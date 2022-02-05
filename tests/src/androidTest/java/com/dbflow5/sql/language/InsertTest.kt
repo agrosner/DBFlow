@@ -8,7 +8,7 @@ import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.Operator
 import com.dbflow5.query.OperatorGroup
-import com.dbflow5.query.insertInto
+import com.dbflow5.query.insert
 import com.dbflow5.query.select
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -25,7 +25,7 @@ class InsertTest : BaseUnitTest() {
     fun validateInsert() {
         assertEquals(
             "INSERT INTO `SimpleModel` VALUES('something')",
-            simpleModelAdapter.insertInto().values("something").query.trim()
+            simpleModelAdapter.insert().values("something").query.trim()
         )
     }
 
@@ -33,41 +33,41 @@ class InsertTest : BaseUnitTest() {
     fun validateInsertOr() {
         assertEquals(
             "INSERT OR REPLACE INTO `SimpleModel` VALUES('something')",
-            simpleModelAdapter.insertInto().orReplace().values("something").query.trim()
+            simpleModelAdapter.insert().orReplace().values("something").query.trim()
         )
         assertEquals(
             "INSERT OR FAIL INTO `SimpleModel` VALUES('something')",
-            simpleModelAdapter.insertInto().orFail().values("something").query.trim()
+            simpleModelAdapter.insert().orFail().values("something").query.trim()
         )
         assertEquals(
             "INSERT OR IGNORE INTO `SimpleModel` VALUES('something')",
-            simpleModelAdapter.insertInto().orIgnore().values("something").query.trim()
+            simpleModelAdapter.insert().orIgnore().values("something").query.trim()
         )
         assertEquals(
             "INSERT OR REPLACE INTO `SimpleModel` VALUES('something')",
-            simpleModelAdapter.insertInto().orReplace().values("something").query.trim()
+            simpleModelAdapter.insert().orReplace().values("something").query.trim()
         )
         assertEquals(
             "INSERT OR ROLLBACK INTO `SimpleModel` VALUES('something')",
-            simpleModelAdapter.insertInto().orRollback().values("something").query.trim()
+            simpleModelAdapter.insert().orRollback().values("something").query.trim()
         )
         assertEquals(
             "INSERT OR ABORT INTO `SimpleModel` VALUES('something')",
-            simpleModelAdapter.insertInto().orAbort().values("something").query.trim()
+            simpleModelAdapter.insert().orAbort().values("something").query.trim()
         )
     }
 
     @Test
     fun validateQuestionIntention() {
         "INSERT INTO `SimpleModel` VALUES('?')"
-            .assertEquals(simpleModelAdapter.insertInto().values("?"))
+            .assertEquals(simpleModelAdapter.insert().values("?"))
     }
 
     @Test
     fun validateInsertProjection() {
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
-            twoColumnModelAdapter.insertInto().columns(
+            twoColumnModelAdapter.insert().columns(
                 TwoColumnModel_Table.name,
                 TwoColumnModel_Table.id
             )
@@ -79,7 +79,7 @@ class InsertTest : BaseUnitTest() {
     fun validateSelect() {
         assertEquals(
             "INSERT INTO `TwoColumnModel` SELECT * FROM `SimpleModel`",
-            twoColumnModelAdapter.insertInto().select(select from simpleModelAdapter).query.trim()
+            twoColumnModelAdapter.insert().select(select from simpleModelAdapter).query.trim()
         )
     }
 
@@ -87,16 +87,16 @@ class InsertTest : BaseUnitTest() {
     fun validateColumns() {
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
-            twoColumnModelAdapter.insertInto().asColumns().values("name", "id").query.trim()
+            twoColumnModelAdapter.insert().asColumns().values("name", "id").query.trim()
         )
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
-            twoColumnModelAdapter.insertInto().columns("name", "id")
+            twoColumnModelAdapter.insert().columns("name", "id")
                 .values("name", "id").query.trim()
         )
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
-            twoColumnModelAdapter.insertInto().columns(
+            twoColumnModelAdapter.insert().columns(
                 listOf(
                     TwoColumnModel_Table.name,
                     TwoColumnModel_Table.id
@@ -109,21 +109,21 @@ class InsertTest : BaseUnitTest() {
     fun validateColumnValues() {
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
-            twoColumnModelAdapter.insertInto().columnValues(
+            twoColumnModelAdapter.insert().columnValues(
                 TwoColumnModel_Table.name.eq("name"),
                 TwoColumnModel_Table.id.eq(0)
             ).query.trim()
         )
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
-            twoColumnModelAdapter.insertInto().columnValues(
+            twoColumnModelAdapter.insert().columnValues(
                 Operator.op<String>(NameAlias.builder("name").build()).eq("name"),
                 TwoColumnModel_Table.id.eq(0)
             ).query.trim()
         )
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
-            twoColumnModelAdapter.insertInto().columnValues(
+            twoColumnModelAdapter.insert().columnValues(
                 group = OperatorGroup.clause()
                     .andAll(
                         TwoColumnModel_Table.name.eq("name"),

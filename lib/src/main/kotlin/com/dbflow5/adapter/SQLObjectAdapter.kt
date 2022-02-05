@@ -30,7 +30,6 @@ abstract class SQLObjectAdapter<TModel : Any> : RetrievalAdapter<TModel>(), Crea
      * @return True if it exists as a row in the corresponding database table
      */
     open fun exists(model: TModel, databaseWrapper: DatabaseWrapper): Boolean = selectCountOf()
-        .from(this)
         .where(getPrimaryConditionClause(model))
         .hasData(databaseWrapper)
 }
