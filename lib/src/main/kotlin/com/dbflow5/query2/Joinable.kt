@@ -1,0 +1,96 @@
+package com.dbflow5.query2
+
+import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.query.ModelQueriable
+
+sealed class JoinType(val value: String) {
+    /**
+     * an extension of the INNER JOIN. Though SQL standard defines three types of OUTER JOINs: LEFT, RIGHT,
+     * and FULL but SQLite only supports the LEFT OUTER JOIN.
+     *
+     *
+     * The OUTER JOINs have a condition that is identical to INNER JOINs, expressed using an ON, USING, or NATURAL keyword.
+     * The initial results table is calculated the same way. Once the primary JOIN is calculated,
+     * an OUTER join will take any unjoined rows from one or both tables, pad them out with NULLs,
+     * and append them to the resulting table.
+     */
+    object LeftOuter : JoinType("LEFT OUTER")
+
+    /**
+     * creates a new result table by combining column values of two tables (table1 and table2) based upon the join-predicate.
+     * The query compares each row of table1 with each row of table2 to find all pairs of rows which satisfy the join-predicate.
+     * When the join-predicate is satisfied, column values for each matched pair of rows of A and B are combined into a result row
+     */
+    object Inner : JoinType("INNER")
+
+    /**
+     * matches every row of the first table with every row of the second table. If the input tables
+     * have x and y columns, respectively, the resulting table will have x*y columns.
+     * Because CROSS JOINs have the potential to generate extremely large tables,
+     * care must be taken to only use them when appropriate.
+     */
+    object Cross : JoinType("CROSS")
+
+    /**
+     * a join that performs the same task as an INNER or LEFT JOIN, in which the ON or USING
+     * clause refers to all columns that the tables to be joined have in common.
+     */
+    object Natural : JoinType("NATURAL")
+}
+
+interface Joinable<OriginalTable : Any> {
+
+    fun <JoinTable : Any> join(
+        adapter: SQLObjectAdapter<JoinTable>,
+        joinType: JoinType,
+    ): Join<OriginalTable, JoinTable>
+
+    fun <JoinTable : Any> join(
+        modelQueriable: ModelQueriable<JoinTable>,
+        joinType: JoinType,
+    ): Join<OriginalTable, JoinTable>
+}
+
+infix fun <OriginalTable : Any, JoinTable : Any>
+    Joinable<OriginalTable>.crossJoin(
+    adapter: SQLObjectAdapter<JoinTable>
+) = join(adapter, JoinType.Cross)
+
+infix fun <OriginalTable : Any, JoinTable : Any>
+    Joinable<OriginalTable>.crossJoin(
+    modelQueriable: ModelQueriable<JoinTable>,
+) = join(modelQueriable, JoinType.Cross)
+
+infix fun <OriginalTable : Any, JoinTable : Any>
+    Joinable<OriginalTable>.innerJoin(
+    adapter: SQLObjectAdapter<JoinTable>
+) = join(adapter, JoinType.Inner)
+
+infix fun <OriginalTable : Any, JoinTable : Any>
+    Joinable<OriginalTable>.innerJoin(
+    modelQueriable: ModelQueriable<JoinTable>,
+) = join(modelQueriable, JoinType.Inner)
+
+infix fun <OriginalTable : Any, JoinTable : Any>
+    Joinable<OriginalTable>.leftOuterJoin(
+    adapter: SQLObjectAdapter<JoinTable>
+) = join(adapter, JoinType.LeftOuter)
+
+infix fun <OriginalTable : Any, JoinTable : Any>
+    Joinable<OriginalTable>.leftOuterJoin(
+    modelQueriable: ModelQueriable<JoinTable>,
+) = join(modelQueriable, JoinType.LeftOuter)
+
+/**
+ * TODO: use separate interface type?
+ */
+infix fun <OriginalTable : Any, JoinTable : Any>
+    Joinable<OriginalTable>.naturalJoin(
+    adapter: SQLObjectAdapter<JoinTable>
+) = join(adapter, JoinType.Natural)
+
+infix fun <OriginalTable : Any, JoinTable : Any>
+    Joinable<OriginalTable>.naturalJoin(
+    modelQueriable: ModelQueriable<JoinTable>,
+) = join(modelQueriable, JoinType.Natural)
+
