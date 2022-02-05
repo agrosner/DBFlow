@@ -8,7 +8,8 @@ import com.dbflow5.sql.Query
  */
 class OperatorGroup
 @JvmOverloads
-constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, Iterable<SQLOperator> {
+constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, Iterable<SQLOperator>,
+Collection<SQLOperator> {
 
     private val conditionsList = arrayListOf<SQLOperator>()
 
@@ -149,8 +150,15 @@ constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, It
 
     override fun toString(): String = querySafe
 
-    val size: Int
+    override val size: Int
         get() = conditionsList.size
+
+    override fun contains(element: SQLOperator): Boolean = conditionsList.contains(element)
+
+    override fun containsAll(elements: Collection<SQLOperator>): Boolean =
+        conditionsList.containsAll(elements)
+
+    override fun isEmpty(): Boolean  = conditionsList.isEmpty()
 
     override fun iterator(): Iterator<SQLOperator> = conditionsList.iterator()
 

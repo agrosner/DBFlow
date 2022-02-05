@@ -50,24 +50,12 @@ interface HasSelect<Table : Any> {
 interface Insert<Table : Any> : Query,
     HasValues<Table>,
     HasSelect<Table>,
-    HasAdapter<Table, SQLObjectAdapter<Table>> {
-    infix fun or(action: ConflictAction): InsertWithConflict<Table>
-}
-
-fun <Table : Any> Insert<Table>.orReplace() = or(ConflictAction.REPLACE)
-fun <Table : Any> Insert<Table>.orFail() = or(ConflictAction.FAIL)
-fun <Table : Any> Insert<Table>.orIgnore() = or(ConflictAction.IGNORE)
-fun <Table : Any> Insert<Table>.orRollback() = or(ConflictAction.ROLLBACK)
-fun <Table : Any> Insert<Table>.orAbort() = or(ConflictAction.ABORT)
-
+    HasAdapter<Table, SQLObjectAdapter<Table>>,
+    Conflictable<InsertWithConflict<Table>>
 
 interface InsertWithConflict<Table : Any> : Query,
     HasValues<Table>,
-    HasSelect<Table> {
-
-    val conflictAction: ConflictAction
-
-}
+    HasSelect<Table>, HasConflictAction, Conflictable<InsertWithConflict<Table>>
 
 interface InsertWithValues<Table : Any> : Query,
     HasValues<Table> {
