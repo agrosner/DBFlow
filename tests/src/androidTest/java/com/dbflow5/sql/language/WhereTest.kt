@@ -6,7 +6,6 @@ import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OrderBy.Companion.fromNameAlias
@@ -179,14 +178,14 @@ class WhereTest : BaseUnitTest() {
     fun validateNonSelectThrowError() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             try {
-                update(simpleModelAdapter).set(SimpleModel_Table.name.`is`("name")).querySingle()
+                simpleModelAdapter.update().set(SimpleModel_Table.name.`is`("name")).querySingle()
                 fail("Non select passed")
             } catch (i: IllegalArgumentException) {
                 // expected
             }
 
             try {
-                update(simpleModelAdapter).set(SimpleModel_Table.name.`is`("name")).querySingle()
+                simpleModelAdapter.update().set(SimpleModel_Table.name.`is`("name")).querySingle()
                 fail("Non select passed")
             } catch (i: IllegalArgumentException) {
                 // expected

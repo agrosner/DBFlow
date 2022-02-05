@@ -20,49 +20,49 @@ class UpdateTest : BaseUnitTest() {
     @Test
     fun validateUpdateRollback() {
         "UPDATE OR ROLLBACK `SimpleModel`".assertEquals(
-            update(simpleModelAdapter).orRollback()
+            simpleModelAdapter.update().orRollback()
         )
     }
 
     @Test
     fun validateUpdateFail() {
         "UPDATE OR FAIL `SimpleModel`".assertEquals(
-            update(simpleModelAdapter).orFail()
+            simpleModelAdapter.update().orFail()
         )
     }
 
     @Test
     fun validateUpdateIgnore() {
         "UPDATE OR IGNORE `SimpleModel`".assertEquals(
-            update(simpleModelAdapter).orIgnore()
+            simpleModelAdapter.update().orIgnore()
         )
     }
 
     @Test
     fun validateUpdateReplace() {
         "UPDATE OR REPLACE `SimpleModel`".assertEquals(
-            update(simpleModelAdapter).orReplace()
+            simpleModelAdapter.update().orReplace()
         )
     }
 
     @Test
     fun validateUpdateAbort() {
         "UPDATE OR ABORT `SimpleModel`".assertEquals(
-            update(simpleModelAdapter).orAbort()
+            simpleModelAdapter.update().orAbort()
         )
     }
 
     @Test
     fun validateSetQuery() {
         "UPDATE `SimpleModel` SET `name`='name'".assertEquals(
-            update(simpleModelAdapter) set (SimpleModel_Table.name eq "name")
+            simpleModelAdapter.update() set (SimpleModel_Table.name eq "name")
         )
     }
 
     @Test
     fun validateWildcardQuery() {
         "UPDATE OR FAIL `NumberModel` SET `id`=? WHERE `id`=?".assertEquals(
-            update(database<TestDatabase>().numberModelAdapter).or(ConflictAction.FAIL)
+            database<TestDatabase>().numberModelAdapter.update().or(ConflictAction.FAIL)
                 .set(NumberModel_Table.id.eq(Property.WILDCARD))
                 .where(NumberModel_Table.id.eq(Property.WILDCARD))
         )

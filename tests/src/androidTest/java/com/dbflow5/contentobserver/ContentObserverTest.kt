@@ -43,7 +43,7 @@ class ContentObserverTest {
     @Before
     fun setupUser() = runBlockingTest {
         database<ContentObserverDatabase>().writableTransaction {
-            delete(userAdapter).execute()
+            userAdapter.delete().execute()
         }
         user = User(5, "Something", 55)
     }

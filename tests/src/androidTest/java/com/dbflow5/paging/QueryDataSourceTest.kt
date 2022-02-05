@@ -57,7 +57,7 @@ class QueryDataSourceTest : BaseUnitTest() {
     fun testThrowsErrorOnInvalidType() {
         database<TestDatabase> { db ->
             assertThrowsException(IllegalArgumentException::class) {
-                (update(db.simpleModelAdapter) set (SimpleModel_Table.name.eq("name")))
+                (db.simpleModelAdapter.update() set (SimpleModel_Table.name.eq("name")))
                     .toDataSourceFactory(db)
                     .create()
             }

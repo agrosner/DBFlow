@@ -449,7 +449,7 @@ internal suspend fun <DB : DBFlowDatabase, R> WritableDatabaseScope<DB>.executeT
  * Runs the [fn] block within the [WritableDatabaseScope] asynchronously using coroutines.
  * Enables DB writing which may block until ability to write.
  */
-suspend inline fun <reified DB : DBFlowDatabase, R : Any> DB.writableTransaction(
+suspend inline fun <reified DB : DBFlowDatabase, R> DB.writableTransaction(
     crossinline fn: suspend WritableDatabaseScope<DB>.() -> R
 ): R = executeTransaction { fn() }
 
@@ -457,6 +457,6 @@ suspend inline fun <reified DB : DBFlowDatabase, R : Any> DB.writableTransaction
  * Runs the [fn] block within the [ReadableDatabaseScope] asynchronously using coroutines.
  * Only allows readable operations such as queries.
  */
-suspend inline fun <reified DB : DBFlowDatabase, R : Any> DB.readableTransaction(
+suspend inline fun <reified DB : DBFlowDatabase, R> DB.readableTransaction(
     crossinline fn: suspend ReadableDatabaseScope<DB>.() -> R
 ): R = executeTransaction { fn() }

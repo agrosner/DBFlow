@@ -29,19 +29,16 @@ fun selectCountOf(vararg properties: IProperty<*>): Select = Select(count(*prope
  * @param table    The tablet to update.
  * @return A new UPDATE statement.
  */
-fun <T : Any> update(adapter: SQLObjectAdapter<T>): Update<T> = Update(adapter)
+fun <T : Any> SQLObjectAdapter<T>.update(): Update<T> = Update(this)
 
-fun <T : Any> insertInto(adapter: RetrievalAdapter<T>) =
-    insert(adapter, columns = arrayOf())
+fun <T : Any> RetrievalAdapter<T>.insertInto() =
+    insert(columns = arrayOf())
 
-fun <T : Any> insert(
-    adapter: RetrievalAdapter<T>
-) = Insert(adapter)
+fun <T : Any> RetrievalAdapter<T>.insert() = Insert(this)
 
-fun <T : Any> insert(
-    adapter: RetrievalAdapter<T>,
+fun <T : Any> RetrievalAdapter<T>.insert(
     vararg columnValues: Pair<Property<*>, Any?>
-) = Insert(adapter)
+) = Insert(this)
     .columnValues(*columnValues)
 
 fun <T : Any> insert(
@@ -54,8 +51,8 @@ fun <T : Any> insert(
  * @param table    The table to insert.
  * @return A new INSERT statement.
  */
-fun <T : Any> insert(adapter: RetrievalAdapter<T>, vararg columns: Property<*>): Insert<T> =
-    Insert(adapter, *columns)
+fun <T : Any> RetrievalAdapter<T>.insert(vararg columns: Property<*>): Insert<T> =
+    Insert(this, *columns)
 
 /**
  * @return Begins a DELETE statement.
@@ -69,7 +66,7 @@ fun delete(): Delete = Delete()
  * @param [T] The class that implements [Model].
  * @return A [From] with specified DELETE on table.
  */
-fun <T : Any> delete(adapter: SQLObjectAdapter<T>): From<T> = delete().from(adapter)
+fun <T : Any> SQLObjectAdapter<T>.delete(): From<T> = Delete().from(this)
 
 /**
  * Starts an INDEX statement on specified table.

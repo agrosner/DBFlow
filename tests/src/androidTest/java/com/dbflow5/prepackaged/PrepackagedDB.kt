@@ -51,7 +51,7 @@ abstract class MigratedPrepackagedDB : DBFlowDatabase() {
     @Migration(version = 2, priority = 2)
     class AddSomeDataMigration : BaseMigration() {
         override fun migrate(database: DatabaseWrapper) {
-            insertInto(database<MigratedPrepackagedDB>().dog2Adapter).columnValues(
+            database<MigratedPrepackagedDB>().dog2Adapter.insertInto().columnValues(
                 propertyString<Dog2>("`breed`") to "NewBreed",
                 propertyString<Dog2>("`newField`") to "New Field Data",
             ).executeInsert(database)

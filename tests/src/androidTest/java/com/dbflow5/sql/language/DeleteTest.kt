@@ -25,7 +25,7 @@ class DeleteTest : BaseUnitTest() {
     fun validateDeletion() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             simpleModelAdapter.save(SimpleModel("name"))
-            delete(simpleModelAdapter).execute()
+            simpleModelAdapter.delete().execute()
             assertFalse((select from simpleModelAdapter).hasData())
         }
     }
@@ -40,7 +40,7 @@ class DeleteTest : BaseUnitTest() {
                 )
             )
 
-            val where = delete(simpleModelAdapter).where(SimpleModel_Table.name.`is`("name"))
+            val where = simpleModelAdapter.delete().where(SimpleModel_Table.name.`is`("name"))
             assertEquals("DELETE FROM `SimpleModel` WHERE `name`='name'", where.query.trim())
             where.execute()
 

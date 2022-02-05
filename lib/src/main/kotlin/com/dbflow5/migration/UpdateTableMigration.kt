@@ -38,7 +38,7 @@ open class UpdateTableMigration<T : Any>
     private val setOperatorGroup: OperatorGroup by lazy { OperatorGroup.nonGroupingClause() }
 
     val updateStatement: BaseQueriable<T>
-        get() = update(adapter)
+        get() = adapter.update()
             .set(setOperatorGroup)
             .where(whereOperatorGroup)
 

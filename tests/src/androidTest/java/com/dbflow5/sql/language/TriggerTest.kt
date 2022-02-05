@@ -32,7 +32,7 @@ class TriggerTest : BaseUnitTest() {
                 "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
                 "\nEND").assertEquals(
                 createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
-                    insert(db.twoColumnModelAdapter).columnValues(
+                    db.twoColumnModelAdapter.insert().columnValues(
                         TwoColumnModel_Table.name to NameAlias.ofTable(
                             "new",
                             "name"
@@ -54,12 +54,11 @@ class TriggerTest : BaseUnitTest() {
                     createTempTrigger("MyTrigger").before()
                         updateOn SimpleModel::class
                         begin
-                        insert(
-                            db.twoColumnModelAdapter,
+                        db.twoColumnModelAdapter.insert(
                             TwoColumnModel_Table.name
                         ).values(NameAlias.ofTable("new", "name"))
                         and
-                        insert(db.twoColumnModelAdapter, TwoColumnModel_Table.id)
+                        db.twoColumnModelAdapter.insert(TwoColumnModel_Table.id)
                             .values(
                                 cast(
                                     NameAlias.ofTable(
@@ -77,7 +76,7 @@ class TriggerTest : BaseUnitTest() {
     fun validateTriggerWorks() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             val trigger = createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
-                insert(twoColumnModelAdapter).columnValues(
+                twoColumnModelAdapter.insert().columnValues(
                     TwoColumnModel_Table.name to NameAlias.ofTable(
                         "new",
                         "name"

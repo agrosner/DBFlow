@@ -58,7 +58,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     @Test
     fun testCanObserveOnTableChangesWithTableOps() = runBlockingTest {
         database<TestDatabase> { db ->
-            db.writableTransaction { delete(simpleModelAdapter).executeUpdateDelete() }
+            db.writableTransaction { simpleModelAdapter.delete().executeUpdateDelete() }
             var count = 0
             var curList: List<SimpleModel> = arrayListOf()
             (select from db.simpleModelAdapter)
@@ -69,17 +69,17 @@ class CursorResultSubscriberTest : BaseUnitTest() {
                 }
             db.writableTransaction {
                 assertTrue(
-                    insert(simpleModelAdapter, SimpleModel_Table.name)
+                    simpleModelAdapter.insert(SimpleModel_Table.name)
                         .values("test")
                         .executeInsert() > 0
                 )
                 assertTrue(
-                    insert(simpleModelAdapter, SimpleModel_Table.name)
+                    simpleModelAdapter.insert(SimpleModel_Table.name)
                         .values("test1")
                         .executeInsert() > 0
                 )
                 assertTrue(
-                    insert(simpleModelAdapter, SimpleModel_Table.name)
+                    simpleModelAdapter.insert(SimpleModel_Table.name)
                         .values("test2")
                         .executeInsert() > 0
                 )

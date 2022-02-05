@@ -55,12 +55,12 @@ class CreationQueryWriter(
                                             it.commaNames
                                         })
                                         if (classType is ClassModel.Type.Table.Fts4) {
-                                            if (extractors.isNotEmpty()) {
-                                                append(",")
-                                            }
                                             referencesCache.allClasses
                                                 .firstOrNull { it.classType == classType.contentTable }
                                                 ?.let { classModel ->
+                                                    if (extractors.isNotEmpty()) {
+                                                        append(",")
+                                                    }
                                                     append("content=${classModel.dbName}")
                                                 }
                                         }
