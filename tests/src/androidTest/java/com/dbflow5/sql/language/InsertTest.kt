@@ -8,8 +8,14 @@ import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.Operator
 import com.dbflow5.query.OperatorGroup
-import com.dbflow5.query.insert
 import com.dbflow5.query.select
+import com.dbflow5.query2.ColumnValue
+import com.dbflow5.query2.insert
+import com.dbflow5.query2.orAbort
+import com.dbflow5.query2.orFail
+import com.dbflow5.query2.orIgnore
+import com.dbflow5.query2.orReplace
+import com.dbflow5.query2.orRollback
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -66,12 +72,11 @@ class InsertTest : BaseUnitTest() {
     @Test
     fun validateInsertProjection() {
         assertEquals(
-            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
-            twoColumnModelAdapter.insert().columns(
-                TwoColumnModel_Table.name,
-                TwoColumnModel_Table.id
-            )
-                .values("name", "id").query.trim()
+            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name',0)",
+            twoColumnModelAdapter.insert(
+                TwoColumnModel_Table.name.eq("name"),
+                TwoColumnModel_Table.id.eq(0)
+            ).query.trim()
         )
     }
 
@@ -86,45 +91,40 @@ class InsertTest : BaseUnitTest() {
     @Test
     fun validateColumns() {
         assertEquals(
-            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
-            twoColumnModelAdapter.insert().asColumns().values("name", "id").query.trim()
-        )
-        assertEquals(
-            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
-            twoColumnModelAdapter.insert().columns("name", "id")
-                .values("name", "id").query.trim()
-        )
-        assertEquals(
-            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
-            twoColumnModelAdapter.insert().columns(
-                listOf(
-                    TwoColumnModel_Table.name,
-                    TwoColumnModel_Table.id
+            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name','id')",
+            twoColumnModelAdapter.insert(
+                ColumnValue(
+                    twoColumnModelAdapter.getProperty("name"),
+                    "name"
+                ),
+                ColumnValue(
+                    twoColumnModelAdapter.getProperty("id"),
+                    "id"
                 )
-            ).values("name", "id").query.trim()
+            ).query.trim()
         )
     }
 
     @Test
     fun validateColumnValues() {
         assertEquals(
-            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
-            twoColumnModelAdapter.insert().columnValues(
+            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name',0)",
+            twoColumnModelAdapter.insert(
                 TwoColumnModel_Table.name.eq("name"),
                 TwoColumnModel_Table.id.eq(0)
             ).query.trim()
         )
         assertEquals(
-            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
-            twoColumnModelAdapter.insert().columnValues(
+            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name',0)",
+            twoColumnModelAdapter.insert(
                 Operator.op<String>(NameAlias.builder("name").build()).eq("name"),
                 TwoColumnModel_Table.id.eq(0)
             ).query.trim()
         )
         assertEquals(
-            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
-            twoColumnModelAdapter.insert().columnValues(
-                group = OperatorGroup.clause()
+            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name',0)",
+            twoColumnModelAdapter.insert(
+                OperatorGroup.clause()
                     .andAll(
                         TwoColumnModel_Table.name.eq("name"),
                         TwoColumnModel_Table.id.eq(0)

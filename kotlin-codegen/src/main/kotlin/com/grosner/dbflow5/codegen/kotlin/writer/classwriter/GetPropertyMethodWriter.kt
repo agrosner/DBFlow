@@ -44,10 +44,10 @@ class GetPropertyMethodWriter(
             }
             addCode(
                 """
-                else -> throw %T(%S) 
+                else -> throw %T(%P) 
             """.trimIndent(),
                 IllegalArgumentException::class.asClassName(),
-                "Invalid column name passed. Ensure you are calling the correct table's column"
+                "Invalid column name passed \$columnName. Ensure you are calling the correct table's column"
             )
             endControlFlow()
         }
