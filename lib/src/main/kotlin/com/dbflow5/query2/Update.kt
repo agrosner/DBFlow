@@ -58,5 +58,5 @@ internal data class UpdateImpl<Table : Any>(
         )
 
     override fun where(operator: SQLOperator): Where<Table, UpdateWithSet<Table>> =
-        adapter.where(operator)
+        adapter.where(this, operator)
 }

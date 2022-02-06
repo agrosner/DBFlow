@@ -13,6 +13,7 @@ interface Where<Table : Any, OperationBase> : Query, HasAdapter<Table,
 }
 
 internal fun <Table : Any, OperationBase> RetrievalAdapter<Table>.where(
+    queryBase: Query,
     operator: SQLOperator,
 ): Where<Table, OperationBase> = WhereImpl(adapter = this)
 
