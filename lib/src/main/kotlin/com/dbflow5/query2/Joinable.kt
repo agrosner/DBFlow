@@ -87,7 +87,7 @@ infix fun <OriginalTable : Any, JoinTable : Any>
 infix fun <OriginalTable : Any, JoinTable : Any>
     Joinable<OriginalTable>.naturalJoin(
     adapter: SQLObjectAdapter<JoinTable>
-) = join(adapter, JoinType.Natural)
+) = join(adapter, JoinType.Natural).end()
 
 infix fun <OriginalTable : Any, JoinTable : Any>
     Joinable<OriginalTable>.naturalJoin(

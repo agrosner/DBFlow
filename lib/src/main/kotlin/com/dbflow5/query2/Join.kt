@@ -22,7 +22,8 @@ interface JoinUsing<OriginalTable : Any> {
 
 interface JoinWithAlias<OriginalTable : Any,
     JoinTable : Any> : Query,
-    JoinUsing<OriginalTable> {
+    JoinUsing<OriginalTable>,
+    JoinOn<OriginalTable> {
     val alias: NameAlias
 }
 
@@ -36,7 +37,9 @@ interface JoinWithUsing<OriginalTable : Any, JoinTable : Any> : Query {
 interface Join<OriginalTable : Any, JoinTable : Any> : Query,
     JoinOn<OriginalTable>, HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
     Aliasable<JoinWithAlias<OriginalTable, JoinTable>>,
-    JoinUsing<OriginalTable>
+    JoinUsing<OriginalTable> {
+    fun end(): SelectWithJoins<OriginalTable>
+}
 
 internal data class JoinImpl<OriginalTable : Any, JoinTable : Any>(
     val select: SelectImpl<OriginalTable>,
@@ -129,4 +132,6 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any>(
             )
         )
     }
+
+    override fun end(): SelectWithJoins<OriginalTable> = addJoin(this)
 }

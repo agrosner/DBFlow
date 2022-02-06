@@ -34,7 +34,7 @@ interface SelectWithModelQueriable<Table : Any> : Query,
 }
 
 interface SelectWithJoins<Table : Any> : Query,
-    HasAssociatedAdapters {
+    HasAssociatedAdapters, Joinable<Table> {
     val joins: List<Join<*, *>>
 }
 
@@ -95,7 +95,7 @@ internal data class SelectImpl<Table : Any>(
                     ?: tableAlias
             }")
             if (joins.isNotEmpty()) {
-                append(" ${joins.joinToString { it.query }}")
+                append(" ${joins.joinToString(separator = "") { it.query }}")
             } else {
                 append(" ")
             }
