@@ -11,7 +11,8 @@ interface UpdateWithConflict<Table : Any> : HasConflictAction,
     Settable<Table>, Indexable<Table>
 
 interface UpdateWithSet<Table : Any> : HasConflictAction,
-    Query, HasOperatorGroup, Whereable<Table, UpdateWithSet<Table>>,
+    Query, HasOperatorGroup, Whereable<Table, UpdateWithSet<Table>,
+        SQLObjectAdapter<Table>>,
     Indexable<Table>
 
 interface Update<Table : Any> : Query,
@@ -30,7 +31,7 @@ internal data class UpdateImpl<Table : Any>(
     override val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause()
         .setAllCommaSeparated(true),
 ) : Update<Table>, UpdateWithConflict<Table>,
-    UpdateWithSet<Table>, Whereable<Table, UpdateWithSet<Table>> {
+    UpdateWithSet<Table> {
 
     override val query: String by lazy {
         buildString {
@@ -58,7 +59,4 @@ internal data class UpdateImpl<Table : Any>(
         copy(
             operatorGroup = operatorGroup.and(condition)
         )
-
-    override fun where(operator: SQLOperator): Where<Table, UpdateWithSet<Table>> =
-        adapter.where(this, operator)
 }

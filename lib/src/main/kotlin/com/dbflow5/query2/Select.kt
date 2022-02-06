@@ -18,7 +18,8 @@ sealed class QualifierType(val value: String) {
 interface SelectWithAlias<Table : Any> : Query,
     Joinable<Table>,
     HasAssociatedAdapters,
-    Indexable<Table> {
+    Indexable<Table>,
+    GroupByEnabled<Table, Select<Table>> {
     val tableAlias: NameAlias
 }
 
@@ -26,20 +27,23 @@ interface SelectWithQualifier<Table : Any> : Query,
     Aliasable<SelectWithAlias<Table>>,
     Joinable<Table>,
     HasAssociatedAdapters,
-    Indexable<Table> {
+    Indexable<Table>,
+    GroupByEnabled<Table, Select<Table>> {
     val qualifier: QualifierType
 }
 
 interface SelectWithModelQueriable<Table : Any> : Query,
     HasAssociatedAdapters,
     Joinable<Table>,
-    Indexable<Table> {
+    Indexable<Table>,
+    GroupByEnabled<Table, Select<Table>> {
     val modelQueriable: ModelQueriable<Table>?
 }
 
 interface SelectWithJoins<Table : Any> : Query,
     HasAssociatedAdapters, Joinable<Table>,
-    Indexable<Table> {
+    Indexable<Table>,
+    GroupByEnabled<Table, Select<Table>> {
     val joins: List<Join<*, *>>
 }
 
@@ -48,7 +52,9 @@ interface Select<Table : Any> : Query,
     Aliasable<SelectWithAlias<Table>>,
     Joinable<Table>,
     HasAssociatedAdapters,
-    Indexable<Table> {
+    Indexable<Table>,
+    Whereable<Table, Select<Table>, SQLObjectAdapter<Table>>,
+    GroupByEnabled<Table, Select<Table>> {
 
     val properties: List<IProperty<*>>
 
