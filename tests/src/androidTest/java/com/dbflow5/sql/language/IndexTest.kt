@@ -29,6 +29,18 @@ class IndexTest : BaseUnitTest() {
     }
 
     @Test
+    fun validateWithoutExistCheck() {
+        assertEquals(
+            "CREATE INDEX `index` ON `SimpleModel`(`name`)",
+            simpleModelAdapter.createIndexOn(
+                name = "index",
+                property = SimpleModel_Table.name,
+                ifNotExists = false,
+            ).query
+        )
+    }
+
+    @Test
     fun validateUniqueIndex() {
         assertEquals(
             "CREATE UNIQUE INDEX IF NOT EXISTS `index` ON `TwoColumnModel`(`name`, `id`)",
