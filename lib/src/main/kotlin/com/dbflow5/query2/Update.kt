@@ -8,15 +8,17 @@ import com.dbflow5.sql.Query
 
 interface UpdateWithConflict<Table : Any> : HasConflictAction,
     Conflictable<UpdateWithConflict<Table>>, Query,
-    Settable<Table>
+    Settable<Table>, Indexable<Table>
 
 interface UpdateWithSet<Table : Any> : HasConflictAction,
-    Query, HasOperatorGroup, Whereable<Table, UpdateWithSet<Table>>
+    Query, HasOperatorGroup, Whereable<Table, UpdateWithSet<Table>>,
+    Indexable<Table>
 
 interface Update<Table : Any> : Query,
     Conflictable<UpdateWithConflict<Table>>,
     HasAdapter<Table, SQLObjectAdapter<Table>>,
-    Settable<Table>, HasOperatorGroup
+    Settable<Table>, HasOperatorGroup,
+    Indexable<Table>
 
 fun <Table : Any> SQLObjectAdapter<Table>.update(): Update<Table> = UpdateImpl(
     adapter = this,

@@ -6,8 +6,7 @@ import com.dbflow5.sql.Query
 
 interface Delete<Table : Any> : Query,
     HasAdapter<Table, SQLObjectAdapter<Table>>,
-    Whereable<Table, Delete<Table>> {
-}
+    Whereable<Table, Delete<Table>>, Indexable<Table>
 
 fun <Table : Any> SQLObjectAdapter<Table>.delete(): Delete<Table> = DeleteImpl(adapter = this)
 
