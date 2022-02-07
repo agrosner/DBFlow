@@ -13,6 +13,8 @@ import com.dbflow5.query.property.docId
 import com.dbflow5.query.property.tableName
 import com.dbflow5.query.select
 import com.dbflow5.query.snippet
+import com.dbflow5.query2.StringResultFactory
+import com.dbflow5.query2.select
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -43,8 +45,8 @@ class FtsModelTest : BaseUnitTest() {
     fun match_query() = runBlockingTest {
         validate_fts4_created()
         database<TestDatabase>().readableTransaction {
-            (select from fts4VirtualModel2Adapter where (tableName<Fts4VirtualModel2>() match "FTSBABY"))
-                .requireSingle()
+            (fts4VirtualModel2Adapter.select() where (tableName<Fts4VirtualModel2>() match "FTSBABY"))
+                .single()
         }
     }
 
@@ -52,12 +54,15 @@ class FtsModelTest : BaseUnitTest() {
     fun offsets_query() = runBlockingTest {
         validate_fts4_created()
         val value = database<TestDatabase>().readableTransaction {
-            (select(offsets<Fts4VirtualModel2>()) from fts4ModelAdapter
+            (fts4ModelAdapter.select(
+                resultFactory = StringResultFactory,
+                offsets<Fts4VirtualModel2>()
+            )
                 where (tableName<Fts4VirtualModel2>() match "FTSBaby"))
-                .stringValue()
+                .execute()
         }
         assertNotNull(value)
-        assertEquals(value, "0 0 0 7")
+        assertEquals(value, StringResultFactory.StringResult("0 0 0 7"))
     }
 
     @Test
@@ -82,19 +87,19 @@ class FtsModelTest : BaseUnitTest() {
         assert(rows > 0)
         val value =
             database.readableTransaction {
-                (select(
+                (fts4VirtualModel2Adapter.select(
+                    resultFactory = StringResultFactory,
                     snippet<Fts4VirtualModel2>(
                         start = "[",
                         end = "]",
                         ellipses = "...",
                     )
-                ) from fts4VirtualModel2Adapter
-                    where (tableName<Fts4VirtualModel2>() match "\"min* tem*\""))
-                    .stringValue()
+                ) where (tableName<Fts4VirtualModel2>() match "\"min* tem*\""))
+                    .execute()
             }
         assertNotNull(value)
         assertEquals(
-            value, "...the upper portion, [minimum] [temperature] 14-16oC \n" +
+            value.value, "...the upper portion, [minimum] [temperature] 14-16oC \n" +
                 "  and cool elsewhere, [minimum] [temperature] 17-20oC. Cold..."
         )
     }

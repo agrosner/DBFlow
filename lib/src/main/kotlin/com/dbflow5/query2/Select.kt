@@ -22,7 +22,7 @@ interface Select<Table : Any, Result> : ExecutableQuery<Result>
 
 interface SelectWithAlias<Table : Any, Result> :
     Select<Table, Result>,
-    Joinable<Table>,
+    Joinable<Table, Result>,
     HasAssociatedAdapters,
     Indexable<Table>,
     Whereable<Table, Result, Select<Table, Result>,
@@ -33,7 +33,7 @@ interface SelectWithAlias<Table : Any, Result> :
 interface SelectWithQualifier<Table : Any, Result> :
     Select<Table, Result>,
     Aliasable<SelectWithAlias<Table, Result>>,
-    Joinable<Table>,
+    Joinable<Table, Result>,
     HasAssociatedAdapters,
     Indexable<Table>,
     Whereable<Table, Result, Select<Table, Result>,
@@ -44,7 +44,7 @@ interface SelectWithQualifier<Table : Any, Result> :
 interface SelectWithModelQueriable<Table : Any, Result> :
     Select<Table, Result>,
     HasAssociatedAdapters,
-    Joinable<Table>,
+    Joinable<Table, Result>,
     Indexable<Table>,
     Whereable<Table, Result, Select<Table, Result>,
         SQLObjectAdapter<Table>> {
@@ -53,18 +53,19 @@ interface SelectWithModelQueriable<Table : Any, Result> :
 
 interface SelectWithJoins<Table : Any, Result> :
     Select<Table, Result>,
-    HasAssociatedAdapters, Joinable<Table>,
+    HasAssociatedAdapters,
+    Joinable<Table, Result>,
     Indexable<Table>,
     Whereable<Table, Result, Select<Table, Result>,
         SQLObjectAdapter<Table>> {
-    val joins: List<Join<*, *>>
+    val joins: List<Join<*, *, Result>>
 }
 
 interface SelectStart<Table : Any, Result> :
     Select<Table, Result>,
     HasAdapter<Table, SQLObjectAdapter<Table>>,
     Aliasable<SelectWithAlias<Table, Result>>,
-    Joinable<Table>,
+    Joinable<Table, Result>,
     HasAssociatedAdapters,
     Indexable<Table>,
     Whereable<Table,
@@ -108,6 +109,19 @@ fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
         resultFactory = CountResultFactory,
     )
 
+/**
+ * A select providing a custom result factory return type.
+ */
+fun <Table : Any, Result> SQLObjectAdapter<Table>.select(
+    resultFactory: ResultFactory<Result>,
+    vararg properties: IProperty<*>,
+): SelectStart<Table, Result> =
+    SelectImpl(
+        adapter = this,
+        properties = properties.toList(),
+        resultFactory = resultFactory
+    )
+
 internal data class SelectImpl<Table : Any, Result>(
     override val qualifier: QualifierType = QualifierType.None,
     override val properties: List<IProperty<*>> = emptyList(),
@@ -119,7 +133,7 @@ internal data class SelectImpl<Table : Any, Result>(
      * Subquery instead of [tableAlias]
      */
     override val modelQueriable: ModelQueriable<Table>? = null,
-    override val joins: List<Join<*, *>> = listOf(),
+    override val joins: List<Join<*, *, Result>> = listOf(),
     override val resultFactory: ResultFactory<Result>,
 ) : Select<Table, Result>,
     SelectStart<Table, Result>,
@@ -169,7 +183,7 @@ internal data class SelectImpl<Table : Any, Result>(
     override fun <JoinTable : Any> join(
         adapter: SQLObjectAdapter<JoinTable>,
         joinType: JoinType
-    ): Join<Table, JoinTable> = JoinImpl(
+    ): Join<Table, JoinTable, Result> = JoinImpl(
         this,
         type = joinType,
         adapter = adapter,
@@ -178,7 +192,7 @@ internal data class SelectImpl<Table : Any, Result>(
     override fun <JoinTable : Any> join(
         modelQueriable: ModelQueriable<JoinTable>,
         joinType: JoinType
-    ): Join<Table, JoinTable> = JoinImpl(
+    ): Join<Table, JoinTable, Result> = JoinImpl(
         this,
         type = joinType,
         adapter = (modelQueriable.adapter as? SQLObjectAdapter<JoinTable>)

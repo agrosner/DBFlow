@@ -38,59 +38,59 @@ sealed class JoinType(val value: String) {
     object Natural : JoinType("NATURAL")
 }
 
-interface Joinable<OriginalTable : Any> {
+interface Joinable<OriginalTable : Any, Result> {
 
     fun <JoinTable : Any> join(
         adapter: SQLObjectAdapter<JoinTable>,
         joinType: JoinType,
-    ): Join<OriginalTable, JoinTable>
+    ): Join<OriginalTable, JoinTable, Result>
 
     fun <JoinTable : Any> join(
         modelQueriable: ModelQueriable<JoinTable>,
         joinType: JoinType,
-    ): Join<OriginalTable, JoinTable>
+    ): Join<OriginalTable, JoinTable, Result>
 }
 
-infix fun <OriginalTable : Any, JoinTable : Any>
-    Joinable<OriginalTable>.crossJoin(
+infix fun <OriginalTable : Any, JoinTable : Any, Result>
+    Joinable<OriginalTable, Result>.crossJoin(
     adapter: SQLObjectAdapter<JoinTable>
 ) = join(adapter, JoinType.Cross)
 
-infix fun <OriginalTable : Any, JoinTable : Any>
-    Joinable<OriginalTable>.crossJoin(
+infix fun <OriginalTable : Any, JoinTable : Any, Result>
+    Joinable<OriginalTable, Result>.crossJoin(
     modelQueriable: ModelQueriable<JoinTable>,
 ) = join(modelQueriable, JoinType.Cross)
 
-infix fun <OriginalTable : Any, JoinTable : Any>
-    Joinable<OriginalTable>.innerJoin(
+infix fun <OriginalTable : Any, JoinTable : Any, Result>
+    Joinable<OriginalTable, Result>.innerJoin(
     adapter: SQLObjectAdapter<JoinTable>
 ) = join(adapter, JoinType.Inner)
 
-infix fun <OriginalTable : Any, JoinTable : Any>
-    Joinable<OriginalTable>.innerJoin(
+infix fun <OriginalTable : Any, JoinTable : Any, Result>
+    Joinable<OriginalTable, Result>.innerJoin(
     modelQueriable: ModelQueriable<JoinTable>,
 ) = join(modelQueriable, JoinType.Inner)
 
-infix fun <OriginalTable : Any, JoinTable : Any>
-    Joinable<OriginalTable>.leftOuterJoin(
+infix fun <OriginalTable : Any, JoinTable : Any, Result>
+    Joinable<OriginalTable, Result>.leftOuterJoin(
     adapter: SQLObjectAdapter<JoinTable>
 ) = join(adapter, JoinType.LeftOuter)
 
-infix fun <OriginalTable : Any, JoinTable : Any>
-    Joinable<OriginalTable>.leftOuterJoin(
+infix fun <OriginalTable : Any, JoinTable : Any, Result>
+    Joinable<OriginalTable, Result>.leftOuterJoin(
     modelQueriable: ModelQueriable<JoinTable>,
 ) = join(modelQueriable, JoinType.LeftOuter)
 
 /**
  * TODO: use separate interface type?
  */
-infix fun <OriginalTable : Any, JoinTable : Any>
-    Joinable<OriginalTable>.naturalJoin(
+infix fun <OriginalTable : Any, JoinTable : Any, Result>
+    Joinable<OriginalTable, Result>.naturalJoin(
     adapter: SQLObjectAdapter<JoinTable>
 ) = join(adapter, JoinType.Natural).end()
 
-infix fun <OriginalTable : Any, JoinTable : Any>
-    Joinable<OriginalTable>.naturalJoin(
+infix fun <OriginalTable : Any, JoinTable : Any, Result>
+    Joinable<OriginalTable, Result>.naturalJoin(
     modelQueriable: ModelQueriable<JoinTable>,
 ) = join(modelQueriable, JoinType.Natural)
 

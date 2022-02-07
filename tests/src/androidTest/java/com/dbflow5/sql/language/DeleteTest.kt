@@ -6,8 +6,8 @@ import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query.select
 import com.dbflow5.query2.delete
+import com.dbflow5.query2.select
 import com.dbflow5.query2.selectCountOf
 import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
@@ -41,7 +41,7 @@ class DeleteTest : BaseUnitTest() {
             assertEquals("DELETE FROM `SimpleModel` WHERE `name`='name'", where.query.trim())
             assertTrue(where.execute() > 0)
 
-            assertEquals(1, (select from simpleModelAdapter).queryList().size)
+            assertEquals(1, simpleModelAdapter.select().list().size)
         }
     }
 }

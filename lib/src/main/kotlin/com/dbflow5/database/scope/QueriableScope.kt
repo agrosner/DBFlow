@@ -39,6 +39,8 @@ interface ReadableQueriableScope {
     suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.cursor(): FlowCursor
 
     suspend fun ExecutableQuery<CountResultFactory.Count>.hasData(): Boolean
+
+    suspend fun <Result> ExecutableQuery<Result>.execute(): Result
 }
 
 interface WritableQueriableScope : ReadableQueriableScope {
@@ -51,6 +53,5 @@ interface WritableQueriableScope : ReadableQueriableScope {
 
     suspend fun Queriable.execute()
 
-    suspend fun <Result> ExecutableQuery<Result>.execute(): Result
 
 }

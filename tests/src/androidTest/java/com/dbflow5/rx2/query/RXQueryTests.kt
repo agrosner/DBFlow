@@ -54,7 +54,7 @@ class RXQueryTests : BaseUnitTest() {
             }
                 .asSingle()
                 .subscribe { value ->
-                    count = value
+                    count = value.value
                 }
 
             assertEquals(2, count)

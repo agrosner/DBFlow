@@ -10,39 +10,39 @@ import com.dbflow5.query.property.PropertyFactory
 import com.dbflow5.sql.Query
 
 
-interface JoinOn<OriginalTable : Any> {
-    infix fun on(sqlOperator: SQLOperator): SelectWithJoins<OriginalTable>
-    fun on(vararg conditions: SQLOperator): SelectWithJoins<OriginalTable>
+interface JoinOn<OriginalTable : Any, Result> {
+    infix fun on(sqlOperator: SQLOperator): SelectWithJoins<OriginalTable, Result>
+    fun on(vararg conditions: SQLOperator): SelectWithJoins<OriginalTable, Result>
 }
 
-interface JoinUsing<OriginalTable : Any> {
-    infix fun using(property: IProperty<*>): SelectWithJoins<OriginalTable>
-    fun using(vararg properties: IProperty<*>): SelectWithJoins<OriginalTable>
+interface JoinUsing<OriginalTable : Any, Result> {
+    infix fun using(property: IProperty<*>): SelectWithJoins<OriginalTable, Result>
+    fun using(vararg properties: IProperty<*>): SelectWithJoins<OriginalTable, Result>
 }
 
 interface JoinWithAlias<OriginalTable : Any,
-    JoinTable : Any> : Query,
-    JoinUsing<OriginalTable>,
-    JoinOn<OriginalTable> {
+    JoinTable : Any, Result> : Query,
+    JoinUsing<OriginalTable, Result>,
+    JoinOn<OriginalTable, Result> {
     val alias: NameAlias
 }
 
-interface JoinWithUsing<OriginalTable : Any, JoinTable : Any> : Query {
+interface JoinWithUsing : Query {
     val using: List<IProperty<*>>
 }
 
 /**
  * Description:
  */
-interface Join<OriginalTable : Any, JoinTable : Any> : Query,
-    JoinOn<OriginalTable>, HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
-    Aliasable<JoinWithAlias<OriginalTable, JoinTable>>,
-    JoinUsing<OriginalTable> {
-    fun end(): SelectWithJoins<OriginalTable>
+interface Join<OriginalTable : Any, JoinTable : Any, Result> : Query,
+    JoinOn<OriginalTable, Result>, HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
+    Aliasable<JoinWithAlias<OriginalTable, JoinTable, Result>>,
+    JoinUsing<OriginalTable, Result> {
+    fun end(): SelectWithJoins<OriginalTable, Result>
 }
 
-internal data class JoinImpl<OriginalTable : Any, JoinTable : Any>(
-    val select: SelectImpl<OriginalTable>,
+internal data class JoinImpl<OriginalTable : Any, JoinTable : Any, Result>(
+    val select: SelectImpl<OriginalTable, Result>,
     val type: JoinType,
     val onGroup: OperatorGroup? = null,
     override val adapter: SQLObjectAdapter<JoinTable>,
@@ -53,9 +53,9 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any>(
         NameAlias.Builder(adapter.name).build()
     },
     override val using: List<IProperty<*>> = listOf(),
-) : Join<OriginalTable, JoinTable>, JoinOn<OriginalTable>,
-    JoinWithAlias<OriginalTable, JoinTable>,
-    JoinWithUsing<OriginalTable, JoinTable> {
+) : Join<OriginalTable, JoinTable, Result>, JoinOn<OriginalTable, Result>,
+    JoinWithAlias<OriginalTable, JoinTable, Result>,
+    JoinWithUsing {
     override val query: String by lazy {
         buildString {
             append("${type.value} JOIN ${alias.fullQuery} ")
@@ -78,14 +78,14 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any>(
         }
     }
 
-    private fun addJoin(join: Join<OriginalTable, JoinTable>): SelectWithJoins<OriginalTable> =
+    private fun addJoin(join: Join<OriginalTable, JoinTable, Result>): SelectWithJoins<OriginalTable, Result> =
         select.copy(
             joins = select.joins.toMutableList().apply {
                 add(join)
             },
         )
 
-    override fun on(sqlOperator: SQLOperator): SelectWithJoins<OriginalTable> {
+    override fun on(sqlOperator: SQLOperator): SelectWithJoins<OriginalTable, Result> {
         checkNatural()
         return addJoin(
             copy(
@@ -96,7 +96,7 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any>(
         )
     }
 
-    override fun on(vararg conditions: SQLOperator): SelectWithJoins<OriginalTable> {
+    override fun on(vararg conditions: SQLOperator): SelectWithJoins<OriginalTable, Result> {
         checkNatural()
         return addJoin(
             copy(
@@ -108,12 +108,12 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any>(
     }
 
 
-    override fun `as`(name: String): JoinWithAlias<OriginalTable, JoinTable> =
+    override fun `as`(name: String): JoinWithAlias<OriginalTable, JoinTable, Result> =
         copy(
             alias = alias.newBuilder().`as`(name).build(),
         )
 
-    override fun using(property: IProperty<*>): SelectWithJoins<OriginalTable> {
+    override fun using(property: IProperty<*>): SelectWithJoins<OriginalTable, Result> {
         checkNatural()
         return addJoin(
             copy(
@@ -123,7 +123,7 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any>(
         )
     }
 
-    override fun using(vararg properties: IProperty<*>): SelectWithJoins<OriginalTable> {
+    override fun using(vararg properties: IProperty<*>): SelectWithJoins<OriginalTable, Result> {
         checkNatural()
         return addJoin(
             copy(
@@ -133,5 +133,5 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any>(
         )
     }
 
-    override fun end(): SelectWithJoins<OriginalTable> = addJoin(this)
+    override fun end(): SelectWithJoins<OriginalTable, Result> = addJoin(this)
 }
