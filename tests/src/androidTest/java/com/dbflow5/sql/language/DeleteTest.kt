@@ -17,11 +17,6 @@ import org.junit.Test
 class DeleteTest : BaseUnitTest() {
 
     @Test
-    fun validateQuery() {
-        assertEquals("DELETE ", delete().query)
-    }
-
-    @Test
     fun validateDeletion() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             simpleModelAdapter.save(SimpleModel("name"))

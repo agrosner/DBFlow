@@ -19,7 +19,8 @@ interface SelectWithAlias<Table : Any> : Query,
     Joinable<Table>,
     HasAssociatedAdapters,
     Indexable<Table>,
-    GroupByEnabled<Table, Select<Table>> {
+    Whereable<Table, SelectResult<Table>, Select<Table>,
+        SQLObjectAdapter<Table>> {
     val tableAlias: NameAlias
 }
 
@@ -28,7 +29,8 @@ interface SelectWithQualifier<Table : Any> : Query,
     Joinable<Table>,
     HasAssociatedAdapters,
     Indexable<Table>,
-    GroupByEnabled<Table, Select<Table>> {
+    Whereable<Table, SelectResult<Table>, Select<Table>,
+        SQLObjectAdapter<Table>> {
     val qualifier: QualifierType
 }
 
@@ -36,14 +38,16 @@ interface SelectWithModelQueriable<Table : Any> : Query,
     HasAssociatedAdapters,
     Joinable<Table>,
     Indexable<Table>,
-    GroupByEnabled<Table, Select<Table>> {
+    Whereable<Table, SelectResult<Table>, Select<Table>,
+        SQLObjectAdapter<Table>> {
     val modelQueriable: ModelQueriable<Table>?
 }
 
 interface SelectWithJoins<Table : Any> : Query,
     HasAssociatedAdapters, Joinable<Table>,
     Indexable<Table>,
-    GroupByEnabled<Table, Select<Table>> {
+    Whereable<Table, SelectResult<Table>, Select<Table>,
+        SQLObjectAdapter<Table>> {
     val joins: List<Join<*, *>>
 }
 
@@ -53,8 +57,10 @@ interface Select<Table : Any> : Query,
     Joinable<Table>,
     HasAssociatedAdapters,
     Indexable<Table>,
-    Whereable<Table, Select<Table>, SQLObjectAdapter<Table>>,
-    GroupByEnabled<Table, Select<Table>> {
+    Whereable<Table,
+        SelectResult<Table>,
+        Select<Table>,
+        SQLObjectAdapter<Table>> {
 
     val properties: List<IProperty<*>>
 
@@ -88,6 +94,7 @@ internal data class SelectImpl<Table : Any>(
      */
     override val modelQueriable: ModelQueriable<Table>? = null,
     override val joins: List<Join<*, *>> = listOf(),
+    override val resultFactory: ResultFactory<SelectResult<Table>> = SelectResultFactory(adapter),
 ) : Select<Table>, SelectWithQualifier<Table>,
     SelectWithAlias<Table>,
     SelectWithModelQueriable<Table>,

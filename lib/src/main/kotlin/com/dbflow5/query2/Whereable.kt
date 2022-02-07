@@ -1,6 +1,8 @@
 package com.dbflow5.query2
 
 import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OrderBy
 import com.dbflow5.query.SQLOperator
@@ -11,78 +13,92 @@ import com.dbflow5.sql.Query
  * Description:
  */
 interface Whereable<Table : Any,
-    OperationBase,
+    Result,
+    OperationBase : ExecutableQuery<Result>,
     Adapter : RetrievalAdapter<Table>> :
     HasAdapter<Table, Adapter>,
-    GroupByEnabled<Table, OperationBase>,
-    HavingEnabled<Table, OperationBase>,
-    Limitable<Table, OperationBase>,
-    Offsettable<Table, OperationBase>,
-    OrderByEnabled<Table, OperationBase>,
-    WhereExistsEnabled<Table, OperationBase>,
-    Constrainable<Table, OperationBase>,
+    GroupByEnabled<Table, Result, OperationBase>,
+    HavingEnabled<Table, Result, OperationBase>,
+    Limitable<Table, Result, OperationBase>,
+    Offsettable<Table, Result, OperationBase>,
+    OrderByEnabled<Table, Result, OperationBase>,
+    WhereExistsEnabled<Table, Result, OperationBase>,
+    Constrainable<Table, Result, OperationBase>,
+    ExecutableQuery<Result>,
     Query {
 
-    infix fun where(operator: SQLOperator): WhereStart<Table, OperationBase> =
-        adapter.where(this, operator)
+    val resultFactory: ResultFactory<Result>
 
-    fun where(vararg operators: SQLOperator): WhereStart<Table, OperationBase> =
-        adapter.where(this, *operators)
+    infix fun where(operator: SQLOperator): WhereStart<Table, Result, OperationBase> =
+        adapter.where(this, resultFactory, operator)
 
-    override fun groupBy(nameAlias: NameAlias): WhereWithGroupBy<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).groupBy(nameAlias)
+    fun where(vararg operators: SQLOperator): WhereStart<Table, Result, OperationBase> =
+        adapter.where(this, resultFactory, *operators)
 
-    override fun groupBy(vararg nameAliases: NameAlias): WhereWithGroupBy<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).groupBy(*nameAliases)
+    override fun groupBy(nameAlias: NameAlias): WhereWithGroupBy<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).groupBy(nameAlias)
 
-    override fun groupBy(property: IProperty<*>): WhereWithGroupBy<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).groupBy(property)
+    override fun groupBy(vararg nameAliases: NameAlias): WhereWithGroupBy<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).groupBy(*nameAliases)
 
-    override fun groupBy(vararg properties: IProperty<*>): WhereWithGroupBy<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).groupBy(*properties)
+    override fun groupBy(property: IProperty<*>): WhereWithGroupBy<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).groupBy(property)
 
-    override fun having(operator: SQLOperator): WhereWithHaving<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).having(operator)
+    override fun groupBy(vararg properties: IProperty<*>): WhereWithGroupBy<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).groupBy(*properties)
 
-    override fun having(vararg operators: SQLOperator): WhereWithHaving<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).having(*operators)
+    override fun having(operator: SQLOperator): WhereWithHaving<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).having(operator)
 
-    override fun limit(count: Long): WhereWithLimit<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).limit(count)
+    override fun having(vararg operators: SQLOperator): WhereWithHaving<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).having(*operators)
 
-    override fun offset(offset: Long): WhereWithOffset<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).offset(offset)
+    override fun limit(count: Long): WhereWithLimit<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).limit(count)
 
-    override fun orderBy(orderBy: OrderBy): WhereWithOrderBy<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).orderBy(orderBy)
+    override fun offset(offset: Long): WhereWithOffset<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).offset(offset)
 
-    override fun orderBy(vararg orderBies: OrderBy): WhereWithOrderBy<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).orderBy(*orderBies)
+    override fun orderBy(orderBy: OrderBy): WhereWithOrderBy<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).orderBy(orderBy)
+
+    override fun orderBy(vararg orderBies: OrderBy): WhereWithOrderBy<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).orderBy(*orderBies)
 
     override fun orderBy(
         nameAlias: NameAlias,
         ascending: Boolean
-    ): WhereWithOrderBy<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).orderBy(nameAlias, ascending)
+    ): WhereWithOrderBy<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory)
+            .orderBy(nameAlias, ascending)
 
     override fun orderBy(
         property: IProperty<*>,
         ascending: Boolean
-    ): WhereWithOrderBy<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).orderBy(property, ascending)
+    ): WhereWithOrderBy<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory)
+            .orderBy(property, ascending)
 
-    override fun orderByAll(orderByList: List<OrderBy>): WhereWithOrderBy<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).orderByAll(orderByList)
+    override fun orderByAll(orderByList: List<OrderBy>): WhereWithOrderBy<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).orderByAll(orderByList)
 
-    override fun <OtherTable : Any, OtherOperationBase> whereExists(whereable: Where<OtherTable, OtherOperationBase>): WhereExists<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).whereExists(whereable)
+    override fun <OtherTable : Any, OtherOperationBase : ExecutableQuery<Result>> whereExists(
+        whereable: Where<OtherTable, Result, OtherOperationBase>
+    ): WhereExists<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).whereExists(whereable)
 
-    override fun <OtherTable : Any, OtherOperationBase> whereExists(
+    override fun <OtherTable : Any, OtherOperationBase : ExecutableQuery<Result>> whereExists(
         not: Boolean,
-        whereable: Where<OtherTable, OtherOperationBase>
-    ): WhereExists<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).whereExists(not, whereable)
+        whereable: Where<OtherTable, Result, OtherOperationBase>
+    ): WhereExists<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).whereExists(not, whereable)
 
-    override fun constrain(offset: Long, limit: Long): WhereWithOffset<Table, OperationBase> =
-        adapter.where<Table, OperationBase>(this).constrain(offset, limit)
+    override fun constrain(
+        offset: Long,
+        limit: Long
+    ): WhereWithOffset<Table, Result, OperationBase> =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).constrain(offset, limit)
+
+    override suspend fun <DB : DBFlowDatabase> execute(db: WritableDatabaseScope<DB>): Result =
+        adapter.where<Table, Result, OperationBase>(this, resultFactory).execute(db)
 }

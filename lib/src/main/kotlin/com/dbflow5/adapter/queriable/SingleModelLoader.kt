@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 /**
  * Description: Responsible for loading data into a single object.
  */
-open class SingleModelLoader<T : Any>(modelClass: KClass<T>) : ModelLoader<T, T>(modelClass) {
+open class SingleModelLoader<T : Any>(modelClass: KClass<T>) : ModelLoader<T, T?>(modelClass) {
 
     open fun convertToData(
         cursor: FlowCursor,

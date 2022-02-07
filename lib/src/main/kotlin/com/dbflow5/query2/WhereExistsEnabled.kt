@@ -1,13 +1,16 @@
 package com.dbflow5.query2
 
-interface WhereExistsEnabled<Table : Any, OperationBase> {
+interface WhereExistsEnabled<
+    Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>> {
 
-    infix fun <OtherTable : Any, OtherOperationBase> whereExists(
-        whereable: Where<OtherTable, OtherOperationBase>
-    ): WhereExists<Table, OperationBase>
+    infix fun <OtherTable : Any, OtherOperationBase : ExecutableQuery<Result>> whereExists(
+        whereable: Where<OtherTable, Result, OtherOperationBase>
+    ): WhereExists<Table, Result, OperationBase>
 
-    fun <OtherTable : Any, OtherOperationBase> whereExists(
+    fun <OtherTable : Any, OtherOperationBase : ExecutableQuery<Result>> whereExists(
         not: Boolean = false,
-        whereable: Where<OtherTable, OtherOperationBase>
-    ): WhereExists<Table, OperationBase>
+        whereable: Where<OtherTable, Result, OtherOperationBase>
+    ): WhereExists<Table,Result,  OperationBase>
 }

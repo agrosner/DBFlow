@@ -6,16 +6,15 @@ import com.dbflow5.config.FlowManager
 import com.dbflow5.config.TableConfig
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
+import com.dbflow5.query.HasTable
 import com.dbflow5.query.OperatorGroup
-import com.dbflow5.query.select
-import com.dbflow5.query.selectCountOf
 import kotlin.reflect.KClass
 
 /**
  * Description: Provides a base retrieval class for all [Model] backed
  * adapters.
  */
-abstract class RetrievalAdapter<T : Any> {
+abstract class RetrievalAdapter<T : Any> : HasTable<T> {
 
     val singleModelLoader: SingleModelLoader<T> by lazy {
         tableConfig?.singleModelLoader ?: SingleModelLoader(table)
@@ -32,18 +31,18 @@ abstract class RetrievalAdapter<T : Any> {
     /**
      * @return the model class this adapter corresponds to
      */
-    abstract val table: KClass<T>
+    abstract override val table: KClass<T>
 
     fun loadSingle(databaseWrapper: DatabaseWrapper, query: String) =
         singleModelLoader.load(databaseWrapper, query)
 
-    fun loadSingle(flowCursor: FlowCursor?, databaseWrapper: DatabaseWrapper) =
+    fun loadSingle(flowCursor: FlowCursor, databaseWrapper: DatabaseWrapper) =
         singleModelLoader.load(flowCursor, databaseWrapper)
 
     fun loadList(databaseWrapper: DatabaseWrapper, query: String) =
         listModelLoader.load(databaseWrapper, query)
 
-    fun loadList(flowCursor: FlowCursor?, databaseWrapper: DatabaseWrapper) =
+    fun loadList(flowCursor: FlowCursor, databaseWrapper: DatabaseWrapper) =
         listModelLoader.load(flowCursor, databaseWrapper)
 
     /**

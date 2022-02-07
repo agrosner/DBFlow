@@ -2,11 +2,11 @@ package com.dbflow5.query2
 
 import com.dbflow5.query.SQLOperator
 
-/**
- * Description:
- */
-interface HavingEnabled<Table : Any, OperationBase> {
+interface HavingEnabled<
+    Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>> {
 
-    infix fun having(operator: SQLOperator): WhereWithHaving<Table, OperationBase>
-    fun having(vararg operators: SQLOperator): WhereWithHaving<Table, OperationBase>
+    infix fun having(operator: SQLOperator): WhereWithHaving<Table, Result, OperationBase>
+    fun having(vararg operators: SQLOperator): WhereWithHaving<Table, Result, OperationBase>
 }

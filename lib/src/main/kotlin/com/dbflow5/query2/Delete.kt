@@ -5,12 +5,14 @@ import com.dbflow5.sql.Query
 
 interface Delete<Table : Any> : Query,
     HasAdapter<Table, SQLObjectAdapter<Table>>,
-    Whereable<Table, Delete<Table>, SQLObjectAdapter<Table>>, Indexable<Table>
+    Whereable<Table, Long, Delete<Table>, SQLObjectAdapter<Table>>,
+    Indexable<Table>
 
 fun <Table : Any> SQLObjectAdapter<Table>.delete(): Delete<Table> = DeleteImpl(adapter = this)
 
 internal class DeleteImpl<Table : Any>(
-    override val adapter: SQLObjectAdapter<Table>
+    override val adapter: SQLObjectAdapter<Table>,
+    override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory,
 ) : Delete<Table> {
 
     override val query: String by lazy {

@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteStatement
 class AndroidDatabaseStatement
 internal constructor(
     val statement: SQLiteStatement,
-) : BaseDatabaseStatement(), DatabaseStatement {
+) : DatabaseStatement {
 
     override fun executeUpdateDelete(): Long =
         statement.executeUpdateDelete().toLong()

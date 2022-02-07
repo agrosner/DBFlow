@@ -1,8 +1,9 @@
 package com.dbflow5.database
 
-import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.query.BaseQueriable
 import com.dbflow5.runtime.NotifyDistributor
+import com.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 
 /**
  * Description: Delegates all of its calls to the contained [DatabaseStatement], while
@@ -10,17 +11,24 @@ import com.dbflow5.runtime.NotifyDistributor
  */
 class DatabaseStatementWrapper<T : Any>(
     private val databaseStatement: DatabaseStatement,
-    private val modelQueriable: BaseQueriable<T>,
+    private val action: ChangeAction,
+    private val table: KClass<T>,
     private val databaseWrapper: DatabaseWrapper,
-) : BaseDatabaseStatement() {
+) : DatabaseStatement {
+
+    constructor(
+        databaseStatement: DatabaseStatement,
+        modelQueriable: BaseQueriable<T>,
+        databaseWrapper: DatabaseWrapper,
+    ) : this(databaseStatement, modelQueriable.primaryAction, modelQueriable.table, databaseWrapper)
 
     override fun executeUpdateDelete(): Long {
         val affected = databaseStatement.executeUpdateDelete()
         if (affected > 0) {
             NotifyDistributor(databaseWrapper)
                 .notifyTableChanged(
-                    modelQueriable.table,
-                    modelQueriable.primaryAction
+                    table,
+                    action
                 )
         }
         return affected
@@ -31,8 +39,8 @@ class DatabaseStatementWrapper<T : Any>(
         if (affected > 0) {
             NotifyDistributor(databaseWrapper)
                 .notifyTableChanged(
-                    modelQueriable.table,
-                    modelQueriable.primaryAction
+                    table,
+                    action
                 )
         }
         return affected

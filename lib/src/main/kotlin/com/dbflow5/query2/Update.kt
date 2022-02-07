@@ -11,15 +11,17 @@ interface UpdateWithConflict<Table : Any> : HasConflictAction,
     Settable<Table>, Indexable<Table>
 
 interface UpdateWithSet<Table : Any> : HasConflictAction,
-    Query, HasOperatorGroup, Whereable<Table, UpdateWithSet<Table>,
-        SQLObjectAdapter<Table>>,
-    Indexable<Table>
+    Query, HasOperatorGroup,
+    Whereable<Table, Long, Update<Table>, SQLObjectAdapter<Table>>,
+    Indexable<Table>, ExecutableQuery<Long>
 
 interface Update<Table : Any> : Query,
     Conflictable<UpdateWithConflict<Table>>,
+    Whereable<Table, Long, Update<Table>, SQLObjectAdapter<Table>>,
     HasAdapter<Table, SQLObjectAdapter<Table>>,
     Settable<Table>, HasOperatorGroup,
-    Indexable<Table>
+    Indexable<Table>,
+    ExecutableQuery<Long>
 
 fun <Table : Any> SQLObjectAdapter<Table>.update(): Update<Table> = UpdateImpl(
     adapter = this,
@@ -30,6 +32,7 @@ internal data class UpdateImpl<Table : Any>(
     override val adapter: SQLObjectAdapter<Table>,
     override val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause()
         .setAllCommaSeparated(true),
+    override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory,
 ) : Update<Table>, UpdateWithConflict<Table>,
     UpdateWithSet<Table> {
 
@@ -59,4 +62,5 @@ internal data class UpdateImpl<Table : Any>(
         copy(
             operatorGroup = operatorGroup.and(condition)
         )
+
 }

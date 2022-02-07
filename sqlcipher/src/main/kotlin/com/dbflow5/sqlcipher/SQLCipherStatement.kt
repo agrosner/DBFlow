@@ -1,8 +1,6 @@
 package com.dbflow5.sqlcipher
 
-import com.dbflow5.database.BaseDatabaseStatement
 import com.dbflow5.database.DatabaseStatement
-
 import net.sqlcipher.database.SQLiteStatement
 
 /**
@@ -10,9 +8,10 @@ import net.sqlcipher.database.SQLiteStatement
  * the contained [SQLiteStatement].
  */
 class SQLCipherStatement
-internal constructor(val statement: SQLiteStatement) : BaseDatabaseStatement() {
+internal constructor(val statement: SQLiteStatement) : DatabaseStatement {
 
-    override fun executeUpdateDelete(): Long = rethrowDBFlowException { statement.executeUpdateDelete().toLong() }
+    override fun executeUpdateDelete(): Long =
+        rethrowDBFlowException { statement.executeUpdateDelete().toLong() }
 
     override fun execute() {
         statement.execute()
@@ -22,9 +21,11 @@ internal constructor(val statement: SQLiteStatement) : BaseDatabaseStatement() {
         statement.close()
     }
 
-    override fun simpleQueryForLong(): Long = rethrowDBFlowException { statement.simpleQueryForLong() }
+    override fun simpleQueryForLong(): Long =
+        rethrowDBFlowException { statement.simpleQueryForLong() }
 
-    override fun simpleQueryForString(): String? = rethrowDBFlowException { statement.simpleQueryForString() }
+    override fun simpleQueryForString(): String? =
+        rethrowDBFlowException { statement.simpleQueryForString() }
 
     override fun executeInsert(): Long = rethrowDBFlowException { statement.executeInsert() }
 

@@ -18,9 +18,9 @@ import kotlin.reflect.KClass
  */
 abstract class BaseQueriable<TModel : Any> protected constructor(
     val adapter: RetrievalAdapter<TModel>,
-) : Queriable, Actionable {
+) : Queriable, Actionable, HasTable<TModel> {
 
-    val table: KClass<TModel> = adapter.table
+    override val table: KClass<TModel> = adapter.table
 
     abstract override val primaryAction: ChangeAction
 

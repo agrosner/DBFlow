@@ -1,6 +1,8 @@
 package com.dbflow5.query2
 
 import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query.OrderBy
@@ -11,33 +13,40 @@ import com.dbflow5.sql.Query
 /**
  * Where all terminal Where queries end up in
  */
-interface Where<Table : Any, OperationBase> : Query
+interface Where<Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>> : Query,
+    ExecutableQuery<Result>
 
-interface WhereStart<Table : Any, OperationBase> :
-    Where<Table, OperationBase>,
+interface WhereStart<Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>> :
+    Where<Table, Result, OperationBase>,
     HasAdapter<Table, RetrievalAdapter<Table>>,
-    GroupByEnabled<Table, OperationBase>,
-    HavingEnabled<Table, OperationBase>,
-    Limitable<Table, OperationBase>,
-    Offsettable<Table, OperationBase>,
-    OrderByEnabled<Table, OperationBase>,
-    WhereExistsEnabled<Table, OperationBase>,
-    Constrainable<Table, OperationBase>,
+    GroupByEnabled<Table, Result, OperationBase>,
+    HavingEnabled<Table, Result, OperationBase>,
+    Limitable<Table, Result, OperationBase>,
+    Offsettable<Table, Result, OperationBase>,
+    OrderByEnabled<Table, Result, OperationBase>,
+    WhereExistsEnabled<Table, Result, OperationBase>,
+    Constrainable<Table, Result, OperationBase>,
     HasOperatorGroup {
 
-    infix fun or(sqlOperator: SQLOperator): WhereStart<Table, OperationBase>
-    infix fun and(sqlOperator: SQLOperator): WhereStart<Table, OperationBase>
+    infix fun or(sqlOperator: SQLOperator): WhereStart<Table, Result, OperationBase>
+    infix fun and(sqlOperator: SQLOperator): WhereStart<Table, Result, OperationBase>
 }
 
-interface WhereExists<Table : Any, OperationBase> :
-    Where<Table, OperationBase>,
-    GroupByEnabled<Table, OperationBase>,
-    HavingEnabled<Table, OperationBase>,
-    Limitable<Table, OperationBase>,
-    Offsettable<Table, OperationBase>,
-    OrderByEnabled<Table, OperationBase>,
-    Constrainable<Table, OperationBase> {
-    val existsWhere: Where<*, *>?
+interface WhereExists<Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>> :
+    Where<Table, Result, OperationBase>,
+    GroupByEnabled<Table, Result, OperationBase>,
+    HavingEnabled<Table, Result, OperationBase>,
+    Limitable<Table, Result, OperationBase>,
+    Offsettable<Table, Result, OperationBase>,
+    OrderByEnabled<Table, Result, OperationBase>,
+    Constrainable<Table, Result, OperationBase> {
+    val existsWhere: Where<*, *, *>?
 
     /**
      * If true, use NOT EXISTS
@@ -45,65 +54,86 @@ interface WhereExists<Table : Any, OperationBase> :
     val isNotWhere: Boolean
 }
 
-interface WhereWithGroupBy<Table : Any, OperationBase> :
-    Where<Table, OperationBase>,
-    HavingEnabled<Table, OperationBase>,
-    Limitable<Table, OperationBase>,
-    Offsettable<Table, OperationBase>,
-    OrderByEnabled<Table, OperationBase>,
-    Constrainable<Table, OperationBase> {
+interface WhereWithGroupBy<Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>> :
+    Where<Table, Result, OperationBase>,
+    HavingEnabled<Table, Result, OperationBase>,
+    Limitable<Table, Result, OperationBase>,
+    Offsettable<Table, Result, OperationBase>,
+    OrderByEnabled<Table, Result, OperationBase>,
+    Constrainable<Table, Result, OperationBase> {
     val groupByList: List<NameAlias>
 }
 
-interface WhereWithOrderBy<Table : Any, OperationBase> :
-    Where<Table, OperationBase>,
-    HavingEnabled<Table, OperationBase>,
-    Limitable<Table, OperationBase>,
-    Offsettable<Table, OperationBase>,
-    Constrainable<Table, OperationBase> {
+interface WhereWithOrderBy<Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>> :
+    Where<Table, Result, OperationBase>,
+    HavingEnabled<Table, Result, OperationBase>,
+    Limitable<Table, Result, OperationBase>,
+    Offsettable<Table, Result, OperationBase>,
+    Constrainable<Table, Result, OperationBase> {
 
     val orderByList: List<OrderBy>
 }
 
-interface WhereWithHaving<Table : Any, OperationBase> :
-    Where<Table, OperationBase>,
-    Limitable<Table, OperationBase>,
-    Offsettable<Table, OperationBase>,
-    Constrainable<Table, OperationBase> {
+interface WhereWithHaving<Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>> :
+    Where<Table, Result, OperationBase>,
+    Limitable<Table, Result, OperationBase>,
+    Offsettable<Table, Result, OperationBase>,
+    Constrainable<Table, Result, OperationBase> {
     val havingGroup: OperatorGroup
 }
 
-interface WhereWithLimit<Table : Any, OperationBase> :
-    Where<Table, OperationBase>,
-    Offsettable<Table, OperationBase> {
+interface WhereWithLimit<Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>> :
+    Where<Table, Result, OperationBase>,
+    Offsettable<Table, Result, OperationBase> {
     val limit: Long
 }
 
-interface WhereWithOffset<Table : Any, OperationBase> :
-    Where<Table, OperationBase> {
+interface WhereWithOffset<Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>> :
+    Where<Table, Result, OperationBase> {
     val offset: Long
 }
 
-internal fun <Table : Any, OperationBase> RetrievalAdapter<Table>.where(
+internal fun <Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>> RetrievalAdapter<Table>.where(
     queryBase: Query,
+    resultFactory: ResultFactory<Result>,
     operator: SQLOperator,
-): WhereStart<Table, OperationBase> = WhereImpl(
+): WhereStart<Table, Result, OperationBase> = WhereImpl(
     adapter = this,
     queryBase = queryBase,
+    resultFactory = resultFactory,
     operatorGroup = OperatorGroup.nonGroupingClause().and(operator)
 )
 
-internal fun <Table : Any, OperationBase> RetrievalAdapter<Table>.where(
+internal fun <Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>> RetrievalAdapter<Table>.where(
     queryBase: Query,
+    resultFactory: ResultFactory<Result>,
     vararg operators: SQLOperator,
-): WhereStart<Table, OperationBase> = WhereImpl(
+): WhereStart<Table, Result, OperationBase> = WhereImpl(
     adapter = this,
     queryBase = queryBase,
+    resultFactory = resultFactory,
     operatorGroup = OperatorGroup.nonGroupingClause().andAll(*operators)
 )
 
-internal data class WhereImpl<Table : Any, OperationBase>(
+internal data class WhereImpl<Table : Any,
+    Result,
+    OperationBase : ExecutableQuery<Result>>(
     private val queryBase: Query,
+    private val resultFactory: ResultFactory<Result>,
     override val adapter: RetrievalAdapter<Table>,
     override val groupByList: List<NameAlias> = listOf(),
     override val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause(),
@@ -111,15 +141,15 @@ internal data class WhereImpl<Table : Any, OperationBase>(
     override val limit: Long = NONE,
     override val offset: Long = NONE,
     override val orderByList: List<OrderBy> = listOf(),
-    override val existsWhere: Where<*, *>? = null,
+    override val existsWhere: Where<*, *, *>? = null,
     override val isNotWhere: Boolean = false,
-) : WhereStart<Table, OperationBase>,
-    WhereWithGroupBy<Table, OperationBase>,
-    WhereWithHaving<Table, OperationBase>,
-    WhereWithLimit<Table, OperationBase>,
-    WhereWithOffset<Table, OperationBase>,
-    WhereWithOrderBy<Table, OperationBase>,
-    WhereExists<Table, OperationBase> {
+) : WhereStart<Table, Result, OperationBase>,
+    WhereWithGroupBy<Table, Result, OperationBase>,
+    WhereWithHaving<Table, Result, OperationBase>,
+    WhereWithLimit<Table, Result, OperationBase>,
+    WhereWithOffset<Table, Result, OperationBase>,
+    WhereWithOrderBy<Table, Result, OperationBase>,
+    WhereExists<Table, Result, OperationBase> {
     override val query: String by lazy {
         buildString {
             append("${queryBase.query.trim()} ")
@@ -144,63 +174,63 @@ internal data class WhereImpl<Table : Any, OperationBase>(
         }
     }
 
-    override fun groupBy(nameAlias: NameAlias): WhereWithGroupBy<Table, OperationBase> =
+    override fun groupBy(nameAlias: NameAlias): WhereWithGroupBy<Table, Result, OperationBase> =
         copy(
             groupByList = groupByList.toMutableList().apply { add(nameAlias) }
         )
 
-    override fun groupBy(vararg nameAliases: NameAlias): WhereWithGroupBy<Table, OperationBase> =
+    override fun groupBy(vararg nameAliases: NameAlias): WhereWithGroupBy<Table, Result, OperationBase> =
         copy(
             groupByList = groupByList.toMutableList().apply { addAll(nameAliases) }
         )
 
-    override fun groupBy(property: IProperty<*>): WhereWithGroupBy<Table, OperationBase> =
+    override fun groupBy(property: IProperty<*>): WhereWithGroupBy<Table, Result, OperationBase> =
         copy(
             groupByList = groupByList.toMutableList().apply { add(property.nameAlias) }
         )
 
-    override fun groupBy(vararg properties: IProperty<*>): WhereWithGroupBy<Table, OperationBase> =
+    override fun groupBy(vararg properties: IProperty<*>): WhereWithGroupBy<Table, Result, OperationBase> =
         copy(
             groupByList = groupByList.toMutableList()
                 .apply { addAll(properties.map { it.nameAlias }) }
         )
 
-    override fun or(sqlOperator: SQLOperator): WhereStart<Table, OperationBase> =
+    override fun or(sqlOperator: SQLOperator): WhereStart<Table, Result, OperationBase> =
         copy(
             operatorGroup = operatorGroup.or(sqlOperator)
         )
 
-    override fun and(sqlOperator: SQLOperator): WhereStart<Table, OperationBase> =
+    override fun and(sqlOperator: SQLOperator): WhereStart<Table, Result, OperationBase> =
         copy(
             operatorGroup = operatorGroup.and(sqlOperator)
         )
 
-    override fun having(operator: SQLOperator): WhereWithHaving<Table, OperationBase> =
+    override fun having(operator: SQLOperator): WhereWithHaving<Table, Result, OperationBase> =
         copy(
             havingGroup = havingGroup.and(operator)
         )
 
-    override fun having(vararg operators: SQLOperator): WhereWithHaving<Table, OperationBase> =
+    override fun having(vararg operators: SQLOperator): WhereWithHaving<Table, Result, OperationBase> =
         copy(
             havingGroup = havingGroup.andAll(*operators),
         )
 
-    override fun limit(count: Long): WhereWithLimit<Table, OperationBase> =
+    override fun limit(count: Long): WhereWithLimit<Table, Result, OperationBase> =
         copy(
             limit = count,
         )
 
-    override fun offset(offset: Long): WhereWithOffset<Table, OperationBase> =
+    override fun offset(offset: Long): WhereWithOffset<Table, Result, OperationBase> =
         copy(
             offset = offset,
         )
 
-    override fun orderBy(orderBy: OrderBy): WhereWithOrderBy<Table, OperationBase> =
+    override fun orderBy(orderBy: OrderBy): WhereWithOrderBy<Table, Result, OperationBase> =
         copy(
             orderByList = listOf(orderBy),
         )
 
-    override fun orderBy(vararg orderBies: OrderBy): WhereWithOrderBy<Table, OperationBase> =
+    override fun orderBy(vararg orderBies: OrderBy): WhereWithOrderBy<Table, Result, OperationBase> =
         copy(
             orderByList = orderBies.toList(),
         )
@@ -208,7 +238,7 @@ internal data class WhereImpl<Table : Any, OperationBase>(
     override fun orderBy(
         nameAlias: NameAlias,
         ascending: Boolean
-    ): WhereWithOrderBy<Table, OperationBase> =
+    ): WhereWithOrderBy<Table, Result, OperationBase> =
         copy(
             orderByList = listOf(OrderBy.fromNameAlias(nameAlias, isAscending = ascending)),
         )
@@ -216,33 +246,39 @@ internal data class WhereImpl<Table : Any, OperationBase>(
     override fun orderBy(
         property: IProperty<*>,
         ascending: Boolean
-    ): WhereWithOrderBy<Table, OperationBase> =
+    ): WhereWithOrderBy<Table, Result, OperationBase> =
         copy(
             orderByList = listOf(OrderBy.fromProperty(property, isAscending = ascending)),
         )
 
 
-    override fun orderByAll(orderByList: List<OrderBy>): WhereWithOrderBy<Table, OperationBase> =
+    override fun orderByAll(orderByList: List<OrderBy>): WhereWithOrderBy<Table, Result, OperationBase> =
         copy(
             orderByList = orderByList,
         )
 
-    override fun <OtherTable : Any, OperationBase> whereExists(whereable: Where<OtherTable, OperationBase>) =
+    override fun <OtherTable : Any, OperationBase : ExecutableQuery<Result>> whereExists(whereable: Where<OtherTable, Result, OperationBase>) =
         copy(
             existsWhere = whereable,
         )
 
-    override fun <OtherTable : Any, OtherOperationBase> whereExists(
+    override fun <OtherTable : Any, OtherOperationBase : ExecutableQuery<Result>> whereExists(
         not: Boolean,
-        whereable: Where<OtherTable, OtherOperationBase>
-    ): WhereExists<Table, OperationBase> =
+        whereable: Where<OtherTable, Result, OtherOperationBase>
+    ): WhereExists<Table, Result, OperationBase> =
         copy(
             existsWhere = whereable,
             isNotWhere = not,
         )
 
-    override fun constrain(offset: Long, limit: Long): WhereWithOffset<Table, OperationBase> =
+    override fun constrain(
+        offset: Long,
+        limit: Long
+    ): WhereWithOffset<Table, Result, OperationBase> =
         limit(limit).offset(offset)
+
+    override suspend fun <DB : DBFlowDatabase> execute(db: WritableDatabaseScope<DB>): Result =
+        resultFactory.run { db.db.createResult(query) }
 
     companion object {
         private const val NONE = -1L;

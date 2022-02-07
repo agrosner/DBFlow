@@ -21,29 +21,67 @@ interface DatabaseStatement : Closeable {
 
     fun bindString(index: Int, s: String)
 
-    fun bindStringOrNull(index: Int, s: String?)
-
     fun bindNull(index: Int)
 
     fun bindLong(index: Int, aLong: Long)
 
-    fun bindLongOrNull(index: Int, aLong: Long?)
-
-    fun bindNumber(index: Int, number: Number?)
-
-    fun bindNumberOrNull(index: Int, number: Number?)
-
     fun bindDouble(index: Int, aDouble: Double)
-
-    fun bindDoubleOrNull(index: Int, aDouble: Double?)
-
-    fun bindFloatOrNull(index: Int, aFloat: Float?)
 
     fun bindBlob(index: Int, bytes: ByteArray)
 
-    fun bindBlobOrNull(index: Int, bytes: ByteArray?)
-
     fun bindAllArgsAsStrings(selectionArgs: Array<String>?)
+
+    fun bindStringOrNull(index: Int, s: String?) {
+        if (s != null) {
+            bindString(index, s)
+        } else {
+            bindNull(index)
+        }
+    }
+
+    fun bindNumber(index: Int, number: Number?) {
+        bindNumberOrNull(index, number)
+    }
+
+    fun bindNumberOrNull(index: Int, number: Number?) {
+        if (number != null) {
+            bindLong(index, number.toLong())
+        } else {
+            bindNull(index)
+        }
+    }
+
+    fun bindLongOrNull(index: Int, aLong: Long?) {
+        if (aLong != null) {
+            bindLong(index, aLong)
+        } else {
+            bindNull(index)
+        }
+    }
+
+    fun bindDoubleOrNull(index: Int, aDouble: Double?) {
+        if (aDouble != null) {
+            bindDouble(index, aDouble)
+        } else {
+            bindNull(index)
+        }
+    }
+
+    fun bindFloatOrNull(index: Int, aFloat: Float?) {
+        if (aFloat != null) {
+            bindDouble(index, aFloat.toDouble())
+        } else {
+            bindNull(index)
+        }
+    }
+
+    fun bindBlobOrNull(index: Int, bytes: ByteArray?) {
+        if (bytes != null) {
+            bindBlob(index, bytes)
+        } else {
+            bindNull(index)
+        }
+    }
 }
 
 inline fun DatabaseStatement.bind(index: Int, value: String) {
