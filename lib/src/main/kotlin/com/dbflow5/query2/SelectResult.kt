@@ -4,6 +4,7 @@ import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.database.SQLiteException
+import com.dbflow5.database.scope.ReadableQueriableScope
 
 internal data class SelectResultFactory<Table : Any>(
     override val adapter: SQLObjectAdapter<Table>

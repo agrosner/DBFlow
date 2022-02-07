@@ -11,6 +11,7 @@ import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.Queriable
 import com.dbflow5.query2.ExecutableQuery
+import com.dbflow5.query2.SelectResult
 
 /**
  * Description:
@@ -127,6 +128,27 @@ internal constructor(
     override suspend fun <Result> ExecutableQuery<Result>.execute(): Result {
         return execute(this@DatabaseScopeImpl)
     }
+
+    override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.singleOrNull(): Table? =
+        execute(this@DatabaseScopeImpl).singleOrNull()
+
+    override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.single(): Table =
+        execute(this@DatabaseScopeImpl).single()
+
+    override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.list(): List<Table> =
+        execute(this@DatabaseScopeImpl).list()
+
+    override suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.singleOrNull(
+        adapter: RetrievalAdapter<OtherTable>
+    ): OtherTable? = execute(this@DatabaseScopeImpl).singleOrNull(adapter)
+
+    override suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.single(
+        adapter: RetrievalAdapter<OtherTable>
+    ): OtherTable? = execute(this@DatabaseScopeImpl).single(adapter)
+
+    override suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.list(
+        adapter: RetrievalAdapter<OtherTable>
+    ): List<OtherTable> = execute(this@DatabaseScopeImpl).list(adapter)
 }
 
 fun <DB : DBFlowDatabase> WritableDatabaseScope(
