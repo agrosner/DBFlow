@@ -7,7 +7,8 @@ import com.dbflow5.authorNameQuery
 import com.dbflow5.blogAdapter
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
-import com.dbflow5.query.select
+import com.dbflow5.query2.innerJoin
+import com.dbflow5.query2.select
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -28,13 +29,13 @@ class QueryModelTest : BaseUnitTest() {
             assert(authorAdapter.exists(authorModel))
             assert(blogAdapter.exists(blogModel))
 
-            val result: AuthorNameQuery = (select(
+            val result: AuthorNameQuery = (blogAdapter.select(
                 Blog_Table.name.withTable().`as`("blogName"),
                 Blog_Table.id.withTable().`as`("authorId"),
                 Blog_Table.id.withTable().`as`("blogId")
-            ) from blogAdapter innerJoin
+            ) innerJoin
                 authorAdapter on (Blog_Table.author_id.withTable() eq Blog_Table.id.withTable()))
-                .requireCustomSingle(authorNameQuery)
+                .single(authorNameQuery)
             assertEquals(authorModel.id, result.authorId)
             assertEquals(blogModel.id, result.blogId)
         }

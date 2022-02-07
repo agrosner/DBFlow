@@ -147,7 +147,7 @@ internal constructor(
 
     override suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.single(
         adapter: RetrievalAdapter<OtherTable>
-    ): OtherTable? = execute(db).single(adapter)
+    ): OtherTable = execute(db).single(adapter)
 
     override suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.list(
         adapter: RetrievalAdapter<OtherTable>

@@ -5,7 +5,7 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.query.UnSafeStringOperator
-import com.dbflow5.query.select
+import com.dbflow5.query2.select
 import org.junit.Test
 
 class UnsafeStringOperatorTest : BaseUnitTest() {
@@ -20,7 +20,7 @@ class UnsafeStringOperatorTest : BaseUnitTest() {
             "name = 'name', id = 0, test = 'test'"
                 .assertEquals(op)
             "SELECT * FROM `SimpleModel` WHERE name = 'name', id = 0, test = 'test'"
-                .assertEquals(select from db.simpleModelAdapter where op)
+                .assertEquals(db.simpleModelAdapter.select() where op)
         }
     }
 }

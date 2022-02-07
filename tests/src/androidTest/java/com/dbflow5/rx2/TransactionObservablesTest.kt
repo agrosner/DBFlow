@@ -5,7 +5,7 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel
-import com.dbflow5.query.select
+import com.dbflow5.query2.select
 import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.simpleModelAdapter
 import org.junit.Assert.assertEquals
@@ -30,7 +30,7 @@ class TransactionObservablesTest : BaseUnitTest() {
             .asSingle()
             .doAfterSuccess {
                 database<TestDatabase>()
-                    .beginTransactionAsync { (select from simpleModelAdapter).queryList() }
+                    .beginTransactionAsync { simpleModelAdapter.select().list() }
                     .asSingle()
                     .subscribe { loadedList: List<SimpleModel> ->
                         list = loadedList

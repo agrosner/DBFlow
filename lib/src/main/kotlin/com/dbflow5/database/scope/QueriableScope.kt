@@ -30,7 +30,7 @@ interface ReadableQueriableScope {
 
     suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.single(
         adapter: RetrievalAdapter<OtherTable>,
-    ): OtherTable?
+    ): OtherTable
 
     suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.list(
         adapter: RetrievalAdapter<OtherTable>,

@@ -5,8 +5,8 @@ import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.OperatorGroup
-import com.dbflow5.query.select
 import com.dbflow5.query.selectCountOf
+import com.dbflow5.query2.select
 import kotlin.reflect.KClass
 
 /**
@@ -19,8 +19,7 @@ abstract class SQLObjectAdapter<TModel : Any> : RetrievalAdapter<TModel>(), Crea
     suspend fun loadSingle(model: TModel, databaseWrapper: DatabaseWrapper): TModel? =
         singleModelLoader.load(
             databaseWrapper,
-            (select
-                from this
+            (this.select()
                 where getPrimaryConditionClause(model)).query
         )
 
