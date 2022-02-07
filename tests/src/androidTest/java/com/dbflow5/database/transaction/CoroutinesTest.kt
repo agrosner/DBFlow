@@ -8,7 +8,6 @@ import com.dbflow5.config.writableTransaction
 import com.dbflow5.coroutines.toFlow
 import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table
-import com.dbflow5.query.select
 import com.dbflow5.query2.select
 import com.dbflow5.twoColumnModelAdapter
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
@@ -35,7 +34,7 @@ class CoroutinesTest : BaseUnitTest() {
 
         database.readableTransaction {
             (twoColumnModelAdapter.select() where TwoColumnModel_Table.id.eq(5))
-                .toFlow(database).first()
+                .toFlow(database) { single() }.first()
         }
     }
 
@@ -46,7 +45,7 @@ class CoroutinesTest : BaseUnitTest() {
         val job = launch {
             database.readableTransaction {
                 twoColumnModelAdapter.select()
-                    .toFlow(database)
+                    .toFlow(database) { list() }
                     .collect {
                         count.offer(count.value + 1)
                     }

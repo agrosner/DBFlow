@@ -1,10 +1,12 @@
 package com.dbflow5.coroutines
 
+import com.dbflow5.annotation.Table
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.enqueueTransaction
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query2.ExecutableQuery
 import com.dbflow5.query2.HasAssociatedAdapters
+import com.dbflow5.query2.SelectResult
 import com.dbflow5.transaction.Transaction
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
@@ -16,12 +18,15 @@ import kotlin.reflect.KClass
  * Builds a [Flow] that listens for table changes and emits when they change.
  */
 @ExperimentalCoroutinesApi
-fun <Result, Q> Q.toFlow(
+fun <Table : Any, Result, Q> Q.toFlow(
     db: DBFlowDatabase,
-): Flow<Result> where Q : ExecutableQuery<Result>, Q : HasAssociatedAdapters {
+    selectResultFn: suspend SelectResult<Table>.() -> Result
+): Flow<Result>
+    where Q : ExecutableQuery<SelectResult<Table>>,
+          Q : HasAssociatedAdapters {
     return callbackFlow {
         fun evaluateEmission() {
-            db.enqueueTransaction { channel.send(execute()) }
+            db.enqueueTransaction { channel.send(execute().selectResultFn()) }
         }
 
         val onTableChangedObserver =
