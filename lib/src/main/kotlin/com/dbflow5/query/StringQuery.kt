@@ -9,6 +9,7 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.sql.Query
 import com.dbflow5.structure.ChangeAction
+import kotlinx.coroutines.runBlocking
 
 /**
  * Description: Provides a very basic query mechanism for strings. Allows you to easily perform custom SQL cursor string
@@ -38,12 +39,12 @@ class StringQuery<T : Any>
 
     override fun queryList(databaseWrapper: DatabaseWrapper): List<T> {
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return adapter.loadList(cursor(databaseWrapper), databaseWrapper)!!
+        return runBlocking { adapter.loadList(cursor(databaseWrapper), databaseWrapper) }
     }
 
     override fun querySingle(databaseWrapper: DatabaseWrapper): T? {
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return adapter.loadSingle(cursor(databaseWrapper), databaseWrapper)!!
+        return runBlocking { adapter.loadSingle(cursor(databaseWrapper), databaseWrapper) }
     }
 
     override fun <QueryClass : Any> queryCustomList(
@@ -53,7 +54,7 @@ class StringQuery<T : Any>
         : List<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return retrievalAdapter.loadList(cursor(databaseWrapper), databaseWrapper)!!
+        return runBlocking { retrievalAdapter.loadList(cursor(databaseWrapper), databaseWrapper) }
     }
 
     override fun <QueryClass : Any> queryCustomSingle(
@@ -63,7 +64,7 @@ class StringQuery<T : Any>
         : QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return retrievalAdapter.loadSingle(cursor(databaseWrapper), databaseWrapper)
+        return runBlocking { retrievalAdapter.loadSingle(cursor(databaseWrapper), databaseWrapper) }
     }
 
     override fun compileStatement(databaseWrapper: DatabaseWrapper): DatabaseStatement {

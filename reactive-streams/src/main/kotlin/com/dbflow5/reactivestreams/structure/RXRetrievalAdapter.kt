@@ -4,6 +4,7 @@ import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.database.DatabaseWrapper
 import io.reactivex.rxjava3.core.Single
+import kotlinx.coroutines.runBlocking
 
 /**
  * Description: Mirrors the [RetrievalAdapter] with subset of exposed methods, mostly for
@@ -13,7 +14,7 @@ open class RXRetrievalAdapter<T : Any>
 internal constructor(private val retrievalAdapter: SQLObjectAdapter<T>) {
 
     fun load(model: T, databaseWrapper: DatabaseWrapper): Single<T> = Single.fromCallable {
-        retrievalAdapter.loadSingle(model, databaseWrapper)
+        runBlocking { retrievalAdapter.loadSingle(model, databaseWrapper) }
     }
 
     /**

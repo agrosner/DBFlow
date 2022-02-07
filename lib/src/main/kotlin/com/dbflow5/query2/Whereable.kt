@@ -1,8 +1,7 @@
 package com.dbflow5.query2
 
 import com.dbflow5.adapter.RetrievalAdapter
-import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.database.scope.WritableDatabaseScope
+import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OrderBy
 import com.dbflow5.query.SQLOperator
@@ -99,6 +98,6 @@ interface Whereable<Table : Any,
     ): WhereWithOffset<Table, Result, OperationBase> =
         adapter.where<Table, Result, OperationBase>(this, resultFactory).constrain(offset, limit)
 
-    override suspend fun <DB : DBFlowDatabase> execute(db: WritableDatabaseScope<DB>): Result =
+    override suspend fun execute(db: DatabaseWrapper): Result =
         adapter.where<Table, Result, OperationBase>(this, resultFactory).execute(db)
 }

@@ -33,16 +33,16 @@ abstract class RetrievalAdapter<T : Any> : HasTable<T> {
      */
     abstract override val table: KClass<T>
 
-    fun loadSingle(databaseWrapper: DatabaseWrapper, query: String) =
+    suspend fun loadSingle(databaseWrapper: DatabaseWrapper, query: String) =
         singleModelLoader.load(databaseWrapper, query)
 
-    fun loadSingle(flowCursor: FlowCursor, databaseWrapper: DatabaseWrapper) =
+    suspend fun loadSingle(flowCursor: FlowCursor, databaseWrapper: DatabaseWrapper) =
         singleModelLoader.load(flowCursor, databaseWrapper)
 
-    fun loadList(databaseWrapper: DatabaseWrapper, query: String) =
+    suspend fun loadList(databaseWrapper: DatabaseWrapper, query: String) =
         listModelLoader.load(databaseWrapper, query)
 
-    fun loadList(flowCursor: FlowCursor, databaseWrapper: DatabaseWrapper) =
+    suspend fun loadList(flowCursor: FlowCursor, databaseWrapper: DatabaseWrapper) =
         listModelLoader.load(flowCursor, databaseWrapper)
 
     /**
@@ -51,7 +51,7 @@ abstract class RetrievalAdapter<T : Any> : HasTable<T> {
      * @param cursor The cursor to load into the model
      * @param wrapper The database instance to use.
      */
-    abstract fun loadFromCursor(cursor: FlowCursor, wrapper: DatabaseWrapper): T
+    abstract suspend fun loadFromCursor(cursor: FlowCursor, wrapper: DatabaseWrapper): T
 
     /**
      * @param model The primary condition clause.

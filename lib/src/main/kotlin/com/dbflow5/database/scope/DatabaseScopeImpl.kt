@@ -126,29 +126,29 @@ internal constructor(
     }
 
     override suspend fun <Result> ExecutableQuery<Result>.execute(): Result {
-        return execute(this@DatabaseScopeImpl)
+        return execute(db)
     }
 
     override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.singleOrNull(): Table? =
-        execute(this@DatabaseScopeImpl).singleOrNull()
+        execute(db).singleOrNull()
 
     override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.single(): Table =
-        execute(this@DatabaseScopeImpl).single()
+        execute(db).single()
 
     override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.list(): List<Table> =
-        execute(this@DatabaseScopeImpl).list()
+        execute(db).list()
 
     override suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.singleOrNull(
         adapter: RetrievalAdapter<OtherTable>
-    ): OtherTable? = execute(this@DatabaseScopeImpl).singleOrNull(adapter)
+    ): OtherTable? = execute(db).singleOrNull(adapter)
 
     override suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.single(
         adapter: RetrievalAdapter<OtherTable>
-    ): OtherTable? = execute(this@DatabaseScopeImpl).single(adapter)
+    ): OtherTable? = execute(db).single(adapter)
 
     override suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.list(
         adapter: RetrievalAdapter<OtherTable>
-    ): List<OtherTable> = execute(this@DatabaseScopeImpl).list(adapter)
+    ): List<OtherTable> = execute(db).list(adapter)
 }
 
 fun <DB : DBFlowDatabase> WritableDatabaseScope(

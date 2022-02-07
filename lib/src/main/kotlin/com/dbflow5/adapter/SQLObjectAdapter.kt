@@ -16,7 +16,7 @@ abstract class SQLObjectAdapter<TModel : Any> : RetrievalAdapter<TModel>(), Crea
     /**
      * Returns a new [model] based on the object passed in. Will not overwrite existing object.
      */
-    fun loadSingle(model: TModel, databaseWrapper: DatabaseWrapper): TModel? =
+    suspend fun loadSingle(model: TModel, databaseWrapper: DatabaseWrapper): TModel? =
         singleModelLoader.load(
             databaseWrapper,
             (select
@@ -58,7 +58,7 @@ internal class LazySQLObjectAdapter<T : Any>(
     override val table: KClass<T>
         get() = realAdapter.table
 
-    override fun loadFromCursor(cursor: FlowCursor, wrapper: DatabaseWrapper): T =
+    override suspend fun loadFromCursor(cursor: FlowCursor, wrapper: DatabaseWrapper): T =
         realAdapter.loadFromCursor(cursor, wrapper)
 
     override fun getPrimaryConditionClause(model: T): OperatorGroup =

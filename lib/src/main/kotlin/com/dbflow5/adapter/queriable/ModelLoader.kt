@@ -27,10 +27,10 @@ abstract class ModelLoader<TModel : Any, out TReturn>(
      * @param query           The query to call.
      * @return The data loaded from the database.
      */
-    open fun load(databaseWrapper: DatabaseWrapper, query: String): TReturn =
+    open suspend fun load(databaseWrapper: DatabaseWrapper, query: String): TReturn =
         load(databaseWrapper.rawQuery(query, null), databaseWrapper)
 
-    open fun load(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): TReturn {
+    open suspend fun load(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): TReturn {
         var data: TReturn
         cursor.use { data = convertToData(it, databaseWrapper) }
         return data
@@ -42,5 +42,5 @@ abstract class ModelLoader<TModel : Any, out TReturn>(
      * @param cursor The cursor resulting from a query passed into [.load]
      * @return A new (or reused) instance that represents the [FlowCursor].
      */
-    abstract fun convertToData(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): TReturn
+    abstract suspend fun convertToData(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): TReturn
 }

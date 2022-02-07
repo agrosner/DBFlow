@@ -1,7 +1,6 @@
 package com.dbflow5.query2
 
-import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.database.scope.WritableDatabaseScope
+import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.sql.Query
 
 /**
@@ -9,7 +8,7 @@ import com.dbflow5.sql.Query
  */
 interface ExecutableQuery<Result> : Query {
 
-    suspend fun <DB : DBFlowDatabase> execute(
-        db: WritableDatabaseScope<DB>
+    suspend fun execute(
+        db: DatabaseWrapper,
     ): Result
 }

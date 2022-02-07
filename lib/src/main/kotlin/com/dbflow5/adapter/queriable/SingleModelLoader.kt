@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
  */
 open class SingleModelLoader<T : Any>(modelClass: KClass<T>) : ModelLoader<T, T?>(modelClass) {
 
-    open fun convertToData(
+    open suspend fun convertToData(
         cursor: FlowCursor,
         moveToFirst: Boolean,
         databaseWrapper: DatabaseWrapper
@@ -18,7 +18,7 @@ open class SingleModelLoader<T : Any>(modelClass: KClass<T>) : ModelLoader<T, T?
             instanceAdapter.loadFromCursor(cursor, databaseWrapper)
         } else null
 
-    override fun convertToData(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): T? {
+    override suspend fun convertToData(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): T? {
         return convertToData(cursor, true, databaseWrapper)
     }
 }

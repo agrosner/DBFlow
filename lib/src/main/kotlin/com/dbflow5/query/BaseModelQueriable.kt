@@ -8,6 +8,7 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.query.list.FlowQueryList
 import com.dbflow5.sql.Query
+import kotlinx.coroutines.runBlocking
 
 /**
  * Description: Provides a base implementation of [ModelQueriable] to simplify a lot of code. It provides the
@@ -28,13 +29,13 @@ protected constructor(adapter: RetrievalAdapter<TModel>) :
     override fun queryList(databaseWrapper: DatabaseWrapper): List<TModel> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return adapter.loadList(databaseWrapper, query)!!
+        return runBlocking { adapter.loadList(databaseWrapper, query) }
     }
 
     override fun querySingle(databaseWrapper: DatabaseWrapper): TModel? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return adapter.loadSingle(databaseWrapper, query)
+        return runBlocking { adapter.loadSingle(databaseWrapper, query) }
     }
 
     override fun cursorList(databaseWrapper: DatabaseWrapper): FlowCursorList<TModel> =
@@ -53,7 +54,7 @@ protected constructor(adapter: RetrievalAdapter<TModel>) :
         : List<QueryClass> {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return retrievalAdapter.loadList(databaseWrapper, query)!!
+        return runBlocking { retrievalAdapter.loadList(databaseWrapper, query) }
     }
 
     override fun <QueryClass : Any> queryCustomSingle(
@@ -63,7 +64,7 @@ protected constructor(adapter: RetrievalAdapter<TModel>) :
         : QueryClass? {
         val query = query
         FlowLog.log(FlowLog.Level.V, "Executing query: $query")
-        return retrievalAdapter.loadSingle(databaseWrapper, query)
+        return runBlocking { retrievalAdapter.loadSingle(databaseWrapper, query) }
     }
 }
 

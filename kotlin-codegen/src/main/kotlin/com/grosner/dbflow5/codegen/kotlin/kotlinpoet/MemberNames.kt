@@ -15,9 +15,10 @@ object MemberNames {
     val bind = MemberName(PackageNames.Database, "bind")
     val propertyBind = MemberName(PackageNames.Property, "bindProperty")
 
-    val select = MemberName(PackageNames.Query, "select")
-
-    val modelAdapter = MemberName(PackageNames.Config, "modelAdapter")
+    val select = MemberName(PackageNames.Query2, "select")
+    val single = MemberName(PackageNames.Query2, "single")
+    val singleOrNull = MemberName(PackageNames.Query2, "singleOrNull")
+    val list = MemberName(PackageNames.Query2, "list")
 
     const val from = "from"
     const val where = "where"

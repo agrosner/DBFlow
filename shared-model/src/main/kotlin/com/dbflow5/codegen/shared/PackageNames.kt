@@ -3,6 +3,7 @@ package com.dbflow5.codegen.shared
 object PackageNames {
     const val Core = "com.dbflow5"
     const val Query = "com.dbflow5.query"
+    const val Query2 = "com.dbflow5.query2"
     const val Property = "com.dbflow5.query.property"
     const val Adapter = "com.dbflow5.adapter"
     const val Config = "com.dbflow5.config"

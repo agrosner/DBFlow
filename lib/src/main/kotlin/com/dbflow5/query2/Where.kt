@@ -1,8 +1,7 @@
 package com.dbflow5.query2
 
 import com.dbflow5.adapter.RetrievalAdapter
-import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.database.scope.WritableDatabaseScope
+import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query.OrderBy
@@ -30,7 +29,8 @@ interface WhereStart<Table : Any,
     OrderByEnabled<Table, Result, OperationBase>,
     WhereExistsEnabled<Table, Result, OperationBase>,
     Constrainable<Table, Result, OperationBase>,
-    HasOperatorGroup {
+    HasOperatorGroup,
+    ExecutableQuery<Result> {
 
     infix fun or(sqlOperator: SQLOperator): WhereStart<Table, Result, OperationBase>
     infix fun and(sqlOperator: SQLOperator): WhereStart<Table, Result, OperationBase>
@@ -277,8 +277,8 @@ internal data class WhereImpl<Table : Any,
     ): WhereWithOffset<Table, Result, OperationBase> =
         limit(limit).offset(offset)
 
-    override suspend fun <DB : DBFlowDatabase> execute(db: WritableDatabaseScope<DB>): Result =
-        resultFactory.run { db.db.createResult(query) }
+    override suspend fun execute(db: DatabaseWrapper): Result =
+        resultFactory.run { db.createResult(query) }
 
     companion object {
         private const val NONE = -1L;

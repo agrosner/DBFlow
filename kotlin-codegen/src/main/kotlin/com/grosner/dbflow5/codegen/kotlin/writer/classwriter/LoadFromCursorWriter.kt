@@ -16,7 +16,6 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
-import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 
 /**
@@ -31,7 +30,7 @@ class LoadFromCursorWriter(
         FunSpec.builder("loadFromCursor")
             .returns(model.classType)
             .apply {
-                addModifiers(KModifier.OVERRIDE)
+                addModifiers(KModifier.OVERRIDE, KModifier.SUSPEND)
                 addParameter(
                     ParameterSpec("cursor", ClassNames.FlowCursor),
                 )
@@ -160,12 +159,10 @@ class LoadFromCursorWriter(
     ): Int {
         val reference = referencesCache.resolve(field)
         addStatement(
-            "val %N = ((%M %L %N) %L ",
+            "val %N = (%N.%M() where ",
             field.name.shortName,
-            MemberNames.select,
-            MemberNames.from,
             reference.generatedFieldName,
-            MemberNames.where,
+            MemberNames.select,
         )
         val zip = field.references(referencesCache).zip(
             field.references(referencesCache, field.name)
@@ -189,8 +186,8 @@ class LoadFromCursorWriter(
             )
         }
         addStatement(
-            "\t).%L(%N)",
-            MemberNames.queryList,
+            "\t).%M(%N)",
+            MemberNames.list,
             "wrapper"
         )
         return (zip.size - 1) + currentIndex
@@ -208,12 +205,10 @@ class LoadFromCursorWriter(
         )
         val resolvedField = referencesCache.resolve(field)
         addStatement(
-            "val %N = ((%M %L %N) %L",
+            "val %N = (%N.%M() where",
             field.name.shortName,
-            MemberNames.select,
-            MemberNames.from,
             resolvedField.generatedFieldName,
-            MemberNames.where,
+            MemberNames.select,
         )
         val zip = field.references(referencesCache).zip(
             field.references(referencesCache, field.name)
@@ -250,10 +245,10 @@ class LoadFromCursorWriter(
             addStatement(")")
         }
         addStatement(
-            "\t).%L(%N)",
+            "\t).%M(%N)",
             if (field.classType.isNullable)
-                MemberNames.querySingle
-            else MemberNames.requireSingle,
+                MemberNames.singleOrNull
+            else MemberNames.single,
             "wrapper",
         )
         return currentIndex + (zip.size - 1)

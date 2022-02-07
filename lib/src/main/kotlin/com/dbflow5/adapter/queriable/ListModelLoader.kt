@@ -10,7 +10,7 @@ import kotlin.reflect.KClass
 open class ListModelLoader<T : Any>(modelClass: KClass<T>) :
     ModelLoader<T, MutableList<T>>(modelClass) {
 
-    override fun convertToData(
+    override suspend fun convertToData(
         cursor: FlowCursor,
         databaseWrapper: DatabaseWrapper
     ): MutableList<T> {

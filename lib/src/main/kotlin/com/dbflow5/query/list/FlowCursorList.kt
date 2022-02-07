@@ -6,6 +6,7 @@ import com.dbflow5.config.FlowLog
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.ModelQueriable
+import kotlinx.coroutines.runBlocking
 
 /**
  * Interface for callbacks when cursor gets refreshed.
@@ -40,7 +41,7 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
             throwIfCursorClosed()
             warnEmptyCursor()
             return _cursor?.let { cursor ->
-                adapter.listModelLoader.convertToData(cursor, databaseWrapper)
+                runBlocking { adapter.listModelLoader.convertToData(cursor, databaseWrapper) }
             } ?: listOf()
         }
 
@@ -114,10 +115,12 @@ class FlowCursorList<T : Any> private constructor(builder: Builder<T>) : IFlowCu
 
         val cursor = unpackCursor()
         return if (cursor.moveToPosition(index.toInt())) {
-            adapter.singleModelLoader.convertToData(
-                FlowCursor.from(cursor), false,
-                databaseWrapper
-            )
+            runBlocking {
+                adapter.singleModelLoader.convertToData(
+                    FlowCursor.from(cursor), false,
+                    databaseWrapper
+                )
+            }
                 ?: throw IndexOutOfBoundsException("Invalid item at index $index. Check your cursor data.")
         } else {
             throw IndexOutOfBoundsException("Invalid item at index $index. Check your cursor data.")
