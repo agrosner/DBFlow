@@ -2,40 +2,46 @@ package com.dbflow5.paging
 
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.Select
-import com.dbflow5.query.Transformable
 import com.dbflow5.query.WhereBase
-import com.dbflow5.query.extractFrom
-import com.dbflow5.query.selectCountOf
+import com.dbflow5.query2.Constrainable
+import com.dbflow5.query2.ExecutableQuery
+import com.dbflow5.query2.HasAdapter
+import com.dbflow5.query2.HasAssociatedAdapters
+import com.dbflow5.query2.SelectResult
+import com.dbflow5.query2.selectCountOf
 import kotlin.reflect.KClass
 
 /**
  * Bridges the [ModelQueriable] into a [PositionalDataSource] that loads a [ModelQueriable].
  */
-class QueryDataSource<T : Any, TQuery>
+class QueryDataSource<Table : Any, Q>
 internal constructor(
     private val db: DBFlowDatabase,
-    private val transformable: TQuery,
-) : PositionalDataSource<T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
+    private val executableQuery: Q,
+) : PositionalDataSource<Table>()
+    where Q : ExecutableQuery<SelectResult<Table>>,
+          Q : HasAssociatedAdapters,
+          Q : HasAdapter<Table, SQLObjectAdapter<Table>>,
+          Q : Constrainable<Table, SelectResult<Table>, Q> {
 
-    private val associatedTables: Set<KClass<*>> = transformable.extractFrom()?.associatedTables
-        ?: setOf(transformable.adapter.table)
+    private val associatedTables: Set<KClass<*>> =
+        executableQuery.associatedAdapters.mapTo(mutableSetOf()) { it.table }
 
     private val onTableChangedObserver =
         object : OnTableChangedObserver(associatedTables.toList()) {
             override fun onChanged(tables: Set<KClass<*>>) {
-                if (tables.isNotEmpty()) {
-                    invalidate()
-                }
+                invalidate()
             }
         }
 
     init {
-        if (transformable is WhereBase<*> && transformable.queryBuilderBase !is Select) {
+        if (executableQuery is WhereBase<*> && executableQuery.queryBuilderBase !is Select) {
             throw IllegalArgumentException("Cannot pass a non-SELECT cursor into this data source.")
         }
 
@@ -48,45 +54,55 @@ internal constructor(
 
     }
 
-    override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<T>) {
+    override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<Table>) {
         db.beginTransactionAsync {
-            transformable.constrain(params.startPosition.toLong(), params.loadSize.toLong())
-                .queryList(db)
+            executableQuery.constrain(params.startPosition.toLong(), params.loadSize.toLong())
+                .list()
         }.enqueue { _, list -> callback.onResult(list) }
     }
 
-    override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<T>) {
-        db.beginTransactionAsync { selectCountOf().from(transformable).longValue(db) }
+    override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<Table>) {
+        db.beginTransactionAsync { executableQuery.adapter.selectCountOf().execute(db).value }
             .enqueue { _, count ->
                 val max = when {
                     params.requestedLoadSize >= count - 1 -> count.toInt()
                     else -> params.requestedLoadSize
                 }
                 db.beginTransactionAsync {
-                    transformable.constrain(params.requestedStartPosition.toLong(), max.toLong())
-                        .queryList(db)
+                    executableQuery.constrain(params.requestedStartPosition.toLong(), max.toLong())
+                        .list()
                 }.enqueue { _, list ->
                     callback.onResult(list, params.requestedStartPosition, count.toInt())
                 }
             }
     }
 
-    class Factory<T : Any, TQuery>
+    class Factory<Table : Any, Q>
     internal constructor(
-        private val transformable: TQuery,
+        private val executableQuery: Q,
         private val database: DBFlowDatabase
-    ) : DataSource.Factory<Int, T>() where TQuery : Transformable<T>, TQuery : ModelQueriable<T> {
-        override fun create(): DataSource<Int, T> = QueryDataSource(database, transformable)
+    ) : DataSource.Factory<Int, Table>()
+        where Q : ExecutableQuery<SelectResult<Table>>,
+              Q : HasAssociatedAdapters,
+              Q : HasAdapter<Table, SQLObjectAdapter<Table>>,
+              Q : Constrainable<Table, SelectResult<Table>, Q> {
+        override fun create(): DataSource<Int, Table> = QueryDataSource(database, executableQuery)
     }
 
     companion object {
         @JvmStatic
-        fun <T : Any, TQuery> newFactory(transformable: TQuery, database: DBFlowDatabase)
-            where TQuery : Transformable<T>, TQuery : ModelQueriable<T> =
-            Factory(transformable, database)
+        fun <Table : Any, Q> newFactory(executableQuery: Q, database: DBFlowDatabase)
+            where Q : ExecutableQuery<SelectResult<Table>>,
+                  Q : HasAssociatedAdapters,
+                  Q : HasAdapter<Table, SQLObjectAdapter<Table>>,
+                  Q : Constrainable<Table, SelectResult<Table>, Q> =
+            Factory(executableQuery, database)
     }
 }
 
-fun <T : Any, TQuery> TQuery.toDataSourceFactory(database: DBFlowDatabase)
-    where TQuery : Transformable<T>, TQuery : ModelQueriable<T> =
+fun <Table : Any, Q> Q.toDataSourceFactory(database: DBFlowDatabase)
+    where Q : ExecutableQuery<SelectResult<Table>>,
+          Q : HasAdapter<Table, SQLObjectAdapter<Table>>,
+          Q : HasAssociatedAdapters,
+          Q : Constrainable<Table, SelectResult<Table>, *> =
     QueryDataSource.newFactory(this, database)

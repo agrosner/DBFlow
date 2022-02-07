@@ -1,6 +1,6 @@
 package com.dbflow5.query2
 
-import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OperatorGroup
@@ -19,25 +19,23 @@ interface WhereBase<Result> : Query, HasAssociatedAdapters {
 /**
  * Where all terminal Where queries end up in
  */
-interface Where<Table : Any,
-    Result,
-    OperationBase : ExecutableQuery<Result>> : Query,
-    ExecutableQuery<Result>, HasAssociatedAdapters
+interface Where<Table : Any, Result, OperationBase : ExecutableQuery<Result>> :
+    ExecutableQuery<Result>,
+    HasAdapter<Table, SQLObjectAdapter<Table>>,
+    HasAssociatedAdapters,
+    Constrainable<Table, Result, OperationBase>
 
 interface WhereStart<Table : Any,
     Result,
     OperationBase : ExecutableQuery<Result>> :
     Where<Table, Result, OperationBase>,
-    HasAdapter<Table, RetrievalAdapter<Table>>,
     GroupByEnabled<Table, Result, OperationBase>,
     HavingEnabled<Table, Result, OperationBase>,
     Limitable<Table, Result, OperationBase>,
     Offsettable<Table, Result, OperationBase>,
     OrderByEnabled<Table, Result, OperationBase>,
     WhereExistsEnabled<Table, Result, OperationBase>,
-    Constrainable<Table, Result, OperationBase>,
-    HasOperatorGroup,
-    ExecutableQuery<Result> {
+    HasOperatorGroup {
 
     infix fun or(sqlOperator: SQLOperator): WhereStart<Table, Result, OperationBase>
     infix fun and(sqlOperator: SQLOperator): WhereStart<Table, Result, OperationBase>
@@ -112,7 +110,7 @@ interface WhereWithOffset<Table : Any,
 
 internal fun <Table : Any,
     Result,
-    OperationBase : ExecutableQuery<Result>> RetrievalAdapter<Table>.where(
+    OperationBase : ExecutableQuery<Result>> SQLObjectAdapter<Table>.where(
     queryBase: WhereBase<Result>,
     resultFactory: ResultFactory<Result>,
     vararg operators: SQLOperator,
@@ -128,7 +126,7 @@ internal data class WhereImpl<Table : Any,
     OperationBase : ExecutableQuery<Result>>(
     private val queryBase: WhereBase<Result>,
     private val resultFactory: ResultFactory<Result>,
-    override val adapter: RetrievalAdapter<Table>,
+    override val adapter: SQLObjectAdapter<Table>,
     override val groupByList: List<NameAlias> = listOf(),
     override val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause(),
     override val havingGroup: OperatorGroup = OperatorGroup.nonGroupingClause(),

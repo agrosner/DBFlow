@@ -5,10 +5,7 @@ import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.coroutines.defer
 import com.dbflow5.currencyAdapter
-import com.dbflow5.paging.QueryDataSource
 import com.dbflow5.paging.toDataSourceFactory
-import com.dbflow5.query.Where
-import com.dbflow5.query.select
 import com.dbflow5.query2.select
 import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.transaction.Transaction
@@ -65,11 +62,9 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
     /**
      *  Utilize Paging Library from paging artifact.
      */
-    fun pagingRetrieveUSD(): QueryDataSource.Factory<Currency, Where<Currency>> =
-        (select from database.currencyAdapter
-            where (Currency_Table.symbol eq "$"))
-            .toDataSourceFactory(database)
-
+    fun pagingRetrieveUSD() = (select from database.currencyAdapter
+        where (Currency_Table.symbol eq "$"))
+        .toDataSourceFactory(database)
 }
 
 fun provideCurrencyDAO(db: TestDatabase) = object : CurrencyDAO {

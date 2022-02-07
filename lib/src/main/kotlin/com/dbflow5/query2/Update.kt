@@ -7,26 +7,34 @@ import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query.SQLOperator
 import com.dbflow5.sql.Query
 
-interface UpdateWithConflict<Table : Any> : HasConflictAction,
-    Conflictable<UpdateWithConflict<Table>>, Query,
+interface Update<Table : Any> : Query,
+    HasAdapter<Table, SQLObjectAdapter<Table>>,
+    HasAssociatedAdapters
+
+interface UpdateWithConflict<Table : Any> :
+    Update<Table>,
+    HasConflictAction,
+    Conflictable<UpdateWithConflict<Table>>,
     Settable<Table>, Indexable<Table>
 
-interface UpdateWithSet<Table : Any> : HasConflictAction,
-    Query, HasOperatorGroup,
-    Whereable<Table, Long, Update<Table>, SQLObjectAdapter<Table>>,
+interface UpdateWithSet<Table : Any> :
+    Update<Table>,
+    HasConflictAction,
+    HasOperatorGroup,
+    Whereable<Table, Long, UpdateStart<Table>>,
     Indexable<Table>, ExecutableQuery<Long> {
     infix fun and(condition: SQLOperator): UpdateWithSet<Table>
 }
 
-interface Update<Table : Any> : Query,
+interface UpdateStart<Table : Any> :
+    Update<Table>,
     Conflictable<UpdateWithConflict<Table>>,
-    Whereable<Table, Long, Update<Table>, SQLObjectAdapter<Table>>,
-    HasAdapter<Table, SQLObjectAdapter<Table>>,
+    Whereable<Table, Long, UpdateStart<Table>>,
     Settable<Table>, HasOperatorGroup,
     Indexable<Table>,
     ExecutableQuery<Long>
 
-fun <Table : Any> SQLObjectAdapter<Table>.update(): Update<Table> = UpdateImpl(
+fun <Table : Any> SQLObjectAdapter<Table>.update(): UpdateStart<Table> = UpdateImpl(
     adapter = this,
 )
 
@@ -36,7 +44,7 @@ internal data class UpdateImpl<Table : Any>(
     override val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause()
         .setAllCommaSeparated(true),
     override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory,
-) : Update<Table>, UpdateWithConflict<Table>,
+) : UpdateStart<Table>, UpdateWithConflict<Table>,
     UpdateWithSet<Table> {
 
     override val associatedAdapters: List<RetrievalAdapter<*>> = listOf(adapter)

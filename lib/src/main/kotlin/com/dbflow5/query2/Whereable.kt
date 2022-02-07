@@ -1,6 +1,6 @@
 package com.dbflow5.query2
 
-import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OrderBy
@@ -12,9 +12,8 @@ import com.dbflow5.query.property.IProperty
  */
 interface Whereable<Table : Any,
     Result,
-    OperationBase : ExecutableQuery<Result>,
-    Adapter : RetrievalAdapter<Table>> :
-    HasAdapter<Table, Adapter>,
+    OperationBase : ExecutableQuery<Result>> :
+    HasAdapter<Table, SQLObjectAdapter<Table>>,
     GroupByEnabled<Table, Result, OperationBase>,
     HavingEnabled<Table, Result, OperationBase>,
     Limitable<Table, Result, OperationBase>,

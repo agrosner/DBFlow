@@ -2,12 +2,14 @@ package com.dbflow5.query2
 
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.config.FlowManager
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.count
 import com.dbflow5.query.enclosedQuery
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.Property
+import kotlin.reflect.KClass
 
 sealed class QualifierType(val value: String) {
     object Distinct : QualifierType("DISTINCT")
@@ -18,53 +20,59 @@ sealed class QualifierType(val value: String) {
 /**
  * All selects implement this
  */
-interface Select<Table : Any, Result> : ExecutableQuery<Result>
+interface Select<Table : Any, Result> :
+    ExecutableQuery<Result>,
+    HasAdapter<Table, SQLObjectAdapter<Table>>,
+    HasAssociatedAdapters,
+    Whereable<Table, Result, Select<Table, Result>>
+
+/**
+ * Used to provide "select from table" notation as an alternative
+ * to adapter.select() method.
+ */
+object SelectToken {
+    /**
+     * Provided for compatibility reasons.
+     */
+    infix fun <Table : Any> from(adapter: SQLObjectAdapter<Table>): SelectStart<Table, SelectResult<Table>> =
+        adapter.select()
+
+    infix fun <Table : Any> from(table: KClass<Table>): SelectStart<Table, SelectResult<Table>> =
+        FlowManager.getSQLObjectAdapter(table).select()
+}
+
+/**
+ * Existing select-compatible function.
+ * Provides "select from table" method over adapter.select() method.
+ */
+val select = SelectToken
 
 interface SelectWithAlias<Table : Any, Result> :
     Select<Table, Result>,
     Joinable<Table, Result>,
-    HasAssociatedAdapters,
-    Indexable<Table>,
-    Whereable<Table, Result, Select<Table, Result>,
-        SQLObjectAdapter<Table>>
+    Indexable<Table>
 
 interface SelectWithQualifier<Table : Any, Result> :
     Select<Table, Result>,
     Aliasable<SelectWithAlias<Table, Result>>,
     Joinable<Table, Result>,
-    HasAssociatedAdapters,
-    Indexable<Table>,
-    Whereable<Table, Result, Select<Table, Result>,
-        SQLObjectAdapter<Table>>
-
+    Indexable<Table>
 
 interface SelectWithModelQueriable<Table : Any, Result> :
     Select<Table, Result>,
-    HasAssociatedAdapters,
     Joinable<Table, Result>,
-    Indexable<Table>,
-    Whereable<Table, Result, Select<Table, Result>,
-        SQLObjectAdapter<Table>>
+    Indexable<Table>
 
 interface SelectWithJoins<Table : Any, Result> :
     Select<Table, Result>,
-    HasAssociatedAdapters,
     Joinable<Table, Result>,
-    Indexable<Table>,
-    Whereable<Table, Result, Select<Table, Result>,
-        SQLObjectAdapter<Table>>
+    Indexable<Table>
 
 interface SelectStart<Table : Any, Result> :
     Select<Table, Result>,
-    HasAdapter<Table, SQLObjectAdapter<Table>>,
-    Aliasable<SelectWithAlias<Table, Result>>,
     Joinable<Table, Result>,
-    HasAssociatedAdapters,
     Indexable<Table>,
-    Whereable<Table,
-        Result,
-        Select<Table, Result>,
-        SQLObjectAdapter<Table>> {
+    Aliasable<SelectWithAlias<Table, Result>> {
 
     fun distinct(): SelectWithQualifier<Table, Result>
 

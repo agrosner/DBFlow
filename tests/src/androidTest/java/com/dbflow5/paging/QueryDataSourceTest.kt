@@ -3,14 +3,10 @@ package com.dbflow5.paging
 import androidx.paging.PagedList
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
-import com.dbflow5.assertThrowsException
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
-import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query.select
-import com.dbflow5.query.set
-import com.dbflow5.query.update
+import com.dbflow5.query2.select
 import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
@@ -49,17 +45,6 @@ class QueryDataSourceTest : BaseUnitTest() {
 
                 // assert we don't run over somehow.
                 assertTrue(index < 100)
-            }
-        }
-    }
-
-    @Test
-    fun testThrowsErrorOnInvalidType() {
-        database<TestDatabase> { db ->
-            assertThrowsException(IllegalArgumentException::class) {
-                (db.simpleModelAdapter.update() set (SimpleModel_Table.name.eq("name")))
-                    .toDataSourceFactory(db)
-                    .create()
             }
         }
     }

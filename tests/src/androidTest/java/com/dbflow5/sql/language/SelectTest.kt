@@ -4,6 +4,7 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.assertEquals
 import com.dbflow5.config.database
+import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query2.innerJoin
@@ -38,9 +39,22 @@ class SelectTest : BaseUnitTest() {
     @Test
     fun validateSimpleSelect() {
         database<TestDatabase> { db ->
+            // compatibility notation
+            val expected = "SELECT * FROM `SimpleModel`"
             assertEquals(
-                "SELECT * FROM `SimpleModel`",
+                expected,
                 db.simpleModelAdapter.select().query.trim()
+            )
+
+            // compatibility notation
+            assertEquals(
+                expected,
+                (select from db.simpleModelAdapter).query.trim()
+            )
+            // table compatibility
+            assertEquals(
+                expected,
+                (select from SimpleModel::class).query.trim()
             )
         }
     }
