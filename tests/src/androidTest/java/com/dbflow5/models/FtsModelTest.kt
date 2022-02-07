@@ -7,13 +7,12 @@ import com.dbflow5.config.readableTransaction
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.fts4ModelAdapter
 import com.dbflow5.fts4VirtualModel2Adapter
-import com.dbflow5.query.insert
 import com.dbflow5.query.offsets
 import com.dbflow5.query.property.docId
 import com.dbflow5.query.property.tableName
-import com.dbflow5.query.select
 import com.dbflow5.query.snippet
 import com.dbflow5.query2.StringResultFactory
+import com.dbflow5.query2.insert
 import com.dbflow5.query2.select
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
@@ -35,8 +34,8 @@ class FtsModelTest : BaseUnitTest() {
             val rowID = (fts4ModelAdapter.insert(
                 docId,
                 Fts4VirtualModel2_Table.name
-            ) select (select(Fts4Model_Table.id, Fts4Model_Table.name) from fts4ModelAdapter))
-                .executeInsert()
+            ) select fts4ModelAdapter.select(Fts4Model_Table.id, Fts4Model_Table.name))
+                .execute()
             assertTrue(rowID > 0)
         }
     }
@@ -81,8 +80,8 @@ class FtsModelTest : BaseUnitTest() {
             (fts4ModelAdapter.insert(
                 docId,
                 Fts4VirtualModel2_Table.name
-            ) select (select(Fts4Model_Table.id, Fts4Model_Table.name) from fts4ModelAdapter))
-                .executeInsert()
+            ) select fts4ModelAdapter.select(Fts4Model_Table.id, Fts4Model_Table.name))
+                .execute()
         }
         assert(rows > 0)
         val value =

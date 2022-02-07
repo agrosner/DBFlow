@@ -3,6 +3,7 @@ package com.dbflow5.query2
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.annotation.Table
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.BaseOperator
 import com.dbflow5.query.OperatorGroup
@@ -72,7 +73,8 @@ interface InsertWithValues<Table : Any> :
     val values: List<List<Any?>>
 }
 
-interface InsertWithSelect<Table : Any, TFrom : Any> : Query {
+interface InsertWithSelect<Table : Any, TFrom : Any> :
+    Insert<Table> {
     val subquery: ExecutableQuery<SelectResult<TFrom>>?
 }
 
@@ -114,6 +116,20 @@ fun <Table : Any> ModelAdapter<Table>.insert(
     return InsertImpl(
         columns = columns,
         values = values,
+        adapter = this,
+    )
+}
+
+/**
+ * Insert statement with property column names. Used
+ * for [InsertWithSelect].
+ */
+fun <Table : Any> ModelAdapter<Table>.insert(
+    property: IProperty<*>,
+    vararg properties: IProperty<*>,
+): InsertWithConflict<Table> {
+    return InsertImpl(
+        columns = mutableListOf(property).apply { addAll(properties) },
         adapter = this,
     )
 }
