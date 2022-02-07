@@ -26,9 +26,7 @@ interface SelectWithAlias<Table : Any, Result> :
     HasAssociatedAdapters,
     Indexable<Table>,
     Whereable<Table, Result, Select<Table, Result>,
-        SQLObjectAdapter<Table>> {
-    val tableAlias: NameAlias
-}
+        SQLObjectAdapter<Table>>
 
 interface SelectWithQualifier<Table : Any, Result> :
     Select<Table, Result>,
@@ -37,9 +35,8 @@ interface SelectWithQualifier<Table : Any, Result> :
     HasAssociatedAdapters,
     Indexable<Table>,
     Whereable<Table, Result, Select<Table, Result>,
-        SQLObjectAdapter<Table>> {
-    val qualifier: QualifierType
-}
+        SQLObjectAdapter<Table>>
+
 
 interface SelectWithModelQueriable<Table : Any, Result> :
     Select<Table, Result>,
@@ -47,9 +44,7 @@ interface SelectWithModelQueriable<Table : Any, Result> :
     Joinable<Table, Result>,
     Indexable<Table>,
     Whereable<Table, Result, Select<Table, Result>,
-        SQLObjectAdapter<Table>> {
-    val modelQueriable: ModelQueriable<Table>?
-}
+        SQLObjectAdapter<Table>>
 
 interface SelectWithJoins<Table : Any, Result> :
     Select<Table, Result>,
@@ -57,9 +52,7 @@ interface SelectWithJoins<Table : Any, Result> :
     Joinable<Table, Result>,
     Indexable<Table>,
     Whereable<Table, Result, Select<Table, Result>,
-        SQLObjectAdapter<Table>> {
-    val joins: List<Join<*, *, Result>>
-}
+        SQLObjectAdapter<Table>>
 
 interface SelectStart<Table : Any, Result> :
     Select<Table, Result>,
@@ -73,11 +66,9 @@ interface SelectStart<Table : Any, Result> :
         Select<Table, Result>,
         SQLObjectAdapter<Table>> {
 
-    val properties: List<IProperty<*>>
-
     fun distinct(): SelectWithQualifier<Table, Result>
 
-    infix fun from(modelQueriable: ModelQueriable<Table>): SelectWithModelQueriable<Table, Result>
+    infix fun from(modelQueriable: ExecutableQuery<Result>): SelectWithModelQueriable<Table, Result>
 }
 
 fun <Table : Any> SQLObjectAdapter<Table>.select(): SelectStart<Table, SelectResult<Table>> =
@@ -123,17 +114,17 @@ fun <Table : Any, Result> SQLObjectAdapter<Table>.select(
     )
 
 internal data class SelectImpl<Table : Any, Result>(
-    override val qualifier: QualifierType = QualifierType.None,
-    override val properties: List<IProperty<*>> = emptyList(),
+    private val qualifier: QualifierType = QualifierType.None,
+    private val properties: List<IProperty<*>> = emptyList(),
     override val adapter: SQLObjectAdapter<Table>,
-    override val tableAlias: NameAlias = NameAlias.Builder(
+    private val tableAlias: NameAlias = NameAlias.Builder(
         adapter.name
     ).build(),
     /**
      * Subquery instead of [tableAlias]
      */
-    override val modelQueriable: ModelQueriable<Table>? = null,
-    override val joins: List<Join<*, *, Result>> = listOf(),
+    private val subquery: ExecutableQuery<Result>? = null,
+    val joins: List<Join<*, *, Result>> = listOf(),
     override val resultFactory: ResultFactory<Result>,
 ) : Select<Table, Result>,
     SelectStart<Table, Result>,
@@ -152,7 +143,7 @@ internal data class SelectImpl<Table : Any, Result>(
                 }
             )
             append("${properties.joinToString()} FROM ${
-                modelQueriable?.let { append(it.enclosedQuery) }
+                subquery?.let { append(it.enclosedQuery) }
                     ?: tableAlias
             }")
             if (joins.isNotEmpty()) {
@@ -175,9 +166,9 @@ internal data class SelectImpl<Table : Any, Result>(
                 .build()
         )
 
-    override fun from(modelQueriable: ModelQueriable<Table>): SelectWithModelQueriable<Table, Result> =
+    override fun from(modelQueriable: ExecutableQuery<Result>): SelectWithModelQueriable<Table, Result> =
         copy(
-            modelQueriable = modelQueriable,
+            subquery = modelQueriable,
         )
 
     override fun <JoinTable : Any> join(

@@ -12,7 +12,6 @@ import com.dbflow5.query2.select
 
 class AuthorName(var name: String = "", var age: Int = 0)
 
-
 @ModelView
 class AuthorView(
     @Column var authorId: Int = 0, @Column var authorName: String = "",

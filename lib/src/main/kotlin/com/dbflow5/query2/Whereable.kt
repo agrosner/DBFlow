@@ -6,7 +6,6 @@ import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OrderBy
 import com.dbflow5.query.SQLOperator
 import com.dbflow5.query.property.IProperty
-import com.dbflow5.sql.Query
 
 /**
  * Description:
@@ -24,9 +23,7 @@ interface Whereable<Table : Any,
     WhereExistsEnabled<Table, Result, OperationBase>,
     Constrainable<Table, Result, OperationBase>,
     ExecutableQuery<Result>,
-    Query {
-
-    val resultFactory: ResultFactory<Result>
+    WhereBase<Result> {
 
     infix fun where(operator: SQLOperator): WhereStart<Table, Result, OperationBase> =
         adapter.where(this, resultFactory, operator)

@@ -7,6 +7,7 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.list.FlowCursorList
 import com.dbflow5.query.list.FlowQueryList
+import com.dbflow5.sql.Query
 
 
 typealias ModelQueriableEvalFn<T, R> = ModelQueriable<T>.(DatabaseWrapper) -> R
@@ -108,5 +109,5 @@ interface ModelQueriable<T : Any> : Queriable {
  * Trims and wraps a [ModelQueriable.query] in parenthesis.
  * E.G. wraps: select * from table into (select * from table)
  */
-internal inline val <T : Any> ModelQueriable<T>.enclosedQuery
+internal inline val Query.enclosedQuery
     get() = "(${query.trim { it <= ' ' }})"

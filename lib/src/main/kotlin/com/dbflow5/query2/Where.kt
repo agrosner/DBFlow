@@ -10,12 +10,19 @@ import com.dbflow5.query.property.IProperty
 import com.dbflow5.sql.Query
 
 /**
+ * Required implementation details for base where use.
+ */
+interface WhereBase<Result> : Query, HasAssociatedAdapters {
+    val resultFactory: ResultFactory<Result>
+}
+
+/**
  * Where all terminal Where queries end up in
  */
 interface Where<Table : Any,
     Result,
     OperationBase : ExecutableQuery<Result>> : Query,
-    ExecutableQuery<Result>
+    ExecutableQuery<Result>, HasAssociatedAdapters
 
 interface WhereStart<Table : Any,
     Result,
@@ -106,20 +113,7 @@ interface WhereWithOffset<Table : Any,
 internal fun <Table : Any,
     Result,
     OperationBase : ExecutableQuery<Result>> RetrievalAdapter<Table>.where(
-    queryBase: Query,
-    resultFactory: ResultFactory<Result>,
-    operator: SQLOperator,
-): WhereStart<Table, Result, OperationBase> = WhereImpl(
-    adapter = this,
-    queryBase = queryBase,
-    resultFactory = resultFactory,
-    operatorGroup = OperatorGroup.nonGroupingClause().and(operator)
-)
-
-internal fun <Table : Any,
-    Result,
-    OperationBase : ExecutableQuery<Result>> RetrievalAdapter<Table>.where(
-    queryBase: Query,
+    queryBase: WhereBase<Result>,
     resultFactory: ResultFactory<Result>,
     vararg operators: SQLOperator,
 ): WhereStart<Table, Result, OperationBase> = WhereImpl(
@@ -132,7 +126,7 @@ internal fun <Table : Any,
 internal data class WhereImpl<Table : Any,
     Result,
     OperationBase : ExecutableQuery<Result>>(
-    private val queryBase: Query,
+    private val queryBase: WhereBase<Result>,
     private val resultFactory: ResultFactory<Result>,
     override val adapter: RetrievalAdapter<Table>,
     override val groupByList: List<NameAlias> = listOf(),
@@ -149,7 +143,8 @@ internal data class WhereImpl<Table : Any,
     WhereWithLimit<Table, Result, OperationBase>,
     WhereWithOffset<Table, Result, OperationBase>,
     WhereWithOrderBy<Table, Result, OperationBase>,
-    WhereExists<Table, Result, OperationBase> {
+    WhereExists<Table, Result, OperationBase>,
+    HasAssociatedAdapters by queryBase {
     override val query: String by lazy {
         buildString {
             append("${queryBase.query.trim()} ")

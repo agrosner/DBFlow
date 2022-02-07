@@ -1,5 +1,6 @@
 package com.dbflow5.query2
 
+import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.query.OperatorGroup
@@ -37,6 +38,8 @@ internal data class UpdateImpl<Table : Any>(
     override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory,
 ) : Update<Table>, UpdateWithConflict<Table>,
     UpdateWithSet<Table> {
+
+    override val associatedAdapters: List<RetrievalAdapter<*>> = listOf(adapter)
 
     override val query: String by lazy {
         buildString {
