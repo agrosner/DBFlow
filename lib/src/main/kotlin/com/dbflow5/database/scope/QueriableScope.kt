@@ -19,19 +19,6 @@ interface ReadableQueriableScope {
     suspend fun Queriable.stringValue(): String?
 
     suspend fun Queriable.hasData(): Boolean
-}
-
-interface WritableQueriableScope : ReadableQueriableScope {
-
-    suspend fun Queriable.compileStatement(): DatabaseStatement
-
-    suspend fun Queriable.executeUpdateDelete(): Long
-
-    suspend fun Queriable.executeInsert(): Long
-
-    suspend fun Queriable.execute()
-
-    suspend fun <Result> ExecutableQuery<Result>.execute(): Result
 
     suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.singleOrNull(): Table?
     suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.single(): Table
@@ -47,4 +34,20 @@ interface WritableQueriableScope : ReadableQueriableScope {
     suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.list(
         adapter: RetrievalAdapter<OtherTable>,
     ): List<OtherTable>
+
+    suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.cursor(): FlowCursor
+}
+
+interface WritableQueriableScope : ReadableQueriableScope {
+
+    suspend fun Queriable.compileStatement(): DatabaseStatement
+
+    suspend fun Queriable.executeUpdateDelete(): Long
+
+    suspend fun Queriable.executeInsert(): Long
+
+    suspend fun Queriable.execute()
+
+    suspend fun <Result> ExecutableQuery<Result>.execute(): Result
+
 }

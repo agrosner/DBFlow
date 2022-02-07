@@ -149,6 +149,9 @@ internal constructor(
     override suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.list(
         adapter: RetrievalAdapter<OtherTable>
     ): List<OtherTable> = execute(db).list(adapter)
+
+    override suspend fun <Table: Any> ExecutableQuery<SelectResult<Table>>.cursor(): FlowCursor =
+        db.rawQuery(query, null)
 }
 
 fun <DB : DBFlowDatabase> WritableDatabaseScope(

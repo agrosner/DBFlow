@@ -3,6 +3,7 @@ package com.dbflow5.query2
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.annotation.ConflictAction
+import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.BaseOperator
 import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query.SQLOperator
@@ -45,20 +46,26 @@ interface HasSelect<Table : Any> {
     ): InsertWithSelect<Table, OtherTable>
 }
 
+interface Insert<Table : Any> : Query,
+    ExecutableQuery<Long>
+
 /**
  * SQLite insert statement
  */
-interface Insert<Table : Any> : Query,
+interface InsertStart<Table : Any> :
+    Insert<Table>,
     HasValues<Table>,
     HasSelect<Table>,
     HasAdapter<Table, SQLObjectAdapter<Table>>,
     Conflictable<InsertWithConflict<Table>>
 
-interface InsertWithConflict<Table : Any> : Query,
+interface InsertWithConflict<Table : Any> :
+    Insert<Table>,
     HasValues<Table>,
     HasSelect<Table>, HasConflictAction, Conflictable<InsertWithConflict<Table>>
 
-interface InsertWithValues<Table : Any> : Query,
+interface InsertWithValues<Table : Any> :
+    Insert<Table>,
     HasValues<Table> {
 
     val columns: List<IProperty<*>>?
@@ -66,11 +73,10 @@ interface InsertWithValues<Table : Any> : Query,
 }
 
 interface InsertWithSelect<Table : Any, TFrom : Any> : Query {
-
     val subquery: ExecutableQuery<SelectResult<TFrom>>?
 }
 
-fun <Table : Any> SQLObjectAdapter<Table>.insert(): Insert<Table> = InsertImpl(adapter = this)
+fun <Table : Any> SQLObjectAdapter<Table>.insert(): InsertStart<Table> = InsertImpl(adapter = this)
 
 fun <Table : Any> SQLObjectAdapter<Table>.insert(
     columnValue: ColumnValue<*, *>,
@@ -115,7 +121,7 @@ fun <Table : Any> ModelAdapter<Table>.insert(
 /**
  * Same as calling [insert] with [columnValues] as all columns with '?' values.
  */
-fun <Table : Any> ModelAdapter<Table>.insertAllAsTemplate(): Insert<Table> {
+fun <Table : Any> ModelAdapter<Table>.insertAllAsTemplate(): InsertStart<Table> {
     val (columns, values) = allColumnProperties.map { ColumnValue(it, Property.WILDCARD) }
         .toColumnValues()
     return InsertImpl(
@@ -132,7 +138,8 @@ internal data class InsertImpl<Table : Any>(
     override val conflictAction: ConflictAction = ConflictAction.NONE,
     override val adapter: SQLObjectAdapter<Table>,
     override val subquery: ExecutableQuery<SelectResult<Any>>? = null,
-) : InsertWithValues<Table>, InsertWithConflict<Table>, Insert<Table>,
+    private val resultFactory: ResultFactory<Long> = InsertResultFactory,
+) : InsertWithValues<Table>, InsertWithConflict<Table>, InsertStart<Table>,
     InsertWithSelect<Table, Any> {
     override val query: String by lazy {
         buildString {
@@ -200,4 +207,7 @@ internal data class InsertImpl<Table : Any>(
         copy(
             subquery = subQuery as ExecutableQuery<SelectResult<Any>>,
         ) as InsertWithSelect<Table, OtherTable>
+
+    override suspend fun execute(db: DatabaseWrapper): Long =
+        resultFactory.run { db.createResult(query) }
 }

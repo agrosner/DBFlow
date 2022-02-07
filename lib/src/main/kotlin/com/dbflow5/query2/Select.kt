@@ -4,6 +4,7 @@ import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.NameAlias
+import com.dbflow5.query.count
 import com.dbflow5.query.enclosedQuery
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.Property
@@ -17,81 +18,97 @@ sealed class QualifierType(val value: String) {
 /**
  * All selects implement this
  */
-interface Select<Table : Any> : ExecutableQuery<SelectResult<Table>>
+interface Select<Table : Any, Result> : ExecutableQuery<Result>
 
-interface SelectWithAlias<Table : Any> :
-    Select<Table>,
+interface SelectWithAlias<Table : Any, Result> :
+    Select<Table, Result>,
     Joinable<Table>,
     HasAssociatedAdapters,
     Indexable<Table>,
-    Whereable<Table, SelectResult<Table>, Select<Table>,
+    Whereable<Table, Result, Select<Table, Result>,
         SQLObjectAdapter<Table>> {
     val tableAlias: NameAlias
 }
 
-interface SelectWithQualifier<Table : Any> :
-    Select<Table>,
-    Aliasable<SelectWithAlias<Table>>,
+interface SelectWithQualifier<Table : Any, Result> :
+    Select<Table, Result>,
+    Aliasable<SelectWithAlias<Table, Result>>,
     Joinable<Table>,
     HasAssociatedAdapters,
     Indexable<Table>,
-    Whereable<Table, SelectResult<Table>, Select<Table>,
+    Whereable<Table, Result, Select<Table, Result>,
         SQLObjectAdapter<Table>> {
     val qualifier: QualifierType
 }
 
-interface SelectWithModelQueriable<Table : Any> :
-    Select<Table>,
+interface SelectWithModelQueriable<Table : Any, Result> :
+    Select<Table, Result>,
     HasAssociatedAdapters,
     Joinable<Table>,
     Indexable<Table>,
-    Whereable<Table, SelectResult<Table>, Select<Table>,
+    Whereable<Table, Result, Select<Table, Result>,
         SQLObjectAdapter<Table>> {
     val modelQueriable: ModelQueriable<Table>?
 }
 
-interface SelectWithJoins<Table : Any> :
-    Select<Table>,
+interface SelectWithJoins<Table : Any, Result> :
+    Select<Table, Result>,
     HasAssociatedAdapters, Joinable<Table>,
     Indexable<Table>,
-    Whereable<Table, SelectResult<Table>, Select<Table>,
+    Whereable<Table, Result, Select<Table, Result>,
         SQLObjectAdapter<Table>> {
     val joins: List<Join<*, *>>
 }
 
-interface SelectStart<Table : Any> :
-    Select<Table>,
+interface SelectStart<Table : Any, Result> :
+    Select<Table, Result>,
     HasAdapter<Table, SQLObjectAdapter<Table>>,
-    Aliasable<SelectWithAlias<Table>>,
+    Aliasable<SelectWithAlias<Table, Result>>,
     Joinable<Table>,
     HasAssociatedAdapters,
     Indexable<Table>,
     Whereable<Table,
-        SelectResult<Table>,
-        Select<Table>,
+        Result,
+        Select<Table, Result>,
         SQLObjectAdapter<Table>> {
 
     val properties: List<IProperty<*>>
 
-    fun distinct(): SelectWithQualifier<Table>
+    fun distinct(): SelectWithQualifier<Table, Result>
 
-    infix fun from(modelQueriable: ModelQueriable<Table>): SelectWithModelQueriable<Table>
+    infix fun from(modelQueriable: ModelQueriable<Table>): SelectWithModelQueriable<Table, Result>
 }
 
-fun <Table : Any> SQLObjectAdapter<Table>.select(): SelectStart<Table> = SelectImpl(
-    adapter = this,
-    properties = listOf(Property.ALL_PROPERTY),
-)
+fun <Table : Any> SQLObjectAdapter<Table>.select(): SelectStart<Table, SelectResult<Table>> =
+    SelectImpl(
+        adapter = this,
+        properties = listOf(Property.ALL_PROPERTY),
+        resultFactory = SelectResultFactory(this),
+    )
 
 fun <Table : Any> SQLObjectAdapter<Table>.select(
     vararg properties: IProperty<*>
-): SelectStart<Table> =
+): SelectStart<Table, SelectResult<Table>> =
     SelectImpl(
         adapter = this,
         properties = properties.toList(),
+        resultFactory = SelectResultFactory(this),
     )
 
-internal data class SelectImpl<Table : Any>(
+/**
+ * Provides a [Select] that returns a long result based on
+ * the count of rows.
+ */
+fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
+    vararg properties: IProperty<*>,
+): SelectStart<Table, Long> =
+    SelectImpl(
+        adapter = this,
+        properties = listOf(count(*properties)),
+        resultFactory = LongForQueryResultFactory,
+    )
+
+internal data class SelectImpl<Table : Any, Result>(
     override val qualifier: QualifierType = QualifierType.None,
     override val properties: List<IProperty<*>> = emptyList(),
     override val adapter: SQLObjectAdapter<Table>,
@@ -103,13 +120,13 @@ internal data class SelectImpl<Table : Any>(
      */
     override val modelQueriable: ModelQueriable<Table>? = null,
     override val joins: List<Join<*, *>> = listOf(),
-    override val resultFactory: ResultFactory<SelectResult<Table>> = SelectResultFactory(adapter),
-) : Select<Table>,
-    SelectStart<Table>,
-    SelectWithQualifier<Table>,
-    SelectWithAlias<Table>,
-    SelectWithModelQueriable<Table>,
-    SelectWithJoins<Table> {
+    override val resultFactory: ResultFactory<Result>,
+) : Select<Table, Result>,
+    SelectStart<Table, Result>,
+    SelectWithQualifier<Table, Result>,
+    SelectWithAlias<Table, Result>,
+    SelectWithModelQueriable<Table, Result>,
+    SelectWithJoins<Table, Result> {
     override val query: String by lazy {
         buildString {
             append("SELECT ")
@@ -132,19 +149,19 @@ internal data class SelectImpl<Table : Any>(
         }
     }
 
-    override fun distinct(): SelectWithQualifier<Table> =
+    override fun distinct(): SelectWithQualifier<Table, Result> =
         copy(
             qualifier = QualifierType.Distinct,
         )
 
-    override fun `as`(name: String): SelectWithAlias<Table> =
+    override fun `as`(name: String): SelectWithAlias<Table, Result> =
         copy(
             tableAlias = tableAlias.newBuilder()
                 .`as`(name)
                 .build()
         )
 
-    override fun from(modelQueriable: ModelQueriable<Table>): SelectWithModelQueriable<Table> =
+    override fun from(modelQueriable: ModelQueriable<Table>): SelectWithModelQueriable<Table, Result> =
         copy(
             modelQueriable = modelQueriable,
         )

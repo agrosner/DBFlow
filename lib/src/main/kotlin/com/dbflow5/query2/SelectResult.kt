@@ -132,3 +132,8 @@ suspend fun <Table : Any, OtherTable : Any>
     adapter: RetrievalAdapter<OtherTable>,
 ) =
     execute(db).list(adapter)
+
+
+suspend fun ExecutableQuery<SelectResult<*>>.cursor(
+    db: DatabaseWrapper
+) = db.compileStatement(query, null)

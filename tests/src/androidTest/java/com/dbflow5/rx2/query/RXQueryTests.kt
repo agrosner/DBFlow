@@ -5,14 +5,13 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
-import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query.insert
 import com.dbflow5.query.property.Property
-import com.dbflow5.query.select
-import com.dbflow5.query.selectCountOf
+import com.dbflow5.query2.insert
+import com.dbflow5.query2.select
+import com.dbflow5.query2.selectCountOf
 import com.dbflow5.reactivestreams.transaction.asMaybe
 import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.simpleModelAdapter
@@ -29,7 +28,7 @@ class RXQueryTests : BaseUnitTest() {
 
             var cursor: FlowCursor? = null
 
-            this.db.beginTransactionAsync { Result.success((select from simpleModelAdapter).cursor()) }
+            this.db.beginTransactionAsync { Result.success(simpleModelAdapter.select().cursor()) }
                 .asMaybe()
                 .subscribe {
                     cursor = it.getOrNull()
@@ -37,22 +36,6 @@ class RXQueryTests : BaseUnitTest() {
 
             assertEquals(1, cursor!!.count)
             cursor!!.close()
-        }
-    }
-
-    @Test
-    fun testCanCompileStatement() {
-        var databaseStatement: DatabaseStatement? = null
-        database<TestDatabase> { db ->
-            db.beginTransactionAsync {
-                simpleModelAdapter.insert(
-                    SimpleModel_Table.name.`is`("name")
-                ).compileStatement()
-            }.asSingle()
-                .subscribe { statement ->
-                    databaseStatement = statement
-                }
-            databaseStatement!!.close()
         }
     }
 
@@ -67,7 +50,7 @@ class RXQueryTests : BaseUnitTest() {
             )
             var count = 0L
             this.db.beginTransactionAsync {
-                (selectCountOf(Property.ALL_PROPERTY) from simpleModelAdapter).longValue()
+                simpleModelAdapter.selectCountOf(Property.ALL_PROPERTY).execute()
             }
                 .asSingle()
                 .subscribe { value ->
@@ -85,7 +68,7 @@ class RXQueryTests : BaseUnitTest() {
             .beginTransactionAsync {
                 (simpleModelAdapter.insert(
                     SimpleModel_Table.name.eq("name")
-                )).executeInsert()
+                )).execute()
             }.asSingle()
             .subscribe { c ->
                 count = c
