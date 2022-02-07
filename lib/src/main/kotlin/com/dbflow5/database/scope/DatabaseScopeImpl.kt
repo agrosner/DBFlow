@@ -10,6 +10,7 @@ import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.Queriable
+import com.dbflow5.query2.ExecutableQuery
 
 /**
  * Description:
@@ -121,6 +122,10 @@ internal constructor(
 
     override suspend fun Queriable.execute() {
         return execute(db)
+    }
+
+    override suspend fun <Result> ExecutableQuery<Result>.execute(): Result {
+        return execute(this@DatabaseScopeImpl)
     }
 }
 

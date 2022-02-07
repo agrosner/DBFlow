@@ -6,13 +6,14 @@ import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query.delete
 import com.dbflow5.query.select
+import com.dbflow5.query2.delete
 import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
+import kotlin.test.assertTrue
 
 class DeleteTest : BaseUnitTest() {
 
@@ -20,7 +21,7 @@ class DeleteTest : BaseUnitTest() {
     fun validateDeletion() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             simpleModelAdapter.save(SimpleModel("name"))
-            simpleModelAdapter.delete().execute()
+            assertTrue(simpleModelAdapter.delete().execute() > 0)
             assertFalse((select from simpleModelAdapter).hasData())
         }
     }
@@ -37,7 +38,7 @@ class DeleteTest : BaseUnitTest() {
 
             val where = simpleModelAdapter.delete().where(SimpleModel_Table.name.`is`("name"))
             assertEquals("DELETE FROM `SimpleModel` WHERE `name`='name'", where.query.trim())
-            where.execute()
+            assertTrue(where.execute() > 0)
 
             assertEquals(1, (select from simpleModelAdapter).queryList().size)
         }
