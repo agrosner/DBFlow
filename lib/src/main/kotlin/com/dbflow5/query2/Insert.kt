@@ -4,7 +4,6 @@ import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.query.BaseOperator
-import com.dbflow5.query.From
 import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query.SQLOperator
 import com.dbflow5.query.property.IProperty
@@ -42,7 +41,7 @@ interface HasValues<Table : Any> {
 interface HasSelect<Table : Any> {
 
     infix fun <OtherTable : Any> select(
-        subQuery: Select<OtherTable>
+        subQuery: ExecutableQuery<SelectResult<OtherTable>>
     ): InsertWithSelect<Table, OtherTable>
 }
 
@@ -68,7 +67,7 @@ interface InsertWithValues<Table : Any> : Query,
 
 interface InsertWithSelect<Table : Any, TFrom : Any> : Query {
 
-    val from: From<TFrom>?
+    val subquery: ExecutableQuery<SelectResult<TFrom>>?
 }
 
 fun <Table : Any> SQLObjectAdapter<Table>.insert(): Insert<Table> = InsertImpl(adapter = this)
@@ -132,7 +131,7 @@ internal data class InsertImpl<Table : Any>(
     override val values: List<List<Any?>> = listOf(),
     override val conflictAction: ConflictAction = ConflictAction.NONE,
     override val adapter: SQLObjectAdapter<Table>,
-    override val from: From<Any>? = null,
+    override val subquery: ExecutableQuery<SelectResult<Any>>? = null,
 ) : InsertWithValues<Table>, InsertWithConflict<Table>, Insert<Table>,
     InsertWithSelect<Table, Any> {
     override val query: String by lazy {
@@ -149,8 +148,8 @@ internal data class InsertImpl<Table : Any>(
                         "(${it.joinToString()})"
                     )
                 }
-            if (from != null) {
-                append(" ${from.query}")
+            if (subquery != null) {
+                append(" ${subquery.query}")
             } else {
                 if (values.isEmpty()) {
                     throw IllegalStateException(
@@ -197,8 +196,8 @@ internal data class InsertImpl<Table : Any>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <OtherTable : Any> select(subQuery: Select<OtherTable>): InsertWithSelect<Table, OtherTable> =
+    override fun <OtherTable : Any> select(subQuery: ExecutableQuery<SelectResult<OtherTable>>): InsertWithSelect<Table, OtherTable> =
         copy(
-            from = subQuery as From<Any>,
+            subquery = subQuery as ExecutableQuery<SelectResult<Any>>,
         ) as InsertWithSelect<Table, OtherTable>
 }

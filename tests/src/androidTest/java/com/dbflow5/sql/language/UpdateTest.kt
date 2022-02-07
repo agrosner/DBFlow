@@ -5,7 +5,6 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.assertEquals
 import com.dbflow5.config.database
-import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.NumberModel_Table
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.property.Property
@@ -15,9 +14,7 @@ import com.dbflow5.query2.orIgnore
 import com.dbflow5.query2.orReplace
 import com.dbflow5.query2.orRollback
 import com.dbflow5.query2.update
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
-import kotlin.test.fail
 
 class UpdateTest : BaseUnitTest() {
 
@@ -73,24 +70,5 @@ class UpdateTest : BaseUnitTest() {
                 .set(NumberModel_Table.id.eq(Property.WILDCARD))
                 .where(NumberModel_Table.id.eq(Property.WILDCARD))
         )
-    }
-
-    @Test
-    fun validateNonSelectThrowError() = runBlockingTest {
-        database<TestDatabase>().writableTransaction {
-            try {
-                //simpleModelAdapter.update().set(SimpleModel_Table.name.`is`("name")).querySingle()
-                fail("Non select passed")
-            } catch (i: IllegalArgumentException) {
-                // expected
-            }
-
-            try {
-                //simpleModelAdapter.update().set(SimpleModel_Table.name.`is`("name")).querySingle()
-                fail("Non select passed")
-            } catch (i: IllegalArgumentException) {
-                // expected
-            }
-        }
     }
 }
