@@ -2,7 +2,21 @@ package com.dbflow5.sql.language
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.models.TwoColumnModel_Table
-import com.dbflow5.query.*
+import com.dbflow5.query.avg
+import com.dbflow5.query.cast
+import com.dbflow5.query.count
+import com.dbflow5.query.date
+import com.dbflow5.query.datetime
+import com.dbflow5.query.groupConcat
+import com.dbflow5.query.ifNull
+import com.dbflow5.query.max
+import com.dbflow5.query.min
+import com.dbflow5.query.nullIf
+import com.dbflow5.query.random
+import com.dbflow5.query.replace
+import com.dbflow5.query.strftime
+import com.dbflow5.query.sum
+import com.dbflow5.query.total
 import com.dbflow5.sql.SQLiteType
 import org.junit.Assert.assertEquals
 import org.junit.Test

@@ -41,7 +41,9 @@ interface HasValues<Table : Any> {
 
 interface HasSelect<Table : Any> {
 
-    infix fun <TFrom : Any> select(from: From<TFrom>): InsertWithSelect<Table, TFrom>
+    infix fun <OtherTable : Any> select(
+        subQuery: Select<OtherTable>
+    ): InsertWithSelect<Table, OtherTable>
 }
 
 /**
@@ -195,7 +197,8 @@ internal data class InsertImpl<Table : Any>(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <TFrom : Any> select(from: From<TFrom>): InsertWithSelect<Table, TFrom> = copy(
-        from = from as From<Any>,
-    ) as InsertWithSelect<Table, TFrom>
+    override fun <OtherTable : Any> select(subQuery: Select<OtherTable>): InsertWithSelect<Table, OtherTable> =
+        copy(
+            from = subQuery as From<Any>,
+        ) as InsertWithSelect<Table, OtherTable>
 }

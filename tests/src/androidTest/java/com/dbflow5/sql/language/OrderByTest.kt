@@ -10,7 +10,6 @@ import org.junit.Test
 
 class OrderByTest : BaseUnitTest() {
 
-
     @Test
     fun validateBasicOrderBy() {
         "`name` ASC".assertEquals(OrderBy.fromProperty(SimpleModel_Table.name).ascending())

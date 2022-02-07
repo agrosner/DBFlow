@@ -2,14 +2,12 @@ package com.dbflow5.sql.language
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
-import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.Operator
 import com.dbflow5.query.OperatorGroup
-import com.dbflow5.query.select
 import com.dbflow5.query2.ColumnValue
 import com.dbflow5.query2.insert
 import com.dbflow5.query2.orAbort
@@ -17,6 +15,7 @@ import com.dbflow5.query2.orFail
 import com.dbflow5.query2.orIgnore
 import com.dbflow5.query2.orReplace
 import com.dbflow5.query2.orRollback
+import com.dbflow5.query2.select
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -85,7 +84,7 @@ class InsertTest : BaseUnitTest() {
     fun validateSelect() {
         assertEquals(
             "INSERT INTO `TwoColumnModel` SELECT * FROM `SimpleModel`",
-            twoColumnModelAdapter.insert().select(select from simpleModelAdapter).query.trim()
+            twoColumnModelAdapter.insert().select(simpleModelAdapter.select()).query.trim()
         )
     }
 

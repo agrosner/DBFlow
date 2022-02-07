@@ -7,7 +7,6 @@ import com.dbflow5.query.NameAlias
 import com.dbflow5.query.enclosedQuery
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.Property
-import com.dbflow5.sql.Query
 
 sealed class QualifierType(val value: String) {
     object Distinct : QualifierType("DISTINCT")
@@ -15,7 +14,13 @@ sealed class QualifierType(val value: String) {
     object None : QualifierType("NONE")
 }
 
-interface SelectWithAlias<Table : Any> : Query,
+/**
+ * All selects implement this
+ */
+interface Select<Table : Any> : ExecutableQuery<SelectResult<Table>>
+
+interface SelectWithAlias<Table : Any> :
+    Select<Table>,
     Joinable<Table>,
     HasAssociatedAdapters,
     Indexable<Table>,
@@ -24,7 +29,8 @@ interface SelectWithAlias<Table : Any> : Query,
     val tableAlias: NameAlias
 }
 
-interface SelectWithQualifier<Table : Any> : Query,
+interface SelectWithQualifier<Table : Any> :
+    Select<Table>,
     Aliasable<SelectWithAlias<Table>>,
     Joinable<Table>,
     HasAssociatedAdapters,
@@ -34,7 +40,8 @@ interface SelectWithQualifier<Table : Any> : Query,
     val qualifier: QualifierType
 }
 
-interface SelectWithModelQueriable<Table : Any> : Query,
+interface SelectWithModelQueriable<Table : Any> :
+    Select<Table>,
     HasAssociatedAdapters,
     Joinable<Table>,
     Indexable<Table>,
@@ -43,7 +50,8 @@ interface SelectWithModelQueriable<Table : Any> : Query,
     val modelQueriable: ModelQueriable<Table>?
 }
 
-interface SelectWithJoins<Table : Any> : Query,
+interface SelectWithJoins<Table : Any> :
+    Select<Table>,
     HasAssociatedAdapters, Joinable<Table>,
     Indexable<Table>,
     Whereable<Table, SelectResult<Table>, Select<Table>,
@@ -51,7 +59,8 @@ interface SelectWithJoins<Table : Any> : Query,
     val joins: List<Join<*, *>>
 }
 
-interface Select<Table : Any> : Query,
+interface SelectStart<Table : Any> :
+    Select<Table>,
     HasAdapter<Table, SQLObjectAdapter<Table>>,
     Aliasable<SelectWithAlias<Table>>,
     Joinable<Table>,
@@ -69,14 +78,14 @@ interface Select<Table : Any> : Query,
     infix fun from(modelQueriable: ModelQueriable<Table>): SelectWithModelQueriable<Table>
 }
 
-fun <Table : Any> SQLObjectAdapter<Table>.select(): Select<Table> = SelectImpl(
+fun <Table : Any> SQLObjectAdapter<Table>.select(): SelectStart<Table> = SelectImpl(
     adapter = this,
     properties = listOf(Property.ALL_PROPERTY),
 )
 
 fun <Table : Any> SQLObjectAdapter<Table>.select(
     vararg properties: IProperty<*>
-): Select<Table> =
+): SelectStart<Table> =
     SelectImpl(
         adapter = this,
         properties = properties.toList(),
@@ -95,7 +104,9 @@ internal data class SelectImpl<Table : Any>(
     override val modelQueriable: ModelQueriable<Table>? = null,
     override val joins: List<Join<*, *>> = listOf(),
     override val resultFactory: ResultFactory<SelectResult<Table>> = SelectResultFactory(adapter),
-) : Select<Table>, SelectWithQualifier<Table>,
+) : Select<Table>,
+    SelectStart<Table>,
+    SelectWithQualifier<Table>,
     SelectWithAlias<Table>,
     SelectWithModelQueriable<Table>,
     SelectWithJoins<Table> {

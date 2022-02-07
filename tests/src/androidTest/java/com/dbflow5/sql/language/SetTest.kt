@@ -6,8 +6,7 @@ import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel_Table
-import com.dbflow5.query.set
-import com.dbflow5.query.update
+import com.dbflow5.query2.update
 import org.junit.Test
 
 class SetTest : BaseUnitTest() {

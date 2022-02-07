@@ -13,7 +13,9 @@ interface UpdateWithConflict<Table : Any> : HasConflictAction,
 interface UpdateWithSet<Table : Any> : HasConflictAction,
     Query, HasOperatorGroup,
     Whereable<Table, Long, Update<Table>, SQLObjectAdapter<Table>>,
-    Indexable<Table>, ExecutableQuery<Long>
+    Indexable<Table>, ExecutableQuery<Long> {
+    infix fun and(condition: SQLOperator): UpdateWithSet<Table>
+}
 
 interface Update<Table : Any> : Query,
     Conflictable<UpdateWithConflict<Table>>,
@@ -55,12 +57,16 @@ internal data class UpdateImpl<Table : Any>(
 
     override fun set(vararg conditions: SQLOperator): UpdateWithSet<Table> =
         copy(
-            operatorGroup = operatorGroup.andAll(*conditions)
+            operatorGroup = operatorGroup.andAll(*conditions),
         )
 
     override fun set(condition: SQLOperator): UpdateWithSet<Table> =
         copy(
-            operatorGroup = operatorGroup.and(condition)
+            operatorGroup = operatorGroup.and(condition),
         )
 
+    override fun and(condition: SQLOperator): UpdateWithSet<Table> =
+        copy(
+            operatorGroup = operatorGroup.and(condition),
+        )
 }
