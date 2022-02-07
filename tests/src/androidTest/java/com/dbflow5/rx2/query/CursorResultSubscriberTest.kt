@@ -9,8 +9,8 @@ import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.delete
-import com.dbflow5.query.insert
 import com.dbflow5.query.select
+import com.dbflow5.query2.insert
 import com.dbflow5.reactivestreams.query.queryStreamResults
 import com.dbflow5.reactivestreams.transaction.asFlowable
 import com.dbflow5.simpleModelAdapter
@@ -69,19 +69,16 @@ class CursorResultSubscriberTest : BaseUnitTest() {
                 }
             db.writableTransaction {
                 assertTrue(
-                    simpleModelAdapter.insert(SimpleModel_Table.name)
-                        .values("test")
-                        .executeInsert() > 0
+                    simpleModelAdapter.insert(SimpleModel_Table.name.eq("test"))
+                        .execute() > 0
                 )
                 assertTrue(
-                    simpleModelAdapter.insert(SimpleModel_Table.name)
-                        .values("test1")
-                        .executeInsert() > 0
+                    simpleModelAdapter.insert(SimpleModel_Table.name.eq("test1"))
+                        .execute() > 0
                 )
                 assertTrue(
-                    simpleModelAdapter.insert(SimpleModel_Table.name)
-                        .values("test2")
-                        .executeInsert() > 0
+                    simpleModelAdapter.insert(SimpleModel_Table.name.eq("test2"))
+                        .execute() > 0
                 )
             }
 

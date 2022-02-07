@@ -4,10 +4,12 @@ import androidx.annotation.CallSuper
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.appendQuotedIfNeeded
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query.select
+import com.dbflow5.query2.cursor
+import com.dbflow5.query2.select
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.sql.SQLiteType
 import com.dbflow5.stripQuotes
+import kotlinx.coroutines.runBlocking
 
 /**
  * Description: Provides a very nice way to alter a single table quickly and easily.
@@ -38,7 +40,7 @@ open class AlterTableMigration<T : Any>(
      */
     private var oldTableName: String? = null
 
-    override fun migrate(database: DatabaseWrapper) {
+    override fun migrate(database: DatabaseWrapper) = runBlocking {
         // "ALTER TABLE "
         var sql = ALTER_TABLE
         val tableName = adapter.name
@@ -57,7 +59,7 @@ open class AlterTableMigration<T : Any>(
         // We have column definitions to add here
         // ADD COLUMN columnName {type}
         if (internalColumnDefinitions.isNotEmpty()) {
-            (select from adapter limit 0).cursor(database)?.use { cursor ->
+            (adapter.select() limit 0).cursor(database).use { cursor ->
                 sql = "$sql$tableName"
                 for (i in internalColumnDefinitions.indices) {
                     val columnDefinition = internalColumnDefinitions[i]

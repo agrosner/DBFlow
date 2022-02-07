@@ -4,6 +4,7 @@ import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.Queriable
+import com.dbflow5.query2.CountResultFactory
 import com.dbflow5.query2.ExecutableQuery
 import com.dbflow5.query2.SelectResult
 
@@ -36,6 +37,8 @@ interface ReadableQueriableScope {
     ): List<OtherTable>
 
     suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.cursor(): FlowCursor
+
+    suspend fun ExecutableQuery<CountResultFactory.Count>.hasData(): Boolean
 }
 
 interface WritableQueriableScope : ReadableQueriableScope {

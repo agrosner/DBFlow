@@ -8,6 +8,7 @@ import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.select
 import com.dbflow5.query2.delete
+import com.dbflow5.query2.selectCountOf
 import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
@@ -22,7 +23,7 @@ class DeleteTest : BaseUnitTest() {
         database<TestDatabase>().writableTransaction {
             simpleModelAdapter.save(SimpleModel("name"))
             assertTrue(simpleModelAdapter.delete().execute() > 0)
-            assertFalse((select from simpleModelAdapter).hasData())
+            assertFalse(simpleModelAdapter.selectCountOf().hasData())
         }
     }
 

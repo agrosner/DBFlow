@@ -23,8 +23,15 @@ object InsertResultFactory : ResultFactory<Long> {
     }
 }
 
-object LongForQueryResultFactory : ResultFactory<Long> {
-    override fun DatabaseWrapper.createResult(query: String): Long {
-        return longForQuery(this, query)
+object CountResultFactory : ResultFactory<CountResultFactory.Count> {
+    @JvmInline
+    value class Count(val value: Long)
+
+    override fun DatabaseWrapper.createResult(query: String): Count {
+        return Count(longForQuery(this, query))
     }
 }
+
+suspend fun ExecutableQuery<CountResultFactory.Count>.hasData(
+    db: DatabaseWrapper
+): Boolean = execute(db).value > 0

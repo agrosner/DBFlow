@@ -9,6 +9,7 @@ import com.dbflow5.paging.QueryDataSource
 import com.dbflow5.paging.toDataSourceFactory
 import com.dbflow5.query.Where
 import com.dbflow5.query.select
+import com.dbflow5.query2.select
 import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.transaction.Transaction
 import io.reactivex.rxjava3.core.Single
@@ -33,8 +34,8 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
      */
     fun coroutineRetrieveUSD(): Deferred<List<Currency>> =
         database.beginTransactionAsync {
-            (select from currencyAdapter
-                where (Currency_Table.symbol eq "$")).queryList()
+            (currencyAdapter.select()
+                where (Currency_Table.symbol eq "$")).list()
         }.defer()
 
     fun rxStoreUSD(currency: Currency): Single<Result<Currency>> =
@@ -46,9 +47,9 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
      */
     fun rxRetrieveUSD(): Single<List<Currency>> =
         database.beginTransactionAsync {
-            (select from currencyAdapter
+            (currencyAdapter.select()
                 where (Currency_Table.symbol eq "$"))
-                .queryList()
+                .list()
         }.asSingle()
 
     /**
@@ -56,9 +57,9 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
      */
     fun retrieveUSD(): Transaction.Builder<TestDatabase, List<Currency>> =
         database.beginTransactionAsync {
-            (select from currencyAdapter
+            (currencyAdapter.select()
                 where (Currency_Table.symbol eq "$"))
-                .queryList()
+                .list()
         }
 
     /**

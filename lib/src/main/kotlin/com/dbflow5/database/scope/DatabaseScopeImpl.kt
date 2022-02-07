@@ -10,8 +10,11 @@ import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.Queriable
+import com.dbflow5.query2.CountResultFactory
 import com.dbflow5.query2.ExecutableQuery
 import com.dbflow5.query2.SelectResult
+import com.dbflow5.query2.cursor
+import com.dbflow5.query2.hasData
 
 /**
  * Description:
@@ -150,8 +153,11 @@ internal constructor(
         adapter: RetrievalAdapter<OtherTable>
     ): List<OtherTable> = execute(db).list(adapter)
 
-    override suspend fun <Table: Any> ExecutableQuery<SelectResult<Table>>.cursor(): FlowCursor =
-        db.rawQuery(query, null)
+    override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.cursor(): FlowCursor =
+        cursor(db)
+
+    override suspend fun ExecutableQuery<CountResultFactory.Count>.hasData(): Boolean =
+        hasData(db)
 }
 
 fun <DB : DBFlowDatabase> WritableDatabaseScope(

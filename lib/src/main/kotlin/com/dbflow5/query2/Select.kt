@@ -101,11 +101,11 @@ fun <Table : Any> SQLObjectAdapter<Table>.select(
  */
 fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
     vararg properties: IProperty<*>,
-): SelectStart<Table, Long> =
+): SelectStart<Table, CountResultFactory.Count> =
     SelectImpl(
         adapter = this,
         properties = listOf(count(*properties)),
-        resultFactory = LongForQueryResultFactory,
+        resultFactory = CountResultFactory,
     )
 
 internal data class SelectImpl<Table : Any, Result>(

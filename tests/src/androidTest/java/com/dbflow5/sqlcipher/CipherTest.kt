@@ -5,7 +5,7 @@ import com.dbflow5.DemoApp
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.query.delete
-import com.dbflow5.query.select
+import com.dbflow5.query2.select
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -36,9 +36,9 @@ class CipherTest {
                     .getOrThrow()
             assertTrue(cipherAdapter.exists(model))
 
-            val retrieval = (select from cipherAdapter
+            val retrieval = (cipherAdapter.select()
                 where CipherModel_Table.name.eq("name"))
-                .requireSingle()
+                .single()
             assertTrue(retrieval.id == model.id)
             (delete() from cipherAdapter).execute()
         }

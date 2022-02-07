@@ -134,6 +134,6 @@ suspend fun <Table : Any, OtherTable : Any>
     execute(db).list(adapter)
 
 
-suspend fun ExecutableQuery<SelectResult<*>>.cursor(
+suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.cursor(
     db: DatabaseWrapper
-) = db.compileStatement(query, null)
+) = db.rawQuery(query, null)
