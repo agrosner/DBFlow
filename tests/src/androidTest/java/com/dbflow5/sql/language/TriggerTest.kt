@@ -9,12 +9,10 @@ import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.cast
-import com.dbflow5.query.createTempTrigger
-import com.dbflow5.query.createTrigger
 import com.dbflow5.query.insert
 import com.dbflow5.query.property.property
-import com.dbflow5.query.select
-import com.dbflow5.query.updateOn
+import com.dbflow5.query2.createTrigger
+import com.dbflow5.query2.select
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.sql.SQLiteType
 import com.dbflow5.twoColumnModelAdapter
@@ -31,7 +29,7 @@ class TriggerTest : BaseUnitTest() {
                 "\nBEGIN" +
                 "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
                 "\nEND").assertEquals(
-                createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
+                db.simpleModelAdapter.createTrigger("MyTrigger").after().insertOn() begin
                     db.twoColumnModelAdapter.insert().columnValues(
                         TwoColumnModel_Table.name to NameAlias.ofTable(
                             "new",
@@ -51,8 +49,10 @@ class TriggerTest : BaseUnitTest() {
                 "\nINSERT INTO `TwoColumnModel`(`id`) VALUES(CAST(`new`.`name` AS INTEGER));" +
                 "\nEND")
                 .assertEquals(
-                    createTempTrigger("MyTrigger").before()
-                        updateOn SimpleModel::class
+                    db.simpleModelAdapter.createTrigger(
+                        temporary = true,
+                        name = "MyTrigger"
+                    ).before().updateOn()
                         begin
                         db.twoColumnModelAdapter.insert(
                             TwoColumnModel_Table.name
@@ -75,7 +75,7 @@ class TriggerTest : BaseUnitTest() {
     @Test
     fun validateTriggerWorks() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            val trigger = createTrigger("MyTrigger").after() insertOn SimpleModel::class begin
+            val trigger = simpleModelAdapter.createTrigger("MyTrigger").after().insertOn() begin
                 twoColumnModelAdapter.insert().columnValues(
                     TwoColumnModel_Table.name to NameAlias.ofTable(
                         "new",
@@ -83,7 +83,7 @@ class TriggerTest : BaseUnitTest() {
                     ),
                     TwoColumnModel_Table.id to 1,
                 )
-            trigger.enable(db)
+            trigger.execute()
             simpleModelAdapter.insert(SimpleModel("Test"))
 
             val result =
