@@ -9,9 +9,9 @@ import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.cast
-import com.dbflow5.query.insert
 import com.dbflow5.query.property.property
 import com.dbflow5.query2.createTrigger
+import com.dbflow5.query2.insert
 import com.dbflow5.query2.select
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.sql.SQLiteType
@@ -30,7 +30,7 @@ class TriggerTest : BaseUnitTest() {
                 "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
                 "\nEND").assertEquals(
                 db.simpleModelAdapter.createTrigger("MyTrigger").after().insertOn() begin
-                    db.twoColumnModelAdapter.insert().columnValues(
+                    db.twoColumnModelAdapter.insert(
                         TwoColumnModel_Table.name to NameAlias.ofTable(
                             "new",
                             "name"
@@ -76,7 +76,7 @@ class TriggerTest : BaseUnitTest() {
     fun validateTriggerWorks() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             val trigger = simpleModelAdapter.createTrigger("MyTrigger").after().insertOn() begin
-                twoColumnModelAdapter.insert().columnValues(
+                twoColumnModelAdapter.insert(
                     TwoColumnModel_Table.name to NameAlias.ofTable(
                         "new",
                         "name"

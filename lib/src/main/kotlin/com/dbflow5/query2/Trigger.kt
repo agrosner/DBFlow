@@ -146,7 +146,11 @@ internal data class TriggerImpl<Table : Any>(
                 append(" ")
             }
             if (triggerLogicQuery.isNotEmpty()) {
-                append("\nBEGIN\n${triggerLogicQuery.joinToString(separator = ";\n")};\nEND")
+                append(
+                    "\nBEGIN\n${
+                        triggerLogicQuery.joinToString(separator = ";\n") { it.query }
+                    };\nEND"
+                )
             }
         }
     }

@@ -2,35 +2,41 @@ package com.dbflow5.query2
 
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.appendQuotedIfNeeded
-import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.dropIndex
+import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.sql.Query
 
-interface UniqueIndex<Table : Any> : Query,
-    HasAdapter<Table, SQLObjectAdapter<Table>> {
-
-    val unique: Boolean
-}
-
 /**
- * Description:
+ * Description: an INDEX class that enables you to index a specific column from a table. This enables
+ * faster retrieval on tables, while increasing the database file size.
+ * So enable/disable these as necessary.
  */
 interface Index<Table : Any> : Query,
     HasAdapter<Table, SQLObjectAdapter<Table>>,
-    QueryExecutableIgnoreResult {
+    QueryExecutableIgnoreResult
 
+interface UniqueIndex<Table : Any> : Index<Table>
+
+interface IndexStart<Table : Any> : Index<Table> {
+    /**
+     * Make this index unique, appending a UNIQUE.
+     * A [SQLiteException] will get thrown for same type of index.
+     */
     fun unique(): UniqueIndex<Table>
-
 }
 
+/**
+ * Creates an index with [name] based on the [SQLObjectAdapter] used.
+ *
+ * set [ifNotExists] to false, if you wish for [SQLiteException] to get thrown on recreation.
+ */
 fun <Table : Any> SQLObjectAdapter<Table>.createIndexOn(
     name: String,
     property: IProperty<*>,
     vararg restProperties: IProperty<*>,
     ifNotExists: Boolean = true,
-): Index<Table> = IndexImpl(
+): IndexStart<Table> = IndexImpl(
     adapter = this,
     name = name,
     columns = mutableListOf(property).apply {
@@ -41,11 +47,11 @@ fun <Table : Any> SQLObjectAdapter<Table>.createIndexOn(
 
 internal data class IndexImpl<Table : Any>(
     override val adapter: SQLObjectAdapter<Table>,
-    val columns: List<NameAlias> = listOf(),
-    val name: String,
-    override val unique: Boolean = false,
-    val ifNotExists: Boolean,
-) : Index<Table>, UniqueIndex<Table> {
+    private val columns: List<NameAlias> = listOf(),
+    private val name: String,
+    private val unique: Boolean = false,
+    private val ifNotExists: Boolean,
+) : IndexStart<Table>, UniqueIndex<Table> {
     override val query: String by lazy {
         buildString {
             append("CREATE ")
@@ -61,8 +67,4 @@ internal data class IndexImpl<Table : Any>(
         copy(
             unique = true,
         )
-
-    fun drop(databaseWrapper: DatabaseWrapper) {
-        dropIndex(databaseWrapper, name)
-    }
 }

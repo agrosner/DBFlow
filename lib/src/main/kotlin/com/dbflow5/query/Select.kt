@@ -21,7 +21,7 @@ class Select
  *
  * @param properties The properties to select from.
  */
-internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Select> {
+constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Select> {
 
     /**
      * The select qualifier to append to the SELECT statement
@@ -88,4 +88,4 @@ internal constructor(vararg properties: IProperty<*>) : Query, QueryCloneable<Se
 }
 
 inline val select: Select
-    get() = select()
+    get() = Select()

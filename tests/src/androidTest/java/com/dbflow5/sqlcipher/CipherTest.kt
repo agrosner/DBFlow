@@ -4,7 +4,7 @@ import com.dbflow5.DBFlowInstrumentedTestRule
 import com.dbflow5.DemoApp
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
-import com.dbflow5.query.delete
+import com.dbflow5.query2.delete
 import com.dbflow5.query2.select
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertTrue
@@ -30,7 +30,7 @@ class CipherTest {
     @Test
     fun testCipherModel() = runBlockingTest {
         database<CipherDatabase>().writableTransaction {
-            (delete() from cipherAdapter).execute()
+            cipherAdapter.delete().execute()
             val model =
                 cipherAdapter.save(CipherModel(name = "name"))
                     .getOrThrow()
@@ -40,7 +40,7 @@ class CipherTest {
                 where CipherModel_Table.name.eq("name"))
                 .single()
             assertTrue(retrieval.id == model.id)
-            (delete() from cipherAdapter).execute()
+            cipherAdapter.delete().execute()
         }
     }
 }
