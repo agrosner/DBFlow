@@ -75,22 +75,6 @@ fun <T : Any> index(name: String, adapter: SQLObjectAdapter<T>): Index<T> = Inde
 
 
 /**
- * Starts a TRIGGER statement.
- *
- * @param name The name of the trigger.
- * @return A new TRIGGER statement.
- */
-fun createTrigger(name: String): Trigger = Trigger.create(name)
-
-/**
- * Starts a temporary TRIGGER statement.
- *
- * @param name The name of the trigger.
- * @return A new TEMPORARY TRIGGER statement.
- */
-fun createTempTrigger(name: String): Trigger = Trigger.create(name).temporary()
-
-/**
  * Starts a CASE statement.
  *
  * @param operator The condition to check for in the WHEN.

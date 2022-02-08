@@ -7,27 +7,48 @@ import com.dbflow5.query.SQLOperator
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.sql.Query
 
-sealed class TriggerQualifier(val value: String) {
+internal sealed class TriggerQualifier(val value: String) {
     object Before : TriggerQualifier("BEFORE")
     object After : TriggerQualifier("AFTER")
     object InsteadOf : TriggerQualifier("INSTEAD OF")
+
+    companion object {
+        val All = listOf(Before, After, InsteadOf)
+    }
 }
 
-sealed class TriggerMethod(val value: String) {
+internal sealed class TriggerMethod(val value: String) {
     object Insert : TriggerMethod("INSERT")
     data class Update(val properties: List<IProperty<*>>) : TriggerMethod("UPDATE")
     object Delete : TriggerMethod("DELETE")
+    companion object {
+        val All = listOf(Insert, Update(listOf()), Delete)
+    }
 }
 
-
 interface IsTriggerQualified<Table : Any> {
+    /**
+     * Specifies that we should do this TRIGGER before some event
+     */
     fun before(): TriggerQualified<Table>
+
+    /**
+     * Specifies that we should do this TRIGGER after some event
+     */
     fun after(): TriggerQualified<Table>
+
+    /**
+     * Specifies that we should do this TRIGGER instead of the specified events
+     */
     fun insteadOf(): TriggerQualified<Table>
 }
 
 interface TriggerMethodEnabled<Table : Any> {
     fun insertOn(): TriggerOn<Table>
+
+    /**
+     * If [ofProperties] specified, this UPDATE becomes UPDATE OF p0,p1,...
+     */
     fun updateOn(vararg ofProperties: IProperty<*>): TriggerOn<Table>
     fun deleteOn(): TriggerOn<Table>
 }
@@ -71,6 +92,9 @@ interface TriggerLogic<Table : Any> : Trigger<Table>,
     infix fun and(query: Query): TriggerLogic<Table>
 }
 
+/**
+ * Starts a TRIGGER statement.
+ */
 fun <Table : Any> SQLObjectAdapter<Table>.createTrigger(
     name: String,
     temporary: Boolean = false,

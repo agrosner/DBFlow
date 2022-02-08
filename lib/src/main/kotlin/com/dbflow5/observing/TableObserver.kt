@@ -8,7 +8,7 @@ import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.database.executeTransaction
-import com.dbflow5.query.TriggerMethod
+import com.dbflow5.query2.TriggerMethod
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.stripQuotes
 import java.util.concurrent.atomic.AtomicBoolean
@@ -240,10 +240,10 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
         db.execSQL("INSERT OR IGNORE INTO $TABLE_OBSERVER_NAME VALUES($tableId, 0)")
         val tableName = tables[tableId]
 
-        TriggerMethod.METHODS.forEach { method ->
+        TriggerMethod.All.forEach { method ->
             // utilize raw query, since we're using dynamic tables not supported by query language.
             db.execSQL(
-                "CREATE TEMP TRIGGER IF NOT EXISTS ${getTriggerName(tableName, method)} " +
+                "CREATE TEMP TRIGGER IF NOT EXISTS ${getTriggerName(tableName, method.value)} " +
                     "AFTER $method ON ${
                         FlowManager.getTableName(tableName).quoteIfNeeded()
                     } BEGIN UPDATE $TABLE_OBSERVER_NAME " +
@@ -256,8 +256,8 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
 
     private fun stopObservingTable(db: DatabaseWrapper, tableId: Int) {
         val tableName = tables[tableId]
-        TriggerMethod.METHODS.forEach { method ->
-            db.execSQL("DROP TRIGGER IF EXISTS ${getTriggerName(tableName, method)}")
+        TriggerMethod.All.forEach { method ->
+            db.execSQL("DROP TRIGGER IF EXISTS ${getTriggerName(tableName, method.value)}")
         }
     }
 
