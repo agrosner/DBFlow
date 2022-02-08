@@ -3,7 +3,6 @@ package com.dbflow5.reactivestreams.query
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
-import com.dbflow5.query.Join
 import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query2.ExecutableQuery
 import com.dbflow5.query2.HasAssociatedAdapters
@@ -17,7 +16,7 @@ import kotlin.reflect.KClass
 
 /**
  * Description: Emits when table changes occur for the related table on the [ModelQueriable].
- * If the [ModelQueriable] relates to a [Join], this can be multiple tables.
+ * If the [executable] relates to a Join, this can be multiple tables.
  */
 class TableChangeOnSubscribe<Table : Any, Result : Any, Q>(
     private val executable: Q,

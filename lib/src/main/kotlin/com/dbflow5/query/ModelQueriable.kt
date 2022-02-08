@@ -7,12 +7,9 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.sql.Query
 
-
-typealias ModelQueriableEvalFn<T, R> = ModelQueriable<T>.(DatabaseWrapper) -> R
-
 /**
  * Description: An interface for query objects to enable you to cursor from the database in a structured way.
- * Examples of such statements are: [From], [Where], [StringQuery]
+ * Examples of such statements are: From, Where, StringQuery
  */
 interface ModelQueriable<T : Any> : Queriable {
 
@@ -78,13 +75,13 @@ interface ModelQueriable<T : Any> : Queriable {
         databaseWrapper.beginTransactionAsync { modelQueriableFn(db) }
 
     /**
-     * Attempt to constrain this [ModelQueriable] if it supports it via [Transformable] methods. Otherwise,
+     * Attempt to constrain this [ModelQueriable] if it supports it via Transformable methods. Otherwise,
      * we just return itself.
      */
     @Suppress("UNCHECKED_CAST")
     fun attemptConstrain(offset: Long, limit: Long): ModelQueriable<T> {
         return when (this) {
-            is Transformable<*> -> (this as Transformable<T>).constrain(offset, limit)
+            //is Transformable<*> -> (this as Transformable<T>).constrain(offset, limit)
             else -> this
         }
     }

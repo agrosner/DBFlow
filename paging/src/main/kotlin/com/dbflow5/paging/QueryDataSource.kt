@@ -7,8 +7,6 @@ import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ModelQueriable
-import com.dbflow5.query.Select
-import com.dbflow5.query.WhereBase
 import com.dbflow5.query2.Constrainable
 import com.dbflow5.query2.ExecutableQuery
 import com.dbflow5.query2.HasAdapter
@@ -41,17 +39,12 @@ internal constructor(
         }
 
     init {
-        if (executableQuery is WhereBase<*> && executableQuery.queryBuilderBase !is Select) {
-            throw IllegalArgumentException("Cannot pass a non-SELECT cursor into this data source.")
-        }
-
         // force initialize the db
         db.writableDatabase
 
         val observer = db.tableObserver
         // From could be part of many joins, so we register for all affected tables here.
         observer.addOnTableChangedObserver(onTableChangedObserver)
-
     }
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<Table>) {

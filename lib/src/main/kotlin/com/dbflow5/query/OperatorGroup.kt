@@ -9,7 +9,7 @@ import com.dbflow5.sql.Query
 class OperatorGroup
 @JvmOverloads
 constructor(columnName: NameAlias? = null) : BaseOperator(columnName), Query, Iterable<SQLOperator>,
-Collection<SQLOperator> {
+    Collection<SQLOperator> {
 
     private val conditionsList = arrayListOf<SQLOperator>()
 
@@ -32,7 +32,7 @@ Collection<SQLOperator> {
 
     /**
      * Will ignore all separators for the group and make them separated by comma. This is useful
-     * in [Set] statements.
+     * in Set statements.
      *
      * @param allCommaSeparated All become comma separated.
      * @return This instance.
@@ -158,7 +158,7 @@ Collection<SQLOperator> {
     override fun containsAll(elements: Collection<SQLOperator>): Boolean =
         conditionsList.containsAll(elements)
 
-    override fun isEmpty(): Boolean  = conditionsList.isEmpty()
+    override fun isEmpty(): Boolean = conditionsList.isEmpty()
 
     override fun iterator(): Iterator<SQLOperator> = conditionsList.iterator()
 
@@ -175,7 +175,7 @@ Collection<SQLOperator> {
          */
         @JvmStatic
         fun clause(vararg condition: SQLOperator): OperatorGroup =
-                OperatorGroup().andAll(*condition)
+            OperatorGroup().andAll(*condition)
 
         /**
          * @return Starts an arbitrary clause of conditions to use, that when included in other [SQLOperator],
@@ -189,7 +189,7 @@ Collection<SQLOperator> {
          */
         @JvmStatic
         fun nonGroupingClause(vararg condition: SQLOperator): OperatorGroup =
-                OperatorGroup().setUseParenthesis(false).andAll(*condition)
+            OperatorGroup().setUseParenthesis(false).andAll(*condition)
     }
 }
 

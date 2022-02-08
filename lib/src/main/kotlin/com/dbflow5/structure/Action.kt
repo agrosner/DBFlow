@@ -13,7 +13,7 @@ enum class ChangeAction {
 
     /**
      * The model was changed. used in prior to Android JellyBean and in generic change
-     * actions like [com.dbflow5.query.StringQuery]
+     * actions.
      */
     CHANGE
 }

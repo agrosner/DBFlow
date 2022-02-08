@@ -8,8 +8,8 @@ import com.dbflow5.structure.ChangeAction
 import com.dbflow5.structure.Model
 
 /**
- * Description: The most basic interface that some of the classes such as [Insert], [ModelQueriable],
- * [Set], and more implement for convenience.
+ * Description: The most basic interface that some of the classes such as Insert, [ModelQueriable],
+ * Set, and more implement for convenience.
  */
 interface Queriable : Query {
 
@@ -36,13 +36,13 @@ interface Queriable : Query {
     fun stringValue(databaseWrapper: DatabaseWrapper): String?
 
     /**
-     * @return This may return the number of rows affected from a [Set] or [Delete] statement.
+     * @return This may return the number of rows affected from a Set or Delete statement.
      * If not, returns [Model.INVALID_ROW_ID]
      */
     fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long
 
     /**
-     * @return This may return the number of rows affected from a [Insert]  statement.
+     * @return This may return the number of rows affected from a Insert statement.
      * If not, returns [Model.INVALID_ROW_ID]
      */
     fun executeInsert(databaseWrapper: DatabaseWrapper): Long

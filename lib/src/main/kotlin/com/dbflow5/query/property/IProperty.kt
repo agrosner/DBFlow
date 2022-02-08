@@ -1,7 +1,6 @@
 package com.dbflow5.query.property
 
 import com.dbflow5.adapter.SQLObjectAdapter
-import com.dbflow5.query.Join
 import com.dbflow5.query.Method
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OrderBy
@@ -85,7 +84,7 @@ interface IProperty<P : IProperty<P>> : Query {
 
     /**
      * @return A property that represents the [Model] from which it belongs to. This is useful
-     * in [Join] queries to represent this property.
+     * in Join queries to represent this property.
      *
      *
      * The resulting [P] becomes `tableName`.`columnName`.
@@ -96,7 +95,7 @@ interface IProperty<P : IProperty<P>> : Query {
      * @param tableNameAlias The name of the table to append. This may be different because of complex queries
      * that use a [NameAlias] for the table name.
      * @return A property that represents the [Model] from which it belongs to. This is useful
-     * in [Join] queries to represent this property.
+     * in Join queries to represent this property.
      *
      *
      * The resulting column name becomes `tableName`.`columnName`.

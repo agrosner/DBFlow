@@ -7,8 +7,8 @@ import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.op
-import com.dbflow5.query.select
 import org.junit.Test
+import kotlin.test.fail
 
 class OperatorTest : BaseUnitTest() {
 
@@ -58,12 +58,13 @@ class OperatorTest : BaseUnitTest() {
     @Test
     fun testIn() {
         database<TestDatabase> { db ->
-            "`id` IN (5,6,7,8,9)".assertEquals(TwoColumnModel_Table.id.`in`(5, 6, 7, 8) and 9)
-            "`id` NOT IN (SELECT * FROM `SimpleModel`)".assertEquals(
-                TwoColumnModel_Table.id.notIn(
-                    select from db.simpleModelAdapter
-                )
-            )
+            fail("TODO: replace operator methods with updated variants")
+            //"`id` IN (5,6,7,8,9)".assertEquals(TwoColumnModel_Table.id.`in`(5, 6, 7, 8) and 9)
+            //"`id` NOT IN (SELECT * FROM `SimpleModel`)".assertEquals(
+            //    TwoColumnModel_Table.id.notIn(
+            //        select from db.simpleModelAdapter
+            //    )
+            //)
         }
     }
 
