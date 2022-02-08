@@ -9,7 +9,6 @@ import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.Property
 import com.dbflow5.structure.Model
 
-
 /**
  * @param properties The properties/columns to SELECT.
  * @return A beginning of the SELECT statement.

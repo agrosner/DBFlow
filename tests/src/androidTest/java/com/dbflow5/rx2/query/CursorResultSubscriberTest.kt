@@ -11,7 +11,6 @@ import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
 import com.dbflow5.query2.insert
-import com.dbflow5.reactivestreams.query.queryStreamResults
 import com.dbflow5.reactivestreams.transaction.asFlowable
 import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
@@ -20,22 +19,6 @@ import org.junit.Test
 import kotlin.test.assertTrue
 
 class CursorResultSubscriberTest : BaseUnitTest() {
-
-    @Test
-    fun testCanQueryStreamResults() = runBlockingTest {
-        database<TestDatabase>().writableTransaction {
-            (0..9).forEach { simpleModelAdapter.save(SimpleModel("$it")) }
-
-            var count = 0
-            (select from simpleModelAdapter)
-                .queryStreamResults(this.db)
-                .subscribe {
-                    count++
-                }
-
-            assertEquals(10, count)
-        }
-    }
 
     @Test
     fun testCanObserveOnTableChangesWithModelOps() = runBlockingTest {

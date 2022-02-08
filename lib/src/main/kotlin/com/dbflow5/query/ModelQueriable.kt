@@ -5,8 +5,6 @@ import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
-import com.dbflow5.query.list.FlowCursorList
-import com.dbflow5.query.list.FlowQueryList
 import com.dbflow5.sql.Query
 
 
@@ -35,18 +33,6 @@ interface ModelQueriable<T : Any> : Queriable {
      */
     fun requireSingle(db: DatabaseWrapper) = querySingle(db)
         ?: throw SQLiteException("Model result not found for $this")
-
-    /**
-     * @return A cursor-backed list that handles conversion, retrieval, and caching of lists. Can
-     * cache models dynamically by setting [FlowCursorList.setCacheModels] to true.
-     */
-    fun cursorList(databaseWrapper: DatabaseWrapper): FlowCursorList<T>
-
-    /**
-     * @return A cursor-backed [List] that handles conversion, retrieval, caching, content changes,
-     * and more.
-     */
-    fun flowQueryList(databaseWrapper: DatabaseWrapper): FlowQueryList<T>
 
     /**
      * Returns a [List] based on the custom [TQuery] you pass in.

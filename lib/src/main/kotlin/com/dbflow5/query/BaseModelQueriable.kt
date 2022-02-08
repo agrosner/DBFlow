@@ -1,12 +1,9 @@
 package com.dbflow5.query
 
-import android.os.Handler
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.queriable.ListModelLoader
 import com.dbflow5.config.FlowLog
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query.list.FlowCursorList
-import com.dbflow5.query.list.FlowQueryList
 import com.dbflow5.sql.Query
 import kotlinx.coroutines.runBlocking
 
@@ -38,12 +35,6 @@ protected constructor(adapter: RetrievalAdapter<TModel>) :
         return runBlocking { adapter.loadSingle(databaseWrapper, query) }
     }
 
-    override fun cursorList(databaseWrapper: DatabaseWrapper): FlowCursorList<TModel> =
-        FlowCursorList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
-
-    override fun flowQueryList(databaseWrapper: DatabaseWrapper): FlowQueryList<TModel> =
-        FlowQueryList.Builder(modelQueriable = this, databaseWrapper = databaseWrapper).build()
-
     override fun executeUpdateDelete(databaseWrapper: DatabaseWrapper): Long =
         compileStatement(databaseWrapper).use { it.executeUpdateDelete() }
 
@@ -67,15 +58,3 @@ protected constructor(adapter: RetrievalAdapter<TModel>) :
         return runBlocking { retrievalAdapter.loadSingle(databaseWrapper, query) }
     }
 }
-
-/**
- * Constructs a flowQueryList allowing a custom [Handler].
- */
-fun <T : Any> ModelQueriable<T>.flowQueryList(
-    databaseWrapper: DatabaseWrapper,
-    refreshHandler: Handler
-) =
-    FlowQueryList.Builder(
-        modelQueriable = this, databaseWrapper = databaseWrapper,
-        refreshHandler = refreshHandler
-    ).build()
