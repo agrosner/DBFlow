@@ -14,7 +14,8 @@ import com.dbflow5.models.Blog_Table
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.cast
-import com.dbflow5.query.select
+import com.dbflow5.query2.leftOuterJoin
+import com.dbflow5.query2.select
 import com.dbflow5.reactivestreams.transaction.asFlowable
 import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
@@ -40,7 +41,7 @@ class RXFlowableTest : BaseUnitTest() {
         val subscription = database.readableTransaction {
             (select from simpleModelAdapter
                 where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
-                .asFlowable(database) { queryList(it) }
+                .asFlowable(database) { list() }
                 .subscribe {
                     list = it
                     triggerCount += 1
@@ -72,7 +73,7 @@ class RXFlowableTest : BaseUnitTest() {
                 (select from blogAdapter
                     leftOuterJoin authorAdapter
                     on joinOn)
-                    .asFlowable(db) { queryList(it) }
+                    .asFlowable(db) { list() }
                     .subscribe {
                         calls++
                         list = it

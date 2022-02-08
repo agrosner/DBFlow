@@ -22,7 +22,7 @@ internal constructor(private val retrievalAdapter: SQLObjectAdapter<T>) {
      * @return True if it exists as a row in the corresponding database table
      */
     fun exists(model: T, wrapper: DatabaseWrapper): Single<Boolean> =
-        Single.fromCallable { retrievalAdapter.exists(model, wrapper) }
+        Single.fromCallable { runBlocking { retrievalAdapter.exists(model, wrapper) } }
 
     companion object {
 

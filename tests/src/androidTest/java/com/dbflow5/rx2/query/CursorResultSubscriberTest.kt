@@ -8,9 +8,9 @@ import com.dbflow5.config.readableTransaction
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query.delete
-import com.dbflow5.query.select
+import com.dbflow5.query2.delete
 import com.dbflow5.query2.insert
+import com.dbflow5.query2.select
 import com.dbflow5.reactivestreams.transaction.asFlowable
 import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
@@ -25,7 +25,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
         var count = 0
         val database = database<TestDatabase>()
         (select from database.simpleModelAdapter)
-            .asFlowable(database) { db -> queryList(db) }
+            .asFlowable(database) { list() }
             .subscribe {
                 count++
             }
@@ -41,11 +41,11 @@ class CursorResultSubscriberTest : BaseUnitTest() {
     @Test
     fun testCanObserveOnTableChangesWithTableOps() = runBlockingTest {
         database<TestDatabase> { db ->
-            db.writableTransaction { simpleModelAdapter.delete().executeUpdateDelete() }
+            db.writableTransaction { simpleModelAdapter.delete().execute() }
             var count = 0
             var curList: List<SimpleModel> = arrayListOf()
             (select from db.simpleModelAdapter)
-                .asFlowable(db) { queryList(it) }
+                .asFlowable(db) { list() }
                 .subscribe {
                     curList = it
                     count++
@@ -72,7 +72,7 @@ class CursorResultSubscriberTest : BaseUnitTest() {
                 (select
                     from simpleModelAdapter
                     where SimpleModel_Table.name.eq("test"))
-                    .requireSingle()
+                    .single()
             }
 
             db.executeTransaction { simpleModelAdapter.delete(model) }

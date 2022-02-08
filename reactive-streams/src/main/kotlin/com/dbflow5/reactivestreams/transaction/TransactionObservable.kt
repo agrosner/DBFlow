@@ -5,7 +5,9 @@ package com.dbflow5.reactivestreams.transaction
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.ModelQueriable
-import com.dbflow5.query.ModelQueriableEvalFn
+import com.dbflow5.query2.ExecutableQuery
+import com.dbflow5.query2.HasAssociatedAdapters
+import com.dbflow5.query2.SelectResult
 import com.dbflow5.reactivestreams.query.TableChangeOnSubscribe
 import com.dbflow5.transaction.Transaction
 import com.dbflow5.transaction.TransactionDispatcher
@@ -35,11 +37,13 @@ fun <DB : DBFlowDatabase, R : Any> Transaction.Builder<DB, R>.asSingle(): Single
  *  of the [Flowable]. Use the passed [DatabaseWrapper] in your [ModelQueriable] statement.
  *  The [evalFn] runs on the [TransactionDispatcher].
  */
-fun <T : Any, R : Any> ModelQueriable<T>.asFlowable(
+fun <Table : Any, Result : Any, Q> Q.asFlowable(
     db: DBFlowDatabase,
-    evalFn: ModelQueriableEvalFn<T, R>
-): Flowable<R> =
-    Flowable.create(TableChangeOnSubscribe(db, this, evalFn), BackpressureStrategy.LATEST)
+    selectResultFn: suspend SelectResult<Table>.() -> Result,
+): Flowable<Result>
+    where Q : ExecutableQuery<SelectResult<Table>>,
+          Q : HasAssociatedAdapters =
+    Flowable.create(TableChangeOnSubscribe(this, selectResultFn, db), BackpressureStrategy.LATEST)
 
 open class TransactionDisposable(private val transaction: Transaction<*, *>) : Disposable {
     private var disposed = false

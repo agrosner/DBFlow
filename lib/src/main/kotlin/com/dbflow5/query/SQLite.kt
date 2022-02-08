@@ -15,21 +15,6 @@ import com.dbflow5.structure.Model
  */
 fun select(vararg properties: IProperty<*>): Select = Select(*properties)
 
-/**
- * Starts a new SELECT COUNT(property1, property2, propertyn) (if properties specified) or
- * SELECT COUNT(*).
- *
- * @param properties Optional, if specified returns the count of non-null ROWs from a specific single/group of columns.
- * @return A new select statement SELECT COUNT(expression)
- */
-fun selectCountOf(vararg properties: IProperty<*>): Select = Select(count(*properties))
-
-fun <T : Any> SQLObjectAdapter<T>.selectCountOf(vararg properties: IProperty<*>): From<T> =
-    Select(count(*properties))
-        .from(this)
-
-fun <T : Any> SQLObjectAdapter<T>.update(): Update<T> = Update(this)
-
 fun <T : Any> RetrievalAdapter<T>.insert() = Insert(this)
 
 fun <T : Any> RetrievalAdapter<T>.insert(

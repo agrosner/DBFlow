@@ -5,8 +5,9 @@ import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.OperatorGroup
-import com.dbflow5.query.selectCountOf
+import com.dbflow5.query2.hasData
 import com.dbflow5.query2.select
+import com.dbflow5.query2.selectCountOf
 import kotlin.reflect.KClass
 
 /**
@@ -28,9 +29,10 @@ abstract class SQLObjectAdapter<TModel : Any> : RetrievalAdapter<TModel>(), Crea
      * @param model The model to query values from
      * @return True if it exists as a row in the corresponding database table
      */
-    open fun exists(model: TModel, databaseWrapper: DatabaseWrapper): Boolean = selectCountOf()
-        .where(getPrimaryConditionClause(model))
-        .hasData(databaseWrapper)
+    open suspend fun exists(model: TModel, databaseWrapper: DatabaseWrapper): Boolean =
+        this.selectCountOf()
+            .where(getPrimaryConditionClause(model))
+            .hasData(databaseWrapper)
 }
 
 @InternalDBFlowApi

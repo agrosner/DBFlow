@@ -11,10 +11,9 @@ import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query.delete
-import com.dbflow5.query.insert
-import com.dbflow5.query.set
-import com.dbflow5.query.update
+import com.dbflow5.query2.delete
+import com.dbflow5.query2.insert
+import com.dbflow5.query2.update
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.structure.ChangeAction
 import com.nhaarman.mockitokotlin2.mock
@@ -75,18 +74,17 @@ class DirectNotifierTest {
             DirectModelNotifier.get(this.db)
                 .registerForTableChanges(SimpleModel::class, modelChange)
 
-            simpleModelAdapter.insert()
-                .columnValues(SimpleModel_Table.name to "name")
-                .executeInsert()
+            simpleModelAdapter.insert(SimpleModel_Table.name to "name")
+                .execute()
 
             verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.INSERT)
 
             (simpleModelAdapter.update() set SimpleModel_Table.name.eq("name2"))
-                .executeUpdateDelete()
+                .execute()
 
             verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.UPDATE)
 
-            simpleModelAdapter.delete().executeUpdateDelete()
+            simpleModelAdapter.delete().execute()
 
             verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.DELETE)
         }

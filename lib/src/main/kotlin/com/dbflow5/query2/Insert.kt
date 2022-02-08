@@ -94,6 +94,29 @@ fun <Table : Any> SQLObjectAdapter<Table>.insert(
     )
 }
 
+fun <Table : Any> SQLObjectAdapter<Table>.insert(
+    columnValuePair: Pair<IProperty<*>?, *>,
+    vararg columnValues: Pair<IProperty<*>?, *>,
+): InsertWithValues<Table> {
+    val (columns, values) = mutableListOf(
+        ColumnValue(
+            columnValuePair.first,
+            columnValuePair.second
+        )
+    )
+        .apply {
+            addAll(columnValues
+                .map { ColumnValue(it.first, it.second) }
+                .toList())
+        }
+        .toColumnValues()
+    return InsertImpl(
+        columns = columns,
+        values = values,
+        adapter = this,
+    )
+}
+
 fun <Table : Any> ModelAdapter<Table>.insert(
     operator: SQLOperator,
     vararg operators: SQLOperator,

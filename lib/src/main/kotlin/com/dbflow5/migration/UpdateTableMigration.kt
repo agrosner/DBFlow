@@ -2,10 +2,11 @@ package com.dbflow5.migration
 
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query.BaseQueriable
 import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query.SQLOperator
-import com.dbflow5.query.update
+import com.dbflow5.query2.ExecutableQuery
+import com.dbflow5.query2.update
+import kotlinx.coroutines.runBlocking
 
 /**
  * Description: Provides a simple way to update a table's field or fields quickly in a migration.
@@ -37,7 +38,7 @@ open class UpdateTableMigration<T : Any>
      */
     private val setOperatorGroup: OperatorGroup by lazy { OperatorGroup.nonGroupingClause() }
 
-    val updateStatement: BaseQueriable<T>
+    private val updateStatement: ExecutableQuery<Long>
         get() = adapter.update()
             .set(setOperatorGroup)
             .where(whereOperatorGroup)
@@ -57,6 +58,6 @@ open class UpdateTableMigration<T : Any>
     }
 
     override fun migrate(database: DatabaseWrapper) {
-        updateStatement.execute(database)
+        runBlocking { updateStatement.execute(database) }
     }
 }
