@@ -72,30 +72,3 @@ fun <T : Any> SQLObjectAdapter<T>.delete(): From<T> = Delete().from(this)
  * @return A new INDEX statement.
  */
 fun <T : Any> index(name: String, adapter: SQLObjectAdapter<T>): Index<T> = Index(name, adapter)
-
-
-/**
- * Starts a CASE statement.
- *
- * @param operator The condition to check for in the WHEN.
- * @return A new [CaseCondition].
- */
-fun <T> caseWhen(operator: SQLOperator): CaseCondition<T> = Case<T>().whenever(operator)
-
-/**
- * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
- * case statement will evaluate all of its [SQLOperator].
- *
- * @param caseColumn The value
- */
-@JvmName("_case")
-fun <TReturn> case(caseColumn: Property<TReturn>): Case<TReturn> = Case(caseColumn)
-
-/**
- * Starts an efficient CASE statement. The value passed here is only evaulated once. A non-efficient
- * case statement will evaluate all of its [SQLOperator].
- *
- * @param caseColumn The value
- */
-@JvmName("_case")
-fun <TReturn> case(caseColumn: IProperty<*>): Case<TReturn> = Case(caseColumn)

@@ -19,20 +19,21 @@ data class CaseCondition<T> internal constructor(
     val then: T?,
 )
 
-/**
- * Represents a completed case since they have an "end" operator.
- */
-interface CaseCompleted<T> : Query
-
 interface CaseWhenEnabled<T> {
+    /**
+     * Adds a WHEN clause.
+     */
     fun whenever(
         operator: SQLOperator,
         then: T?
     ): CaseWithWhen<T>
-
 }
 
 interface CaseEfficientWhenEnabled<T> {
+    /**
+     * Starts an efficient CASE statement.
+     * The [value] passed here is only evaluated once.
+     */
     fun whenever(
         value: T?,
         then: T?
@@ -52,15 +53,21 @@ interface CaseEndEnabled<T> {
 }
 
 /**
+ * Represents a SQLITE CASE argument.
+ */
+interface Case<T> : Query
+
+/**
  * Description: Used in [Select] queries as a parameter.
  * Represents SQLITE CASE.
  */
-interface CaseStart<T> : Query,
+interface CaseStart<T> : Case<T>,
     CaseWhenEnabled<T> {
     val column: IProperty<*>?
 }
 
-interface CaseWithWhen<T> : Query,
+interface CaseWithWhen<T> :
+    Case<T>,
     CaseWhenEnabled<T>,
     CaseElseEnabled<T>,
     CaseEndEnabled<T> {
@@ -68,9 +75,15 @@ interface CaseWithWhen<T> : Query,
 }
 
 interface CaseWithElse<T> :
+    Case<T>,
     CaseEndEnabled<T> {
     val elseValue: T?
 }
+
+/**
+ * Represents a completed case since they have an "end" operator.
+ */
+interface CaseCompleted<T> : Case<T>
 
 /**
  * Efficient case method that skips to ELSE.
