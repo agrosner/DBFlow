@@ -1,6 +1,6 @@
 package com.dbflow5.query2
 
-import com.dbflow5.query.OperatorGroup
+import com.dbflow5.query2.operations.OperatorGroup
 
 /**
  * Description:

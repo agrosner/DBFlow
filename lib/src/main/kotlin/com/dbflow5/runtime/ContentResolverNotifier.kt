@@ -5,7 +5,7 @@ import android.content.Context
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.getNotificationUri
-import com.dbflow5.query.SQLOperator
+import com.dbflow5.query2.operations.Operator
 import com.dbflow5.structure.ChangeAction
 import kotlin.reflect.KClass
 
@@ -29,7 +29,8 @@ class ContentResolverNotifier(
             context.contentResolver.notifyChange(
                 getNotificationUri(
                     authority, adapter.table, action,
-                    adapter.getPrimaryConditionClause(model).conditions
+                    adapter.getPrimaryConditionClause(model).operations
+                        .filterIsInstance<Operator.SingleValueOperator<Any?>>()
                 ), null, true
             )
         }
@@ -38,7 +39,12 @@ class ContentResolverNotifier(
     override fun <T : Any> notifyTableChanged(table: KClass<T>, action: ChangeAction) {
         if (FlowContentObserver.shouldNotify()) {
             context.contentResolver.notifyChange(
-                getNotificationUri(authority, table, action, null as Array<SQLOperator>?),
+                getNotificationUri(
+                    authority,
+                    table,
+                    action,
+                    null as Array<Operator.SingleValueOperator<Any?>>?
+                ),
                 null,
                 true
             )

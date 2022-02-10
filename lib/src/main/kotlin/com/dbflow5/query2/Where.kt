@@ -3,10 +3,11 @@ package com.dbflow5.query2
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query.OrderBy
-import com.dbflow5.query.SQLOperator
-import com.dbflow5.query.property.IProperty
+import com.dbflow5.query2.operations.AnyOperator
+import com.dbflow5.query2.operations.Operation
+import com.dbflow5.query2.operations.OperatorGroup
+import com.dbflow5.query2.operations.Property
 import com.dbflow5.sql.Query
 
 /**
@@ -37,8 +38,8 @@ interface WhereStart<Table : Any,
     WhereExistsEnabled<Table, Result, OperationBase>,
     HasOperatorGroup {
 
-    infix fun or(sqlOperator: SQLOperator): WhereStart<Table, Result, OperationBase>
-    infix fun and(sqlOperator: SQLOperator): WhereStart<Table, Result, OperationBase>
+    infix fun or(sqlOperator: AnyOperator): WhereStart<Table, Result, OperationBase>
+    infix fun and(sqlOperator: AnyOperator): WhereStart<Table, Result, OperationBase>
 }
 
 interface WhereExists<Table : Any,
@@ -113,12 +114,13 @@ internal fun <Table : Any,
     OperationBase : ExecutableQuery<Result>> SQLObjectAdapter<Table>.where(
     queryBase: WhereBase<Result>,
     resultFactory: ResultFactory<Result>,
-    vararg operators: SQLOperator,
+    vararg operators: AnyOperator,
 ): WhereStart<Table, Result, OperationBase> = WhereImpl(
     adapter = this,
     queryBase = queryBase,
     resultFactory = resultFactory,
-    operatorGroup = OperatorGroup.nonGroupingClause().andAll(*operators)
+    operatorGroup = OperatorGroup.nonGroupingClause()
+        .chain(Operation.And, *operators)
 )
 
 internal data class WhereImpl<Table : Any,
@@ -177,35 +179,35 @@ internal data class WhereImpl<Table : Any,
             groupByList = groupByList.toMutableList().apply { addAll(nameAliases) }
         )
 
-    override fun groupBy(property: IProperty<*>): WhereWithGroupBy<Table, Result, OperationBase> =
+    override fun groupBy(property: Property<out Any, Table>): WhereWithGroupBy<Table, Result, OperationBase> =
         copy(
             groupByList = groupByList.toMutableList().apply { add(property.nameAlias) }
         )
 
-    override fun groupBy(vararg properties: IProperty<*>): WhereWithGroupBy<Table, Result, OperationBase> =
+    override fun groupBy(vararg properties: Property<out Any, Table>): WhereWithGroupBy<Table, Result, OperationBase> =
         copy(
             groupByList = groupByList.toMutableList()
                 .apply { addAll(properties.map { it.nameAlias }) }
         )
 
-    override fun or(sqlOperator: SQLOperator): WhereStart<Table, Result, OperationBase> =
+    override fun or(sqlOperator: AnyOperator): WhereStart<Table, Result, OperationBase> =
         copy(
             operatorGroup = operatorGroup.or(sqlOperator)
         )
 
-    override fun and(sqlOperator: SQLOperator): WhereStart<Table, Result, OperationBase> =
+    override fun and(sqlOperator: AnyOperator): WhereStart<Table, Result, OperationBase> =
         copy(
             operatorGroup = operatorGroup.and(sqlOperator)
         )
 
-    override fun having(operator: SQLOperator): WhereWithHaving<Table, Result, OperationBase> =
+    override fun having(operator: AnyOperator): WhereWithHaving<Table, Result, OperationBase> =
         copy(
             havingGroup = havingGroup.and(operator)
         )
 
-    override fun having(vararg operators: SQLOperator): WhereWithHaving<Table, Result, OperationBase> =
+    override fun having(vararg operators: AnyOperator): WhereWithHaving<Table, Result, OperationBase> =
         copy(
-            havingGroup = havingGroup.andAll(*operators),
+            havingGroup = havingGroup.chain(Operation.And, *operators),
         )
 
     override fun limit(count: Long): WhereWithLimit<Table, Result, OperationBase> =
@@ -237,7 +239,7 @@ internal data class WhereImpl<Table : Any,
         )
 
     override fun orderBy(
-        property: IProperty<*>,
+        property: Property<out Any, Table>,
         ascending: Boolean
     ): WhereWithOrderBy<Table, Result, OperationBase> =
         copy(

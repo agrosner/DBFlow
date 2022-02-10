@@ -1,14 +1,14 @@
 package com.grosner.dbflow5.codegen.kotlin.writer.classwriter
 
-import com.dbflow5.codegen.shared.ClassNames
-import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
-import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.codegen.shared.ClassModel
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.FieldModel
 import com.dbflow5.codegen.shared.TypeConverterModel
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.hasTypeConverter
 import com.dbflow5.codegen.shared.typeConverter
+import com.dbflow5.codegen.shared.writer.TypeCreator
+import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.PropertySpec
 
@@ -17,10 +17,10 @@ import com.squareup.kotlinpoet.PropertySpec
  */
 class FieldPropertyWriter(
     private val typeConverterCache: TypeConverterCache,
-) : TypeCreator<FieldModel, PropertySpec> {
+) : TypeCreator<Pair<ClassModel, FieldModel>, PropertySpec> {
 
-    override fun create(model: FieldModel): PropertySpec {
-
+    override fun create(input: Pair<ClassModel, FieldModel>): PropertySpec {
+        val (classModel, model) = input
         if (model.hasTypeConverter(typeConverterCache)) {
             val typeConverterModel = model.typeConverter(typeConverterCache)
             val nullableDataTypeName = typeConverterModel.dataTypeName
@@ -30,6 +30,7 @@ class FieldPropertyWriter(
                 ClassNames.typeConvertedProperty(
                     nullableDataTypeName,
                     model.classType,
+                    classModel.classType,
                 )
             )
                 .addAnnotation(JvmField::class)
@@ -74,10 +75,16 @@ class FieldPropertyWriter(
         }
         return PropertySpec.builder(
             model.propertyName,
-            ClassNames.property(model.classType)
+            ClassNames.propertyStart(model.classType, classModel.classType)
         )
             .addAnnotation(JvmField::class)
-            .initializer("%M(%S)", MemberNames.property, model.dbName)
+            .initializer(
+                "%M<%T, %T>(%S)",
+                MemberNames.property,
+                model.classType,
+                classModel.classType,
+                model.dbName
+            )
             .build()
     }
 }

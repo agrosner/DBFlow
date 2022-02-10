@@ -2,6 +2,7 @@ package com.dbflow5.query
 
 import com.dbflow5.annotation.Collate
 import com.dbflow5.query.property.IProperty
+import com.dbflow5.query2.operations.Property
 import com.dbflow5.sql.Query
 
 /**
@@ -9,11 +10,13 @@ import com.dbflow5.sql.Query
  */
 class OrderBy
 @JvmOverloads
-constructor(private val column: NameAlias? = null,
-            /**
-             * If true, append ASC, if false append DESC, or if null, then don't append.
-             */
-            private var isAscending: Boolean? = true) : Query {
+constructor(
+    private val column: NameAlias? = null,
+    /**
+     * If true, append ASC, if false append DESC, or if null, then don't append.
+     */
+    private var isAscending: Boolean? = true
+) : Query {
 
     private var collation: Collate? = null
     private var orderByString: String?
@@ -23,8 +26,8 @@ constructor(private val column: NameAlias? = null,
             val locOrderByString = orderByString
             return if (locOrderByString == null) {
                 val query = StringBuilder()
-                        .append(column)
-                        .append(" ")
+                    .append(column)
+                    .append(" ")
                 if (collation != null) {
                     query.append("COLLATE $collation ")
                 }
@@ -68,16 +71,31 @@ constructor(private val column: NameAlias? = null,
         const val DESCENDING = "DESC"
 
         @JvmStatic
-        fun fromProperty(property: IProperty<*>, isAscending: Boolean = true): OrderBy =
-                OrderBy(property.nameAlias,
-                        // if we use RANDOM(), leave out ascending qualifier as its not valid SQLite.
-                        if (property == random) {
-                            null
-                        } else isAscending)
+        fun fromProperty(property: Property<out Any, *>, isAscending: Boolean = true): OrderBy =
+            OrderBy(
+                property.nameAlias,
+                // if we use RANDOM(), leave out ascending qualifier as its not valid SQLite.
+                if (property == random) {
+                    null
+                } else isAscending
+            )
+
+        @JvmStatic
+        fun fromProperty(
+            property: com.dbflow5.query.property.Property<*>,
+            isAscending: Boolean = true
+        ): OrderBy =
+            OrderBy(
+                property.nameAlias,
+                // if we use RANDOM(), leave out ascending qualifier as its not valid SQLite.
+                if (property == random) {
+                    null
+                } else isAscending
+            )
 
         @JvmStatic
         fun fromNameAlias(nameAlias: NameAlias, isAscending: Boolean = true): OrderBy =
-                OrderBy(nameAlias, isAscending)
+            OrderBy(nameAlias, isAscending)
 
         /**
          * Starts an [OrderBy] with RANDOM() query.

@@ -5,15 +5,15 @@ import com.squareup.kotlinpoet.MemberName
 
 object MemberNames {
 
-    val property = MemberName(PackageNames.Property, "property")
-    val typeConvertedProperty = MemberName(PackageNames.Property, "typeConvertedProperty")
+    val property = MemberName(PackageNames.Query2Operations, "property")
+    val typeConvertedProperty = MemberName(PackageNames.Query2Operations, "typeConvertedProperty")
     val quoteIfNeeded = MemberName(PackageNames.Core, "quoteIfNeeded")
-    val infer = MemberName(PackageNames.Property, "infer")
+    val infer = MemberName(PackageNames.Query2Operations, "infer")
     val classToken = MemberName(PackageNames.Property, "classToken")
-    val indexProperty = MemberName(PackageNames.Property, "indexProperty")
+    val indexProperty = MemberName(PackageNames.Query2Operations, "indexProperty")
 
     val bind = MemberName(PackageNames.Database, "bind")
-    val propertyBind = MemberName(PackageNames.Property, "bindProperty")
+    val propertyBind = MemberName(PackageNames.Query2Operations, "bindProperty")
 
     val select = MemberName(PackageNames.Query2, "select")
     val single = MemberName(PackageNames.Query2, "single")

@@ -4,8 +4,8 @@ import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OrderBy
-import com.dbflow5.query.SQLOperator
-import com.dbflow5.query.property.IProperty
+import com.dbflow5.query2.operations.AnyOperator
+import com.dbflow5.query2.operations.Property
 
 /**
  * Description:
@@ -24,10 +24,10 @@ interface Whereable<Table : Any,
     ExecutableQuery<Result>,
     WhereBase<Result> {
 
-    infix fun where(operator: SQLOperator): WhereStart<Table, Result, OperationBase> =
+    infix fun where(operator: AnyOperator): WhereStart<Table, Result, OperationBase> =
         adapter.where(this, resultFactory, operator)
 
-    fun where(vararg operators: SQLOperator): WhereStart<Table, Result, OperationBase> =
+    fun where(vararg operators: AnyOperator): WhereStart<Table, Result, OperationBase> =
         adapter.where(this, resultFactory, *operators)
 
     override fun groupBy(nameAlias: NameAlias): WhereWithGroupBy<Table, Result, OperationBase> =
@@ -36,16 +36,16 @@ interface Whereable<Table : Any,
     override fun groupBy(vararg nameAliases: NameAlias): WhereWithGroupBy<Table, Result, OperationBase> =
         adapter.where<Table, Result, OperationBase>(this, resultFactory).groupBy(*nameAliases)
 
-    override fun groupBy(property: IProperty<*>): WhereWithGroupBy<Table, Result, OperationBase> =
+    override fun groupBy(property: Property<out Any, Table>): WhereWithGroupBy<Table, Result, OperationBase> =
         adapter.where<Table, Result, OperationBase>(this, resultFactory).groupBy(property)
 
-    override fun groupBy(vararg properties: IProperty<*>): WhereWithGroupBy<Table, Result, OperationBase> =
+    override fun groupBy(vararg properties: Property<out Any, Table>): WhereWithGroupBy<Table, Result, OperationBase> =
         adapter.where<Table, Result, OperationBase>(this, resultFactory).groupBy(*properties)
 
-    override fun having(operator: SQLOperator): WhereWithHaving<Table, Result, OperationBase> =
+    override fun having(operator: AnyOperator): WhereWithHaving<Table, Result, OperationBase> =
         adapter.where<Table, Result, OperationBase>(this, resultFactory).having(operator)
 
-    override fun having(vararg operators: SQLOperator): WhereWithHaving<Table, Result, OperationBase> =
+    override fun having(vararg operators: AnyOperator): WhereWithHaving<Table, Result, OperationBase> =
         adapter.where<Table, Result, OperationBase>(this, resultFactory).having(*operators)
 
     override fun limit(count: Long): WhereWithLimit<Table, Result, OperationBase> =
@@ -68,7 +68,7 @@ interface Whereable<Table : Any,
             .orderBy(nameAlias, ascending)
 
     override fun orderBy(
-        property: IProperty<*>,
+        property: Property<out Any, Table>,
         ascending: Boolean
     ): WhereWithOrderBy<Table, Result, OperationBase> =
         adapter.where<Table, Result, OperationBase>(this, resultFactory)

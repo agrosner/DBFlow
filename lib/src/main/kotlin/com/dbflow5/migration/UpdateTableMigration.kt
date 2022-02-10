@@ -2,9 +2,10 @@ package com.dbflow5.migration
 
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query.OperatorGroup
-import com.dbflow5.query.SQLOperator
 import com.dbflow5.query2.ExecutableQuery
+import com.dbflow5.query2.operations.AnyOperator
+import com.dbflow5.query2.operations.Operation
+import com.dbflow5.query2.operations.OperatorGroup
 import com.dbflow5.query2.update
 import kotlinx.coroutines.runBlocking
 
@@ -49,12 +50,12 @@ open class UpdateTableMigration<T : Any>
      *
      * @param conditions The conditions to append
      */
-    fun set(vararg conditions: SQLOperator) = apply {
-        setOperatorGroup.andAll(*conditions)
+    fun set(vararg conditions: AnyOperator) = apply {
+        setOperatorGroup.chain(Operation.Comma, *conditions)
     }
 
-    fun where(vararg conditions: SQLOperator) = apply {
-        whereOperatorGroup.andAll(*conditions)
+    fun where(vararg conditions: AnyOperator) = apply {
+        whereOperatorGroup.chain(Operation.Comma, *conditions)
     }
 
     override fun migrate(database: DatabaseWrapper) {

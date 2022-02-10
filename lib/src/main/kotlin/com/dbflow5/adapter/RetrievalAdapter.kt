@@ -7,7 +7,7 @@ import com.dbflow5.config.TableConfig
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.HasTable
-import com.dbflow5.query.OperatorGroup
+import com.dbflow5.query2.operations.OperatorGroup
 import kotlin.reflect.KClass
 
 /**

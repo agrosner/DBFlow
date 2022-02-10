@@ -208,7 +208,7 @@ class ClassWriter(
                                         .build()
                                 )
                                 model.flattenedFields(referencesCache).forEach { field ->
-                                    addProperty(fieldPropertyWriter.create(field))
+                                    addProperty(fieldPropertyWriter.create(model to field))
                                 }
                                 model.indexGroups.forEach {
                                     addProperty(indexPropertyWriter.create(it))

@@ -1,7 +1,7 @@
 package com.dbflow5.query2
 
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query.property.IProperty
+import com.dbflow5.query2.operations.Property
 
 interface GroupByEnabled<
     Table : Any,
@@ -10,6 +10,6 @@ interface GroupByEnabled<
 
     infix fun groupBy(nameAlias: NameAlias): WhereWithGroupBy<Table, Result, OperationBase>
     fun groupBy(vararg nameAliases: NameAlias): WhereWithGroupBy<Table, Result, OperationBase>
-    infix fun groupBy(property: IProperty<*>): WhereWithGroupBy<Table, Result, OperationBase>
-    fun groupBy(vararg properties: IProperty<*>): WhereWithGroupBy<Table, Result, OperationBase>
+    infix fun groupBy(property: Property<out Any, Table>): WhereWithGroupBy<Table, Result, OperationBase>
+    fun groupBy(vararg properties: Property<out Any, Table>): WhereWithGroupBy<Table, Result, OperationBase>
 }

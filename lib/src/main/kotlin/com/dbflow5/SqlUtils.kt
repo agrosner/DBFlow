@@ -7,9 +7,11 @@ import android.net.Uri
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query.Operator
-import com.dbflow5.query.OperatorGroup
-import com.dbflow5.query.SQLOperator
+import com.dbflow5.query2.operations.AnyOperator
+import com.dbflow5.query2.operations.Operation
+import com.dbflow5.query2.operations.Operator
+import com.dbflow5.query2.operations.OperatorGroup
+import com.dbflow5.query2.operations.operator
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.structure.Model
 import kotlin.reflect.KClass
@@ -23,18 +25,18 @@ private val hexArray = "0123456789ABCDEF".toCharArray()
 val TABLE_QUERY_PARAM = "tableName"
 
 /**
- * Constructs a [Uri] from a set of [SQLOperator] for specific table.
+ * Constructs a [Uri] from a set of [AnyOperator] for specific table.
  *
  * @param modelClass The class of table,
  * @param action     The action to use.
- * @param conditions The set of key-value [SQLOperator] to construct into a uri.
+ * @param conditions The set of key-value [AnyOperator] to construct into a uri.
  * @return The [Uri].
  */
 fun getNotificationUri(
     contentAuthority: String,
     modelClass: KClass<*>,
     action: ChangeAction?,
-    conditions: Iterable<SQLOperator>?
+    conditions: Iterable<Operator.SingleValueOperator<Any?>>?
 ): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
         .authority(contentAuthority)
@@ -45,8 +47,8 @@ fun getNotificationUri(
     if (conditions != null) {
         for (condition in conditions) {
             uriBuilder.appendQueryParameter(
-                Uri.encode(condition.columnName()),
-                Uri.encode(condition.value().toString())
+                Uri.encode(condition.nameAlias.query),
+                Uri.encode(condition.value.toString())
             )
         }
     }
@@ -55,18 +57,18 @@ fun getNotificationUri(
 
 
 /**
- * Constructs a [Uri] from a set of [SQLOperator] for specific table.
+ * Constructs a [Uri] from a set of [AnyOperator] for specific table.
  *
  * @param modelClass The class of table,
  * @param action     The action to use.
- * @param conditions The set of key-value [SQLOperator] to construct into a uri.
+ * @param conditions The set of key-value [AnyOperator] to construct into a uri.
  * @return The [Uri].
  */
 fun getNotificationUri(
     contentAuthority: String,
     modelClass: KClass<*>,
     action: ChangeAction?,
-    conditions: Array<SQLOperator>?
+    conditions: Array<Operator.SingleValueOperator<Any?>>?
 ): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
         .authority(contentAuthority)
@@ -75,8 +77,8 @@ fun getNotificationUri(
     if (conditions != null && conditions.isNotEmpty()) {
         for (condition in conditions) {
             uriBuilder.appendQueryParameter(
-                Uri.encode(condition.columnName()),
-                Uri.encode(condition.value().toString())
+                Uri.encode(condition.key),
+                Uri.encode(condition.value.toString())
             )
         }
     }
@@ -100,13 +102,16 @@ fun getNotificationUri(
     notifyKey: String = "",
     notifyValue: Any? = null
 ): Uri {
-    var operator: Operator<Any>? = null
+    var operator: Operator.SingleValueOperator<Any?>? = null
     if (notifyKey.isNotNullOrEmpty()) {
-        operator = Operator.op<Any>(NameAlias.Builder(notifyKey).build()).value(notifyValue)
+        operator = operator(
+            nameAlias = NameAlias.Builder(notifyKey).build(),
+            value = notifyValue
+        )
     }
     return getNotificationUri(
         contentAuthority, modelClass, action,
-        if (operator != null) arrayOf<SQLOperator>(operator) else null
+        if (operator != null) arrayOf(operator) else null
     )
 }
 
@@ -141,8 +146,11 @@ fun addContentValues(contentValues: ContentValues, operatorGroup: OperatorGroup)
 
     for ((key) in entries) {
         operatorGroup.and(
-            Operator.op<Any>(NameAlias.Builder(key).build())
-                .`is`(contentValues.get(key))
+            operator(
+                NameAlias.Builder(key).build(),
+                operation = Operation.Equals,
+                value = contentValues.get(key)
+            )
         )
     }
 }

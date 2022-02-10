@@ -3,33 +3,34 @@ package com.dbflow5.query2
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.annotation.Table
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.BaseOperator
-import com.dbflow5.query.OperatorGroup
-import com.dbflow5.query.SQLOperator
-import com.dbflow5.query.property.IProperty
-import com.dbflow5.query.property.Property
+import com.dbflow5.query2.operations.Operation
+import com.dbflow5.query2.operations.Operator
+import com.dbflow5.query2.operations.Property
 import com.dbflow5.sql.Query
 
-data class ColumnValue<T : IProperty<T>, V : Any>(
-    val property: IProperty<T>? = null,
-    val value: V?
+data class ColumnValue<T : Any, V>(
+    val property: Property<V, T>? = null,
+    val value: V
 )
 
-private fun List<ColumnValue<*, *>>.toColumnValues(): Pair<List<IProperty<*>>, List<List<*>>> {
+private fun <Table : Any> List<ColumnValue<Table, Any>>.toColumnValues(): Pair<List<Property<*, Table>>, List<List<Any>>> {
     val props = mapNotNull { it.property }
     val values = listOf(map { it.value })
     return props to values
 }
 
 internal fun <Table : Any> ModelAdapter<Table>.columnValue(
-    sqlOperator: SQLOperator
-): ColumnValue<out Property<*>, Any> {
-    if (sqlOperator.columnName().isBlank()) {
-        return ColumnValue(null, sqlOperator.value())
+    sqlOperator: Operator.SingleValueOperator<Any>
+): ColumnValue<Table, Any> {
+    if (sqlOperator.nameAlias.query.isBlank()) {
+        return ColumnValue(null, sqlOperator.value)
     }
-    return ColumnValue(getProperty(sqlOperator.columnName()), sqlOperator.value())
+    return ColumnValue(
+        getProperty(sqlOperator.nameAlias.query) as Property<Any, Table>,
+        sqlOperator.value
+    )
 }
 
 interface HasValues<Table : Any> {
@@ -69,7 +70,7 @@ interface InsertWithValues<Table : Any> :
     Insert<Table>,
     HasValues<Table> {
 
-    val columns: List<IProperty<*>>?
+    val columns: List<Property<*, Table>>?
     val values: List<List<Any?>>
 }
 
@@ -81,8 +82,8 @@ interface InsertWithSelect<Table : Any, TFrom : Any> :
 fun <Table : Any> SQLObjectAdapter<Table>.insert(): InsertStart<Table> = InsertImpl(adapter = this)
 
 fun <Table : Any> SQLObjectAdapter<Table>.insert(
-    columnValue: ColumnValue<*, *>,
-    vararg columnValues: ColumnValue<*, *>,
+    columnValue: ColumnValue<Table, Any>,
+    vararg columnValues: ColumnValue<Table, Any>,
 ): InsertWithValues<Table> {
     val (columns, values) = mutableListOf(columnValue)
         .apply { addAll(columnValues.toList()) }
@@ -95,8 +96,8 @@ fun <Table : Any> SQLObjectAdapter<Table>.insert(
 }
 
 fun <Table : Any> SQLObjectAdapter<Table>.insert(
-    columnValuePair: Pair<IProperty<*>?, *>,
-    vararg columnValues: Pair<IProperty<*>?, *>,
+    columnValuePair: Pair<Property<Any, Table>?, Any>,
+    vararg columnValues: Pair<Property<Any, Table>?, Any>,
 ): InsertWithValues<Table> {
     val (columns, values) = mutableListOf(
         ColumnValue(
@@ -118,23 +119,11 @@ fun <Table : Any> SQLObjectAdapter<Table>.insert(
 }
 
 fun <Table : Any> ModelAdapter<Table>.insert(
-    operator: SQLOperator,
-    vararg operators: SQLOperator,
+    operator: Operator.SingleValueOperator<Any>,
+    vararg operators: Operator.SingleValueOperator<Any>,
 ): InsertWithValues<Table> {
     val (columns, values) = mutableListOf(columnValue(operator))
         .apply { addAll(operators.map { columnValue(it) }) }
-        .toColumnValues()
-    return InsertImpl(
-        columns = columns,
-        values = values,
-        adapter = this,
-    )
-}
-
-fun <Table : Any> ModelAdapter<Table>.insert(
-    group: OperatorGroup,
-): InsertWithValues<Table> {
-    val (columns, values) = group.map { columnValue(it) }
         .toColumnValues()
     return InsertImpl(
         columns = columns,
@@ -148,8 +137,8 @@ fun <Table : Any> ModelAdapter<Table>.insert(
  * for [InsertWithSelect].
  */
 fun <Table : Any> ModelAdapter<Table>.insert(
-    property: IProperty<*>,
-    vararg properties: IProperty<*>,
+    property: Property<*, Table>,
+    vararg properties: Property<*, Table>,
 ): InsertWithConflict<Table> {
     return InsertImpl(
         columns = mutableListOf(property).apply { addAll(properties) },
@@ -161,7 +150,12 @@ fun <Table : Any> ModelAdapter<Table>.insert(
  * Same as calling [insert] with [columnValues] as all columns with '?' values.
  */
 fun <Table : Any> ModelAdapter<Table>.insertAllAsTemplate(): InsertStart<Table> {
-    val (columns, values) = allColumnProperties.map { ColumnValue(it, Property.WILDCARD) }
+    val (columns, values) = allColumnProperties.map {
+        ColumnValue(
+            it as Property<Any, Table>,
+            Operation.WildCard
+        )
+    }
         .toColumnValues()
     return InsertImpl(
         columns = columns,
@@ -172,7 +166,7 @@ fun <Table : Any> ModelAdapter<Table>.insertAllAsTemplate(): InsertStart<Table> 
 
 
 internal data class InsertImpl<Table : Any>(
-    override val columns: List<IProperty<*>>? = null,
+    override val columns: List<Property<*, Table>>? = null,
     override val values: List<List<Any?>> = listOf(),
     override val conflictAction: ConflictAction = ConflictAction.NONE,
     override val adapter: SQLObjectAdapter<Table>,

@@ -1,12 +1,17 @@
 package com.grosner.dbflow5.codegen.kotlin.writer.classwriter
 
-import com.dbflow5.codegen.shared.ClassNames
-import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.dbflow5.codegen.shared.ClassModel
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.quoteIfNeeded
-import com.squareup.kotlinpoet.*
+import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.ParameterSpec
+import com.squareup.kotlinpoet.WildcardTypeName
+import com.squareup.kotlinpoet.asClassName
+import com.squareup.kotlinpoet.asTypeName
 
 /**
  * Description:
@@ -23,7 +28,8 @@ class GetPropertyMethodWriter(
                 ClassNames.property(
                     WildcardTypeName.producerOf(
                         Any::class.asTypeName().copy(nullable = true)
-                    )
+                    ),
+                    model.classType,
                 )
             )
             beginControlFlow(

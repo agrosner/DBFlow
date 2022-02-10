@@ -3,6 +3,7 @@ package com.dbflow5.query2
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OrderBy
 import com.dbflow5.query.property.IProperty
+import com.dbflow5.query2.operations.Property
 
 interface OrderByEnabled<
     Table : Any,
@@ -18,7 +19,7 @@ interface OrderByEnabled<
     ): WhereWithOrderBy<Table, Result, OperationBase>
 
     fun orderBy(
-        property: IProperty<*>,
+        property: Property<out Any, Table>,
         ascending: Boolean = true
     ): WhereWithOrderBy<Table, Result, OperationBase>
 

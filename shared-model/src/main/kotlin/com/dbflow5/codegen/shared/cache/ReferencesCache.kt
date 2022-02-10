@@ -71,7 +71,7 @@ class ReferencesCache(
     private fun referenceChildClassType(referenceHolderModel: ReferenceHolderModel) =
         when (referenceHolderModel.type) {
             ReferenceHolderModel.Type.Reference -> (referenceHolderModel.nonNullClassType as ParameterizedTypeName).typeArguments[0]
-                    as ClassName
+                as ClassName
             else -> referenceHolderModel.classType
         }.copy(nullable = false)
 
@@ -99,7 +99,17 @@ class ReferencesCache(
                             this,
                             nameToNest = it.name,
                         )
-                        is SingleFieldModel -> listOf(it)
+                        is SingleFieldModel -> listOf(
+                            it.copy(
+                                // preserve nullability
+                                classType = it.classType.copy(
+                                    nullable = fieldModel.classType.isNullable,
+                                ),
+                                name = it.name.copy(
+                                    nullable = fieldModel.name.nullable,
+                                )
+                            )
+                        )
                     }
                 }?.flatten() ?: listOf()
         }).takeIf { it.isNotEmpty() } ?: throw Validation.MissingReferences(

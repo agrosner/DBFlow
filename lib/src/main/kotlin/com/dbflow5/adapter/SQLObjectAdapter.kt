@@ -4,8 +4,8 @@ import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
-import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query2.hasData
+import com.dbflow5.query2.operations.OperatorGroup
 import com.dbflow5.query2.select
 import com.dbflow5.query2.selectCountOf
 import kotlin.reflect.KClass

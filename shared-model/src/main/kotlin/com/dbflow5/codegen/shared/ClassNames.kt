@@ -4,35 +4,37 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.WildcardTypeName
-import com.squareup.kotlinpoet.asTypeName
 
 object ClassNames {
 
-    fun property(typeName: TypeName) = ClassName(PackageNames.Property, "Property")
-        .parameterizedBy(typeName)
+    fun property(
+        valueTypeName: TypeName,
+        tableTypeName: TypeName
+    ) = ClassName(PackageNames.Query2Operations, "Property")
+        .parameterizedBy(valueTypeName, tableTypeName)
+
+    fun propertyStart(
+        valueTypeName: TypeName,
+        tableTypeName: TypeName
+    ) = ClassName(PackageNames.Query2Operations, "PropertyStart")
+        .parameterizedBy(valueTypeName, tableTypeName)
 
     fun typeConvertedProperty(
         dataTypeName: TypeName,
         modelTypeName: TypeName,
-    ) = ClassName(PackageNames.Property, "TypeConvertedProperty")
-        .parameterizedBy(dataTypeName, modelTypeName)
+        tableTypeName: TypeName,
+    ) = ClassName(PackageNames.Query2Operations, "TypeConvertedProperty")
+        .parameterizedBy(modelTypeName, dataTypeName, tableTypeName)
 
     fun indexProperty(
         tableTypeName: TypeName,
     ) = ClassName(
-        PackageNames.Property,
+        PackageNames.Query2Operations,
         "IndexProperty"
     )
         .parameterizedBy(tableTypeName)
 
-    val IProperty = ClassName(PackageNames.Property, "IProperty")
-        .parameterizedBy(
-            WildcardTypeName.Companion.producerOf(
-                Any::class.asTypeName().copy(nullable = true)
-            )
-        )
-    val OperatorGroup = ClassName(PackageNames.Query, "OperatorGroup")
+    val OperatorGroup = ClassName(PackageNames.Query2Operations, "OperatorGroup")
 
     val ModelAdapter = ClassName(PackageNames.Adapter, "ModelAdapter")
     fun modelAdapter(typeName: TypeName) = ModelAdapter.parameterizedBy(typeName)
@@ -40,6 +42,7 @@ object ClassNames {
     fun retrievalAdapter(typeName: TypeName): ParameterizedTypeName {
         return RetrievalAdapter.parameterizedBy(typeName)
     }
+
     val ModelViewAdapter = ClassName(PackageNames.Adapter, "ModelViewAdapter")
     fun modelViewAdapter(typeName: TypeName) = ModelViewAdapter.parameterizedBy(typeName)
 

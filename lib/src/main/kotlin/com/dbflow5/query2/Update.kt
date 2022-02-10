@@ -3,8 +3,9 @@ package com.dbflow5.query2
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.query.OperatorGroup
-import com.dbflow5.query.SQLOperator
+import com.dbflow5.query2.operations.AnyOperator
+import com.dbflow5.query2.operations.Operation
+import com.dbflow5.query2.operations.OperatorGroup
 import com.dbflow5.sql.Query
 
 interface Update<Table : Any> : Query,
@@ -23,7 +24,7 @@ interface UpdateWithSet<Table : Any> :
     HasOperatorGroup,
     Whereable<Table, Long, UpdateStart<Table>>,
     Indexable<Table>, ExecutableQuery<Long> {
-    infix fun and(condition: SQLOperator): UpdateWithSet<Table>
+    infix fun and(condition: AnyOperator): UpdateWithSet<Table>
 }
 
 interface UpdateStart<Table : Any> :
@@ -41,8 +42,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.update(): UpdateStart<Table> = UpdateI
 internal data class UpdateImpl<Table : Any>(
     override val conflictAction: ConflictAction = ConflictAction.NONE,
     override val adapter: SQLObjectAdapter<Table>,
-    override val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause()
-        .setAllCommaSeparated(true),
+    override val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause(),
     override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory,
 ) : UpdateStart<Table>, UpdateWithConflict<Table>,
     UpdateWithSet<Table> {
@@ -66,17 +66,17 @@ internal data class UpdateImpl<Table : Any>(
         conflictAction = action,
     )
 
-    override fun set(vararg conditions: SQLOperator): UpdateWithSet<Table> =
+    override fun set(vararg conditions: AnyOperator): UpdateWithSet<Table> =
         copy(
-            operatorGroup = operatorGroup.andAll(*conditions),
+            operatorGroup = operatorGroup.chain(Operation.Comma, *conditions),
         )
 
-    override fun set(condition: SQLOperator): UpdateWithSet<Table> =
+    override fun set(condition: AnyOperator): UpdateWithSet<Table> =
         copy(
-            operatorGroup = operatorGroup.and(condition),
+            operatorGroup = operatorGroup.chain(Operation.Comma, condition),
         )
 
-    override fun and(condition: SQLOperator): UpdateWithSet<Table> =
+    override fun and(condition: AnyOperator): UpdateWithSet<Table> =
         copy(
             operatorGroup = operatorGroup.and(condition),
         )

@@ -9,7 +9,7 @@ import com.dbflow5.config.FlowLog
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.property.IProperty
-import com.dbflow5.query.property.Property
+import com.dbflow5.query2.operations.Property
 
 /**
  * Description: Used for generated classes from the combination of [Table] and [Model].
@@ -22,7 +22,7 @@ abstract class ModelAdapter<T : Any> :
     /**
      * @return An array of column properties, in order of declaration.
      */
-    abstract val allColumnProperties: Array<IProperty<*>>
+    abstract val allColumnProperties: Array<Property<*, T>>
 
     /**
      * @return The query used to insert a model using a [DatabaseStatement]
@@ -178,7 +178,6 @@ abstract class ModelAdapter<T : Any> :
      * @param columnName The column name of the property.
      * @return The property from the corresponding Table class.
      */
-    abstract fun getProperty(columnName: String): Property<*>
-
+    abstract fun getProperty(columnName: String): Property<*, T>
 
 }
