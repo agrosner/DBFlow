@@ -6,6 +6,7 @@ import com.dbflow5.codegen.shared.ReferenceHolderModel
 import com.dbflow5.codegen.shared.SingleFieldModel
 import com.dbflow5.codegen.shared.interop.ClassType
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
+import com.dbflow5.codegen.shared.preserveNullabilityFrom
 import com.dbflow5.codegen.shared.properties.ReferenceProperties
 import com.dbflow5.codegen.shared.references
 import com.dbflow5.codegen.shared.validation.ValidationExceptionProvider
@@ -79,9 +80,7 @@ class ReferencesCache(
      * If true, the field specified is a table.
      */
     fun isTable(fieldModel: FieldModel) = allClasses.any {
-        it.classType == fieldModel.classType.copy(
-            nullable = false
-        )
+        it.classType == fieldModel.nonNullClassType
     }
 
     private val referenceMap = mutableMapOf<ReferenceType, List<SingleFieldModel>>()
@@ -99,17 +98,7 @@ class ReferencesCache(
                             this,
                             nameToNest = it.name,
                         )
-                        is SingleFieldModel -> listOf(
-                            it.copy(
-                                // preserve nullability
-                                classType = it.classType.copy(
-                                    nullable = fieldModel.classType.isNullable,
-                                ),
-                                name = it.name.copy(
-                                    nullable = fieldModel.name.nullable,
-                                )
-                            )
-                        )
+                        is SingleFieldModel -> listOf(it.preserveNullabilityFrom(fieldModel))
                     }
                 }?.flatten() ?: listOf()
         }).takeIf { it.isNotEmpty() } ?: throw Validation.MissingReferences(
@@ -151,7 +140,7 @@ class ReferencesCache(
             closest?.let { fieldSanitizer.parse(it) }?.map {
                 when (it) {
                     is ReferenceHolderModel -> it.references(this, nameToNest = it.name)
-                    is SingleFieldModel -> listOf(it)
+                    is SingleFieldModel -> listOf(it.preserveNullabilityFrom(it))
                 }
             }?.flatten() ?: listOf()
         }).takeIf { it.isNotEmpty() } ?: throw Validation.MissingReferences(

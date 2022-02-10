@@ -12,6 +12,8 @@ object MemberNames {
     val classToken = MemberName(PackageNames.Property, "classToken")
     val indexProperty = MemberName(PackageNames.Query2Operations, "indexProperty")
 
+    val safeLet = MemberName(PackageNames.Adapter, "dbFlowInternalSafeLet")
+    val let = MemberName(PackageNames.Adapter, "dbFlowInternalLet")
     val bind = MemberName(PackageNames.Database, "bind")
     val propertyBind = MemberName(PackageNames.Query2Operations, "bindProperty")
 

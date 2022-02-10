@@ -309,3 +309,18 @@ fun FieldModel.generateTypeConverter(resolver: ClassNameResolver): TypeConverter
         originatingSource = originatingSource,
     )
 }
+
+/**
+ * Will keep nullability from referenced type.
+ */
+fun SingleFieldModel.preserveNullabilityFrom(
+    other: FieldModel
+) = copy(
+    // preserve nullability
+    classType = classType.copy(
+        nullable = other.classType.isNullable,
+    ),
+    name = name.copy(
+        nullable = other.name.nullable,
+    )
+)

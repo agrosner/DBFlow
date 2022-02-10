@@ -158,16 +158,16 @@ class LoadFromCursorWriter(
         currentIndex: Int,
     ): Int {
         val reference = referencesCache.resolve(field)
-        addStatement(
-            "val %N = (%N.%M() where ",
-            field.name.shortName,
-            reference.generatedFieldName,
-            MemberNames.select,
-        )
         val zip = field.references(referencesCache).zip(
             field.references(referencesCache, field.name)
         )
-        zip.forEachIndexed { index, (plain, referenced) ->
+        addCode("val %N = ", field.name.shortName)
+        addStatement(
+            "(%N.%M() where ",
+            reference.generatedFieldName,
+            MemberNames.select,
+        )
+        zip.forEachIndexed { index, (plain, _) ->
             addCode("\t\t")
             if (index > 0) {
                 addCode("%L ", "and")
@@ -203,26 +203,24 @@ class LoadFromCursorWriter(
             className.packageName,
             "${field.ksClassType.declaration.simpleName.shortName}_Table",
         )
-        val resolvedField = referencesCache.resolve(field)
-        addStatement(
-            "val %N = (%N.%M() where",
-            field.name.shortName,
-            resolvedField.generatedFieldName,
-            MemberNames.select,
-        )
         val zip = field.references(referencesCache).zip(
             field.references(referencesCache, field.name)
         )
-        zip.forEachIndexed { refIndex, (plain, referenced) ->
-            addCode("\t\t")
-            if (refIndex > 0) {
-                addCode("%L ", "and")
+        val resolvedField = referencesCache.resolve(field)
+
+        addCode("val %N = ", field.name.shortName)
+        // join references here
+        val templateRefs = zip.joinToString { "%L" }
+        addStatement(
+            "%M(", if (field.name.nullable) {
+                MemberNames.safeLet
+            } else {
+                MemberNames.let
             }
+        )
+        zip.mapIndexed { refIndex, (_, referenced) ->
             addCode(
-                "(%T.%L %L %L.%N.%M(",
-                generatedTableClassName,
-                plain.propertyName,
-                MemberNames.eq,
+                "%L.%N.%M(",
                 "Companion",
                 referenced.propertyName,
                 MemberNames.infer,
@@ -242,7 +240,30 @@ class LoadFromCursorWriter(
                     currentIndex + refIndex
                 )
             }
-            addStatement(")")
+            addCode(",")
+        }
+        addStatement(
+            ") { $templateRefs ->",
+            *zip.map { (_, ref) -> ref.propertyName }.toTypedArray(),
+        )
+        addStatement(
+            "(%N.%M() where",
+            resolvedField.generatedFieldName,
+            MemberNames.select,
+        )
+
+        zip.forEachIndexed { refIndex, (plain, referenced) ->
+            addCode("\t\t")
+            if (refIndex > 0) {
+                addCode("%L ", "and")
+            }
+            addStatement(
+                "(%T.%L %L %L)",
+                generatedTableClassName,
+                plain.propertyName,
+                MemberNames.eq,
+                referenced.propertyName,
+            )
         }
         addStatement(
             "\t).%M(%N)",
@@ -251,6 +272,7 @@ class LoadFromCursorWriter(
             else MemberNames.single,
             "wrapper",
         )
+        addStatement("}")
         return currentIndex + (zip.size - 1)
     }
 
