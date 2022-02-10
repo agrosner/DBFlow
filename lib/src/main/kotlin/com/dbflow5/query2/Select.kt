@@ -7,8 +7,7 @@ import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.count
 import com.dbflow5.query.enclosedQuery
-import com.dbflow5.query.property.IProperty
-import com.dbflow5.query.property.Property
+import com.dbflow5.query2.operations.Property
 import kotlin.reflect.KClass
 
 sealed class QualifierType(val value: String) {
@@ -87,7 +86,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.select(): SelectStart<Table, SelectRes
     )
 
 fun <Table : Any> SQLObjectAdapter<Table>.select(
-    vararg properties: IProperty<*>
+    vararg properties: Property<*, Table>
 ): SelectStart<Table, SelectResult<Table>> =
     SelectImpl(
         adapter = this,
@@ -100,7 +99,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.select(
  * the count of rows.
  */
 fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
-    vararg properties: IProperty<*>,
+    vararg properties: Property<*, Table>,
 ): SelectStart<Table, CountResultFactory.Count> =
     SelectImpl(
         adapter = this,
@@ -113,7 +112,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
  */
 fun <Table : Any, Result> SQLObjectAdapter<Table>.select(
     resultFactory: ResultFactory<Result>,
-    vararg properties: IProperty<*>,
+    vararg properties: Property<*, Table>,
 ): SelectStart<Table, Result> =
     SelectImpl(
         adapter = this,
@@ -123,7 +122,7 @@ fun <Table : Any, Result> SQLObjectAdapter<Table>.select(
 
 internal data class SelectImpl<Table : Any, Result>(
     private val qualifier: QualifierType = QualifierType.None,
-    private val properties: List<IProperty<*>> = emptyList(),
+    private val properties: List<Property<*, Table>> = emptyList(),
     override val adapter: SQLObjectAdapter<Table>,
     private val tableAlias: NameAlias = NameAlias.Builder(
         adapter.name
