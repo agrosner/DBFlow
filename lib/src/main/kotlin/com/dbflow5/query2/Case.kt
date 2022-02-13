@@ -1,11 +1,7 @@
 package com.dbflow5.query2
 
 import com.dbflow5.query.BaseOperator
-import com.dbflow5.query2.operations.AnyOperator
-import com.dbflow5.query2.operations.Operation
 import com.dbflow5.query2.operations.Operator
-import com.dbflow5.query2.operations.OperatorGroup
-import com.dbflow5.query2.operations.OperatorGrouping
 import com.dbflow5.query2.operations.Property
 import com.dbflow5.query2.operations.SQLValueConverter
 import com.dbflow5.query2.operations.inferValueConverter
@@ -201,16 +197,4 @@ internal data class CaseImpl<ValueType>(
 
     override fun end(): CaseCompleted<ValueType> = this
 
-    override fun chain(operation: Operation, operator: AnyOperator): OperatorGrouping<Query> =
-        OperatorGroup.clause()
-            .chain(Operation.Empty, this)
-            .chain(operation, operator)
-
-    override fun chain(
-        operation: Operation,
-        operators: Collection<AnyOperator>
-    ): OperatorGrouping<Query> =
-        OperatorGroup.clause()
-            .chain(Operation.Empty, this)
-            .chain(operation, operators)
 }

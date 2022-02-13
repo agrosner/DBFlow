@@ -87,11 +87,15 @@ class WhereTest : BaseUnitTest() {
             simpleModelAdapter.select() where SimpleModel_Table.name.`is`("name") having SimpleModel_Table.name.like(
                 "That"
             )
-        "SELECT * FROM `SimpleModel` WHERE `name` = 'name' HAVING `name` LIKE 'That'".assertEquals(
+        ("SELECT * FROM `SimpleModel` " +
+            "WHERE `name` = 'name' " +
+            "HAVING `name` LIKE 'That'").assertEquals(
             query
         )
 
-        "SELECT * FROM `SimpleModel` GROUP BY exampleValue HAVING MIN(ROWID)>5".assertEquals(
+        ("SELECT * FROM `SimpleModel` " +
+            "GROUP BY exampleValue " +
+            "HAVING MIN(ROWID)>5").assertEquals(
             (simpleModelAdapter.select()
                 groupBy NameAlias.rawBuilder("exampleValue").build()
                 having StandardMethods.Min<Int>().invoke(literalOf("ROWID")).greaterThan(5))

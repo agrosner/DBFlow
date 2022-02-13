@@ -28,20 +28,7 @@ interface Property<ValueType, Table : Any> :
     PropertyChainable<ValueType>,
     OpStart<ValueType>,
     HasAdapter<Table, SQLObjectAdapter<Table>>,
-    Operator<ValueType> {
-    override fun chain(operation: Operation, operator: AnyOperator): OperatorGrouping<Query> =
-        OperatorGroup.clause()
-            .chain(Operation.Empty, this)
-            .chain(operation, operator)
-
-    override fun chain(
-        operation: Operation,
-        operators: Collection<AnyOperator>
-    ): OperatorGrouping<Query> =
-        OperatorGroup.clause()
-            .chain(Operation.Empty, this)
-            .chain(operation, operators)
-}
+    Operator<ValueType>
 
 interface PropertyStart<ValueType, Table : Any> :
     Property<ValueType, Table>,

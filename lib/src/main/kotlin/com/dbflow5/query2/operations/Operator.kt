@@ -43,7 +43,20 @@ interface OperatorChain {
 }
 
 interface Operator<ValueType> : Query,
-    OperatorChain
+    OperatorChain {
+    override fun chain(operation: Operation, operator: AnyOperator): OperatorGrouping<Query> =
+        OperatorGroup.nonGroupingClause()
+            .chain(Operation.Empty, this)
+            .chain(operation, operator)
+
+    override fun chain(
+        operation: Operation,
+        operators: Collection<AnyOperator>
+    ): OperatorGrouping<Query> =
+        OperatorGroup.nonGroupingClause()
+            .chain(Operation.Empty, this)
+            .chain(operation, operators)
+}
 
 /**
  * Generates a [Operator] that concatenates this [IOperator] with the [ValueType] via "||"
@@ -70,22 +83,6 @@ interface BaseOperator<ValueType> : Operator<ValueType> {
 
     val key: String
         get() = nameAlias.query
-
-    override fun chain(
-        operation: Operation,
-        operator: AnyOperator
-    ): OperatorGrouping<Query> =
-        OperatorGroup.nonGroupingClause()
-            .chain(Operation.Empty, this)
-            .chain(operation, operator)
-
-    override fun chain(
-        operation: Operation,
-        operators: Collection<AnyOperator>
-    ): OperatorGrouping<Query> = OperatorGroup
-        .nonGroupingClause()
-        .chain(Operation.Empty, this)
-        .chain(operation, operators)
 
     interface SingleValueOperator<ValueType> : BaseOperator<ValueType> {
         val value: ValueType

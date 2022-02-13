@@ -2,7 +2,6 @@ package com.dbflow5.query2.operations
 
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query2.Aliasable
-import com.dbflow5.sql.Query
 
 /**
  * Special operator that treats all operations as string concatenations.
@@ -38,19 +37,6 @@ internal data class ConcatOperatorImpl(
         .build()
 
     override val query: String by lazy { nameAlias.fullQuery }
-
-    override fun chain(operation: Operation, operator: AnyOperator): OperatorGrouping<Query> =
-        OperatorGroup.clause()
-            .chain(Operation.Empty, this)
-            .chain(operation, operator)
-
-    override fun chain(
-        operation: Operation,
-        operators: Collection<AnyOperator>
-    ): OperatorGrouping<Query> =
-        OperatorGroup.clause()
-            .chain(Operation.Empty, this)
-            .chain(operation, operators)
 
     override fun `as`(name: String, shouldAddIdentifierToAlias: Boolean): ConcatWithAlias =
         copy(

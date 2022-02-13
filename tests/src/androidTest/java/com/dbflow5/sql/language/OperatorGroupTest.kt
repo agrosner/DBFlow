@@ -11,7 +11,7 @@ class OperatorGroupTest : BaseUnitTest() {
 
     @Test
     fun validateCommaSeparated() {
-        "(`name`='name', `id`=0)".assertEquals(
+        "(`name` = 'name', `id` = 0)".assertEquals(
             OperatorGroup.clause().chain(
                 Operation.Comma,
                 TwoColumnModel_Table.name.eq("name"),
@@ -21,8 +21,8 @@ class OperatorGroupTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateParanthesis() {
-        "`name`='name'".assertEquals(
+    fun validateParenthesis() {
+        "`name` = 'name'".assertEquals(
             OperatorGroup.nonGroupingClause().chain(
                 Operation.Empty,
                 TwoColumnModel_Table.name.eq("name")
@@ -32,7 +32,7 @@ class OperatorGroupTest : BaseUnitTest() {
 
     @Test
     fun validateOr() {
-        "(`name`='name' OR `id`=0)".assertEquals(
+        "(`name` = 'name' OR `id` = 0)".assertEquals(
             TwoColumnModel_Table.name.eq("name") or TwoColumnModel_Table.id.eq(
                 0
             )
@@ -41,7 +41,7 @@ class OperatorGroupTest : BaseUnitTest() {
 
     @Test
     fun validateOrAll() {
-        "(`name`='name' OR `id`=0 OR `name`='test')".assertEquals(
+        "(`name` = 'name' OR `id` = 0 OR `name` = 'test')".assertEquals(
             TwoColumnModel_Table.name.eq("name").chain(
                 Operation.Or, listOf(
                     TwoColumnModel_Table.id.eq(0),
@@ -54,7 +54,7 @@ class OperatorGroupTest : BaseUnitTest() {
     @Test
 
     fun validateAnd() {
-        "(`name`='name' AND `id`=0)".assertEquals(
+        "(`name` = 'name' AND `id` = 0)".assertEquals(
             TwoColumnModel_Table.name.eq("name") and TwoColumnModel_Table.id.eq(
                 0
             )
@@ -63,7 +63,7 @@ class OperatorGroupTest : BaseUnitTest() {
 
     @Test
     fun validateAndAll() {
-        "(`name`='name' AND `id`=0 AND `name`='test')".assertEquals(
+        "(`name` = 'name' AND `id` = 0 AND `name` = 'test')".assertEquals(
             TwoColumnModel_Table.name.eq("name").chain(
                 Operation.And, listOf(
                     TwoColumnModel_Table.id.eq(0),
@@ -72,5 +72,4 @@ class OperatorGroupTest : BaseUnitTest() {
             )
         )
     }
-
 }
