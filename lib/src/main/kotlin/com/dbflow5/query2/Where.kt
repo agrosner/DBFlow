@@ -7,6 +7,7 @@ import com.dbflow5.query.OrderBy
 import com.dbflow5.query2.operations.AnyOperator
 import com.dbflow5.query2.operations.Operation
 import com.dbflow5.query2.operations.OperatorGroup
+import com.dbflow5.query2.operations.OperatorGrouping
 import com.dbflow5.query2.operations.Property
 import com.dbflow5.sql.Query
 
@@ -91,7 +92,7 @@ interface WhereWithHaving<Table : Any,
     Limitable<Table, Result, OperationBase>,
     Offsettable<Table, Result, OperationBase>,
     Constrainable<Table, Result, OperationBase> {
-    val havingGroup: OperatorGroup
+    val havingGroup: OperatorGrouping<Query>
 }
 
 interface WhereWithLimit<Table : Any,
@@ -130,8 +131,8 @@ internal data class WhereImpl<Table : Any,
     private val resultFactory: ResultFactory<Result>,
     override val adapter: SQLObjectAdapter<Table>,
     override val groupByList: List<NameAlias> = listOf(),
-    override val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause(),
-    override val havingGroup: OperatorGroup = OperatorGroup.nonGroupingClause(),
+    override val operatorGroup: OperatorGrouping<Query> = OperatorGroup.nonGroupingClause(),
+    override val havingGroup: OperatorGrouping<Query> = OperatorGroup.nonGroupingClause(),
     override val limit: Long = NONE,
     override val offset: Long = NONE,
     override val orderByList: List<OrderBy> = listOf(),
@@ -179,12 +180,12 @@ internal data class WhereImpl<Table : Any,
             groupByList = groupByList.toMutableList().apply { addAll(nameAliases) }
         )
 
-    override fun groupBy(property: Property<out Any, Table>): WhereWithGroupBy<Table, Result, OperationBase> =
+    override fun groupBy(property: Property<*, Table>): WhereWithGroupBy<Table, Result, OperationBase> =
         copy(
             groupByList = groupByList.toMutableList().apply { add(property.nameAlias) }
         )
 
-    override fun groupBy(vararg properties: Property<out Any, Table>): WhereWithGroupBy<Table, Result, OperationBase> =
+    override fun groupBy(vararg properties: Property<*, Table>): WhereWithGroupBy<Table, Result, OperationBase> =
         copy(
             groupByList = groupByList.toMutableList()
                 .apply { addAll(properties.map { it.nameAlias }) }
@@ -239,7 +240,7 @@ internal data class WhereImpl<Table : Any,
         )
 
     override fun orderBy(
-        property: Property<out Any, Table>,
+        property: Property<*, Table>,
         ascending: Boolean
     ): WhereWithOrderBy<Table, Result, OperationBase> =
         copy(

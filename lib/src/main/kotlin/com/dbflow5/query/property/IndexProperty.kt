@@ -2,7 +2,7 @@ package com.dbflow5.query.property
 
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.adapter.makeLazySQLObjectAdapter
-import com.dbflow5.annotation.Table
+import com.dbflow5.annotation.IndexGroup
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.dropIndex
 import com.dbflow5.query2.Index
@@ -12,17 +12,17 @@ import kotlinx.coroutines.runBlocking
 
 /**
  * Description: Defines an INDEX in Sqlite. It basically speeds up data retrieval over large datasets.
- * It gets generated from [Table.indexGroups], but also can be manually constructed. These are activated
+ * It gets generated from [IndexGroup], but also can be manually constructed. These are activated
  * and deactivated manually.
  */
-class IndexProperty<T : Any>(
+class IndexProperty<Table : Any>(
     indexName: String,
     private val unique: Boolean,
-    private val adapter: SQLObjectAdapter<T>,
+    private val adapter: SQLObjectAdapter<Table>,
     vararg properties: IProperty<*>
 ) {
 
-    val index: Index<T> by lazy {
+    val index: Index<Table> by lazy {
         adapter.createIndexOn(
             indexName,
             properties.first(),

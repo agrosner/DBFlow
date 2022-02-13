@@ -3,11 +3,8 @@ package com.dbflow5.sql.language
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.assertEquals
 import com.dbflow5.models.TwoColumnModel_Table
-import com.dbflow5.query.OperatorGroup
-import com.dbflow5.query.and
-import com.dbflow5.query.andAll
-import com.dbflow5.query.or
-import com.dbflow5.query.orAll
+import com.dbflow5.query2.operations.Operation
+import com.dbflow5.query2.operations.OperatorGroup
 import org.junit.Test
 
 class OperatorGroupTest : BaseUnitTest() {
@@ -15,7 +12,8 @@ class OperatorGroupTest : BaseUnitTest() {
     @Test
     fun validateCommaSeparated() {
         "(`name`='name', `id`=0)".assertEquals(
-            OperatorGroup.clause().setAllCommaSeparated(true).andAll(
+            OperatorGroup.clause().chain(
+                Operation.Comma,
                 TwoColumnModel_Table.name.eq("name"),
                 TwoColumnModel_Table.id.eq(0)
             )
@@ -25,8 +23,10 @@ class OperatorGroupTest : BaseUnitTest() {
     @Test
     fun validateParanthesis() {
         "`name`='name'".assertEquals(
-            OperatorGroup.nonGroupingClause(TwoColumnModel_Table.name.eq("name"))
-                .setUseParenthesis(false)
+            OperatorGroup.nonGroupingClause().chain(
+                Operation.Empty,
+                TwoColumnModel_Table.name.eq("name")
+            )
         )
     }
 
@@ -42,9 +42,11 @@ class OperatorGroupTest : BaseUnitTest() {
     @Test
     fun validateOrAll() {
         "(`name`='name' OR `id`=0 OR `name`='test')".assertEquals(
-            TwoColumnModel_Table.name.eq("name") orAll arrayListOf(
-                TwoColumnModel_Table.id.eq(0),
-                TwoColumnModel_Table.name.eq("test")
+            TwoColumnModel_Table.name.eq("name").chain(
+                Operation.Or, listOf(
+                    TwoColumnModel_Table.id.eq(0),
+                    TwoColumnModel_Table.name.eq("test")
+                )
             )
         )
     }
@@ -62,9 +64,11 @@ class OperatorGroupTest : BaseUnitTest() {
     @Test
     fun validateAndAll() {
         "(`name`='name' AND `id`=0 AND `name`='test')".assertEquals(
-            TwoColumnModel_Table.name.eq("name") andAll arrayListOf(
-                TwoColumnModel_Table.id.eq(0),
-                TwoColumnModel_Table.name.eq("test")
+            TwoColumnModel_Table.name.eq("name").chain(
+                Operation.And, listOf(
+                    TwoColumnModel_Table.id.eq(0),
+                    TwoColumnModel_Table.name.eq("test")
+                )
             )
         )
     }

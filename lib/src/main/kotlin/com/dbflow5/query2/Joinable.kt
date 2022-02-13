@@ -1,7 +1,6 @@
 package com.dbflow5.query2
 
 import com.dbflow5.adapter.SQLObjectAdapter
-import com.dbflow5.query.ModelQueriable
 
 sealed class JoinType(val value: String) {
     /**
@@ -46,7 +45,7 @@ interface Joinable<OriginalTable : Any, Result> {
     ): Join<OriginalTable, JoinTable, Result>
 
     fun <JoinTable : Any> join(
-        modelQueriable: ModelQueriable<JoinTable>,
+        hasAdapter: HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
         joinType: JoinType,
     ): Join<OriginalTable, JoinTable, Result>
 }
@@ -58,8 +57,8 @@ infix fun <OriginalTable : Any, JoinTable : Any, Result>
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.crossJoin(
-    modelQueriable: ModelQueriable<JoinTable>,
-) = join(modelQueriable, JoinType.Cross)
+    hasAdapter: HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
+) = join(hasAdapter, JoinType.Cross)
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.innerJoin(
@@ -68,8 +67,8 @@ infix fun <OriginalTable : Any, JoinTable : Any, Result>
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.innerJoin(
-    modelQueriable: ModelQueriable<JoinTable>,
-) = join(modelQueriable, JoinType.Inner)
+    hasAdapter: HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
+) = join(hasAdapter, JoinType.Inner)
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.leftOuterJoin(
@@ -78,8 +77,8 @@ infix fun <OriginalTable : Any, JoinTable : Any, Result>
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.leftOuterJoin(
-    modelQueriable: ModelQueriable<JoinTable>,
-) = join(modelQueriable, JoinType.LeftOuter)
+    hasAdapter: HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
+) = join(hasAdapter, JoinType.LeftOuter)
 
 /**
  * TODO: use separate interface type?
@@ -91,6 +90,6 @@ infix fun <OriginalTable : Any, JoinTable : Any, Result>
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.naturalJoin(
-    modelQueriable: ModelQueriable<JoinTable>,
-) = join(modelQueriable, JoinType.Natural)
+    hasAdapter: HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
+) = join(hasAdapter, JoinType.Natural)
 

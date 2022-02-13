@@ -19,7 +19,7 @@ interface TypeConvertedProperty<ModelType, ValueType, Table : Any> :
 
     fun <ValueType : Any, ModelType : Any> typeConverter(): TypeConverter<ValueType, ModelType>
 
-    override fun withTable(): TypeConvertedProperty<ModelType, ValueType, Table>
+    override fun withTable(tableName: String): TypeConvertedProperty<ModelType, ValueType, Table>
 }
 
 interface DistinctTypeConvertedProperty<ValueType, Table : Any> :
@@ -90,15 +90,17 @@ data class TypeConvertedPropertyImpl<ModelType, ValueType, Table : Any>(
     override val nameAlias: NameAlias,
     private val distinct: Boolean = false,
 ) : TypeConvertedProperty<ModelType, ValueType, Table>,
-    DistinctTypeConvertedProperty<ModelType, Table> {
+    DistinctTypeConvertedProperty<ModelType, Table>,
+    AliasedProperty<ModelType, Table> {
 
     override val query: String = nameAlias.query
     override fun <ValueType : Any, ModelType : Any> typeConverter(): TypeConverter<ValueType, ModelType> =
         valueConverter.typeConverter as TypeConverter<ValueType, ModelType>
 
-    override fun withTable(): TypeConvertedProperty<ModelType, ValueType, Table> =
+    override fun withTable(tableName: String): TypeConvertedProperty<ModelType, ValueType, Table> =
         copy(
-            nameAlias = nameAlias.newBuilder().withTable(adapter.name)
+            nameAlias = nameAlias.newBuilder()
+                .withTable(tableName)
                 .build()
         )
 
@@ -114,4 +116,14 @@ data class TypeConvertedPropertyImpl<ModelType, ValueType, Table : Any>(
         distinct = distinct,
     )
 
+    override fun `as`(
+        name: String,
+        shouldAddIdentifierToAlias: Boolean
+    ): AliasedProperty<ModelType, Table> =
+        copy(
+            nameAlias = nameAlias.newBuilder()
+                .shouldAddIdentifierToAliasName(shouldAddIdentifierToAlias)
+                .`as`(name)
+                .build(),
+        )
 }

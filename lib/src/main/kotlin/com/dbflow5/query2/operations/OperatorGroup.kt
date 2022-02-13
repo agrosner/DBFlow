@@ -1,43 +1,25 @@
 package com.dbflow5.query2.operations
 
-import com.dbflow5.query.NameAlias
-import com.dbflow5.query.nameAlias
 import com.dbflow5.sql.Query
 
-interface OperatorGroup : Query, List<AnyOperator>, Operator<Query> {
+interface OperatorGrouping<ValueType> : Query, List<AnyOperator>,
+    Operator<ValueType> {
 
     val operations: List<AnyOperator>
+}
 
-    override val valueConverter: SQLValueConverter<Query>
-        get() = QueryConverter
+interface OperatorGroup : OperatorGrouping<Query> {
+    override fun chain(operation: Operation, operator: AnyOperator): OperatorGroup
 
-    /**
-     * Appends the [operator] with [Operation.Or]
-     */
-    infix fun or(operator: AnyOperator): OperatorGroup =
-        chain(Operation.Or, operator)
+    override fun chain(
+        operation: Operation,
+        operators: Collection<AnyOperator>
+    ): OperatorGroup
 
-    /**
-     * Appends the [operator] with [Operation.And]
-     */
-    infix fun and(operator: AnyOperator): OperatorGroup =
-        chain(Operation.And, operator)
-
-    /**
-     * Chain a single operator with same [Operation]
-     */
-    fun chain(operation: Operation, operator: AnyOperator): OperatorGroup
-
-    /**
-     * Chain operators with same [Operation]
-     */
-    fun chain(operation: Operation, vararg operators: AnyOperator): OperatorGroup =
-        chain(operation, operators.toList())
-
-    /**
-     * Chain all operators with same [Operation]
-     */
-    fun chain(operation: Operation, operators: Collection<AnyOperator>): OperatorGroup
+    override fun chain(
+        operation: Operation,
+        vararg operators: AnyOperator
+    ): OperatorGroup = super.chain(operation, *operators) as OperatorGroup
 
     companion object {
         fun nonGroupingClause(): OperatorGroup =
@@ -75,12 +57,9 @@ internal data class OperatorGroupImpl(
      * Default true, wraps the [query] in parenthesis.
      */
     private val useParenthesis: Boolean = true,
-    override val operations: List<AnyOperator> = opPairings.map(
-        transform = { it.operator }
-    )
-) : OperatorGroup, List<AnyOperator> by operations {
-    override val nameAlias: NameAlias = "".nameAlias
-
+) : OperatorGroup, List<AnyOperator> by opPairings.map(transform = {
+    it.operator
+}) {
     override val query: String by lazy {
         buildString {
             // no operations, short-cut empty
@@ -90,6 +69,8 @@ internal data class OperatorGroupImpl(
             if (useParenthesis) append(")")
         }
     }
+
+    override val operations: List<AnyOperator> = opPairings.map { it.operator }
 
     override fun chain(operation: Operation, operator: AnyOperator): OperatorGroup =
         copy(

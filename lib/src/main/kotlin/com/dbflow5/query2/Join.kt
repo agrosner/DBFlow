@@ -1,23 +1,23 @@
 package com.dbflow5.query2
 
 import com.dbflow5.adapter.SQLObjectAdapter
-import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query.OperatorGroup
-import com.dbflow5.query.SQLOperator
-import com.dbflow5.query.property.IProperty
-import com.dbflow5.query.property.PropertyFactory
+import com.dbflow5.query2.operations.AnyOperator
+import com.dbflow5.query2.operations.Operation
+import com.dbflow5.query2.operations.OperatorGroup
+import com.dbflow5.query2.operations.OperatorGrouping
+import com.dbflow5.query2.operations.Property
 import com.dbflow5.sql.Query
 
 
 interface JoinOn<OriginalTable : Any, Result> {
-    infix fun on(sqlOperator: SQLOperator): SelectWithJoins<OriginalTable, Result>
-    fun on(vararg conditions: SQLOperator): SelectWithJoins<OriginalTable, Result>
+    infix fun on(sqlOperator: AnyOperator): SelectWithJoins<OriginalTable, Result>
+    fun on(vararg conditions: AnyOperator): SelectWithJoins<OriginalTable, Result>
 }
 
 interface JoinUsing<OriginalTable : Any, Result> {
-    infix fun using(property: IProperty<*>): SelectWithJoins<OriginalTable, Result>
-    fun using(vararg properties: IProperty<*>): SelectWithJoins<OriginalTable, Result>
+    infix fun using(property: Property<*, OriginalTable>): SelectWithJoins<OriginalTable, Result>
+    fun using(vararg properties: Property<*, OriginalTable>): SelectWithJoins<OriginalTable, Result>
 }
 
 interface JoinWithAlias<OriginalTable : Any,
@@ -28,7 +28,7 @@ interface JoinWithAlias<OriginalTable : Any,
 }
 
 interface JoinWithUsing : Query {
-    val using: List<IProperty<*>>
+    val using: List<Property<*, *>>
 }
 
 /**
@@ -44,15 +44,11 @@ interface Join<OriginalTable : Any, JoinTable : Any, Result> : Query,
 internal data class JoinImpl<OriginalTable : Any, JoinTable : Any, Result>(
     val select: SelectImpl<OriginalTable, Result>,
     val type: JoinType,
-    val onGroup: OperatorGroup? = null,
+    val onGroup: OperatorGrouping<Query>? = null,
     override val adapter: SQLObjectAdapter<JoinTable>,
-    private val modelQueriable: ModelQueriable<JoinTable>? = null,
-    override val alias: NameAlias = if (modelQueriable != null) {
-        PropertyFactory.from(modelQueriable).nameAlias
-    } else {
-        NameAlias.Builder(adapter.name).build()
-    },
-    override val using: List<IProperty<*>> = listOf(),
+    private val queryNameAlias: NameAlias? = null,
+    override val alias: NameAlias = queryNameAlias ?: NameAlias.Builder(adapter.name).build(),
+    override val using: List<Property<*, OriginalTable>> = listOf(),
 ) : Join<OriginalTable, JoinTable, Result>, JoinOn<OriginalTable, Result>,
     JoinWithAlias<OriginalTable, JoinTable, Result>,
     JoinWithUsing {
@@ -62,7 +58,7 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any, Result>(
             if (type != JoinType.Natural) {
                 onGroup?.let { append("ON ${onGroup.query} ") }
                     ?: if (using.isNotEmpty()) {
-                        append("USING (${using.joinToString()}) ")
+                        append("USING (${using.joinToString { it.query }}) ")
                     }
             }
         }
@@ -85,7 +81,7 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any, Result>(
             },
         )
 
-    override fun on(sqlOperator: SQLOperator): SelectWithJoins<OriginalTable, Result> {
+    override fun on(sqlOperator: AnyOperator): SelectWithJoins<OriginalTable, Result> {
         checkNatural()
         return addJoin(
             copy(
@@ -96,24 +92,29 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any, Result>(
         )
     }
 
-    override fun on(vararg conditions: SQLOperator): SelectWithJoins<OriginalTable, Result> {
+    override fun on(vararg conditions: AnyOperator): SelectWithJoins<OriginalTable, Result> {
         checkNatural()
         return addJoin(
             copy(
                 onGroup = OperatorGroup
                     .nonGroupingClause()
-                    .andAll(*conditions),
+                    .chain(Operation.And, *conditions),
             )
         )
     }
 
 
-    override fun `as`(name: String): JoinWithAlias<OriginalTable, JoinTable, Result> =
+    override fun `as`(
+        name: String,
+        shouldAddIdentifierToAlias: Boolean
+    ): JoinWithAlias<OriginalTable, JoinTable, Result> =
         copy(
-            alias = alias.newBuilder().`as`(name).build(),
+            alias = alias.newBuilder()
+                .shouldAddIdentifierToAliasName(shouldAddIdentifierToAlias)
+                .`as`(name).build(),
         )
 
-    override fun using(property: IProperty<*>): SelectWithJoins<OriginalTable, Result> {
+    override fun using(property: Property<*, OriginalTable>): SelectWithJoins<OriginalTable, Result> {
         checkNatural()
         return addJoin(
             copy(
@@ -123,7 +124,7 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any, Result>(
         )
     }
 
-    override fun using(vararg properties: IProperty<*>): SelectWithJoins<OriginalTable, Result> {
+    override fun using(vararg properties: Property<*, OriginalTable>): SelectWithJoins<OriginalTable, Result> {
         checkNatural()
         return addJoin(
             copy(

@@ -13,6 +13,7 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.getNotificationUri
 import com.dbflow5.query.SQLOperator
 import com.dbflow5.query2.delete
+import com.dbflow5.query2.operations.BaseOperator
 import com.dbflow5.query2.operations.Operator
 import com.dbflow5.runtime.ContentResolverNotifier
 import com.dbflow5.runtime.FlowContentObserver
@@ -57,7 +58,7 @@ class ContentObserverTest {
         val uri = getNotificationUri(
             contentUri,
             User::class, ChangeAction.DELETE,
-            conditionGroup.operations.filterIsInstance<Operator.SingleValueOperator<Any?>>(),
+            conditionGroup.operations.filterIsInstance<BaseOperator.SingleValueOperator<Any?>>(),
         )
 
         assertEquals(uri.authority, contentUri)

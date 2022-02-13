@@ -3,6 +3,7 @@ package com.dbflow5.query
 import com.dbflow5.annotation.Collate
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query2.operations.Property
+import com.dbflow5.query2.operations.StandardMethods
 import com.dbflow5.sql.Query
 
 /**
@@ -71,11 +72,11 @@ constructor(
         const val DESCENDING = "DESC"
 
         @JvmStatic
-        fun fromProperty(property: Property<out Any, *>, isAscending: Boolean = true): OrderBy =
+        fun fromProperty(property: Property<*, *>, isAscending: Boolean = true): OrderBy =
             OrderBy(
                 property.nameAlias,
                 // if we use RANDOM(), leave out ascending qualifier as its not valid SQLite.
-                if (property == random) {
+                if (property == StandardMethods.Random()) {
                     null
                 } else isAscending
             )

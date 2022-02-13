@@ -13,6 +13,7 @@ import com.dbflow5.migration.AlterTableMigration
 import com.dbflow5.migration.BaseMigration
 import com.dbflow5.query.property.propertyString
 import com.dbflow5.query2.insert
+import com.dbflow5.query2.operations.scalarOf
 import com.dbflow5.sql.SQLiteType
 import kotlinx.coroutines.runBlocking
 
@@ -54,8 +55,8 @@ abstract class MigratedPrepackagedDB : DBFlowDatabase() {
         override fun migrate(database: DatabaseWrapper) {
             runBlocking {
                 database<MigratedPrepackagedDB>().dog2Adapter.insert(
-                    propertyString<String>("`breed`") eq "NewBreed",
-                    propertyString<String>("`newField`") eq "New Field Data",
+                    scalarOf("`breed`") eq "NewBreed",
+                    scalarOf("`newField`") eq "New Field Data",
                 ).execute(database)
             }
         }

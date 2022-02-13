@@ -5,8 +5,8 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
 import com.dbflow5.config.readableTransaction
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query.property.IndexProperty
 import com.dbflow5.query2.delete
+import com.dbflow5.query2.operations.indexProperty
 import com.dbflow5.query2.select
 import com.dbflow5.query2.update
 import com.dbflow5.simpleModelAdapter
@@ -21,10 +21,9 @@ class IndexedByTest : BaseUnitTest() {
         val database = database<TestDatabase>()
         val indexed = database.readableTransaction {
             simpleModelAdapter.select() indexedBy
-                IndexProperty(
+                indexProperty(
                     "Index",
                     false,
-                    simpleModelAdapter,
                     SimpleModel_Table.name
                 )
         }
@@ -36,10 +35,9 @@ class IndexedByTest : BaseUnitTest() {
         val database = database<TestDatabase>()
         val indexed = database.readableTransaction {
             simpleModelAdapter.delete() indexedBy
-                IndexProperty(
+                indexProperty(
                     "Index",
                     false,
-                    simpleModelAdapter,
                     SimpleModel_Table.name
                 )
         }
@@ -51,10 +49,9 @@ class IndexedByTest : BaseUnitTest() {
         val database = database<TestDatabase>()
         val indexed = database.readableTransaction {
             simpleModelAdapter.update() indexedBy
-                IndexProperty(
+                indexProperty(
                     "Index",
                     false,
-                    simpleModelAdapter,
                     SimpleModel_Table.name
                 )
         }

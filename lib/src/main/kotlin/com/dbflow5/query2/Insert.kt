@@ -4,15 +4,14 @@ import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query.BaseOperator
+import com.dbflow5.query2.operations.BaseOperator
 import com.dbflow5.query2.operations.Operation
-import com.dbflow5.query2.operations.Operator
 import com.dbflow5.query2.operations.Property
 import com.dbflow5.sql.Query
 
 data class ColumnValue<T : Any, V>(
     val property: Property<V, T>? = null,
-    val value: V
+    val value: Any
 )
 
 private fun <Table : Any> List<ColumnValue<Table, Any>>.toColumnValues(): Pair<List<Property<*, Table>>, List<List<Any>>> {
@@ -22,7 +21,7 @@ private fun <Table : Any> List<ColumnValue<Table, Any>>.toColumnValues(): Pair<L
 }
 
 internal fun <Table : Any> ModelAdapter<Table>.columnValue(
-    sqlOperator: Operator.SingleValueOperator<Any>
+    sqlOperator: BaseOperator.SingleValueOperator<Any>
 ): ColumnValue<Table, Any> {
     if (sqlOperator.nameAlias.query.isBlank()) {
         return ColumnValue(null, sqlOperator.value)
@@ -82,11 +81,14 @@ interface InsertWithSelect<Table : Any, TFrom : Any> :
 fun <Table : Any> SQLObjectAdapter<Table>.insert(): InsertStart<Table> = InsertImpl(adapter = this)
 
 fun <Table : Any> SQLObjectAdapter<Table>.insert(
-    columnValue: ColumnValue<Table, Any>,
-    vararg columnValues: ColumnValue<Table, Any>,
+    columnValue: ColumnValue<Table, *>,
+    vararg columnValues: ColumnValue<Table, *>,
 ): InsertWithValues<Table> {
     val (columns, values) = mutableListOf(columnValue)
-        .apply { addAll(columnValues.toList()) }
+        .run {
+            addAll(columnValues.toList())
+            this as List<ColumnValue<Table, Any>>
+        }
         .toColumnValues()
     return InsertImpl(
         columns = columns,
@@ -96,18 +98,23 @@ fun <Table : Any> SQLObjectAdapter<Table>.insert(
 }
 
 fun <Table : Any> SQLObjectAdapter<Table>.insert(
-    columnValuePair: Pair<Property<Any, Table>?, Any>,
-    vararg columnValues: Pair<Property<Any, Table>?, Any>,
+    columnValuePair: Pair<Property<*, Table>?, *>,
+    vararg columnValues: Pair<Property<*, Table>?, *>,
 ): InsertWithValues<Table> {
     val (columns, values) = mutableListOf(
         ColumnValue(
-            columnValuePair.first,
-            columnValuePair.second
+            columnValuePair.first as Property<Any, Table>,
+            columnValuePair.second as Any
         )
     )
         .apply {
             addAll(columnValues
-                .map { ColumnValue(it.first, it.second) }
+                .map {
+                    ColumnValue(
+                        it.first as Property<Any, Table>,
+                        it.second as Any
+                    )
+                }
                 .toList())
         }
         .toColumnValues()
@@ -119,11 +126,11 @@ fun <Table : Any> SQLObjectAdapter<Table>.insert(
 }
 
 fun <Table : Any> ModelAdapter<Table>.insert(
-    operator: Operator.SingleValueOperator<Any>,
-    vararg operators: Operator.SingleValueOperator<Any>,
+    operator: BaseOperator.SingleValueOperator<*>,
+    vararg operators: BaseOperator.SingleValueOperator<*>,
 ): InsertWithValues<Table> {
-    val (columns, values) = mutableListOf(columnValue(operator))
-        .apply { addAll(operators.map { columnValue(it) }) }
+    val (columns, values) = mutableListOf(columnValue(operator as BaseOperator.SingleValueOperator<Any>))
+        .apply { addAll(operators.map { columnValue(it as BaseOperator.SingleValueOperator<Any>) }) }
         .toColumnValues()
     return InsertImpl(
         columns = columns,
@@ -183,10 +190,8 @@ internal data class InsertImpl<Table : Any>(
             append("INTO ${adapter.name}")
             columns
                 ?.takeIf { it.isNotEmpty() }
-                ?.let {
-                    append(
-                        "(${it.joinToString()})"
-                    )
+                ?.let { propList ->
+                    append("(${propList.joinToString { it.query }})")
                 }
             if (subquery != null) {
                 append(" ${subquery.query}")
@@ -201,7 +206,7 @@ internal data class InsertImpl<Table : Any>(
                     append(" VALUES(")
                     values.forEachIndexed { index, list ->
                         if (index > 0) append(",(")
-                        append(BaseOperator.joinArguments(",", list))
+                        append(com.dbflow5.query.BaseOperator.joinArguments(",", list))
                             .append(")")
                     }
                 }

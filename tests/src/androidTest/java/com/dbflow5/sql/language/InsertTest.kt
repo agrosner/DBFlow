@@ -6,10 +6,10 @@ import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query.Operator
-import com.dbflow5.query.OperatorGroup
 import com.dbflow5.query2.ColumnValue
 import com.dbflow5.query2.insert
+import com.dbflow5.query2.operations.Operation
+import com.dbflow5.query2.operations.operator
 import com.dbflow5.query2.orAbort
 import com.dbflow5.query2.orFail
 import com.dbflow5.query2.orIgnore
@@ -117,20 +117,13 @@ class InsertTest : BaseUnitTest() {
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name',0)",
             twoColumnModelAdapter.insert(
-                Operator.op<String>(NameAlias.builder("name").build()).eq("name"),
+                operator(
+                    NameAlias.builder("name").build(),
+                    Operation.Equals,
+                    "name"
+                ),
                 TwoColumnModel_Table.id.eq(0)
             ).query.trim()
         )
-        assertEquals(
-            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name',0)",
-            twoColumnModelAdapter.insert(
-                OperatorGroup.clause()
-                    .andAll(
-                        TwoColumnModel_Table.name.eq("name"),
-                        TwoColumnModel_Table.id.eq(0)
-                    )
-            ).query.trim()
-        )
-
     }
 }

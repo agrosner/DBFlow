@@ -5,10 +5,64 @@ import com.dbflow5.sql.Query
 
 typealias AnyOperator = Operator<out Any?>
 
+interface OperatorChain {
+    /**
+     * Appends the [operator] with [Operation.Or]
+     */
+    infix fun or(operator: AnyOperator): OperatorGrouping<Query> =
+        chain(Operation.Or, operator)
+
+    /**
+     * Appends the [operator] with [Operation.And]
+     */
+    infix fun and(operator: AnyOperator): OperatorGrouping<Query> =
+        chain(Operation.And, operator)
+
+    /**
+     * Chain a single operator with same [Operation]
+     */
+    fun chain(operation: Operation, operator: AnyOperator): OperatorGrouping<Query>
+
+    /**
+     * Chain operators with same [Operation]
+     */
+    fun chain(
+        operation: Operation,
+        vararg operators: AnyOperator
+    ): OperatorGrouping<Query> =
+        chain(operation, operators.toList())
+
+    /**
+     * Chain all operators with same [Operation]
+     */
+    fun chain(
+        operation: Operation,
+        operators: Collection<AnyOperator>
+    ): OperatorGrouping<Query>
+
+}
+
+interface Operator<ValueType> : Query,
+    OperatorChain
+
 /**
- * Description:
+ * Generates a [Operator] that concatenates this [IOperator] with the [ValueType] via "||"
+ * by columnName=columnName || value
+ *
+ * @param value The value to concatenate.
+ * @return A [<] that represents concatenation.
  */
-interface Operator<ValueType> : Query {
+infix fun Operator<String>.concatenate(value: String): ConcatStart =
+    ConcatOperatorImpl(
+        operations = listOf(this, scalarOf(value)),
+    )
+
+/**
+ * Represents a key, operation, + value type.
+ *
+ * (Property + operation + value) operation (property operation value)
+ */
+interface BaseOperator<ValueType> : Operator<ValueType> {
 
     val valueConverter: SQLValueConverter<ValueType>
 
@@ -17,14 +71,30 @@ interface Operator<ValueType> : Query {
     val key: String
         get() = nameAlias.query
 
-    interface SingleValueOperator<ValueType> : Operator<ValueType> {
+    override fun chain(
+        operation: Operation,
+        operator: AnyOperator
+    ): OperatorGrouping<Query> =
+        OperatorGroup.nonGroupingClause()
+            .chain(Operation.Empty, this)
+            .chain(operation, operator)
+
+    override fun chain(
+        operation: Operation,
+        operators: Collection<AnyOperator>
+    ): OperatorGrouping<Query> = OperatorGroup
+        .nonGroupingClause()
+        .chain(Operation.Empty, this)
+        .chain(operation, operators)
+
+    interface SingleValueOperator<ValueType> : BaseOperator<ValueType> {
         val value: ValueType
 
         val sqlValue: String
             get() = valueConverter.convert(value)
     }
 
-    interface MultipleValueOperator<ValueType> : Operator<ValueType> {
+    interface MultipleValueOperator<ValueType> : BaseOperator<ValueType> {
         val values: List<ValueType>
         val joinedSqlValue: String
             get() = values.joinToString(separator = ",") { valueConverter.convert(it) }
@@ -46,7 +116,7 @@ inline fun <reified ValueType> operator(
     nameAlias: NameAlias,
     operation: Operation = Operation.Empty,
     value: ValueType,
-): Operator.SingleValueOperator<ValueType> = operator(
+): BaseOperator.SingleValueOperator<ValueType> = operator(
     nameAlias = nameAlias,
     value = value,
     operation = operation,
@@ -58,7 +128,7 @@ fun <ValueType> operator(
     operation: Operation = Operation.Empty,
     value: ValueType,
     valueConverter: SQLValueConverter<ValueType>,
-): Operator.SingleValueOperator<ValueType> = OperatorImpl(
+): BaseOperator.SingleValueOperator<ValueType> = OperatorImpl(
     nameAlias = nameAlias,
     value = value,
     operation = operation,
@@ -70,7 +140,7 @@ internal data class OperatorImpl<ValueType>(
     private val operation: Operation,
     override val value: ValueType,
     override val valueConverter: SQLValueConverter<ValueType>,
-) : Operator<ValueType>, Operator.SingleValueOperator<ValueType> {
+) : BaseOperator<ValueType>, BaseOperator.SingleValueOperator<ValueType> {
     override val query: String by lazy {
         buildString {
             append("${nameAlias.query} ${operation.value} $sqlValue")
@@ -86,8 +156,8 @@ internal data class BetweenImpl<ValueType>(
      */
     private val secondValue: ValueType? = null,
     override val nameAlias: NameAlias,
-) : Operator.BetweenStart<ValueType>,
-    Operator.BetweenComplete<ValueType> {
+) : BaseOperator.BetweenStart<ValueType>,
+    BaseOperator.BetweenComplete<ValueType> {
     override val query: String by lazy {
         buildString {
             append("${nameAlias.query} ${Operation.Between.value} ${sqlValue} ")
@@ -98,7 +168,7 @@ internal data class BetweenImpl<ValueType>(
         }
     }
 
-    override fun and(value: ValueType): Operator.BetweenComplete<ValueType> =
+    override fun and(value: ValueType): BaseOperator.BetweenComplete<ValueType> =
         copy(
             secondValue = value,
         )
@@ -109,7 +179,7 @@ internal data class InImpl<ValueType>(
     override val nameAlias: NameAlias,
     private val isIn: Boolean,
     override val values: List<ValueType>,
-) : Operator.In<ValueType> {
+) : BaseOperator.In<ValueType> {
     override val query: String by lazy {
         buildString {
             append("${nameAlias.query} ")

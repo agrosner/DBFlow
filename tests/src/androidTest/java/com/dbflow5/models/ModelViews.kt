@@ -8,6 +8,7 @@ import com.dbflow5.annotation.ModelViewQuery
 import com.dbflow5.config.database
 import com.dbflow5.query.property.IProperty
 import com.dbflow5.query.property.property
+import com.dbflow5.query2.operations.concatenate
 import com.dbflow5.query2.select
 
 class AuthorName(var name: String = "", var age: Int = 0)
@@ -25,8 +26,8 @@ class AuthorView(
         val query
             get() = (database<TestDatabase>().authorAdapter.select(
                 Author_Table.id.`as`("authorId"),
-                Author_Table.first_name.concatenate(" ".property as IProperty<out IProperty<*>>)
-                    .concatenate(Author_Table.last_name as IProperty<out IProperty<*>>)
+                Author_Table.first_name.concatenate(" ")
+                    .concatenate(Author_Table.last_name)
                     .`as`("authorName")
             ))
     }

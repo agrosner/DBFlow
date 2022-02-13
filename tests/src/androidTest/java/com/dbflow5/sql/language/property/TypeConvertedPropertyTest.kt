@@ -6,12 +6,10 @@ import com.dbflow5.config.database
 import com.dbflow5.converter.DateConverter
 import com.dbflow5.models.Difficulty
 import com.dbflow5.models.EnumTypeConverterModel_Table
-import com.dbflow5.models.SimpleModel
-import com.dbflow5.query.NameAlias
 import com.dbflow5.query.property.TypeConvertedProperty
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.util.*
+import java.util.Date
 
 class TypeConvertedPropertyTest : BaseUnitTest() {
 
@@ -48,7 +46,7 @@ class TypeConvertedPropertyTest : BaseUnitTest() {
         assertEquals(
             "`et`.`difficulty`='H'",
             EnumTypeConverterModel_Table.difficulty.withTable(
-                NameAlias.tableNameBuilder("et").build()
+                "et"
             ).eq(Difficulty.HARD).query
         )
     }

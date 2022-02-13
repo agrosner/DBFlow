@@ -3,11 +3,13 @@ package com.dbflow5.query2
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.config.FlowManager
-import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query.count
 import com.dbflow5.query.enclosedQuery
+import com.dbflow5.query2.operations.AnyOperator
 import com.dbflow5.query2.operations.Property
+import com.dbflow5.query2.operations.StandardMethods
+import com.dbflow5.query2.operations.invoke
+import com.dbflow5.query2.operations.scalarOf
 import kotlin.reflect.KClass
 
 sealed class QualifierType(val value: String) {
@@ -81,17 +83,28 @@ interface SelectStart<Table : Any, Result> :
 fun <Table : Any> SQLObjectAdapter<Table>.select(): SelectStart<Table, SelectResult<Table>> =
     SelectImpl(
         adapter = this,
-        properties = listOf(Property.ALL_PROPERTY),
+        properties = listOf(scalarOf("*")),
         resultFactory = SelectResultFactory(this),
     )
 
 fun <Table : Any> SQLObjectAdapter<Table>.select(
     vararg properties: Property<*, Table>
 ): SelectStart<Table, SelectResult<Table>> =
-    SelectImpl(
-        adapter = this,
-        properties = properties.toList(),
+    select(
         resultFactory = SelectResultFactory(this),
+        properties = properties
+    )
+
+/**
+ * Select from [SQLObjectAdapter] widened to allow non-table
+ * properties.
+ */
+fun <Table : Any> SQLObjectAdapter<Table>.select(
+    vararg operators: AnyOperator,
+): SelectStart<Table, SelectResult<Table>> =
+    select(
+        resultFactory = SelectResultFactory(this),
+        operators = operators,
     )
 
 /**
@@ -103,7 +116,26 @@ fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
 ): SelectStart<Table, CountResultFactory.Count> =
     SelectImpl(
         adapter = this,
-        properties = listOf(count(*properties)),
+        properties = listOf(StandardMethods.Count(*properties)),
+        resultFactory = CountResultFactory,
+    )
+
+/**
+ * Provides a [Select] that returns a long result based on
+ * the count of rows. Widens to allow any operator
+ */
+fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
+    operator: AnyOperator,
+    vararg operators: AnyOperator,
+): SelectStart<Table, CountResultFactory.Count> =
+    SelectImpl(
+        adapter = this,
+        properties = listOf(
+            StandardMethods.Count(
+                *mutableListOf(operator)
+                    .apply { addAll(operators) }.toTypedArray()
+            )
+        ),
         resultFactory = CountResultFactory,
     )
 
@@ -120,9 +152,23 @@ fun <Table : Any, Result> SQLObjectAdapter<Table>.select(
         resultFactory = resultFactory
     )
 
+/**
+ * A select providing a custom result factory return type, widened
+ * to allow any operation type.
+ */
+fun <Table : Any, Result> SQLObjectAdapter<Table>.select(
+    resultFactory: ResultFactory<Result>,
+    vararg operators: AnyOperator,
+): SelectStart<Table, Result> =
+    SelectImpl(
+        adapter = this,
+        properties = operators.toList(),
+        resultFactory = resultFactory
+    )
+
 internal data class SelectImpl<Table : Any, Result>(
     private val qualifier: QualifierType = QualifierType.None,
-    private val properties: List<Property<*, Table>> = emptyList(),
+    private val properties: List<AnyOperator> = emptyList(),
     override val adapter: SQLObjectAdapter<Table>,
     private val tableAlias: NameAlias = NameAlias.Builder(
         adapter.name
@@ -149,7 +195,7 @@ internal data class SelectImpl<Table : Any, Result>(
                     QualifierType.None -> ""
                 }
             )
-            append("${properties.joinToString()} FROM ${
+            append("${properties.joinToString { it.query }} FROM ${
                 subquery?.let { append(it.enclosedQuery) }
                     ?: tableAlias
             }")
@@ -166,9 +212,13 @@ internal data class SelectImpl<Table : Any, Result>(
             qualifier = QualifierType.Distinct,
         )
 
-    override fun `as`(name: String): SelectWithAlias<Table, Result> =
+    override fun `as`(
+        name: String,
+        shouldAddIdentifierToAlias: Boolean
+    ): SelectWithAlias<Table, Result> =
         copy(
             tableAlias = tableAlias.newBuilder()
+                .shouldAddIdentifierToAliasName(shouldAddIdentifierToAlias)
                 .`as`(name)
                 .build()
         )
@@ -188,18 +238,13 @@ internal data class SelectImpl<Table : Any, Result>(
     )
 
     override fun <JoinTable : Any> join(
-        modelQueriable: ModelQueriable<JoinTable>,
+        hasAdapter: HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
         joinType: JoinType
     ): Join<Table, JoinTable, Result> = JoinImpl(
         this,
         type = joinType,
-        adapter = (modelQueriable.adapter as? SQLObjectAdapter<JoinTable>)
-            ?: throw IllegalStateException(
-                "To use a Join, " +
-                    "you must provide a valid DB adapter " +
-                    "type (View or Table)."
-            ),
-        modelQueriable = modelQueriable,
+        adapter = hasAdapter.adapter,
+        queryNameAlias = scalarOf(hasAdapter).nameAlias,
     )
 
     override val associatedAdapters: List<RetrievalAdapter<*>> =

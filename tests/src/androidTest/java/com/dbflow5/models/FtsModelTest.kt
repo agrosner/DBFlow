@@ -7,12 +7,12 @@ import com.dbflow5.config.readableTransaction
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.fts4ModelAdapter
 import com.dbflow5.fts4VirtualModel2Adapter
-import com.dbflow5.query.offsets
-import com.dbflow5.query.property.tableName
-import com.dbflow5.query.snippet
 import com.dbflow5.query2.StringResultFactory
 import com.dbflow5.query2.insert
+import com.dbflow5.query2.operations.StandardMethods
 import com.dbflow5.query2.operations.docId
+import com.dbflow5.query2.operations.match
+import com.dbflow5.query2.operations.tableNameScalar
 import com.dbflow5.query2.select
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
@@ -44,7 +44,8 @@ class FtsModelTest : BaseUnitTest() {
     fun match_query() = runBlockingTest {
         validate_fts4_created()
         database<TestDatabase>().readableTransaction {
-            (fts4VirtualModel2Adapter.select() where (tableName<Fts4VirtualModel2>() match "FTSBABY"))
+            (fts4VirtualModel2Adapter.select() where (
+                fts4VirtualModel2Adapter.tableNameScalar() match "FTSBABY"))
                 .single()
         }
     }
@@ -54,10 +55,10 @@ class FtsModelTest : BaseUnitTest() {
         validate_fts4_created()
         val value = database<TestDatabase>().readableTransaction {
             (fts4ModelAdapter.select(
-                resultFactory = StringResultFactory,
-                offsets<Fts4VirtualModel2>()
+                StringResultFactory,
+                StandardMethods.Offsets<Fts4VirtualModel2>()
             )
-                where (tableName<Fts4VirtualModel2>() match "FTSBaby"))
+                where (fts4VirtualModel2Adapter.tableNameScalar() match "FTSBaby"))
                 .execute()
         }
         assertNotNull(value)
@@ -78,8 +79,8 @@ class FtsModelTest : BaseUnitTest() {
         }
         val rows = database.writableTransaction {
             (fts4ModelAdapter.insert(
-                docId,
-                Fts4VirtualModel2_Table.name
+                fts4ModelAdapter.docId(),
+                Fts4Model_Table.name
             ) select fts4ModelAdapter.select(Fts4Model_Table.id, Fts4Model_Table.name))
                 .execute()
         }
@@ -88,12 +89,12 @@ class FtsModelTest : BaseUnitTest() {
             database.readableTransaction {
                 (fts4VirtualModel2Adapter.select(
                     resultFactory = StringResultFactory,
-                    snippet<Fts4VirtualModel2>(
+                    StandardMethods.Snippet<Fts4VirtualModel2>(
                         start = "[",
                         end = "]",
                         ellipses = "...",
                     )
-                ) where (tableName<Fts4VirtualModel2>() match "\"min* tem*\""))
+                ) where (fts4VirtualModel2Adapter.tableNameScalar() match "\"min* tem*\""))
                     .execute()
             }
         assertNotNull(value)

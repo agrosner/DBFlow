@@ -1,6 +1,7 @@
 package com.dbflow5.query
 
 import com.dbflow5.isNotNullOrEmpty
+import com.dbflow5.query2.operations.Operation
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.sql.Query
 import com.dbflow5.stripQuotes
@@ -8,14 +9,16 @@ import com.dbflow5.stripQuotes
 /**
  * Description: Rewritten from the ground up, this class makes it easier to build an alias.
  */
-class NameAlias(private val name: String,
-                private val aliasName: String? = null,
-                val tableName: String? = null,
-                val keyword: String? = null,
-                val shouldStripIdentifier: Boolean = true,
-                val shouldStripAliasName: Boolean = true,
-                private val shouldAddIdentifierToQuery: Boolean = true,
-                private val shouldAddIdentifierToAliasName: Boolean = true) : Query {
+class NameAlias(
+    private val name: String,
+    private val aliasName: String? = null,
+    val tableName: String? = null,
+    val keyword: String? = null,
+    val shouldStripIdentifier: Boolean = true,
+    val shouldStripAliasName: Boolean = true,
+    private val shouldAddIdentifierToQuery: Boolean = true,
+    private val shouldAddIdentifierToAliasName: Boolean = true
+) : Query {
 
     /**
      * @return The name used in queries. If an alias is specified, use that, otherwise use the name
@@ -74,7 +77,8 @@ class NameAlias(private val name: String,
         shouldStripIdentifier = builder.shouldStripIdentifier,
         shouldStripAliasName = builder.shouldStripAliasName,
         shouldAddIdentifierToQuery = builder.shouldAddIdentifierToQuery,
-        shouldAddIdentifierToAliasName = builder.shouldAddIdentifierToAliasName)
+        shouldAddIdentifierToAliasName = builder.shouldAddIdentifierToAliasName
+    )
 
     /**
      * @return The real column name.
@@ -209,6 +213,16 @@ class NameAlias(private val name: String,
          */
         fun joinNames(operation: String, vararg names: String): NameAlias =
             rawBuilder(names.joinToString(" $operation ")).build()
+
+        /**
+         * Combines any number of names into a single [NameAlias] separated by some operation.
+         *
+         * @param operation The operation to separate into.
+         * @param names     The names to join.
+         * @return The new namealias object.
+         */
+        fun joinNames(operation: Operation, vararg names: String) =
+            joinNames(operation.value, *names)
 
         fun builder(name: String): Builder = Builder(name)
 

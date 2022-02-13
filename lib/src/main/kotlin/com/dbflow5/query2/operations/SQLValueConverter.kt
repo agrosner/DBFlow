@@ -10,12 +10,21 @@ import com.dbflow5.sqlEscapeString
  * Basic interface that describes how a value gets turned into
  * a [String] SQL query.
  */
-interface SQLValueConverter<ValueType> {
+fun interface SQLValueConverter<ValueType> {
     /**
      * Converts the value to a [String]
      */
     fun convert(value: ValueType): String
 }
+
+/**
+ * Wraps the [SQLValueConverter] with support for nulls.
+ */
+fun <ValueType> SQLValueConverter<ValueType>.nullableConverter() =
+    SQLValueConverter<ValueType?> { value ->
+        if (value == null) UnknownObjectConverter.convert(value)
+        else this@nullableConverter.convert(value)
+    }
 
 object NoOpValueConverter : SQLValueConverter<Any?> {
     override fun convert(value: Any?): String = value.toString()

@@ -5,7 +5,7 @@ import android.content.Context
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.getNotificationUri
-import com.dbflow5.query2.operations.Operator
+import com.dbflow5.query2.operations.BaseOperator
 import com.dbflow5.structure.ChangeAction
 import kotlin.reflect.KClass
 
@@ -30,7 +30,7 @@ class ContentResolverNotifier(
                 getNotificationUri(
                     authority, adapter.table, action,
                     adapter.getPrimaryConditionClause(model).operations
-                        .filterIsInstance<Operator.SingleValueOperator<Any?>>()
+                        .filterIsInstance<BaseOperator.SingleValueOperator<Any?>>()
                 ), null, true
             )
         }
@@ -43,7 +43,7 @@ class ContentResolverNotifier(
                     authority,
                     table,
                     action,
-                    null as Array<Operator.SingleValueOperator<Any?>>?
+                    null as Array<BaseOperator.SingleValueOperator<Any?>>?
                 ),
                 null,
                 true

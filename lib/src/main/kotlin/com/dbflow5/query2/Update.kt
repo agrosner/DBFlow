@@ -6,6 +6,7 @@ import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.query2.operations.AnyOperator
 import com.dbflow5.query2.operations.Operation
 import com.dbflow5.query2.operations.OperatorGroup
+import com.dbflow5.query2.operations.OperatorGrouping
 import com.dbflow5.sql.Query
 
 interface Update<Table : Any> : Query,
@@ -42,7 +43,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.update(): UpdateStart<Table> = UpdateI
 internal data class UpdateImpl<Table : Any>(
     override val conflictAction: ConflictAction = ConflictAction.NONE,
     override val adapter: SQLObjectAdapter<Table>,
-    override val operatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause(),
+    override val operatorGroup: OperatorGrouping<Query> = OperatorGroup.nonGroupingClause(),
     override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory,
 ) : UpdateStart<Table>, UpdateWithConflict<Table>,
     UpdateWithSet<Table> {

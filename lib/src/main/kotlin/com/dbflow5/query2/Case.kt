@@ -1,69 +1,71 @@
 package com.dbflow5.query2
 
 import com.dbflow5.query.BaseOperator
-import com.dbflow5.query.Operator
-import com.dbflow5.query.SQLOperator
-import com.dbflow5.query.property.IProperty
-import com.dbflow5.query.property.Property
-import com.dbflow5.query.property.property
+import com.dbflow5.query2.operations.AnyOperator
+import com.dbflow5.query2.operations.Operation
+import com.dbflow5.query2.operations.Operator
+import com.dbflow5.query2.operations.OperatorGroup
+import com.dbflow5.query2.operations.OperatorGrouping
+import com.dbflow5.query2.operations.Property
+import com.dbflow5.query2.operations.SQLValueConverter
+import com.dbflow5.query2.operations.inferValueConverter
+import com.dbflow5.query2.operations.nullableConverter
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.sql.Query
 
-data class CaseCondition<T> internal constructor(
-    val operator: SQLOperator? = null,
-    val value: T? = null,
+data class CaseCondition<ValueType> internal constructor(
+    val operator: Operator<ValueType>? = null,
+    val value: ValueType? = null,
     /**
      * If true, value was used instead of Operator.
      */
     val valueSet: Boolean = false,
-    val then: T?,
+    val then: ValueType?,
 )
 
-interface CaseWhenEnabled<T> {
+interface CaseWhenEnabled<ThenValueType> {
     /**
      * Adds a WHEN clause.
      */
     fun whenever(
-        operator: SQLOperator,
-        then: T?
-    ): CaseWithWhen<T>
+        operator: Operator<ThenValueType>,
+        then: ThenValueType?
+    ): CaseWithWhen<ThenValueType>
 }
 
-interface CaseEfficientWhenEnabled<T> {
+interface CaseEfficientWhenEnabled<ValueType> {
     /**
      * Starts an efficient CASE statement.
      * The [value] passed here is only evaluated once.
      */
     fun whenever(
-        value: T?,
-        then: T?
-    ): CaseWithWhen<T>
+        value: ValueType,
+        then: ValueType?
+    ): CaseWithWhen<ValueType>
 }
 
 
-interface CaseElseEnabled<T> {
-    infix fun `else`(elseValue: T?): CaseWithElse<T>
+interface CaseElseEnabled<ValueType> {
+    infix fun `else`(elseValue: ValueType?): CaseWithElse<ValueType>
 }
 
-interface CaseEndEnabled<T> {
-    infix fun end(columnName: String): Property<CaseCompleted<T>>
-    fun end(): Property<CaseCompleted<T>>
-
-    fun endAsOperator(): Operator<T>
+interface CaseEndEnabled<ValueType> {
+    infix fun end(columnName: String): CaseCompleted<ValueType>
+    fun end(): CaseCompleted<ValueType>
 }
 
 /**
  * Represents a SQLITE CASE argument.
  */
-interface Case<T> : Query
+interface Case<ValueType> : Query
 
 /**
  * Description: Used in [Select] queries as a parameter.
  * Represents SQLITE CASE.
  */
-interface CaseStart<T> : Case<T>,
-    CaseWhenEnabled<T> {
-    val column: IProperty<*>?
+interface CaseStart<ValueType> : Case<ValueType>,
+    CaseWhenEnabled<ValueType> {
+    val column: Property<ValueType, *>?
 }
 
 interface CaseWithWhen<T> :
@@ -83,29 +85,51 @@ interface CaseWithElse<T> :
 /**
  * Represents a completed case since they have an "end" operator.
  */
-interface CaseCompleted<T> : Case<T>
+interface CaseCompleted<ValueType> : Case<ValueType>,
+    Operator<ValueType>
 
 /**
  * Efficient case method that skips to ELSE.
  */
-fun <T> case(column: Property<T>): CaseEfficientWhenEnabled<T> = CaseImpl(
-    column = column,
+inline fun <reified ValueType> case(column: Property<ValueType, *>) =
+    case(
+        column = column,
+        valueConverter = inferValueConverter()
+    )
+
+/**
+ * Efficient case method that skips to ELSE.
+ */
+fun <ValueType> case(
+    valueConverter: SQLValueConverter<ValueType>,
+    column: Property<ValueType, *>
+): CaseEfficientWhenEnabled<ValueType> =
+    CaseImpl(
+        valueConverter = valueConverter,
+        column = column,
+    )
+
+inline fun <reified ValueType> case(): CaseStart<ValueType> = case(
+    valueConverter = inferValueConverter()
 )
 
-fun <T> case(): CaseStart<T> = CaseImpl()
+fun <ValueType> case(valueConverter: SQLValueConverter<ValueType>): CaseStart<ValueType> = CaseImpl(
+    valueConverter = valueConverter,
+)
 
-internal data class CaseImpl<T>(
-    override val column: IProperty<*>? = null,
-    override val whenStatements: List<CaseCondition<T>> = listOf(),
-    override val elseValue: T? = null,
+internal data class CaseImpl<ValueType>(
+    val valueConverter: SQLValueConverter<ValueType>,
+    override val column: Property<ValueType, *>? = null,
+    override val whenStatements: List<CaseCondition<ValueType>> = listOf(),
+    override val elseValue: ValueType? = null,
     private val elseSpecified: Boolean = false,
     private val endColumnName: String? = null,
 ) : Query,
-    CaseStart<T>,
-    CaseWithWhen<T>,
-    CaseEfficientWhenEnabled<T>,
-    CaseWithElse<T>,
-    CaseCompleted<T> {
+    CaseStart<ValueType>,
+    CaseWithWhen<ValueType>,
+    CaseEfficientWhenEnabled<ValueType>,
+    CaseWithElse<ValueType>,
+    CaseCompleted<ValueType> {
 
     /**
      * If we use a column directly, we do not allow [whenever]
@@ -115,35 +139,20 @@ internal data class CaseImpl<T>(
 
     override val query: String = buildString {
         append("CASE ")
-        if (efficientCase) {
-            append(
-                "${
-                    BaseOperator.convertValueToString(
-                        column,
-                        appendInnerQueryParenthesis = false
-                    )
-                } "
-            )
+        if (efficientCase && column != null) {
+            append("${column.query} ")
         }
         append(whenStatements.joinToString(separator = " ") { condition ->
             buildString {
                 append("WHEN ")
                 if (efficientCase) {
-                    append(
-                        BaseOperator.convertValueToString(
-                            condition.value,
-                            appendInnerQueryParenthesis = false
-                        )
-                    )
+                    append(valueConverter.nullableConverter().convert(condition.value))
                 } else {
-                    condition.operator?.appendConditionToQuery(this)
+                    condition.operator?.let { append(it.query) }
                 }
                 append(
                     " THEN ${
-                        BaseOperator.convertValueToString(
-                            condition.then,
-                            appendInnerQueryParenthesis = false,
-                        )
+                        valueConverter.nullableConverter().convert(condition.then)
                     }"
                 )
             }
@@ -162,33 +171,46 @@ internal data class CaseImpl<T>(
         append(" END ${endColumnName ?: ""}")
     }
 
-    override fun whenever(operator: SQLOperator, then: T?): CaseWithWhen<T> =
+    override fun whenever(
+        operator: Operator<ValueType>,
+        then: ValueType?
+    ): CaseWithWhen<ValueType> =
         copy(
             whenStatements = whenStatements.toMutableList().apply {
                 add(CaseCondition(operator, then = then))
             }
         )
 
-    override fun whenever(value: T?, then: T?): CaseWithWhen<T> =
+    override fun whenever(value: ValueType, then: ValueType?): CaseWithWhen<ValueType> =
         copy(
             whenStatements = whenStatements.toMutableList().apply {
                 add(CaseCondition(value = value, valueSet = true, then = then))
             }
         )
 
-    override fun `else`(elseValue: T?): CaseWithElse<T> =
+    override fun `else`(elseValue: ValueType?): CaseWithElse<ValueType> =
         copy(
             elseValue = elseValue,
             elseSpecified = true,
         )
 
-    override fun end(columnName: String): Property<CaseCompleted<T>> =
+    override fun end(columnName: String): CaseCompleted<ValueType> =
         copy(
             endColumnName = columnName.quoteIfNeeded(),
-        ).property
+        )
 
-    override fun end(): Property<CaseCompleted<T>> = property
+    override fun end(): CaseCompleted<ValueType> = this
 
-    override fun endAsOperator(): Operator<T> =
-        Operator.op(property.nameAlias)
+    override fun chain(operation: Operation, operator: AnyOperator): OperatorGrouping<Query> =
+        OperatorGroup.clause()
+            .chain(Operation.Empty, this)
+            .chain(operation, operator)
+
+    override fun chain(
+        operation: Operation,
+        operators: Collection<AnyOperator>
+    ): OperatorGrouping<Query> =
+        OperatorGroup.clause()
+            .chain(Operation.Empty, this)
+            .chain(operation, operators)
 }

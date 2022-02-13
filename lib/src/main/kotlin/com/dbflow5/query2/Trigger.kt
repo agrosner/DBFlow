@@ -136,7 +136,7 @@ internal data class TriggerImpl<Table : Any>(
             if (method is TriggerMethod.Update &&
                 method.properties.isNotEmpty()
             ) {
-                append("OF ${method.properties.joinToString()} ")
+                append("OF ${method.properties.joinToString { it.query }} ")
             }
             append("ON ${adapter.name} ")
             if (forEachRow) append("FOR EACH ROW ")

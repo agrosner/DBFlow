@@ -82,6 +82,7 @@ import com.dbflow5.models.java.ExampleModel
 import com.dbflow5.models.java.JavaModel
 import com.dbflow5.models.java.JavaModelView
 import com.dbflow5.rx2.query.SimpleRXModel
+import com.dbflow5.sql.language.CaseModel
 
 /**
  * Description:
@@ -148,6 +149,7 @@ import com.dbflow5.rx2.query.SimpleRXModel
         nonTypicalClassName::class,
         OneToManyModel::class,
         OneToManyBaseModel::class,
+        CaseModel::class,
     ],
     views = [
         JavaModelView::class,
@@ -192,6 +194,8 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val artistSongAdapter: ModelAdapter<Artist_Song>
     abstract val indexModelAdapter: ModelAdapter<IndexModel>
     abstract val autoIncrementingModelAdapter: ModelAdapter<AutoIncrementingModel>
+
+    abstract val caseAdapter: ModelAdapter<CaseModel>
 
     // TODO: internal support in KAPT.
     // internal abstract val prospectQuizAdapter: ModelAdapter<ProspectQuiz>

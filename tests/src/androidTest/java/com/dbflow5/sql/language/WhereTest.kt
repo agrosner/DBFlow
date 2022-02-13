@@ -8,10 +8,12 @@ import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OrderBy.Companion.fromNameAlias
-import com.dbflow5.query.min
 import com.dbflow5.query.nameAlias
-import com.dbflow5.query.or
-import com.dbflow5.query.property.property
+import com.dbflow5.query2.operations.StandardMethods
+import com.dbflow5.query2.operations.invoke
+import com.dbflow5.query2.operations.like
+import com.dbflow5.query2.operations.match
+import com.dbflow5.query2.operations.scalarOf
 import com.dbflow5.query2.select
 import org.junit.Test
 
@@ -47,8 +49,11 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateGroupBy() {
-        val query =
-            simpleModelAdapter.select() where SimpleModel_Table.name.`is`("name") groupBy SimpleModel_Table.name
+        val query = (
+            simpleModelAdapter.select()
+                where SimpleModel_Table.name.`is`("name")
+                groupBy SimpleModel_Table.name
+            )
         "SELECT * FROM `SimpleModel` WHERE `name`='name' GROUP BY `name`".assertEquals(query)
     }
 
@@ -64,8 +69,10 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateGroupByNameProps() {
-        val query =
-            (twoColumnModelAdapter.select() where TwoColumnModel_Table.name.`is`("name")).groupBy(
+        val query = (
+            twoColumnModelAdapter.select()
+                where TwoColumnModel_Table.name.`is`("name"))
+            .groupBy(
                 TwoColumnModel_Table.name,
                 TwoColumnModel_Table.id
             )
@@ -85,7 +92,7 @@ class WhereTest : BaseUnitTest() {
         "SELECT * FROM `SimpleModel` GROUP BY exampleValue HAVING MIN(ROWID)>5".assertEquals(
             (simpleModelAdapter.select()
                 groupBy NameAlias.rawBuilder("exampleValue").build()
-                having min(NameAlias.rawBuilder("ROWID").build().property).greaterThan(5))
+                having StandardMethods.Min<Int>().invoke(scalarOf("ROWID")).greaterThan(5))
         )
     }
 

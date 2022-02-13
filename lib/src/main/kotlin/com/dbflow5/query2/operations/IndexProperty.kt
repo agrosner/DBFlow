@@ -11,6 +11,7 @@ import com.dbflow5.quoteIfNeeded
 interface IndexProperty<Table : Any> :
     HasAdapter<Table, SQLObjectAdapter<Table>> {
     val name: String
+    val index: Index<Table>
 }
 
 inline fun <reified Table : Any> indexProperty(
@@ -43,7 +44,7 @@ internal data class IndexPropertyImpl<Table : Any>(
     override val adapter: SQLObjectAdapter<Table>,
     private val properties: List<Property<*, Table>>,
 ) : IndexProperty<Table> {
-    val index: Index<Table> = adapter.createIndexOn(
+    override val index: Index<Table> = adapter.createIndexOn(
         name,
         properties[0],
         *properties.slice(1..properties.lastIndex).toTypedArray(),

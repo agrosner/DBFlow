@@ -5,6 +5,7 @@ import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.adapter.makeLazySQLObjectAdapter
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.nameAlias
+import com.dbflow5.query2.Aliasable
 import com.dbflow5.query2.HasAdapter
 import com.dbflow5.sql.Query
 
@@ -12,22 +13,49 @@ interface HasDistinct<ValueType, Table : Any> {
     fun distinct(): DistinctProperty<ValueType, Table>
 }
 
-interface WithTable<ValueType, Table : Any> {
-    fun withTable(): Property<ValueType, Table>
+interface WithTable<ValueType, Table : Any> :
+    HasAdapter<Table, SQLObjectAdapter<Table>> {
+    fun withTable(tableName: String = adapter.name): PropertyStart<ValueType, Table>
 }
 
+typealias AnyProperty = Property<*, *>
+
+/**
+ * Base interface that properties implement.
+ */
 interface Property<ValueType, Table : Any> :
     Query,
+    PropertyChainable<ValueType>,
     OpStart<ValueType>,
-    HasAdapter<Table, SQLObjectAdapter<Table>>
+    HasAdapter<Table, SQLObjectAdapter<Table>>,
+    Operator<ValueType> {
+    override fun chain(operation: Operation, operator: AnyOperator): OperatorGrouping<Query> =
+        OperatorGroup.clause()
+            .chain(Operation.Empty, this)
+            .chain(operation, operator)
+
+    override fun chain(
+        operation: Operation,
+        operators: Collection<AnyOperator>
+    ): OperatorGrouping<Query> =
+        OperatorGroup.clause()
+            .chain(Operation.Empty, this)
+            .chain(operation, operators)
+}
 
 interface PropertyStart<ValueType, Table : Any> :
     Property<ValueType, Table>,
     HasDistinct<ValueType, Table>,
-    WithTable<ValueType, Table>
+    WithTable<ValueType, Table>,
+    Aliasable<AliasedProperty<ValueType, Table>>
 
 interface DistinctProperty<ValueType, Table : Any> :
-    PropertyStart<ValueType, Table>,
+    Property<ValueType, Table>,
+    WithTable<ValueType, Table>,
+    Aliasable<AliasedProperty<ValueType, Table>>
+
+interface AliasedProperty<ValueType, Table : Any> :
+    Property<ValueType, Table>,
     WithTable<ValueType, Table>
 
 fun <ValueType, Table : Any> AdapterCompanion<Table>.property(
@@ -61,30 +89,39 @@ inline fun <reified ValueType, Table : Any> AdapterCompanion<Table>.property(
     )
 }
 
-/**
- * Description:
- */
 internal data class PropertyImpl<ValueType, Table : Any>(
     override val adapter: SQLObjectAdapter<Table>,
     override val nameAlias: NameAlias,
     override val valueConverter: SQLValueConverter<ValueType>,
     private val distinct: Boolean = false,
 ) : PropertyStart<ValueType, Table>,
-    DistinctProperty<ValueType, Table> {
+    DistinctProperty<ValueType, Table>,
+    AliasedProperty<ValueType, Table> {
 
     /**
      * Its query is just the property name.
      */
-    override val query: String = nameAlias.query
+    override val query: String = nameAlias.fullQuery
     override fun distinct(): DistinctProperty<ValueType, Table> =
         copy(
             distinct = true,
         )
 
-    override fun withTable(): Property<ValueType, Table> =
+    override fun withTable(tableName: String): PropertyStart<ValueType, Table> =
         copy(
             nameAlias = nameAlias.newBuilder()
-                .withTable(adapter.name)
+                .withTable(tableName)
+                .build(),
+        )
+
+    override fun `as`(
+        name: String,
+        shouldAddIdentifierToAlias: Boolean
+    ): AliasedProperty<ValueType, Table> =
+        copy(
+            nameAlias = nameAlias.newBuilder()
+                .shouldAddIdentifierToAliasName(shouldAddIdentifierToAlias)
+                .`as`(name)
                 .build(),
         )
 }

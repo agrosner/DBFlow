@@ -13,8 +13,8 @@ import com.dbflow5.models.Blog
 import com.dbflow5.models.Blog_Table
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query.cast
 import com.dbflow5.query2.leftOuterJoin
+import com.dbflow5.query2.operations.StandardMethods
 import com.dbflow5.query2.select
 import com.dbflow5.reactivestreams.transaction.asFlowable
 import com.dbflow5.simpleModelAdapter
@@ -40,7 +40,7 @@ class RXFlowableTest : BaseUnitTest() {
         var triggerCount = 0
         val subscription = database.readableTransaction {
             (select from simpleModelAdapter
-                where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
+                where StandardMethods.Cast(SimpleModel_Table.name).asInteger().greaterThan(50))
                 .asFlowable(database) { list() }
                 .subscribe {
                     list = it
@@ -61,7 +61,7 @@ class RXFlowableTest : BaseUnitTest() {
     fun testObservesJoinTables() = runBlockingTest {
         database<TestDatabase> { db ->
             val joinOn = Blog_Table.name.withTable()
-                .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
+                .eq(Author_Table.first_name.withTable().query + " " + Author_Table.last_name.withTable().query)
             assertEquals(
                 "`Blog`.`name`=`Author`.`first_name`+' '+`Author`.`last_name`",
                 joinOn.query

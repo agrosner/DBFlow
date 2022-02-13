@@ -7,7 +7,7 @@ import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.models.NumberModel_Table
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query.property.Property
+import com.dbflow5.query2.operations.Scalar
 import com.dbflow5.query2.orAbort
 import com.dbflow5.query2.orFail
 import com.dbflow5.query2.orIgnore
@@ -58,7 +58,7 @@ class UpdateTest : BaseUnitTest() {
 
     @Test
     fun validateSetQuery() {
-        "UPDATE `SimpleModel` SET `name`='name'".assertEquals(
+        "UPDATE `SimpleModel` SET `name` = 'name'".assertEquals(
             simpleModelAdapter.update() set (SimpleModel_Table.name eq "name")
         )
     }
@@ -67,8 +67,8 @@ class UpdateTest : BaseUnitTest() {
     fun validateWildcardQuery() {
         "UPDATE OR FAIL `NumberModel` SET `id`=? WHERE `id`=?".assertEquals(
             database<TestDatabase>().numberModelAdapter.update().or(ConflictAction.FAIL)
-                .set(NumberModel_Table.id.eq(Property.WILDCARD))
-                .where(NumberModel_Table.id.eq(Property.WILDCARD))
+                .set(NumberModel_Table.id.eq(Scalar.WildCard))
+                .where(NumberModel_Table.id.eq(Scalar.WildCard))
         )
     }
 }

@@ -80,7 +80,7 @@ internal data class IndexImpl<Table : Any>(
             append("INDEX ")
             if (ifNotExists) append("IF NOT EXISTS ")
             appendQuotedIfNeeded(name)
-            append(" ON ${adapter.name}(${columns.joinToString()})")
+            append(" ON ${adapter.name}(${columns.joinToString { it.query }})")
         }
     }
 

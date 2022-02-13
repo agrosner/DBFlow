@@ -10,6 +10,6 @@ interface GroupByEnabled<
 
     infix fun groupBy(nameAlias: NameAlias): WhereWithGroupBy<Table, Result, OperationBase>
     fun groupBy(vararg nameAliases: NameAlias): WhereWithGroupBy<Table, Result, OperationBase>
-    infix fun groupBy(property: Property<out Any, Table>): WhereWithGroupBy<Table, Result, OperationBase>
-    fun groupBy(vararg properties: Property<out Any, Table>): WhereWithGroupBy<Table, Result, OperationBase>
+    infix fun groupBy(property: Property<*, Table>): WhereWithGroupBy<Table, Result, OperationBase>
+    fun groupBy(vararg properties: Property<*, Table>): WhereWithGroupBy<Table, Result, OperationBase>
 }

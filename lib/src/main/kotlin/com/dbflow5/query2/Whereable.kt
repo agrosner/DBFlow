@@ -36,10 +36,10 @@ interface Whereable<Table : Any,
     override fun groupBy(vararg nameAliases: NameAlias): WhereWithGroupBy<Table, Result, OperationBase> =
         adapter.where<Table, Result, OperationBase>(this, resultFactory).groupBy(*nameAliases)
 
-    override fun groupBy(property: Property<out Any, Table>): WhereWithGroupBy<Table, Result, OperationBase> =
+    override fun groupBy(property: Property<*, Table>): WhereWithGroupBy<Table, Result, OperationBase> =
         adapter.where<Table, Result, OperationBase>(this, resultFactory).groupBy(property)
 
-    override fun groupBy(vararg properties: Property<out Any, Table>): WhereWithGroupBy<Table, Result, OperationBase> =
+    override fun groupBy(vararg properties: Property<*, Table>): WhereWithGroupBy<Table, Result, OperationBase> =
         adapter.where<Table, Result, OperationBase>(this, resultFactory).groupBy(*properties)
 
     override fun having(operator: AnyOperator): WhereWithHaving<Table, Result, OperationBase> =
@@ -68,7 +68,7 @@ interface Whereable<Table : Any,
             .orderBy(nameAlias, ascending)
 
     override fun orderBy(
-        property: Property<out Any, Table>,
+        property: Property<*, Table>,
         ascending: Boolean
     ): WhereWithOrderBy<Table, Result, OperationBase> =
         adapter.where<Table, Result, OperationBase>(this, resultFactory)

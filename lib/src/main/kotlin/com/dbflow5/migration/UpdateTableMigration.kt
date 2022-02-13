@@ -32,12 +32,12 @@ open class UpdateTableMigration<T : Any>
     /**
      * Builds the conditions for the WHERE part of our query
      */
-    private val whereOperatorGroup: OperatorGroup by lazy { OperatorGroup.nonGroupingClause() }
+    private var whereOperatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause()
 
     /**
      * The conditions to use to set fields in the update query
      */
-    private val setOperatorGroup: OperatorGroup by lazy { OperatorGroup.nonGroupingClause() }
+    private var setOperatorGroup: OperatorGroup = OperatorGroup.nonGroupingClause()
 
     private val updateStatement: ExecutableQuery<Long>
         get() = adapter.update()
@@ -51,11 +51,11 @@ open class UpdateTableMigration<T : Any>
      * @param conditions The conditions to append
      */
     fun set(vararg conditions: AnyOperator) = apply {
-        setOperatorGroup.chain(Operation.Comma, *conditions)
+        setOperatorGroup = setOperatorGroup.chain(Operation.Comma, *conditions)
     }
 
     fun where(vararg conditions: AnyOperator) = apply {
-        whereOperatorGroup.chain(Operation.Comma, *conditions)
+        whereOperatorGroup = whereOperatorGroup.chain(Operation.Comma, *conditions)
     }
 
     override fun migrate(database: DatabaseWrapper) {

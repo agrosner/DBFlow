@@ -7,6 +7,7 @@ import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel_Table
+import com.dbflow5.query2.`as`
 import com.dbflow5.query2.innerJoin
 import com.dbflow5.query2.select
 import org.junit.Test

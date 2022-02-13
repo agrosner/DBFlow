@@ -8,6 +8,7 @@ import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query2.operations.AnyOperator
+import com.dbflow5.query2.operations.BaseOperator
 import com.dbflow5.query2.operations.Operation
 import com.dbflow5.query2.operations.Operator
 import com.dbflow5.query2.operations.OperatorGroup
@@ -36,7 +37,7 @@ fun getNotificationUri(
     contentAuthority: String,
     modelClass: KClass<*>,
     action: ChangeAction?,
-    conditions: Iterable<Operator.SingleValueOperator<Any?>>?
+    conditions: Iterable<BaseOperator.SingleValueOperator<Any?>>?
 ): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
         .authority(contentAuthority)
@@ -68,7 +69,7 @@ fun getNotificationUri(
     contentAuthority: String,
     modelClass: KClass<*>,
     action: ChangeAction?,
-    conditions: Array<Operator.SingleValueOperator<Any?>>?
+    conditions: Array<BaseOperator.SingleValueOperator<Any?>>?
 ): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
         .authority(contentAuthority)
@@ -102,7 +103,7 @@ fun getNotificationUri(
     notifyKey: String = "",
     notifyValue: Any? = null
 ): Uri {
-    var operator: Operator.SingleValueOperator<Any?>? = null
+    var operator: BaseOperator.SingleValueOperator<Any?>? = null
     if (notifyKey.isNotNullOrEmpty()) {
         operator = operator(
             nameAlias = NameAlias.Builder(notifyKey).build(),
