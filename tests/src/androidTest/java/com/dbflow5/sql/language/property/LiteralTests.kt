@@ -23,9 +23,8 @@ class LiteralTests : BaseUnitTest() {
         val nullable: Any? = null
         assertEquals("NULL", sqlLiteralOf(nullable).query)
 
-        // TODO: ensure enclosed query in new query lang.
         assertEquals(
-            "(SELECT * FROM `SimpleModel`)",
+            "SELECT * FROM `SimpleModel`",
             sqlLiteralOf(database<TestDatabase>().simpleModelAdapter.select()).query
         )
         assertEquals("SomethingCool", literalOf("SomethingCool").query)

@@ -35,7 +35,7 @@ object EnumQueryConverter : SQLValueConverter<Enum<*>> {
 }
 
 object QueryConverter : SQLValueConverter<Query> {
-    override fun convert(value: Query): String = value.query
+    override fun convert(value: Query): String = value.query.trim()
 }
 
 object BlobQueryConverter : SQLValueConverter<Blob> {
@@ -90,7 +90,7 @@ object InferredObjectConverter : SQLValueConverter<Any?> {
             is Blob -> BlobQueryConverter.convert(value)
             is ByteArray -> ByteArrayQueryConverter.convert(value)
             is String -> StringQueryConverter.convert(value)
-            else -> value.toString()
+            else -> sqlEscapeString(value.toString())
         }
     }
 }

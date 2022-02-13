@@ -36,15 +36,15 @@ class TypeConvertedPropertyTest : BaseUnitTest() {
     fun testCustomEnumTypeConverter() {
 
         assertEquals(
-            "`difficulty`='H'",
+            "`difficulty` = 'H'",
             EnumTypeConverterModel_Table.difficulty.eq(Difficulty.HARD).query
         )
         assertEquals(
-            "`EnumTypeConverterModel`.`difficulty`='H'",
+            "`EnumTypeConverterModel`.`difficulty` = 'H'",
             EnumTypeConverterModel_Table.difficulty.withTable().eq(Difficulty.HARD).query
         )
         assertEquals(
-            "`et`.`difficulty`='H'",
+            "`et`.`difficulty` = 'H'",
             EnumTypeConverterModel_Table.difficulty.withTable(
                 "et"
             ).eq(Difficulty.HARD).query
