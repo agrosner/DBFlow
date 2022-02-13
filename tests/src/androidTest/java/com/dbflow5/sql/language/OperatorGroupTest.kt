@@ -52,7 +52,6 @@ class OperatorGroupTest : BaseUnitTest() {
     }
 
     @Test
-
     fun validateAnd() {
         "(`name` = 'name' AND `id` = 0)".assertEquals(
             TwoColumnModel_Table.name.eq("name") and TwoColumnModel_Table.id.eq(

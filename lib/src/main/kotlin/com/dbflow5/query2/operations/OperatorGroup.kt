@@ -41,6 +41,9 @@ internal data class OpPairing(
     override val query: String by lazy {
         buildString {
             if (operation != Operation.Empty) {
+                if (operation != Operation.Comma) {
+                    append(" ")
+                }
                 append("${operation.value} ")
             }
             append(operator.query)

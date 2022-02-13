@@ -38,8 +38,10 @@ fun <ReturnType> method(
 ): Method<ReturnType> =
     MethodImpl(
         valueConverter = valueConverter,
-        nameAlias = name.nameAlias,
-        innerOperator = OperatorGroup.clause().chain(
+        nameAlias = name.nameAlias.newBuilder()
+            .shouldAddIdentifierToName(false)
+            .build(),
+        innerOperator = OperatorGroup.nonGroupingClause().chain(
             Operation.Comma,
             arguments.toList(),
         )

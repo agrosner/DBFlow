@@ -45,7 +45,7 @@ interface OperatorChain {
 interface Operator<ValueType> : Query,
     OperatorChain {
     override fun chain(operation: Operation, operator: AnyOperator): OperatorGrouping<Query> =
-        OperatorGroup.nonGroupingClause()
+        OperatorGroup.clause()
             .chain(Operation.Empty, this)
             .chain(operation, operator)
 
@@ -53,7 +53,7 @@ interface Operator<ValueType> : Query,
         operation: Operation,
         operators: Collection<AnyOperator>
     ): OperatorGrouping<Query> =
-        OperatorGroup.nonGroupingClause()
+        OperatorGroup.clause()
             .chain(Operation.Empty, this)
             .chain(operation, operators)
 }
