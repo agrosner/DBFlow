@@ -21,10 +21,19 @@ interface Literal<ValueType> :
  * Constructs a [Literal] value to be used in queries.
  */
 @Suppress("UNCHECKED_CAST")
-inline fun <reified ValueType> literalOf(value: ValueType): Literal<ValueType> =
+fun <ValueType> literalOf(value: ValueType): Literal<ValueType> =
     literalOf(
         valueConverter = LiteralValueConverter as SQLValueConverter<ValueType>,
         value = value
+    )
+
+/**
+ * Constructs a [Literal] using the [inferValueConverter] to allow strings to escape, etc.
+ */
+inline fun <reified ValueType> sqlLiteralOf(value: ValueType): Literal<ValueType> =
+    literalOf(
+        valueConverter = inferValueConverter(),
+        value = value,
     )
 
 fun <ValueType> literalOf(

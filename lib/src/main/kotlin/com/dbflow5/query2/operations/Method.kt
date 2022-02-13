@@ -55,7 +55,7 @@ internal data class MethodImpl<ReturnType>(
     List<AnyOperator> by innerOperator.operations {
     override val operations: List<AnyOperator> = innerOperator.operations
 
-    override val query: String by lazy { "${nameAlias.query}${innerOperator.query}" }
+    override val query: String by lazy { "${nameAlias.query}(${innerOperator.query})" }
 
     override fun chain(operation: Operation, operator: AnyOperator): Method<ReturnType> =
         copy(

@@ -47,7 +47,7 @@ interface PropertyChainable<Value>
         operation: Operation,
         value: AnyOperator,
     ) = literalOf(
-        OperatorGroup.clause().chain(operation, this)
+        OperatorGroup.nonGroupingClause().chain(operation, this)
             .chain(operation, value)
     )
 

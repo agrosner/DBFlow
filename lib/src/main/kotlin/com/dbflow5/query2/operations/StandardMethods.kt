@@ -93,8 +93,8 @@ sealed class StandardMethods(val name: String) {
             replacement: String
         ): Method<String> = method(
             name, property,
-            literalOf(findString),
-            literalOf(replacement),
+            sqlLiteralOf(findString),
+            sqlLiteralOf(replacement),
         )
     }
 
@@ -109,9 +109,9 @@ sealed class StandardMethods(val name: String) {
             vararg modifiers: String
         ): Method<String> = method(
             name,
-            literalOf(formatString),
-            literalOf(timeString),
-            *modifiers.map { literalOf(it) }.toTypedArray(),
+            sqlLiteralOf(formatString),
+            sqlLiteralOf(timeString),
+            *modifiers.map { sqlLiteralOf(it) }.toTypedArray(),
         )
     }
 
@@ -124,8 +124,9 @@ sealed class StandardMethods(val name: String) {
             vararg modifiers: String,
         ): Method<String> = method(
             name,
-            literalOf(timeStamp),
-            *modifiers.map { literalOf(it) }.toTypedArray(),
+            sqlLiteralOf(timeStamp),
+            *modifiers.map { sqlLiteralOf(it) }
+                .toTypedArray(),
         )
     }
 
@@ -138,8 +139,9 @@ sealed class StandardMethods(val name: String) {
             vararg modifiers: String,
         ): Method<String> = method(
             name,
-            literalOf(timeString),
-            *modifiers.map { literalOf(it) }.toTypedArray(),
+            sqlLiteralOf(timeString),
+            *modifiers.map { sqlLiteralOf(it) }
+                .toTypedArray(),
         )
     }
 
@@ -196,7 +198,7 @@ sealed class StandardMethods(val name: String) {
             approximateTokens: Int? = null,
         ): Method<String> {
             val args = listOfNotNull(start, end, ellipses, index, approximateTokens).map {
-                literalOf(it)
+                sqlLiteralOf(it)
             }
             return method(
                 name,

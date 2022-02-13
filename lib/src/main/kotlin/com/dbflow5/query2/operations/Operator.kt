@@ -67,7 +67,7 @@ interface Operator<ValueType> : Query,
  */
 infix fun Operator<String>.concatenate(value: String): ConcatStart =
     ConcatOperatorImpl(
-        operations = listOf(this, literalOf(value)),
+        operations = listOf(this, sqlLiteralOf(value)),
     )
 
 /**
