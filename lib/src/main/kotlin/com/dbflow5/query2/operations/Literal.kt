@@ -6,42 +6,43 @@ import com.dbflow5.sql.Query
 /**
  * Represents a literal value in a query.
  */
-interface Scalar<ValueType> :
+interface Literal<ValueType> :
     BaseOperator.SingleValueOperator<ValueType>,
     OpStart<ValueType>,
     Query {
 
     companion object {
-        val All = scalarOf("*")
-        val WildCard = scalarOf(Operation.WildCard.value)
+        val All = literalOf("*")
+        val WildCard = literalOf(Operation.WildCard.value)
     }
 }
 
 /**
- * Constructs a [Scalar] value to be used in queries.
+ * Constructs a [Literal] value to be used in queries.
  */
-inline fun <reified ValueType> scalarOf(value: ValueType) =
-    scalarOf(
-        valueConverter = inferValueConverter(),
+@Suppress("UNCHECKED_CAST")
+inline fun <reified ValueType> literalOf(value: ValueType): Literal<ValueType> =
+    literalOf(
+        valueConverter = LiteralValueConverter as SQLValueConverter<ValueType>,
         value = value
     )
 
-fun <ValueType> scalarOf(
+fun <ValueType> literalOf(
     valueConverter: SQLValueConverter<ValueType>,
     value: ValueType,
-): Scalar<ValueType> = ScalarImpl(
+): Literal<ValueType> = LiteralImpl(
     valueConverter = valueConverter,
     value = value,
 )
 
-internal data class ScalarImpl<ValueType>(
+internal data class LiteralImpl<ValueType>(
     override val valueConverter: SQLValueConverter<ValueType>,
     override val value: ValueType,
     /**
-     * Scalars name (by default) is the raw representation of the value
+     * Literal name (by default) is the raw representation of the value
      */
     override val nameAlias: NameAlias = NameAlias.rawBuilder(valueConverter.convert(value)).build(),
-) : Scalar<ValueType> {
+) : Literal<ValueType> {
     override val query: String by lazy { sqlValue }
 
     override fun `as`(

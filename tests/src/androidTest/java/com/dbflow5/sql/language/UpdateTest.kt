@@ -7,7 +7,7 @@ import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.models.NumberModel_Table
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query2.operations.Scalar
+import com.dbflow5.query2.operations.Literal
 import com.dbflow5.query2.orAbort
 import com.dbflow5.query2.orFail
 import com.dbflow5.query2.orIgnore
@@ -67,8 +67,8 @@ class UpdateTest : BaseUnitTest() {
     fun validateWildcardQuery() {
         "UPDATE OR FAIL `NumberModel` SET `id`=? WHERE `id`=?".assertEquals(
             database<TestDatabase>().numberModelAdapter.update().or(ConflictAction.FAIL)
-                .set(NumberModel_Table.id.eq(Scalar.WildCard))
-                .where(NumberModel_Table.id.eq(Scalar.WildCard))
+                .set(NumberModel_Table.id.eq(Literal.WildCard))
+                .where(NumberModel_Table.id.eq(Literal.WildCard))
         )
     }
 }

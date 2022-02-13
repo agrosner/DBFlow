@@ -27,7 +27,7 @@ inline fun <reified ReturnType> emptyMethod(
     method(
         valueConverter = inferValueConverter(),
         name = name,
-        arguments = arrayOf(scalarOf(""))
+        arguments = arrayOf(literalOf(""))
     )
 
 

@@ -46,7 +46,7 @@ interface PropertyChainable<Value>
     fun chainProperty(
         operation: Operation,
         value: AnyOperator,
-    ) = scalarOf(
+    ) = literalOf(
         OperatorGroup.clause().chain(operation, this)
             .chain(operation, value)
     )

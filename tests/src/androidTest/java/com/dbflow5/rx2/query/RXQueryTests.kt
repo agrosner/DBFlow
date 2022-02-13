@@ -8,9 +8,8 @@ import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query.property.Property
 import com.dbflow5.query2.insert
-import com.dbflow5.query2.operations.Scalar
+import com.dbflow5.query2.operations.Literal
 import com.dbflow5.query2.select
 import com.dbflow5.query2.selectCountOf
 import com.dbflow5.reactivestreams.transaction.asMaybe
@@ -51,7 +50,7 @@ class RXQueryTests : BaseUnitTest() {
             )
             var count = 0L
             this.db.beginTransactionAsync {
-                simpleModelAdapter.selectCountOf(Scalar.All).execute()
+                simpleModelAdapter.selectCountOf(Literal.All).execute()
             }
                 .asSingle()
                 .subscribe { value ->

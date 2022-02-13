@@ -93,8 +93,8 @@ sealed class StandardMethods(val name: String) {
             replacement: String
         ): Method<String> = method(
             name, property,
-            scalarOf(findString),
-            scalarOf(replacement),
+            literalOf(findString),
+            literalOf(replacement),
         )
     }
 
@@ -109,9 +109,9 @@ sealed class StandardMethods(val name: String) {
             vararg modifiers: String
         ): Method<String> = method(
             name,
-            scalarOf(formatString),
-            scalarOf(timeString),
-            *modifiers.map { scalarOf(it) }.toTypedArray(),
+            literalOf(formatString),
+            literalOf(timeString),
+            *modifiers.map { literalOf(it) }.toTypedArray(),
         )
     }
 
@@ -124,8 +124,8 @@ sealed class StandardMethods(val name: String) {
             vararg modifiers: String,
         ): Method<String> = method(
             name,
-            scalarOf(timeStamp),
-            *modifiers.map { scalarOf(it) }.toTypedArray(),
+            literalOf(timeStamp),
+            *modifiers.map { literalOf(it) }.toTypedArray(),
         )
     }
 
@@ -138,8 +138,8 @@ sealed class StandardMethods(val name: String) {
             vararg modifiers: String,
         ): Method<String> = method(
             name,
-            scalarOf(timeString),
-            *modifiers.map { scalarOf(it) }.toTypedArray(),
+            literalOf(timeString),
+            *modifiers.map { literalOf(it) }.toTypedArray(),
         )
     }
 
@@ -183,7 +183,7 @@ sealed class StandardMethods(val name: String) {
         inline operator fun <reified Table : Any> invoke(): Method<String> =
             method(
                 name,
-                makeLazySQLObjectAdapter(Table::class).tableNameScalar(),
+                makeLazySQLObjectAdapter(Table::class).tableNameLiteral(),
             )
     }
 
@@ -196,11 +196,11 @@ sealed class StandardMethods(val name: String) {
             approximateTokens: Int? = null,
         ): Method<String> {
             val args = listOfNotNull(start, end, ellipses, index, approximateTokens).map {
-                scalarOf(it)
+                literalOf(it)
             }
             return method(
                 name,
-                makeLazySQLObjectAdapter(Table::class).tableNameScalar(),
+                makeLazySQLObjectAdapter(Table::class).tableNameLiteral(),
                 *args.toTypedArray(),
             )
         }

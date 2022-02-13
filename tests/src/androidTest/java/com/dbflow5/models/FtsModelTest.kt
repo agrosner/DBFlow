@@ -12,7 +12,7 @@ import com.dbflow5.query2.insert
 import com.dbflow5.query2.operations.StandardMethods
 import com.dbflow5.query2.operations.docId
 import com.dbflow5.query2.operations.match
-import com.dbflow5.query2.operations.tableNameScalar
+import com.dbflow5.query2.operations.tableNameLiteral
 import com.dbflow5.query2.select
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
@@ -45,7 +45,7 @@ class FtsModelTest : BaseUnitTest() {
         validate_fts4_created()
         database<TestDatabase>().readableTransaction {
             (fts4VirtualModel2Adapter.select() where (
-                fts4VirtualModel2Adapter.tableNameScalar() match "FTSBABY"))
+                fts4VirtualModel2Adapter.tableNameLiteral() match "FTSBABY"))
                 .single()
         }
     }
@@ -58,7 +58,7 @@ class FtsModelTest : BaseUnitTest() {
                 StringResultFactory,
                 StandardMethods.Offsets<Fts4VirtualModel2>()
             )
-                where (fts4VirtualModel2Adapter.tableNameScalar() match "FTSBaby"))
+                where (fts4VirtualModel2Adapter.tableNameLiteral() match "FTSBaby"))
                 .execute()
         }
         assertNotNull(value)
@@ -94,7 +94,7 @@ class FtsModelTest : BaseUnitTest() {
                         end = "]",
                         ellipses = "...",
                     )
-                ) where (fts4VirtualModel2Adapter.tableNameScalar() match "\"min* tem*\""))
+                ) where (fts4VirtualModel2Adapter.tableNameLiteral() match "\"min* tem*\""))
                     .execute()
             }
         assertNotNull(value)

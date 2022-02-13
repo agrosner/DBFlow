@@ -22,13 +22,9 @@ fun interface SQLValueConverter<ValueType> {
  */
 fun <ValueType> SQLValueConverter<ValueType>.nullableConverter() =
     SQLValueConverter<ValueType?> { value ->
-        if (value == null) UnknownObjectConverter.convert(value)
+        if (value == null) InferredObjectConverter.convert(value)
         else this@nullableConverter.convert(value)
     }
-
-object NoOpValueConverter : SQLValueConverter<Any?> {
-    override fun convert(value: Any?): String = value.toString()
-}
 
 object NumberQueryConverter : SQLValueConverter<Number> {
     override fun convert(value: Number): String = value.toString()
@@ -53,12 +49,49 @@ object ByteArrayQueryConverter : SQLValueConverter<ByteArray> {
         "X${sqlEscapeString(byteArrayToHexString(value))}"
 }
 
-object UnknownObjectConverter : SQLValueConverter<Any?> {
+/**
+ * Encases values with [sqlEscapeString]
+ */
+object StringQueryConverter : SQLValueConverter<String> {
+    override fun convert(value: String): String =
+        sqlEscapeString(value)
+}
+
+/**
+ * Converts values literally:
+ * 1. null still is NULL
+ * 2. Strings are NOT escaped
+ * 3. Enum Names are NOT escaped
+ * 4. [Query] value still calls the [QueryConverter]
+ * 5. Anything else is toString()
+ *
+ */
+object LiteralValueConverter : SQLValueConverter<Any?> {
     override fun convert(value: Any?): String {
-        if (value == null) {
-            return "NULL"
+        return when (value) {
+            null -> "NULL"
+            is Query -> QueryConverter.convert(value)
+            is Enum<*> -> value.name
+            else -> value.toString()
         }
-        return value.toString()
+    }
+}
+
+/**
+ * Checks value instance type and checks.
+ */
+object InferredObjectConverter : SQLValueConverter<Any?> {
+    override fun convert(value: Any?): String {
+        return when (value) {
+            null -> "NULL"
+            is Query -> QueryConverter.convert(value)
+            is Number -> NumberQueryConverter.convert(value)
+            is Enum<*> -> EnumQueryConverter.convert(value)
+            is Blob -> BlobQueryConverter.convert(value)
+            is ByteArray -> ByteArrayQueryConverter.convert(value)
+            is String -> StringQueryConverter.convert(value)
+            else -> value.toString()
+        }
     }
 }
 
@@ -95,12 +128,23 @@ internal constructor(
 /**
  * Checks class type of inferred parameter and selects [SQLValueConverter]
  */
+@Suppress("UNCHECKED_CAST")
 inline fun <reified ValueType> inferValueConverter(): SQLValueConverter<ValueType> =
+// if compiler can find a pure match here, use them directly, otherwise
+    // fallback on the inferred value checker.
     (when (ValueType::class) {
-        Number::class -> NumberQueryConverter
+        Number::class,
+        Double::class,
+        Int::class,
+        Float::class,
+        Long::class,
+        Short::class,
+        Byte::class,
+        -> NumberQueryConverter
         Enum::class -> EnumQueryConverter
         Query::class -> QueryConverter
         Blob::class -> BlobQueryConverter
         ByteArray::class -> ByteArrayQueryConverter
-        else -> UnknownObjectConverter
+        String::class -> StringQueryConverter
+        else -> InferredObjectConverter
     } as SQLValueConverter<ValueType>)

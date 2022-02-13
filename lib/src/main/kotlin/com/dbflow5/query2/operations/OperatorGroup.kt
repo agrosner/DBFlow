@@ -41,7 +41,7 @@ internal data class OpPairing(
     override val query: String by lazy {
         buildString {
             if (operation != Operation.Empty) {
-                append(operation.value + " ")
+                append("${operation.value} ")
             }
             append(operator.query)
         }
@@ -65,7 +65,7 @@ internal data class OperatorGroupImpl(
             // no operations, short-cut empty
             if (opPairings.isEmpty()) return@buildString
             if (useParenthesis) append("(")
-            append(opPairings.joinToString { it.query })
+            append(opPairings.joinToString(separator = "") { it.query })
             if (useParenthesis) append(")")
         }
     }

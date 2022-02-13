@@ -9,7 +9,7 @@ import com.dbflow5.query2.operations.AnyOperator
 import com.dbflow5.query2.operations.Property
 import com.dbflow5.query2.operations.StandardMethods
 import com.dbflow5.query2.operations.invoke
-import com.dbflow5.query2.operations.scalarOf
+import com.dbflow5.query2.operations.literalOf
 import kotlin.reflect.KClass
 
 sealed class QualifierType(val value: String) {
@@ -83,7 +83,7 @@ interface SelectStart<Table : Any, Result> :
 fun <Table : Any> SQLObjectAdapter<Table>.select(): SelectStart<Table, SelectResult<Table>> =
     SelectImpl(
         adapter = this,
-        properties = listOf(scalarOf("*")),
+        properties = listOf(literalOf("*")),
         resultFactory = SelectResultFactory(this),
     )
 
@@ -244,7 +244,7 @@ internal data class SelectImpl<Table : Any, Result>(
         this,
         type = joinType,
         adapter = hasAdapter.adapter,
-        queryNameAlias = scalarOf(hasAdapter).nameAlias,
+        queryNameAlias = literalOf(hasAdapter).nameAlias,
     )
 
     override val associatedAdapters: List<RetrievalAdapter<*>> =

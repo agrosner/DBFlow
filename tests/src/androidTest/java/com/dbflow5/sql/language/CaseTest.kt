@@ -17,7 +17,7 @@ class CaseTest : BaseUnitTest() {
             .`else`("Foreign")
             .end("Country")
         assertEquals(
-            "CASE country " +
+            "CASE `country` " +
                 "WHEN 'USA' " +
                 "THEN 'Domestic' " +
                 "ELSE 'Foreign' END `Country`",
@@ -34,8 +34,8 @@ class CaseTest : BaseUnitTest() {
             .end()
         assertEquals(
             "CASE " +
-                "WHEN `name`='USA' THEN 'Domestic' " +
-                "WHEN `name`='CA' THEN 'Canada' " +
+                "WHEN `name` = 'USA' THEN 'Domestic' " +
+                "WHEN `name` = 'CA' THEN 'Canada' " +
                 "ELSE 'Foreign' " +
                 "END",
             case.query.trim()

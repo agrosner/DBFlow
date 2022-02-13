@@ -12,8 +12,8 @@ import com.dbflow5.query.nameAlias
 import com.dbflow5.query2.operations.StandardMethods
 import com.dbflow5.query2.operations.invoke
 import com.dbflow5.query2.operations.like
+import com.dbflow5.query2.operations.literalOf
 import com.dbflow5.query2.operations.match
-import com.dbflow5.query2.operations.scalarOf
 import com.dbflow5.query2.select
 import org.junit.Test
 
@@ -28,7 +28,7 @@ class WhereTest : BaseUnitTest() {
     @Test
     fun validateBasicWhere() {
         val query = simpleModelAdapter.select() where SimpleModel_Table.name.`is`("name")
-        "SELECT * FROM `SimpleModel` WHERE `name`='name'".assertEquals(query)
+        "SELECT * FROM `SimpleModel` WHERE `name` = 'name'".assertEquals(query)
     }
 
     @Test
@@ -41,9 +41,9 @@ class WhereTest : BaseUnitTest() {
                 TwoColumnModel_Table.id.eq(0)
                     or TwoColumnModel_Table.name.eq("hi")))
         ("SELECT * FROM `TwoColumnModel` " +
-            "WHERE `name`='name' " +
-            "OR `id`=1 " +
-            "AND (`id`=0 OR `name`='hi')")
+            "WHERE `name` = 'name' " +
+            "OR `id` = 1 " +
+            "AND (`id` = 0 OR `name` = 'hi')")
             .assertEquals(query)
     }
 
@@ -54,7 +54,7 @@ class WhereTest : BaseUnitTest() {
                 where SimpleModel_Table.name.`is`("name")
                 groupBy SimpleModel_Table.name
             )
-        "SELECT * FROM `SimpleModel` WHERE `name`='name' GROUP BY `name`".assertEquals(query)
+        "SELECT * FROM `SimpleModel` WHERE `name` = 'name' GROUP BY `name`".assertEquals(query)
     }
 
     @Test
@@ -64,7 +64,7 @@ class WhereTest : BaseUnitTest() {
                 "name".nameAlias,
                 "id".nameAlias
             )
-        "SELECT * FROM `SimpleModel` WHERE `name`='name' GROUP BY `name`,`id`".assertEquals(query)
+        "SELECT * FROM `SimpleModel` WHERE `name` = 'name' GROUP BY `name`,`id`".assertEquals(query)
     }
 
     @Test
@@ -76,7 +76,9 @@ class WhereTest : BaseUnitTest() {
                 TwoColumnModel_Table.name,
                 TwoColumnModel_Table.id
             )
-        "SELECT * FROM `TwoColumnModel` WHERE `name`='name' GROUP BY `name`,`id`".assertEquals(query)
+        "SELECT * FROM `TwoColumnModel` WHERE `name` = 'name' GROUP BY `name`,`id`".assertEquals(
+            query
+        )
     }
 
     @Test
@@ -85,14 +87,14 @@ class WhereTest : BaseUnitTest() {
             simpleModelAdapter.select() where SimpleModel_Table.name.`is`("name") having SimpleModel_Table.name.like(
                 "That"
             )
-        "SELECT * FROM `SimpleModel` WHERE `name`='name' HAVING `name` LIKE 'That'".assertEquals(
+        "SELECT * FROM `SimpleModel` WHERE `name` = 'name' HAVING `name` LIKE 'That'".assertEquals(
             query
         )
 
         "SELECT * FROM `SimpleModel` GROUP BY exampleValue HAVING MIN(ROWID)>5".assertEquals(
             (simpleModelAdapter.select()
                 groupBy NameAlias.rawBuilder("exampleValue").build()
-                having StandardMethods.Min<Int>().invoke(scalarOf("ROWID")).greaterThan(5))
+                having StandardMethods.Min<Int>().invoke(literalOf("ROWID")).greaterThan(5))
         )
     }
 
@@ -100,13 +102,13 @@ class WhereTest : BaseUnitTest() {
     fun validateLimit() {
         val query =
             simpleModelAdapter.select() where SimpleModel_Table.name.`is`("name") limit 10
-        "SELECT * FROM `SimpleModel` WHERE `name`='name' LIMIT 10".assertEquals(query)
+        "SELECT * FROM `SimpleModel` WHERE `name` = 'name' LIMIT 10".assertEquals(query)
     }
 
     @Test
     fun validateOffset() {
         val query = simpleModelAdapter.select() where SimpleModel_Table.name.`is`("name") offset 10
-        "SELECT * FROM `SimpleModel` WHERE `name`='name' OFFSET 10".assertEquals(query)
+        "SELECT * FROM `SimpleModel` WHERE `name` = 'name' OFFSET 10".assertEquals(query)
     }
 
     @Test
@@ -128,7 +130,7 @@ class WhereTest : BaseUnitTest() {
     fun validateOrderByWhere() {
         val query = (simpleModelAdapter.select()
             where SimpleModel_Table.name.eq("name")).orderBy(SimpleModel_Table.name, true)
-        ("SELECT * FROM `SimpleModel` WHERE `name`='name' ORDER BY `name` ASC").assertEquals(query)
+        ("SELECT * FROM `SimpleModel` WHERE `name` = 'name' ORDER BY `name` ASC").assertEquals(query)
     }
 
     @Test
@@ -137,7 +139,7 @@ class WhereTest : BaseUnitTest() {
             where SimpleModel_Table.name.eq("name"))
             .orderBy("name".nameAlias, true)
         ("SELECT * FROM `SimpleModel` " +
-            "WHERE `name`='name' ORDER BY `name` ASC").assertEquals(query)
+            "WHERE `name` = 'name' ORDER BY `name` ASC").assertEquals(query)
     }
 
     @Test
@@ -145,7 +147,7 @@ class WhereTest : BaseUnitTest() {
         val query = (simpleModelAdapter.select()
             where SimpleModel_Table.name.eq("name") orderBy fromNameAlias("name".nameAlias).ascending())
         ("SELECT * FROM `SimpleModel` " +
-            "WHERE `name`='name' ORDER BY `name` ASC").assertEquals(query)
+            "WHERE `name` = 'name' ORDER BY `name` ASC").assertEquals(query)
     }
 
     @Test
@@ -157,7 +159,7 @@ class WhereTest : BaseUnitTest() {
             fromNameAlias("id".nameAlias).descending()
         ))
         ("SELECT * FROM `TwoColumnModel` " +
-            "WHERE `name`='name' ORDER BY `name` ASC,`id` DESC").assertEquals(query)
+            "WHERE `name` = 'name' ORDER BY `name` ASC,`id` DESC").assertEquals(query)
     }
 
     @Test
