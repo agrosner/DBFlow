@@ -38,7 +38,7 @@ class DeleteTest : BaseUnitTest() {
             )
 
             val where = simpleModelAdapter.delete().where(SimpleModel_Table.name.`is`("name"))
-            assertEquals("DELETE FROM `SimpleModel` WHERE `name`='name'", where.query.trim())
+            assertEquals("DELETE FROM `SimpleModel` WHERE `name` = 'name'", where.query.trim())
             assertTrue(where.execute() > 0)
 
             assertEquals(1, simpleModelAdapter.select().list().size)

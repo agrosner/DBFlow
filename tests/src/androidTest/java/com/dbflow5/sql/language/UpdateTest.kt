@@ -65,7 +65,7 @@ class UpdateTest : BaseUnitTest() {
 
     @Test
     fun validateWildcardQuery() {
-        "UPDATE OR FAIL `NumberModel` SET `id`=? WHERE `id`=?".assertEquals(
+        "UPDATE OR FAIL `NumberModel` SET `id` = ? WHERE `id` = ?".assertEquals(
             database<TestDatabase>().numberModelAdapter.update().or(ConflictAction.FAIL)
                 .set(NumberModel_Table.id.eq(Literal.WildCard))
                 .where(NumberModel_Table.id.eq(Literal.WildCard))

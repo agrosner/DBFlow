@@ -20,7 +20,9 @@ class JoinTest : BaseUnitTest() {
     fun validateAliasJoin() {
         database<TestDatabase> { db ->
             assertEquals(
-                "SELECT * FROM `SimpleModel` INNER JOIN `TwoColumnModel` AS `Name` ON `TwoColumnModel`.`name`=`name`",
+                "SELECT * FROM `SimpleModel` " +
+                    "INNER JOIN `TwoColumnModel` AS `Name` " +
+                    "ON `TwoColumnModel`.`name` = `name`",
                 ((db.simpleModelAdapter.select() innerJoin
                     db.twoColumnModelAdapter).`as`("Name") on TwoColumnModel_Table.name.withTable()
                     .eq(SimpleModel_Table.name)).query.trim()
@@ -35,7 +37,9 @@ class JoinTest : BaseUnitTest() {
                 db.twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
                 .eq(SimpleModel_Table.name)
             assertEquals(
-                "SELECT * FROM `SimpleModel` INNER JOIN `TwoColumnModel` ON `TwoColumnModel`.`name`=`name`",
+                "SELECT * FROM `SimpleModel` " +
+                    "INNER JOIN `TwoColumnModel` " +
+                    "ON `TwoColumnModel`.`name` = `name`",
                 join.query.trim()
             )
         }
@@ -48,7 +52,9 @@ class JoinTest : BaseUnitTest() {
                 db.twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
                 .eq(SimpleModel_Table.name)
             assertEquals(
-                "SELECT * FROM `SimpleModel` LEFT OUTER JOIN `TwoColumnModel` ON `TwoColumnModel`.`name`=`name`",
+                "SELECT * FROM `SimpleModel` " +
+                    "LEFT OUTER JOIN `TwoColumnModel` " +
+                    "ON `TwoColumnModel`.`name` = `name`",
                 join.query.trim()
             )
         }
@@ -61,7 +67,9 @@ class JoinTest : BaseUnitTest() {
                 db.twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
                 .eq(SimpleModel_Table.name)
             assertEquals(
-                "SELECT * FROM `SimpleModel` CROSS JOIN `TwoColumnModel` ON `TwoColumnModel`.`name`=`name`",
+                "SELECT * FROM `SimpleModel` " +
+                    "CROSS JOIN `TwoColumnModel` " +
+                    "ON `TwoColumnModel`.`name` = `name`",
                 join.query.trim()
             )
         }
@@ -77,9 +85,11 @@ class JoinTest : BaseUnitTest() {
                 .eq(SimpleModel_Table.name)
             val query = join.query
             assertEquals(
-                "SELECT * FROM `SimpleModel`" +
-                    " INNER JOIN `TwoColumnModel` ON `TwoColumnModel`.`name`=`name`" +
-                    " CROSS JOIN `TwoColumnModel` ON `TwoColumnModel`.`id`=`name`",
+                "SELECT * FROM `SimpleModel` " +
+                    "INNER JOIN `TwoColumnModel` " +
+                    "ON `TwoColumnModel`.`name` = `name` " +
+                    "CROSS JOIN `TwoColumnModel` " +
+                    "ON `TwoColumnModel`.`id` = `name`",
                 join.query.trim()
             )
         }

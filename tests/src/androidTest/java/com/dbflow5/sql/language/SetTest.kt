@@ -14,7 +14,7 @@ class SetTest : BaseUnitTest() {
     @Test
     fun validateSetWithConditions() {
         database<TestDatabase> { db ->
-            "UPDATE `SimpleModel` SET `name`='name'".assertEquals(
+            "UPDATE `SimpleModel` SET `name` = 'name'".assertEquals(
                 db.simpleModelAdapter.update() set SimpleModel_Table.name.`is`(
                     "name"
                 )
@@ -25,7 +25,7 @@ class SetTest : BaseUnitTest() {
     @Test
     fun validateMultipleConditions() {
         database<TestDatabase> { db ->
-            "UPDATE `TwoColumnModel` SET `name`='name', `id`=0".assertEquals(
+            "UPDATE `TwoColumnModel` SET `name` = 'name', `id` = 0".assertEquals(
                 db.twoColumnModelAdapter.update() set TwoColumnModel_Table.name.eq(
                     "name"
                 ) and TwoColumnModel_Table.id.eq(0)

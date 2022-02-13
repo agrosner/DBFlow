@@ -204,17 +204,3 @@ val <T : Any> ModelQueriable<T>.property
 inline fun <reified T : Any> propertyString(stringRepresentation: String?) =
     PropertyFactory.from(T::class, stringRepresentation)
 
-/**
- * Convenience wrapper for creating a table name property used in queries.
- */
-inline fun <reified T : Any> tableName() =
-    propertyString<Any>(FlowManager.getTableName(T::class))
-
-/**
- * For FTS tables, "docid" is allowed as an alias along with the usual "rowid", "oid" and "_oid_" identifiers.
- * Attempting to insert or update a row with a docid value that already exists in the table is
- * an error, just as it would be with an ordinary SQLite table.
- * There is one other subtle difference between "docid" and the normal SQLite aliases for the rowid column.
- * Normally, if an INSERT or UPDATE statement assigns discrete values to two or more aliases of the rowid column, SQLite writes the rightmost of such values specified in the INSERT or UPDATE statement to the database. However, assigning a non-NULL value to both the "docid" and one or more of the SQLite rowid aliases when inserting or updating an FTS table is considered an error. See below for an example.
- */
-val docId: Property<Int> = propertyString("docid")

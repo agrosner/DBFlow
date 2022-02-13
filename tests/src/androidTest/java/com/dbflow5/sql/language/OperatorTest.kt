@@ -58,7 +58,6 @@ class OperatorTest : BaseUnitTest() {
     @Test
     fun testIn() {
         database<TestDatabase> { db ->
-            fail("TODO: replace operator methods with updated variants")
             //"`id` IN (5,6,7,8,9)".assertEquals(TwoColumnModel_Table.id.`in`(5, 6, 7, 8) and 9)
             //"`id` NOT IN (SELECT * FROM `SimpleModel`)".assertEquals(
             //    TwoColumnModel_Table.id.notIn(

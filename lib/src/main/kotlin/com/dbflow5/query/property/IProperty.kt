@@ -1,7 +1,6 @@
 package com.dbflow5.query.property
 
 import com.dbflow5.adapter.SQLObjectAdapter
-import com.dbflow5.query.Method
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.OrderBy
 import com.dbflow5.sql.Query

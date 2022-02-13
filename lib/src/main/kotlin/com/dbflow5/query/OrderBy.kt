@@ -81,6 +81,7 @@ constructor(
                 } else isAscending
             )
 
+        @Deprecated(message = "dont use")
         @JvmStatic
         fun fromProperty(
             property: com.dbflow5.query.property.Property<*>,
@@ -89,9 +90,7 @@ constructor(
             OrderBy(
                 property.nameAlias,
                 // if we use RANDOM(), leave out ascending qualifier as its not valid SQLite.
-                if (property == random) {
-                    null
-                } else isAscending
+                isAscending
             )
 
         @JvmStatic
@@ -101,7 +100,7 @@ constructor(
         /**
          * Starts an [OrderBy] with RANDOM() query.
          */
-        fun random(): OrderBy = OrderBy(random.nameAlias, isAscending = null)
+        fun random(): OrderBy = OrderBy(StandardMethods.Random().nameAlias, isAscending = null)
 
         @JvmStatic
         fun fromString(orderByString: String): OrderBy = OrderBy(orderByString)

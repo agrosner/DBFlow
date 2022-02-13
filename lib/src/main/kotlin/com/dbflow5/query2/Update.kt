@@ -78,7 +78,10 @@ internal data class UpdateImpl<Table : Any>(
         )
 
     override fun and(condition: AnyOperator): UpdateWithSet<Table> =
+        // SET only use comma combinations.
         copy(
-            operatorGroup = operatorGroup.and(condition),
+            operatorGroup = operatorGroup.chain(
+                Operation.Comma, condition
+            ),
         )
 }

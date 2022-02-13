@@ -106,7 +106,7 @@ class SelectTest : BaseUnitTest() {
         assertEquals(
             "SELECT * FROM `SimpleModel` " +
                 "INNER JOIN `TwoColumnModel` " +
-                "ON `name`=`TwoColumnModel`.`name`",
+                "ON `name` = `TwoColumnModel`.`name`",
             from.query.trim()
         )
         assertTrue(from.associatedAdapters.isNotEmpty())

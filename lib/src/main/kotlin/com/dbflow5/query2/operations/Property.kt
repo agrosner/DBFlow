@@ -67,6 +67,14 @@ fun <ValueType, Table : Any> SQLObjectAdapter<Table>.property(
         valueConverter = valueConverter,
     )
 
+inline fun <reified ValueType, Table : Any> SQLObjectAdapter<Table>.property(
+    nameAlias: NameAlias,
+): PropertyStart<ValueType, Table> =
+    property(
+        nameAlias = nameAlias,
+        valueConverter = inferValueConverter()
+    )
+
 inline fun <reified ValueType, Table : Any> AdapterCompanion<Table>.property(
     columnName: String,
 ): PropertyStart<ValueType, Table> {

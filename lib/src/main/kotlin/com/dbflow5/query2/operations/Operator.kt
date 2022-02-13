@@ -159,7 +159,7 @@ internal data class BetweenImpl<ValueType>(
         buildString {
             append("${nameAlias.query} ${Operation.Between.value} ${sqlValue} ")
             if (secondValue != null) {
-                append("${Operation.And} ${valueConverter.convert(secondValue)} ")
+                append("${Operation.And.value} ${valueConverter.convert(secondValue)} ")
             }
             // TODO: post-arg
         }
