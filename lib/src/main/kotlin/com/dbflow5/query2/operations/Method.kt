@@ -1,7 +1,6 @@
 package com.dbflow5.query2.operations
 
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query.nameAlias
 import com.dbflow5.sql.Query
 
 /**
@@ -38,9 +37,7 @@ fun <ReturnType> method(
 ): Method<ReturnType> =
     MethodImpl(
         valueConverter = valueConverter,
-        nameAlias = name.nameAlias.newBuilder()
-            .shouldAddIdentifierToName(false)
-            .build(),
+        name = name,
         innerOperator = OperatorGroup.nonGroupingClause().chain(
             Operation.Comma,
             arguments.toList(),
@@ -49,13 +46,24 @@ fun <ReturnType> method(
 
 internal data class MethodImpl<ReturnType>(
     override val valueConverter: SQLValueConverter<ReturnType>,
-    override val nameAlias: NameAlias,
+    private val name: String,
     private val innerOperator: OperatorGroup,
+    private val shouldAddIdentifierToAlias: Boolean = false,
 ) : Method<ReturnType>,
     List<AnyOperator> by innerOperator.operations {
+
     override val operations: List<AnyOperator> = innerOperator.operations
 
-    override val query: String by lazy { "${nameAlias.query}(${innerOperator.query})" }
+    override val query: String by lazy { nameAlias.fullQuery }
+
+    /**
+     * NameAlias of a method is its entire name plus arguments.
+     */
+    override val nameAlias: NameAlias = NameAlias.Builder("$name(${innerOperator.query})")
+        .shouldAddIdentifierToName(false)
+        .shouldStripIdentifier(false)
+        .shouldAddIdentifierToAliasName(shouldAddIdentifierToAlias)
+        .build()
 
     override fun chain(operation: Operation, operator: AnyOperator): Method<ReturnType> =
         copy(
@@ -75,9 +83,7 @@ internal data class MethodImpl<ReturnType>(
         shouldAddIdentifierToAlias: Boolean
     ): Operator<ReturnType> =
         copy(
-            nameAlias = nameAlias.newBuilder()
-                .shouldAddIdentifierToAliasName(shouldAddIdentifierToAlias)
-                .`as`(name)
-                .build()
+            shouldAddIdentifierToAlias = shouldAddIdentifierToAlias,
+            name = name,
         ) as Operator<ReturnType> // TODO: nasty cast
 }

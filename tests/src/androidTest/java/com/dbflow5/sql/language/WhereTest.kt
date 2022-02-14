@@ -95,7 +95,7 @@ class WhereTest : BaseUnitTest() {
 
         ("SELECT * FROM `SimpleModel` " +
             "GROUP BY exampleValue " +
-            "HAVING MIN(ROWID)>5").assertEquals(
+            "HAVING MIN(ROWID) > 5").assertEquals(
             (simpleModelAdapter.select()
                 groupBy NameAlias.rawBuilder("exampleValue").build()
                 having StandardMethods.Min<Int>().invoke(literalOf("ROWID")).greaterThan(5))
