@@ -1,16 +1,12 @@
 package com.dbflow5.query.property
 
-import com.dbflow5.adapter.AdapterCompanion
 import com.dbflow5.adapter.SQLObjectAdapter
-import com.dbflow5.adapter.makeLazySQLObjectAdapter
-import com.dbflow5.converter.TypeConverter
 import com.dbflow5.query.BaseModelQueriable
 import com.dbflow5.query.IConditional
 import com.dbflow5.query.IOperator
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.Operator
 import com.dbflow5.query.OrderBy
-import kotlin.reflect.KClass
 
 /**
  * Description: The main, immutable property class that gets generated from a table definition.
@@ -313,47 +309,6 @@ open class Property<T>(
             Property<String>(adapter, NameAlias.rawBuilder("*").build()).withTable()
     }
 }
-
-inline fun <reified T, Table : Any> AdapterCompanion<Table>.property(columnName: String) =
-    Property<T>(makeLazySQLObjectAdapter(table), columnName)
-
-inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedProperty(
-    unusedData: KClass<Data>,
-    unusedModel: KClass<Model>,
-    columnName: String,
-    crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
-): TypeConvertedProperty<Data, Model> =
-    TypeConvertedProperty(makeLazySQLObjectAdapter(table), columnName) {
-        getTypeConverter(it)
-    }
-
-@JvmName("nullableDataTypeConvertedProperty")
-inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedProperty(
-    unusedModel: KClass<Model>,
-    columnName: String,
-    crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
-): TypeConvertedProperty<Data?, Model> =
-    TypeConvertedProperty(makeLazySQLObjectAdapter(table), columnName) {
-        getTypeConverter(it)
-    }
-
-inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedProperty(
-    columnName: String,
-    crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
-): TypeConvertedProperty<Data?, Model?> =
-    TypeConvertedProperty(makeLazySQLObjectAdapter(table), columnName) {
-        getTypeConverter(it)
-    }
-
-@JvmName("nullableModelTypeConvertedProperty")
-inline fun <T : Any, Data : Any, Model : Any> AdapterCompanion<T>.typeConvertedProperty(
-    unusedModel: KClass<Data>,
-    columnName: String,
-    crossinline getTypeConverter: (table: KClass<*>) -> TypeConverter<Data, Model>
-): TypeConvertedProperty<Data, Model?> =
-    TypeConvertedProperty(makeLazySQLObjectAdapter(table), columnName) {
-        getTypeConverter(it)
-    }
 
 /**
  * Used in code generation to infer property class type

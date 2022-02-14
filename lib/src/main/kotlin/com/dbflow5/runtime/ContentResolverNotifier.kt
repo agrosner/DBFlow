@@ -1,7 +1,10 @@
 package com.dbflow5.runtime
 
 import android.content.ContentResolver
+import android.content.ContentResolver.NOTIFY_SYNC_TO_NETWORK
 import android.content.Context
+import android.net.Uri
+import android.os.Build
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.getNotificationUri
@@ -26,27 +29,37 @@ class ContentResolverNotifier(
         action: ChangeAction
     ) {
         if (FlowContentObserver.shouldNotify()) {
-            context.contentResolver.notifyChange(
+            notifyChanges(
                 getNotificationUri(
                     authority, adapter.table, action,
                     adapter.getPrimaryConditionClause(model).operations
                         .filterIsInstance<BaseOperator.SingleValueOperator<Any?>>()
-                ), null, true
+                )
+            )
+        }
+    }
+
+    private fun notifyChanges(notificationUri: Uri) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            context.contentResolver.notifyChange(
+                notificationUri, null, NOTIFY_SYNC_TO_NETWORK
+            )
+        } else {
+            context.contentResolver.notifyChange(
+                notificationUri, null, true
             )
         }
     }
 
     override fun <T : Any> notifyTableChanged(table: KClass<T>, action: ChangeAction) {
         if (FlowContentObserver.shouldNotify()) {
-            context.contentResolver.notifyChange(
+            notifyChanges(
                 getNotificationUri(
                     authority,
                     table,
                     action,
                     null as Array<BaseOperator.SingleValueOperator<Any?>>?
                 ),
-                null,
-                true
             )
         }
     }

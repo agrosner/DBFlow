@@ -5,45 +5,8 @@ import com.dbflow5.sql.Query
 
 typealias AnyOperator = Operator<out Any?>
 
-interface OperatorChain {
-    /**
-     * Appends the [operator] with [Operation.Or]
-     */
-    infix fun or(operator: AnyOperator): OperatorGrouping<Query> =
-        chain(Operation.Or, operator)
-
-    /**
-     * Appends the [operator] with [Operation.And]
-     */
-    infix fun and(operator: AnyOperator): OperatorGrouping<Query> =
-        chain(Operation.And, operator)
-
-    /**
-     * Chain a single operator with same [Operation]
-     */
-    fun chain(operation: Operation, operator: AnyOperator): OperatorGrouping<Query>
-
-    /**
-     * Chain operators with same [Operation]
-     */
-    fun chain(
-        operation: Operation,
-        vararg operators: AnyOperator
-    ): OperatorGrouping<Query> =
-        chain(operation, operators.toList())
-
-    /**
-     * Chain all operators with same [Operation]
-     */
-    fun chain(
-        operation: Operation,
-        operators: Collection<AnyOperator>
-    ): OperatorGrouping<Query>
-
-}
-
 interface Operator<ValueType> : Query,
-    OperatorChain {
+    OperatorChain<AnyOperator> {
     override fun chain(operation: Operation, operator: AnyOperator): OperatorGrouping<Query> =
         OperatorGroup.clause()
             .chain(Operation.Empty, this)
@@ -59,7 +22,7 @@ interface Operator<ValueType> : Query,
 }
 
 /**
- * Generates a [Operator] that concatenates this [IOperator] with the [ValueType] via "||"
+ * Generates a [Operator] that concatenates this [Operator] with the [value] via "||"
  * by columnName=columnName || value
  *
  * @param value The value to concatenate.
