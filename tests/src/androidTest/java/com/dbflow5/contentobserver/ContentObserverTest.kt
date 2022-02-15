@@ -9,12 +9,12 @@ import com.dbflow5.TestTransactionDispatcherFactory
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.AndroidSQLiteOpenHelper
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.getNotificationUri
-import com.dbflow5.query.SQLOperator
 import com.dbflow5.query2.delete
 import com.dbflow5.query2.operations.BaseOperator
-import com.dbflow5.query2.operations.Operator
+import com.dbflow5.runtime.ContentNotification
+import com.dbflow5.runtime.ContentNotificationListener
 import com.dbflow5.runtime.ContentResolverNotifier
 import com.dbflow5.runtime.FlowContentObserver
 import com.dbflow5.structure.ChangeAction
@@ -25,7 +25,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
-import kotlin.reflect.KClass
+import kotlin.test.assertIs
 
 class ContentObserverTest {
 
@@ -75,66 +75,68 @@ class ContentObserverTest {
     }
 
     @Test
-    fun testSpecificUrlInsert() {
-        //assertProperConditions(ChangeAction.INSERT) { user, db -> user.insert(db) }
+    fun testSpecificUrlInsert() = runBlockingTest {
+        assertProperConditions(ChangeAction.INSERT) { user -> userAdapter.insert(user) }
     }
 
     @Test
-    fun testSpecificUrlUpdate() {
-        // assertProperConditions(ChangeAction.UPDATE) { user, db -> user.apply { age = 56 }.update(db) }
-
+    fun testSpecificUrlUpdate() = runBlockingTest {
+        assertProperConditions(ChangeAction.UPDATE) { user ->
+            userAdapter.update(user.copy(age = 56))
+        }
     }
 
     @Test
-    fun testSpecificUrlSave() {
+    fun testSpecificUrlSave() = runBlockingTest {
         // insert on SAVE
-        //assertProperConditions(ChangeAction.INSERT) { user, db -> user.apply { age = 57 }.save(db) }
+        assertProperConditions(ChangeAction.INSERT) { user -> userAdapter.save(user.copy(age = 57)) }
     }
 
     @Test
-    fun testSpecificUrlDelete() {
-        // user.save(databaseForTable<User>())
-        // assertProperConditions(ChangeAction.DELETE) { user, db -> user.delete(db) }
+    fun testSpecificUrlDelete() = runBlockingTest {
+        database<ContentObserverDatabase>().writableTransaction {
+            userAdapter.save(user)
+        }
+        assertProperConditions(ChangeAction.DELETE) { user -> userAdapter.delete(user) }
     }
 
-    private fun assertProperConditions(
+    private suspend fun assertProperConditions(
         action: ChangeAction,
-        userFunc: (User, DatabaseWrapper) -> Unit
+        userFunc: suspend WritableDatabaseScope<ContentObserverDatabase>.(User) -> Unit
     ) {
         val contentObserver = FlowContentObserver(contentUri)
+        // use latch to wait for result asynchronously.
         val countDownLatch = CountDownLatch(1)
-        val mockOnModelStateChangedListener = MockOnModelStateChangedListener(countDownLatch)
-        contentObserver.addModelChangeListener(mockOnModelStateChangedListener)
-        contentObserver.registerForContentChanges(DemoApp.context, User::class)
 
-        userFunc(user, database<ContentObserverDatabase>())
-        countDownLatch.await()
+        val listener = MockOnModelStateChangedListener(countDownLatch)
+        contentObserver.addListener(listener)
+        contentObserver.registerForContentChanges(DemoApp.context.contentResolver, User::class)
 
-        val ops = mockOnModelStateChangedListener.operators!!
+        database<ContentObserverDatabase>().writableTransaction {
+            userFunc(user)
+        }
+
+        val notification = listener.notification
+        assertIs<ContentNotification.ModelChange<*>>(notification, "Type is not ModelChange.")
+        val ops = notification.changedFields
         assertEquals(2, ops.size)
-        assertEquals(ops[0].columnName(), User_Table.id.query)
-        assertEquals(ops[1].columnName(), User_Table.name.query)
-        assertEquals(ops[1].value(), "Something")
-        assertEquals(ops[0].value(), "5")
-        assertEquals(action, mockOnModelStateChangedListener.action)
+        assertEquals(ops[0].key, User_Table.id.query)
+        assertEquals(ops[1].key, User_Table.name.query)
+        assertEquals(ops[1].value, "Something")
+        assertEquals(ops[0].value, "5")
+        assertEquals(action, notification.action)
 
-        contentObserver.removeModelChangeListener(mockOnModelStateChangedListener)
-        contentObserver.unregisterForContentChanges(DemoApp.context)
+        contentObserver.removeListener(listener)
+        contentObserver.unregisterForContentChanges(DemoApp.context.contentResolver)
     }
 
-    class MockOnModelStateChangedListener(val countDownLatch: CountDownLatch) :
-        FlowContentObserver.OnModelStateChangedListener {
+    class MockOnModelStateChangedListener(private val countDownLatch: CountDownLatch) :
+        ContentNotificationListener<Any> {
 
-        var action: ChangeAction? = null
-        var operators: Array<SQLOperator>? = null
+        lateinit var notification: ContentNotification<Any>
 
-
-        override fun onModelStateChanged(
-            table: KClass<*>?, action: ChangeAction,
-            primaryKeyValues: Array<SQLOperator>
-        ) {
-            this.action = action
-            operators = primaryKeyValues
+        override fun onChange(notification: ContentNotification<Any>) {
+            this.notification = notification
             countDownLatch.countDown()
         }
     }

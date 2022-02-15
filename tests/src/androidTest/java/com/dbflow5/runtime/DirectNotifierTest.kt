@@ -49,44 +49,80 @@ class DirectNotifierTest {
         database<TestDatabase>().writableTransaction {
             val model = SimpleModel("Name")
 
-            val modelChange = mock<DirectModelNotifier.OnModelStateChangedListener<SimpleModel>>()
-            DirectModelNotifier.get(this.db)
-                .registerForModelStateChanges(SimpleModel::class, modelChange)
+            val modelChange = mock<ModelNotificationListener<SimpleModel>>()
+            DirectModelNotifier.get(this.db).addListener(modelChange)
 
             simpleModelAdapter.insert(model)
-            verify(modelChange).onModelChanged(model, ChangeAction.INSERT)
+            verify(modelChange).onChange(
+                ModelNotification.ModelChange(
+                    model,
+                    ChangeAction.INSERT,
+                    simpleModelAdapter,
+                )
+            )
 
             simpleModelAdapter.update(model)
-            verify(modelChange).onModelChanged(model, ChangeAction.UPDATE)
+            verify(modelChange).onChange(
+                ModelNotification.ModelChange(
+                    model,
+                    ChangeAction.UPDATE,
+                    simpleModelAdapter,
+                )
+            )
 
             simpleModelAdapter.save(model)
-            verify(modelChange).onModelChanged(model, ChangeAction.CHANGE)
+            verify(modelChange).onChange(
+                ModelNotification.ModelChange(
+                    model,
+                    ChangeAction.CHANGE,
+                    simpleModelAdapter,
+                )
+            )
 
             simpleModelAdapter.delete(model)
-            verify(modelChange).onModelChanged(model, ChangeAction.DELETE)
+            verify(modelChange).onChange(
+                ModelNotification.ModelChange(
+                    model,
+                    ChangeAction.DELETE,
+                    simpleModelAdapter,
+                )
+            )
         }
     }
 
     @Test
     fun validateCanNotifyWrapperClasses() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            val modelChange = mock<OnTableChangedListener>()
-            DirectModelNotifier.get(this.db)
-                .registerForTableChanges(SimpleModel::class, modelChange)
+            val modelChange = mock<ModelNotificationListener<SimpleModel>>()
+            DirectModelNotifier.get(this.db).addListener(modelChange)
 
             simpleModelAdapter.insert(SimpleModel_Table.name to "name")
                 .execute()
 
-            verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.INSERT)
+            verify(modelChange).onChange(
+                ModelNotification.TableChange(
+                    SimpleModel::class,
+                    ChangeAction.INSERT,
+                )
+            )
 
             (simpleModelAdapter.update() set SimpleModel_Table.name.eq("name2"))
                 .execute()
 
-            verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.UPDATE)
-
+            verify(modelChange).onChange(
+                ModelNotification.TableChange(
+                    SimpleModel::class,
+                    ChangeAction.UPDATE,
+                )
+            )
             simpleModelAdapter.delete().execute()
 
-            verify(modelChange).onTableChanged(SimpleModel::class, ChangeAction.DELETE)
+            verify(modelChange).onChange(
+                ModelNotification.TableChange(
+                    SimpleModel::class,
+                    ChangeAction.DELETE,
+                )
+            )
         }
     }
 

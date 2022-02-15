@@ -3,6 +3,7 @@ package com.dbflow5.adapter.saveable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.NotifyDistributor
 import com.dbflow5.structure.ChangeAction
 
@@ -32,10 +33,12 @@ open class ModelSaver<T : Any> {
         val success = id > INSERT_FAILED
         if (success) {
             localModel = modelAdapter.updateAutoIncrement(model, id)
-            NotifyDistributor(wrapper).notifyModelChanged(
-                localModel,
-                modelAdapter,
-                ChangeAction.CHANGE
+            NotifyDistributor(wrapper).onChange(
+                ModelNotification.ModelChange(
+                    localModel,
+                    ChangeAction.CHANGE,
+                    modelAdapter,
+                )
             )
             return Result.success(localModel)
         }
@@ -58,10 +61,12 @@ open class ModelSaver<T : Any> {
         modelAdapter.bindToUpdateStatement(databaseStatement, localModel)
         val successful = databaseStatement.executeUpdateDelete() != 0L
         if (successful) {
-            NotifyDistributor(wrapper).notifyModelChanged(
-                localModel,
-                modelAdapter,
-                ChangeAction.UPDATE
+            NotifyDistributor(wrapper).onChange(
+                ModelNotification.ModelChange(
+                    localModel,
+                    ChangeAction.UPDATE,
+                    modelAdapter,
+                ),
             )
             return Result.success(localModel)
         }
@@ -85,10 +90,12 @@ open class ModelSaver<T : Any> {
         val id = insertStatement.executeInsert()
         if (id > INSERT_FAILED) {
             localModel = modelAdapter.updateAutoIncrement(localModel, id)
-            NotifyDistributor(wrapper).notifyModelChanged(
-                localModel,
-                modelAdapter,
-                ChangeAction.INSERT
+            NotifyDistributor(wrapper).onChange(
+                ModelNotification.ModelChange(
+                    localModel,
+                    ChangeAction.INSERT,
+                    modelAdapter,
+                ),
             )
             return Result.success(localModel)
         }
@@ -111,10 +118,12 @@ open class ModelSaver<T : Any> {
 
         val success = deleteStatement.executeUpdateDelete() != 0L
         if (success) {
-            NotifyDistributor(db).notifyModelChanged(
-                model,
-                modelAdapter,
-                ChangeAction.DELETE
+            NotifyDistributor(db).onChange(
+                ModelNotification.ModelChange(
+                    model,
+                    ChangeAction.DELETE,
+                    modelAdapter,
+                ),
             )
             return Result.success(modelAdapter.updateAutoIncrement(model, 0))
         }

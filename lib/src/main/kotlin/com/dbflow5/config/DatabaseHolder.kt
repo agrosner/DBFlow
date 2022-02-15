@@ -14,6 +14,7 @@ interface DatabaseHolderFactory {
  * Description: The base interface for interacting with all of the database and top-level data that's shared
  * between them.
  */
+@Suppress("UNCHECKED_CAST")
 class DatabaseHolder(
     val databases: Set<DBFlowDatabase>,
     val tables: Set<ModelAdapter<*>>,
@@ -44,6 +45,9 @@ class DatabaseHolder(
 
     fun getDatabase(databaseClass: KClass<*>): DBFlowDatabase? =
         databaseClassLookupMap[databaseClass]
+
+    internal fun <T : Any> getModelAdapterByTableName(name: String): ModelAdapter<T> =
+        modelAdapterMap.values.first { it.name == name } as ModelAdapter<T>
 
     fun <T : Any> getModelAdapterOrNull(table: KClass<T>): ModelAdapter<T>? =
         modelAdapterMap[table] as ModelAdapter<T>?

@@ -15,5 +15,10 @@ enum class ChangeAction {
      * The model was changed. used in prior to Android JellyBean and in generic change
      * actions.
      */
-    CHANGE
+    CHANGE,
+
+    /**
+     * Used as default value.
+     */
+    NONE,
 }

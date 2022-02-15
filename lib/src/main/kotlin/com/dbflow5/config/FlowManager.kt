@@ -269,6 +269,11 @@ object FlowManager {
             modelClass
         )
 
+    @DelicateDBFlowApi
+    @JvmStatic
+    fun <T : Any> getModelAdapterByTableName(name: String): ModelAdapter<T> =
+        databaseHolder.getModelAdapterByTableName(name)
+
     /**
      * Returns the model view adapter for a SQLite VIEW. These are only created with the [com.dbflow5.annotation.ModelView] annotation.
      *

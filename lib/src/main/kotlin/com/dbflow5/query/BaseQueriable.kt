@@ -8,6 +8,7 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.longForQuery
+import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.NotifyDistributor
 import com.dbflow5.stringForQuery
 import com.dbflow5.structure.ChangeAction
@@ -74,7 +75,7 @@ abstract class BaseQueriable<TModel : Any> protected constructor(
         } else {
             // we dont query, we're executing something here.
             NotifyDistributor(databaseWrapper)
-                .notifyTableChanged(table, primaryAction)
+                .onChange(ModelNotification.TableChange(table, primaryAction))
         }
     }
 

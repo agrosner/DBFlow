@@ -3,12 +3,8 @@ package com.dbflow5.runtime
 import android.content.ContentResolver
 import android.content.ContentResolver.NOTIFY_SYNC_TO_NETWORK
 import android.content.Context
-import android.net.Uri
 import android.os.Build
-import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.getNotificationUri
-import com.dbflow5.query2.operations.BaseOperator
 import com.dbflow5.structure.ChangeAction
 import kotlin.reflect.KClass
 
@@ -20,90 +16,26 @@ import kotlin.reflect.KClass
  */
 class ContentResolverNotifier(
     private val context: Context,
-    val authority: String,
+    private val authority: String,
     override val db: DBFlowDatabase,
 ) : ModelNotifier {
 
-    override fun <T : Any> notifyModelChanged(
-        model: T, adapter: ModelAdapter<T>,
-        action: ChangeAction
-    ) {
+    override fun <Table : Any> onChange(notification: ModelNotification<Table>) {
         if (FlowContentObserver.shouldNotify()) {
-            notifyChanges(
-                getNotificationUri(
-                    authority, adapter.table, action,
-                    adapter.getPrimaryConditionClause(model).operations
-                        .filterIsInstance<BaseOperator.SingleValueOperator<Any?>>()
-                )
-            )
+            notifyChanges(notification.toContentNotification(authority))
         }
     }
 
-    private fun notifyChanges(notificationUri: Uri) {
+    private fun <Table : Any> notifyChanges(notification: ContentNotification<Table>) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             context.contentResolver.notifyChange(
-                notificationUri, null, NOTIFY_SYNC_TO_NETWORK
+                notification.uri, null, NOTIFY_SYNC_TO_NETWORK
             )
         } else {
+            @Suppress("DEPRECATION")
             context.contentResolver.notifyChange(
-                notificationUri, null, true
+                notification.uri, null, true
             )
         }
-    }
-
-    override fun <T : Any> notifyTableChanged(table: KClass<T>, action: ChangeAction) {
-        if (FlowContentObserver.shouldNotify()) {
-            notifyChanges(
-                getNotificationUri(
-                    authority,
-                    table,
-                    action,
-                    null as Array<BaseOperator.SingleValueOperator<Any?>>?
-                ),
-            )
-        }
-    }
-
-    override fun newRegister(): TableNotifierRegister =
-        FlowContentTableNotifierRegister(context, authority)
-
-    class FlowContentTableNotifierRegister(private val context: Context, contentAuthority: String) :
-        TableNotifierRegister {
-
-        private val flowContentObserver = FlowContentObserver(contentAuthority)
-
-        private var tableChangedListener: OnTableChangedListener? = null
-
-        private val internalContentChangeListener =
-            OnTableChangedListener { table, action ->
-                tableChangedListener?.onTableChanged(
-                    table,
-                    action
-                )
-            }
-
-        init {
-            flowContentObserver.addOnTableChangedListener(internalContentChangeListener)
-        }
-
-        override fun <T : Any> register(tClass: KClass<T>) {
-            flowContentObserver.registerForContentChanges(context, tClass)
-        }
-
-        override fun <T : Any> unregister(tClass: KClass<T>) {
-            flowContentObserver.unregisterForContentChanges(context)
-        }
-
-        override fun unregisterAll() {
-            flowContentObserver.removeTableChangedListener(internalContentChangeListener)
-            this.tableChangedListener = null
-        }
-
-        override fun setListener(listener: OnTableChangedListener?) {
-            this.tableChangedListener = listener
-        }
-
-        override val isSubscribed: Boolean
-            get() = !flowContentObserver.isSubscribed
     }
 }

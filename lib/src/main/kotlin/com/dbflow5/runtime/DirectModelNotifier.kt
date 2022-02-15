@@ -1,10 +1,8 @@
 package com.dbflow5.runtime
 
-import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.DatabaseConfig
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.structure.ChangeAction
 import kotlin.reflect.KClass
 
 /**
@@ -19,140 +17,46 @@ private constructor(
     override val db: DBFlowDatabase,
 ) : ModelNotifier {
 
-    private val modelChangedListenerMap =
-        linkedMapOf<KClass<*>, MutableSet<OnModelStateChangedListener<*>>>()
+    private val listenerMap = mutableMapOf<KClass<*>, MutableSet<ModelNotificationListener<*>>>()
 
-    private val tableChangedListenerMap =
-        linkedMapOf<KClass<*>, MutableSet<OnTableChangedListener>>()
-
-    interface OnModelStateChangedListener<in T> {
-        fun onModelChanged(model: T, action: ChangeAction)
-    }
-
-    interface ModelChangedListener<in T> : OnModelStateChangedListener<T>, OnTableChangedListener
-
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> notifyModelChanged(
-        model: T, adapter: ModelAdapter<T>,
-        action: ChangeAction
-    ) {
-        modelChangedListenerMap[adapter.table]
-            ?.forEach { listener ->
-                (listener as OnModelStateChangedListener<T>).onModelChanged(model, action)
+    override fun <Table : Any> onChange(notification: ModelNotification<Table>) {
+        synchronized(listenerMap) {
+            listenerMap[notification.table]?.forEach { listener ->
+                listener
+                    .cast<Table>()
+                    .onChange(notification)
             }
-        tableChangedListenerMap[adapter.table]
-            ?.forEach { listener -> listener.onTableChanged(adapter.table, action) }
-    }
-
-    override fun <T : Any> notifyTableChanged(table: KClass<T>, action: ChangeAction) {
-        tableChangedListenerMap[table]?.forEach { listener ->
-            listener.onTableChanged(
-                table,
-                action
-            )
         }
     }
 
-    override fun newRegister(): TableNotifierRegister = DirectTableNotifierRegister(this)
+    inline fun <reified Table : Any> addListener(
+        modelNotificationListener: ModelNotificationListener<Table>
+    ) = addListener(Table::class, modelNotificationListener)
 
-    fun <T : Any> registerForModelChanges(
-        table: KClass<T>,
-        listener: ModelChangedListener<T>
+    fun <Table : Any> addListener(
+        table: KClass<Table>,
+        modelNotificationListener: ModelNotificationListener<Table>
     ) {
-        registerForModelStateChanges(table, listener)
-        registerForTableChanges(table, listener)
+        listenerMap.getOrPut(table) {
+            linkedSetOf()
+        }.add(modelNotificationListener)
     }
 
-    fun <T : Any> registerForModelStateChanges(
-        table: KClass<T>,
-        listener: OnModelStateChangedListener<T>
-    ) {
-        var listeners = modelChangedListenerMap[table]
-        if (listeners == null) {
-            listeners = linkedSetOf()
-            modelChangedListenerMap[table] = listeners
-        }
-        listeners.add(listener)
-    }
+    inline fun <reified Table : Any> removeListener(
+        modelNotificationListener: ModelNotificationListener<Table>
+    ) = removeListener(Table::class, modelNotificationListener)
 
-    fun <T : Any> registerForTableChanges(
-        table: KClass<T>,
-        listener: OnTableChangedListener
+    fun <Table : Any> removeListener(
+        table: KClass<Table>,
+        modelNotificationListener: ModelNotificationListener<Table>,
     ) {
-        var listeners = tableChangedListenerMap[table]
-        if (listeners == null) {
-            listeners = linkedSetOf()
-            tableChangedListenerMap[table] = listeners
-        }
-        listeners.add(listener)
-    }
-
-    fun <T : Any> unregisterForModelChanges(
-        table: KClass<T>,
-        listener: ModelChangedListener<T>
-    ) {
-        unregisterForModelStateChanges(table, listener)
-        unregisterForTableChanges(table, listener)
-    }
-
-
-    fun <T : Any> unregisterForModelStateChanges(
-        table: KClass<T>,
-        listener: OnModelStateChangedListener<T>
-    ) {
-        val listeners = modelChangedListenerMap[table]
-        listeners?.remove(listener)
-    }
-
-    fun <T : Any> unregisterForTableChanges(
-        table: KClass<T>,
-        listener: OnTableChangedListener
-    ) {
-        val listeners = tableChangedListenerMap[table]
-        listeners?.remove(listener)
+        listenerMap[table]?.remove(modelNotificationListener)
     }
 
     /**
      * Clears all listeners.
      */
-    fun clearListeners() = tableChangedListenerMap.clear()
-
-    private class DirectTableNotifierRegister(private val directModelNotifier: DirectModelNotifier) :
-        TableNotifierRegister {
-        private val registeredTables = arrayListOf<KClass<*>>()
-
-        private var modelChangedListener: OnTableChangedListener? = null
-
-        private val internalChangeListener = object : OnTableChangedListener {
-            override fun onTableChanged(table: KClass<*>?, action: ChangeAction) {
-                modelChangedListener?.onTableChanged(table, action)
-            }
-        }
-
-        override fun <T : Any> register(tClass: KClass<T>) {
-            registeredTables.add(tClass)
-            directModelNotifier.registerForTableChanges(tClass, internalChangeListener)
-        }
-
-        override fun <T : Any> unregister(tClass: KClass<T>) {
-            registeredTables.remove(tClass)
-            directModelNotifier.unregisterForTableChanges(tClass, internalChangeListener)
-        }
-
-        override fun unregisterAll() {
-            registeredTables.forEach { table ->
-                directModelNotifier.unregisterForTableChanges(table, internalChangeListener)
-            }
-            this.modelChangedListener = null
-        }
-
-        override fun setListener(listener: OnTableChangedListener?) {
-            this.modelChangedListener = listener
-        }
-
-        override val isSubscribed: Boolean
-            get() = !registeredTables.isEmpty()
-    }
+    fun clearListeners() = listenerMap.clear()
 
     companion object {
         private val notifierMap = mutableMapOf<DatabaseWrapper, DirectModelNotifier>()
@@ -162,5 +66,4 @@ private constructor(
                 DirectModelNotifier(db)
             }
     }
-
 }

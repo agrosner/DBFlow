@@ -100,19 +100,9 @@ fun getNotificationUri(
     contentAuthority: String,
     modelClass: KClass<*>,
     action: ChangeAction?,
-    notifyKey: String = "",
-    notifyValue: Any? = null
 ): Uri {
-    var operator: BaseOperator.SingleValueOperator<Any?>? = null
-    if (notifyKey.isNotNullOrEmpty()) {
-        operator = operator(
-            nameAlias = NameAlias.Builder(notifyKey).build(),
-            value = notifyValue
-        )
-    }
     return getNotificationUri(
-        contentAuthority, modelClass, action,
-        if (operator != null) arrayOf(operator) else null
+        contentAuthority, modelClass, action, null as Array<BaseOperator.SingleValueOperator<Any?>>?
     )
 }
 

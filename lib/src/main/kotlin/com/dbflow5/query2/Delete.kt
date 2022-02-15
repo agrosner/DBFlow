@@ -13,7 +13,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.delete(): Delete<Table> = DeleteImpl(a
 
 internal class DeleteImpl<Table : Any>(
     override val adapter: SQLObjectAdapter<Table>,
-    override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory,
+    override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory(adapter.table),
 ) : Delete<Table> {
 
     override val associatedAdapters: List<RetrievalAdapter<*>> = listOf(adapter)

@@ -1,6 +1,7 @@
 package com.dbflow5.database
 
 import com.dbflow5.query.BaseQueriable
+import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.NotifyDistributor
 import com.dbflow5.structure.ChangeAction
 import kotlin.reflect.KClass
@@ -26,9 +27,11 @@ class DatabaseStatementWrapper<T : Any>(
         val affected = databaseStatement.executeUpdateDelete()
         if (affected > 0) {
             NotifyDistributor(databaseWrapper)
-                .notifyTableChanged(
-                    table,
-                    action
+                .onChange(
+                    ModelNotification.TableChange(
+                        table,
+                        action
+                    )
                 )
         }
         return affected
@@ -38,9 +41,10 @@ class DatabaseStatementWrapper<T : Any>(
         val affected = databaseStatement.executeInsert()
         if (affected > 0) {
             NotifyDistributor(databaseWrapper)
-                .notifyTableChanged(
-                    table,
-                    action
+                .onChange(
+                    ModelNotification.TableChange(
+                        table, action
+                    )
                 )
         }
         return affected
