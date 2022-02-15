@@ -44,7 +44,10 @@ internal data class UpdateImpl<Table : Any>(
     override val conflictAction: ConflictAction = ConflictAction.NONE,
     override val adapter: SQLObjectAdapter<Table>,
     override val operatorGroup: OperatorGrouping<Query> = OperatorGroup.nonGroupingClause(),
-    override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory(adapter.table),
+    override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory(
+        adapter.table,
+        isDelete = false
+    ),
 ) : UpdateStart<Table>, UpdateWithConflict<Table>,
     UpdateWithSet<Table> {
 

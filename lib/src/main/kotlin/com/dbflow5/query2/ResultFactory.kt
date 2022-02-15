@@ -18,6 +18,7 @@ interface ResultFactory<Result> {
 
 data class UpdateDeleteResultFactory(
     private val table: KClass<*>,
+    private val isDelete: Boolean,
 ) : ResultFactory<Long> {
     override fun DatabaseWrapper.createResult(query: String): Long {
         val affected = compileStatement(query).use { it.executeUpdateDelete() }
@@ -26,7 +27,7 @@ data class UpdateDeleteResultFactory(
                 .onChange(
                     ModelNotification.TableChange(
                         table,
-                        ChangeAction.UPDATE,
+                        if (isDelete) ChangeAction.DELETE else ChangeAction.UPDATE,
                     )
                 )
         }
