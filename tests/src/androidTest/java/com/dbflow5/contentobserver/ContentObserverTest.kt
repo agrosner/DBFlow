@@ -10,21 +10,22 @@ import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.scope.WritableDatabaseScope
-import com.dbflow5.getNotificationUri
 import com.dbflow5.query2.delete
-import com.dbflow5.query2.operations.BaseOperator
 import com.dbflow5.runtime.ContentNotification
 import com.dbflow5.runtime.ContentNotificationListener
 import com.dbflow5.runtime.ContentResolverNotifier
 import com.dbflow5.runtime.FlowContentObserver
 import com.dbflow5.structure.ChangeAction
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.util.concurrent.CountDownLatch
 import kotlin.test.assertIs
 
 class ContentObserverTest {
@@ -51,25 +52,24 @@ class ContentObserverTest {
     }
 
     @Test
-    fun testSpecificUris() {
+    fun content_notification_ModelChange_validateUri() {
         val database = database<ContentObserverDatabase>()
-        val conditionGroup = database.userAdapter
-            .getPrimaryConditionClause(user)
-        val uri = getNotificationUri(
+        val notification = ContentNotification.ModelChange(
+            user,
+            database.userAdapter,
+            ChangeAction.DELETE,
             contentUri,
-            User::class, ChangeAction.DELETE,
-            conditionGroup.operations.filterIsInstance<BaseOperator.SingleValueOperator<Any?>>(),
         )
-
+        val uri = notification.uri
         assertEquals(uri.authority, contentUri)
         assertEquals(
             database.userAdapter.name,
             uri.getQueryParameter(TABLE_QUERY_PARAM)
         )
         assertEquals(uri.fragment, ChangeAction.DELETE.name)
-        assertEquals(Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.id.query))), "5")
+        assertEquals(Uri.decode(uri.getQueryParameter(User_Table.id.query)), "5")
         assertEquals(
-            Uri.decode(uri.getQueryParameter(Uri.encode(User_Table.name.query))),
+            Uri.decode(uri.getQueryParameter(User_Table.name.query)),
             "Something"
         )
     }
@@ -106,18 +106,29 @@ class ContentObserverTest {
     ) {
         val contentObserver = FlowContentObserver(contentUri)
         // use latch to wait for result asynchronously.
-        val countDownLatch = CountDownLatch(1)
 
-        val listener = MockOnModelStateChangedListener(countDownLatch)
+        val capture = argumentCaptor<ContentNotification<Any>>()
+        val listener = mock<ContentNotificationListener<Any>> {
+            on { onChange(capture.capture()) } doReturn Unit
+        }
         contentObserver.addListener(listener)
         contentObserver.registerForContentChanges(DemoApp.context.contentResolver, User::class)
 
         database<ContentObserverDatabase>().writableTransaction {
             userFunc(user)
         }
+        while (capture.allValues.isEmpty()) {
+            delay(100L)
+        }
 
-        val notification = listener.notification
-        assertIs<ContentNotification.ModelChange<*>>(notification, "Type is not ModelChange.")
+        contentObserver.removeListener(listener)
+        contentObserver.unregisterForContentChanges(DemoApp.context.contentResolver)
+
+        val notification =
+            assertIs<ContentNotification.ModelChange<*>>(
+                capture.lastValue,
+                "Type is not ModelChange."
+            )
         val ops = notification.changedFields
         assertEquals(2, ops.size)
         assertEquals(ops[0].key, User_Table.id.query)
@@ -126,18 +137,5 @@ class ContentObserverTest {
         assertEquals(ops[0].value, "5")
         assertEquals(action, notification.action)
 
-        contentObserver.removeListener(listener)
-        contentObserver.unregisterForContentChanges(DemoApp.context.contentResolver)
-    }
-
-    class MockOnModelStateChangedListener(private val countDownLatch: CountDownLatch) :
-        ContentNotificationListener<Any> {
-
-        lateinit var notification: ContentNotification<Any>
-
-        override fun onChange(notification: ContentNotification<Any>) {
-            this.notification = notification
-            countDownLatch.countDown()
-        }
     }
 }

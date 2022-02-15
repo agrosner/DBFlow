@@ -35,6 +35,7 @@ object ClassNames {
         .parameterizedBy(tableTypeName)
 
     val OperatorGroup = ClassName(PackageNames.Query2Operations, "OperatorGroup")
+    val Operation = ClassName(PackageNames.Query2Operations, "Operation")
 
     val ModelAdapter = ClassName(PackageNames.Adapter, "ModelAdapter")
     fun modelAdapter(typeName: TypeName) = ModelAdapter.parameterizedBy(typeName)

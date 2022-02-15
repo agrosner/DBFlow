@@ -1,10 +1,10 @@
 package com.grosner.dbflow5.codegen.kotlin.writer.classwriter
 
-import com.dbflow5.codegen.shared.ClassNames
-import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.dbflow5.codegen.shared.ClassModel
+import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.writer.TypeCreator
+import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
@@ -21,10 +21,14 @@ class PrimaryConditionClauseWriter(
             .apply {
                 addModifiers(KModifier.OVERRIDE)
                 addParameter(ParameterSpec("model", model.classType))
-                addCode("return %T.clause().apply{\n", ClassNames.OperatorGroup)
+                addCode(
+                    "return %T.clause().chain(%T.And, \n",
+                    ClassNames.OperatorGroup,
+                    ClassNames.Operation
+                )
                 model.primaryFlattenedFields(referencesCache).forEach { field ->
                     addCode(
-                        "and(%L.%L %L %N.%L)\n",
+                        "%L.%L %L %N.%L,\n",
                         "Companion",
                         field.propertyName,
                         MemberNames.eq,
@@ -32,7 +36,7 @@ class PrimaryConditionClauseWriter(
                         field.accessName(useLastNull = false),
                     )
                 }
-                addCode("}\n")
+                addCode(")\n")
             }
             .build()
 }
