@@ -34,7 +34,10 @@ import kotlin.reflect.KClass
  */
 open class FlowContentObserver(
     private val contentAuthority: String,
-    handler: Handler? = null
+    handler: Handler? = null,
+    private val dispatcher: CoroutineDispatcher = handler?.asCoroutineDispatcher()
+        ?: Dispatchers.Main,
+    private val scope: CoroutineScope = CoroutineScope(dispatcher),
 ) : ContentObserver(handler) {
 
     private val registeredTables = mutableMapOf<String, KClass<*>>()
@@ -46,10 +49,6 @@ open class FlowContentObserver(
     private var isInTransaction = false
     private var notifyAllUris = false
 
-    private val dispatcher: CoroutineDispatcher = handler?.asCoroutineDispatcher()
-        ?: Dispatchers.Main
-
-    private val scope = CoroutineScope(dispatcher)
 
     private val internalNotificationFlow = MutableStateFlow<ContentNotification<*>?>(null)
 
@@ -87,13 +86,13 @@ open class FlowContentObserver(
      * Ends the transaction where it finishes, and will call [.onChange] for
      * every URI called (if set)/
      */
-    open fun endTransactionAndNotify() {
+    fun endTransactionAndNotify() {
         if (isInTransaction) {
             isInTransaction = false
 
             synchronized(notificationUris) {
                 for (uri in notificationUris) {
-                    onChange(uri, true)
+                    onChange(uri)
                 }
                 notificationUris.clear()
             }
@@ -117,12 +116,13 @@ open class FlowContentObserver(
         contentResolver: ContentResolver,
         table: KClass<*>
     ) {
+        val uri = ContentNotification.TableChange(
+            table = table,
+            action = ChangeAction.NONE,
+            authority = contentAuthority
+        ).uri
         contentResolver.registerContentObserver(
-            ContentNotification.TableChange(
-                table = table,
-                action = ChangeAction.NONE,
-                authority = contentAuthority
-            ).uri,
+            uri,
             true,
             this,
         )
@@ -142,11 +142,11 @@ open class FlowContentObserver(
     }
 
     override fun onChange(selfChange: Boolean, uri: Uri?) {
-        uri?.let { onChange(it, false) }
+        uri?.let { onChange(it) }
     }
 
     @TargetApi(VERSION_CODES.JELLY_BEAN)
-    private fun onChange(uri: Uri, calledInternally: Boolean) {
+    private fun onChange(uri: Uri) {
         val notification = uriDecoder.decode<Any>(uri)
         if (notification != null && notification.action != ChangeAction.NONE) {
             // transactions batch the calls into one sequence. Here we queue up

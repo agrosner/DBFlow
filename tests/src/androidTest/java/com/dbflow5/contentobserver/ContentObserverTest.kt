@@ -17,6 +17,7 @@ import com.dbflow5.runtime.FlowContentObserver
 import com.dbflow5.structure.ChangeAction
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -82,6 +83,7 @@ class ContentObserverTest {
     @Test
     fun testSpecificUrlUpdate() = runBlockingTest {
         assertProperConditions(ChangeAction.UPDATE) { user ->
+            userAdapter.save(user)
             userAdapter.update(user.copy(age = 56))
         }
     }
@@ -94,17 +96,21 @@ class ContentObserverTest {
 
     @Test
     fun testSpecificUrlDelete() = runBlockingTest {
-        database<ContentObserverDatabase>().writableTransaction {
+        assertProperConditions(ChangeAction.DELETE) { user ->
             userAdapter.save(user)
+            userAdapter.delete(user)
         }
-        assertProperConditions(ChangeAction.DELETE) { user -> userAdapter.delete(user) }
     }
 
-    private suspend fun assertProperConditions(
+    private suspend fun TestCoroutineScope.assertProperConditions(
         action: ChangeAction,
         userFunc: suspend WritableDatabaseScope<ContentObserverDatabase>.(User) -> Unit
     ) {
-        val contentObserver = FlowContentObserver(contentUri)
+        val contentObserver = FlowContentObserver(
+            contentUri,
+            dispatcher = TestCoroutineDispatcher(),
+            scope = this,
+        )
         // use latch to wait for result asynchronously.
 
         contentObserver.registerForContentChanges(DemoApp.context.contentResolver, User::class)
