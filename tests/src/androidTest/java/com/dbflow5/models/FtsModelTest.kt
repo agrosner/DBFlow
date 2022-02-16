@@ -29,13 +29,15 @@ class FtsModelTest : BaseUnitTest() {
     fun validate_fts4_created() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             val model = Fts4Model(name = "FTSBABY")
-            fts4ModelAdapter.save(model)
+            val updated = fts4ModelAdapter.save(model)
+            assertTrue(updated.getOrThrow().id > 0)
+        }
 
-            val rowID = (fts4ModelAdapter.insert(
-                fts4ModelAdapter.docId(),
-                Fts4Model_Table.name
-            ) select fts4ModelAdapter.select(Fts4Model_Table.id, Fts4Model_Table.name))
-                .execute()
+        database<TestDatabase>().readableTransaction {
+            val rowID = (fts4VirtualModel2Adapter.insert(
+                fts4VirtualModel2Adapter.docId(),
+                Fts4VirtualModel2_Table.name
+            ) select fts4ModelAdapter.select(Fts4Model_Table.id, Fts4Model_Table.name)).execute()
             assertTrue(rowID > 0)
         }
     }
@@ -54,7 +56,7 @@ class FtsModelTest : BaseUnitTest() {
     fun offsets_query() = runBlockingTest {
         validate_fts4_created()
         val value = database<TestDatabase>().readableTransaction {
-            (fts4ModelAdapter.select(
+            (fts4VirtualModel2Adapter.select(
                 StringResultFactory,
                 StandardMethods.Offsets<Fts4VirtualModel2>()
             )
@@ -78,9 +80,9 @@ class FtsModelTest : BaseUnitTest() {
             fts4ModelAdapter.save(model)
         }
         val rows = database.writableTransaction {
-            (fts4ModelAdapter.insert(
-                fts4ModelAdapter.docId(),
-                Fts4Model_Table.name
+            (fts4VirtualModel2Adapter.insert(
+                fts4VirtualModel2Adapter.docId(),
+                Fts4VirtualModel2_Table.name
             ) select fts4ModelAdapter.select(Fts4Model_Table.id, Fts4Model_Table.name))
                 .execute()
         }
