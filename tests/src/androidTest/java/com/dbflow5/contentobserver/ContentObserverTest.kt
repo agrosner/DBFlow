@@ -12,14 +12,10 @@ import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.query2.delete
 import com.dbflow5.runtime.ContentNotification
-import com.dbflow5.runtime.ContentNotificationListener
 import com.dbflow5.runtime.ContentResolverNotifier
 import com.dbflow5.runtime.FlowContentObserver
 import com.dbflow5.structure.ChangeAction
-import com.nhaarman.mockitokotlin2.argumentCaptor
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
@@ -51,6 +47,10 @@ class ContentObserverTest {
         user = User(5, "Something", 55)
     }
 
+    /**
+     * Validates the [ContentNotification.ModelChange] uri
+     * matches expected
+     */
     @Test
     fun content_notification_ModelChange_validateUri() {
         val database = database<ContentObserverDatabase>()
@@ -89,7 +89,7 @@ class ContentObserverTest {
     @Test
     fun testSpecificUrlSave() = runBlockingTest {
         // insert on SAVE
-        assertProperConditions(ChangeAction.INSERT) { user -> userAdapter.save(user.copy(age = 57)) }
+        assertProperConditions(ChangeAction.CHANGE) { user -> userAdapter.save(user.copy(age = 57)) }
     }
 
     @Test
@@ -107,26 +107,18 @@ class ContentObserverTest {
         val contentObserver = FlowContentObserver(contentUri)
         // use latch to wait for result asynchronously.
 
-        val capture = argumentCaptor<ContentNotification<Any>>()
-        val listener = mock<ContentNotificationListener<Any>> {
-            on { onChange(capture.capture()) } doReturn Unit
-        }
-        contentObserver.addListener(listener)
         contentObserver.registerForContentChanges(DemoApp.context.contentResolver, User::class)
 
         database<ContentObserverDatabase>().writableTransaction {
             userFunc(user)
         }
-        while (capture.allValues.isEmpty()) {
-            delay(100L)
-        }
 
-        contentObserver.removeListener(listener)
         contentObserver.unregisterForContentChanges(DemoApp.context.contentResolver)
 
+        val value = contentObserver.notificationFlow.first()
         val notification =
             assertIs<ContentNotification.ModelChange<*>>(
-                capture.lastValue,
+                value,
                 "Type is not ModelChange."
             )
         val ops = notification.changedFields

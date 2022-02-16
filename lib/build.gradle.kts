@@ -49,6 +49,7 @@ dependencies {
     api(project(":core"))
     api(Dependencies.AndroidX.Annotations)
     api(Dependencies.Coroutines)
+    api(Dependencies.CoroutinesAndroid)
 }
 
 apply(from = "../kotlin-artifacts.gradle.kts")

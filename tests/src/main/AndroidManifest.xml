@@ -5,6 +5,9 @@
         android:name="com.dbflow5.DemoApp"
         android:allowBackup="false"
         android:label="DB Flow Compiler Test">
+        <provider
+            android:name="com.dbflow5.StubContentProvider"
+            android:authorities="com.grosner.content" />
         <activity
             android:name="com.dbflow5.test.DemoActivity"
             android:exported="true">

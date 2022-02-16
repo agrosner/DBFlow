@@ -292,7 +292,7 @@ class ClassWriter(
                 getter(
                     FunSpec.getterBuilder()
                         .addCode("return %S", buildString {
-                            append("UPDATE")
+                            append("UPDATE ")
                             (model.properties as? TableProperties)?.updateConflict
                                 ?: ConflictAction.NONE
                                     .takeIf { it != ConflictAction.NONE }?.let { action ->
@@ -301,7 +301,7 @@ class ClassWriter(
                             append("${model.dbName} SET ")
                             append(extractors.joinToString { it.updateName })
                             append(" WHERE ")
-                            append(primaryExtractors.joinToString { it.updateName })
+                            append(primaryExtractors.joinToString(separator = " AND ") { it.updateName })
                         })
                         .build()
                 )
@@ -320,7 +320,7 @@ class ClassWriter(
                     FunSpec.getterBuilder()
                         .addCode("return %S", buildString {
                             append("DELETE FROM ${model.dbName} WHERE ")
-                            append(primaryExtractors.joinToString("AND") { it.updateName })
+                            append(primaryExtractors.joinToString(" AND ") { it.updateName })
                         })
                         .build()
                 )

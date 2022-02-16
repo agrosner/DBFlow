@@ -14,6 +14,7 @@ object Dependencies {
     const val SqlCipher = "net.zetetic:android-database-sqlcipher:4.5.0"
     const val RX = "io.reactivex.rxjava3:rxjava:3.1.3"
     const val Coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2"
+    const val CoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
     const val JavaPoet = "com.squareup:javapoet:1.13.0"
     const val KPoet = "com.github.agrosner:KPoet:1.0.0"
     const val JavaXAnnotation = "org.glassfish:javax.annotation:10.0-b28"

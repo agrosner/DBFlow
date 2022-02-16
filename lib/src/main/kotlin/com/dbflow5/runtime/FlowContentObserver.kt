@@ -12,6 +12,14 @@ import com.dbflow5.config.FlowManager
 import com.dbflow5.getNotificationUri
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.structure.Model
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.android.asCoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.reflect.KClass
 
@@ -29,15 +37,28 @@ open class FlowContentObserver(
     handler: Handler? = null
 ) : ContentObserver(handler) {
 
-    private val listenerMap = mutableMapOf<KClass<*>, MutableSet<ContentNotificationListener<*>>>()
     private val registeredTables = mutableMapOf<String, KClass<*>>()
     private val notificationUris = hashSetOf<Uri>()
     private val tableUris = hashSetOf<Uri>()
 
     private val uriDecoder = contentDecoder()
 
-    protected var isInTransaction = false
+    private var isInTransaction = false
     private var notifyAllUris = false
+
+    private val dispatcher: CoroutineDispatcher = handler?.asCoroutineDispatcher()
+        ?: Dispatchers.Main
+
+    private val scope = CoroutineScope(dispatcher)
+
+    private val internalNotificationFlow = MutableStateFlow<ContentNotification<*>?>(null)
+
+    /**
+     * Register to hook into the [ContentNotification]. Use [filterIsInstance]
+     * to retrieve specific table types.
+     */
+    val notificationFlow: Flow<ContentNotification<*>>
+        get() = internalNotificationFlow.filterNotNull()
 
     val isSubscribed: Boolean
         get() = registeredTables.isNotEmpty()
@@ -79,41 +100,15 @@ open class FlowContentObserver(
             synchronized(tableUris) {
                 for (uri in tableUris) {
                     contentDecoder().decode<Any>(uri)?.let { notification ->
-                        listenerMap[notification.adapter.table]
-                            ?.forEach { onTableChangedListener ->
-                                onTableChangedListener
-                                    .cast<Any>()
-                                    .onChange(notification)
-                            }
+                        scope.launch {
+                            internalNotificationFlow.emit(notification)
+                        }
                     }
                 }
                 tableUris.clear()
             }
         }
     }
-
-    fun <Table : Any> addListener(
-        table: KClass<Table>,
-        contentNotificationListener: ContentNotificationListener<Table>,
-    ) {
-        listenerMap.getOrPut(table) { linkedSetOf() }
-            .add(contentNotificationListener)
-    }
-
-    inline fun <reified Table : Any> addListener(
-        contentNotificationListener: ContentNotificationListener<Table>,
-    ) = addListener(Table::class, contentNotificationListener)
-
-    fun <Table : Any> removeListener(
-        table: KClass<Table>,
-        contentNotificationListener: ContentNotificationListener<Table>,
-    ) {
-        listenerMap[table]?.remove(contentNotificationListener)
-    }
-
-    inline fun <reified Table : Any> removeListener(
-        contentNotificationListener: ContentNotificationListener<Table>
-    ) = removeListener(Table::class, contentNotificationListener)
 
     /**
      * Registers the observer for model change events for specific class.
@@ -157,8 +152,9 @@ open class FlowContentObserver(
             // transactions batch the calls into one sequence. Here we queue up
             // uris if in a transaction
             if (!isInTransaction) {
-                listenerMap[notification.adapter.table]
-                    ?.forEach { listener -> listener.cast<Any>().onChange(notification) }
+                scope.launch {
+                    internalNotificationFlow.emit(notification)
+                }
             } else {
 
                 if (!notifyAllUris) {
