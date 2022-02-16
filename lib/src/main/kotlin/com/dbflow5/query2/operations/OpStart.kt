@@ -2,6 +2,7 @@ package com.dbflow5.query2.operations
 
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query2.operations.BaseOperator.SingleValueOperator
+import com.dbflow5.query2.operations.BaseOperator.ValuelessOperator
 
 /**
  * Description: Simple interface for objects that can be used as Operators.
@@ -12,6 +13,11 @@ interface OpStart<ValueType> {
 
     val nameAlias: NameAlias
 
+    /**
+     * SQLite 'AS' operator.
+     *
+     * [shouldAddIdentifierToAlias] - if we should surround `` in the specified alias (default true).
+     */
     fun `as`(
         name: String,
         shouldAddIdentifierToAlias: Boolean,
@@ -22,52 +28,33 @@ interface OpStart<ValueType> {
     ): Operator<ValueType> = `as`(name, shouldAddIdentifierToAlias = true)
 
     /**
-     * Assigns the operation to "="
-     *
-     * @param value The [ValueType] that we express equality to.
-     * @return A [Operator] that represents equality between this and the parameter.
+     * Returns and assigns [Operation.IsNull]. Returns a [ValuelessOperator]
      */
-    infix fun `is`(value: ValueType): SingleValueOperator<ValueType> =
-        operator(
-            operation = Operation.Equals,
-            value = value,
-        )
+    fun isNull(): ValuelessOperator = operator(Operation.IsNull)
 
     /**
-     * Assigns the operation to "=". Identical to [.is]
-     *
-     * @param value The [ValueType] that we express equality to.
-     * @return A [Operator] that represents equality between this and the parameter.
-     * @see .is
+     * Returns and assigns [Operation.IsNotNull]. Returns a [ValuelessOperator]
      */
-    infix fun eq(value: ValueType): SingleValueOperator<ValueType> = `is`(value)
+    fun isNotNull(): ValuelessOperator = operator(Operation.IsNotNull)
 
     /**
-     * Assigns the operation to "!="
-     *
-     * @param value The [ValueType] that we express inequality to.
-     * @return A [<] that represents inequality between this and the parameter.
+     * Represents equality selection with [Operation.Equals].
      */
-    infix fun isNot(value: ValueType): SingleValueOperator<ValueType> =
-        operator(
-            operation = Operation.NotEquals,
-            value = value,
-        )
+    infix fun eq(value: ValueType): SingleValueOperator<ValueType> = operator(
+        operation = Operation.Equals,
+        value = value,
+    )
 
     /**
-     * Assigns the operation to "!="
-     *
-     * @param value The [ValueType] that we express inequality to.
-     * @return A [<] that represents inequality between this and the parameter.
-     * @see .notEq
+     * Represents inequality selection with [Operation.NotEquals].
      */
-    infix fun notEq(value: ValueType): SingleValueOperator<ValueType> = isNot(value)
+    infix fun notEq(value: ValueType): SingleValueOperator<ValueType> = operator(
+        operation = Operation.NotEquals,
+        value = value,
+    )
 
     /**
-     * Assigns operation to "&gt;"
-     *
-     * @param value The [ValueType] that this [IOperator] is greater than.
-     * @return A [<] that represents greater than between this and the parameter.
+     * Assigns operation to [Operation.GreaterThan]
      */
     infix fun greaterThan(value: ValueType): SingleValueOperator<ValueType> =
         operator(
@@ -76,10 +63,7 @@ interface OpStart<ValueType> {
         )
 
     /**
-     * Assigns operation to "&gt;="
-     *
-     * @param value The [ValueType] that this [IOperator] is greater than or equal to.
-     * @return A [<] that represents greater than or equal between this and the parameter.
+     * Assigns operation to [Operation.GreaterThanOrEquals]
      */
     infix fun greaterThanOrEq(value: ValueType): SingleValueOperator<ValueType> =
         operator(
@@ -89,10 +73,7 @@ interface OpStart<ValueType> {
 
 
     /**
-     * Assigns operation to "&lt;"
-     *
-     * @param value The [ValueType] that this [IOperator] is less than.
-     * @return A [<] that represents less than between this and the parameter.
+     * Assigns operation to [Operation.LessThan]
      */
     infix fun lessThan(value: ValueType): SingleValueOperator<ValueType> =
         operator(
@@ -102,10 +83,7 @@ interface OpStart<ValueType> {
 
 
     /**
-     * Assigns operation to "&lt;="
-     *
-     * @param value The [ValueType] that this [IOperator] is less than or equal to.
-     * @return A [<] that represents less than or equal to between this and the parameter.
+     * Assigns operation to [Operation.LessThanOrEquals]
      */
     infix fun lessThanOrEq(value: ValueType): SingleValueOperator<ValueType> =
         operator(
@@ -120,57 +98,26 @@ interface OpStart<ValueType> {
             valueConverter = valueConverter,
         )
 
-    /**
-     * Turns this [IOperator] into an [.In][<]. It means that this object should
-     * be represented by the set of [ValueType] provided to follow.
-     *
-     * @param firstValue The first value (required to enforce >= 1)
-     * @param values     The rest of the values to pass optionally.
-     * @return A new [.In][<] built from this [IOperator].
-     */
     fun `in`(firstValue: ValueType, vararg values: ValueType): BaseOperator.In<ValueType> =
         inOp(
             mutableListOf(firstValue).apply { addAll(values) },
             isIn = true,
         )
 
-    /**
-     * Turns this [IOperator] into an [.In][<] (not). It means that this object should NOT
-     * be represented by the set of [ValueType] provided to follow.
-     *
-     * @param firstValue The first value (required to enforce >= 1)
-     * @param values     The rest of the values to pass optionally.
-     * @return A new [.In][<] (not) built from this [IOperator].
-     */
     fun notIn(firstValue: ValueType, vararg values: ValueType): BaseOperator.In<ValueType> = inOp(
         mutableListOf(firstValue).apply { addAll(values) },
         isIn = false,
     )
 
-    /**
-     * Turns this [IOperator] into an [.In][<]. It means that this object should
-     * be represented by the set of [ValueType] provided to follow.
-     *
-     * @param values The rest of the values to pass optionally.
-     * @return A new [.In][<] built from this [IOperator].
-     */
     infix fun `in`(values: Collection<ValueType>): BaseOperator.In<ValueType> =
         inOp(values.toList(), isIn = true)
 
-    /**
-     * Turns this [IOperator] into an [.In][<] (not). It means that this object should NOT
-     * be represented by the set of [ValueType] provided to follow.
-     *
-     * @param values The rest of the values to pass optionally.
-     * @return A new [.In][<] (not) built from this [IOperator].
-     */
     infix fun notIn(values: Collection<ValueType>): BaseOperator.In<ValueType> =
         inOp(values.toList(), isIn = false)
 
     /**
-     * Adds another value and returns the operator. i.e p1 + p2
-     *
-     * @param value the value to add.
+     * Adds this [OpStart] with the value
+     * i.e. `name` + 5
      */
     infix operator fun plus(value: ValueType): SingleValueOperator<ValueType> =
         operator(
@@ -179,9 +126,8 @@ interface OpStart<ValueType> {
         )
 
     /**
-     * Subtracts another value and returns the operator. i.e p1 - p2
-     *
-     * @param value the value to subtract.
+     * Subtracts this [OpStart] with the value
+     * i.e. `name` - 5
      */
     infix operator fun minus(value: ValueType): SingleValueOperator<ValueType> =
         operator(
@@ -190,10 +136,8 @@ interface OpStart<ValueType> {
         )
 
     /**
-     * Divides another value and returns as the operator. i.e p1 / p2
-     *
-     * @param value the value to divide.
-     * @return A new instance.
+     * Divides this [OpStart] with the value
+     * i.e. `name` / 5
      */
     infix operator fun div(value: ValueType): SingleValueOperator<ValueType> =
         operator(
@@ -202,9 +146,8 @@ interface OpStart<ValueType> {
         )
 
     /**
-     * Multiplies another value and returns as the operator. i.e p1 * p2
-     *
-     * @param value the value to multiply.
+     * Multiplies this [OpStart] with the value
+     * i.e. `name` * 5
      */
     infix operator fun times(value: ValueType): SingleValueOperator<ValueType> =
         operator(
@@ -213,9 +156,8 @@ interface OpStart<ValueType> {
         )
 
     /**
-     * Modulous another value and returns as the operator. i.e p1 % p2
-     *
-     * @param value the value to calculate remainder of.
+     * Find remainer on this [OpStart] with the value
+     * i.e. `name` % 5
      */
     infix operator fun rem(value: ValueType): SingleValueOperator<ValueType> =
         operator(
@@ -224,11 +166,14 @@ interface OpStart<ValueType> {
         )
 }
 
+/**
+ * Extension provides default `AS` with shouldAddIdentifierToAlias = true.
+ */
 infix fun <ValueType> OpStart<ValueType>.`as`(name: String) =
     `as`(name, shouldAddIdentifierToAlias = true)
 
 /**
- * Generates [Operator] using the SQLite LIKE operator.
+ * Generates Expression using [Operation.Like].
  */
 infix fun OpStart<String>.like(value: String): SingleValueOperator<String> =
     operator(
@@ -237,7 +182,7 @@ infix fun OpStart<String>.like(value: String): SingleValueOperator<String> =
     )
 
 /**
- * Generates [Operator] using the SQLite LIKE operator.
+ * Generates Expression using [Operation.Like].
  */
 @JvmName("likeNullable")
 infix fun OpStart<String?>.like(value: String): SingleValueOperator<String?> =
@@ -247,7 +192,7 @@ infix fun OpStart<String?>.like(value: String): SingleValueOperator<String?> =
     )
 
 /**
- * Generates [Operator] using the SQLite LIKE operator.
+ * Generates Expression using [Operation.Match].
  */
 infix fun OpStart<String>.match(value: String): SingleValueOperator<String> =
     operator(
@@ -256,7 +201,7 @@ infix fun OpStart<String>.match(value: String): SingleValueOperator<String> =
     )
 
 /**
- * Generates [Operator] using the SQLite LIKE operator.
+ * Generates Expression using [Operation.Match].
  */
 @JvmName("matchNullable")
 infix fun OpStart<String?>.match(value: String): SingleValueOperator<String?> =
@@ -266,7 +211,7 @@ infix fun OpStart<String?>.match(value: String): SingleValueOperator<String?> =
     )
 
 /**
- * Generates [Operator] using the SQLite NOT LIKE operator.
+ * Generates Expression using [Operation.NotLike].
  */
 infix fun OpStart<String>.notLike(value: String): SingleValueOperator<String> =
     operator(
@@ -275,7 +220,7 @@ infix fun OpStart<String>.notLike(value: String): SingleValueOperator<String> =
     )
 
 /**
- * Generates [Operator] using the SQLite NOT LIKE operator.
+ * Generates Expression using [Operation.NotLike].
  */
 @JvmName("notLikeNullable")
 infix fun OpStart<String?>.notLike(value: String): SingleValueOperator<String?> =
@@ -285,7 +230,7 @@ infix fun OpStart<String?>.notLike(value: String): SingleValueOperator<String?> 
     )
 
 /**
- * Generates [Operator] using the SQLite GLOB operator.
+ * Generates Expression using [Operation.Glob].
  */
 infix fun OpStart<String>.glob(value: String): SingleValueOperator<String> =
     operator(
@@ -294,7 +239,7 @@ infix fun OpStart<String>.glob(value: String): SingleValueOperator<String> =
     )
 
 /**
- * Generates [Operator] using the SQLite GLOB operator.
+ * Generates Expression using [Operation.Glob].
  */
 @JvmName("globNullable")
 infix fun OpStart<String?>.glob(value: String): SingleValueOperator<String?> =
@@ -307,12 +252,16 @@ internal fun <ValueType> OpStart<ValueType>.operator(
     value: ValueType,
     operation: Operation,
 ) =
-    OperatorImpl(
+    operator(
         nameAlias = nameAlias,
         operation = operation,
         value = value,
         valueConverter = valueConverter,
     )
+
+internal fun <ValueType> OpStart<ValueType>.operator(
+    operation: Operation,
+) = operator(nameAlias, operation)
 
 internal fun <ValueType> OpStart<ValueType>.inOp(
     values: List<ValueType>,

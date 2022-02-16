@@ -40,8 +40,6 @@ infix fun Operator<String>.concatenate(value: String): ConcatStart =
  */
 interface BaseOperator<ValueType> : Operator<ValueType> {
 
-    val valueConverter: SQLValueConverter<ValueType>
-
     val nameAlias: NameAlias
 
     val key: String
@@ -62,14 +60,17 @@ interface BaseOperator<ValueType> : Operator<ValueType> {
     infix operator fun rem(value: AnyOperator) =
         chain(Operation.Rem, value)
 
-    interface SingleValueOperator<ValueType> : BaseOperator<ValueType> {
-        val value: ValueType
+    interface ValuelessOperator : BaseOperator<Nothing>
 
+    interface SingleValueOperator<ValueType> : BaseOperator<ValueType> {
+        val valueConverter: SQLValueConverter<ValueType>
+        val value: ValueType
         val sqlValue: String
             get() = valueConverter.convert(value)
     }
 
     interface MultipleValueOperator<ValueType> : BaseOperator<ValueType> {
+        val valueConverter: SQLValueConverter<ValueType>
         val values: List<ValueType>
         val joinedSqlValue: String
             get() = values.joinToString(separator = ",") { valueConverter.convert(it) }
@@ -110,6 +111,17 @@ fun <ValueType> operator(
     valueConverter = valueConverter,
 )
 
+/**
+ * Creates an operator without a value.
+ */
+fun operator(
+    nameAlias: NameAlias,
+    operation: Operation,
+): BaseOperator.ValuelessOperator = ValuelessOperatorImpl(
+    nameAlias = nameAlias,
+    operation = operation,
+)
+
 internal data class OperatorImpl<ValueType>(
     override val nameAlias: NameAlias,
     private val operation: Operation,
@@ -119,6 +131,17 @@ internal data class OperatorImpl<ValueType>(
     override val query: String by lazy {
         buildString {
             append("${nameAlias.query} ${operation.value} $sqlValue")
+        }
+    }
+}
+
+internal data class ValuelessOperatorImpl(
+    override val nameAlias: NameAlias,
+    private val operation: Operation,
+) : BaseOperator.ValuelessOperator {
+    override val query: String by lazy {
+        buildString {
+            append("${nameAlias.query} ${operation.value}")
         }
     }
 }

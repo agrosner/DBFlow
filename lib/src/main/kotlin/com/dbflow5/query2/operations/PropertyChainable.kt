@@ -6,15 +6,10 @@ package com.dbflow5.query2.operations
 interface PropertyChainable<Value>
     : Operator<Value> {
 
-    infix fun `is`(value: AnyOperator) =
-        chainProperty(Operation.Equals, value)
-
-    infix fun eq(value: AnyOperator) = `is`(value)
+    infix fun eq(value: AnyOperator) = chainProperty(Operation.Equals, value)
 
     infix fun isNot(value: AnyOperator) =
         chainProperty(Operation.NotEquals, value)
-
-    infix fun notEq(value: AnyOperator) = isNot(value)
 
     infix fun greaterThan(value: AnyOperator) =
         chainProperty(Operation.GreaterThan, value)
