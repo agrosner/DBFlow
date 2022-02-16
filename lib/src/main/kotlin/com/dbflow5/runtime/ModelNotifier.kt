@@ -9,7 +9,7 @@ interface ModelNotifier {
 
     val db: DatabaseWrapper
 
-    fun <Table : Any> onChange(notification: ModelNotification<Table>)
+    suspend fun <Table : Any> onChange(notification: ModelNotification<Table>)
 }
 
 fun interface ModelNotificationListener<Table : Any> {

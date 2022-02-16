@@ -81,7 +81,7 @@ dependencies {
     androidTestImplementation("androidx.test:rules:1.4.0")
     androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
-
+    androidTestImplementation(Dependencies.Turbine)
 }
 
 dexcount {

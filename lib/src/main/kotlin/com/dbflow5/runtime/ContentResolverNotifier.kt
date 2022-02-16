@@ -20,7 +20,7 @@ class ContentResolverNotifier(
     override val db: DBFlowDatabase,
 ) : ModelNotifier {
 
-    override fun <Table : Any> onChange(notification: ModelNotification<Table>) {
+    override suspend fun <Table : Any> onChange(notification: ModelNotification<Table>) {
         if (FlowContentObserver.shouldNotify()) {
             notifyChanges(notification.toContentNotification(authority))
         }

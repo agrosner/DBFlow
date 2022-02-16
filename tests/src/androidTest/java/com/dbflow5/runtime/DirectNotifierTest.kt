@@ -3,6 +3,7 @@ package com.dbflow5.runtime
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import app.cash.turbine.test
 import com.dbflow5.TestDatabase
 import com.dbflow5.TestTransactionDispatcherFactory
 import com.dbflow5.config.FlowManager
@@ -16,14 +17,13 @@ import com.dbflow5.query2.insert
 import com.dbflow5.query2.update
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.structure.ChangeAction
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.test.assertEquals
 
 @RunWith(AndroidJUnit4::class)
 class DirectNotifierTest {
@@ -48,81 +48,89 @@ class DirectNotifierTest {
     fun validateCanNotifyDirect() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             val model = SimpleModel("Name")
+            DirectModelNotifier.get(this.db).notificationFlow
+                .test {
+                    simpleModelAdapter.insert(model)
+                    assertEquals(
+                        ModelNotification.ModelChange(
+                            model,
+                            ChangeAction.INSERT,
+                            simpleModelAdapter,
+                        ),
+                        awaitItem()
+                    )
 
-            val modelChange = mock<ModelNotificationListener<SimpleModel>>()
-            DirectModelNotifier.get(this.db).addListener(modelChange)
+                    simpleModelAdapter.update(model)
+                    assertEquals(
+                        ModelNotification.ModelChange(
+                            model,
+                            ChangeAction.UPDATE,
+                            simpleModelAdapter,
+                        ),
+                        awaitItem()
+                    )
 
-            simpleModelAdapter.insert(model)
-            verify(modelChange).onChange(
-                ModelNotification.ModelChange(
-                    model,
-                    ChangeAction.INSERT,
-                    simpleModelAdapter,
-                )
-            )
+                    simpleModelAdapter.save(model)
+                    assertEquals(
+                        ModelNotification.ModelChange(
+                            model,
+                            ChangeAction.CHANGE,
+                            simpleModelAdapter,
+                        ),
+                        awaitItem()
+                    )
 
-            simpleModelAdapter.update(model)
-            verify(modelChange).onChange(
-                ModelNotification.ModelChange(
-                    model,
-                    ChangeAction.UPDATE,
-                    simpleModelAdapter,
-                )
-            )
+                    simpleModelAdapter.delete(model)
+                    assertEquals(
+                        ModelNotification.ModelChange(
+                            model,
+                            ChangeAction.DELETE,
+                            simpleModelAdapter,
+                        ),
+                        awaitItem()
+                    )
 
-            simpleModelAdapter.save(model)
-            verify(modelChange).onChange(
-                ModelNotification.ModelChange(
-                    model,
-                    ChangeAction.CHANGE,
-                    simpleModelAdapter,
-                )
-            )
-
-            simpleModelAdapter.delete(model)
-            verify(modelChange).onChange(
-                ModelNotification.ModelChange(
-                    model,
-                    ChangeAction.DELETE,
-                    simpleModelAdapter,
-                )
-            )
+                    awaitComplete()
+                }
         }
     }
 
     @Test
     fun validateCanNotifyWrapperClasses() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            val modelChange = mock<ModelNotificationListener<SimpleModel>>()
-            DirectModelNotifier.get(this.db).addListener(modelChange)
+            DirectModelNotifier.get(this.db).notificationFlow
+                .test {
+                    simpleModelAdapter.insert(SimpleModel_Table.name to "name")
+                        .execute()
 
-            simpleModelAdapter.insert(SimpleModel_Table.name to "name")
-                .execute()
+                    assertEquals(
+                        ModelNotification.TableChange(
+                            SimpleModel::class,
+                            ChangeAction.INSERT,
+                        ),
+                        awaitItem(),
+                    )
 
-            verify(modelChange).onChange(
-                ModelNotification.TableChange(
-                    SimpleModel::class,
-                    ChangeAction.INSERT,
-                )
-            )
+                    (simpleModelAdapter.update() set SimpleModel_Table.name.eq("name2"))
+                        .execute()
 
-            (simpleModelAdapter.update() set SimpleModel_Table.name.eq("name2"))
-                .execute()
+                    assertEquals(
+                        ModelNotification.TableChange(
+                            SimpleModel::class,
+                            ChangeAction.UPDATE,
+                        ),
+                        awaitItem(),
+                    )
+                    simpleModelAdapter.delete().execute()
 
-            verify(modelChange).onChange(
-                ModelNotification.TableChange(
-                    SimpleModel::class,
-                    ChangeAction.UPDATE,
-                )
-            )
-            simpleModelAdapter.delete().execute()
-
-            verify(modelChange).onChange(
-                ModelNotification.TableChange(
-                    SimpleModel::class,
-                    ChangeAction.DELETE,
-                )
-            )
+                    assertEquals(
+                        ModelNotification.TableChange(
+                            SimpleModel::class,
+                            ChangeAction.DELETE,
+                        ),
+                        awaitItem()
+                    )
+                }
         }
     }
 

@@ -4,7 +4,9 @@ import com.dbflow5.config.FlowConfig
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.AndroidSQLiteOpenHelper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.setMain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -18,6 +20,7 @@ class DBFlowInstrumentedTestRule(private val dbConfigBlock: FlowConfig.Builder.(
 
             @Throws(Throwable::class)
             override fun evaluate() {
+                Dispatchers.setMain(TestCoroutineDispatcher())
                 FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
                 FlowManager.init(DemoApp.context) {
                     database<TestDatabase>({

@@ -34,6 +34,7 @@ object Dependencies {
     const val KotlinCompileTestingKSP =
         "com.github.tschuchortdev:kotlin-compile-testing-ksp:${Versions.KotlinCompileTesting}"
 
+    const val Turbine = "app.cash.turbine:turbine:0.7.0"
 
     object AndroidX {
         const val Annotations = "androidx.annotation:annotation:1.3.0"

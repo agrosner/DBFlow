@@ -1,18 +1,21 @@
 package com.dbflow5.runtime
 
 import com.dbflow5.database.DatabaseWrapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Description: Distributes notifications to the [ModelNotifier].
  */
 class NotifyDistributor
 private constructor(
-    override val db: DatabaseWrapper
-) : ModelNotifier {
+    private val modelNotifier: ModelNotifier,
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+) {
 
-    override fun <Table : Any> onChange(notification: ModelNotification<Table>) {
-        db.associatedDBFlowDatabase.getModelNotifier()
-            .onChange(notification)
+    fun <Table : Any> onChange(notification: ModelNotification<Table>) {
+        scope.launch { modelNotifier.onChange(notification) }
     }
 
     companion object {
@@ -21,7 +24,7 @@ private constructor(
 
         operator fun invoke(db: DatabaseWrapper): NotifyDistributor =
             distributorMap.getOrPut(db) {
-                NotifyDistributor(db)
+                NotifyDistributor(db.associatedDBFlowDatabase.getModelNotifier())
             }
     }
 }
