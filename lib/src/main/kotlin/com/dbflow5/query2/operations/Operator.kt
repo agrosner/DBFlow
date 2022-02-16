@@ -47,6 +47,21 @@ interface BaseOperator<ValueType> : Operator<ValueType> {
     val key: String
         get() = nameAlias.query
 
+    infix operator fun plus(value: AnyOperator) =
+        chain(Operation.Plus, value)
+
+    infix operator fun minus(value: AnyOperator) =
+        chain(Operation.Minus, value)
+
+    infix operator fun div(value: AnyOperator) =
+        chain(Operation.Division, value)
+
+    infix operator fun times(value: AnyOperator) =
+        chain(Operation.Times, value)
+
+    infix operator fun rem(value: AnyOperator) =
+        chain(Operation.Rem, value)
+
     interface SingleValueOperator<ValueType> : BaseOperator<ValueType> {
         val value: ValueType
 

@@ -2,7 +2,6 @@ package com.dbflow5.rx2.query
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
-import com.dbflow5.authorAdapter
 import com.dbflow5.blogAdapter
 import com.dbflow5.config.database
 import com.dbflow5.config.readableTransaction
@@ -61,24 +60,22 @@ class RXFlowableTest : BaseUnitTest() {
     fun testObservesJoinTables() = runBlockingTest {
         database<TestDatabase> { db ->
             val joinOn = Blog_Table.name.withTable()
-                .eq(Author_Table.first_name.withTable().query + " " + Author_Table.last_name.withTable().query)
+                .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
             assertEquals(
-                "`Blog`.`name`=`Author`.`first_name`+' '+`Author`.`last_name`",
+                "`Blog`.`name` = (`Author`.`first_name` + ' ' + `Author`.`last_name`)",
                 joinOn.query
             )
 
             var list = listOf<Blog>()
             var calls = 0
-            db.readableTransaction {
-                (select from blogAdapter
-                    leftOuterJoin authorAdapter
-                    on joinOn)
-                    .asFlowable(db) { list() }
-                    .subscribe {
-                        calls++
-                        list = it
-                    }
-            }
+            (select from db.blogAdapter
+                leftOuterJoin db.authorAdapter
+                on joinOn)
+                .asFlowable(db) { list() }
+                .subscribe {
+                    calls++
+                    list = it
+                }
 
             val authors =
                 (1 until 11).map { Author(it, firstName = "${it}name", lastName = "${it}last") }
@@ -94,8 +91,8 @@ class RXFlowableTest : BaseUnitTest() {
                 }
             }
 
-            assertEquals(10, list.size)
             assertEquals(2, calls) // 1 for initial, 1 for batch of changes
+            assertEquals(10, list.size)
         }
     }
 }
