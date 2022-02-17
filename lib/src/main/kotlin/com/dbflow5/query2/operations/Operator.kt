@@ -136,7 +136,9 @@ internal data class OperatorImpl<ValueType>(
 ) : BaseOperator<ValueType>, BaseOperator.SingleValueOperator<ValueType> {
     override val query: String by lazy {
         buildString {
-            append("${nameAlias.query} ${operation.value} $sqlValue")
+            append(nameAlias.query)
+            if (operation != Operation.Empty) append(" ${operation.value}")
+            append(" $sqlValue")
         }
     }
 }
@@ -147,7 +149,8 @@ internal data class ValuelessOperatorImpl(
 ) : BaseOperator.ValuelessOperator {
     override val query: String by lazy {
         buildString {
-            append("${nameAlias.query} ${operation.value}")
+            append(nameAlias.query)
+            if (operation != Operation.Empty) append(" ${operation.value}")
         }
     }
 }
