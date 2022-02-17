@@ -27,7 +27,7 @@ class WhereTest : BaseUnitTest() {
 
     @Test
     fun validateBasicWhere() {
-        val query = simpleModelAdapter.select() where SimpleModel_Table.name.`is`("name")
+        val query = simpleModelAdapter.select() where (SimpleModel_Table.name eq "name")
         "SELECT * FROM `SimpleModel` WHERE `name` = 'name'".assertEquals(query)
     }
 
@@ -35,11 +35,11 @@ class WhereTest : BaseUnitTest() {
     fun validateComplexQueryWhere() {
         val query = (
             twoColumnModelAdapter.select()
-                where TwoColumnModel_Table.name.eq("name")
-                or TwoColumnModel_Table.id.eq(1)
+                where (TwoColumnModel_Table.name eq "name")
+                or (TwoColumnModel_Table.id eq 1)
                 and (
-                TwoColumnModel_Table.id.eq(0)
-                    or TwoColumnModel_Table.name.eq("hi")))
+                TwoColumnModel_Table.id eq 0
+                    or (TwoColumnModel_Table.name eq "hi")))
         ("SELECT * FROM `TwoColumnModel` " +
             "WHERE `name` = 'name' " +
             "OR `id` = 1 " +
@@ -51,7 +51,7 @@ class WhereTest : BaseUnitTest() {
     fun validateGroupBy() {
         val query = (
             simpleModelAdapter.select()
-                where SimpleModel_Table.name.`is`("name")
+                where SimpleModel_Table.name.eq("name")
                 groupBy SimpleModel_Table.name
             )
         "SELECT * FROM `SimpleModel` WHERE `name` = 'name' GROUP BY `name`".assertEquals(query)
@@ -60,7 +60,7 @@ class WhereTest : BaseUnitTest() {
     @Test
     fun validateGroupByNameAlias() {
         val query =
-            (simpleModelAdapter.select() where SimpleModel_Table.name.`is`("name")).groupBy(
+            (simpleModelAdapter.select() where SimpleModel_Table.name.eq("name")).groupBy(
                 "name".nameAlias,
                 "id".nameAlias
             )
@@ -71,7 +71,7 @@ class WhereTest : BaseUnitTest() {
     fun validateGroupByNameProps() {
         val query = (
             twoColumnModelAdapter.select()
-                where TwoColumnModel_Table.name.`is`("name"))
+                where TwoColumnModel_Table.name.eq("name"))
             .groupBy(
                 TwoColumnModel_Table.name,
                 TwoColumnModel_Table.id
@@ -84,7 +84,7 @@ class WhereTest : BaseUnitTest() {
     @Test
     fun validateHaving() {
         val query =
-            simpleModelAdapter.select() where SimpleModel_Table.name.`is`("name") having SimpleModel_Table.name.like(
+            simpleModelAdapter.select() where SimpleModel_Table.name.eq("name") having SimpleModel_Table.name.like(
                 "That"
             )
         ("SELECT * FROM `SimpleModel` " +
@@ -105,13 +105,13 @@ class WhereTest : BaseUnitTest() {
     @Test
     fun validateLimit() {
         val query =
-            simpleModelAdapter.select() where SimpleModel_Table.name.`is`("name") limit 10
+            simpleModelAdapter.select() where SimpleModel_Table.name.eq("name") limit 10
         "SELECT * FROM `SimpleModel` WHERE `name` = 'name' LIMIT 10".assertEquals(query)
     }
 
     @Test
     fun validateOffset() {
-        val query = simpleModelAdapter.select() where SimpleModel_Table.name.`is`("name") offset 10
+        val query = simpleModelAdapter.select() where SimpleModel_Table.name.eq("name") offset 10
         "SELECT * FROM `SimpleModel` WHERE `name` = 'name' OFFSET 10".assertEquals(query)
     }
 

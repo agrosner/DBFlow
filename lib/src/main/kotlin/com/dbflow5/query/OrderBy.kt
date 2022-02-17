@@ -1,7 +1,6 @@
 package com.dbflow5.query
 
 import com.dbflow5.annotation.Collate
-import com.dbflow5.query.property.IProperty
 import com.dbflow5.query2.operations.Property
 import com.dbflow5.query2.operations.StandardMethods
 import com.dbflow5.sql.Query
@@ -41,8 +40,6 @@ constructor(
             }
         }
 
-    internal constructor(property: IProperty<*>) : this(property.nameAlias)
-
     internal constructor(orderByString: String) : this(column = null) {
         this.orderByString = orderByString
     }
@@ -81,18 +78,6 @@ constructor(
                 } else isAscending
             )
 
-        @Deprecated(message = "dont use")
-        @JvmStatic
-        fun fromProperty(
-            property: com.dbflow5.query.property.Property<*>,
-            isAscending: Boolean = true
-        ): OrderBy =
-            OrderBy(
-                property.nameAlias,
-                // if we use RANDOM(), leave out ascending qualifier as its not valid SQLite.
-                isAscending
-            )
-
         @JvmStatic
         fun fromNameAlias(nameAlias: NameAlias, isAscending: Boolean = true): OrderBy =
             OrderBy(nameAlias, isAscending)
@@ -104,6 +89,5 @@ constructor(
 
         @JvmStatic
         fun fromString(orderByString: String): OrderBy = OrderBy(orderByString)
-
     }
 }

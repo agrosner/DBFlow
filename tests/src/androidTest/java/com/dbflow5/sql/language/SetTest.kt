@@ -15,7 +15,7 @@ class SetTest : BaseUnitTest() {
     fun validateSetWithConditions() {
         database<TestDatabase> { db ->
             "UPDATE `SimpleModel` SET `name` = 'name'".assertEquals(
-                db.simpleModelAdapter.update() set SimpleModel_Table.name.`is`(
+                db.simpleModelAdapter.update() set SimpleModel_Table.name.eq(
                     "name"
                 )
             )

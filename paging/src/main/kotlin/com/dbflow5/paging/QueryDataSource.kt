@@ -6,7 +6,6 @@ import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
-import com.dbflow5.query.ModelQueriable
 import com.dbflow5.query2.Constrainable
 import com.dbflow5.query2.ExecutableQuery
 import com.dbflow5.query2.HasAdapter
@@ -16,7 +15,7 @@ import com.dbflow5.query2.selectCountOf
 import kotlin.reflect.KClass
 
 /**
- * Bridges the [ModelQueriable] into a [PositionalDataSource] that loads a [ModelQueriable].
+ * Enables taking an [ExecutableQuery] of type [SelectResult] and paginating its results.
  */
 class QueryDataSource<Table : Any, Q>
 internal constructor(

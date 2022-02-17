@@ -7,7 +7,6 @@ import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.nameAlias
-import com.dbflow5.query.property.Property
 import com.dbflow5.query2.operations.PropertyStart
 import com.dbflow5.query2.operations.concatenate
 import com.dbflow5.query2.operations.glob
@@ -26,10 +25,8 @@ class PropertyTest : BaseUnitTest() {
     @Test
     fun testOperators() {
         val prop: PropertyStart<String, SimpleModel> = simpleModelAdapter.property("Prop".nameAlias)
-        "`Prop` = '5'".assertEquals(prop `is` "5")
         "`Prop` = '5'".assertEquals(prop eq "5")
         "`Prop` != '5'".assertEquals(prop notEq "5")
-        "`Prop` != '5'".assertEquals(prop isNot "5")
         "`Prop` LIKE '5'".assertEquals(prop like "5")
         "`Prop` NOT LIKE '5'".assertEquals(prop notLike "5")
         "`Prop` GLOB '5'".assertEquals(prop glob "5")
@@ -49,8 +46,7 @@ class PropertyTest : BaseUnitTest() {
         val prop = simpleModelAdapter.property<String, SimpleModel>("Prop".nameAlias).`as`("Alias")
         assertEquals("`Prop` AS `Alias`", prop.query)
 
-        val prop2 = Property<String>(
-            simpleModelAdapter,
+        val prop2 = simpleModelAdapter.property<String, SimpleModel>(
             NameAlias.builder("Prop")
                 .shouldAddIdentifierToName(false)
                 .`as`("Alias")

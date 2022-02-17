@@ -3,8 +3,8 @@ package com.dbflow5.query2
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.appendQuotedIfNeeded
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query.SQLOperator
-import com.dbflow5.query.property.IProperty
+import com.dbflow5.query2.operations.AnyOperator
+import com.dbflow5.query2.operations.Property
 import com.dbflow5.sql.Query
 
 internal sealed class TriggerQualifier(val value: String) {
@@ -19,10 +19,12 @@ internal sealed class TriggerQualifier(val value: String) {
 
 internal sealed class TriggerMethod(val value: String) {
     object Insert : TriggerMethod("INSERT")
-    data class Update(val properties: List<IProperty<*>>) : TriggerMethod("UPDATE")
+    data class Update<Table : Any>(val properties: List<Property<*, Table>>) :
+        TriggerMethod("UPDATE")
+
     object Delete : TriggerMethod("DELETE")
     companion object {
-        val All = listOf(Insert, Update(listOf()), Delete)
+        val All = listOf(Insert, Update<Any>(listOf()), Delete)
     }
 }
 
@@ -49,7 +51,7 @@ interface TriggerMethodEnabled<Table : Any> {
     /**
      * If [ofProperties] specified, this UPDATE becomes UPDATE OF p0,p1,...
      */
-    fun updateOn(vararg ofProperties: IProperty<*>): TriggerOn<Table>
+    fun updateOn(vararg ofProperties: Property<*, Table>): TriggerOn<Table>
     fun deleteOn(): TriggerOn<Table>
 }
 
@@ -58,7 +60,7 @@ interface TriggerForEachRowEnabled<Table : Any> {
 }
 
 interface TriggerWhenEnabled<Table : Any> {
-    infix fun whenever(operator: SQLOperator): TriggerWhen<Table>
+    infix fun whenever(operator: AnyOperator): TriggerWhen<Table>
 }
 
 interface TriggerLogicEnabled<Table : Any> {
@@ -116,7 +118,7 @@ internal data class TriggerImpl<Table : Any>(
     private val qualifier: TriggerQualifier? = null,
     private val method: TriggerMethod? = null,
     private val forEachRow: Boolean = false,
-    private val whenOperator: SQLOperator? = null,
+    private val whenOperator: AnyOperator? = null,
     private val triggerLogicQuery: List<Query> = emptyList(),
 ) : TriggerStart<Table>,
     TriggerQualified<Table>,
@@ -133,18 +135,14 @@ internal data class TriggerImpl<Table : Any>(
             appendQuotedIfNeeded(name).append(" ")
             if (qualifier != null) append("${qualifier.value} ")
             if (method != null) append("${method.value} ")
-            if (method is TriggerMethod.Update &&
+            if (method is TriggerMethod.Update<*> &&
                 method.properties.isNotEmpty()
             ) {
                 append("OF ${method.properties.joinToString { it.query }} ")
             }
             append("ON ${adapter.name} ")
             if (forEachRow) append("FOR EACH ROW ")
-            whenOperator?.let { whenOperator ->
-                append("WHEN ")
-                whenOperator.appendConditionToQuery(this)
-                append(" ")
-            }
+            whenOperator?.let { append("WHEN ${it.query} ") }
             if (triggerLogicQuery.isNotEmpty()) {
                 append(
                     "\nBEGIN\n${
@@ -160,7 +158,7 @@ internal data class TriggerImpl<Table : Any>(
             method = TriggerMethod.Insert,
         )
 
-    override fun updateOn(vararg ofProperties: IProperty<*>): TriggerOn<Table> =
+    override fun updateOn(vararg ofProperties: Property<*, Table>): TriggerOn<Table> =
         copy(
             method = TriggerMethod.Update(ofProperties.toList())
         )
@@ -190,7 +188,7 @@ internal data class TriggerImpl<Table : Any>(
             forEachRow = true,
         )
 
-    override fun whenever(operator: SQLOperator): TriggerWhen<Table> =
+    override fun whenever(operator: AnyOperator): TriggerWhen<Table> =
         copy(
             whenOperator = operator,
         )

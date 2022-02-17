@@ -1,7 +1,9 @@
 package com.dbflow5.structure
 
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query.ModelQueriable
+import com.dbflow5.query2.ExecutableQuery
+import com.dbflow5.query2.SelectResult
+import kotlinx.coroutines.runBlocking
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
@@ -13,7 +15,10 @@ import kotlin.reflect.KProperty
     "This class encourages main thread reading. Use the @OneToManyRelation " +
         "annotation to generate better safety for you."
 )
-fun <T : Any> oneToMany(getDb: () -> DatabaseWrapper, query: () -> ModelQueriable<T>) =
+fun <T : Any> oneToMany(
+    getDb: () -> DatabaseWrapper,
+    query: () -> ExecutableQuery<SelectResult<T>>
+) =
     OneToMany(getDb, query)
 
 /**
@@ -25,7 +30,7 @@ fun <T : Any> oneToMany(getDb: () -> DatabaseWrapper, query: () -> ModelQueriabl
 )
 class OneToMany<T : Any>(
     private val getDb: () -> DatabaseWrapper,
-    private val query: () -> ModelQueriable<T>
+    private val query: () -> ExecutableQuery<SelectResult<T>>
 ) :
     ReadOnlyProperty<Any, List<T>?> {
 
@@ -33,7 +38,7 @@ class OneToMany<T : Any>(
 
     override fun getValue(thisRef: Any, property: KProperty<*>): List<T>? {
         if (list?.isEmpty() != false) {
-            list = query().queryList(getDb())
+            list = runBlocking { query().execute(getDb()).list() }
         }
         return list
     }

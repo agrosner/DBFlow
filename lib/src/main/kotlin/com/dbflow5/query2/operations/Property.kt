@@ -7,7 +7,6 @@ import com.dbflow5.query.NameAlias
 import com.dbflow5.query.nameAlias
 import com.dbflow5.query2.Aliasable
 import com.dbflow5.query2.HasAdapter
-import com.dbflow5.sql.Query
 
 interface HasDistinct<ValueType, Table : Any> {
     fun distinct(): DistinctProperty<ValueType, Table>
@@ -24,11 +23,8 @@ typealias AnyProperty = Property<*, *>
  * Base interface that properties implement.
  */
 interface Property<ValueType, Table : Any> :
-    Query,
     PropertyChainable<ValueType>,
-    OpStart<ValueType>,
-    HasAdapter<Table, SQLObjectAdapter<Table>>,
-    Operator<ValueType>
+    HasAdapter<Table, SQLObjectAdapter<Table>>
 
 interface PropertyStart<ValueType, Table : Any> :
     Property<ValueType, Table>,

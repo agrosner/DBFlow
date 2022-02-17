@@ -93,7 +93,7 @@ sealed interface FieldExtractor {
                 if (props.length > -1) {
                     retString += "(${props.length})"
                 }
-                if (props.collate != Collate.NONE) {
+                if (props.collate != Collate.None) {
                     retString += " COLLATE ${props.collate}"
                 }
             }

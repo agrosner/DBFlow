@@ -1,34 +1,26 @@
 package com.dbflow5.sql.language.property
 
 import com.dbflow5.BaseUnitTest
-import com.dbflow5.TestDatabase
-import com.dbflow5.config.database
-import com.dbflow5.converter.DateConverter
+import com.dbflow5.models.CustomType
 import com.dbflow5.models.Difficulty
 import com.dbflow5.models.EnumTypeConverterModel_Table
-import com.dbflow5.query.property.TypeConvertedProperty
+import com.dbflow5.models.TypeConverterModel_Table
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.util.Date
 
 class TypeConvertedPropertyTest : BaseUnitTest() {
 
-    private val simpleModelAdapter
-        get() = database<TestDatabase>().simpleModelAdapter
-
     @Test
     fun testTypeConverter() {
-        val property = TypeConvertedProperty<Long, Date>(
-            simpleModelAdapter, "Prop", true
-        ) { DateConverter() }
-        assertEquals("`Prop`", property.toString())
+        val property = TypeConverterModel_Table.customType
+        assertEquals("`customType`", property.toString())
 
-        val date = Date()
-        assertEquals("`Prop`=${date.time}", property.eq(date).query)
+        val value = CustomType(0)
+        assertEquals("`Prop`=0", property.eq(value).query)
 
-        assertEquals("`SimpleModel`.`Prop`=${date.time}", property.withTable().eq(date).query)
+        assertEquals("`SimpleModel`.`Prop`=0", property.withTable().eq(value).query)
 
-        val inverted = property.invertProperty()
+        val inverted = property.dataProperty
         assertEquals("`Prop`=5050505", inverted.eq(5050505).query)
     }
 

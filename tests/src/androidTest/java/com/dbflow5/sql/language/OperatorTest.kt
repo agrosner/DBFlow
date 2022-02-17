@@ -6,70 +6,72 @@ import com.dbflow5.annotation.Collate
 import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.models.TwoColumnModel_Table
-import com.dbflow5.query.op
+import com.dbflow5.query.nameAlias
+import com.dbflow5.query2.operations.Operation
+import com.dbflow5.query2.operations.collate
+import com.dbflow5.query2.operations.operator
+import com.dbflow5.query2.select
 import org.junit.Test
-import kotlin.test.fail
 
 class OperatorTest : BaseUnitTest() {
 
+    private val name = "name".nameAlias
+
     @Test
     fun testEquals() {
-        "`name`='name'".assertEquals("name".op<String>().eq("name"))
-        "`name`='name'".assertEquals("name".op<String>().`is`("name"))
+        "`name` = 'name'".assertEquals(name eq "name")
     }
 
     @Test
     fun testNotEquals() {
-        "`name`!='name'".assertEquals("name".op<String>().notEq("name"))
-        "`name`!='name'".assertEquals("name".op<String>().isNot("name"))
+        "`name` != 'name'".assertEquals(name notEq "name")
     }
 
     @Test
     fun testLike() {
-        "`name` LIKE 'name'".assertEquals("name".op<String>().like("name"))
-        "`name` NOT LIKE 'name'".assertEquals("name".op<String>().notLike("name"))
-        "`name` GLOB 'name'".assertEquals("name".op<String>().glob("name"))
+        "`name` LIKE 'name'".assertEquals(operator(name, Operation.Like, "name"))
+        "`name` NOT LIKE 'name'".assertEquals(operator(name, Operation.NotLike, "name"))
+        "`name` GLOB 'name'".assertEquals(operator(name, Operation.Glob, "name"))
     }
 
     @Test
     fun testMath() {
-        "`name`>'name'".assertEquals("name".op<String>().greaterThan("name"))
-        "`name`>='name'".assertEquals("name".op<String>().greaterThanOrEq("name"))
-        "`name`<'name'".assertEquals("name".op<String>().lessThan("name"))
-        "`name`<='name'".assertEquals("name".op<String>().lessThanOrEq("name"))
-        "`name`+'name'".assertEquals("name".op<String>() + "name")
-        "`name`-'name'".assertEquals("name".op<String>() - "name")
-        "`name`/'name'".assertEquals("name".op<String>() / "name")
-        "`name`*'name'".assertEquals("name".op<String>() * "name")
-        "`name`%'name'".assertEquals("name".op<String>() % "name")
+        "`name` > 'name'".assertEquals(name greaterThan "name")
+        "`name` >= 'name'".assertEquals(name greaterThanOrEq "name")
+        "`name` < 'name'".assertEquals(name lessThan "name")
+        "`name` <= 'name'".assertEquals(name lessThanOrEq "name")
+        "`name` + 'name'".assertEquals(name + "name")
+        "`name` - 'name'".assertEquals(name - "name")
+        "`name` / 'name'".assertEquals(name / "name")
+        "`name` * 'name'".assertEquals(name * "name")
+        "`name` % 'name'".assertEquals(name % "name")
     }
 
     @Test
     fun testCollate() {
-        "`name` COLLATE NOCASE".assertEquals("name".op<String>() collate Collate.NOCASE)
-        "`name` COLLATE NOCASE".assertEquals("name".op<String>() collate "NOCASE")
+        "`name` COLLATE NOCASE".assertEquals(operator(name) collate Collate.NoCase)
     }
 
     @Test
     fun testBetween() {
-        "`id` BETWEEN 6 AND 7".assertEquals(TwoColumnModel_Table.id.between(6) and 7)
+        "`id` BETWEEN 6 AND 7".assertEquals(TwoColumnModel_Table.id between 6 and 7)
     }
 
     @Test
     fun testIn() {
         database<TestDatabase> { db ->
-            //"`id` IN (5,6,7,8,9)".assertEquals(TwoColumnModel_Table.id.`in`(5, 6, 7, 8) and 9)
-            //"`id` NOT IN (SELECT * FROM `SimpleModel`)".assertEquals(
-            //    TwoColumnModel_Table.id.notIn(
-            //        select from db.simpleModelAdapter
-            //    )
-            //)
+            "`id` IN (5,6,7,8,9)".assertEquals(TwoColumnModel_Table.id.`in`(5, 6, 7, 8, 9))
+            "`id` NOT IN (SELECT * FROM `SimpleModel`)".assertEquals(
+                TwoColumnModel_Table.id.notIn(
+                    select from db.simpleModelAdapter
+                )
+            )
         }
     }
 
     @Test
     fun matchOperator() {
-        "`name` MATCH 'age'".assertEquals("name".op<String>() match "age")
+        "`name` MATCH 'age'".assertEquals(operator(name, Operation.Match, "age"))
     }
 
 }

@@ -21,7 +21,7 @@ annotation class Column(
     /**
      * @return Marks the field as having a specified collation to use in it's creation.
      */
-    val collate: Collate = Collate.NONE,
+    val collate: Collate = Collate.None,
     /**
      * @return Adds a default value for this column when saving. This is a string representation
      * of the value.

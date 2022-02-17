@@ -4,7 +4,6 @@ import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.appendQuotedIfNeeded
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query.property.IProperty
 import com.dbflow5.query2.operations.Property
 import com.dbflow5.sql.Query
 
@@ -36,26 +35,6 @@ fun <Table : Any> SQLObjectAdapter<Table>.createIndexOn(
     name: String,
     property: Property<*, Table>,
     vararg restProperties: Property<*, Table>,
-    ifNotExists: Boolean = true,
-): IndexStart<Table> = IndexImpl(
-    adapter = this,
-    name = name,
-    columns = mutableListOf(property).apply {
-        addAll(restProperties)
-    }.map { it.nameAlias },
-    ifNotExists = ifNotExists,
-)
-
-/**
- * Creates an index with [name] based on the [SQLObjectAdapter] used.
- *
- * set [ifNotExists] to false, if you wish for [SQLiteException] to get thrown on recreation.
- */
-@Deprecated(message = "remove")
-fun <Table : Any> SQLObjectAdapter<Table>.createIndexOn(
-    name: String,
-    property: IProperty<*>,
-    vararg restProperties: IProperty<*>,
     ifNotExists: Boolean = true,
 ): IndexStart<Table> = IndexImpl(
     adapter = this,

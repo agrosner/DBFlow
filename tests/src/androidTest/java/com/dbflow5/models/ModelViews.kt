@@ -6,8 +6,6 @@ import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.ModelViewQuery
 import com.dbflow5.config.database
-import com.dbflow5.query.property.IProperty
-import com.dbflow5.query.property.property
 import com.dbflow5.query2.operations.concatenate
 import com.dbflow5.query2.select
 

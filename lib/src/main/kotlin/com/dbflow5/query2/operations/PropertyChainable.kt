@@ -1,14 +1,18 @@
 package com.dbflow5.query2.operations
 
+import com.dbflow5.sql.Query
+
 /**
- * Allows [OpStart] types to also chain their operators
+ * Allows [Property] types to also chain their operators
  */
-interface PropertyChainable<Value>
-    : Operator<Value> {
+interface PropertyChainable<ValueType>
+    : Query,
+    OpStart<ValueType>,
+    Operator<ValueType> {
 
     infix fun eq(value: AnyOperator) = chainProperty(Operation.Equals, value)
 
-    infix fun isNot(value: AnyOperator) =
+    infix fun notEq(value: AnyOperator) =
         chainProperty(Operation.NotEquals, value)
 
     infix fun greaterThan(value: AnyOperator) =
@@ -37,6 +41,22 @@ interface PropertyChainable<Value>
 
     infix operator fun rem(value: AnyOperator) =
         chainProperty(Operation.Rem, value)
+
+    fun `in`(firstValue: Query, vararg values: Query) =
+        inOp(
+            isIn = true,
+            nameAlias = nameAlias,
+            firstValue = firstValue,
+            values = values,
+        )
+
+    fun notIn(firstValue: Query, vararg values: Query) =
+        inOp(
+            isIn = false,
+            nameAlias = nameAlias,
+            firstValue = firstValue,
+            values = values,
+        )
 
     fun chainProperty(
         operation: Operation,

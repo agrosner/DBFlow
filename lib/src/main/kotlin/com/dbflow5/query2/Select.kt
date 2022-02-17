@@ -4,7 +4,6 @@ import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.config.FlowManager
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query.enclosedQuery
 import com.dbflow5.query2.operations.AnyOperator
 import com.dbflow5.query2.operations.Property
 import com.dbflow5.query2.operations.StandardMethods
@@ -196,7 +195,7 @@ internal data class SelectImpl<Table : Any, Result>(
                 }
             )
             append("${properties.joinToString { it.query }} FROM ${
-                subquery?.let { append(it.enclosedQuery) }
+                subquery?.let { append("(${it})") }
                     ?: tableAlias
             }")
             if (joins.isNotEmpty()) {

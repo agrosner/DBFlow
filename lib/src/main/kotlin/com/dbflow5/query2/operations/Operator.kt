@@ -1,5 +1,6 @@
 package com.dbflow5.query2.operations
 
+import com.dbflow5.annotation.Collate
 import com.dbflow5.query.NameAlias
 import com.dbflow5.sql.Query
 
@@ -19,6 +20,7 @@ interface Operator<ValueType> : Query,
         OperatorGroup.clause()
             .chain(Operation.Empty, this)
             .chain(operation, operators)
+
 }
 
 /**
@@ -32,6 +34,10 @@ infix fun Operator<String>.concatenate(value: String): ConcatStart =
     ConcatOperatorImpl(
         operations = listOf(this, sqlLiteralOf(value)),
     )
+
+
+infix fun <ValueType> Operator<ValueType>.collate(collate: Collate) =
+    literalOf(query + " ${collate.query}")
 
 /**
  * Represents a key, operation, + value type.
@@ -116,7 +122,7 @@ fun <ValueType> operator(
  */
 fun operator(
     nameAlias: NameAlias,
-    operation: Operation,
+    operation: Operation = Operation.Empty,
 ): BaseOperator.ValuelessOperator = ValuelessOperatorImpl(
     nameAlias = nameAlias,
     operation = operation,
@@ -154,6 +160,10 @@ internal data class BetweenImpl<ValueType>(
      */
     private val secondValue: ValueType? = null,
     override val nameAlias: NameAlias,
+    /**
+     * used for arguments like [Collate].
+     */
+    private val postArg: String? = null,
 ) : BaseOperator.BetweenStart<ValueType>,
     BaseOperator.BetweenComplete<ValueType> {
     override val query: String by lazy {
@@ -162,7 +172,9 @@ internal data class BetweenImpl<ValueType>(
             if (secondValue != null) {
                 append("${Operation.And.value} ${valueConverter.convert(secondValue)} ")
             }
-            // TODO: post-arg
+            if (postArg != null) {
+                append(" $postArg")
+            }
         }
     }
 
@@ -171,6 +183,33 @@ internal data class BetweenImpl<ValueType>(
             secondValue = value,
         )
 }
+
+inline fun <reified ValueType> inOp(
+    isIn: Boolean = true,
+    nameAlias: NameAlias,
+    firstValue: ValueType,
+    vararg values: ValueType,
+): BaseOperator.In<ValueType> = inOp(
+    isIn = isIn,
+    nameAlias = nameAlias,
+    firstValue = firstValue,
+    valueConverter = inferValueConverter(),
+    values = values,
+)
+
+
+fun <ValueType> inOp(
+    isIn: Boolean = true,
+    nameAlias: NameAlias,
+    firstValue: ValueType,
+    valueConverter: SQLValueConverter<ValueType>,
+    vararg values: ValueType,
+): BaseOperator.In<ValueType> = InImpl(
+    nameAlias = nameAlias,
+    valueConverter = valueConverter,
+    values = mutableListOf(firstValue).apply { addAll(values) },
+    isIn = isIn,
+)
 
 internal data class InImpl<ValueType>(
     override val valueConverter: SQLValueConverter<ValueType>,

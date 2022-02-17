@@ -23,7 +23,7 @@ class OrderByTest : BaseUnitTest() {
     @Test
     fun validateCollate() {
         "`name` COLLATE RTRIM ASC".assertEquals(
-            OrderBy.fromProperty(SimpleModel_Table.name).ascending() collate Collate.RTRIM
+            OrderBy.fromProperty(SimpleModel_Table.name).ascending() collate Collate.RTrim
         )
     }
 

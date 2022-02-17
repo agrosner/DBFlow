@@ -79,7 +79,7 @@ constructor(
     var uniqueGroups: MutableList<Int> = arrayListOf()
     var indexGroups: MutableList<Int> = arrayListOf()
 
-    var collate = Collate.NONE
+    var collate = Collate.None
     var defaultValue: String? = null
 
     var columnAccessor: ColumnAccessor
@@ -465,7 +465,7 @@ constructor(
                 codeBlockBuilder.add("(\$L)", length)
             }
 
-            if (collate != Collate.NONE) {
+            if (collate != Collate.None) {
                 codeBlockBuilder.add(" COLLATE \$L", collate)
             }
 

@@ -1,7 +1,12 @@
 package com.dbflow5.query
 
 import com.dbflow5.isNotNullOrEmpty
+import com.dbflow5.query2.operations.InferredObjectConverter
+import com.dbflow5.query2.operations.OpStart
 import com.dbflow5.query2.operations.Operation
+import com.dbflow5.query2.operations.Operator
+import com.dbflow5.query2.operations.SQLValueConverter
+import com.dbflow5.query2.operations.literalOf
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.sql.Query
 import com.dbflow5.stripQuotes
@@ -18,7 +23,7 @@ class NameAlias(
     val shouldStripAliasName: Boolean = true,
     private val shouldAddIdentifierToQuery: Boolean = true,
     private val shouldAddIdentifierToAliasName: Boolean = true
-) : Query {
+) : Query, OpStart<Any?> {
 
     /**
      * @return The name used in queries. If an alias is specified, use that, otherwise use the name
@@ -30,6 +35,10 @@ class NameAlias(
             name.isNotNullOrEmpty() -> fullName()
             else -> ""
         }
+
+    override val nameAlias: NameAlias = this
+
+    override val valueConverter: SQLValueConverter<Any?> = InferredObjectConverter
 
     /**
      * @return The value used as a key. Uses either the [.aliasNameRaw]
@@ -247,6 +256,14 @@ class NameAlias(
         fun ofTable(tableName: String, name: String): NameAlias =
             builder(name).withTable(tableName).build()
     }
+
+    override fun `as`(name: String, shouldAddIdentifierToAlias: Boolean): Operator<Any?> =
+        literalOf(
+            newBuilder()
+                .shouldAddIdentifierToAliasName(shouldAddIdentifierToAlias)
+                .`as`(name)
+                .build()
+        )
 }
 
 val String.nameAlias

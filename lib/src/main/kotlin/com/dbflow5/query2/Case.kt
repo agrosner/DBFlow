@@ -1,6 +1,5 @@
 package com.dbflow5.query2
 
-import com.dbflow5.query.BaseOperator
 import com.dbflow5.query2.operations.Operator
 import com.dbflow5.query2.operations.Property
 import com.dbflow5.query2.operations.SQLValueConverter
@@ -147,21 +146,14 @@ internal data class CaseImpl<ValueType>(
                     condition.operator?.let { append(it.query) }
                 }
                 append(
-                    " THEN ${
-                        valueConverter.nullableConverter().convert(condition.then)
-                    }"
+                    " THEN ${valueConverter.nullableConverter().convert(condition.then)}"
                 )
             }
         })
 
         if (elseSpecified) {
             append(
-                " ELSE ${
-                    BaseOperator.convertValueToString(
-                        elseValue,
-                        appendInnerQueryParenthesis = false
-                    )
-                }"
+                " ELSE ${valueConverter.nullableConverter().convert(elseValue)}"
             )
         }
         append(" END ${endColumnName ?: ""}")

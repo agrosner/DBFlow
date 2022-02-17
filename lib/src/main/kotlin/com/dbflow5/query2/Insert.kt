@@ -5,6 +5,7 @@ import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query2.operations.BaseOperator
+import com.dbflow5.query2.operations.InferredObjectConverter
 import com.dbflow5.query2.operations.Operation
 import com.dbflow5.query2.operations.Property
 import com.dbflow5.sql.Query
@@ -206,7 +207,7 @@ internal data class InsertImpl<Table : Any>(
                     append(" VALUES(")
                     values.forEachIndexed { index, list ->
                         if (index > 0) append(",(")
-                        append(com.dbflow5.query.BaseOperator.joinArguments(",", list))
+                        append(list.joinToString { InferredObjectConverter.convert(it) })
                             .append(")")
                     }
                 }

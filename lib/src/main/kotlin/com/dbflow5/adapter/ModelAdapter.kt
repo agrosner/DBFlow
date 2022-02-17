@@ -8,7 +8,6 @@ import com.dbflow5.annotation.Table
 import com.dbflow5.config.FlowLog
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query.property.IProperty
 import com.dbflow5.query2.operations.Property
 
 /**
