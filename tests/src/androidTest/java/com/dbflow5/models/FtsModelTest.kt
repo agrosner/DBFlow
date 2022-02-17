@@ -9,9 +9,10 @@ import com.dbflow5.fts4ModelAdapter
 import com.dbflow5.fts4VirtualModel2Adapter
 import com.dbflow5.query.StringResultFactory
 import com.dbflow5.query.insert
-import com.dbflow5.query.operations.StandardMethods
 import com.dbflow5.query.operations.docId
 import com.dbflow5.query.operations.match
+import com.dbflow5.query.operations.offsets
+import com.dbflow5.query.operations.snippet
 import com.dbflow5.query.operations.tableNameLiteral
 import com.dbflow5.query.select
 import kotlinx.coroutines.test.runBlockingTest
@@ -58,7 +59,7 @@ class FtsModelTest : BaseUnitTest() {
         val value = database<TestDatabase>().readableTransaction {
             (fts4VirtualModel2Adapter.select(
                 StringResultFactory,
-                StandardMethods.Offsets<Fts4VirtualModel2>()
+                offsets<Fts4VirtualModel2>()
             )
                 where (fts4VirtualModel2Adapter.tableNameLiteral() match "FTSBaby"))
                 .execute()
@@ -91,7 +92,7 @@ class FtsModelTest : BaseUnitTest() {
             database.readableTransaction {
                 (fts4VirtualModel2Adapter.select(
                     resultFactory = StringResultFactory,
-                    StandardMethods.Snippet<Fts4VirtualModel2>(
+                    snippet<Fts4VirtualModel2>(
                         start = "[",
                         end = "]",
                         ellipses = "...",

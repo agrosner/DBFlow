@@ -10,7 +10,7 @@ import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.createTrigger
 import com.dbflow5.query.insert
-import com.dbflow5.query.operations.StandardMethods
+import com.dbflow5.query.operations.cast
 import com.dbflow5.query.select
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.twoColumnModelAdapter
@@ -58,9 +58,7 @@ class TriggerTest : BaseUnitTest() {
                         and
                         db.twoColumnModelAdapter.insert(TwoColumnModel_Table.id)
                             .values(
-                                StandardMethods.Cast(
-                                    TwoColumnModel_Table.name.withTable("new")
-                                ).asInteger()
+                                cast(TwoColumnModel_Table.name.withTable("new")).asInteger()
                             )
 
                 )

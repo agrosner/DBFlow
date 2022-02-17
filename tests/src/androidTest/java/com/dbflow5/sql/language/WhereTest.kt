@@ -8,12 +8,11 @@ import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.nameAlias
-import com.dbflow5.query.orderBy
-import com.dbflow5.query.operations.StandardMethods
-import com.dbflow5.query.operations.invoke
 import com.dbflow5.query.operations.like
 import com.dbflow5.query.operations.literalOf
 import com.dbflow5.query.operations.match
+import com.dbflow5.query.operations.min
+import com.dbflow5.query.orderBy
 import com.dbflow5.query.select
 import org.junit.Test
 
@@ -98,7 +97,7 @@ class WhereTest : BaseUnitTest() {
             "HAVING MIN(ROWID) > 5").assertEquals(
             (simpleModelAdapter.select()
                 groupBy NameAlias.rawBuilder("exampleValue").build()
-                having StandardMethods.Min<Int>().invoke(literalOf("ROWID")).greaterThan(5))
+                having min<Int>()(literalOf("ROWID")).greaterThan(5))
         )
     }
 

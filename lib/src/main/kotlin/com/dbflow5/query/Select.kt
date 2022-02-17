@@ -5,8 +5,7 @@ import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.config.FlowManager
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Property
-import com.dbflow5.query.operations.StandardMethods
-import com.dbflow5.query.operations.invoke
+import com.dbflow5.query.operations.count
 import com.dbflow5.query.operations.literalOf
 import kotlin.reflect.KClass
 
@@ -114,7 +113,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
 ): SelectStart<Table, CountResultFactory.Count> =
     SelectImpl(
         adapter = this,
-        properties = listOf(StandardMethods.Count(*properties)),
+        properties = listOf(count(*properties)),
         resultFactory = CountResultFactory,
     )
 
@@ -129,7 +128,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
     SelectImpl(
         adapter = this,
         properties = listOf(
-            StandardMethods.Count(
+            count(
                 *mutableListOf(operator)
                     .apply { addAll(operators) }.toTypedArray()
             )

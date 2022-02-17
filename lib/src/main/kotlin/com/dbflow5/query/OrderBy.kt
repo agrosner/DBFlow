@@ -2,7 +2,7 @@ package com.dbflow5.query
 
 import com.dbflow5.annotation.Collate
 import com.dbflow5.query.operations.Property
-import com.dbflow5.query.operations.StandardMethods
+import com.dbflow5.query.operations.random
 import com.dbflow5.sql.Query
 
 interface HasOrderDirection {
@@ -38,7 +38,7 @@ fun orderBy(
  * Starts an [OrderBy] with RANDOM() query.
  */
 fun orderByRandom(): OrderByStart = OrderByImpl(
-    nameAlias = StandardMethods.Random().nameAlias,
+    nameAlias = random.nameAlias,
 )
 
 /**

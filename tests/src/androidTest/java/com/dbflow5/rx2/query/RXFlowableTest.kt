@@ -13,7 +13,7 @@ import com.dbflow5.models.Blog_Table
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.leftOuterJoin
-import com.dbflow5.query.operations.StandardMethods
+import com.dbflow5.query.operations.cast
 import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.transaction.asFlowable
 import com.dbflow5.simpleModelAdapter
@@ -39,7 +39,7 @@ class RXFlowableTest : BaseUnitTest() {
         var triggerCount = 0
         val subscription = database.readableTransaction {
             (select from simpleModelAdapter
-                where StandardMethods.Cast(SimpleModel_Table.name).asInteger().greaterThan(50))
+                where cast(SimpleModel_Table.name).asInteger().greaterThan(50))
                 .asFlowable(database) { list() }
                 .subscribe {
                     list = it
