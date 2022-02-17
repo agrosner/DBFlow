@@ -41,5 +41,5 @@ enum class Collate(
     Unicode("UNICODE");
 
     override val query: String
-        get() = " COLLATE $name"
+        get() = "COLLATE $value"
 }
