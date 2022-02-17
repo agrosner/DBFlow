@@ -1,8 +1,8 @@
 package com.dbflow5.query
 
 import com.dbflow5.annotation.Collate
-import com.dbflow5.query2.operations.Property
-import com.dbflow5.query2.operations.StandardMethods
+import com.dbflow5.query.operations.Property
+import com.dbflow5.query.operations.StandardMethods
 import com.dbflow5.sql.Query
 
 interface HasOrderDirection {

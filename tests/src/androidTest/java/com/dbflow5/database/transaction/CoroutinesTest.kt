@@ -8,7 +8,7 @@ import com.dbflow5.config.writableTransaction
 import com.dbflow5.coroutines.toFlow
 import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table
-import com.dbflow5.query2.select
+import com.dbflow5.query.select
 import com.dbflow5.twoColumnModelAdapter
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.collect

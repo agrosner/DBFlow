@@ -2,11 +2,11 @@ package com.dbflow5.migration
 
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query2.ExecutableQuery
-import com.dbflow5.query2.operations.AnyOperator
-import com.dbflow5.query2.operations.Operation
-import com.dbflow5.query2.operations.OperatorGroup
-import com.dbflow5.query2.update
+import com.dbflow5.query.ExecutableQuery
+import com.dbflow5.query.operations.AnyOperator
+import com.dbflow5.query.operations.Operation
+import com.dbflow5.query.operations.OperatorGroup
+import com.dbflow5.query.update
 import kotlinx.coroutines.runBlocking
 
 /**

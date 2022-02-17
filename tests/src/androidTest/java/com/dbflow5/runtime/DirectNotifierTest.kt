@@ -12,9 +12,9 @@ import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query2.delete
-import com.dbflow5.query2.insert
-import com.dbflow5.query2.update
+import com.dbflow5.query.delete
+import com.dbflow5.query.insert
+import com.dbflow5.query.update
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.structure.ChangeAction
 import kotlinx.coroutines.test.TestCoroutineDispatcher

@@ -6,8 +6,8 @@ import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.ModelViewQuery
 import com.dbflow5.config.database
-import com.dbflow5.query2.operations.concatenate
-import com.dbflow5.query2.select
+import com.dbflow5.query.operations.concatenate
+import com.dbflow5.query.select
 
 class AuthorName(var name: String = "", var age: Int = 0)
 

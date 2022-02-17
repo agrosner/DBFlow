@@ -8,7 +8,7 @@ import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.database.executeTransaction
-import com.dbflow5.query2.TriggerMethod
+import com.dbflow5.query.TriggerMethod
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.stripQuotes
 import java.util.concurrent.atomic.AtomicBoolean

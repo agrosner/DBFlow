@@ -2,7 +2,7 @@ package com.dbflow5.runtime
 
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.config.FlowManager
-import com.dbflow5.query2.operations.BaseOperator
+import com.dbflow5.query.operations.BaseOperator
 import com.dbflow5.structure.ChangeAction
 import kotlin.reflect.KClass
 

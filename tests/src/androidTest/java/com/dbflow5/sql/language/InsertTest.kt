@@ -6,16 +6,16 @@ import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query2.ColumnValue
-import com.dbflow5.query2.insert
-import com.dbflow5.query2.operations.Operation
-import com.dbflow5.query2.operations.operator
-import com.dbflow5.query2.orAbort
-import com.dbflow5.query2.orFail
-import com.dbflow5.query2.orIgnore
-import com.dbflow5.query2.orReplace
-import com.dbflow5.query2.orRollback
-import com.dbflow5.query2.select
+import com.dbflow5.query.ColumnValue
+import com.dbflow5.query.insert
+import com.dbflow5.query.operations.Operation
+import com.dbflow5.query.operations.operator
+import com.dbflow5.query.orAbort
+import com.dbflow5.query.orFail
+import com.dbflow5.query.orIgnore
+import com.dbflow5.query.orReplace
+import com.dbflow5.query.orRollback
+import com.dbflow5.query.select
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

@@ -6,7 +6,7 @@ import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.coroutines.defer
 import com.dbflow5.currencyAdapter
 import com.dbflow5.paging.toDataSourceFactory
-import com.dbflow5.query2.select
+import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.transaction.Transaction
 import io.reactivex.rxjava3.core.Single

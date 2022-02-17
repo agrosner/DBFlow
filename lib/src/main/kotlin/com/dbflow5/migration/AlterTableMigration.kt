@@ -4,8 +4,8 @@ import androidx.annotation.CallSuper
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.appendQuotedIfNeeded
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query2.cursor
-import com.dbflow5.query2.select
+import com.dbflow5.query.cursor
+import com.dbflow5.query.select
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.sql.SQLiteType
 import com.dbflow5.stripQuotes

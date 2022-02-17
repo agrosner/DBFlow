@@ -9,12 +9,12 @@ import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.nameAlias
 import com.dbflow5.query.orderBy
-import com.dbflow5.query2.operations.StandardMethods
-import com.dbflow5.query2.operations.invoke
-import com.dbflow5.query2.operations.like
-import com.dbflow5.query2.operations.literalOf
-import com.dbflow5.query2.operations.match
-import com.dbflow5.query2.select
+import com.dbflow5.query.operations.StandardMethods
+import com.dbflow5.query.operations.invoke
+import com.dbflow5.query.operations.like
+import com.dbflow5.query.operations.literalOf
+import com.dbflow5.query.operations.match
+import com.dbflow5.query.select
 import org.junit.Test
 
 class WhereTest : BaseUnitTest() {

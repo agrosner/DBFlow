@@ -8,10 +8,10 @@ import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query2.createTrigger
-import com.dbflow5.query2.insert
-import com.dbflow5.query2.operations.StandardMethods
-import com.dbflow5.query2.select
+import com.dbflow5.query.createTrigger
+import com.dbflow5.query.insert
+import com.dbflow5.query.operations.StandardMethods
+import com.dbflow5.query.select
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.twoColumnModelAdapter
 import kotlinx.coroutines.test.runBlockingTest

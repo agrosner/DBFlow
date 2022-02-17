@@ -18,7 +18,10 @@ class TypeConvertedPropertyTest : BaseUnitTest() {
         val value = CustomType(0)
         assertEquals("`customType` = 0", property.eq(value).query)
 
-        assertEquals("`TypeConverterModel`.`customType` = 0", property.withTable().eq(value).query)
+        assertEquals(
+            "`TypeConverterModel`.`customType` = 0",
+            property.withTable().eq(value).query
+        )
 
         val inverted = property.dataProperty
         assertEquals("`customType` = 5050505", inverted.eq(5050505).query)
@@ -26,7 +29,6 @@ class TypeConvertedPropertyTest : BaseUnitTest() {
 
     @Test
     fun testCustomEnumTypeConverter() {
-
         assertEquals(
             "`difficulty` = 'H'",
             EnumTypeConverterModel_Table.difficulty.eq(Difficulty.HARD).query

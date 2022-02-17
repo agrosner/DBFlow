@@ -7,13 +7,13 @@ import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.models.NumberModel_Table
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query2.operations.Literal
-import com.dbflow5.query2.orAbort
-import com.dbflow5.query2.orFail
-import com.dbflow5.query2.orIgnore
-import com.dbflow5.query2.orReplace
-import com.dbflow5.query2.orRollback
-import com.dbflow5.query2.update
+import com.dbflow5.query.operations.Literal
+import com.dbflow5.query.orAbort
+import com.dbflow5.query.orFail
+import com.dbflow5.query.orIgnore
+import com.dbflow5.query.orReplace
+import com.dbflow5.query.orRollback
+import com.dbflow5.query.update
 import org.junit.Test
 
 class UpdateTest : BaseUnitTest() {

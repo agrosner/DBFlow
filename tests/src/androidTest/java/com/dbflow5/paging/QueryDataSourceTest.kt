@@ -6,7 +6,7 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
-import com.dbflow5.query2.select
+import com.dbflow5.query.select
 import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals

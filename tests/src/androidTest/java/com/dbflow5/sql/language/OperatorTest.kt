@@ -7,10 +7,10 @@ import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.nameAlias
-import com.dbflow5.query2.operations.Operation
-import com.dbflow5.query2.operations.collate
-import com.dbflow5.query2.operations.operator
-import com.dbflow5.query2.select
+import com.dbflow5.query.operations.Operation
+import com.dbflow5.query.operations.collate
+import com.dbflow5.query.operations.operator
+import com.dbflow5.query.select
 import org.junit.Test
 
 class OperatorTest : BaseUnitTest() {

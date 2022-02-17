@@ -8,7 +8,7 @@ import com.dbflow5.annotation.Table
 import com.dbflow5.config.FlowLog
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query2.operations.Property
+import com.dbflow5.query.operations.Property
 
 /**
  * Description: Used for generated classes from the combination of [Table] and [Model].

@@ -2,9 +2,9 @@ package com.dbflow5.sql.language
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.models.TwoColumnModel_Table
-import com.dbflow5.query2.operations.StandardMethods
-import com.dbflow5.query2.operations.StandardMethods.*
-import com.dbflow5.query2.operations.invoke
+import com.dbflow5.query.operations.StandardMethods
+import com.dbflow5.query.operations.StandardMethods.*
+import com.dbflow5.query.operations.invoke
 import com.dbflow5.sql.SQLiteType
 import org.junit.Assert.assertEquals
 import org.junit.Test

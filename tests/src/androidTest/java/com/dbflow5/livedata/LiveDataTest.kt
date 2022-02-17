@@ -10,7 +10,7 @@ import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.config.database
 import com.dbflow5.config.readableTransaction
 import com.dbflow5.liveDataModelAdapter
-import com.dbflow5.query2.select
+import com.dbflow5.query.select
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule

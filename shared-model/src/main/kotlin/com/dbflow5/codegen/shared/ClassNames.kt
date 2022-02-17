@@ -10,32 +10,32 @@ object ClassNames {
     fun property(
         valueTypeName: TypeName,
         tableTypeName: TypeName
-    ) = ClassName(PackageNames.Query2Operations, "Property")
+    ) = ClassName(PackageNames.QueryOperations, "Property")
         .parameterizedBy(valueTypeName, tableTypeName)
 
     fun propertyStart(
         valueTypeName: TypeName,
         tableTypeName: TypeName
-    ) = ClassName(PackageNames.Query2Operations, "PropertyStart")
+    ) = ClassName(PackageNames.QueryOperations, "PropertyStart")
         .parameterizedBy(valueTypeName, tableTypeName)
 
     fun typeConvertedProperty(
         dataTypeName: TypeName,
         modelTypeName: TypeName,
         tableTypeName: TypeName,
-    ) = ClassName(PackageNames.Query2Operations, "TypeConvertedProperty")
+    ) = ClassName(PackageNames.QueryOperations, "TypeConvertedProperty")
         .parameterizedBy(modelTypeName, dataTypeName, tableTypeName)
 
     fun indexProperty(
         tableTypeName: TypeName,
     ) = ClassName(
-        PackageNames.Query2Operations,
+        PackageNames.QueryOperations,
         "IndexProperty"
     )
         .parameterizedBy(tableTypeName)
 
-    val OperatorGroup = ClassName(PackageNames.Query2Operations, "OperatorGroup")
-    val Operation = ClassName(PackageNames.Query2Operations, "Operation")
+    val OperatorGroup = ClassName(PackageNames.QueryOperations, "OperatorGroup")
+    val Operation = ClassName(PackageNames.QueryOperations, "Operation")
 
     val ModelAdapter = ClassName(PackageNames.Adapter, "ModelAdapter")
     fun modelAdapter(typeName: TypeName) = ModelAdapter.parameterizedBy(typeName)

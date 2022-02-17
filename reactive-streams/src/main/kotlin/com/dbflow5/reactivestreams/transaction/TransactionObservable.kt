@@ -3,9 +3,9 @@
 package com.dbflow5.reactivestreams.transaction
 
 import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.query2.ExecutableQuery
-import com.dbflow5.query2.HasAssociatedAdapters
-import com.dbflow5.query2.SelectResult
+import com.dbflow5.query.ExecutableQuery
+import com.dbflow5.query.HasAssociatedAdapters
+import com.dbflow5.query.SelectResult
 import com.dbflow5.reactivestreams.query.TableChangeOnSubscribe
 import com.dbflow5.transaction.Transaction
 import io.reactivex.rxjava3.core.BackpressureStrategy

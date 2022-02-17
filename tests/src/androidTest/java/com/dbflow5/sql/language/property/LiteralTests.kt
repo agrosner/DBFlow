@@ -3,9 +3,9 @@ package com.dbflow5.sql.language.property
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
-import com.dbflow5.query2.operations.literalOf
-import com.dbflow5.query2.operations.sqlLiteralOf
-import com.dbflow5.query2.select
+import com.dbflow5.query.operations.literalOf
+import com.dbflow5.query.operations.sqlLiteralOf
+import com.dbflow5.query.select
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

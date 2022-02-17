@@ -7,13 +7,13 @@ import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.nameAlias
-import com.dbflow5.query2.operations.PropertyStart
-import com.dbflow5.query2.operations.concatenate
-import com.dbflow5.query2.operations.glob
-import com.dbflow5.query2.operations.like
-import com.dbflow5.query2.operations.match
-import com.dbflow5.query2.operations.notLike
-import com.dbflow5.query2.operations.property
+import com.dbflow5.query.operations.PropertyStart
+import com.dbflow5.query.operations.concatenate
+import com.dbflow5.query.operations.glob
+import com.dbflow5.query.operations.like
+import com.dbflow5.query.operations.match
+import com.dbflow5.query.operations.notLike
+import com.dbflow5.query.operations.property
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

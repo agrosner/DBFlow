@@ -2,9 +2,9 @@ package com.dbflow5.database.scope
 
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.database.FlowCursor
-import com.dbflow5.query2.CountResultFactory
-import com.dbflow5.query2.ExecutableQuery
-import com.dbflow5.query2.SelectResult
+import com.dbflow5.query.CountResultFactory
+import com.dbflow5.query.ExecutableQuery
+import com.dbflow5.query.SelectResult
 
 /**
  * Description:

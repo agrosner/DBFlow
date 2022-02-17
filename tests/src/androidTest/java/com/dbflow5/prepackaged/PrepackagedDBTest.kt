@@ -5,7 +5,7 @@ import com.dbflow5.DemoApp
 import com.dbflow5.config.database
 import com.dbflow5.config.readableTransaction
 import com.dbflow5.database.AndroidSQLiteOpenHelper
-import com.dbflow5.query2.select
+import com.dbflow5.query.select
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertTrue
 import org.junit.Rule

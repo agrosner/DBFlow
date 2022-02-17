@@ -5,11 +5,11 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel_Table
-import com.dbflow5.query2.crossJoin
-import com.dbflow5.query2.innerJoin
-import com.dbflow5.query2.leftOuterJoin
-import com.dbflow5.query2.naturalJoin
-import com.dbflow5.query2.select
+import com.dbflow5.query.crossJoin
+import com.dbflow5.query.innerJoin
+import com.dbflow5.query.leftOuterJoin
+import com.dbflow5.query.naturalJoin
+import com.dbflow5.query.select
 import org.junit.Test
 import kotlin.test.assertEquals
 

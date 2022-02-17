@@ -5,22 +5,22 @@ import com.squareup.kotlinpoet.MemberName
 
 object MemberNames {
 
-    val property = MemberName(PackageNames.Query2Operations, "property")
-    val typeConvertedProperty = MemberName(PackageNames.Query2Operations, "typeConvertedProperty")
+    val property = MemberName(PackageNames.QueryOperations, "property")
+    val typeConvertedProperty = MemberName(PackageNames.QueryOperations, "typeConvertedProperty")
     val quoteIfNeeded = MemberName(PackageNames.Core, "quoteIfNeeded")
-    val infer = MemberName(PackageNames.Query2Operations, "infer")
+    val infer = MemberName(PackageNames.QueryOperations, "infer")
     val classToken = MemberName(PackageNames.Property, "classToken")
-    val indexProperty = MemberName(PackageNames.Query2Operations, "indexProperty")
+    val indexProperty = MemberName(PackageNames.QueryOperations, "indexProperty")
 
     val safeLet = MemberName(PackageNames.Adapter, "dbFlowInternalSafeLet")
     val let = MemberName(PackageNames.Adapter, "dbFlowInternalLet")
     val bind = MemberName(PackageNames.Database, "bind")
-    val propertyBind = MemberName(PackageNames.Query2Operations, "bindProperty")
+    val propertyBind = MemberName(PackageNames.QueryOperations, "bindProperty")
 
-    val select = MemberName(PackageNames.Query2, "select")
-    val single = MemberName(PackageNames.Query2, "single")
-    val singleOrNull = MemberName(PackageNames.Query2, "singleOrNull")
-    val list = MemberName(PackageNames.Query2, "list")
+    val select = MemberName(PackageNames.Query, "select")
+    val single = MemberName(PackageNames.Query, "single")
+    val singleOrNull = MemberName(PackageNames.Query, "singleOrNull")
+    val list = MemberName(PackageNames.Query, "list")
 
     const val from = "from"
     const val where = "where"

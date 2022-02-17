@@ -8,10 +8,10 @@ import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query2.insert
-import com.dbflow5.query2.operations.Literal
-import com.dbflow5.query2.select
-import com.dbflow5.query2.selectCountOf
+import com.dbflow5.query.insert
+import com.dbflow5.query.operations.Literal
+import com.dbflow5.query.select
+import com.dbflow5.query.selectCountOf
 import com.dbflow5.reactivestreams.transaction.asMaybe
 import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.simpleModelAdapter

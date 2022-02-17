@@ -3,9 +3,9 @@ package com.dbflow5.reactivestreams.query
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
-import com.dbflow5.query2.ExecutableQuery
-import com.dbflow5.query2.HasAssociatedAdapters
-import com.dbflow5.query2.SelectResult
+import com.dbflow5.query.ExecutableQuery
+import com.dbflow5.query.HasAssociatedAdapters
+import com.dbflow5.query.SelectResult
 import com.dbflow5.reactivestreams.transaction.asSingle
 import io.reactivex.rxjava3.core.FlowableEmitter
 import io.reactivex.rxjava3.core.FlowableOnSubscribe

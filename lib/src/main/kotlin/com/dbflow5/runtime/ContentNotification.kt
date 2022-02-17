@@ -5,9 +5,9 @@ import com.dbflow5.TABLE_QUERY_PARAM
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.config.FlowManager
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query2.operations.BaseOperator
-import com.dbflow5.query2.operations.Operation
-import com.dbflow5.query2.operations.operator
+import com.dbflow5.query.operations.BaseOperator
+import com.dbflow5.query.operations.Operation
+import com.dbflow5.query.operations.operator
 import com.dbflow5.structure.ChangeAction
 import kotlin.reflect.KClass
 

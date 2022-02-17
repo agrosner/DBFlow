@@ -1,12 +1,12 @@
 package com.dbflow5.query
 
 import com.dbflow5.isNotNullOrEmpty
-import com.dbflow5.query2.operations.InferredObjectConverter
-import com.dbflow5.query2.operations.OpStart
-import com.dbflow5.query2.operations.Operation
-import com.dbflow5.query2.operations.Operator
-import com.dbflow5.query2.operations.SQLValueConverter
-import com.dbflow5.query2.operations.literalOf
+import com.dbflow5.query.operations.InferredObjectConverter
+import com.dbflow5.query.operations.OpStart
+import com.dbflow5.query.operations.Operation
+import com.dbflow5.query.operations.Operator
+import com.dbflow5.query.operations.SQLValueConverter
+import com.dbflow5.query.operations.literalOf
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.sql.Query
 import com.dbflow5.stripQuotes

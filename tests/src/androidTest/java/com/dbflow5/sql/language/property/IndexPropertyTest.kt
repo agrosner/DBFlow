@@ -5,7 +5,7 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
 import com.dbflow5.dropIndex
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query2.operations.indexProperty
+import com.dbflow5.query.operations.indexProperty
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test

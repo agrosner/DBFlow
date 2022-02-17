@@ -2,8 +2,8 @@ package com.dbflow5.migration
 
 import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query2.createIndexOn
-import com.dbflow5.query2.operations.Property
+import com.dbflow5.query.createIndexOn
+import com.dbflow5.query.operations.Property
 import kotlinx.coroutines.runBlocking
 
 /**

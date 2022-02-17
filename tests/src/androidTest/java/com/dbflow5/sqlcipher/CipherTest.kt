@@ -4,8 +4,8 @@ import com.dbflow5.DBFlowInstrumentedTestRule
 import com.dbflow5.DemoApp
 import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
-import com.dbflow5.query2.delete
-import com.dbflow5.query2.select
+import com.dbflow5.query.delete
+import com.dbflow5.query.select
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertTrue
 import org.junit.Rule

@@ -7,7 +7,7 @@ import com.dbflow5.config.database
 import com.dbflow5.config.readableTransaction
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.dontCreateModelAdapter
-import com.dbflow5.query2.select
+import com.dbflow5.query.select
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
 

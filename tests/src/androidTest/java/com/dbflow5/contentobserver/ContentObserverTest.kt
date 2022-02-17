@@ -10,7 +10,7 @@ import com.dbflow5.config.database
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.scope.WritableDatabaseScope
-import com.dbflow5.query2.delete
+import com.dbflow5.query.delete
 import com.dbflow5.runtime.ContentNotification
 import com.dbflow5.runtime.ContentResolverNotifier
 import com.dbflow5.runtime.FlowContentObserver

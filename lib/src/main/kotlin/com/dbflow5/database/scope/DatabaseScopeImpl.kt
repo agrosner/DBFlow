@@ -6,11 +6,11 @@ import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.RetrievalAdapter
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.database.FlowCursor
-import com.dbflow5.query2.CountResultFactory
-import com.dbflow5.query2.ExecutableQuery
-import com.dbflow5.query2.SelectResult
-import com.dbflow5.query2.cursor
-import com.dbflow5.query2.hasData
+import com.dbflow5.query.CountResultFactory
+import com.dbflow5.query.ExecutableQuery
+import com.dbflow5.query.SelectResult
+import com.dbflow5.query.cursor
+import com.dbflow5.query.hasData
 
 /**
  * Description:

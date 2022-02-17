@@ -12,9 +12,9 @@ import com.dbflow5.models.Blog
 import com.dbflow5.models.Blog_Table
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query2.leftOuterJoin
-import com.dbflow5.query2.operations.StandardMethods
-import com.dbflow5.query2.select
+import com.dbflow5.query.leftOuterJoin
+import com.dbflow5.query.operations.StandardMethods
+import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.transaction.asFlowable
 import com.dbflow5.simpleModelAdapter
 import kotlinx.coroutines.test.runBlockingTest

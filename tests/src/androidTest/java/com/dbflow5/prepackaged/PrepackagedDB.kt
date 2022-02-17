@@ -11,8 +11,8 @@ import com.dbflow5.config.database
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.migration.AlterTableMigration
 import com.dbflow5.migration.BaseMigration
-import com.dbflow5.query2.insert
-import com.dbflow5.query2.operations.literalOf
+import com.dbflow5.query.insert
+import com.dbflow5.query.operations.literalOf
 import com.dbflow5.sql.SQLiteType
 import kotlinx.coroutines.runBlocking
 
