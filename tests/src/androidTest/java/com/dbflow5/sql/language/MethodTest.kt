@@ -2,21 +2,21 @@ package com.dbflow5.sql.language
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.models.TwoColumnModel_Table
-import com.dbflow5.query.operations.avg
-import com.dbflow5.query.operations.cast
-import com.dbflow5.query.operations.count
-import com.dbflow5.query.operations.date
-import com.dbflow5.query.operations.datetime
-import com.dbflow5.query.operations.groupConcat
-import com.dbflow5.query.operations.ifNull
-import com.dbflow5.query.operations.max
-import com.dbflow5.query.operations.min
-import com.dbflow5.query.operations.nullIf
-import com.dbflow5.query.operations.random
-import com.dbflow5.query.operations.replace
-import com.dbflow5.query.operations.strftime
-import com.dbflow5.query.operations.sum
-import com.dbflow5.query.operations.total
+import com.dbflow5.query.methods.avg
+import com.dbflow5.query.methods.cast
+import com.dbflow5.query.methods.count
+import com.dbflow5.query.methods.date
+import com.dbflow5.query.methods.datetime
+import com.dbflow5.query.methods.groupConcat
+import com.dbflow5.query.methods.ifNull
+import com.dbflow5.query.methods.max
+import com.dbflow5.query.methods.min
+import com.dbflow5.query.methods.nullIf
+import com.dbflow5.query.methods.random
+import com.dbflow5.query.methods.replace
+import com.dbflow5.query.methods.strftime
+import com.dbflow5.query.methods.sum
+import com.dbflow5.query.methods.total
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

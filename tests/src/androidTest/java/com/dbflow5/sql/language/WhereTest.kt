@@ -11,7 +11,7 @@ import com.dbflow5.query.nameAlias
 import com.dbflow5.query.operations.like
 import com.dbflow5.query.operations.literalOf
 import com.dbflow5.query.operations.match
-import com.dbflow5.query.operations.min
+import com.dbflow5.query.methods.min
 import com.dbflow5.query.orderBy
 import com.dbflow5.query.select
 import org.junit.Test

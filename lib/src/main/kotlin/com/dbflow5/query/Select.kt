@@ -5,7 +5,7 @@ import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.config.FlowManager
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Property
-import com.dbflow5.query.operations.count
+import com.dbflow5.query.methods.count
 import com.dbflow5.query.operations.literalOf
 import kotlin.reflect.KClass
 

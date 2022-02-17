@@ -10,7 +10,7 @@ import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.createTrigger
 import com.dbflow5.query.insert
-import com.dbflow5.query.operations.cast
+import com.dbflow5.query.methods.cast
 import com.dbflow5.query.select
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.twoColumnModelAdapter

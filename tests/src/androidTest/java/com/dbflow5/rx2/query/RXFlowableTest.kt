@@ -13,7 +13,7 @@ import com.dbflow5.models.Blog_Table
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.leftOuterJoin
-import com.dbflow5.query.operations.cast
+import com.dbflow5.query.methods.cast
 import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.transaction.asFlowable
 import com.dbflow5.simpleModelAdapter

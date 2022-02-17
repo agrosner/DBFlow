@@ -11,8 +11,8 @@ import com.dbflow5.query.StringResultFactory
 import com.dbflow5.query.insert
 import com.dbflow5.query.operations.docId
 import com.dbflow5.query.operations.match
-import com.dbflow5.query.operations.offsets
-import com.dbflow5.query.operations.snippet
+import com.dbflow5.query.methods.offsets
+import com.dbflow5.query.methods.snippet
 import com.dbflow5.query.operations.tableNameLiteral
 import com.dbflow5.query.select
 import kotlinx.coroutines.test.runBlockingTest

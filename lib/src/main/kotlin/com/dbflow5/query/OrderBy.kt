@@ -2,7 +2,7 @@ package com.dbflow5.query
 
 import com.dbflow5.annotation.Collate
 import com.dbflow5.query.operations.Property
-import com.dbflow5.query.operations.random
+import com.dbflow5.query.methods.random
 import com.dbflow5.sql.Query
 
 interface HasOrderDirection {
