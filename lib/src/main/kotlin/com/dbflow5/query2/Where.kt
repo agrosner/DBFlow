@@ -161,7 +161,7 @@ internal data class WhereImpl<Table : Any,
             if (havingGroup.query.isNotBlank()) {
                 append("HAVING ${havingGroup.query} ")
             }
-            orderByList.joinToString(separator = ",")
+            orderByList.joinToString(separator = ",") { it.query }
                 .takeIf { it.isNotBlank() }
                 ?.let { orderByList -> append("ORDER BY $orderByList ") }
 
@@ -236,7 +236,7 @@ internal data class WhereImpl<Table : Any,
         ascending: Boolean
     ): WhereWithOrderBy<Table, Result, OperationBase> =
         copy(
-            orderByList = listOf(OrderBy.fromNameAlias(nameAlias, isAscending = ascending)),
+            orderByList = listOf(com.dbflow5.query.orderBy(nameAlias).direction(ascending)),
         )
 
     override fun orderBy(
@@ -244,9 +244,10 @@ internal data class WhereImpl<Table : Any,
         ascending: Boolean
     ): WhereWithOrderBy<Table, Result, OperationBase> =
         copy(
-            orderByList = listOf(OrderBy.fromProperty(property, isAscending = ascending)),
+            orderByList = listOf(
+                com.dbflow5.query.orderBy(property).direction(ascending)
+            ),
         )
-
 
     override fun orderByAll(orderByList: List<OrderBy>): WhereWithOrderBy<Table, Result, OperationBase> =
         copy(

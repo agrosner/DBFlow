@@ -13,15 +13,15 @@ class TypeConvertedPropertyTest : BaseUnitTest() {
     @Test
     fun testTypeConverter() {
         val property = TypeConverterModel_Table.customType
-        assertEquals("`customType`", property.toString())
+        assertEquals("`customType`", property.query)
 
         val value = CustomType(0)
-        assertEquals("`Prop`=0", property.eq(value).query)
+        assertEquals("`customType` = 0", property.eq(value).query)
 
-        assertEquals("`SimpleModel`.`Prop`=0", property.withTable().eq(value).query)
+        assertEquals("`TypeConverterModel`.`customType` = 0", property.withTable().eq(value).query)
 
         val inverted = property.dataProperty
-        assertEquals("`Prop`=5050505", inverted.eq(5050505).query)
+        assertEquals("`customType` = 5050505", inverted.eq(5050505).query)
     }
 
     @Test

@@ -83,7 +83,6 @@ class JoinTest : BaseUnitTest() {
                 .eq(SimpleModel_Table.name) crossJoin
                 db.twoColumnModelAdapter on TwoColumnModel_Table.id.withTable()
                 .eq(SimpleModel_Table.name)
-            val query = join.query
             assertEquals(
                 "SELECT * FROM `SimpleModel` " +
                     "INNER JOIN `TwoColumnModel` " +

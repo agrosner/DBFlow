@@ -7,8 +7,8 @@ import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
-import com.dbflow5.query.OrderBy.Companion.fromNameAlias
 import com.dbflow5.query.nameAlias
+import com.dbflow5.query.orderBy
 import com.dbflow5.query2.operations.StandardMethods
 import com.dbflow5.query2.operations.invoke
 import com.dbflow5.query2.operations.like
@@ -149,7 +149,7 @@ class WhereTest : BaseUnitTest() {
     @Test
     fun validateOrderBy() {
         val query = (simpleModelAdapter.select()
-            where SimpleModel_Table.name.eq("name") orderBy fromNameAlias("name".nameAlias).ascending())
+            where SimpleModel_Table.name.eq("name") orderBy orderBy("name".nameAlias).asc())
         ("SELECT * FROM `SimpleModel` " +
             "WHERE `name` = 'name' ORDER BY `name` ASC").assertEquals(query)
     }
@@ -159,8 +159,8 @@ class WhereTest : BaseUnitTest() {
         val query = (twoColumnModelAdapter.select()
             where TwoColumnModel_Table.name.eq("name")
             orderByAll listOf(
-            fromNameAlias("name".nameAlias).ascending(),
-            fromNameAlias("id".nameAlias).descending()
+            orderBy("name".nameAlias).asc(),
+            orderBy("id".nameAlias).desc()
         ))
         ("SELECT * FROM `TwoColumnModel` " +
             "WHERE `name` = 'name' ORDER BY `name` ASC,`id` DESC").assertEquals(query)

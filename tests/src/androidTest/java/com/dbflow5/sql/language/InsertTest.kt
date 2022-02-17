@@ -72,7 +72,7 @@ class InsertTest : BaseUnitTest() {
     @Test
     fun validateInsertProjection() {
         assertEquals(
-            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name',0)",
+            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
             twoColumnModelAdapter.insert(
                 TwoColumnModel_Table.name.eq("name"),
                 TwoColumnModel_Table.id.eq(0)
@@ -91,7 +91,7 @@ class InsertTest : BaseUnitTest() {
     @Test
     fun validateColumns() {
         assertEquals(
-            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name','id')",
+            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
             twoColumnModelAdapter.insert(
                 ColumnValue(
                     twoColumnModelAdapter.getProperty("name"),
@@ -108,14 +108,14 @@ class InsertTest : BaseUnitTest() {
     @Test
     fun validateColumnValues() {
         assertEquals(
-            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name',0)",
+            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
             twoColumnModelAdapter.insert(
                 TwoColumnModel_Table.name.eq("name"),
                 TwoColumnModel_Table.id.eq(0)
             ).query.trim()
         )
         assertEquals(
-            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name',0)",
+            "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
             twoColumnModelAdapter.insert(
                 operator(
                     NameAlias.builder("name").build(),

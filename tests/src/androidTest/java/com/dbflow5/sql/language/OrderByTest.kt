@@ -4,31 +4,26 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.annotation.Collate
 import com.dbflow5.assertEquals
 import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.query.OrderBy
 import com.dbflow5.query.nameAlias
+import com.dbflow5.query.orderBy
 import org.junit.Test
 
 class OrderByTest : BaseUnitTest() {
 
     @Test
     fun validateBasicOrderBy() {
-        "`name` ASC".assertEquals(OrderBy.fromProperty(SimpleModel_Table.name).ascending())
+        "`name` ASC".assertEquals(orderBy(SimpleModel_Table.name).asc())
     }
 
     @Test
     fun validateDescendingOrderBy() {
-        "`name` DESC".assertEquals(OrderBy.fromNameAlias("name".nameAlias).descending())
+        "`name` DESC".assertEquals(orderBy("name".nameAlias).desc())
     }
 
     @Test
     fun validateCollate() {
         "`name` COLLATE RTRIM ASC".assertEquals(
-            OrderBy.fromProperty(SimpleModel_Table.name).ascending() collate Collate.RTrim
+            (orderBy(SimpleModel_Table.name) collate Collate.RTrim).asc()
         )
-    }
-
-    @Test
-    fun validateCustomOrdrBy() {
-        "`name` ASC This is custom".assertEquals(OrderBy.fromString("`name` ASC This is custom"))
     }
 }

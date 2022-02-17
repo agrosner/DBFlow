@@ -5,89 +5,77 @@ import com.dbflow5.query2.operations.Property
 import com.dbflow5.query2.operations.StandardMethods
 import com.dbflow5.sql.Query
 
+interface HasOrderDirection {
+    fun asc(): OrderByDirectional = direction(true)
+    fun desc(): OrderByDirectional = direction(false)
+    fun direction(ascending: Boolean): OrderByDirectional
+}
+
+interface OrderBy : Query
+
+interface OrderByStart : OrderBy,
+    HasOrderDirection {
+    infix fun collate(collate: Collate): OrderByCollate
+}
+
+interface OrderByCollate : OrderBy,
+    HasOrderDirection
+
+interface OrderByDirectional :
+    OrderBy
+
+fun orderBy(
+    nameAlias: NameAlias,
+): OrderByStart = OrderByImpl(
+    nameAlias = nameAlias,
+)
+
+fun orderBy(
+    property: Property<*, *>,
+) = orderBy(property.nameAlias)
+
+/**
+ * Starts an [OrderBy] with RANDOM() query.
+ */
+fun orderByRandom(): OrderByStart = OrderByImpl(
+    nameAlias = StandardMethods.Random().nameAlias,
+)
+
 /**
  * Description: Class that represents a SQL order-by.
  */
-class OrderBy
+internal data class OrderByImpl
 @JvmOverloads
 constructor(
-    private val column: NameAlias? = null,
+    private val nameAlias: NameAlias,
     /**
      * If true, append ASC, if false append DESC, or if null, then don't append.
      */
-    private var isAscending: Boolean? = true
-) : Query {
+    private val isAscending: Boolean? = true,
+    private val collation: Collate = Collate.None,
+) : OrderBy,
+    OrderByStart,
+    OrderByDirectional,
+    OrderByCollate {
 
-    private var collation: Collate? = null
-    private var orderByString: String?
-
-    override val query: String
-        get() {
-            val locOrderByString = orderByString
-            return if (locOrderByString == null) {
-                val query = StringBuilder()
-                    .append(column)
-                    .append(" ")
-                if (collation != null) {
-                    query.append("COLLATE $collation ")
-                }
-                isAscending?.let { isAscending ->
-                    query.append(if (isAscending) ASCENDING else DESCENDING)
-                }
-                query.toString()
-            } else {
-                locOrderByString
+    override val query: String by lazy {
+        buildString {
+            append(nameAlias.query)
+            if (collation != Collate.None) append(" ${collation.query}")
+            if (isAscending != null) {
+                append(" ${if (isAscending) "ASC" else "DESC"}")
             }
         }
-
-    internal constructor(orderByString: String) : this(column = null) {
-        this.orderByString = orderByString
     }
 
-    init {
-        this.orderByString = null
-    }
+    override fun direction(ascending: Boolean): OrderByDirectional =
+        copy(
+            isAscending = ascending,
+        )
 
-    fun ascending() = apply {
-        isAscending = true
-    }
-
-    fun descending() = apply {
-        isAscending = false
-    }
-
-    infix fun collate(collate: Collate) = apply {
-        this.collation = collate
-    }
-
-    override fun toString(): String = query
-
-    companion object {
-
-        const val ASCENDING = "ASC"
-
-        const val DESCENDING = "DESC"
-
-        @JvmStatic
-        fun fromProperty(property: Property<*, *>, isAscending: Boolean = true): OrderBy =
-            OrderBy(
-                property.nameAlias,
-                // if we use RANDOM(), leave out ascending qualifier as its not valid SQLite.
-                if (property == StandardMethods.Random()) {
-                    null
-                } else isAscending
-            )
-
-        @JvmStatic
-        fun fromNameAlias(nameAlias: NameAlias, isAscending: Boolean = true): OrderBy =
-            OrderBy(nameAlias, isAscending)
-
-        /**
-         * Starts an [OrderBy] with RANDOM() query.
-         */
-        fun random(): OrderBy = OrderBy(StandardMethods.Random().nameAlias, isAscending = null)
-
-        @JvmStatic
-        fun fromString(orderByString: String): OrderBy = OrderBy(orderByString)
-    }
+    override fun collate(collate: Collate): OrderByCollate =
+        copy(
+            collation = collate,
+        )
 }
+

@@ -53,6 +53,6 @@ class PropertyTest : BaseUnitTest() {
                 .shouldAddIdentifierToAliasName(false)
                 .build()
         )
-        assertEquals("Prop AS Alias", prop2.toString().trim())
+        assertEquals("Prop AS Alias", prop2.query)
     }
 }
