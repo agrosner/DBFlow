@@ -4,9 +4,7 @@ import android.content.ContentResolver
 import android.content.ContentResolver.NOTIFY_SYNC_TO_NETWORK
 import android.content.Context
 import android.os.Build
-import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.structure.ChangeAction
-import kotlin.reflect.KClass
+import com.dbflow5.database.DatabaseWrapper
 
 /**
  * The default use case, it notifies via the [ContentResolver] system.
@@ -17,7 +15,7 @@ import kotlin.reflect.KClass
 class ContentResolverNotifier(
     private val context: Context,
     private val authority: String,
-    override val db: DBFlowDatabase,
+    override val db: DatabaseWrapper,
 ) : ModelNotifier {
 
     override suspend fun <Table : Any> onChange(notification: ModelNotification<Table>) {

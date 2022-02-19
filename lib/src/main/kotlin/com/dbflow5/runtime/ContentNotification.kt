@@ -2,7 +2,7 @@ package com.dbflow5.runtime
 
 import android.net.Uri
 import com.dbflow5.TABLE_QUERY_PARAM
-import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter.SQLObjectAdapter
 import com.dbflow5.config.FlowManager
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.operations.BaseOperator
@@ -16,7 +16,7 @@ import kotlin.reflect.KClass
  */
 sealed interface ContentNotification<Table : Any> {
     val uri: Uri
-    val adapter: ModelAdapter<Table>
+    val adapter: SQLObjectAdapter<Table>
     val action: ChangeAction
     val authority: String
 
@@ -32,21 +32,21 @@ sealed interface ContentNotification<Table : Any> {
         override val action: ChangeAction,
         override val authority: String,
     ) : ContentNotification<Table> {
-        override val adapter: ModelAdapter<Table> by lazy {
-            FlowManager.getModelAdapter(table)
+        override val adapter: SQLObjectAdapter<Table> by lazy {
+            FlowManager.getSQLObjectAdapter(table)
         }
         override val uri: Uri by lazy { createUri() }
     }
 
     data class ModelChange<Table : Any>(
-        override val adapter: ModelAdapter<Table>,
+        override val adapter: SQLObjectAdapter<Table>,
         override val action: ChangeAction,
         override val authority: String,
         val changedFields: List<BaseOperator.SingleValueOperator<*>>,
     ) : ContentNotification<Table> {
         constructor(
             model: Table,
-            adapter: ModelAdapter<Table>,
+            adapter: SQLObjectAdapter<Table>,
             action: ChangeAction,
             authority: String,
         ) : this(

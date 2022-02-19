@@ -1,7 +1,7 @@
 package com.dbflow5.sqlcipher
 
 import android.content.ContentValues
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.AndroidDatabaseWrapper
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.FlowCursor
@@ -14,7 +14,7 @@ import net.sqlcipher.database.SQLiteException
 class SQLCipherDatabase
 internal constructor(
     val database: SQLiteDatabase,
-    override val associatedDBFlowDatabase: DBFlowDatabase,
+    override val generatedDatabase: GeneratedDatabase,
 ) : AndroidDatabaseWrapper {
 
     override val version: Int
@@ -102,7 +102,7 @@ internal constructor(
         @JvmStatic
         fun from(
             database: SQLiteDatabase,
-            dbFlowDatabase: DBFlowDatabase,
+            dbFlowDatabase: GeneratedDatabase,
         ): SQLCipherDatabase = SQLCipherDatabase(database, dbFlowDatabase)
     }
 }

@@ -27,4 +27,10 @@ dependencies {
     api(project(":lib"))
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
+    kotlinOptions.freeCompilerArgs += listOf(
+        "-Xopt-in=com.dbflow5.annotation.opts.InternalDBFlowApi"
+    )
+}
+
 apply(from = "../kotlin-artifacts.gradle.kts")

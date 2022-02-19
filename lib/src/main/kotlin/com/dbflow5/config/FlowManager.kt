@@ -70,7 +70,7 @@ object FlowManager {
 
     @Suppress("UNCHECKED_CAST")
     @JvmStatic
-    fun <T : DBFlowDatabase> getDatabase(databaseClass: KClass<T>): T {
+    fun <T : GeneratedDatabase> getDatabase(databaseClass: KClass<T>): T {
         checkDatabaseHolder()
         return databaseHolder.getDatabase(databaseClass) as? T
             ?: throw InvalidDBConfiguration(
@@ -81,7 +81,7 @@ object FlowManager {
 
     @Suppress("UNCHECKED_CAST")
     @JvmStatic
-    fun <T : DBFlowDatabase> getDatabase(databaseClass: Class<T>): T {
+    fun <T : GeneratedDatabase> getDatabase(databaseClass: Class<T>): T {
         return getDatabase(databaseClass.kotlin)
     }
 
@@ -289,16 +289,6 @@ object FlowManager {
         databaseHolder.getViewAdapterOrNull(modelViewClass)
             ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
 
-    /**
-     * Checks a standard database helper for integrity using quick_check(1).
-     *
-     * @param databaseName The name of the database to check. Will thrown an exception if it does not exist.
-     * @return true if it's integrity is OK.
-     */
-    @JvmStatic
-    fun <T : DBFlowDatabase> isDatabaseIntegrityOk(clazz: KClass<T>) =
-        getDatabase(clazz).openHelper.isDatabaseIntegrityOk
-
     private fun throwCannotFindAdapter(type: String, clazz: KClass<*>): Nothing =
         throw IllegalArgumentException(
             "Cannot find $type for $clazz. " +
@@ -326,10 +316,19 @@ object FlowManager {
 }
 
 /**
- * Easily get access to its [DBFlowDatabase] directly.
+ * Easily get access to its [GeneratedDatabase] directly.
  */
-inline fun <reified DB : DBFlowDatabase> database(fn: (DB) -> Unit = {}): DB =
+inline fun <reified DB : GeneratedDatabase> database(fn: (DB) -> Unit = {}): DB =
     FlowManager.getDatabase(DB::class).apply(fn)
 
 inline val <T : Any> KClass<T>.modelAdapter
     get() = FlowManager.getModelAdapter(this)
+
+/**
+ * Checks a standard database helper for integrity using quick_check(1).
+ *
+ * @param databaseName The name of the database to check. Will thrown an exception if it does not exist.
+ * @return true if it's integrity is OK.
+ */
+fun <T : DBFlowDatabase> FlowManager.isDatabaseIntegrityOk(clazz: KClass<T>) =
+    getDatabase(clazz).openHelper.isDatabaseIntegrityOk

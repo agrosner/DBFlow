@@ -1,11 +1,7 @@
 package com.dbflow5.config
 
-import android.app.ActivityManager
-import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.annotation.VisibleForTesting
 import com.dbflow5.annotation.Database
+import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseStatement
@@ -30,35 +26,70 @@ import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.reflect.KClass
 
+interface GeneratedDatabase : DatabaseWrapper {
+    override val generatedDatabase: GeneratedDatabase
+        get() = this
+
+    @InternalDBFlowApi
+    val transactionDispatcher: TransactionDispatcher
+
+    @InternalDBFlowApi
+    val modelNotifier: ModelNotifier
+
+    @InternalDBFlowApi
+    val enqueueScope: CoroutineScope
+
+    @InternalDBFlowApi
+    val isInMemory: Boolean
+
+    val databaseFileName: String
+
+    val databaseName: String
+
+    /**
+     * The current database version expected.
+     */
+    val databaseVersion: Int
+
+    val writableDatabase: DatabaseWrapper
+
+    @InternalDBFlowApi
+    val tableObserver: TableObserver<DBFlowDatabase>
+
+    /**
+     * True if the [Database.foreignKeyConstraintsEnforced] annotation is true.
+     */
+    @InternalDBFlowApi
+    val isForeignKeysSupported: Boolean
+
+    @InternalDBFlowApi
+    val throwExceptionsOnCreate: Boolean
+
+    @InternalDBFlowApi
+    val tables: List<KClass<*>>
+
+    @InternalDBFlowApi
+    val views: List<KClass<*>>
+
+    @InternalDBFlowApi
+    val queries: List<KClass<*>>
+
+    @InternalDBFlowApi
+    val migrations: Map<Int, List<Migration>>
+
+    @InternalDBFlowApi
+    val associatedDatabaseClassFile: KClass<*>
+
+    fun close()
+
+    fun destroy()
+}
+
 /**
  * Description: The main interface that all Database implementations extend from. Use this to
  * pass in for operations and [Transaction].
  */
-abstract class DBFlowDatabase : DatabaseWrapper {
-
-    enum class JournalMode {
-        Automatic,
-        Truncate,
-
-        @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
-        WriteAheadLogging;
-
-        fun adjustIfAutomatic(context: Context): JournalMode = when (this) {
-            Automatic -> this
-            else -> {
-                // check if low ram device
-                val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
-                if (manager?.isLowRamDevice == false) {
-                    WriteAheadLogging
-                } else {
-                    Truncate
-                }
-            }
-        }
-    }
-
-    override val associatedDBFlowDatabase: DBFlowDatabase
-        get() = this
+abstract class DBFlowDatabase : GeneratedDatabase {
 
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
 
@@ -80,7 +111,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * Coroutine dispatcher, TODO: move to constructor / config.
      */
-    internal val transactionDispatcher: TransactionDispatcher by lazy {
+    override val transactionDispatcher: TransactionDispatcher by lazy {
         databaseConfig.let { databaseConfig ->
             if (databaseConfig?.transactionDispatcherFactory == null) {
                 TransactionDispatcher()
@@ -90,26 +121,13 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         }
     }
 
-    @VisibleForTesting
-    val dispatcher: TransactionDispatcher
-        get() = transactionDispatcher
-
-    internal val enqueueScope by lazy { CoroutineScope(transactionDispatcher.dispatcher) }
+    override val enqueueScope by lazy { CoroutineScope(transactionDispatcher.dispatcher) }
 
     private var databaseConfig: DatabaseConfig? by MutableLazy {
         FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
     }
 
-    private var modelNotifier: ModelNotifier? = null
-
-    abstract val tables: List<KClass<*>>
-    abstract val views: List<KClass<*>>
-    abstract val queries: List<KClass<*>>
-
-    /**
-     * @return The map of migrations to DB version
-     */
-    val migrations: Map<Int, List<Migration>>
+    override val migrations: Map<Int, List<Migration>>
         get() = migrationMap
 
     /**
@@ -148,19 +166,19 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         }
     }
 
-    val writableDatabase: DatabaseWrapper
+    override val writableDatabase: DatabaseWrapper
         get() = openHelper.database
 
     /**
      * @return The name of this database as defined in [Database]
      */
-    val databaseName: String
+    override val databaseName: String
         get() = databaseConfig?.databaseName ?: associatedDatabaseClassFile.simpleName!!
 
     /**
      * @return The file name that this database points to
      */
-    val databaseFileName: String
+    override val databaseFileName: String
         get() = databaseName + databaseExtensionName
 
     /**
@@ -172,26 +190,11 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * @return True if the database will reside in memory.
      */
-    val isInMemory: Boolean
+    override val isInMemory: Boolean
         get() = databaseConfig?.isInMemory ?: false
 
-    internal val throwExceptionsOnCreate
+    override val throwExceptionsOnCreate
         get() = databaseConfig?.throwExceptionsOnCreate ?: true
-
-    /**
-     * @return The version of the database currently.
-     */
-    abstract val databaseVersion: Int
-
-    /**
-     * @return True if the [Database.foreignKeyConstraintsEnforced] annotation is true.
-     */
-    abstract val isForeignKeysSupported: Boolean
-
-    /**
-     * @return The class that defines the [Database] annotation.
-     */
-    abstract val associatedDatabaseClassFile: KClass<*>
 
     /**
      * @return True if the database is ok. If backups are enabled, we restore from backup and will
@@ -204,7 +207,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
      * Returns the associated table observer that tracks changes to tables during transactions on
      * the DB.
      */
-    val tableObserver: TableObserver<DBFlowDatabase> by lazy {
+    override val tableObserver: TableObserver<DBFlowDatabase> by lazy {
         // observe all tables
         TableObserver(this, tables = tables.toMutableList().apply {
             addAll(views)
@@ -242,18 +245,13 @@ abstract class DBFlowDatabase : DatabaseWrapper {
         list += migration
     }
 
-    fun getModelNotifier(): ModelNotifier {
-        var notifier = modelNotifier
-        if (notifier == null) {
-            val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
-            notifier = if (config?.modelNotifier == null) {
-                DirectModelNotifier.get(this)
-            } else {
-                config.modelNotifier.invoke(this)
-            }
+    override val modelNotifier: ModelNotifier by lazy {
+        val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
+        if (config?.modelNotifier == null) {
+            DirectModelNotifier.get(this)
+        } else {
+            config.modelNotifier.invoke(this)
         }
-        modelNotifier = notifier
-        return notifier
     }
 
     /**
@@ -293,7 +291,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * Deletes the underlying database and destroys it.
      */
-    fun destroy() {
+    override fun destroy() {
         if (!isResetting) {
             isResetting = true
             close()
@@ -307,7 +305,7 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     /**
      * Closes the DB and stops the [BaseTransactionManager]
      */
-    fun close() {
+    override fun close() {
         transactionDispatcher.dispatcher.cancel()
         if (isOpened) {
             try {
@@ -409,27 +407,27 @@ abstract class DBFlowDatabase : DatabaseWrapper {
     }
 }
 
-fun <DB : DBFlowDatabase, R : Any?> DB.beginTransactionAsync(transaction: SuspendableTransaction<DB, R>):
+fun <DB : GeneratedDatabase, R : Any?> DB.beginTransactionAsync(transaction: SuspendableTransaction<DB, R>):
     Transaction.Builder<DB, R> =
     Transaction.Builder(transaction, this)
 
 /**
  * Runs the transaction within the [transactionDispatcher]
  */
-suspend fun <DB : DBFlowDatabase, R> DB.executeTransaction(transaction: SuspendableTransaction<DB, R>): R =
+suspend fun <DB : GeneratedDatabase, R> DB.executeTransaction(transaction: SuspendableTransaction<DB, R>): R =
     transactionDispatcher.executeTransaction(this, transaction)
 
 /**
  * Enqueues the transaction without waiting for the result.
  */
-fun <DB : DBFlowDatabase, R> DB.enqueueTransaction(transaction: SuspendableTransaction<DB, R>): Job {
+fun <DB : GeneratedDatabase, R> DB.enqueueTransaction(transaction: SuspendableTransaction<DB, R>): Job {
     return enqueueScope.launch {
         executeTransaction(transaction)
     }
 }
 
 @Suppress("unchecked_cast")
-internal suspend fun <DB : DBFlowDatabase, R> WritableDatabaseScope<DB>.executeTransactionForResult(
+internal suspend fun <DB : GeneratedDatabase, R> WritableDatabaseScope<DB>.executeTransactionForResult(
     transaction: SuspendableTransaction<DB, R>
 ): R {
     // if we use transaction, let the class define if we want DB transaction.
@@ -449,7 +447,7 @@ internal suspend fun <DB : DBFlowDatabase, R> WritableDatabaseScope<DB>.executeT
  * Runs the [fn] block within the [WritableDatabaseScope] asynchronously using coroutines.
  * Enables DB writing which may block until ability to write.
  */
-suspend inline fun <reified DB : DBFlowDatabase, R> DB.writableTransaction(
+suspend inline fun <reified DB : GeneratedDatabase, R> DB.writableTransaction(
     crossinline fn: suspend WritableDatabaseScope<DB>.() -> R
 ): R = executeTransaction { fn() }
 
@@ -457,6 +455,6 @@ suspend inline fun <reified DB : DBFlowDatabase, R> DB.writableTransaction(
  * Runs the [fn] block within the [ReadableDatabaseScope] asynchronously using coroutines.
  * Only allows readable operations such as queries.
  */
-suspend inline fun <reified DB : DBFlowDatabase, R> DB.readableTransaction(
+suspend inline fun <reified DB : GeneratedDatabase, R> DB.readableTransaction(
     crossinline fn: suspend ReadableDatabaseScope<DB>.() -> R
 ): R = executeTransaction { fn() }

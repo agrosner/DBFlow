@@ -3,7 +3,7 @@ package com.dbflow5.paging
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
 import com.dbflow5.adapter.SQLObjectAdapter
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.Constrainable
@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
  */
 class QueryDataSource<Table : Any, Q>
 internal constructor(
-    private val db: DBFlowDatabase,
+    private val db: GeneratedDatabase,
     private val executableQuery: Q,
 ) : PositionalDataSource<Table>()
     where Q : ExecutableQuery<SelectResult<Table>>,
@@ -72,7 +72,7 @@ internal constructor(
     class Factory<Table : Any, Q>
     internal constructor(
         private val executableQuery: Q,
-        private val database: DBFlowDatabase
+        private val database: GeneratedDatabase
     ) : DataSource.Factory<Int, Table>()
         where Q : ExecutableQuery<SelectResult<Table>>,
               Q : HasAssociatedAdapters,
@@ -83,7 +83,7 @@ internal constructor(
 
     companion object {
         @JvmStatic
-        fun <Table : Any, Q> newFactory(executableQuery: Q, database: DBFlowDatabase)
+        fun <Table : Any, Q> newFactory(executableQuery: Q, database: GeneratedDatabase)
             where Q : ExecutableQuery<SelectResult<Table>>,
                   Q : HasAssociatedAdapters,
                   Q : HasAdapter<Table, SQLObjectAdapter<Table>>,
@@ -92,7 +92,7 @@ internal constructor(
     }
 }
 
-fun <Table : Any, Q> Q.toDataSourceFactory(database: DBFlowDatabase)
+fun <Table : Any, Q> Q.toDataSourceFactory(database: GeneratedDatabase)
     where Q : ExecutableQuery<SelectResult<Table>>,
           Q : HasAdapter<Table, SQLObjectAdapter<Table>>,
           Q : HasAssociatedAdapters,

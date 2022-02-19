@@ -11,7 +11,7 @@ import com.dbflow5.config.database
 import com.dbflow5.config.readableTransaction
 import com.dbflow5.liveDataModelAdapter
 import com.dbflow5.query.select
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Rule
 import org.junit.Test

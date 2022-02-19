@@ -1,7 +1,7 @@
 package com.dbflow5.livedata
 
 import androidx.lifecycle.LiveData
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ExecutableQuery
@@ -13,7 +13,7 @@ import kotlin.reflect.KClass
  * Return a new [LiveData] instance. Specify using the [evalFn] what query to run.
  */
 fun <Table : Any, Result, Q> Q.toLiveData(
-    db: DBFlowDatabase,
+    db: GeneratedDatabase,
     selectResultFn: suspend SelectResult<Table>.() -> Result,
 ): LiveData<Result>
     where Q : ExecutableQuery<SelectResult<Table>>,
@@ -23,7 +23,7 @@ fun <Table : Any, Result, Q> Q.toLiveData(
 class QueryLiveData<Table : Any, Result, Q>(
     private val executable: Q,
     private val selectResultFn: suspend SelectResult<Table>.() -> Result,
-    private val db: DBFlowDatabase,
+    private val db: GeneratedDatabase,
 ) : LiveData<Result>()
     where Q : ExecutableQuery<SelectResult<Table>>,
           Q : HasAssociatedAdapters {

@@ -6,7 +6,7 @@ import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.transaction.TransactionDispatcher
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Before
 import org.junit.Test
@@ -58,7 +58,7 @@ class DatabaseConfigTest : BaseUnitTest() {
         assertEquals(databaseConfig.callback, helperListener)
 
         val databaseDefinition = database<TestDatabase>()
-        assertEquals(databaseDefinition.dispatcher, testTransactionManager)
+        assertEquals(databaseDefinition.transactionDispatcher, testTransactionManager)
         assertEquals(databaseDefinition.openHelper, customOpenHelper)
     }
 

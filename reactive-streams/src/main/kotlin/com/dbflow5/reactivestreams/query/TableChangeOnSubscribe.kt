@@ -1,6 +1,6 @@
 package com.dbflow5.reactivestreams.query
 
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ExecutableQuery
@@ -20,7 +20,7 @@ import kotlin.reflect.KClass
 class TableChangeOnSubscribe<Table : Any, Result : Any, Q>(
     private val executable: Q,
     private val selectResultFn: suspend SelectResult<Table>.() -> Result,
-    private val db: DBFlowDatabase,
+    private val db: GeneratedDatabase,
 ) : FlowableOnSubscribe<Result>
     where Q : ExecutableQuery<SelectResult<Table>>,
           Q : HasAssociatedAdapters {

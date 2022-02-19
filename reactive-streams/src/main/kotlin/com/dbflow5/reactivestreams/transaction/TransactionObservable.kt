@@ -2,7 +2,7 @@
 
 package com.dbflow5.reactivestreams.transaction
 
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.query.ExecutableQuery
 import com.dbflow5.query.HasAssociatedAdapters
 import com.dbflow5.query.SelectResult
@@ -19,13 +19,13 @@ import io.reactivex.rxjava3.disposables.Disposable
 /**
  * Description: Returns a [Maybe] that executes the [this@beginMaybe] when called.
  */
-fun <DB : DBFlowDatabase, R : Any> Transaction.Builder<DB, R>.asMaybe(): MaybeTransaction<DB, R> =
+fun <DB : GeneratedDatabase, R : Any> Transaction.Builder<DB, R>.asMaybe(): MaybeTransaction<DB, R> =
     MaybeTransaction(this)
 
 /**
  * Description: Returns a [Observable] that executes the [this@beginObservable] when called.
  */
-fun <DB : DBFlowDatabase, R : Any> Transaction.Builder<DB, R>.asSingle(): SingleTransaction<DB, R> =
+fun <DB : GeneratedDatabase, R : Any> Transaction.Builder<DB, R>.asSingle(): SingleTransaction<DB, R> =
     SingleTransaction(this)
 
 /**
@@ -33,7 +33,7 @@ fun <DB : DBFlowDatabase, R : Any> Transaction.Builder<DB, R>.asSingle(): Single
  * table changes. The [selectResultFn] provides which intended result you wanted to retrieve on change.
  */
 fun <Table : Any, Result : Any, Q> Q.asFlowable(
-    db: DBFlowDatabase,
+    db: GeneratedDatabase,
     selectResultFn: suspend SelectResult<Table>.() -> Result,
 ): Flowable<Result>
     where Q : ExecutableQuery<SelectResult<Table>>,
@@ -54,7 +54,7 @@ open class TransactionDisposable(private val transaction: Transaction<*, *>) : D
  * Description: Wraps a [Transaction.Builder] in a transaction. Please note that the [Transaction.Builder]
  * success will get consumed by the [Observer].
  */
-class SingleTransaction<DB : DBFlowDatabase, R : Any>(private val builder: Transaction.Builder<DB, R>) :
+class SingleTransaction<DB : GeneratedDatabase, R : Any>(private val builder: Transaction.Builder<DB, R>) :
     Single<R>() {
 
     /**
@@ -80,7 +80,7 @@ class SingleTransaction<DB : DBFlowDatabase, R : Any>(private val builder: Trans
  * Description: Wraps a [Transaction.Builder] in a transaction. Please note that the [Transaction.Builder]
  * success will get consumed by the [Observer].
  */
-class MaybeTransaction<DB : DBFlowDatabase, R : Any>(private val builder: Transaction.Builder<DB, R>) :
+class MaybeTransaction<DB : GeneratedDatabase, R : Any>(private val builder: Transaction.Builder<DB, R>) :
     Maybe<R>() {
 
     /**

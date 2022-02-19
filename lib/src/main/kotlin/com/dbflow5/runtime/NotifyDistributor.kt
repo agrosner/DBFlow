@@ -5,18 +5,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-/**
- * Description: Distributes notifications to the [ModelNotifier].
- */
-class NotifyDistributor
-private constructor(
-    private val modelNotifier: ModelNotifier,
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main),
-) {
+interface NotifyDistributor {
 
-    fun <Table : Any> onChange(notification: ModelNotification<Table>) {
-        scope.launch { modelNotifier.onChange(notification) }
-    }
+    fun <Table : Any> onChange(notification: ModelNotification<Table>)
 
     companion object {
 
@@ -24,7 +15,20 @@ private constructor(
 
         operator fun invoke(db: DatabaseWrapper): NotifyDistributor =
             distributorMap.getOrPut(db) {
-                NotifyDistributor(db.associatedDBFlowDatabase.getModelNotifier())
+                NotifyDistributorImpl(db.generatedDatabase.modelNotifier)
             }
+    }
+}
+
+/**
+ * Description: Distributes notifications to the [ModelNotifier].
+ */
+internal data class NotifyDistributorImpl(
+    private val modelNotifier: ModelNotifier,
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+) : NotifyDistributor {
+
+    override fun <Table : Any> onChange(notification: ModelNotification<Table>) {
+        scope.launch { modelNotifier.onChange(notification) }
     }
 }

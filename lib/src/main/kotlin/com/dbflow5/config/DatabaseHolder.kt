@@ -16,7 +16,7 @@ interface DatabaseHolderFactory {
  */
 @Suppress("UNCHECKED_CAST")
 class DatabaseHolder(
-    val databases: Set<DBFlowDatabase>,
+    val databases: Set<GeneratedDatabase>,
     val tables: Set<ModelAdapter<*>>,
     val views: Set<ModelViewAdapter<*>>,
     val queries: Set<RetrievalAdapter<*>>,
@@ -43,7 +43,7 @@ class DatabaseHolder(
     fun getTypeConverterForClass(clazz: KClass<*>): TypeConverter<*, *>? =
         typeConverters[clazz]
 
-    fun getDatabase(databaseClass: KClass<*>): DBFlowDatabase? =
+    fun getDatabase(databaseClass: KClass<*>): GeneratedDatabase? =
         databaseClassLookupMap[databaseClass]
 
     internal fun <T : Any> getModelAdapterByTableName(name: String): ModelAdapter<T> =

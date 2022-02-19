@@ -1,8 +1,8 @@
 package com.dbflow5.sqlcipher
 
 import android.content.Context
-import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.DatabaseConfig
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.OpenHelperCreator
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseHelperDelegate
@@ -17,17 +17,17 @@ import net.sqlcipher.database.SQLiteOpenHelper
  */
 abstract class SQLCipherOpenHelper(
     private val context: Context,
-    private val databaseDefinition: DBFlowDatabase,
+    private val generatedDatabase: GeneratedDatabase,
     listener: DatabaseCallback?,
 ) : SQLiteOpenHelper(
     context,
-    if (databaseDefinition.isInMemory) null else databaseDefinition.databaseFileName,
-    null, databaseDefinition.databaseVersion
+    if (generatedDatabase.isInMemory) null else generatedDatabase.databaseFileName,
+    null, generatedDatabase.databaseVersion
 ), OpenHelper {
 
     final override val delegate: DatabaseHelperDelegate
     private var cipherDatabase: SQLCipherDatabase? = null
-    private val _databaseName = databaseDefinition.databaseFileName
+    private val _databaseName = generatedDatabase.databaseFileName
 
     override val isDatabaseIntegrityOk: Boolean
         get() = delegate.isDatabaseIntegrityOk
@@ -37,7 +37,7 @@ abstract class SQLCipherOpenHelper(
             if (cipherDatabase == null || !cipherDatabase!!.database.isOpen) {
                 cipherDatabase = SQLCipherDatabase.from(
                     getWritableDatabase(cipherSecret),
-                    databaseDefinition
+                    generatedDatabase
                 )
             }
             return cipherDatabase!!
@@ -50,7 +50,7 @@ abstract class SQLCipherOpenHelper(
 
     init {
         SQLiteDatabase.loadLibs(context)
-        delegate = DatabaseHelperDelegate(context, listener, databaseDefinition)
+        delegate = DatabaseHelperDelegate(context, listener, generatedDatabase)
     }
 
     override suspend fun performRestoreFromBackup() {
@@ -72,19 +72,19 @@ abstract class SQLCipherOpenHelper(
     }
 
     override fun onConfigure(db: SQLiteDatabase) {
-        delegate.onConfigure(SQLCipherDatabase.from(db, databaseDefinition))
+        delegate.onConfigure(SQLCipherDatabase.from(db, generatedDatabase))
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        delegate.onCreate(SQLCipherDatabase.from(db, databaseDefinition))
+        delegate.onCreate(SQLCipherDatabase.from(db, generatedDatabase))
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        delegate.onUpgrade(SQLCipherDatabase.from(db, databaseDefinition), oldVersion, newVersion)
+        delegate.onUpgrade(SQLCipherDatabase.from(db, generatedDatabase), oldVersion, newVersion)
     }
 
     override fun onOpen(db: SQLiteDatabase) {
-        delegate.onOpen(SQLCipherDatabase.from(db, databaseDefinition))
+        delegate.onOpen(SQLCipherDatabase.from(db, generatedDatabase))
     }
 
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {

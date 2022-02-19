@@ -1,10 +1,9 @@
 package com.dbflow5.transaction
 
-import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.enqueueTransaction
 import com.dbflow5.config.executeTransaction
-import com.dbflow5.config.executeTransactionForResult
 import com.dbflow5.database.executeTransaction
 import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.Job
@@ -23,7 +22,7 @@ typealias Completion<DB, R> = (Transaction<DB, R>) -> Unit
  *
  * To create one, the recommended method is to use the [DBFlowDatabase.beginTransactionAsync].
  */
-data class Transaction<DB : DBFlowDatabase, R : Any?>(
+data class Transaction<DB : GeneratedDatabase, R : Any?>(
     @get:JvmName("transaction")
     val transaction: SuspendableTransaction<DB, R>,
     private val databaseDefinition: DB,
@@ -126,7 +125,7 @@ data class Transaction<DB : DBFlowDatabase, R : Any?>(
     /**
      * The main entry point into [Transaction], this provides an easy way to build up transactions.
      */
-    class Builder<DB : DBFlowDatabase, R : Any?>
+    class Builder<DB : GeneratedDatabase, R : Any?>
     /**
      * @param transaction        The interface that actually executes the transaction.
      * @param database The database this transaction will run on. Should be the same

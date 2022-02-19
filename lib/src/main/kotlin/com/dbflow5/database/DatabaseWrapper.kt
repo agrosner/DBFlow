@@ -1,6 +1,6 @@
 package com.dbflow5.database
 
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 
 /**
  * Description: Provides a base implementation that wraps a database, so other databaseForTable engines potentially can
@@ -8,7 +8,7 @@ import com.dbflow5.config.DBFlowDatabase
  */
 interface DatabaseWrapper {
 
-    val associatedDBFlowDatabase: DBFlowDatabase
+    val generatedDatabase: GeneratedDatabase
 
     val isInTransaction: Boolean
 

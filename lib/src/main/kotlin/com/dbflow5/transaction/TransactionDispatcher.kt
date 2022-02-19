@@ -1,6 +1,6 @@
 package com.dbflow5.transaction
 
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.TransactionElement
 import com.dbflow5.config.acquireTransaction
 import com.dbflow5.config.executeTransactionForResult
@@ -14,7 +14,7 @@ import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
-fun interface SuspendableTransaction<DB : DBFlowDatabase, R> {
+fun interface SuspendableTransaction<DB : GeneratedDatabase, R> {
     suspend fun WritableDatabaseScope<DB>.execute(): R
 }
 
@@ -34,7 +34,7 @@ interface TransactionDispatcher {
     /**
      * Executes the transaction and suspends until result is returned.
      */
-    suspend fun <DB : DBFlowDatabase, R> executeTransaction(
+    suspend fun <DB : GeneratedDatabase, R> executeTransaction(
         db: DB,
         transaction: SuspendableTransaction<DB, R>,
     ): R
@@ -51,7 +51,7 @@ internal class DefaultTransactionDispatcher(
     /**
      * Runs the transaction within the [dispatcher]
      */
-    override suspend fun <DB : DBFlowDatabase, R> executeTransaction(
+    override suspend fun <DB : GeneratedDatabase, R> executeTransaction(
         db: DB,
         transaction: SuspendableTransaction<DB, R>,
     ): R {

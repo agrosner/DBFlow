@@ -9,7 +9,7 @@ import java.util.regex.Pattern
 import kotlin.reflect.KClass
 
 fun interface OpenHelperCreator {
-    fun createHelper(db: DBFlowDatabase, callback: DatabaseCallback?): OpenHelper
+    fun createHelper(db: GeneratedDatabase, callback: DatabaseCallback?): OpenHelper
 }
 
 fun interface TransactionDispatcherFactory {
@@ -42,11 +42,11 @@ class DatabaseConfig(
     val openHelperCreator: OpenHelperCreator? = null,
     val transactionDispatcherFactory: TransactionDispatcherFactory? = null,
     val callback: DatabaseCallback? = null,
-    val modelNotifier: ((DBFlowDatabase) -> ModelNotifier)? = null,
+    val modelNotifier: ((GeneratedDatabase) -> ModelNotifier)? = null,
     val isInMemory: Boolean = false,
     val databaseName: String? = null,
     val databaseExtensionName: String? = null,
-    val journalMode: DBFlowDatabase.JournalMode = DBFlowDatabase.JournalMode.Automatic,
+    val journalMode: JournalMode = JournalMode.Automatic,
     val throwExceptionsOnCreate: Boolean = true,
 ) {
 
@@ -85,11 +85,11 @@ class DatabaseConfig(
 
         internal var transactionDispatcherFactory: TransactionDispatcherFactory? = null
         internal var callback: DatabaseCallback? = null
-        internal var modelNotifier: ((DBFlowDatabase) -> ModelNotifier)? = null
+        internal var modelNotifier: ((GeneratedDatabase) -> ModelNotifier)? = null
         internal var inMemory = false
         internal var databaseName: String? = null
         internal var databaseExtensionName: String? = null
-        internal var journalMode: DBFlowDatabase.JournalMode = DBFlowDatabase.JournalMode.Automatic
+        internal var journalMode: JournalMode = JournalMode.Automatic
         internal var throwExceptionsOnCreate: Boolean = true
 
         fun transactionDispatcherFactory(creator: TransactionDispatcherFactory) = apply {
@@ -100,7 +100,7 @@ class DatabaseConfig(
             this.callback = callback
         }
 
-        fun modelNotifier(modelNotifier: (DBFlowDatabase) -> ModelNotifier) = apply {
+        fun modelNotifier(modelNotifier: (GeneratedDatabase) -> ModelNotifier) = apply {
             this.modelNotifier = modelNotifier
         }
 
@@ -108,7 +108,7 @@ class DatabaseConfig(
             inMemory = true
         }
 
-        fun journalMode(journalMode: DBFlowDatabase.JournalMode) = apply {
+        fun journalMode(journalMode: JournalMode) = apply {
             this.journalMode = journalMode
         }
 

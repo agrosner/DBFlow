@@ -2,23 +2,23 @@ package com.dbflow5.database
 
 import com.dbflow5.adapter.CreationAdapter
 import com.dbflow5.adapter.createIfNotExists
-import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.FlowManager
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.NaturalOrderComparator
 import java.io.IOException
 
 /**
- * Description: Manages creation, updating, and migrating ac [DBFlowDatabase]. It performs View creations.
+ * Manages creation, updating, and migrating the [GeneratedDatabase].
  */
 open class DatabaseHelper(
     private val migrationFileHelper: MigrationFileHelper,
-    val databaseDefinition: DBFlowDatabase
+    val generatedDatabase: GeneratedDatabase
 ) {
 
     // path to migration for the database.
     private val dbMigrationPath
-        get() = "$MIGRATION_PATH/${databaseDefinition.databaseName}"
+        get() = "$MIGRATION_PATH/${generatedDatabase.databaseName}"
 
     open fun onConfigure(db: DatabaseWrapper) {
         checkForeignKeySupport(db)
@@ -31,7 +31,7 @@ open class DatabaseHelper(
         // execute any initial migrations when DB is first created.
         // use the databaseversion of the definition, since onupgrade is not called oncreate on a version 0
         // then SQLCipher and Android set the DB to that version you choose.
-        executeMigrations(db, -1, databaseDefinition.databaseVersion)
+        executeMigrations(db, -1, generatedDatabase.databaseVersion)
 
         // views reflect current db state.
         executeViewCreations(db)
@@ -58,7 +58,7 @@ open class DatabaseHelper(
      * If foreign keys are supported, we turn it on the DB specified.
      */
     protected fun checkForeignKeySupport(database: DatabaseWrapper) {
-        if (databaseDefinition.isForeignKeysSupported) {
+        if (generatedDatabase.isForeignKeysSupported) {
             database.execSQL("PRAGMA foreign_keys=ON;")
             FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.")
         }
@@ -66,7 +66,7 @@ open class DatabaseHelper(
 
     protected fun executeTableCreations(database: DatabaseWrapper) {
         database.executeTransaction {
-            databaseDefinition.tables
+            this@DatabaseHelper.generatedDatabase.tables
                 .asSequence()
                 .map { FlowManager.getModelAdapter(it) }
                 .filter { it.createWithDatabase() }
@@ -79,7 +79,7 @@ open class DatabaseHelper(
      */
     protected fun executeViewCreations(database: DatabaseWrapper) {
         database.executeTransaction {
-            databaseDefinition.views
+            this@DatabaseHelper.generatedDatabase.views
                 .asSequence()
                 .map { FlowManager.getModelViewAdapter(it) }
                 .filter { it.createWithDatabase() }
@@ -94,7 +94,7 @@ open class DatabaseHelper(
         try {
             createIfNotExists(databaseWrapper)
         } catch (e: SQLiteException) {
-            if (databaseDefinition.throwExceptionsOnCreate) {
+            if (generatedDatabase.throwExceptionsOnCreate) {
                 throw e
             } else {
                 FlowLog.logError(e)
@@ -124,7 +124,7 @@ open class DatabaseHelper(
 
             }
 
-            val migrationMap = databaseDefinition.migrations
+            val migrationMap = generatedDatabase.migrations
 
             val curVersion = oldVersion + 1
 

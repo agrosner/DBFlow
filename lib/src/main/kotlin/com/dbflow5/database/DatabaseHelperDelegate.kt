@@ -1,8 +1,8 @@
 package com.dbflow5.database
 
 import android.content.Context
-import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.beginTransactionAsync
 import java.io.File
 import java.io.FileInputStream
@@ -17,15 +17,15 @@ import java.io.InputStream
 class DatabaseHelperDelegate(
     private val context: Context,
     private var databaseCallback: DatabaseCallback?,
-    databaseDefinition: DBFlowDatabase
-) : DatabaseHelper(AndroidMigrationFileHelper(context), databaseDefinition), OpenHelperDelegate {
+    generatedDatabase: GeneratedDatabase
+) : DatabaseHelper(AndroidMigrationFileHelper(context), generatedDatabase), OpenHelperDelegate {
 
     /**
      * @return the temporary database file name for when we have backups enabled
      * [DBFlowDatabase.getBackupEnabled]
      */
     private val tempDbFileName: String
-        get() = getTempDbFileName(databaseDefinition)
+        get() = getTempDbFileName(generatedDatabase)
 
     /**
      * Pulled partially from code, it runs a "PRAGMA quick_check(1)" to see if the database is ok.
@@ -38,12 +38,12 @@ class DatabaseHelperDelegate(
         get() = isDatabaseIntegrityOk(database)
 
     override val database: DatabaseWrapper
-        get() = databaseDefinition
+        get() = generatedDatabase
 
     override suspend fun performRestoreFromBackup() {
         movePrepackagedDB(
-            databaseDefinition.databaseFileName,
-            databaseDefinition.databaseFileName
+            generatedDatabase.databaseFileName,
+            generatedDatabase.databaseFileName
         )
     }
 
@@ -139,7 +139,7 @@ class DatabaseHelperDelegate(
         // Try to copy database file
         try {
             // check existing and use that as backup
-            val existingDb = context.getDatabasePath(databaseDefinition.databaseFileName)
+            val existingDb = context.getDatabasePath(generatedDatabase.databaseFileName)
             // if it exists and the integrity is ok
             val inputStream = if (existingDb.exists()) {
                 FileInputStream(existingDb)
@@ -165,7 +165,7 @@ class DatabaseHelperDelegate(
                 // integrity_checker failed on main or attached databases
                 FlowLog.log(
                     FlowLog.Level.E,
-                    "PRAGMA integrity_check on ${databaseDefinition.databaseName} returned: $result"
+                    "PRAGMA integrity_check on ${generatedDatabase.databaseName} returned: $result"
                 )
                 false
             } else {
@@ -181,8 +181,8 @@ class DatabaseHelperDelegate(
     fun restoreBackUp(): Boolean {
         var success = true
 
-        val db = context.getDatabasePath(TEMP_DB_NAME + databaseDefinition.databaseName)
-        val corrupt = context.getDatabasePath(databaseDefinition.databaseName)
+        val db = context.getDatabasePath(TEMP_DB_NAME + generatedDatabase.databaseName)
+        val corrupt = context.getDatabasePath(generatedDatabase.databaseName)
         if (corrupt.delete()) {
             try {
                 writeDB(corrupt, FileInputStream(db))
@@ -225,10 +225,10 @@ class DatabaseHelperDelegate(
      * This will create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      */
     override suspend fun backupDB() {
-        databaseDefinition.beginTransactionAsync {
+        generatedDatabase.beginTransactionAsync {
             val backup = context.getDatabasePath(tempDbFileName)
             val temp =
-                context.getDatabasePath("$TEMP_DB_NAME-2-${databaseDefinition.databaseFileName}")
+                context.getDatabasePath("$TEMP_DB_NAME-2-${generatedDatabase.databaseFileName}")
 
             // if exists we want to delete it before rename
             if (temp.exists()) {
@@ -239,7 +239,7 @@ class DatabaseHelperDelegate(
             if (backup.exists()) {
                 backup.delete()
             }
-            val existing = context.getDatabasePath(databaseDefinition.databaseFileName)
+            val existing = context.getDatabasePath(generatedDatabase.databaseFileName)
 
             try {
                 backup.parentFile.mkdirs()
@@ -256,7 +256,7 @@ class DatabaseHelperDelegate(
 
         val TEMP_DB_NAME = "temp-"
 
-        fun getTempDbFileName(databaseDefinition: DBFlowDatabase): String =
+        fun getTempDbFileName(databaseDefinition: GeneratedDatabase): String =
             "$TEMP_DB_NAME${databaseDefinition.databaseName}.db"
     }
 }

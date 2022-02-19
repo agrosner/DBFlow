@@ -4,7 +4,7 @@ package com.dbflow5.database.scope
 
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.RetrievalAdapter
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.CountResultFactory
 import com.dbflow5.query.ExecutableQuery
@@ -15,7 +15,7 @@ import com.dbflow5.query.hasData
 /**
  * Description:
  */
-class DatabaseScopeImpl<DB : DBFlowDatabase>
+class DatabaseScopeImpl<DB : GeneratedDatabase>
 internal constructor(
     override val db: DB
 ) :
@@ -93,11 +93,11 @@ internal constructor(
         hasData(db)
 }
 
-fun <DB : DBFlowDatabase> WritableDatabaseScope(
+fun <DB : GeneratedDatabase> WritableDatabaseScope(
     db: DB,
 ):
     WritableDatabaseScope<DB> = DatabaseScopeImpl(db)
 
-fun <DB : DBFlowDatabase> ReadableDatabaseScope(
+fun <DB : GeneratedDatabase> ReadableDatabaseScope(
     db: DB,
 ): ReadableDatabaseScope<DB> = DatabaseScopeImpl(db)

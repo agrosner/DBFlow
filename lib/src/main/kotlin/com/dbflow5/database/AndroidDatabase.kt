@@ -3,14 +3,14 @@ package com.dbflow5.database
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 
 /**
  * Description: Specifies the android default implementation of a database.
  */
 class AndroidDatabase internal constructor(
     val database: SQLiteDatabase,
-    override val associatedDBFlowDatabase: DBFlowDatabase,
+    override val generatedDatabase: GeneratedDatabase,
 ) : AndroidDatabaseWrapper {
 
     override fun execSQL(query: String) {
@@ -96,10 +96,10 @@ class AndroidDatabase internal constructor(
         @JvmStatic
         fun from(
             database: SQLiteDatabase,
-            dbFlowDatabase: DBFlowDatabase
+            generatedDatabase: GeneratedDatabase
         ): AndroidDatabase = AndroidDatabase(
             database,
-            dbFlowDatabase,
+            generatedDatabase,
         )
     }
 }

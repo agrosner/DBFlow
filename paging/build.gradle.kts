@@ -22,6 +22,12 @@ android {
     }
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
+    kotlinOptions.freeCompilerArgs += listOf(
+        "-Xopt-in=com.dbflow5.annotation.opts.InternalDBFlowApi"
+    )
+}
+
 dependencies {
     implementation(project(":lib"))
     api(Dependencies.AndroidX.Paging)

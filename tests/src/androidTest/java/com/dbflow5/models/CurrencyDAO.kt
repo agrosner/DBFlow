@@ -1,7 +1,7 @@
 package com.dbflow5.models
 
 import com.dbflow5.TestDatabase
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.coroutines.defer
 import com.dbflow5.currencyAdapter
@@ -15,7 +15,7 @@ import kotlinx.coroutines.Deferred
 /**
  *  Create this class in your own database module.
  */
-interface DBProvider<out T : DBFlowDatabase> {
+interface DBProvider<out T : GeneratedDatabase> {
 
     val database: T
 

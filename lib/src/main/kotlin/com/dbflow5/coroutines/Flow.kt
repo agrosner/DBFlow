@@ -1,6 +1,6 @@
 package com.dbflow5.coroutines
 
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.enqueueTransaction
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ExecutableQuery
@@ -18,7 +18,7 @@ import kotlin.reflect.KClass
  */
 @ExperimentalCoroutinesApi
 fun <Table : Any, Result, Q> Q.toFlow(
-    db: DBFlowDatabase,
+    db: GeneratedDatabase,
     selectResultFn: suspend SelectResult<Table>.() -> Result
 ): Flow<Result>
     where Q : ExecutableQuery<SelectResult<Table>>,
@@ -53,7 +53,7 @@ fun <Table : Any, Result, Q> Q.toFlow(
  * [Flow] that will close itself when transacion executes.
  */
 @ExperimentalCoroutinesApi
-fun <DB : DBFlowDatabase, R : Any?> Transaction.Builder<DB, R>.toFlow(): Flow<R> {
+fun <DB : GeneratedDatabase, R : Any?> Transaction.Builder<DB, R>.toFlow(): Flow<R> {
     return callbackFlow {
         val transaction = success { _, r -> channel.trySend(r) }
             .error { _, throwable -> channel.close(throwable) }

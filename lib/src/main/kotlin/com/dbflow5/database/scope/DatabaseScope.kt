@@ -1,16 +1,16 @@
 package com.dbflow5.database.scope
 
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 
 /**
  * Description: The main handle into the database.
  */
-interface DatabaseScope<DB : DBFlowDatabase> {
+interface DatabaseScope<DB : GeneratedDatabase> {
     val db: DB
 }
 
-interface ReadableDatabaseScope<DB : DBFlowDatabase> : DatabaseScope<DB>, ReadableScope,
+interface ReadableDatabaseScope<DB : GeneratedDatabase> : DatabaseScope<DB>, ReadableScope,
     ReadableQueriableScope
 
-interface WritableDatabaseScope<DB : DBFlowDatabase> : ReadableDatabaseScope<DB>, WritableScope,
+interface WritableDatabaseScope<DB : GeneratedDatabase> : ReadableDatabaseScope<DB>, WritableScope,
     WritableQueriableScope
