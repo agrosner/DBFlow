@@ -1,5 +1,6 @@
 package com.grosner.dbflow5.codegen.kotlin
 
+import com.grosner.dbflow5.codegen.kotlin.writer.AutoIncrementUpdateWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.ClassWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.DatabaseHolderWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.DatabaseWriter
@@ -41,6 +42,7 @@ val codeGenModule = module {
             get(), get(), get(), get(), get(),
             get(), get(), get(), get(),
             get(), get(), get(), get(),
+            get(),
         )
     }
     single { DatabaseWriter(get()) }
@@ -49,6 +51,7 @@ val codeGenModule = module {
     single { TableSQLWriter(get()) }
     single { TableBinderWriter(get(), get()) }
     single { PrimaryModelClauseWriter(get()) }
+    single { AutoIncrementUpdateWriter() }
 
     single {
         ObjectWriter(

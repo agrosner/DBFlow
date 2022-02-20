@@ -10,7 +10,8 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 
 /**
- * Description:
+ * Writes the value operators for each key to model value used
+ * in a lookup query.
  */
 class PrimaryModelClauseWriter(
     private val referencesCache: ReferencesCache,

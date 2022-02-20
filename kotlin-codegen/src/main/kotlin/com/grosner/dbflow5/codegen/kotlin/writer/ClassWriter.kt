@@ -57,6 +57,7 @@ class ClassWriter(
     private val tableSQLWriter: TableSQLWriter,
     private val tableBinderWriter: TableBinderWriter,
     private val primaryModelClauseWriter: PrimaryModelClauseWriter,
+    private val autoIncrementUpdateWriter: AutoIncrementUpdateWriter,
 ) : TypeCreator<ClassModel, FileSpec> {
 
     override fun create(model: ClassModel): FileSpec {
@@ -106,6 +107,7 @@ class ClassWriter(
                     addProperty(tableSQLWriter.create(model))
                     addProperty(tableBinderWriter.create(model))
                     addProperty(primaryModelClauseWriter.create(model))
+                    addProperty(autoIncrementUpdateWriter.create(model))
                 }
             }
             .addType(

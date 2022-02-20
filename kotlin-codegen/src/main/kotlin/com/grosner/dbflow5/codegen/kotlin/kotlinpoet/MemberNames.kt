@@ -33,4 +33,6 @@ object MemberNames {
     val chain = MemberName(PackageNames.Converter, "chain")
 
     val getOrThrow = MemberName("kotlin", "getOrThrow")
+
+    val emptyAutoIncrementUpdater = MemberName(PackageNames.Adapter2, "emptyAutoIncrementUpdater")
 }

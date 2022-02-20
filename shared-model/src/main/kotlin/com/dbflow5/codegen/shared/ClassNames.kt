@@ -39,6 +39,11 @@ object ClassNames {
     ) = ClassName(PackageNames.Adapter2, "PrimaryModelClauseGetter")
         .parameterizedBy(tableTypeName)
 
+    fun autoIncrementUpdater(
+        tableTypeName: TypeName,
+    ) = ClassName(PackageNames.Adapter2, "AutoIncrementUpdater")
+        .parameterizedBy(tableTypeName)
+
     val OperatorGroup = ClassName(PackageNames.QueryOperations, "OperatorGroup")
     val Operation = ClassName(PackageNames.QueryOperations, "Operation")
 
