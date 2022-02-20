@@ -123,7 +123,7 @@ data class TableOpsImpl<Table : Any>(
     override suspend fun DatabaseWrapper.insert(model: Table): Table =
         generatedDatabase.writableTransaction {
             runInsertOperation(model, tableSQL.insert, tableBinder.insert, ChangeAction.INSERT)
-        }
+        }.also(notifyModelChange(ChangeAction.INSERT))
 
     override suspend fun DatabaseWrapper.insertAll(models: Collection<Table>): Collection<Table> =
         generatedDatabase.writableTransaction {
