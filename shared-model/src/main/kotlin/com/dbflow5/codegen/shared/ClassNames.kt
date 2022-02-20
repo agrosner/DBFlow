@@ -34,6 +34,11 @@ object ClassNames {
     )
         .parameterizedBy(tableTypeName)
 
+    fun primaryModelClauseGetter(
+        tableTypeName: TypeName,
+    ) = ClassName(PackageNames.Adapter2, "PrimaryModelClauseGetter")
+        .parameterizedBy(tableTypeName)
+
     val OperatorGroup = ClassName(PackageNames.QueryOperations, "OperatorGroup")
     val Operation = ClassName(PackageNames.QueryOperations, "Operation")
 
