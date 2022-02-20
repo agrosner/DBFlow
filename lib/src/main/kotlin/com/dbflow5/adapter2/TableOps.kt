@@ -10,9 +10,6 @@ import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.NotifyDistributor
 import com.dbflow5.structure.ChangeAction
 
-/**
- * TODO: Replacement for ModelSaver
- */
 interface TableOps<Table> {
 
     suspend fun DatabaseWrapper.save(model: Table): Table
@@ -42,6 +39,10 @@ data class TableOpsImpl<Table : Any>(
     private val notifyDistributor: NotifyDistributor,
     private val primaryModelClauseGetter: PrimaryModelClauseGetter<Table>,
     private val autoIncrementUpdater: AutoIncrementUpdater<Table>,
+    /**
+     * If true, we send model notifications.
+     */
+    private val notifyChanges: Boolean,
 ) : TableOps<Table> {
 
     private fun DatabaseWrapper.bind(
@@ -51,13 +52,15 @@ data class TableOpsImpl<Table : Any>(
     ) = compilableQuery.create(this).apply { binder.bind(this, model) }
 
     private fun notifyModelChange(changeAction: ChangeAction) = { model: Table ->
-        notifyDistributor.onChange(
-            ModelNotification.ModelChange(
-                changedFields = primaryModelClauseGetter.get(model),
-                action = changeAction,
-                table = model::class,
+        if (notifyChanges) {
+            notifyDistributor.onChange(
+                ModelNotification.ModelChange(
+                    changedFields = primaryModelClauseGetter.get(model),
+                    action = changeAction,
+                    table = model::class,
+                )
             )
-        )
+        }
     }
 
     private fun WritableDatabaseScope<GeneratedDatabase>.runUpdateDeleteOperation(

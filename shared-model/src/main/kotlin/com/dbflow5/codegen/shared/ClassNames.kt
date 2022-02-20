@@ -55,6 +55,9 @@ object ClassNames {
         ClassName("${PackageNames.Database}.scope", "DatabaseScope")
             .parameterizedBy(dbTypeName)
 
+    fun tableBinder(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "TableBinder")
+        .parameterizedBy(tableTypeName)
+
     val DBFlowDatabase = ClassName(PackageNames.Config, "DBFlowDatabase")
     val GeneratedDatabaseHolderFactory =
         ClassName(PackageNames.Config, "GeneratedDatabaseHolderFactory")
@@ -73,4 +76,7 @@ object ClassNames {
 
     val AndroidNonNull = ClassName("android.support.annotation", "NonNull")
     val AndroidXNonNull = ClassName("androidx.annotation", "NonNull")
+
+    val TableSQL = ClassName(PackageNames.Adapter2, "TableSQL")
+    val CompilableQuery = ClassName(PackageNames.Adapter2, "CompilableQuery")
 }

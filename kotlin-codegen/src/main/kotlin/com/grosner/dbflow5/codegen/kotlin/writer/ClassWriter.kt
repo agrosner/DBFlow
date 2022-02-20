@@ -54,6 +54,8 @@ class ClassWriter(
     private val creationQueryWriter: CreationQueryWriter,
     private val indexPropertyWriter: IndexPropertyWriter,
     private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
+    private val tableSQLWriter: TableSQLWriter,
+    private val tableBinderWriter: TableBinderWriter,
 ) : TypeCreator<ClassModel, FileSpec> {
 
     override fun create(model: ClassModel): FileSpec {
@@ -98,6 +100,12 @@ class ClassWriter(
         }
 
         return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
+            .apply {
+                if (model.isNormal) {
+                    addProperty(tableSQLWriter.create(model))
+                    addProperty(tableBinderWriter.create(model))
+                }
+            }
             .addType(
                 TypeSpec.classBuilder(model.generatedClassName.className)
                     .primaryConstructor(

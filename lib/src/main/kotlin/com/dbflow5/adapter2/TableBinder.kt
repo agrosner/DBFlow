@@ -10,5 +10,5 @@ data class TableBinder<Table : Any>(
     val insert: SQLStatementBinder<Table>,
     val update: SQLStatementBinder<Table>,
     val delete: SQLStatementBinder<Table>,
-    val save: SQLStatementBinder<Table>,
+    val save: SQLStatementBinder<Table> = insert,
 )
