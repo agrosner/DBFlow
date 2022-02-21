@@ -3,6 +3,7 @@ package com.dbflow5.ksp.parser
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.Fts3
 import com.dbflow5.annotation.Fts4
+import com.dbflow5.annotation.GranularNotifications
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
@@ -272,9 +273,9 @@ class KSClassDeclarationParser(
         val emptyConstructor =
             input.primaryConstructor?.takeIf { declaration -> declaration.parameters.all { it.hasDefault } }
                 ?: input.getConstructors().firstNotNullOfOrNull { constructor ->
-                    constructor.takeIf {
-                        it.parameters.isEmpty() ||
-                            it.parameters.all { it.hasDefault }
+                    constructor.takeIf { declaration ->
+                        declaration.parameters.isEmpty() ||
+                            declaration.parameters.all { it.hasDefault }
                     }
                 }
         val hasDefaultConstructor = emptyConstructor != null
@@ -283,6 +284,7 @@ class KSClassDeclarationParser(
             .superTypes.any { it.toTypeName() == ClassNames.LoadFromCursorListener }
         val implementsSQLiteStatementListener = input
             .superTypes.any { it.toTypeName() == ClassNames.SQLiteStatementListener }
+        val granularNotifications = input.firstOrNull<GranularNotifications>() != null
         if (emptyConstructor == null) {
             // find constructor that matches exactly by name.
             input.getConstructors().firstNotNullOf {
@@ -326,6 +328,7 @@ class KSClassDeclarationParser(
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
+                        granularNotifications = granularNotifications,
                         originatingSource = originatingSource,
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                         implementsSQLiteStatementListener = implementsSQLiteStatementListener,
@@ -368,6 +371,7 @@ class KSClassDeclarationParser(
                         uniqueGroups = listOf(),
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                         implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                        granularNotifications = false,
                     )
                 )
             }
@@ -387,6 +391,7 @@ class KSClassDeclarationParser(
                         uniqueGroups = listOf(),
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                         implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                        granularNotifications = false,
                     )
                 )
             }

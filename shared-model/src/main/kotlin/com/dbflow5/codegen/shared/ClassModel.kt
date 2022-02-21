@@ -34,6 +34,11 @@ data class ClassModel(
      * If true, generated adapter will also generate internal.
      */
     val isInternal: Boolean,
+    /**
+     * Views and Queries do not support granular since they relate to
+     * table operations.
+     */
+    val granularNotifications: Boolean,
     val implementsLoadFromCursorListener: Boolean,
     val implementsSQLiteStatementListener: Boolean,
     override val originatingSource: OriginatingSource?,

@@ -3,6 +3,7 @@ package com.dbflow5.processor.parser
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.Fts3
 import com.dbflow5.annotation.Fts4
+import com.dbflow5.annotation.GranularNotifications
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
@@ -194,6 +195,7 @@ class KaptElementProcessor(
         val implementsSQLiteStatementListener = classDeclaration
             .superTypes.any { it == ClassNames.SQLiteStatementListener }
         val type = KaptTypeElementClassType(input.asType(), input)
+        val granularNotifications = input.annotation<GranularNotifications>() != null
         return when (typeName) {
             typeNameOf<Table>() -> {
                 val fts3: Fts3? = input.annotation()
@@ -212,6 +214,7 @@ class KaptElementProcessor(
                         fields = fields,
                         hasPrimaryConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
+                        granularNotifications = granularNotifications,
                         originatingSource = source,
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                         implementsSQLiteStatementListener = implementsSQLiteStatementListener,
@@ -250,6 +253,7 @@ class KaptElementProcessor(
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                         implementsSQLiteStatementListener = implementsSQLiteStatementListener,
                         ksClassType = type,
+                        granularNotifications = false,
                     )
                 )
             }
@@ -269,6 +273,7 @@ class KaptElementProcessor(
                         implementsSQLiteStatementListener = implementsSQLiteStatementListener,
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                         ksClassType = type,
+                        granularNotifications = false,
                     )
                 )
             }

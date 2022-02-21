@@ -44,10 +44,18 @@ object ClassNames {
     ) = ClassName(PackageNames.Adapter2, "AutoIncrementUpdater")
         .parameterizedBy(tableTypeName)
 
+    val NotifyDistributor = ClassName(PackageNames.Runtime, "NotifyDistributor")
     val OperatorGroup = ClassName(PackageNames.QueryOperations, "OperatorGroup")
     val Operation = ClassName(PackageNames.QueryOperations, "Operation")
 
     val ModelAdapter = ClassName(PackageNames.Adapter, "ModelAdapter")
+    fun modelAdapter2(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "ModelAdapter")
+        .parameterizedBy(tableTypeName)
+
+    fun tableOps(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "TableOps")
+        .parameterizedBy(tableTypeName)
+
+    val TableOpsImpl = ClassName(PackageNames.Adapter2, "TableOpsImpl")
     fun modelAdapter(typeName: TypeName) = ModelAdapter.parameterizedBy(typeName)
     val RetrievalAdapter = ClassName(PackageNames.Adapter, "RetrievalAdapter")
     fun retrievalAdapter(typeName: TypeName): ParameterizedTypeName {
@@ -66,6 +74,9 @@ object ClassNames {
             .parameterizedBy(dbTypeName)
 
     fun tableBinder(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "TableBinder")
+        .parameterizedBy(tableTypeName)
+
+    fun propertyGetter(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "PropertyGetter")
         .parameterizedBy(tableTypeName)
 
     val DBFlowDatabase = ClassName(PackageNames.Config, "DBFlowDatabase")

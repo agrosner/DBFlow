@@ -117,5 +117,6 @@ data class OneToManyModel(
             implementsLoadFromCursorListener = false,
             implementsSQLiteStatementListener = false,
             ksClassType = ksType,
+            granularNotifications = false,
         )
 }

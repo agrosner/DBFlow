@@ -36,14 +36,14 @@ interface TableOps<Table> {
 data class TableOpsImpl<Table : Any>(
     private val tableSQL: TableSQL,
     private val tableBinder: TableBinder<Table>,
-    private val notifyDistributor: NotifyDistributor,
     private val primaryModelClauseGetter: PrimaryModelClauseGetter<Table>,
     private val autoIncrementUpdater: AutoIncrementUpdater<Table>,
     /**
-     * If true, we send model notifications.
+     * If not null, we send model notifications.
      */
-    private val notifyChanges: Boolean,
+    private val notifyDistributorGetter: () -> NotifyDistributor?,
 ) : TableOps<Table> {
+    private val notifyDistributor by lazy(notifyDistributorGetter)
 
     private fun DatabaseWrapper.bind(
         model: Table,
@@ -52,15 +52,13 @@ data class TableOpsImpl<Table : Any>(
     ) = compilableQuery.create(this).apply { binder.bind(this, model) }
 
     private fun notifyModelChange(changeAction: ChangeAction) = { model: Table ->
-        if (notifyChanges) {
-            notifyDistributor.onChange(
-                ModelNotification.ModelChange(
-                    changedFields = primaryModelClauseGetter.get(model),
-                    action = changeAction,
-                    table = model::class,
-                )
+        notifyDistributor?.onChange(
+            ModelNotification.ModelChange(
+                changedFields = primaryModelClauseGetter.get(model),
+                action = changeAction,
+                table = model::class,
             )
-        }
+        ) ?: Unit // need for unit conversion lambda...
     }
 
     private fun WritableDatabaseScope<GeneratedDatabase>.runUpdateDeleteOperation(

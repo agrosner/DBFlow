@@ -35,4 +35,5 @@ object MemberNames {
     val getOrThrow = MemberName("kotlin", "getOrThrow")
 
     val emptyAutoIncrementUpdater = MemberName(PackageNames.Adapter2, "emptyAutoIncrementUpdater")
+    val modelAdapter = MemberName(PackageNames.Adapter2, "modelAdapter")
 }

@@ -174,5 +174,6 @@ data class ManyToManyModel(
         implementsLoadFromCursorListener = false,
         implementsSQLiteStatementListener = false,
         ksClassType = ksType,
+        granularNotifications = false,
     )
 }

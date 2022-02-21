@@ -23,7 +23,7 @@ class TableSQLWriter(
         val primaryExtractors = model.primaryExtractors(referencesCache)
         return PropertySpec
             .builder(
-                "${model.name.shortName}_sql", ClassNames.TableSQL,
+                "${model.generatedFieldName}_sql", ClassNames.TableSQL,
                 KModifier.PRIVATE
             )
             .initializer(

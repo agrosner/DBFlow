@@ -51,7 +51,7 @@ class TableBinderWriter(
 
     override fun create(model: ClassModel): PropertySpec =
         PropertySpec.builder(
-            "${model.name.shortName}_tableBinder",
+            "${model.generatedFieldName}_tableBinder",
             ClassNames.tableBinder(model.classType),
             KModifier.PRIVATE,
         )

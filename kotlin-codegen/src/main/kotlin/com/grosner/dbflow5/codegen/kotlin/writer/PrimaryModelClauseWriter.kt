@@ -18,7 +18,7 @@ class PrimaryModelClauseWriter(
 ) : TypeCreator<ClassModel, PropertySpec> {
     override fun create(model: ClassModel): PropertySpec =
         PropertySpec.builder(
-            "${model.name.shortName}_primaryModelClauseGetter",
+            "${model.generatedFieldName}_primaryModelClauseGetter",
             ClassNames.primaryModelClauseGetter(model.classType),
             KModifier.PRIVATE,
         )

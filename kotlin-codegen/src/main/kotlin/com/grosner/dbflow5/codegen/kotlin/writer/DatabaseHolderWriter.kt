@@ -23,9 +23,9 @@ import com.squareup.kotlinpoet.TypeSpec
 class DatabaseHolderWriter(
     private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
     private val referencesCache: ReferencesCache,
+    private val nameAllocator: NameAllocator,
 ) : TypeCreator<DatabaseHolderModel, FileSpec> {
 
-    private val nameAllocator = NameAllocator()
 
     override fun create(model: DatabaseHolderModel): FileSpec {
         return FileSpec.builder(

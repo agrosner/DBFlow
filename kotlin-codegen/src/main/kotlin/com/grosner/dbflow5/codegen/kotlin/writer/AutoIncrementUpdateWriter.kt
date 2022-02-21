@@ -21,7 +21,7 @@ class AutoIncrementUpdateWriter : TypeCreator<ClassModel, PropertySpec> {
     override fun create(model: ClassModel): PropertySpec {
         val autoincrementFields = model.primaryAutoIncrementFields
         return PropertySpec.builder(
-            "${model.name.shortName}_autoIncrementUpdater",
+            "${model.generatedFieldName}_autoIncrementUpdater",
             ClassNames.autoIncrementUpdater(model.classType),
             KModifier.PRIVATE,
         )
