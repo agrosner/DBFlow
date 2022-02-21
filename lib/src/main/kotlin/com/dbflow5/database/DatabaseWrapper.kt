@@ -53,7 +53,7 @@ interface DatabaseWrapper {
     /**
      * For given query and selection args, return a [FlowCursor] to retrieve data.
      */
-    fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor
+    fun rawQuery(query: String, selectionArgs: Array<String>? = null): FlowCursor
 
     fun query(
         tableName: String, columns: Array<String>?, selection: String?,

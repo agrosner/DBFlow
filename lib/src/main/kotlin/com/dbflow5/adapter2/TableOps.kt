@@ -34,6 +34,7 @@ interface TableOps<Table> {
  */
 @InternalDBFlowApi
 data class TableOpsImpl<Table : Any>(
+    private val queryOps: QueryOps<Table>,
     private val tableSQL: TableSQL,
     private val tableBinder: TableBinder<Table>,
     private val primaryModelClauseGetter: PrimaryModelClauseGetter<Table>,
@@ -42,7 +43,7 @@ data class TableOpsImpl<Table : Any>(
      * If not null, we send model notifications.
      */
     private val notifyDistributorGetter: () -> NotifyDistributor?,
-) : TableOps<Table> {
+) : TableOps<Table>, QueryOps<Table> by queryOps {
     private val notifyDistributor by lazy(notifyDistributorGetter)
 
     private fun DatabaseWrapper.bind(

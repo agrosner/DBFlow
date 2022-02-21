@@ -61,6 +61,7 @@ class ClassWriter(
     private val tableOpsWriter: TableOpsFunWriter,
     private val modelAdapterWriter: ModelAdapterWriter,
     private val propertyGetterWriter: PropertyGetterWriter,
+    private val queryOpsWriter: QueryOpsWriter,
 ) : TypeCreator<ClassModel, FileSpec> {
 
     override fun create(model: ClassModel): FileSpec {
@@ -112,6 +113,7 @@ class ClassWriter(
                     addProperty(primaryModelClauseWriter.create(model))
                     addProperty(autoIncrementUpdateWriter.create(model))
                     addProperty(propertyGetterWriter.create(model))
+                    addFunction(queryOpsWriter.create(model))
                     addFunction(tableOpsWriter.create(model))
                     addFunction(modelAdapterWriter.create(model))
                 }

@@ -44,6 +44,7 @@ object ClassNames {
     ) = ClassName(PackageNames.Adapter2, "AutoIncrementUpdater")
         .parameterizedBy(tableTypeName)
 
+    val QueryOpsImpl = ClassName(PackageNames.Adapter2, "QueryOpsImpl")
     val NotifyDistributor = ClassName(PackageNames.Runtime, "NotifyDistributor")
     val OperatorGroup = ClassName(PackageNames.QueryOperations, "OperatorGroup")
     val Operation = ClassName(PackageNames.QueryOperations, "Operation")
@@ -78,6 +79,11 @@ object ClassNames {
 
     fun propertyGetter(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "PropertyGetter")
         .parameterizedBy(tableTypeName)
+
+    fun queryOps(classType: ClassName) = ClassName(
+        PackageNames.Adapter2,
+        "QueryOps"
+    ).parameterizedBy(classType)
 
     val DBFlowDatabase = ClassName(PackageNames.Config, "DBFlowDatabase")
     val GeneratedDatabaseHolderFactory =
