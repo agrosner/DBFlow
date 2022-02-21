@@ -52,6 +52,10 @@ object ClassNames {
     val ModelAdapter = ClassName(PackageNames.Adapter, "ModelAdapter")
     fun modelAdapter2(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "ModelAdapter")
         .parameterizedBy(tableTypeName)
+    fun queryAdapter2(queryTypeName: TypeName) = ClassName(PackageNames.Adapter2, "QueryAdapter")
+        .parameterizedBy(queryTypeName)
+    fun viewAdapter2(viewTypeName: TypeName) = ClassName(PackageNames.Adapter2, "ViewAdapter")
+        .parameterizedBy(viewTypeName)
 
     fun tableOps(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "TableOps")
         .parameterizedBy(tableTypeName)

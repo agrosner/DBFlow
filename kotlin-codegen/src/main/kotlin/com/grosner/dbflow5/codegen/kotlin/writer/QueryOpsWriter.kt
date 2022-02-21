@@ -18,7 +18,6 @@ import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
-import com.squareup.kotlinpoet.NameAllocator
 import com.squareup.kotlinpoet.TypeName
 
 class QueryOpsWriter(
@@ -49,32 +48,29 @@ class QueryOpsWriter(
                     )
                 }
             }
-            .addCode(CodeBlock.builder()
-                .apply {
-                    add("return ")
-                    addStatement("%T·{ cursor ->", ClassNames.QueryOpsImpl)
-                    val constructorFields = model.fields
-                        .filter { model.hasPrimaryConstructor || !it.isVal }
-                    var currentIndex = -1
-                    constructorFields
-                        .forEach { field ->
-                            currentIndex = loopField(field, model, currentIndex + 1)
-                        }
-                    constructModel(
-                        model.classType,
-                        model.hasPrimaryConstructor,
-                        model.memberSeparator,
-                        constructorFields,
-                        model.implementsLoadFromCursorListener,
-                        model,
-                    )
-                    addStatement("}")
-                }
-                .build())
+            .apply {
+                addCode("return %T·{ cursor ->\n", ClassNames.QueryOpsImpl)
+                val constructorFields = model.fields
+                    .filter { model.hasPrimaryConstructor || !it.isVal }
+                var currentIndex = -1
+                constructorFields
+                    .forEach { field ->
+                        currentIndex = loopField(field, model, currentIndex + 1)
+                    }
+                constructModel(
+                    model.classType,
+                    model.hasPrimaryConstructor,
+                    model.memberSeparator,
+                    constructorFields,
+                    model.implementsLoadFromCursorListener,
+                    model,
+                )
+                addCode("}\n")
+            }
             .build()
     }
 
-    private fun CodeBlock.Builder.constructModel(
+    private fun FunSpec.Builder.constructModel(
         classType: TypeName,
         hasPrimaryConstructor: Boolean,
         memberSeparator: String,
@@ -89,14 +85,14 @@ class QueryOpsWriter(
         }
         // all local vals get placed here.
         constructorFields.forEach { field ->
-            add("\t")
+            addCode("\t")
             if (!hasPrimaryConstructor) {
-                add("this.")
+                addCode("this.")
             }
             addStatement("%1N = %1N%2L", field.name.shortName, memberSeparator)
         }
         if (hasPrimaryConstructor) {
-            add(")")
+            addCode(")")
         } else {
             endControlFlow()
         }
@@ -106,7 +102,7 @@ class QueryOpsWriter(
         }
     }
 
-    private fun CodeBlock.Builder.loopField(
+    private fun FunSpec.Builder.loopField(
         field: FieldModel,
         model: ClassModel,
         index: Int,
@@ -143,7 +139,7 @@ class QueryOpsWriter(
         }
     }
 
-    private fun CodeBlock.Builder.addComputedLoadStatement(
+    private fun FunSpec.Builder.addComputedLoadStatement(
         field: ReferenceHolderModel,
         model: ClassModel,
         index: Int,
@@ -159,7 +155,7 @@ class QueryOpsWriter(
                 returnIndex + index,
             )
         }
-        add(
+        addCode(
             "val %N = ",
             field.name.shortName,
         )
@@ -175,7 +171,7 @@ class QueryOpsWriter(
         return returnIndex
     }
 
-    private fun CodeBlock.Builder.addReferenceLoadStatement(
+    private fun FunSpec.Builder.addReferenceLoadStatement(
         field: ReferenceHolderModel,
         model: ClassModel,
         currentIndex: Int,
@@ -184,16 +180,16 @@ class QueryOpsWriter(
         val zip = field.references(referencesCache).zip(
             field.references(referencesCache, field.name)
         )
-        add("val %N = ", field.name.shortName)
+        addCode("val %N = ", field.name.shortName)
         addStatement(
             "(%N().%M() where ",
             reference.generatedFieldName,
             MemberNames.select,
         )
         zip.forEachIndexed { index, (plain, _) ->
-            add("\t\t")
+            addCode("\t\t")
             if (index > 0) {
-                add("%L ", "and")
+                addCode("%L ", "and")
             }
             addStatement(
                 "(%T.%L %L %L)",
@@ -216,7 +212,7 @@ class QueryOpsWriter(
         return (zip.size - 1) + currentIndex
     }
 
-    private fun CodeBlock.Builder.addForeignKeyLoadStatement(
+    private fun FunSpec.Builder.addForeignKeyLoadStatement(
         orderedCursorLookup: Boolean,
         field: ReferenceHolderModel,
         currentIndex: Int,
@@ -232,7 +228,7 @@ class QueryOpsWriter(
         )
         val resolvedField = referencesCache.resolve(field)
 
-        add("val %N = ", field.name.shortName)
+        addCode("val %N = ", field.name.shortName)
         // join references here
         val templateRefs = zip.joinToString { "%L" }
         addStatement(
@@ -243,7 +239,7 @@ class QueryOpsWriter(
             }
         )
         zip.mapIndexed { refIndex, (_, referenced) ->
-            add(
+            addCode(
                 "%T.%N.%M(",
                 model.generatedClassName.className,
                 referenced.propertyName,
@@ -264,7 +260,7 @@ class QueryOpsWriter(
                     currentIndex + refIndex
                 )
             }
-            add(",")
+            addCode(",")
         }
         addStatement(
             ") { $templateRefs ->",
@@ -277,9 +273,9 @@ class QueryOpsWriter(
         )
 
         zip.forEachIndexed { refIndex, (plain, referenced) ->
-            add("\t\t")
+            addCode("\t\t")
             if (refIndex > 0) {
-                add("%L ", "and")
+                addCode("%L ", "and")
             }
             addStatement(
                 "(%T.%L %L %L)",
@@ -300,13 +296,13 @@ class QueryOpsWriter(
         return currentIndex + (zip.size - 1)
     }
 
-    private fun CodeBlock.Builder.addSingleField(
+    private fun FunSpec.Builder.addSingleField(
         orderedCursorLookup: Boolean,
         field: FieldModel,
         currentIndex: Int,
         model: ClassModel,
     ): Int {
-        add(
+        addCode(
             "val %N = %T.%N.%M(",
             field.name.shortName,
             model.generatedClassName.className,
@@ -324,47 +320,47 @@ class QueryOpsWriter(
         return currentIndex
     }
 
-    private fun CodeBlock.Builder.addPlainFieldWithDefaults(
+    private fun FunSpec.Builder.addPlainFieldWithDefaults(
         orderedCursorLookup: Boolean,
         field: FieldModel,
         index: Int,
     ) {
-        add("cursor")
+        addCode("cursor")
         if (orderedCursorLookup) {
-            add(", index = %L", index)
+            addCode(", index = %L", index)
         }
         field.properties?.defaultValue?.let { value ->
             if (value.isNotBlank()) {
-                add(", defValue = $value")
+                addCode(", defValue = $value")
             }
         }
-        add(")")
+        addCode(")")
     }
 
-    private fun CodeBlock.Builder.addTypeConverter(
+    private fun FunSpec.Builder.addTypeConverter(
         orderedCursorLookup: Boolean,
         index: Int
     ) {
-        add(
+        addCode(
             ") { dataProperty.%M(%N",
             MemberNames.infer,
             "cursor"
         )
         if (orderedCursorLookup) {
-            add(", index = %L", index)
+            addCode(", index = %L", index)
         }
-        add(") }")
+        addCode(") }")
     }
 
-    private fun CodeBlock.Builder.addEnumConstructor(
+    private fun FunSpec.Builder.addEnumConstructor(
         orderedCursorLookup: Boolean,
         field: FieldModel,
         index: Int,
     ) {
-        add("cursor, ")
+        addCode("cursor, ")
         if (orderedCursorLookup) {
-            add("index = %L,", index)
+            addCode("index = %L,", index)
         }
-        add("%T::valueOf)", field.classType)
+        addCode("%T::valueOf)", field.classType)
     }
 }

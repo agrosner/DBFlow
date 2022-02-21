@@ -6,7 +6,7 @@ import com.grosner.dbflow5.codegen.kotlin.writer.DatabaseHolderWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.DatabaseWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.InlineTypeConverterWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.ManyToManyClassWriter
-import com.grosner.dbflow5.codegen.kotlin.writer.ModelAdapterWriter
+import com.grosner.dbflow5.codegen.kotlin.writer.ClassAdapterWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.ObjectWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.OneToManyClassWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.PrimaryModelClauseWriter
@@ -60,7 +60,7 @@ val codeGenModule = module {
     single { PrimaryModelClauseWriter(get()) }
     single { AutoIncrementUpdateWriter() }
     single { TableOpsFunWriter(get()) }
-    single { ModelAdapterWriter(get(), get()) }
+    single { ClassAdapterWriter(get(), get()) }
     single { PropertyGetterWriter(get()) }
     single { QueryOpsWriter(get(), get()) }
 

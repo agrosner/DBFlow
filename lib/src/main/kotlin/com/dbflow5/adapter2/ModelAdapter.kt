@@ -20,7 +20,7 @@ inline fun <reified Table : Any> modelAdapter(
     )
 
 /**
- * Main hook into [TableOps], these implementations are generated
+ * Main table usage object. Retrieve instance of class via generated db scope methods.
  */
 data class ModelAdapter<Table : Any>
 @InternalDBFlowApi

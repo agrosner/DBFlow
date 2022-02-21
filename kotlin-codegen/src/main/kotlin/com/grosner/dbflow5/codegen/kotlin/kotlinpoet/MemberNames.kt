@@ -36,4 +36,6 @@ object MemberNames {
 
     val emptyAutoIncrementUpdater = MemberName(PackageNames.Adapter2, "emptyAutoIncrementUpdater")
     val modelAdapter = MemberName(PackageNames.Adapter2, "modelAdapter")
+    val viewAdapter = MemberName(PackageNames.Adapter2, "viewAdapter")
+    val queryAdapter = MemberName(PackageNames.Adapter2, "queryAdapter")
 }

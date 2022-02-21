@@ -137,6 +137,5 @@ fun ClassModel.tableReferences(referencesCache: ReferencesCache) = referenceFiel
 
 fun ClassModel.distinctAdapterGetters(referencesCache: ReferencesCache): List<GeneratedClassModel> =
     tableReferences(referencesCache)
-        .onEach { println("Looking at ${it.classType}") }
         .map { referencesCache.resolve(it) }
         .distinctBy { it.generatedSuperClass }

@@ -59,7 +59,7 @@ class ClassWriter(
     private val primaryModelClauseWriter: PrimaryModelClauseWriter,
     private val autoIncrementUpdateWriter: AutoIncrementUpdateWriter,
     private val tableOpsWriter: TableOpsFunWriter,
-    private val modelAdapterWriter: ModelAdapterWriter,
+    private val classAdapterWriter: ClassAdapterWriter,
     private val propertyGetterWriter: PropertyGetterWriter,
     private val queryOpsWriter: QueryOpsWriter,
 ) : TypeCreator<ClassModel, FileSpec> {
@@ -107,16 +107,16 @@ class ClassWriter(
 
         return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
             .apply {
+                addFunction(queryOpsWriter.create(model))
                 if (model.isNormal) {
                     addProperty(tableSQLWriter.create(model))
                     addProperty(tableBinderWriter.create(model))
                     addProperty(primaryModelClauseWriter.create(model))
                     addProperty(autoIncrementUpdateWriter.create(model))
                     addProperty(propertyGetterWriter.create(model))
-                    addFunction(queryOpsWriter.create(model))
                     addFunction(tableOpsWriter.create(model))
-                    addFunction(modelAdapterWriter.create(model))
                 }
+                addFunction(classAdapterWriter.create(model))
             }
             .addType(
                 TypeSpec.classBuilder(model.generatedClassName.className)
