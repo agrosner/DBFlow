@@ -279,7 +279,9 @@ class KSClassDeclarationParser(
                     }
                 }
         val hasDefaultConstructor = emptyConstructor != null
-        val fields = fieldSanitizer.parse(input = KSPClassDeclaration(input))
+        val kspClassDeclaration = KSPClassDeclaration(input)
+        val isData = kspClassDeclaration.isData
+        val fields = fieldSanitizer.parse(input = kspClassDeclaration)
         val implementsLoadFromCursorListener = input
             .superTypes.any { it.toTypeName() == ClassNames.LoadFromCursorListener }
         val implementsSQLiteStatementListener = input
@@ -319,6 +321,7 @@ class KSClassDeclarationParser(
                         name = name,
                         classType = classType,
                         ksClassType = type,
+                        isDataClass = isData,
                         type = when {
                             fts3 != null -> ClassModel.Type.Table.Fts3
                             fts4 != null -> fts4Parser.parse(fts4)
@@ -326,7 +329,7 @@ class KSClassDeclarationParser(
                         },
                         properties = properties,
                         fields = fields,
-                        hasPrimaryConstructor = !hasDefaultConstructor,
+                        hasImmutableConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
                         granularNotifications = granularNotifications,
                         originatingSource = originatingSource,
@@ -353,6 +356,7 @@ class KSClassDeclarationParser(
                         name = name,
                         classType = classType,
                         ksClassType = type,
+                        isDataClass = isData,
                         type = ClassModel.Type.View(
                             ModelViewQueryProperties(
                                 NameModel(
@@ -364,7 +368,7 @@ class KSClassDeclarationParser(
                         ),
                         properties = viewPropertyParser.parse(annotation),
                         fields = fields,
-                        hasPrimaryConstructor = !hasDefaultConstructor,
+                        hasImmutableConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
                         originatingSource = originatingSource,
                         indexGroups = listOf(),
@@ -381,10 +385,11 @@ class KSClassDeclarationParser(
                         name = name,
                         classType = classType,
                         ksClassType = type,
+                        isDataClass = isData,
                         type = ClassModel.Type.Query,
                         properties = queryPropertyParser.parse(annotation),
                         fields = fields,
-                        hasPrimaryConstructor = !hasDefaultConstructor,
+                        hasImmutableConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
                         originatingSource = originatingSource,
                         indexGroups = listOf(),

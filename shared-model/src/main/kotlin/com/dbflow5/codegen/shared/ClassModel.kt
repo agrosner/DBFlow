@@ -30,7 +30,12 @@ data class ClassModel(
      * If true we use that, other wise expect all mutable fields
      * (to remain compatible with old DBFlow models).
      */
-    val hasPrimaryConstructor: Boolean,
+    val hasImmutableConstructor: Boolean,
+
+    /**
+     * If to use copy on the class
+     */
+    val isDataClass: Boolean,
     /**
      * If true, generated adapter will also generate internal.
      */
@@ -143,7 +148,13 @@ inline fun <reified C : ClassModel.Type> ClassModel.partOfDatabaseAsType(
 
 
 val ClassModel.memberSeparator
-    get() = if (hasPrimaryConstructor) "," else ""
+    get() = if (hasImmutableConstructor || isDataClass) "," else ""
+
+/**
+ * if copy supported, otherwise use apply setter.
+ */
+val ClassModel.copySeparator
+    get() = if (isDataClass) "," else ""
 
 fun ClassModel.tableReferences(referencesCache: ReferencesCache) = referenceFields
     .filter { referencesCache.isTable(it) || it.type == ReferenceHolderModel.Type.Reference }

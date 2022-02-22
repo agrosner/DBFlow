@@ -38,7 +38,7 @@ class LoadFromCursorWriter(
                     ParameterSpec("wrapper", ClassNames.DatabaseWrapper)
                 )
                 val constructorFields = model.fields
-                    .filter { model.hasPrimaryConstructor || !it.isVal }
+                    .filter { model.hasImmutableConstructor || !it.isVal }
                 var currentIndex = -1
                 constructorFields
                     .forEach { field ->
@@ -47,7 +47,7 @@ class LoadFromCursorWriter(
                 addCode("return ")
                 constructModel(
                     model.classType,
-                    model.hasPrimaryConstructor,
+                    model.hasImmutableConstructor,
                     model.memberSeparator,
                     constructorFields,
                     model.implementsLoadFromCursorListener,

@@ -187,9 +187,10 @@ class KaptElementProcessor(
         source: KaptOriginatingSource
     ): List<ObjectModel> {
         val name = input.name()
-        val fields = fieldSanitizer.parse(KaptClassDeclaration(input))
-        val hasDefaultConstructor = true
+        val fields = fieldSanitizer.parse(classDeclaration)
+        val hasDefaultConstructor = classDeclaration.hasDefaultConstructor
         val isInternal = classDeclaration.isInternal
+        val isData = classDeclaration.isData
         val implementsLoadFromCursorListener = classDeclaration
             .superTypes.any { it == ClassNames.LoadFromCursorListener }
         val implementsSQLiteStatementListener = classDeclaration
@@ -210,9 +211,10 @@ class KaptElementProcessor(
                             fts4 != null -> fts4Parser.parse(fts4)
                             else -> ClassModel.Type.Table.Normal
                         },
+                        isDataClass = isData,
                         properties = properties,
                         fields = fields,
-                        hasPrimaryConstructor = !hasDefaultConstructor,
+                        hasImmutableConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
                         granularNotifications = granularNotifications,
                         originatingSource = source,
@@ -237,6 +239,7 @@ class KaptElementProcessor(
                     ClassModel(
                         name = name,
                         classType = classType,
+                        isDataClass = isData,
                         type = ClassModel.Type.View(
                             ModelViewQueryProperties(
                                 modelViewQueryName,
@@ -245,7 +248,7 @@ class KaptElementProcessor(
                         ),
                         properties = viewPropertyParser.parse(input.annotation()),
                         fields = fields,
-                        hasPrimaryConstructor = !hasDefaultConstructor,
+                        hasImmutableConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
                         originatingSource = source,
                         indexGroups = listOf(),
@@ -262,10 +265,11 @@ class KaptElementProcessor(
                     ClassModel(
                         name = name,
                         classType = classType,
+                        isDataClass = isData,
                         type = ClassModel.Type.Query,
                         properties = queryPropertyParser.parse(input.annotation()),
                         fields = fields,
-                        hasPrimaryConstructor = !hasDefaultConstructor,
+                        hasImmutableConstructor = !hasDefaultConstructor,
                         isInternal = isInternal,
                         originatingSource = source,
                         indexGroups = listOf(),
@@ -279,7 +283,6 @@ class KaptElementProcessor(
             }
             else -> listOf()
         }
-            .onEach { }
     }
 
 

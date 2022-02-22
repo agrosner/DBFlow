@@ -94,6 +94,9 @@ internal data class KaptJavaClassDeclaration(
     override fun asStarProjectedType(): ClassDeclaration {
         return KaptJavaClassDeclaration(typeElement.toTypeErasedElement())
     }
+
+    override val hasDefaultConstructor: Boolean = true // we don't figure out Java models.
+    override val isData: Boolean = false
 }
 
 internal data class KaptKotlinClassDeclaration(
@@ -104,6 +107,7 @@ internal data class KaptKotlinClassDeclaration(
     override val isInternal: Boolean = typeSpec.modifiers.contains(KModifier.INTERNAL)
     override val isEnum: Boolean = typeSpec.isEnum
     override val isObject: Boolean = typeSpec.kind == TypeSpec.Kind.OBJECT
+    override val isData: Boolean = typeSpec.modifiers.contains(KModifier.DATA)
 
     override fun asStarProjectedType(): ClassDeclaration {
         return KaptKotlinClassDeclaration(
@@ -144,6 +148,15 @@ internal data class KaptKotlinClassDeclaration(
                     )
                 }
         }
+
+    override val hasDefaultConstructor: Boolean = (typeSpec.primaryConstructor?.parameters?.all {
+        it.defaultValue != null
+    }) ?: (typeSpec.funSpecs.filter { it.isConstructor }
+        .firstNotNullOfOrNull { constructor ->
+            constructor.takeIf { declaration ->
+                declaration.parameters.isEmpty() || declaration.parameters.all { it.defaultValue != null }
+            }
+        } != null)
 }
 
 fun KaptClassDeclaration.modelViewQueryNameOrThrow(

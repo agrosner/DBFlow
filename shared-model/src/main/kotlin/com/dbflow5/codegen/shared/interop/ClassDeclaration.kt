@@ -14,6 +14,11 @@ interface ClassDeclaration {
     val isObject: Boolean
 
     /**
+     * Required for immutable types.
+     */
+    val isData: Boolean
+
+    /**
      * Returns all members including inherited.
      */
     val properties: Sequence<PropertyDeclaration>
@@ -28,4 +33,9 @@ interface ClassDeclaration {
      * This is necessary due to how KAPT vs KSP work.
      */
     val superTypes: Sequence<TypeName>
+
+    /**
+     * A a parameterless constructor
+     */
+    val hasDefaultConstructor: Boolean
 }

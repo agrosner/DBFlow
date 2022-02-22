@@ -2,8 +2,8 @@ package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
+import com.dbflow5.codegen.shared.copySeparator
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
-import com.dbflow5.codegen.shared.memberSeparator
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.squareup.kotlinpoet.BYTE
@@ -39,14 +39,14 @@ class AutoIncrementUpdateWriter(
                         if (autoincrementFields.isNotEmpty()) {
                             beginControlFlow("%T", ClassNames.autoIncrementUpdater(model.classType))
                             add("id -> ")
-                            if (model.hasPrimaryConstructor) {
+                            if (model.isDataClass) {
                                 addStatement("copy(")
                             } else {
                                 beginControlFlow("apply")
                             }
 
                             autoincrementFields.forEach { field ->
-                                if (!model.hasPrimaryConstructor) {
+                                if (!model.isDataClass) {
                                     add("this.")
                                 }
                                 addStatement(
@@ -66,11 +66,11 @@ class AutoIncrementUpdateWriter(
                                                 "could not turn into a number. ${model.name.shortName}:${field.name.shortName}"
                                         )
                                     },
-                                    model.memberSeparator
+                                    model.copySeparator
                                 )
                             }
 
-                            if (model.hasPrimaryConstructor) {
+                            if (model.isDataClass) {
                                 addStatement(")")
                             } else {
                                 endControlFlow()

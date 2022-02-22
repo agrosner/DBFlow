@@ -7,6 +7,7 @@ import com.google.devtools.ksp.closestClassDeclaration
 import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.ksp.toTypeName
 
@@ -16,6 +17,7 @@ class KSPClassDeclaration(
     override val isEnum: Boolean = ksClassDeclaration?.classKind == ClassKind.ENUM_CLASS
     override val isObject: Boolean = ksClassDeclaration?.classKind == ClassKind.OBJECT
     override val isInternal: Boolean = ksClassDeclaration?.isInternal() ?: false
+    override val isData: Boolean = ksClassDeclaration?.modifiers?.contains(Modifier.DATA) ?: false
     override val properties: Sequence<PropertyDeclaration>
         get() = ksClassDeclaration?.getAllProperties()
             ?.map { KSPPropertyDeclaration(it) }
@@ -39,4 +41,6 @@ class KSPClassDeclaration(
     override fun asStarProjectedType(): ClassDeclaration {
         return KSPClassDeclaration(ksClassDeclaration?.asStarProjectedType()?.declaration?.closestClassDeclaration())
     }
+
+    override val hasDefaultConstructor: Boolean = ksClassDeclaration?.primaryConstructor != null
 }

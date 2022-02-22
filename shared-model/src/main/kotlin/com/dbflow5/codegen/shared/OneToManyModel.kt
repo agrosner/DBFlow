@@ -109,7 +109,7 @@ data class OneToManyModel(
                 generatedFromClassType = classType,
             ),
             fields = fields,
-            hasPrimaryConstructor = true,
+            hasImmutableConstructor = true,
             isInternal = false,
             originatingSource = originatingSource,
             indexGroups = listOf(),
@@ -118,5 +118,6 @@ data class OneToManyModel(
             implementsDatabaseStatementListener = false,
             ksClassType = ksType,
             granularNotifications = false,
+            isDataClass = true,
         )
 }

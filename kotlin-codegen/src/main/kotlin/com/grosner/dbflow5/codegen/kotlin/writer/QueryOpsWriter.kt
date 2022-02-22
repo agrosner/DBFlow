@@ -49,7 +49,7 @@ class QueryOpsWriter(
             .apply {
                 addCode("return %T·{ cursor ->\n", ClassNames.QueryOpsImpl)
                 val constructorFields = model.fields
-                    .filter { model.hasPrimaryConstructor || !it.isVal }
+                    .filter { model.hasImmutableConstructor || model.isDataClass || !it.isVal }
                 var currentIndex = -1
                 constructorFields
                     .forEach { field ->
@@ -57,11 +57,10 @@ class QueryOpsWriter(
                     }
                 constructModel(
                     model.classType,
-                    model.hasPrimaryConstructor,
+                    model.hasImmutableConstructor || model.isDataClass,
                     model.memberSeparator,
                     constructorFields,
                     model.implementsLoadFromCursorListener,
-                    model,
                 )
                 addCode("}\n")
             }
@@ -70,13 +69,12 @@ class QueryOpsWriter(
 
     private fun FunSpec.Builder.constructModel(
         classType: TypeName,
-        hasPrimaryConstructor: Boolean,
+        canConstructWithFields: Boolean,
         memberSeparator: String,
         constructorFields: List<FieldModel>,
         implementsLoadFromCursorListener: Boolean,
-        model: ClassModel,
     ) {
-        if (hasPrimaryConstructor) {
+        if (canConstructWithFields) {
             addStatement("%T(", classType)
         } else {
             beginControlFlow("%T().apply", classType)
@@ -84,12 +82,12 @@ class QueryOpsWriter(
         // all local vals get placed here.
         constructorFields.forEach { field ->
             addCode("\t")
-            if (!hasPrimaryConstructor) {
+            if (!canConstructWithFields) {
                 addCode("this.")
             }
             addStatement("%1N = %1N%2L", field.name.shortName, memberSeparator)
         }
-        if (hasPrimaryConstructor) {
+        if (canConstructWithFields) {
             addCode(")")
         } else {
             endControlFlow()
@@ -159,11 +157,10 @@ class QueryOpsWriter(
         )
         constructModel(
             classType = field.nonNullClassType,
-            hasPrimaryConstructor = true,
+            canConstructWithFields = true,
             memberSeparator = ",",
             constructorFields = references,
             implementsLoadFromCursorListener = false,
-            model = model,
         )
         addStatement("")
         return returnIndex

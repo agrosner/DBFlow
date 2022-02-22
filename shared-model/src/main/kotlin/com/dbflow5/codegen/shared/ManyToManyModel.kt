@@ -154,7 +154,7 @@ data class ManyToManyModel(
             generatedFromClassType = classType,
         ),
         fields = fields,
-        hasPrimaryConstructor = true,
+        hasImmutableConstructor = true,
         isInternal = false,
         originatingSource = originatingSource,
         indexGroups = listOf(
@@ -175,5 +175,6 @@ data class ManyToManyModel(
         implementsDatabaseStatementListener = false,
         ksClassType = ksType,
         granularNotifications = false,
+        isDataClass = true,
     )
 }
