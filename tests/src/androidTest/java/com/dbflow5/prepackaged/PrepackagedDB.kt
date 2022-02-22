@@ -1,6 +1,6 @@
 package com.dbflow5.prepackaged
 
-import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter2.ModelAdapter
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.Migration

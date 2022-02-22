@@ -9,12 +9,12 @@ import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.distinctAdapterGetters
 import com.dbflow5.codegen.shared.hasTypeConverter
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.memberSeparator
 import com.dbflow5.codegen.shared.references
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
@@ -23,6 +23,7 @@ import com.squareup.kotlinpoet.TypeName
 class QueryOpsWriter(
     private val referencesCache: ReferencesCache,
     private val typeConverterCache: TypeConverterCache,
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
 ) : TypeCreator<ClassModel, FunSpec> {
 
     override fun create(model: ClassModel): FunSpec {
@@ -33,6 +34,9 @@ class QueryOpsWriter(
             .returns(ClassNames.queryOps(model.classType))
             .addModifiers(KModifier.PRIVATE)
             .apply {
+                model.originatingSource?.let {
+                    originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
+                }
                 if (model.granularNotifications) {
                     addParameter(
                         "notifyDistributor", ClassNames.NotifyDistributor

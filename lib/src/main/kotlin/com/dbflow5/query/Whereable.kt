@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Property
@@ -11,7 +11,7 @@ import com.dbflow5.query.operations.Property
 interface Whereable<Table : Any,
     Result,
     OperationBase : ExecutableQuery<Result>> :
-    HasAdapter<Table, SQLObjectAdapter<Table>>,
+    HasAdapter<Table, DBRepresentable<Table>>,
     GroupByEnabled<Table, Result, OperationBase>,
     HavingEnabled<Table, Result, OperationBase>,
     Limitable<Table, Result, OperationBase>,

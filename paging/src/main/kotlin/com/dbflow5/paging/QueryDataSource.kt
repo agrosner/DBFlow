@@ -2,7 +2,7 @@ package com.dbflow5.paging
 
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
@@ -24,11 +24,11 @@ internal constructor(
 ) : PositionalDataSource<Table>()
     where Q : ExecutableQuery<SelectResult<Table>>,
           Q : HasAssociatedAdapters,
-          Q : HasAdapter<Table, SQLObjectAdapter<Table>>,
+          Q : HasAdapter<Table, DBRepresentable<Table>>,
           Q : Constrainable<Table, SelectResult<Table>, Q> {
 
     private val associatedTables: Set<KClass<*>> =
-        executableQuery.associatedAdapters.mapTo(mutableSetOf()) { it.table }
+        executableQuery.associatedAdapters.mapTo(mutableSetOf()) { it.type }
 
     private val onTableChangedObserver =
         object : OnTableChangedObserver(associatedTables.toList()) {
@@ -76,7 +76,7 @@ internal constructor(
     ) : DataSource.Factory<Int, Table>()
         where Q : ExecutableQuery<SelectResult<Table>>,
               Q : HasAssociatedAdapters,
-              Q : HasAdapter<Table, SQLObjectAdapter<Table>>,
+              Q : HasAdapter<Table, DBRepresentable<Table>>,
               Q : Constrainable<Table, SelectResult<Table>, Q> {
         override fun create(): DataSource<Int, Table> = QueryDataSource(database, executableQuery)
     }
@@ -86,7 +86,7 @@ internal constructor(
         fun <Table : Any, Q> newFactory(executableQuery: Q, database: GeneratedDatabase)
             where Q : ExecutableQuery<SelectResult<Table>>,
                   Q : HasAssociatedAdapters,
-                  Q : HasAdapter<Table, SQLObjectAdapter<Table>>,
+                  Q : HasAdapter<Table, DBRepresentable<Table>>,
                   Q : Constrainable<Table, SelectResult<Table>, Q> =
             Factory(executableQuery, database)
     }
@@ -94,7 +94,7 @@ internal constructor(
 
 fun <Table : Any, Q> Q.toDataSourceFactory(database: GeneratedDatabase)
     where Q : ExecutableQuery<SelectResult<Table>>,
-          Q : HasAdapter<Table, SQLObjectAdapter<Table>>,
+          Q : HasAdapter<Table, DBRepresentable<Table>>,
           Q : HasAssociatedAdapters,
           Q : Constrainable<Table, SelectResult<Table>, *> =
     QueryDataSource.newFactory(this, database)

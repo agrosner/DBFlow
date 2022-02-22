@@ -11,6 +11,7 @@ import com.dbflow5.codegen.shared.properties.nameWithFallback
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.stripQuotes
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.NameAllocator
 import com.squareup.kotlinpoet.TypeName
 
 data class ClassModel(
@@ -40,7 +41,7 @@ data class ClassModel(
      */
     val granularNotifications: Boolean,
     val implementsLoadFromCursorListener: Boolean,
-    val implementsSQLiteStatementListener: Boolean,
+    val implementsDatabaseStatementListener: Boolean,
     override val originatingSource: OriginatingSource?,
 ) : ObjectModel, GeneratedClassModel {
 
@@ -56,10 +57,22 @@ data class ClassModel(
         nullable = false,
     )
 
+    fun generatedAdapterName(nameAllocator: NameAllocator): NameModel {
+        return NameModel(
+            packageName = name.packageName,
+            shortName = "${nameAllocator[generatedClassName]}_" + when (type) {
+                is Type.Table -> "adapter"
+                is Type.View -> "viewAdapter"
+                is Type.Query -> "queryAdapter"
+            },
+            nullable = false,
+        )
+    }
+
     override val generatedSuperClass = when (type) {
-        is Type.Table -> ClassNames.modelAdapter(classType)
-        is Type.View -> ClassNames.modelViewAdapter(classType)
-        Type.Query -> ClassNames.retrievalAdapter(classType)
+        is Type.Table -> ClassNames.modelAdapter2(classType)
+        is Type.View -> ClassNames.viewAdapter2(classType)
+        Type.Query -> ClassNames.queryAdapter2(classType)
     }
 
     override val generatedFieldName

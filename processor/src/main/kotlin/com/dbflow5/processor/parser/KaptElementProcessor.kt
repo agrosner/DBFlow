@@ -193,7 +193,7 @@ class KaptElementProcessor(
         val implementsLoadFromCursorListener = classDeclaration
             .superTypes.any { it == ClassNames.LoadFromCursorListener }
         val implementsSQLiteStatementListener = classDeclaration
-            .superTypes.any { it == ClassNames.SQLiteStatementListener }
+            .superTypes.any { it == ClassNames.DatabaseStatementListener }
         val type = KaptTypeElementClassType(input.asType(), input)
         val granularNotifications = input.annotation<GranularNotifications>() != null
         return when (typeName) {
@@ -217,7 +217,7 @@ class KaptElementProcessor(
                         granularNotifications = granularNotifications,
                         originatingSource = source,
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
-                        implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                        implementsDatabaseStatementListener = implementsSQLiteStatementListener,
                         indexGroups = properties.indexGroupProperties
                             .map { it.toModel(classType, fields) },
                         uniqueGroups = properties.uniqueGroupProperties
@@ -251,7 +251,7 @@ class KaptElementProcessor(
                         indexGroups = listOf(),
                         uniqueGroups = listOf(),
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
-                        implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                        implementsDatabaseStatementListener = implementsSQLiteStatementListener,
                         ksClassType = type,
                         granularNotifications = false,
                     )
@@ -270,7 +270,7 @@ class KaptElementProcessor(
                         originatingSource = source,
                         indexGroups = listOf(),
                         uniqueGroups = listOf(),
-                        implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                        implementsDatabaseStatementListener = implementsSQLiteStatementListener,
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
                         ksClassType = type,
                         granularNotifications = false,

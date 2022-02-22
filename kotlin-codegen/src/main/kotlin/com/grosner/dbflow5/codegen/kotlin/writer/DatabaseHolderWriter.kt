@@ -116,13 +116,6 @@ class DatabaseHolderWriter(
         objects: List<ClassModel>,
         referencesCache: ReferencesCache,
     ) = apply {
-        // prime the name allocator
-        objects.forEach { obj ->
-            nameAllocator.newName(
-                obj.generatedFieldName,
-                obj.generatedClassName
-            )
-        }
         objects.forEach { obj ->
             val name = nameAllocator[obj.generatedClassName]
             val adapterGetters = obj.distinctAdapterGetters(referencesCache)
@@ -133,8 +126,8 @@ class DatabaseHolderWriter(
                 )
                     .addModifiers(KModifier.PRIVATE)
                     .initializer(
-                        "%T(${adapterGetters.joinToString { "%N = { %N }" }})",
-                        obj.generatedClassName.className,
+                        "%M(${adapterGetters.joinToString { "%N = { %N }" }})",
+                        obj.generatedAdapterName(nameAllocator).memberName,
                         *adapterGetters.map {
                             "${it.generatedFieldName}Getter" to nameAllocator[
                                 it.generatedClassName

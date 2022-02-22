@@ -20,7 +20,7 @@ class SimpleTestModelsTest : BaseUnitTest() {
                 "`blob` BLOB, " +
                 "`customType` INTEGER, " +
                 "PRIMARY KEY(`id`, `customType`))",
-            database<TestDatabase>().typeConverterModelAdapter.creationQuery
+            database<TestDatabase>().typeConverterModelAdapter.creationSQL.query
         )
     }
 }

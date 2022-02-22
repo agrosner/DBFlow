@@ -8,31 +8,22 @@ import com.dbflow5.codegen.shared.SingleFieldModel
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.hasTypeConverter
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.references
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 
-private sealed interface Method {
-    val name: String
-    val statementListenerName: String
+private sealed class Method(val name: String) {
+    val type: ClassName
+        get() = ClassNames.databaseStatementListenerType(name.replaceFirstChar { it.uppercase() })
 
-    object Insert : Method {
-        override val name: String = "insert"
-        override val statementListenerName: String = "onBindToInsertStatement"
-    }
-
-    object Update : Method {
-        override val name: String = "update"
-        override val statementListenerName: String = "onBindToUpdateStatement"
-    }
-
-    object Delete : Method {
-        override val name: String = "delete"
-        override val statementListenerName: String = "onBindToDeleteStatement"
-    }
+    object Insert : Method("insert")
+    object Update : Method("update")
+    object Delete : Method("delete")
 }
 
 private data class StatementModel(
@@ -47,6 +38,7 @@ private data class StatementModel(
 class TableBinderWriter(
     private val referencesCache: ReferencesCache,
     private val typeConverterCache: TypeConverterCache,
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
 ) : TypeCreator<ClassModel, PropertySpec> {
 
     override fun create(model: ClassModel): PropertySpec =
@@ -55,6 +47,11 @@ class TableBinderWriter(
             ClassNames.tableBinder(model.classType),
             KModifier.PRIVATE,
         )
+            .apply {
+                model.originatingSource?.let {
+                    originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
+                }
+            }
             .initializer(
                 CodeBlock.builder()
                     .addStatement("%T(", ClassNames.tableBinder(model.classType))
@@ -166,8 +163,8 @@ class TableBinderWriter(
                             model, currentIndex + 1
                         )
                     }
-                    if (model.implementsSQLiteStatementListener) {
-                        addStatement("model.%L(statement)", method.statementListenerName)
+                    if (model.implementsDatabaseStatementListener) {
+                        addStatement("model.onBind(%T, statement)", method.type)
                     }
                     addStatement("}")
                 }

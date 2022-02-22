@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
 
 sealed class JoinType(val value: String) {
     /**
@@ -40,56 +40,56 @@ sealed class JoinType(val value: String) {
 interface Joinable<OriginalTable : Any, Result> {
 
     fun <JoinTable : Any> join(
-        adapter: SQLObjectAdapter<JoinTable>,
+        adapter: DBRepresentable<JoinTable>,
         joinType: JoinType,
     ): Join<OriginalTable, JoinTable, Result>
 
     fun <JoinTable : Any> join(
-        hasAdapter: HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
+        hasAdapter: HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
         joinType: JoinType,
     ): Join<OriginalTable, JoinTable, Result>
 }
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
-        Joinable<OriginalTable, Result>.crossJoin(
-    adapter: SQLObjectAdapter<JoinTable>
+    Joinable<OriginalTable, Result>.crossJoin(
+    adapter: DBRepresentable<JoinTable>
 ) = join(adapter, JoinType.Cross)
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
-        Joinable<OriginalTable, Result>.crossJoin(
-    hasAdapter: HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
+    Joinable<OriginalTable, Result>.crossJoin(
+    hasAdapter: HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
 ) = join(hasAdapter, JoinType.Cross)
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
-        Joinable<OriginalTable, Result>.innerJoin(
-    adapter: SQLObjectAdapter<JoinTable>
+    Joinable<OriginalTable, Result>.innerJoin(
+    adapter: DBRepresentable<JoinTable>
 ) = join(adapter, JoinType.Inner)
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
-        Joinable<OriginalTable, Result>.innerJoin(
-    hasAdapter: HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
+    Joinable<OriginalTable, Result>.innerJoin(
+    hasAdapter: HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
 ) = join(hasAdapter, JoinType.Inner)
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
-        Joinable<OriginalTable, Result>.leftOuterJoin(
-    adapter: SQLObjectAdapter<JoinTable>
+    Joinable<OriginalTable, Result>.leftOuterJoin(
+    adapter: DBRepresentable<JoinTable>
 ) = join(adapter, JoinType.LeftOuter)
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
-        Joinable<OriginalTable, Result>.leftOuterJoin(
-    hasAdapter: HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
+    Joinable<OriginalTable, Result>.leftOuterJoin(
+    hasAdapter: HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
 ) = join(hasAdapter, JoinType.LeftOuter)
 
 /**
  * TODO: use separate interface type?
  */
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
-        Joinable<OriginalTable, Result>.naturalJoin(
-    adapter: SQLObjectAdapter<JoinTable>
+    Joinable<OriginalTable, Result>.naturalJoin(
+    adapter: DBRepresentable<JoinTable>
 ) = join(adapter, JoinType.Natural).end()
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
-        Joinable<OriginalTable, Result>.naturalJoin(
-    hasAdapter: HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
+    Joinable<OriginalTable, Result>.naturalJoin(
+    hasAdapter: HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
 ) = join(hasAdapter, JoinType.Natural)
 

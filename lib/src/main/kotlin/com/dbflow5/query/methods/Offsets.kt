@@ -1,6 +1,6 @@
 package com.dbflow5.query.methods
 
-import com.dbflow5.adapter.makeLazySQLObjectAdapter
+import com.dbflow5.adapter.makeLazyDBRepresentable
 import com.dbflow5.query.operations.Method
 import com.dbflow5.query.operations.method
 import com.dbflow5.query.operations.tableNameLiteral
@@ -13,6 +13,6 @@ object Offsets : StandardMethod {
     inline operator fun <reified Table : Any> invoke(): Method<String> =
         method(
             name,
-            makeLazySQLObjectAdapter(Table::class).tableNameLiteral(),
+            makeLazyDBRepresentable(Table::class).tableNameLiteral(),
         )
 }

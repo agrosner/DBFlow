@@ -78,6 +78,7 @@ class TableOpsTest {
         verify(statement).executeInsert()
         verify(autoIncrementUpdater).run { model.update(1L) }
         verify(notifyDistributor).onChange(
+            generatedDatabase,
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.CHANGE,
@@ -107,6 +108,7 @@ class TableOpsTest {
         verify(statement).executeInsert()
         verify(autoIncrementUpdater).run { model.update(1L) }
         verify(notifyDistributor).onChange(
+            generatedDatabase,
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.INSERT,
@@ -133,6 +135,7 @@ class TableOpsTest {
         verify(tableBinder.update).bind(statement, model)
         verify(statement).executeUpdateDelete()
         verify(notifyDistributor).onChange(
+            generatedDatabase,
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.UPDATE,
@@ -159,6 +162,7 @@ class TableOpsTest {
         verify(tableBinder.delete).bind(statement, model)
         verify(statement).executeUpdateDelete()
         verify(notifyDistributor).onChange(
+            generatedDatabase,
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.DELETE,

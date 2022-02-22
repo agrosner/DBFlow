@@ -3,6 +3,7 @@ package com.grosner.dbflow5.codegen.kotlin.writer
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.cache.ReferencesCache
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.squareup.kotlinpoet.CodeBlock
@@ -15,6 +16,7 @@ import com.squareup.kotlinpoet.PropertySpec
  */
 class PrimaryModelClauseWriter(
     private val referencesCache: ReferencesCache,
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
 ) : TypeCreator<ClassModel, PropertySpec> {
     override fun create(model: ClassModel): PropertySpec =
         PropertySpec.builder(
@@ -22,6 +24,11 @@ class PrimaryModelClauseWriter(
             ClassNames.primaryModelClauseGetter(model.classType),
             KModifier.PRIVATE,
         )
+            .apply {
+                model.originatingSource?.let {
+                    originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
+                }
+            }
             .initializer(
                 CodeBlock.builder()
                     .beginControlFlow("%T", ClassNames.primaryModelClauseGetter(model.classType))

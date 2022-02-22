@@ -1,6 +1,7 @@
 package com.dbflow5.codegen.shared
 
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.MemberName
 
 /**
  * Description:
@@ -16,12 +17,21 @@ data class NameModel(
         nullable = className.isNullable,
     )
 
-    val className: ClassName = ClassName(packageName, shortName).run {
-        copy(
-            nullable = this@NameModel.nullable,
-            annotations = this.annotations,
-            tags = this.tags,
-        )
+    val className: ClassName by lazy {
+        if (shortName.isEmpty()) {
+            throw IllegalArgumentException("Null shortname ${this}")
+        }
+        ClassName(packageName, shortName).run {
+            copy(
+                nullable = this@NameModel.nullable,
+                annotations = this.annotations,
+                tags = this.tags,
+            )
+        }
+    }
+
+    val memberName: MemberName by lazy {
+        MemberName(packageName, shortName)
     }
 
     val accessName = if (nullable) {

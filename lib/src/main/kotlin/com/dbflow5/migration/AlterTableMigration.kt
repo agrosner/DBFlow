@@ -1,7 +1,7 @@
 package com.dbflow5.migration
 
 import androidx.annotation.CallSuper
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.appendQuotedIfNeeded
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.cursor
@@ -18,7 +18,7 @@ open class AlterTableMigration<T : Any>(
     /**
      * The table adapter to ALTER
      */
-    adapterGetter: () -> SQLObjectAdapter<T>
+    adapterGetter: () -> DBRepresentable<T>
 ) : BaseMigration() {
 
     protected val adapter by lazy(adapterGetter)

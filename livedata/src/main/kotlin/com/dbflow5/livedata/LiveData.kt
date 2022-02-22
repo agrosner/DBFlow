@@ -29,7 +29,7 @@ class QueryLiveData<Table : Any, Result, Q>(
           Q : HasAssociatedAdapters {
 
     private val associatedTables: Set<KClass<*>> =
-        executable.associatedAdapters.mapTo(mutableSetOf()) { it.table }
+        executable.associatedAdapters.mapTo(mutableSetOf()) { it.type }
 
     private val onTableChangedObserver =
         object : OnTableChangedObserver(associatedTables.toList()) {

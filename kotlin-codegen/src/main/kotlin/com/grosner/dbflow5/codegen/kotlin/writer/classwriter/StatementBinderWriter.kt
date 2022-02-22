@@ -140,7 +140,7 @@ class StatementBinderWriter(
                     fieldsToLoop.forEach { model ->
                         currentIndex = this.loopModels(model, currentIndex + 1)
                     }
-                    if (model.implementsSQLiteStatementListener) {
+                    if (model.implementsDatabaseStatementListener) {
                         addStatement("model.%L(statement)", method.statementListenerName)
                     }
                 }

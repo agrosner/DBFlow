@@ -17,7 +17,7 @@ open class ListModelLoader<T : Any>(modelClass: KClass<T>) :
         val retData = arrayListOf<T>()
         if (cursor.moveToFirst()) {
             do {
-                retData.add(instanceAdapter.loadFromCursor(cursor, databaseWrapper))
+                // retData.add(instanceAdapter.loadFromCursor(cursor, databaseWrapper))
             } while (cursor.moveToNext())
         }
         return retData

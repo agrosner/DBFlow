@@ -29,7 +29,7 @@ fun <Table : Any, Result, Q> Q.toFlow(
         }
 
         val onTableChangedObserver =
-            object : OnTableChangedObserver(associatedAdapters.map { it.table }.toList()) {
+            object : OnTableChangedObserver(associatedAdapters.map { it.type }.toList()) {
                 override fun onChanged(tables: Set<KClass<*>>) {
                     evaluateEmission()
                 }

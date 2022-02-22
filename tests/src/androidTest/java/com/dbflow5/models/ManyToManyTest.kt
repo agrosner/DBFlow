@@ -17,17 +17,14 @@ class ManyToManyTest : BaseUnitTest() {
         database<TestDatabase>().writableTransaction {
             val artistModel =
                 artistAdapter.save(Artist(name = "Andrew Grosner"))
-                    .getOrThrow()
             val songModel =
                 songAdapter.save(Song(name = "Livin' on A Prayer"))
-                    .getOrThrow()
             val artistSong = Artist_Song(
                 0,
                 artistModel,
                 songModel
             )
-            // TODO: generated join table
-            assert(artistSongAdapter.save(artistSong).isSuccess)
+            artistSongAdapter.save(artistSong)
         }
     }
 }

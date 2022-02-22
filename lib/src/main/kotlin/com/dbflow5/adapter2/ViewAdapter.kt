@@ -10,6 +10,7 @@ import kotlin.reflect.KClass
 inline fun <reified Table : Any> viewAdapter(
     name: String,
     ops: QueryOps<Table>,
+    createWithDatabase: Boolean,
     noinline creationLoader: () -> CompilableQuery,
 ) =
     ViewAdapter(
@@ -17,6 +18,7 @@ inline fun <reified Table : Any> viewAdapter(
         ops = ops,
         name = name,
         creationLoader = creationLoader,
+        createWithDatabase = createWithDatabase,
     )
 
 /**
@@ -28,6 +30,11 @@ data class ViewAdapter<View : Any>
     private val ops: QueryOps<View>,
     override val name: String,
     private val creationLoader: () -> CompilableQuery,
-) : QueryOps<View> by ops, DBRepresentable {
+    override val createWithDatabase: Boolean,
+) : QueryOps<View> by ops, DBRepresentable<View> {
+    override val dropSQL: CompilableQuery = CompilableQuery(
+        "DROP VIEW $name IF EXISTS"
+    )
+    override val type: KClass<View> = view
     override val creationSQL: CompilableQuery = creationLoader()
 }

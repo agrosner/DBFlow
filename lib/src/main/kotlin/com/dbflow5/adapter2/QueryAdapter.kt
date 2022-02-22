@@ -19,4 +19,6 @@ data class QueryAdapter<QueryType : Any>
 @InternalDBFlowApi constructor(
     val query: KClass<QueryType>,
     private val ops: QueryOps<QueryType>
-) : QueryOps<QueryType> by ops
+) : QueryOps<QueryType> by ops, QueryRepresentable<QueryType> {
+    override val type = query
+}

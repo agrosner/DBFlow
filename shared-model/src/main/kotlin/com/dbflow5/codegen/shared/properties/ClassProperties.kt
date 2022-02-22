@@ -20,7 +20,9 @@ data class GeneratedClassProperties(
      * Which class it came from.
      */
     val generatedFromClassType: TypeName,
-) : ClassProperties
+) : ClassProperties, CreatableScopeProperties {
+    override val createWithDatabase: Boolean = true
+}
 
 /**
  * Description: Holder for Table Values.

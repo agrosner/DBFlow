@@ -3,6 +3,7 @@ package com.grosner.dbflow5.codegen.kotlin.writer
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.cache.ReferencesCache
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.quoteIfNeeded
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
@@ -13,6 +14,7 @@ import com.squareup.kotlinpoet.asClassName
 
 class PropertyGetterWriter(
     private val referencesCache: ReferencesCache,
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
 ) : TypeCreator<ClassModel, PropertySpec> {
 
     override fun create(model: ClassModel): PropertySpec =
@@ -21,6 +23,11 @@ class PropertyGetterWriter(
             ClassNames.propertyGetter(model.classType),
             KModifier.PRIVATE,
         )
+            .apply {
+                model.originatingSource?.let {
+                    originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
+                }
+            }
             .initializer(
                 CodeBlock.builder()
                     .apply {

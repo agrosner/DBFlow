@@ -15,7 +15,7 @@ open class SingleModelLoader<T : Any>(modelClass: KClass<T>) : ModelLoader<T, T?
         databaseWrapper: DatabaseWrapper
     ): T? =
         if (!moveToFirst || cursor.moveToFirst()) {
-            instanceAdapter.loadFromCursor(cursor, databaseWrapper)
+            null //instanceAdapter.loadFromCursor(cursor, databaseWrapper)
         } else null
 
     override suspend fun convertToData(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): T? {

@@ -1,25 +1,25 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.RetrievalAdapter
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter2.QueryRepresentable
 import com.dbflow5.sql.Query
 
 interface Delete<Table : Any> : Query,
-    HasAdapter<Table, SQLObjectAdapter<Table>>,
+    HasAdapter<Table, DBRepresentable<Table>>,
     Whereable<Table, Long, Delete<Table>>,
     Indexable<Table>
 
-fun <Table : Any> SQLObjectAdapter<Table>.delete(): Delete<Table> = DeleteImpl(adapter = this)
+fun <Table : Any> DBRepresentable<Table>.delete(): Delete<Table> = DeleteImpl(adapter = this)
 
 internal class DeleteImpl<Table : Any>(
-    override val adapter: SQLObjectAdapter<Table>,
+    override val adapter: DBRepresentable<Table>,
     override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory(
-        adapter.table,
+        adapter.type,
         isDelete = true
     ),
 ) : Delete<Table> {
 
-    override val associatedAdapters: List<RetrievalAdapter<*>> = listOf(adapter)
+    override val associatedAdapters: List<QueryRepresentable<*>> = listOf(adapter)
 
     override val query: String by lazy {
         buildString {

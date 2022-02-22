@@ -15,7 +15,8 @@ import com.dbflow5.annotation.Unique
 import com.dbflow5.annotation.UniqueGroup
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.data.Blob
-import com.dbflow5.query.SQLiteStatementListener
+import com.dbflow5.database.DatabaseStatement
+import com.dbflow5.query.DatabaseStatementListener
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Date
@@ -145,7 +146,12 @@ data class Transfer2(
 data class Account(@PrimaryKey var id: UUID = UUID.randomUUID())
 
 @Table
-class SqlListenerModel(@PrimaryKey var id: Int = 0) : SQLiteStatementListener
+class SqlListenerModel(@PrimaryKey var id: Int = 0) : DatabaseStatementListener {
+    override fun onBind(
+        type: DatabaseStatementListener.Type,
+        databaseStatement: DatabaseStatement
+    ) = Unit
+}
 
 data class CustomType(val name: Int = 0)
 

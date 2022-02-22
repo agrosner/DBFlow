@@ -1,7 +1,6 @@
 package com.dbflow5.codegen.shared
 
 import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 
@@ -50,10 +49,15 @@ object ClassNames {
     val Operation = ClassName(PackageNames.QueryOperations, "Operation")
 
     val ModelAdapter = ClassName(PackageNames.Adapter, "ModelAdapter")
+    val ModelAdapter2 = ClassName(PackageNames.Adapter2, "ModelAdapter")
+    val ViewAdapter2 = ClassName(PackageNames.Adapter2, "ViewAdapter")
+    val QueryAdapter2 = ClassName(PackageNames.Adapter2, "QueryAdapter")
     fun modelAdapter2(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "ModelAdapter")
         .parameterizedBy(tableTypeName)
+
     fun queryAdapter2(queryTypeName: TypeName) = ClassName(PackageNames.Adapter2, "QueryAdapter")
         .parameterizedBy(queryTypeName)
+
     fun viewAdapter2(viewTypeName: TypeName) = ClassName(PackageNames.Adapter2, "ViewAdapter")
         .parameterizedBy(viewTypeName)
 
@@ -61,14 +65,6 @@ object ClassNames {
         .parameterizedBy(tableTypeName)
 
     val TableOpsImpl = ClassName(PackageNames.Adapter2, "TableOpsImpl")
-    fun modelAdapter(typeName: TypeName) = ModelAdapter.parameterizedBy(typeName)
-    val RetrievalAdapter = ClassName(PackageNames.Adapter, "RetrievalAdapter")
-    fun retrievalAdapter(typeName: TypeName): ParameterizedTypeName {
-        return RetrievalAdapter.parameterizedBy(typeName)
-    }
-
-    val ModelViewAdapter = ClassName(PackageNames.Adapter, "ModelViewAdapter")
-    fun modelViewAdapter(typeName: TypeName) = ModelViewAdapter.parameterizedBy(typeName)
 
     fun adapterCompanion(typeName: TypeName) =
         ClassName(PackageNames.Adapter, "AdapterCompanion")
@@ -103,7 +99,10 @@ object ClassNames {
     val ObjectType = ClassName(PackageNames.Adapter, "ObjectType")
     val TypeConverter = ClassName(PackageNames.Converter, "TypeConverter")
     val LoadFromCursorListener = ClassName(PackageNames.Query, "LoadFromCursorListener")
-    val SQLiteStatementListener = ClassName(PackageNames.Query, "SQLiteStatementListener")
+    val DatabaseStatementListener = ClassName(PackageNames.Query, "DatabaseStatementListener")
+    fun databaseStatementListenerType(enumName: String) =
+        DatabaseStatementListener.nestedClass("Type")
+            .nestedClass(enumName)
 
     val AndroidNonNull = ClassName("android.support.annotation", "NonNull")
     val AndroidXNonNull = ClassName("androidx.annotation", "NonNull")

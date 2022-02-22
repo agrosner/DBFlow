@@ -1,8 +1,8 @@
 package com.dbflow5
 
-import com.dbflow5.adapter.ModelAdapter
-import com.dbflow5.adapter.ModelViewAdapter
-import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.adapter2.ModelAdapter
+import com.dbflow5.adapter2.ViewAdapter
+import com.dbflow5.adapter2.QueryAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.Migration
@@ -236,14 +236,14 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val oneToManyModelAdapter: ModelAdapter<OneToManyModel>
     abstract val oneToManyBaseModelAdapter: ModelAdapter<OneToManyBaseModel>
 
-    abstract val javaModelViewAdapter: ModelViewAdapter<JavaModelView>
-    abstract val authorViewAdapter: ModelViewAdapter<AuthorView>
-    abstract val priorityViewAdapter: ModelViewAdapter<PriorityView>
+    abstract val javaModelViewAdapter: ViewAdapter<JavaModelView>
+    abstract val authorViewAdapter: ViewAdapter<AuthorView>
+    abstract val priorityViewAdapter: ViewAdapter<PriorityView>
 
-    abstract val authorNameQuery: RetrievalAdapter<AuthorNameQuery>
-    abstract val customBlobModel: RetrievalAdapter<CustomBlobModel>
-    abstract val allFieldsQueryModel: RetrievalAdapter<AllFieldsQueryModel>
-    abstract val simpleCustomModel: RetrievalAdapter<SimpleCustomModel>
+    abstract val authorNameQuery: QueryAdapter<AuthorNameQuery>
+    abstract val customBlobModel: QueryAdapter<CustomBlobModel>
+    abstract val allFieldsQueryModel: QueryAdapter<AllFieldsQueryModel>
+    abstract val simpleCustomModel: QueryAdapter<SimpleCustomModel>
 
     @Migration(version = 1, priority = 5)
     class TestMigration : UpdateTableMigration<SimpleModel>({

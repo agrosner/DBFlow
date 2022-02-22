@@ -1,12 +1,11 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.ModelAdapter
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter2.ModelAdapter
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.operations.BaseOperator
 import com.dbflow5.query.operations.InferredObjectConverter
-import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.Property
 import com.dbflow5.sql.Query
 
@@ -58,7 +57,7 @@ interface InsertStart<Table : Any> :
     Insert<Table>,
     HasValues<Table>,
     HasSelect<Table>,
-    HasAdapter<Table, SQLObjectAdapter<Table>>,
+    HasAdapter<Table, DBRepresentable<Table>>,
     Conflictable<InsertWithConflict<Table>>
 
 interface InsertWithConflict<Table : Any> :
@@ -79,9 +78,9 @@ interface InsertWithSelect<Table : Any, TFrom : Any> :
     val subquery: ExecutableQuery<SelectResult<TFrom>>?
 }
 
-fun <Table : Any> SQLObjectAdapter<Table>.insert(): InsertStart<Table> = InsertImpl(adapter = this)
+fun <Table : Any> DBRepresentable<Table>.insert(): InsertStart<Table> = InsertImpl(adapter = this)
 
-fun <Table : Any> SQLObjectAdapter<Table>.insert(
+fun <Table : Any> DBRepresentable<Table>.insert(
     columnValue: ColumnValue<Table, *>,
     vararg columnValues: ColumnValue<Table, *>,
 ): InsertWithValues<Table> {
@@ -98,7 +97,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.insert(
     )
 }
 
-fun <Table : Any> SQLObjectAdapter<Table>.insert(
+fun <Table : Any> DBRepresentable<Table>.insert(
     columnValuePair: Pair<Property<*, Table>?, *>,
     vararg columnValues: Pair<Property<*, Table>?, *>,
 ): InsertWithValues<Table> {
@@ -157,7 +156,7 @@ fun <Table : Any> ModelAdapter<Table>.insert(
 /**
  * Same as calling [insert] with [columnValues] as all columns with '?' values.
  */
-fun <Table : Any> ModelAdapter<Table>.insertAllAsTemplate(): InsertStart<Table> {
+/*fun <Table : Any> ModelAdapter<Table>.insertAllAsTemplate(): InsertStart<Table> {
     val (columns, values) = allColumnProperties.map {
         ColumnValue(
             it as Property<Any, Table>,
@@ -170,16 +169,16 @@ fun <Table : Any> ModelAdapter<Table>.insertAllAsTemplate(): InsertStart<Table> 
         values = values,
         adapter = this,
     )
-}
+}*/
 
 
 internal data class InsertImpl<Table : Any>(
     override val columns: List<Property<*, Table>>? = null,
     override val values: List<List<Any?>> = listOf(),
     override val conflictAction: ConflictAction = ConflictAction.NONE,
-    override val adapter: SQLObjectAdapter<Table>,
+    override val adapter: DBRepresentable<Table>,
     override val subquery: ExecutableQuery<SelectResult<Any>>? = null,
-    private val resultFactory: ResultFactory<Long> = InsertResultFactory(adapter.table),
+    private val resultFactory: ResultFactory<Long> = InsertResultFactory(adapter.type),
 ) : InsertWithValues<Table>, InsertWithConflict<Table>, InsertStart<Table>,
     InsertWithSelect<Table, Any> {
     override val query: String by lazy {

@@ -1,6 +1,6 @@
 package com.dbflow5.query.methods
 
-import com.dbflow5.adapter.makeLazySQLObjectAdapter
+import com.dbflow5.adapter.makeLazyDBRepresentable
 import com.dbflow5.query.operations.Method
 import com.dbflow5.query.operations.method
 import com.dbflow5.query.operations.sqlLiteralOf
@@ -23,7 +23,7 @@ object Snippet : StandardMethod {
         }
         return method(
             name,
-            makeLazySQLObjectAdapter(Table::class).tableNameLiteral(),
+            makeLazyDBRepresentable(Table::class).tableNameLiteral(),
             *args.toTypedArray(),
         )
     }

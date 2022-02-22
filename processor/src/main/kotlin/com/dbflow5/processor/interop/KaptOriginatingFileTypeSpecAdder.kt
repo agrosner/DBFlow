@@ -2,6 +2,8 @@ package com.dbflow5.processor.interop
 
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.interop.OriginatingSource
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 
 /**
@@ -14,6 +16,18 @@ class KaptOriginatingFileTypeSpecAdder : OriginatingFileTypeSpecAdder {
     ) {
         source.element()?.let {
             typeSpec.addOriginatingElement(it)
+        }
+    }
+
+    override fun addOriginatingFile(spec: PropertySpec.Builder, source: OriginatingSource) {
+        source.element()?.let {
+            spec.addOriginatingElement(it)
+        }
+    }
+
+    override fun addOriginatingFile(spec: FunSpec.Builder, source: OriginatingSource) {
+        source.element()?.let {
+            spec.addOriginatingElement(it)
         }
     }
 }

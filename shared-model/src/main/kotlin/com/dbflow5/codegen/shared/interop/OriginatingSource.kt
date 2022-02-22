@@ -1,12 +1,14 @@
 package com.dbflow5.codegen.shared.interop
 
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 
 /**
- * Description:
+ * Defines the originating type or file that created the generated code.
+ * useful for incremental code gen.
  */
-interface OriginatingSource {
-}
+interface OriginatingSource
 
 class OriginatingSourceCollection(
     val sources: List<OriginatingSource>,
@@ -19,9 +21,37 @@ interface OriginatingFileTypeSpecAdder {
         source: OriginatingSource
     ) {
         if (source is OriginatingSourceCollection) {
-            addOriginatingFileCollection(typeSpec, source)
+            source.sources.forEach {
+                addOriginatingFileType(typeSpec, it)
+            }
         } else {
             addOriginatingFile(typeSpec, source)
+        }
+    }
+
+    fun addOriginatingFileType(
+        propertySpec: PropertySpec.Builder,
+        source: OriginatingSource
+    ) {
+        if (source is OriginatingSourceCollection) {
+            source.sources.forEach {
+                addOriginatingFileType(propertySpec, it)
+            }
+        } else {
+            addOriginatingFile(propertySpec, source)
+        }
+    }
+
+    fun addOriginatingFileType(
+        funSpec: FunSpec.Builder,
+        source: OriginatingSource,
+    ) {
+        if (source is OriginatingSourceCollection) {
+            source.sources.forEach {
+                addOriginatingFileType(funSpec, it)
+            }
+        } else {
+            addOriginatingFile(funSpec, source)
         }
     }
 
@@ -30,12 +60,13 @@ interface OriginatingFileTypeSpecAdder {
         source: OriginatingSource
     )
 
-    fun addOriginatingFileCollection(
-        typeSpec: TypeSpec.Builder,
-        originatingSourceCollection: OriginatingSourceCollection,
-    ) {
-        originatingSourceCollection.sources.forEach {
-            addOriginatingFileType(typeSpec, it)
-        }
-    }
+    fun addOriginatingFile(
+        spec: PropertySpec.Builder,
+        source: OriginatingSource
+    )
+
+    fun addOriginatingFile(
+        spec: FunSpec.Builder,
+        source: OriginatingSource,
+    )
 }

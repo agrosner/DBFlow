@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.appendQuotedIfNeeded
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.operations.AnyOperator
@@ -68,7 +68,7 @@ interface TriggerLogicEnabled<Table : Any> {
 }
 
 interface Trigger<Table : Any> : Query,
-    HasAdapter<Table, SQLObjectAdapter<Table>>
+    HasAdapter<Table, DBRepresentable<Table>>
 
 interface TriggerStart<Table : Any> : Trigger<Table>,
     IsTriggerQualified<Table>,
@@ -97,7 +97,7 @@ interface TriggerLogic<Table : Any> : Trigger<Table>,
 /**
  * Starts a TRIGGER statement.
  */
-fun <Table : Any> SQLObjectAdapter<Table>.createTrigger(
+fun <Table : Any> DBRepresentable<Table>.createTrigger(
     name: String,
     temporary: Boolean = false,
     ifNotExists: Boolean = true,
@@ -111,7 +111,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.createTrigger(
 }
 
 internal data class TriggerImpl<Table : Any>(
-    override val adapter: SQLObjectAdapter<Table>,
+    override val adapter: DBRepresentable<Table>,
     private val name: String,
     private val temporary: Boolean,
     private val ifNotExists: Boolean,

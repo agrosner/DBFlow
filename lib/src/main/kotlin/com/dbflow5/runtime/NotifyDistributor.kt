@@ -7,16 +7,15 @@ import kotlinx.coroutines.launch
 
 interface NotifyDistributor {
 
-    fun <Table : Any> onChange(notification: ModelNotification<Table>)
+    fun <Table : Any> onChange(
+        db: DatabaseWrapper,
+        notification: ModelNotification<Table>
+    )
 
     companion object {
+        private val notifyDistributor: NotifyDistributor = NotifyDistributorImpl()
 
-        private val distributorMap = mutableMapOf<DatabaseWrapper, NotifyDistributor>()
-
-        operator fun invoke(db: DatabaseWrapper): NotifyDistributor =
-            distributorMap.getOrPut(db) {
-                NotifyDistributorImpl(db.generatedDatabase.modelNotifier)
-            }
+        operator fun invoke(): NotifyDistributor = notifyDistributor
     }
 }
 
@@ -24,11 +23,18 @@ interface NotifyDistributor {
  * Description: Distributes notifications to the [ModelNotifier].
  */
 internal data class NotifyDistributorImpl(
-    private val modelNotifier: ModelNotifier,
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main),
 ) : NotifyDistributor {
 
-    override fun <Table : Any> onChange(notification: ModelNotification<Table>) {
-        scope.launch { modelNotifier.onChange(notification) }
+    private val modelNotifierMap = mutableMapOf<DatabaseWrapper, ModelNotifier>()
+
+    override fun <Table : Any> onChange(
+        db: DatabaseWrapper,
+        notification: ModelNotification<Table>
+    ) {
+        scope.launch {
+            modelNotifierMap.getOrPut(db) { db.generatedDatabase.modelNotifier }
+                .onChange(notification)
+        }
     }
 }

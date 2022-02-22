@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.OperatorGroup
@@ -34,7 +34,7 @@ interface JoinWithUsing : Query {
  * Description:
  */
 interface Join<OriginalTable : Any, JoinTable : Any, Result> : Query,
-    JoinOn<OriginalTable, Result>, HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
+    JoinOn<OriginalTable, Result>, HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
     Aliasable<JoinWithAlias<OriginalTable, JoinTable, Result>>,
     JoinUsing<OriginalTable, Result> {
     fun end(): SelectWithJoins<OriginalTable, Result>
@@ -44,7 +44,7 @@ internal data class JoinImpl<OriginalTable : Any, JoinTable : Any, Result>(
     val select: SelectImpl<OriginalTable, Result>,
     val type: JoinType,
     val onGroup: OperatorGrouping<Query>? = null,
-    override val adapter: SQLObjectAdapter<JoinTable>,
+    override val adapter: DBRepresentable<JoinTable>,
     private val queryNameAlias: NameAlias? = null,
     override val alias: NameAlias = queryNameAlias ?: NameAlias.Builder(adapter.name).build(),
     override val using: List<Property<*, OriginalTable>> = listOf(),

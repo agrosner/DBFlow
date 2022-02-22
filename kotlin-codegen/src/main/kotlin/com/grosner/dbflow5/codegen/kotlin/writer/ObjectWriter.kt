@@ -19,6 +19,7 @@ import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.codegen.shared.properties.DatabaseHolderProperties
 import com.dbflow5.codegen.shared.validation.ObjectValidatorMap
 import com.squareup.kotlinpoet.FileSpec
+import com.squareup.kotlinpoet.NameAllocator
 
 /**
  * Description:
@@ -34,6 +35,7 @@ class ObjectWriter(
     private val typeConverterWriter: InlineTypeConverterWriter,
     private val objectValidatorMap: ObjectValidatorMap,
     private val fieldSanitizer: FieldSanitizer,
+    private val nameAllocator: NameAllocator,
 ) {
 
     fun write(
@@ -54,6 +56,10 @@ class ObjectWriter(
                         addAll(manyToManyModels.map { model -> model.classModel })
                         addAll(oneToManyModels.map { model -> model.classModel })
                     }
+            }
+            .onEach { model ->
+                // prep names for use
+                nameAllocator.newName(model.generatedFieldName, model.generatedClassName)
             }
         val migrations = objects.filterIsInstance<MigrationModel>()
 

@@ -29,7 +29,7 @@ class TableChangeOnSubscribe<Table : Any, Result : Any, Q>(
 
     private val currentTransactions = CompositeDisposable()
 
-    private val associatedTables: Set<KClass<*>> = executable.associatedAdapters.map { it.table }
+    private val associatedTables: Set<KClass<*>> = executable.associatedAdapters.map { it.type }
         .toSet()
 
     private val onTableChangedObserver =

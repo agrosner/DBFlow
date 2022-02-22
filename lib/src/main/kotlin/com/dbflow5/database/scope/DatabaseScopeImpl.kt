@@ -2,8 +2,8 @@
 
 package com.dbflow5.database.scope
 
-import com.dbflow5.adapter.ModelAdapter
-import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.adapter2.ModelAdapter
+import com.dbflow5.adapter2.QueryRepresentable
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.CountResultFactory
@@ -21,44 +21,40 @@ internal constructor(
 ) :
     WritableDatabaseScope<DB> {
 
-    override suspend fun <T : Any> ModelAdapter<T>.save(model: T): Result<T> {
-        return save(model, db)
+    override suspend fun <T : Any> ModelAdapter<T>.save(model: T): T {
+        return db.save(model)
     }
 
-    override suspend fun <T : Any> ModelAdapter<T>.saveAll(models: Collection<T>): Result<Collection<T>> {
-        return saveAll(models, db)
+    override suspend fun <T : Any> ModelAdapter<T>.saveAll(models: Collection<T>): Collection<T> {
+        return db.saveAll(models)
     }
 
-    override suspend fun <T : Any> ModelAdapter<T>.insert(model: T): Result<T> {
-        return insert(model, db)
+    override suspend fun <T : Any> ModelAdapter<T>.insert(model: T): T {
+        return db.insert(model)
     }
 
-    override suspend fun <T : Any> ModelAdapter<T>.insertAll(models: Collection<T>): Result<Collection<T>> {
-        return insertAll(models, db)
+    override suspend fun <T : Any> ModelAdapter<T>.insertAll(models: Collection<T>): Collection<T> {
+        return db.insertAll(models)
     }
 
-    override suspend fun <T : Any> ModelAdapter<T>.update(model: T): Result<T> {
-        return update(model, db)
+    override suspend fun <T : Any> ModelAdapter<T>.update(model: T): T {
+        return db.update(model)
     }
 
-    override suspend fun <T : Any> ModelAdapter<T>.updateAll(models: Collection<T>): Result<Collection<T>> {
-        return updateAll(models, db)
+    override suspend fun <T : Any> ModelAdapter<T>.updateAll(models: Collection<T>): Collection<T> {
+        return db.updateAll(models)
     }
 
-    override suspend fun <T : Any> ModelAdapter<T>.delete(model: T): Result<T> {
-        return delete(model, db)
+    override suspend fun <T : Any> ModelAdapter<T>.delete(model: T): T {
+        return db.delete(model)
     }
 
-    override suspend fun <T : Any> ModelAdapter<T>.deleteAll(models: Collection<T>): Result<Collection<T>> {
-        return deleteAll(models, db)
+    override suspend fun <T : Any> ModelAdapter<T>.deleteAll(models: Collection<T>): Collection<T> {
+        return db.deleteAll(models)
     }
 
     override suspend fun <T : Any> ModelAdapter<T>.exists(model: T): Boolean {
-        return exists(model, db)
-    }
-
-    override suspend fun <T : Any> ModelAdapter<T>.load(model: T): T? {
-        return loadSingle(model, db)
+        return db.exists(model)
     }
 
     override suspend fun <Result> ExecutableQuery<Result>.execute(): Result {
@@ -75,15 +71,15 @@ internal constructor(
         execute(db).list()
 
     override suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.singleOrNull(
-        adapter: RetrievalAdapter<OtherTable>
+        adapter: QueryRepresentable<OtherTable>
     ): OtherTable? = execute(db).singleOrNull(adapter)
 
     override suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.single(
-        adapter: RetrievalAdapter<OtherTable>
+        adapter: QueryRepresentable<OtherTable>
     ): OtherTable = execute(db).single(adapter)
 
     override suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.list(
-        adapter: RetrievalAdapter<OtherTable>
+        adapter: QueryRepresentable<OtherTable>
     ): List<OtherTable> = execute(db).list(adapter)
 
     override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.cursor(): FlowCursor =

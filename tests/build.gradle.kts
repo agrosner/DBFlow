@@ -99,6 +99,7 @@ dexcount {
 tasks.withType<KotlinCompile>().all {
     kotlinOptions.freeCompilerArgs += listOf(
         "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-        "-Xopt-in=com.dbflow5.annotation.opts.InternalDBFlowApi"
+        "-Xopt-in=com.dbflow5.annotation.opts.InternalDBFlowApi",
+        "-Xopt-in=com.dbflow5.annotation.opts.DelicateDBFlowApi"
     )
 }

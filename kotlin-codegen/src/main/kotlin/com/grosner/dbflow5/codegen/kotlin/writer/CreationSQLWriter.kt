@@ -8,6 +8,7 @@ import com.dbflow5.codegen.shared.SQLiteLookup
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.createFlattenedFields
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.properties.TableProperties
 import com.dbflow5.codegen.shared.properties.dbName
 import com.dbflow5.codegen.shared.references
@@ -25,6 +26,7 @@ class CreationSQLWriter(
     private val referencesCache: ReferencesCache,
     private val sqLiteLookup: SQLiteLookup,
     private val typeConverterCache: TypeConverterCache,
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
 ) : TypeCreator<ClassModel, PropertySpec> {
     override fun create(model: ClassModel): PropertySpec {
         val extractors = model.extractors(referencesCache)
@@ -41,6 +43,11 @@ class CreationSQLWriter(
                         returnType = ClassNames.CompilableQuery
                     )
                 )
+                    .apply {
+                        model.originatingSource?.let {
+                            originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
+                        }
+                    }
                     .initializer(
                         "{ %T(%T.%L.query) }",
                         ClassNames.CompilableQuery,

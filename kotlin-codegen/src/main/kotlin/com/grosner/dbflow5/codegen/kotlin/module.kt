@@ -14,7 +14,7 @@ import com.grosner.dbflow5.codegen.kotlin.writer.PrimaryModelClauseWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.PropertyGetterWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.QueryOpsWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.TableBinderWriter
-import com.grosner.dbflow5.codegen.kotlin.writer.TableOpsFunWriter
+import com.grosner.dbflow5.codegen.kotlin.writer.TableOpsWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.TableSQLWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.AllColumnPropertiesWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.CreationQueryWriter
@@ -48,26 +48,25 @@ val codeGenModule = module {
         ClassWriter(
             get(), get(), get(), get(), get(),
             get(), get(), get(), get(),
-            get(), get(), get(), get(),
-            get(), get(), get(), get(),
-            get(), get(),
+            get(), get(), get(),
         )
     }
     single { DatabaseWriter(get()) }
     single { FieldPropertyWriter(get()) }
     single { DatabaseHolderWriter(get(), get(), get()) }
-    single { TableSQLWriter(get()) }
-    single { TableBinderWriter(get(), get()) }
-    single { PrimaryModelClauseWriter(get()) }
-    single { AutoIncrementUpdateWriter() }
-    single { TableOpsFunWriter(get()) }
-    single { ClassAdapterWriter(get(), get()) }
-    single { PropertyGetterWriter(get()) }
-    single { QueryOpsWriter(get(), get()) }
-    single { CreationSQLWriter(get(), get(), get()) }
+    single { TableSQLWriter(get(), get()) }
+    single { TableBinderWriter(get(), get(), get()) }
+    single { PrimaryModelClauseWriter(get(), get()) }
+    single { AutoIncrementUpdateWriter(get()) }
+    single { TableOpsWriter(get(), get()) }
+    single { ClassAdapterWriter(get(), get(), get()) }
+    single { PropertyGetterWriter(get(), get()) }
+    single { QueryOpsWriter(get(), get(), get()) }
+    single { CreationSQLWriter(get(), get(), get(), get()) }
 
     single {
         ObjectWriter(
+            get(),
             get(),
             get(),
             get(),

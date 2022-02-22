@@ -23,7 +23,7 @@ interface DBProvider<out T : GeneratedDatabase> {
 
 interface CurrencyDAO : DBProvider<TestDatabase> {
 
-    fun coroutineStoreUSD(currency: Currency): Deferred<Result<Currency>> =
+    fun coroutineStoreUSD(currency: Currency): Deferred<Currency> =
         database.beginTransactionAsync { currencyAdapter.save(currency) }.defer()
 
     /**
@@ -35,7 +35,7 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
                 where (Currency_Table.symbol eq "$")).list()
         }.defer()
 
-    fun rxStoreUSD(currency: Currency): Single<Result<Currency>> =
+    fun rxStoreUSD(currency: Currency): Single<Currency> =
         database.beginTransactionAsync { currencyAdapter.save(currency) }.asSingle()
 
     /**

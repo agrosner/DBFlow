@@ -1,8 +1,8 @@
 package com.dbflow5.config
 
-import com.dbflow5.adapter.ModelAdapter
-import com.dbflow5.adapter.ModelViewAdapter
-import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.adapter2.ModelAdapter
+import com.dbflow5.adapter2.QueryAdapter
+import com.dbflow5.adapter2.ViewAdapter
 import com.dbflow5.converter.TypeConverter
 import kotlin.reflect.KClass
 
@@ -18,8 +18,8 @@ interface DatabaseHolderFactory {
 class DatabaseHolder(
     val databases: Set<GeneratedDatabase>,
     val tables: Set<ModelAdapter<*>>,
-    val views: Set<ModelViewAdapter<*>>,
-    val queries: Set<RetrievalAdapter<*>>,
+    val views: Set<ViewAdapter<*>>,
+    val queries: Set<QueryAdapter<*>>,
     private val typeConverters: Map<KClass<*>, TypeConverter<*, *>> = mapOf(),
 ) {
 
@@ -31,9 +31,9 @@ class DatabaseHolder(
         typeConverters = mapOf(),
     )
 
-    private val modelAdapterMap = tables.associateBy { it.table }
-    private val modelViewAdapterMap = views.associateBy { it.table }
-    private val queryModelAdapterMap = queries.associateBy { it.table }
+    private val modelAdapterMap = tables.associateBy { it.type }
+    private val modelViewAdapterMap = views.associateBy { it.type }
+    private val queryModelAdapterMap = queries.associateBy { it.type }
     internal val databaseClassLookupMap = databases.associateBy { it.associatedDatabaseClassFile }
 
     /**
@@ -52,11 +52,11 @@ class DatabaseHolder(
     fun <T : Any> getModelAdapterOrNull(table: KClass<T>): ModelAdapter<T>? =
         modelAdapterMap[table] as ModelAdapter<T>?
 
-    fun <T : Any> getViewAdapterOrNull(table: KClass<T>): ModelViewAdapter<T>? =
-        modelViewAdapterMap[table] as ModelViewAdapter<T>?
+    fun <T : Any> getViewAdapterOrNull(table: KClass<T>): ViewAdapter<T>? =
+        modelViewAdapterMap[table] as ViewAdapter<T>?
 
-    fun <T : Any> getQueryAdapterOrNull(query: KClass<T>): RetrievalAdapter<T>? =
-        queryModelAdapterMap[query] as RetrievalAdapter<T>?
+    fun <T : Any> getQueryAdapterOrNull(query: KClass<T>): QueryAdapter<T>? =
+        queryModelAdapterMap[query] as QueryAdapter<T>?
 
     /**
      * Merges the two holders.

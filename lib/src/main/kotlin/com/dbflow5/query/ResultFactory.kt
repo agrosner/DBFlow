@@ -16,6 +16,14 @@ interface ResultFactory<Result> {
     fun DatabaseWrapper.createResult(query: String): Result
 }
 
+/**
+ * This runs execute without regard for return type.
+ */
+object UnitResultFactory : ResultFactory<Unit> {
+    override fun DatabaseWrapper.createResult(query: String) =
+        compileStatement(query).use { it.execute() }
+}
+
 data class UpdateDeleteResultFactory(
     private val table: KClass<*>,
     private val isDelete: Boolean,
@@ -23,8 +31,9 @@ data class UpdateDeleteResultFactory(
     override fun DatabaseWrapper.createResult(query: String): Long {
         val affected = compileStatement(query).use { it.executeUpdateDelete() }
         if (affected > 0) {
-            NotifyDistributor(this)
+            NotifyDistributor()
                 .onChange(
+                    this,
                     ModelNotification.TableChange(
                         table,
                         if (isDelete) ChangeAction.DELETE else ChangeAction.UPDATE,
@@ -41,8 +50,9 @@ data class InsertResultFactory(
     override fun DatabaseWrapper.createResult(query: String): Long {
         val affected = compileStatement(query).use { it.executeInsert() }
         if (affected > 0) {
-            NotifyDistributor(this)
+            NotifyDistributor()
                 .onChange(
+                    this,
                     ModelNotification.TableChange(
                         table,
                         ChangeAction.INSERT

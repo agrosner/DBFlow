@@ -1,11 +1,11 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.RetrievalAdapter
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter2.QueryRepresentable
 import com.dbflow5.config.FlowManager
+import com.dbflow5.query.methods.count
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Property
-import com.dbflow5.query.methods.count
 import com.dbflow5.query.operations.literalOf
 import kotlin.reflect.KClass
 
@@ -20,7 +20,7 @@ sealed class QualifierType(val value: String) {
  */
 interface Select<Table : Any, Result> :
     ExecutableQuery<Result>,
-    HasAdapter<Table, SQLObjectAdapter<Table>>,
+    HasAdapter<Table, DBRepresentable<Table>>,
     HasAssociatedAdapters,
     Whereable<Table, Result, Select<Table, Result>>
 
@@ -32,11 +32,11 @@ object SelectToken {
     /**
      * Provided for compatibility reasons.
      */
-    infix fun <Table : Any> from(adapter: SQLObjectAdapter<Table>): SelectStart<Table, SelectResult<Table>> =
+    infix fun <Table : Any> from(adapter: DBRepresentable<Table>): SelectStart<Table, SelectResult<Table>> =
         adapter.select()
 
     infix fun <Table : Any> from(table: KClass<Table>): SelectStart<Table, SelectResult<Table>> =
-        FlowManager.getSQLObjectAdapter(table).select()
+        FlowManager.getDBRepresentable(table).select()
 }
 
 /**
@@ -77,14 +77,14 @@ interface SelectStart<Table : Any, Result> :
     infix fun from(modelQueriable: ExecutableQuery<Result>): SelectWithModelQueriable<Table, Result>
 }
 
-fun <Table : Any> SQLObjectAdapter<Table>.select(): SelectStart<Table, SelectResult<Table>> =
+fun <Table : Any> DBRepresentable<Table>.select(): SelectStart<Table, SelectResult<Table>> =
     SelectImpl(
         adapter = this,
         properties = listOf(literalOf("*")),
         resultFactory = SelectResultFactory(this),
     )
 
-fun <Table : Any> SQLObjectAdapter<Table>.select(
+fun <Table : Any> DBRepresentable<Table>.select(
     vararg properties: Property<*, Table>
 ): SelectStart<Table, SelectResult<Table>> =
     select(
@@ -93,10 +93,10 @@ fun <Table : Any> SQLObjectAdapter<Table>.select(
     )
 
 /**
- * Select from [SQLObjectAdapter] widened to allow non-table
+ * Select from [DBRepresentable] widened to allow non-table
  * properties.
  */
-fun <Table : Any> SQLObjectAdapter<Table>.select(
+fun <Table : Any> DBRepresentable<Table>.select(
     vararg operators: AnyOperator,
 ): SelectStart<Table, SelectResult<Table>> =
     select(
@@ -108,7 +108,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.select(
  * Provides a [Select] that returns a long result based on
  * the count of rows.
  */
-fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
+fun <Table : Any> DBRepresentable<Table>.selectCountOf(
     vararg properties: Property<*, Table>,
 ): SelectStart<Table, CountResultFactory.Count> =
     SelectImpl(
@@ -121,7 +121,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
  * Provides a [Select] that returns a long result based on
  * the count of rows. Widens to allow any operator
  */
-fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
+fun <Table : Any> DBRepresentable<Table>.selectCountOf(
     operator: AnyOperator,
     vararg operators: AnyOperator,
 ): SelectStart<Table, CountResultFactory.Count> =
@@ -139,7 +139,7 @@ fun <Table : Any> SQLObjectAdapter<Table>.selectCountOf(
 /**
  * A select providing a custom result factory return type.
  */
-fun <Table : Any, Result> SQLObjectAdapter<Table>.select(
+fun <Table : Any, Result> DBRepresentable<Table>.select(
     resultFactory: ResultFactory<Result>,
     vararg properties: Property<*, Table>,
 ): SelectStart<Table, Result> =
@@ -153,7 +153,7 @@ fun <Table : Any, Result> SQLObjectAdapter<Table>.select(
  * A select providing a custom result factory return type, widened
  * to allow any operation type.
  */
-fun <Table : Any, Result> SQLObjectAdapter<Table>.select(
+fun <Table : Any, Result> DBRepresentable<Table>.select(
     resultFactory: ResultFactory<Result>,
     vararg operators: AnyOperator,
 ): SelectStart<Table, Result> =
@@ -166,7 +166,7 @@ fun <Table : Any, Result> SQLObjectAdapter<Table>.select(
 internal data class SelectImpl<Table : Any, Result>(
     private val qualifier: QualifierType = QualifierType.None,
     private val properties: List<AnyOperator> = emptyList(),
-    override val adapter: SQLObjectAdapter<Table>,
+    override val adapter: DBRepresentable<Table>,
     private val tableAlias: NameAlias = NameAlias.Builder(
         adapter.name
     ).build(),
@@ -226,7 +226,7 @@ internal data class SelectImpl<Table : Any, Result>(
         )
 
     override fun <JoinTable : Any> join(
-        adapter: SQLObjectAdapter<JoinTable>,
+        adapter: DBRepresentable<JoinTable>,
         joinType: JoinType
     ): Join<Table, JoinTable, Result> = JoinImpl(
         this,
@@ -235,7 +235,7 @@ internal data class SelectImpl<Table : Any, Result>(
     )
 
     override fun <JoinTable : Any> join(
-        hasAdapter: HasAdapter<JoinTable, SQLObjectAdapter<JoinTable>>,
+        hasAdapter: HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
         joinType: JoinType
     ): Join<Table, JoinTable, Result> = JoinImpl(
         this,
@@ -244,8 +244,8 @@ internal data class SelectImpl<Table : Any, Result>(
         queryNameAlias = literalOf(hasAdapter).nameAlias,
     )
 
-    override val associatedAdapters: List<RetrievalAdapter<*>> =
-        linkedSetOf<RetrievalAdapter<*>>(adapter)
+    override val associatedAdapters: List<QueryRepresentable<*>> =
+        linkedSetOf<QueryRepresentable<*>>(adapter)
             .apply {
                 joins.mapTo(this) { it.adapter }
             }

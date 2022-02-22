@@ -1,15 +1,16 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.RetrievalAdapter
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter2.QueryOps
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
+import com.dbflow5.sql.Query
 
 internal data class SelectResultFactory<Table : Any>(
-    override val adapter: SQLObjectAdapter<Table>
+    override val adapter: DBRepresentable<Table>
 ) :
     ResultFactory<SelectResult<Table>>,
-    HasAdapter<Table, SQLObjectAdapter<Table>> {
+    HasAdapter<Table, DBRepresentable<Table>> {
     override fun DatabaseWrapper.createResult(query: String): SelectResult<Table> {
         return SelectResultImpl(this, adapter, query)
     }
@@ -30,54 +31,53 @@ interface SelectResult<Table : Any> {
     suspend fun list(): List<Table>
 
     suspend fun <OtherTable : Any> single(
-        adapter: RetrievalAdapter<OtherTable>
+        adapter: QueryOps<OtherTable>
     ): OtherTable
 
     suspend fun <OtherTable : Any> singleOrNull(
-        adapter: RetrievalAdapter<OtherTable>
+        adapter: QueryOps<OtherTable>
     ): OtherTable?
 
     suspend fun <OtherTable : Any> list(
-        adapter: RetrievalAdapter<OtherTable>
+        adapter: QueryOps<OtherTable>
     ): List<OtherTable>
 
 }
 
 internal data class SelectResultImpl<Table : Any>(
     private val db: DatabaseWrapper,
-    override val adapter: SQLObjectAdapter<Table>,
-    private val query: String,
+    override val adapter: DBRepresentable<Table>,
+    override val query: String,
 ) : SelectResult<Table>,
-    HasAdapter<Table, SQLObjectAdapter<Table>> {
+    HasAdapter<Table, DBRepresentable<Table>>, Query {
 
     override suspend fun singleOrNull(): Table? =
-        adapter.loadSingle(db, query)
+        adapter.run { db.single(this@SelectResultImpl) }
 
-    override suspend fun single(): Table = adapter.loadSingle(
-        db, query
-    ) ?: throw SQLiteException("Expected model result not found for Query: $query")
+    override suspend fun single(): Table = adapter.run {
+        db.single(this@SelectResultImpl)
+    } ?: throw SQLiteException("Expected model result not found for Query: $query")
 
 
-    override suspend fun list(): List<Table> = adapter.loadList(
-        db, query
-    )
+    override suspend fun list(): List<Table> =
+        adapter.run { db.list(this@SelectResultImpl) }
 
-    override suspend fun <OtherTable : Any> single(adapter: RetrievalAdapter<OtherTable>): OtherTable =
-        adapter.loadSingle(db, query)
+    override suspend fun <OtherTable : Any> single(adapter: QueryOps<OtherTable>): OtherTable =
+        adapter.run { db.single(this@SelectResultImpl) }
             ?: throw SQLiteException("Expected model result not found for Query: $query")
 
-    override suspend fun <OtherTable : Any> singleOrNull(adapter: RetrievalAdapter<OtherTable>): OtherTable? =
-        adapter.loadSingle(db, query)
+    override suspend fun <OtherTable : Any> singleOrNull(adapter: QueryOps<OtherTable>): OtherTable? =
+        adapter.run { db.single(this@SelectResultImpl) }
 
-    override suspend fun <OtherTable : Any> list(adapter: RetrievalAdapter<OtherTable>): List<OtherTable> =
-        adapter.loadList(db, query)
+    override suspend fun <OtherTable : Any> list(adapter: QueryOps<OtherTable>): List<OtherTable> =
+        adapter.run { db.list(this@SelectResultImpl) }
 }
 
 /**
  * Extension method enables skipping execute() and returns single result.
  */
 suspend fun <Table : Any>
-        ExecutableQuery<SelectResult<Table>>.single(
+    ExecutableQuery<SelectResult<Table>>.single(
     db: DatabaseWrapper
 ) =
     execute(db).single()
@@ -86,7 +86,7 @@ suspend fun <Table : Any>
  * Extension method enables skipping execute() and returns single result or null (if not found).
  */
 suspend fun <Table : Any>
-        ExecutableQuery<SelectResult<Table>>.singleOrNull(
+    ExecutableQuery<SelectResult<Table>>.singleOrNull(
     db: DatabaseWrapper
 ) =
     execute(db).singleOrNull()
@@ -95,7 +95,7 @@ suspend fun <Table : Any>
  * Extension method enables skipping execute() and returns list.
  */
 suspend fun <Table : Any>
-        ExecutableQuery<SelectResult<Table>>.list(
+    ExecutableQuery<SelectResult<Table>>.list(
     db: DatabaseWrapper
 ) =
     execute(db).list()
@@ -105,9 +105,9 @@ suspend fun <Table : Any>
  * based on the [adapter] passed in.
  */
 suspend fun <Table : Any, OtherTable : Any>
-        ExecutableQuery<SelectResult<Table>>.single(
+    ExecutableQuery<SelectResult<Table>>.single(
     db: DatabaseWrapper,
-    adapter: RetrievalAdapter<OtherTable>,
+    adapter: QueryOps<OtherTable>,
 ) =
     execute(db).single(adapter)
 
@@ -116,9 +116,9 @@ suspend fun <Table : Any, OtherTable : Any>
  * based on the [adapter] passed in.
  */
 suspend fun <Table : Any, OtherTable : Any>
-        ExecutableQuery<SelectResult<Table>>.singleOrNull(
+    ExecutableQuery<SelectResult<Table>>.singleOrNull(
     db: DatabaseWrapper,
-    adapter: RetrievalAdapter<OtherTable>,
+    adapter: QueryOps<OtherTable>,
 ) =
     execute(db).singleOrNull(adapter)
 
@@ -127,9 +127,9 @@ suspend fun <Table : Any, OtherTable : Any>
  * based on the [adapter] passed in.
  */
 suspend fun <Table : Any, OtherTable : Any>
-        ExecutableQuery<SelectResult<Table>>.list(
+    ExecutableQuery<SelectResult<Table>>.list(
     db: DatabaseWrapper,
-    adapter: RetrievalAdapter<OtherTable>,
+    adapter: QueryOps<OtherTable>,
 ) =
     execute(db).list(adapter)
 

@@ -29,7 +29,7 @@ class CoroutinesTest : BaseUnitTest() {
         database.writableTransaction {
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
             val saveResult = twoColumnModelAdapter.save(simpleModel)
-            assert(saveResult.isSuccess)
+            assertEquals(saveResult.id, 5)
         }
 
         database.readableTransaction {
@@ -54,7 +54,7 @@ class CoroutinesTest : BaseUnitTest() {
         database.writableTransaction {
             val simpleModel = TwoColumnModel(name = "Name", id = 5)
             val result = twoColumnModelAdapter.save(simpleModel)
-            assert(result.isSuccess)
+            assertEquals(result.id, 5)
         }
         job.cancel()
 

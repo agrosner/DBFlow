@@ -1,6 +1,6 @@
 package com.dbflow5.adapter.queriable
 
-import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.adapter2.QueryOps
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
@@ -14,8 +14,8 @@ abstract class ModelLoader<TModel : Any, out TReturn>(
     private val modelClass: KClass<TModel>
 ) {
 
-    protected val instanceAdapter: RetrievalAdapter<TModel> by lazy {
-        FlowManager.getRetrievalAdapter(
+    protected val instanceAdapter: QueryOps<TModel> by lazy {
+        FlowManager.getQueryRepresentable(
             modelClass
         )
     }
@@ -42,5 +42,8 @@ abstract class ModelLoader<TModel : Any, out TReturn>(
      * @param cursor The cursor resulting from a query passed into [.load]
      * @return A new (or reused) instance that represents the [FlowCursor].
      */
-    abstract suspend fun convertToData(cursor: FlowCursor, databaseWrapper: DatabaseWrapper): TReturn
+    abstract suspend fun convertToData(
+        cursor: FlowCursor,
+        databaseWrapper: DatabaseWrapper
+    ): TReturn
 }

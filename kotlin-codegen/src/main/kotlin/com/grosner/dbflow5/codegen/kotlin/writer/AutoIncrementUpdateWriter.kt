@@ -2,6 +2,7 @@ package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.memberSeparator
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
@@ -16,7 +17,9 @@ import com.squareup.kotlinpoet.NUMBER
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.SHORT
 
-class AutoIncrementUpdateWriter : TypeCreator<ClassModel, PropertySpec> {
+class AutoIncrementUpdateWriter(
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
+) : TypeCreator<ClassModel, PropertySpec> {
 
     override fun create(model: ClassModel): PropertySpec {
         val autoincrementFields = model.primaryAutoIncrementFields
@@ -25,6 +28,11 @@ class AutoIncrementUpdateWriter : TypeCreator<ClassModel, PropertySpec> {
             ClassNames.autoIncrementUpdater(model.classType),
             KModifier.PRIVATE,
         )
+            .apply {
+                model.originatingSource?.let {
+                    originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
+                }
+            }
             .initializer(
                 CodeBlock.builder()
                     .apply {

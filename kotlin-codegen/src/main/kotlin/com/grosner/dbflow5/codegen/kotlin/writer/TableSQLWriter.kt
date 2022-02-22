@@ -4,6 +4,7 @@ import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.cache.ReferencesCache
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.properties.TableProperties
 import com.dbflow5.codegen.shared.properties.dbName
 import com.dbflow5.codegen.shared.writer.TypeCreator
@@ -16,6 +17,7 @@ import com.squareup.kotlinpoet.PropertySpec
  */
 class TableSQLWriter(
     private val referencesCache: ReferencesCache,
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
 ) : TypeCreator<ClassModel, PropertySpec> {
 
     override fun create(model: ClassModel): PropertySpec {
@@ -26,6 +28,11 @@ class TableSQLWriter(
                 "${model.generatedFieldName}_sql", ClassNames.TableSQL,
                 KModifier.PRIVATE
             )
+            .apply {
+                model.originatingSource?.let {
+                    originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
+                }
+            }
             .initializer(
                 CodeBlock.builder()
                     .addStatement("%T(", ClassNames.TableSQL)

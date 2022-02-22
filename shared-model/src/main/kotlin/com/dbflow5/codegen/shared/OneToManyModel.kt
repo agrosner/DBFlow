@@ -115,7 +115,7 @@ data class OneToManyModel(
             indexGroups = listOf(),
             uniqueGroups = listOf(),
             implementsLoadFromCursorListener = false,
-            implementsSQLiteStatementListener = false,
+            implementsDatabaseStatementListener = false,
             ksClassType = ksType,
             granularNotifications = false,
         )

@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Operation
@@ -21,7 +21,7 @@ interface WhereBase<Result> : Query, HasAssociatedAdapters {
  */
 interface Where<Table : Any, Result, OperationBase : ExecutableQuery<Result>> :
     ExecutableQuery<Result>,
-    HasAdapter<Table, SQLObjectAdapter<Table>>,
+    HasAdapter<Table, DBRepresentable<Table>>,
     HasAssociatedAdapters,
     Constrainable<Table, Result, OperationBase>
 
@@ -110,7 +110,7 @@ interface WhereWithOffset<Table : Any,
 
 internal fun <Table : Any,
     Result,
-    OperationBase : ExecutableQuery<Result>> SQLObjectAdapter<Table>.where(
+    OperationBase : ExecutableQuery<Result>> DBRepresentable<Table>.where(
     queryBase: WhereBase<Result>,
     resultFactory: ResultFactory<Result>,
     vararg operators: AnyOperator,
@@ -127,7 +127,7 @@ internal data class WhereImpl<Table : Any,
     OperationBase : ExecutableQuery<Result>>(
     private val queryBase: WhereBase<Result>,
     private val resultFactory: ResultFactory<Result>,
-    override val adapter: SQLObjectAdapter<Table>,
+    override val adapter: DBRepresentable<Table>,
     override val groupByList: List<NameAlias> = listOf(),
     override val operatorGroup: OperatorGrouping<Query> = OperatorGroup.nonGroupingClause(),
     override val havingGroup: OperatorGrouping<Query> = OperatorGroup.nonGroupingClause(),

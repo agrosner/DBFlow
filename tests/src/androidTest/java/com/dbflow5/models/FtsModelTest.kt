@@ -31,7 +31,7 @@ class FtsModelTest : BaseUnitTest() {
         database<TestDatabase>().writableTransaction {
             val model = Fts4Model(name = "FTSBABY")
             val updated = fts4ModelAdapter.save(model)
-            assertTrue(updated.getOrThrow().id > 0)
+            assertTrue(updated.id > 0)
         }
 
         database<TestDatabase>().readableTransaction {

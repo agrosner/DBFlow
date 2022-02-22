@@ -1,7 +1,7 @@
 package com.dbflow5.models.java;
 
 import com.dbflow5.TestDatabase;
-import com.dbflow5.adapter.ModelAdapter;
+import com.dbflow5.adapter2.ModelAdapter;
 import com.dbflow5.annotation.Column;
 import com.dbflow5.annotation.ModelView;
 import com.dbflow5.annotation.ModelViewQuery;

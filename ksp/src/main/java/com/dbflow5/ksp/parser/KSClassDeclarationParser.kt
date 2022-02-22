@@ -283,7 +283,7 @@ class KSClassDeclarationParser(
         val implementsLoadFromCursorListener = input
             .superTypes.any { it.toTypeName() == ClassNames.LoadFromCursorListener }
         val implementsSQLiteStatementListener = input
-            .superTypes.any { it.toTypeName() == ClassNames.SQLiteStatementListener }
+            .superTypes.any { it.toTypeName() == ClassNames.DatabaseStatementListener }
         val granularNotifications = input.firstOrNull<GranularNotifications>() != null
         if (emptyConstructor == null) {
             // find constructor that matches exactly by name.
@@ -331,7 +331,7 @@ class KSClassDeclarationParser(
                         granularNotifications = granularNotifications,
                         originatingSource = originatingSource,
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
-                        implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                        implementsDatabaseStatementListener = implementsSQLiteStatementListener,
                         indexGroups = properties.indexGroupProperties
                             .map { group -> group.toModel(classType, fields) },
                         uniqueGroups = properties.uniqueGroupProperties
@@ -370,7 +370,7 @@ class KSClassDeclarationParser(
                         indexGroups = listOf(),
                         uniqueGroups = listOf(),
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
-                        implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                        implementsDatabaseStatementListener = implementsSQLiteStatementListener,
                         granularNotifications = false,
                     )
                 )
@@ -390,7 +390,7 @@ class KSClassDeclarationParser(
                         indexGroups = listOf(),
                         uniqueGroups = listOf(),
                         implementsLoadFromCursorListener = implementsLoadFromCursorListener,
-                        implementsSQLiteStatementListener = implementsSQLiteStatementListener,
+                        implementsDatabaseStatementListener = implementsSQLiteStatementListener,
                         granularNotifications = false,
                     )
                 )

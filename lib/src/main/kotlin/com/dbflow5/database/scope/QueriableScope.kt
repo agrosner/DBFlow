@@ -1,6 +1,6 @@
 package com.dbflow5.database.scope
 
-import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.adapter2.QueryRepresentable
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.CountResultFactory
 import com.dbflow5.query.ExecutableQuery
@@ -15,15 +15,15 @@ interface ReadableQueriableScope {
     suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.single(): Table
     suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.list(): List<Table>
     suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.singleOrNull(
-        adapter: RetrievalAdapter<OtherTable>,
+        adapter: QueryRepresentable<OtherTable>,
     ): OtherTable?
 
     suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.single(
-        adapter: RetrievalAdapter<OtherTable>,
+        adapter: QueryRepresentable<OtherTable>,
     ): OtherTable
 
     suspend fun <Table : Any, OtherTable : Any> ExecutableQuery<SelectResult<Table>>.list(
-        adapter: RetrievalAdapter<OtherTable>,
+        adapter: QueryRepresentable<OtherTable>,
     ): List<OtherTable>
 
     suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.cursor(): FlowCursor

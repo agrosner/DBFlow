@@ -1,19 +1,19 @@
 package com.dbflow5.query.operations
 
 import com.dbflow5.adapter.AdapterCompanion
-import com.dbflow5.adapter.SQLObjectAdapter
-import com.dbflow5.adapter.makeLazySQLObjectAdapter
-import com.dbflow5.query.NameAlias
-import com.dbflow5.query.nameAlias
+import com.dbflow5.adapter.makeLazyDBRepresentable
+import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.query.Aliasable
 import com.dbflow5.query.HasAdapter
+import com.dbflow5.query.NameAlias
+import com.dbflow5.query.nameAlias
 
 interface HasDistinct<ValueType, Table : Any> {
     fun distinct(): DistinctProperty<ValueType, Table>
 }
 
 interface WithTable<ValueType, Table : Any> :
-    HasAdapter<Table, SQLObjectAdapter<Table>> {
+    HasAdapter<Table, DBRepresentable<Table>> {
     fun withTable(tableName: String = adapter.name): PropertyStart<ValueType, Table>
 }
 
@@ -24,7 +24,7 @@ typealias AnyProperty = Property<*, *>
  */
 interface Property<ValueType, Table : Any> :
     PropertyChainable<ValueType>,
-    HasAdapter<Table, SQLObjectAdapter<Table>>
+    HasAdapter<Table, DBRepresentable<Table>>
 
 interface PropertyStart<ValueType, Table : Any> :
     Property<ValueType, Table>,
@@ -47,12 +47,12 @@ fun <ValueType, Table : Any> AdapterCompanion<Table>.property(
 ):
     PropertyStart<ValueType, Table> =
     PropertyImpl(
-        adapter = makeLazySQLObjectAdapter(table),
+        adapter = makeLazyDBRepresentable(table),
         nameAlias = columnName.nameAlias,
         valueConverter = valueConverter,
     )
 
-fun <ValueType, Table : Any> SQLObjectAdapter<Table>.property(
+fun <ValueType, Table : Any> DBRepresentable<Table>.property(
     nameAlias: NameAlias,
     valueConverter: SQLValueConverter<ValueType>
 ):
@@ -63,7 +63,7 @@ fun <ValueType, Table : Any> SQLObjectAdapter<Table>.property(
         valueConverter = valueConverter,
     )
 
-inline fun <reified ValueType, Table : Any> SQLObjectAdapter<Table>.property(
+inline fun <reified ValueType, Table : Any> DBRepresentable<Table>.property(
     nameAlias: NameAlias,
 ): PropertyStart<ValueType, Table> =
     property(
@@ -81,7 +81,7 @@ inline fun <reified ValueType, Table : Any> AdapterCompanion<Table>.property(
 }
 
 internal data class PropertyImpl<ValueType, Table : Any>(
-    override val adapter: SQLObjectAdapter<Table>,
+    override val adapter: DBRepresentable<Table>,
     override val nameAlias: NameAlias,
     override val valueConverter: SQLValueConverter<ValueType>,
     private val distinct: Boolean = false,

@@ -43,8 +43,8 @@ data class ClassAdapterFieldModel(
     }
 
     enum class Type(val className: ClassName) {
-        Normal(ClassNames.ModelAdapter),
-        View(ClassNames.ModelViewAdapter),
-        Query(ClassNames.RetrievalAdapter),
+        Normal(ClassNames.ModelAdapter2),
+        View(ClassNames.ViewAdapter2),
+        Query(ClassNames.QueryAdapter2),
     }
 }

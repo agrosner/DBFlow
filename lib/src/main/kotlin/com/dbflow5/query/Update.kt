@@ -1,7 +1,7 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.RetrievalAdapter
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter2.QueryRepresentable
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Operation
@@ -10,7 +10,7 @@ import com.dbflow5.query.operations.OperatorGrouping
 import com.dbflow5.sql.Query
 
 interface Update<Table : Any> : Query,
-    HasAdapter<Table, SQLObjectAdapter<Table>>,
+    HasAdapter<Table, DBRepresentable<Table>>,
     HasAssociatedAdapters
 
 interface UpdateWithConflict<Table : Any> :
@@ -36,22 +36,22 @@ interface UpdateStart<Table : Any> :
     Indexable<Table>,
     ExecutableQuery<Long>
 
-fun <Table : Any> SQLObjectAdapter<Table>.update(): UpdateStart<Table> = UpdateImpl(
+fun <Table : Any> DBRepresentable<Table>.update(): UpdateStart<Table> = UpdateImpl(
     adapter = this,
 )
 
 internal data class UpdateImpl<Table : Any>(
     override val conflictAction: ConflictAction = ConflictAction.NONE,
-    override val adapter: SQLObjectAdapter<Table>,
+    override val adapter: DBRepresentable<Table>,
     override val operatorGroup: OperatorGrouping<Query> = OperatorGroup.nonGroupingClause(),
     override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory(
-        adapter.table,
+        adapter.type,
         isDelete = false
     ),
 ) : UpdateStart<Table>, UpdateWithConflict<Table>,
     UpdateWithSet<Table> {
 
-    override val associatedAdapters: List<RetrievalAdapter<*>> = listOf(adapter)
+    override val associatedAdapters: List<QueryRepresentable<*>> = listOf(adapter)
 
     override val query: String by lazy {
         buildString {

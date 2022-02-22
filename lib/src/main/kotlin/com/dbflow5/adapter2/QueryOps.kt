@@ -6,16 +6,17 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.sql.Query
 
 interface QueryOps<QueryType : Any> {
-    suspend fun DatabaseWrapper.single(query: Query): QueryType
+
+    suspend fun DatabaseWrapper.single(query: Query): QueryType?
 
     suspend fun DatabaseWrapper.list(query: Query): List<QueryType>
 }
 
 @InternalDBFlowApi
 data class QueryOpsImpl<QueryType : Any>(
-    private val loadFromCursor: LoadFromCursor<QueryType>
+    private val loadFromCursor: LoadFromCursor<QueryType?>
 ) : QueryOps<QueryType> {
-    override suspend fun DatabaseWrapper.single(query: Query): QueryType =
+    override suspend fun DatabaseWrapper.single(query: Query): QueryType? =
         generatedDatabase.readableTransaction {
             db.rawQuery(query.query).use { loadFromCursor(db, it) }
         }
@@ -26,7 +27,7 @@ data class QueryOpsImpl<QueryType : Any>(
                 mutableListOf<QueryType>().apply {
                     if (cursor.moveToFirst()) {
                         do {
-                            add(loadFromCursor(db, cursor))
+                            loadFromCursor(db, cursor)?.let { add(it) }
                         } while (cursor.moveToNext())
                     }
                 }

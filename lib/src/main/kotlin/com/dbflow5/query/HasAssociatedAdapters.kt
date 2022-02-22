@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.RetrievalAdapter
+import com.dbflow5.adapter2.QueryRepresentable
 
 /**
  * Description: Keeps track of associated adapters in the query
@@ -11,5 +11,5 @@ interface HasAssociatedAdapters {
     /**
      * The list of tables referenced in this query.
      */
-    val associatedAdapters: List<RetrievalAdapter<*>>
+    val associatedAdapters: List<QueryRepresentable<*>>
 }

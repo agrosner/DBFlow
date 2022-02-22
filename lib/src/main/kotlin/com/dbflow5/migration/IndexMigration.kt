@@ -1,6 +1,6 @@
 package com.dbflow5.migration
 
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.createIndexOn
 import com.dbflow5.query.operations.Property
@@ -12,7 +12,7 @@ import kotlinx.coroutines.runBlocking
 abstract class IndexMigration<Table : Any>(
     private val columns: List<Property<*, Table>>,
     private val unique: Boolean = false,
-    adapterGetter: () -> SQLObjectAdapter<Table>,
+    adapterGetter: () -> DBRepresentable<Table>,
 ) : BaseMigration() {
 
     protected val adapter by lazy(adapterGetter)

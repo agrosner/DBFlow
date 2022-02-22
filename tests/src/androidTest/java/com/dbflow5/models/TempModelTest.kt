@@ -2,8 +2,8 @@ package com.dbflow5.models
 
 import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
-import com.dbflow5.adapter.createIfNotExists
-import com.dbflow5.adapter.drop
+import com.dbflow5.adapter2.create
+import com.dbflow5.adapter2.drop
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.config.database
@@ -21,9 +21,9 @@ class TempModelTest : BaseUnitTest() {
     @Test
     fun createTempTable() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
-            tempModelAdapter.createIfNotExists(this.db)
-            tempModelAdapter.save(TempModel(id = 5), this.db)
-            tempModelAdapter.drop(this.db)
+            tempModelAdapter.create(db)
+            tempModelAdapter.save(TempModel(id = 5))
+            tempModelAdapter.drop(db)
         }
     }
 }

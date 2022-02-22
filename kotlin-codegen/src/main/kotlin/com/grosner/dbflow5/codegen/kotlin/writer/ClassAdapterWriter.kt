@@ -4,6 +4,8 @@ import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.distinctAdapterGetters
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
+import com.dbflow5.codegen.shared.properties.CreatableScopeProperties
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.squareup.kotlinpoet.FunSpec
@@ -23,9 +25,10 @@ private data class ClassConfig(
 class ClassAdapterWriter(
     private val nameAllocator: NameAllocator,
     private val referencesCache: ReferencesCache,
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
 ) : TypeCreator<ClassModel, FunSpec> {
     override fun create(model: ClassModel): FunSpec {
-        val name = this.nameAllocator.newName(model.generatedFieldName)
+        val name = nameAllocator[model.generatedClassName]
         val adapters = model.distinctAdapterGetters(referencesCache)
         val config = createConfig(model)
         return FunSpec.builder(
@@ -33,34 +36,33 @@ class ClassAdapterWriter(
         )
             .addModifiers(if (model.isInternal) KModifier.INTERNAL else KModifier.PUBLIC)
             .apply {
-                returns(config.adapterType)
-                if (model.granularNotifications) {
-                    addParameter(
-                        "notifyDistributor", ClassNames.NotifyDistributor
-                            .copy(nullable = true)
-                    )
+                model.originatingSource?.let {
+                    originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
                 }
+                returns(config.adapterType)
                 adapters.forEach { adapter ->
                     addParameter(
-                        adapter.generatedFieldName,
+                        "${adapter.generatedFieldName}Getter",
                         LambdaTypeName.get(returnType = adapter.generatedSuperClass)
                     )
                 }
                 addCode(
-                    "return %M(ops = ${model.generatedFieldName}_%L(%L${adapters.joinToString { "%L" }}), \n",
+                    "return %M(ops = ${model.generatedFieldName}_%L(${adapters.joinToString { "%L" }}), \n",
                     config.adapterCreator,
                     config.opsName,
-                    if (model.granularNotifications) "notifyDistributor, " else "",
-                    *adapters.map { it.generatedFieldName }.toTypedArray(),
+                    *adapters.map { "${it.generatedFieldName}Getter" }.toTypedArray(),
                 )
-                if (model.isNormal) {
-                    addCode("propertyGetter = ${model.generatedFieldName}_propertyGetter, \n")
-                }
                 if (!model.isQuery) {
                     addCode("name = %S, \n", model.dbName)
+                    addCode(
+                        "createWithDatabase = %L, \n",
+                        (model.properties as CreatableScopeProperties).createWithDatabase
+                    )
                 }
                 if (model.isNormal) {
+                    addCode("propertyGetter = ${model.generatedFieldName}_propertyGetter, \n")
                     addCode("creationSQL = %L", "${model.generatedFieldName}_creationSQL, \n")
+                    addCode("primaryModelClauseGetter = ${model.generatedFieldName}_primaryModelClauseGetter, \n")
                 } else if (model.isView) {
                     addCode("creationLoader = %L", "${model.generatedFieldName}_creationLoader, \n")
                 }

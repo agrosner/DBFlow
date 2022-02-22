@@ -20,8 +20,8 @@ class AutoIncrementTest : BaseUnitTest() {
     fun testCanInsertAutoIncrement() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             val model = AutoIncrementingModel()
-            val id = autoIncrementingModelAdapter.save(model)
-            assertEquals(1L, id.getOrThrow().id)
+            val incrementingModel = autoIncrementingModelAdapter.save(model)
+            assertEquals(1L, incrementingModel.id)
         }
     }
 
@@ -29,8 +29,8 @@ class AutoIncrementTest : BaseUnitTest() {
     fun testCanInsertExistingIdAutoIncrement() = runBlockingTest {
         database<TestDatabase>().writableTransaction {
             val model = AutoIncrementingModel(3)
-            val id = autoIncrementingModelAdapter.insert(model)
-            assertEquals(3L, id.getOrThrow().id)
+            val incrementingModel = autoIncrementingModelAdapter.insert(model)
+            assertEquals(3L, incrementingModel.id)
         }
     }
 }

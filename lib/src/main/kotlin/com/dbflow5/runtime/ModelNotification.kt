@@ -1,6 +1,6 @@
 package com.dbflow5.runtime
 
-import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter2.ModelAdapter
 import com.dbflow5.query.operations.BaseOperator
 import com.dbflow5.structure.ChangeAction
 import kotlin.reflect.KClass
@@ -28,8 +28,7 @@ sealed interface ModelNotification<Table : Any> {
             action: ChangeAction,
             adapter: ModelAdapter<Table>
         ) : this(
-            adapter.getPrimaryConditionClause(model)
-                .filterIsInstance<BaseOperator.SingleValueOperator<*>>(),
+            adapter.getPrimaryModelClause(model),
             action, adapter.table
         )
     }

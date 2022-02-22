@@ -4,10 +4,10 @@ package com.dbflow5.config
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.dbflow5.adapter.ModelAdapter
-import com.dbflow5.adapter.ModelViewAdapter
-import com.dbflow5.adapter.RetrievalAdapter
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter2.ModelAdapter
+import com.dbflow5.adapter2.QueryRepresentable
+import com.dbflow5.adapter2.ViewAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.converter.TypeConverter
@@ -225,8 +225,8 @@ object FlowManager {
      * it checks both the [ModelViewAdapter] and [RetrievalAdapter].
      */
     @JvmStatic
-    fun <T : Any> getRetrievalAdapter(modelClass: KClass<T>): RetrievalAdapter<T> {
-        var retrievalAdapter: RetrievalAdapter<T>? =
+    fun <T : Any> getQueryRepresentable(modelClass: KClass<T>): QueryRepresentable<T> {
+        var retrievalAdapter: QueryRepresentable<T>? =
             databaseHolder.getModelAdapterOrNull(modelClass)
         if (retrievalAdapter == null) {
             retrievalAdapter = databaseHolder.getViewAdapterOrNull(modelClass)
@@ -236,14 +236,13 @@ object FlowManager {
     }
 
     /**
-     * @param modelClass The class that contains the [Table] annotation to find an adapter for.
-     * @return The adapter associated with the class. If its not a [ModelAdapter],
-     * it checks both the [ModelViewAdapter] and [RetrievalAdapter].
+     * The [DBRepresentable] for specific type. If cannot find a [ModelAdapter], then it looks
+     * for [ViewAdapter]
      */
     @DelicateDBFlowApi
     @JvmStatic
-    fun <T : Any> getSQLObjectAdapter(modelClass: KClass<T>): SQLObjectAdapter<T> {
-        var retrievalAdapter: SQLObjectAdapter<T>? =
+    fun <T : Any> getDBRepresentable(modelClass: KClass<T>): DBRepresentable<T> {
+        var retrievalAdapter: DBRepresentable<T>? =
             databaseHolder.getModelAdapterOrNull(modelClass)
         if (retrievalAdapter == null) {
             retrievalAdapter = databaseHolder.getViewAdapterOrNull(modelClass)
@@ -285,7 +284,7 @@ object FlowManager {
      */
     @DelicateDBFlowApi
     @JvmStatic
-    fun <T : Any> getModelViewAdapter(modelViewClass: KClass<T>): ModelViewAdapter<T> =
+    fun <T : Any> getModelViewAdapter(modelViewClass: KClass<T>): ViewAdapter<T> =
         databaseHolder.getViewAdapterOrNull(modelViewClass)
             ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
 
@@ -320,9 +319,6 @@ object FlowManager {
  */
 inline fun <reified DB : GeneratedDatabase> database(fn: (DB) -> Unit = {}): DB =
     FlowManager.getDatabase(DB::class).apply(fn)
-
-inline val <T : Any> KClass<T>.modelAdapter
-    get() = FlowManager.getModelAdapter(this)
 
 /**
  * Checks a standard database helper for integrity using quick_check(1).

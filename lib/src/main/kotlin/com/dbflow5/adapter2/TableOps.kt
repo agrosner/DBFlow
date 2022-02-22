@@ -10,7 +10,7 @@ import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.NotifyDistributor
 import com.dbflow5.structure.ChangeAction
 
-interface TableOps<Table> {
+interface TableOps<Table : Any> : QueryOps<Table> {
 
     suspend fun DatabaseWrapper.save(model: Table): Table
 
@@ -40,11 +40,10 @@ data class TableOpsImpl<Table : Any>(
     private val primaryModelClauseGetter: PrimaryModelClauseGetter<Table>,
     private val autoIncrementUpdater: AutoIncrementUpdater<Table>,
     /**
-     * If not null, we send model notifications.
+     * If true, we send model notifications.
      */
-    private val notifyDistributorGetter: () -> NotifyDistributor?,
+    private val notifyChanges: Boolean,
 ) : TableOps<Table>, QueryOps<Table> by queryOps {
-    private val notifyDistributor by lazy(notifyDistributorGetter)
 
     private fun DatabaseWrapper.bind(
         model: Table,
@@ -52,14 +51,17 @@ data class TableOpsImpl<Table : Any>(
         binder: SQLStatementBinder<Table>
     ) = compilableQuery.create(this).apply { binder.bind(this, model) }
 
-    private fun notifyModelChange(changeAction: ChangeAction) = { model: Table ->
-        notifyDistributor?.onChange(
-            ModelNotification.ModelChange(
-                changedFields = primaryModelClauseGetter.get(model),
-                action = changeAction,
-                table = model::class,
+    private fun DatabaseWrapper.notifyModelChange(changeAction: ChangeAction) = { model: Table ->
+        if (notifyChanges) {
+            NotifyDistributor().onChange(
+                this,
+                ModelNotification.ModelChange(
+                    changedFields = primaryModelClauseGetter.get(model),
+                    action = changeAction,
+                    table = model::class,
+                )
             )
-        ) ?: Unit // need for unit conversion lambda...
+        }
     }
 
     private fun WritableDatabaseScope<GeneratedDatabase>.runUpdateDeleteOperation(

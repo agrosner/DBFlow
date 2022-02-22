@@ -4,13 +4,15 @@ import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.distinctAdapterGetters
+import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
 
-class TableOpsFunWriter(
+class TableOpsWriter(
     private val referencesCache: ReferencesCache,
+    private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
 ) : TypeCreator<ClassModel, FunSpec> {
 
     override fun create(model: ClassModel): FunSpec {
@@ -21,11 +23,8 @@ class TableOpsFunWriter(
         )
             .addModifiers(KModifier.PRIVATE)
             .apply {
-                if (model.granularNotifications) {
-                    addParameter(
-                        "notifyDistributor", ClassNames.NotifyDistributor
-                            .copy(nullable = true)
-                    )
+                model.originatingSource?.let {
+                    originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
                 }
                 adapters.forEach { adapter ->
                     addParameter(
@@ -40,10 +39,10 @@ class TableOpsFunWriter(
                         "primaryModelClauseGetter = ${shortName}_primaryModelClauseGetter, " +
                         "autoIncrementUpdater = ${shortName}_autoIncrementUpdater, " +
                         "queryOps = ${shortName}_queryOps(${adapters.joinToString { "%L" }})," +
-                        "notifyDistributorGetter = %L)",
+                        "notifyChanges = %L)",
                     ClassNames.TableOpsImpl,
                     *adapters.map { it.generatedFieldName }.toTypedArray(),
-                    if (model.granularNotifications) "notifyDistributor" else "{ null }",
+                    model.granularNotifications,
                 )
             }
             .build()

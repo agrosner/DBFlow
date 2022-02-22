@@ -33,7 +33,6 @@ class CipherTest {
             cipherAdapter.delete().execute()
             val model =
                 cipherAdapter.save(CipherModel(name = "name"))
-                    .getOrThrow()
             assertTrue(cipherAdapter.exists(model))
 
             val retrieval = (cipherAdapter.select()

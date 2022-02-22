@@ -172,7 +172,7 @@ data class ManyToManyModel(
         ),
         uniqueGroups = listOf(),
         implementsLoadFromCursorListener = false,
-        implementsSQLiteStatementListener = false,
+        implementsDatabaseStatementListener = false,
         ksClassType = ksType,
         granularNotifications = false,
     )

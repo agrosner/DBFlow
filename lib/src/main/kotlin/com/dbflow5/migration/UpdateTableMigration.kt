@@ -1,6 +1,6 @@
 package com.dbflow5.migration
 
-import com.dbflow5.adapter.SQLObjectAdapter
+import com.dbflow5.adapter2.ModelAdapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.ExecutableQuery
 import com.dbflow5.query.operations.AnyOperator
@@ -24,7 +24,7 @@ open class UpdateTableMigration<T : Any>
     /**
      * The table to update
      */
-    adapterGetter: () -> SQLObjectAdapter<T>
+    adapterGetter: () -> ModelAdapter<T>
 ) : BaseMigration() {
 
     protected val adapter by lazy(adapterGetter)
