@@ -4,7 +4,7 @@ import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.runtime.ModelNotification
-import com.dbflow5.runtime.NotifyDistributor
+import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.transaction.TransactionDispatcher
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -34,26 +34,30 @@ class TableOpsTest {
         delete = mock(),
         save = mock(),
     )
-    private val notifyDistributor = mock<NotifyDistributor>()
+    private val modelNotifier = mock<ModelNotifier>()
     private val primaryModelClauseGetter = mock<PrimaryModelClauseGetter<Any>>()
     private val autoIncrementUpdater = mock<AutoIncrementUpdater<Any>>()
     private val generatedDatabase = mock<GeneratedDatabase> {
         on { transactionDispatcher } doReturn TransactionDispatcher(TestCoroutineDispatcher())
+        on { modelNotifier } doReturn modelNotifier
     }
     private val database = mock<DatabaseWrapper> {
         on { generatedDatabase } doReturn generatedDatabase
     }
+
+    private val queryOps = mock<QueryOps<Any>>()
 
     private lateinit var ops: TableOps<Any>
 
     @BeforeTest
     fun createOps() {
         ops = TableOpsImpl(
-            tableSQL,
-            tableBinder,
-            notifyDistributor,
-            primaryModelClauseGetter,
-            autoIncrementUpdater,
+            queryOps = queryOps,
+            tableSQL = tableSQL,
+            tableBinder = tableBinder,
+            primaryModelClauseGetter = primaryModelClauseGetter,
+            autoIncrementUpdater = autoIncrementUpdater,
+            notifyChanges = true,
         )
     }
 
@@ -77,8 +81,7 @@ class TableOpsTest {
         verify(tableBinder.save).bind(statement, model)
         verify(statement).executeInsert()
         verify(autoIncrementUpdater).run { model.update(1L) }
-        verify(notifyDistributor).onChange(
-            generatedDatabase,
+        verify(modelNotifier).onChange(
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.CHANGE,
@@ -107,8 +110,7 @@ class TableOpsTest {
         verify(tableBinder.insert).bind(statement, model)
         verify(statement).executeInsert()
         verify(autoIncrementUpdater).run { model.update(1L) }
-        verify(notifyDistributor).onChange(
-            generatedDatabase,
+        verify(modelNotifier).onChange(
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.INSERT,
@@ -134,8 +136,7 @@ class TableOpsTest {
 
         verify(tableBinder.update).bind(statement, model)
         verify(statement).executeUpdateDelete()
-        verify(notifyDistributor).onChange(
-            generatedDatabase,
+        verify(modelNotifier).onChange(
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.UPDATE,
@@ -161,8 +162,7 @@ class TableOpsTest {
 
         verify(tableBinder.delete).bind(statement, model)
         verify(statement).executeUpdateDelete()
-        verify(notifyDistributor).onChange(
-            generatedDatabase,
+        verify(modelNotifier).onChange(
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.DELETE,
