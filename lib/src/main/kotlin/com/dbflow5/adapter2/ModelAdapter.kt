@@ -10,6 +10,8 @@ typealias PropertyGetter<Table> = (columnName: String) -> Property<*, Table>
  * Used by generated code.
  */
 inline fun <reified Table : Any> modelAdapter(
+    name: String,
+    creationSQL: CompilableQuery,
     ops: TableOps<Table>,
     noinline propertyGetter: PropertyGetter<Table>,
 ) =
@@ -17,6 +19,8 @@ inline fun <reified Table : Any> modelAdapter(
         table = Table::class,
         ops = ops,
         propertyGetter = propertyGetter,
+        name = name,
+        creationSQL = creationSQL,
     )
 
 /**
@@ -28,7 +32,9 @@ constructor(
     val table: KClass<Table>,
     private val ops: TableOps<Table>,
     private val propertyGetter: PropertyGetter<Table>,
-) : TableOps<Table> by ops {
+    override val name: String,
+    override val creationSQL: CompilableQuery,
+) : TableOps<Table> by ops, DBRepresentable {
 
     fun getProperty(columnName: String) = propertyGetter(columnName)
 }
