@@ -7,6 +7,7 @@ import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.ForeignKeyAction
 import com.dbflow5.annotation.Fts3
 import com.dbflow5.annotation.Fts4
+import com.dbflow5.annotation.GranularNotifications
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Query
@@ -26,6 +27,7 @@ import java.util.UUID
 /**
  * Description:
  */
+@GranularNotifications
 @Table
 class SimpleModel(@PrimaryKey var name: String? = "")
 

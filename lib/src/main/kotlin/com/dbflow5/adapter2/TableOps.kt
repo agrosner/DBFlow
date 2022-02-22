@@ -53,7 +53,7 @@ data class TableOpsImpl<Table : Any>(
 
     private fun DatabaseWrapper.notifyModelChange(changeAction: ChangeAction) = { model: Table ->
         if (notifyChanges) {
-            NotifyDistributor().onChange(
+            NotifyDistributor.onChange(
                 this,
                 ModelNotification.ModelChange(
                     changedFields = primaryModelClauseGetter.get(model),

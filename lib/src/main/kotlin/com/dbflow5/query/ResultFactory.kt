@@ -31,7 +31,7 @@ data class UpdateDeleteResultFactory(
     override fun DatabaseWrapper.createResult(query: String): Long {
         val affected = compileStatement(query).use { it.executeUpdateDelete() }
         if (affected > 0) {
-            NotifyDistributor()
+            NotifyDistributor
                 .onChange(
                     this,
                     ModelNotification.TableChange(
@@ -50,7 +50,7 @@ data class InsertResultFactory(
     override fun DatabaseWrapper.createResult(query: String): Long {
         val affected = compileStatement(query).use { it.executeInsert() }
         if (affected > 0) {
-            NotifyDistributor()
+            NotifyDistributor
                 .onChange(
                     this,
                     ModelNotification.TableChange(

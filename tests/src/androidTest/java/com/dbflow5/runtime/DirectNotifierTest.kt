@@ -18,6 +18,7 @@ import com.dbflow5.query.update
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.structure.ChangeAction
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Before
@@ -46,6 +47,7 @@ class DirectNotifierTest {
 
     @Test
     fun validateCanNotifyDirect() = runBlockingTest {
+        NotifyDistributor.setNotifyDistributor(NotifyDistributorImpl(scope = this))
         database<TestDatabase>().writableTransaction {
             val model = SimpleModel("Name")
             DirectModelNotifier.get(this.db).notificationFlow
@@ -90,7 +92,7 @@ class DirectNotifierTest {
                         awaitItem()
                     )
 
-                    awaitComplete()
+                    cancelAndIgnoreRemainingEvents()
                 }
         }
     }
