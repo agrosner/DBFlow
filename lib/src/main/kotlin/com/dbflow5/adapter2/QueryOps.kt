@@ -18,7 +18,11 @@ data class QueryOpsImpl<QueryType : Any>(
 ) : QueryOps<QueryType> {
     override suspend fun DatabaseWrapper.single(query: Query): QueryType? =
         generatedDatabase.readableTransaction {
-            db.rawQuery(query.query).use { loadFromCursor(db, it) }
+            db.rawQuery(query.query).use { cursor ->
+                if (cursor.moveToFirst()) {
+                    loadFromCursor(db, cursor)
+                } else null
+            }
         }
 
     override suspend fun DatabaseWrapper.list(query: Query): List<QueryType> =
