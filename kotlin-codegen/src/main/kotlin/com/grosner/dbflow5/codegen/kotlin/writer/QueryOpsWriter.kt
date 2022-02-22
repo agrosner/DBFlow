@@ -37,12 +37,6 @@ class QueryOpsWriter(
                 model.originatingSource?.let {
                     originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
                 }
-                if (model.granularNotifications) {
-                    addParameter(
-                        "notifyDistributor", ClassNames.NotifyDistributor
-                            .copy(nullable = true)
-                    )
-                }
                 adapters.forEach { adapter ->
                     addParameter(
                         adapter.generatedFieldName,

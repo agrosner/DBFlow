@@ -36,5 +36,5 @@ data class ViewAdapter<View : Any>
         "DROP VIEW $name IF EXISTS"
     )
     override val type: KClass<View> = view
-    override val creationSQL: CompilableQuery = creationLoader()
+    override val creationSQL: CompilableQuery by lazy(creationLoader)
 }
