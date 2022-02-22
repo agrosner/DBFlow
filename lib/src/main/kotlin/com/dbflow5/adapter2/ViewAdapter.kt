@@ -33,7 +33,7 @@ data class ViewAdapter<View : Any>
     override val createWithDatabase: Boolean,
 ) : QueryOps<View> by ops, DBRepresentable<View> {
     override val dropSQL: CompilableQuery = CompilableQuery(
-        "DROP VIEW $name IF EXISTS"
+        "DROP VIEW IF EXISTS $name"
     )
     override val type: KClass<View> = view
     override val creationSQL: CompilableQuery by lazy(creationLoader)

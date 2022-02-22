@@ -48,7 +48,7 @@ constructor(
     private val primaryModelClauseGetter: PrimaryModelClauseGetter<Table>,
 ) : TableOps<Table> by ops, DBRepresentable<Table> {
     override val dropSQL: CompilableQuery = CompilableQuery(
-        "DROP TABLE $name IF EXISTS"
+        "DROP TABLE IF EXISTS $name"
     )
 
     override val type: KClass<Table> = table
