@@ -8,7 +8,7 @@ class TestForeignKeyDatabaseTest : BaseUnitTest() {
 
     @Test
     fun verifyDB() = runBlockingTest {
-        database<TestForeignKeyDatabase> { db ->
+        database<TestForeignKeyDatabase> {
             val enabled = longForQuery(db, "PRAGMA foreign_keys;")
             assert(enabled == 1L)
         }

@@ -3,7 +3,6 @@ package com.dbflow5.sqlcipher
 import com.dbflow5.DBFlowInstrumentedTestRule
 import com.dbflow5.DemoApp
 import com.dbflow5.config.database
-import com.dbflow5.config.writableTransaction
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
 import kotlinx.coroutines.test.runBlockingTest
@@ -29,7 +28,7 @@ class CipherTest {
 
     @Test
     fun testCipherModel() = runBlockingTest {
-        database<CipherDatabase>().writableTransaction {
+        database<CipherDatabase> {
             cipherAdapter.delete().execute()
             val model =
                 cipherAdapter.save(CipherModel(name = "name"))

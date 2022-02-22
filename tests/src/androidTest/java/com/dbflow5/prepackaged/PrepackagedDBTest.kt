@@ -3,7 +3,6 @@ package com.dbflow5.prepackaged
 import com.dbflow5.DBFlowInstrumentedTestRule
 import com.dbflow5.DemoApp
 import com.dbflow5.config.database
-import com.dbflow5.config.readableTransaction
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.query.select
 import kotlinx.coroutines.test.runBlockingTest
@@ -29,7 +28,7 @@ class PrepackagedDBTest {
 
     @Test
     fun assertWeCanLoadFromDB() = runBlockingTest {
-        database<PrepackagedDB>().readableTransaction {
+        database<PrepackagedDB> {
             val list = dogAdapter.select().list()
             assertTrue(list.isNotEmpty())
         }
@@ -37,17 +36,13 @@ class PrepackagedDBTest {
 
     @Test
     fun assertWeCanLoadFromDBPostMigrate() = runBlockingTest {
-        database<MigratedPrepackagedDB> { db ->
-            db.readableTransaction {
-                val list = dog2Adapter.select().list()
-                assertTrue(list.isNotEmpty())
-            }
-            db.readableTransaction {
-                (dog2Adapter.select()
-                    where Dog2_Table.breed.eq("NewBreed")
-                    and Dog2_Table.newField.eq("New Field Data"))
-                    .single()
-            }
+        database<MigratedPrepackagedDB> {
+            val list = dog2Adapter.select().list()
+            assertTrue(list.isNotEmpty())
+            (dog2Adapter.select()
+                where Dog2_Table.breed.eq("NewBreed")
+                and Dog2_Table.newField.eq("New Field Data"))
+                .single()
         }
     }
 }

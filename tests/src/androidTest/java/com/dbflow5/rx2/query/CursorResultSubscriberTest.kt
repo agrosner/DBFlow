@@ -4,7 +4,6 @@ import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.database
 import com.dbflow5.config.executeTransaction
-import com.dbflow5.config.readableTransaction
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
@@ -40,8 +39,8 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
     @Test
     fun testCanObserveOnTableChangesWithTableOps() = runBlockingTest {
-        database<TestDatabase> { db ->
-            db.writableTransaction { simpleModelAdapter.delete().execute() }
+        database<TestDatabase> {
+            simpleModelAdapter.delete().execute()
             var count = 0
             var curList: List<SimpleModel> = arrayListOf()
             (select from db.simpleModelAdapter)
@@ -68,14 +67,12 @@ class CursorResultSubscriberTest : BaseUnitTest() {
 
             assertEquals(3, curList.size)
 
-            val model = db.readableTransaction {
-                (select
-                    from simpleModelAdapter
-                    where SimpleModel_Table.name.eq("test"))
-                    .single()
-            }
+            val model = (select
+                from simpleModelAdapter
+                where SimpleModel_Table.name.eq("test"))
+                .single()
 
-            db.executeTransaction { simpleModelAdapter.delete(model) }
+            simpleModelAdapter.delete(model)
             db.tableObserver.checkForTableUpdates()
 
             assertEquals(2, curList.size)

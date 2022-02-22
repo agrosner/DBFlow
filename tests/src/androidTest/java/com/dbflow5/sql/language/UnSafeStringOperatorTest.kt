@@ -6,13 +6,14 @@ import com.dbflow5.assertEquals
 import com.dbflow5.config.database
 import com.dbflow5.query.operations.UnSafeStringOperator
 import com.dbflow5.query.select
+import com.dbflow5.simpleModelAdapter
 import org.junit.Test
 
 class UnSafeStringOperatorTest : BaseUnitTest() {
 
     @Test
     fun testCanIncludeInQuery() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val op = UnSafeStringOperator(
                 "name = ?, id = ?, test = ?",
                 listOf("'name'", "0", "'test'")
@@ -20,7 +21,7 @@ class UnSafeStringOperatorTest : BaseUnitTest() {
             "name = 'name', id = 0, test = 'test'"
                 .assertEquals(op)
             "SELECT * FROM `SimpleModel` WHERE name = 'name', id = 0, test = 'test'"
-                .assertEquals(db.simpleModelAdapter.select() where op)
+                .assertEquals(simpleModelAdapter.select() where op)
         }
     }
 }

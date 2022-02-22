@@ -7,15 +7,17 @@ import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.update
+import com.dbflow5.simpleModelAdapter
+import com.dbflow5.twoColumnModelAdapter
 import org.junit.Test
 
 class SetTest : BaseUnitTest() {
 
     @Test
     fun validateSetWithConditions() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             "UPDATE `SimpleModel` SET `name` = 'name'".assertEquals(
-                db.simpleModelAdapter.update() set SimpleModel_Table.name.eq(
+                simpleModelAdapter.update() set SimpleModel_Table.name.eq(
                     "name"
                 )
             )
@@ -24,9 +26,9 @@ class SetTest : BaseUnitTest() {
 
     @Test
     fun validateMultipleConditions() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             "UPDATE `TwoColumnModel` SET `name` = 'name', `id` = 0".assertEquals(
-                db.twoColumnModelAdapter.update() set TwoColumnModel_Table.name.eq(
+                twoColumnModelAdapter.update() set TwoColumnModel_Table.name.eq(
                     "name"
                 ) and TwoColumnModel_Table.id.eq(0)
             )

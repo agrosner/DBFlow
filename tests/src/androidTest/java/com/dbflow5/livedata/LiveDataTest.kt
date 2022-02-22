@@ -27,7 +27,7 @@ class LiveDataTest : BaseUnitTest() {
 
     @Test
     fun live_data_executes_for_a_few_model_queries() = runBlockingTest {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val data = db.readableTransaction {
                 (select from liveDataModelAdapter)
                     .toLiveData(db) { list() }

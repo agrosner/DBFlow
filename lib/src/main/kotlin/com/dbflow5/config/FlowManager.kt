@@ -11,6 +11,7 @@ import com.dbflow5.adapter2.ViewAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.converter.TypeConverter
+import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.structure.InvalidDBConfiguration
 import com.dbflow5.structure.Model
 import kotlin.reflect.KClass
@@ -317,8 +318,8 @@ object FlowManager {
 /**
  * Easily get access to its [GeneratedDatabase] directly.
  */
-inline fun <reified DB : GeneratedDatabase> database(fn: (DB) -> Unit = {}): DB =
-    FlowManager.getDatabase(DB::class).apply(fn)
+inline fun <reified DB : GeneratedDatabase> database(fn: WritableDatabaseScope<DB>.() -> Unit = {}): DB =
+    FlowManager.getDatabase(DB::class).apply { WritableDatabaseScope(this).fn() }
 
 /**
  * Checks a standard database helper for integrity using quick_check(1).

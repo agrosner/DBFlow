@@ -22,13 +22,13 @@ class TriggerTest : BaseUnitTest() {
 
     @Test
     fun validateBasicTrigger() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             ("CREATE TRIGGER IF NOT EXISTS `MyTrigger` AFTER INSERT ON `SimpleModel` " +
                 "\nBEGIN" +
                 "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
                 "\nEND").assertEquals(
-                db.simpleModelAdapter.createTrigger("MyTrigger").after().insertOn() begin
-                    db.twoColumnModelAdapter.insert(
+                simpleModelAdapter.createTrigger("MyTrigger").after().insertOn() begin
+                    twoColumnModelAdapter.insert(
                         TwoColumnModel_Table.name to NameAlias.ofTable(
                             "new",
                             "name"
@@ -40,23 +40,23 @@ class TriggerTest : BaseUnitTest() {
 
     @Test
     fun validateUpdateTriggerMultiline() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             ("CREATE TEMP TRIGGER IF NOT EXISTS `MyTrigger` BEFORE UPDATE ON `SimpleModel` " +
                 "\nBEGIN" +
                 "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
                 "\nINSERT INTO `TwoColumnModel`(`id`) VALUES(CAST(`new`.`name` AS INTEGER));" +
                 "\nEND")
                 .assertEquals(
-                    db.simpleModelAdapter.createTrigger(
+                    simpleModelAdapter.createTrigger(
                         temporary = true,
                         name = "MyTrigger"
                     ).before().updateOn()
                         begin
-                        db.twoColumnModelAdapter.insert(
+                        twoColumnModelAdapter.insert(
                             TwoColumnModel_Table.name
                         ).values(NameAlias.ofTable("new", "name"))
                         and
-                        db.twoColumnModelAdapter.insert(TwoColumnModel_Table.id)
+                        twoColumnModelAdapter.insert(TwoColumnModel_Table.id)
                             .values(
                                 cast(TwoColumnModel_Table.name.withTable("new")).asInteger()
                             )

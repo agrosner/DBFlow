@@ -10,6 +10,8 @@ import com.dbflow5.query.innerJoin
 import com.dbflow5.query.leftOuterJoin
 import com.dbflow5.query.naturalJoin
 import com.dbflow5.query.select
+import com.dbflow5.simpleModelAdapter
+import com.dbflow5.twoColumnModelAdapter
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -18,7 +20,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun validateAliasJoin() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             assertEquals(
                 "SELECT * FROM `SimpleModel` " +
                     "INNER JOIN `TwoColumnModel` AS `Name` " +
@@ -32,9 +34,9 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testInnerJoin() {
-        database<TestDatabase> { db ->
-            val join = db.simpleModelAdapter.select() innerJoin
-                db.twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
+        database<TestDatabase> {
+            val join = simpleModelAdapter.select() innerJoin
+                twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
                 .eq(SimpleModel_Table.name)
             assertEquals(
                 "SELECT * FROM `SimpleModel` " +
@@ -47,9 +49,9 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testLeftOuterJoin() {
-        database<TestDatabase> { db ->
-            val join = db.simpleModelAdapter.select() leftOuterJoin
-                db.twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
+        database<TestDatabase> {
+            val join = simpleModelAdapter.select() leftOuterJoin
+                twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
                 .eq(SimpleModel_Table.name)
             assertEquals(
                 "SELECT * FROM `SimpleModel` " +
@@ -62,8 +64,8 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testCrossJoin() {
-        database<TestDatabase> { db ->
-            val join = db.simpleModelAdapter.select() crossJoin
+        database<TestDatabase> {
+            val join = simpleModelAdapter.select() crossJoin
                 db.twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
                 .eq(SimpleModel_Table.name)
             assertEquals(
@@ -77,11 +79,11 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testMultiJoin() {
-        database<TestDatabase> { db ->
-            val join = db.simpleModelAdapter.select() innerJoin
-                db.twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
+        database<TestDatabase> {
+            val join = simpleModelAdapter.select() innerJoin
+                twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
                 .eq(SimpleModel_Table.name) crossJoin
-                db.twoColumnModelAdapter on TwoColumnModel_Table.id.withTable()
+                twoColumnModelAdapter on TwoColumnModel_Table.id.withTable()
                 .eq(SimpleModel_Table.name)
             assertEquals(
                 "SELECT * FROM `SimpleModel` " +
@@ -96,9 +98,9 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testInnerJoinOnUsing() {
-        database<TestDatabase> { db ->
-            val join = db.simpleModelAdapter.select() innerJoin
-                db.twoColumnModelAdapter using SimpleModel_Table.name.withTable()
+        database<TestDatabase> {
+            val join = simpleModelAdapter.select() innerJoin
+                twoColumnModelAdapter using SimpleModel_Table.name.withTable()
             assertEquals(
                 "SELECT * FROM `SimpleModel` INNER JOIN `TwoColumnModel` USING (`SimpleModel`.`name`)",
                 join.query.trim()
@@ -108,9 +110,8 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testNaturalJoin() {
-        database<TestDatabase> { db ->
-            val join = (db.simpleModelAdapter.select() naturalJoin
-                db.twoColumnModelAdapter)
+        database<TestDatabase> {
+            val join = (simpleModelAdapter.select() naturalJoin twoColumnModelAdapter)
             assertEquals(
                 "SELECT * FROM `SimpleModel` NATURAL JOIN `TwoColumnModel`",
                 join.query.trim()

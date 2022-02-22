@@ -1,5 +1,6 @@
 package com.dbflow5.database.scope
 
+import com.dbflow5.adapter2.ModelAdapter
 import com.dbflow5.adapter2.QueryRepresentable
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.CountResultFactory
@@ -32,6 +33,7 @@ interface ReadableQueriableScope {
 
     suspend fun <Result> ExecutableQuery<Result>.execute(): Result
 
+    suspend fun <Table : Any> ModelAdapter<Table>.exists(model: Table): Boolean
 }
 
 interface WritableQueriableScope : ReadableQueriableScope

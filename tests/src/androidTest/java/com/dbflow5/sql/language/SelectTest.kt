@@ -10,6 +10,8 @@ import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.`as`
 import com.dbflow5.query.innerJoin
 import com.dbflow5.query.select
+import com.dbflow5.simpleModelAdapter
+import com.dbflow5.twoColumnModelAdapter
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -18,9 +20,9 @@ class SelectTest : BaseUnitTest() {
 
     @Test
     fun validateSelect() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             "SELECT `name`, `id` FROM `TwoColumnModel`".assertEquals(
-                db.twoColumnModelAdapter.select(
+                twoColumnModelAdapter.select(
                     TwoColumnModel_Table.name,
                     TwoColumnModel_Table.id
                 )
@@ -30,27 +32,27 @@ class SelectTest : BaseUnitTest() {
 
     @Test
     fun validateSelectDistinct() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             "SELECT DISTINCT `name` FROM `SimpleModel`".assertEquals(
-                db.simpleModelAdapter.select(TwoColumnModel_Table.name).distinct()
+                simpleModelAdapter.select(TwoColumnModel_Table.name).distinct()
             )
         }
     }
 
     @Test
     fun validateSimpleSelect() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             // compatibility notation
             val expected = "SELECT * FROM `SimpleModel`"
             assertEquals(
                 expected,
-                db.simpleModelAdapter.select().query.trim()
+                simpleModelAdapter.select().query.trim()
             )
 
             // compatibility notation
             assertEquals(
                 expected,
-                (select from db.simpleModelAdapter).query.trim()
+                (select from simpleModelAdapter).query.trim()
             )
             // table compatibility
             assertEquals(
@@ -62,20 +64,20 @@ class SelectTest : BaseUnitTest() {
 
     @Test
     fun validateProjectionFrom() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             assertEquals(
                 "SELECT `name` FROM `SimpleModel`",
-                db.simpleModelAdapter.select(SimpleModel_Table.name).query.trim()
+                simpleModelAdapter.select(SimpleModel_Table.name).query.trim()
             )
         }
     }
 
     @Test
     fun validateMultipleProjection() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             assertEquals(
                 "SELECT `name`, `name`, `id` FROM `SimpleModel`",
-                db.simpleModelAdapter.select(
+                simpleModelAdapter.select(
                     SimpleModel_Table.name,
                     TwoColumnModel_Table.name,
                     TwoColumnModel_Table.id
@@ -86,29 +88,29 @@ class SelectTest : BaseUnitTest() {
 
     @Test
     fun validateAlias() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             assertEquals(
                 "SELECT * FROM `SimpleModel` AS `Simple`",
-                (db.simpleModelAdapter.select() `as` "Simple").query.trim()
+                (simpleModelAdapter.select() `as` "Simple").query.trim()
             )
         }
     }
 
     @Test
     fun validateJoins() {
-        val database = database<TestDatabase>()
-
-        val from = (
-            database.simpleModelAdapter.select()
-                innerJoin database.twoColumnModelAdapter
-                on SimpleModel_Table.name.eq(TwoColumnModel_Table.name.withTable())
+        database<TestDatabase> {
+            val from = (
+                simpleModelAdapter.select()
+                    innerJoin twoColumnModelAdapter
+                    on SimpleModel_Table.name.eq(TwoColumnModel_Table.name.withTable())
+                )
+            assertEquals(
+                "SELECT * FROM `SimpleModel` " +
+                    "INNER JOIN `TwoColumnModel` " +
+                    "ON `name` = `TwoColumnModel`.`name`",
+                from.query.trim()
             )
-        assertEquals(
-            "SELECT * FROM `SimpleModel` " +
-                "INNER JOIN `TwoColumnModel` " +
-                "ON `name` = `TwoColumnModel`.`name`",
-            from.query.trim()
-        )
-        assertTrue(from.associatedAdapters.isNotEmpty())
+            assertTrue(from.associatedAdapters.isNotEmpty())
+        }
     }
 }

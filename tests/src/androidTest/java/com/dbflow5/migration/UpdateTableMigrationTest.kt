@@ -15,7 +15,7 @@ class UpdateTableMigrationTest : BaseUnitTest() {
 
     @Test
     fun testUpdateMigrationQuery() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             val update = UpdateTableMigration { db.simpleModelAdapter }
             update.set(SimpleModel_Table.name.eq("yes"))
             update.migrate(db)

@@ -11,6 +11,7 @@ import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.collate
 import com.dbflow5.query.operations.operator
 import com.dbflow5.query.select
+import com.dbflow5.simpleModelAdapter
 import org.junit.Test
 
 class OperatorTest : BaseUnitTest() {
@@ -59,11 +60,11 @@ class OperatorTest : BaseUnitTest() {
 
     @Test
     fun testIn() {
-        database<TestDatabase> { db ->
+        database<TestDatabase> {
             "`id` IN(5,6,7,8,9)".assertEquals(TwoColumnModel_Table.id.`in`(5, 6, 7, 8, 9))
             "`id` NOT IN(SELECT * FROM `SimpleModel`)".assertEquals(
                 TwoColumnModel_Table.id.notIn(
-                    select from db.simpleModelAdapter
+                    select from simpleModelAdapter
                 )
             )
         }

@@ -15,5 +15,4 @@ interface WritableScope {
     suspend fun <T : Any> ModelAdapter<T>.updateAll(models: Collection<T>): Collection<T>
     suspend fun <T : Any> ModelAdapter<T>.delete(model: T): T
     suspend fun <T : Any> ModelAdapter<T>.deleteAll(models: Collection<T>): Collection<T>
-    suspend fun <T : Any> ModelAdapter<T>.exists(model: T): Boolean
 }
