@@ -109,4 +109,6 @@ object ClassNames {
 
     val TableSQL = ClassName(PackageNames.Adapter2, "TableSQL")
     val CompilableQuery = ClassName(PackageNames.Adapter2, "CompilableQuery")
+
+    val DBSettings = ClassName(PackageNames.DatabaseConfig, "DBSettings")
 }

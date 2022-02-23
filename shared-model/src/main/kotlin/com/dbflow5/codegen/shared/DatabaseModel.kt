@@ -4,6 +4,7 @@ import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.properties.DatabaseProperties
 import com.dbflow5.codegen.shared.properties.TableProperties
+import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
 
 /**
@@ -11,7 +12,7 @@ import com.squareup.kotlinpoet.TypeName
  */
 data class DatabaseModel(
     val name: NameModel,
-    val classType: TypeName,
+    val classType: ClassName,
     val properties: DatabaseProperties,
     val tables: List<ClassModel> = listOf(),
     val views: List<ClassModel> = listOf(),

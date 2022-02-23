@@ -1,5 +1,8 @@
 package com.dbflow5.database
 
+import com.dbflow5.config.FlowManager
+import com.dbflow5.config.GeneratedDatabase
+
 interface OpenHelperDelegate {
     val database: DatabaseWrapper
     val delegate: DatabaseHelperDelegate?
@@ -25,3 +28,10 @@ interface OpenHelper : OpenHelperDelegate {
 
     fun deleteDB()
 }
+
+/**
+ * Creates default open helper.
+ */
+@Suppress("FunctionName")
+fun OpenHelper(db: GeneratedDatabase, callback: DatabaseCallback?) =
+    AndroidSQLiteOpenHelper(FlowManager.context, db, callback)

@@ -261,6 +261,7 @@ abstract class TestDatabase : DBFlowDatabase() {
 
         }
     }
+
 }
 
 @Database(

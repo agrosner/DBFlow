@@ -2,17 +2,16 @@ package com.dbflow5.config
 
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.opts.InternalDBFlowApi
-import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.OpenHelper
+import com.dbflow5.database.config.DBSettings
 import com.dbflow5.database.scope.ReadableDatabaseScope
 import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.migration.Migration
 import com.dbflow5.observing.TableObserver
-import com.dbflow5.runtime.DirectModelNotifier
 import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.transaction.SuspendableTransaction
 import com.dbflow5.transaction.Transaction
@@ -22,11 +21,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.io.Closeable
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.reflect.KClass
 
-interface GeneratedDatabase : DatabaseWrapper {
+interface GeneratedDatabase : DatabaseWrapper, Closeable {
     override val generatedDatabase: GeneratedDatabase
         get() = this
 
@@ -80,7 +80,7 @@ interface GeneratedDatabase : DatabaseWrapper {
     @InternalDBFlowApi
     val associatedDatabaseClassFile: KClass<*>
 
-    fun close()
+    override fun close()
 
     fun destroy()
 }
@@ -90,6 +90,12 @@ interface GeneratedDatabase : DatabaseWrapper {
  * pass in for operations and [Transaction].
  */
 abstract class DBFlowDatabase : GeneratedDatabase {
+
+    /**
+     * Created by code generation. Do not implement this directly.
+     */
+    @InternalDBFlowApi
+    abstract val settings: DBSettings
 
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
 
@@ -101,7 +107,8 @@ abstract class DBFlowDatabase : GeneratedDatabase {
     /**
      * Allows for the app to listen for database changes.
      */
-    private val callback: DatabaseCallback? by lazy { databaseConfig?.callback }
+    private val callback: DatabaseCallback?
+        get() = settings.databaseCallback
 
     /**
      * Used when resetting the DB
@@ -112,20 +119,10 @@ abstract class DBFlowDatabase : GeneratedDatabase {
      * Coroutine dispatcher, TODO: move to constructor / config.
      */
     override val transactionDispatcher: TransactionDispatcher by lazy {
-        databaseConfig.let { databaseConfig ->
-            if (databaseConfig?.transactionDispatcherFactory == null) {
-                TransactionDispatcher()
-            } else {
-                databaseConfig.transactionDispatcherFactory.create()
-            }
-        }
+        settings.transactionDispatcherFactory.create()
     }
 
     override val enqueueScope by lazy { CoroutineScope(transactionDispatcher.dispatcher) }
-
-    private var databaseConfig: DatabaseConfig? by MutableLazy {
-        FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
-    }
 
     override val migrations: Map<Int, List<Migration>>
         get() = migrationMap
@@ -140,26 +137,16 @@ abstract class DBFlowDatabase : GeneratedDatabase {
     internal var writeAheadLoggingEnabled = false
 
     val openHelper: OpenHelper by lazy {
-        var helper = _openHelper
-        if (helper == null) {
-            val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
-            helper = if (config?.openHelperCreator != null) {
-                config.openHelperCreator.createHelper(this, internalCallback)
-            } else {
-                AndroidSQLiteOpenHelper(FlowManager.context, this, internalCallback)
-            }
-            onOpenWithConfig(config, helper)
-        }
-        _openHelper = helper
-        return@lazy helper
+        settings.openHelperCreator.createHelper(this, internalCallback)
+            .also { onOpenWithConfig(settings, it) }
     }
 
-    private fun onOpenWithConfig(config: DatabaseConfig?, helper: OpenHelper) {
+    private fun onOpenWithConfig(settings: DBSettings, helper: OpenHelper) {
         runBlocking {
             helper.performRestoreFromBackup()
 
-            val wal = config != null &&
-                config.journalMode.adjustIfAutomatic(FlowManager.context) == JournalMode.WriteAheadLogging
+            val wal =
+                settings.journalMode.adjustIfAutomatic(FlowManager.context) == JournalMode.WriteAheadLogging
             helper.setWriteAheadLoggingEnabled(wal)
             writeAheadLoggingEnabled = wal
             isOpened = true
@@ -173,7 +160,7 @@ abstract class DBFlowDatabase : GeneratedDatabase {
      * @return The name of this database as defined in [Database]
      */
     override val databaseName: String
-        get() = databaseConfig?.databaseName ?: associatedDatabaseClassFile.simpleName!!
+        get() = settings.name
 
     /**
      * @return The file name that this database points to
@@ -184,17 +171,17 @@ abstract class DBFlowDatabase : GeneratedDatabase {
     /**
      * @return the extension for the file name.
      */
-    val databaseExtensionName: String
-        get() = databaseConfig?.databaseExtensionName ?: ".db"
+    private val databaseExtensionName: String
+        get() = settings.databaseExtensionName
 
     /**
      * @return True if the database will reside in memory.
      */
     override val isInMemory: Boolean
-        get() = databaseConfig?.isInMemory ?: false
+        get() = settings.inMemory
 
-    override val throwExceptionsOnCreate
-        get() = databaseConfig?.throwExceptionsOnCreate ?: true
+    override val throwExceptionsOnCreate: Boolean
+        get() = settings.throwExceptionsOnCreate
 
     /**
      * @return True if the database is ok. If backups are enabled, we restore from backup and will
@@ -214,78 +201,13 @@ abstract class DBFlowDatabase : GeneratedDatabase {
         })
     }
 
-    /**
-     * Applies a database configuration object to this class.
-     */
-    @Suppress("UNCHECKED_CAST")
-    private fun applyDatabaseConfig(databaseConfig: DatabaseConfig?) {
-        if (databaseConfig != null) {
-            // TODO: figure out configuration solution for multiple DBs.
-            /* // initialize configuration if exists.
-             val tableConfigCollection = databaseConfig.tableConfigMap.values
-             for (tableConfig in tableConfigCollection) {
-                 val modelAdapter: ModelAdapter<Any> =
-                     modelAdapterMap[tableConfig.tableClass] as ModelAdapter<Any>?
-                         ?: continue
-                 tableConfig.listModelLoader?.let { loader ->
-                     modelAdapter.listModelLoader = loader as ListModelLoader<Any>
-                 }
-                 tableConfig.singleModelLoader?.let { loader ->
-                     modelAdapter.singleModelLoader = loader as SingleModelLoader<Any>
-                 }
-                 tableConfig.modelSaver?.let { saver ->
-                     modelAdapter.modelSaver = saver as ModelSaver<Any>
-                 }
-             }*/
-        }
-    }
-
     protected fun addMigration(version: Int, migration: Migration) {
         val list = migrationMap.getOrPut(version) { arrayListOf() }
         list += migration
     }
 
     override val modelNotifier: ModelNotifier by lazy {
-        val config = FlowManager.getConfig().databaseConfigMap[associatedDatabaseClassFile]
-        if (config?.modelNotifier == null) {
-            DirectModelNotifier.get(this)
-        } else {
-            config.modelNotifier.invoke(this)
-        }
-    }
-
-    /**
-     * Performs a full deletion of this database. Reopens the [AndroidSQLiteOpenHelper] as well.
-     *
-     * Reapplies the [DatabaseConfig] if we have one.
-     * @param databaseConfig sets a new [DatabaseConfig] on this class.
-     */
-    @JvmOverloads
-    fun reset(databaseConfig: DatabaseConfig? = this.databaseConfig) {
-        if (!isResetting) {
-            destroy()
-            // reapply configuration before opening it.
-            this.databaseConfig = databaseConfig
-            openHelper.database
-        }
-    }
-
-    /**
-     * Reopens the DB with the new [DatabaseConfig] specified.
-     * Reapplies the [DatabaseConfig] if we have one.
-     *
-     * @param databaseConfig sets a new [DatabaseConfig] on this class.
-     */
-    @JvmOverloads
-    fun reopen(databaseConfig: DatabaseConfig? = this.databaseConfig) {
-        if (!isResetting) {
-            close()
-            _openHelper = null
-            isOpened = false
-            this.databaseConfig = databaseConfig
-            openHelper.database
-            isResetting = false
-        }
+        settings.modelNotifierFactory.create(this)
     }
 
     /**
@@ -303,7 +225,7 @@ abstract class DBFlowDatabase : GeneratedDatabase {
     }
 
     /**
-     * Closes the DB and stops the [BaseTransactionManager]
+     * Closes the DB and stops the [TransactionDispatcher]
      */
     override fun close() {
         transactionDispatcher.dispatcher.cancel()
@@ -319,7 +241,7 @@ abstract class DBFlowDatabase : GeneratedDatabase {
     }
 
     /**
-     * Saves the database as a backup on the [DefaultTransactionQueue]. This will
+     * Saves the database as a backup on the [enqueueScope]. This will
      * create a THIRD database to use as a backup to the backup in case somehow the overwrite fails.
      *
      * @throws java.lang.IllegalStateException if [Database.backupEnabled]
@@ -412,7 +334,7 @@ fun <DB : GeneratedDatabase, R : Any?> DB.beginTransactionAsync(transaction: Sus
     Transaction.Builder(transaction, this)
 
 /**
- * Runs the transaction within the [transactionDispatcher]
+ * Runs the transaction within the [TransactionDispatcher]
  */
 suspend fun <DB : GeneratedDatabase, R> DB.executeTransaction(transaction: SuspendableTransaction<DB, R>): R =
     transactionDispatcher.executeTransaction(this, transaction)

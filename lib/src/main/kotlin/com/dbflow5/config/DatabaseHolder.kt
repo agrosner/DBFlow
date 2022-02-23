@@ -16,7 +16,6 @@ interface DatabaseHolderFactory {
  */
 @Suppress("UNCHECKED_CAST")
 class DatabaseHolder(
-    val databases: Set<GeneratedDatabase>,
     val tables: Set<ModelAdapter<*>>,
     val views: Set<ViewAdapter<*>>,
     val queries: Set<QueryAdapter<*>>,
@@ -24,7 +23,6 @@ class DatabaseHolder(
 ) {
 
     constructor() : this(
-        databases = setOf(),
         tables = setOf(),
         views = setOf(),
         queries = setOf(),
@@ -34,7 +32,6 @@ class DatabaseHolder(
     private val modelAdapterMap = tables.associateBy { it.type }
     private val modelViewAdapterMap = views.associateBy { it.type }
     private val queryModelAdapterMap = queries.associateBy { it.type }
-    internal val databaseClassLookupMap = databases.associateBy { it.associatedDatabaseClassFile }
 
     /**
      * @param clazz The model value class to get a [TypeConverter]
@@ -42,9 +39,6 @@ class DatabaseHolder(
      */
     fun getTypeConverterForClass(clazz: KClass<*>): TypeConverter<*, *>? =
         typeConverters[clazz]
-
-    fun getDatabase(databaseClass: KClass<*>): GeneratedDatabase? =
-        databaseClassLookupMap[databaseClass]
 
     internal fun <T : Any> getModelAdapterByTableName(name: String): ModelAdapter<T> =
         modelAdapterMap.values.first { it.name == name } as ModelAdapter<T>
@@ -63,7 +57,6 @@ class DatabaseHolder(
      */
     operator fun plus(holder: DatabaseHolder): DatabaseHolder =
         DatabaseHolder(
-            databases = databases + holder.databases,
             tables = tables + holder.tables,
             views = views + holder.views,
             queries = queries + holder.queries,

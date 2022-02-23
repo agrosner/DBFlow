@@ -35,14 +35,6 @@ object FlowManager {
 
     private val loadedModules = hashSetOf<DatabaseHolderFactory>()
 
-    private val DEFAULT_DATABASE_HOLDER_NAME = "GeneratedDatabaseHolderFactory"
-
-    @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-    private val DEFAULT_DATABASE_HOLDER_PACKAGE_NAME = FlowManager::class.java.`package`.name
-
-    private val DEFAULT_DATABASE_HOLDER_CLASSNAME =
-        "$DEFAULT_DATABASE_HOLDER_PACKAGE_NAME.$DEFAULT_DATABASE_HOLDER_NAME"
-
     /**
      * Will throw an exception if this class is not initialized yet in [.init]
      *
@@ -73,11 +65,10 @@ object FlowManager {
     @JvmStatic
     fun <T : GeneratedDatabase> getDatabase(databaseClass: KClass<T>): T {
         checkDatabaseHolder()
-        return databaseHolder.getDatabase(databaseClass) as? T
-            ?: throw InvalidDBConfiguration(
-                "Database: ${databaseClass.simpleName} is not a registered Database. " +
-                    "Did you forget the @Database annotation?"
-            )
+        return throw InvalidDBConfiguration(
+            "Database: ${databaseClass.simpleName} is not a registered Database. " +
+                "Did you forget the @Database annotation?"
+        )
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -136,7 +127,6 @@ object FlowManager {
     @Synchronized
     @JvmStatic
     fun close() {
-        databaseHolder.databaseClassLookupMap.values.forEach { it.close() }
         config = null
         databaseHolder = DatabaseHolder()
         databaseHolderInitialized = false
@@ -163,34 +153,8 @@ object FlowManager {
      */
     @JvmStatic
     fun init(flowConfig: FlowConfig) {
-        config = config?.merge(flowConfig) ?: flowConfig
-
-        @Suppress("UNCHECKED_CAST")
-        try {
-            val defaultHolderClass =
-                Class.forName(DEFAULT_DATABASE_HOLDER_CLASSNAME) as Class<out DatabaseHolderFactory>
-            loadDatabaseHolder(defaultHolderClass.newInstance())
-        } catch (e: ModuleNotFoundException) {
-            // Ignore this exception sinc`e it means the application does not have its
-            // own database. The initialization happens because the application is using
-            // a module that has a database.
-            FlowLog.log(level = FlowLog.Level.W, message = e.message)
-        } catch (e: ClassNotFoundException) {
-            // warning if a library uses DBFlow with module support but the app you're using doesn't support it.
-            FlowLog.log(
-                level = FlowLog.Level.W,
-                message = "Could not find the default GeneratedDatabaseHolder"
-            )
-        }
-
-        flowConfig.databaseHolders.forEach { loadDatabaseHolder(it) }
-
-        if (flowConfig.openDatabasesOnInit) {
-            databaseHolder.databases.forEach {
-                // triggers open, create, migrations.
-                it.writableDatabase
-            }
-        }
+        config = (config?.merge(flowConfig) ?: flowConfig)
+            .also { it.databaseHolders.forEach(::loadDatabaseHolder) }
     }
 
     /**
@@ -212,7 +176,7 @@ object FlowManager {
     @JvmStatic
     @Synchronized
     fun destroy() {
-        databaseHolder.databaseClassLookupMap.values.forEach { it.destroy() }
+        //databaseHolder.databaseClassLookupMap.values.forEach { it.destroy() }
         config = null
         // Reset the global database holder.
         databaseHolder = DatabaseHolder()
@@ -315,9 +279,10 @@ object FlowManager {
 
 }
 
-/**
- * Easily get access to its [GeneratedDatabase] directly.
- */
+@Deprecated(
+    replaceWith = ReplaceWith(""),
+    message = "Use DI to provide DB instance"
+)
 inline fun <reified DB : GeneratedDatabase> database(fn: WritableDatabaseScope<DB>.() -> Unit = {}): DB =
     FlowManager.getDatabase(DB::class).apply { WritableDatabaseScope(this).fn() }
 

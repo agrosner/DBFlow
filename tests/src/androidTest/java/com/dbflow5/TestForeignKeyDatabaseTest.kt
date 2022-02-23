@@ -1,14 +1,18 @@
 package com.dbflow5
 
-import com.dbflow5.config.database
+import com.dbflow5.test.DatabaseTestRule
 import kotlinx.coroutines.test.runBlockingTest
+import org.junit.Rule
 import org.junit.Test
 
-class TestForeignKeyDatabaseTest : BaseUnitTest() {
+class TestForeignKeyDatabaseTest {
+
+    @get:Rule
+    val dbRule = DatabaseTestRule(TestForeignKeyDatabase_Database::create)
 
     @Test
     fun verifyDB() = runBlockingTest {
-        database<TestForeignKeyDatabase> {
+        dbRule {
             val enabled = longForQuery(db, "PRAGMA foreign_keys;")
             assert(enabled == 1L)
         }

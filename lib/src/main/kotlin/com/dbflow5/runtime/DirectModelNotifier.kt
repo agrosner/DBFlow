@@ -11,11 +11,7 @@ import kotlinx.coroutines.flow.filterNotNull
  * Description: Directly notifies about model changes. Users should use [.get] to use the shared
  * instance in [DatabaseConfig.Builder]
  */
-class DirectModelNotifier
-/**
- * Private constructor. Use shared [.get] to ensure singular instance.
- */
-private constructor(
+class DirectModelNotifier(
     override val db: GeneratedDatabase,
 ) : ModelNotifier {
 

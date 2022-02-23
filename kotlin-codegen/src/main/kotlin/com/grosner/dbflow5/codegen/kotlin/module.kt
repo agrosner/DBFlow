@@ -51,7 +51,7 @@ val codeGenModule = module {
             get(), get(), get(),
         )
     }
-    single { DatabaseWriter(get()) }
+    single { DatabaseWriter(get(), get()) }
     single { FieldPropertyWriter(get()) }
     single { DatabaseHolderWriter(get(), get(), get()) }
     single { TableSQLWriter(get(), get()) }

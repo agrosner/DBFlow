@@ -13,6 +13,7 @@ import com.dbflow5.stripQuotes
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LambdaTypeName
 import com.squareup.kotlinpoet.NameAllocator
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
@@ -34,7 +35,7 @@ class DatabaseHolderWriter(
                 model.name.shortName,
             ).stripQuotes()
         ).addType(
-            TypeSpec.classBuilder(
+            TypeSpec.objectBuilder(
                 model.properties.nameWithFallback(
                     model.name.shortName,
                 ).stripQuotes()
@@ -55,7 +56,6 @@ class DatabaseHolderWriter(
                         .addModifiers(KModifier.OVERRIDE)
                         .returns(ClassNames.DatabaseHolder)
                         .addCode("return %T(\n", ClassNames.DatabaseHolder)
-                        .addSuperGeneratedSet("databases", model.databases)
                         .addSuperGeneratedSet("tables", model.tables)
                         .addSuperGeneratedSet("views", model.views)
                         .addSuperGeneratedSet("queries", model.queries)
@@ -81,21 +81,16 @@ class DatabaseHolderWriter(
         model: DatabaseHolderModel,
     ) = apply {
         model.databases.forEach { db ->
-            val name =
-                nameAllocator.newName(
-                    db.generatedClassName.shortName.stripQuotes()
-                        .replaceFirstChar { it.lowercase() },
-                    db.generatedClassName,
-                )
-            addProperty(
-                PropertySpec.builder(
-                    name,
-                    ClassNames.DBFlowDatabase,
-                )
-                    .addModifiers(KModifier.PRIVATE)
-                    .initializer(
-                        "%T(${db.adapterFields.joinToString { "%L = %N" }})",
+            val name = nameAllocator[db.generatedClassName]
+            addFunction(
+                FunSpec.builder("${name}_factory")
+                    .addModifiers(KModifier.INTERNAL)
+                    .addParameter("settings", ClassNames.DBSettings)
+                    .returns(db.classType)
+                    .addStatement(
+                        "return %T(%L, ${db.adapterFields.joinToString { "%L = %N" }})",
                         db.generatedClassName.className,
+                        "settings",
                         *db.adapterFields
                             .map { fieldModel -> fieldModel.name.shortName to fieldModel.associatedClassModel }
                             .map { (name, type) -> name to nameAllocator[type.generatedClassName] }

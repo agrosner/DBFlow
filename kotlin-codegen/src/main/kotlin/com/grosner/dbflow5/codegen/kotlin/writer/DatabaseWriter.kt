@@ -5,11 +5,15 @@ import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.DatabaseModel
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
+import com.dbflow5.stripQuotes
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.LambdaTypeName
+import com.squareup.kotlinpoet.NameAllocator
+import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
@@ -23,9 +27,17 @@ import kotlin.reflect.KClass
  */
 class DatabaseWriter(
     private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
+    private val nameAllocator: NameAllocator,
 ) : TypeCreator<DatabaseModel, FileSpec> {
 
     override fun create(model: DatabaseModel): FileSpec {
+        val name =
+            nameAllocator.newName(
+                model.generatedClassName.shortName.stripQuotes()
+                    .replaceFirstChar { it.lowercase() },
+                model.generatedClassName,
+            )
+
         val associatedClassName = ParameterPropertySpec(
             name = "associatedDatabaseClassFile",
             type = KClass::class.asClassName()
@@ -49,6 +61,13 @@ class DatabaseWriter(
             defaultValue("%L", model.properties.foreignKeyConstraintsEnforced)
         }
 
+        val settings = ParameterPropertySpec(
+            name = "settings",
+            type = ClassNames.DBSettings,
+        ) {
+            addModifiers(KModifier.OVERRIDE)
+        }
+
         val adapterFields = model.adapterFields
             .map {
                 ParameterPropertySpec(
@@ -65,6 +84,7 @@ class DatabaseWriter(
                     TypeSpec.classBuilder(model.generatedClassName.className)
                         .primaryConstructor(
                             FunSpec.constructorBuilder()
+                                .addParameter(settings.parameterSpec)
                                 .addParameter(associatedClassName.parameterSpec)
                                 .addParameter(version.parameterSpec)
                                 .addParameter(foreignKeys.parameterSpec)
@@ -72,6 +92,33 @@ class DatabaseWriter(
                                 .build()
                         )
                         .apply {
+                            addType(
+                                TypeSpec.companionObjectBuilder()
+                                    .addFunction(
+                                        FunSpec.builder(
+                                            "create"
+                                        )
+                                            .addParameter(
+                                                ParameterSpec.builder(
+                                                    "settingsFn", LambdaTypeName.get(
+                                                        receiver = ClassNames.DBSettings,
+                                                        returnType = ClassNames.DBSettings
+                                                    )
+                                                )
+                                                    .defaultValue("{ this }")
+                                                    .build()
+                                            )
+                                            .addStatement(
+                                                "return %T.%N_factory(settings = %T(name = %S).settingsFn())",
+                                                ClassNames.GeneratedDatabaseHolderFactory,
+                                                name,
+                                                ClassNames.DBSettings,
+                                                model.name.shortName,
+                                            )
+                                            .build()
+                                    )
+                                    .build()
+                            )
                             model.originatingSource?.let {
                                 originatingFileTypeSpecAdder.addOriginatingFileType(
                                     this,
@@ -82,6 +129,7 @@ class DatabaseWriter(
                             addProperty(associatedClassName.propertySpec)
                             addProperty(version.propertySpec)
                             addProperty(foreignKeys.propertySpec)
+                            addProperty(settings.propertySpec)
                             addProperty(classProperty("queries", model.queries))
                             addProperty(classProperty("tables", model.tables))
                             addProperty(classProperty("views", model.views))
