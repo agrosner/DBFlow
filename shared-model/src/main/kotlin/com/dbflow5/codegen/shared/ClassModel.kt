@@ -159,16 +159,22 @@ val ClassModel.copySeparator
 fun ClassModel.tableReferences(referencesCache: ReferencesCache) = referenceFields
     .filter { referencesCache.isTable(it) || it.type == ReferenceHolderModel.Type.Reference }
 
-fun ClassModel.distinctAdapterGetters(referencesCache: ReferencesCache): List<GeneratedClassModel> {
-    val references = tableReferences(referencesCache)
-        .map { referencesCache.resolve(it) }
-        .toMutableList().apply {
-            val type = type
-            // add these to set.
-            if (type is ClassModel.Type.View) {
-                addAll(type.properties.adapterParams.map { it.associatedClassModel })
-            }
+fun ClassModel.distinctAdapterGetters(
+    referencesCache: ReferencesCache,
+    includeViewClassAdapters: Boolean = true
+): List<GeneratedClassModel> = tableReferences(referencesCache)
+    .map { referencesCache.resolve(it) }
+    .toMutableList<GeneratedClassModel>().apply {
+        // add these to set.
+        if (includeViewClassAdapters) {
+            addAll(distinctAdapterParameterGetters())
         }
-    return references
-        .distinctBy { it.generatedSuperClass }
-}
+    }.distinctBy { it.generatedSuperClass }
+
+fun ClassModel.distinctAdapterParameterGetters(): List<GeneratedClassModel> =
+    mutableListOf<GeneratedClassModel>().apply {
+        // add these to set.
+        if (type is ClassModel.Type.View) {
+            addAll(type.properties.adapterParams.map { it.associatedClassModel })
+        }
+    }.distinctBy { it.generatedSuperClass }

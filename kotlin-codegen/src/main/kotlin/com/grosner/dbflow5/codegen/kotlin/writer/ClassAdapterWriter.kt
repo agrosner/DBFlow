@@ -4,6 +4,7 @@ import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.distinctAdapterGetters
+import com.dbflow5.codegen.shared.distinctAdapterParameterGetters
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.properties.CreatableScopeProperties
 import com.dbflow5.codegen.shared.writer.TypeCreator
@@ -30,6 +31,9 @@ class ClassAdapterWriter(
     override fun create(model: ClassModel): FunSpec {
         val name = nameAllocator[model.generatedClassName]
         val adapters = model.distinctAdapterGetters(referencesCache)
+        val onlyAdapterGetters =
+            model.distinctAdapterGetters(referencesCache, includeViewClassAdapters = false)
+        val adapterParams = model.distinctAdapterParameterGetters()
         val config = createConfig(model)
         return FunSpec.builder(
             "${name}_${config.fieldName}"
@@ -47,10 +51,10 @@ class ClassAdapterWriter(
                     )
                 }
                 addCode(
-                    "return %M(ops = ${model.generatedFieldName}_%L(${adapters.joinToString { "%L" }}), \n",
+                    "return %M(ops = ${model.generatedFieldName}_%L(${onlyAdapterGetters.joinToString { "%L" }}), \n",
                     config.adapterCreator,
                     config.opsName,
-                    *adapters.map { "${it.generatedFieldName}Getter" }.toTypedArray(),
+                    *onlyAdapterGetters.map { "${it.generatedFieldName}Getter" }.toTypedArray(),
                 )
                 if (!model.isQuery) {
                     addCode("name = %S, \n", model.dbName)
@@ -65,8 +69,8 @@ class ClassAdapterWriter(
                     addCode("primaryModelClauseGetter = ${model.generatedFieldName}_primaryModelClauseGetter, \n")
                 } else if (model.isView) {
                     addCode(
-                        "creationLoader = ${model.generatedFieldName}_creationLoader(${adapters.joinToString { "%L" }}), \n",
-                        *adapters.map { "${it.generatedFieldName}Getter" }.toTypedArray(),
+                        "creationLoader = ${model.generatedFieldName}_creationLoader(${adapterParams.joinToString { "%L" }}), \n",
+                        *adapterParams.map { "${it.generatedFieldName}Getter" }.toTypedArray(),
                     )
                 }
                 addCode(")")
