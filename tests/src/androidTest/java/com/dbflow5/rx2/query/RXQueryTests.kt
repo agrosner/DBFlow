@@ -20,7 +20,7 @@ import org.junit.Test
 class RXQueryTests {
 
     @get:Rule
-    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
+    val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
     fun testCanQuery() = dbRule.runBlockingTest {

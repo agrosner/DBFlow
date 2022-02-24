@@ -17,7 +17,7 @@ class TempModel(@PrimaryKey var id: Int = 0)
 class TempModelTest {
 
     @get:Rule
-    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
+    val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
     fun createTempTable() = dbRule.runBlockingTest {

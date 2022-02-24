@@ -8,7 +8,7 @@ import kotlinx.coroutines.test.TestCoroutineDispatcher
  * Description: Provides [TestCoroutineDispatcher] wrapping.
  */
 class TestTransactionDispatcherFactory(
-    private val testDispatcher: TestCoroutineDispatcher,
+    private val testDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher(),
 ) : TransactionDispatcherFactory {
 
     override fun create(): TransactionDispatcher {

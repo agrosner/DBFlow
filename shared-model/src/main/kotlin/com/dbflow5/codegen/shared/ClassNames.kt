@@ -43,6 +43,9 @@ object ClassNames {
     ) = ClassName(PackageNames.Adapter2, "AutoIncrementUpdater")
         .parameterizedBy(tableTypeName)
 
+    fun dbCreator(databaseTypeName: TypeName) = ClassName(PackageNames.DatabaseConfig, "DBCreator")
+        .parameterizedBy(databaseTypeName)
+
     val QueryOpsImpl = ClassName(PackageNames.Adapter2, "QueryOpsImpl")
     val NotifyDistributor = ClassName(PackageNames.Runtime, "NotifyDistributor")
     val OperatorGroup = ClassName(PackageNames.QueryOperations, "OperatorGroup")

@@ -11,7 +11,7 @@ import org.junit.Test
 class ManyToManyTest {
 
     @get:Rule
-    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
+    val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
     fun testCanCreateManyToMany() = dbRule.runBlockingTest {

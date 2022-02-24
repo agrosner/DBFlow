@@ -94,10 +94,12 @@ class DatabaseWriter(
                         .apply {
                             addType(
                                 TypeSpec.companionObjectBuilder()
+                                    .addSuperinterface(ClassNames.dbCreator(model.classType))
                                     .addFunction(
                                         FunSpec.builder(
                                             "create"
                                         )
+                                            .addModifiers(KModifier.OVERRIDE)
                                             .addParameter(
                                                 ParameterSpec.builder(
                                                     "settingsFn", LambdaTypeName.get(
@@ -105,7 +107,6 @@ class DatabaseWriter(
                                                         returnType = ClassNames.DBSettings
                                                     )
                                                 )
-                                                    .defaultValue("{ this }")
                                                     .build()
                                             )
                                             .addStatement(

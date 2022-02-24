@@ -1,5 +1,6 @@
 package com.dbflow5.prepackaged
 
+import com.dbflow5.TestTransactionDispatcherFactory
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertTrue
@@ -12,17 +13,19 @@ import org.junit.Test
 class PrepackagedDBTest {
 
     @get:Rule
-    val prepackagedDBRule = DatabaseTestRule {
-        PrepackagedDB_Database.create {
-            copy(name = "prepackaged")
-        }
+    val prepackagedDBRule = DatabaseTestRule(PrepackagedDB_Database) {
+        copy(
+            name = "prepackaged",
+            transactionDispatcherFactory = TestTransactionDispatcherFactory()
+        )
     }
 
     @get:Rule
-    val migratedPrepackagedDBRule = DatabaseTestRule {
-        MigratedPrepackagedDB_Database.create {
-            copy(name = "prepackaged_2")
-        }
+    val migratedPrepackagedDBRule = DatabaseTestRule(MigratedPrepackagedDB_Database) {
+        copy(
+            name = "prepackaged_2",
+            transactionDispatcherFactory = TestTransactionDispatcherFactory()
+        )
     }
 
     @Test

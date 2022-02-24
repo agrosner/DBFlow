@@ -8,7 +8,7 @@ import org.junit.Test
 class TestForeignKeyDatabaseTest {
 
     @get:Rule
-    val dbRule = DatabaseTestRule(TestForeignKeyDatabase_Database::create)
+    val dbRule = DatabaseTestRule(TestForeignKeyDatabase_Database)
 
     @Test
     fun verifyDB() = runBlockingTest {

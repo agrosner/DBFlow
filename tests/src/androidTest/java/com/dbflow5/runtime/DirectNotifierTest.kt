@@ -12,7 +12,6 @@ import com.dbflow5.query.update
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.test.DatabaseTestRule
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -22,14 +21,8 @@ import kotlin.test.assertEquals
 class DirectNotifierTest {
 
     @get:Rule
-    val dbRule = DatabaseTestRule {
-        TestDatabase_Database.create {
-            copy(
-                transactionDispatcherFactory = TestTransactionDispatcherFactory(
-                    TestCoroutineDispatcher()
-                )
-            )
-        }
+    val dbRule = DatabaseTestRule(TestDatabase_Database) {
+        copy(transactionDispatcherFactory = TestTransactionDispatcherFactory())
     }
 
     @Test

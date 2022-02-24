@@ -20,7 +20,7 @@ class CurrencyDAOTest {
     val rxTestRule = RXTestRule()
 
     @get:Rule
-    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
+    val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Before
     fun setupTest() {

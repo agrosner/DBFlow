@@ -5,7 +5,6 @@ import com.dbflow5.TestTransactionDispatcherFactory
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -16,18 +15,14 @@ import org.junit.Test
 class CipherTest {
 
     @get:Rule
-    val cipherRule = DatabaseTestRule {
-        CipherDatabase_Database.create {
-            copy(
-                openHelperCreator = SQLCipherOpenHelper.createHelperCreator(
-                    DemoApp.context,
-                    "dbflow-rules"
-                ),
-                transactionDispatcherFactory = TestTransactionDispatcherFactory(
-                    TestCoroutineDispatcher()
-                )
-            )
-        }
+    val cipherRule = DatabaseTestRule(CipherDatabase_Database) {
+        copy(
+            openHelperCreator = SQLCipherOpenHelper.createHelperCreator(
+                DemoApp.context,
+                "dbflow-rules"
+            ),
+            transactionDispatcherFactory = TestTransactionDispatcherFactory(),
+        )
     }
 
     @Test

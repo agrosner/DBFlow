@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 class DeleteTest {
 
     @get:Rule
-    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
+    val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
     fun validateDeletion() = runBlockingTest {

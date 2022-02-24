@@ -23,7 +23,7 @@ class LiveDataTest {
     val rule: TestRule = InstantTaskExecutorRule()
 
     @get:Rule
-    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
+    val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
     fun live_data_executes_for_a_few_model_queries() = dbRule.runBlockingTest {

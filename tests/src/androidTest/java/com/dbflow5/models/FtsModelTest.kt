@@ -25,7 +25,7 @@ import kotlin.test.assertTrue
 class FtsModelTest {
 
     @get:Rule
-    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
+    val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
     fun validate_fts4_created() = runBlockingTest {

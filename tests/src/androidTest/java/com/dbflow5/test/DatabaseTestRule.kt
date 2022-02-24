@@ -6,6 +6,7 @@ import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.GeneratedDatabaseHolderFactory
+import com.dbflow5.database.config.DBCreator
 import com.dbflow5.database.config.DBSettings
 import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +25,16 @@ data class TestDatabaseScope<DB : DBFlowDatabase>(
 /**
  * Provides hook into specified DB.
  */
-class DatabaseTestRule<DB : DBFlowDatabase>(private val creator: (DBSettings.() -> DBSettings) -> DB) :
+class DatabaseTestRule<DB : DBFlowDatabase>(
+    private val creator: DBCreator<DB>,
+    /**
+     * Injects [TestTransactionDispatcherFactory] for settings. Typically don't override
+     * unless you want to change this field.
+     */
+    private val defaultSettingsCopy: DBSettings.() -> DBSettings = {
+        copy(transactionDispatcherFactory = TestTransactionDispatcherFactory())
+    },
+) :
     TestRule {
 
     lateinit var db: DB
@@ -49,13 +59,7 @@ class DatabaseTestRule<DB : DBFlowDatabase>(private val creator: (DBSettings.() 
                 }
                 Dispatchers.setMain(TestCoroutineDispatcher())
                 FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
-                creator {
-                    copy(
-                        transactionDispatcherFactory = TestTransactionDispatcherFactory(
-                            TestCoroutineDispatcher()
-                        )
-                    )
-                }.use {
+                creator.create(defaultSettingsCopy).use {
                     db = it
                     try {
                         base.evaluate()

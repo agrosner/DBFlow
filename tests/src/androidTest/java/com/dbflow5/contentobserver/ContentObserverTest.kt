@@ -25,21 +25,17 @@ class ContentObserverTest {
 
     @JvmField
     @Rule
-    var dbRule = DatabaseTestRule {
-        ContentObserverDatabase_Database.create {
-            copy(
-                modelNotifierFactory = {
-                    ContentResolverNotifier(
-                        DemoApp.context,
-                        "com.grosner.content",
-                        it
-                    )
-                },
-                transactionDispatcherFactory = TestTransactionDispatcherFactory(
-                    TestCoroutineDispatcher()
-                ),
-            )
-        }
+    var dbRule = DatabaseTestRule(ContentObserverDatabase_Database) {
+        copy(
+            modelNotifierFactory = {
+                ContentResolverNotifier(
+                    DemoApp.context,
+                    "com.grosner.content",
+                    it
+                )
+            },
+            transactionDispatcherFactory = TestTransactionDispatcherFactory(),
+        )
     }
 
     val contentUri = "com.grosner.content"

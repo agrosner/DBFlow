@@ -18,7 +18,7 @@ import org.junit.Test
 class OperatorTest {
 
     @get:Rule
-    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
+    val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     private val name = "name".nameAlias
 

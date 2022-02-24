@@ -19,7 +19,7 @@ import kotlin.test.assertEquals
 class JoinTest {
 
     @get:Rule
-    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
+    val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
     fun validateAliasJoin() {
