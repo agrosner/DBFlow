@@ -5,7 +5,6 @@ import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.autoIncrementingModelAdapter
 import com.dbflow5.test.DatabaseTestRule
-import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -19,21 +18,17 @@ class AutoIncrementTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database::create)
 
     @Test
-    fun testCanInsertAutoIncrement() = runBlockingTest {
-        dbRule {
-            val model = AutoIncrementingModel()
-            val incrementingModel = autoIncrementingModelAdapter.save(model)
-            assertEquals(1L, incrementingModel.id)
-        }
+    fun testCanInsertAutoIncrement() = dbRule.runBlockingTest {
+        val model = AutoIncrementingModel()
+        val incrementingModel = autoIncrementingModelAdapter.save(model)
+        assertEquals(1L, incrementingModel.id)
     }
 
     @Test
-    fun testCanInsertExistingIdAutoIncrement() = runBlockingTest {
-        dbRule {
-            val model = AutoIncrementingModel(3)
-            val incrementingModel = autoIncrementingModelAdapter.insert(model)
-            assertEquals(3L, incrementingModel.id)
-        }
+    fun testCanInsertExistingIdAutoIncrement() = dbRule.runBlockingTest {
+        val model = AutoIncrementingModel(3)
+        val incrementingModel = autoIncrementingModelAdapter.insert(model)
+        assertEquals(3L, incrementingModel.id)
     }
 }
 

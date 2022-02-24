@@ -1,10 +1,12 @@
 package com.dbflow5.test
 
 import androidx.test.platform.app.InstrumentationRegistry
+import com.dbflow5.TestTransactionDispatcherFactory
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.GeneratedDatabaseHolderFactory
+import com.dbflow5.database.config.DBSettings
 import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestCoroutineDispatcher
@@ -22,7 +24,7 @@ data class TestDatabaseScope<DB : DBFlowDatabase>(
 /**
  * Provides hook into specified DB.
  */
-class DatabaseTestRule<DB : DBFlowDatabase>(private val creator: () -> DB) :
+class DatabaseTestRule<DB : DBFlowDatabase>(private val creator: (DBSettings.() -> DBSettings) -> DB) :
     TestRule {
 
     lateinit var db: DB
@@ -47,12 +49,18 @@ class DatabaseTestRule<DB : DBFlowDatabase>(private val creator: () -> DB) :
                 }
                 Dispatchers.setMain(TestCoroutineDispatcher())
                 FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
-                creator().use {
+                creator {
+                    copy(
+                        transactionDispatcherFactory = TestTransactionDispatcherFactory(
+                            TestCoroutineDispatcher()
+                        )
+                    )
+                }.use {
                     db = it
                     try {
                         base.evaluate()
                     } finally {
-                        db.close()
+                        db.destroy()
                     }
                 }
             }

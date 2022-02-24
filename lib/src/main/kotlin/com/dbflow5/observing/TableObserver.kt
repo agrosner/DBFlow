@@ -244,7 +244,7 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
             // utilize raw query, since we're using dynamic tables not supported by query language.
             db.execSQL(
                 "CREATE TEMP TRIGGER IF NOT EXISTS ${getTriggerName(tableName, method.value)} " +
-                    "AFTER $method ON ${
+                    "AFTER ${method.value} ON ${
                         FlowManager.getTableName(tableName).quoteIfNeeded()
                     } BEGIN UPDATE $TABLE_OBSERVER_NAME " +
                     "SET $INVALIDATED_COLUMN_NAME = 1 " +

@@ -19,6 +19,11 @@ import kotlin.reflect.KClass
 @ExperimentalCoroutinesApi
 fun <Table : Any, Result, Q> Q.toFlow(
     db: GeneratedDatabase,
+    /**
+     * If true, we evaluate eagerly the query on collection. This may not be desired
+     * when retrieving non-null [SelectResult.single] operations if no results are found.
+     */
+    runQueryOnCollect: Boolean = true,
     selectResultFn: suspend SelectResult<Table>.() -> Result
 ): Flow<Result>
     where Q : ExecutableQuery<SelectResult<Table>>,
@@ -42,7 +47,9 @@ fun <Table : Any, Result, Q> Q.toFlow(
         observer.addOnTableChangedObserver(onTableChangedObserver)
 
         // trigger initial emission on active.
-        evaluateEmission()
+        if (runQueryOnCollect) {
+            evaluateEmission()
+        }
 
         awaitClose { observer.removeOnTableChangedObserver(onTableChangedObserver) }
     }

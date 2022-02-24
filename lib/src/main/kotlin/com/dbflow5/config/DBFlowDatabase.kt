@@ -34,6 +34,9 @@ interface GeneratedDatabase : DatabaseWrapper, Closeable {
     val transactionDispatcher: TransactionDispatcher
 
     @InternalDBFlowApi
+    val transactionId: ThreadLocal<Int>
+
+    @InternalDBFlowApi
     val modelNotifier: ModelNotifier
 
     @InternalDBFlowApi
@@ -121,6 +124,8 @@ abstract class DBFlowDatabase : GeneratedDatabase {
     override val transactionDispatcher: TransactionDispatcher by lazy {
         settings.transactionDispatcherFactory.create()
     }
+
+    override val transactionId = ThreadLocal<Int>()
 
     override val enqueueScope by lazy { CoroutineScope(transactionDispatcher.dispatcher) }
 

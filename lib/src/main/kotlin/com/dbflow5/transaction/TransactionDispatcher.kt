@@ -8,6 +8,7 @@ import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.asContextElement
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executors
@@ -58,9 +59,11 @@ internal class DefaultTransactionDispatcher(
         // reuse transaction if nesting calls.
         return withContext(
             transactionContext(
-                coroutineContext, if (transaction is Transaction<DB, *>) {
+                coroutineContext,
+                if (transaction is Transaction<DB, *>) {
                     transaction.name
-                } else null
+                } else null,
+                transactionId = db.transactionId,
             )
         ) {
             coroutineContext.acquireTransaction {
@@ -77,11 +80,13 @@ internal class DefaultTransactionDispatcher(
 internal suspend fun TransactionDispatcher.transactionContext(
     coroutineContext: CoroutineContext,
     coroutineName: String?,
+    transactionId: ThreadLocal<Int>,
 ) = (coroutineContext[TransactionElement]?.transactionDispatcher
-    ?: createTransactionContext(coroutineName))
+    ?: createTransactionContext(coroutineName, transactionId))
 
 private suspend fun TransactionDispatcher.createTransactionContext(
     coroutineName: String?,
+    transactionId: ThreadLocal<Int>,
 ): CoroutineContext {
     val controlJob = Job()
     // make sure to tie the control job to this context to avoid blocking the transaction if
@@ -92,7 +97,8 @@ private suspend fun TransactionDispatcher.createTransactionContext(
         controlJob.cancel()
     }
     val element = TransactionElement(controlJob, dispatcher)
-    val context = coroutineContext + element
+    val threadLocalElement = transactionId.asContextElement(System.identityHashCode(controlJob))
+    val context = dispatcher + element + threadLocalElement
     //
     if (!coroutineName.isNullOrEmpty()) {
         return context + CoroutineName(coroutineName)

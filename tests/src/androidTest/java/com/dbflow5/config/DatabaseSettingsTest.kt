@@ -1,5 +1,6 @@
 package com.dbflow5.config
 
+import com.dbflow5.DemoApp
 import com.dbflow5.TestDatabase_Database
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.OpenHelper
@@ -14,6 +15,7 @@ class DatabaseSettingsTest {
 
     @Test
     fun test_databaseConfig() {
+        FlowManager.init(DemoApp.context)
 
         val databaseCallback = object : DatabaseCallback {}
         val customOpenHelper = mock<OpenHelper>()
@@ -35,6 +37,8 @@ class DatabaseSettingsTest {
                 openHelperCreator = openHelperCreator,
             )
         }
+        // force initialize it.
+        db.transactionDispatcher
 
         assertEquals("Test", db.databaseName)
         assertEquals(".db", db.databaseExtensionName)

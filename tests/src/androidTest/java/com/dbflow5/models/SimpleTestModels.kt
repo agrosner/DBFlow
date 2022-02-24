@@ -52,7 +52,7 @@ class NumberModel(@PrimaryKey var id: Int = 0)
 class CharModel(@PrimaryKey var id: Int = 0, @Column var exampleChar: Char? = null)
 
 @Table
-class TwoColumnModel(
+data class TwoColumnModel(
     @PrimaryKey var name: String? = "",
     @Column(defaultValue = "56") var id: Int = 0
 )
