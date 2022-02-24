@@ -1,9 +1,7 @@
 package com.dbflow5.sql.language.property
 
-import com.dbflow5.BaseUnitTest
-import com.dbflow5.TestDatabase
+import com.dbflow5.TestDatabase_Database
 import com.dbflow5.assertEquals
-import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.nameAlias
@@ -14,16 +12,19 @@ import com.dbflow5.query.operations.like
 import com.dbflow5.query.operations.match
 import com.dbflow5.query.operations.notLike
 import com.dbflow5.query.operations.property
+import com.dbflow5.simpleModelAdapter
+import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 
-class PropertyTest : BaseUnitTest() {
+class PropertyTest {
 
-    private val simpleModelAdapter
-        get() = database<TestDatabase>().simpleModelAdapter
+    @get:Rule
+    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
 
     @Test
-    fun testOperators() {
+    fun testOperators() = dbRule {
         val prop: PropertyStart<String, SimpleModel> = simpleModelAdapter.property("Prop".nameAlias)
         "`Prop` = '5'".assertEquals(prop eq "5")
         "`Prop` != '5'".assertEquals(prop notEq "5")
@@ -42,7 +43,7 @@ class PropertyTest : BaseUnitTest() {
     }
 
     @Test
-    fun testAlias() {
+    fun testAlias() = dbRule {
         val prop = simpleModelAdapter.property<String, SimpleModel>("Prop".nameAlias).`as`("Alias")
         assertEquals("`Prop` AS `Alias`", prop.query)
 

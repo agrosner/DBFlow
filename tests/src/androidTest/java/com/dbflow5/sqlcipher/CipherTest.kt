@@ -1,11 +1,9 @@
 package com.dbflow5.sqlcipher
 
-import com.dbflow5.DBFlowInstrumentedTestRule
 import com.dbflow5.DemoApp
-import com.dbflow5.config.database
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
-import kotlinx.coroutines.test.runBlockingTest
+import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -15,30 +13,29 @@ import org.junit.Test
  */
 class CipherTest {
 
-    @JvmField
-    @Rule
-    var dblflowTestRule = DBFlowInstrumentedTestRule.create {
-        database<CipherDatabase>(
-            openHelperCreator = SQLCipherOpenHelper.createHelperCreator(
-                DemoApp.context,
-                "dbflow-rules"
+    @get:Rule
+    val cipherRule = DatabaseTestRule {
+        CipherDatabase_Database.create {
+            copy(
+                openHelperCreator = SQLCipherOpenHelper.createHelperCreator(
+                    DemoApp.context,
+                    "dbflow-rules"
+                )
             )
-        )
+        }
     }
 
     @Test
-    fun testCipherModel() = runBlockingTest {
-        database<CipherDatabase> {
-            cipherAdapter.delete().execute()
-            val model =
-                cipherAdapter.save(CipherModel(name = "name"))
-            assertTrue(cipherAdapter.exists(model))
+    fun testCipherModel() = cipherRule.runBlockingTest {
+        cipherAdapter.delete().execute()
+        val model =
+            cipherAdapter.save(CipherModel(name = "name"))
+        assertTrue(cipherAdapter.exists(model))
 
-            val retrieval = (cipherAdapter.select()
-                where CipherModel_Table.name.eq("name"))
-                .single()
-            assertTrue(retrieval.id == model.id)
-            cipherAdapter.delete().execute()
-        }
+        val retrieval = (cipherAdapter.select()
+            where CipherModel_Table.name.eq("name"))
+            .single()
+        assertTrue(retrieval.id == model.id)
+        cipherAdapter.delete().execute()
     }
 }

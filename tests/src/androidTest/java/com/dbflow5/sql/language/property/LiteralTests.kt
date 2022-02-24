@@ -1,18 +1,22 @@
 package com.dbflow5.sql.language.property
 
-import com.dbflow5.BaseUnitTest
-import com.dbflow5.TestDatabase
-import com.dbflow5.config.database
+import com.dbflow5.TestDatabase_Database
 import com.dbflow5.query.operations.literalOf
 import com.dbflow5.query.operations.sqlLiteralOf
 import com.dbflow5.query.select
+import com.dbflow5.simpleModelAdapter
+import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 
-class LiteralTests : BaseUnitTest() {
+class LiteralTests {
+
+    @get:Rule
+    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
 
     @Test
-    fun testPrimitives() {
+    fun testPrimitives() = dbRule {
         assertEquals("'c'", sqlLiteralOf('c').query)
         assertEquals("5", sqlLiteralOf(5).query)
         assertEquals("5.0", sqlLiteralOf(5.0).query)
@@ -25,7 +29,7 @@ class LiteralTests : BaseUnitTest() {
 
         assertEquals(
             "SELECT * FROM `SimpleModel`",
-            sqlLiteralOf(database<TestDatabase>().simpleModelAdapter.select()).query
+            sqlLiteralOf(simpleModelAdapter.select()).query
         )
         assertEquals("SomethingCool", literalOf("SomethingCool").query)
     }

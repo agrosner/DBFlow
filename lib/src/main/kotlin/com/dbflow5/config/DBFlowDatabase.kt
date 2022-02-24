@@ -171,7 +171,7 @@ abstract class DBFlowDatabase : GeneratedDatabase {
     /**
      * @return the extension for the file name.
      */
-    private val databaseExtensionName: String
+    val databaseExtensionName: String
         get() = settings.databaseExtensionName
 
     /**

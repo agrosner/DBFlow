@@ -1,11 +1,10 @@
 package com.dbflow5.models
 
-import com.dbflow5.BaseUnitTest
 import com.dbflow5.assertEquals
 import com.dbflow5.models.java.JavaModelView
 import org.junit.Test
 
-class ModelViewTest : BaseUnitTest() {
+class ModelViewTest {
 
     @Test
     fun validateModelViewQuery() {

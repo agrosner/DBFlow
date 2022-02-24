@@ -6,6 +6,7 @@ import com.dbflow5.codegen.shared.properties.DatabaseProperties
 import com.dbflow5.codegen.shared.properties.TableProperties
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
+import java.lang.IllegalArgumentException
 
 /**
  * Description:
@@ -97,9 +98,9 @@ private fun primeAdapterFields(
             ClassAdapterFieldModel.Type.Query -> queries.first {
                 fieldModel.associateClassModel(it)
             }
-            ClassAdapterFieldModel.Type.View -> views.first {
+            ClassAdapterFieldModel.Type.View -> views.firstOrNull {
                 fieldModel.associateClassModel(it)
-            }
+            }?: throw IllegalArgumentException("Missing ${views.map { it.classType }}")
         }
         fieldModel
     }

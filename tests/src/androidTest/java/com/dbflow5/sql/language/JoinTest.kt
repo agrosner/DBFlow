@@ -1,8 +1,6 @@
 package com.dbflow5.sql.language
 
-import com.dbflow5.BaseUnitTest
-import com.dbflow5.TestDatabase
-import com.dbflow5.config.database
+import com.dbflow5.TestDatabase_Database
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.crossJoin
@@ -11,16 +9,21 @@ import com.dbflow5.query.leftOuterJoin
 import com.dbflow5.query.naturalJoin
 import com.dbflow5.query.select
 import com.dbflow5.simpleModelAdapter
+import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.twoColumnModelAdapter
+import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
 
 
-class JoinTest : BaseUnitTest() {
+class JoinTest {
+
+    @get:Rule
+    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
 
     @Test
     fun validateAliasJoin() {
-        database<TestDatabase> {
+        dbRule {
             assertEquals(
                 "SELECT * FROM `SimpleModel` " +
                     "INNER JOIN `TwoColumnModel` AS `Name` " +
@@ -34,7 +37,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testInnerJoin() {
-        database<TestDatabase> {
+        dbRule {
             val join = simpleModelAdapter.select() innerJoin
                 twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
                 .eq(SimpleModel_Table.name)
@@ -49,7 +52,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testLeftOuterJoin() {
-        database<TestDatabase> {
+        dbRule {
             val join = simpleModelAdapter.select() leftOuterJoin
                 twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
                 .eq(SimpleModel_Table.name)
@@ -64,7 +67,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testCrossJoin() {
-        database<TestDatabase> {
+        dbRule {
             val join = simpleModelAdapter.select() crossJoin
                 db.twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
                 .eq(SimpleModel_Table.name)
@@ -79,7 +82,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testMultiJoin() {
-        database<TestDatabase> {
+        dbRule {
             val join = simpleModelAdapter.select() innerJoin
                 twoColumnModelAdapter on TwoColumnModel_Table.name.withTable()
                 .eq(SimpleModel_Table.name) crossJoin
@@ -98,7 +101,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testInnerJoinOnUsing() {
-        database<TestDatabase> {
+        dbRule {
             val join = simpleModelAdapter.select() innerJoin
                 twoColumnModelAdapter using SimpleModel_Table.name.withTable()
             assertEquals(
@@ -110,7 +113,7 @@ class JoinTest : BaseUnitTest() {
 
     @Test
     fun testNaturalJoin() {
-        database<TestDatabase> {
+        dbRule {
             val join = (simpleModelAdapter.select() naturalJoin twoColumnModelAdapter)
             assertEquals(
                 "SELECT * FROM `SimpleModel` NATURAL JOIN `TwoColumnModel`",

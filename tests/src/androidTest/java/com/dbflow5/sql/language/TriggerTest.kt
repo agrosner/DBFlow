@@ -1,10 +1,7 @@
 package com.dbflow5.sql.language
 
-import com.dbflow5.BaseUnitTest
-import com.dbflow5.TestDatabase
+import com.dbflow5.TestDatabase_Database
 import com.dbflow5.assertEquals
-import com.dbflow5.config.database
-import com.dbflow5.config.writableTransaction
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
@@ -13,16 +10,21 @@ import com.dbflow5.query.insert
 import com.dbflow5.query.methods.cast
 import com.dbflow5.query.select
 import com.dbflow5.simpleModelAdapter
+import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.twoColumnModelAdapter
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertNotNull
+import org.junit.Rule
 import org.junit.Test
 
-class TriggerTest : BaseUnitTest() {
+class TriggerTest {
+
+    @get:Rule
+    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
 
     @Test
-    fun validateBasicTrigger() {
-        database<TestDatabase> {
+    fun validateBasicTrigger() = runBlockingTest {
+        dbRule {
             ("CREATE TRIGGER IF NOT EXISTS `MyTrigger` AFTER INSERT ON `SimpleModel` " +
                 "\nBEGIN" +
                 "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
@@ -39,8 +41,8 @@ class TriggerTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateUpdateTriggerMultiline() {
-        database<TestDatabase> {
+    fun validateUpdateTriggerMultiline() = runBlockingTest {
+        dbRule {
             ("CREATE TEMP TRIGGER IF NOT EXISTS `MyTrigger` BEFORE UPDATE ON `SimpleModel` " +
                 "\nBEGIN" +
                 "\nINSERT INTO `TwoColumnModel`(`name`) VALUES(`new`.`name`);" +
@@ -66,22 +68,20 @@ class TriggerTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateTriggerWorks() = runBlockingTest {
-        database<TestDatabase>().writableTransaction {
-            val trigger = simpleModelAdapter.createTrigger("MyTrigger").after().insertOn() begin
-                twoColumnModelAdapter.insert(
-                    TwoColumnModel_Table.name to NameAlias.ofTable(
-                        "new",
-                        "name"
-                    ),
-                    TwoColumnModel_Table.id to 1,
-                )
-            trigger.execute()
-            simpleModelAdapter.insert(SimpleModel("Test"))
+    fun validateTriggerWorks() = dbRule.runBlockingTest {
+        val trigger = simpleModelAdapter.createTrigger("MyTrigger").after().insertOn() begin
+            twoColumnModelAdapter.insert(
+                TwoColumnModel_Table.name to NameAlias.ofTable(
+                    "new",
+                    "name"
+                ),
+                TwoColumnModel_Table.id to 1,
+            )
+        trigger.execute()
+        simpleModelAdapter.insert(SimpleModel("Test"))
 
-            val result =
-                select from twoColumnModelAdapter where (TwoColumnModel_Table.name eq "Test")
-            assertNotNull(result)
-        }
+        val result =
+            select from twoColumnModelAdapter where (TwoColumnModel_Table.name eq "Test")
+        assertNotNull(result)
     }
 }

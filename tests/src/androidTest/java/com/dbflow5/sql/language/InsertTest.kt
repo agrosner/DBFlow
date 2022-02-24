@@ -1,12 +1,10 @@
 package com.dbflow5.sql.language
 
-import com.dbflow5.BaseUnitTest
-import com.dbflow5.TestDatabase
+import com.dbflow5.TestDatabase_Database
 import com.dbflow5.assertEquals
-import com.dbflow5.config.database
 import com.dbflow5.models.TwoColumnModel_Table
-import com.dbflow5.query.NameAlias
 import com.dbflow5.query.ColumnValue
+import com.dbflow5.query.NameAlias
 import com.dbflow5.query.insert
 import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.operator
@@ -16,19 +14,20 @@ import com.dbflow5.query.orIgnore
 import com.dbflow5.query.orReplace
 import com.dbflow5.query.orRollback
 import com.dbflow5.query.select
+import com.dbflow5.simpleModelAdapter
+import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.twoColumnModelAdapter
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 
-class InsertTest : BaseUnitTest() {
+class InsertTest {
 
-    private val simpleModelAdapter
-        get() = database<TestDatabase>().simpleModelAdapter
-
-    private val twoColumnModelAdapter
-        get() = database<TestDatabase>().twoColumnModelAdapter
+    @get:Rule
+    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
 
     @Test
-    fun validateInsert() {
+    fun validateInsert() = dbRule {
         assertEquals(
             "INSERT INTO `SimpleModel` VALUES('something')",
             simpleModelAdapter.insert().values("something").query.trim()
@@ -36,7 +35,7 @@ class InsertTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateInsertOr() {
+    fun validateInsertOr() = dbRule {
         assertEquals(
             "INSERT OR REPLACE INTO `SimpleModel` VALUES('something')",
             simpleModelAdapter.insert().orReplace().values("something").query.trim()
@@ -64,13 +63,13 @@ class InsertTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateQuestionIntention() {
+    fun validateQuestionIntention() = dbRule {
         "INSERT INTO `SimpleModel` VALUES('?')"
             .assertEquals(simpleModelAdapter.insert().values("?"))
     }
 
     @Test
-    fun validateInsertProjection() {
+    fun validateInsertProjection() = dbRule {
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
             twoColumnModelAdapter.insert(
@@ -81,7 +80,7 @@ class InsertTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateSelect() {
+    fun validateSelect() = dbRule {
         assertEquals(
             "INSERT INTO `TwoColumnModel` SELECT * FROM `SimpleModel`",
             twoColumnModelAdapter.insert().select(simpleModelAdapter.select()).query.trim()
@@ -89,7 +88,7 @@ class InsertTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateColumns() {
+    fun validateColumns() = dbRule {
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 'id')",
             twoColumnModelAdapter.insert(
@@ -106,7 +105,7 @@ class InsertTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateColumnValues() {
+    fun validateColumnValues() = dbRule {
         assertEquals(
             "INSERT INTO `TwoColumnModel`(`name`, `id`) VALUES('name', 0)",
             twoColumnModelAdapter.insert(

@@ -1,6 +1,7 @@
 package com.dbflow5.config
 
-import com.dbflow5.BaseUnitTest
+import android.content.Context
+import androidx.test.core.app.ApplicationProvider
 import com.dbflow5.TestDatabase
 import com.dbflow5.database.AndroidSQLiteOpenHelper
 import org.junit.Assert.assertEquals
@@ -9,10 +10,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-/**
- * Description:
- */
-class ConfigIntegrationTest : BaseUnitTest() {
+class ConfigIntegrationTest {
+
+    val context: Context
+        get() = ApplicationProvider.getApplicationContext()
 
     @Before
     fun setup() {

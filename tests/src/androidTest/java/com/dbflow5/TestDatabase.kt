@@ -1,21 +1,19 @@
 package com.dbflow5
 
 import com.dbflow5.adapter2.ModelAdapter
-import com.dbflow5.adapter2.ViewAdapter
 import com.dbflow5.adapter2.QueryAdapter
+import com.dbflow5.adapter2.ViewAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.config.database
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.livedata.LiveDataModel
 import com.dbflow5.migration.BaseMigration
 import com.dbflow5.migration.FirstMigration
 import com.dbflow5.migration.SecondMigration
-import com.dbflow5.migration.UpdateTableMigration
 import com.dbflow5.models.Account
 import com.dbflow5.models.AllFieldsModel
 import com.dbflow5.models.AllFieldsQueryModel
@@ -80,9 +78,10 @@ import com.dbflow5.models.UniqueModel
 import com.dbflow5.models.UserInfo
 import com.dbflow5.models.java.ExampleModel
 import com.dbflow5.models.java.JavaModel
-import com.dbflow5.models.java.JavaModelView
+import com.dbflow5.query.update
 import com.dbflow5.rx2.query.SimpleRXModel
 import com.dbflow5.sql.language.CaseModel
+import kotlinx.coroutines.runBlocking
 
 /**
  * Description:
@@ -152,9 +151,9 @@ import com.dbflow5.sql.language.CaseModel
         CaseModel::class,
     ],
     views = [
-        JavaModelView::class,
-        AuthorView::class,
-        PriorityView::class,
+        //JavaModelView::class,
+        //AuthorView::class,
+        //PriorityView::class,
     ],
     migrations = [
         FirstMigration::class,
@@ -236,9 +235,10 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val oneToManyModelAdapter: ModelAdapter<OneToManyModel>
     abstract val oneToManyBaseModelAdapter: ModelAdapter<OneToManyBaseModel>
 
-    abstract val javaModelViewAdapter: ViewAdapter<JavaModelView>
-    abstract val authorViewAdapter: ViewAdapter<AuthorView>
-    abstract val priorityViewAdapter: ViewAdapter<PriorityView>
+
+    //abstract val javaModelViewAdapter: ViewAdapter<JavaModelView>
+    //abstract val authorViewAdapter: ViewAdapter<AuthorView>
+    //abstract val priorityViewAdapter: ViewAdapter<PriorityView>
 
     abstract val authorNameQuery: QueryAdapter<AuthorNameQuery>
     abstract val customBlobModel: QueryAdapter<CustomBlobModel>
@@ -246,12 +246,20 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val simpleCustomModel: QueryAdapter<SimpleCustomModel>
 
     @Migration(version = 1, priority = 5)
-    class TestMigration : UpdateTableMigration<SimpleModel>({
-        database<TestDatabase>().simpleModelAdapter
-    }) {
+    class TestMigration : BaseMigration() {
+        override fun migrate(database: DatabaseWrapper) {
+            // TODO: support DI of Adapter
+            runBlocking {
+                TestDatabase_Database.create().simpleModelAdapter.update()
+                    .set(SimpleModel_Table.name.eq("Test"))
+                    .where(SimpleModel_Table.name.eq("Test1"))
+                    .execute(database)
+            }
+        }
+
         override fun onPreMigrate() {
             super.onPreMigrate()
-            set(SimpleModel_Table.name.eq("Test")).where(SimpleModel_Table.name.eq("Test1"))
+
         }
     }
 

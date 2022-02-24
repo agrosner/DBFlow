@@ -1,6 +1,5 @@
 package com.dbflow5.sql.language
 
-import com.dbflow5.BaseUnitTest
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.`as`
 import com.dbflow5.query.nameAlias
@@ -8,7 +7,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Test
 
-class NameAliasTest : BaseUnitTest() {
+class NameAliasTest {
 
     @Test
     fun testSimpleCase() {

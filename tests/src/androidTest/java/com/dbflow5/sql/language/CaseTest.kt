@@ -1,6 +1,5 @@
 package com.dbflow5.sql.language
 
-import com.dbflow5.BaseUnitTest
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.models.SimpleModel_Table
@@ -8,7 +7,7 @@ import com.dbflow5.query.case
 import org.junit.Test
 import kotlin.test.assertEquals
 
-class CaseTest : BaseUnitTest() {
+class CaseTest {
 
     @Test
     fun simpleCaseTest() {

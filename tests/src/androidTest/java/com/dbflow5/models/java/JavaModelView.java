@@ -3,7 +3,6 @@ package com.dbflow5.models.java;
 import com.dbflow5.TestDatabase;
 import com.dbflow5.adapter2.ModelAdapter;
 import com.dbflow5.annotation.Column;
-import com.dbflow5.annotation.ModelView;
 import com.dbflow5.annotation.ModelViewQuery;
 import com.dbflow5.config.FlowManager;
 import com.dbflow5.models.Author;
@@ -11,7 +10,7 @@ import com.dbflow5.models.Author_Table;
 import com.dbflow5.query.SelectKt;
 import com.dbflow5.sql.Query;
 
-@ModelView
+//@ModelView
 public class JavaModelView {
 
     @ModelViewQuery

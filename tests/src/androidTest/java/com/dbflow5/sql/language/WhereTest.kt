@@ -1,37 +1,36 @@
 package com.dbflow5.sql.language
 
-import com.dbflow5.BaseUnitTest
-import com.dbflow5.TestDatabase
+import com.dbflow5.TestDatabase_Database
 import com.dbflow5.assertEquals
-import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
+import com.dbflow5.query.methods.min
 import com.dbflow5.query.nameAlias
 import com.dbflow5.query.operations.like
 import com.dbflow5.query.operations.literalOf
 import com.dbflow5.query.operations.match
-import com.dbflow5.query.methods.min
 import com.dbflow5.query.orderBy
 import com.dbflow5.query.select
+import com.dbflow5.simpleModelAdapter
+import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.twoColumnModelAdapter
+import org.junit.Rule
 import org.junit.Test
 
-class WhereTest : BaseUnitTest() {
+class WhereTest {
 
-    private val simpleModelAdapter
-        get() = database<TestDatabase>().simpleModelAdapter
-
-    private val twoColumnModelAdapter
-        get() = database<TestDatabase>().twoColumnModelAdapter
+    @get:Rule
+    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
 
     @Test
-    fun validateBasicWhere() {
+    fun validateBasicWhere() = dbRule {
         val query = simpleModelAdapter.select() where (SimpleModel_Table.name eq "name")
         "SELECT * FROM `SimpleModel` WHERE `name` = 'name'".assertEquals(query)
     }
 
     @Test
-    fun validateComplexQueryWhere() {
+    fun validateComplexQueryWhere() = dbRule {
         val query = (
             twoColumnModelAdapter.select()
                 where (TwoColumnModel_Table.name eq "name")
@@ -47,7 +46,7 @@ class WhereTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateGroupBy() {
+    fun validateGroupBy() = dbRule {
         val query = (
             simpleModelAdapter.select()
                 where SimpleModel_Table.name.eq("name")
@@ -57,7 +56,7 @@ class WhereTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateGroupByNameAlias() {
+    fun validateGroupByNameAlias() = dbRule {
         val query =
             (simpleModelAdapter.select() where SimpleModel_Table.name.eq("name")).groupBy(
                 "name".nameAlias,
@@ -67,7 +66,7 @@ class WhereTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateGroupByNameProps() {
+    fun validateGroupByNameProps() = dbRule {
         val query = (
             twoColumnModelAdapter.select()
                 where TwoColumnModel_Table.name.eq("name"))
@@ -81,10 +80,10 @@ class WhereTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateHaving() {
-        val query =
-            simpleModelAdapter.select() where SimpleModel_Table.name.eq("name") having SimpleModel_Table.name.like(
-                "That"
+    fun validateHaving() = dbRule {
+        val query = (simpleModelAdapter.select()
+            where SimpleModel_Table.name.eq("name")
+            having SimpleModel_Table.name.like("That")
             )
         ("SELECT * FROM `SimpleModel` " +
             "WHERE `name` = 'name' " +
@@ -102,20 +101,20 @@ class WhereTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateLimit() {
+    fun validateLimit() = dbRule {
         val query =
             simpleModelAdapter.select() where SimpleModel_Table.name.eq("name") limit 10
         "SELECT * FROM `SimpleModel` WHERE `name` = 'name' LIMIT 10".assertEquals(query)
     }
 
     @Test
-    fun validateOffset() {
+    fun validateOffset() = dbRule {
         val query = simpleModelAdapter.select() where SimpleModel_Table.name.eq("name") offset 10
         "SELECT * FROM `SimpleModel` WHERE `name` = 'name' OFFSET 10".assertEquals(query)
     }
 
     @Test
-    fun validateWhereExists() {
+    fun validateWhereExists() = dbRule {
         val query = (
             simpleModelAdapter.select()
                 whereExists (
@@ -130,14 +129,14 @@ class WhereTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateOrderByWhere() {
+    fun validateOrderByWhere() = dbRule {
         val query = (simpleModelAdapter.select()
             where SimpleModel_Table.name.eq("name")).orderBy(SimpleModel_Table.name, true)
         ("SELECT * FROM `SimpleModel` WHERE `name` = 'name' ORDER BY `name` ASC").assertEquals(query)
     }
 
     @Test
-    fun validateOrderByWhereAlias() {
+    fun validateOrderByWhereAlias() = dbRule {
         val query = (simpleModelAdapter.select()
             where SimpleModel_Table.name.eq("name"))
             .orderBy("name".nameAlias, true)
@@ -146,7 +145,7 @@ class WhereTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateOrderBy() {
+    fun validateOrderBy() = dbRule {
         val query = (simpleModelAdapter.select()
             where SimpleModel_Table.name.eq("name") orderBy orderBy("name".nameAlias).asc())
         ("SELECT * FROM `SimpleModel` " +
@@ -154,7 +153,7 @@ class WhereTest : BaseUnitTest() {
     }
 
     @Test
-    fun validateOrderByAll() {
+    fun validateOrderByAll() = dbRule {
         val query = (twoColumnModelAdapter.select()
             where TwoColumnModel_Table.name.eq("name")
             orderByAll listOf(
@@ -166,7 +165,7 @@ class WhereTest : BaseUnitTest() {
     }
 
     @Test
-    fun validate_match_operator() {
+    fun validate_match_operator() = dbRule {
         val query = (simpleModelAdapter.select() where (SimpleModel_Table.name match "%s"))
         ("SELECT * FROM `SimpleModel` WHERE `name` MATCH '%s'").assertEquals(query)
     }

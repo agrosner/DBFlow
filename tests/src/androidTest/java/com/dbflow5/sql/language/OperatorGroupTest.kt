@@ -1,13 +1,12 @@
 package com.dbflow5.sql.language
 
-import com.dbflow5.BaseUnitTest
 import com.dbflow5.assertEquals
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.OperatorGroup
 import org.junit.Test
 
-class OperatorGroupTest : BaseUnitTest() {
+class OperatorGroupTest {
 
     @Test
     fun validateCommaSeparated() {

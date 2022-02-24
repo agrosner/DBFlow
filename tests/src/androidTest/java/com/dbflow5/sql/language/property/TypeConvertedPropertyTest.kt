@@ -1,14 +1,19 @@
 package com.dbflow5.sql.language.property
 
-import com.dbflow5.BaseUnitTest
+import com.dbflow5.TestDatabase_Database
 import com.dbflow5.models.CustomType
 import com.dbflow5.models.Difficulty
 import com.dbflow5.models.EnumTypeConverterModel_Table
 import com.dbflow5.models.TypeConverterModel_Table
+import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 
-class TypeConvertedPropertyTest : BaseUnitTest() {
+class TypeConvertedPropertyTest {
+
+    @get:Rule
+    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
 
     @Test
     fun testTypeConverter() {

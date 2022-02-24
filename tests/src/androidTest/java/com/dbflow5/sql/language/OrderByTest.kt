@@ -1,6 +1,5 @@
 package com.dbflow5.sql.language
 
-import com.dbflow5.BaseUnitTest
 import com.dbflow5.annotation.Collate
 import com.dbflow5.assertEquals
 import com.dbflow5.models.SimpleModel_Table
@@ -8,7 +7,7 @@ import com.dbflow5.query.nameAlias
 import com.dbflow5.query.orderBy
 import org.junit.Test
 
-class OrderByTest : BaseUnitTest() {
+class OrderByTest {
 
     @Test
     fun validateBasicOrderBy() {

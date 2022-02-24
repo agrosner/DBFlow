@@ -1,6 +1,5 @@
 package com.dbflow5.sql.language
 
-import com.dbflow5.BaseUnitTest
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.methods.avg
 import com.dbflow5.query.methods.cast
@@ -20,7 +19,7 @@ import com.dbflow5.query.methods.total
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class MethodTest : BaseUnitTest() {
+class MethodTest {
 
     @Test
     fun testMainMethods() {

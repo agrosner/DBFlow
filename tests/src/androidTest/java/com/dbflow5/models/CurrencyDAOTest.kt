@@ -1,15 +1,15 @@
 package com.dbflow5.models
 
-import com.dbflow5.BaseUnitTest
 import com.dbflow5.TestDatabase
-import com.dbflow5.config.database
+import com.dbflow5.TestDatabase_Database
 import com.dbflow5.rx2.RXTestRule
+import com.dbflow5.test.DatabaseTestRule
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class CurrencyDAOTest : BaseUnitTest() {
+class CurrencyDAOTest {
 
     lateinit var currencyDAO: CurrencyDAO
 
@@ -19,10 +19,13 @@ class CurrencyDAOTest : BaseUnitTest() {
     @JvmField
     val rxTestRule = RXTestRule()
 
+    @get:Rule
+    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
+
     @Before
     fun setupTest() {
         currencyDAO = object : CurrencyDAO {
-            override val database: TestDatabase = database()
+            override val database: TestDatabase = dbRule.db
         }
     }
 

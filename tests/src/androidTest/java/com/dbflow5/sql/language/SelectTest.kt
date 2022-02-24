@@ -1,9 +1,7 @@
 package com.dbflow5.sql.language
 
-import com.dbflow5.BaseUnitTest
-import com.dbflow5.TestDatabase
+import com.dbflow5.TestDatabase_Database
 import com.dbflow5.assertEquals
-import com.dbflow5.config.database
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.models.TwoColumnModel_Table
@@ -11,16 +9,21 @@ import com.dbflow5.query.`as`
 import com.dbflow5.query.innerJoin
 import com.dbflow5.query.select
 import com.dbflow5.simpleModelAdapter
+import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.twoColumnModelAdapter
+import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class SelectTest : BaseUnitTest() {
+class SelectTest {
+
+    @get:Rule
+    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
 
     @Test
     fun validateSelect() {
-        database<TestDatabase> {
+        dbRule {
             "SELECT `name`, `id` FROM `TwoColumnModel`".assertEquals(
                 twoColumnModelAdapter.select(
                     TwoColumnModel_Table.name,
@@ -32,7 +35,7 @@ class SelectTest : BaseUnitTest() {
 
     @Test
     fun validateSelectDistinct() {
-        database<TestDatabase> {
+        dbRule {
             "SELECT DISTINCT `name` FROM `SimpleModel`".assertEquals(
                 simpleModelAdapter.select(TwoColumnModel_Table.name).distinct()
             )
@@ -41,7 +44,7 @@ class SelectTest : BaseUnitTest() {
 
     @Test
     fun validateSimpleSelect() {
-        database<TestDatabase> {
+        dbRule {
             // compatibility notation
             val expected = "SELECT * FROM `SimpleModel`"
             assertEquals(
@@ -64,7 +67,7 @@ class SelectTest : BaseUnitTest() {
 
     @Test
     fun validateProjectionFrom() {
-        database<TestDatabase> {
+        dbRule {
             assertEquals(
                 "SELECT `name` FROM `SimpleModel`",
                 simpleModelAdapter.select(SimpleModel_Table.name).query.trim()
@@ -74,7 +77,7 @@ class SelectTest : BaseUnitTest() {
 
     @Test
     fun validateMultipleProjection() {
-        database<TestDatabase> {
+        dbRule {
             assertEquals(
                 "SELECT `name`, `name`, `id` FROM `SimpleModel`",
                 simpleModelAdapter.select(
@@ -88,7 +91,7 @@ class SelectTest : BaseUnitTest() {
 
     @Test
     fun validateAlias() {
-        database<TestDatabase> {
+        dbRule {
             assertEquals(
                 "SELECT * FROM `SimpleModel` AS `Simple`",
                 (simpleModelAdapter.select() `as` "Simple").query.trim()
@@ -98,7 +101,7 @@ class SelectTest : BaseUnitTest() {
 
     @Test
     fun validateJoins() {
-        database<TestDatabase> {
+        dbRule {
             val from = (
                 simpleModelAdapter.select()
                     innerJoin twoColumnModelAdapter

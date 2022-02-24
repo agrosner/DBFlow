@@ -8,10 +8,16 @@ import com.dbflow5.config.GeneratedDatabaseHolderFactory
 import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.setMain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
+
+data class TestDatabaseScope<DB : DBFlowDatabase>(
+    private val dbScope: WritableDatabaseScope<DB>,
+    private val testScope: TestCoroutineScope
+) : WritableDatabaseScope<DB> by dbScope, TestCoroutineScope by testScope
 
 /**
  * Provides hook into specified DB.
@@ -19,10 +25,16 @@ import org.junit.runners.model.Statement
 class DatabaseTestRule<DB : DBFlowDatabase>(private val creator: () -> DB) :
     TestRule {
 
-    private lateinit var db: DB
+    lateinit var db: DB
 
-    suspend operator fun <R> invoke(fn: suspend WritableDatabaseScope<DB>.() -> R) {
+    inline operator fun invoke(fn: WritableDatabaseScope<DB>.() -> Unit) {
         WritableDatabaseScope(db).apply { fn() }
+    }
+
+    fun runBlockingTest(fn: suspend TestDatabaseScope<DB>.() -> Unit) {
+        kotlinx.coroutines.test.runBlockingTest {
+            TestDatabaseScope(WritableDatabaseScope(db), this).apply { fn() }
+        }
     }
 
     override fun apply(base: Statement, description: Description): Statement {

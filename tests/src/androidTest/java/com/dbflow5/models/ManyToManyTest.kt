@@ -1,30 +1,29 @@
 package com.dbflow5.models
 
-import com.dbflow5.BaseUnitTest
-import com.dbflow5.TestDatabase
+import com.dbflow5.TestDatabase_Database
 import com.dbflow5.artistAdapter
 import com.dbflow5.artistSongAdapter
-import com.dbflow5.config.database
-import com.dbflow5.config.writableTransaction
 import com.dbflow5.songAdapter
-import kotlinx.coroutines.test.runBlockingTest
+import com.dbflow5.test.DatabaseTestRule
+import org.junit.Rule
 import org.junit.Test
 
-class ManyToManyTest : BaseUnitTest() {
+class ManyToManyTest {
+
+    @get:Rule
+    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
 
     @Test
-    fun testCanCreateManyToMany() = runBlockingTest {
-        database<TestDatabase>().writableTransaction {
-            val artistModel =
-                artistAdapter.save(Artist(name = "Andrew Grosner"))
-            val songModel =
-                songAdapter.save(Song(name = "Livin' on A Prayer"))
-            val artistSong = Artist_Song(
-                0,
-                artistModel,
-                songModel
-            )
-            artistSongAdapter.save(artistSong)
-        }
+    fun testCanCreateManyToMany() = dbRule.runBlockingTest {
+        val artistModel =
+            artistAdapter.save(Artist(name = "Andrew Grosner"))
+        val songModel =
+            songAdapter.save(Song(name = "Livin' on A Prayer"))
+        val artistSong = Artist_Song(
+            0,
+            artistModel,
+            songModel
+        )
+        artistSongAdapter.save(artistSong)
     }
 }

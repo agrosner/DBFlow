@@ -1,20 +1,16 @@
 package com.dbflow5.contentobserver
 
 import android.net.Uri
-import androidx.test.core.app.ApplicationProvider
-import com.dbflow5.DBFlowInstrumentedTestRule
 import com.dbflow5.DemoApp
 import com.dbflow5.TABLE_QUERY_PARAM
 import com.dbflow5.TestTransactionDispatcherFactory
-import com.dbflow5.config.database
-import com.dbflow5.config.writableTransaction
-import com.dbflow5.database.AndroidSQLiteOpenHelper
 import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.query.delete
 import com.dbflow5.runtime.ContentNotification
 import com.dbflow5.runtime.ContentResolverNotifier
 import com.dbflow5.runtime.FlowContentObserver
 import com.dbflow5.structure.ChangeAction
+import com.dbflow5.test.DatabaseTestRule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -29,11 +25,21 @@ class ContentObserverTest {
 
     @JvmField
     @Rule
-    var dblflowTestRule = DBFlowInstrumentedTestRule.create {
-        database<ContentObserverDatabase>({
-            modelNotifier { ContentResolverNotifier(DemoApp.context, "com.grosner.content", it) }
-            transactionDispatcherFactory(TestTransactionDispatcherFactory(TestCoroutineDispatcher()))
-        }, AndroidSQLiteOpenHelper.createHelperCreator(ApplicationProvider.getApplicationContext()))
+    var dbRule = DatabaseTestRule {
+        ContentObserverDatabase_Database.create {
+            copy(
+                modelNotifierFactory = {
+                    ContentResolverNotifier(
+                        DemoApp.context,
+                        "com.grosner.content",
+                        it
+                    )
+                },
+                transactionDispatcherFactory = TestTransactionDispatcherFactory(
+                    TestCoroutineDispatcher()
+                ),
+            )
+        }
     }
 
     val contentUri = "com.grosner.content"
@@ -42,7 +48,7 @@ class ContentObserverTest {
 
     @Before
     fun setupUser() = runBlockingTest {
-        database<ContentObserverDatabase>().writableTransaction {
+        dbRule {
             userAdapter.delete().execute()
         }
         user = User(5, "Something", 55)
@@ -53,26 +59,27 @@ class ContentObserverTest {
      * matches expected
      */
     @Test
-    fun content_notification_ModelChange_validateUri() {
-        val database = database<ContentObserverDatabase>()
-        val notification = ContentNotification.ModelChange(
-            user,
-            database.userAdapter,
-            ChangeAction.DELETE,
-            contentUri,
-        )
-        val uri = notification.uri
-        assertEquals(uri.authority, contentUri)
-        assertEquals(
-            database.userAdapter.name,
-            uri.getQueryParameter(TABLE_QUERY_PARAM)
-        )
-        assertEquals(uri.fragment, ChangeAction.DELETE.name)
-        assertEquals(Uri.decode(uri.getQueryParameter(User_Table.id.query)), "5")
-        assertEquals(
-            Uri.decode(uri.getQueryParameter(User_Table.name.query)),
-            "Something"
-        )
+    fun content_notification_ModelChange_validateUri() = runBlockingTest {
+        dbRule {
+            val notification = ContentNotification.ModelChange(
+                user,
+                userAdapter,
+                ChangeAction.DELETE,
+                contentUri,
+            )
+            val uri = notification.uri
+            assertEquals(uri.authority, contentUri)
+            assertEquals(
+                userAdapter.name,
+                uri.getQueryParameter(TABLE_QUERY_PARAM)
+            )
+            assertEquals(uri.fragment, ChangeAction.DELETE.name)
+            assertEquals(Uri.decode(uri.getQueryParameter(User_Table.id.query)), "5")
+            assertEquals(
+                Uri.decode(uri.getQueryParameter(User_Table.name.query)),
+                "Something"
+            )
+        }
     }
 
     @Test
@@ -115,9 +122,7 @@ class ContentObserverTest {
 
         contentObserver.registerForContentChanges(DemoApp.context.contentResolver, User::class)
 
-        database<ContentObserverDatabase>().writableTransaction {
-            userFunc(user)
-        }
+        dbRule { userFunc(user) }
 
         contentObserver.unregisterForContentChanges(DemoApp.context.contentResolver)
 

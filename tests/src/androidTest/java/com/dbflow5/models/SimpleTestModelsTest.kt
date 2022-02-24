@@ -1,18 +1,22 @@
 package com.dbflow5.models
 
-import com.dbflow5.BaseUnitTest
-import com.dbflow5.TestDatabase
-import com.dbflow5.config.database
+import com.dbflow5.TestDatabase_Database
+import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.typeConverterModelAdapter
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 
 /**
  * Description:
  */
-class SimpleTestModelsTest : BaseUnitTest() {
+class SimpleTestModelsTest {
+
+    @get:Rule
+    val dbRule = DatabaseTestRule(TestDatabase_Database::create)
 
     @Test
-    fun validateCreationQuery() {
+    fun validateCreationQuery() = dbRule {
         assertEquals(
             "CREATE TABLE IF NOT EXISTS `TypeConverterModel`(" +
                 "`id` INTEGER NOT NULL ON CONFLICT FAIL, " +
@@ -20,7 +24,7 @@ class SimpleTestModelsTest : BaseUnitTest() {
                 "`blob` BLOB, " +
                 "`customType` INTEGER, " +
                 "PRIMARY KEY(`id`, `customType`))",
-            database<TestDatabase>().typeConverterModelAdapter.creationSQL.query
+            typeConverterModelAdapter.creationSQL.query
         )
     }
 }
