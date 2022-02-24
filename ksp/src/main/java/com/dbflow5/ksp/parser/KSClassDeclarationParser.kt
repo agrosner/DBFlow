@@ -46,14 +46,12 @@ import com.dbflow5.ksp.parser.annotation.TablePropertyParser
 import com.dbflow5.ksp.parser.annotation.TypeConverterPropertyParser
 import com.dbflow5.ksp.parser.annotation.ViewPropertyParser
 import com.google.devtools.ksp.getConstructors
-import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName
@@ -363,7 +361,27 @@ class KSClassDeclarationParser(
                                     modelViewQuery.simpleName,
                                     modelViewQuery.packageName
                                 ),
-                                isProperty = modelViewQuery is KSPropertyDeclaration
+                                adapterParams = modelViewQuery.parameters
+                                    .map { value ->
+                                        val typeName = value.type.toTypeName()
+                                        if (typeName !is ParameterizedTypeName
+                                            || typeName.rawType != ClassNames.ModelAdapter2
+                                        ) {
+                                            throw IllegalArgumentException(
+                                                "Only ModelAdapter parameters " +
+                                                    "are allowed for ModelViewQuery functions."
+                                            )
+                                        } else {
+                                            ClassAdapterFieldModel(
+                                                name = NameModel(
+                                                    packageName = value.name!!.getQualifier(),
+                                                    shortName = value.name!!.getShortName(),
+                                                    nullable = false,
+                                                ),
+                                                typeName = typeName,
+                                            )
+                                        }
+                                    }
                             )
                         ),
                         properties = viewPropertyParser.parse(annotation),
@@ -406,14 +424,8 @@ class KSClassDeclarationParser(
 
     private fun modelViewQueryOrNull(
         declaration: KSClassDeclaration,
-    ): KSDeclaration? {
-        return declaration.getAllProperties()
-            .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
-            ?: declaration.getDeclaredProperties()
-                .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
-            ?: declaration.getAllFunctions()
-                .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
-    }
+    ): KSFunctionDeclaration? = declaration.getAllFunctions()
+        .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
 
     private fun manyToManyModel(
         input: KSClassDeclaration,

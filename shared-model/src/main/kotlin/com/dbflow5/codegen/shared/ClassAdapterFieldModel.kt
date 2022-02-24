@@ -42,6 +42,9 @@ data class ClassAdapterFieldModel(
         }
     }
 
+    val associated
+        get() = this::associatedClassModel.isInitialized
+
     enum class Type(val className: ClassName) {
         Normal(ClassNames.ModelAdapter2),
         View(ClassNames.ViewAdapter2),

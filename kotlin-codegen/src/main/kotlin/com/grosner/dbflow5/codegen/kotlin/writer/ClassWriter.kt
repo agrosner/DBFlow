@@ -38,7 +38,7 @@ class ClassWriter(
             .apply {
                 addFunction(queryOpsWriter.create(model))
                 if (!model.isQuery) {
-                    addProperty(creationSQLWriter.create(model))
+                    addFunction(creationSQLWriter.create(model))
                 }
                 if (model.isNormal) {
                     addProperty(tableSQLWriter.create(model))

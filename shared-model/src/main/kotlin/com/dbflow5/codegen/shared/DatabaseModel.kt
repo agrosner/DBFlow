@@ -4,9 +4,9 @@ import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.properties.DatabaseProperties
 import com.dbflow5.codegen.shared.properties.TableProperties
+import com.dbflow5.codegen.shared.validation.ValidationException
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeName
-import java.lang.IllegalArgumentException
 
 /**
  * Description:
@@ -74,7 +74,16 @@ fun copyOverClasses(
     val primedAdapterFields = primeAdapterFields(database, tables, queries, views)
     database.copy(
         tables = tables,
-        views = views,
+        views = views.map { view ->
+            val viewType = view.type as ClassModel.Type.View
+            view.copy(type = viewType.copy(
+                properties = viewType.properties.copy(
+                    adapterParams = viewType.properties.adapterParams.onEach { adapter ->
+                        tables.first { adapter.associateClassModel(it) }
+                    }
+                )
+            ))
+        },
         queries = queries,
         migrations = migrations.filter { migration ->
             migration.properties.database == database.classType
@@ -100,7 +109,7 @@ private fun primeAdapterFields(
             }
             ClassAdapterFieldModel.Type.View -> views.firstOrNull {
                 fieldModel.associateClassModel(it)
-            }?: throw IllegalArgumentException("Missing ${views.map { it.classType }}")
+            } ?: throw ValidationException("Missing ${fieldModel.name.print()} ${views.map { it.classType }}", database.name)
         }
         fieldModel
     }

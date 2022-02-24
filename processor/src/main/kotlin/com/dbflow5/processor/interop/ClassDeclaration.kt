@@ -9,10 +9,10 @@ import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.interop.PropertyDeclaration
 import com.dbflow5.processor.ProcessorManager
 import com.dbflow5.processor.utils.ElementUtility
-import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.getPackage
 import com.dbflow5.processor.utils.toKTypeName
 import com.dbflow5.processor.utils.toTypeErasedElement
+import com.grosner.kpoet.typeName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
@@ -53,6 +53,11 @@ abstract class KaptClassDeclaration : ClassDeclaration {
             .filter { it.simpleName.startsWith("set") }
     }
 
+    val methodElements: List<ExecutableElement> by lazy {
+        allMembers
+            .filterIsInstance<ExecutableElement>()
+    }
+
     val propertyElements: List<JavaPropertyDeclaration> by lazy {
         allMembers
             .filterIsInstance<VariableElement>()
@@ -91,6 +96,12 @@ internal data class KaptJavaClassDeclaration(
                 )
             }
 
+    override val functions: Sequence<PropertyDeclaration> =
+        methodElements
+            .asSequence()
+            .filterNot { it.returnType.typeName == com.squareup.javapoet.TypeName.VOID }
+            .map { func -> KaptJavaMethodDeclaration(func) }
+
     override fun asStarProjectedType(): ClassDeclaration {
         return KaptJavaClassDeclaration(typeElement.toTypeErasedElement())
     }
@@ -117,6 +128,22 @@ internal data class KaptKotlinClassDeclaration(
         )
     }
 
+    override val functions: Sequence<PropertyDeclaration>
+        get() {
+            val packageName = typeElement.getPackage().qualifiedName.toString()
+            return methodElements.asSequence()
+                .mapNotNull { method ->
+                    typeSpec.funSpecs.firstOrNull { it.name == method.simpleName.toString() }
+                        ?.to(method)
+                }
+                .map { (funSpec, method) ->
+                    KaptKotlinMethodDeclaration(
+                        packageName,
+                        funSpec,
+                        method,
+                    )
+                }
+        }
     override val properties: Sequence<PropertyDeclaration>
         get() {
             val packageName = typeElement.getPackage().qualifiedName.toString()
@@ -159,34 +186,23 @@ internal data class KaptKotlinClassDeclaration(
         } != null)
 }
 
-fun KaptClassDeclaration.modelViewQueryNameOrThrow(
+fun KaptClassDeclaration.modelViewQueryOrThrow(
     name: NameModel,
-    classDeclaration: KaptClassDeclaration,
     resolver: ClassNameResolver,
-): Pair<NameModel, Boolean> {
+): KaptPropertyDeclaration {
     val companion = resolver.classDeclarationByClassName(
         name.companion().className,
     )
 
-    // TODO: check methods
-    val modelViewQuery = (companion?.properties
+    val modelViewQuery = (companion?.functions
         ?.firstOrNull { (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null }
-        ?: classDeclaration.properties.firstOrNull {
+        ?: functions.firstOrNull {
             (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null
         }) as? KaptPropertyDeclaration
-    val gettersWithModelViewQuery =
-        classDeclaration.getters.firstOrNull { it.element.annotation<ModelViewQuery>() != null }
-    val name = modelViewQuery?.simpleName
-        ?: gettersWithModelViewQuery?.simpleName
-    val element = modelViewQuery?.element
-        ?: gettersWithModelViewQuery?.element
-    return if (name != null) {
-        // TODO: this property check is pretty rough. will need a real way.
-        name to (modelViewQuery != null || gettersWithModelViewQuery == null)
-    } else throw IllegalStateException(
-        "Missing modelview query ${name} ${
-            companion ?: (classDeclaration
-                as KaptJavaClassDeclaration).allMembers
-        }"
-    )
+    return modelViewQuery
+        ?: throw IllegalStateException(
+            "Missing modelview query ${name} ${
+                companion ?: (this as KaptJavaClassDeclaration).allMembers
+            }"
+        )
 }

@@ -61,10 +61,13 @@ class ClassAdapterWriter(
                 }
                 if (model.isNormal) {
                     addCode("propertyGetter = ${model.generatedFieldName}_propertyGetter, \n")
-                    addCode("creationSQL = %L", "${model.generatedFieldName}_creationSQL, \n")
+                    addCode("creationSQL = %L", "${model.generatedFieldName}_creationSQL(), \n")
                     addCode("primaryModelClauseGetter = ${model.generatedFieldName}_primaryModelClauseGetter, \n")
                 } else if (model.isView) {
-                    addCode("creationLoader = %L", "${model.generatedFieldName}_creationLoader, \n")
+                    addCode(
+                        "creationLoader = ${model.generatedFieldName}_creationLoader(${adapters.joinToString { "%L" }}), \n",
+                        *adapters.map { "${it.generatedFieldName}Getter" }.toTypedArray(),
+                    )
                 }
                 addCode(")")
             }

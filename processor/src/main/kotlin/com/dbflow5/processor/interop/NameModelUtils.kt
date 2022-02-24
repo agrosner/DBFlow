@@ -2,10 +2,10 @@ package com.dbflow5.processor.interop
 
 import com.dbflow5.codegen.shared.NameModel
 import com.dbflow5.processor.utils.getPackage
-import javax.lang.model.element.ExecutableElement
+import com.dbflow5.processor.utils.isNullable
+import javax.lang.model.element.Element
 import javax.lang.model.element.Name
 import javax.lang.model.element.PackageElement
-import javax.lang.model.element.TypeElement
 
 operator fun NameModel.Companion.invoke(
     simpleName: Name,
@@ -17,12 +17,8 @@ operator fun NameModel.Companion.invoke(
     nullable = nullable,
 )
 
-fun TypeElement.name() = NameModel(
+fun Element.name(preserveNull: Boolean = false) = NameModel(
     simpleName,
     getPackage(),
-)
-
-fun ExecutableElement.name() = NameModel(
-    simpleName,
-    getPackage(),
+    if (preserveNull) isNullable() else false,
 )

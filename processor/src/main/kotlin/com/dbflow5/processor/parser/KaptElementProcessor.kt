@@ -30,17 +30,19 @@ import com.dbflow5.codegen.shared.properties.ModelViewQueryProperties
 import com.dbflow5.processor.interop.KaptClassDeclaration
 import com.dbflow5.processor.interop.KaptOriginatingSource
 import com.dbflow5.processor.interop.KaptTypeElementClassType
-import com.dbflow5.processor.interop.modelViewQueryNameOrThrow
+import com.dbflow5.processor.interop.modelViewQueryOrThrow
 import com.dbflow5.processor.interop.name
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.erasure
 import com.dbflow5.processor.utils.javaToKotlinType
 import com.dbflow5.processor.utils.toTypeErasedElement
+import com.grosner.kpoet.typeName
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.asTypeName
+import com.squareup.kotlinpoet.javapoet.toKTypeName
 import com.squareup.kotlinpoet.typeNameOf
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 
@@ -76,8 +78,7 @@ class KaptElementProcessor(
         val name = input.name()
         val classType = input.toTypeErasedElement().javaToKotlinType() as ClassName
         return annotations.mapNotNull { annotation ->
-            val typeName = annotation.annotationType.asTypeName()
-            when (typeName) {
+            when (val typeName = annotation.annotationType.typeName.toKTypeName()) {
                 typeNameOf<Database>() -> {
                     // TODO: check super type
                     listOf(
@@ -229,10 +230,9 @@ class KaptElementProcessor(
                 )
             }
             typeNameOf<ModelView>() -> {
-                val (modelViewQueryName, isProperty) =
-                    classDeclaration.modelViewQueryNameOrThrow(
+                val modelViewQueryFun =
+                    classDeclaration.modelViewQueryOrThrow(
                         name = name,
-                        classDeclaration = classDeclaration,
                         resolver = resolver
                     )
                 listOf(
@@ -242,8 +242,24 @@ class KaptElementProcessor(
                         isDataClass = isData,
                         type = ClassModel.Type.View(
                             ModelViewQueryProperties(
-                                modelViewQueryName,
-                                isProperty = isProperty, // TODO property check
+                                modelViewQueryFun.simpleName,
+                                adapterParams = (modelViewQueryFun.element as ExecutableElement)
+                                    .parameters.map { element ->
+                                        val type = element.asType().typeName.toKTypeName()
+                                        if (type !is ParameterizedTypeName
+                                            || type.rawType != ClassNames.ModelAdapter2
+                                        ) {
+                                            throw IllegalArgumentException(
+                                                "Only ModelAdapter parameters " +
+                                                    "are allowed for ModelViewQuery functions."
+                                            )
+                                        } else {
+                                            ClassAdapterFieldModel(
+                                                name = element.name(),
+                                                typeName = type,
+                                            )
+                                        }
+                                    }
                             ),
                         ),
                         properties = viewPropertyParser.parse(input.annotation()),

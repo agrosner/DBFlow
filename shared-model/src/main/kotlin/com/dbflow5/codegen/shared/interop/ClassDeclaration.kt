@@ -23,6 +23,8 @@ interface ClassDeclaration {
      */
     val properties: Sequence<PropertyDeclaration>
 
+    val functions: Sequence<PropertyDeclaration>
+
     val containingFile: OriginatingSource?
 
     fun asStarProjectedType(): ClassDeclaration

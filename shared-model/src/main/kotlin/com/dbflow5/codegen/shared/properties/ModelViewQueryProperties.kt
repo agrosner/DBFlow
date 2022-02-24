@@ -1,5 +1,6 @@
 package com.dbflow5.codegen.shared.properties
 
+import com.dbflow5.codegen.shared.ClassAdapterFieldModel
 import com.dbflow5.codegen.shared.NameModel
 
 /**
@@ -7,5 +8,8 @@ import com.dbflow5.codegen.shared.NameModel
  */
 data class ModelViewQueryProperties(
     val name: NameModel,
-    val isProperty: Boolean,
+    /**
+     * Required to use proper adapters
+     */
+    val adapterParams: List<ClassAdapterFieldModel>,
 )

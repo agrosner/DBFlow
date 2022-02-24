@@ -31,6 +31,17 @@ class KSPClassDeclaration(
             ?.asSequence()
             ?: emptySequence()
 
+    override val functions: Sequence<PropertyDeclaration>
+        get() = ksClassDeclaration?.getAllFunctions()
+            ?.map { KSPFunctionDeclaration(it) }
+            ?.also { funs ->
+                val functionsList = funs.toMutableList<PropertyDeclaration>()
+                ksClassDeclaration.superTypes.forEach { type ->
+                    KSPClassType(type.resolve()).declaration.closestClassDeclaration
+                        ?.functions?.onEach { functionsList.add(it) }
+                }
+            }?.asSequence()
+            ?: emptySequence()
     override val containingFile: OriginatingSource? =
         ksClassDeclaration?.containingFile?.let { KSPOriginatingSource(it) }
 

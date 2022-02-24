@@ -1,11 +1,10 @@
 package com.dbflow5.models
 
-import com.dbflow5.TestDatabase
+import com.dbflow5.adapter2.ModelAdapter
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.ModelViewQuery
-import com.dbflow5.config.database
 import com.dbflow5.query.operations.concatenate
 import com.dbflow5.query.select
 
@@ -18,16 +17,14 @@ class AuthorView(
 ) {
 
     companion object {
-        // TODO: switch back to method
         @JvmStatic
-        @get:ModelViewQuery
-        val query
-            get() = (database<TestDatabase>().authorAdapter.select(
-                Author_Table.id.`as`("authorId"),
-                Author_Table.first_name.concatenate(" ")
-                    .concatenate(Author_Table.last_name)
-                    .`as`("authorName")
-            ))
+        @ModelViewQuery
+        fun getQuery(authorAdapter: ModelAdapter<Author>) = authorAdapter.select(
+            Author_Table.id.`as`("authorId"),
+            Author_Table.first_name.concatenate(" ")
+                .concatenate(Author_Table.last_name)
+                .`as`("authorName")
+        )
     }
 }
 
@@ -36,10 +33,9 @@ class PriorityView(var name: String = "") {
 
     companion object {
         @JvmStatic
-        @get:ModelViewQuery
-        val query
-            get() = database<TestDatabase>().authorAdapter.select(
-                (Author_Table.first_name + Author_Table.last_name).`as`("name")
-            )
+        @ModelViewQuery
+        fun getQuery(authorAdapter: ModelAdapter<Author>) = authorAdapter.select(
+            (Author_Table.first_name + Author_Table.last_name).`as`("name")
+        )
     }
 }

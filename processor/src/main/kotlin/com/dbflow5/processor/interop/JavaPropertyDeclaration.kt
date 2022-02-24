@@ -2,10 +2,6 @@ package com.dbflow5.processor.interop
 
 import com.dbflow5.codegen.shared.NameModel
 import com.dbflow5.codegen.shared.interop.PropertyDeclaration
-import com.dbflow5.processor.ProcessorManager
-import com.dbflow5.processor.utils.getPackage
-import com.dbflow5.processor.utils.isNullable
-import com.dbflow5.processor.utils.simpleString
 import com.grosner.kpoet.typeName
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.javapoet.toKTypeName
@@ -24,11 +20,7 @@ data class JavaPropertyDeclaration(
     private val setter: ExecutableElement?,
     override val typeName: TypeName = element.asType().typeName.toKTypeName(),
     override val isAbstract: Boolean = element.modifiers.contains(Modifier.ABSTRACT),
-    override val simpleName: NameModel = NameModel(
-        packageName = element.getPackage(ProcessorManager.manager).qualifiedName.toString(),
-        shortName = element.simpleString,
-        nullable = element.isNullable(),
-    ),
+    override val simpleName: NameModel = element.name(preserveNull = true),
     val isVal: Boolean = (setter == null ||
         element.modifiers.contains(Modifier.FINAL)),
 ) : PropertyDeclaration {

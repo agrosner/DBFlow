@@ -78,6 +78,7 @@ import com.dbflow5.models.UniqueModel
 import com.dbflow5.models.UserInfo
 import com.dbflow5.models.java.ExampleModel
 import com.dbflow5.models.java.JavaModel
+import com.dbflow5.models.java.JavaModelView
 import com.dbflow5.query.update
 import com.dbflow5.rx2.query.SimpleRXModel
 import com.dbflow5.sql.language.CaseModel
@@ -151,9 +152,9 @@ import kotlinx.coroutines.runBlocking
         CaseModel::class,
     ],
     views = [
-        //JavaModelView::class,
-        //AuthorView::class,
-        //PriorityView::class,
+        JavaModelView::class,
+        AuthorView::class,
+        PriorityView::class,
     ],
     migrations = [
         FirstMigration::class,
@@ -236,9 +237,9 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val oneToManyBaseModelAdapter: ModelAdapter<OneToManyBaseModel>
 
 
-    //abstract val javaModelViewAdapter: ViewAdapter<JavaModelView>
-    //abstract val authorViewAdapter: ViewAdapter<AuthorView>
-    //abstract val priorityViewAdapter: ViewAdapter<PriorityView>
+    abstract val javaModelViewAdapter: ViewAdapter<JavaModelView>
+    abstract val authorViewAdapter: ViewAdapter<AuthorView>
+    abstract val priorityViewAdapter: ViewAdapter<PriorityView>
 
     abstract val authorNameQuery: QueryAdapter<AuthorNameQuery>
     abstract val customBlobModel: QueryAdapter<CustomBlobModel>

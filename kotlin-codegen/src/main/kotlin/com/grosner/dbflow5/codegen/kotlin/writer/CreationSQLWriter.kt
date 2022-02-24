@@ -8,16 +8,17 @@ import com.dbflow5.codegen.shared.SQLiteLookup
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.cache.TypeConverterCache
 import com.dbflow5.codegen.shared.createFlattenedFields
+import com.dbflow5.codegen.shared.distinctAdapterGetters
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.properties.TableProperties
 import com.dbflow5.codegen.shared.properties.dbName
 import com.dbflow5.codegen.shared.references
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.quoteIfNeeded
+import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.LambdaTypeName
-import com.squareup.kotlinpoet.PropertySpec
 
 /**
  * Description:
@@ -27,8 +28,8 @@ class CreationSQLWriter(
     private val sqLiteLookup: SQLiteLookup,
     private val typeConverterCache: TypeConverterCache,
     private val originatingFileTypeSpecAdder: OriginatingFileTypeSpecAdder,
-) : TypeCreator<ClassModel, PropertySpec> {
-    override fun create(model: ClassModel): PropertySpec {
+) : TypeCreator<ClassModel, FunSpec> {
+    override fun create(model: ClassModel): FunSpec {
         val extractors = model.extractors(referencesCache)
         val isTemporary = model.properties.let { props ->
             when (props) {
@@ -37,42 +38,54 @@ class CreationSQLWriter(
             }
         }
         if (model.isView) {
+            val adapters = model.distinctAdapterGetters(referencesCache)
             return (model.type as ClassModel.Type.View).let { classType ->
-                PropertySpec.builder(
-                    "${model.generatedFieldName}_creationLoader", LambdaTypeName.get(
-                        returnType = ClassNames.CompilableQuery
-                    )
+                FunSpec.builder(
+                    "${model.generatedFieldName}_creationLoader",
                 )
+                    .returns(
+                        LambdaTypeName.get(
+                            returnType = ClassNames.CompilableQuery
+                        )
+                    )
                     .apply {
                         model.originatingSource?.let {
                             originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
                         }
+                        adapters.forEach { adapter ->
+                            addParameter(
+                                adapter.generatedFieldName,
+                                LambdaTypeName.get(
+                                    returnType = adapter.generatedSuperClass
+                                )
+                            )
+                        }
                     }
-                    .initializer(
-                        "{ %T(%T.%L.query) }",
+                    .addStatement(
+                        "return { %T(%T.%L(${classType.properties.adapterParams.joinToString { "%L()" }}).query) }",
                         ClassNames.CompilableQuery,
                         model.classType,
-                        classType.properties.name.shortName + if (
-                            !classType.properties.isProperty
-                        ) "()" else "",
+                        classType.properties.name.shortName,
+                        *adapters.map { it.generatedFieldName }
+                            .toTypedArray()
                     )
                     .build()
             }
         }
-        return PropertySpec.builder(
+        return FunSpec.builder(
             "${model.generatedFieldName}_creationSQL",
-            ClassNames.CompilableQuery,
-            KModifier.PRIVATE
         )
-            .getter(
-                FunSpec.getterBuilder()
+            .returns(ClassNames.CompilableQuery)
+            .addModifiers(KModifier.PRIVATE)
+            .addCode(
+                CodeBlock.builder()
                     .apply {
                         model.type.let { classType ->
                             if (classType is ClassModel.Type.Table &&
                                 (classType == ClassModel.Type.Table.Fts3
                                     || classType is ClassModel.Type.Table.Fts4)
                             ) {
-                                addCode("return %T(%S)", ClassNames.CompilableQuery, buildString {
+                                add("return %T(%S)", ClassNames.CompilableQuery, buildString {
                                     append("CREATE VIRTUAL TABLE IF NOT EXISTS ${model.dbName} USING ")
                                     when (classType) {
                                         ClassModel.Type.Table.Fts3 -> append("FTS3")
@@ -96,7 +109,7 @@ class CreationSQLWriter(
                                     append(")")
                                 })
                             } else {
-                                addCode(
+                                add(
                                     "return %T(%S)",
                                     ClassNames.CompilableQuery,
                                     buildString {

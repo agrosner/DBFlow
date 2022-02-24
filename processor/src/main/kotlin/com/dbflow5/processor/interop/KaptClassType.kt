@@ -13,6 +13,7 @@ import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
 import com.squareup.kotlinpoet.javapoet.toJTypeName
 import kotlinx.metadata.KmClass
+import java.lang.IllegalArgumentException
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
@@ -85,6 +86,7 @@ fun KaptVariableElementClassType(
             input.element.asType(),
             input.propertySpec,
         )
+    else -> throw IllegalArgumentException("Invalid case")
 }
 
 data class KaptVariableElementJavaClassType(

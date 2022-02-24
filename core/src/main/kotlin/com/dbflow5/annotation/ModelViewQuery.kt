@@ -7,9 +7,6 @@ import com.dbflow5.sql.Query
  * reference in [ModelView]. This is so the annotation processor knows how to access the query of
  * the view.
  */
-@Target(
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.FUNCTION,
-)
+@Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.SOURCE)
 annotation class ModelViewQuery
