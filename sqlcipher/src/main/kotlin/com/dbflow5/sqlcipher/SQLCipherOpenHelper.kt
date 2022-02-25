@@ -1,18 +1,18 @@
 package com.dbflow5.sqlcipher
 
 import android.content.Context
-import com.dbflow5.config.DatabaseConfig
 import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.config.OpenHelperCreator
+import com.dbflow5.database.OpenHelperCreator
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseHelperDelegate
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.OpenHelper
+import com.dbflow5.database.config.DBSettings
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteOpenHelper
 
 /**
- * Description: The replacement [OpenHelper] for SQLCipher. Specify a subclass of this is [DatabaseConfig.getDatabaseClass]
+ * Description: The replacement [OpenHelper] for SQLCipher. Specify a subclass of this is [DBSettings]
  * of your database to get it to work with specifying the secret you use for the databaseForTable.
  */
 abstract class SQLCipherOpenHelper(

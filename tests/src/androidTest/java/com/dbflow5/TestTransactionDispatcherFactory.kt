@@ -1,6 +1,6 @@
 package com.dbflow5
 
-import com.dbflow5.config.TransactionDispatcherFactory
+import com.dbflow5.database.transaction.TransactionDispatcherFactory
 import com.dbflow5.transaction.TransactionDispatcher
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 

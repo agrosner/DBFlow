@@ -101,6 +101,10 @@ class DatabaseWriter(
                                         )
                                             .addModifiers(KModifier.OVERRIDE)
                                             .addParameter(
+                                                ParameterSpec.builder("context", ClassNames.Context)
+                                                    .build()
+                                            )
+                                            .addParameter(
                                                 ParameterSpec.builder(
                                                     "settingsFn", LambdaTypeName.get(
                                                         receiver = ClassNames.DBSettings,
@@ -110,7 +114,7 @@ class DatabaseWriter(
                                                     .build()
                                             )
                                             .addStatement(
-                                                "return %T.%N_factory(settings = %T(name = %S).settingsFn())",
+                                                "return %T.%N_factory(settings = %T(name = %S, context = context).settingsFn())",
                                                 ClassNames.GeneratedDatabaseHolderFactory,
                                                 name,
                                                 ClassNames.DBSettings,

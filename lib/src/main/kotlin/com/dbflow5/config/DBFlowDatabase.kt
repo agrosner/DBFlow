@@ -1,5 +1,6 @@
 package com.dbflow5.config
 
+import android.content.Context
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ViewAdapter
@@ -32,6 +33,8 @@ import kotlin.reflect.KClass
 interface GeneratedDatabase : DatabaseWrapper, Closeable {
     override val generatedDatabase: GeneratedDatabase
         get() = this
+
+    val context: Context
 
     @InternalDBFlowApi
     val transactionDispatcher: TransactionDispatcher
@@ -131,6 +134,9 @@ abstract class DBFlowDatabase : GeneratedDatabase {
     private val callback: DatabaseCallback?
         get() = settings.databaseCallback
 
+    override val context: Context
+        get() = settings.context
+
     /**
      * Used when resetting the DB
      */
@@ -178,7 +184,7 @@ abstract class DBFlowDatabase : GeneratedDatabase {
             helper.performRestoreFromBackup()
 
             val wal =
-                settings.journalMode.adjustIfAutomatic(FlowManager.context) == JournalMode.WriteAheadLogging
+                settings.journalMode.adjustIfAutomatic(settings.context) == JournalMode.WriteAheadLogging
             helper.setWriteAheadLoggingEnabled(wal)
             writeAheadLoggingEnabled = wal
             isOpened = true

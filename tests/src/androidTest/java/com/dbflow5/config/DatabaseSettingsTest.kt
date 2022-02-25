@@ -1,9 +1,11 @@
 package com.dbflow5.config
 
-import com.dbflow5.DemoApp
+import androidx.test.platform.app.InstrumentationRegistry
 import com.dbflow5.TestDatabase_Database
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.OpenHelper
+import com.dbflow5.database.OpenHelperCreator
+import com.dbflow5.database.transaction.TransactionDispatcherFactory
 import com.dbflow5.transaction.TransactionDispatcher
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Test
@@ -15,8 +17,6 @@ class DatabaseSettingsTest {
 
     @Test
     fun test_databaseConfig() {
-        FlowManager.init(DemoApp.context)
-
         val databaseCallback = object : DatabaseCallback {}
         val customOpenHelper = mock<OpenHelper>()
 
@@ -29,14 +29,15 @@ class DatabaseSettingsTest {
             testTransactionManager
         }
 
-        val db = TestDatabase_Database.create {
-            copy(
-                name = "Test",
-                databaseCallback = databaseCallback,
-                transactionDispatcherFactory = dispatcherFactory,
-                openHelperCreator = openHelperCreator,
-            )
-        }
+        val db =
+            TestDatabase_Database.create(InstrumentationRegistry.getInstrumentation().targetContext) {
+                copy(
+                    name = "Test",
+                    databaseCallback = databaseCallback,
+                    transactionDispatcherFactory = dispatcherFactory,
+                    openHelperCreator = openHelperCreator,
+                )
+            }
         // force initialize it.
         db.transactionDispatcher
 
@@ -48,12 +49,13 @@ class DatabaseSettingsTest {
 
     @Test
     fun test_EmptyName() {
-        val db = TestDatabase_Database.create {
-            copy(
-                name = "Test",
-                databaseExtensionName = "",
-            )
-        }
+        val db =
+            TestDatabase_Database.create(InstrumentationRegistry.getInstrumentation().targetContext) {
+                copy(
+                    name = "Test",
+                    databaseExtensionName = "",
+                )
+            }
         assertEquals("Test", db.databaseName)
         assertEquals("", db.databaseExtensionName)
     }

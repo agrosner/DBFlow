@@ -4,7 +4,6 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.config.OpenHelperCreator
 
 /**
  * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.

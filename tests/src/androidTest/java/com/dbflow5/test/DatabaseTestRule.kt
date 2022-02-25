@@ -55,12 +55,13 @@ class DatabaseTestRule<DB : DBFlowDatabase>(
 
             @Throws(Throwable::class)
             override fun evaluate() {
-                FlowManager.init(InstrumentationRegistry.getInstrumentation().targetContext) {
-                    addDatabaseHolder(GeneratedDatabaseHolderFactory)
-                }
+                FlowManager.init(GeneratedDatabaseHolderFactory)
                 Dispatchers.setMain(TestCoroutineDispatcher())
                 FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
-                creator.create(defaultSettingsCopy).use {
+                creator.create(
+                    InstrumentationRegistry.getInstrumentation().targetContext,
+                    defaultSettingsCopy
+                ).use {
                     db = it
                     try {
                         base.evaluate()

@@ -247,11 +247,12 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val simpleCustomModel: QueryAdapter<SimpleCustomModel>
 
     @Migration(version = 1, priority = 5)
-    class TestMigration : BaseMigration() {
+    class TestMigration(
+        private val simpleModelAdapter: ModelAdapter<SimpleModel>,
+    ) : BaseMigration() {
         override fun migrate(database: DatabaseWrapper) {
-            // TODO: support DI of Adapter
             runBlocking {
-                TestDatabase_Database.create().simpleModelAdapter.update()
+                simpleModelAdapter.update()
                     .set(SimpleModel_Table.name.eq("Test"))
                     .where(SimpleModel_Table.name.eq("Test1"))
                     .execute(database)

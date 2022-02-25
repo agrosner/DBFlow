@@ -1,6 +1,5 @@
 package com.dbflow5.database
 
-import com.dbflow5.config.FlowManager
 import com.dbflow5.config.GeneratedDatabase
 
 interface OpenHelperDelegate {
@@ -34,4 +33,4 @@ interface OpenHelper : OpenHelperDelegate {
  */
 @Suppress("FunctionName")
 fun OpenHelper(db: GeneratedDatabase, callback: DatabaseCallback?) =
-    AndroidSQLiteOpenHelper(FlowManager.context, db, callback)
+    AndroidSQLiteOpenHelper(db.context, db, callback)

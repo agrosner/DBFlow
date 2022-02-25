@@ -1,6 +1,5 @@
 package com.dbflow5.adapter2
 
-import com.dbflow5.DemoApp
 import com.dbflow5.adapter.AutoIncrementUpdater
 import com.dbflow5.adapter.CompilableQuery
 import com.dbflow5.adapter.ModelAdapter
@@ -86,14 +85,12 @@ class TableOpsTest {
             createWithDatabase = false,
             primaryModelClauseGetter = mock(),
         )
-        FlowManager.init(DemoApp.context) {
-            addDatabaseHolder {
-                DatabaseHolder(
-                    tables = setOf(mockModelAdapter),
-                    views = setOf(),
-                    queries = setOf(),
-                )
-            }
+        FlowManager.init {
+            DatabaseHolder(
+                tables = setOf(mockModelAdapter),
+                views = setOf(),
+                queries = setOf(),
+            )
         }
     }
 

@@ -1,6 +1,5 @@
 package com.dbflow5.runtime
 
-import com.dbflow5.config.DatabaseConfig
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.DatabaseWrapper
 import kotlinx.coroutines.flow.Flow
@@ -9,7 +8,6 @@ import kotlinx.coroutines.flow.filterNotNull
 
 /**
  * Description: Directly notifies about model changes. Users should use [.get] to use the shared
- * instance in [DatabaseConfig.Builder]
  */
 class DirectModelNotifier(
     override val db: GeneratedDatabase,
