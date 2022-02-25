@@ -2,7 +2,7 @@ package com.dbflow5.database.transaction
 
 import app.cash.turbine.test
 import com.dbflow5.TestDatabase_Database
-import com.dbflow5.coroutines.toFlow
+import com.dbflow5.adapter2.toFlow
 import com.dbflow5.models.TwoColumnModel
 import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.select

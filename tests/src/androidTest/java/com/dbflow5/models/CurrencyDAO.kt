@@ -3,7 +3,7 @@ package com.dbflow5.models
 import com.dbflow5.TestDatabase
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.beginTransactionAsync
-import com.dbflow5.coroutines.defer
+import com.dbflow5.transaction.deferAsync
 import com.dbflow5.currencyAdapter
 import com.dbflow5.paging.toDataSourceFactory
 import com.dbflow5.query.select
@@ -24,7 +24,7 @@ interface DBProvider<out T : GeneratedDatabase> {
 interface CurrencyDAO : DBProvider<TestDatabase> {
 
     fun coroutineStoreUSD(currency: Currency): Deferred<Currency> =
-        database.beginTransactionAsync { currencyAdapter.save(currency) }.defer()
+        database.beginTransactionAsync { currencyAdapter.save(currency) }.deferAsync()
 
     /**
      *  Utilize coroutines package
@@ -33,7 +33,7 @@ interface CurrencyDAO : DBProvider<TestDatabase> {
         database.beginTransactionAsync {
             (currencyAdapter.select()
                 where (Currency_Table.symbol eq "$")).list()
-        }.defer()
+        }.deferAsync()
 
     fun rxStoreUSD(currency: Currency): Single<Currency> =
         database.beginTransactionAsync { currencyAdapter.save(currency) }.asSingle()
