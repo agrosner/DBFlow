@@ -39,8 +39,9 @@ class DatabaseTestRule<DB : DBFlowDatabase>(
 
     lateinit var db: DB
 
+    @Suppress("UNCHECKED_CAST")
     inline operator fun invoke(fn: WritableDatabaseScope<DB>.() -> Unit) {
-        WritableDatabaseScope(db).apply { fn() }
+        (db.writableScope as WritableDatabaseScope<DB>).apply { fn() }
     }
 
     fun runBlockingTest(fn: suspend TestDatabaseScope<DB>.() -> Unit) {

@@ -45,6 +45,10 @@ interface GeneratedDatabase : DatabaseWrapper, Closeable {
     @InternalDBFlowApi
     val enqueueScope: CoroutineScope
 
+    val writableScope: WritableDatabaseScope<GeneratedDatabase>
+
+    val readableScope: ReadableDatabaseScope<GeneratedDatabase>
+
     @InternalDBFlowApi
     val isInMemory: Boolean
 
@@ -85,6 +89,7 @@ interface GeneratedDatabase : DatabaseWrapper, Closeable {
 
     @InternalDBFlowApi
     val associatedDatabaseClassFile: KClass<*>
+
 
     override fun close()
 
@@ -144,6 +149,15 @@ abstract class DBFlowDatabase : GeneratedDatabase {
 
     override val migrations: Map<Int, List<Migration>>
         get() = migrationMap
+
+    override val writableScope: WritableDatabaseScope<GeneratedDatabase> by lazy {
+        WritableDatabaseScope(
+            this
+        )
+    }
+    override val readableScope: ReadableDatabaseScope<GeneratedDatabase> by lazy {
+        ReadableDatabaseScope(this)
+    }
 
     /**
      * Returns true if the [openHelper] has been created.

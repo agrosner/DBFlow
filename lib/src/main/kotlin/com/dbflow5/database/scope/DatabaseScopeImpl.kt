@@ -13,10 +13,10 @@ import com.dbflow5.query.cursor
 import com.dbflow5.query.hasData
 
 /**
- * Description:
+ * Delegates operations to the calling target in each method. This can be thought of
+ * as a lightweight abstraction wrapper that makes calling operations much simpler.
  */
-class DatabaseScopeImpl<DB : GeneratedDatabase>
-internal constructor(
+internal class DatabaseScopeImpl<DB : GeneratedDatabase>(
     override val db: DB
 ) :
     WritableDatabaseScope<DB> {
@@ -89,11 +89,17 @@ internal constructor(
         hasData(db)
 }
 
+/**
+ * Creates a new [WritableDatabaseScope] which allows writes as well as reads on the DB.
+ */
 fun <DB : GeneratedDatabase> WritableDatabaseScope(
     db: DB,
 ):
     WritableDatabaseScope<DB> = DatabaseScopeImpl(db)
 
+/**
+ * Creates a new [ReadableDatabaseScope] which allows for
+ */
 fun <DB : GeneratedDatabase> ReadableDatabaseScope(
     db: DB,
 ): ReadableDatabaseScope<DB> = DatabaseScopeImpl(db)

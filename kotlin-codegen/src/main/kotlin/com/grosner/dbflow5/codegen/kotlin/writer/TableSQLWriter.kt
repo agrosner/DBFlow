@@ -93,11 +93,11 @@ class TableSQLWriter(
         primaryExtractors: List<FieldExtractor>,
     ) = buildString {
         append("UPDATE ")
-        (model.properties as? TableProperties)?.updateConflict
-            ?: ConflictAction.NONE
-                .takeIf { it != ConflictAction.NONE }?.let { action ->
-                    append(" OR ${action.dbName}")
-                }
+        ((model.properties as? TableProperties)?.updateConflict
+            ?: ConflictAction.NONE)
+            .takeIf { it != ConflictAction.NONE }?.let { action ->
+                append(" OR ${action.dbName}")
+            }
         append("${model.dbName} SET ")
         append(extractors.joinToString { it.updateName })
         append(" WHERE ")

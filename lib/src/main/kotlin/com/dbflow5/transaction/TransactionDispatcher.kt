@@ -52,6 +52,7 @@ internal class DefaultTransactionDispatcher(
     /**
      * Runs the transaction within the [dispatcher]
      */
+    @Suppress("UNCHECKED_CAST")
     override suspend fun <DB : GeneratedDatabase, R> executeTransaction(
         db: DB,
         transaction: SuspendableTransaction<DB, R>,
@@ -67,7 +68,8 @@ internal class DefaultTransactionDispatcher(
             )
         ) {
             coroutineContext.acquireTransaction {
-                WritableDatabaseScope(db).executeTransactionForResult(transaction)
+                (db.writableScope as WritableDatabaseScope<DB>)
+                    .executeTransactionForResult(transaction)
             }
         }
     }

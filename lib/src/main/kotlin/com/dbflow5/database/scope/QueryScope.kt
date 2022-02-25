@@ -92,4 +92,66 @@ interface WritableQueryScope : ReadableQueryScope {
      * method.
      */
     suspend fun <Result> ExecutableQuery<Result>.execute(): Result
+
+    /**
+     * Insert or replace a single [model] in a database transaction. Suspends and runs on the
+     * [DBFlowDatabase.transactionDispatcher] until complete.
+     *
+     * @return the updated model (with filled autoincrementing ID if specified).
+     */
+    suspend fun <T : Any> ModelAdapter<T>.save(model: T): T
+
+    /**
+     * Insert or replace all items in  a [Collection] of [models] in a database transaction.
+     * Suspends and runs on the [DBFlowDatabase.transactionDispatcher] until complete.
+     */
+    suspend fun <T : Any> ModelAdapter<T>.saveAll(models: Collection<T>): Collection<T>
+
+    /**
+     * Inserts a single [model] in a database transaction. Suspends and runs on the
+     * [DBFlowDatabase.transactionDispatcher] until complete.
+     *
+     * @return the updated model (with filled autoincrementing ID if specified).
+     */
+    suspend fun <T : Any> ModelAdapter<T>.insert(model: T): T
+
+    /**
+     * Inserts all items in a [Collection] of [model] in a database transaction.
+     * Suspends and runs on the [DBFlowDatabase.transactionDispatcher] until complete.
+     *
+     * @return list of updated models (with filled autoincrementing ID if specified).
+     */
+    suspend fun <T : Any> ModelAdapter<T>.insertAll(models: Collection<T>): Collection<T>
+
+    /**
+     * Updates a single [model] in a database transaction.
+     * Suspends and runs on the [DBFlowDatabase.transactionDispatcher] until complete.
+     *
+     * @return the updated model (with filled autoincrementing ID if specified).
+     */
+    suspend fun <T : Any> ModelAdapter<T>.update(model: T): T
+
+    /**
+     * Updates all items in a [Collection] of [model] in a database transaction.
+     * Suspends and runs on the [DBFlowDatabase.transactionDispatcher] until complete.
+     *
+     * @return list of updated models (with filled autoincrementing ID if specified).
+     */
+    suspend fun <T : Any> ModelAdapter<T>.updateAll(models: Collection<T>): Collection<T>
+
+    /**
+     * Deletes a single [model] in a database transaction.
+     * Suspends and runs on the [DBFlowDatabase.transactionDispatcher] until complete.
+     *
+     * @return the deleted model.
+     */
+    suspend fun <T : Any> ModelAdapter<T>.delete(model: T): T
+
+    /**
+     * Deletes all items in a [Collection] of [model] in a database transaction.
+     * Suspends and runs on the [DBFlowDatabase.transactionDispatcher] until complete.
+     *
+     * @return list of deleted models.
+     */
+    suspend fun <T : Any> ModelAdapter<T>.deleteAll(models: Collection<T>): Collection<T>
 }

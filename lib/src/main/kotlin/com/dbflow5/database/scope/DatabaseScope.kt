@@ -9,8 +9,8 @@ interface DatabaseScope<DB : GeneratedDatabase> {
     val db: DB
 }
 
-interface ReadableDatabaseScope<DB : GeneratedDatabase> : DatabaseScope<DB>, ReadableScope,
+interface ReadableDatabaseScope<DB : GeneratedDatabase> : DatabaseScope<DB>,
     ReadableQueryScope
 
-interface WritableDatabaseScope<DB : GeneratedDatabase> : ReadableDatabaseScope<DB>, WritableScope,
+interface WritableDatabaseScope<DB : GeneratedDatabase> : ReadableDatabaseScope<DB>,
     WritableQueryScope
