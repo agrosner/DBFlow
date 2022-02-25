@@ -2,7 +2,7 @@ package com.dbflow5.query.operations
 
 import com.dbflow5.adapter.AdapterCompanion
 import com.dbflow5.adapter.makeLazyDBRepresentable
-import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.query.Aliasable
 import com.dbflow5.query.HasAdapter
 import com.dbflow5.query.NameAlias

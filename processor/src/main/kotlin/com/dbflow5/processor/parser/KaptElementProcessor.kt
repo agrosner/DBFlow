@@ -170,7 +170,7 @@ class KaptElementProcessor(
                             adapterParams = adapterParamsForExecutableParams(
                                 classDeclaration.constructors.first()
                                     .parameters
-                            ) { it.rawType == ClassNames.ModelAdapter2 },
+                            ) { it.rawType == ClassNames.ModelAdapter },
                         )
                     )
                 }
@@ -251,7 +251,7 @@ class KaptElementProcessor(
                                 adapterParams = adapterParamsForExecutableParams(
                                     (modelViewQueryFun.element as ExecutableElement)
                                         .parameters
-                                ) { it.rawType == ClassNames.ModelAdapter2 }
+                                ) { it.rawType == ClassNames.ModelAdapter }
                             ),
                         ),
                         properties = viewPropertyParser.parse(input.annotation()),

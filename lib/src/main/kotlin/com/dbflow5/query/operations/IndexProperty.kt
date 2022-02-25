@@ -1,7 +1,7 @@
 package com.dbflow5.query.operations
 
 import com.dbflow5.adapter.makeLazyDBRepresentable
-import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.query.HasAdapter
 import com.dbflow5.query.Index
 import com.dbflow5.query.createIndexOn

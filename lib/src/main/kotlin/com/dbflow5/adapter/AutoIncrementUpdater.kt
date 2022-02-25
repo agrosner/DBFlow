@@ -1,4 +1,4 @@
-package com.dbflow5.adapter2
+package com.dbflow5.adapter
 
 /**
  * Updates auto increment field by mutating or copying the autoincrementing column with specified id.

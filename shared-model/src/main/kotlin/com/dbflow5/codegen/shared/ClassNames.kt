@@ -35,39 +35,37 @@ object ClassNames {
 
     fun primaryModelClauseGetter(
         tableTypeName: TypeName,
-    ) = ClassName(PackageNames.Adapter2, "PrimaryModelClauseGetter")
+    ) = ClassName(PackageNames.Adapter, "PrimaryModelClauseGetter")
         .parameterizedBy(tableTypeName)
 
     fun autoIncrementUpdater(
         tableTypeName: TypeName,
-    ) = ClassName(PackageNames.Adapter2, "AutoIncrementUpdater")
+    ) = ClassName(PackageNames.Adapter, "AutoIncrementUpdater")
         .parameterizedBy(tableTypeName)
 
     fun dbCreator(databaseTypeName: TypeName) = ClassName(PackageNames.DatabaseConfig, "DBCreator")
         .parameterizedBy(databaseTypeName)
 
-    val QueryOpsImpl = ClassName(PackageNames.Adapter2, "QueryOpsImpl")
-    val NotifyDistributor = ClassName(PackageNames.Runtime, "NotifyDistributor")
+    val QueryOpsImpl = ClassName(PackageNames.Adapter, "QueryOpsImpl")
     val OperatorGroup = ClassName(PackageNames.QueryOperations, "OperatorGroup")
     val Operation = ClassName(PackageNames.QueryOperations, "Operation")
 
     val ModelAdapter = ClassName(PackageNames.Adapter, "ModelAdapter")
-    val ModelAdapter2 = ClassName(PackageNames.Adapter2, "ModelAdapter")
-    val ViewAdapter2 = ClassName(PackageNames.Adapter2, "ViewAdapter")
-    val QueryAdapter2 = ClassName(PackageNames.Adapter2, "QueryAdapter")
-    fun modelAdapter2(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "ModelAdapter")
+    val ViewAdapter = ClassName(PackageNames.Adapter, "ViewAdapter")
+    val QueryAdapter = ClassName(PackageNames.Adapter, "QueryAdapter")
+    fun modelAdapter2(tableTypeName: TypeName) = ClassName(PackageNames.Adapter, "ModelAdapter")
         .parameterizedBy(tableTypeName)
 
-    fun queryAdapter2(queryTypeName: TypeName) = ClassName(PackageNames.Adapter2, "QueryAdapter")
+    fun queryAdapter2(queryTypeName: TypeName) = ClassName(PackageNames.Adapter, "QueryAdapter")
         .parameterizedBy(queryTypeName)
 
-    fun viewAdapter2(viewTypeName: TypeName) = ClassName(PackageNames.Adapter2, "ViewAdapter")
+    fun viewAdapter2(viewTypeName: TypeName) = ClassName(PackageNames.Adapter, "ViewAdapter")
         .parameterizedBy(viewTypeName)
 
-    fun tableOps(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "TableOps")
+    fun tableOps(tableTypeName: TypeName) = ClassName(PackageNames.Adapter, "TableOps")
         .parameterizedBy(tableTypeName)
 
-    val TableOpsImpl = ClassName(PackageNames.Adapter2, "TableOpsImpl")
+    val TableOpsImpl = ClassName(PackageNames.Adapter, "TableOpsImpl")
 
     fun adapterCompanion(typeName: TypeName) =
         ClassName(PackageNames.Adapter, "AdapterCompanion")
@@ -77,14 +75,14 @@ object ClassNames {
         ClassName("${PackageNames.Database}.scope", "DatabaseScope")
             .parameterizedBy(dbTypeName)
 
-    fun tableBinder(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "TableBinder")
+    fun tableBinder(tableTypeName: TypeName) = ClassName(PackageNames.Adapter, "TableBinder")
         .parameterizedBy(tableTypeName)
 
-    fun propertyGetter(tableTypeName: TypeName) = ClassName(PackageNames.Adapter2, "PropertyGetter")
+    fun propertyGetter(tableTypeName: TypeName) = ClassName(PackageNames.Adapter, "PropertyGetter")
         .parameterizedBy(tableTypeName)
 
     fun queryOps(classType: ClassName) = ClassName(
-        PackageNames.Adapter2,
+        PackageNames.Adapter,
         "QueryOps"
     ).parameterizedBy(classType)
 
@@ -99,7 +97,6 @@ object ClassNames {
 
     val DatabaseStatement = ClassName(PackageNames.Database, "DatabaseStatement")
 
-    val ObjectType = ClassName(PackageNames.Adapter, "ObjectType")
     val TypeConverter = ClassName(PackageNames.Converter, "TypeConverter")
     val LoadFromCursorListener = ClassName(PackageNames.Query, "LoadFromCursorListener")
     val DatabaseStatementListener = ClassName(PackageNames.Query, "DatabaseStatementListener")
@@ -110,8 +107,8 @@ object ClassNames {
     val AndroidNonNull = ClassName("android.support.annotation", "NonNull")
     val AndroidXNonNull = ClassName("androidx.annotation", "NonNull")
 
-    val TableSQL = ClassName(PackageNames.Adapter2, "TableSQL")
-    val CompilableQuery = ClassName(PackageNames.Adapter2, "CompilableQuery")
+    val TableSQL = ClassName(PackageNames.Adapter, "TableSQL")
+    val CompilableQuery = ClassName(PackageNames.Adapter, "CompilableQuery")
 
     val DBSettings = ClassName(PackageNames.DatabaseConfig, "DBSettings")
 }

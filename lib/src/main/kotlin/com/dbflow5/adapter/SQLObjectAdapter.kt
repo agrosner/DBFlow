@@ -1,7 +1,5 @@
 package com.dbflow5.adapter
 
-import com.dbflow5.adapter2.CompilableQuery
-import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper

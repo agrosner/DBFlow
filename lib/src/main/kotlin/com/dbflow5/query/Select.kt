@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.config.FlowManager
 import com.dbflow5.query.methods.count
 import com.dbflow5.query.operations.AnyOperator

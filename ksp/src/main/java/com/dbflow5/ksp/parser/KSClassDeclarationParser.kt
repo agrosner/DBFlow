@@ -248,7 +248,7 @@ class KSClassDeclarationParser(
                             originatingSource = originatingFile,
                             adapterParams = adapterParamsForFunParams(
                                 constructor.parameters
-                            ) { typeName -> typeName.rawType == ClassNames.ModelAdapter2 }
+                            ) { typeName -> typeName.rawType == ClassNames.ModelAdapter }
                         )
                     )
                 }
@@ -369,7 +369,7 @@ class KSClassDeclarationParser(
                                 ),
                                 adapterParams = adapterParamsForFunParams(
                                     modelViewQuery.parameters
-                                ) { typeName -> typeName.rawType == ClassNames.ModelAdapter2 }
+                                ) { typeName -> typeName.rawType == ClassNames.ModelAdapter }
                             )
                         ),
                         properties = viewPropertyParser.parse(annotation),

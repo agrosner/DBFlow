@@ -1,4 +1,4 @@
-package com.dbflow5.adapter2
+package com.dbflow5.adapter
 
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor

@@ -1,6 +1,6 @@
 package com.dbflow5.observing
 
-import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.beginTransactionAsync

@@ -1,6 +1,6 @@
 package com.dbflow5.adapter.queriable
 
-import com.dbflow5.adapter2.QueryOps
+import com.dbflow5.adapter.QueryOps
 import com.dbflow5.config.FlowManager
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor

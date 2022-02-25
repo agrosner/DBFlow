@@ -1,8 +1,8 @@
 package com.dbflow5.models
 
 import com.dbflow5.TestDatabase_Database
-import com.dbflow5.adapter2.create
-import com.dbflow5.adapter2.drop
+import com.dbflow5.adapter.create
+import com.dbflow5.adapter.drop
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.tempModelAdapter

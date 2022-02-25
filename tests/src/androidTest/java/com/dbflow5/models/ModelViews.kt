@@ -1,6 +1,6 @@
 package com.dbflow5.models
 
-import com.dbflow5.adapter2.ModelAdapter
+import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ModelView

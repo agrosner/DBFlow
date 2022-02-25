@@ -1,8 +1,8 @@
 package com.dbflow5.config
 
-import com.dbflow5.adapter2.DBRepresentable
-import com.dbflow5.adapter2.ModelAdapter
-import com.dbflow5.adapter2.ViewAdapter
+import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.database.DatabaseCallback

@@ -4,7 +4,7 @@ package com.dbflow5
 
 import android.content.ContentValues
 import android.net.Uri
-import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.BaseOperator

@@ -4,7 +4,7 @@ import android.content.ContentResolver
 import android.database.ContentObserver
 import android.net.Uri
 import android.os.Handler
-import com.dbflow5.adapter2.ModelAdapter
+import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.config.FlowLog
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.structure.Model

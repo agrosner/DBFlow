@@ -34,8 +34,8 @@ object MemberNames {
 
     val getOrThrow = MemberName("kotlin", "getOrThrow")
 
-    val emptyAutoIncrementUpdater = MemberName(PackageNames.Adapter2, "emptyAutoIncrementUpdater")
-    val modelAdapter = MemberName(PackageNames.Adapter2, "modelAdapter")
-    val viewAdapter = MemberName(PackageNames.Adapter2, "viewAdapter")
-    val queryAdapter = MemberName(PackageNames.Adapter2, "queryAdapter")
+    val emptyAutoIncrementUpdater = MemberName(PackageNames.Adapter, "emptyAutoIncrementUpdater")
+    val modelAdapter = MemberName(PackageNames.Adapter, "modelAdapter")
+    val viewAdapter = MemberName(PackageNames.Adapter, "viewAdapter")
+    val queryAdapter = MemberName(PackageNames.Adapter, "queryAdapter")
 }

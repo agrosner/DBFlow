@@ -1,8 +1,8 @@
 package com.dbflow5
 
-import com.dbflow5.adapter2.ModelAdapter
-import com.dbflow5.adapter2.QueryAdapter
-import com.dbflow5.adapter2.ViewAdapter
+import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter.QueryAdapter
+import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.Migration

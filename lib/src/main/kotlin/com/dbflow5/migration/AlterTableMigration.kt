@@ -1,7 +1,7 @@
 package com.dbflow5.migration
 
 import androidx.annotation.CallSuper
-import com.dbflow5.adapter2.ModelAdapter
+import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.appendQuotedIfNeeded
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.cursor

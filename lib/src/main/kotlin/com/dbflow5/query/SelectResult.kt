@@ -1,7 +1,7 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter2.DBRepresentable
-import com.dbflow5.adapter2.QueryOps
+import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.QueryOps
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.sql.Query

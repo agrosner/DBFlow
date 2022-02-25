@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter2.QueryRepresentable
+import com.dbflow5.adapter.QueryRepresentable
 
 /**
  * Description:

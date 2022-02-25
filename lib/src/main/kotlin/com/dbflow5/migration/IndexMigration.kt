@@ -1,6 +1,6 @@
 package com.dbflow5.migration
 
-import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.createIndexOn
 import com.dbflow5.query.operations.Property

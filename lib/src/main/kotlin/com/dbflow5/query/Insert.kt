@@ -1,7 +1,7 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter2.DBRepresentable
-import com.dbflow5.adapter2.ModelAdapter
+import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.operations.BaseOperator

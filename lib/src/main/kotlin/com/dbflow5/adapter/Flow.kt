@@ -1,4 +1,4 @@
-package com.dbflow5.adapter2
+package com.dbflow5.adapter
 
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.enqueueTransaction

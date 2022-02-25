@@ -1,6 +1,15 @@
 package com.dbflow5.adapter2
 
 import com.dbflow5.DemoApp
+import com.dbflow5.adapter.AutoIncrementUpdater
+import com.dbflow5.adapter.CompilableQuery
+import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter.PrimaryModelClauseGetter
+import com.dbflow5.adapter.QueryOps
+import com.dbflow5.adapter.TableBinder
+import com.dbflow5.adapter.TableOps
+import com.dbflow5.adapter.TableOpsImpl
+import com.dbflow5.adapter.TableSQL
 import com.dbflow5.config.DatabaseHolder
 import com.dbflow5.config.FlowManager
 import com.dbflow5.config.GeneratedDatabase

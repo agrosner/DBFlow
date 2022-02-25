@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.appendQuotedIfNeeded
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.operations.Property
