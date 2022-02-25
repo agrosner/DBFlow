@@ -2,14 +2,10 @@ package com.dbflow5.config
 
 import android.app.ActivityManager
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 
 enum class JournalMode {
     Automatic,
     Truncate,
-
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     WriteAheadLogging;
 
     fun adjustIfAutomatic(context: Context): JournalMode = when (this) {
