@@ -1,12 +1,12 @@
 package com.dbflow5.query
 
+import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.longForQuery
 import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.NotifyDistributor
 import com.dbflow5.stringForQuery
 import com.dbflow5.structure.ChangeAction
-import kotlin.reflect.KClass
 
 /**
  * Determines how results are created from a query.
@@ -25,7 +25,7 @@ object UnitResultFactory : ResultFactory<Unit> {
 }
 
 data class UpdateDeleteResultFactory(
-    private val table: KClass<*>,
+    private val dbRepresentable: DBRepresentable<*>,
     private val isDelete: Boolean,
 ) : ResultFactory<Long> {
     override fun DatabaseWrapper.createResult(query: String): Long {
@@ -35,7 +35,7 @@ data class UpdateDeleteResultFactory(
                 .onChange(
                     this,
                     ModelNotification.TableChange(
-                        table,
+                        dbRepresentable,
                         if (isDelete) ChangeAction.DELETE else ChangeAction.UPDATE,
                     )
                 )
@@ -45,7 +45,7 @@ data class UpdateDeleteResultFactory(
 }
 
 data class InsertResultFactory(
-    private val table: KClass<*>,
+    private val dbRepresentable: DBRepresentable<*>,
 ) : ResultFactory<Long> {
     override fun DatabaseWrapper.createResult(query: String): Long {
         val affected = compileStatement(query).use { it.executeInsert() }
@@ -54,7 +54,7 @@ data class InsertResultFactory(
                 .onChange(
                     this,
                     ModelNotification.TableChange(
-                        table,
+                        dbRepresentable,
                         ChangeAction.INSERT
                     )
                 )

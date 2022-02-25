@@ -84,7 +84,7 @@ class DirectNotifierTest {
 
                 assertEquals(
                     ModelNotification.TableChange(
-                        SimpleModel::class,
+                        simpleModelAdapter,
                         ChangeAction.INSERT,
                     ),
                     awaitItem(),
@@ -95,7 +95,7 @@ class DirectNotifierTest {
 
                 assertEquals(
                     ModelNotification.TableChange(
-                        SimpleModel::class,
+                        simpleModelAdapter,
                         ChangeAction.UPDATE,
                     ),
                     awaitItem(),
@@ -104,7 +104,7 @@ class DirectNotifierTest {
 
                 assertEquals(
                     ModelNotification.TableChange(
-                        SimpleModel::class,
+                        simpleModelAdapter,
                         ChangeAction.DELETE,
                     ),
                     awaitItem()

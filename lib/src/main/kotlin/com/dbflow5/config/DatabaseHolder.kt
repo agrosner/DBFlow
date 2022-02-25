@@ -6,7 +6,7 @@ import com.dbflow5.adapter2.ViewAdapter
 import com.dbflow5.converter.TypeConverter
 import kotlin.reflect.KClass
 
-interface DatabaseHolderFactory {
+fun interface DatabaseHolderFactory {
     fun create(): DatabaseHolder
 }
 

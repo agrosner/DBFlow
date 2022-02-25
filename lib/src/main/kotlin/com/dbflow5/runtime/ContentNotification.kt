@@ -2,6 +2,7 @@ package com.dbflow5.runtime
 
 import android.net.Uri
 import com.dbflow5.TABLE_QUERY_PARAM
+import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.adapter2.ModelAdapter
 import com.dbflow5.config.FlowManager
 import com.dbflow5.query.NameAlias
@@ -9,37 +10,33 @@ import com.dbflow5.query.operations.BaseOperator
 import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.operator
 import com.dbflow5.structure.ChangeAction
-import kotlin.reflect.KClass
 
 /**
  * Represents a notification used in [ContentResolverNotifier]
  */
 sealed interface ContentNotification<Table : Any> {
     val uri: Uri
-    val adapter: ModelAdapter<Table>
+    val dbRepresentable: DBRepresentable<Table>
     val action: ChangeAction
     val authority: String
 
     fun createUri(fn: Uri.Builder.() -> Unit = {}): Uri = Uri.Builder().scheme("dbflow")
         .authority(authority)
-        .appendQueryParameter(TABLE_QUERY_PARAM, adapter.name)
+        .appendQueryParameter(TABLE_QUERY_PARAM, dbRepresentable.name)
         .apply { if (action != ChangeAction.NONE) fragment(action.name) }
         .apply(fn)
         .build()
 
     data class TableChange<Table : Any>(
-        val table: KClass<Table>,
         override val action: ChangeAction,
         override val authority: String,
+        override val dbRepresentable: DBRepresentable<Table>,
     ) : ContentNotification<Table> {
-        override val adapter: ModelAdapter<Table> by lazy {
-            FlowManager.getModelAdapter(table)
-        }
         override val uri: Uri by lazy { createUri() }
     }
 
     data class ModelChange<Table : Any>(
-        val table: KClass<Table>,
+        override val dbRepresentable: DBRepresentable<Table>,
         override val action: ChangeAction,
         override val authority: String,
         val changedFields: List<BaseOperator.SingleValueOperator<*>>,
@@ -50,7 +47,7 @@ sealed interface ContentNotification<Table : Any> {
             action: ChangeAction,
             authority: String,
         ) : this(
-            table = adapter.table,
+            dbRepresentable = adapter,
             action = action,
             authority = authority,
             changedFields = adapter.getPrimaryModelClause(
@@ -59,10 +56,6 @@ sealed interface ContentNotification<Table : Any> {
                 // TODO: we should enforce this at operator group level.
                 .filterIsInstance<BaseOperator.SingleValueOperator<Table>>()
         )
-
-        override val adapter: ModelAdapter<Table> by lazy {
-            FlowManager.getModelAdapter(table)
-        }
 
         override val uri: Uri by lazy {
             createUri {
@@ -108,14 +101,14 @@ internal object DefaultContentNotificationDecoder : ContentNotificationDecoder {
             // model level change when we have column names in Uri
             return if (columns.isNotEmpty()) {
                 ContentNotification.ModelChange(
-                    table = FlowManager.getModelAdapterByTableName<Table>(tableName).table,
+                    dbRepresentable = FlowManager.getModelAdapterByTableName(tableName),
                     action = action,
                     authority = uri.authority ?: "",
                     changedFields = columns,
                 )
             } else {
                 ContentNotification.TableChange(
-                    table = FlowManager.getModelAdapterByTableName<Table>(tableName).table,
+                    dbRepresentable = FlowManager.getModelAdapterByTableName(tableName),
                     action = action,
                     authority = uri.authority ?: "",
                 )

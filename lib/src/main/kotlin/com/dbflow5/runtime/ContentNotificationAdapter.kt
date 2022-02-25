@@ -6,12 +6,12 @@ fun <Table : Any> ModelNotification<Table>.toContentNotification(
 ): ContentNotification<Table> = when (this) {
     is ModelNotification.ModelChange<Table> -> ContentNotification.ModelChange(
         changedFields = changedFields,
-        table = table,
+        dbRepresentable = adapter,
         action = action,
         authority = authority,
     )
     is ModelNotification.TableChange<Table> -> ContentNotification.TableChange(
-        table = table,
+        dbRepresentable = adapter,
         action = action,
         authority = authority,
     )

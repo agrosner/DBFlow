@@ -2,6 +2,7 @@ package com.dbflow5.adapter2
 
 import com.dbflow5.adapter.saveable.SaveOperationFailedException
 import com.dbflow5.annotation.opts.InternalDBFlowApi
+import com.dbflow5.config.FlowManager
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.DatabaseWrapper
@@ -9,6 +10,7 @@ import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.NotifyDistributor
 import com.dbflow5.structure.ChangeAction
+import kotlin.reflect.KClass
 
 interface TableOps<Table : Any> : QueryOps<Table> {
 
@@ -34,6 +36,7 @@ interface TableOps<Table : Any> : QueryOps<Table> {
  */
 @InternalDBFlowApi
 data class TableOpsImpl<Table : Any>(
+    private val table: KClass<Table>,
     private val queryOps: QueryOps<Table>,
     private val tableSQL: TableSQL,
     private val tableBinder: TableBinder<Table>,
@@ -44,6 +47,8 @@ data class TableOpsImpl<Table : Any>(
      */
     private val notifyChanges: Boolean,
 ) : TableOps<Table>, QueryOps<Table> by queryOps {
+
+    private val adapter by lazy { FlowManager.getDBRepresentable(table) }
 
     private fun DatabaseWrapper.bind(
         model: Table,
@@ -58,7 +63,7 @@ data class TableOpsImpl<Table : Any>(
                 ModelNotification.ModelChange(
                     changedFields = primaryModelClauseGetter.get(model),
                     action = changeAction,
-                    table = model::class,
+                    adapter = adapter,
                 )
             )
         }

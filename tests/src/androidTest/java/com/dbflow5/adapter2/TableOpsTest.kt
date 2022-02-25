@@ -1,5 +1,8 @@
 package com.dbflow5.adapter2
 
+import com.dbflow5.DemoApp
+import com.dbflow5.config.DatabaseHolder
+import com.dbflow5.config.FlowManager
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
@@ -48,6 +51,7 @@ class TableOpsTest {
     }
 
     private val queryOps = mock<QueryOps<Any>>()
+    private lateinit var mockModelAdapter: ModelAdapter<Any>
 
     private lateinit var ops: TableOps<Any>
 
@@ -55,6 +59,7 @@ class TableOpsTest {
     fun createOps() {
         Dispatchers.setMain(TestCoroutineDispatcher())
         ops = TableOpsImpl(
+            table = Any::class,
             queryOps = queryOps,
             tableSQL = tableSQL,
             tableBinder = tableBinder,
@@ -62,6 +67,25 @@ class TableOpsTest {
             autoIncrementUpdater = autoIncrementUpdater,
             notifyChanges = true,
         )
+
+        mockModelAdapter = ModelAdapter(
+            table = Any::class,
+            ops = ops,
+            propertyGetter = mock(),
+            name = "Mock",
+            creationSQL = CompilableQuery(""),
+            createWithDatabase = false,
+            primaryModelClauseGetter = mock(),
+        )
+        FlowManager.init(DemoApp.context) {
+            addDatabaseHolder {
+                DatabaseHolder(
+                    tables = setOf(mockModelAdapter),
+                    views = setOf(),
+                    queries = setOf(),
+                )
+            }
+        }
     }
 
     @Test
@@ -88,7 +112,7 @@ class TableOpsTest {
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.CHANGE,
-                table = model::class,
+                adapter = mockModelAdapter,
             )
         )
     }
@@ -117,7 +141,7 @@ class TableOpsTest {
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.INSERT,
-                table = model::class,
+                adapter = mockModelAdapter,
             )
         )
     }
@@ -143,7 +167,7 @@ class TableOpsTest {
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.UPDATE,
-                table = model::class,
+                adapter = mockModelAdapter,
             )
         )
     }
@@ -169,7 +193,7 @@ class TableOpsTest {
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.DELETE,
-                table = model::class,
+                adapter = mockModelAdapter,
             )
         )
     }

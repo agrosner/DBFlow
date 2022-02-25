@@ -1,7 +1,6 @@
 package com.dbflow5.query
 
 import com.dbflow5.adapter2.DBRepresentable
-import com.dbflow5.adapter2.QueryRepresentable
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Operation
@@ -45,7 +44,7 @@ internal data class UpdateImpl<Table : Any>(
     override val adapter: DBRepresentable<Table>,
     override val operatorGroup: OperatorGrouping<Query> = OperatorGroup.nonGroupingClause(),
     override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory(
-        adapter.type,
+        adapter,
         isDelete = false
     ),
 ) : UpdateStart<Table>, UpdateWithConflict<Table>,

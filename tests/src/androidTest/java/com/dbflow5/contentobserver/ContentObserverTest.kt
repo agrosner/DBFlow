@@ -116,9 +116,10 @@ class ContentObserverTest {
         )
         // use latch to wait for result asynchronously.
 
-        contentObserver.registerForContentChanges(DemoApp.context.contentResolver, User::class)
-
-        dbRule { userFunc(user) }
+        dbRule {
+            contentObserver.registerForContentChanges(DemoApp.context.contentResolver, userAdapter)
+            userFunc(user)
+        }
 
         contentObserver.unregisterForContentChanges(DemoApp.context.contentResolver)
 

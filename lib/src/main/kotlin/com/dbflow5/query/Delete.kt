@@ -13,7 +13,7 @@ fun <Table : Any> DBRepresentable<Table>.delete(): Delete<Table> = DeleteImpl(ad
 internal class DeleteImpl<Table : Any>(
     override val adapter: DBRepresentable<Table>,
     override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory(
-        adapter.type,
+        adapter,
         isDelete = true
     ),
 ) : Delete<Table> {

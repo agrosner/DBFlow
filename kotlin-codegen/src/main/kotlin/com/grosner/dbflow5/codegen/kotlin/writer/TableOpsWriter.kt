@@ -34,7 +34,8 @@ class TableOpsWriter(
                 }
                 returns(ClassNames.tableOps(model.classType))
                 addCode(
-                    "return %T(tableSQL = ${shortName}_sql, " +
+                    "return %T(table = ${model.classType}::class, " +
+                        "tableSQL = ${shortName}_sql, " +
                         "tableBinder = ${shortName}_tableBinder, " +
                         "primaryModelClauseGetter = ${shortName}_primaryModelClauseGetter, " +
                         "autoIncrementUpdater = ${shortName}_autoIncrementUpdater, " +

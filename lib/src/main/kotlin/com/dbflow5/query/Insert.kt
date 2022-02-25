@@ -178,7 +178,7 @@ internal data class InsertImpl<Table : Any>(
     override val conflictAction: ConflictAction = ConflictAction.NONE,
     override val adapter: DBRepresentable<Table>,
     override val subquery: ExecutableQuery<SelectResult<Any>>? = null,
-    private val resultFactory: ResultFactory<Long> = InsertResultFactory(adapter.type),
+    private val resultFactory: ResultFactory<Long> = InsertResultFactory(adapter),
 ) : InsertWithValues<Table>, InsertWithConflict<Table>, InsertStart<Table>,
     InsertWithSelect<Table, Any> {
     override val query: String by lazy {

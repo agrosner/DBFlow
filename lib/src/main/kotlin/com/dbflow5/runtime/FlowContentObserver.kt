@@ -6,9 +6,9 @@ import android.database.ContentObserver
 import android.net.Uri
 import android.os.Build.VERSION_CODES
 import android.os.Handler
+import com.dbflow5.adapter2.ModelAdapter
 import com.dbflow5.config.DatabaseConfig
 import com.dbflow5.config.FlowLog
-import com.dbflow5.config.FlowManager
 import com.dbflow5.getNotificationUri
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.structure.Model
@@ -21,7 +21,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.reflect.KClass
 
 /**
  * Description: Listens for [Model] changes. Register for specific
@@ -40,7 +39,7 @@ open class FlowContentObserver(
     private val scope: CoroutineScope = CoroutineScope(dispatcher),
 ) : ContentObserver(handler) {
 
-    private val registeredTables = mutableMapOf<String, KClass<*>>()
+    private val registeredTables = mutableSetOf<ModelAdapter<*>>()
     private val notificationUris = hashSetOf<Uri>()
     private val tableUris = hashSetOf<Uri>()
 
@@ -114,10 +113,10 @@ open class FlowContentObserver(
      */
     fun registerForContentChanges(
         contentResolver: ContentResolver,
-        table: KClass<*>
+        adapter: ModelAdapter<*>,
     ) {
         val uri = ContentNotification.TableChange(
-            table = table,
+            dbRepresentable = adapter,
             action = ChangeAction.NONE,
             authority = contentAuthority
         ).uri
@@ -127,9 +126,7 @@ open class FlowContentObserver(
             this,
         )
         REGISTERED_COUNT.incrementAndGet()
-        if (!registeredTables.containsValue(table)) {
-            registeredTables[FlowManager.getTableName(table)] = table
-        }
+        registeredTables.add(adapter)
     }
 
     /**
@@ -159,7 +156,7 @@ open class FlowContentObserver(
 
                 if (!notifyAllUris) {
                     val locUri = getNotificationUri(
-                        contentAuthority, notification.adapter.table,
+                        contentAuthority, notification.dbRepresentable.type,
                         ChangeAction.CHANGE
                     )
                     synchronized(notificationUris) { notificationUris.add(locUri) }
@@ -170,7 +167,7 @@ open class FlowContentObserver(
                         tableUris.add(
                             getNotificationUri(
                                 contentAuthority,
-                                notification.adapter.table,
+                                notification.dbRepresentable.type,
                                 notification.action
                             )
                         )
@@ -181,7 +178,7 @@ open class FlowContentObserver(
             FlowLog.log(
                 FlowLog.Level.W,
                 "Received URI change for unregistered " +
-                    "${notification?.adapter?.table ?: "uri: $uri"} . URI ignored."
+                    "${notification?.dbRepresentable?.type ?: "uri: $uri"} . URI ignored."
             )
         }
     }
