@@ -11,8 +11,6 @@ import com.dbflow5.adapter2.ViewAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.converter.TypeConverter
-import com.dbflow5.database.scope.WritableDatabaseScope
-import com.dbflow5.structure.InvalidDBConfiguration
 import com.dbflow5.structure.Model
 import kotlin.reflect.KClass
 
@@ -59,22 +57,6 @@ object FlowManager {
         return databaseHolder.getModelAdapterOrNull(table)?.name
             ?: databaseHolder.getViewAdapterOrNull(table)?.name
             ?: throwCannotFindAdapter("ModelAdapter/ModelViewAdapter/VirtualAdapter", table)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    @JvmStatic
-    fun <T : GeneratedDatabase> getDatabase(databaseClass: KClass<T>): T {
-        checkDatabaseHolder()
-        return throw InvalidDBConfiguration(
-            "Database: ${databaseClass.simpleName} is not a registered Database. " +
-                "Did you forget the @Database annotation?"
-        )
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    @JvmStatic
-    fun <T : GeneratedDatabase> getDatabase(databaseClass: Class<T>): T {
-        return getDatabase(databaseClass.kotlin)
     }
 
     /**
@@ -278,19 +260,3 @@ object FlowManager {
         RuntimeException(detailMessage, throwable)
 
 }
-
-@Deprecated(
-    replaceWith = ReplaceWith(""),
-    message = "Use DI to provide DB instance"
-)
-inline fun <reified DB : GeneratedDatabase> database(fn: WritableDatabaseScope<DB>.() -> Unit = {}): DB =
-    FlowManager.getDatabase(DB::class).apply { WritableDatabaseScope(this).fn() }
-
-/**
- * Checks a standard database helper for integrity using quick_check(1).
- *
- * @param databaseName The name of the database to check. Will thrown an exception if it does not exist.
- * @return true if it's integrity is OK.
- */
-fun <T : DBFlowDatabase> FlowManager.isDatabaseIntegrityOk(clazz: KClass<T>) =
-    getDatabase(clazz).openHelper.isDatabaseIntegrityOk
