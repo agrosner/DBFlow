@@ -11,7 +11,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlin.reflect.KClass
 
 /**
  * Builds a [Flow] that listens for table changes and emits when they change.
@@ -33,12 +32,9 @@ fun <Table : Any, Result, Q> Q.toFlow(
             db.enqueueTransaction { channel.send(execute().selectResultFn()) }
         }
 
-        val onTableChangedObserver =
-            object : OnTableChangedObserver(associatedAdapters.map { it.type }.toList()) {
-                override fun onChanged(tables: Set<KClass<*>>) {
-                    evaluateEmission()
-                }
-            }
+        val onTableChangedObserver = OnTableChangedObserver(associatedAdapters) {
+            evaluateEmission()
+        }
 
         // force initialize the db
         db.writableDatabase

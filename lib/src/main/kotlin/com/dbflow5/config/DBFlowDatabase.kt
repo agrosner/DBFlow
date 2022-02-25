@@ -1,5 +1,8 @@
 package com.dbflow5.config
 
+import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter2.ModelAdapter
+import com.dbflow5.adapter2.ViewAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.database.DatabaseCallback
@@ -99,6 +102,16 @@ abstract class DBFlowDatabase : GeneratedDatabase {
      */
     @InternalDBFlowApi
     abstract val settings: DBSettings
+
+    @InternalDBFlowApi
+    private val modelAdapters: List<ModelAdapter<*>> by lazy {
+        tables.map { FlowManager.getModelAdapter(it) }
+    }
+
+    @InternalDBFlowApi
+    private val viewAdapters: List<ViewAdapter<*>> by lazy {
+        views.map { FlowManager.getModelViewAdapter(it) }
+    }
 
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
 
@@ -201,9 +214,8 @@ abstract class DBFlowDatabase : GeneratedDatabase {
      */
     override val tableObserver: TableObserver<DBFlowDatabase> by lazy {
         // observe all tables
-        TableObserver(this, tables = tables.toMutableList().apply {
-            addAll(views)
-        })
+        TableObserver(this, adapters = modelAdapters.toMutableList<DBRepresentable<*>>()
+            .apply { addAll(viewAdapters) })
     }
 
     protected fun addMigration(version: Int, migration: Migration) {

@@ -1,8 +1,8 @@
 package com.dbflow5.observing
 
+import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
-import com.dbflow5.config.FlowManager
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
@@ -12,7 +12,6 @@ import com.dbflow5.query.TriggerMethod
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.stripQuotes
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.reflect.KClass
 
 /**
  * Description: Tracks table changes in the DB via Triggers. This more efficient than utilizing
@@ -20,17 +19,17 @@ import kotlin.reflect.KClass
  */
 class TableObserver<DB : DBFlowDatabase> internal constructor(
     private val db: DB,
-    private val tables: List<KClass<*>>
+    private val adapters: List<DBRepresentable<*>>
 ) {
 
-    private val tableReferenceMap = hashMapOf<KClass<*>, Int>()
-    private val tableIndexToNameMap = hashMapOf<Int, KClass<*>>()
+    private val tableReferenceMap = hashMapOf<DBRepresentable<*>, Int>()
+    private val tableIndexToNameMap = hashMapOf<Int, DBRepresentable<*>>()
 
-    private val observingTableTracker = ObservingTableTracker(tableCount = tables.size)
+    private val observingTableTracker = ObservingTableTracker(tableCount = adapters.size)
     private val observerToObserverWithIdsMap =
         mutableMapOf<OnTableChangedObserver, OnTableChangedObserverWithIds>()
 
-    private val tableStatus = BooleanArray(tables.size)
+    private val tableStatus = BooleanArray(adapters.size)
 
     private var initialized = false
 
@@ -43,7 +42,7 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
     }
 
     init {
-        tables.withIndex().forEach { (index, name) ->
+        adapters.withIndex().forEach { (index, name) ->
             tableReferenceMap[name] = index
             tableIndexToNameMap[index] = name
         }
@@ -238,15 +237,14 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
 
     private fun observeTable(db: DatabaseWrapper, tableId: Int) {
         db.execSQL("INSERT OR IGNORE INTO $TABLE_OBSERVER_NAME VALUES($tableId, 0)")
-        val tableName = tables[tableId]
+        val adapter = adapters[tableId]
 
         TriggerMethod.All.forEach { method ->
             // utilize raw query, since we're using dynamic tables not supported by query language.
             db.execSQL(
-                "CREATE TEMP TRIGGER IF NOT EXISTS ${getTriggerName(tableName, method.value)} " +
-                    "AFTER ${method.value} ON ${
-                        FlowManager.getTableName(tableName).quoteIfNeeded()
-                    } BEGIN UPDATE $TABLE_OBSERVER_NAME " +
+                "CREATE TEMP TRIGGER IF NOT EXISTS ${getTriggerName(adapter, method.value)} " +
+                    "AFTER ${method.value} ON ${adapter.name.quoteIfNeeded()} " +
+                    "BEGIN UPDATE $TABLE_OBSERVER_NAME " +
                     "SET $INVALIDATED_COLUMN_NAME = 1 " +
                     "WHERE $TABLE_ID_COLUMN_NAME = $tableId " +
                     "AND $INVALIDATED_COLUMN_NAME = 0; END"
@@ -255,14 +253,14 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
     }
 
     private fun stopObservingTable(db: DatabaseWrapper, tableId: Int) {
-        val tableName = tables[tableId]
+        val adapter = adapters[tableId]
         TriggerMethod.All.forEach { method ->
-            db.execSQL("DROP TRIGGER IF EXISTS ${getTriggerName(tableName, method.value)}")
+            db.execSQL("DROP TRIGGER IF EXISTS ${getTriggerName(adapter, method.value)}")
         }
     }
 
-    private fun getTriggerName(table: KClass<*>, method: String) =
-        "`${TRIGGER_PREFIX}_${FlowManager.getTableName(table).stripQuotes()}_$method`"
+    private fun getTriggerName(adapter: DBRepresentable<*>, method: String) =
+        "`${TRIGGER_PREFIX}_${adapter.name.stripQuotes()}_$method`"
 
     companion object {
 

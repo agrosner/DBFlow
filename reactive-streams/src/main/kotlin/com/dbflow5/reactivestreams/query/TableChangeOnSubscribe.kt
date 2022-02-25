@@ -11,7 +11,6 @@ import io.reactivex.rxjava3.core.FlowableEmitter
 import io.reactivex.rxjava3.core.FlowableOnSubscribe
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
-import kotlin.reflect.KClass
 
 /**
  * Description: Emits when table changes occur for the related table on the [SelectResult].
@@ -29,15 +28,9 @@ class TableChangeOnSubscribe<Table : Any, Result : Any, Q>(
 
     private val currentTransactions = CompositeDisposable()
 
-    private val associatedTables: Set<KClass<*>> = executable.associatedAdapters.map { it.type }
-        .toSet()
-
-    private val onTableChangedObserver =
-        object : OnTableChangedObserver(associatedTables.toList()) {
-            override fun onChanged(tables: Set<KClass<*>>) {
-                evaluateEmission()
-            }
-        }
+    private val onTableChangedObserver = OnTableChangedObserver(executable.associatedAdapters) {
+        evaluateEmission()
+    }
 
     private fun evaluateEmission() {
         if (this::flowableEmitter.isInitialized) {

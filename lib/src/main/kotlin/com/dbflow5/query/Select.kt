@@ -1,7 +1,6 @@
 package com.dbflow5.query
 
 import com.dbflow5.adapter2.DBRepresentable
-import com.dbflow5.adapter2.QueryRepresentable
 import com.dbflow5.config.FlowManager
 import com.dbflow5.query.methods.count
 import com.dbflow5.query.operations.AnyOperator
@@ -244,8 +243,8 @@ internal data class SelectImpl<Table : Any, Result>(
         queryNameAlias = literalOf(hasAdapter).nameAlias,
     )
 
-    override val associatedAdapters: List<QueryRepresentable<*>> =
-        linkedSetOf<QueryRepresentable<*>>(adapter)
+    override val associatedAdapters: List<DBRepresentable<*>> =
+        linkedSetOf<DBRepresentable<*>>(adapter)
             .apply {
                 joins.mapTo(this) { it.adapter }
             }

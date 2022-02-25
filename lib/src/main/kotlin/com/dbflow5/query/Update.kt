@@ -51,7 +51,7 @@ internal data class UpdateImpl<Table : Any>(
 ) : UpdateStart<Table>, UpdateWithConflict<Table>,
     UpdateWithSet<Table> {
 
-    override val associatedAdapters: List<QueryRepresentable<*>> = listOf(adapter)
+    override val associatedAdapters: List<DBRepresentable<*>> = listOf(adapter)
 
     override val query: String by lazy {
         buildString {

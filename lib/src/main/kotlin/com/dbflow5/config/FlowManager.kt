@@ -10,7 +10,6 @@ import com.dbflow5.adapter2.QueryRepresentable
 import com.dbflow5.adapter2.ViewAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
-import com.dbflow5.converter.TypeConverter
 import com.dbflow5.structure.Model
 import kotlin.reflect.KClass
 
@@ -138,19 +137,6 @@ object FlowManager {
         config = (config?.merge(flowConfig) ?: flowConfig)
             .also { it.databaseHolders.forEach(::loadDatabaseHolder) }
     }
-
-    /**
-     * @param objectClass A class with an associated type converter. May return null if not found.
-     * @return The specific [TypeConverter] for the specified class. It defines
-     * how the custom datatype is handled going into and out of the DB.
-     */
-    @JvmStatic
-    fun getTypeConverterForClass(objectClass: KClass<*>): TypeConverter<*, *>? {
-        checkDatabaseHolder()
-        return databaseHolder.getTypeConverterForClass(objectClass)
-    }
-
-    // region Getters
 
     /**
      * Release reference to context and [FlowConfig]

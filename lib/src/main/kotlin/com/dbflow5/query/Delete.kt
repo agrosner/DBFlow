@@ -1,7 +1,6 @@
 package com.dbflow5.query
 
 import com.dbflow5.adapter2.DBRepresentable
-import com.dbflow5.adapter2.QueryRepresentable
 import com.dbflow5.sql.Query
 
 interface Delete<Table : Any> : Query,
@@ -19,7 +18,7 @@ internal class DeleteImpl<Table : Any>(
     ),
 ) : Delete<Table> {
 
-    override val associatedAdapters: List<QueryRepresentable<*>> = listOf(adapter)
+    override val associatedAdapters: List<DBRepresentable<*>> = listOf(adapter)
 
     override val query: String by lazy {
         buildString {

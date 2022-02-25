@@ -7,7 +7,6 @@ import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ExecutableQuery
 import com.dbflow5.query.HasAssociatedAdapters
 import com.dbflow5.query.SelectResult
-import kotlin.reflect.KClass
 
 /**
  * Return a new [LiveData] instance. Specify using the [evalFn] what query to run.
@@ -28,15 +27,9 @@ class QueryLiveData<Table : Any, Result, Q>(
     where Q : ExecutableQuery<SelectResult<Table>>,
           Q : HasAssociatedAdapters {
 
-    private val associatedTables: Set<KClass<*>> =
-        executable.associatedAdapters.mapTo(mutableSetOf()) { it.type }
-
-    private val onTableChangedObserver =
-        object : OnTableChangedObserver(associatedTables.toList()) {
-            override fun onChanged(tables: Set<KClass<*>>) {
-                evaluateEmission()
-            }
-        }
+    private val onTableChangedObserver = OnTableChangedObserver(executable.associatedAdapters) {
+        evaluateEmission()
+    }
 
     private fun evaluateEmission() {
         db

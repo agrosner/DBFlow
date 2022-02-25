@@ -12,7 +12,6 @@ import com.dbflow5.query.HasAdapter
 import com.dbflow5.query.HasAssociatedAdapters
 import com.dbflow5.query.SelectResult
 import com.dbflow5.query.selectCountOf
-import kotlin.reflect.KClass
 
 /**
  * Enables taking an [ExecutableQuery] of type [SelectResult] and paginating its results.
@@ -27,14 +26,9 @@ internal constructor(
           Q : HasAdapter<Table, DBRepresentable<Table>>,
           Q : Constrainable<Table, SelectResult<Table>, Q> {
 
-    private val associatedTables: Set<KClass<*>> =
-        executableQuery.associatedAdapters.mapTo(mutableSetOf()) { it.type }
-
     private val onTableChangedObserver =
-        object : OnTableChangedObserver(associatedTables.toList()) {
-            override fun onChanged(tables: Set<KClass<*>>) {
-                invalidate()
-            }
+        OnTableChangedObserver(executableQuery.associatedAdapters) {
+            invalidate()
         }
 
     init {
