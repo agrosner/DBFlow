@@ -2,12 +2,10 @@ package com.dbflow5.processor.utils
 
 import com.dbflow5.processor.ProcessorManager
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeMirror
-import kotlin.reflect.KClass
 
 // element extensions
 
@@ -62,15 +60,4 @@ fun Element?.toClassName(manager: ProcessorManager = ProcessorManager.manager): 
         this is TypeElement -> ClassName.get(this)
         else -> ElementUtility.getClassName(asType().toString(), manager)
     }
-}
-
-fun TypeName?.isOneOf(vararg kClass: KClass<*>): Boolean =
-    this?.let { kClass.any { clazz -> TypeName.get(clazz.java) == this } }
-        ?: false
-
-fun TypeName.rawTypeName(): TypeName {
-    if (this is ParameterizedTypeName) {
-        return rawType
-    }
-    return this
 }
