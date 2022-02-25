@@ -9,7 +9,7 @@ import com.dbflow5.content.ContentResolverNotifier
 import com.dbflow5.content.defaultContentEncoder
 import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.query.delete
-import com.dbflow5.runtime.FlowContentObserver
+import com.dbflow5.content.FlowContentObserver
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.test.DatabaseTestRule
 import kotlinx.coroutines.flow.first

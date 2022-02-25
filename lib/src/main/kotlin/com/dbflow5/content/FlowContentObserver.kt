@@ -1,18 +1,11 @@
-package com.dbflow5.runtime
+package com.dbflow5.content
 
 import android.content.ContentResolver
 import android.database.ContentObserver
 import android.net.Uri
-import android.os.Build.VERSION_CODES
 import android.os.Handler
 import com.dbflow5.adapter2.ModelAdapter
-import com.dbflow5.config.DatabaseConfig
 import com.dbflow5.config.FlowLog
-import com.dbflow5.content.ContentNotification
-import com.dbflow5.content.ContentNotificationDecoder
-import com.dbflow5.content.ContentNotificationEncoder
-import com.dbflow5.content.defaultContentDecoder
-import com.dbflow5.content.defaultContentEncoder
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.structure.Model
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,16 +16,17 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Description: Listens for [Model] changes. Register for specific
- * tables with [.addModelChangeListener].
- * Provides ability to register and deregister listeners for when data is inserted, deleted, updated, and saved if the device is
- * above [VERSION_CODES.JELLY_BEAN]. If below it will only provide one callback. This is to be paired
- * with the [ContentResolverNotifier] specified in the [DatabaseConfig].
+ * Provides a first-class way to register for model notifications from the [ContentResolverNotifier].
  *
- * @param [contentAuthority] Reuse the same authority as defined in your manifest and [ContentResolverNotifier].
+ * Register with the [notificationFlow] to receive updates.
+ *
+ * You can also [beginTransaction] to batch changes together and then emit them at once
+ * by calling [endTransactionAndNotify].
  */
 class FlowContentObserver(
     private val contentAuthority: String,
@@ -55,12 +49,13 @@ class FlowContentObserver(
     private val uriEncoder: ContentNotificationEncoder = defaultContentEncoder(),
 ) : ContentObserver(handler) {
 
+    private val transactionMutex = Mutex()
+
     private val registeredTables = mutableSetOf<ModelAdapter<*>>()
     private val allChanges = hashSetOf<ContentNotification<*>>()
     private val tableChanges = hashSetOf<ContentNotification.TableChange<*>>()
 
-    private var isInTransaction = false
-
+    private val inTransaction = MutableStateFlow(false)
     private val internalNotificationFlow = MutableStateFlow<ContentNotification<*>?>(null)
 
     /**
@@ -77,27 +72,22 @@ class FlowContentObserver(
      * Starts a transaction where when it is finished, this class will receive a notification of all of the changes by
      * calling [.endTransactionAndNotify]. Note it may lead to unexpected behavior if called from different threads.
      */
-    fun beginTransaction() {
-        if (!isInTransaction) {
-            isInTransaction = true
-        }
+    suspend fun beginTransaction() {
+        inTransaction.emit(true)
     }
 
     /**
      * Ends the transaction where it finishes, and will call [.onChange] for
      * every URI called (if set)/
      */
-    fun endTransactionAndNotify() {
-        if (isInTransaction) {
-            isInTransaction = false
-
-            synchronized(allChanges) {
+    suspend fun endTransactionAndNotify() {
+        if (inTransaction.value) {
+            inTransaction.emit(false)
+            transactionMutex.withLock {
                 for (uri in allChanges) {
                     onChange(uri)
                 }
                 allChanges.clear()
-            }
-            synchronized(tableChanges) {
                 for (change in tableChanges) {
                     scope.launch {
                         internalNotificationFlow.emit(change)
@@ -106,6 +96,15 @@ class FlowContentObserver(
                 tableChanges.clear()
             }
         }
+    }
+
+    /**
+     * Runs operations inside a transaction block. Use this to easily batch changes.
+     */
+    suspend fun transact(fn: () -> Unit) {
+        beginTransaction()
+        fn()
+        endTransactionAndNotify()
     }
 
     /**
@@ -140,46 +139,37 @@ class FlowContentObserver(
 
     override fun onChange(selfChange: Boolean, uri: Uri?) {
         uri?.let { uriDecoder.decode<Any>(uri) }
-            ?.let { onChange(it) } ?: FlowLog.log(
+            ?.let {
+                scope.launch { onChange(it) }
+            } ?: FlowLog.log(
             FlowLog.Level.W,
             "Received URI change for unregistered uri: $uri:  URI ignored."
         )
     }
 
-    private fun onChange(notification: ContentNotification<*>) {
+    private suspend fun onChange(notification: ContentNotification<*>) {
         if (notification.action != ChangeAction.NONE) {
             // transactions batch the calls into one sequence. Here we queue up
             // uris if in a transaction
-            if (!isInTransaction) {
+            if (!inTransaction.value) {
                 scope.launch {
                     internalNotificationFlow.emit(notification)
                 }
             } else {
-                if (!notifyAllUris) {
-                    val contentNotification = notification.mutate(
-                        action = ChangeAction.CHANGE,
-                    )
-                    synchronized(allChanges) { allChanges.add(contentNotification) }
-                    synchronized(tableChanges) {
-                        tableChanges.add(
-                            ContentNotification.TableChange(
-                                action = contentNotification.action,
-                                authority = contentNotification.authority,
-                                dbRepresentable = contentNotification.dbRepresentable,
-                            )
-                        )
-                    }
+                val updatedNotification = if (!notifyAllUris) {
+                    notification.mutate(action = ChangeAction.CHANGE)
                 } else {
-                    synchronized(allChanges) { allChanges.add(notification) }
-                    synchronized(tableChanges) {
-                        tableChanges.add(
-                            ContentNotification.TableChange(
-                                action = notification.action,
-                                authority = notification.authority,
-                                dbRepresentable = notification.dbRepresentable,
-                            )
+                    notification
+                }
+                transactionMutex.withLock {
+                    allChanges.add(updatedNotification)
+                    tableChanges.add(
+                        ContentNotification.TableChange(
+                            action = updatedNotification.action,
+                            authority = updatedNotification.authority,
+                            dbRepresentable = updatedNotification.dbRepresentable,
                         )
-                    }
+                    )
                 }
             }
         }

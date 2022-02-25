@@ -5,7 +5,6 @@ import android.content.ContentResolver.NOTIFY_SYNC_TO_NETWORK
 import android.content.Context
 import android.os.Build
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.runtime.FlowContentObserver
 import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.ModelNotifier
 
