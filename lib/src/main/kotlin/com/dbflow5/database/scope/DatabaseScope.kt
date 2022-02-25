@@ -10,7 +10,7 @@ interface DatabaseScope<DB : GeneratedDatabase> {
 }
 
 interface ReadableDatabaseScope<DB : GeneratedDatabase> : DatabaseScope<DB>, ReadableScope,
-    ReadableQueriableScope
+    ReadableQueryScope
 
 interface WritableDatabaseScope<DB : GeneratedDatabase> : ReadableDatabaseScope<DB>, WritableScope,
-    WritableQueriableScope
+    WritableQueryScope
