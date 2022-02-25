@@ -4,6 +4,7 @@ import com.dbflow5.adapter2.ModelAdapter
 import com.dbflow5.adapter2.QueryRepresentable
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.readableTransaction
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.FlowCursor
@@ -17,7 +18,7 @@ import com.dbflow5.query.selectCountOf
  * A read-only scope to perform database operations. Use the created [DBFlowDatabase]
  * [readableTransaction] method to gain access to this scope.
  */
-interface ReadableQueryScope {
+interface ReadableDatabaseScope<DB : GeneratedDatabase> : DatabaseScope<DB> {
 
     /**
      * Retrieves a single [Table] object or null (if does not exist)
@@ -84,7 +85,7 @@ interface ReadableQueryScope {
  * A writeable scope to perform database operations.  Use the created [DBFlowDatabase]
  * [writableTransaction] method to gain access to this scope
  */
-interface WritableQueryScope : ReadableQueryScope {
+interface WritableDatabaseScope<DB : GeneratedDatabase> : ReadableDatabaseScope<DB> {
     /**
      * Runs the query, returning the raw result expected from the query.
      * In the situation of [SelectResult] / Select queries, avoid this method, and call the provided methods
