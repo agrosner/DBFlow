@@ -27,7 +27,7 @@ class ContentResolverNotifier(
         }
     }
 
-    private fun <Table : Any> notifyChanges(notification: ContentNotification<Table>) {
+    private fun notifyChanges(notification: ContentNotification) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             context.contentResolver.notifyChange(
                 uriEncoder.encode(notification), null, NOTIFY_SYNC_TO_NETWORK

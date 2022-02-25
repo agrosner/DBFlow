@@ -2,7 +2,6 @@ package com.dbflow5.content
 
 import android.net.Uri
 import com.dbflow5.TABLE_QUERY_PARAM
-import com.dbflow5.config.FlowManager
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.operator
@@ -10,12 +9,12 @@ import com.dbflow5.structure.ChangeAction
 
 interface ContentNotificationDecoder {
 
-    fun <Table : Any> decode(uri: Uri): ContentNotification<Table>?
+    fun decode(uri: Uri): ContentNotification?
 }
 
 interface ContentNotificationEncoder {
 
-    fun <Table : Any> encode(contentNotification: ContentNotification<Table>): Uri
+    fun encode(contentNotification: ContentNotification): Uri
 }
 
 fun defaultContentDecoder(): ContentNotificationDecoder =
@@ -24,7 +23,7 @@ fun defaultContentDecoder(): ContentNotificationDecoder =
 fun defaultContentEncoder(): ContentNotificationEncoder = DefaultContentNotificationEncoder
 
 internal object DefaultContentNotificationDecoder : ContentNotificationDecoder {
-    override fun <Table : Any> decode(uri: Uri): ContentNotification<Table>? {
+    override fun decode(uri: Uri): ContentNotification? {
         val tableName = uri.getQueryParameter(TABLE_QUERY_PARAM)
 
         if (tableName != null) {
@@ -45,15 +44,15 @@ internal object DefaultContentNotificationDecoder : ContentNotificationDecoder {
 
             // model level change when we have column names in Uri
             return if (columns.isNotEmpty()) {
-                ContentNotification.ModelChange(
-                    dbRepresentable = FlowManager.getModelAdapterByTableName(tableName),
+                ContentNotification.ModelChange<Any>(
+                    tableName = tableName,
                     action = action,
                     authority = uri.authority ?: "",
                     changedFields = columns,
                 )
             } else {
                 ContentNotification.TableChange(
-                    dbRepresentable = FlowManager.getModelAdapterByTableName(tableName),
+                    tableName = tableName,
                     action = action,
                     authority = uri.authority ?: "",
                 )
@@ -65,10 +64,10 @@ internal object DefaultContentNotificationDecoder : ContentNotificationDecoder {
 }
 
 internal object DefaultContentNotificationEncoder : ContentNotificationEncoder {
-    override fun <Table : Any> encode(contentNotification: ContentNotification<Table>): Uri =
+    override fun encode(contentNotification: ContentNotification): Uri =
         Uri.Builder().scheme("dbflow")
             .authority(contentNotification.authority)
-            .appendQueryParameter(TABLE_QUERY_PARAM, contentNotification.dbRepresentable.name)
+            .appendQueryParameter(TABLE_QUERY_PARAM, contentNotification.tableName)
             .apply {
                 if (contentNotification.action != ChangeAction.NONE) fragment(
                     contentNotification.action.name

@@ -4,15 +4,15 @@ import com.dbflow5.runtime.ModelNotification
 
 fun <Table : Any> ModelNotification<Table>.toContentNotification(
     authority: String,
-): ContentNotification<Table> = when (this) {
-    is ModelNotification.ModelChange<Table> -> ContentNotification.ModelChange(
+): ContentNotification = when (this) {
+    is ModelNotification.ModelChange<Table> -> ContentNotification.ModelChange<Table>(
         changedFields = changedFields,
-        dbRepresentable = adapter,
+        tableName = adapter.name,
         action = action,
         authority = authority,
     )
     is ModelNotification.TableChange<Table> -> ContentNotification.TableChange(
-        dbRepresentable = adapter,
+        tableName = adapter.name,
         action = action,
         authority = authority,
     )

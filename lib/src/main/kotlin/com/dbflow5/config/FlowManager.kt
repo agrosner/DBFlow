@@ -8,7 +8,6 @@ import com.dbflow5.adapter.QueryRepresentable
 import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
-import com.dbflow5.structure.Model
 import kotlin.reflect.KClass
 
 /**
@@ -36,19 +35,6 @@ object FlowManager {
     private var databaseHolderInitialized: Boolean = false
 
     private val loadedModules = hashSetOf<DatabaseHolderFactory>()
-
-    /**
-     * Returns the table name for the specific model class
-     *
-     * @param table The class that implements [Model]
-     * @return The table name, which can be different than the [Model] class name
-     */
-    @JvmStatic
-    fun getTableName(table: KClass<*>): String {
-        return databaseHolder.getModelAdapterOrNull(table)?.name
-            ?: databaseHolder.getViewAdapterOrNull(table)?.name
-            ?: throwCannotFindAdapter("ModelAdapter/ModelViewAdapter/VirtualAdapter", table)
-    }
 
     /**
      * Loading the module Database holder via reflection.
@@ -157,11 +143,6 @@ object FlowManager {
             "ModelAdapter",
             modelClass
         )
-
-    @DelicateDBFlowApi
-    @JvmStatic
-    fun <T : Any> getModelAdapterByTableName(name: String): ModelAdapter<T> =
-        databaseHolder.getModelAdapterByTableName(name)
 
     /**
      * Returns the model view adapter for a SQLite VIEW. These are only created with the [com.dbflow5.annotation.ModelView] annotation.

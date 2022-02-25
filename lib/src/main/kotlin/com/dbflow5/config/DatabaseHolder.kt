@@ -33,16 +33,6 @@ class DatabaseHolder(
     private val modelViewAdapterMap = views.associateBy { it.type }
     private val queryModelAdapterMap = queries.associateBy { it.type }
 
-    /**
-     * @param clazz The model value class to get a [TypeConverter]
-     * @return Type converter for the specified model value.
-     */
-    fun getTypeConverterForClass(clazz: KClass<*>): TypeConverter<*, *>? =
-        typeConverters[clazz]
-
-    internal fun <T : Any> getModelAdapterByTableName(name: String): ModelAdapter<T> =
-        modelAdapterMap.values.first { it.name == name } as ModelAdapter<T>
-
     fun <T : Any> getModelAdapterOrNull(table: KClass<T>): ModelAdapter<T>? =
         modelAdapterMap[table] as ModelAdapter<T>?
 

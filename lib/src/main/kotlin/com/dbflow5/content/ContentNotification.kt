@@ -1,6 +1,5 @@
 package com.dbflow5.content
 
-import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.query.operations.BaseOperator
 import com.dbflow5.structure.ChangeAction
@@ -8,46 +7,46 @@ import com.dbflow5.structure.ChangeAction
 /**
  * Represents a notification used in [ContentResolverNotifier]
  */
-sealed interface ContentNotification<Table : Any> {
-    val dbRepresentable: DBRepresentable<Table>
+sealed interface ContentNotification {
+    val tableName: String
     val action: ChangeAction
     val authority: String
 
     fun mutate(
-        dbRepresentable: DBRepresentable<Table> = this.dbRepresentable,
+        tableName: String = this.tableName,
         action: ChangeAction = this.action,
         authority: String = this.authority,
-    ): ContentNotification<Table>
+    ): ContentNotification
 
-    data class TableChange<Table : Any>(
+    data class TableChange(
         override val action: ChangeAction,
         override val authority: String,
-        override val dbRepresentable: DBRepresentable<Table>,
-    ) : ContentNotification<Table> {
+        override val tableName: String,
+    ) : ContentNotification {
         override fun mutate(
-            dbRepresentable: DBRepresentable<Table>,
+            tableName: String,
             action: ChangeAction,
             authority: String
-        ): ContentNotification<Table> = copy(
-            dbRepresentable = dbRepresentable,
+        ): ContentNotification = copy(
+            tableName = tableName,
             action = action,
             authority = authority,
         )
     }
 
     data class ModelChange<Table : Any>(
-        override val dbRepresentable: DBRepresentable<Table>,
+        override val tableName: String,
         override val action: ChangeAction,
         override val authority: String,
         val changedFields: List<BaseOperator.SingleValueOperator<*>>,
-    ) : ContentNotification<Table> {
+    ) : ContentNotification {
         constructor(
             model: Table,
             adapter: ModelAdapter<Table>,
             action: ChangeAction,
             authority: String,
         ) : this(
-            dbRepresentable = adapter,
+            tableName = adapter.name,
             action = action,
             authority = authority,
             changedFields = adapter.getPrimaryModelClause(
@@ -61,11 +60,11 @@ sealed interface ContentNotification<Table : Any> {
          * Removes changed fields, since those don't exist in common interface.
          */
         override fun mutate(
-            dbRepresentable: DBRepresentable<Table>,
+            tableName: String,
             action: ChangeAction,
             authority: String,
-        ): ContentNotification<Table> = copy(
-            dbRepresentable = dbRepresentable,
+        ): ContentNotification = copy(
+            tableName = tableName,
             action = action,
             authority = authority,
             changedFields = listOf(),

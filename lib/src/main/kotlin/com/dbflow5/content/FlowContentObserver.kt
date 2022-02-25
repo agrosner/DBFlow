@@ -52,17 +52,17 @@ class FlowContentObserver(
     private val transactionMutex = Mutex()
 
     private val registeredTables = mutableSetOf<ModelAdapter<*>>()
-    private val allChanges = hashSetOf<ContentNotification<*>>()
-    private val tableChanges = hashSetOf<ContentNotification.TableChange<*>>()
+    private val allChanges = hashSetOf<ContentNotification>()
+    private val tableChanges = hashSetOf<ContentNotification.TableChange>()
 
     private val inTransaction = MutableStateFlow(false)
-    private val internalNotificationFlow = MutableStateFlow<ContentNotification<*>?>(null)
+    private val internalNotificationFlow = MutableStateFlow<ContentNotification?>(null)
 
     /**
      * Register to hook into the [ContentNotification]. Use [filterIsInstance]
      * to retrieve specific table types.
      */
-    val notificationFlow: Flow<ContentNotification<*>>
+    val notificationFlow: Flow<ContentNotification>
         get() = internalNotificationFlow.filterNotNull()
 
     val isSubscribed: Boolean
@@ -115,7 +115,7 @@ class FlowContentObserver(
         adapter: ModelAdapter<*>,
     ) {
         val uri = ContentNotification.TableChange(
-            dbRepresentable = adapter,
+            tableName = adapter.name,
             action = ChangeAction.NONE,
             authority = contentAuthority
         )
@@ -138,7 +138,7 @@ class FlowContentObserver(
     }
 
     override fun onChange(selfChange: Boolean, uri: Uri?) {
-        uri?.let { uriDecoder.decode<Any>(uri) }
+        uri?.let { uriDecoder.decode(uri) }
             ?.let {
                 scope.launch { onChange(it) }
             } ?: FlowLog.log(
@@ -147,7 +147,7 @@ class FlowContentObserver(
         )
     }
 
-    private suspend fun onChange(notification: ContentNotification<*>) {
+    private suspend fun onChange(notification: ContentNotification) {
         if (notification.action != ChangeAction.NONE) {
             // transactions batch the calls into one sequence. Here we queue up
             // uris if in a transaction
@@ -167,7 +167,7 @@ class FlowContentObserver(
                         ContentNotification.TableChange(
                             action = updatedNotification.action,
                             authority = updatedNotification.authority,
-                            dbRepresentable = updatedNotification.dbRepresentable,
+                            tableName = updatedNotification.tableName,
                         )
                     )
                 }
