@@ -1,10 +1,13 @@
-package com.dbflow5.runtime
+package com.dbflow5.content
 
 import android.content.ContentResolver
 import android.content.ContentResolver.NOTIFY_SYNC_TO_NETWORK
 import android.content.Context
 import android.os.Build
 import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.runtime.FlowContentObserver
+import com.dbflow5.runtime.ModelNotification
+import com.dbflow5.runtime.ModelNotifier
 
 /**
  * The default use case, it notifies via the [ContentResolver] system.
@@ -16,6 +19,7 @@ class ContentResolverNotifier(
     private val context: Context,
     private val authority: String,
     override val db: DatabaseWrapper,
+    private val uriEncoder: ContentNotificationEncoder = defaultContentEncoder(),
 ) : ModelNotifier {
 
     override suspend fun <Table : Any> onChange(notification: ModelNotification<Table>) {
@@ -27,12 +31,12 @@ class ContentResolverNotifier(
     private fun <Table : Any> notifyChanges(notification: ContentNotification<Table>) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             context.contentResolver.notifyChange(
-                notification.uri, null, NOTIFY_SYNC_TO_NETWORK
+                uriEncoder.encode(notification), null, NOTIFY_SYNC_TO_NETWORK
             )
         } else {
             @Suppress("DEPRECATION")
             context.contentResolver.notifyChange(
-                notification.uri, null, true
+                uriEncoder.encode(notification), null, true
             )
         }
     }

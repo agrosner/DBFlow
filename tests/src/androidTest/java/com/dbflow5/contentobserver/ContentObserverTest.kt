@@ -4,10 +4,11 @@ import android.net.Uri
 import com.dbflow5.DemoApp
 import com.dbflow5.TABLE_QUERY_PARAM
 import com.dbflow5.TestTransactionDispatcherFactory
+import com.dbflow5.content.ContentNotification
+import com.dbflow5.content.ContentResolverNotifier
+import com.dbflow5.content.defaultContentEncoder
 import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.query.delete
-import com.dbflow5.runtime.ContentNotification
-import com.dbflow5.runtime.ContentResolverNotifier
 import com.dbflow5.runtime.FlowContentObserver
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.test.DatabaseTestRule
@@ -55,27 +56,25 @@ class ContentObserverTest {
      * matches expected
      */
     @Test
-    fun content_notification_ModelChange_validateUri() = runBlockingTest {
-        dbRule {
-            val notification = ContentNotification.ModelChange(
-                user,
-                userAdapter,
-                ChangeAction.DELETE,
-                contentUri,
-            )
-            val uri = notification.uri
-            assertEquals(uri.authority, contentUri)
-            assertEquals(
-                userAdapter.name,
-                uri.getQueryParameter(TABLE_QUERY_PARAM)
-            )
-            assertEquals(uri.fragment, ChangeAction.DELETE.name)
-            assertEquals(Uri.decode(uri.getQueryParameter(User_Table.id.query)), "5")
-            assertEquals(
-                Uri.decode(uri.getQueryParameter(User_Table.name.query)),
-                "Something"
-            )
-        }
+    fun content_notification_ModelChange_validateUri() = dbRule {
+        val notification = ContentNotification.ModelChange(
+            user,
+            userAdapter,
+            ChangeAction.DELETE,
+            contentUri,
+        )
+        val uri = defaultContentEncoder().encode(notification)
+        assertEquals(uri.authority, contentUri)
+        assertEquals(
+            userAdapter.name,
+            uri.getQueryParameter(TABLE_QUERY_PARAM)
+        )
+        assertEquals(uri.fragment, ChangeAction.DELETE.name)
+        assertEquals(Uri.decode(uri.getQueryParameter(User_Table.id.query)), "5")
+        assertEquals(
+            Uri.decode(uri.getQueryParameter(User_Table.name.query)),
+            "Something"
+        )
     }
 
     @Test

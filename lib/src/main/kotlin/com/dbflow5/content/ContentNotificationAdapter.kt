@@ -1,5 +1,6 @@
-package com.dbflow5.runtime
+package com.dbflow5.content
 
+import com.dbflow5.runtime.ModelNotification
 
 fun <Table : Any> ModelNotification<Table>.toContentNotification(
     authority: String,

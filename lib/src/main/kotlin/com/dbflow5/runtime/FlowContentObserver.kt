@@ -1,6 +1,5 @@
 package com.dbflow5.runtime
 
-import android.annotation.TargetApi
 import android.content.ContentResolver
 import android.database.ContentObserver
 import android.net.Uri
@@ -9,7 +8,11 @@ import android.os.Handler
 import com.dbflow5.adapter2.ModelAdapter
 import com.dbflow5.config.DatabaseConfig
 import com.dbflow5.config.FlowLog
-import com.dbflow5.getNotificationUri
+import com.dbflow5.content.ContentNotification
+import com.dbflow5.content.ContentNotificationDecoder
+import com.dbflow5.content.ContentNotificationEncoder
+import com.dbflow5.content.defaultContentDecoder
+import com.dbflow5.content.defaultContentEncoder
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.structure.Model
 import kotlinx.coroutines.CoroutineDispatcher
@@ -31,23 +34,32 @@ import java.util.concurrent.atomic.AtomicInteger
  *
  * @param [contentAuthority] Reuse the same authority as defined in your manifest and [ContentResolverNotifier].
  */
-open class FlowContentObserver(
+class FlowContentObserver(
     private val contentAuthority: String,
     handler: Handler? = null,
     private val dispatcher: CoroutineDispatcher = handler?.asCoroutineDispatcher()
         ?: Dispatchers.Main,
     private val scope: CoroutineScope = CoroutineScope(dispatcher),
+    /**
+     * If true, this class will emit all [ChangeAction] events. If false,
+     * these are consolidated into a single [ChangeAction.CHANGE] action.
+     */
+    private val notifyAllUris: Boolean = false,
+    /**
+     * Defines how uri are decoded.
+     */
+    private val uriDecoder: ContentNotificationDecoder = defaultContentDecoder(),
+    /**
+     * Defines how uri are encoded.
+     */
+    private val uriEncoder: ContentNotificationEncoder = defaultContentEncoder(),
 ) : ContentObserver(handler) {
 
     private val registeredTables = mutableSetOf<ModelAdapter<*>>()
-    private val notificationUris = hashSetOf<Uri>()
-    private val tableUris = hashSetOf<Uri>()
-
-    private val uriDecoder = contentDecoder()
+    private val allChanges = hashSetOf<ContentNotification<*>>()
+    private val tableChanges = hashSetOf<ContentNotification.TableChange<*>>()
 
     private var isInTransaction = false
-    private var notifyAllUris = false
-
 
     private val internalNotificationFlow = MutableStateFlow<ContentNotification<*>?>(null)
 
@@ -60,16 +72,6 @@ open class FlowContentObserver(
 
     val isSubscribed: Boolean
         get() = registeredTables.isNotEmpty()
-
-    /**
-     * If true, this class will get specific when it needs to, such as using all [Action] qualifiers.
-     * If false, it only uses the [Action.CHANGE] action in callbacks.
-     *
-     * @param notifyAllUris
-     */
-    fun setNotifyAllUris(notifyAllUris: Boolean) {
-        this.notifyAllUris = notifyAllUris
-    }
 
     /**
      * Starts a transaction where when it is finished, this class will receive a notification of all of the changes by
@@ -89,21 +91,19 @@ open class FlowContentObserver(
         if (isInTransaction) {
             isInTransaction = false
 
-            synchronized(notificationUris) {
-                for (uri in notificationUris) {
+            synchronized(allChanges) {
+                for (uri in allChanges) {
                     onChange(uri)
                 }
-                notificationUris.clear()
+                allChanges.clear()
             }
-            synchronized(tableUris) {
-                for (uri in tableUris) {
-                    contentDecoder().decode<Any>(uri)?.let { notification ->
-                        scope.launch {
-                            internalNotificationFlow.emit(notification)
-                        }
+            synchronized(tableChanges) {
+                for (change in tableChanges) {
+                    scope.launch {
+                        internalNotificationFlow.emit(change)
                     }
                 }
-                tableUris.clear()
+                tableChanges.clear()
             }
         }
     }
@@ -119,9 +119,9 @@ open class FlowContentObserver(
             dbRepresentable = adapter,
             action = ChangeAction.NONE,
             authority = contentAuthority
-        ).uri
+        )
         contentResolver.registerContentObserver(
-            uri,
+            uriEncoder.encode(uri),
             true,
             this,
         )
@@ -139,13 +139,15 @@ open class FlowContentObserver(
     }
 
     override fun onChange(selfChange: Boolean, uri: Uri?) {
-        uri?.let { onChange(it) }
+        uri?.let { uriDecoder.decode<Any>(uri) }
+            ?.let { onChange(it) } ?: FlowLog.log(
+            FlowLog.Level.W,
+            "Received URI change for unregistered uri: $uri:  URI ignored."
+        )
     }
 
-    @TargetApi(VERSION_CODES.JELLY_BEAN)
-    private fun onChange(uri: Uri) {
-        val notification = uriDecoder.decode<Any>(uri)
-        if (notification != null && notification.action != ChangeAction.NONE) {
+    private fun onChange(notification: ContentNotification<*>) {
+        if (notification.action != ChangeAction.NONE) {
             // transactions batch the calls into one sequence. Here we queue up
             // uris if in a transaction
             if (!isInTransaction) {
@@ -153,33 +155,33 @@ open class FlowContentObserver(
                     internalNotificationFlow.emit(notification)
                 }
             } else {
-
                 if (!notifyAllUris) {
-                    val locUri = getNotificationUri(
-                        contentAuthority, notification.dbRepresentable.type,
-                        ChangeAction.CHANGE
+                    val contentNotification = notification.mutate(
+                        action = ChangeAction.CHANGE,
                     )
-                    synchronized(notificationUris) { notificationUris.add(locUri) }
-                    synchronized(tableUris) { tableUris.add(locUri) }
+                    synchronized(allChanges) { allChanges.add(contentNotification) }
+                    synchronized(tableChanges) {
+                        tableChanges.add(
+                            ContentNotification.TableChange(
+                                action = contentNotification.action,
+                                authority = contentNotification.authority,
+                                dbRepresentable = contentNotification.dbRepresentable,
+                            )
+                        )
+                    }
                 } else {
-                    synchronized(notificationUris) { notificationUris.add(uri) }
-                    synchronized(tableUris) {
-                        tableUris.add(
-                            getNotificationUri(
-                                contentAuthority,
-                                notification.dbRepresentable.type,
-                                notification.action
+                    synchronized(allChanges) { allChanges.add(notification) }
+                    synchronized(tableChanges) {
+                        tableChanges.add(
+                            ContentNotification.TableChange(
+                                action = notification.action,
+                                authority = notification.authority,
+                                dbRepresentable = notification.dbRepresentable,
                             )
                         )
                     }
                 }
             }
-        } else {
-            FlowLog.log(
-                FlowLog.Level.W,
-                "Received URI change for unregistered " +
-                    "${notification?.dbRepresentable?.type ?: "uri: $uri"} . URI ignored."
-            )
         }
     }
 

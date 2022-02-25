@@ -4,18 +4,12 @@ package com.dbflow5
 
 import android.content.ContentValues
 import android.net.Uri
-import com.dbflow5.config.FlowManager
+import com.dbflow5.adapter2.DBRepresentable
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.query.NameAlias
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.BaseOperator
-import com.dbflow5.query.operations.Operation
-import com.dbflow5.query.operations.Operator
-import com.dbflow5.query.operations.OperatorGroup
-import com.dbflow5.query.operations.operator
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.structure.Model
-import kotlin.reflect.KClass
 
 /**
  * Description: Provides some handy methods for dealing with SQL statements. It's purpose is to move the
@@ -25,55 +19,24 @@ private val hexArray = "0123456789ABCDEF".toCharArray()
 
 val TABLE_QUERY_PARAM = "tableName"
 
+
 /**
  * Constructs a [Uri] from a set of [AnyOperator] for specific table.
  *
- * @param modelClass The class of table,
+ * @param dbRepresentable The class of table,
  * @param action     The action to use.
  * @param conditions The set of key-value [AnyOperator] to construct into a uri.
  * @return The [Uri].
  */
 fun getNotificationUri(
     contentAuthority: String,
-    modelClass: KClass<*>,
-    action: ChangeAction?,
-    conditions: Iterable<BaseOperator.SingleValueOperator<Any?>>?
-): Uri {
-    val uriBuilder = Uri.Builder().scheme("dbflow")
-        .authority(contentAuthority)
-        .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass))
-    if (action != null) {
-        uriBuilder.fragment(action.name)
-    }
-    if (conditions != null) {
-        for (condition in conditions) {
-            uriBuilder.appendQueryParameter(
-                Uri.encode(condition.nameAlias.query),
-                Uri.encode(condition.value.toString())
-            )
-        }
-    }
-    return uriBuilder.build()
-}
-
-
-/**
- * Constructs a [Uri] from a set of [AnyOperator] for specific table.
- *
- * @param modelClass The class of table,
- * @param action     The action to use.
- * @param conditions The set of key-value [AnyOperator] to construct into a uri.
- * @return The [Uri].
- */
-fun getNotificationUri(
-    contentAuthority: String,
-    modelClass: KClass<*>,
+    dbRepresentable: DBRepresentable<*>,
     action: ChangeAction?,
     conditions: Array<BaseOperator.SingleValueOperator<Any?>>?
 ): Uri {
     val uriBuilder = Uri.Builder().scheme("dbflow")
         .authority(contentAuthority)
-        .appendQueryParameter(TABLE_QUERY_PARAM, FlowManager.getTableName(modelClass))
+        .appendQueryParameter(TABLE_QUERY_PARAM, dbRepresentable.name)
     action?.let { uriBuilder.fragment(action.name) }
     if (conditions != null && conditions.isNotEmpty()) {
         for (condition in conditions) {
@@ -89,7 +52,7 @@ fun getNotificationUri(
 /**
  * Returns the uri for notifications from model changes
  *
- * @param modelClass  The class to get table from.
+ * @param dbRepresentable  The class to get table from.
  * @param action      the action changed.
  * @param notifyKey   The column key.
  * @param notifyValue The column value that gets turned into a String.
@@ -98,11 +61,14 @@ fun getNotificationUri(
 @JvmOverloads
 fun getNotificationUri(
     contentAuthority: String,
-    modelClass: KClass<*>,
+    dbRepresentable: DBRepresentable<*>,
     action: ChangeAction?,
 ): Uri {
     return getNotificationUri(
-        contentAuthority, modelClass, action, null as Array<BaseOperator.SingleValueOperator<Any?>>?
+        contentAuthority,
+        dbRepresentable,
+        action,
+        null as Array<BaseOperator.SingleValueOperator<Any?>>?
     )
 }
 
@@ -124,26 +90,6 @@ fun dropTrigger(databaseWrapper: DatabaseWrapper, triggerName: String) {
  */
 fun dropIndex(databaseWrapper: DatabaseWrapper, indexName: String) {
     databaseWrapper.execSQL("DROP INDEX IF EXISTS ${indexName.quoteIfNeeded()}")
-}
-
-/**
- * Adds [ContentValues] to the specified [OperatorGroup].
- *
- * @param contentValues The content values to convert.
- * @param operatorGroup The group to put them into as [Operator].
- */
-fun addContentValues(contentValues: ContentValues, operatorGroup: OperatorGroup) {
-    val entries = contentValues.valueSet()
-
-    for ((key) in entries) {
-        operatorGroup.and(
-            operator(
-                NameAlias.Builder(key).build(),
-                operation = Operation.Equals,
-                value = contentValues.get(key)
-            )
-        )
-    }
 }
 
 /**
