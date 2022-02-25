@@ -19,17 +19,6 @@ interface ModelNotifier {
 @Suppress("FunctionName")
 fun ModelNotifier(db: GeneratedDatabase) = DirectModelNotifier(db)
 
-fun interface ModelNotificationListener<Table : Any> {
-    fun onChange(notification: ModelNotification<Table>)
-}
-
-/**
- * Casts the listener out of nothing into something..
- */
-@Suppress("UNCHECKED_CAST")
-internal fun <Table : Any> ModelNotificationListener<*>.cast() =
-    this as ModelNotificationListener<Table>
-
 fun interface ModelNotifierFactory {
     fun create(db: GeneratedDatabase): ModelNotifier
 }
