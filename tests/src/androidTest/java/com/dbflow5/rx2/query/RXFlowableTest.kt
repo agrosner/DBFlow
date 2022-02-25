@@ -78,7 +78,7 @@ class RXFlowableTest {
             )
         })
 
-        assertEquals(2, calls) // 1 for initial, 1 for batch of changes
         assertEquals(10, list.size)
+        assertEquals(2, calls) // 1 for initial, 1 for batch of changes
     }
 }

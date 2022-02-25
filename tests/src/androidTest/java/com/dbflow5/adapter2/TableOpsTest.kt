@@ -7,8 +7,10 @@ import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.transaction.TransactionDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.setMain
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
@@ -51,6 +53,7 @@ class TableOpsTest {
 
     @BeforeTest
     fun createOps() {
+        Dispatchers.setMain(TestCoroutineDispatcher())
         ops = TableOpsImpl(
             queryOps = queryOps,
             tableSQL = tableSQL,

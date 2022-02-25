@@ -33,6 +33,7 @@ import com.dbflow5.codegen.shared.validation.ValidationExceptionProvider
 import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.dbflow5.ksp.model.interop.KSPClassType
 import com.dbflow5.ksp.model.interop.KSPOriginatingSource
+import com.dbflow5.ksp.model.interop.adapterParamsForFunParams
 import com.dbflow5.ksp.model.invoke
 import com.dbflow5.ksp.model.ksName
 import com.dbflow5.ksp.parser.annotation.DatabasePropertyParser
@@ -237,12 +238,17 @@ class KSClassDeclarationParser(
                     )
                 }
                 typeNameOf<Migration>() -> {
+                    val constructor = input.primaryConstructor
+                        ?: throw ValidationException("Migration classes must use a primary constructor.")
                     listOf(
                         MigrationModel(
                             name = name,
                             properties = migrationParser.parse(annotation),
                             classType = classType,
                             originatingSource = originatingFile,
+                            adapterParams = adapterParamsForFunParams(
+                                constructor.parameters
+                            ) { typeName -> typeName.rawType == ClassNames.ModelAdapter2 }
                         )
                     )
                 }
@@ -361,27 +367,9 @@ class KSClassDeclarationParser(
                                     modelViewQuery.simpleName,
                                     modelViewQuery.packageName
                                 ),
-                                adapterParams = modelViewQuery.parameters
-                                    .map { value ->
-                                        val typeName = value.type.toTypeName()
-                                        if (typeName !is ParameterizedTypeName
-                                            || typeName.rawType != ClassNames.ModelAdapter2
-                                        ) {
-                                            throw IllegalArgumentException(
-                                                "Only ModelAdapter parameters " +
-                                                    "are allowed for ModelViewQuery functions."
-                                            )
-                                        } else {
-                                            ClassAdapterFieldModel(
-                                                name = NameModel(
-                                                    packageName = value.name!!.getQualifier(),
-                                                    shortName = value.name!!.getShortName(),
-                                                    nullable = false,
-                                                ),
-                                                typeName = typeName,
-                                            )
-                                        }
-                                    }
+                                adapterParams = adapterParamsForFunParams(
+                                    modelViewQuery.parameters
+                                ) { typeName -> typeName.rawType == ClassNames.ModelAdapter2 }
                             )
                         ),
                         properties = viewPropertyParser.parse(annotation),

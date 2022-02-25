@@ -1,7 +1,7 @@
 package com.dbflow5.migration
 
 import androidx.annotation.CallSuper
-import com.dbflow5.adapter2.DBRepresentable
+import com.dbflow5.adapter2.ModelAdapter
 import com.dbflow5.appendQuotedIfNeeded
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.cursor
@@ -16,12 +16,10 @@ import kotlinx.coroutines.runBlocking
  */
 open class AlterTableMigration<T : Any>(
     /**
-     * The table adapter to ALTER
+     * The [ModelAdapter] to ALTER
      */
-    adapterGetter: () -> DBRepresentable<T>
+    protected val adapter: ModelAdapter<T>
 ) : BaseMigration() {
-
-    protected val adapter by lazy(adapterGetter)
 
     /**
      * The query to rename the table with

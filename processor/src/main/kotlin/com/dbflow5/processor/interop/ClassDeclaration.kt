@@ -58,6 +58,14 @@ abstract class KaptClassDeclaration : ClassDeclaration {
             .filterIsInstance<ExecutableElement>()
     }
 
+    /**
+     * Immediate constructors, no super class constructors.
+     */
+    val constructors: List<ExecutableElement> by lazy {
+        typeElement.enclosedElements.filter { it.kind == ElementKind.CONSTRUCTOR }
+            .filterIsInstance<ExecutableElement>()
+    }
+
     val propertyElements: List<JavaPropertyDeclaration> by lazy {
         allMembers
             .filterIsInstance<VariableElement>()

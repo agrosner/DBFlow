@@ -30,6 +30,7 @@ import com.dbflow5.codegen.shared.properties.ModelViewQueryProperties
 import com.dbflow5.processor.interop.KaptClassDeclaration
 import com.dbflow5.processor.interop.KaptOriginatingSource
 import com.dbflow5.processor.interop.KaptTypeElementClassType
+import com.dbflow5.processor.interop.adapterParamsForExecutableParams
 import com.dbflow5.processor.interop.modelViewQueryOrThrow
 import com.dbflow5.processor.interop.name
 import com.dbflow5.processor.utils.annotation
@@ -166,6 +167,10 @@ class KaptElementProcessor(
                             properties = migrationParser.parse(input.annotation()),
                             classType = classType,
                             originatingSource = source,
+                            adapterParams = adapterParamsForExecutableParams(
+                                classDeclaration.constructors.first()
+                                    .parameters
+                            ) { it.rawType == ClassNames.ModelAdapter2 },
                         )
                     )
                 }
@@ -243,23 +248,10 @@ class KaptElementProcessor(
                         type = ClassModel.Type.View(
                             ModelViewQueryProperties(
                                 modelViewQueryFun.simpleName,
-                                adapterParams = (modelViewQueryFun.element as ExecutableElement)
-                                    .parameters.map { element ->
-                                        val type = element.asType().typeName.toKTypeName()
-                                        if (type !is ParameterizedTypeName
-                                            || type.rawType != ClassNames.ModelAdapter2
-                                        ) {
-                                            throw IllegalArgumentException(
-                                                "Only ModelAdapter parameters " +
-                                                    "are allowed for ModelViewQuery functions."
-                                            )
-                                        } else {
-                                            ClassAdapterFieldModel(
-                                                name = element.name(),
-                                                typeName = type,
-                                            )
-                                        }
-                                    }
+                                adapterParams = adapterParamsForExecutableParams(
+                                    (modelViewQueryFun.element as ExecutableElement)
+                                        .parameters
+                                ) { it.rawType == ClassNames.ModelAdapter2 }
                             ),
                         ),
                         properties = viewPropertyParser.parse(input.annotation()),

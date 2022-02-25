@@ -7,7 +7,6 @@ import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.config.database
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.migration.AlterTableMigration
 import com.dbflow5.migration.BaseMigration
@@ -41,19 +40,20 @@ abstract class MigratedPrepackagedDB : DBFlowDatabase() {
     abstract val dog2Adapter: ModelAdapter<Dog2>
 
     @Migration(version = 2, priority = 1)
-    class AddNewFieldMigration : AlterTableMigration<Dog2>({
-        database<MigratedPrepackagedDB>().dog2Adapter
-    }) {
+    class AddNewFieldMigration(dog2Adapter: ModelAdapter<Dog2>) :
+        AlterTableMigration<Dog2>(dog2Adapter) {
         override fun onPreMigrate() {
             addColumn(SQLiteType.TEXT, "newField")
         }
     }
 
     @Migration(version = 2, priority = 2)
-    class AddSomeDataMigration : BaseMigration() {
+    class AddSomeDataMigration(
+        private val dog2Adapter: ModelAdapter<Dog2>,
+    ) : BaseMigration() {
         override fun migrate(database: DatabaseWrapper) {
             runBlocking {
-                database<MigratedPrepackagedDB>().dog2Adapter.insert(
+                dog2Adapter.insert(
                     literalOf("`breed`") eq "NewBreed",
                     literalOf("`newField`") eq "New Field Data",
                 ).execute(database)

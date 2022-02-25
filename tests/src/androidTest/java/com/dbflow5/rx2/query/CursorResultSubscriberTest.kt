@@ -29,9 +29,11 @@ class CursorResultSubscriberTest {
                 count++
             }
         val model = SimpleModel("test")
-        simpleModelAdapter.save(model)
-        simpleModelAdapter.delete(model)
-        simpleModelAdapter.insert(model)
+        db.writableTransaction {
+            simpleModelAdapter.save(model)
+            simpleModelAdapter.delete(model)
+            simpleModelAdapter.insert(model)
+        }
         assertEquals(2, count) // once for subscription, 1 for operations in transaction.
     }
 
