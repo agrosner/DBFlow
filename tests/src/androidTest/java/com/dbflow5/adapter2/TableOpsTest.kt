@@ -10,7 +10,7 @@ import com.dbflow5.adapter.TableOps
 import com.dbflow5.adapter.TableOpsImpl
 import com.dbflow5.adapter.TableSQL
 import com.dbflow5.config.DatabaseHolder
-import com.dbflow5.config.FlowManager
+import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
@@ -85,7 +85,7 @@ class TableOpsTest {
             createWithDatabase = false,
             primaryModelClauseGetter = mock(),
         )
-        FlowManager.init {
+        DatabaseObjectLookup.loadHolder {
             DatabaseHolder(
                 tables = setOf(mockModelAdapter),
                 views = setOf(),

@@ -2,7 +2,7 @@ package com.dbflow5.adapter
 
 import com.dbflow5.adapter.saveable.SaveOperationFailedException
 import com.dbflow5.annotation.opts.InternalDBFlowApi
-import com.dbflow5.config.FlowManager
+import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.DatabaseWrapper
@@ -48,7 +48,7 @@ data class TableOpsImpl<Table : Any>(
     private val notifyChanges: Boolean,
 ) : TableOps<Table>, QueryOps<Table> by queryOps {
 
-    private val adapter by lazy { FlowManager.getDBRepresentable(table) }
+    private val adapter by lazy { DatabaseObjectLookup.getDBRepresentable(table) }
 
     private fun DatabaseWrapper.bind(
         model: Table,

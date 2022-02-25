@@ -3,7 +3,7 @@ package com.dbflow5.database
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.create
 import com.dbflow5.config.FlowLog
-import com.dbflow5.config.FlowManager
+import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.NaturalOrderComparator
 import java.io.IOException
@@ -68,7 +68,7 @@ open class DatabaseHelper(
         database.executeTransaction {
             this@DatabaseHelper.generatedDatabase.tables
                 .asSequence()
-                .map { FlowManager.getModelAdapter(it) }
+                .map { DatabaseObjectLookup.getModelAdapter(it) }
                 .filter { it.createWithDatabase }
                 .forEach { it.logOrThrow(this) }
         }
@@ -81,7 +81,7 @@ open class DatabaseHelper(
         database.executeTransaction {
             this@DatabaseHelper.generatedDatabase.views
                 .asSequence()
-                .map { FlowManager.getModelViewAdapter(it) }
+                .map { DatabaseObjectLookup.getModelViewAdapter(it) }
                 .filter { it.createWithDatabase }
                 .forEach { it.logOrThrow(this) }
         }

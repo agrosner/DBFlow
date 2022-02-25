@@ -4,7 +4,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.dbflow5.TestTransactionDispatcherFactory
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
-import com.dbflow5.config.FlowManager
+import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.GeneratedDatabaseHolderFactory
 import com.dbflow5.database.config.DBCreator
 import com.dbflow5.database.config.DBSettings
@@ -55,7 +55,7 @@ class DatabaseTestRule<DB : DBFlowDatabase>(
 
             @Throws(Throwable::class)
             override fun evaluate() {
-                FlowManager.init(GeneratedDatabaseHolderFactory)
+                DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)
                 Dispatchers.setMain(TestCoroutineDispatcher())
                 FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
                 creator.create(

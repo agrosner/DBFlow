@@ -10,11 +10,9 @@ import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import kotlin.reflect.KClass
 
 /**
- * Description: The main entry point into the generated database code. It uses reflection to look up
- * and construct the generated database holder class used in defining the structure for all databases
- * used in this application.
+ * Holds the main [DatabaseHolder], which provides lookup for database objects by class type.
  */
-object FlowManager {
+object DatabaseObjectLookup {
 
     private var internalDatabaseHolder: DatabaseHolder = DatabaseHolder()
     private val databaseHolder: DatabaseHolder
@@ -44,14 +42,7 @@ object FlowManager {
      * that are part of a module. Building once will give you the ability to add the class.
      */
     @JvmStatic
-    fun init(holderFactory: DatabaseHolderFactory) {
-        loadDatabaseHolder(holderFactory)
-    }
-
-    /**
-     * @return The database holder, creating if necessary using reflection.
-     */
-    private fun loadDatabaseHolder(holderFactory: DatabaseHolderFactory) {
+    fun loadHolder(holderFactory: DatabaseHolderFactory) {
         if (loadedModules.contains(holderFactory)) {
             return
         }
@@ -68,30 +59,6 @@ object FlowManager {
             throw ModuleNotFoundException("Cannot load $holderFactory", e)
         }
 
-    }
-
-    /**
-     * Close all DB files and resets [FlowConfig] and the [GlobalDatabaseHolder]. Brings
-     * DBFlow back to initial application state.
-     */
-    @Synchronized
-    @JvmStatic
-    fun close() {
-        internalDatabaseHolder = DatabaseHolder()
-        databaseHolderInitialized = false
-        loadedModules.clear()
-    }
-
-    /**
-     * Release reference to context and [FlowConfig]
-     */
-    @JvmStatic
-    @Synchronized
-    fun destroy() {
-        // Reset the global database holder.
-        internalDatabaseHolder = DatabaseHolder()
-        databaseHolderInitialized = false
-        loadedModules.clear()
     }
 
     /**

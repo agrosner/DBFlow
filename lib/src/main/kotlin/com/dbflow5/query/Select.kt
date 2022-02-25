@@ -1,7 +1,7 @@
 package com.dbflow5.query
 
 import com.dbflow5.adapter.DBRepresentable
-import com.dbflow5.config.FlowManager
+import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.query.methods.count
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Property
@@ -35,7 +35,7 @@ object SelectToken {
         adapter.select()
 
     infix fun <Table : Any> from(table: KClass<Table>): SelectStart<Table, SelectResult<Table>> =
-        FlowManager.getDBRepresentable(table).select()
+        DatabaseObjectLookup.getDBRepresentable(table).select()
 }
 
 /**
