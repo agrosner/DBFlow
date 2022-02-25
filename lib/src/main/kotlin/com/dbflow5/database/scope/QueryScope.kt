@@ -5,6 +5,7 @@ import com.dbflow5.adapter2.QueryRepresentable
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.readableTransaction
+import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.CountResultFactory
@@ -79,6 +80,10 @@ interface ReadableQueryScope {
     suspend fun <Table : Any> ModelAdapter<Table>.exists(model: Table): Boolean
 }
 
+/**
+ * A writeable scope to perform database operations.  Use the created [DBFlowDatabase]
+ * [writableTransaction] method to gain access to this scope
+ */
 interface WritableQueryScope : ReadableQueryScope {
     /**
      * Runs the query, returning the raw result expected from the query.
