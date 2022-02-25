@@ -4,7 +4,6 @@ package com.dbflow5.config
 
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter
-import com.dbflow5.adapter.QueryRepresentable
 import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
@@ -93,22 +92,6 @@ object FlowManager {
         internalDatabaseHolder = DatabaseHolder()
         databaseHolderInitialized = false
         loadedModules.clear()
-    }
-
-    /**
-     * @param modelClass The class that contains the [Table] annotation to find an adapter for.
-     * @return The adapter associated with the class. If its not a [ModelAdapter],
-     * it checks both the [ModelViewAdapter] and [RetrievalAdapter].
-     */
-    @JvmStatic
-    fun <T : Any> getQueryRepresentable(modelClass: KClass<T>): QueryRepresentable<T> {
-        var retrievalAdapter: QueryRepresentable<T>? =
-            databaseHolder.getModelAdapterOrNull(modelClass)
-        if (retrievalAdapter == null) {
-            retrievalAdapter = databaseHolder.getViewAdapterOrNull(modelClass)
-                ?: databaseHolder.getQueryAdapterOrNull(modelClass)
-        }
-        return retrievalAdapter ?: throwCannotFindAdapter("RetrievalAdapter", modelClass)
     }
 
     /**
