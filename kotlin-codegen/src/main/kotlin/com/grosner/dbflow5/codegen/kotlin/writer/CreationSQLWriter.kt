@@ -40,6 +40,11 @@ class CreationSQLWriter(
         )
             .returns(ClassNames.CompilableQuery)
             .addModifiers(KModifier.PRIVATE)
+            .apply {
+                model.originatingSource?.let { source ->
+                    originatingFileTypeSpecAdder.addOriginatingFileType(this, source)
+                }
+            }
             .addCode(
                 CodeBlock.builder()
                     .apply {
