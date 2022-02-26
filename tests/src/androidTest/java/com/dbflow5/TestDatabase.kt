@@ -3,6 +3,7 @@ package com.dbflow5
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.QueryAdapter
 import com.dbflow5.adapter.ViewAdapter
+import com.dbflow5.adapter.migrationAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.Migration
@@ -79,6 +80,8 @@ import com.dbflow5.models.UserInfo
 import com.dbflow5.models.java.ExampleModel
 import com.dbflow5.models.java.JavaModel
 import com.dbflow5.models.java.JavaModelView
+import com.dbflow5.query.operations.literalOf
+import com.dbflow5.query.operations.sqlLiteralOf
 import com.dbflow5.query.update
 import com.dbflow5.rx2.query.SimpleRXModel
 import com.dbflow5.sql.language.CaseModel
@@ -246,14 +249,16 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val simpleCustomModel: QueryAdapter<SimpleCustomModel>
 
     @Migration(version = 1, priority = 5)
-    class TestMigration(
-        private val simpleModelAdapter: ModelAdapter<SimpleModel>,
-    ) : com.dbflow5.database.Migration {
+    class TestMigration : com.dbflow5.database.Migration {
         override suspend fun MigrationScope.migrate(database: DatabaseWrapper) {
-            simpleModelAdapter.update()
-                .set(SimpleModel_Table.name.eq("Test"))
-                .where(SimpleModel_Table.name.eq("Test1"))
+            migrationAdapter("SimpleModel").update()
+                .set(name.eq("Test"))
+                .where(name.eq("Test1"))
                 .execute(database)
+        }
+
+        private companion object {
+            val name = sqlLiteralOf("name")
         }
     }
 

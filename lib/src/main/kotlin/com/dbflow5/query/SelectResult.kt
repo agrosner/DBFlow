@@ -2,6 +2,7 @@ package com.dbflow5.query
 
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.QueryOps
+import com.dbflow5.config.readableTransaction
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.sql.Query
@@ -136,4 +137,6 @@ suspend fun <Table : Any, OtherTable : Any>
 
 suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.cursor(
     db: DatabaseWrapper
-) = db.rawQuery(query, null)
+) = db.generatedDatabase.readableTransaction {
+    db.rawQuery(query, null)
+}
