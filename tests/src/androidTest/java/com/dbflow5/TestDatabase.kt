@@ -10,6 +10,7 @@ import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.scope.MigrationScope
 import com.dbflow5.livedata.LiveDataModel
 import com.dbflow5.migration.FirstMigration
 import com.dbflow5.migration.SecondMigration
@@ -248,7 +249,7 @@ abstract class TestDatabase : DBFlowDatabase() {
     class TestMigration(
         private val simpleModelAdapter: ModelAdapter<SimpleModel>,
     ) : com.dbflow5.database.Migration {
-        override suspend fun migrate(database: DatabaseWrapper) {
+        override suspend fun MigrationScope.migrate(database: DatabaseWrapper) {
             simpleModelAdapter.update()
                 .set(SimpleModel_Table.name.eq("Test"))
                 .where(SimpleModel_Table.name.eq("Test1"))
@@ -258,7 +259,7 @@ abstract class TestDatabase : DBFlowDatabase() {
 
     @Migration(version = 1, priority = 1)
     class SecondMigration : com.dbflow5.database.Migration {
-        override suspend fun migrate(database: DatabaseWrapper) {
+        override suspend fun MigrationScope.migrate(database: DatabaseWrapper) {
 
         }
     }

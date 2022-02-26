@@ -6,6 +6,8 @@ import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.NaturalOrderComparator
+import com.dbflow5.database.scope.MigrationScope
+import com.dbflow5.database.scope.MigrationScopeImpl
 import kotlinx.coroutines.runBlocking
 import java.io.IOException
 
@@ -32,7 +34,7 @@ open class DatabaseHelper(
         // execute any initial migrations when DB is first created.
         // use the databaseversion of the definition, since onupgrade is not called oncreate on a version 0
         // then SQLCipher and Android set the DB to that version you choose.
-        executeMigrations(db, -1, generatedDatabase.databaseVersion)
+        MigrationScopeImpl(db).executeMigrations(db, -1, generatedDatabase.databaseVersion)
 
         // views reflect current db state.
         executeViewCreations(db)
@@ -43,7 +45,7 @@ open class DatabaseHelper(
         executeTableCreations(db)
 
         // migrations run to get to DB newest version. adjusting any existing tables to new version
-        executeMigrations(db, oldVersion, newVersion)
+        MigrationScopeImpl(db).executeMigrations(db, oldVersion, newVersion)
 
         // views reflect current db state.
         executeViewCreations(db)
@@ -103,7 +105,7 @@ open class DatabaseHelper(
         }
     }
 
-    protected fun executeMigrations(
+    protected fun MigrationScope.executeMigrations(
         db: DatabaseWrapper,
         oldVersion: Int, newVersion: Int
     ) {
@@ -138,7 +140,7 @@ open class DatabaseHelper(
                     }
 
                     migrationMap[i]?.forEach { migration ->
-                        runBlocking { migration.migrate(db) }
+                        runBlocking { migration.apply { migrate(db) } }
                         FlowLog.log(
                             FlowLog.Level.I,
                             "${migration.javaClass} executed successfully."

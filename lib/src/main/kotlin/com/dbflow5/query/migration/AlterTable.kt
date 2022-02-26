@@ -2,6 +2,7 @@ package com.dbflow5.query.migration
 
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.Migration
+import com.dbflow5.database.scope.MigrationScope
 import com.dbflow5.query.ExecutableQuery
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.sql.Query
@@ -40,7 +41,8 @@ sealed interface ColumnAlter : Query {
 /**
  * Begins an ALTER TABLE statement used in a [Migration]
  */
-fun alterTable(name: String): AlterTableStart =
+@Suppress("unused")
+fun MigrationScope.alterTable(name: String): AlterTableStart =
     AlterTableStart(oldTableName = name)
 
 data class AlterTableStart internal constructor(
@@ -50,6 +52,11 @@ data class AlterTableStart internal constructor(
     infix fun addColumn(columnAlter: ColumnAlter): AlterTableEnd = AlterTableImpl(
         oldTableName = oldTableName,
         type = AlterTableType.AddColumn(columnAlter),
+    )
+
+    infix fun dropColumn(name: String): AlterTableEnd = AlterTableImpl(
+        oldTableName = oldTableName,
+        type = AlterTableType.DropColumn(name),
     )
 
     infix fun renameTo(newName: String): AlterTableEnd = AlterTableImpl(
@@ -73,6 +80,12 @@ sealed interface AlterTableType : Query {
         private val columnAlter: ColumnAlter,
     ) : AlterTableType {
         override val query: String = columnAlter.query
+    }
+
+    data class DropColumn(
+        private val columnName: String,
+    ) : AlterTableType {
+        override val query: String = "DROP COLUMN ${columnName.quoteIfNeeded()}"
     }
 
     data class ColumnRename(
