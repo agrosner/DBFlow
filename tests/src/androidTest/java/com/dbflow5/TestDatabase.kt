@@ -11,7 +11,6 @@ import com.dbflow5.annotation.Table
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.livedata.LiveDataModel
-import com.dbflow5.migration.BaseMigration
 import com.dbflow5.migration.FirstMigration
 import com.dbflow5.migration.SecondMigration
 import com.dbflow5.models.Account
@@ -82,7 +81,6 @@ import com.dbflow5.models.java.JavaModelView
 import com.dbflow5.query.update
 import com.dbflow5.rx2.query.SimpleRXModel
 import com.dbflow5.sql.language.CaseModel
-import kotlinx.coroutines.runBlocking
 
 /**
  * Description:
@@ -249,25 +247,18 @@ abstract class TestDatabase : DBFlowDatabase() {
     @Migration(version = 1, priority = 5)
     class TestMigration(
         private val simpleModelAdapter: ModelAdapter<SimpleModel>,
-    ) : BaseMigration() {
-        override fun migrate(database: DatabaseWrapper) {
-            runBlocking {
-                simpleModelAdapter.update()
-                    .set(SimpleModel_Table.name.eq("Test"))
-                    .where(SimpleModel_Table.name.eq("Test1"))
-                    .execute(database)
-            }
-        }
-
-        override fun onPreMigrate() {
-            super.onPreMigrate()
-
+    ) : com.dbflow5.database.Migration {
+        override suspend fun migrate(database: DatabaseWrapper) {
+            simpleModelAdapter.update()
+                .set(SimpleModel_Table.name.eq("Test"))
+                .where(SimpleModel_Table.name.eq("Test1"))
+                .execute(database)
         }
     }
 
     @Migration(version = 1, priority = 1)
-    class SecondMigration : BaseMigration() {
-        override fun migrate(database: DatabaseWrapper) {
+    class SecondMigration : com.dbflow5.database.Migration {
+        override suspend fun migrate(database: DatabaseWrapper) {
 
         }
     }

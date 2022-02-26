@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
  * must implement the Migration interface.
  */
 @Retention(AnnotationRetention.SOURCE)
-@Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
+@Target(AnnotationTarget.CLASS)
 annotation class Migration(
     /**
      * @return The version the migration will trigger at.

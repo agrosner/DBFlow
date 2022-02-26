@@ -14,7 +14,7 @@ import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.config.DBSettings
 import com.dbflow5.database.scope.ReadableDatabaseScope
 import com.dbflow5.database.scope.WritableDatabaseScope
-import com.dbflow5.migration.Migration
+import com.dbflow5.database.Migration
 import com.dbflow5.observing.TableObserver
 import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.transaction.SuspendableTransaction

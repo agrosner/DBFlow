@@ -2,10 +2,11 @@ package com.dbflow5.database
 
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.create
-import com.dbflow5.config.FlowLog
 import com.dbflow5.config.DatabaseObjectLookup
+import com.dbflow5.config.FlowLog
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.NaturalOrderComparator
+import kotlinx.coroutines.runBlocking
 import java.io.IOException
 
 /**
@@ -128,40 +129,22 @@ open class DatabaseHelper(
 
             val curVersion = oldVersion + 1
 
-            try {
-                db.beginTransaction()
-
+            db.executeTransaction {
                 // execute migrations in order, migration file first before wrapped migration classes.
                 for (i in curVersion..newVersion) {
-                    val migrationFiles = migrationFileMap[i]
-                    if (migrationFiles != null) {
-                        for (migrationFile in migrationFiles) {
-                            executeSqlScript(db, migrationFile)
-                            FlowLog.log(FlowLog.Level.I, "$migrationFile executed successfully.")
-                        }
+                    migrationFileMap[i]?.forEach { migrationFile ->
+                        executeSqlScript(db, migrationFile)
+                        FlowLog.log(FlowLog.Level.I, "$migrationFile executed successfully.")
                     }
 
-                    val migrationsList = migrationMap[i]
-                    if (migrationsList != null) {
-                        for (migration in migrationsList) {
-                            // before migration
-                            migration.onPreMigrate()
-
-                            // migrate
-                            migration.migrate(db)
-
-                            // after migration cleanup
-                            migration.onPostMigrate()
-                            FlowLog.log(
-                                FlowLog.Level.I,
-                                "${migration.javaClass} executed successfully."
-                            )
-                        }
+                    migrationMap[i]?.forEach { migration ->
+                        runBlocking { migration.migrate(db) }
+                        FlowLog.log(
+                            FlowLog.Level.I,
+                            "${migration.javaClass} executed successfully."
+                        )
                     }
                 }
-                db.setTransactionSuccessful()
-            } finally {
-                db.endTransaction()
             }
         } catch (e: IOException) {
             FlowLog.log(
@@ -170,7 +153,6 @@ open class DatabaseHelper(
                 e
             )
         }
-
     }
 
     /**
