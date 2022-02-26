@@ -3,6 +3,7 @@ package com.dbflow5.adapter
 import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.query.operations.Property
 import com.dbflow5.sql.Query
 import kotlin.reflect.KClass
 
@@ -31,6 +32,9 @@ internal class LazyDBRepresentable<T : Any>(
 
     override val dropSQL: CompilableQuery
         get() = realAdapter.dropSQL
+
+    override fun getProperty(columnName: String): Property<*, T> =
+        realAdapter.getProperty(columnName)
 
     override suspend fun DatabaseWrapper.single(query: Query): T? =
         realAdapter.run { single(query) }

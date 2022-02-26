@@ -1,6 +1,7 @@
 package com.dbflow5.prepackaged
 
 import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter.migrationAdapter
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.Migration
@@ -50,17 +51,14 @@ abstract class MigratedPrepackagedDB : DBFlowDatabase() {
     }
 
     @Migration(version = 2, priority = 2)
-    class AddSomeDataMigration(
-        private val dog2Adapter: ModelAdapter<Dog2>,
-    ) : com.dbflow5.database.Migration {
+    class AddSomeDataMigration : com.dbflow5.database.Migration {
         override suspend fun MigrationScope.migrate(database: DatabaseWrapper) {
-            dog2Adapter.insert(
+            migrationAdapter("Dog").insert(
                 literalOf("`breed`") eq "NewBreed",
                 literalOf("`newField`") eq "New Field Data",
             ).execute(database)
         }
     }
-
 }
 
 @Table

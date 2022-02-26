@@ -33,7 +33,6 @@ import com.dbflow5.codegen.shared.validation.ValidationExceptionProvider
 import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.dbflow5.ksp.model.interop.KSPClassType
 import com.dbflow5.ksp.model.interop.KSPOriginatingSource
-import com.dbflow5.ksp.model.interop.adapterParamsForFunParams
 import com.dbflow5.ksp.model.invoke
 import com.dbflow5.ksp.model.ksName
 import com.dbflow5.ksp.parser.annotation.DatabasePropertyParser
@@ -95,14 +94,6 @@ class KSClassDeclarationParser(
         ) : Validation {
             override val message: String =
                 "Missing @Table: $className must also declare a Table annotation with $annotationName"
-        }
-
-        data class MissingModelViewQuery(
-            val className: ClassName,
-        ) : Validation {
-            override val message: String =
-                "Missing @ModelViewQuery: Could not find a ModelViewQuery for $className. It should " +
-                    "exist as a companion object field that is accessible."
         }
 
         data class InvalidConstructor(
@@ -238,17 +229,15 @@ class KSClassDeclarationParser(
                     )
                 }
                 typeNameOf<Migration>() -> {
-                    val constructor = input.primaryConstructor
-                        ?: throw ValidationException("Migration classes must use a primary constructor.")
+                    if (input.getConstructors().none { it.parameters.isEmpty() }) {
+                        throw ValidationException("Migration classes must contain only empty constructor.")
+                    }
                     listOf(
                         MigrationModel(
                             name = name,
                             properties = migrationParser.parse(annotation),
                             classType = classType,
                             originatingSource = originatingFile,
-                            adapterParams = adapterParamsForFunParams(
-                                constructor.parameters
-                            ) { typeName -> typeName.rawType == ClassNames.ModelAdapter }
                         )
                     )
                 }
@@ -350,11 +339,6 @@ class KSClassDeclarationParser(
                 val companion = resolver.getClassDeclarationByName(
                     name = name.companion().ksName
                 )
-                val modelViewQuery = companion?.let { modelViewQueryOrNull(companion) }
-                    ?: modelViewQueryOrNull(input)
-                    ?: throw Validation.MissingModelViewQuery(
-                        classType,
-                    ).exception
                 listOf(
                     ClassModel(
                         name = name,
@@ -363,13 +347,7 @@ class KSClassDeclarationParser(
                         isDataClass = isData,
                         type = ClassModel.Type.View(
                             ModelViewQueryProperties(
-                                NameModel(
-                                    modelViewQuery.simpleName,
-                                    modelViewQuery.packageName
-                                ),
-                                adapterParams = adapterParamsForFunParams(
-                                    modelViewQuery.parameters
-                                ) { typeName -> typeName.rawType == ClassNames.ModelAdapter }
+                                annotation.arguments.mapProperties().arg("query")
                             )
                         ),
                         properties = viewPropertyParser.parse(annotation),
@@ -409,11 +387,6 @@ class KSClassDeclarationParser(
             else -> listOf()
         }
     }
-
-    private fun modelViewQueryOrNull(
-        declaration: KSClassDeclaration,
-    ): KSFunctionDeclaration? = declaration.getAllFunctions()
-        .firstOrNull { it.hasAnnotation<ModelViewQuery>() }
 
     private fun manyToManyModel(
         input: KSClassDeclaration,

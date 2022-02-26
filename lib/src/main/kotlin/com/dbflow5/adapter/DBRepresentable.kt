@@ -3,6 +3,7 @@ package com.dbflow5.adapter
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.UnitResultFactory
+import com.dbflow5.query.operations.Property
 
 /**
  * Represents an adapter that has a name in DB.
@@ -16,6 +17,8 @@ interface DBRepresentable<DBType : Any> : QueryRepresentable<DBType> {
     val creationSQL: CompilableQuery
 
     val dropSQL: CompilableQuery
+    
+    fun getProperty(columnName: String): Property<*, DBType>
 }
 
 @DelicateDBFlowApi

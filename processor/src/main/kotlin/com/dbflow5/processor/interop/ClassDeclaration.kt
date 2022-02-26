@@ -1,10 +1,6 @@
 package com.dbflow5.processor.interop
 
-import com.dbflow5.annotation.ModelViewQuery
-import com.dbflow5.codegen.shared.NameModel
-import com.dbflow5.codegen.shared.companion
 import com.dbflow5.codegen.shared.interop.ClassDeclaration
-import com.dbflow5.codegen.shared.interop.ClassNameResolver
 import com.dbflow5.codegen.shared.interop.OriginatingSource
 import com.dbflow5.codegen.shared.interop.PropertyDeclaration
 import com.dbflow5.processor.ProcessorManager
@@ -192,25 +188,4 @@ internal data class KaptKotlinClassDeclaration(
                 declaration.parameters.isEmpty() || declaration.parameters.all { it.defaultValue != null }
             }
         } != null)
-}
-
-fun KaptClassDeclaration.modelViewQueryOrThrow(
-    name: NameModel,
-    resolver: ClassNameResolver,
-): KaptPropertyDeclaration {
-    val companion = resolver.classDeclarationByClassName(
-        name.companion().className,
-    )
-
-    val modelViewQuery = (companion?.functions
-        ?.firstOrNull { (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null }
-        ?: functions.firstOrNull {
-            (it as KaptPropertyDeclaration).annotation<ModelViewQuery>() != null
-        }) as? KaptPropertyDeclaration
-    return modelViewQuery
-        ?: throw IllegalStateException(
-            "Missing modelview query ${name} ${
-                companion ?: (this as KaptJavaClassDeclaration).allMembers
-            }"
-        )
 }

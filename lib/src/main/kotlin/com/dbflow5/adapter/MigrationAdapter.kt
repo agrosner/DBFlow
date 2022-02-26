@@ -3,6 +3,9 @@ package com.dbflow5.adapter
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.scope.MigrationScope
+import com.dbflow5.query.nameAlias
+import com.dbflow5.query.operations.Property
+import com.dbflow5.query.operations.property
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.sql.Query
 import kotlin.reflect.KClass
@@ -11,6 +14,7 @@ import kotlin.reflect.KClass
  * Creates a new [MigrationAdapter] to use dynamic table name and type in queries for migrations.
  * [ModelAdapter] use should be discouraged.
  */
+@Suppress("unused")
 fun MigrationScope.migrationAdapter(
     name: String
 ) = MigrationAdapter(name = name.quoteIfNeeded())
@@ -38,4 +42,7 @@ data class MigrationAdapter internal constructor(
         listOf(rawQuery(query.query))
 
     override val type: KClass<FlowCursor> = FlowCursor::class
+
+    override fun getProperty(columnName: String): Property<*, FlowCursor> =
+        property<Any, FlowCursor>(columnName.nameAlias)
 }

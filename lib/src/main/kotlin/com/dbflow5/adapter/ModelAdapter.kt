@@ -53,7 +53,7 @@ constructor(
 
     override val type: KClass<Table> = table
 
-    fun getProperty(columnName: String) = propertyGetter(columnName)
+    override fun getProperty(columnName: String) = propertyGetter(columnName)
 
     fun getPrimaryModelClause(model: Table) = primaryModelClauseGetter.get(model)
 

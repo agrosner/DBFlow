@@ -30,8 +30,6 @@ import com.dbflow5.codegen.shared.properties.ModelViewQueryProperties
 import com.dbflow5.processor.interop.KaptClassDeclaration
 import com.dbflow5.processor.interop.KaptOriginatingSource
 import com.dbflow5.processor.interop.KaptTypeElementClassType
-import com.dbflow5.processor.interop.adapterParamsForExecutableParams
-import com.dbflow5.processor.interop.modelViewQueryOrThrow
 import com.dbflow5.processor.interop.name
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.erasure
@@ -43,7 +41,6 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.javapoet.toKTypeName
 import com.squareup.kotlinpoet.typeNameOf
-import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
 
@@ -167,10 +164,6 @@ class KaptElementProcessor(
                             properties = migrationParser.parse(input.annotation()),
                             classType = classType,
                             originatingSource = source,
-                            adapterParams = adapterParamsForExecutableParams(
-                                classDeclaration.constructors.first()
-                                    .parameters
-                            ) { it.rawType == ClassNames.ModelAdapter },
                         )
                     )
                 }
@@ -235,24 +228,13 @@ class KaptElementProcessor(
                 )
             }
             typeNameOf<ModelView>() -> {
-                val modelViewQueryFun =
-                    classDeclaration.modelViewQueryOrThrow(
-                        name = name,
-                        resolver = resolver
-                    )
                 listOf(
                     ClassModel(
                         name = name,
                         classType = classType,
                         isDataClass = isData,
                         type = ClassModel.Type.View(
-                            ModelViewQueryProperties(
-                                modelViewQueryFun.simpleName,
-                                adapterParams = adapterParamsForExecutableParams(
-                                    (modelViewQueryFun.element as ExecutableElement)
-                                        .parameters
-                                ) { it.rawType == ClassNames.ModelAdapter }
-                            ),
+                            ModelViewQueryProperties(input.annotation<ModelView>().query)
                         ),
                         properties = viewPropertyParser.parse(input.annotation()),
                         fields = fields,

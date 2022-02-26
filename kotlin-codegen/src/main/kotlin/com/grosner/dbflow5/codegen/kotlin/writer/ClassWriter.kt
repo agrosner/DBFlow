@@ -39,13 +39,13 @@ class ClassWriter(
                 addFunction(queryOpsWriter.create(model))
                 if (!model.isQuery) {
                     addFunction(creationSQLWriter.create(model))
+                    addProperty(propertyGetterWriter.create(model))
                 }
                 if (model.isNormal) {
                     addProperty(tableSQLWriter.create(model))
                     addProperty(tableBinderWriter.create(model))
                     addProperty(primaryModelClauseWriter.create(model))
                     addProperty(autoIncrementUpdateWriter.create(model))
-                    addProperty(propertyGetterWriter.create(model))
                     addFunction(tableOpsWriter.create(model))
                 }
                 addFunction(classAdapterWriter.create(model))

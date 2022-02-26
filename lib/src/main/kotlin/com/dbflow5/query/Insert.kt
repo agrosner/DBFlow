@@ -20,7 +20,7 @@ private fun <Table : Any> List<ColumnValue<Table, Any>>.toColumnValues(): Pair<L
     return props to values
 }
 
-internal fun <Table : Any> ModelAdapter<Table>.columnValue(
+internal fun <Table : Any> DBRepresentable<Table>.columnValue(
     sqlOperator: BaseOperator.SingleValueOperator<Any>
 ): ColumnValue<Table, Any> {
     if (sqlOperator.nameAlias.query.isBlank()) {
@@ -125,7 +125,7 @@ fun <Table : Any> DBRepresentable<Table>.insert(
     )
 }
 
-fun <Table : Any> ModelAdapter<Table>.insert(
+fun <Table : Any> DBRepresentable<Table>.insert(
     operator: BaseOperator.SingleValueOperator<*>,
     vararg operators: BaseOperator.SingleValueOperator<*>,
 ): InsertWithValues<Table> {

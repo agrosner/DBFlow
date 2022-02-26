@@ -28,7 +28,7 @@ class QueryOpsWriter(
 
     override fun create(model: ClassModel): FunSpec {
         val adapters =
-            model.distinctAdapterGetters(referencesCache, includeViewClassAdapters = false)
+            model.distinctAdapterGetters(referencesCache)
         return FunSpec.builder(
             "${model.generatedFieldName}_queryOps",
         )

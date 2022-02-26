@@ -149,11 +149,9 @@ class DatabaseWriter(
                                                     ?.sortedBy { it.properties.priority }
                                                     ?.forEach { definition ->
                                                         addStatement(
-                                                            "addMigration(%L, %T(${definition.adapterParams.joinToString { "%L" }}))",
+                                                            "addMigration(%L, %T())",
                                                             version,
                                                             definition.classType,
-                                                            *definition.adapterParams.map { it.name.shortName }
-                                                                .toTypedArray()
                                                         )
                                                     }
                                             }

@@ -4,7 +4,6 @@ import com.dbflow5.codegen.shared.ClassModel
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.distinctAdapterGetters
-import com.dbflow5.codegen.shared.distinctAdapterParameterGetters
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.properties.CreatableScopeProperties
 import com.dbflow5.codegen.shared.writer.TypeCreator
@@ -32,8 +31,7 @@ class ClassAdapterWriter(
         val name = nameAllocator[model.generatedClassName]
         val adapters = model.distinctAdapterGetters(referencesCache)
         val onlyAdapterGetters =
-            model.distinctAdapterGetters(referencesCache, includeViewClassAdapters = false)
-        val adapterParams = model.distinctAdapterParameterGetters()
+            model.distinctAdapterGetters(referencesCache)
         val config = createConfig(model)
         return FunSpec.builder(
             "${name}_${config.fieldName}"
@@ -68,10 +66,8 @@ class ClassAdapterWriter(
                     addCode("creationSQL = %L", "${model.generatedFieldName}_creationSQL(), \n")
                     addCode("primaryModelClauseGetter = ${model.generatedFieldName}_primaryModelClauseGetter, \n")
                 } else if (model.isView) {
-                    addCode(
-                        "creationLoader = ${model.generatedFieldName}_creationLoader(${adapterParams.joinToString { "%L" }}), \n",
-                        *adapterParams.map { "${it.generatedFieldName}Getter" }.toTypedArray(),
-                    )
+                    addCode("propertyGetter = ${model.generatedFieldName}_propertyGetter, \n")
+                    addCode("creationSQL = %L", "${model.generatedFieldName}_creationSQL(), \n")
                 }
                 addCode(")")
             }

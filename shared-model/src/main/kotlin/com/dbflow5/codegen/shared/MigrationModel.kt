@@ -12,5 +12,4 @@ data class MigrationModel(
     val classType: ClassName,
     val properties: MigrationProperties,
     override val originatingSource: OriginatingSource?,
-    val adapterParams: List<ClassAdapterFieldModel>,
 ) : ObjectModel

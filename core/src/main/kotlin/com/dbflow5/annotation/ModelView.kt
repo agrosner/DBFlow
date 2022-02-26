@@ -1,16 +1,19 @@
 package com.dbflow5.annotation
 
-import com.dbflow5.sql.Query
+import org.intellij.lang.annotations.Language
 import kotlin.reflect.KClass
 
 /**
- * Author: andrewgrosner
- * Description: Marks a class as being an SQL VIEW definition. It must extend BaseModelView and have
- * a single public, static, final field that is annotated with [ModelViewQuery] and be a [Query].
+ * Represents a SQLite VIEW.
  */
 @Retention(AnnotationRetention.SOURCE)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 annotation class ModelView(
+    /**
+     * Provide the query directly here.
+     */
+    @Language("SQLite")
+    val query: String,
     /**
      * @return The name of this view. Default is the class name.
      */

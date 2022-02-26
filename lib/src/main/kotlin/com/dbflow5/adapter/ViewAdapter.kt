@@ -7,18 +7,20 @@ import kotlin.reflect.KClass
 /**
  * Used by generated code.
  */
-inline fun <reified Table : Any> viewAdapter(
+inline fun <reified View : Any> viewAdapter(
     name: String,
-    ops: QueryOps<Table>,
+    ops: QueryOps<View>,
     createWithDatabase: Boolean,
-    noinline creationLoader: () -> CompilableQuery,
+    creationSQL: CompilableQuery,
+    noinline propertyGetter: PropertyGetter<View>,
 ) =
     ViewAdapter(
-        view = Table::class,
+        view = View::class,
         ops = ops,
         name = name,
-        creationLoader = creationLoader,
+        creationSQL = creationSQL,
         createWithDatabase = createWithDatabase,
+        propertyGetter = propertyGetter,
     )
 
 /**
@@ -28,13 +30,15 @@ data class ViewAdapter<View : Any>
 @InternalDBFlowApi constructor(
     val view: KClass<View>,
     private val ops: QueryOps<View>,
+    private val propertyGetter: PropertyGetter<View>,
     override val name: String,
-    private val creationLoader: () -> CompilableQuery,
+    override val creationSQL: CompilableQuery,
     override val createWithDatabase: Boolean,
 ) : QueryOps<View> by ops, DBRepresentable<View> {
     override val dropSQL: CompilableQuery = CompilableQuery(
         "DROP VIEW IF EXISTS $name"
     )
     override val type: KClass<View> = view
-    override val creationSQL: CompilableQuery by lazy(creationLoader)
+
+    override fun getProperty(columnName: String) = propertyGetter(columnName)
 }
