@@ -34,12 +34,11 @@ import com.dbflow5.processor.interop.name
 import com.dbflow5.processor.utils.annotation
 import com.dbflow5.processor.utils.erasure
 import com.dbflow5.processor.utils.javaToKotlinType
+import com.dbflow5.processor.utils.kTypeName
 import com.dbflow5.processor.utils.toTypeErasedElement
-import com.grosner.kpoet.typeName
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
-import com.squareup.kotlinpoet.javapoet.toKTypeName
 import com.squareup.kotlinpoet.typeNameOf
 import javax.lang.model.element.TypeElement
 import javax.lang.model.util.Elements
@@ -76,7 +75,7 @@ class KaptElementProcessor(
         val name = input.name()
         val classType = input.toTypeErasedElement().javaToKotlinType() as ClassName
         return annotations.mapNotNull { annotation ->
-            when (val typeName = annotation.annotationType.typeName.toKTypeName()) {
+            when (val typeName = annotation.annotationType.kTypeName) {
                 typeNameOf<Database>() -> {
                     // TODO: check super type
                     listOf(

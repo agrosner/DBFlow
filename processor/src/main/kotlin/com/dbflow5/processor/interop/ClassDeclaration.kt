@@ -8,7 +8,6 @@ import com.dbflow5.processor.utils.ElementUtility
 import com.dbflow5.processor.utils.getPackage
 import com.dbflow5.processor.utils.toKTypeName
 import com.dbflow5.processor.utils.toTypeErasedElement
-import com.grosner.kpoet.typeName
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.TypeSpec
@@ -103,7 +102,10 @@ internal data class KaptJavaClassDeclaration(
     override val functions: Sequence<PropertyDeclaration> =
         methodElements
             .asSequence()
-            .filterNot { it.returnType.typeName == com.squareup.javapoet.TypeName.VOID }
+            .filterNot {
+                com.squareup.javapoet.TypeName.get(it.returnType) ==
+                    com.squareup.javapoet.TypeName.VOID
+            }
             .map { func -> KaptJavaMethodDeclaration(func) }
 
     override fun asStarProjectedType(): ClassDeclaration {

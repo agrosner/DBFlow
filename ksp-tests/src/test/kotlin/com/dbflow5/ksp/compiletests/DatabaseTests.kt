@@ -15,6 +15,9 @@ class DatabaseTests : BaseCompileTest() {
         @Language("kotlin") val file = Source.KotlinSource(
             "Inclusive",
             """
+        import com.dbflow5.adapter.ModelAdapter
+        import com.dbflow5.adapter.ViewAdapter
+        import com.dbflow5.adapter.QueryAdapter
         import com.dbflow5.annotation.Database
         import com.dbflow5.annotation.Migration
         import com.dbflow5.annotation.ModelView
@@ -59,6 +62,11 @@ class DatabaseTests : BaseCompileTest() {
             ],
         )
         abstract class TestDatabase: DBFlowDatabase() {
+        
+            abstract val simpleModelAdapter: ModelAdapter<SimpleModel>
+            abstract val simpleViewAdapter: ViewAdapter<SimpleView>
+            abstract val simpleQueryAdapter: QueryAdapter<SimpleQuery>
+
             @Migration(version = 2)
             class SomeMigration: Migration {
                 override suspend fun MigrationScope.migrate(database: DatabaseWrapper){

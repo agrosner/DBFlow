@@ -2,7 +2,7 @@ package com.dbflow5.processor.interop
 
 import com.dbflow5.codegen.shared.NameModel
 import com.dbflow5.codegen.shared.interop.PropertyDeclaration
-import com.grosner.kpoet.typeName
+import com.dbflow5.processor.utils.kTypeName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
@@ -78,6 +78,6 @@ data class KaptJavaMethodDeclaration(
         element.getAnnotation(aClass.java)
 
     override val simpleName: NameModel = element.name()
-    override val typeName: TypeName = element.returnType.typeName.toKTypeName()
+    override val typeName: TypeName = element.returnType.kTypeName
     override val isAbstract: Boolean = element.modifiers.contains(Modifier.ABSTRACT)
 }
