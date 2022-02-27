@@ -18,19 +18,11 @@ class ModelViewQueryTests : BaseCompileTest() {
             """
             package test
             import com.dbflow5.annotation.ModelView
-            import com.dbflow5.annotation.ModelViewQuery
-            import com.dbflow5.query.select
 
-            @ModelView(database = TestDatabase::class)
+            @ModelView(database = TestDatabase::class, query = "SELECT * FROM `SimpleModel`")
             data class SimpleView(
                 val name: String, 
-            ) {
-                companion object {
-                    @JvmStatic
-                    @ModelViewQuery
-                    fun getQuery() = (select from SimpleModel::class)
-                }
-            }
+            )
             """.trimIndent()
         )
         assertRun(

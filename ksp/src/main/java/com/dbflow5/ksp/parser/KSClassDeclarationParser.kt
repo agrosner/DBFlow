@@ -7,7 +7,6 @@ import com.dbflow5.annotation.GranularNotifications
 import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
-import com.dbflow5.annotation.ModelViewQuery
 import com.dbflow5.annotation.MultipleManyToMany
 import com.dbflow5.annotation.OneToManyRelation
 import com.dbflow5.annotation.Query
@@ -51,7 +50,6 @@ import com.google.devtools.ksp.isInternal
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.ksp.toClassName

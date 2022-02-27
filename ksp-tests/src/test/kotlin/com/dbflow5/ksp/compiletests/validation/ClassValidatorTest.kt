@@ -1,7 +1,7 @@
 package com.dbflow5.ksp.compiletests.validation
 
 import com.dbflow5.codegen.shared.validation.ClassCharacteristicsValidator
-import com.dbflow5.codegen.shared.validation.ClassToFieldValidator
+import com.dbflow5.codegen.shared.validation.PrimaryValidator
 import com.dbflow5.ksp.compiletests.BaseCompileTest
 import com.dbflow5.ksp.compiletests.sourcefiles.Source
 import com.tschuchort.compiletesting.KotlinCompilation
@@ -30,7 +30,7 @@ class ClassValidatorTest : BaseCompileTest() {
             listOf(source),
             exitCode = KotlinCompilation.ExitCode.COMPILATION_ERROR
         ) {
-            assertContains(messages, ClassToFieldValidator.EMPTY_FIELDS_MSG)
+            assertContains(messages, PrimaryValidator.AT_LEAST_ONE_PRIMARY_MSG)
         }
     }
 

@@ -18,13 +18,13 @@ class DatabaseTests : BaseCompileTest() {
         import com.dbflow5.annotation.Database
         import com.dbflow5.annotation.Migration
         import com.dbflow5.annotation.ModelView
-        import com.dbflow5.annotation.ModelViewQuery
         import com.dbflow5.annotation.PrimaryKey
         import com.dbflow5.annotation.Query
         import com.dbflow5.annotation.Table
         import com.dbflow5.config.DBFlowDatabase
         import com.dbflow5.database.DatabaseWrapper
-        import com.dbflow5.migration.BaseMigration
+        import com.dbflow5.database.scope.MigrationScope
+        import com.dbflow5.database.Migration
         import com.dbflow5.query.select
 
         @Table
@@ -32,15 +32,10 @@ class DatabaseTests : BaseCompileTest() {
             @PrimaryKey val name: String,
         )
 
-        @ModelView
+        @ModelView("SELECT * FROM `SimpleModel`")
         data class SimpleView(
             val name: String
-        ) {
-            companion object {
-                @ModelViewQuery
-                val query = (select from SimpleModel::class)
-            }
-        }
+        ) 
 
         @Query
         data class SimpleQuery(
@@ -65,8 +60,8 @@ class DatabaseTests : BaseCompileTest() {
         )
         abstract class TestDatabase: DBFlowDatabase() {
             @Migration(version = 2)
-            class SomeMigration: BaseMigration() {
-                override fun migrate(database: DatabaseWrapper){
+            class SomeMigration: Migration {
+                override suspend fun MigrationScope.migrate(database: DatabaseWrapper){
                     // do nothing here.            
                 }
             }
