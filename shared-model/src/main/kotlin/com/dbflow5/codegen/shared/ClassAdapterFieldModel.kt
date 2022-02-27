@@ -15,7 +15,7 @@ data class ClassAdapterFieldModel(
     /**
      * Guaranteed.
      */
-    private val modelType = typeName.typeArguments[0]
+    val modelType = typeName.typeArguments[0]
 
     val adapterTypeName by lazy {
         return@lazy adapterType.parameterizedBy(associatedClassModel.classType)

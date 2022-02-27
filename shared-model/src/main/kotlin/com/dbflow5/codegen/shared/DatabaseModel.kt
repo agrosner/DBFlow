@@ -92,19 +92,21 @@ private fun primeAdapterFields(
 ) = database.adapterFields
     .map { fieldModel ->
         when (fieldModel.type) {
-            ClassAdapterFieldModel.Type.Normal -> tables.first {
+            ClassAdapterFieldModel.Type.Normal -> tables.firstOrNull {
                 fieldModel.associateClassModel(it)
-            }
-            ClassAdapterFieldModel.Type.Query -> queries.first {
+            } ?: throw throwMismatchError(fieldModel)
+            ClassAdapterFieldModel.Type.Query -> queries.firstOrNull {
                 fieldModel.associateClassModel(it)
-            }
+            } ?: throw throwMismatchError(fieldModel)
             ClassAdapterFieldModel.Type.View -> views.firstOrNull {
                 fieldModel.associateClassModel(it)
-            } ?: throw ValidationException(
-                "Missing ${fieldModel.name.print()} ${views.map { it.classType }}",
-                database.name
-            )
+            } ?: throw throwMismatchError(fieldModel)
         }
         fieldModel
     }
+
+private fun throwMismatchError(expected: ClassAdapterFieldModel) = ValidationException(
+    "Adapter field mismatch. Expected ${expected.name.print()} of type ${expected.modelType} " +
+        "to correspond to a valid db object."
+)
 

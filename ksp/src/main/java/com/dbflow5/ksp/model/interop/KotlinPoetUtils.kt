@@ -16,9 +16,17 @@ fun KSTypeReference.patchErrorTypeName(): TypeName {
         ?.takeIf { it is KSClassifierReference }
         ?.let { element ->
             val typeArguments = (element as KSClassifierReference).typeArguments
+            val packageName = resolve.declaration.getNormalizedPackageName()
+            val qualifiedName =
+                resolve.declaration.qualifiedName?.asString() ?: element.referencedName()
+            val shortNames = if (packageName.isBlank()) {
+                qualifiedName
+            } else {
+                qualifiedName.substring(packageName.length + 1)
+            }.split(".")
             val className = ClassName(
-                resolve.declaration.getNormalizedPackageName(),
-                element.referencedName().split("<")[0], // hack to remove type args..
+                packageName,
+                shortNames.first(), *(shortNames.drop(1).toTypedArray()),
             )
             if (typeArguments.isNotEmpty()) {
                 className.parameterizedBy(typeArguments.mapNotNull {
