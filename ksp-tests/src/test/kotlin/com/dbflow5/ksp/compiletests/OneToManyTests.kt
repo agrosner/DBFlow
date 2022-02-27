@@ -12,7 +12,7 @@ import org.junit.Test
 class OneToManyTests : BaseCompileTest() {
 
     @Test
-    fun `basic many to many`() {
+    fun `basic one to many`() {
         @Language("kotlin")
         val source = Source.KotlinSource(
             "test.OneToMany",
@@ -32,7 +32,7 @@ class OneToManyTests : BaseCompileTest() {
                 @Table(database = TestDatabase::class)
                 class Song(@PrimaryKey(autoincrement = true) var id: Int = 0,
                            @ForeignKey(tableClass = Artist::class)
-                           var id: Int = 0) 
+                           var artistId: Int = 0) 
             """.trimIndent()
         )
         assertRun(sources = listOf(dbFile, source))
