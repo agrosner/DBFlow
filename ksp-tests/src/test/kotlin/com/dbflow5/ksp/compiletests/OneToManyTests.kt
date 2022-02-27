@@ -37,4 +37,47 @@ class OneToManyTests : BaseCompileTest() {
         )
         assertRun(sources = listOf(dbFile, source))
     }
+
+    @Test
+    fun `verify one to many can be used as db adapter`() {
+        @Language("kotlin")
+        val source = Source.KotlinSource(
+            "test.OneToMany",
+            """
+                package test
+                import com.dbflow5.adapter.ModelAdapter
+                import com.dbflow5.adapter.QueryAdapter
+                import com.dbflow5.annotation.Column
+                import com.dbflow5.annotation.Database
+                import com.dbflow5.annotation.ForeignKey
+                import com.dbflow5.annotation.OneToManyRelation
+                import com.dbflow5.annotation.PrimaryKey
+                import com.dbflow5.annotation.Table
+                import com.dbflow5.config.DBFlowDatabase
+                
+                @OneToManyRelation(childTable = Song::class)
+                @Table
+                class Artist(@PrimaryKey(autoincrement = true) var id: Int = 0,
+                             @Column var name: String = "")
+                
+                @Table
+                class Song(@PrimaryKey(autoincrement = true) var id: Int = 0,
+                           @ForeignKey(tableClass = Artist::class)
+                           var artistId: Int = 0) 
+        
+                @Database(
+                    tables = [
+                       Artist::class,
+                       Song::class,
+                    ],
+                    version = 1,
+                )
+                abstract class TestDatabase: DBFlowDatabase {
+                    abstract val artistSongAdapter: QueryAdapter<Artist_Song>
+                }
+
+            """.trimIndent()
+        )
+        assertRun(sources = listOf(source))
+    }
 }

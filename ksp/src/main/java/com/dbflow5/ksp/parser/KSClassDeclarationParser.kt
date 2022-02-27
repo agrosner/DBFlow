@@ -32,6 +32,7 @@ import com.dbflow5.codegen.shared.validation.ValidationExceptionProvider
 import com.dbflow5.ksp.model.interop.KSPClassDeclaration
 import com.dbflow5.ksp.model.interop.KSPClassType
 import com.dbflow5.ksp.model.interop.KSPOriginatingSource
+import com.dbflow5.ksp.model.interop.patchErrorTypeName
 import com.dbflow5.ksp.model.invoke
 import com.dbflow5.ksp.model.ksName
 import com.dbflow5.ksp.parser.annotation.DatabasePropertyParser
@@ -156,7 +157,7 @@ class KSClassDeclarationParser(
                             adapterFields = input.getAllProperties()
                                 .filter { it.isAbstract() }
                                 .filter {
-                                    val toClassName = it.type.resolve().toTypeName()
+                                    val toClassName = it.type.patchErrorTypeName()
                                     toClassName is ParameterizedTypeName &&
                                         (toClassName.rawType in ClassAdapterFieldModel.Type.values()
                                             .map { type -> type.className })
@@ -164,7 +165,7 @@ class KSClassDeclarationParser(
                                 .map {
                                     ClassAdapterFieldModel(
                                         NameModel(it.simpleName, it.packageName),
-                                        typeName = it.type.toTypeName() as ParameterizedTypeName,
+                                        typeName = it.type.patchErrorTypeName() as ParameterizedTypeName,
                                     )
                                 }.toList(),
                         )
