@@ -6,7 +6,7 @@ import com.dbflow5.database.SQLiteException
 import com.dbflow5.dontCreateModelAdapter
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 
@@ -19,7 +19,7 @@ class DontCreateModelTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun testModelNotCreated() = runBlockingTest {
+    fun testModelNotCreated() = runTest {
         dbRule {
             assertThrowsException(SQLiteException::class) {
                 dontCreateModelAdapter.select().list()

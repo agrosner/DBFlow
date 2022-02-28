@@ -14,13 +14,15 @@ import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.transaction.TransactionDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
@@ -50,9 +52,11 @@ class TableOpsTest {
     private val modelNotifier = mock<ModelNotifier>()
     private val primaryModelClauseGetter = mock<PrimaryModelClauseGetter<Any>>()
     private val autoIncrementUpdater = mock<AutoIncrementUpdater<Any>>()
+    private val dispatcher = UnconfinedTestDispatcher()
     private val generatedDatabase = mock<GeneratedDatabase> {
-        on { transactionDispatcher } doReturn TransactionDispatcher(TestCoroutineDispatcher())
+        on { transactionDispatcher } doReturn TransactionDispatcher(dispatcher)
         on { modelNotifier } doReturn modelNotifier
+        on { transactionId } doReturn ThreadLocal()
     }
     private val database = mock<DatabaseWrapper> {
         on { generatedDatabase } doReturn generatedDatabase
@@ -65,7 +69,8 @@ class TableOpsTest {
 
     @BeforeTest
     fun createOps() {
-        Dispatchers.setMain(TestCoroutineDispatcher())
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+        whenever(generatedDatabase.writableScope) doReturn WritableDatabaseScope(generatedDatabase)
         ops = TableOpsImpl(
             table = Any::class,
             queryOps = queryOps,
@@ -95,7 +100,7 @@ class TableOpsTest {
     }
 
     @Test
-    fun saveTest() = runBlockingTest {
+    fun saveTest() = runTest(dispatcher) {
         val statement = mock<DatabaseStatement> {
             on { executeInsert() } doReturn 1
         }
@@ -124,7 +129,7 @@ class TableOpsTest {
     }
 
     @Test
-    fun insertTest() = runBlockingTest {
+    fun insertTest() = runTest(dispatcher) {
         val statement = mock<DatabaseStatement> {
             on { executeInsert() } doReturn 1
         }
@@ -153,7 +158,7 @@ class TableOpsTest {
     }
 
     @Test
-    fun updateTest() = runBlockingTest {
+    fun updateTest() = runTest(dispatcher) {
         val statement = mock<DatabaseStatement> {
             on { executeUpdateDelete() } doReturn ID
         }
@@ -179,7 +184,7 @@ class TableOpsTest {
     }
 
     @Test
-    fun deleteTest() = runBlockingTest {
+    fun deleteTest() = runTest(dispatcher) {
         val statement = mock<DatabaseStatement> {
             on { executeUpdateDelete() } doReturn ID
         }

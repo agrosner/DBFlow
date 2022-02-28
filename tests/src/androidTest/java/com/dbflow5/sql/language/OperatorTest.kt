@@ -11,7 +11,7 @@ import com.dbflow5.query.operations.operator
 import com.dbflow5.query.select
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 
@@ -63,7 +63,7 @@ class OperatorTest {
     }
 
     @Test
-    fun testIn() = runBlockingTest {
+    fun testIn() = runTest {
         dbRule {
             "`id` IN(5,6,7,8,9)".assertEquals(TwoColumnModel_Table.id.`in`(5, 6, 7, 8, 9))
             "`id` NOT IN(SELECT * FROM `SimpleModel`)".assertEquals(

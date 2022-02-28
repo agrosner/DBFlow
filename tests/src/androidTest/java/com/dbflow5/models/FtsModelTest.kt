@@ -12,7 +12,7 @@ import com.dbflow5.query.operations.match
 import com.dbflow5.query.operations.tableNameLiteral
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -28,7 +28,7 @@ class FtsModelTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun validate_fts4_created() = runBlockingTest {
+    fun validate_fts4_created() = runTest {
         dbRule {
             val model = Fts4Model(name = "FTSBABY")
             val updated = fts4ModelAdapter.save(model)
@@ -43,7 +43,7 @@ class FtsModelTest {
     }
 
     @Test
-    fun match_query() = runBlockingTest {
+    fun match_query() = runTest {
         dbRule {
             validate_fts4_created()
             (fts4VirtualModel2Adapter.select() where (
@@ -53,7 +53,7 @@ class FtsModelTest {
     }
 
     @Test
-    fun offsets_query() = runBlockingTest {
+    fun offsets_query() = runTest {
         dbRule {
             validate_fts4_created()
             val value = (fts4VirtualModel2Adapter.select(
@@ -68,7 +68,7 @@ class FtsModelTest {
     }
 
     @Test
-    fun snippet_query() = runBlockingTest {
+    fun snippet_query() = runTest {
         dbRule {
             val model = Fts4Model(
                 name = "During 30 Nov-1 Dec, 2-3oC drops. Cool in the upper portion, minimum temperature 14-16oC \n" +

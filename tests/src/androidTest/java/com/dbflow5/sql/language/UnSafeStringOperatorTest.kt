@@ -15,7 +15,7 @@ class UnSafeStringOperatorTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun testCanIncludeInQuery() = dbRule.runBlockingTest {
+    fun testCanIncludeInQuery() = dbRule.runTest {
         val op = UnSafeStringOperator(
             "name = ?, id = ?, test = ?",
             listOf("'name'", "0", "'test'")

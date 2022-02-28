@@ -13,7 +13,7 @@ class OneToManyModelTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun testOneToManyModel() = dbRule.runBlockingTest {
+    fun testOneToManyModel() = dbRule.runTest {
         oneToManyModelAdapter.save(
             OneToManyModel(
                 name = "name"

@@ -18,14 +18,14 @@ class AutoIncrementTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun testCanInsertAutoIncrement() = dbRule.runBlockingTest {
+    fun testCanInsertAutoIncrement() = dbRule.runTest {
         val model = AutoIncrementingModel()
         val incrementingModel = autoIncrementingModelAdapter.save(model)
         assertEquals(1L, incrementingModel.id)
     }
 
     @Test
-    fun testCanInsertExistingIdAutoIncrement() = dbRule.runBlockingTest {
+    fun testCanInsertExistingIdAutoIncrement() = dbRule.runTest {
         val model = AutoIncrementingModel(3)
         val incrementingModel = autoIncrementingModelAdapter.insert(model)
         assertEquals(3L, incrementingModel.id)

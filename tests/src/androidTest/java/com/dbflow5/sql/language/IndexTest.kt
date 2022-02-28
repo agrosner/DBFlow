@@ -7,7 +7,7 @@ import com.dbflow5.query.createIndexOn
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.twoColumnModelAdapter
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -18,7 +18,7 @@ class IndexTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun validateBasicIndex() = runBlockingTest {
+    fun validateBasicIndex() = runTest {
         dbRule {
             assertEquals(
                 "CREATE INDEX IF NOT EXISTS `index` ON `SimpleModel`(`name`)",
@@ -31,7 +31,7 @@ class IndexTest {
     }
 
     @Test
-    fun validateWithoutExistCheck() = runBlockingTest {
+    fun validateWithoutExistCheck() = runTest {
         dbRule {
             assertEquals(
                 "CREATE INDEX `index` ON `SimpleModel`(`name`)",
@@ -45,7 +45,7 @@ class IndexTest {
     }
 
     @Test
-    fun validateUniqueIndex() = runBlockingTest {
+    fun validateUniqueIndex() = runTest {
         dbRule {
             assertEquals(
                 "CREATE UNIQUE INDEX IF NOT EXISTS `index` ON `TwoColumnModel`(`name`, `id`)",

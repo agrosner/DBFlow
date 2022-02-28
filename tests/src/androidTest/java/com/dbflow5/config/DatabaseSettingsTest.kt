@@ -7,7 +7,7 @@ import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.OpenHelperCreator
 import com.dbflow5.database.transaction.TransactionDispatcherFactory
 import com.dbflow5.transaction.TransactionDispatcher
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 import org.mockito.kotlin.mock
 import kotlin.test.assertEquals
@@ -25,7 +25,7 @@ class DatabaseSettingsTest {
         }
         lateinit var testTransactionManager: TransactionDispatcher
         val dispatcherFactory = TransactionDispatcherFactory {
-            testTransactionManager = TransactionDispatcher(TestCoroutineDispatcher())
+            testTransactionManager = TransactionDispatcher(StandardTestDispatcher())
             testTransactionManager
         }
 

@@ -26,7 +26,7 @@ class CipherTest {
     }
 
     @Test
-    fun testCipherModel() = cipherRule.runBlockingTest {
+    fun testCipherModel() = cipherRule.runTest {
         cipherAdapter.delete().execute()
         val model =
             cipherAdapter.save(CipherModel(name = "name"))

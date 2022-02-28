@@ -15,7 +15,7 @@ class IndexPropertyTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun validateIndexProperty() = dbRule.runBlockingTest {
+    fun validateIndexProperty() = dbRule.runTest {
         val prop = indexProperty(
             "Index", true,
             SimpleModel_Table.name

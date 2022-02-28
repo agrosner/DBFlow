@@ -27,7 +27,7 @@ class RXFlowableTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun testCanObserveChanges() = dbRule.runBlockingTest {
+    fun testCanObserveChanges() = dbRule.runTest {
         simpleModelAdapter.saveAll((0..100).map {
             SimpleModel("$it")
         })
@@ -49,7 +49,7 @@ class RXFlowableTest {
     }
 
     @Test
-    fun testObservesJoinTables() = dbRule.runBlockingTest {
+    fun testObservesJoinTables() = dbRule.runTest {
         val joinOn = Blog_Table.name.withTable()
             .eq(Author_Table.first_name.withTable() + " " + Author_Table.last_name.withTable())
         assertEquals(

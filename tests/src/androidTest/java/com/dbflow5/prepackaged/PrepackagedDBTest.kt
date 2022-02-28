@@ -29,13 +29,13 @@ class PrepackagedDBTest {
     }
 
     @Test
-    fun assertWeCanLoadFromDB() = prepackagedDBRule.runBlockingTest {
+    fun assertWeCanLoadFromDB() = prepackagedDBRule.runTest {
         val list = dogAdapter.select().list()
         assertTrue(list.isNotEmpty())
     }
 
     @Test
-    fun assertWeCanLoadFromDBPostMigrate() = migratedPrepackagedDBRule.runBlockingTest {
+    fun assertWeCanLoadFromDBPostMigrate() = migratedPrepackagedDBRule.runTest {
         val list = dog2Adapter.select().list()
         assertTrue(list.isNotEmpty())
         (dog2Adapter.select()

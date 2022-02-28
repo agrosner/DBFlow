@@ -12,7 +12,7 @@ import com.dbflow5.query.select
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.twoColumnModelAdapter
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
@@ -23,7 +23,7 @@ class TriggerTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun validateBasicTrigger() = runBlockingTest {
+    fun validateBasicTrigger() = runTest {
         dbRule {
             ("CREATE TRIGGER IF NOT EXISTS `MyTrigger` AFTER INSERT ON `SimpleModel` " +
                 "\nBEGIN" +
@@ -41,7 +41,7 @@ class TriggerTest {
     }
 
     @Test
-    fun validateUpdateTriggerMultiline() = runBlockingTest {
+    fun validateUpdateTriggerMultiline() = runTest {
         dbRule {
             ("CREATE TEMP TRIGGER IF NOT EXISTS `MyTrigger` BEFORE UPDATE ON `SimpleModel` " +
                 "\nBEGIN" +
@@ -68,7 +68,7 @@ class TriggerTest {
     }
 
     @Test
-    fun validateTriggerWorks() = dbRule.runBlockingTest {
+    fun validateTriggerWorks() = dbRule.runTest {
         val trigger = simpleModelAdapter.createTrigger("MyTrigger").after().insertOn() begin
             twoColumnModelAdapter.insert(
                 TwoColumnModel_Table.name to NameAlias.ofTable(

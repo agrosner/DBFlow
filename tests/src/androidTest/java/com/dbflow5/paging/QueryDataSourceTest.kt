@@ -20,7 +20,7 @@ class QueryDataSourceTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun testLoadInitialParams() = dbRule.runBlockingTest {
+    fun testLoadInitialParams() = dbRule.runTest {
         (0 until 100).forEach {
             simpleModelAdapter.save(SimpleModel("$it"))
         }

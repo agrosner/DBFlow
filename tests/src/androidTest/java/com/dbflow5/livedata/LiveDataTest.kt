@@ -26,7 +26,7 @@ class LiveDataTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun live_data_executes_for_a_few_model_queries() = dbRule.runBlockingTest {
+    fun live_data_executes_for_a_few_model_queries() = dbRule.runTest {
         val data = (select from liveDataModelAdapter)
             .toLiveData(db) { list() }
 

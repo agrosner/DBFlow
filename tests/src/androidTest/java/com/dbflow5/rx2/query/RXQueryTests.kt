@@ -23,7 +23,7 @@ class RXQueryTests {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun testCanQuery() = dbRule.runBlockingTest {
+    fun testCanQuery() = dbRule.runTest {
         simpleModelAdapter.save(SimpleModel("Name"))
 
         var cursor: FlowCursor? = null
@@ -39,7 +39,7 @@ class RXQueryTests {
     }
 
     @Test
-    fun testCountMethod() = dbRule.runBlockingTest {
+    fun testCountMethod() = dbRule.runTest {
         simpleModelAdapter.saveAll(
             listOf(
                 SimpleModel("name"),

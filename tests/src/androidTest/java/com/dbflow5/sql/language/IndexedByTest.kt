@@ -8,7 +8,7 @@ import com.dbflow5.query.select
 import com.dbflow5.query.update
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -19,7 +19,7 @@ class IndexedByTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun validateSelectQuery() = runBlockingTest {
+    fun validateSelectQuery() = runTest {
         dbRule {
             val indexed = simpleModelAdapter.select() indexedBy
                 indexProperty(
@@ -32,7 +32,7 @@ class IndexedByTest {
     }
 
     @Test
-    fun validateDeleteQuery() = runBlockingTest {
+    fun validateDeleteQuery() = runTest {
         dbRule {
             val indexed = simpleModelAdapter.delete() indexedBy
                 indexProperty(
@@ -45,7 +45,7 @@ class IndexedByTest {
     }
 
     @Test
-    fun validateUpdateQuery() = runBlockingTest {
+    fun validateUpdateQuery() = runTest {
         dbRule {
             val indexed = simpleModelAdapter.update() indexedBy
                 indexProperty(

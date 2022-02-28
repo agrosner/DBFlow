@@ -2,13 +2,14 @@ package com.dbflow5
 
 import com.dbflow5.database.transaction.TransactionDispatcherFactory
 import com.dbflow5.transaction.TransactionDispatcher
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
 
 /**
- * Description: Provides [TestCoroutineDispatcher] wrapping.
+ * Description: Provides [TestDispatcher] wrapping.
  */
 class TestTransactionDispatcherFactory(
-    private val testDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher(),
+    private val testDispatcher: TestDispatcher = StandardTestDispatcher(),
 ) : TransactionDispatcherFactory {
 
     override fun create(): TransactionDispatcher {

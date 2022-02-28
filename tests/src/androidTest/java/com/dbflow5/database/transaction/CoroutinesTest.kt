@@ -21,7 +21,7 @@ class CoroutinesTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun testRetrievalFlow() = dbRule.runBlockingTest {
+    fun testRetrievalFlow() = dbRule.runTest {
         (twoColumnModelAdapter.select() where TwoColumnModel_Table.id.eq(5))
             .toFlow(db, runQueryOnCollect = false) { single() }
             .test {
@@ -35,7 +35,7 @@ class CoroutinesTest {
     }
 
     @Test
-    fun testObservingTableChanges() = dbRule.runBlockingTest {
+    fun testObservingTableChanges() = dbRule.runTest {
         twoColumnModelAdapter.select()
             .toFlow(db) { list() }
             .test {

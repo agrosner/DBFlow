@@ -20,7 +20,7 @@ class TempModelTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun createTempTable() = dbRule.runBlockingTest {
+    fun createTempTable() = dbRule.runTest {
         tempModelAdapter.create(db)
         tempModelAdapter.save(TempModel(id = 5))
         tempModelAdapter.drop(db)

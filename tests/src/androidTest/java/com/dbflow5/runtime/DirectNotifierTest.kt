@@ -26,7 +26,7 @@ class DirectNotifierTest {
     }
 
     @Test
-    fun validateCanNotifyDirect() = dbRule.runBlockingTest {
+    fun validateCanNotifyDirect() = dbRule.runTest {
         NotifyDistributor.setNotifyDistributor(NotifyDistributorImpl(scope = this))
         val model = SimpleModel("Name")
         DirectModelNotifier.get(this.db).notificationFlow
@@ -76,7 +76,7 @@ class DirectNotifierTest {
     }
 
     @Test
-    fun validateCanNotifyWrapperClasses() = dbRule.runBlockingTest {
+    fun validateCanNotifyWrapperClasses() = dbRule.runTest {
         DirectModelNotifier.get(this.db).notificationFlow
             .test {
                 simpleModelAdapter.insert(SimpleModel_Table.name to "name")

@@ -14,7 +14,7 @@ class ManyToManyTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun testCanCreateManyToMany() = dbRule.runBlockingTest {
+    fun testCanCreateManyToMany() = dbRule.runTest {
         val artistModel =
             artistAdapter.save(Artist(name = "Andrew Grosner"))
         val songModel =

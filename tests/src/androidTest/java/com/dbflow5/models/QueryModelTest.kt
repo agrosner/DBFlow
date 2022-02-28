@@ -20,7 +20,7 @@ class QueryModelTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun testCanLoadAuthorBlogs() = dbRule.runBlockingTest {
+    fun testCanLoadAuthorBlogs() = dbRule.runTest {
         val authorModel = Author(0, "Andrew", "Grosner")
         authorAdapter.save(authorModel)
         val blogModel = Blog(0, "My First Blog", authorModel)

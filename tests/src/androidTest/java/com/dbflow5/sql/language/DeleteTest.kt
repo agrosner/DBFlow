@@ -8,7 +8,7 @@ import com.dbflow5.query.select
 import com.dbflow5.query.selectCountOf
 import com.dbflow5.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Rule
@@ -21,7 +21,7 @@ class DeleteTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun validateDeletion() = runBlockingTest {
+    fun validateDeletion() = runTest {
         dbRule {
             simpleModelAdapter.save(SimpleModel("name"))
             assertTrue(simpleModelAdapter.delete().execute() > 0)
@@ -30,7 +30,7 @@ class DeleteTest {
     }
 
     @Test
-    fun validateDeletionWithQuery() = runBlockingTest {
+    fun validateDeletionWithQuery() = runTest {
         dbRule {
             simpleModelAdapter.saveAll(
                 listOf(

@@ -4,7 +4,7 @@ import com.dbflow5.TestDatabase
 import com.dbflow5.TestDatabase_Database
 import com.dbflow5.rx2.RXTestRule
 import com.dbflow5.test.DatabaseTestRule
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -30,7 +30,7 @@ class CurrencyDAOTest {
     }
 
     @Test
-    fun validateCoroutine() = runBlockingTest {
+    fun validateCoroutine() = runTest {
         currencyDAO.coroutineStoreUSD(currency).await()
         val result = currencyDAO.coroutineRetrieveUSD().await()
         assert(result.size == 1) { "Results list was empty" }

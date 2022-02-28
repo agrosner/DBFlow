@@ -21,7 +21,7 @@ class CursorResultSubscriberTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun testCanObserveOnTableChangesWithModelOps() = dbRule.runBlockingTest {
+    fun testCanObserveOnTableChangesWithModelOps() = dbRule.runTest {
         var count = 0
         (select from simpleModelAdapter)
             .asFlowable(db) { list() }
@@ -38,7 +38,7 @@ class CursorResultSubscriberTest {
     }
 
     @Test
-    fun testCanObserveOnTableChangesWithTableOps() = dbRule.runBlockingTest {
+    fun testCanObserveOnTableChangesWithTableOps() = dbRule.runTest {
         simpleModelAdapter.delete().execute()
         var count = 0
         var curList: List<SimpleModel> = arrayListOf()
