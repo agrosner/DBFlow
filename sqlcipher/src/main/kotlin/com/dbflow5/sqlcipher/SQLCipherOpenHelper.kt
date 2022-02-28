@@ -7,6 +7,7 @@ import com.dbflow5.database.DatabaseHelperDelegate
 import com.dbflow5.database.DatabasePropertyDelegate
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.OpenHelperCreator
+import com.dbflow5.database.OpenHelperDelegate
 import com.dbflow5.database.config.DBSettings
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteOpenHelper
@@ -23,16 +24,15 @@ class SQLCipherOpenHelper(
      */
     private val secret: String,
     callback: DatabaseCallback?,
+    override val delegate: DatabaseHelperDelegate =
+        DatabaseHelperDelegate(context, callback, generatedDatabase).also {
+            SQLiteDatabase.loadLibs(context)
+        },
 ) : SQLiteOpenHelper(
     context,
     generatedDatabase.openHelperName,
     null, generatedDatabase.databaseVersion
-), OpenHelper {
-
-    override val delegate: DatabaseHelperDelegate =
-        DatabaseHelperDelegate(context, callback, generatedDatabase).also {
-            SQLiteDatabase.loadLibs(context)
-        }
+), OpenHelper, OpenHelperDelegate by delegate {
 
     private val _databaseName = generatedDatabase.databaseFileName
 
