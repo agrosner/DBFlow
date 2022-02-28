@@ -1,4 +1,4 @@
-package com.dbflow5.adapter.saveable
+package com.dbflow5.adapter
 
 /**
  * Description: Result exception when an operation fails.

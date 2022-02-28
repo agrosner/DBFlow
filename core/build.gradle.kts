@@ -1,7 +1,15 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm")
+    kotlin("multiplatform")
+}
+
+kotlin {
+    jvm()
+
+    sourceSets {
+        val commonMain by getting
+    }
 }
 
 // project.ext.artifactId = bt_name

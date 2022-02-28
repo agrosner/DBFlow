@@ -1,6 +1,5 @@
 package com.dbflow5.adapter
 
-import com.dbflow5.adapter.saveable.SaveOperationFailedException
 import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.GeneratedDatabase
