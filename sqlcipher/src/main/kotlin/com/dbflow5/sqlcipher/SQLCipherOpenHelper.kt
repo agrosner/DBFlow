@@ -2,11 +2,11 @@ package com.dbflow5.sqlcipher
 
 import android.content.Context
 import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.database.OpenHelperCreator
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseHelperDelegate
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.OpenHelper
+import com.dbflow5.database.OpenHelperCreator
 import com.dbflow5.database.config.DBSettings
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteOpenHelper
@@ -15,17 +15,25 @@ import net.sqlcipher.database.SQLiteOpenHelper
  * Description: The replacement [OpenHelper] for SQLCipher. Specify a subclass of this is [DBSettings]
  * of your database to get it to work with specifying the secret you use for the databaseForTable.
  */
-abstract class SQLCipherOpenHelper(
+class SQLCipherOpenHelper(
     private val context: Context,
     private val generatedDatabase: GeneratedDatabase,
-    listener: DatabaseCallback?,
+    /**
+     * @return The SQLCipher secret for opening this database.
+     */
+    private val secret: String,
+    callback: DatabaseCallback?,
 ) : SQLiteOpenHelper(
     context,
     if (generatedDatabase.isInMemory) null else generatedDatabase.databaseFileName,
     null, generatedDatabase.databaseVersion
 ), OpenHelper {
 
-    final override val delegate: DatabaseHelperDelegate
+    override val delegate: DatabaseHelperDelegate =
+        DatabaseHelperDelegate(context, callback, generatedDatabase).also {
+            SQLiteDatabase.loadLibs(context)
+        }
+
     private var cipherDatabase: SQLCipherDatabase? = null
     private val _databaseName = generatedDatabase.databaseFileName
 
@@ -36,22 +44,12 @@ abstract class SQLCipherOpenHelper(
         get() {
             if (cipherDatabase == null || !cipherDatabase!!.database.isOpen) {
                 cipherDatabase = SQLCipherDatabase.from(
-                    getWritableDatabase(cipherSecret),
+                    getWritableDatabase(secret),
                     generatedDatabase
                 )
             }
             return cipherDatabase!!
         }
-
-    /**
-     * @return The SQLCipher secret for opening this database.
-     */
-    protected abstract val cipherSecret: String
-
-    init {
-        SQLiteDatabase.loadLibs(context)
-        delegate = DatabaseHelperDelegate(context, listener, generatedDatabase)
-    }
 
     override suspend fun performRestoreFromBackup() {
         delegate.performRestoreFromBackup()
@@ -88,10 +86,12 @@ abstract class SQLCipherOpenHelper(
     }
 
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
-        if (enabled) {
-            cipherDatabase?.database?.enableWriteAheadLogging()
-        } else {
-            cipherDatabase?.database?.disableWriteAheadLogging()
+        cipherDatabase?.database?.let { db ->
+            if (enabled) {
+                db.enableWriteAheadLogging()
+            } else {
+                db.disableWriteAheadLogging()
+            }
         }
     }
 
@@ -111,9 +111,7 @@ abstract class SQLCipherOpenHelper(
         @JvmStatic
         fun createHelperCreator(context: Context, secret: String): OpenHelperCreator =
             OpenHelperCreator { db, callback ->
-                object : SQLCipherOpenHelper(context, db, callback) {
-                    override val cipherSecret: String = secret
-                }
+                SQLCipherOpenHelper(context, db, callback = callback, secret = secret)
             }
     }
 
