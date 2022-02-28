@@ -25,7 +25,7 @@ class SQLCipherOpenHelper(
     callback: DatabaseCallback?,
 ) : SQLiteOpenHelper(
     context,
-    if (generatedDatabase.isInMemory) null else generatedDatabase.databaseFileName,
+    generatedDatabase.openHelperName,
     null, generatedDatabase.databaseVersion
 ), OpenHelper {
 

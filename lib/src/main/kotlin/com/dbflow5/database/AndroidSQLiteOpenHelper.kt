@@ -19,7 +19,7 @@ open class AndroidSQLiteOpenHelper(
     ),
 ) : SQLiteOpenHelper(
     context,
-    if (generatedDatabase.isInMemory) null else generatedDatabase.databaseFileName,
+    generatedDatabase.openHelperName,
     null,
     generatedDatabase.databaseVersion,
 ), OpenHelper, OpenHelperDelegate by databaseHelperDelegate {

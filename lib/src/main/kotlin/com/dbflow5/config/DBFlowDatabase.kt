@@ -10,11 +10,11 @@ import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
+import com.dbflow5.database.Migration
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.config.DBSettings
 import com.dbflow5.database.scope.ReadableDatabaseScope
 import com.dbflow5.database.scope.WritableDatabaseScope
-import com.dbflow5.database.Migration
 import com.dbflow5.observing.TableObserver
 import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.transaction.SuspendableTransaction
@@ -56,6 +56,12 @@ interface GeneratedDatabase : DatabaseWrapper, Closeable {
     val isInMemory: Boolean
 
     val databaseFileName: String
+
+    /**
+     * If null is returned, the DB is assumed in memory.
+     */
+    val openHelperName: String?
+        get() = databaseFileName.takeIf { !isInMemory }
 
     val databaseName: String
 
