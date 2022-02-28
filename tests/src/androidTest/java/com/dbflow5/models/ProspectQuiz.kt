@@ -95,7 +95,6 @@ open internal class ProspectQuizEntry {
     @NotNull
     @Index(indexGroups = [1])
     @ForeignKey(
-        stubbedRelationship = true,
         tableClass = ProspectQuiz::class,
         onDelete = ForeignKeyAction.CASCADE
     )

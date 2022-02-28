@@ -93,7 +93,7 @@ class BlogPrimary(@PrimaryKey @ForeignKey var author: Author? = null, @Column va
 class BlogStubbed(
     @PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
     @ForeignKey(
-        stubbedRelationship = true, saveForeignKeyModel = true,
+        saveForeignKeyModel = true,
         onDelete = ForeignKeyAction.CASCADE, onUpdate = ForeignKeyAction.RESTRICT
     )
     var author: Author? = null,

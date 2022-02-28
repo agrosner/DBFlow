@@ -73,7 +73,7 @@ class EnumModel(@PrimaryKey var id: Int = 0, @Column var difficulty: Difficulty?
 open class AllFieldsModel(
     @PrimaryKey var name: String? = null,
     var count: Int? = 0,
-    @Column(getterName = "getTruth")
+    @Column
     var truth: Boolean = false,
     internal val finalName: String = "",
     @ColumnIgnore private val hidden: Int = 0
@@ -92,7 +92,7 @@ class SubclassAllFields(@PrimaryKey var order: Int = 0) : AllFieldsModel()
 @Table(assignDefaultValuesFromCursor = false)
 class DontAssignDefaultModel(
     @PrimaryKey var name: String? = null,
-    @Column(getterName = "getNullableBool") var nullableBool: Boolean? = null,
+    @Column var nullableBool: Boolean? = null,
     @Column var index: Int = 0
 )
 
@@ -140,7 +140,7 @@ data class Transfer(@PrimaryKey var transfer_id: UUID = UUID.randomUUID())
 data class Transfer2(
     @PrimaryKey
     var id: UUID = UUID.randomUUID(),
-    @ForeignKey(stubbedRelationship = true)
+    @ForeignKey
     var origin: Account? = null
 )
 
@@ -212,7 +212,7 @@ class Owner {
 
 @Table
 class Dog {
-    @ForeignKey(onDelete = ForeignKeyAction.CASCADE, stubbedRelationship = true)
+    @ForeignKey(onDelete = ForeignKeyAction.CASCADE)
     var owner: Owner? = null
 
     @PrimaryKey(autoincrement = true)
