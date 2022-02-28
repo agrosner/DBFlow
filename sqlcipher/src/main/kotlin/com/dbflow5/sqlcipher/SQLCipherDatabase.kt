@@ -3,6 +3,7 @@ package com.dbflow5.sqlcipher
 import android.content.ContentValues
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.AndroidDatabaseWrapper
+import com.dbflow5.database.AndroidFlowCursor
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.FlowCursor
 import net.sqlcipher.database.SQLiteDatabase
@@ -48,7 +49,7 @@ internal constructor(
 
     override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
         rethrowDBFlowException {
-            FlowCursor.from(database.rawQuery(query, selectionArgs))
+            AndroidFlowCursor(database.rawQuery(query, selectionArgs))
         }
 
     override fun updateWithOnConflict(
@@ -79,7 +80,7 @@ internal constructor(
         having: String?,
         orderBy: String?
     ): FlowCursor = rethrowDBFlowException {
-        FlowCursor.from(
+        AndroidFlowCursor(
             database.query(
                 tableName,
                 columns,

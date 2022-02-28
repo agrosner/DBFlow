@@ -43,9 +43,7 @@ class AndroidDatabase internal constructor(
     }
 
     override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
-        rethrowDBFlowException {
-            FlowCursor.from(database.rawQuery(query, selectionArgs))
-        }
+        rethrowDBFlowException { AndroidFlowCursor(database.rawQuery(query, selectionArgs)) }
 
     override fun updateWithOnConflict(
         tableName: String,
@@ -76,7 +74,7 @@ class AndroidDatabase internal constructor(
         having: String?,
         orderBy: String?
     ): FlowCursor = rethrowDBFlowException {
-        FlowCursor.from(
+        AndroidFlowCursor(
             database.query(
                 tableName,
                 columns,

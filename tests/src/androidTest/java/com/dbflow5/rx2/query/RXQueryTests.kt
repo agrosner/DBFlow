@@ -34,7 +34,7 @@ class RXQueryTests {
                 cursor = it.getOrNull()
             }
 
-        assertEquals(1, cursor!!.count)
+        assertEquals(1, cursor!!.size)
         cursor!!.close()
     }
 

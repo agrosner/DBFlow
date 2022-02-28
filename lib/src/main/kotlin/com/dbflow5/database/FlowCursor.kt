@@ -2,287 +2,130 @@ package com.dbflow5.database
 
 import android.database.Cursor
 import android.database.CursorWrapper
+import com.dbflow5.database.FlowCursor.Companion.COLUMN_NOT_FOUND
+import java.io.Closeable
 
 /**
- * Common [Cursor] class that wraps cursors we use in this library with convenience loading methods.
- * This is used to help cut down on generated code size and potentially decrease method count.
+ * A low level DB Cursor that reads row by row from a query and returns values based on index. It
+ * should be rare you need to use this class directly unless you need to
+ * perform a custom data retrieval.
  */
-class FlowCursor private constructor(private val cursor: Cursor) : CursorWrapper(cursor) {
+interface FlowCursor : Closeable, Iterable<FlowCursor> {
+    fun isNull(index: Int): Boolean
+    fun getColumnIndex(columnName: String): Int
+    fun moveToFirst(): Boolean
+    fun moveToNext(): Boolean
+    val size: Int
+    override fun iterator(): Iterator<FlowCursor> = FlowCursorIterator(this)
+
+    fun getString(index: Int, defValue: String = ""): String
+    fun getStringOrNull(index: Int, defValue: String? = null): String?
+    fun getInt(index: Int, defValue: Int = 0): Int
+    fun getIntOrNull(index: Int, defValue: Int? = null): Int?
+    fun getDouble(index: Int, defValue: Double = 0.0): Double
+    fun getDoubleOrNull(index: Int, defValue: Double? = null): Double?
+    fun getFloat(index: Int, defValue: Float = 0f): Float
+    fun getFloatOrNull(index: Int, defValue: Float? = null): Float?
+    fun getLong(index: Int, defValue: Long = 0L): Long
+    fun getLongOrNull(index: Int, defValue: Long? = null): Long?
+    fun getShort(index: Int, defValue: Short = 0): Short
+    fun getShortOrNull(index: Int, defValue: Short? = null): Short?
+    fun getBlob(index: Int, defValue: ByteArray = byteArrayOf()): ByteArray
+    fun getBlobOrNull(index: Int, defValue: ByteArray? = null): ByteArray?
+    fun getBoolean(index: Int, defValue: Boolean = false): Boolean
+    fun getBooleanOrNull(index: Int, defValue: Boolean? = null): Boolean?
+
+    companion object {
+        const val COLUMN_NOT_FOUND = -1
+    }
+}
+
+/**
+ * Basic implementation that enables [Iterator] behavior.
+ */
+class FlowCursorIterator(private val cursor: FlowCursor) : Iterator<FlowCursor> {
+    private var movedToFirst = false
+    override fun hasNext(): Boolean = cursor.moveToNext()
+
+    override fun next(): FlowCursor {
+        synchronized(movedToFirst) {
+            if (!movedToFirst) {
+                cursor.moveToFirst()
+                movedToFirst = true
+            }
+        }
+        return cursor
+    }
+}
+
+/**
+ * Android wrapper that calls into a [Cursor].
+ */
+class AndroidFlowCursor(private val cursor: Cursor) : CursorWrapper(cursor),
+    FlowCursor {
 
     // compatibility
     override fun getWrappedCursor(): Cursor = cursor
 
-    fun getStringOrDefault(index: Int, defValue: String): String {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getString(index)
-        } else {
-            defValue
-        }
-    }
+    override val size: Int = cursor.count
 
-    fun getStringOrDefault(columnName: String): String? =
-        getStringOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getStringOrDefault(index: Int): String? {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getString(index)
-        } else {
-            null
-        }
-    }
-
-    fun getStringOrDefault(columnName: String, defValue: String): String =
-        getStringOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getIntOrDefault(columnName: String): Int =
-        getIntOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getIntOrDefault(index: Int): Int {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getInt(index)
-        } else {
-            0
-        }
-    }
-
-    fun getIntOrDefault(index: Int, defValue: Int): Int {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getInt(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getIntOrDefault(columnName: String, defValue: Int): Int =
-        getIntOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getIntOrDefault(index: Int, defValue: Int?): Int? {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getInt(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getIntOrDefault(columnName: String, defValue: Int?): Int? =
-        getIntOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getDoubleOrDefault(index: Int, defValue: Double): Double {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getDouble(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getDoubleOrDefault(columnName: String): Double =
-        getDoubleOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getDoubleOrDefault(index: Int): Double {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getDouble(index)
-        } else {
-            0.0
-        }
-    }
-
-    fun getDoubleOrDefault(columnName: String, defValue: Double): Double =
-        getDoubleOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getDoubleOrDefault(index: Int, defValue: Double?): Double? {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getDouble(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getDoubleOrDefault(columnName: String, defValue: Double?): Double? =
-        getDoubleOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getFloatOrDefault(index: Int, defValue: Float): Float {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getFloat(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getFloatOrDefault(columnName: String): Float =
-        getFloatOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getFloatOrDefault(index: Int): Float {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getFloat(index)
-        } else {
-            0f
-        }
-    }
-
-    fun getFloatOrDefault(columnName: String, defValue: Float): Float =
-        getFloatOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getFloatOrDefault(index: Int, defValue: Float?): Float? {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getFloat(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getFloatOrDefault(columnName: String, defValue: Float?): Float? =
-        getFloatOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getLongOrDefault(index: Int, defValue: Long): Long {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getLong(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getLongOrDefault(columnName: String): Long =
-        getLongOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getLongOrDefault(index: Int): Long {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getLong(index)
-        } else {
-            0
-        }
-    }
-
-    fun getLongOrDefault(columnName: String, defValue: Long): Long =
-        getLongOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getLongOrDefault(index: Int, defValue: Long?): Long? {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getLong(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getLongOrDefault(columnName: String, defValue: Long?): Long? =
-        getLongOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getShortOrDefault(index: Int, defValue: Short): Short {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getShort(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getShortOrDefault(columnName: String): Short =
-        getShortOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getShortOrDefault(index: Int): Short {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getShort(index)
-        } else {
-            0
-        }
-    }
-
-    fun getShortOrDefault(columnName: String, defValue: Short): Short =
-        getShortOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getShortOrDefault(index: Int, defValue: Short?): Short? {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getShort(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getShortOrDefault(columnName: String, defValue: Short?): Short? =
-        getShortOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getBlobOrDefault(columnName: String): ByteArray? =
-        getBlobOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getBlobOrDefault(index: Int): ByteArray? {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getBlob(index)
-        } else {
-            null
-        }
-    }
-
-    fun getBlobOrDefault(index: Int, defValue: ByteArray): ByteArray {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getBlob(index)
-        } else {
-            defValue
-        }
-    }
-
-    fun getBlobOrDefault(columnName: String, defValue: ByteArray): ByteArray =
-        getBlobOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getBooleanOrDefault(index: Int, defValue: Boolean): Boolean {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            getBoolean(index)
-        } else {
-            defValue
-        }
-    }
-
-    @JvmName("getBlobOrDefaultOrNull")
-    fun getBlobOrDefault(index: Int, defValue: ByteArray?): ByteArray? {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            cursor.getBlob(index)
-        } else {
-            defValue
-        }
-    }
-
-    @JvmName("getBlobOrDefaultOrNull")
-    fun getBlobOrDefault(columnName: String, defValue: ByteArray?): ByteArray? =
-        getBlobOrDefault(cursor.getColumnIndex(columnName), defValue)
-
-    fun getBooleanOrDefault(columnName: String): Boolean =
-        getBooleanOrDefault(cursor.getColumnIndex(columnName))
-
-    fun getBooleanOrDefault(index: Int): Boolean {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            getBoolean(index)
-        } else {
-            false
-        }
-    }
-
-    @JvmName("getBooleanOrDefaultOrNull")
-    fun getBooleanOrDefault(
+    private inline fun <T> FlowCursor.getOrDefault(
         index: Int,
-        defValue: Boolean? = null
-    ): Boolean? {
-        return if (index != COLUMN_NOT_FOUND && !cursor.isNull(index)) {
-            getBoolean(index)
+        defValue: T,
+        getValue: FlowCursor.() -> T,
+    ): T {
+        return if (index != COLUMN_NOT_FOUND && !isNull(index)) {
+            this.getValue()
         } else {
             defValue
         }
     }
 
-    @JvmName("getBooleanOrDefaultOrNull")
-    fun getBooleanOrDefault(
-        columnName: String,
-        defValue: Boolean? = null,
-    ): Boolean? = getBooleanOrDefault(getColumnIndex(columnName), defValue)
+    override fun getString(index: Int, defValue: String): String =
+        getOrDefault(index, defValue) { cursor.getString(index) }
 
-    fun getBooleanOrDefault(columnName: String, defValue: Boolean): Boolean =
-        getBooleanOrDefault(cursor.getColumnIndex(columnName), defValue)
+    override fun getStringOrNull(index: Int, defValue: String?): String? =
+        getOrDefault(index, defValue) { cursor.getString(index) }
 
-    fun getBoolean(index: Int): Boolean = cursor.getInt(index) == 1
+    override fun getInt(index: Int, defValue: Int): Int =
+        getOrDefault(index, defValue) { cursor.getInt(index) }
 
-    companion object {
+    override fun getIntOrNull(index: Int, defValue: Int?): Int? =
+        getOrDefault(index, defValue) { cursor.getInt(index) }
 
-        const val COLUMN_NOT_FOUND = -1
+    override fun getDouble(index: Int, defValue: Double): Double =
+        getOrDefault(index, defValue) { cursor.getDouble(index) }
 
-        @JvmStatic
-        fun from(cursor: Cursor): FlowCursor = cursor as? FlowCursor ?: FlowCursor(cursor)
-    }
+    override fun getDoubleOrNull(index: Int, defValue: Double?): Double? =
+        getOrDefault(index, defValue) { cursor.getDouble(index) }
 
+    override fun getFloat(index: Int, defValue: Float): Float =
+        getOrDefault(index, defValue) { cursor.getFloat(index) }
+
+    override fun getFloatOrNull(index: Int, defValue: Float?): Float? =
+        getOrDefault(index, defValue) { cursor.getFloat(index) }
+
+    override fun getLong(index: Int, defValue: Long): Long =
+        getOrDefault(index, defValue) { cursor.getLong(index) }
+
+    override fun getLongOrNull(index: Int, defValue: Long?): Long? =
+        getOrDefault(index, defValue) { cursor.getLong(index) }
+
+    override fun getShort(index: Int, defValue: Short): Short =
+        getOrDefault(index, defValue) { cursor.getShort(index) }
+
+    override fun getShortOrNull(index: Int, defValue: Short?): Short? =
+        getOrDefault(index, defValue) { cursor.getShort(index) }
+
+    override fun getBlob(index: Int, defValue: ByteArray): ByteArray =
+        getOrDefault(index, defValue) { cursor.getBlob(index) }
+
+    override fun getBlobOrNull(index: Int, defValue: ByteArray?): ByteArray? =
+        getOrDefault(index, defValue) { cursor.getBlob(index) }
+
+    override fun getBoolean(index: Int, defValue: Boolean): Boolean =
+        getOrDefault(index, defValue) { cursor.getInt(index) == 1 }
+
+    override fun getBooleanOrNull(index: Int, defValue: Boolean?): Boolean? =
+        getOrDefault(index, defValue) { cursor.getInt(index) == 1 }
 }
-

@@ -1,10 +1,9 @@
 package com.dbflow5.database
 
 /**
- * Description: DBFlow mirror to an Android SQLiteException.
+ * Called when there is a low-level DB error reported.
  */
 class SQLiteException : RuntimeException {
-    constructor()
 
     constructor(error: String) : super(error)
 
