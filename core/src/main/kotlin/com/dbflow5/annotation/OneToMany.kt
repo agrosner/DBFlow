@@ -1,58 +1,31 @@
 package com.dbflow5.annotation
 
+import kotlin.reflect.KClass
+
 /**
- * Description: Describes a 1-many relationship. It applies to some method that returns a [List] of Model objects.
- * This annotation can handle loading, deleting, and saving when the current data changes. By default it will call the
- * associated method when the containing class operates.
+ * Description: Code generates a parent-child relation using [Query].
+ * This by default grabs the [PrimaryKey] of the defining table and [ForeignKey] on child table.
+ * The child table must have a [ForeignKey] on the defining table.
  */
-@DBFlowKAPTOnly
-@Target(
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER
-)
-@Retention(AnnotationRetention.SOURCE)
-@Deprecated("Use The new @OneToManyRelation annotation")
 annotation class OneToMany(
     /**
-     * @return The methods you wish to call it from. By default it's loaded out of the DB.
+     * The referenced child table.
      */
-    val oneToManyMethods: Array<OneToManyMethod> = [(OneToManyMethod.LOAD)],
+    val childTable: KClass<*>,
+
     /**
-     * @return The name of the list variable to use. If is left blank, we will remove the "get" and then decapitalize the remaining name.
+     * By default conjoins the names of the two class references.
      */
-    val variableName: String = "",
+    val generatedClassName: String = "",
+
     /**
-     * @return If true, the code generated for this relationship done as efficiently as possible.
-     * It will not work on nested relationships, caching, and other code that requires overriding of BaseModel or Model operations.
+     * The name in query to use. By default is lowercase variant of table class name.
      */
-    val efficientMethods: Boolean = true
+    val parentFieldName: String = "",
+
+    /**
+     * The name of child list to use. By default is "children".
+     */
+    val childListFieldName: String = "children",
 )
-
-/**
- * The method to apply the OneToMany to.
- */
-enum class OneToManyMethod {
-
-    /**
-     * Load this relationship when the parent model loads from the database. This is called before the OnLoadFromCursor
-     * method, but after other columns load.
-     */
-    LOAD,
-
-    /**
-     * Inserts code to delete the results returned from the List relationship when the parent model is deleted.
-     */
-    DELETE,
-
-    /**
-     * Inserts code to save the list of models when the parent model is saved.
-     */
-    SAVE,
-
-    /**
-     * Shorthand to support all options.
-     */
-    ALL
-}
 

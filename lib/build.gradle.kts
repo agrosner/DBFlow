@@ -47,7 +47,6 @@ tasks.withType<KotlinCompile> {
 
 dependencies {
     api(project(":core"))
-    api(Dependencies.AndroidX.Annotations)
     api(Dependencies.Coroutines)
     api(Dependencies.CoroutinesAndroid)
 }

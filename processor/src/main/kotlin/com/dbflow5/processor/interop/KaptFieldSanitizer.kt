@@ -2,7 +2,6 @@ package com.dbflow5.processor.interop
 
 import com.dbflow5.annotation.ColumnIgnore
 import com.dbflow5.annotation.ModelView
-import com.dbflow5.annotation.OneToMany
 import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.codegen.shared.FieldModel
@@ -38,7 +37,6 @@ class KaptFieldSanitizer(
             .filterNot {
                 it.isAbstract ||
                     it.annotation<ColumnIgnore>() != null
-                    || it.annotation<OneToMany>() != null
                     || it.element.modifiers.contains(Modifier.STATIC)
             }
             .map(kaptPropertyElementParser::parse)

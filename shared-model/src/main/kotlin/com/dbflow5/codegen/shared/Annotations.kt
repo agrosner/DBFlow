@@ -1,8 +1,6 @@
 package com.dbflow5.codegen.shared
 
-import com.dbflow5.annotation.DBFlowKSPOnly
 import com.dbflow5.annotation.ModelView
-import com.dbflow5.annotation.OneToManyRelation
 import kotlin.reflect.KClass
 
 /**
@@ -18,8 +16,7 @@ sealed class Annotations(clazz: KClass<*>) {
     object TypeConverter : Annotations(com.dbflow5.annotation.TypeConverter::class)
     object ManyToMany : Annotations(com.dbflow5.annotation.ManyToMany::class)
     object Migration : Annotations(com.dbflow5.annotation.Migration::class)
-    @DBFlowKSPOnly
-    object OneToMany : Annotations(OneToManyRelation::class)
+    object OneToMany : Annotations(OneToMany::class)
     object MultipleManyToMany :
         Annotations(com.dbflow5.annotation.MultipleManyToMany::class)
 

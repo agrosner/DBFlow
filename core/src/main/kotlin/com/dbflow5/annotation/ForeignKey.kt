@@ -23,18 +23,6 @@ annotation class ForeignKey(
      */
     val saveForeignKeyModel: Boolean = false,
     /**
-     * @return This method instructs the code generator to only
-     * populate the model with the [ForeignKeyReference] defined in this field. This skips
-     * the Select retrieval convenience.
-     */
-    @DBFlowKAPTOnly
-    @Deprecated(
-        "This property does not work with immutable models and encourages main " +
-            "thread reading. Replace with basic fields for foreign key and use @OneToManyRelation" +
-            " to load the full models from the DB."
-    )
-    val stubbedRelationship: Boolean = false,
-    /**
      * @return If true, during a transaction, FK constraints are not violated immediately until the resulting transaction commits.
      * This is useful for out of order foreign key operations.
      * @see [Deferred Foreign Key Constraints](http://www.sqlite.org/foreignkeys.html.fk_deferred)

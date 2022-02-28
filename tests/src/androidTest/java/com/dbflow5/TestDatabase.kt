@@ -80,7 +80,6 @@ import com.dbflow5.models.UserInfo
 import com.dbflow5.models.java.ExampleModel
 import com.dbflow5.models.java.JavaModel
 import com.dbflow5.models.java.JavaModelView
-import com.dbflow5.query.operations.literalOf
 import com.dbflow5.query.operations.sqlLiteralOf
 import com.dbflow5.query.update
 import com.dbflow5.rx2.query.SimpleRXModel

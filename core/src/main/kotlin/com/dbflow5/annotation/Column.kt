@@ -30,27 +30,6 @@ annotation class Column(
      */
     val defaultValue: String = "",
     /**
-     * @return If private, by default this is get{Name}() for "name".
-     * To define a custom one, this method specifies the name
-     * of the method only, and not any specific params.
-     * So for "getAnotherName()" you would use "AnotherName" as the param.
-     * Not used in KSP.
-     */
-    @DBFlowKAPTOnly
-    @Deprecated("Use property beans.")
-    val getterName: String = "",
-    /**
-     * @return If private, by default this is set{Name}() for "name".
-     * To define a custom one, this method specifies the name
-     * of the method only, and not any specific params.
-     * So for "setAnotherName(String name)" you would use "AnotherName" as the param.
-     * The params must align exactly to an expected setter, otherwise a compile error ensues.
-     * Not used in KSP.
-     */
-    @DBFlowKAPTOnly
-    @Deprecated("Use property beans.")
-    val setterName: String = "",
-    /**
      * @return A custom type converter that's only used for this field. It will be created and used in
      * the Adapter associated with this table.
      */

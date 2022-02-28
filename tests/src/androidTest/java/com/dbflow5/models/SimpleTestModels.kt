@@ -43,8 +43,8 @@ class SimpleQuickCheckModel(
 )
 
 @Table(
-    insertConflict = ConflictAction.FAIL,
-    updateConflict = ConflictAction.FAIL
+    updateConflict = ConflictAction.FAIL,
+    insertConflict = ConflictAction.FAIL
 )
 class NumberModel(@PrimaryKey var id: Int = 0)
 

@@ -11,7 +11,7 @@ import org.junit.Rule
 import org.junit.Test
 
 
-@Table(temporary = true, createWithDatabase = false)
+@Table(createWithDatabase = false, temporary = true)
 class TempModel(@PrimaryKey var id: Int = 0)
 
 class TempModelTest {

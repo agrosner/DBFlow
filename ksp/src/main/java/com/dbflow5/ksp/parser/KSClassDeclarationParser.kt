@@ -8,7 +8,7 @@ import com.dbflow5.annotation.ManyToMany
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.ModelView
 import com.dbflow5.annotation.MultipleManyToMany
-import com.dbflow5.annotation.OneToManyRelation
+import com.dbflow5.annotation.OneToMany
 import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
@@ -208,7 +208,7 @@ class KSClassDeclarationParser(
                         )
                     )
                 }
-                typeNameOf<OneToManyRelation>() -> {
+                typeNameOf<OneToMany>() -> {
                     val tableProperties = tablePropertyParser.parse(
                         input.firstOrNull<Table>()
                             ?: throw Validation.MissingTable(

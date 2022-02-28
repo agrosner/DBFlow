@@ -2,7 +2,6 @@ package com.dbflow5.ksp.parser
 
 import com.dbflow5.annotation.ColumnIgnore
 import com.dbflow5.annotation.ModelView
-import com.dbflow5.annotation.OneToMany
 import com.dbflow5.annotation.Query
 import com.dbflow5.annotation.Table
 import com.dbflow5.codegen.shared.FieldModel
@@ -43,7 +42,6 @@ class KSPFieldSanitizer(
             .filterNot { it.isAbstract() }
             .distinctBy { it.simpleName.getShortName() }.filterNot { prop ->
                 isIgnoredColumn(prop)
-                    || isOneToMany(prop)
                     || prop.isDelegated()
             }
             .map(propertyParser::parse)
@@ -63,10 +61,6 @@ class KSPFieldSanitizer(
         checkAllPropAnnotations(prop) {
             it.annotationType.toTypeName() == typeNameOf<ColumnIgnore>()
         }
-
-    private fun isOneToMany(prop: KSPropertyDeclaration): Boolean = checkAllPropAnnotations(prop) {
-        it.annotationType.toTypeName() == typeNameOf<OneToMany>()
-    }
 
     private fun checkAllPropAnnotations(
         prop: KSPropertyDeclaration,
