@@ -113,7 +113,7 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
     }
 
     internal fun syncTriggers() {
-        if (db.isOpened) {
+        if (db.isOpen) {
             syncTriggers(db)
         }
     }
@@ -168,7 +168,7 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
         try {
             lock.lock()
 
-            if (!db.isOpened) {
+            if (!db.isOpen) {
                 return
             }
 

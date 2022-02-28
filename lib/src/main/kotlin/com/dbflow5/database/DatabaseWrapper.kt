@@ -12,6 +12,8 @@ interface DatabaseWrapper {
 
     val isInTransaction: Boolean
 
+    val isOpen: Boolean
+
     /**
      * The current version of the database.
      */

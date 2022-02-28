@@ -4,7 +4,7 @@ import android.content.Context
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseHelperDelegate
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabasePropertyDelegate
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.OpenHelperCreator
 import com.dbflow5.database.config.DBSettings
@@ -34,22 +34,14 @@ class SQLCipherOpenHelper(
             SQLiteDatabase.loadLibs(context)
         }
 
-    private var cipherDatabase: SQLCipherDatabase? = null
     private val _databaseName = generatedDatabase.databaseFileName
 
     override val isDatabaseIntegrityOk: Boolean
         get() = delegate.isDatabaseIntegrityOk
 
-    override val database: DatabaseWrapper
-        get() {
-            if (cipherDatabase == null || !cipherDatabase!!.database.isOpen) {
-                cipherDatabase = SQLCipherDatabase.from(
-                    getWritableDatabase(secret),
-                    generatedDatabase
-                )
-            }
-            return cipherDatabase!!
-        }
+    override val database: SQLCipherDatabase by DatabasePropertyDelegate {
+        SQLCipherDatabase.from(getWritableDatabase(secret), generatedDatabase)
+    }
 
     override suspend fun performRestoreFromBackup() {
         delegate.performRestoreFromBackup()
@@ -86,7 +78,7 @@ class SQLCipherOpenHelper(
     }
 
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
-        cipherDatabase?.database?.let { db ->
+        database.database.let { db ->
             if (enabled) {
                 db.enableWriteAheadLogging()
             } else {
@@ -96,8 +88,7 @@ class SQLCipherOpenHelper(
     }
 
     override fun closeDB() {
-        database
-        cipherDatabase?.database?.close()
+        database.database.close()
     }
 
     override fun deleteDB() {

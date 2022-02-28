@@ -171,14 +171,14 @@ abstract class DBFlowDatabase : GeneratedDatabase {
         ReadableDatabaseScope(this)
     }
 
-    /**
-     * Returns true if the [openHelper] has been created.
-     */
-    var isOpened: Boolean = false
+    private var isOpened: Boolean = false
 
     val closeLock: Lock = ReentrantLock()
 
     internal var writeAheadLoggingEnabled = false
+
+    override val isOpen: Boolean
+        get() = isOpened
 
     val openHelper: OpenHelper by lazy {
         settings.openHelperCreator.createHelper(this, internalCallback)

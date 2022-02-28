@@ -23,6 +23,9 @@ internal constructor(
     override val isInTransaction: Boolean
         get() = database.inTransaction()
 
+    override val isOpen: Boolean
+        get() = database.isOpen
+
     override fun execSQL(query: String) = rethrowDBFlowException {
         database.execSQL(query)
     }

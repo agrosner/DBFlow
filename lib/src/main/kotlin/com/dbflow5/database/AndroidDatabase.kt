@@ -20,6 +20,9 @@ class AndroidDatabase internal constructor(
     override val isInTransaction: Boolean
         get() = database.inTransaction()
 
+    override val isOpen: Boolean
+        get() = database.isOpen
+
     override fun beginTransaction() {
         database.beginTransaction()
     }

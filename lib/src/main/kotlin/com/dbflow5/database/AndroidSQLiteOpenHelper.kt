@@ -8,7 +8,7 @@ import com.dbflow5.config.GeneratedDatabase
 /**
  * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.
  */
-open class AndroidSQLiteOpenHelper(
+class AndroidSQLiteOpenHelper(
     private val context: Context,
     private val generatedDatabase: GeneratedDatabase,
     listener: DatabaseCallback?,
@@ -24,17 +24,14 @@ open class AndroidSQLiteOpenHelper(
     generatedDatabase.databaseVersion,
 ), OpenHelper, OpenHelperDelegate by databaseHelperDelegate {
 
-
-    private var androidDatabase: AndroidDatabase? = null
     private val _databaseName = generatedDatabase.databaseFileName
 
-    override val database: DatabaseWrapper
-        get() {
-            if (androidDatabase == null || androidDatabase?.database?.isOpen == false) {
-                androidDatabase = AndroidDatabase.from(writableDatabase, generatedDatabase)
-            }
-            return androidDatabase!!
-        }
+    override val database: AndroidDatabase by DatabasePropertyDelegate {
+        AndroidDatabase.from(
+            writableDatabase,
+            generatedDatabase
+        )
+    }
 
     /**
      * Set a listener to listen for specific DB events and perform an action before we execute this classes
@@ -81,7 +78,7 @@ open class AndroidSQLiteOpenHelper(
     }
 
     override fun closeDB() {
-        androidDatabase?.database?.close()
+        database.database.close()
     }
 
     override fun deleteDB() {
