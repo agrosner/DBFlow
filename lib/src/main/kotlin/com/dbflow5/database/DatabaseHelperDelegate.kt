@@ -17,8 +17,12 @@ import java.io.InputStream
 class DatabaseHelperDelegate(
     private val context: Context,
     private var databaseCallback: DatabaseCallback?,
-    generatedDatabase: GeneratedDatabase
-) : DatabaseHelper(AndroidMigrationFileHelper(context), generatedDatabase), OpenHelperDelegate {
+    private val generatedDatabase: GeneratedDatabase,
+    private val helper: DatabaseHelper = DatabaseHelper(
+        AndroidMigrationFileHelper(context),
+        generatedDatabase
+    )
+) : DatabaseCallback, OpenHelperDelegate {
 
     /**
      * @return the temporary database file name for when we have backups enabled
@@ -59,27 +63,27 @@ class DatabaseHelperDelegate(
 
     override fun onConfigure(db: DatabaseWrapper) {
         databaseCallback?.onConfigure(db)
-        super.onConfigure(db)
+        helper.onConfigure(db)
     }
 
     override fun onCreate(db: DatabaseWrapper) {
         databaseCallback?.onCreate(db)
-        super.onCreate(db)
+        helper.onCreate(db)
     }
 
     override fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
         databaseCallback?.onUpgrade(db, oldVersion, newVersion)
-        super.onUpgrade(db, oldVersion, newVersion)
+        helper.onUpgrade(db, oldVersion, newVersion)
     }
 
     override fun onOpen(db: DatabaseWrapper) {
         databaseCallback?.onOpen(db)
-        super.onOpen(db)
+        helper.onOpen(db)
     }
 
     override fun onDowngrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
         databaseCallback?.onDowngrade(db, oldVersion, newVersion)
-        super.onDowngrade(db, oldVersion, newVersion)
+        helper.onDowngrade(db, oldVersion, newVersion)
     }
 
     /**

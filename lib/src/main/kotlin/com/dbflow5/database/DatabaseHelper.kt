@@ -14,20 +14,20 @@ import java.io.IOException
 /**
  * Manages creation, updating, and migrating the [GeneratedDatabase].
  */
-open class DatabaseHelper(
+class DatabaseHelper(
     private val migrationFileHelper: MigrationFileHelper,
     val generatedDatabase: GeneratedDatabase
-) {
+) : DatabaseCallback {
 
     // path to migration for the database.
     private val dbMigrationPath
         get() = "$MIGRATION_PATH/${generatedDatabase.databaseName}"
 
-    open fun onConfigure(db: DatabaseWrapper) {
+    override fun onConfigure(db: DatabaseWrapper) {
         checkForeignKeySupport(db)
     }
 
-    open fun onCreate(db: DatabaseWrapper) {
+    override fun onCreate(db: DatabaseWrapper) {
         // table creations done first to get tables in db.
         executeTableCreations(db)
 
@@ -40,7 +40,7 @@ open class DatabaseHelper(
         executeViewCreations(db)
     }
 
-    open fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
+    override fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
         // create new tables if not previously created
         executeTableCreations(db)
 
@@ -49,12 +49,6 @@ open class DatabaseHelper(
 
         // views reflect current db state.
         executeViewCreations(db)
-    }
-
-    open fun onOpen(db: DatabaseWrapper) {
-    }
-
-    open fun onDowngrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
     }
 
     /**

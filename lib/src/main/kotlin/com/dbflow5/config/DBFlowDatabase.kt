@@ -339,13 +339,13 @@ abstract class DBFlowDatabase : GeneratedDatabase {
         get() = writableDatabase.isInTransaction
 
     private val internalCallback: DatabaseCallback = object : DatabaseCallback {
-        override fun onOpen(database: DatabaseWrapper) {
-            tableObserver.construct(database)
-            callback?.onOpen(database)
+        override fun onOpen(db: DatabaseWrapper) {
+            tableObserver.construct(db)
+            callback?.onOpen(db)
         }
 
-        override fun onCreate(database: DatabaseWrapper) {
-            callback?.onCreate(database)
+        override fun onCreate(db: DatabaseWrapper) {
+            callback?.onCreate(db)
         }
 
         override fun onUpgrade(database: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
@@ -353,11 +353,11 @@ abstract class DBFlowDatabase : GeneratedDatabase {
         }
 
         override fun onDowngrade(
-            databaseWrapper: DatabaseWrapper,
+            db: DatabaseWrapper,
             oldVersion: Int,
             newVersion: Int
         ) {
-            callback?.onDowngrade(databaseWrapper, oldVersion, newVersion)
+            callback?.onDowngrade(db, oldVersion, newVersion)
         }
 
         override fun onConfigure(db: DatabaseWrapper) {
