@@ -1,39 +1,36 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    kotlin("multiplatform")
     id("com.android.library")
-    kotlin("android")
 }
 // project.ext.artifactId = bt_name
-
-android {
-    compileSdkVersion(Versions.TargetSdk)
-
-    defaultConfig {
-        minSdkVersion(Versions.MinSdk)
-        targetSdkVersion(Versions.TargetSdk)
-    }
-
-    lintOptions {
-        isAbortOnError = false
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
+kotlin {
+    android()
 
     sourceSets {
-        getByName("main").java.srcDirs("src/main/kotlin")
+        val commonMain by getting {
+            dependencies {
+                api(project(":core"))
+                api(Dependencies.Coroutines)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                api(Dependencies.CoroutinesAndroid)
+            }
+        }
     }
+}
 
-    kotlinOptions {
-        freeCompilerArgs = listOf(
-            "-Xopt-in=com.dbflow5.annotation.opts.DelicateDBFlowApi",
-            "-Xopt-in=com.dbflow5.annotation.opts.InternalDBFlowApi"
-        )
+android {
+    compileSdk = Versions.TargetSdk
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+
+    defaultConfig {
+        minSdk = Versions.MinSdk
+        targetSdk = Versions.TargetSdk
     }
-
 }
 
 tasks.withType<KotlinCompile> {
@@ -43,12 +40,6 @@ tasks.withType<KotlinCompile> {
             "-Xopt-in=com.dbflow5.annotation.opts.InternalDBFlowApi"
         )
     }
-}
-
-dependencies {
-    api(project(":core"))
-    api(Dependencies.Coroutines)
-    api(Dependencies.CoroutinesAndroid)
 }
 
 apply(from = "../kotlin-artifacts.gradle.kts")

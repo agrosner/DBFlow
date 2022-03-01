@@ -1,6 +1,5 @@
 package com.dbflow5.config
 
-import android.content.Context
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ViewAdapter
@@ -12,9 +11,11 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.Migration
 import com.dbflow5.database.OpenHelper
+import com.dbflow5.database.config.DBPlatformSettings
 import com.dbflow5.database.config.DBSettings
 import com.dbflow5.database.scope.ReadableDatabaseScope
 import com.dbflow5.database.scope.WritableDatabaseScope
+import com.dbflow5.mpp.Closeable
 import com.dbflow5.observing.TableObserver
 import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.transaction.SuspendableTransaction
@@ -25,16 +26,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.io.Closeable
-import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.reflect.KClass
 
 interface GeneratedDatabase : DatabaseWrapper, Closeable {
     override val generatedDatabase: GeneratedDatabase
         get() = this
 
-    val context: Context
+    val platformSettings: DBPlatformSettings
 
     @InternalDBFlowApi
     val transactionDispatcher: TransactionDispatcher
@@ -140,8 +140,8 @@ abstract class DBFlowDatabase : GeneratedDatabase {
     private val callback: DatabaseCallback?
         get() = settings.databaseCallback
 
-    override val context: Context
-        get() = settings.context
+    override val platformSettings: DBPlatformSettings
+        get() = settings.platformSettings
 
     /**
      * Used when resetting the DB
@@ -173,7 +173,7 @@ abstract class DBFlowDatabase : GeneratedDatabase {
 
     private var isOpened: Boolean = false
 
-    val closeLock: Lock = ReentrantLock()
+    val closeLock: Mutex = Mutex()
 
     internal var writeAheadLoggingEnabled = false
 
@@ -190,7 +190,7 @@ abstract class DBFlowDatabase : GeneratedDatabase {
             helper.performRestoreFromBackup()
 
             val wal =
-                settings.journalMode.adjustIfAutomatic(settings.context) == JournalMode.WriteAheadLogging
+                settings.journalMode.adjustIfAutomatic(settings.platformSettings) == JournalMode.WriteAheadLogging
             helper.setWriteAheadLoggingEnabled(wal)
             writeAheadLoggingEnabled = wal
             isOpened = true
@@ -273,12 +273,11 @@ abstract class DBFlowDatabase : GeneratedDatabase {
     override fun close() {
         transactionDispatcher.dispatcher.cancel()
         if (isOpened) {
-            try {
-                closeLock.lock()
-                openHelper.closeDB()
-                isOpened = false
-            } finally {
-                closeLock.unlock()
+            runBlocking {
+                closeLock.withLock {
+                    openHelper.closeDB()
+                    isOpened = false
+                }
             }
         }
     }

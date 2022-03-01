@@ -101,7 +101,10 @@ class DatabaseWriter(
                                         )
                                             .addModifiers(KModifier.OVERRIDE)
                                             .addParameter(
-                                                ParameterSpec.builder("context", ClassNames.Context)
+                                                ParameterSpec.builder(
+                                                    "platformSettings",
+                                                    ClassNames.DBPlatformSettings
+                                                )
                                                     .build()
                                             )
                                             .addParameter(
@@ -114,7 +117,7 @@ class DatabaseWriter(
                                                     .build()
                                             )
                                             .addStatement(
-                                                "return %T.%N_factory(settings = %T(name = %S, context = context).settingsFn())",
+                                                "return %T.%N_factory(settings = %T(name = %S, platformSettings = platformSettings).settingsFn())",
                                                 ClassNames.GeneratedDatabaseHolderFactory,
                                                 name,
                                                 ClassNames.DBSettings,

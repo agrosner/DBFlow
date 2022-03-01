@@ -1,6 +1,5 @@
 package com.dbflow5.database.config
 
-import android.content.Context
 import com.dbflow5.config.DBFlowDatabase
 
 /**
@@ -8,5 +7,8 @@ import com.dbflow5.config.DBFlowDatabase
  */
 interface DBCreator<DB : DBFlowDatabase> {
 
-    fun create(context: Context, settingsFn: DBSettings.() -> DBSettings = { this }): DB
+    fun create(
+        platformSettings: DBPlatformSettings,
+        settingsFn: DBSettings.() -> DBSettings = { this }
+    ): DB
 }

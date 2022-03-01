@@ -1,19 +1,17 @@
 package com.dbflow5.config
 
-import android.app.ActivityManager
-import android.content.Context
+import com.dbflow5.database.config.DBPlatformSettings
 
 enum class JournalMode {
     Automatic,
     Truncate,
     WriteAheadLogging;
 
-    fun adjustIfAutomatic(context: Context): JournalMode = when (this) {
+    fun adjustIfAutomatic(settings: DBPlatformSettings): JournalMode = when (this) {
         Automatic -> this
         else -> {
             // check if low ram device
-            val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager?
-            if (manager?.isLowRamDevice == false) {
+            if (!settings.isLowRamDevice) {
                 WriteAheadLogging
             } else {
                 Truncate

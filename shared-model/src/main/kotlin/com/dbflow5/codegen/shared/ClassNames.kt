@@ -46,7 +46,7 @@ object ClassNames {
     fun dbCreator(databaseTypeName: TypeName) = ClassName(PackageNames.DatabaseConfig, "DBCreator")
         .parameterizedBy(databaseTypeName)
 
-    val Context = ClassName("android.content", "Context")
+    val DBPlatformSettings = ClassName(PackageNames.DatabaseConfig, "DBPlatformSettings")
     val QueryOpsImpl = ClassName(PackageNames.Adapter, "QueryOpsImpl")
     val OperatorGroup = ClassName(PackageNames.QueryOperations, "OperatorGroup")
     val Operation = ClassName(PackageNames.QueryOperations, "Operation")

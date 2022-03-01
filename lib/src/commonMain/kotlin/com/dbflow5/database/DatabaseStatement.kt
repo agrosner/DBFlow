@@ -1,6 +1,7 @@
 package com.dbflow5.database
 
-import java.io.Closeable
+import com.dbflow5.mpp.Closeable
+import kotlin.jvm.JvmName
 
 /**
  * Description: Abstracts out an Android SQLiteStatement.

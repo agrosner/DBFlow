@@ -8,6 +8,7 @@ import com.dbflow5.config.FlowLog
 import com.dbflow5.config.GeneratedDatabaseHolderFactory
 import com.dbflow5.database.config.DBCreator
 import com.dbflow5.database.config.DBSettings
+import com.dbflow5.database.config.create
 import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

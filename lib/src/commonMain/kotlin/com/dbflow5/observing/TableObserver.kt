@@ -11,6 +11,8 @@ import com.dbflow5.database.executeTransaction
 import com.dbflow5.query.TriggerMethod
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.stripQuotes
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -126,29 +128,27 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
 
         try {
             while (true) {
-                val lock = this.db.closeLock
-                lock.lock()
-                try {
-                    val tablesToSync = observingTableTracker.tablesToSync ?: return
-                    db.executeTransaction {
-                        tablesToSync.forEachIndexed { index, operation ->
-                            // return value of Unit to make sure exhaustive "when".
-                            @Suppress("UNUSED_VARIABLE")
-                            val exhaustive = when (operation) {
-                                ObservingTableTracker.Operation.Add -> observeTable(db, index)
-                                ObservingTableTracker.Operation.Remove -> stopObservingTable(
-                                    db,
-                                    index
-                                )
-                                ObservingTableTracker.Operation.None -> {
-                                    // don't do anything
+                runBlocking {
+                    this@TableObserver.db.closeLock.withLock {
+                        val tablesToSync = observingTableTracker.tablesToSync ?: return@withLock
+                        db.executeTransaction {
+                            tablesToSync.forEachIndexed { index, operation ->
+                                // return value of Unit to make sure exhaustive "when".
+                                @Suppress("UNUSED_VARIABLE")
+                                val exhaustive = when (operation) {
+                                    ObservingTableTracker.Operation.Add -> observeTable(db, index)
+                                    ObservingTableTracker.Operation.Remove -> stopObservingTable(
+                                        db,
+                                        index
+                                    )
+                                    ObservingTableTracker.Operation.None -> {
+                                        // don't do anything
+                                    }
                                 }
                             }
                         }
+                        observingTableTracker.syncCompleted()
                     }
-                    observingTableTracker.syncCompleted()
-                } finally {
-                    lock.unlock()
                 }
             }
         } catch (e: Exception) {
@@ -166,33 +166,34 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
         var hasUpdatedTable = false
 
         try {
-            lock.lock()
+            runBlocking {
+                lock.withLock {
+                    if (!db.isOpen) {
+                        return@withLock
+                    }
 
-            if (!db.isOpen) {
-                return
+                    if (!initialized) {
+                        db.openHelper.database
+                    }
+                    if (!initialized) {
+                        FlowLog.log(
+                            FlowLog.Level.E,
+                            "Database is not initialized even though open. Is this an error?"
+                        )
+                        return@withLock
+                    }
+
+                    if (!pendingRefresh.compareAndSet(true, false)) {
+                        FlowLog.log(FlowLog.Level.W, "TableObserver pending refresh had completed.")
+                    }
+
+                    if (db.isInTransaction) {
+                        return@withLock
+                    }
+
+                    hasUpdatedTable = checkUpdatedTables()
+                }
             }
-
-            if (!initialized) {
-                db.openHelper.database
-            }
-            if (!initialized) {
-                FlowLog.log(
-                    FlowLog.Level.E,
-                    "Database is not initialized even though open. Is this an error?"
-                )
-                return
-            }
-
-            if (!pendingRefresh.compareAndSet(true, false)) {
-                FlowLog.log(FlowLog.Level.W, "TableObserver pending refresh had completed.")
-            }
-
-            if (db.isInTransaction) {
-                return
-            }
-
-            hasUpdatedTable = checkUpdatedTables()
-
         } catch (e: Exception) {
             when (e) {
                 is IllegalStateException, is SQLiteException -> {
@@ -204,8 +205,6 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
                 }
                 else -> throw e
             }
-        } finally {
-            lock.unlock()
         }
         if (hasUpdatedTable) {
             synchronized(observerToObserverWithIdsMap) {

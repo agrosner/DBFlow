@@ -5,6 +5,7 @@ import com.dbflow5.TestDatabase_Database
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.OpenHelperCreator
+import com.dbflow5.database.config.create
 import com.dbflow5.database.transaction.TransactionDispatcherFactory
 import com.dbflow5.transaction.TransactionDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher

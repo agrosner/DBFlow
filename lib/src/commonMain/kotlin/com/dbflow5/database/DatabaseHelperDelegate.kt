@@ -19,7 +19,7 @@ class DatabaseHelperDelegate(
     private var databaseCallback: DatabaseCallback?,
     private val generatedDatabase: GeneratedDatabase,
     private val helper: DatabaseHelper = DatabaseHelper(
-        AndroidMigrationFileHelper(context),
+        com.dbflow5.database.AndroidMigrationFileHelper(context),
         generatedDatabase
     )
 ) : DatabaseCallback, OpenHelperDelegate {

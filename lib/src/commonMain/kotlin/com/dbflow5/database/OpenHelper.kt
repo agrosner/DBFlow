@@ -32,5 +32,5 @@ interface OpenHelper : OpenHelperDelegate {
  * Creates default open helper.
  */
 @Suppress("FunctionName")
-fun OpenHelper(db: GeneratedDatabase, callback: DatabaseCallback?) =
-    AndroidSQLiteOpenHelper(db.context, db, callback)
+expect fun OpenHelper(db: GeneratedDatabase, callback: DatabaseCallback?): OpenHelper
+

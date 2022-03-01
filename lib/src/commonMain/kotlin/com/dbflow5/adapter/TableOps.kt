@@ -6,6 +6,7 @@ import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.scope.WritableDatabaseScope
+import com.dbflow5.mpp.use
 import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.NotifyDistributor
 import com.dbflow5.structure.ChangeAction
