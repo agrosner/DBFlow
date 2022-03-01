@@ -1,6 +1,5 @@
 package com.dbflow5.annotation
 
-import org.intellij.lang.annotations.Language
 import kotlin.reflect.KClass
 
 /**
@@ -12,7 +11,6 @@ annotation class ModelView(
     /**
      * Provide the query directly here.
      */
-    @Language("SQLite")
     val query: String,
     /**
      * @return The name of this view. Default is the class name.

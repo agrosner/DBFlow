@@ -2,6 +2,8 @@
 
 package com.dbflow5
 
+import kotlin.jvm.JvmName
+
 
 fun String?.isNotNullOrEmpty(): Boolean = !isNullOrEmpty()
 

@@ -1,5 +1,7 @@
 package com.dbflow5.annotation
 
+import kotlin.jvm.JvmStatic
+
 /**
  * This is how to resolve null or unique conflicts with a field marked as [NotNull]
  * or [Unique]
