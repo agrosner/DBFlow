@@ -4,14 +4,12 @@ import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.TransactionElement
 import com.dbflow5.config.acquireTransaction
 import com.dbflow5.config.executeTransactionForResult
+import com.dbflow5.database.ThreadLocalTransaction
 import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.asContextElement
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
-import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
@@ -82,13 +80,13 @@ internal class DefaultTransactionDispatcher(
 internal suspend fun TransactionDispatcher.transactionContext(
     coroutineContext: CoroutineContext,
     coroutineName: String?,
-    transactionId: ThreadLocal<Int>,
+    transactionId: ThreadLocalTransaction,
 ) = (coroutineContext[TransactionElement]?.transactionDispatcher
     ?: createTransactionContext(coroutineName, transactionId))
 
 private suspend fun TransactionDispatcher.createTransactionContext(
     coroutineName: String?,
-    transactionId: ThreadLocal<Int>,
+    transactionId: ThreadLocalTransaction,
 ): CoroutineContext {
     val controlJob = Job()
     // make sure to tie the control job to this context to avoid blocking the transaction if
@@ -99,7 +97,7 @@ private suspend fun TransactionDispatcher.createTransactionContext(
         controlJob.cancel()
     }
     val element = TransactionElement(controlJob, dispatcher)
-    val threadLocalElement = transactionId.asContextElement(System.identityHashCode(controlJob))
+    val threadLocalElement = transactionId.acquireTransactionElement(controlJob)
     val context = dispatcher + element + threadLocalElement
     //
     if (!coroutineName.isNullOrEmpty()) {
@@ -108,16 +106,12 @@ private suspend fun TransactionDispatcher.createTransactionContext(
     return context
 }
 
-/**
- * Creates [TransactionDispatcher] with a single thread.
- */
-fun TransactionDispatcher(
-): TransactionDispatcher = DefaultTransactionDispatcher(
-    Executors.newSingleThreadExecutor().asCoroutineDispatcher(),
-)
+expect fun defaultTransactionCoroutineDispatcher(): CoroutineDispatcher
 
 /**
  * Creates [TransactionDispatcher] with the specified dispatcher.
  */
-fun TransactionDispatcher(dispatcher: CoroutineDispatcher): TransactionDispatcher =
+fun TransactionDispatcher(
+    dispatcher: CoroutineDispatcher = defaultTransactionCoroutineDispatcher()
+): TransactionDispatcher =
     DefaultTransactionDispatcher(dispatcher)

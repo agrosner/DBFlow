@@ -8,6 +8,7 @@ import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import kotlin.reflect.KClass
+import kotlin.jvm.JvmStatic
 
 /**
  * Holds the main [DatabaseHolder], which provides lookup for database objects by class type.

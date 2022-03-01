@@ -8,6 +8,7 @@ import com.dbflow5.converter.TypeConverter
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.nameAlias
 import kotlin.reflect.KClass
+import kotlin.jvm.JvmName
 
 /**
  * Description: A special [Property] with a type converter.

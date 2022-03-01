@@ -1,5 +1,8 @@
 package com.dbflow5.observing
 
+import kotlinx.atomicfu.AtomicBoolean
+import kotlinx.atomicfu.atomic
+
 /**
  * Description: Keeps track of how many observers are registered on a [TableObserver] at a given time.
  */
@@ -17,9 +20,8 @@ class ObservingTableTracker(tableCount: Int) {
     // caches the changes in a fixed array.
     private val triggerStateChanges = Array(tableCount) { Operation.None }
 
-    private var needsSync = false
-    private var pendingSync = false
-
+    private var needsSync by atomic(false)
+    private var pendingSync by atomic(false)
 
     internal fun onAdded(tableIds: IntArray): Boolean =
         adjustObserverCount(tableIds, 1L, 0L)
@@ -27,26 +29,24 @@ class ObservingTableTracker(tableCount: Int) {
     internal fun onRemoved(tableIds: IntArray): Boolean =
         adjustObserverCount(tableIds, -1L, 1L)
 
-    private fun adjustObserverCount(tableIds: IntArray, value: Long,
-                                    countToSync: Long): Boolean {
+    private fun adjustObserverCount(
+        tableIds: IntArray, value: Long,
+        countToSync: Long
+    ): Boolean {
         var syncTriggers = false
-        synchronized(this) {
-            tableIds.forEach { tableId ->
-                val count = observerPerTable[tableId]
-                observerPerTable[tableId] = count + value
-                if (count == countToSync) {
-                    syncTriggers = true
-                    needsSync = true
-                }
+        tableIds.forEach { tableId ->
+            val count = observerPerTable[tableId]
+            observerPerTable[tableId] = count + value
+            if (count == countToSync) {
+                syncTriggers = true
+                needsSync = true
             }
         }
         return syncTriggers
     }
 
     internal fun syncCompleted() {
-        synchronized(this) {
-            pendingSync = false
-        }
+        pendingSync = false
     }
 
     val tablesToSync: Array<Operation>?

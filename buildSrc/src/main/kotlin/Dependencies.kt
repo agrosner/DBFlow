@@ -9,6 +9,7 @@ object Versions {
     const val KotlinCompileTesting = "1.4.7"
     const val KotlinPoet = "1.10.2"
     const val Koin = "3.1.5"
+    const val AtomicFu = "0.17.1"
 }
 
 object Dependencies {

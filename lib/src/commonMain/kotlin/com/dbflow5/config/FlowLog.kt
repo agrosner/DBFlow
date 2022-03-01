@@ -1,10 +1,11 @@
 package com.dbflow5.config
 
-import android.util.Log
 import com.dbflow5.config.FlowLog.Level
+import kotlin.jvm.JvmStatic
+import kotlin.jvm.JvmOverloads
 
 /**
- * Description: Mirrors [Log] with its own [Level] flag.
+ * Main logging mechanis in the library.
  */
 object FlowLog {
 
@@ -82,45 +83,13 @@ object FlowLog {
      * Defines a log level that will execute
      */
     enum class Level {
-        V {
-            override fun call(tag: String, message: String?, throwable: Throwable?) {
-                Log.v(tag, message, throwable)
-            }
-        },
-        D {
-            override fun call(tag: String, message: String?, throwable: Throwable?) {
-                Log.d(tag, message, throwable)
-            }
-        },
-        I {
-            override fun call(tag: String, message: String?, throwable: Throwable?) {
-                Log.i(tag, message, throwable)
-            }
-        },
-        W {
-            override fun call(tag: String, message: String?, throwable: Throwable?) {
-                Log.w(tag, message, throwable)
-            }
-        },
-        E {
-            override fun call(tag: String, message: String?, throwable: Throwable?) {
-                Log.e(tag, message, throwable)
-            }
-        },
-        WTF {
-            override fun call(tag: String, message: String?, throwable: Throwable?) {
-                Log.wtf(tag, message, throwable)
-            }
-        };
-
-        internal abstract fun call(tag: String, message: String?, throwable: Throwable?)
+        V,
+        D,
+        I,
+        W,
+        E,
+        WTF;
     }
-
 }
-/**
- * Logs information to the [Log] class. It wraps around the standard implementation.
- * It uses the [.TAG] for messages and sends a null throwable.
- *
- * @param level   The log level to use
- * @param message The message to print out
- */
+
+expect fun Level.call(tag: String, message: String? = null, throwable: Throwable? = null)

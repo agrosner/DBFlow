@@ -7,6 +7,8 @@ import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.NotifyDistributor
 import com.dbflow5.stringForQuery
 import com.dbflow5.structure.ChangeAction
+import com.dbflow5.mpp.use
+import kotlin.jvm.JvmInline
 
 /**
  * Determines how results are created from a query.

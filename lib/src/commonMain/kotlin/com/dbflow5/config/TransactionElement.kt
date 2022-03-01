@@ -1,8 +1,9 @@
 package com.dbflow5.config
 
+import com.dbflow5.mpp.Closeable
+import com.dbflow5.mpp.use
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Job
-import java.io.Closeable
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 
@@ -24,7 +25,7 @@ internal class TransactionElement(
      * when [release] is invoked then the transaction job is cancelled and the transaction thread
      * is released.
      */
-    private val referenceCount = AtomicInteger(0)
+    private val referenceCount = atomic(0)
     fun acquire() {
         referenceCount.incrementAndGet()
     }

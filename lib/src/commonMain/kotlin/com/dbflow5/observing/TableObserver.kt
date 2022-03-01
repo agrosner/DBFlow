@@ -8,12 +8,14 @@ import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.database.executeTransaction
+import com.dbflow5.mpp.runBlocking
+import com.dbflow5.mpp.use
 import com.dbflow5.query.TriggerMethod
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.stripQuotes
-import kotlinx.coroutines.runBlocking
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Description: Tracks table changes in the DB via Triggers. This more efficient than utilizing
@@ -30,12 +32,13 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
     private val observingTableTracker = ObservingTableTracker(tableCount = adapters.size)
     private val observerToObserverWithIdsMap =
         mutableMapOf<OnTableChangedObserver, OnTableChangedObserverWithIds>()
+    private val observerMutex = Mutex()
 
     private val tableStatus = BooleanArray(adapters.size)
 
     private var initialized = false
 
-    private val pendingRefresh = AtomicBoolean(false)
+    private val pendingRefresh = atomic(false)
 
     private val cleanupStatement: DatabaseStatement by lazy {
         db.compileStatement(
@@ -58,22 +61,26 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
             newTableIds[index] = id ?: throw IllegalArgumentException("No Table found for $table")
         }
         val wrapped = OnTableChangedObserverWithIds(observer, newTableIds)
-        synchronized(observerToObserverWithIdsMap) {
-            if (!observerToObserverWithIdsMap.containsKey(observer)) {
-                observerToObserverWithIdsMap[observer] = wrapped
+        runBlocking {
+            observerMutex.withLock {
+                if (!observerToObserverWithIdsMap.containsKey(observer)) {
+                    observerToObserverWithIdsMap[observer] = wrapped
 
-                if (observingTableTracker.onAdded(newTableIds)) {
-                    syncTriggers()
+                    if (observingTableTracker.onAdded(newTableIds)) {
+                        syncTriggers()
+                    }
                 }
             }
         }
     }
 
     fun removeOnTableChangedObserver(observer: OnTableChangedObserver) {
-        synchronized(observerToObserverWithIdsMap) {
-            observerToObserverWithIdsMap.remove(observer)?.let { observer ->
-                if (observingTableTracker.onRemoved(observer.tableIds)) {
-                    syncTriggers()
+        runBlocking {
+            observerMutex.withLock {
+                observerToObserverWithIdsMap.remove(observer)?.let { observer ->
+                    if (observingTableTracker.onRemoved(observer.tableIds)) {
+                        syncTriggers()
+                    }
                 }
             }
         }
@@ -83,7 +90,7 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
      * Enqueues a table update check on the [DBFlowDatabase] Transaction queue.
      */
     fun enqueueTableUpdateCheck() {
-        if (!pendingRefresh.compareAndSet(false, true)) {
+        if (!pendingRefresh.compareAndSet(expect = false, update = true)) {
             db.beginTransactionAsync { checkForTableUpdates(db) }
                 .shouldRunInTransaction(false)
                 .enqueue(error = { _, e ->
@@ -99,18 +106,20 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
 
 
     internal fun construct(db: DatabaseWrapper) {
-        synchronized(this) {
-            if (initialized) {
-                FlowLog.log(FlowLog.Level.W, "TableObserver already initialized")
-                return
+        runBlocking {
+            observerMutex.withLock {
+                if (initialized) {
+                    FlowLog.log(FlowLog.Level.W, "TableObserver already initialized")
+                    return@withLock
+                }
+                db.execSQL("PRAGMA temp_store = MEMORY;")
+                db.executeTransaction {
+                    db.execSQL("PRAGMA recursive_triggers='ON';")
+                    db.execSQL("CREATE TEMP TABLE $TABLE_OBSERVER_NAME($TABLE_ID_COLUMN_NAME INTEGER PRIMARY KEY, $INVALIDATED_COLUMN_NAME INTEGER NOT NULL DEFAULT 0);")
+                }
+                syncTriggers(db)
+                initialized = true
             }
-            db.execSQL("PRAGMA temp_store = MEMORY;")
-            db.executeTransaction {
-                db.execSQL("PRAGMA recursive_triggers='ON';")
-                db.execSQL("CREATE TEMP TABLE $TABLE_OBSERVER_NAME($TABLE_ID_COLUMN_NAME INTEGER PRIMARY KEY, $INVALIDATED_COLUMN_NAME INTEGER NOT NULL DEFAULT 0);")
-            }
-            syncTriggers(db)
-            initialized = true
         }
     }
 
@@ -183,7 +192,7 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
                         return@withLock
                     }
 
-                    if (!pendingRefresh.compareAndSet(true, false)) {
+                    if (!pendingRefresh.compareAndSet(expect = true, update = false)) {
                         FlowLog.log(FlowLog.Level.W, "TableObserver pending refresh had completed.")
                     }
 
@@ -207,9 +216,11 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
             }
         }
         if (hasUpdatedTable) {
-            synchronized(observerToObserverWithIdsMap) {
-                observerToObserverWithIdsMap.forEach { (_, observer) ->
-                    observer.notifyTables(tableStatus)
+            runBlocking {
+                observerMutex.withLock {
+                    observerToObserverWithIdsMap.forEach { (_, observer) ->
+                        observer.notifyTables(tableStatus)
+                    }
                 }
             }
             // reset

@@ -13,9 +13,13 @@ class AndroidSQLiteOpenHelper(
     private val generatedDatabase: GeneratedDatabase,
     listener: DatabaseCallback?,
     private val databaseHelperDelegate: DatabaseHelperDelegate = DatabaseHelperDelegate(
-        context,
         listener,
-        generatedDatabase
+        generatedDatabase,
+        helper = DatabaseHelper(
+            AndroidMigrationFileHelper(context),
+            generatedDatabase
+        ),
+        databaseBackup = DatabaseBackup(context, generatedDatabase),
     ),
 ) : SQLiteOpenHelper(
     context,

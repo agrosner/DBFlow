@@ -1,14 +1,18 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
 }
+apply(plugin = "kotlinx-atomicfu")
+
 // project.ext.artifactId = bt_name
 kotlin {
     android()
 
     sourceSets {
+        all {
+            languageSettings.optIn("com.dbflow5.annotation.opts.DelicateDBFlowApi")
+            languageSettings.optIn("com.dbflow5.annotation.opts.InternalDBFlowApi")
+        }
         val commonMain by getting {
             dependencies {
                 api(project(":core"))
@@ -30,15 +34,6 @@ android {
     defaultConfig {
         minSdk = Versions.MinSdk
         targetSdk = Versions.TargetSdk
-    }
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf(
-            "-Xopt-in=com.dbflow5.annotation.opts.DelicateDBFlowApi",
-            "-Xopt-in=com.dbflow5.annotation.opts.InternalDBFlowApi"
-        )
     }
 }
 

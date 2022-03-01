@@ -4,6 +4,7 @@ package com.dbflow5.query.operations
 
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.bind
+import kotlin.jvm.JvmName
 
 inline fun <ValueType : Any, Table : Any> Property<ValueType?, Table>.bindProperty(
     value: ValueType?,

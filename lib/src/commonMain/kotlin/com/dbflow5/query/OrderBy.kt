@@ -4,6 +4,7 @@ import com.dbflow5.annotation.Collate
 import com.dbflow5.query.operations.Property
 import com.dbflow5.query.methods.random
 import com.dbflow5.sql.Query
+import kotlin.jvm.JvmOverloads
 
 interface HasOrderDirection {
     fun asc(): OrderByDirectional = direction(true)

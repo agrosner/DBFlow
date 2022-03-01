@@ -74,7 +74,7 @@ class BooleanConverter : TypeConverter<Int, Boolean>() {
 class CharConverter : TypeConverter<String, Char>() {
 
     override fun getDBValue(model: Char): String =
-        String(charArrayOf(model))
+        charArrayOf(model).concatToString()
 
     override fun getModelValue(data: String): Char = data[0]
 }

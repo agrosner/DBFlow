@@ -11,11 +11,13 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.Migration
 import com.dbflow5.database.OpenHelper
+import com.dbflow5.database.ThreadLocalTransaction
 import com.dbflow5.database.config.DBPlatformSettings
 import com.dbflow5.database.config.DBSettings
 import com.dbflow5.database.scope.ReadableDatabaseScope
 import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.mpp.Closeable
+import com.dbflow5.mpp.runBlocking
 import com.dbflow5.observing.TableObserver
 import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.transaction.SuspendableTransaction
@@ -25,7 +27,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.reflect.KClass
@@ -40,7 +41,7 @@ interface GeneratedDatabase : DatabaseWrapper, Closeable {
     val transactionDispatcher: TransactionDispatcher
 
     @InternalDBFlowApi
-    val transactionId: ThreadLocal<Int>
+    val transactionId: ThreadLocalTransaction
 
     @InternalDBFlowApi
     val modelNotifier: ModelNotifier
@@ -155,7 +156,8 @@ abstract class DBFlowDatabase : GeneratedDatabase {
         settings.transactionDispatcherFactory.create()
     }
 
-    override val transactionId = ThreadLocal<Int>()
+    @InternalDBFlowApi
+    override val transactionId: ThreadLocalTransaction = ThreadLocalTransaction()
 
     override val enqueueScope by lazy { CoroutineScope(transactionDispatcher.dispatcher) }
 

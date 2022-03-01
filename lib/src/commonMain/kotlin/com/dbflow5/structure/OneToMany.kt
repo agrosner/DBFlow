@@ -1,9 +1,9 @@
 package com.dbflow5.structure
 
 import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.mpp.runBlocking
 import com.dbflow5.query.ExecutableQuery
 import com.dbflow5.query.SelectResult
-import kotlinx.coroutines.runBlocking
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 

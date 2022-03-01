@@ -3,6 +3,7 @@ package com.dbflow5.query.operations
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.operations.BaseOperator.SingleValueOperator
 import com.dbflow5.query.operations.BaseOperator.ValuelessOperator
+import kotlin.jvm.JvmName
 
 /**
  * Description: Simple interface for objects that can be used as Operators.

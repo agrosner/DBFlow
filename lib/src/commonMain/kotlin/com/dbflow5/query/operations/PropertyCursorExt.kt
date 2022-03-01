@@ -3,6 +3,7 @@
 package com.dbflow5.query.operations
 
 import com.dbflow5.database.FlowCursor
+import kotlin.jvm.JvmName
 
 @JvmName("getNullable")
 inline fun <Table : Any> Property<String?, Table>.infer(

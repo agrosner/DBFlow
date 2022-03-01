@@ -7,6 +7,8 @@ import com.dbflow5.config.executeTransaction
 import com.dbflow5.database.executeTransaction
 import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.Job
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmOverloads
 
 typealias Ready<DB, R> = (Transaction<DB, R>) -> Unit
 typealias Success<DB, R> = (Transaction<DB, R>, R) -> Unit

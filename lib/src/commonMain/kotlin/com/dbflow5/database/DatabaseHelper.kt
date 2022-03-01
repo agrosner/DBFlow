@@ -5,11 +5,10 @@ import com.dbflow5.adapter.create
 import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.config.NaturalOrderComparator
 import com.dbflow5.database.scope.MigrationScope
 import com.dbflow5.database.scope.MigrationScopeImpl
-import kotlinx.coroutines.runBlocking
-import java.io.IOException
+import com.dbflow5.mpp.runBlocking
+
 
 /**
  * Manages creation, updating, and migrating the [GeneratedDatabase].
@@ -105,49 +104,41 @@ class DatabaseHelper(
     ) {
 
         // will try migrations file or execute migrations from code
-        try {
-            val files: List<String> = migrationFileHelper.getListFiles(dbMigrationPath)
-                .sortedWith(NaturalOrderComparator())
+        val files: List<String> = migrationFileHelper.getListFiles(dbMigrationPath)
+            .sortedWith(naturalOrder())
 
-            val migrationFileMap = hashMapOf<Int, MutableList<String>>()
-            for (file in files) {
-                try {
-                    val version = Integer.valueOf(file.replace(".sql", ""))
-                    val fileList = migrationFileMap.getOrPut(version) { arrayListOf() }
-                    fileList.add(file)
-                } catch (e: NumberFormatException) {
-                    FlowLog.log(FlowLog.Level.W, "Skipping invalidly named file: $file", e)
-                }
-
+        val migrationFileMap = hashMapOf<Int, MutableList<String>>()
+        for (file in files) {
+            try {
+                val version = file.replace(".sql", "").toInt()
+                val fileList = migrationFileMap.getOrPut(version) { arrayListOf() }
+                fileList.add(file)
+            } catch (e: NumberFormatException) {
+                FlowLog.log(FlowLog.Level.W, "Skipping invalidly named file: $file", e)
             }
 
-            val migrationMap = generatedDatabase.migrations
+        }
 
-            val curVersion = oldVersion + 1
+        val migrationMap = generatedDatabase.migrations
 
-            db.executeTransaction {
-                // execute migrations in order, migration file first before wrapped migration classes.
-                for (i in curVersion..newVersion) {
-                    migrationFileMap[i]?.forEach { migrationFile ->
-                        executeSqlScript(db, migrationFile)
-                        FlowLog.log(FlowLog.Level.I, "$migrationFile executed successfully.")
-                    }
+        val curVersion = oldVersion + 1
 
-                    migrationMap[i]?.forEach { migration ->
-                        runBlocking { migration.apply { migrate(db) } }
-                        FlowLog.log(
-                            FlowLog.Level.I,
-                            "${migration.javaClass} executed successfully."
-                        )
-                    }
+        db.executeTransaction {
+            // execute migrations in order, migration file first before wrapped migration classes.
+            for (i in curVersion..newVersion) {
+                migrationFileMap[i]?.forEach { migrationFile ->
+                    executeSqlScript(db, migrationFile)
+                    FlowLog.log(FlowLog.Level.I, "$migrationFile executed successfully.")
+                }
+
+                migrationMap[i]?.forEach { migration ->
+                    runBlocking { migration.apply { migrate(db) } }
+                    FlowLog.log(
+                        FlowLog.Level.I,
+                        "${migration::class} executed successfully."
+                    )
                 }
             }
-        } catch (e: IOException) {
-            FlowLog.log(
-                FlowLog.Level.E,
-                "Failed to execute migrations. App might be in an inconsistent state.",
-                e
-            )
         }
     }
 
@@ -170,7 +161,6 @@ class DatabaseHelper(
         /**
          * Location where the migration files should exist.
          */
-        @JvmStatic
         val MIGRATION_PATH = "migrations"
     }
 }

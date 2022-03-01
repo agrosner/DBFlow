@@ -2,7 +2,10 @@ package com.dbflow5.sqlcipher
 
 import android.content.Context
 import com.dbflow5.config.GeneratedDatabase
+import com.dbflow5.database.AndroidMigrationFileHelper
+import com.dbflow5.database.DatabaseBackup
 import com.dbflow5.database.DatabaseCallback
+import com.dbflow5.database.DatabaseHelper
 import com.dbflow5.database.DatabaseHelperDelegate
 import com.dbflow5.database.DatabasePropertyDelegate
 import com.dbflow5.database.OpenHelper
@@ -25,7 +28,11 @@ class SQLCipherOpenHelper(
     private val secret: String,
     callback: DatabaseCallback?,
     override val delegate: DatabaseHelperDelegate =
-        DatabaseHelperDelegate(context, callback, generatedDatabase).also {
+        DatabaseHelperDelegate(
+            callback, generatedDatabase,
+            helper = DatabaseHelper(AndroidMigrationFileHelper(context), generatedDatabase),
+            databaseBackup = DatabaseBackup(context, generatedDatabase)
+        ).also {
             SQLiteDatabase.loadLibs(context)
         },
 ) : SQLiteOpenHelper(
