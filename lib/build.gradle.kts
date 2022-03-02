@@ -17,6 +17,7 @@ kotlin {
             dependencies {
                 api(project(":core"))
                 api(Dependencies.Coroutines)
+                api(Dependencies.AtomicFU)
             }
         }
         val androidMain by getting {

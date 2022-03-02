@@ -62,7 +62,7 @@ internal class DefaultTransactionDispatcher(
                 if (transaction is Transaction<DB, *>) {
                     transaction.name
                 } else null,
-                transactionId = db.transactionId,
+                transactionId = db.threadLocalTransaction,
             )
         ) {
             coroutineContext.acquireTransaction {

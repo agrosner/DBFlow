@@ -37,6 +37,8 @@ object Dependencies {
 
     const val Turbine = "app.cash.turbine:turbine:0.7.0"
 
+    const val AtomicFU = "org.jetbrains.kotlinx:atomicfu:${Versions.AtomicFu}"
+
     object AndroidX {
         const val Annotations = "androidx.annotation:annotation:1.3.0"
         const val LiveData = "androidx.lifecycle:lifecycle-livedata:2.4.0"

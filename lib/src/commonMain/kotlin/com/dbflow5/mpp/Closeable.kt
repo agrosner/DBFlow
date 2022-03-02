@@ -1,6 +1,7 @@
 package com.dbflow5.mpp
 
 import com.dbflow5.annotation.opts.InternalDBFlowApi
+import com.dbflow5.config.FlowLog
 
 @InternalDBFlowApi
 expect interface Closeable {
@@ -22,6 +23,7 @@ inline fun <C : Closeable, R> C.use(block: (C) -> R): R {
                 close()
             } catch (closeException: Throwable) {
                 // ignored here
+                FlowLog.logError(closeException)
             }
         }
     }

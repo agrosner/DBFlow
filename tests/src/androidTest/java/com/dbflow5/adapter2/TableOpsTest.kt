@@ -14,13 +14,13 @@ import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.ThreadLocalTransaction
 import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.transaction.TransactionDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
@@ -56,7 +56,7 @@ class TableOpsTest {
     private val generatedDatabase = mock<GeneratedDatabase> {
         on { transactionDispatcher } doReturn TransactionDispatcher(dispatcher)
         on { modelNotifier } doReturn modelNotifier
-        on { transactionId } doReturn ThreadLocal()
+        on { threadLocalTransaction } doReturn ThreadLocalTransaction()
     }
     private val database = mock<DatabaseWrapper> {
         on { generatedDatabase } doReturn generatedDatabase

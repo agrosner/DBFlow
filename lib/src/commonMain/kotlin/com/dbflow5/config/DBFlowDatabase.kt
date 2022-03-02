@@ -23,12 +23,12 @@ import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.transaction.SuspendableTransaction
 import com.dbflow5.transaction.Transaction
 import com.dbflow5.transaction.TransactionDispatcher
+import kotlinx.atomicfu.locks.ReentrantLock
+import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlin.reflect.KClass
 
 interface GeneratedDatabase : DatabaseWrapper, Closeable {
@@ -41,7 +41,7 @@ interface GeneratedDatabase : DatabaseWrapper, Closeable {
     val transactionDispatcher: TransactionDispatcher
 
     @InternalDBFlowApi
-    val transactionId: ThreadLocalTransaction
+    val threadLocalTransaction: ThreadLocalTransaction
 
     @InternalDBFlowApi
     val modelNotifier: ModelNotifier
@@ -157,7 +157,7 @@ abstract class DBFlowDatabase : GeneratedDatabase {
     }
 
     @InternalDBFlowApi
-    override val transactionId: ThreadLocalTransaction = ThreadLocalTransaction()
+    override val threadLocalTransaction: ThreadLocalTransaction = ThreadLocalTransaction()
 
     override val enqueueScope by lazy { CoroutineScope(transactionDispatcher.dispatcher) }
 
@@ -175,7 +175,7 @@ abstract class DBFlowDatabase : GeneratedDatabase {
 
     private var isOpened: Boolean = false
 
-    val closeLock: Mutex = Mutex()
+    val closeLock = ReentrantLock()
 
     internal var writeAheadLoggingEnabled = false
 
@@ -275,11 +275,9 @@ abstract class DBFlowDatabase : GeneratedDatabase {
     override fun close() {
         transactionDispatcher.dispatcher.cancel()
         if (isOpened) {
-            runBlocking {
-                closeLock.withLock {
-                    openHelper.closeDB()
-                    isOpened = false
-                }
+            closeLock.withLock {
+                openHelper.closeDB()
+                isOpened = false
             }
         }
     }

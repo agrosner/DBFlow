@@ -14,8 +14,8 @@ import com.dbflow5.query.TriggerMethod
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.stripQuotes
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.atomicfu.locks.synchronized
+import kotlinx.atomicfu.locks.withLock
 
 /**
  * Description: Tracks table changes in the DB via Triggers. This more efficient than utilizing
@@ -32,7 +32,6 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
     private val observingTableTracker = ObservingTableTracker(tableCount = adapters.size)
     private val observerToObserverWithIdsMap =
         mutableMapOf<OnTableChangedObserver, OnTableChangedObserverWithIds>()
-    private val observerMutex = Mutex()
 
     private val tableStatus = BooleanArray(adapters.size)
 
@@ -61,26 +60,22 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
             newTableIds[index] = id ?: throw IllegalArgumentException("No Table found for $table")
         }
         val wrapped = OnTableChangedObserverWithIds(observer, newTableIds)
-        runBlocking {
-            observerMutex.withLock {
-                if (!observerToObserverWithIdsMap.containsKey(observer)) {
-                    observerToObserverWithIdsMap[observer] = wrapped
+        synchronized(observerToObserverWithIdsMap) {
+            if (!observerToObserverWithIdsMap.containsKey(observer)) {
+                observerToObserverWithIdsMap[observer] = wrapped
 
-                    if (observingTableTracker.onAdded(newTableIds)) {
-                        syncTriggers()
-                    }
+                if (observingTableTracker.onAdded(newTableIds)) {
+                    syncTriggers()
                 }
             }
         }
     }
 
     fun removeOnTableChangedObserver(observer: OnTableChangedObserver) {
-        runBlocking {
-            observerMutex.withLock {
-                observerToObserverWithIdsMap.remove(observer)?.let { observer ->
-                    if (observingTableTracker.onRemoved(observer.tableIds)) {
-                        syncTriggers()
-                    }
+        synchronized(observerToObserverWithIdsMap) {
+            observerToObserverWithIdsMap.remove(observer)?.let { observer ->
+                if (observingTableTracker.onRemoved(observer.tableIds)) {
+                    syncTriggers()
                 }
             }
         }
@@ -104,22 +99,19 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
         checkForTableUpdates(db)
     }
 
-
     internal fun construct(db: DatabaseWrapper) {
-        runBlocking {
-            observerMutex.withLock {
-                if (initialized) {
-                    FlowLog.log(FlowLog.Level.W, "TableObserver already initialized")
-                    return@withLock
-                }
-                db.execSQL("PRAGMA temp_store = MEMORY;")
-                db.executeTransaction {
-                    db.execSQL("PRAGMA recursive_triggers='ON';")
-                    db.execSQL("CREATE TEMP TABLE $TABLE_OBSERVER_NAME($TABLE_ID_COLUMN_NAME INTEGER PRIMARY KEY, $INVALIDATED_COLUMN_NAME INTEGER NOT NULL DEFAULT 0);")
-                }
-                syncTriggers(db)
-                initialized = true
+        synchronized(this) {
+            if (initialized) {
+                FlowLog.log(FlowLog.Level.W, "TableObserver already initialized")
+                return@synchronized
             }
+            db.execSQL("PRAGMA temp_store = MEMORY;")
+            db.executeTransaction {
+                db.execSQL("PRAGMA recursive_triggers='ON';")
+                db.execSQL("CREATE TEMP TABLE $TABLE_OBSERVER_NAME($TABLE_ID_COLUMN_NAME INTEGER PRIMARY KEY, $INVALIDATED_COLUMN_NAME INTEGER NOT NULL DEFAULT 0);")
+            }
+            syncTriggers(db)
+            initialized = true
         }
     }
 
@@ -136,29 +128,25 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
         }
 
         try {
-            while (true) {
-                runBlocking {
-                    this@TableObserver.db.closeLock.withLock {
-                        val tablesToSync = observingTableTracker.tablesToSync ?: return@withLock
-                        db.executeTransaction {
-                            tablesToSync.forEachIndexed { index, operation ->
-                                // return value of Unit to make sure exhaustive "when".
-                                @Suppress("UNUSED_VARIABLE")
-                                val exhaustive = when (operation) {
-                                    ObservingTableTracker.Operation.Add -> observeTable(db, index)
-                                    ObservingTableTracker.Operation.Remove -> stopObservingTable(
-                                        db,
-                                        index
-                                    )
-                                    ObservingTableTracker.Operation.None -> {
-                                        // don't do anything
-                                    }
-                                }
+            this@TableObserver.db.closeLock.withLock {
+                val tablesToSync = observingTableTracker.tablesToSync ?: return@withLock
+                db.executeTransaction {
+                    tablesToSync.forEachIndexed { index, operation ->
+                        // return value of Unit to make sure exhaustive "when".
+                        @Suppress("UNUSED_VARIABLE")
+                        val exhaustive = when (operation) {
+                            ObservingTableTracker.Operation.Add -> observeTable(db, index)
+                            ObservingTableTracker.Operation.Remove -> stopObservingTable(
+                                db,
+                                index
+                            )
+                            ObservingTableTracker.Operation.None -> {
+                                // don't do anything
                             }
                         }
-                        observingTableTracker.syncCompleted()
                     }
                 }
+                observingTableTracker.syncCompleted()
             }
         } catch (e: Exception) {
             when (e) {
@@ -216,11 +204,9 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
             }
         }
         if (hasUpdatedTable) {
-            runBlocking {
-                observerMutex.withLock {
-                    observerToObserverWithIdsMap.forEach { (_, observer) ->
-                        observer.notifyTables(tableStatus)
-                    }
+            synchronized(observerToObserverWithIdsMap) {
+                observerToObserverWithIdsMap.forEach { (_, observer) ->
+                    observer.notifyTables(tableStatus)
                 }
             }
             // reset
