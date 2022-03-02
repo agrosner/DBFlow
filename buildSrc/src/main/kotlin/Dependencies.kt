@@ -39,6 +39,8 @@ object Dependencies {
 
     const val AtomicFU = "org.jetbrains.kotlinx:atomicfu:${Versions.AtomicFu}"
 
+    const val SQLiteJDBC = "org.xerial:sqlite-jdbc:3.36.0.3"
+
     object AndroidX {
         const val Annotations = "androidx.annotation:annotation:1.3.0"
         const val LiveData = "androidx.lifecycle:lifecycle-livedata:2.4.0"

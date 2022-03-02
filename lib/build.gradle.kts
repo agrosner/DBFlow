@@ -7,6 +7,7 @@ apply(plugin = "kotlinx-atomicfu")
 // project.ext.artifactId = bt_name
 kotlin {
     android()
+    jvm()
 
     sourceSets {
         all {
@@ -20,9 +21,18 @@ kotlin {
                 api(Dependencies.AtomicFU)
             }
         }
+        val javaPlatformMain by creating
+
         val androidMain by getting {
+            dependsOn(javaPlatformMain)
             dependencies {
                 api(Dependencies.CoroutinesAndroid)
+            }
+        }
+        val jvmMain by getting {
+            dependsOn(javaPlatformMain)
+            dependencies {
+                api(Dependencies.SQLiteJDBC)
             }
         }
     }

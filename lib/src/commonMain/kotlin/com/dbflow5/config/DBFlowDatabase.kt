@@ -23,7 +23,7 @@ import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.transaction.SuspendableTransaction
 import com.dbflow5.transaction.Transaction
 import com.dbflow5.transaction.TransactionDispatcher
-import kotlinx.atomicfu.locks.ReentrantLock
+import kotlinx.atomicfu.locks.reentrantLock
 import kotlinx.atomicfu.locks.withLock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -175,7 +175,7 @@ abstract class DBFlowDatabase : GeneratedDatabase {
 
     private var isOpened: Boolean = false
 
-    val closeLock = ReentrantLock()
+    val closeLock = reentrantLock()
 
     internal var writeAheadLoggingEnabled = false
 
