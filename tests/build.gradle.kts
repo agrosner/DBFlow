@@ -14,7 +14,7 @@ kapt {
 }
 
 android {
-
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     useLibrary("org.apache.http.legacy")
 
     compileSdk = Versions.TargetSdk
