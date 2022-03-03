@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("com.google.devtools.ksp") version Versions.KSP
     id("com.android.application")
-    kotlin("android")
+    kotlin("multiplatform")
     id("com.getkeepsafe.dexcount")
     kotlin("kapt")
 }
@@ -62,33 +62,54 @@ android {
     }
 }
 
-dependencies {
-    implementation("androidx.appcompat:appcompat:1.4.0")
-    implementation(project(":lib"))
-    implementation(project(":sqlcipher"))
-    implementation(project(":reactive-streams"))
-    implementation(project(":paging"))
-    implementation(project(":livedata"))
+kotlin {
+    jvm()
+    android()
 
-    //kaptAndroidTest(project(":processor"))
-    kspAndroidTest(project(":ksp"))
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(project(":lib"))
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                implementation("androidx.appcompat:appcompat:1.4.0")
+                implementation(project(":sqlcipher"))
+                implementation(project(":reactive-streams"))
+                implementation(project(":paging"))
+                implementation(project(":livedata"))
 
-    androidTestImplementation(kotlin("test"))
-    androidTestImplementation(Dependencies.JavaXAnnotation)
-    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0") {
-        exclude(group = "org.jetbrains.kotlin")
+            }
+        }
+        val androidTest by getting {
+            dependencies {
+                //kaptAndroidTest(project(":processor"))
+
+                implementation(kotlin("test"))
+                implementation(Dependencies.JavaXAnnotation)
+                implementation("org.mockito.kotlin:mockito-kotlin:4.0.0") {
+                    exclude(group = "org.jetbrains.kotlin")
+                }
+                implementation("org.mockito:mockito-core:4.3.1")
+                implementation("org.mockito:mockito-android:4.3.1")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.2")
+                implementation(Dependencies.JUnit)
+                implementation("androidx.test:core:1.4.0")
+                implementation("androidx.test:runner:1.4.0")
+                implementation("androidx.test:rules:1.4.0")
+                implementation("androidx.arch.core:core-testing:2.1.0")
+                implementation("androidx.test.ext:junit:1.1.3")
+                implementation(Dependencies.Turbine)
+            }
+        }
     }
-    androidTestImplementation("org.mockito:mockito-core:4.3.1")
-    androidTestImplementation("org.mockito:mockito-android:4.3.1")
+}
 
-    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.2")
-    androidTestImplementation(Dependencies.JUnit)
-    androidTestImplementation("androidx.test:core:1.4.0")
-    androidTestImplementation("androidx.test:runner:1.4.0")
-    androidTestImplementation("androidx.test:rules:1.4.0")
-    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation(Dependencies.Turbine)
+dependencies {
+    add("kspJvmTest", project(":ksp"))
+    add("kspAndroidAndroidTest", project(":ksp"))
 }
 
 dexcount {
