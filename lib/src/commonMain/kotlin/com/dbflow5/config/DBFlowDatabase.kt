@@ -375,7 +375,7 @@ internal suspend fun <DB : GeneratedDatabase, R> WritableDatabaseScope<DB>.execu
     return if (transaction is Transaction<*, *>) {
         transaction.run { this@executeTransactionForResult.execute() } as R
     } else {
-        db.executeTransactionOnDispatcher {
+        db.executeTransaction {
             transaction.run { this@executeTransactionForResult.execute() }
         }
     }
