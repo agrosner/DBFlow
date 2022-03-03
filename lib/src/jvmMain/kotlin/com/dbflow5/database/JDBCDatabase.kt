@@ -1,41 +1,40 @@
 package com.dbflow5.database
 
 import com.dbflow5.config.GeneratedDatabase
-import java.sql.Connection
 import java.sql.SQLException
 
 class JDBCDatabase internal constructor(
     override val generatedDatabase: GeneratedDatabase,
-    val connection: Connection,
+    private val db: JDBCConnectionWrapper,
 ) :
     DatabaseWrapper {
 
     override val isInTransaction: Boolean
         get() = TODO("Not yet implemented")
     override val isOpen: Boolean
-        get() = !connection.isClosed
+        get() = !db.isClosed
     override val version: Int
         get() = TODO("Not yet implemented")
 
     override fun execSQL(query: String) {
-        rethrowDBFlowException { connection.prepareStatement(query).execute() }
+        rethrowDBFlowException { db.prepareStatement(query).execute() }
     }
 
     override suspend fun <R> executeTransaction(
         dbFn: suspend DatabaseWrapper.() -> R
     ): R = try {
-        connection.autoCommit = false
+        db.beginTransaction()
         val result = dbFn()
-        connection.commit()
+        db.setTransactionSuccessful()
         result
     } catch (e: SQLException) {
-        connection.rollback()
+        db.rollback()
         throw e
     }
 
     override fun compileStatement(rawQuery: String): JDBCDatabaseStatement =
         JDBCDatabaseStatement.from(
-            connection.prepareStatement(rawQuery)
+            db.prepareStatement(rawQuery)
         )
 
     override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor = rethrowDBFlowException {

@@ -1,7 +1,6 @@
 package com.dbflow5.database
 
 import com.dbflow5.config.GeneratedDatabase
-import java.sql.DriverManager
 
 class JDBCOpenHelper(
     private val generatedDatabase: GeneratedDatabase,
@@ -16,31 +15,63 @@ class JDBCOpenHelper(
     ),
 ) : OpenHelper, OpenHelperDelegate by databaseHelperDelegate {
 
-    private val connection by lazy {
-        DriverManager.getConnection("jdbc:sqlite:${generatedDatabase.openHelperName ?: "memory:"}")
+    private val connection = JDBCConnection(
+        name = generatedDatabase.openHelperName,
+        version = generatedDatabase.version,
+        callback = object : JDBCConnectionCallback {
+            override fun onOpen(db: JDBCConnectionWrapper) {
+                databaseHelperDelegate.onOpen(
+                    JDBCDatabase(generatedDatabase, db)
+                )
+            }
+
+            override fun onCreate(db: JDBCConnectionWrapper) {
+                databaseHelperDelegate.onCreate(
+                    JDBCDatabase(generatedDatabase, db)
+                )
+            }
+
+            override fun onUpgrade(db: JDBCConnectionWrapper, oldVersion: Int, newVersion: Int) {
+                databaseHelperDelegate.onUpgrade(
+                    JDBCDatabase(generatedDatabase, db),
+                    oldVersion, newVersion
+                )
+            }
+
+            override fun onDowngrade(db: JDBCConnectionWrapper, oldVersion: Int, newVersion: Int) {
+                databaseHelperDelegate.onDowngrade(
+                    JDBCDatabase(generatedDatabase, db),
+                    oldVersion, newVersion,
+                )
+            }
+
+            override fun onConfigure(db: JDBCConnectionWrapper) {
+                databaseHelperDelegate.onConfigure(
+                    JDBCDatabase(generatedDatabase, db)
+                )
+            }
+        }
+    )
+
+    override val database: JDBCDatabase by DatabasePropertyDelegate {
+        JDBCDatabase(generatedDatabase, connection.writableDatabase)
     }
 
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
-        connection.prepareStatement(
-            if (enabled) {
-                "PRAGMA journal_mode=WAL"
-            } else {
-                "PRAGMA journal_mode=DELETE"
-            }
-        ).execute()
+        connection.setWriteAheadLoggingEnabled(enabled)
     }
 
     override fun setDatabaseListener(callback: DatabaseCallback?) {
         databaseHelperDelegate.setDatabaseHelperListener(callback)
     }
 
+
     override fun closeDB() {
         connection.close()
     }
 
     override fun deleteDB() {
-        connection.createStatement()
-            .executeUpdate("DROP DATABASE ${generatedDatabase.databaseName}")
+        connection.delete()
     }
 }
 

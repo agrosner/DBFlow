@@ -1,6 +1,5 @@
 package com.dbflow5.database
 
-import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import com.dbflow5.config.GeneratedDatabase
@@ -11,7 +10,7 @@ import com.dbflow5.config.GeneratedDatabase
 class AndroidDatabase internal constructor(
     val database: SQLiteDatabase,
     override val generatedDatabase: GeneratedDatabase,
-) : AndroidDatabaseWrapper {
+) : DatabaseWrapper {
 
     override fun execSQL(query: String) {
         rethrowDBFlowException { database.execSQL(query) }
@@ -23,7 +22,7 @@ class AndroidDatabase internal constructor(
     override val isOpen: Boolean
         get() = database.isOpen
 
-    override suspend fun <R> DatabaseWrapper.executeTransaction(dbFn: suspend DatabaseWrapper.() -> R): R {
+    override suspend fun <R> executeTransaction(dbFn: suspend DatabaseWrapper.() -> R): R {
         try {
             database.beginTransaction()
             val result = dbFn()
@@ -43,53 +42,6 @@ class AndroidDatabase internal constructor(
 
     override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
         rethrowDBFlowException { AndroidFlowCursor(database.rawQuery(query, selectionArgs)) }
-
-    override fun updateWithOnConflict(
-        tableName: String,
-        contentValues: ContentValues,
-        where: String?,
-        whereArgs: Array<String>?,
-        conflictAlgorithm: Int
-    ): Long = rethrowDBFlowException {
-        database.updateWithOnConflict(tableName, contentValues, where, whereArgs, conflictAlgorithm)
-            .toLong()
-    }
-
-    override fun insertWithOnConflict(
-        tableName: String,
-        nullColumnHack: String?,
-        values: ContentValues,
-        sqLiteDatabaseAlgorithmInt: Int
-    ): Long = rethrowDBFlowException {
-        database.insertWithOnConflict(tableName, nullColumnHack, values, sqLiteDatabaseAlgorithmInt)
-    }
-
-    override fun query(
-        tableName: String,
-        columns: Array<String>?,
-        selection: String?,
-        selectionArgs: Array<String>?,
-        groupBy: String?,
-        having: String?,
-        orderBy: String?
-    ): FlowCursor = rethrowDBFlowException {
-        AndroidFlowCursor(
-            database.query(
-                tableName,
-                columns,
-                selection,
-                selectionArgs,
-                groupBy,
-                having,
-                orderBy
-            )
-        )
-    }
-
-    override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int =
-        rethrowDBFlowException {
-            database.delete(tableName, whereClause, whereArgs)
-        }
 
     companion object {
 
