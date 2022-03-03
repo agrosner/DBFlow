@@ -38,6 +38,19 @@ interface FlowCursor : Closeable, Iterable<FlowCursor> {
     }
 }
 
+inline fun <T> FlowCursor.getOrDefault(
+    index: Int,
+    defValue: T,
+    getValue: FlowCursor.() -> T,
+): T {
+    return if (index != FlowCursor.COLUMN_NOT_FOUND && !isNull(index)) {
+        this.getValue()
+    } else {
+        defValue
+    }
+}
+
+
 /**
  * Basic implementation that enables [Iterator] behavior.
  */

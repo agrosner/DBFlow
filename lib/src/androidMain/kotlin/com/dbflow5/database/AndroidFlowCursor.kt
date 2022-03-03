@@ -14,18 +14,6 @@ class AndroidFlowCursor(private val cursor: Cursor) : CursorWrapper(cursor),
 
     override val size: Int = cursor.count
 
-    private inline fun <T> FlowCursor.getOrDefault(
-        index: Int,
-        defValue: T,
-        getValue: FlowCursor.() -> T,
-    ): T {
-        return if (index != FlowCursor.COLUMN_NOT_FOUND && !isNull(index)) {
-            this.getValue()
-        } else {
-            defValue
-        }
-    }
-
     override fun getString(index: Int, defValue: String): String =
         getOrDefault(index, defValue) { cursor.getString(index) }
 

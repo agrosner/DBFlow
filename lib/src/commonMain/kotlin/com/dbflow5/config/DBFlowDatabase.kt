@@ -300,17 +300,14 @@ abstract class DBFlowDatabase : GeneratedDatabase {
 
     override fun execSQL(query: String) = writableDatabase.execSQL(query)
 
-    override fun beginTransaction() {
+    override suspend fun <R> executeTransaction(dbFn: suspend DatabaseWrapper.() -> R): R {
         tableObserver.syncTriggers(writableDatabase)
-        writableDatabase.beginTransaction()
-    }
-
-    override fun setTransactionSuccessful() = writableDatabase.setTransactionSuccessful()
-
-    override fun endTransaction() {
-        writableDatabase.endTransaction()
-        if (!isInTransaction) {
-            tableObserver.enqueueTableUpdateCheck()
+        return writableDatabase.executeTransaction {
+            dbFn()
+        }.also {
+            if (!isInTransaction) {
+                tableObserver.enqueueTableUpdateCheck()
+            }
         }
     }
 
@@ -319,26 +316,6 @@ abstract class DBFlowDatabase : GeneratedDatabase {
 
     override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
         writableDatabase.rawQuery(query, selectionArgs)
-
-    override fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int =
-        writableDatabase.delete(tableName, whereClause, whereArgs)
-
-    override fun query(
-        tableName: String,
-        columns: Array<String>?,
-        selection: String?,
-        selectionArgs: Array<String>?,
-        groupBy: String?, having: String?,
-        orderBy: String?
-    ): FlowCursor = writableDatabase.query(
-        tableName,
-        columns,
-        selection,
-        selectionArgs,
-        groupBy,
-        having,
-        orderBy
-    )
 
     override val isInTransaction: Boolean
         get() = writableDatabase.isInTransaction
@@ -378,7 +355,7 @@ fun <DB : GeneratedDatabase, R : Any?> DB.beginTransactionAsync(transaction: Sus
 /**
  * Runs the transaction within the [TransactionDispatcher]
  */
-suspend fun <DB : GeneratedDatabase, R> DB.executeTransaction(transaction: SuspendableTransaction<DB, R>): R =
+suspend fun <DB : GeneratedDatabase, R> DB.executeTransactionOnDispatcher(transaction: SuspendableTransaction<DB, R>): R =
     transactionDispatcher.executeTransaction(this, transaction)
 
 /**
@@ -386,7 +363,7 @@ suspend fun <DB : GeneratedDatabase, R> DB.executeTransaction(transaction: Suspe
  */
 fun <DB : GeneratedDatabase, R> DB.enqueueTransaction(transaction: SuspendableTransaction<DB, R>): Job {
     return enqueueScope.launch {
-        executeTransaction(transaction)
+        executeTransactionOnDispatcher(transaction)
     }
 }
 
@@ -397,13 +374,10 @@ internal suspend fun <DB : GeneratedDatabase, R> WritableDatabaseScope<DB>.execu
     // if we use transaction, let the class define if we want DB transaction.
     return if (transaction is Transaction<*, *>) {
         transaction.run { this@executeTransactionForResult.execute() } as R
-    } else try {
-        db.beginTransaction()
-        val result = transaction.run { this@executeTransactionForResult.execute() }
-        db.setTransactionSuccessful()
-        result
-    } finally {
-        db.endTransaction()
+    } else {
+        db.executeTransactionOnDispatcher {
+            transaction.run { this@executeTransactionForResult.execute() }
+        }
     }
 }
 
@@ -413,7 +387,7 @@ internal suspend fun <DB : GeneratedDatabase, R> WritableDatabaseScope<DB>.execu
  */
 suspend inline fun <reified DB : GeneratedDatabase, R> DB.writableTransaction(
     crossinline fn: suspend WritableDatabaseScope<DB>.() -> R
-): R = executeTransaction { fn() }
+): R = executeTransactionOnDispatcher { fn() }
 
 /**
  * Runs the [fn] block within the [ReadableDatabaseScope] asynchronously using coroutines.
@@ -421,4 +395,4 @@ suspend inline fun <reified DB : GeneratedDatabase, R> DB.writableTransaction(
  */
 suspend inline fun <reified DB : GeneratedDatabase, R> DB.readableTransaction(
     crossinline fn: suspend ReadableDatabaseScope<DB>.() -> R
-): R = executeTransaction { fn() }
+): R = executeTransactionOnDispatcher { fn() }

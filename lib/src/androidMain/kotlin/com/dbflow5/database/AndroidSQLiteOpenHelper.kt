@@ -11,9 +11,9 @@ import com.dbflow5.config.GeneratedDatabase
 class AndroidSQLiteOpenHelper(
     private val context: Context,
     private val generatedDatabase: GeneratedDatabase,
-    listener: DatabaseCallback?,
+    callback: DatabaseCallback?,
     private val databaseHelperDelegate: DatabaseHelperDelegate = DatabaseHelperDelegate(
-        listener,
+        callback,
         generatedDatabase,
         helper = DatabaseHelper(
             AndroidMigrationFileHelper(context),

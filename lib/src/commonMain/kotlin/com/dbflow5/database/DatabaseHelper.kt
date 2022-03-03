@@ -28,39 +28,43 @@ class DatabaseHelper(
 
     override fun onCreate(db: DatabaseWrapper) {
         // table creations done first to get tables in db.
-        executeTableCreations(db)
+        runBlocking {
+            executeTableCreations(db)
 
-        // execute any initial migrations when DB is first created.
-        // use the databaseversion of the definition, since onupgrade is not called oncreate on a version 0
-        // then SQLCipher and Android set the DB to that version you choose.
-        MigrationScopeImpl(db).executeMigrations(db, -1, generatedDatabase.databaseVersion)
+            // execute any initial migrations when DB is first created.
+            // use the databaseversion of the definition, since onupgrade is not called oncreate on a version 0
+            // then SQLCipher and Android set the DB to that version you choose.
+            MigrationScopeImpl(db).executeMigrations(db, -1, generatedDatabase.databaseVersion)
 
-        // views reflect current db state.
-        executeViewCreations(db)
+            // views reflect current db state.
+            executeViewCreations(db)
+        }
     }
 
     override fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
         // create new tables if not previously created
-        executeTableCreations(db)
+        runBlocking {
+            executeTableCreations(db)
 
-        // migrations run to get to DB newest version. adjusting any existing tables to new version
-        MigrationScopeImpl(db).executeMigrations(db, oldVersion, newVersion)
+            // migrations run to get to DB newest version. adjusting any existing tables to new version
+            MigrationScopeImpl(db).executeMigrations(db, oldVersion, newVersion)
 
-        // views reflect current db state.
-        executeViewCreations(db)
+            // views reflect current db state.
+            executeViewCreations(db)
+        }
     }
 
     /**
      * If foreign keys are supported, we turn it on the DB specified.
      */
-    protected fun checkForeignKeySupport(database: DatabaseWrapper) {
+    private fun checkForeignKeySupport(database: DatabaseWrapper) {
         if (generatedDatabase.isForeignKeysSupported) {
             database.execSQL("PRAGMA foreign_keys=ON;")
             FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.")
         }
     }
 
-    protected fun executeTableCreations(database: DatabaseWrapper) {
+    private suspend fun executeTableCreations(database: DatabaseWrapper) {
         database.executeTransaction {
             this@DatabaseHelper.generatedDatabase.tables
                 .asSequence()
@@ -73,7 +77,7 @@ class DatabaseHelper(
     /**
      * This method executes CREATE TABLE statements as well as CREATE VIEW on the database passed.
      */
-    protected fun executeViewCreations(database: DatabaseWrapper) {
+    private suspend fun executeViewCreations(database: DatabaseWrapper) {
         database.executeTransaction {
             this@DatabaseHelper.generatedDatabase.views
                 .asSequence()
@@ -98,7 +102,7 @@ class DatabaseHelper(
         }
     }
 
-    protected fun MigrationScope.executeMigrations(
+    private suspend fun MigrationScope.executeMigrations(
         db: DatabaseWrapper,
         oldVersion: Int, newVersion: Int
     ) {
@@ -132,7 +136,7 @@ class DatabaseHelper(
                 }
 
                 migrationMap[i]?.forEach { migration ->
-                    runBlocking { migration.apply { migrate(db) } }
+                    migration.apply { migrate(db) }
                     FlowLog.log(
                         FlowLog.Level.I,
                         "${migration::class} executed successfully."

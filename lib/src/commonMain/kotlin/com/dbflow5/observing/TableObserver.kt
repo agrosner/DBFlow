@@ -7,7 +7,6 @@ import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.SQLiteException
-import com.dbflow5.database.executeTransaction
 import com.dbflow5.mpp.runBlocking
 import com.dbflow5.mpp.use
 import com.dbflow5.query.TriggerMethod
@@ -106,9 +105,11 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
                 return@synchronized
             }
             db.execSQL("PRAGMA temp_store = MEMORY;")
-            db.executeTransaction {
-                db.execSQL("PRAGMA recursive_triggers='ON';")
-                db.execSQL("CREATE TEMP TABLE $TABLE_OBSERVER_NAME($TABLE_ID_COLUMN_NAME INTEGER PRIMARY KEY, $INVALIDATED_COLUMN_NAME INTEGER NOT NULL DEFAULT 0);")
+            runBlocking {
+                db.executeTransaction {
+                    db.execSQL("PRAGMA recursive_triggers='ON';")
+                    db.execSQL("CREATE TEMP TABLE $TABLE_OBSERVER_NAME($TABLE_ID_COLUMN_NAME INTEGER PRIMARY KEY, $INVALIDATED_COLUMN_NAME INTEGER NOT NULL DEFAULT 0);")
+                }
             }
             syncTriggers(db)
             initialized = true
@@ -130,18 +131,20 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
         try {
             this@TableObserver.db.closeLock.withLock {
                 val tablesToSync = observingTableTracker.tablesToSync ?: return@withLock
-                db.executeTransaction {
-                    tablesToSync.forEachIndexed { index, operation ->
-                        // return value of Unit to make sure exhaustive "when".
-                        @Suppress("UNUSED_VARIABLE")
-                        val exhaustive = when (operation) {
-                            ObservingTableTracker.Operation.Add -> observeTable(db, index)
-                            ObservingTableTracker.Operation.Remove -> stopObservingTable(
-                                db,
-                                index
-                            )
-                            ObservingTableTracker.Operation.None -> {
-                                // don't do anything
+                runBlocking {
+                    db.executeTransaction {
+                        tablesToSync.forEachIndexed { index, operation ->
+                            // return value of Unit to make sure exhaustive "when".
+                            @Suppress("UNUSED_VARIABLE")
+                            val exhaustive = when (operation) {
+                                ObservingTableTracker.Operation.Add -> observeTable(db, index)
+                                ObservingTableTracker.Operation.Remove -> stopObservingTable(
+                                    db,
+                                    index
+                                )
+                                ObservingTableTracker.Operation.None -> {
+                                    // don't do anything
+                                }
                             }
                         }
                     }

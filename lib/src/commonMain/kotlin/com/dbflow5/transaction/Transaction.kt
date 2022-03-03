@@ -3,8 +3,7 @@ package com.dbflow5.transaction
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.enqueueTransaction
-import com.dbflow5.config.executeTransaction
-import com.dbflow5.database.executeTransaction
+import com.dbflow5.config.executeTransactionOnDispatcher
 import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.Job
 import kotlin.jvm.JvmName
@@ -64,7 +63,7 @@ data class Transaction<DB : GeneratedDatabase, R : Any?>(
      * Suspends until its completion.
      */
     suspend fun execute() = apply {
-        databaseDefinition.executeTransaction(this)
+        databaseDefinition.executeTransactionOnDispatcher(this)
     }
 
     /**
@@ -90,7 +89,7 @@ data class Transaction<DB : GeneratedDatabase, R : Any?>(
         ready?.invoke(this@Transaction)
 
         val result: R = if (shouldRunInTransaction) {
-            db.executeTransaction { transaction.run { this@execute.execute() } }
+            db.executeTransactionOnDispatcher { transaction.run { this@execute.execute() } }
         } else {
             transaction.run { this@execute.execute() }
         }

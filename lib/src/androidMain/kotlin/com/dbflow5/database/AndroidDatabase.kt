@@ -23,16 +23,15 @@ class AndroidDatabase internal constructor(
     override val isOpen: Boolean
         get() = database.isOpen
 
-    override fun beginTransaction() {
-        database.beginTransaction()
-    }
-
-    override fun setTransactionSuccessful() {
-        database.setTransactionSuccessful()
-    }
-
-    override fun endTransaction() {
-        database.endTransaction()
+    override suspend fun <R> DatabaseWrapper.executeTransaction(dbFn: suspend DatabaseWrapper.() -> R): R {
+        try {
+            database.beginTransaction()
+            val result = dbFn()
+            database.setTransactionSuccessful()
+            return result
+        } finally {
+            database.endTransaction()
+        }
     }
 
     override val version: Int

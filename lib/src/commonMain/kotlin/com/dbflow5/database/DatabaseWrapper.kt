@@ -25,20 +25,9 @@ interface DatabaseWrapper {
     fun execSQL(query: String)
 
     /**
-     * Begin a transaction.
+     * Executes a transaction.
      */
-    fun beginTransaction()
-
-    /**
-     * Set when a transaction complete successfully to preserve db state.
-     */
-    fun setTransactionSuccessful()
-
-    /**
-     * Always called whenever transaction should complete. If [setTransactionSuccessful] is not called,
-     * db state will not be preserved.
-     */
-    fun endTransaction()
+    suspend fun <R> executeTransaction(dbFn: suspend DatabaseWrapper.() -> R): R
 
     /**
      * For a given query, return a [DatabaseStatement].
@@ -57,24 +46,4 @@ interface DatabaseWrapper {
      */
     fun rawQuery(query: String, selectionArgs: Array<String>? = null): FlowCursor
 
-    fun query(
-        tableName: String, columns: Array<String>?, selection: String?,
-        selectionArgs: Array<String>?, groupBy: String?,
-        having: String?, orderBy: String?
-    ): FlowCursor
-
-    fun delete(tableName: String, whereClause: String?, whereArgs: Array<String>?): Int
-
 }
-
-inline fun <R> DatabaseWrapper.executeTransaction(dbFn: DatabaseWrapper.() -> R): R {
-    try {
-        beginTransaction()
-        val result = dbFn()
-        setTransactionSuccessful()
-        return result
-    } finally {
-        endTransaction()
-    }
-}
-
