@@ -1,10 +1,11 @@
-package com.dbflow5.sql.language
+package com.dbflow5.test.sql.language
 
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
-import com.dbflow5.models.SimpleModel_Table
+import com.dbflow5.test.SimpleModel_Table
+import com.dbflow5.test.CaseModel_Table
 import com.dbflow5.query.case
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CaseTest {
@@ -26,7 +27,7 @@ class CaseTest {
 
     @Test
     fun searchedCaseTest() {
-        val case = case<String?>()
+        val case = case<String>()
             .whenever(SimpleModel_Table.name.eq("USA"), then = "Domestic")
             .whenever(SimpleModel_Table.name.eq("CA"), then = "Canada")
             .`else`("Foreign")

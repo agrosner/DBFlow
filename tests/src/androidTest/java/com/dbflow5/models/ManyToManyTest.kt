@@ -6,7 +6,7 @@ import com.dbflow5.artistSongAdapter
 import com.dbflow5.songAdapter
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
 
 class ManyToManyTest {
 

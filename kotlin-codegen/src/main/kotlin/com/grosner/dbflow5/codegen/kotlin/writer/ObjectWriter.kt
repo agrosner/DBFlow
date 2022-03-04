@@ -20,6 +20,7 @@ import com.dbflow5.codegen.shared.properties.DatabaseHolderProperties
 import com.dbflow5.codegen.shared.validation.ObjectValidatorMap
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.NameAllocator
+import com.squareup.kotlinpoet.asClassName
 
 /**
  * Description:
@@ -80,7 +81,9 @@ class ObjectWriter(
             .mapNotNull { it.properties?.typeConverterClassName }
             .filter { it != ClassNames.TypeConverter }
             .forEach { typeConverterName ->
-                typeConverterCache.putTypeConverter(typeConverterName, resolver)
+                if (typeConverterName != Any::class.asClassName()) {
+                    typeConverterCache.putTypeConverter(typeConverterName, resolver)
+                }
             }
 
         val holderModel = DatabaseHolderModel(

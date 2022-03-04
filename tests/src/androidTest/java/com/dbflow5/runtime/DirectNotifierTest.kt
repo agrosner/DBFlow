@@ -5,7 +5,7 @@ import app.cash.turbine.test
 import com.dbflow5.TestDatabase_Database
 import com.dbflow5.test.TestTransactionDispatcherFactory
 import com.dbflow5.models.SimpleModel
-import com.dbflow5.models.SimpleModel_Table
+import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.query.delete
 import com.dbflow5.query.insert
 import com.dbflow5.query.update
@@ -13,7 +13,7 @@ import com.dbflow5.simpleModelAdapter
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
 

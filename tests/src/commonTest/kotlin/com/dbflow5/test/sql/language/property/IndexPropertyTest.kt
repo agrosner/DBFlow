@@ -1,17 +1,15 @@
-package com.dbflow5.sql.language.property
+package com.dbflow5.test.sql.language.property
 
-import com.dbflow5.TestDatabase_Database
+import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.dropIndex
-import com.dbflow5.models.SimpleModel_Table
+import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.query.operations.indexProperty
 import com.dbflow5.test.DatabaseTestRule
-import org.junit.Assert.assertEquals
-import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class IndexPropertyTest {
 
-    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

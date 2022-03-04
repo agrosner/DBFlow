@@ -122,22 +122,22 @@ class TypeConverterCache(
     companion object {
 
         private val jvmPlatforms = listOf("JVM")
-        private val allPlatforms = listOf("JVM", "JS", "NATIVE")
+        private val allPlatforms = listOf("ALL")
 
         /**
          * Map of class to supported platforms. If empty, we assume all
          * platforms.
          */
         private val defaultConverterMap = mapOf<KClass<*>, List<String>>(
+            BooleanConverter::class to allPlatforms,
+            CharConverter::class to allPlatforms,
+            BlobConverter::class to allPlatforms,
             CalendarConverter::class to jvmPlatforms,
             BigDecimalConverter::class to jvmPlatforms,
             BigIntegerConverter::class to jvmPlatforms,
             DateConverter::class to jvmPlatforms,
             SqlDateConverter::class to jvmPlatforms,
-            BooleanConverter::class to allPlatforms,
             UUIDConverter::class to jvmPlatforms,
-            CharConverter::class to allPlatforms,
-            BlobConverter::class to allPlatforms,
         )
     }
 }
@@ -154,7 +154,7 @@ fun extractTypeConverter(
     } ?: throw ValidationException(
         "Error typeConverter super for $typeName not found. Ensure your class directly " +
             "extends TypeConverter. Subclass hierachies are not allowed!" +
-            "${declaration.superTypes.toList()}"
+            " found: ${declaration.superTypes.toList()}"
     )
     return typeConverterSuper
 }

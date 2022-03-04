@@ -2,7 +2,7 @@ package com.dbflow5
 
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
 
 class TestForeignKeyDatabaseTest {
 

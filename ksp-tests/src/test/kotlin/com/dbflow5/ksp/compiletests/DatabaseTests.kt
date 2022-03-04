@@ -2,7 +2,7 @@ package com.dbflow5.ksp.compiletests
 
 import com.dbflow5.ksp.compiletests.sourcefiles.Source
 import org.intellij.lang.annotations.Language
-import org.junit.Test
+import kotlin.test.Test
 
 /**
  * Description:

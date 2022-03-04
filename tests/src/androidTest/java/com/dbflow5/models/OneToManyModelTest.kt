@@ -5,7 +5,7 @@ import com.dbflow5.oneToManyBaseModelAdapter
 import com.dbflow5.oneToManyModelAdapter
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
 
 class OneToManyModelTest {
 

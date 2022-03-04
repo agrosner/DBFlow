@@ -5,7 +5,7 @@ import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertTrue
 import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
 
 /**
  * Description: Asserts our prepackaged DB loads.

@@ -1,10 +1,10 @@
-package com.dbflow5.sql.language
+package com.dbflow5.test.sql.language
 
 import com.dbflow5.assertEquals
-import com.dbflow5.models.TwoColumnModel_Table
+import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.OperatorGroup
-import org.junit.Test
+import kotlin.test.Test
 
 class OperatorGroupTest {
 

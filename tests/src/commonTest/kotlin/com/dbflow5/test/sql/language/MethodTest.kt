@@ -1,6 +1,6 @@
-package com.dbflow5.sql.language
+package com.dbflow5.test.sql.language
 
-import com.dbflow5.models.TwoColumnModel_Table
+import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.query.methods.avg
 import com.dbflow5.query.methods.cast
 import com.dbflow5.query.methods.count
@@ -17,7 +17,7 @@ import com.dbflow5.query.methods.strftime
 import com.dbflow5.query.methods.sum
 import com.dbflow5.query.methods.total
 import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
 
 class MethodTest {
 

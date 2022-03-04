@@ -4,4 +4,7 @@ import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 
 @Table
-data class SimpleModel(@PrimaryKey val name: String)
+data class CaseModel(
+    @PrimaryKey val id: Int,
+    val country: String,
+)

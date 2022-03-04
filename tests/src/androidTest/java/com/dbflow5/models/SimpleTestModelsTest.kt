@@ -4,7 +4,7 @@ import com.dbflow5.TestDatabase_Database
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.typeConverterModelAdapter
 import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
 
 /**
  * Description:

@@ -1,20 +1,18 @@
-package com.dbflow5.sql.language
+package com.dbflow5.test.sql.language
 
-import com.dbflow5.TestDatabase_Database
-import com.dbflow5.models.SimpleModel_Table
-import com.dbflow5.models.TwoColumnModel_Table
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.SimpleModel_Table
+import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.query.createIndexOn
-import com.dbflow5.simpleModelAdapter
+import com.dbflow5.test.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
-import com.dbflow5.twoColumnModelAdapter
+import com.dbflow5.test.twoColumnModelAdapter
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
-import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class IndexTest {
 
-    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

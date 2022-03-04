@@ -1,11 +1,11 @@
-package com.dbflow5.sql.language
+package com.dbflow5.test.sql.language
 
 import com.dbflow5.annotation.Collate
 import com.dbflow5.assertEquals
-import com.dbflow5.models.SimpleModel_Table
+import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.query.nameAlias
 import com.dbflow5.query.orderBy
-import org.junit.Test
+import kotlin.test.Test
 
 class OrderByTest {
 

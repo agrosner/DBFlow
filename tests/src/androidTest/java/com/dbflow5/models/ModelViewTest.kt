@@ -6,7 +6,7 @@ import com.dbflow5.authorViewAdapter
 import com.dbflow5.javaModelViewAdapter
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
 
 class ModelViewTest {
 

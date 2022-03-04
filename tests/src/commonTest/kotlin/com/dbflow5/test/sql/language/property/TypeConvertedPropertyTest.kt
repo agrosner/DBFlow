@@ -1,14 +1,13 @@
-package com.dbflow5.sql.language.property
+package com.dbflow5.test.sql.language.property
 
-import com.dbflow5.TestDatabase_Database
-import com.dbflow5.models.CustomType
-import com.dbflow5.models.Difficulty
-import com.dbflow5.models.EnumTypeConverterModel_Table
-import com.dbflow5.models.TypeConverterModel_Table
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.CustomType
+import com.dbflow5.test.Difficulty
+import com.dbflow5.test.EnumTypeConverterModel_Table
+import com.dbflow5.test.TypeConverterModel_Table
 import com.dbflow5.test.DatabaseTestRule
-import org.junit.Assert.assertEquals
-import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class TypeConvertedPropertyTest {
 

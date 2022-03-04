@@ -10,7 +10,7 @@ import com.dbflow5.liveDataModelAdapter
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.mock
 

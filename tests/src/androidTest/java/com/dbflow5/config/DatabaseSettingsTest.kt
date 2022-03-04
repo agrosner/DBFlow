@@ -9,7 +9,7 @@ import com.dbflow5.database.config.create
 import com.dbflow5.database.transaction.TransactionDispatcherFactory
 import com.dbflow5.transaction.TransactionDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Test
+import kotlin.test.Test
 import org.mockito.kotlin.mock
 import kotlin.test.assertEquals
 

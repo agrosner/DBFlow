@@ -18,7 +18,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertIs
 
 class ContentObserverTest {

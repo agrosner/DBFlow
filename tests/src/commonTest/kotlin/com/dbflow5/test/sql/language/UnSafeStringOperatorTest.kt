@@ -1,13 +1,13 @@
-package com.dbflow5.sql.language
+package com.dbflow5.test.sql.language
 
-import com.dbflow5.TestDatabase_Database
+import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.assertEquals
 import com.dbflow5.query.operations.UnSafeStringOperator
 import com.dbflow5.query.select
-import com.dbflow5.simpleModelAdapter
+import com.dbflow5.test.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
 
 class UnSafeStringOperatorTest {
 

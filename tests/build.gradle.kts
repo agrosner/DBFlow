@@ -60,7 +60,7 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            kotlin.srcDir("build/generated/ksp/commonMain/kotlin")
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
                 implementation(project(":lib"))
             }
@@ -122,7 +122,6 @@ dependencies {
     val ksp = project(":ksp")
     val configs = listOf(
         "kspMetadata",
-        "kspJvm", "kspJvmTest", "kspAndroidTest", "kspAndroid", "kspAndroidAndroidTest"
     )
     configs.forEach { config -> add(config, ksp) }
 }

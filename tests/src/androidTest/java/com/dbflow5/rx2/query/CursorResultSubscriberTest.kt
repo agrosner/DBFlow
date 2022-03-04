@@ -12,7 +12,7 @@ import com.dbflow5.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class CursorResultSubscriberTest {

@@ -8,7 +8,7 @@ import com.dbflow5.annotation.Table
 import com.dbflow5.tempModelAdapter
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
 
 
 @Table(createWithDatabase = false, temporary = true)

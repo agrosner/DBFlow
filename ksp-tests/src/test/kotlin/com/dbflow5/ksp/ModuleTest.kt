@@ -2,7 +2,7 @@ package com.dbflow5.ksp
 
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
 import org.koin.core.context.stopKoin
 import org.koin.test.KoinTest
 import org.koin.test.KoinTestRule

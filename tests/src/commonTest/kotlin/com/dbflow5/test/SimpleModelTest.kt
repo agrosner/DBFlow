@@ -18,7 +18,7 @@ class SimpleModelTest {
     @Test
     fun canSaveSimpleModel() = dbRule.runTest {
         val model = SimpleModel(
-            id = "5"
+            name = "5"
         )
         simpleModelAdapter.save(model)
     }

@@ -5,7 +5,12 @@ import com.dbflow5.annotation.Database
 import com.dbflow5.config.DBFlowDatabase
 
 @Database(
-    tables = [SimpleModel::class],
+    tables = [
+        SimpleModel::class,
+        CaseModel::class,
+        TwoColumnModel::class,
+        EnumTypeConverterModel::class,
+    ],
     version = 1,
 )
 abstract class TestDatabase : DBFlowDatabase() {

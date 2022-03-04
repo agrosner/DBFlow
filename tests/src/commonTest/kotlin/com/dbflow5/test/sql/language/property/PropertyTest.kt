@@ -1,8 +1,6 @@
-package com.dbflow5.sql.language.property
+package com.dbflow5.test.sql.language.property
 
-import com.dbflow5.TestDatabase_Database
-import com.dbflow5.assertEquals
-import com.dbflow5.models.SimpleModel
+import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.nameAlias
 import com.dbflow5.query.operations.PropertyStart
@@ -12,15 +10,15 @@ import com.dbflow5.query.operations.like
 import com.dbflow5.query.operations.match
 import com.dbflow5.query.operations.notLike
 import com.dbflow5.query.operations.property
-import com.dbflow5.simpleModelAdapter
+import com.dbflow5.test.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
-import org.junit.Assert.assertEquals
-import org.junit.Rule
-import org.junit.Test
+import com.dbflow5.test.SimpleModel
+import com.dbflow5.test.assertEquals
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class PropertyTest {
 
-    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

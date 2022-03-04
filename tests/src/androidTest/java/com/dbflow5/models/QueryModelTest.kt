@@ -9,7 +9,7 @@ import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Rule
-import org.junit.Test
+import kotlin.test.Test
 
 /**
  * Description: Tests to ensure we can load a Query model from the DB

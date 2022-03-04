@@ -13,7 +13,7 @@ import com.dbflow5.query.operations.tableNameLiteral
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import kotlinx.coroutines.test.runTest
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue

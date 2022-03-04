@@ -1,8 +1,7 @@
-package com.dbflow5.sql.language
+package com.dbflow5.test.sql.language
 
-import com.dbflow5.TestDatabase_Database
-import com.dbflow5.assertEquals
-import com.dbflow5.models.TwoColumnModel_Table
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.query.ColumnValue
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.insert
@@ -14,12 +13,12 @@ import com.dbflow5.query.orIgnore
 import com.dbflow5.query.orReplace
 import com.dbflow5.query.orRollback
 import com.dbflow5.query.select
-import com.dbflow5.simpleModelAdapter
+import com.dbflow5.test.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
-import com.dbflow5.twoColumnModelAdapter
-import org.junit.Assert.assertEquals
-import org.junit.Rule
-import org.junit.Test
+import com.dbflow5.test.assertEquals
+import com.dbflow5.test.twoColumnModelAdapter
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class InsertTest {
 

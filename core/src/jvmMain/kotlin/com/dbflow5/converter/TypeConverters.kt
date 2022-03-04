@@ -4,16 +4,13 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.sql.Time
 import java.sql.Timestamp
-import java.util.Calendar
-import java.util.Date
-import java.util.GregorianCalendar
-import java.util.UUID
+import java.util.*
 
 /**
  * Description: Defines how we store and retrieve a [java.sql.Date]
  */
 @com.dbflow5.annotation.TypeConverter(allowedSubtypes = [(Time::class), (Timestamp::class)])
-class SqlDateConverter : TypeConverter<Long, java.sql.Date>() {
+class SqlDateConverter : TypeConverter<Long, java.sql.Date> {
 
     override fun getDBValue(model: java.sql.Date): Long = model.time
 
@@ -27,7 +24,7 @@ class SqlDateConverter : TypeConverter<Long, java.sql.Date>() {
  * @author Andrew Grosner (fuzz)
  */
 @com.dbflow5.annotation.TypeConverter
-class UUIDConverter : TypeConverter<String, UUID>() {
+class UUIDConverter : TypeConverter<String, UUID> {
 
     override fun getDBValue(model: UUID): String = model.toString()
 
@@ -38,7 +35,7 @@ class UUIDConverter : TypeConverter<String, UUID>() {
  * Description: Defines how we store and retrieve a [java.math.BigDecimal]
  */
 @com.dbflow5.annotation.TypeConverter
-class BigDecimalConverter : TypeConverter<String, BigDecimal>() {
+class BigDecimalConverter : TypeConverter<String, BigDecimal> {
     override fun getDBValue(model: BigDecimal): String = model.toString()
 
     override fun getModelValue(data: String): BigDecimal = BigDecimal(data)
@@ -48,7 +45,7 @@ class BigDecimalConverter : TypeConverter<String, BigDecimal>() {
  * Description: Defines how we store and retrieve a [java.math.BigInteger]
  */
 @com.dbflow5.annotation.TypeConverter
-class BigIntegerConverter : TypeConverter<String, BigInteger>() {
+class BigIntegerConverter : TypeConverter<String, BigInteger> {
     override fun getDBValue(model: BigInteger): String = model.toString()
 
     override fun getModelValue(data: String): BigInteger = BigInteger(data)
@@ -58,7 +55,7 @@ class BigIntegerConverter : TypeConverter<String, BigInteger>() {
  * Description: Defines how we store and retrieve a [java.util.Calendar]
  */
 @com.dbflow5.annotation.TypeConverter(allowedSubtypes = [(GregorianCalendar::class)])
-class CalendarConverter : TypeConverter<Long, Calendar>() {
+class CalendarConverter : TypeConverter<Long, Calendar> {
 
     override fun getDBValue(model: Calendar): Long = model.timeInMillis
 
@@ -70,7 +67,7 @@ class CalendarConverter : TypeConverter<Long, Calendar>() {
  * Description: Defines how we store and retrieve a [java.util.Date]
  */
 @com.dbflow5.annotation.TypeConverter
-class DateConverter : TypeConverter<Long, Date>() {
+class DateConverter : TypeConverter<Long, Date> {
 
     override fun getDBValue(model: Date): Long = model.time
 

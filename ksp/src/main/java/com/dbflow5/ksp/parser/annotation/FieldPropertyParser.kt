@@ -3,6 +3,7 @@ package com.dbflow5.ksp.parser.annotation
 import com.dbflow5.annotation.Collate
 import com.dbflow5.codegen.shared.properties.FieldProperties
 import com.dbflow5.codegen.shared.validation.ValidationException
+import com.dbflow5.converter.TypeConverter
 import com.dbflow5.ksp.parser.AnnotationParser
 import com.dbflow5.ksp.parser.ArgMap
 import com.dbflow5.ksp.parser.arg
@@ -18,7 +19,8 @@ class FieldPropertyParser : AnnotationParser<FieldProperties> {
             length = arg("length") ?: -1,
             collate = enumArg("collate", Collate.None, Collate::valueOf),
             defaultValue = arg("defaultValue") ?: "",
-            typeConverterClassName = className("typeConverter") ?: Any::class.asClassName(),
+            typeConverterClassName = className("typeConverter")
+                ?: TypeConverter::class.asClassName(),
         )
     }
 }
