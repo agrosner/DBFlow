@@ -10,10 +10,16 @@ import com.dbflow5.config.DBFlowDatabase
         CaseModel::class,
         TwoColumnModel::class,
         EnumTypeConverterModel::class,
+        NumberModel::class,
+        TypeConverterModel::class,
     ],
     version = 1,
 )
 abstract class TestDatabase : DBFlowDatabase() {
 
     abstract val simpleModelAdapter: ModelAdapter<SimpleModel>
+
+    abstract val twoColumnModelAdapter: ModelAdapter<TwoColumnModel>
+
+    abstract val numberModelAdapter: ModelAdapter<NumberModel>
 }

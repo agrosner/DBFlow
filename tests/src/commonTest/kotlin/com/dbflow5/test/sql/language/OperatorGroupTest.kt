@@ -1,6 +1,6 @@
 package com.dbflow5.test.sql.language
 
-import com.dbflow5.assertEquals
+import com.dbflow5.test.assertEquals
 import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.OperatorGroup

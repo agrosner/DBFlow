@@ -15,7 +15,7 @@ enum class Difficulty {
     HARD
 }
 
-class CustomEnumTypeConverter : TypeConverter<String, Difficulty>() {
+class CustomEnumTypeConverter : TypeConverter<String, Difficulty> {
     override fun getDBValue(model: Difficulty) = model.name.substring(0..0)
 
     override fun getModelValue(data: String) = when (data) {
@@ -34,3 +34,19 @@ data class EnumTypeConverterModel(
     @Column(typeConverter = CustomEnumTypeConverter::class)
     val difficulty: Difficulty,
 )
+
+@Table
+data class TypeConverterModel(
+    @PrimaryKey var id: Int,
+    @Column val opaqueData: ByteArray?,
+    @Column val blob: Blob?,
+    @Column(typeConverter = CustomTypeConverter::class)
+    @PrimaryKey val customType: CustomType?,
+)
+
+class CustomTypeConverter : TypeConverter<Int, CustomType> {
+    override fun getDBValue(model: CustomType) = model.name
+
+    override fun getModelValue(data: Int) = CustomType(data)
+
+}

@@ -1,24 +1,23 @@
 package com.dbflow5.test.sql.language
 
-import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.assertEquals
-import com.dbflow5.models.SimpleModel
-import com.dbflow5.test.SimpleModel_Table
-import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.query.`as`
 import com.dbflow5.query.innerJoin
 import com.dbflow5.query.select
-import com.dbflow5.test.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.test.SimpleModel
+import com.dbflow5.test.SimpleModel_Table
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TwoColumnModel_Table
+import com.dbflow5.test.assertEquals
+import com.dbflow5.test.simpleModelAdapter
 import com.dbflow5.test.twoColumnModelAdapter
-import org.junit.Rule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class SelectTest {
 
-    
+
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

@@ -1,7 +1,7 @@
 package com.dbflow5.test.sql.language
 
 import com.dbflow5.annotation.Collate
-import com.dbflow5.assertEquals
+import com.dbflow5.test.assertEquals
 import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.query.nameAlias
 import com.dbflow5.query.orderBy

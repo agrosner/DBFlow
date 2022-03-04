@@ -2,10 +2,10 @@ package com.dbflow5.test.sql.language
 
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.assertEquals
-import com.dbflow5.models.NumberModel_Table
+import com.dbflow5.test.assertEquals
+import com.dbflow5.test.NumberModel_Table
 import com.dbflow5.test.SimpleModel_Table
-import com.dbflow5.numberModelAdapter
+import com.dbflow5.test.numberModelAdapter
 import com.dbflow5.query.operations.Literal
 import com.dbflow5.query.orAbort
 import com.dbflow5.query.orFail
@@ -15,7 +15,6 @@ import com.dbflow5.query.orRollback
 import com.dbflow5.query.update
 import com.dbflow5.test.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
-import org.junit.Rule
 import kotlin.test.Test
 
 class UpdateTest {

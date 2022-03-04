@@ -2,7 +2,7 @@ package com.dbflow5.test.sql.language
 
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.annotation.Collate
-import com.dbflow5.assertEquals
+import com.dbflow5.test.assertEquals
 import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.query.nameAlias
 import com.dbflow5.query.operations.Operation

@@ -21,6 +21,7 @@ import com.dbflow5.converter.SqlDateConverter
 import com.dbflow5.converter.UUIDConverter
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.javapoet.toJTypeName
@@ -151,10 +152,26 @@ fun extractTypeConverter(
             ?.takeIf { type ->
                 type.rawType == ClassNames.TypeConverter
             }
-    } ?: throw ValidationException(
+    } ?: run {
+        // attempt to grab method return types to "guess" due to bug in KSP for
+        // type converter
+        return@run declaration.functions.let { funs ->
+            val dbValue = funs.firstOrNull { it.simpleName.shortName == "getDBValue" }
+                ?.typeName
+            val modelValue = funs.firstOrNull { it.simpleName.shortName == "getModelValue" }
+                ?.typeName
+            if (dbValue != null && modelValue != null) {
+                ClassNames.TypeConverter.parameterizedBy(
+                    dbValue, modelValue
+                )
+            } else null
+        }
+    }
+
+    ?: throw ValidationException(
         "Error typeConverter super for $typeName not found. Ensure your class directly " +
             "extends TypeConverter. Subclass hierachies are not allowed!" +
-            " found: ${declaration.superTypes.toList()}"
+            " found: ${declaration.functions.toList()}"
     )
     return typeConverterSuper
 }

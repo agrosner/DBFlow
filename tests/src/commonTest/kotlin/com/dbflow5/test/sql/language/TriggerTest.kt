@@ -1,8 +1,8 @@
 package com.dbflow5.test.sql.language
 
 import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.assertEquals
-import com.dbflow5.models.SimpleModel
+import com.dbflow5.test.assertEquals
+import com.dbflow5.test.SimpleModel
 import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.createTrigger
