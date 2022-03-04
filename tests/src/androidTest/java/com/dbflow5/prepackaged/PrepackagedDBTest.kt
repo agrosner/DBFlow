@@ -1,6 +1,6 @@
 package com.dbflow5.prepackaged
 
-import com.dbflow5.TestTransactionDispatcherFactory
+import com.dbflow5.test.TestTransactionDispatcherFactory
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertTrue

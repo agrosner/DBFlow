@@ -1,5 +1,7 @@
 package com.dbflow5.database
 
+import kotlinx.atomicfu.atomic
+import java.io.File
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
@@ -13,6 +15,8 @@ internal class JDBCConnectionWrapper(
     private val name: String? = null,
     private val connection: Connection,
 ) {
+    private var transaction by atomic(false)
+
     val isReadOnly
         get() = connection.isReadOnly
 
@@ -20,7 +24,11 @@ internal class JDBCConnectionWrapper(
         get() = connection.isClosed
 
     val version
-        get() = connection.metaData.databaseMajorVersion
+        get() = connection.createStatement().executeQuery("PRAGMA user_version").getInt(1)
+
+    val inTransaction
+        get() = transaction
+
 
     fun setVersion(newVersion: Int) {
         connection.createStatement().executeUpdate(
@@ -30,9 +38,7 @@ internal class JDBCConnectionWrapper(
 
     fun delete() {
         if (name != null) {
-            connection.createStatement().executeUpdate(
-                "DROP DATABASE $name"
-            )
+            File(name).also { it.delete() }
         }
     }
 
@@ -43,14 +49,17 @@ internal class JDBCConnectionWrapper(
 
     fun beginTransaction() {
         connection.autoCommit = false
+        transaction = true
     }
 
     fun setTransactionSuccessful() {
         connection.commit()
+        transaction = false
     }
 
     fun rollback() {
         connection.rollback()
+        transaction = false
     }
 
     fun close() {

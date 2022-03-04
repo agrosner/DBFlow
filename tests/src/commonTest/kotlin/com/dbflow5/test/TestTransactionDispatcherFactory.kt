@@ -1,4 +1,4 @@
-package com.dbflow5
+package com.dbflow5.test
 
 import com.dbflow5.database.transaction.TransactionDispatcherFactory
 import com.dbflow5.transaction.TransactionDispatcher

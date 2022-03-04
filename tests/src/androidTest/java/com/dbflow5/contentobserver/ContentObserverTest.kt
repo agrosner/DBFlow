@@ -4,7 +4,7 @@ import android.net.Uri
 import app.cash.turbine.test
 import com.dbflow5.DemoApp
 import com.dbflow5.TABLE_QUERY_PARAM
-import com.dbflow5.TestTransactionDispatcherFactory
+import com.dbflow5.test.TestTransactionDispatcherFactory
 import com.dbflow5.content.ContentNotification
 import com.dbflow5.content.ContentResolverNotifier
 import com.dbflow5.content.FlowContentObserver
@@ -21,7 +21,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 
 class ContentObserverTest {
 

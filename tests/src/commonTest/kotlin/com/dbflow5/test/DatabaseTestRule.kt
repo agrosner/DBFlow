@@ -1,22 +1,19 @@
 package com.dbflow5.test
 
-import androidx.test.platform.app.InstrumentationRegistry
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.GeneratedDatabaseHolderFactory
 import com.dbflow5.database.config.DBCreator
 import com.dbflow5.database.config.DBSettings
-import com.dbflow5.database.config.create
 import com.dbflow5.database.scope.WritableDatabaseScope
+import com.dbflow5.mpp.use
+import com.dbflow5.test.helpers.platformSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.setMain
-import org.junit.rules.TestRule
-import org.junit.runner.Description
-import org.junit.runners.model.Statement
 
 data class TestDatabaseScope<DB : DBFlowDatabase>(
     private val dbScope: WritableDatabaseScope<DB>,
@@ -35,8 +32,7 @@ class DatabaseTestRule<DB : DBFlowDatabase>(
     private val defaultSettingsCopy: DBSettings.() -> DBSettings = {
         copy(transactionDispatcherFactory = TestTransactionDispatcherFactory())
     },
-) :
-    TestRule {
+) {
 
     lateinit var db: DB
 
@@ -46,30 +42,21 @@ class DatabaseTestRule<DB : DBFlowDatabase>(
     }
 
     fun runTest(fn: suspend TestDatabaseScope<DB>.() -> Unit) {
-        kotlinx.coroutines.test.runTest {
-            TestDatabaseScope(WritableDatabaseScope(db), this).apply { fn() }
-        }
-    }
-
-    override fun apply(base: Statement, description: Description): Statement {
-        return object : Statement() {
-
-            @Throws(Throwable::class)
-            override fun evaluate() {
-                DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)
-                Dispatchers.setMain(TestCoroutineDispatcher())
-                FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
-                creator.create(
-                    InstrumentationRegistry.getInstrumentation().targetContext,
-                    defaultSettingsCopy
-                ).use {
-                    db = it
-                    try {
-                        base.evaluate()
-                    } finally {
-                        db.destroy()
-                    }
+        DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+        FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
+        creator.create(
+            platformSettings(),
+            defaultSettingsCopy
+        ).use {
+            it.destroy()
+            db = it
+            try {
+                kotlinx.coroutines.test.runTest {
+                    TestDatabaseScope(WritableDatabaseScope(db), this).apply { fn() }
                 }
+            } finally {
+                db.destroy()
             }
         }
     }

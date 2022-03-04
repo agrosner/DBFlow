@@ -40,10 +40,7 @@ class JDBCConnection internal constructor(
         }
 
     fun delete() {
-        database?.let { database ->
-            database.createStatement()
-                .executeUpdate("DROP DATABASE ${name}")
-        }
+        database?.delete()
     }
 
     fun close() {

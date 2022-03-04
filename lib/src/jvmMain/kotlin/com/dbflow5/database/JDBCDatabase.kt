@@ -10,11 +10,11 @@ class JDBCDatabase internal constructor(
     DatabaseWrapper {
 
     override val isInTransaction: Boolean
-        get() = TODO("Not yet implemented")
+        get() = db.inTransaction
     override val isOpen: Boolean
         get() = !db.isClosed
     override val version: Int
-        get() = TODO("Not yet implemented")
+        get() = db.version
 
     override fun execSQL(query: String) {
         rethrowDBFlowException { db.prepareStatement(query).execute() }

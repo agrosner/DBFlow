@@ -1,7 +1,7 @@
 package com.dbflow5.sqlcipher
 
 import com.dbflow5.DemoApp
-import com.dbflow5.TestTransactionDispatcherFactory
+import com.dbflow5.test.TestTransactionDispatcherFactory
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule

@@ -52,14 +52,6 @@ android {
             )
         )
     }
-
-    sourceSets {
-        getByName("main").kotlin.srcDir("build/generated/ksp/main/kotlin")
-        getByName("test").kotlin.srcDir("build/generated/ksp/test/kotlin")
-        getByName("androidTest").kotlin {
-            srcDir("build/generated/ksp/debugAndroidTest/kotlin")
-        }
-    }
 }
 
 kotlin {
@@ -68,11 +60,21 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            kotlin.srcDir("build/generated/ksp/commonMain/kotlin")
             dependencies {
                 implementation(project(":lib"))
             }
         }
+        val commonTest by getting {
+            dependencies {
+                implementation(project(":lib"))
+                implementation(kotlin("test"))
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
+                implementation(Dependencies.Turbine)
+            }
+        }
         val androidMain by getting {
+            kotlin.srcDir("build/generated/ksp/android/androidDebug/kotlin")
             dependencies {
                 implementation("androidx.appcompat:appcompat:1.4.0")
                 implementation(project(":sqlcipher"))
@@ -83,10 +85,10 @@ kotlin {
             }
         }
         val androidTest by getting {
+            kotlin.srcDir("build/generated/ksp/android/androidDebugUnitTest/kotlin")
             dependencies {
                 //kaptAndroidTest(project(":processor"))
 
-                implementation(kotlin("test"))
                 implementation(Dependencies.JavaXAnnotation)
                 implementation("org.mockito.kotlin:mockito-kotlin:4.0.0") {
                     exclude(group = "org.jetbrains.kotlin")
@@ -94,27 +96,45 @@ kotlin {
                 implementation("org.mockito:mockito-core:4.3.1")
                 implementation("org.mockito:mockito-android:4.3.1")
 
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.2")
                 implementation(Dependencies.JUnit)
                 implementation("androidx.test:core:1.4.0")
                 implementation("androidx.test:runner:1.4.0")
                 implementation("androidx.test:rules:1.4.0")
                 implementation("androidx.arch.core:core-testing:2.1.0")
                 implementation("androidx.test.ext:junit:1.1.3")
-                implementation(Dependencies.Turbine)
+            }
+        }
+
+        val jvmMain by getting {
+            kotlin.srcDir("build/generated/ksp/jvm/jvmMain/kotlin")
+        }
+        val jvmTest by getting {
+            kotlin.srcDir("build/generated/ksp/jvm/jvmTest/kotlin")
+            dependencies {
+                implementation(Dependencies.JUnit)
             }
         }
     }
 }
 
 dependencies {
-    add("kspJvmTest", project(":ksp"))
-    add("kspAndroidAndroidTest", project(":ksp"))
+    val ksp = project(":ksp")
+    val configs = listOf(
+        "kspMetadata",
+        "kspJvm", "kspJvmTest", "kspAndroidTest", "kspAndroid"
+    )
+    configs.forEach { config -> add(config, ksp) }
 }
 
 dexcount {
     includeClasses.set(true)
     orderByMethodCount.set(true)
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().all {
+    if (name != "kspKotlinMetadata") {
+        dependsOn("kspKotlinMetadata")
+    }
 }
 
 tasks.withType<KotlinCompile>().all {

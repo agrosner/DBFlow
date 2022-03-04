@@ -15,43 +15,45 @@ class JDBCOpenHelper(
     ),
 ) : OpenHelper, OpenHelperDelegate by databaseHelperDelegate {
 
-    private val connection = JDBCConnection(
-        name = generatedDatabase.openHelperName,
-        version = generatedDatabase.version,
-        callback = object : JDBCConnectionCallback {
-            override fun onOpen(db: JDBCConnectionWrapper) {
-                databaseHelperDelegate.onOpen(
-                    JDBCDatabase(generatedDatabase, db)
-                )
-            }
+    private val connection by lazy {
+        JDBCConnection(
+            name = generatedDatabase.openHelperName,
+            version = generatedDatabase.databaseVersion,
+            callback = object : JDBCConnectionCallback {
+                override fun onOpen(db: JDBCConnectionWrapper) {
+                    databaseHelperDelegate.onOpen(
+                        JDBCDatabase(generatedDatabase, db)
+                    )
+                }
 
-            override fun onCreate(db: JDBCConnectionWrapper) {
-                databaseHelperDelegate.onCreate(
-                    JDBCDatabase(generatedDatabase, db)
-                )
-            }
+                override fun onCreate(db: JDBCConnectionWrapper) {
+                    databaseHelperDelegate.onCreate(
+                        JDBCDatabase(generatedDatabase, db)
+                    )
+                }
 
-            override fun onUpgrade(db: JDBCConnectionWrapper, oldVersion: Int, newVersion: Int) {
-                databaseHelperDelegate.onUpgrade(
-                    JDBCDatabase(generatedDatabase, db),
-                    oldVersion, newVersion
-                )
-            }
+                override fun onUpgrade(db: JDBCConnectionWrapper, oldVersion: Int, newVersion: Int) {
+                    databaseHelperDelegate.onUpgrade(
+                        JDBCDatabase(generatedDatabase, db),
+                        oldVersion, newVersion
+                    )
+                }
 
-            override fun onDowngrade(db: JDBCConnectionWrapper, oldVersion: Int, newVersion: Int) {
-                databaseHelperDelegate.onDowngrade(
-                    JDBCDatabase(generatedDatabase, db),
-                    oldVersion, newVersion,
-                )
-            }
+                override fun onDowngrade(db: JDBCConnectionWrapper, oldVersion: Int, newVersion: Int) {
+                    databaseHelperDelegate.onDowngrade(
+                        JDBCDatabase(generatedDatabase, db),
+                        oldVersion, newVersion,
+                    )
+                }
 
-            override fun onConfigure(db: JDBCConnectionWrapper) {
-                databaseHelperDelegate.onConfigure(
-                    JDBCDatabase(generatedDatabase, db)
-                )
+                override fun onConfigure(db: JDBCConnectionWrapper) {
+                    databaseHelperDelegate.onConfigure(
+                        JDBCDatabase(generatedDatabase, db)
+                    )
+                }
             }
-        }
-    )
+        )
+    }
 
     override val database: JDBCDatabase by DatabasePropertyDelegate {
         JDBCDatabase(generatedDatabase, connection.writableDatabase)

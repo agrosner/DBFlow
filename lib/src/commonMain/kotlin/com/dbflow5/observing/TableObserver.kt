@@ -13,6 +13,7 @@ import com.dbflow5.query.TriggerMethod
 import com.dbflow5.quoteIfNeeded
 import com.dbflow5.stripQuotes
 import kotlinx.atomicfu.atomic
+import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import kotlinx.atomicfu.locks.withLock
 
@@ -23,14 +24,13 @@ import kotlinx.atomicfu.locks.withLock
 class TableObserver<DB : DBFlowDatabase> internal constructor(
     private val db: DB,
     private val adapters: List<DBRepresentable<*>>
-) {
+) : SynchronizedObject() {
 
     private val tableReferenceMap = hashMapOf<DBRepresentable<*>, Int>()
     private val tableIndexToNameMap = hashMapOf<Int, DBRepresentable<*>>()
 
     private val observingTableTracker = ObservingTableTracker(tableCount = adapters.size)
-    private val observerToObserverWithIdsMap =
-        mutableMapOf<OnTableChangedObserver, OnTableChangedObserverWithIds>()
+    private val observerToObserverWithIdsMap = SynchronizedTableObserverMap()
 
     private val tableStatus = BooleanArray(adapters.size)
 
@@ -271,3 +271,8 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
             "SELECT * FROM $TABLE_OBSERVER_NAME WHERE $INVALIDATED_COLUMN_NAME = 1;"
     }
 }
+
+private class SynchronizedTableObserverMap(
+    private val map: MutableMap<OnTableChangedObserver, OnTableChangedObserverWithIds>
+    = mutableMapOf()
+) : MutableMap<OnTableChangedObserver, OnTableChangedObserverWithIds> by map, SynchronizedObject()

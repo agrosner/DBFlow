@@ -3,7 +3,7 @@ package com.dbflow5.runtime
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import app.cash.turbine.test
 import com.dbflow5.TestDatabase_Database
-import com.dbflow5.TestTransactionDispatcherFactory
+import com.dbflow5.test.TestTransactionDispatcherFactory
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleModel_Table
 import com.dbflow5.query.delete
