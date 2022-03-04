@@ -12,7 +12,7 @@ import org.junit.Test
 
 class LiteralTests {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

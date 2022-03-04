@@ -16,7 +16,7 @@ import org.junit.Test
  */
 class QueryDataSourceTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

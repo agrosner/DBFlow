@@ -1,8 +1,10 @@
 package com.dbflow5.ksp
 
+import com.dbflow5.codegen.shared.Platforms
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.ksp.model.interop.KSPOriginatingFileTypeSpecAdder
+import com.dbflow5.ksp.model.interop.KSPPlatforms
 import com.dbflow5.ksp.parser.KSClassDeclarationParser
 import com.dbflow5.ksp.parser.KSPFieldSanitizer
 import com.dbflow5.ksp.parser.KSPropertyDeclarationParser
@@ -42,6 +44,7 @@ fun getModule(environment: SymbolProcessorEnvironment) = module {
             get(),
         )
     }
+    single<Platforms> { KSPPlatforms(environment) }
     single { TypeConverterPropertyParser() }
     single { TablePropertyParser(get(), get()) }
     single { QueryPropertyParser() }

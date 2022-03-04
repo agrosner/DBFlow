@@ -3,6 +3,7 @@ package com.dbflow5.codegen.shared.cache
 import com.dbflow5.codegen.shared.AssociatedType
 import com.dbflow5.codegen.shared.ClassNames
 import com.dbflow5.codegen.shared.NameModel
+import com.dbflow5.codegen.shared.Platforms
 import com.dbflow5.codegen.shared.TypeConverterModel
 import com.dbflow5.codegen.shared.interop.ClassDeclaration
 import com.dbflow5.codegen.shared.interop.ClassNameResolver
@@ -23,11 +24,14 @@ import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.asClassName
 import com.squareup.kotlinpoet.javapoet.toJTypeName
+import kotlin.reflect.KClass
 
 /**
  * Description: Keeps all defined [TypeConverterModel]
  */
-class TypeConverterCache {
+class TypeConverterCache(
+    private val platforms: Platforms,
+) {
 
     private val typeConverters = mutableMapOf<AssociatedType, TypeConverterModel>()
 
@@ -38,9 +42,12 @@ class TypeConverterCache {
     val generatedTypeConverters: Set<TypeConverterModel> = typeConvertersToWrite
 
     fun applyResolver(resolver: ClassNameResolver) {
-        DEFAULT_TYPE_CONVERTERS.forEach { defaultType ->
-            val typeName = defaultType.asClassName()
-            putTypeConverter(typeName, resolver)
+        defaultConverterMap.forEach { (defaultType, platforms) ->
+            // if supported platform include it here.
+            if (platforms.contains(this.platforms.currentPlatform)) {
+                val typeName = defaultType.asClassName()
+                putTypeConverter(typeName, resolver)
+            }
         }
     }
 
@@ -113,16 +120,24 @@ class TypeConverterCache {
     }
 
     companion object {
-        private val DEFAULT_TYPE_CONVERTERS = arrayOf(
-            CalendarConverter::class,
-            BigDecimalConverter::class,
-            BigIntegerConverter::class,
-            DateConverter::class,
-            SqlDateConverter::class,
-            BooleanConverter::class,
-            UUIDConverter::class,
-            CharConverter::class,
-            BlobConverter::class,
+
+        private val jvmPlatforms = listOf("JVM")
+        private val allPlatforms = listOf("JVM", "JS", "NATIVE")
+
+        /**
+         * Map of class to supported platforms. If empty, we assume all
+         * platforms.
+         */
+        private val defaultConverterMap = mapOf<KClass<*>, List<String>>(
+            CalendarConverter::class to jvmPlatforms,
+            BigDecimalConverter::class to jvmPlatforms,
+            BigIntegerConverter::class to jvmPlatforms,
+            DateConverter::class to jvmPlatforms,
+            SqlDateConverter::class to jvmPlatforms,
+            BooleanConverter::class to allPlatforms,
+            UUIDConverter::class to jvmPlatforms,
+            CharConverter::class to allPlatforms,
+            BlobConverter::class to allPlatforms,
         )
     }
 }

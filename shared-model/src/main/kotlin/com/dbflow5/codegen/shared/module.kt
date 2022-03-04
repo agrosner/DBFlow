@@ -10,7 +10,7 @@ import org.koin.dsl.module
 
 val sharedModule = module {
     single { ReferencesCache(get()) }
-    single { TypeConverterCache() }
+    single { TypeConverterCache(get()) }
     single { SQLiteLookup() }
     single { FieldValidator() }
     single {

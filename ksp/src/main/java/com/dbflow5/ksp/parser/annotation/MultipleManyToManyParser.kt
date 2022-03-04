@@ -1,11 +1,11 @@
 package com.dbflow5.ksp.parser.annotation
 
-import com.dbflow5.ksp.model.interop.KSPOriginatingSource
-import com.dbflow5.codegen.shared.parser.Parser
-import com.dbflow5.ksp.parser.arg
-import com.dbflow5.ksp.parser.mapProperties
 import com.dbflow5.codegen.shared.ManyToManyModel
 import com.dbflow5.codegen.shared.NameModel
+import com.dbflow5.codegen.shared.parser.Parser
+import com.dbflow5.ksp.model.interop.KSPOriginatingSource
+import com.dbflow5.ksp.parser.arg
+import com.dbflow5.ksp.parser.mapProperties
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ClassName
@@ -28,7 +28,7 @@ class MultipleManyToManyParser(
 
     override fun parse(input: Input): List<ManyToManyModel> {
         return input.annotation.arguments.mapProperties().run {
-            arg<List<KSAnnotation>>("value").map { annotation ->
+            arg<List<KSAnnotation>>("value")?.map { annotation ->
                 manyToManyParser.parse(
                     ManyToManyParser.Input(
                         annotation = annotation,
@@ -39,7 +39,7 @@ class MultipleManyToManyParser(
                         originatingSource = input.originatingSource,
                     )
                 )
-            }
+            } ?: listOf()
         }
     }
 }

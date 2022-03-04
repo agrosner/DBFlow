@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 
 class CursorResultSubscriberTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

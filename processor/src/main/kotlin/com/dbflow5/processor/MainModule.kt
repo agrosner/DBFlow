@@ -1,9 +1,11 @@
 package com.dbflow5.processor
 
+import com.dbflow5.codegen.shared.Platforms
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.parser.FieldSanitizer
 import com.dbflow5.processor.interop.KaptFieldSanitizer
 import com.dbflow5.processor.interop.KaptOriginatingFileTypeSpecAdder
+import com.dbflow5.processor.interop.KaptPlatforms
 import com.dbflow5.processor.parser.ColumnMapParser
 import com.dbflow5.processor.parser.ColumnMapReferencePropertyParser
 import com.dbflow5.processor.parser.DatabasePropertyParser
@@ -68,6 +70,7 @@ fun getModule(
             get(),
         )
     }
+    single<Platforms> { KaptPlatforms() }
     single {
         KaptElementProcessor(
             env.elementUtils,

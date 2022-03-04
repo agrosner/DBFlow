@@ -24,12 +24,12 @@ data class TestDatabaseScope<DB : DBFlowDatabase>(
  * Provides hook into specified DB.
  */
 class DatabaseTestRule<DB : DBFlowDatabase>(
-    private val creator: DBCreator<DB>,
+    val creator: DBCreator<DB>,
     /**
      * Injects [TestTransactionDispatcherFactory] for settings. Typically don't override
      * unless you want to change this field.
      */
-    private val defaultSettingsCopy: DBSettings.() -> DBSettings = {
+    val defaultSettingsCopy: DBSettings.() -> DBSettings = {
         copy(transactionDispatcherFactory = TestTransactionDispatcherFactory())
     },
 ) {
@@ -38,10 +38,20 @@ class DatabaseTestRule<DB : DBFlowDatabase>(
 
     @Suppress("UNCHECKED_CAST")
     inline operator fun invoke(fn: WritableDatabaseScope<DB>.() -> Unit) {
-        (db.writableScope as WritableDatabaseScope<DB>).apply { fn() }
+        acquireFreshDatabase {
+            (db.writableScope as WritableDatabaseScope<DB>).apply { fn() }
+        }
     }
 
     fun runTest(fn: suspend TestDatabaseScope<DB>.() -> Unit) {
+        acquireFreshDatabase {
+            kotlinx.coroutines.test.runTest {
+                TestDatabaseScope(WritableDatabaseScope(db), this).apply { fn() }
+            }
+        }
+    }
+
+    inline fun acquireFreshDatabase(fn: () -> Unit) {
         DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)
         Dispatchers.setMain(UnconfinedTestDispatcher())
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
@@ -52,9 +62,7 @@ class DatabaseTestRule<DB : DBFlowDatabase>(
             it.destroy()
             db = it
             try {
-                kotlinx.coroutines.test.runTest {
-                    TestDatabaseScope(WritableDatabaseScope(db), this).apply { fn() }
-                }
+                fn()
             } finally {
                 db.destroy()
             }

@@ -20,7 +20,7 @@ import org.junit.Test
 
 class PropertyTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

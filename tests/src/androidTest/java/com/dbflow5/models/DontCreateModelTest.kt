@@ -15,7 +15,7 @@ import org.junit.Test
  */
 class DontCreateModelTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

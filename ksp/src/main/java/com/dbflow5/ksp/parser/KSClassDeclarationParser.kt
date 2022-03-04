@@ -346,7 +346,7 @@ class KSClassDeclarationParser(
                         isDataClass = isData,
                         type = ClassModel.Type.View(
                             ModelViewQueryProperties(
-                                annotation.arguments.mapProperties().arg("query")
+                                annotation.arguments.mapProperties().expectedArg("query")
                             )
                         ),
                         properties = viewPropertyParser.parse(annotation),

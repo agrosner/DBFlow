@@ -19,10 +19,10 @@ import org.mockito.kotlin.mock
  */
 class LiveDataTest {
 
-    @get:Rule
+    
     val rule: TestRule = InstantTaskExecutorRule()
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

@@ -12,7 +12,7 @@ import org.junit.Test
  */
 class PrepackagedDBTest {
 
-    @get:Rule
+    
     val prepackagedDBRule = DatabaseTestRule(PrepackagedDB_Database) {
         copy(
             name = "prepackaged",
@@ -20,7 +20,7 @@ class PrepackagedDBTest {
         )
     }
 
-    @get:Rule
+    
     val migratedPrepackagedDBRule = DatabaseTestRule(MigratedPrepackagedDB_Database) {
         copy(
             name = "prepackaged_2",

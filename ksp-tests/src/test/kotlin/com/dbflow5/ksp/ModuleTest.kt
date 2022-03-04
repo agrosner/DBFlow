@@ -14,7 +14,7 @@ import kotlin.test.AfterTest
  */
 class ModuleTest : KoinTest {
 
-    @get:Rule
+    
     val koinTestRule = KoinTestRule.create {
         modules(
             getModule(

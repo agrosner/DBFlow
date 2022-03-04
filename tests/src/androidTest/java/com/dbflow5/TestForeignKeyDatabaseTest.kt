@@ -6,7 +6,6 @@ import org.junit.Test
 
 class TestForeignKeyDatabaseTest {
 
-    @get:Rule
     val dbRule = DatabaseTestRule(TestForeignKeyDatabase_Database)
 
     @Test

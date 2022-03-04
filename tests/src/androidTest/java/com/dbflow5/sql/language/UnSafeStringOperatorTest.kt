@@ -11,7 +11,7 @@ import org.junit.Test
 
 class UnSafeStringOperatorTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

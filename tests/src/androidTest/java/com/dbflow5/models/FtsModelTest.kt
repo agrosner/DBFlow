@@ -13,7 +13,6 @@ import com.dbflow5.query.operations.tableNameLiteral
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import kotlinx.coroutines.test.runTest
-import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -24,22 +23,20 @@ import kotlin.test.assertTrue
  */
 class FtsModelTest {
 
-    @get:Rule
+
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun validate_fts4_created() = runTest {
-        dbRule {
-            val model = Fts4Model(name = "FTSBABY")
-            val updated = fts4ModelAdapter.save(model)
-            assertTrue(updated.id > 0)
+    fun validate_fts4_created() = dbRule.runTest {
+        val model = Fts4Model(name = "FTSBABY")
+        val updated = fts4ModelAdapter.save(model)
+        assertTrue(updated.id > 0)
 
-            val rowID = (fts4VirtualModel2Adapter.insert(
-                fts4VirtualModel2Adapter.docId(),
-                Fts4VirtualModel2_Table.name
-            ) select fts4ModelAdapter.select(Fts4Model_Table.id, Fts4Model_Table.name)).execute()
-            assertTrue(rowID > 0)
-        }
+        val rowID = (fts4VirtualModel2Adapter.insert(
+            fts4VirtualModel2Adapter.docId(),
+            Fts4VirtualModel2_Table.name
+        ) select fts4ModelAdapter.select(Fts4Model_Table.id, Fts4Model_Table.name)).execute()
+        assertTrue(rowID > 0)
     }
 
     @Test
@@ -96,7 +93,7 @@ class FtsModelTest {
             assertNotNull(value)
             assertEquals(
                 value.value, "...the upper portion, [minimum] [temperature] 14-16oC \n" +
-                    "  and cool elsewhere, [minimum] [temperature] 17-20oC. Cold..."
+                "  and cool elsewhere, [minimum] [temperature] 17-20oC. Cold..."
             )
         }
     }

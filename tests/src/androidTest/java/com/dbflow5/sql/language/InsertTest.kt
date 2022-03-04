@@ -23,7 +23,7 @@ import org.junit.Test
 
 class InsertTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

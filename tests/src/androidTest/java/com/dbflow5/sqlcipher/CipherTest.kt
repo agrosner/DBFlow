@@ -14,7 +14,6 @@ import org.junit.Test
  */
 class CipherTest {
 
-    @get:Rule
     val cipherRule = DatabaseTestRule(CipherDatabase_Database) {
         copy(
             openHelperCreator = SQLCipherOpenHelper.createHelperCreator(

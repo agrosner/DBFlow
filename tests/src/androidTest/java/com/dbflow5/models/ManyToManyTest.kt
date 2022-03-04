@@ -10,7 +10,7 @@ import org.junit.Test
 
 class ManyToManyTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

@@ -4,7 +4,6 @@ import android.net.Uri
 import app.cash.turbine.test
 import com.dbflow5.DemoApp
 import com.dbflow5.TABLE_QUERY_PARAM
-import com.dbflow5.test.TestTransactionDispatcherFactory
 import com.dbflow5.content.ContentNotification
 import com.dbflow5.content.ContentResolverNotifier
 import com.dbflow5.content.FlowContentObserver
@@ -13,20 +12,18 @@ import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.query.delete
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.test.TestTransactionDispatcherFactory
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertIs
 
 class ContentObserverTest {
 
-    @JvmField
-    @Rule
-    var dbRule = DatabaseTestRule(ContentObserverDatabase_Database) {
+    private val dbRule = DatabaseTestRule(ContentObserverDatabase_Database) {
         copy(
             modelNotifierFactory = {
                 ContentResolverNotifier(
@@ -44,10 +41,7 @@ class ContentObserverTest {
     private lateinit var user: User
 
     @Before
-    fun setupUser() = runTest {
-        dbRule {
-            userAdapter.delete().execute()
-        }
+    fun setupUser() {
         user = User(5, "Something", 55)
     }
 

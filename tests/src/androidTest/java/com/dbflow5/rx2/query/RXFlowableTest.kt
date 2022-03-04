@@ -23,7 +23,7 @@ import org.junit.Test
  */
 class RXFlowableTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

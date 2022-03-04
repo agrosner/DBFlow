@@ -11,7 +11,7 @@ import org.junit.Test
 
 class IndexPropertyTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

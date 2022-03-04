@@ -19,7 +19,7 @@ class CurrencyDAOTest {
     @JvmField
     val rxTestRule = RXTestRule()
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Before

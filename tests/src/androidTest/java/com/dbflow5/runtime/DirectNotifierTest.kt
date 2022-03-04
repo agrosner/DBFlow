@@ -20,7 +20,7 @@ import kotlin.test.assertEquals
 @RunWith(AndroidJUnit4::class)
 class DirectNotifierTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database) {
         copy(transactionDispatcherFactory = TestTransactionDispatcherFactory())
     }

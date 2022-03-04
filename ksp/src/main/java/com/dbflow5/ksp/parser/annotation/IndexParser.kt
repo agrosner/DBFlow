@@ -9,6 +9,6 @@ import com.dbflow5.codegen.shared.properties.IndexProperties
 class IndexParser : AnnotationParser<IndexProperties> {
     @Throws(ValidationException::class)
     override fun ArgMap.parse(): IndexProperties {
-        return IndexProperties(groups = arg("indexGroups"))
+        return IndexProperties(groups = arg("indexGroups") ?: listOf())
     }
 }

@@ -19,7 +19,7 @@ import org.junit.Test
 
 class TriggerTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

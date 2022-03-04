@@ -85,7 +85,8 @@ kotlin {
             }
         }
         val androidTest by getting {
-            kotlin.srcDir("build/generated/ksp/android/androidDebugUnitTest/kotlin")
+            dependsOn(androidMain)
+            kotlin.srcDir("build/generated/ksp/android/androidDebugAndroidTest/kotlin")
             dependencies {
                 //kaptAndroidTest(project(":processor"))
 
@@ -121,7 +122,7 @@ dependencies {
     val ksp = project(":ksp")
     val configs = listOf(
         "kspMetadata",
-        "kspJvm", "kspJvmTest", "kspAndroidTest", "kspAndroid"
+        "kspJvm", "kspJvmTest", "kspAndroidTest", "kspAndroid", "kspAndroidAndroidTest"
     )
     configs.forEach { config -> add(config, ksp) }
 }

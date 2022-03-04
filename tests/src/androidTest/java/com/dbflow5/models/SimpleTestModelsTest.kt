@@ -4,7 +4,6 @@ import com.dbflow5.TestDatabase_Database
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.typeConverterModelAdapter
 import org.junit.Assert.assertEquals
-import org.junit.Rule
 import org.junit.Test
 
 /**
@@ -12,7 +11,6 @@ import org.junit.Test
  */
 class SimpleTestModelsTest {
 
-    @get:Rule
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

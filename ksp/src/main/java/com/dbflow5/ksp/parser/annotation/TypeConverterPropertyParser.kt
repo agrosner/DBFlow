@@ -13,7 +13,7 @@ class TypeConverterPropertyParser : AnnotationParser<TypeConverterProperties> {
     override fun ArgMap.parse(): TypeConverterProperties {
         return TypeConverterProperties(
             allowedSubtypeTypeNames = arg<List<KSType>>("allowedSubtypes")
-                .map { it.toTypeName() }
+                ?.map { it.toTypeName() } ?: listOf()
         )
     }
 }

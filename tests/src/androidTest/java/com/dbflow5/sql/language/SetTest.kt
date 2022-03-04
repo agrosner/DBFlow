@@ -13,7 +13,7 @@ import org.junit.Test
 
 class SetTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

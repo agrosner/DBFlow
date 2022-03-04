@@ -9,7 +9,7 @@ import org.junit.Test
 
 class OneToManyModelTest {
 
-    @get:Rule
+    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
