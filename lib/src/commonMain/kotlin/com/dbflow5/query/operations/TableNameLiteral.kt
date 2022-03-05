@@ -1,6 +1,6 @@
 package com.dbflow5.query.operations
 
-import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.query.NameAlias
 import com.dbflow5.sql.Query
 
@@ -12,15 +12,15 @@ interface TableNameLiteral<Table : Any> :
     OpStart<String>,
     Query
 
-fun <Table : Any> DBRepresentable<Table>.tableNameLiteral(): TableNameLiteral<Table> =
+fun <Table : Any> WritableDBRepresentable<Table>.tableNameLiteral(): TableNameLiteral<Table> =
     TableNameLiteralImpl(
         sqlObjectAdapter = this,
     )
 
 internal data class TableNameLiteralImpl<Table : Any>(
-    private val sqlObjectAdapter: DBRepresentable<Table>,
-    override val valueConverter: SQLValueConverter<String> = inferValueConverter(),
-    override val nameAlias: NameAlias = NameAlias.builder(sqlObjectAdapter.name).build(),
+        private val sqlObjectAdapter: WritableDBRepresentable<Table>,
+        override val valueConverter: SQLValueConverter<String> = inferValueConverter(),
+        override val nameAlias: NameAlias = NameAlias.builder(sqlObjectAdapter.name).build(),
 ) : TableNameLiteral<Table> {
     override val query: String by lazy { sqlObjectAdapter.name }
 

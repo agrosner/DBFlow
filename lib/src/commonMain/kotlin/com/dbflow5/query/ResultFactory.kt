@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.longForQuery
 import com.dbflow5.runtime.ModelNotification
@@ -27,7 +27,7 @@ object UnitResultFactory : ResultFactory<Unit> {
 }
 
 data class UpdateDeleteResultFactory(
-    private val dbRepresentable: DBRepresentable<*>,
+    private val dbRepresentable: WritableDBRepresentable<*>,
     private val isDelete: Boolean,
 ) : ResultFactory<Long> {
     override fun DatabaseWrapper.createResult(query: String): Long {
@@ -47,7 +47,7 @@ data class UpdateDeleteResultFactory(
 }
 
 data class InsertResultFactory(
-    private val dbRepresentable: DBRepresentable<*>,
+    private val dbRepresentable: WritableDBRepresentable<*>,
 ) : ResultFactory<Long> {
     override fun DatabaseWrapper.createResult(query: String): Long {
         val affected = compileStatement(query).use { it.executeInsert() }

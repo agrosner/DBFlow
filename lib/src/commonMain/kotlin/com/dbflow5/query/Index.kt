@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.appendQuotedIfNeeded
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.operations.Property
@@ -12,7 +12,7 @@ import com.dbflow5.sql.Query
  * So enable/disable these as necessary.
  */
 interface Index<Table : Any> : Query,
-    HasAdapter<Table, DBRepresentable<Table>>,
+    HasAdapter<Table, WritableDBRepresentable<Table>>,
     QueryExecutableIgnoreResult
 
 interface UniqueIndex<Table : Any> : Index<Table>
@@ -26,11 +26,11 @@ interface IndexStart<Table : Any> : Index<Table> {
 }
 
 /**
- * Creates an index with [name] based on the [DBRepresentable] used.
+ * Creates an index with [name] based on the [WritableDBRepresentable] used.
  *
  * set [ifNotExists] to false, if you wish for [SQLiteException] to get thrown on recreation.
  */
-fun <Table : Any> DBRepresentable<Table>.createIndexOn(
+fun <Table : Any> WritableDBRepresentable<Table>.createIndexOn(
     name: String,
     property: Property<*, Table>,
     vararg restProperties: Property<*, Table>,
@@ -45,11 +45,11 @@ fun <Table : Any> DBRepresentable<Table>.createIndexOn(
 )
 
 internal data class IndexImpl<Table : Any>(
-    override val adapter: DBRepresentable<Table>,
-    private val columns: List<NameAlias> = listOf(),
-    private val name: String,
-    private val unique: Boolean = false,
-    private val ifNotExists: Boolean,
+        override val adapter: WritableDBRepresentable<Table>,
+        private val columns: List<NameAlias> = listOf(),
+        private val name: String,
+        private val unique: Boolean = false,
+        private val ifNotExists: Boolean,
 ) : IndexStart<Table>, UniqueIndex<Table> {
     override val query: String by lazy {
         buildString {

@@ -1,6 +1,6 @@
 package com.dbflow5.database
 
-import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.adapter.create
 import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.FlowLog
@@ -90,7 +90,7 @@ class DatabaseHelper(
     /**
      * Logs or throws an exception depending on db config.
      */
-    private fun DBRepresentable<*>.logOrThrow(databaseWrapper: DatabaseWrapper) {
+    private fun WritableDBRepresentable<*>.logOrThrow(databaseWrapper: DatabaseWrapper) {
         try {
             create(databaseWrapper)
         } catch (e: SQLiteException) {

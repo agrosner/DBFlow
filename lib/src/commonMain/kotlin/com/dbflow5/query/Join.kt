@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.OperatorGroup
@@ -34,20 +34,20 @@ interface JoinWithUsing : Query {
  * Description:
  */
 interface Join<OriginalTable : Any, JoinTable : Any, Result> : Query,
-    JoinOn<OriginalTable, Result>, HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
+    JoinOn<OriginalTable, Result>, HasAdapter<JoinTable, WritableDBRepresentable<JoinTable>>,
     Aliasable<JoinWithAlias<OriginalTable, JoinTable, Result>>,
     JoinUsing<OriginalTable, Result> {
     fun end(): SelectWithJoins<OriginalTable, Result>
 }
 
 internal data class JoinImpl<OriginalTable : Any, JoinTable : Any, Result>(
-    val select: SelectImpl<OriginalTable, Result>,
-    val type: JoinType,
-    val onGroup: OperatorGrouping<Query>? = null,
-    override val adapter: DBRepresentable<JoinTable>,
-    private val queryNameAlias: NameAlias? = null,
-    override val alias: NameAlias = queryNameAlias ?: NameAlias.Builder(adapter.name).build(),
-    override val using: List<Property<*, OriginalTable>> = listOf(),
+        val select: SelectImpl<OriginalTable, Result>,
+        val type: JoinType,
+        val onGroup: OperatorGrouping<Query>? = null,
+        override val adapter: WritableDBRepresentable<JoinTable>,
+        private val queryNameAlias: NameAlias? = null,
+        override val alias: NameAlias = queryNameAlias ?: NameAlias.Builder(adapter.name).build(),
+        override val using: List<Property<*, OriginalTable>> = listOf(),
 ) : Join<OriginalTable, JoinTable, Result>, JoinOn<OriginalTable, Result>,
     JoinWithAlias<OriginalTable, JoinTable, Result>,
     JoinWithUsing {

@@ -26,7 +26,7 @@ fun <Table : Any, Result, Q> Q.toFlow(
     selectResultFn: suspend SelectResult<Table>.() -> Result
 ): Flow<Result>
     where Q : ExecutableQuery<SelectResult<Table>>,
-          Q : HasAssociatedAdapters {
+          Q : HasAssociatedAdapters<DBRepresentable<*>> {
     return callbackFlow {
         fun evaluateEmission() {
             db.enqueueTransaction { channel.send(execute().selectResultFn()) }

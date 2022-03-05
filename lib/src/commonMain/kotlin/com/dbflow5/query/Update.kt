@@ -1,6 +1,7 @@
 package com.dbflow5.query
 
 import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Operation
@@ -9,8 +10,8 @@ import com.dbflow5.query.operations.OperatorGrouping
 import com.dbflow5.sql.Query
 
 interface Update<Table : Any> : Query,
-    HasAdapter<Table, DBRepresentable<Table>>,
-    HasAssociatedAdapters
+    HasAdapter<Table, WritableDBRepresentable<Table>>,
+    HasAssociatedAdapters<DBRepresentable<*>>
 
 interface UpdateWithConflict<Table : Any> :
     Update<Table>,
@@ -22,7 +23,7 @@ interface UpdateWithSet<Table : Any> :
     Update<Table>,
     HasConflictAction,
     HasOperatorGroup,
-    Whereable<Table, Long, UpdateStart<Table>>,
+    Whereable<Table, Long, UpdateStart<Table>, WritableDBRepresentable<Table>>,
     Indexable<Table>, ExecutableQuery<Long> {
     infix fun and(condition: AnyOperator): UpdateWithSet<Table>
 }
@@ -30,18 +31,18 @@ interface UpdateWithSet<Table : Any> :
 interface UpdateStart<Table : Any> :
     Update<Table>,
     Conflictable<UpdateWithConflict<Table>>,
-    Whereable<Table, Long, UpdateStart<Table>>,
+    Whereable<Table, Long, UpdateStart<Table>, WritableDBRepresentable<Table>>,
     Settable<Table>, HasOperatorGroup,
     Indexable<Table>,
     ExecutableQuery<Long>
 
-fun <Table : Any> DBRepresentable<Table>.update(): UpdateStart<Table> = UpdateImpl(
+fun <Table : Any> WritableDBRepresentable<Table>.update(): UpdateStart<Table> = UpdateImpl(
     adapter = this,
 )
 
 internal data class UpdateImpl<Table : Any>(
     override val conflictAction: ConflictAction = ConflictAction.NONE,
-    override val adapter: DBRepresentable<Table>,
+    override val adapter: WritableDBRepresentable<Table>,
     override val operatorGroup: OperatorGrouping<Query> = OperatorGroup.nonGroupingClause(),
     override val resultFactory: ResultFactory<Long> = UpdateDeleteResultFactory(
         adapter,
@@ -50,7 +51,7 @@ internal data class UpdateImpl<Table : Any>(
 ) : UpdateStart<Table>, UpdateWithConflict<Table>,
     UpdateWithSet<Table> {
 
-    override val associatedAdapters: List<DBRepresentable<*>> = listOf(adapter)
+    override val associatedAdapters: List<WritableDBRepresentable<*>> = listOf(adapter)
 
     override val query: String by lazy {
         buildString {

@@ -1,6 +1,7 @@
 package com.dbflow5.query
 
 import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.query.methods.count
 import com.dbflow5.query.operations.AnyOperator
@@ -20,8 +21,8 @@ sealed class QualifierType(val value: String) {
 interface Select<Table : Any, Result> :
     ExecutableQuery<Result>,
     HasAdapter<Table, DBRepresentable<Table>>,
-    HasAssociatedAdapters,
-    Whereable<Table, Result, Select<Table, Result>>
+    HasAssociatedAdapters<DBRepresentable<*>>,
+    Whereable<Table, Result, Select<Table, Result>, DBRepresentable<Table>>
 
 /**
  * Used to provide "select from table" notation as an alternative
@@ -31,7 +32,7 @@ object SelectToken {
     /**
      * Provided for compatibility reasons.
      */
-    infix fun <Table : Any> from(adapter: DBRepresentable<Table>): SelectStart<Table, SelectResult<Table>> =
+    infix fun <Table : Any> from(adapter: WritableDBRepresentable<Table>): SelectStart<Table, SelectResult<Table>> =
         adapter.select()
 
     infix fun <Table : Any> from(table: KClass<Table>): SelectStart<Table, SelectResult<Table>> =
@@ -92,7 +93,7 @@ fun <Table : Any> DBRepresentable<Table>.select(
     )
 
 /**
- * Select from [DBRepresentable] widened to allow non-table
+ * Select from [WritableDBRepresentable] widened to allow non-table
  * properties.
  */
 fun <Table : Any> DBRepresentable<Table>.select(
@@ -120,7 +121,7 @@ fun <Table : Any> DBRepresentable<Table>.selectCountOf(
  * Provides a [Select] that returns a long result based on
  * the count of rows. Widens to allow any operator
  */
-fun <Table : Any> DBRepresentable<Table>.selectCountOf(
+fun <Table : Any> WritableDBRepresentable<Table>.selectCountOf(
     operator: AnyOperator,
     vararg operators: AnyOperator,
 ): SelectStart<Table, CountResultFactory.Count> =
@@ -225,7 +226,7 @@ internal data class SelectImpl<Table : Any, Result>(
         )
 
     override fun <JoinTable : Any> join(
-        adapter: DBRepresentable<JoinTable>,
+        adapter: WritableDBRepresentable<JoinTable>,
         joinType: JoinType
     ): Join<Table, JoinTable, Result> = JoinImpl(
         this,
@@ -234,7 +235,7 @@ internal data class SelectImpl<Table : Any, Result>(
     )
 
     override fun <JoinTable : Any> join(
-        hasAdapter: HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
+        hasAdapter: HasAdapter<JoinTable, WritableDBRepresentable<JoinTable>>,
         joinType: JoinType
     ): Join<Table, JoinTable, Result> = JoinImpl(
         this,
@@ -243,7 +244,7 @@ internal data class SelectImpl<Table : Any, Result>(
         queryNameAlias = literalOf(hasAdapter).nameAlias,
     )
 
-    override val associatedAdapters: List<DBRepresentable<*>> =
+    override val associatedAdapters: List<DBRepresentable<out Any>> =
         linkedSetOf<DBRepresentable<*>>(adapter)
             .apply {
                 joins.mapTo(this) { it.adapter }

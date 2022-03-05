@@ -1,10 +1,10 @@
 package com.dbflow5.query.operations
 
-import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.query.NameAlias
 
 
-inline fun <reified ValueType, Table : Any> DBRepresentable<Table>.stringLiteral(
+inline fun <reified ValueType, Table : Any> WritableDBRepresentable<Table>.stringLiteral(
     stringRepresentation: String
 ):
     PropertyStart<ValueType, Table> =
@@ -21,5 +21,5 @@ inline fun <reified ValueType, Table : Any> DBRepresentable<Table>.stringLiteral
  * There is one other subtle difference between "docid" and the normal SQLite aliases for the rowid column.
  * Normally, if an INSERT or UPDATE statement assigns discrete values to two or more aliases of the rowid column, SQLite writes the rightmost of such values specified in the INSERT or UPDATE statement to the database. However, assigning a non-NULL value to both the "docid" and one or more of the SQLite rowid aliases when inserting or updating an FTS table is considered an error. See below for an example.
  */
-inline fun <reified Table : Any> DBRepresentable<Table>.docId(): PropertyStart<Int, Table> =
+inline fun <reified Table : Any> WritableDBRepresentable<Table>.docId(): PropertyStart<Int, Table> =
     stringLiteral("docid")

@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.database.DatabaseWrapper
@@ -20,7 +20,7 @@ private fun <Table : Any> List<ColumnValue<Table, Any>>.toColumnValues(): Pair<L
     return props to values
 }
 
-internal fun <Table : Any> DBRepresentable<Table>.columnValue(
+internal fun <Table : Any> WritableDBRepresentable<Table>.columnValue(
     sqlOperator: BaseOperator.SingleValueOperator<Any>
 ): ColumnValue<Table, Any> {
     if (sqlOperator.nameAlias.query.isBlank()) {
@@ -57,7 +57,7 @@ interface InsertStart<Table : Any> :
     Insert<Table>,
     HasValues<Table>,
     HasSelect<Table>,
-    HasAdapter<Table, DBRepresentable<Table>>,
+    HasAdapter<Table, WritableDBRepresentable<Table>>,
     Conflictable<InsertWithConflict<Table>>
 
 interface InsertWithConflict<Table : Any> :
@@ -78,9 +78,9 @@ interface InsertWithSelect<Table : Any, TFrom : Any> :
     val subquery: ExecutableQuery<SelectResult<TFrom>>?
 }
 
-fun <Table : Any> DBRepresentable<Table>.insert(): InsertStart<Table> = InsertImpl(adapter = this)
+fun <Table : Any> WritableDBRepresentable<Table>.insert(): InsertStart<Table> = InsertImpl(adapter = this)
 
-fun <Table : Any> DBRepresentable<Table>.insert(
+fun <Table : Any> WritableDBRepresentable<Table>.insert(
     columnValue: ColumnValue<Table, *>,
     vararg columnValues: ColumnValue<Table, *>,
 ): InsertWithValues<Table> {
@@ -97,7 +97,7 @@ fun <Table : Any> DBRepresentable<Table>.insert(
     )
 }
 
-fun <Table : Any> DBRepresentable<Table>.insert(
+fun <Table : Any> WritableDBRepresentable<Table>.insert(
     columnValuePair: Pair<Property<*, Table>?, *>,
     vararg columnValues: Pair<Property<*, Table>?, *>,
 ): InsertWithValues<Table> {
@@ -125,7 +125,7 @@ fun <Table : Any> DBRepresentable<Table>.insert(
     )
 }
 
-fun <Table : Any> DBRepresentable<Table>.insert(
+fun <Table : Any> WritableDBRepresentable<Table>.insert(
     operator: BaseOperator.SingleValueOperator<*>,
     vararg operators: BaseOperator.SingleValueOperator<*>,
 ): InsertWithValues<Table> {
@@ -173,12 +173,12 @@ fun <Table : Any> ModelAdapter<Table>.insert(
 
 
 internal data class InsertImpl<Table : Any>(
-    override val columns: List<Property<*, Table>>? = null,
-    override val values: List<List<Any?>> = listOf(),
-    override val conflictAction: ConflictAction = ConflictAction.NONE,
-    override val adapter: DBRepresentable<Table>,
-    override val subquery: ExecutableQuery<SelectResult<Any>>? = null,
-    private val resultFactory: ResultFactory<Long> = InsertResultFactory(adapter),
+        override val columns: List<Property<*, Table>>? = null,
+        override val values: List<List<Any?>> = listOf(),
+        override val conflictAction: ConflictAction = ConflictAction.NONE,
+        override val adapter: WritableDBRepresentable<Table>,
+        override val subquery: ExecutableQuery<SelectResult<Any>>? = null,
+        private val resultFactory: ResultFactory<Long> = InsertResultFactory(adapter),
 ) : InsertWithValues<Table>, InsertWithConflict<Table>, InsertStart<Table>,
     InsertWithSelect<Table, Any> {
     override val query: String by lazy {

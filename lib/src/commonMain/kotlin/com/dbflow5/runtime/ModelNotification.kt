@@ -1,6 +1,6 @@
 package com.dbflow5.runtime
 
-import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.query.operations.BaseOperator
 import com.dbflow5.structure.ChangeAction
@@ -10,17 +10,17 @@ import com.dbflow5.structure.ChangeAction
  */
 sealed interface ModelNotification<Table : Any> {
     val action: ChangeAction
-    val adapter: DBRepresentable<Table>
+    val adapter: WritableDBRepresentable<Table>
 
     data class TableChange<Table : Any>(
-        override val adapter: DBRepresentable<Table>,
-        override val action: ChangeAction,
+            override val adapter: WritableDBRepresentable<Table>,
+            override val action: ChangeAction,
     ) : ModelNotification<Table>
 
     data class ModelChange<Table : Any>(
-        val changedFields: List<BaseOperator.SingleValueOperator<*>>,
-        override val action: ChangeAction,
-        override val adapter: DBRepresentable<Table>,
+            val changedFields: List<BaseOperator.SingleValueOperator<*>>,
+            override val action: ChangeAction,
+            override val adapter: WritableDBRepresentable<Table>,
     ) : ModelNotification<Table> {
 
         constructor(

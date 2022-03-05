@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.appendQuotedIfNeeded
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.query.operations.AnyOperator
@@ -68,7 +68,7 @@ interface TriggerLogicEnabled<Table : Any> {
 }
 
 interface Trigger<Table : Any> : Query,
-    HasAdapter<Table, DBRepresentable<Table>>
+    HasAdapter<Table, WritableDBRepresentable<Table>>
 
 interface TriggerStart<Table : Any> : Trigger<Table>,
     IsTriggerQualified<Table>,
@@ -97,7 +97,7 @@ interface TriggerLogic<Table : Any> : Trigger<Table>,
 /**
  * Starts a TRIGGER statement.
  */
-fun <Table : Any> DBRepresentable<Table>.createTrigger(
+fun <Table : Any> WritableDBRepresentable<Table>.createTrigger(
     name: String,
     temporary: Boolean = false,
     ifNotExists: Boolean = true,
@@ -111,15 +111,15 @@ fun <Table : Any> DBRepresentable<Table>.createTrigger(
 }
 
 internal data class TriggerImpl<Table : Any>(
-    override val adapter: DBRepresentable<Table>,
-    private val name: String,
-    private val temporary: Boolean,
-    private val ifNotExists: Boolean,
-    private val qualifier: TriggerQualifier? = null,
-    private val method: TriggerMethod? = null,
-    private val forEachRow: Boolean = false,
-    private val whenOperator: AnyOperator? = null,
-    private val triggerLogicQuery: List<Query> = emptyList(),
+        override val adapter: WritableDBRepresentable<Table>,
+        private val name: String,
+        private val temporary: Boolean,
+        private val ifNotExists: Boolean,
+        private val qualifier: TriggerQualifier? = null,
+        private val method: TriggerMethod? = null,
+        private val forEachRow: Boolean = false,
+        private val whenOperator: AnyOperator? = null,
+        private val triggerLogicQuery: List<Query> = emptyList(),
 ) : TriggerStart<Table>,
     TriggerQualified<Table>,
     TriggerOn<Table>,

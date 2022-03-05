@@ -17,14 +17,19 @@ interface DBRepresentable<DBType : Any> : QueryRepresentable<DBType> {
     val creationSQL: CompilableQuery
 
     val dropSQL: CompilableQuery
-    
+
     fun getProperty(columnName: String): Property<*, DBType>
 }
 
+/**
+ * Enables mutation queries.
+ */
+interface WritableDBRepresentable<DBType : Any> : DBRepresentable<DBType>
+
 @DelicateDBFlowApi
-fun <Table : Any> DBRepresentable<Table>.create(db: DatabaseWrapper) =
+fun <Table : Any> WritableDBRepresentable<Table>.create(db: DatabaseWrapper) =
     UnitResultFactory.run { db.createResult(creationSQL.query) }
 
 @DelicateDBFlowApi
-fun <Table : Any> DBRepresentable<Table>.drop(db: DatabaseWrapper) =
+fun <Table : Any> WritableDBRepresentable<Table>.drop(db: DatabaseWrapper) =
     UnitResultFactory.run { db.createResult(dropSQL.query) }

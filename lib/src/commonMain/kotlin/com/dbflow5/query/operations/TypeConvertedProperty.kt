@@ -2,7 +2,7 @@ package com.dbflow5.query.operations
 
 import com.dbflow5.adapter.AdapterCompanion
 import com.dbflow5.adapter.makeLazyDBRepresentable
-import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.converter.TypeConverter
 import com.dbflow5.query.NameAlias
@@ -86,10 +86,10 @@ inline fun <Table : Any, reified ValueType : Any, ModelType : Any> AdapterCompan
 
 @InternalDBFlowApi
 data class TypeConvertedPropertyImpl<ModelType, ValueType, Table : Any>(
-    override val adapter: DBRepresentable<Table>,
-    override val valueConverter: TypeConverterValueConverter<ValueType, ModelType>,
-    override val nameAlias: NameAlias,
-    private val distinct: Boolean = false,
+        override val adapter: WritableDBRepresentable<Table>,
+        override val valueConverter: TypeConverterValueConverter<ValueType, ModelType>,
+        override val nameAlias: NameAlias,
+        private val distinct: Boolean = false,
 ) : TypeConvertedProperty<ModelType, ValueType, Table>,
     DistinctTypeConvertedProperty<ModelType, Table>,
     AliasedProperty<ModelType, Table> {

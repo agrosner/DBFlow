@@ -2,7 +2,7 @@
 
 package com.dbflow5.config
 
-import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Table
@@ -63,13 +63,13 @@ object DatabaseObjectLookup {
     }
 
     /**
-     * The [DBRepresentable] for specific type. If cannot find a [ModelAdapter], then it looks
+     * The [WritableDBRepresentable] for specific type. If cannot find a [ModelAdapter], then it looks
      * for [ViewAdapter]
      */
     @DelicateDBFlowApi
     @JvmStatic
-    fun <T : Any> getDBRepresentable(modelClass: KClass<T>): DBRepresentable<T> {
-        var retrievalAdapter: DBRepresentable<T>? =
+    fun <T : Any> getDBRepresentable(modelClass: KClass<T>): WritableDBRepresentable<T> {
+        var retrievalAdapter: WritableDBRepresentable<T>? =
             databaseHolder.getModelAdapterOrNull(modelClass)
         if (retrievalAdapter == null) {
             retrievalAdapter = databaseHolder.getViewAdapterOrNull(modelClass)

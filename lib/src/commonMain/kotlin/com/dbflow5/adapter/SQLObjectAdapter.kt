@@ -10,7 +10,7 @@ import kotlin.reflect.KClass
 @InternalDBFlowApi
 fun <T : Any> makeLazyDBRepresentable(
     sqlObject: KClass<T>,
-): DBRepresentable<T> = LazyDBRepresentable(sqlObject)
+): WritableDBRepresentable<T> = LazyDBRepresentable(sqlObject)
 
 /**
  * Used by inner library classes.
@@ -19,7 +19,7 @@ fun <T : Any> makeLazyDBRepresentable(
  */
 internal class LazyDBRepresentable<T : Any>(
     sqlObject: KClass<T>
-) : DBRepresentable<T> {
+) : WritableDBRepresentable<T> {
     private val realAdapter by lazy { DatabaseObjectLookup.getDBRepresentable(sqlObject) }
     override val type: KClass<T>
         get() = realAdapter.type

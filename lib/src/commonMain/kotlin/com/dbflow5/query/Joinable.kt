@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.DBRepresentable
+import com.dbflow5.adapter.WritableDBRepresentable
 
 sealed class JoinType(val value: String) {
     /**
@@ -40,44 +40,44 @@ sealed class JoinType(val value: String) {
 interface Joinable<OriginalTable : Any, Result> {
 
     fun <JoinTable : Any> join(
-        adapter: DBRepresentable<JoinTable>,
-        joinType: JoinType,
+            adapter: WritableDBRepresentable<JoinTable>,
+            joinType: JoinType,
     ): Join<OriginalTable, JoinTable, Result>
 
     fun <JoinTable : Any> join(
-        hasAdapter: HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
-        joinType: JoinType,
+            hasAdapter: HasAdapter<JoinTable, WritableDBRepresentable<JoinTable>>,
+            joinType: JoinType,
     ): Join<OriginalTable, JoinTable, Result>
 }
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.crossJoin(
-    adapter: DBRepresentable<JoinTable>
+    adapter: WritableDBRepresentable<JoinTable>
 ) = join(adapter, JoinType.Cross)
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.crossJoin(
-    hasAdapter: HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
+        hasAdapter: HasAdapter<JoinTable, WritableDBRepresentable<JoinTable>>,
 ) = join(hasAdapter, JoinType.Cross)
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.innerJoin(
-    adapter: DBRepresentable<JoinTable>
+    adapter: WritableDBRepresentable<JoinTable>
 ) = join(adapter, JoinType.Inner)
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.innerJoin(
-    hasAdapter: HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
+        hasAdapter: HasAdapter<JoinTable, WritableDBRepresentable<JoinTable>>,
 ) = join(hasAdapter, JoinType.Inner)
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.leftOuterJoin(
-    adapter: DBRepresentable<JoinTable>
+    adapter: WritableDBRepresentable<JoinTable>
 ) = join(adapter, JoinType.LeftOuter)
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.leftOuterJoin(
-    hasAdapter: HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
+        hasAdapter: HasAdapter<JoinTable, WritableDBRepresentable<JoinTable>>,
 ) = join(hasAdapter, JoinType.LeftOuter)
 
 /**
@@ -85,11 +85,11 @@ infix fun <OriginalTable : Any, JoinTable : Any, Result>
  */
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.naturalJoin(
-    adapter: DBRepresentable<JoinTable>
+    adapter: WritableDBRepresentable<JoinTable>
 ) = join(adapter, JoinType.Natural).end()
 
 infix fun <OriginalTable : Any, JoinTable : Any, Result>
     Joinable<OriginalTable, Result>.naturalJoin(
-    hasAdapter: HasAdapter<JoinTable, DBRepresentable<JoinTable>>,
+        hasAdapter: HasAdapter<JoinTable, WritableDBRepresentable<JoinTable>>,
 ) = join(hasAdapter, JoinType.Natural)
 

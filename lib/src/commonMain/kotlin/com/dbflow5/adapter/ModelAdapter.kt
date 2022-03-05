@@ -46,7 +46,7 @@ constructor(
     override val creationSQL: CompilableQuery,
     override val createWithDatabase: Boolean,
     private val primaryModelClauseGetter: PrimaryModelClauseGetter<Table>,
-) : TableOps<Table> by ops, DBRepresentable<Table> {
+) : TableOps<Table> by ops, WritableDBRepresentable<Table> {
     override val dropSQL: CompilableQuery = CompilableQuery(
         "DROP TABLE IF EXISTS $name"
     )

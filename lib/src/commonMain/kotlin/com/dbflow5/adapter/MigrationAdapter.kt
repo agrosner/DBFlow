@@ -27,7 +27,7 @@ fun MigrationScope.migrationAdapter(
  */
 data class MigrationAdapter internal constructor(
     override val name: String
-) : DBRepresentable<FlowCursor> {
+) : WritableDBRepresentable<FlowCursor> {
     override val createWithDatabase: Boolean = false
     override val creationSQL: CompilableQuery
         get() = throw NotImplementedError("Method called in error. Use Raw query instead.")
