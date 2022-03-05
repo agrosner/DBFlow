@@ -2,9 +2,10 @@
 
 package com.dbflow5.config
 
-import com.dbflow5.adapter.WritableDBRepresentable
+import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ViewAdapter
+import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import kotlin.reflect.KClass
@@ -68,8 +69,8 @@ object DatabaseObjectLookup {
      */
     @DelicateDBFlowApi
     @JvmStatic
-    fun <T : Any> getDBRepresentable(modelClass: KClass<T>): WritableDBRepresentable<T> {
-        var retrievalAdapter: WritableDBRepresentable<T>? =
+    fun <T : Any> getDBRepresentable(modelClass: KClass<T>): DBRepresentable<T> {
+        var retrievalAdapter: DBRepresentable<T>? =
             databaseHolder.getModelAdapterOrNull(modelClass)
         if (retrievalAdapter == null) {
             retrievalAdapter = databaseHolder.getViewAdapterOrNull(modelClass)

@@ -1,6 +1,6 @@
 package com.dbflow5.observing
 
-import com.dbflow5.adapter.WritableDBRepresentable
+import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.beginTransactionAsync
@@ -23,11 +23,11 @@ import kotlinx.atomicfu.locks.withLock
  */
 class TableObserver<DB : DBFlowDatabase> internal constructor(
     private val db: DB,
-    private val adapters: List<WritableDBRepresentable<*>>
+    private val adapters: List<DBRepresentable<*>>
 ) : SynchronizedObject() {
 
-    private val tableReferenceMap = hashMapOf<WritableDBRepresentable<*>, Int>()
-    private val tableIndexToNameMap = hashMapOf<Int, WritableDBRepresentable<*>>()
+    private val tableReferenceMap = hashMapOf<DBRepresentable<*>, Int>()
+    private val tableIndexToNameMap = hashMapOf<Int, DBRepresentable<*>>()
 
     private val observingTableTracker = ObservingTableTracker(tableCount = adapters.size)
     private val observerToObserverWithIdsMap = SynchronizedTableObserverMap()
@@ -258,7 +258,7 @@ class TableObserver<DB : DBFlowDatabase> internal constructor(
         }
     }
 
-    private fun getTriggerName(adapter: WritableDBRepresentable<*>, method: String) =
+    private fun getTriggerName(adapter: DBRepresentable<*>, method: String) =
         "`${TRIGGER_PREFIX}_${adapter.name.stripQuotes()}_$method`"
 
     companion object {

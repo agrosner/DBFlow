@@ -16,6 +16,9 @@ import com.dbflow5.config.DBFlowDatabase
         NumberModel::class,
         TypeConverterModel::class,
         Blog::class,
+        Fts3Model::class,
+        Fts4ContentModel::class,
+        Fts4VirtualModel::class,
     ],
     queries = [
         AuthorNameQuery::class,
@@ -40,4 +43,10 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val blogAdapter: ModelAdapter<Blog>
 
     abstract val authorViewAdapter: ViewAdapter<AuthorView>
+
+    abstract val fts3ModelAdapter: ModelAdapter<Fts3Model>
+
+    abstract val fts4ContentModelAdapter: ModelAdapter<Fts4ContentModel>
+
+    abstract val fts4VirtualModelAdapter: ModelAdapter<Fts4VirtualModel>
 }

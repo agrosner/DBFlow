@@ -27,9 +27,9 @@ interface DBRepresentable<DBType : Any> : QueryRepresentable<DBType> {
 interface WritableDBRepresentable<DBType : Any> : DBRepresentable<DBType>
 
 @DelicateDBFlowApi
-fun <Table : Any> WritableDBRepresentable<Table>.create(db: DatabaseWrapper) =
+fun <Table : Any> DBRepresentable<Table>.create(db: DatabaseWrapper) =
     UnitResultFactory.run { db.createResult(creationSQL.query) }
 
 @DelicateDBFlowApi
-fun <Table : Any> WritableDBRepresentable<Table>.drop(db: DatabaseWrapper) =
+fun <Table : Any> DBRepresentable<Table>.drop(db: DatabaseWrapper) =
     UnitResultFactory.run { db.createResult(dropSQL.query) }

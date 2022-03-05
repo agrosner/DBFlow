@@ -1,6 +1,6 @@
 package com.dbflow5.config
 
-import com.dbflow5.adapter.WritableDBRepresentable
+import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Database
@@ -242,7 +242,7 @@ abstract class DBFlowDatabase : GeneratedDatabase {
      */
     override val tableObserver: TableObserver<DBFlowDatabase> by lazy {
         // observe all tables
-        TableObserver(this, adapters = modelAdapters.toMutableList<WritableDBRepresentable<*>>()
+        TableObserver(this, adapters = modelAdapters.toMutableList<DBRepresentable<*>>()
             .apply { addAll(viewAdapters) })
     }
 
