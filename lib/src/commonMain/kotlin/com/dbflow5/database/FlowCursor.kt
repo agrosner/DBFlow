@@ -7,6 +7,9 @@ import kotlinx.atomicfu.atomic
  * A low level DB Cursor that reads row by row from a query and returns values based on index. It
  * should be rare you need to use this class directly unless you need to
  * perform a custom data retrieval.
+ *
+ * Indexes are 0-based. Some platforms like JVM JDBC use an index of "1" :( so we account
+ * for that internally.
  */
 interface FlowCursor : Closeable, Iterable<FlowCursor> {
     fun isNull(index: Int): Boolean

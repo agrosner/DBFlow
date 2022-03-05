@@ -25,12 +25,12 @@ internal constructor(
 
     override fun simpleQueryForLong(): Long =
         statement.executeQuery().run {
-            if (next()) getLong(0) else 0
+            if (next()) getLong(1) else 0
         }
 
     override fun simpleQueryForString(): String? =
         statement.executeQuery().run {
-            if (next()) getString(0) else null
+            if (next()) getString(1) else null
         }
 
     override fun executeInsert(): Long {

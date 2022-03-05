@@ -17,7 +17,7 @@ class JDBCDatabase internal constructor(
         get() = db.version
 
     override fun execSQL(query: String) {
-        rethrowDBFlowException { db.prepareStatement(query).execute() }
+        rethrowDBFlowException { db.prepareStatement(query).use { it.execute() } }
     }
 
     override suspend fun <R> executeTransaction(
@@ -42,7 +42,7 @@ class JDBCDatabase internal constructor(
             compileStatement(query).apply {
                 bindAllArgsAsStrings(selectionArgs)
             }
-                .statement
+                .statement.apply { execute() }
                 .resultSet
         )
     }

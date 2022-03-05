@@ -61,6 +61,8 @@ class DatabaseTestRule<DB : DBFlowDatabase>(
         ).use {
             it.destroy()
             db = it
+            // force creations first
+            db.writableDatabase
             try {
                 fn()
             } finally {

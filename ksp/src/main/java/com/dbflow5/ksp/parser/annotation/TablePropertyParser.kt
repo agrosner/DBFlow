@@ -21,7 +21,7 @@ class TablePropertyParser(
             name = arg("name") ?: "",
             database = typeName("database") ?: Any::class.asTypeName(),
             allFields = arg("allFields") ?: true,
-            orderedCursorLookup = arg("orderedCursorLookUp") ?: true,
+            orderedCursorLookup = arg("orderedCursorLookUp") ?: false,
             assignDefaultValuesFromCursor = arg("assignDefaultValuesFromCursor") ?: true,
             createWithDatabase = arg("createWithDatabase") ?: true,
             updateConflict = enumArg("updateConflict", ConflictAction.NONE, ConflictAction::valueOf),

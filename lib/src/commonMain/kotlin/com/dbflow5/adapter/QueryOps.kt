@@ -18,11 +18,19 @@ data class QueryOpsImpl<QueryType : Any>(
 ) : QueryOps<QueryType> {
     override suspend fun DatabaseWrapper.single(query: Query): QueryType? =
         generatedDatabase.readableTransaction {
-            db.rawQuery(query.query).firstOrNull()?.let { loadFromCursor(db, it) }
+            db.rawQuery(query.query).firstOrNull()?.let {
+                val result = loadFromCursor(db, it)
+                it.close()
+                result
+            }
         }
 
     override suspend fun DatabaseWrapper.list(query: Query): List<QueryType> =
         generatedDatabase.readableTransaction {
-            db.rawQuery(query.query).mapNotNull { loadFromCursor(db, it) }
+            db.rawQuery(query.query).let { cursor ->
+                val result = cursor.mapNotNull { loadFromCursor(db, it) }
+                cursor.close()
+                result
+            }
         }
 }
