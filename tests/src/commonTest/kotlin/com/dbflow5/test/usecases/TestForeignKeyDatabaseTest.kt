@@ -1,7 +1,8 @@
-package com.dbflow5
+package com.dbflow5.test.usecases
 
+import com.dbflow5.longForQuery
 import com.dbflow5.test.DatabaseTestRule
-import org.junit.Rule
+import com.dbflow5.test.TestForeignKeyDatabase_Database
 import kotlin.test.Test
 
 class TestForeignKeyDatabaseTest {
@@ -14,3 +15,4 @@ class TestForeignKeyDatabaseTest {
         assert(enabled == 1L)
     }
 }
+

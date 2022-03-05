@@ -1,18 +1,21 @@
-package com.dbflow5.prepackaged
+package com.dbflow5.test.usecases
 
-import com.dbflow5.test.TestTransactionDispatcherFactory
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
-import org.junit.Assert.assertTrue
-import org.junit.Rule
+import com.dbflow5.test.Dog2_Table
+import com.dbflow5.test.MigratedPrepackagedDB_Database
+import com.dbflow5.test.PrepackagedDB_Database
+import com.dbflow5.test.TestTransactionDispatcherFactory
+import com.dbflow5.test.dog2Adapter
+import com.dbflow5.test.dogAdapter
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 /**
  * Description: Asserts our prepackaged DB loads.
  */
 class PrepackagedDBTest {
 
-    
     val prepackagedDBRule = DatabaseTestRule(PrepackagedDB_Database) {
         copy(
             name = "prepackaged",
@@ -20,7 +23,6 @@ class PrepackagedDBTest {
         )
     }
 
-    
     val migratedPrepackagedDBRule = DatabaseTestRule(MigratedPrepackagedDB_Database) {
         copy(
             name = "prepackaged_2",

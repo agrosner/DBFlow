@@ -7,6 +7,5 @@ class KaptPlatforms : Platforms {
     /**
      * Kapt only runs on JVM sources.
      */
-    override val currentPlatform: List<String> =
-        listOf("jvm", "android")
+    override val currentPlatform = Platforms.JVM
 }

@@ -1,16 +1,14 @@
-package com.dbflow5.config
+package com.dbflow5.test.config
 
-import androidx.test.platform.app.InstrumentationRegistry
-import com.dbflow5.TestDatabase_Database
 import com.dbflow5.database.DatabaseCallback
-import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.OpenHelperCreator
-import com.dbflow5.database.config.create
 import com.dbflow5.database.transaction.TransactionDispatcherFactory
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.fakes.FakeOpenHelper
+import com.dbflow5.test.helpers.platformSettings
 import com.dbflow5.transaction.TransactionDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlin.test.Test
-import org.mockito.kotlin.mock
 import kotlin.test.assertEquals
 
 
@@ -19,10 +17,10 @@ class DatabaseSettingsTest {
     @Test
     fun test_databaseConfig() {
         val databaseCallback = object : DatabaseCallback {}
-        val customOpenHelper = mock<OpenHelper>()
 
+        val fakeOpenHelper = FakeOpenHelper()
         val openHelperCreator = OpenHelperCreator { _, _ ->
-            customOpenHelper
+            fakeOpenHelper
         }
         lateinit var testTransactionManager: TransactionDispatcher
         val dispatcherFactory = TransactionDispatcherFactory {
@@ -31,7 +29,7 @@ class DatabaseSettingsTest {
         }
 
         val db =
-            TestDatabase_Database.create(InstrumentationRegistry.getInstrumentation().targetContext) {
+            TestDatabase_Database.create(platformSettings = platformSettings()) {
                 copy(
                     name = "Test",
                     databaseCallback = databaseCallback,
@@ -45,13 +43,13 @@ class DatabaseSettingsTest {
         assertEquals("Test", db.databaseName)
         assertEquals(".db", db.databaseExtensionName)
         assertEquals(testTransactionManager, db.transactionDispatcher)
-        assertEquals(customOpenHelper, db.openHelper)
+        assertEquals(fakeOpenHelper, db.openHelper)
     }
 
     @Test
     fun test_EmptyName() {
         val db =
-            TestDatabase_Database.create(InstrumentationRegistry.getInstrumentation().targetContext) {
+            TestDatabase_Database.create(platformSettings = platformSettings()) {
                 copy(
                     name = "Test",
                     databaseExtensionName = "",

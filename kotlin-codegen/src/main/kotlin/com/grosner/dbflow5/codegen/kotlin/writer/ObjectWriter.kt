@@ -60,7 +60,9 @@ class ObjectWriter(
             }
             .onEach { model ->
                 // prep names for use
-                nameAllocator.newName(model.generatedFieldName, model.generatedClassName)
+                nameAllocator.newName(
+                    suggestion = model.generatedFieldName,
+                    tag = model.generatedClassName)
             }
         val migrations = objects.filterIsInstance<MigrationModel>()
 

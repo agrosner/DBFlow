@@ -1,4 +1,4 @@
-package com.dbflow5.prepackaged
+package com.dbflow5.test
 
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.migrationAdapter

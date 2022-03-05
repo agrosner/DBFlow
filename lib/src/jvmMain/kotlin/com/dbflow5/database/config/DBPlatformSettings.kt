@@ -2,13 +2,15 @@ package com.dbflow5.database.config
 
 import com.dbflow5.config.DBFlowDatabase
 
-actual class DBPlatformSettings {
+actual data class DBPlatformSettings(
     /**
      * Used for ability to use Write Ahead Logging
      *
      * What should we consider here?
      */
-    actual val isLowRamDevice: Boolean = false
+    actual val isLowRamDevice: Boolean = false,
+
+    ) {
 }
 
 /**

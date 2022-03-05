@@ -9,5 +9,6 @@ interface Platforms {
 
     companion object {
         const val All = "ALL"
+        const val JVM = "JVM"
     }
 }

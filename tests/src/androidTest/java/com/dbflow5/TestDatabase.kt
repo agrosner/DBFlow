@@ -5,10 +5,7 @@ import com.dbflow5.adapter.QueryAdapter
 import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.adapter.migrationAdapter
 import com.dbflow5.annotation.Database
-import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.Migration
-import com.dbflow5.annotation.PrimaryKey
-import com.dbflow5.annotation.Table
 import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.scope.MigrationScope
@@ -83,7 +80,6 @@ import com.dbflow5.models.java.JavaModelView
 import com.dbflow5.query.operations.sqlLiteralOf
 import com.dbflow5.query.update
 import com.dbflow5.rx2.query.SimpleRXModel
-import com.dbflow5.test.sql.language.CaseModel
 
 /**
  * Description:
@@ -268,24 +264,4 @@ abstract class TestDatabase : DBFlowDatabase() {
         }
     }
 
-}
-
-@Database(
-    version = 1, foreignKeyConstraintsEnforced = true,
-
-    tables = [
-        TestForeignKeyDatabase.SimpleModel::class,
-        TestForeignKeyDatabase.SimpleForeignModel::class,
-    ]
-)
-abstract class TestForeignKeyDatabase : DBFlowDatabase() {
-
-    @Table
-    data class SimpleModel(@PrimaryKey var name: String = "")
-
-    @Table
-    data class SimpleForeignModel(
-        @PrimaryKey var id: Int = 0,
-        @ForeignKey var model: SimpleModel? = null
-    )
 }
