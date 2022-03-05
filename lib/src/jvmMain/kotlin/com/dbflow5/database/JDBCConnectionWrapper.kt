@@ -45,7 +45,7 @@ internal class JDBCConnectionWrapper(
     fun createStatement(): Statement = connection.createStatement()
 
     fun prepareStatement(query: String): PreparedStatement =
-        connection.prepareStatement(query)
+        connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
 
     fun beginTransaction() {
         connection.autoCommit = false

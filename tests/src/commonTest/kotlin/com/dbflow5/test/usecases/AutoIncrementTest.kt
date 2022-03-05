@@ -1,24 +1,19 @@
-package com.dbflow5.models
+package com.dbflow5.test.usecases
 
-import com.dbflow5.TestDatabase_Database
-import com.dbflow5.annotation.PrimaryKey
-import com.dbflow5.annotation.Table
-import com.dbflow5.autoIncrementingModelAdapter
+import com.dbflow5.test.AutoIncrementingModel
 import com.dbflow5.test.DatabaseTestRule
-import org.junit.Assert.assertEquals
-import org.junit.Rule
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.autoIncrementingModelAdapter
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
-/**
- * Description:
- */
 class AutoIncrementTest {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
     fun testCanInsertAutoIncrement() = dbRule.runTest {
-        val model = AutoIncrementingModel()
+        val model = AutoIncrementingModel(id = 0)
         val incrementingModel = autoIncrementingModelAdapter.save(model)
         assertEquals(1L, incrementingModel.id)
     }
@@ -30,6 +25,3 @@ class AutoIncrementTest {
         assertEquals(3L, incrementingModel.id)
     }
 }
-
-@Table
-class AutoIncrementingModel(@PrimaryKey(autoincrement = true) var id: Long = 0)

@@ -20,7 +20,7 @@ import com.dbflow5.models.Artist_Song
 import com.dbflow5.models.Author
 import com.dbflow5.models.AuthorNameQuery
 import com.dbflow5.models.AuthorView
-import com.dbflow5.models.AutoIncrementingModel
+import com.dbflow5.test.usecases.AutoIncrementingModel
 import com.dbflow5.models.Blog
 import com.dbflow5.models.BlogDeferred
 import com.dbflow5.models.BlogPrimary
@@ -28,7 +28,6 @@ import com.dbflow5.models.BlogRef
 import com.dbflow5.models.BlogRefNoModel
 import com.dbflow5.models.BlogStubbed
 import com.dbflow5.models.CharModel
-import com.dbflow5.models.Coordinate
 import com.dbflow5.models.Currency
 import com.dbflow5.models.CustomBlobModel
 import com.dbflow5.models.DefaultModel
@@ -53,14 +52,12 @@ import com.dbflow5.models.OneToManyModel
 import com.dbflow5.models.OrderCursorModel
 import com.dbflow5.models.Outer
 import com.dbflow5.models.Owner
-import com.dbflow5.models.Path
 import com.dbflow5.models.Position
 import com.dbflow5.models.Position2
 import com.dbflow5.models.PositionWithTypeConverter
 import com.dbflow5.models.PriorityView
 import com.dbflow5.models.ProspectQuiz
 import com.dbflow5.models.ProspectQuizEntry
-import com.dbflow5.models.SimpleCacheObject
 import com.dbflow5.models.SimpleCustomModel
 import com.dbflow5.models.SimpleModel
 import com.dbflow5.models.SimpleQuickCheckModel
@@ -89,9 +86,6 @@ import com.dbflow5.rx2.query.SimpleRXModel
     tables = [
         ExampleModel::class,
         JavaModel::class,
-        SimpleCacheObject::class,
-        Coordinate::class,
-        Path::class,
         Blog::class,
         Author::class,
         BlogDeferred::class,
@@ -170,9 +164,6 @@ abstract class TestDatabase : DBFlowDatabase() {
 
     abstract val exampleAdapter: ModelAdapter<ExampleModel>
     abstract val javaModelAdapter: ModelAdapter<JavaModel>
-    abstract val simpleCacheObjectAdapter: ModelAdapter<SimpleCacheObject>
-    abstract val coordinateAdapter: ModelAdapter<Coordinate>
-    abstract val pathAdapter: ModelAdapter<Path>
     abstract val blogAdapter: ModelAdapter<Blog>
     abstract val authorAdapter: ModelAdapter<Author>
     abstract val blogDeferredAdapter: ModelAdapter<BlogDeferred>
