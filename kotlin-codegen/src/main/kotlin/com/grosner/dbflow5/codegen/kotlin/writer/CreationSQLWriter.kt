@@ -50,9 +50,9 @@ class CreationSQLWriter(
                     .apply {
                         if (model.isView) {
                             add(
-                                "return %T(%S)",
+                                "return %T(%P)",
                                 ClassNames.CompilableQuery,
-                                (model.type as ClassModel.Type.View).properties.query
+                                "CREATE VIEW ${model.dbName} AS ${(model.type as ClassModel.Type.View).properties.query}"
                             )
                         } else {
                             model.type.let { classType ->

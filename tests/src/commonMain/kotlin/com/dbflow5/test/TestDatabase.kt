@@ -2,6 +2,7 @@ package com.dbflow5.test
 
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.QueryAdapter
+import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.config.DBFlowDatabase
 
@@ -19,6 +20,9 @@ import com.dbflow5.config.DBFlowDatabase
     queries = [
         AuthorNameQuery::class,
     ],
+    views = [
+        AuthorView::class,
+    ],
     version = 1,
 )
 abstract class TestDatabase : DBFlowDatabase() {
@@ -34,4 +38,6 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val authorNameQueryAdapter: QueryAdapter<AuthorNameQuery>
 
     abstract val blogAdapter: ModelAdapter<Blog>
+
+    abstract val authorViewAdapter: ViewAdapter<AuthorView>
 }
