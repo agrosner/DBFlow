@@ -2,6 +2,7 @@ package com.grosner.dbflow5.codegen.kotlin.writer
 
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.PrimaryKey
+import com.dbflow5.codegen.shared.FieldModel
 import com.dbflow5.codegen.shared.ManyToManyModel
 import com.dbflow5.codegen.shared.ReferenceHolderModel
 import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
@@ -33,7 +34,16 @@ class ManyToManyClassWriter(
                             name = prop.propertyName,
                             type = prop.classType,
                         ) {
-                            addAnnotation(PrimaryKey::class)
+                            val fieldType = prop.fieldType
+                            if (fieldType is FieldModel.FieldType.Primary) {
+                                addAnnotation(AnnotationSpec.builder(PrimaryKey::class)
+                                    .apply {
+                                        if (fieldType.isAutoIncrement) {
+                                            addMember("autoincrement = true")
+                                        }
+                                    }
+                                    .build())
+                            }
                             if (prop is ReferenceHolderModel) {
                                 addAnnotation(
                                     AnnotationSpec.builder(ForeignKey::class)

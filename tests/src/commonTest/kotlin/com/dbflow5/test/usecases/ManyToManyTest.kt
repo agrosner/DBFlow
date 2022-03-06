@@ -1,16 +1,17 @@
-package com.dbflow5.models
+package com.dbflow5.test.usecases
 
-import com.dbflow5.TestDatabase_Database
-import com.dbflow5.artistAdapter
-import com.dbflow5.artistSongAdapter
-import com.dbflow5.songAdapter
+import com.dbflow5.test.Artist
+import com.dbflow5.test.Artist_Song
 import com.dbflow5.test.DatabaseTestRule
-import org.junit.Rule
+import com.dbflow5.test.Song
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.artistAdapter
+import com.dbflow5.test.artistSongAdapter
+import com.dbflow5.test.songAdapter
 import kotlin.test.Test
 
 class ManyToManyTest {
 
-    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

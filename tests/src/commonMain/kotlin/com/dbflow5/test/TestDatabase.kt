@@ -20,6 +20,8 @@ import com.dbflow5.config.DBFlowDatabase
         Fts4ContentModel::class,
         Fts4VirtualModel::class,
         AutoIncrementingModel::class,
+        Artist::class,
+        Song::class,
     ],
     queries = [
         AuthorNameQuery::class,
@@ -52,5 +54,11 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val fts4VirtualModelAdapter: ModelAdapter<Fts4VirtualModel>
 
     abstract val autoIncrementingModelAdapter: ModelAdapter<AutoIncrementingModel>
+
+    abstract val artistAdapter: ModelAdapter<Artist>
+
+    abstract val songAdapter: ModelAdapter<Song>
+
+    abstract val artistSongAdapter: ModelAdapter<Artist_Song>
 }
 
