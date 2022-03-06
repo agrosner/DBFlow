@@ -6,7 +6,6 @@ import com.dbflow5.query.delete
 import com.dbflow5.query.operations.indexProperty
 import com.dbflow5.query.select
 import com.dbflow5.query.update
-import com.dbflow5.test.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test

@@ -110,9 +110,9 @@ class DatabaseWriter(
                                             .addParameter(
                                                 ParameterSpec.builder(
                                                     "settingsFn", LambdaTypeName.get(
-                                                        receiver = ClassNames.DBSettings,
-                                                        returnType = ClassNames.DBSettings
-                                                    )
+                                                    receiver = ClassNames.DBSettings,
+                                                    returnType = ClassNames.DBSettings
+                                                )
                                                 )
                                                     .build()
                                             )
@@ -164,32 +164,6 @@ class DatabaseWriter(
                         }
                         .build()
                 )
-
-                // extension methods for db scope
-
-                model.adapterFields
-                    .forEach { clazz ->
-                        addProperty(
-                            PropertySpec.builder(
-                                clazz.name.shortName,
-                                clazz.adapterTypeName,
-                            )
-                                .apply {
-                                    //if (clazz.isInternal) {
-                                    //    addModifiers(KModifier.INTERNAL)
-                                    //}
-                                }
-                                .receiver(ClassNames.dbScope(model.classType))
-                                .getter(
-                                    FunSpec.getterBuilder()
-                                        .addStatement(
-                                            "return db.%L", clazz.name.shortName,
-                                        )
-                                        .build()
-                                )
-                                .build()
-                        )
-                    }
             }
             .build()
     }

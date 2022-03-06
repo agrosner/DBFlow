@@ -5,7 +5,6 @@ import com.dbflow5.adapter.drop
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TempModel
 import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.test.tempModelAdapter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

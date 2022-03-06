@@ -6,24 +6,17 @@ import com.dbflow5.config.FlowLog
 import com.dbflow5.config.GeneratedDatabaseHolderFactory
 import com.dbflow5.database.config.DBCreator
 import com.dbflow5.database.config.DBSettings
-import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.mpp.use
 import com.dbflow5.test.helpers.platformSettings
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.setMain
 
-data class TestDatabaseScope<DB : DBFlowDatabase>(
-    private val dbScope: WritableDatabaseScope<DB>,
-    val testScope: TestScope
-) : WritableDatabaseScope<DB> by dbScope, CoroutineScope by testScope
-
 /**
  * Provides hook into specified DB.
  */
-class DatabaseTestRule<DB : DBFlowDatabase>(
+class DatabaseTestRule<DB : DBFlowDatabase<DB>>(
     val creator: DBCreator<DB>,
     /**
      * Injects [TestTransactionDispatcherFactory] for settings. Typically don't override
@@ -37,16 +30,17 @@ class DatabaseTestRule<DB : DBFlowDatabase>(
     lateinit var db: DB
 
     @Suppress("UNCHECKED_CAST")
-    inline operator fun invoke(fn: WritableDatabaseScope<DB>.() -> Unit) {
+    inline operator fun invoke(fn: DB.() -> Unit) {
         acquireFreshDatabase {
-            (db.writableScope as WritableDatabaseScope<DB>).apply { fn() }
+            db.apply { fn() }
         }
     }
 
-    fun runTest(fn: suspend TestDatabaseScope<DB>.() -> Unit) {
+    fun runTest(fn: suspend DB.(testScope: TestScope) -> Unit) {
         acquireFreshDatabase {
             kotlinx.coroutines.test.runTest {
-                TestDatabaseScope(WritableDatabaseScope(db), this).apply { fn() }
+                val scope = this
+                db.apply { fn(scope) }
             }
         }
     }

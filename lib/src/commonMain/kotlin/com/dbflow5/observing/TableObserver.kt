@@ -21,7 +21,7 @@ import kotlinx.atomicfu.locks.withLock
  * Description: Tracks table changes in the DB via Triggers. This more efficient than utilizing
  * in the app space.
  */
-class TableObserver<DB : DBFlowDatabase> internal constructor(
+class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
     private val db: DB,
     private val adapters: List<DBRepresentable<*>>
 ) : SynchronizedObject() {

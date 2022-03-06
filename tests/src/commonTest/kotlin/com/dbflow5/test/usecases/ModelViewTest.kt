@@ -5,8 +5,6 @@ import com.dbflow5.test.Author
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.assertEquals
-import com.dbflow5.test.authorAdapter
-import com.dbflow5.test.authorViewAdapter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

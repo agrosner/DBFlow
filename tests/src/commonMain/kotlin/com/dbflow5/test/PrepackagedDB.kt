@@ -22,7 +22,7 @@ import com.dbflow5.sql.SQLiteType
         Dog::class,
     ]
 )
-abstract class PrepackagedDB : DBFlowDatabase() {
+abstract class PrepackagedDB : DBFlowDatabase<PrepackagedDB>() {
     abstract val dogAdapter: ModelAdapter<Dog>
 }
 
@@ -36,7 +36,7 @@ abstract class PrepackagedDB : DBFlowDatabase() {
         MigratedPrepackagedDB.AddSomeDataMigration::class,
     ]
 )
-abstract class MigratedPrepackagedDB : DBFlowDatabase() {
+abstract class MigratedPrepackagedDB : DBFlowDatabase<MigratedPrepackagedDB>() {
 
     abstract val dog2Adapter: ModelAdapter<Dog2>
 

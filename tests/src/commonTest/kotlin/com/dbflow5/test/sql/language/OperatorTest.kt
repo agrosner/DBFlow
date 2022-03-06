@@ -1,23 +1,20 @@
 package com.dbflow5.test.sql.language
 
-import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.annotation.Collate
-import com.dbflow5.test.assertEquals
-import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.query.nameAlias
 import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.collate
 import com.dbflow5.query.operations.operator
 import com.dbflow5.query.select
-import com.dbflow5.test.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TwoColumnModel_Table
+import com.dbflow5.test.assertEquals
 import kotlinx.coroutines.test.runTest
-import org.junit.Rule
 import kotlin.test.Test
 
 class OperatorTest {
 
-    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     private val name = "name".nameAlias

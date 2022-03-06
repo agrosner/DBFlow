@@ -53,6 +53,7 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.ksp.toClassName
 import com.squareup.kotlinpoet.ksp.toTypeName
 import com.squareup.kotlinpoet.typeNameOf
@@ -142,7 +143,9 @@ class KSClassDeclarationParser(
         return input.annotations.mapNotNull { annotation ->
             return@mapNotNull when (annotation.annotationType.toTypeName()) {
                 typeNameOf<Database>() -> {
-                    if (!input.hasSuperType(ClassNames.DBFlowDatabase)) {
+                    if (!input.hasSuperType(ClassNames.DBFlowDatabase.parameterizedBy(
+                            input.toClassName(),
+                        ))) {
                         throw Validation.InvalidSuperType(
                             classType,
                             ClassNames.DBFlowDatabase,

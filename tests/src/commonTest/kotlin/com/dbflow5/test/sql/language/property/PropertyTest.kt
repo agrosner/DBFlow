@@ -10,7 +10,7 @@ import com.dbflow5.query.operations.like
 import com.dbflow5.query.operations.match
 import com.dbflow5.query.operations.notLike
 import com.dbflow5.query.operations.property
-import com.dbflow5.test.simpleModelAdapter
+
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel
 import com.dbflow5.test.assertEquals

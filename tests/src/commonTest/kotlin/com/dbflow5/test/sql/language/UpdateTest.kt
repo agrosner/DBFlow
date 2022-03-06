@@ -5,7 +5,6 @@ import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.test.assertEquals
 import com.dbflow5.test.NumberModel_Table
 import com.dbflow5.test.SimpleModel_Table
-import com.dbflow5.test.numberModelAdapter
 import com.dbflow5.query.operations.Literal
 import com.dbflow5.query.orAbort
 import com.dbflow5.query.orFail
@@ -13,7 +12,7 @@ import com.dbflow5.query.orIgnore
 import com.dbflow5.query.orReplace
 import com.dbflow5.query.orRollback
 import com.dbflow5.query.update
-import com.dbflow5.test.simpleModelAdapter
+
 import com.dbflow5.test.DatabaseTestRule
 import kotlin.test.Test
 

@@ -23,6 +23,7 @@ import com.dbflow5.config.DBFlowDatabase
         Artist::class,
         Song::class,
         TempModel::class,
+        DontCreateModel::class,
     ],
     queries = [
         AuthorNameQuery::class,
@@ -32,7 +33,7 @@ import com.dbflow5.config.DBFlowDatabase
     ],
     version = 1,
 )
-abstract class TestDatabase : DBFlowDatabase() {
+abstract class TestDatabase : DBFlowDatabase<TestDatabase>() {
 
     abstract val simpleModelAdapter: ModelAdapter<SimpleModel>
 
@@ -63,5 +64,7 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val artistSongAdapter: ModelAdapter<Artist_Song>
 
     abstract val tempModelAdapter: ModelAdapter<TempModel>
+
+    abstract val dontCreateModelAdapter: ModelAdapter<DontCreateModel>
 }
 

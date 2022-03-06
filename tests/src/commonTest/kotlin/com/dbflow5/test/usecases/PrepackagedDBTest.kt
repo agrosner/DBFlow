@@ -6,8 +6,6 @@ import com.dbflow5.test.Dog2_Table
 import com.dbflow5.test.MigratedPrepackagedDB_Database
 import com.dbflow5.test.PrepackagedDB_Database
 import com.dbflow5.test.TestTransactionDispatcherFactory
-import com.dbflow5.test.dog2Adapter
-import com.dbflow5.test.dogAdapter
 import kotlin.test.Test
 import kotlin.test.assertTrue
 

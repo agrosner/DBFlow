@@ -4,7 +4,7 @@ import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.assertEquals
 import com.dbflow5.query.operations.UnSafeStringOperator
 import com.dbflow5.query.select
-import com.dbflow5.test.simpleModelAdapter
+
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Rule
 import kotlin.test.Test

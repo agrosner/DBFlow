@@ -2,8 +2,10 @@ package com.dbflow5.config
 
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter
+import com.dbflow5.adapter.QueryRepresentable
 import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Database
+import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseStatement
@@ -19,6 +21,9 @@ import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.mpp.Closeable
 import com.dbflow5.mpp.runBlocking
 import com.dbflow5.observing.TableObserver
+import com.dbflow5.query.CountResultFactory
+import com.dbflow5.query.ExecutableQuery
+import com.dbflow5.query.SelectResult
 import com.dbflow5.runtime.ModelNotifier
 import com.dbflow5.transaction.SuspendableTransaction
 import com.dbflow5.transaction.Transaction
@@ -74,7 +79,7 @@ interface GeneratedDatabase : DatabaseWrapper, Closeable {
     val writableDatabase: DatabaseWrapper
 
     @InternalDBFlowApi
-    val tableObserver: TableObserver<DBFlowDatabase>
+    val tableObserver: TableObserver<*>
 
     /**
      * True if the [Database.foreignKeyConstraintsEnforced] annotation is true.
@@ -110,7 +115,8 @@ interface GeneratedDatabase : DatabaseWrapper, Closeable {
  * Description: The main interface that all Database implementations extend from. Use this to
  * pass in for operations and [Transaction].
  */
-abstract class DBFlowDatabase : GeneratedDatabase {
+abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
+    WritableDatabaseScope<DB> {
 
     /**
      * Created by code generation. Do not implement this directly.
@@ -143,6 +149,9 @@ abstract class DBFlowDatabase : GeneratedDatabase {
 
     override val platformSettings: DBPlatformSettings
         get() = settings.platformSettings
+
+    override val db: DB
+        get() = this as DB
 
     /**
      * Used when resetting the DB
@@ -240,9 +249,9 @@ abstract class DBFlowDatabase : GeneratedDatabase {
      * Returns the associated table observer that tracks changes to tables during transactions on
      * the DB.
      */
-    override val tableObserver: TableObserver<DBFlowDatabase> by lazy {
+    override val tableObserver: TableObserver<*> by lazy {
         // observe all tables
-        TableObserver(this, adapters = modelAdapters.toMutableList<DBRepresentable<*>>()
+        TableObserver(this as DB, adapters = modelAdapters.toMutableList<DBRepresentable<*>>()
             .apply { addAll(viewAdapters) })
     }
 
@@ -319,6 +328,70 @@ abstract class DBFlowDatabase : GeneratedDatabase {
 
     override val isInTransaction: Boolean
         get() = writableDatabase.isInTransaction
+
+    override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.singleOrNull(): Table? =
+        writableScope.run { singleOrNull() }
+
+    override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.single(): Table =
+        writableScope.run { single() }
+
+
+    override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.list(): List<Table> =
+        writableScope.run { list() }
+
+
+    override suspend fun <Table : Any, OtherTable : Any>
+        ExecutableQuery<SelectResult<Table>>.singleOrNull(
+        adapter: QueryRepresentable<OtherTable>): OtherTable? =
+        writableScope.run { singleOrNull(adapter) }
+
+    override suspend fun <Table : Any, OtherTable : Any>
+        ExecutableQuery<SelectResult<Table>>.single(
+        adapter: QueryRepresentable<OtherTable>): OtherTable =
+        writableScope.run { single(adapter) }
+
+    override suspend fun <Table : Any, OtherTable : Any>
+        ExecutableQuery<SelectResult<Table>>.list(
+        adapter: QueryRepresentable<OtherTable>): List<OtherTable> =
+        writableScope.run { list(adapter) }
+
+    @DelicateDBFlowApi
+    override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.cursor(): FlowCursor =
+        writableScope.run { cursor() }
+
+
+    override suspend fun ExecutableQuery<CountResultFactory.Count>.hasData(): Boolean =
+        writableScope.run { hasData() }
+
+    override suspend fun <Table : Any> ModelAdapter<Table>.exists(model: Table): Boolean =
+        writableScope.run { exists(model) }
+
+    override suspend fun <Result> ExecutableQuery<Result>.execute(): Result =
+        writableScope.run { execute() }
+
+    override suspend fun <T : Any> ModelAdapter<T>.save(model: T): T =
+        writableScope.run { save(model) }
+
+    override suspend fun <T : Any> ModelAdapter<T>.saveAll(models: Collection<T>): Collection<T> =
+        writableScope.run { saveAll(models) }
+
+    override suspend fun <T : Any> ModelAdapter<T>.insert(model: T): T =
+        writableScope.run { insert(model) }
+
+    override suspend fun <T : Any> ModelAdapter<T>.insertAll(models: Collection<T>): Collection<T> =
+        writableScope.run { insertAll(models) }
+
+    override suspend fun <T : Any> ModelAdapter<T>.update(model: T): T =
+        writableScope.run { update(model) }
+
+    override suspend fun <T : Any> ModelAdapter<T>.updateAll(models: Collection<T>): Collection<T> =
+        writableScope.run { updateAll(models) }
+
+    override suspend fun <T : Any> ModelAdapter<T>.delete(model: T): T =
+        writableScope.run { delete(model) }
+
+    override suspend fun <T : Any> ModelAdapter<T>.deleteAll(models: Collection<T>): Collection<T> =
+        writableScope.run { deleteAll(models) }
 
     private val internalCallback: DatabaseCallback = object : DatabaseCallback {
         override fun onOpen(db: DatabaseWrapper) {

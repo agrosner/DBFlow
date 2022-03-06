@@ -12,9 +12,9 @@ import com.dbflow5.query.operations.literalOf
 import com.dbflow5.query.operations.match
 import com.dbflow5.query.orderBy
 import com.dbflow5.query.select
-import com.dbflow5.test.simpleModelAdapter
+
 import com.dbflow5.test.DatabaseTestRule
-import com.dbflow5.test.twoColumnModelAdapter
+
 import org.junit.Rule
 import kotlin.test.Test
 

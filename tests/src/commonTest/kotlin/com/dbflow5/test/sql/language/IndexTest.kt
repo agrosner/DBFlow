@@ -4,9 +4,7 @@ import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.query.createIndexOn
-import com.dbflow5.test.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
-import com.dbflow5.test.twoColumnModelAdapter
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

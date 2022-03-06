@@ -16,6 +16,6 @@ actual data class DBPlatformSettings(
 /**
  * Creates new [DBFlowDatabase] with settings.
  */
-fun <DB : DBFlowDatabase> DBCreator<DB>.create(
+fun <DB : DBFlowDatabase<DB>> DBCreator<DB>.create(
     dbSettings: DBSettings.() -> DBSettings
 ) = create(DBPlatformSettings(), dbSettings)

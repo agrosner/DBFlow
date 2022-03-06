@@ -9,9 +9,9 @@ import com.dbflow5.query.createTrigger
 import com.dbflow5.query.insert
 import com.dbflow5.query.methods.cast
 import com.dbflow5.query.select
-import com.dbflow5.test.simpleModelAdapter
+
 import com.dbflow5.test.DatabaseTestRule
-import com.dbflow5.test.twoColumnModelAdapter
+
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
 import org.junit.Rule

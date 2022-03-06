@@ -4,7 +4,7 @@ import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.query.operations.literalOf
 import com.dbflow5.query.operations.sqlLiteralOf
 import com.dbflow5.query.select
-import com.dbflow5.test.simpleModelAdapter
+
 import com.dbflow5.test.DatabaseTestRule
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -5,7 +5,7 @@ import com.dbflow5.config.DBFlowDatabase
 /**
  * Used by generated code for database creation.
  */
-interface DBCreator<DB : DBFlowDatabase> {
+interface DBCreator<DB : DBFlowDatabase<DB>> {
 
     fun create(
         platformSettings: DBPlatformSettings,

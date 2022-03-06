@@ -14,7 +14,6 @@ import com.dbflow5.test.SimpleModel
 import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestTransactionDispatcherFactory
-import com.dbflow5.test.simpleModelAdapter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -25,8 +24,8 @@ class DirectNotifierTest {
     }
 
     @Test
-    fun validateCanNotifyDirect() = dbRule.runTest {
-        NotifyDistributor.setNotifyDistributor(NotifyDistributorImpl(scope = this))
+    fun validateCanNotifyDirect() = dbRule.runTest { testScope ->
+        NotifyDistributor.setNotifyDistributor(NotifyDistributorImpl(scope = testScope))
         val model = SimpleModel("Name")
         DirectModelNotifier.get(this.db).notificationFlow
             .test {

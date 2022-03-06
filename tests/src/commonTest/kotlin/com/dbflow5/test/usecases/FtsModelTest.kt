@@ -14,8 +14,6 @@ import com.dbflow5.test.Fts4ContentModel_Table
 import com.dbflow5.test.Fts4VirtualModel
 import com.dbflow5.test.Fts4VirtualModel_Table
 import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.test.fts4ContentModelAdapter
-import com.dbflow5.test.fts4VirtualModelAdapter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

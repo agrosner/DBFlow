@@ -8,9 +8,6 @@ import com.dbflow5.test.Blog
 import com.dbflow5.test.Blog_Table
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.test.authorAdapter
-import com.dbflow5.test.authorNameQueryAdapter
-import com.dbflow5.test.blogAdapter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

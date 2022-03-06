@@ -3,7 +3,6 @@ package com.dbflow5.test.usecases
 import com.dbflow5.test.AutoIncrementingModel
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.test.autoIncrementingModelAdapter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

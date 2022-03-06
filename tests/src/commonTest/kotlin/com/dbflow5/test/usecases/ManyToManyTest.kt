@@ -5,9 +5,6 @@ import com.dbflow5.test.Artist_Song
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.Song
 import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.test.artistAdapter
-import com.dbflow5.test.artistSongAdapter
-import com.dbflow5.test.songAdapter
 import kotlin.test.Test
 
 class ManyToManyTest {

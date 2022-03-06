@@ -9,8 +9,6 @@ import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.test.assertEquals
-import com.dbflow5.test.simpleModelAdapter
-import com.dbflow5.test.twoColumnModelAdapter
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

@@ -13,7 +13,7 @@ import com.dbflow5.config.DBFlowDatabase
         TestForeignKeyDatabase.SimpleForeignModel::class,
     ]
 )
-abstract class TestForeignKeyDatabase : DBFlowDatabase() {
+abstract class TestForeignKeyDatabase : DBFlowDatabase<TestForeignKeyDatabase>() {
 
     // TODO: using SimpleModel throws duplicate error due to code gen nested classes in NameModel.
     // Name model does not preserve full simple name.
