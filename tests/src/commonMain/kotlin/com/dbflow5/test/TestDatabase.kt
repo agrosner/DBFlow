@@ -22,6 +22,7 @@ import com.dbflow5.config.DBFlowDatabase
         AutoIncrementingModel::class,
         Artist::class,
         Song::class,
+        TempModel::class,
     ],
     queries = [
         AuthorNameQuery::class,
@@ -60,5 +61,7 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val songAdapter: ModelAdapter<Song>
 
     abstract val artistSongAdapter: ModelAdapter<Artist_Song>
+
+    abstract val tempModelAdapter: ModelAdapter<TempModel>
 }
 

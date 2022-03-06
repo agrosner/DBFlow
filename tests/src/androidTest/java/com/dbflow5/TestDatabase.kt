@@ -64,7 +64,7 @@ import com.dbflow5.models.SimpleQuickCheckModel
 import com.dbflow5.models.Song
 import com.dbflow5.models.SqlListenerModel
 import com.dbflow5.models.SubclassAllFields
-import com.dbflow5.models.TempModel
+import com.dbflow5.test.usecases.TempModel
 import com.dbflow5.models.Transfer
 import com.dbflow5.models.Transfer2
 import com.dbflow5.models.TwoColumnModel
