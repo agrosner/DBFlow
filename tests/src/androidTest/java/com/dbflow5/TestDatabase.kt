@@ -43,7 +43,7 @@ import com.dbflow5.models.Fts4VirtualModel2
 import com.dbflow5.test.IndexModel
 import com.dbflow5.models.InternalClass
 import com.dbflow5.models.NonNullKotlinModel
-import com.dbflow5.models.NonTypical.nonTypicalClassName
+import com.dbflow5.test.NonTypical.nonTypicalClassName
 import com.dbflow5.models.NotNullReferenceModel
 import com.dbflow5.models.NullableNumbers
 import com.dbflow5.models.NumberModel
@@ -137,7 +137,7 @@ import com.dbflow5.rx2.query.SimpleRXModel
         Fts4Model::class,
         Fts4VirtualModel2::class,
         TempModel::class,
-        nonTypicalClassName::class,
+        com.dbflow5.test.NonTypical.nonTypicalClassName::class,
         OneToManyModel::class,
         OneToManyBaseModel::class,
         com.dbflow5.test.sql.language.CaseModel::class,
@@ -220,7 +220,7 @@ abstract class TestDatabase : DBFlowDatabase() {
     abstract val fts4ModelAdapter: ModelAdapter<Fts4Model>
     abstract val fts4VirtualModel2Adapter: ModelAdapter<Fts4VirtualModel2>
     abstract val tempModelAdapter: ModelAdapter<TempModel>
-    abstract val nonTypicalClassNameAdapter: ModelAdapter<nonTypicalClassName>
+    abstract val nonTypicalClassNameAdapter: ModelAdapter<com.dbflow5.test.NonTypical.nonTypicalClassName>
     abstract val oneToManyModelAdapter: ModelAdapter<OneToManyModel>
     abstract val oneToManyBaseModelAdapter: ModelAdapter<OneToManyBaseModel>
 

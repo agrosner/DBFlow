@@ -1,14 +1,12 @@
-package com.dbflow5.database.transaction
+package com.dbflow5.test.usecases
 
 import app.cash.turbine.test
-import com.dbflow5.TestDatabase_Database
 import com.dbflow5.adapter.toFlow
-import com.dbflow5.models.TwoColumnModel
-import com.dbflow5.models.TwoColumnModel_Table
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
-import com.dbflow5.twoColumnModelAdapter
-import org.junit.Rule
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TwoColumnModel
+import com.dbflow5.test.TwoColumnModel_Table
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -17,7 +15,6 @@ import kotlin.test.assertEquals
  */
 class CoroutinesTest {
 
-    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

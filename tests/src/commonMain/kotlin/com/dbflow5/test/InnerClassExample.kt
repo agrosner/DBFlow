@@ -1,4 +1,4 @@
-package com.dbflow5.models
+package com.dbflow5.test
 
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table

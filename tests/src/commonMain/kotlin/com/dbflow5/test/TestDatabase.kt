@@ -5,6 +5,7 @@ import com.dbflow5.adapter.QueryAdapter
 import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.test.NonTypical.nonTypicalClassName
 
 @Database(
     tables = [
@@ -28,6 +29,9 @@ import com.dbflow5.config.DBFlowDatabase
         OneToManyBaseModel::class,
         OneToManyModel_OneToManyBaseModel::class,
         IndexModel::class,
+        nonTypicalClassName::class,
+        Outer.Inner::class,
+        OrderCursorModel::class,
     ],
     queries = [
         AuthorNameQuery::class,
@@ -80,5 +84,6 @@ abstract class TestDatabase : DBFlowDatabase<TestDatabase>() {
     abstract val typeConverterModelAdapter: ModelAdapter<TypeConverterModel>
 
     abstract val indexModelAdapter: ModelAdapter<IndexModel>
-}
 
+    abstract val orderCursorModelAdapter: ModelAdapter<OrderCursorModel>
+}
