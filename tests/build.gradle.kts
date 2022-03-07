@@ -60,7 +60,6 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
                 implementation(project(":lib"))
             }
@@ -74,7 +73,6 @@ kotlin {
             }
         }
         val androidMain by getting {
-            kotlin.srcDir("build/generated/ksp/android/androidDebug/kotlin")
             dependencies {
                 implementation("androidx.appcompat:appcompat:1.4.0")
                 implementation(project(":sqlcipher"))
@@ -86,7 +84,6 @@ kotlin {
         }
         val androidTest by getting {
             dependsOn(androidMain)
-            kotlin.srcDir("build/generated/ksp/android/androidDebugAndroidTest/kotlin")
             dependencies {
                 //kaptAndroidTest(project(":processor"))
 
@@ -106,15 +103,16 @@ kotlin {
             }
         }
 
-        val jvmMain by getting {
-            kotlin.srcDir("build/generated/ksp/jvm/jvmMain/kotlin")
-        }
+        val jvmMain by getting
         val jvmTest by getting {
-            kotlin.srcDir("build/generated/ksp/jvm/jvmTest/kotlin")
             dependencies {
                 implementation(Dependencies.JUnit)
             }
         }
+    }
+
+    sourceSets.all {
+        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
     }
 }
 

@@ -1,20 +1,16 @@
 package com.dbflow5.paging
 
 import androidx.paging.PagedList
-import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.test.SimpleModel
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.test.SimpleModel
+import com.dbflow5.test.TestDatabase_Database
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import kotlin.test.Test
 
-/**
- * Description:
- */
 class QueryDataSourceTest {
 
-    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
