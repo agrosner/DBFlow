@@ -459,7 +459,7 @@ internal suspend fun <DB : GeneratedDatabase, R> WritableDatabaseScope<DB>.execu
  * Enables DB writing which may block until ability to write.
  */
 suspend inline fun <reified DB : GeneratedDatabase, R> DB.writableTransaction(
-    crossinline fn: suspend WritableDatabaseScope<DB>.() -> R
+    crossinline fn: suspend DB.() -> R
 ): R = executeTransactionOnDispatcher { fn() }
 
 /**

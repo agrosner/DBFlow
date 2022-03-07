@@ -69,12 +69,12 @@ data class TableOpsImpl<Table : Any>(
         }
     }
 
-    private fun WritableDatabaseScope<GeneratedDatabase>.runUpdateDeleteOperation(
+    private fun GeneratedDatabase.runUpdateDeleteOperation(
         model: Table,
         query: CompilableQuery,
         binder: SQLStatementBinder<Table>,
         action: ChangeAction,
-    ): Table = db.bind(model, query, binder).use { statement ->
+    ): Table = bind(model, query, binder).use { statement ->
         val rows = statement.executeUpdateDelete()
         if (rows != 0L) {
             model
@@ -83,12 +83,12 @@ data class TableOpsImpl<Table : Any>(
         }
     }
 
-    private fun WritableDatabaseScope<GeneratedDatabase>.runInsertOperation(
+    private fun GeneratedDatabase.runInsertOperation(
         model: Table,
         query: CompilableQuery,
         binder: SQLStatementBinder<Table>,
         action: ChangeAction,
-    ): Table = db.bind(model, query, binder).use { statement ->
+    ): Table = bind(model, query, binder).use { statement ->
         val id = statement.executeInsert()
         if (id > INSERT_FAILED) {
             autoIncrementUpdater.run { model.update(id) }
