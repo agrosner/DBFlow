@@ -32,6 +32,9 @@ import com.dbflow5.test.NonTypical.nonTypicalClassName
         nonTypicalClassName::class,
         Outer.Inner::class,
         OrderCursorModel::class,
+        LiveDataModel::class,
+        ProspectQuiz::class,
+        ProspectQuizEntry::class,
     ],
     queries = [
         AuthorNameQuery::class,
@@ -86,4 +89,6 @@ abstract class TestDatabase : DBFlowDatabase<TestDatabase>() {
     abstract val indexModelAdapter: ModelAdapter<IndexModel>
 
     abstract val orderCursorModelAdapter: ModelAdapter<OrderCursorModel>
+
+    abstract val liveDataModelAdapter: ModelAdapter<LiveDataModel>
 }

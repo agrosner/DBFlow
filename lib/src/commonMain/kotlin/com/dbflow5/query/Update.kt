@@ -1,6 +1,5 @@
 package com.dbflow5.query
 
-import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.annotation.ConflictAction
 import com.dbflow5.query.operations.AnyOperator
@@ -11,7 +10,7 @@ import com.dbflow5.sql.Query
 
 interface Update<Table : Any> : Query,
     HasAdapter<Table, WritableDBRepresentable<Table>>,
-    HasAssociatedAdapters<DBRepresentable<*>>
+    HasAssociatedAdapters
 
 interface UpdateWithConflict<Table : Any> :
     Update<Table>,

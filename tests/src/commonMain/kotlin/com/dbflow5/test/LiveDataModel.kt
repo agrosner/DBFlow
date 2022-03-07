@@ -1,4 +1,4 @@
-package com.dbflow5.livedata
+package com.dbflow5.test
 
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
@@ -8,6 +8,6 @@ import com.dbflow5.annotation.Table
  */
 @Table
 data class LiveDataModel(
-    @PrimaryKey var id: String = "",
-    var name: Int = 0
+    @PrimaryKey val id: String,
+    val name: Int
 )

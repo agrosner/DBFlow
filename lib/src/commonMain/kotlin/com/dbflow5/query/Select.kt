@@ -21,7 +21,7 @@ sealed class QualifierType(val value: String) {
 interface Select<Table : Any, Result> :
     ExecutableQuery<Result>,
     HasAdapter<Table, DBRepresentable<Table>>,
-    HasAssociatedAdapters<DBRepresentable<*>>,
+    HasAssociatedAdapters,
     Whereable<Table, Result, Select<Table, Result>, DBRepresentable<Table>>
 
 /**

@@ -1,23 +1,20 @@
 package com.dbflow5.rx2.query
 
-import com.dbflow5.TestDatabase_Database
+import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.config.writableTransaction
-import com.dbflow5.models.SimpleModel
-import com.dbflow5.models.SimpleModel_Table
+import com.dbflow5.test.SimpleModel
+import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.query.delete
 import com.dbflow5.query.insert
 import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.transaction.asFlowable
-import com.dbflow5.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertEquals
-import org.junit.Rule
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class CursorResultSubscriberTest {
 
-    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

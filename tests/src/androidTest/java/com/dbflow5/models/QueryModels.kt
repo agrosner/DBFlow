@@ -17,7 +17,7 @@ class CustomBlobModel(@Column var myBlob: MyBlob? = null) {
     class MyBlob(val blob: ByteArray)
 
     @com.dbflow5.annotation.TypeConverter
-    class MyTypeConverter : TypeConverter<Blob, MyBlob>() {
+    class MyTypeConverter : TypeConverter<Blob, MyBlob> {
 
         override fun getDBValue(model: MyBlob) = Blob(model.blob)
 

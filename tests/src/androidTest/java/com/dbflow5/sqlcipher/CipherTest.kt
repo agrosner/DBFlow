@@ -6,8 +6,10 @@ import com.dbflow5.query.delete
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertTrue
-import org.junit.Rule
 import kotlin.test.Test
+import com.dbflow5.test.CipherDatabase_Database
+import com.dbflow5.test.CipherModel
+import com.dbflow5.test.CipherModel_Table
 
 /**
  * Description: Ensures we can use SQLCipher
@@ -28,7 +30,7 @@ class CipherTest {
     fun testCipherModel() = cipherRule.runTest {
         cipherAdapter.delete().execute()
         val model =
-            cipherAdapter.save(CipherModel(name = "name"))
+            cipherAdapter.save(CipherModel(name = "name", id = 0))
         assertTrue(cipherAdapter.exists(model))
 
         val retrieval = (cipherAdapter.select()

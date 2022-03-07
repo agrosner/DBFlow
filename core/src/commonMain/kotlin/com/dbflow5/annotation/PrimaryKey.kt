@@ -15,13 +15,4 @@ annotation class PrimaryKey(
      * overrides [.autoincrement] and is mutually exclusive.
      */
     val rowID: Boolean = false,
-    /**
-     * @return When true, we simply do {columnName} &gt; 0 when checking for it's existence if [.autoincrement]
-     * is true. If not, we do a full database SELECT exists.
-     */
-    @Deprecated(
-        "No longer necessary as we do insert or replace statements rather" +
-            "than a full existence query."
-    )
-    val quickCheckAutoIncrement: Boolean = false
 )

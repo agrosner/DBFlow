@@ -1,21 +1,18 @@
 package com.dbflow5.rx2.query
 
-import com.dbflow5.TestDatabase_Database
-import com.dbflow5.blogAdapter
-import com.dbflow5.models.Author
-import com.dbflow5.models.Author_Table
-import com.dbflow5.models.Blog
-import com.dbflow5.models.Blog_Table
-import com.dbflow5.models.SimpleModel
-import com.dbflow5.models.SimpleModel_Table
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.Author
+import com.dbflow5.test.Author_Table
+import com.dbflow5.test.Blog
+import com.dbflow5.test.Blog_Table
+import com.dbflow5.test.SimpleModel
+import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.query.leftOuterJoin
 import com.dbflow5.query.methods.cast
 import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.transaction.asFlowable
-import com.dbflow5.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertEquals
-import org.junit.Rule
 import kotlin.test.Test
 
 /**

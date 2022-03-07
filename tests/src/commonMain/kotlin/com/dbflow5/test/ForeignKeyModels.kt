@@ -1,5 +1,6 @@
-package com.dbflow5.models
+package com.dbflow5.test
 
+import kotlin.jvm.JvmName
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ColumnMap
 import com.dbflow5.annotation.ColumnMapReference
@@ -13,25 +14,6 @@ import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.TypeConverter
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.LoadFromCursorListener
-
-/**
- * Example of simple foreign key object with one foreign key object.
- */
-@Table
-class Blog(
-    @PrimaryKey(autoincrement = true) var id: Int = 0, @Column var name: String = "",
-    @ForeignKey(saveForeignKeyModel = true) var author: Author? = null
-)
-
-/**
- * Parent used as foreign key reference.
- */
-@Table
-class Author(
-    @PrimaryKey(autoincrement = true) var id: Int = 0,
-    @Column(name = "first_name") var firstName: String = "",
-    @Column(name = "last_name") var lastName: String = ""
-)
 
 /**
  * Example of simple foreign key object with its [ForeignKey] deferred.
@@ -108,7 +90,7 @@ class BlogStubbed(
 class DoubleToDouble(val double: Double)
 
 @TypeConverter
-class DoubleConverter : com.dbflow5.converter.TypeConverter<Double, DoubleToDouble>() {
+class DoubleConverter : com.dbflow5.converter.TypeConverter<Double, DoubleToDouble> {
     override fun getDBValue(model: DoubleToDouble) = model.double
 
     override fun getModelValue(data: Double): DoubleToDouble = data.let { DoubleToDouble(data) }

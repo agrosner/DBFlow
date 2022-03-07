@@ -23,10 +23,5 @@ fun KSPropertyDeclaration.nullablePlatformType(): TypeName {
         return type.toTypeName()
             .copy(nullable = !shouldBeNonNull)
     }
-    try {
-        return type.toTypeName()
-    } catch (i: IllegalStateException) {
-
-        throw RuntimeException("Error ${this}")
-    }
+    return type.toTypeName()
 }

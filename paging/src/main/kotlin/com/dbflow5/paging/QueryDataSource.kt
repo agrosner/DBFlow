@@ -2,6 +2,7 @@ package com.dbflow5.paging
 
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
+import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.beginTransactionAsync
@@ -24,7 +25,7 @@ internal constructor(
     where Q : ExecutableQuery<SelectResult<Table>>,
           Q : HasAssociatedAdapters,
           Q : HasAdapter<Table, WritableDBRepresentable<Table>>,
-          Q : Constrainable<Table, SelectResult<Table>, Q> {
+          Q : Constrainable<Table, SelectResult<Table>, Q, *> {
 
     private val onTableChangedObserver =
         OnTableChangedObserver(executableQuery.associatedAdapters) {
@@ -71,7 +72,7 @@ internal constructor(
         where Q : ExecutableQuery<SelectResult<Table>>,
               Q : HasAssociatedAdapters,
               Q : HasAdapter<Table, WritableDBRepresentable<Table>>,
-              Q : Constrainable<Table, SelectResult<Table>, Q> {
+              Q : Constrainable<Table, SelectResult<Table>, Q, *> {
         override fun create(): DataSource<Int, Table> = QueryDataSource(database, executableQuery)
     }
 
@@ -81,14 +82,15 @@ internal constructor(
             where Q : ExecutableQuery<SelectResult<Table>>,
                   Q : HasAssociatedAdapters,
                   Q : HasAdapter<Table, WritableDBRepresentable<Table>>,
-                  Q : Constrainable<Table, SelectResult<Table>, Q> =
+                  Q : Constrainable<Table, SelectResult<Table>, Q, *> =
             Factory(executableQuery, database)
     }
 }
 
-fun <Table : Any, Q> Q.toDataSourceFactory(database: GeneratedDatabase)
+fun <Table : Any, Q, Representable : DBRepresentable<Table>>
+    Q.toDataSourceFactory(database: GeneratedDatabase)
     where Q : ExecutableQuery<SelectResult<Table>>,
           Q : HasAdapter<Table, WritableDBRepresentable<Table>>,
           Q : HasAssociatedAdapters,
-          Q : Constrainable<Table, SelectResult<Table>, *> =
+          Q : Constrainable<Table, SelectResult<Table>, Q, Representable> =
     QueryDataSource.newFactory(this, database)

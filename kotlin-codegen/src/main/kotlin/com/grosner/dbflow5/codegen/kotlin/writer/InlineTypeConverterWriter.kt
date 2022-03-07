@@ -27,7 +27,7 @@ class InlineTypeConverterWriter(
                     model.originatingSource?.let {
                         originatingFileTypeSpecAdder.addOriginatingFileType(this, it)
                     }
-                    superclass(
+                    addSuperinterface(
                         ClassNames.TypeConverter
                             .parameterizedBy(
                                 model.dataTypeName,

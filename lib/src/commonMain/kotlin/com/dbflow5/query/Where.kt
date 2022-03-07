@@ -12,7 +12,7 @@ import com.dbflow5.sql.Query
 /**
  * Required implementation details for base where use.
  */
-interface WhereBase<Result> : Query, HasAssociatedAdapters<DBRepresentable<*>> {
+interface WhereBase<Result> : Query, HasAssociatedAdapters {
     val resultFactory: ResultFactory<Result>
 }
 
@@ -23,7 +23,7 @@ interface Where<Table : Any, Result, OperationBase : ExecutableQuery<Result>,
     Representable : DBRepresentable<Table>> :
     ExecutableQuery<Result>,
     HasAdapter<Table, Representable>,
-    HasAssociatedAdapters<DBRepresentable<*>>,
+    HasAssociatedAdapters,
     Constrainable<Table, Result, OperationBase, Representable>
 
 interface WhereStart<Table : Any,
@@ -153,7 +153,7 @@ internal data class WhereImpl<Table : Any,
     WhereWithOffset<Table, Result, OperationBase, Representable>,
     WhereWithOrderBy<Table, Result, OperationBase, Representable>,
     WhereExists<Table, Result, OperationBase, Representable>,
-    HasAssociatedAdapters<DBRepresentable<*>> by queryBase {
+    HasAssociatedAdapters by queryBase {
     override val query: String by lazy {
         buildString {
             append("${queryBase.query.trim()} ")

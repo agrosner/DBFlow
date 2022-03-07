@@ -1,4 +1,4 @@
-package com.dbflow5.models
+package com.dbflow5.test
 
 import com.dbflow5.annotation.Column
 import com.dbflow5.annotation.ForeignKey
@@ -12,7 +12,7 @@ import com.dbflow5.annotation.TypeConverter
 
 
 @TypeConverter
-class MutableSetTypeConverter : com.dbflow5.converter.TypeConverter<String, MutableSet<String>>() {
+class MutableSetTypeConverter : com.dbflow5.converter.TypeConverter<String, MutableSet<String>> {
     override fun getDBValue(model: MutableSet<String>): String {
         return model.joinToString()
     }

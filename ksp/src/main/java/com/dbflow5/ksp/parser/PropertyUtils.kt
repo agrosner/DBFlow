@@ -10,7 +10,7 @@ import com.squareup.kotlinpoet.ksp.toTypeName
 typealias ArgMap = Map<String, KSValueArgument>
 
 inline fun <reified T> ArgMap.arg(name: String): T? {
-    return getValue(name).value as T?
+    return get(name)?.value as T?
 }
 
 inline fun <reified T> ArgMap.expectedArg(name: String): T {

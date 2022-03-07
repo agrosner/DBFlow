@@ -1,4 +1,4 @@
-package com.dbflow5.sqlcipher
+package com.dbflow5.test
 
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.annotation.Database
@@ -10,7 +10,7 @@ import com.dbflow5.config.DBFlowDatabase
         CipherModel::class,
     ]
 )
-abstract class CipherDatabase : DBFlowDatabase() {
+abstract class CipherDatabase : DBFlowDatabase<CipherDatabase>() {
 
     abstract val cipherAdapter: ModelAdapter<CipherModel>
 }

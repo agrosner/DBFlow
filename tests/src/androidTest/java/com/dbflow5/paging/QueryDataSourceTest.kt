@@ -1,14 +1,12 @@
 package com.dbflow5.paging
 
 import androidx.paging.PagedList
-import com.dbflow5.TestDatabase_Database
-import com.dbflow5.models.SimpleModel
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.SimpleModel
 import com.dbflow5.query.select
-import com.dbflow5.simpleModelAdapter
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
-import org.junit.Rule
 import kotlin.test.Test
 
 /**
@@ -25,7 +23,7 @@ class QueryDataSourceTest {
             simpleModelAdapter.save(SimpleModel("$it"))
         }
 
-        val factory = (select from simpleModelAdapter).toDataSourceFactory(this.db)
+        val factory = simpleModelAdapter.select().toDataSourceFactory(this.db)
         val list = PagedList.Builder(
             factory.create(),
             PagedList.Config.Builder()
