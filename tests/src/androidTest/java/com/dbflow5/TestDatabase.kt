@@ -40,7 +40,7 @@ import com.dbflow5.models.FeedEntry
 import com.dbflow5.models.Fts3Model
 import com.dbflow5.models.Fts4Model
 import com.dbflow5.models.Fts4VirtualModel2
-import com.dbflow5.models.IndexModel
+import com.dbflow5.test.IndexModel
 import com.dbflow5.models.InternalClass
 import com.dbflow5.models.NonNullKotlinModel
 import com.dbflow5.models.NonTypical.nonTypicalClassName

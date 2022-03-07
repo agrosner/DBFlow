@@ -24,6 +24,10 @@ import com.dbflow5.config.DBFlowDatabase
         Song::class,
         TempModel::class,
         DontCreateModel::class,
+        OneToManyModel::class,
+        OneToManyBaseModel::class,
+        OneToManyModel_OneToManyBaseModel::class,
+        IndexModel::class,
     ],
     queries = [
         AuthorNameQuery::class,
@@ -66,5 +70,15 @@ abstract class TestDatabase : DBFlowDatabase<TestDatabase>() {
     abstract val tempModelAdapter: ModelAdapter<TempModel>
 
     abstract val dontCreateModelAdapter: ModelAdapter<DontCreateModel>
+
+    abstract val oneToManyModelAdapter: ModelAdapter<OneToManyModel>
+
+    abstract val oneToManyBaseModelAdapter: ModelAdapter<OneToManyBaseModel>
+
+    abstract val oneToManyModelOneToManyBaseModelQueryAdapter: QueryAdapter<OneToManyModel_OneToManyBaseModel>
+
+    abstract val typeConverterModelAdapter: ModelAdapter<TypeConverterModel>
+
+    abstract val indexModelAdapter: ModelAdapter<IndexModel>
 }
 

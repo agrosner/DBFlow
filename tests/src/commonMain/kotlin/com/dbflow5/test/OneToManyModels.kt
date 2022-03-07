@@ -1,4 +1,4 @@
-package com.dbflow5.models
+package com.dbflow5.test
 
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.OneToMany
@@ -9,10 +9,10 @@ import com.dbflow5.annotation.Table
 @OneToMany(
     childTable = OneToManyBaseModel::class,
 )
-data class OneToManyModel(@PrimaryKey var name: String = "")
+data class OneToManyModel(@PrimaryKey val name: String)
 
 @Table
 data class OneToManyBaseModel(
-    @PrimaryKey var id: Int = 0,
-    @ForeignKey(tableClass = OneToManyModel::class) var parentName: String? = "",
+    @PrimaryKey val id: Int,
+    @ForeignKey(tableClass = OneToManyModel::class) val parentName: String?,
 )

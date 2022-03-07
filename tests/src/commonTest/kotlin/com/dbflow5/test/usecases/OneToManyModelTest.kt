@@ -1,15 +1,16 @@
-package com.dbflow5.models
+package com.dbflow5.test.usecases
 
-import com.dbflow5.TestDatabase_Database
-import com.dbflow5.oneToManyBaseModelAdapter
-import com.dbflow5.oneToManyModelAdapter
+import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
-import org.junit.Rule
+import com.dbflow5.test.OneToManyBaseModel
+import com.dbflow5.test.OneToManyModel
+import com.dbflow5.test.TestDatabase_Database
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class OneToManyModelTest {
 
-    
+
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
@@ -27,10 +28,10 @@ class OneToManyModelTest {
             )
         )
 
-        /*val items =
-            (select from OneToManyModel::class).requireCustomSingle<OneToManyModel_OneToManyBaseModel>(
-                db
-            )
+        // TODO: how to query for one to many generator?
+/*
+        val items =
+            (select from oneToManyModelOneToManyBaseModelQueryAdapter).single()
         assertEquals(items.children.size, 1)*/
     }
 }

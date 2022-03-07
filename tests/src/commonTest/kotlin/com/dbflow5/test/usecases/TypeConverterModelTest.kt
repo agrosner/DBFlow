@@ -1,15 +1,11 @@
-package com.dbflow5.models
+package com.dbflow5.test.usecases
 
-import com.dbflow5.TestDatabase_Database
 import com.dbflow5.test.DatabaseTestRule
-import com.dbflow5.typeConverterModelAdapter
-import org.junit.Assert.assertEquals
+import com.dbflow5.test.TestDatabase_Database
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
-/**
- * Description:
- */
-class SimpleTestModelsTest {
+class TypeConverterModelTest {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
