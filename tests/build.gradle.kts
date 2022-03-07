@@ -12,7 +12,6 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
-            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
                 implementation(project(":lib"))
             }
@@ -35,8 +34,7 @@ kotlin {
 
             }
         }
-        val androidTest by getting {
-            dependsOn(androidMain)
+        val androidAndroidTest by getting {
             dependencies {
                 implementation(Dependencies.JavaXAnnotation)
                 implementation("org.mockito.kotlin:mockito-kotlin:4.0.0") {
@@ -63,7 +61,7 @@ kotlin {
     }
 
     sourceSets.all {
-        //kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
     }
 }
 

@@ -2,7 +2,6 @@
     package="com.dbflow5.test">
 
     <application
-        android:name="com.dbflow5.DemoApp"
         android:allowBackup="false"
         android:label="DB Flow Compiler Test">
         <provider

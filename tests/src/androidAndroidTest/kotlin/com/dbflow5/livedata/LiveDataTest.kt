@@ -9,7 +9,6 @@ import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.test.LiveDataModel
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
-import org.junit.Rule
 import kotlin.test.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.mock
@@ -19,10 +18,8 @@ import org.mockito.kotlin.mock
  */
 class LiveDataTest {
 
-    
     val rule: TestRule = InstantTaskExecutorRule()
 
-    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

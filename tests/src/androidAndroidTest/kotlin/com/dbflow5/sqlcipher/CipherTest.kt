@@ -1,15 +1,15 @@
 package com.dbflow5.sqlcipher
 
-import com.dbflow5.DemoApp
-import com.dbflow5.test.TestTransactionDispatcherFactory
+import androidx.test.platform.app.InstrumentationRegistry
 import com.dbflow5.query.delete
 import com.dbflow5.query.select
-import com.dbflow5.test.DatabaseTestRule
-import org.junit.Assert.assertTrue
-import kotlin.test.Test
 import com.dbflow5.test.CipherDatabase_Database
 import com.dbflow5.test.CipherModel
 import com.dbflow5.test.CipherModel_Table
+import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.test.TestTransactionDispatcherFactory
+import org.junit.Assert.assertTrue
+import kotlin.test.Test
 
 /**
  * Description: Ensures we can use SQLCipher
@@ -19,7 +19,7 @@ class CipherTest {
     val cipherRule = DatabaseTestRule(CipherDatabase_Database) {
         copy(
             openHelperCreator = SQLCipherOpenHelper.createHelperCreator(
-                DemoApp.context,
+                InstrumentationRegistry.getInstrumentation().targetContext,
                 "dbflow-rules"
             ),
             transactionDispatcherFactory = TestTransactionDispatcherFactory(),
