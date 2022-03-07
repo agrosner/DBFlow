@@ -24,7 +24,6 @@ import kotlin.test.assertTrue
  */
 class FtsModelTest {
 
-
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
