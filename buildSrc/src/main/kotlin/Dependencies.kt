@@ -40,6 +40,7 @@ object Dependencies {
     const val AtomicFU = "org.jetbrains.kotlinx:atomicfu:${Versions.AtomicFu}"
 
     const val SQLiteJDBC = "org.xerial:sqlite-jdbc:3.36.0.3"
+    const val HikariCP = "com.zaxxer:HikariCP:5.0.1"
 
     object AndroidX {
         const val Annotations = "androidx.annotation:annotation:1.3.0"

@@ -11,12 +11,11 @@ internal constructor(
     val statement: SQLiteStatement,
 ) : DatabaseStatement {
 
-    override fun executeUpdateDelete(): Long =
+    override fun executeUpdateDelete(): Long = rethrowDBFlowException {
         statement.executeUpdateDelete().toLong()
-
-    override fun execute() {
-        statement.execute()
     }
+
+    override fun execute() = rethrowDBFlowException { statement.execute() }
 
     override fun close() {
         statement.close()

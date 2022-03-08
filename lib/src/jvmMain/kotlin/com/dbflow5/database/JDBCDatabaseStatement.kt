@@ -12,28 +12,32 @@ internal constructor(
     internal val statement: PreparedStatement,
 ) : DatabaseStatement {
 
-    override fun executeUpdateDelete(): Long =
+    override fun executeUpdateDelete(): Long = rethrowDBFlowException {
         statement.executeUpdate().toLong()
+    }
 
-    override fun execute() {
+    override fun execute() = rethrowDBFlowException {
         statement.execute()
+        Unit
     }
 
     override fun close() {
         statement.close()
     }
 
-    override fun simpleQueryForLong(): Long =
+    override fun simpleQueryForLong(): Long = rethrowDBFlowException {
         statement.executeQuery().run {
             if (next()) getLong(1) else 0
         }
+    }
 
-    override fun simpleQueryForString(): String? =
+    override fun simpleQueryForString(): String? = rethrowDBFlowException {
         statement.executeQuery().run {
             if (next()) getString(1) else null
         }
+    }
 
-    override fun executeInsert(): Long {
+    override fun executeInsert(): Long = rethrowDBFlowException {
         // retrieve the first generated key as return type.
         statement.executeUpdate()
         return JDBCFlowCursor(statement.generatedKeys).use {

@@ -28,6 +28,7 @@ class JDBCDatabase internal constructor(
         db.setTransactionSuccessful()
         result
     } catch (e: SQLException) {
+        e.printStackTrace()
         db.rollback()
         throw e
     }

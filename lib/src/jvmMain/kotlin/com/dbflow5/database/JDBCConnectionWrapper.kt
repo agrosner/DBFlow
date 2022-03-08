@@ -1,9 +1,10 @@
 package com.dbflow5.database
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import kotlinx.atomicfu.atomic
 import java.io.File
 import java.sql.Connection
-import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.Statement
 
@@ -13,15 +14,19 @@ import java.sql.Statement
 internal class JDBCConnectionWrapper(
     // null if in memory.
     private val name: String? = null,
-    private val connection: Connection,
+    private val config: HikariConfig,
 ) {
     private var transaction by atomic(false)
 
+    private val dataSource = HikariDataSource(config)
+
+    private val connection: Connection by lazy { dataSource.connection }
+
     val isReadOnly
-        get() = connection.isReadOnly
+        get() = dataSource.isReadOnly
 
     val isClosed
-        get() = connection.isClosed
+        get() = dataSource.isClosed
 
     val version
         get() = connection.createStatement().executeQuery("PRAGMA user_version").getInt(1)
@@ -48,8 +53,9 @@ internal class JDBCConnectionWrapper(
         connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)
 
     fun beginTransaction() {
-        connection.autoCommit = false
-        transaction = true
+        if (!transaction) {
+            transaction = true
+        }
     }
 
     fun setTransactionSuccessful() {
@@ -78,7 +84,14 @@ internal class JDBCConnectionWrapper(
             name: String?,
         ) = JDBCConnectionWrapper(
             name,
-            DriverManager.getConnection("jdbc:sqlite:${name ?: "memory:"}")
+            HikariConfig().apply {
+                jdbcUrl = "jdbc:sqlite:${name ?: "memory:"}"
+                addDataSourceProperty("cachePrepStmts", "true")
+                addDataSourceProperty("prepStmtCacheSize", "250")
+                addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+                isAutoCommit = false
+                maximumPoolSize = 1
+            }
         )
     }
 }

@@ -41,15 +41,12 @@ data class NotifyDistributorImpl
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main),
 ) : NotifyDistributor {
 
-    private val modelNotifierMap = mutableMapOf<DatabaseWrapper, ModelNotifier>()
-
     override fun <Table : Any> onChange(
         db: DatabaseWrapper,
         notification: ModelNotification<Table>
     ) {
         scope.launch {
-            modelNotifierMap.getOrPut(db) { db.generatedDatabase.modelNotifier }
-                .onChange(notification)
+            db.generatedDatabase.modelNotifier.onChange(notification)
         }
     }
 }

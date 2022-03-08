@@ -32,7 +32,8 @@ kotlin {
         val jvmMain by getting {
             dependsOn(javaPlatformMain)
             dependencies {
-                api(Dependencies.SQLiteJDBC)
+                implementation(Dependencies.SQLiteJDBC)
+                implementation(Dependencies.HikariCP)
             }
         }
     }

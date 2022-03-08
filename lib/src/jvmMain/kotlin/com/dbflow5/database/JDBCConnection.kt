@@ -118,6 +118,7 @@ class JDBCConnection internal constructor(
                             db.setVersion(this.version)
                             db.setTransactionSuccessful()
                         } catch (e: SQLException) {
+                            e.printStackTrace()
                             db.rollback()
                             throw e
                         }

@@ -12,6 +12,7 @@ kotlin {
 
     sourceSets {
         val commonMain by getting {
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
                 implementation(project(":lib"))
             }
@@ -58,10 +59,6 @@ kotlin {
                 implementation(Dependencies.JUnit)
             }
         }
-    }
-
-    sourceSets.all {
-        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
     }
 }
 

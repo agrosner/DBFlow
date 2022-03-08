@@ -43,6 +43,7 @@ import com.dbflow5.test.NonTypical.nonTypicalClassName
         AuthorView::class,
     ],
     version = 1,
+    foreignKeyConstraintsEnforced = true,
 )
 abstract class TestDatabase : DBFlowDatabase<TestDatabase>() {
 
