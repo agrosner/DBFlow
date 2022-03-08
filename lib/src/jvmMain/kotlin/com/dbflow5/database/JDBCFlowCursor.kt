@@ -8,6 +8,7 @@ import java.sql.ResultSet
  * Since JDBC is "1" index based, we adjust to account for that.
  */
 class JDBCFlowCursor(private val resultSet: ResultSet) : FlowCursor {
+
     override fun isNull(index: Int): Boolean = resultSet.getObject(index + 1) == null
 
     override fun getColumnIndex(columnName: String): Int = resultSet.findColumn(columnName) - 1
