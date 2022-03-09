@@ -31,7 +31,7 @@ actual class DatabaseBackup(
                 else -> null
             }?.let { databaseWriter.write(database, it) }
         } catch (e: IOException) {
-            FlowLog.log(FlowLog.Level.W, "Failed to open file", e)
+            FlowLog.log(FlowLog.Level.W, "Failed to open file", throwable = e)
         }
     }
 

@@ -34,6 +34,8 @@ kotlin {
             dependencies {
                 implementation(Dependencies.SQLiteJDBC)
                 implementation(Dependencies.HikariCP)
+                implementation(Dependencies.SLF4JApi)
+                implementation(Dependencies.SLF4JSimple)
             }
         }
     }

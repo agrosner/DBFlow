@@ -27,7 +27,7 @@ class DirectNotifierTest {
     fun validateCanNotifyDirect() = dbRule.runTest { testScope ->
         NotifyDistributor.setNotifyDistributor(NotifyDistributorImpl(scope = testScope))
         val model = SimpleModel("Name")
-        DirectModelNotifier.get(this.db).notificationFlow
+        (modelNotifier as DirectModelNotifier).notificationFlow
             .test {
                 simpleModelAdapter.insert(model)
                 assertEquals(
@@ -74,8 +74,9 @@ class DirectNotifierTest {
     }
 
     @Test
-    fun validateCanNotifyWrapperClasses() = dbRule.runTest {
-        DirectModelNotifier.get(this.db).notificationFlow
+    fun validateCanNotifyWrapperClasses() = dbRule.runTest { testScope ->
+        NotifyDistributor.setNotifyDistributor(NotifyDistributorImpl(scope = testScope))
+        (modelNotifier as DirectModelNotifier).notificationFlow
             .test {
                 simpleModelAdapter.insert(SimpleModel_Table.name to "name")
                     .execute()

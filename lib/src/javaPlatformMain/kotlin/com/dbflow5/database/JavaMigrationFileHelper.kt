@@ -40,7 +40,8 @@ interface JavaMigrationFileHelper : MigrationFileHelper {
                 dbFunction(queryString)
             }
         } catch (e: IOException) {
-            FlowLog.log(FlowLog.Level.E, "Failed to execute $fileName. App might be in an inconsistent state!", e)
+            FlowLog.log(FlowLog.Level.E, "Failed to execute $fileName. App might be in an inconsistent state!",
+                throwable = e)
         }
     }
 }

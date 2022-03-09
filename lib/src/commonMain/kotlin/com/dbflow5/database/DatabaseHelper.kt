@@ -119,7 +119,7 @@ class DatabaseHelper(
                 val fileList = migrationFileMap.getOrPut(version) { arrayListOf() }
                 fileList.add(file)
             } catch (e: NumberFormatException) {
-                FlowLog.log(FlowLog.Level.W, "Skipping invalidly named file: $file", e)
+                FlowLog.log(FlowLog.Level.W, "Skipping invalidly named file: $file", throwable = e)
             }
 
         }

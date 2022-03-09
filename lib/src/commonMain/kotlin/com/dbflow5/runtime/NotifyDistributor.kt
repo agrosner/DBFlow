@@ -19,9 +19,7 @@ interface NotifyDistributor {
         override fun <Table : Any> onChange(
             db: DatabaseWrapper,
             notification: ModelNotification<Table>
-        ) {
-            notifyDistributor.onChange(db, notification)
-        }
+        ) = notifyDistributor.onChange(db, notification)
 
         /**
          * Used for testing, swaps the implementation.

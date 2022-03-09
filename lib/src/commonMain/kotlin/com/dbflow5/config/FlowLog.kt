@@ -33,9 +33,9 @@ object FlowLog {
      */
     @JvmOverloads
     @JvmStatic
-    fun log(level: Level, tag: String = TAG, message: String? = "", throwable: Throwable? = null) {
+    fun log(level: Level, tag: String = TAG, message: Any? = "", throwable: Throwable? = null) {
         if (isEnabled(level)) {
-            level.call(tag, message, throwable)
+            level.call(tag, message?.toString(), throwable)
         }
     }
 
@@ -48,7 +48,7 @@ object FlowLog {
      * @param throwable The optional stack trace to print
      */
     @JvmStatic
-    fun log(level: Level, message: String, throwable: Throwable?) =
+    fun log(level: Level, message: Any, throwable: Throwable?) =
         log(level = level, tag = TAG, message = message, throwable = throwable)
 
     /**
@@ -65,8 +65,8 @@ object FlowLog {
      * @param throwable The stack trace to print
      */
     @JvmStatic
-    fun logError(throwable: Throwable) {
-        log(Level.E, throwable = throwable)
+    fun logError(throwable: Throwable, message: Any? = null) {
+        log(Level.E, throwable = throwable, message = message)
     }
 
     /**

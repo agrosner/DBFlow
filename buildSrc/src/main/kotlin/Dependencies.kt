@@ -41,6 +41,8 @@ object Dependencies {
 
     const val SQLiteJDBC = "org.xerial:sqlite-jdbc:3.36.0.3"
     const val HikariCP = "com.zaxxer:HikariCP:5.0.1"
+    const val SLF4JApi = "org.slf4j:slf4j-api:1.7.36"
+    const val SLF4JSimple = "org.slf4j:slf4j-simple:1.7.36"
 
     object AndroidX {
         const val Annotations = "androidx.annotation:annotation:1.3.0"

@@ -88,7 +88,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
             db.beginTransactionAsync { checkForTableUpdates(db) }
                 .shouldRunInTransaction(false)
                 .enqueue(error = { _, e ->
-                    FlowLog.log(FlowLog.Level.E, "Could not check for table updates", e)
+                    FlowLog.log(FlowLog.Level.E, "Could not check for table updates", throwable = e)
                 })
         }
     }
@@ -154,7 +154,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
         } catch (e: Exception) {
             when (e) {
                 is IllegalStateException, is SQLiteException -> {
-                    FlowLog.log(FlowLog.Level.E, "Cannot sync table TRIGGERs. Is the db closed?", e)
+                    FlowLog.logError(e, "Cannot sync table TRIGGERs. Is the db closed?")
                 }
                 else -> throw e
             }
@@ -197,10 +197,9 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
         } catch (e: Exception) {
             when (e) {
                 is IllegalStateException, is SQLiteException -> {
-                    FlowLog.log(
-                        FlowLog.Level.E,
+                    FlowLog.logError(
+                        e,
                         "Cannot check for table updates. is the db closed?",
-                        e
                     )
                 }
                 else -> throw e

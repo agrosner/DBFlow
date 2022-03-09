@@ -12,10 +12,16 @@ sealed interface ModelNotification<Table : Any> {
     val action: ChangeAction
     val adapter: DBRepresentable<Table>
 
+    fun print(): String
+
     data class TableChange<Table : Any>(
         override val adapter: DBRepresentable<Table>,
         override val action: ChangeAction,
-    ) : ModelNotification<Table>
+    ) : ModelNotification<Table> {
+        override fun print(): String {
+            return "TableChange (${action.name}): ${adapter.name}"
+        }
+    }
 
     data class ModelChange<Table : Any>(
         val changedFields: List<BaseOperator.SingleValueOperator<*>>,
@@ -31,5 +37,13 @@ sealed interface ModelNotification<Table : Any> {
             adapter.getPrimaryModelClause(model),
             action, adapter,
         )
+
+        override fun print(): String {
+            return "ModelChange (${action.name}): ${adapter.name} changedFields: ${
+                changedFields.joinToString {
+                    it.query
+                }
+            }"
+        }
     }
 }

@@ -42,7 +42,7 @@ actual class DatabaseBackup(
             }
             databaseWriter.write(dbPath, inputStream)
         } catch (e: IOException) {
-            FlowLog.log(FlowLog.Level.W, "Failed to open file", e)
+            FlowLog.log(FlowLog.Level.W, "Failed to open file", throwable = e)
         }
     }
 

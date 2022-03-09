@@ -1,22 +1,22 @@
 package com.dbflow5.config
 
-import java.util.logging.Level
-import java.util.logging.Logger
+import org.slf4j.impl.SimpleLoggerFactory
+
+private val factory = SimpleLoggerFactory()
 
 actual fun FlowLog.Level.call(
     tag: String,
     message: String?,
     throwable: Throwable?
 ) {
-    val logger = Logger.getGlobal()
+    val logger = factory.getLogger("DBFlow")
     val msg = "$tag: $message"
-    val level = when (this) {
-        FlowLog.Level.V -> Level.ALL
-        FlowLog.Level.D -> Level.CONFIG
-        FlowLog.Level.I -> Level.INFO
-        FlowLog.Level.W -> Level.WARNING
-        FlowLog.Level.E -> Level.SEVERE
-        FlowLog.Level.WTF -> Level.SEVERE
+    when (this) {
+        FlowLog.Level.V -> logger.trace(msg, throwable)
+        FlowLog.Level.D -> logger.debug(msg, throwable)
+        FlowLog.Level.I -> logger.info(msg, throwable)
+        FlowLog.Level.W -> logger.warn(msg, throwable)
+        FlowLog.Level.E -> logger.error(msg, throwable)
+        FlowLog.Level.WTF -> logger.error(msg, throwable)
     }
-    logger.log(level, msg, throwable)
 }
