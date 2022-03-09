@@ -13,6 +13,7 @@ import com.dbflow5.test.Fts4ContentModel
 import com.dbflow5.test.Fts4ContentModel_Table
 import com.dbflow5.test.Fts4VirtualModel
 import com.dbflow5.test.Fts4VirtualModel_Table
+import com.dbflow5.test.TestDatabase
 import com.dbflow5.test.TestDatabase_Database
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,20 +29,12 @@ class FtsModelTest {
 
     @Test
     fun validate_fts4_created() = dbRule.runTest {
-        val model = Fts4ContentModel(id = 0, name = "FTSBABY")
-        val updated = fts4ContentModelAdapter.save(model)
-        assertTrue(updated.id > 0)
-
-        val rowID = (fts4VirtualModelAdapter.insert(
-            fts4VirtualModelAdapter.docId(),
-            Fts4VirtualModel_Table.name
-        ) select fts4ContentModelAdapter.select(Fts4ContentModel_Table.id, Fts4ContentModel_Table.name)).execute()
-        assertTrue(rowID > 0)
+        precreateModels()
     }
 
     @Test
     fun match_query() = dbRule.runTest {
-        validate_fts4_created()
+        precreateModels()
         (fts4VirtualModelAdapter.select() where (
             fts4VirtualModelAdapter.tableNameLiteral() match "FTSBABY"))
             .single()
@@ -49,7 +42,7 @@ class FtsModelTest {
 
     @Test
     fun offsets_query() = dbRule.runTest {
-        validate_fts4_created()
+        precreateModels()
         val value = (fts4VirtualModelAdapter.select(
             StringResultFactory,
             offsets<Fts4VirtualModel>()
@@ -90,5 +83,18 @@ class FtsModelTest {
             value.value, "...the upper portion, [minimum] [temperature] 14-16oC \n" +
             "  and cool elsewhere, [minimum] [temperature] 17-20oC. Cold..."
         )
+    }
+
+
+    private suspend fun TestDatabase.precreateModels() {
+        val model = Fts4ContentModel(id = 0, name = "FTSBABY")
+        val updated = fts4ContentModelAdapter.save(model)
+        assertTrue(updated.id > 0)
+
+        val rowID = (fts4VirtualModelAdapter.insert(
+            fts4VirtualModelAdapter.docId(),
+            Fts4VirtualModel_Table.name
+        ) select fts4ContentModelAdapter.select(Fts4ContentModel_Table.id, Fts4ContentModel_Table.name)).execute()
+        assertTrue(rowID > 0)
     }
 }
