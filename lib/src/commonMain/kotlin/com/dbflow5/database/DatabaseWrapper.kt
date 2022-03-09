@@ -35,15 +35,7 @@ interface DatabaseWrapper {
     fun compileStatement(rawQuery: String): DatabaseStatement
 
     /**
-     * For a given query and selectionArgs, return a [DatabaseStatement].
-     */
-    fun compileStatement(rawQuery: String, selectionArgs: Array<String>?): DatabaseStatement {
-        return compileStatement(rawQuery).apply { bindAllArgsAsStrings(selectionArgs) }
-    }
-
-    /**
      * For given query and selection args, return a [FlowCursor] to retrieve data.
      */
     fun rawQuery(query: String, selectionArgs: Array<String>? = null): FlowCursor
-
 }

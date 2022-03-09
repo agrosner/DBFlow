@@ -38,14 +38,6 @@ class DatabaseWriter(
                 model.generatedClassName,
             )
 
-        val associatedClassName = ParameterPropertySpec(
-            name = "associatedDatabaseClassFile",
-            type = KClass::class.asClassName()
-                .parameterizedBy(model.classType),
-        ) {
-            addModifiers(KModifier.OVERRIDE)
-            defaultValue("%T::class", model.classType)
-        }
         val version = ParameterPropertySpec(
             name = "databaseVersion",
             type = Int::class.asClassName()
@@ -85,7 +77,6 @@ class DatabaseWriter(
                         .primaryConstructor(
                             FunSpec.constructorBuilder()
                                 .addParameter(settings.parameterSpec)
-                                .addParameter(associatedClassName.parameterSpec)
                                 .addParameter(version.parameterSpec)
                                 .addParameter(foreignKeys.parameterSpec)
                                 .addParameters(adapterFields.map { it.parameterSpec })
@@ -134,7 +125,6 @@ class DatabaseWriter(
                                 )
                             }
                             superclass(model.classType)
-                            addProperty(associatedClassName.propertySpec)
                             addProperty(version.propertySpec)
                             addProperty(foreignKeys.propertySpec)
                             addProperty(settings.propertySpec)

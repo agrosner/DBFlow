@@ -20,6 +20,7 @@ class TempModelTest {
         tempModelAdapter.create(db)
         val model = tempModelAdapter.save(TempModel(id = 5))
         assertEquals(TempModel(id = 5), model)
+        close()
         tempModelAdapter.drop(db)
     }
 }

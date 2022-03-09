@@ -102,10 +102,6 @@ interface GeneratedDatabase : DatabaseWrapper, Closeable {
     @InternalDBFlowApi
     val migrations: Map<Int, List<Migration>>
 
-    @InternalDBFlowApi
-    val associatedDatabaseClassFile: KClass<*>
-
-
     override fun close()
 
     fun destroy()
@@ -358,7 +354,6 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
     @DelicateDBFlowApi
     override suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.cursor(): FlowCursor =
         writableScope.run { cursor() }
-
 
     override suspend fun ExecutableQuery<CountResultFactory.Count>.hasData(): Boolean =
         writableScope.run { hasData() }

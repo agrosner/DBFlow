@@ -26,7 +26,7 @@ internal class JDBCConnectionWrapper(
         get() = dataSource.isReadOnly
 
     val isClosed
-        get() = dataSource.isClosed
+        get() = connection.isClosed
 
     val version
         get() = connection.createStatement().executeQuery("PRAGMA user_version").getInt(1)
