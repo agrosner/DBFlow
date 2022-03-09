@@ -1,13 +1,16 @@
 package com.dbflow5.database
 
-import java.sql.ResultSet
-
 /**
  * Implements using the [FlowCursor] interface wrapper.
  *
  * Since JDBC is "1" index based, we adjust to account for that.
  */
-class JDBCFlowCursor(private val resultSet: ResultSet) : FlowCursor {
+class JDBCFlowCursor(private val statement: JDBCDatabaseStatement) : FlowCursor {
+
+    private val resultSet by lazy {
+        statement.execute()
+        statement.statement.resultSet
+    }
 
     override fun isNull(index: Int): Boolean = resultSet.getObject(index + 1) == null
 
@@ -17,7 +20,8 @@ class JDBCFlowCursor(private val resultSet: ResultSet) : FlowCursor {
 
     override fun moveToNext(): Boolean = resultSet.next()
 
-    override val size: Int = resultSet.fetchSize
+    override val size: Int
+        get() = resultSet.fetchSize
 
     override fun getString(index: Int, defValue: String): String =
         getOrDefault(index, defValue) { resultSet.getString(index + 1) }
@@ -68,6 +72,6 @@ class JDBCFlowCursor(private val resultSet: ResultSet) : FlowCursor {
         getOrDefault(index, defValue) { resultSet.getBoolean(index + 1) }
 
     override fun close() {
-        resultSet.close()
+        statement.close()
     }
 }

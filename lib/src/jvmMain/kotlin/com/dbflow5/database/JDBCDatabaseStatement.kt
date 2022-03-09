@@ -40,9 +40,7 @@ internal constructor(
     override fun executeInsert(): Long = rethrowDBFlowException {
         // retrieve the first generated key as return type.
         statement.executeUpdate()
-        return JDBCFlowCursor(statement.generatedKeys).use {
-            it.getLong(0)
-        }
+        return statement.use { it.generatedKeys.use { keys -> keys.getLong(1) } }
     }
 
     override fun bindString(index: Int, s: String) {

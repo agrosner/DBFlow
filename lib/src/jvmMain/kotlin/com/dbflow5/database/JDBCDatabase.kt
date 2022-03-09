@@ -39,15 +39,11 @@ class JDBCDatabase internal constructor(
         )
 
     override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor = rethrowDBFlowException {
-        compileStatement(query).apply {
-            bindAllArgsAsStrings(selectionArgs)
-        }.use {
-            JDBCFlowCursor(
-                it.apply { execute() }
-                    .statement
-                    .resultSet
-            )
-        }
+        JDBCFlowCursor(
+            compileStatement(query).apply {
+                bindAllArgsAsStrings(selectionArgs)
+            }
+        )
     }
 }
 
