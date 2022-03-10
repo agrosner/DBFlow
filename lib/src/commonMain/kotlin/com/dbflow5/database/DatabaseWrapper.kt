@@ -1,18 +1,17 @@
 package com.dbflow5.database
 
 import com.dbflow5.config.GeneratedDatabase
+import com.dbflow5.delegates.CheckOpen
 
 /**
  * Description: Provides a base implementation that wraps a database, so other databaseForTable engines potentially can
  * be used.
  */
-interface DatabaseWrapper {
+interface DatabaseWrapper : CheckOpen {
 
     val generatedDatabase: GeneratedDatabase
 
     val isInTransaction: Boolean
-
-    val isOpen: Boolean
 
     /**
      * The current version of the database.

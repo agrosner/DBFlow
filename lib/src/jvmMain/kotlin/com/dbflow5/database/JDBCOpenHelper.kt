@@ -1,6 +1,7 @@
 package com.dbflow5.database
 
 import com.dbflow5.config.GeneratedDatabase
+import com.dbflow5.delegates.databaseProperty
 
 class JDBCOpenHelper(
     private val generatedDatabase: GeneratedDatabase,
@@ -32,14 +33,22 @@ class JDBCOpenHelper(
                     )
                 }
 
-                override fun onUpgrade(db: JDBCConnectionWrapper, oldVersion: Int, newVersion: Int) {
+                override fun onUpgrade(
+                    db: JDBCConnectionWrapper,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {
                     databaseHelperDelegate.onUpgrade(
                         JDBCDatabase(generatedDatabase, db),
                         oldVersion, newVersion
                     )
                 }
 
-                override fun onDowngrade(db: JDBCConnectionWrapper, oldVersion: Int, newVersion: Int) {
+                override fun onDowngrade(
+                    db: JDBCConnectionWrapper,
+                    oldVersion: Int,
+                    newVersion: Int
+                ) {
                     databaseHelperDelegate.onDowngrade(
                         JDBCDatabase(generatedDatabase, db),
                         oldVersion, newVersion,
@@ -55,7 +64,7 @@ class JDBCOpenHelper(
         )
     }
 
-    override val database: JDBCDatabase by DatabasePropertyDelegate {
+    override val database: JDBCDatabase by databaseProperty {
         JDBCDatabase(generatedDatabase, connection.writableDatabase)
     }
 
@@ -67,14 +76,14 @@ class JDBCOpenHelper(
         databaseHelperDelegate.setDatabaseHelperListener(callback)
     }
 
-
-    override fun closeDB() {
+    override fun close() {
         connection.close()
     }
 
-    override fun deleteDB() {
+    override fun delete() {
         connection.delete()
     }
 }
 
-actual fun OpenHelper(db: GeneratedDatabase, callback: DatabaseCallback?): OpenHelper = JDBCOpenHelper(db, callback)
+actual fun OpenHelper(db: GeneratedDatabase, callback: DatabaseCallback?): OpenHelper =
+    JDBCOpenHelper(db, callback)

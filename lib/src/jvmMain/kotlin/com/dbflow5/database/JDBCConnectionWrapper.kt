@@ -1,5 +1,7 @@
 package com.dbflow5.database
 
+import com.dbflow5.delegates.CheckOpen
+import com.dbflow5.delegates.checkOpen
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.atomicfu.atomic
@@ -20,13 +22,13 @@ internal class JDBCConnectionWrapper(
 
     private val dataSource = HikariDataSource(config)
 
-    private val connection: Connection by lazy { dataSource.connection }
+    private val connection: Connection by checkOpen { CheckOpenConnectionWrapper(dataSource.connection) }
 
     val isReadOnly
         get() = dataSource.isReadOnly
 
     val isClosed
-        get() = connection.isClosed
+        get() = dataSource.isClosed
 
     val version
         get() = connection.createStatement().executeQuery("PRAGMA user_version").getInt(1)
@@ -42,6 +44,7 @@ internal class JDBCConnectionWrapper(
     }
 
     fun delete() {
+        close()
         if (name != null) {
             File(name).also { it.delete() }
         }
@@ -69,7 +72,7 @@ internal class JDBCConnectionWrapper(
     }
 
     fun close() {
-        connection.close()
+        dataSource.close()
     }
 
     companion object {
@@ -94,4 +97,12 @@ internal class JDBCConnectionWrapper(
             }
         )
     }
+}
+
+
+private class CheckOpenConnectionWrapper(
+    private val connection: Connection,
+) : Connection by connection, CheckOpen {
+    override val isOpen: Boolean
+        get() = !connection.isClosed
 }

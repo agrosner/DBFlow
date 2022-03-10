@@ -7,11 +7,11 @@ import com.dbflow5.database.DatabaseBackup
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseHelper
 import com.dbflow5.database.DatabaseHelperDelegate
-import com.dbflow5.database.DatabasePropertyDelegate
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.OpenHelperCreator
 import com.dbflow5.database.OpenHelperDelegate
 import com.dbflow5.database.config.DBSettings
+import com.dbflow5.delegates.databaseProperty
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteOpenHelper
 
@@ -46,7 +46,7 @@ class SQLCipherOpenHelper(
     override val isDatabaseIntegrityOk: Boolean
         get() = delegate.isDatabaseIntegrityOk
 
-    override val database: SQLCipherDatabase by DatabasePropertyDelegate {
+    override val database: SQLCipherDatabase by databaseProperty {
         SQLCipherDatabase.from(getWritableDatabase(secret), generatedDatabase)
     }
 
@@ -94,11 +94,11 @@ class SQLCipherOpenHelper(
         }
     }
 
-    override fun closeDB() {
+    override fun close() {
         database.database.close()
     }
 
-    override fun deleteDB() {
+    override fun delete() {
         context.deleteDatabase(_databaseName)
     }
 

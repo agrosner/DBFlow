@@ -40,7 +40,7 @@ class JDBCConnection internal constructor(
         }
 
     fun delete() {
-        database?.delete()
+        writableDatabase.delete()
     }
 
     fun close() {
@@ -69,7 +69,10 @@ class JDBCConnection internal constructor(
 
     private fun getDatabaseLocked(writable: Boolean): JDBCConnectionWrapper {
         database?.let { database ->
-            if (!writable || !database.isReadOnly) {
+            // closed was called directly.
+            if (database.isClosed) {
+                this.database = null
+            } else if (!writable || !database.isReadOnly) {
                 // database connection is already open
                 return database
             }

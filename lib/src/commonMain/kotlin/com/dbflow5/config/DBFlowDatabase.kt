@@ -133,11 +133,6 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()
 
     /**
-     * The helper that manages database changes and initialization
-     */
-    private var _openHelper: OpenHelper? = null
-
-    /**
      * Allows for the app to listen for database changes.
      */
     private val callback: DatabaseCallback?
@@ -178,18 +173,13 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
         ReadableDatabaseScope(this)
     }
 
-    private var isOpened: Boolean = false
-
     val closeLock = reentrantLock()
 
-    internal var writeAheadLoggingEnabled = false
-
     override val isOpen: Boolean
-        get() = isOpened
+        get() = openHelper.isOpen
 
     val openHelper: OpenHelper by lazy {
         settings.openHelperCreator.createHelper(this, internalCallback)
-            .also { onOpenWithConfig(settings, it) }
     }
 
     private fun onOpenWithConfig(settings: DBSettings, helper: OpenHelper) {
@@ -199,8 +189,6 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
             val wal =
                 settings.journalMode.adjustIfAutomatic(settings.platformSettings) == JournalMode.WriteAheadLogging
             helper.setWriteAheadLoggingEnabled(wal)
-            writeAheadLoggingEnabled = wal
-            isOpened = true
         }
     }
 
@@ -267,9 +255,7 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
         if (!isResetting) {
             isResetting = true
             close()
-            openHelper.deleteDB()
-            _openHelper = null
-            isOpened = false
+            openHelper.delete()
             isResetting = false
         }
     }
@@ -279,11 +265,8 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
      */
     override fun close() {
         transactionDispatcher.dispatcher.cancel()
-        if (isOpened) {
-            closeLock.withLock {
-                openHelper.closeDB()
-                isOpened = false
-            }
+        closeLock.withLock {
+            openHelper.close()
         }
     }
 
@@ -338,17 +321,20 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
 
     override suspend fun <Table : Any, OtherTable : Any>
         ExecutableQuery<SelectResult<Table>>.singleOrNull(
-        adapter: QueryRepresentable<OtherTable>): OtherTable? =
+        adapter: QueryRepresentable<OtherTable>
+    ): OtherTable? =
         writableScope.run { singleOrNull(adapter) }
 
     override suspend fun <Table : Any, OtherTable : Any>
         ExecutableQuery<SelectResult<Table>>.single(
-        adapter: QueryRepresentable<OtherTable>): OtherTable =
+        adapter: QueryRepresentable<OtherTable>
+    ): OtherTable =
         writableScope.run { single(adapter) }
 
     override suspend fun <Table : Any, OtherTable : Any>
         ExecutableQuery<SelectResult<Table>>.list(
-        adapter: QueryRepresentable<OtherTable>): List<OtherTable> =
+        adapter: QueryRepresentable<OtherTable>
+    ): List<OtherTable> =
         writableScope.run { list(adapter) }
 
     @DelicateDBFlowApi
@@ -391,6 +377,7 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
     private val internalCallback: DatabaseCallback = object : DatabaseCallback {
         override fun onOpen(db: DatabaseWrapper) {
             tableObserver.construct(db)
+            onOpenWithConfig(settings, openHelper)
             callback?.onOpen(db)
         }
 
@@ -398,8 +385,8 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
             callback?.onCreate(db)
         }
 
-        override fun onUpgrade(database: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
-            callback?.onUpgrade(database, oldVersion, newVersion)
+        override fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
+            callback?.onUpgrade(db, oldVersion, newVersion)
         }
 
         override fun onDowngrade(

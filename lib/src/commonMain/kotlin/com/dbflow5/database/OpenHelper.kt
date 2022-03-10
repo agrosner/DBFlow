@@ -23,9 +23,12 @@ interface OpenHelper : OpenHelperDelegate {
 
     fun setDatabaseListener(callback: DatabaseCallback?)
 
-    fun closeDB()
+    fun close()
 
-    fun deleteDB()
+    fun delete()
+
+    val isOpen: Boolean
+        get() = database.isOpen
 }
 
 /**

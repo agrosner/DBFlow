@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.dbflow5.config.GeneratedDatabase
+import com.dbflow5.delegates.databaseProperty
 
 /**
  * Description: Wraps around the [SQLiteOpenHelper] and provides extra features for use in this library.
@@ -30,7 +31,7 @@ class AndroidSQLiteOpenHelper(
 
     private val _databaseName = generatedDatabase.databaseFileName
 
-    override val database: AndroidDatabase by DatabasePropertyDelegate {
+    override val database: AndroidDatabase by databaseProperty {
         AndroidDatabase.from(
             writableDatabase,
             generatedDatabase
@@ -81,11 +82,7 @@ class AndroidSQLiteOpenHelper(
         )
     }
 
-    override fun closeDB() {
-        database.database.close()
-    }
-
-    override fun deleteDB() {
+    override fun delete() {
         context.deleteDatabase(_databaseName)
     }
 

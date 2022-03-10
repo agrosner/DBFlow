@@ -25,9 +25,9 @@ class FakeOpenHelper : OpenHelper {
     override fun setDatabaseListener(callback: DatabaseCallback?) {
     }
 
-    override fun closeDB() {
+    override fun close() {
     }
 
-    override fun deleteDB() {
+    override fun delete() {
     }
 }
