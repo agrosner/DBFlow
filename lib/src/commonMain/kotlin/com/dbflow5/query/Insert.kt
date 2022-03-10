@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.dbflow5.query
 
 import com.dbflow5.adapter.WritableDBRepresentable
@@ -240,7 +242,6 @@ internal data class InsertImpl<Table : Any>(
         )
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun <OtherTable : Any> select(subQuery: ExecutableQuery<SelectResult<OtherTable>>): InsertWithSelect<Table, OtherTable> =
         copy(
             subquery = subQuery as ExecutableQuery<SelectResult<Any>>,

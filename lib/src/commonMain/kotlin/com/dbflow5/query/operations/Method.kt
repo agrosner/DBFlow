@@ -78,6 +78,7 @@ internal data class MethodImpl<ReturnType>(
             innerOperator = innerOperator.chain(operation, operators)
         )
 
+    @Suppress("UNCHECKED_CAST")
     override fun `as`(
         name: String,
         shouldAddIdentifierToAlias: Boolean

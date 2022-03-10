@@ -26,6 +26,7 @@ interface TypeConvertedProperty<ModelType, ValueType, Table : Any> :
 interface DistinctTypeConvertedProperty<ValueType, Table : Any> :
     DistinctProperty<ValueType, Table>
 
+@Suppress("UNUSED_PARAMETER")
 inline fun <Table : Any, reified ValueType : Any, ModelType : Any> AdapterCompanion<Table>.typeConvertedProperty(
     unusedData: KClass<ValueType>,
     unusedModel: KClass<ModelType>,
@@ -41,6 +42,7 @@ inline fun <Table : Any, reified ValueType : Any, ModelType : Any> AdapterCompan
         adapter = makeLazyDBRepresentable(table),
     )
 
+@Suppress("UNUSED_PARAMETER")
 @JvmName("nullableDataTypeConvertedProperty")
 inline fun <Table : Any, reified ValueType : Any, ModelType : Any> AdapterCompanion<Table>.typeConvertedProperty(
     unusedModel: KClass<ModelType>,
@@ -69,6 +71,7 @@ inline fun <Table : Any, reified ValueType : Any, ModelType : Any> AdapterCompan
         adapter = makeLazyDBRepresentable(table),
     )
 
+@Suppress("UNUSED_PARAMETER")
 @JvmName("nullableModelTypeConvertedProperty")
 inline fun <Table : Any, reified ValueType : Any, ModelType : Any> AdapterCompanion<Table>.typeConvertedProperty(
     unusedModel: KClass<ValueType>,
@@ -95,6 +98,7 @@ data class TypeConvertedPropertyImpl<ModelType, ValueType, Table : Any>(
     AliasedProperty<ModelType, Table> {
 
     override val query: String = nameAlias.query
+    @Suppress("UNCHECKED_CAST")
     override fun <ValueType : Any, ModelType : Any> typeConverter(): TypeConverter<ValueType, ModelType> =
         valueConverter.typeConverter as TypeConverter<ValueType, ModelType>
 

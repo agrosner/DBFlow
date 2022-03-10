@@ -68,7 +68,7 @@ class NameAlias(
 
     private constructor(builder: Builder) : this(
         name = if (builder.shouldStripIdentifier) {
-            builder.name.stripQuotes() ?: ""
+            builder.name.stripQuotes()
         } else {
             builder.name
         },
@@ -101,7 +101,7 @@ class NameAlias(
     /**
      * @return The name, stripped from identifier syntax completely.
      */
-    fun nameRaw(): String = if (shouldStripIdentifier) name else name.stripQuotes() ?: ""
+    fun nameRaw(): String = if (shouldStripIdentifier) name else name.stripQuotes()
 
     /**
      * @return The name used as part of the AS query.
