@@ -9,6 +9,9 @@ plugins {
 kotlin {
     jvm()
     android()
+    ios()
+    macosArm64()
+    macosX64()
 
     sourceSets {
         val commonMain by getting {
@@ -58,6 +61,21 @@ kotlin {
             dependencies {
                 implementation(Dependencies.JUnit)
             }
+        }
+
+        val nativeMain by creating {
+            dependsOn(commonMain)
+        }
+
+        val iosMain by getting {
+            dependsOn(nativeMain)
+        }
+
+        val macosX64Main by getting {
+            dependsOn(nativeMain)
+        }
+        val macosArm64Main by getting {
+            dependsOn(nativeMain)
         }
     }
 }

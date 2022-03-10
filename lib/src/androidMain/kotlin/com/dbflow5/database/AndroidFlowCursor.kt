@@ -12,8 +12,6 @@ class AndroidFlowCursor(private val cursor: Cursor) : CursorWrapper(cursor),
     // compatibility
     override fun getWrappedCursor(): Cursor = cursor
 
-    override val size: Int = cursor.count
-
     override fun getString(index: Int, defValue: String): String =
         getOrDefault(index, defValue) { cursor.getString(index) }
 

@@ -63,10 +63,6 @@ internal constructor(
         statement.setBlob(index, SerialBlob(bytes))
     }
 
-    override fun bindAllArgsAsStrings(selectionArgs: Array<String>?) {
-        selectionArgs?.forEachIndexed { index, value -> bindString(index, value) }
-    }
-
     companion object {
 
         @JvmStatic

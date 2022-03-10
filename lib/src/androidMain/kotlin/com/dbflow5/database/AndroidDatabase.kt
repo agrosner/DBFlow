@@ -40,8 +40,8 @@ class AndroidDatabase internal constructor(
         AndroidDatabaseStatement.from(database.compileStatement(rawQuery), database)
     }
 
-    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
-        rethrowDBFlowException { AndroidFlowCursor(database.rawQuery(query, selectionArgs)) }
+    override fun rawQuery(query: String): FlowCursor =
+        rethrowDBFlowException { AndroidFlowCursor(database.rawQuery(query, null)) }
 
     companion object {
 

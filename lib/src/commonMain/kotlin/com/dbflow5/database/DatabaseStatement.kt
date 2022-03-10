@@ -32,8 +32,6 @@ interface DatabaseStatement : Closeable {
 
     fun bindBlob(index: Int, bytes: ByteArray)
 
-    fun bindAllArgsAsStrings(selectionArgs: Array<String>?)
-
     fun bindStringOrNull(index: Int, s: String?) {
         if (s != null) {
             bindString(index, s)

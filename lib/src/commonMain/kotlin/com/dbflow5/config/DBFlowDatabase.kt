@@ -302,8 +302,8 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
     override fun compileStatement(rawQuery: String): DatabaseStatement =
         writableDatabase.compileStatement(rawQuery)
 
-    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
-        writableDatabase.rawQuery(query, selectionArgs)
+    override fun rawQuery(query: String): FlowCursor =
+        writableDatabase.rawQuery(query)
 
     override val isInTransaction: Boolean
         get() = writableDatabase.isInTransaction

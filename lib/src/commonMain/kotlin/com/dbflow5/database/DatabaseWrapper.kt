@@ -36,5 +36,5 @@ interface DatabaseWrapper : CheckOpen {
     /**
      * For given query and selection args, return a [FlowCursor] to retrieve data.
      */
-    fun rawQuery(query: String, selectionArgs: Array<String>? = null): FlowCursor
+    fun rawQuery(query: String): FlowCursor
 }

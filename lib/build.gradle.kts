@@ -8,6 +8,9 @@ apply(plugin = "kotlinx-atomicfu")
 kotlin {
     android()
     jvm()
+    ios()
+    macosArm64()
+    macosX64()
 
     sourceSets {
         all {
@@ -37,6 +40,25 @@ kotlin {
                 implementation(Dependencies.SLF4JApi)
                 implementation(Dependencies.SLF4JSimple)
             }
+        }
+
+        val nativeMain by creating {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(Dependencies.SQLiter)
+                implementation(Dependencies.OkIO)
+            }
+        }
+
+        val iosMain by getting {
+            dependsOn(nativeMain)
+        }
+
+        val macosX64Main by getting {
+            dependsOn(nativeMain)
+        }
+        val macosArm64Main by getting {
+            dependsOn(nativeMain)
         }
     }
 }

@@ -38,12 +38,8 @@ class JDBCDatabase internal constructor(
             db.prepareStatement(rawQuery)
         )
 
-    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor = rethrowDBFlowException {
-        JDBCFlowCursor(
-            compileStatement(query).apply {
-                bindAllArgsAsStrings(selectionArgs)
-            }
-        )
+    override fun rawQuery(query: String): FlowCursor = rethrowDBFlowException {
+        JDBCFlowCursor(compileStatement(query))
     }
 }
 

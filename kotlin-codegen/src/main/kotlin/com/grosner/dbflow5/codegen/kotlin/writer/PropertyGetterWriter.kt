@@ -10,7 +10,6 @@ import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.MemberNames
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.asClassName
 
 class PropertyGetterWriter(
     private val referencesCache: ReferencesCache,
@@ -52,7 +51,7 @@ class PropertyGetterWriter(
                             """
                 else -> throw %T(%P) 
             """.trimIndent(),
-                            IllegalArgumentException::class.asClassName(),
+                            ClassNames.IllegalArgumentException,
                             "Invalid column name passed \$columnName. Ensure you are calling the correct table's column"
                         )
                         endControlFlow()

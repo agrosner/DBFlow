@@ -44,6 +44,9 @@ object Dependencies {
     const val SLF4JApi = "org.slf4j:slf4j-api:1.7.36"
     const val SLF4JSimple = "org.slf4j:slf4j-simple:1.7.36"
 
+    const val SQLiter = "co.touchlab:sqliter-driver:1.0.10"
+    const val OkIO = "com.squareup.okio:okio:3.0.0"
+
     object AndroidX {
         const val Annotations = "androidx.annotation:annotation:1.3.0"
         const val LiveData = "androidx.lifecycle:lifecycle-livedata:2.4.0"

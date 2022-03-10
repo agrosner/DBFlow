@@ -51,10 +51,6 @@ internal constructor(
         statement.bindBlob(index, bytes)
     }
 
-    override fun bindAllArgsAsStrings(selectionArgs: Array<String>?) {
-        statement.bindAllArgsAsStrings(selectionArgs)
-    }
-
     companion object {
 
         @Deprecated(

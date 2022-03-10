@@ -220,7 +220,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
 
     private fun checkUpdatedTables(): Boolean {
         var hasUpdatedTable = false
-        db.rawQuery(SELECT_UPDATED_TABLES_SQL, null).use { cursor ->
+        db.rawQuery(SELECT_UPDATED_TABLES_SQL).use { cursor ->
             while (cursor.moveToNext()) {
                 val tableId = cursor.getInt(0)
                 tableStatus[tableId] = true

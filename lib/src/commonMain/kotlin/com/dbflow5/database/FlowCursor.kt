@@ -16,7 +16,6 @@ interface FlowCursor : Closeable, Iterable<FlowCursor> {
     fun getColumnIndex(columnName: String): Int
     fun moveToFirst(): Boolean
     fun moveToNext(): Boolean
-    val size: Int
     override fun iterator(): Iterator<FlowCursor> = FlowCursorIterator(this)
 
     fun getString(index: Int, defValue: String = ""): String

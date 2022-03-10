@@ -138,5 +138,5 @@ suspend fun <Table : Any, OtherTable : Any>
 suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.cursor(
     db: DatabaseWrapper
 ) = db.generatedDatabase.readableTransaction {
-    db.rawQuery(query, null)
+    db.rawQuery(query)
 }

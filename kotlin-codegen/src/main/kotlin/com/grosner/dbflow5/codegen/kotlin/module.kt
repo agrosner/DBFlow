@@ -16,14 +16,8 @@ import com.grosner.dbflow5.codegen.kotlin.writer.QueryOpsWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.TableBinderWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.TableOpsWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.TableSQLWriter
-import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.AllColumnPropertiesWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.FieldPropertyWriter
-import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.GetPropertyMethodWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.IndexPropertyWriter
-import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.LoadFromCursorWriter
-import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.PrimaryConditionClauseWriter
-import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.StatementBinderWriter
-import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.TypeConverterFieldWriter
 import com.squareup.kotlinpoet.NameAllocator
 import org.koin.dsl.module
 
@@ -32,12 +26,6 @@ import org.koin.dsl.module
  */
 val codeGenModule = module {
     single { NameAllocator() }
-    single { LoadFromCursorWriter(get(), get()) }
-    single { GetPropertyMethodWriter(get()) }
-    single { AllColumnPropertiesWriter(get()) }
-    single { PrimaryConditionClauseWriter(get()) }
-    single { StatementBinderWriter(get(), get()) }
-    single { TypeConverterFieldWriter() }
     single { InlineTypeConverterWriter(get()) }
     single { ManyToManyClassWriter(get()) }
     single { OneToManyClassWriter(get()) }

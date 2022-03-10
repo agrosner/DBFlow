@@ -112,4 +112,9 @@ object ClassNames {
     val CompilableQuery = ClassName(PackageNames.Adapter, "CompilableQuery")
 
     val DBSettings = ClassName(PackageNames.DatabaseConfig, "DBSettings")
+
+    /**
+     * Kotlinpoet cannot convert the real class, since this runs on the JVM, not common platforms.
+     */
+    val IllegalArgumentException = ClassName("kotlin", "IllegalArgumentException")
 }

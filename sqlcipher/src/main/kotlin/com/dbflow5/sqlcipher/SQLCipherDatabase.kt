@@ -45,9 +45,9 @@ internal constructor(
         SQLCipherStatement.from(database.compileStatement(rawQuery))
     }
 
-    override fun rawQuery(query: String, selectionArgs: Array<String>?): FlowCursor =
+    override fun rawQuery(query: String): FlowCursor =
         rethrowDBFlowException {
-            AndroidFlowCursor(database.rawQuery(query, selectionArgs))
+            AndroidFlowCursor(database.rawQuery(query, null))
         }
 
     companion object {

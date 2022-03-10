@@ -20,9 +20,6 @@ class JDBCFlowCursor(private val statement: JDBCDatabaseStatement) : FlowCursor 
 
     override fun moveToNext(): Boolean = resultSet.next()
 
-    override val size: Int
-        get() = resultSet.fetchSize
-
     override fun getString(index: Int, defValue: String): String =
         getOrDefault(index, defValue) { resultSet.getString(index + 1) }
 
