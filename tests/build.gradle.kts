@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import kotlinx.atomicfu.plugin.gradle.withKotlinTargets
 
 plugins {
     id("com.google.devtools.ksp") version Versions.KSP
@@ -9,11 +9,22 @@ plugins {
 kotlin {
     jvm()
     android()
-    ios()
     macosArm64()
-    macosX64()
+
+    targets.getByName("macosArm64") {
+        compilations.getByName("test") {
+            kotlinOptions {
+                freeCompilerArgs += listOf("-linker-options", "-lsqlite3")
+            }
+        }
+    }
 
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+            languageSettings.optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+            languageSettings.optIn("com.dbflow5.annotation.opts.InternalDBFlowApi")
+        }
         val commonMain by getting {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
@@ -63,19 +74,11 @@ kotlin {
             }
         }
 
-        val nativeMain by creating {
+        val macosArm64Main by getting {
             dependsOn(commonMain)
         }
-
-        val iosMain by getting {
-            dependsOn(nativeMain)
-        }
-
-        val macosX64Main by getting {
-            dependsOn(nativeMain)
-        }
-        val macosArm64Main by getting {
-            dependsOn(nativeMain)
+        val macosArm64Test by getting {
+            dependsOn(commonTest)
         }
     }
 }
@@ -133,12 +136,4 @@ tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().all {
     if (name != "kspKotlinMetadata") {
         dependsOn("kspKotlinMetadata")
     }
-}
-
-tasks.withType<KotlinCompile>().all {
-    kotlinOptions.freeCompilerArgs += listOf(
-        "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-        "-Xopt-in=com.dbflow5.annotation.opts.InternalDBFlowApi",
-        "-Xopt-in=com.dbflow5.annotation.opts.DelicateDBFlowApi"
-    )
 }

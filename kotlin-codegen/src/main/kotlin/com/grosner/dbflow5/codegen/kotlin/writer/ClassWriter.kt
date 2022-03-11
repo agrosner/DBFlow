@@ -6,6 +6,7 @@ import com.dbflow5.codegen.shared.cache.ReferencesCache
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.FieldPropertyWriter
 import com.grosner.dbflow5.codegen.kotlin.writer.classwriter.IndexPropertyWriter
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -36,6 +37,11 @@ class ClassWriter(
     override fun create(model: ClassModel): FileSpec {
         return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
             .apply {
+                addAnnotation(
+                    AnnotationSpec.builder(ClassNames.OptIn)
+                        .addMember("%T::class", ClassNames.InternalDBFlowApi)
+                        .build()
+                )
                 addFunction(queryOpsWriter.create(model))
                 if (!model.isQuery) {
                     addFunction(creationSQLWriter.create(model))

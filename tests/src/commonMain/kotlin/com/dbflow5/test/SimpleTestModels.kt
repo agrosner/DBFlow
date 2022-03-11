@@ -11,6 +11,7 @@ import com.dbflow5.annotation.UniqueGroup
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.query.DatabaseStatementListener
 import kotlin.jvm.JvmName
+import kotlin.jvm.JvmInline
 
 @Query
 data class SimpleCustomModel(@Column val name: String?)
@@ -40,6 +41,7 @@ open class AllFieldsModel(
     companion object {
 
         // example field to ensure static not used.
+        @Suppress("VARIABLE_IN_SINGLETON_WITHOUT_THREAD_LOCAL")
         var COUNT: Int = 0
     }
 }

@@ -1,17 +1,14 @@
 package com.dbflow5.test.sql.language
 
-import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.test.assertEquals
 import com.dbflow5.query.operations.UnSafeStringOperator
 import com.dbflow5.query.select
-
 import com.dbflow5.test.DatabaseTestRule
-import org.junit.Rule
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.assertEquals
 import kotlin.test.Test
 
 class UnSafeStringOperatorTest {
 
-    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

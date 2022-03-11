@@ -16,8 +16,8 @@ import com.dbflow5.query.methods.replace
 import com.dbflow5.query.methods.strftime
 import com.dbflow5.query.methods.sum
 import com.dbflow5.query.methods.total
-import org.junit.Assert.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class MethodTest {
 

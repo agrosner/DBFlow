@@ -7,6 +7,7 @@ import com.dbflow5.codegen.shared.interop.OriginatingFileTypeSpecAdder
 import com.dbflow5.codegen.shared.writer.TypeCreator
 import com.dbflow5.stripQuotes
 import com.grosner.dbflow5.codegen.kotlin.kotlinpoet.ParameterPropertySpec
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
@@ -72,6 +73,11 @@ class DatabaseWriter(
 
         return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
             .apply {
+                addAnnotation(
+                    AnnotationSpec.builder(ClassNames.OptIn)
+                        .addMember("%T::class", ClassNames.InternalDBFlowApi)
+                        .build()
+                )
                 addType(
                     TypeSpec.classBuilder(model.generatedClassName.className)
                         .primaryConstructor(

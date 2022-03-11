@@ -3,9 +3,9 @@ package com.dbflow5.test.sql.language
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.`as`
 import com.dbflow5.query.nameAlias
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 
 class NameAliasTest {
 

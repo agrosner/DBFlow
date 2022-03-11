@@ -11,4 +11,5 @@ object PackageNames {
     const val Converter = "com.dbflow5.converter"
     const val Structure = "com.dbflow5.structure"
     const val Adapter = "com.dbflow5.adapter"
+    const val Annotation = "com.dbflow5.annotation"
 }

@@ -117,4 +117,8 @@ object ClassNames {
      * Kotlinpoet cannot convert the real class, since this runs on the JVM, not common platforms.
      */
     val IllegalArgumentException = ClassName("kotlin", "IllegalArgumentException")
+
+    val OptIn = ClassName("kotlin", "OptIn")
+    val InternalDBFlowApi = ClassName("${PackageNames.Annotation}.opts", "InternalDBFlowApi")
+
 }

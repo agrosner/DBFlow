@@ -1,25 +1,21 @@
 package com.dbflow5.test.sql.language
 
-import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.test.assertEquals
-import com.dbflow5.test.SimpleModel
-import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.createTrigger
 import com.dbflow5.query.insert
 import com.dbflow5.query.methods.cast
 import com.dbflow5.query.select
-
 import com.dbflow5.test.DatabaseTestRule
-
+import com.dbflow5.test.SimpleModel
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TwoColumnModel_Table
+import com.dbflow5.test.assertEquals
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertNotNull
-import org.junit.Rule
 import kotlin.test.Test
+import kotlin.test.assertNotNull
 
 class TriggerTest {
 
-    
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
