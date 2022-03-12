@@ -2,9 +2,11 @@ package com.dbflow5.runtime
 
 import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.mpp.ensureNeverFrozen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.native.concurrent.ThreadLocal
 
 interface NotifyDistributor {
 
@@ -13,6 +15,7 @@ interface NotifyDistributor {
         notification: ModelNotification<Table>
     )
 
+    @ThreadLocal
     companion object : NotifyDistributor {
         private var notifyDistributor: NotifyDistributor = NotifyDistributorImpl()
 
@@ -39,12 +42,17 @@ data class NotifyDistributorImpl
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.Main),
 ) : NotifyDistributor {
 
+    init {
+        ensureNeverFrozen()
+    }
+
     override fun <Table : Any> onChange(
         db: DatabaseWrapper,
         notification: ModelNotification<Table>
     ) {
+        val modelNotifier = db.generatedDatabase.modelNotifier
         scope.launch {
-            db.generatedDatabase.modelNotifier.onChange(notification)
+            modelNotifier.onChange(notification)
         }
     }
 }
