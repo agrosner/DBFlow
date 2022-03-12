@@ -1,4 +1,4 @@
-package com.dbflow5.database
+package com.dbflow5.database.migration
 
 /**
  * Description:

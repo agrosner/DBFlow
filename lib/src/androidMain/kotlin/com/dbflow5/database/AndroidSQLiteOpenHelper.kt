@@ -4,6 +4,8 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.dbflow5.config.GeneratedDatabase
+import com.dbflow5.database.migration.DefaultMigrator
+import com.dbflow5.database.migration.Migrator
 import com.dbflow5.delegates.databaseProperty
 
 /**
@@ -13,13 +15,11 @@ class AndroidSQLiteOpenHelper(
     private val context: Context,
     private val generatedDatabase: GeneratedDatabase,
     callback: DatabaseCallback?,
+    migrator: Migrator = DefaultMigrator(AndroidMigrationFileHelper(context), generatedDatabase),
     private val databaseHelperDelegate: DatabaseHelperDelegate = DatabaseHelperDelegate(
         callback,
         generatedDatabase,
-        helper = DatabaseHelper(
-            AndroidMigrationFileHelper(context),
-            generatedDatabase
-        ),
+        helper = DatabaseHelper(migrator, generatedDatabase),
         databaseBackup = DatabaseBackup(context, generatedDatabase),
     ),
 ) : SQLiteOpenHelper(

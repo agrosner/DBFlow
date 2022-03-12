@@ -1,7 +1,7 @@
 package com.dbflow5.query.migration
 
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.database.Migration
+import com.dbflow5.database.migration.Migration
 import com.dbflow5.database.scope.MigrationScope
 import com.dbflow5.query.ExecutableQuery
 import com.dbflow5.quoteIfNeeded

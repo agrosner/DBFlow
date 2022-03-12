@@ -5,6 +5,8 @@ import co.touchlab.sqliter.JournalMode
 import co.touchlab.sqliter.createDatabaseManager
 import co.touchlab.sqliter.updateJournalMode
 import com.dbflow5.config.GeneratedDatabase
+import com.dbflow5.database.migration.DefaultMigrator
+import com.dbflow5.database.migration.Migrator
 import com.dbflow5.delegates.databaseProperty
 import okio.FileSystem
 import okio.Path.Companion.toPath
@@ -12,12 +14,14 @@ import okio.Path.Companion.toPath
 class NativeOpenHelper(
     private val generatedDatabase: GeneratedDatabase,
     callback: DatabaseCallback?,
+    migrator: Migrator = DefaultMigrator(
+        NativeMigrationFileHelper(), generatedDatabase,
+        useTransactions = false
+    ),
     private val databaseHelperDelegate: DatabaseHelperDelegate = DatabaseHelperDelegate(
         callback,
         generatedDatabase,
-        helper = DatabaseHelper(
-            NativeMigrationFileHelper(), generatedDatabase
-        ),
+        helper = DatabaseHelper(migrator, generatedDatabase),
         databaseBackup = DatabaseBackup(generatedDatabase),
     ),
 ) : OpenHelper, OpenHelperDelegate by databaseHelperDelegate {
@@ -25,7 +29,7 @@ class NativeOpenHelper(
     private val manager = createDatabaseManager(
         DatabaseConfiguration(
             name = generatedDatabase.openHelperName,
-            version = generatedDatabase.version,
+            version = generatedDatabase.databaseVersion,
             create = { connection ->
                 val db = NativeDatabase(generatedDatabase, connection)
                 databaseHelperDelegate.onConfigure(db)

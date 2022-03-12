@@ -2,21 +2,27 @@
 
 package com.dbflow5.config
 
+import co.touchlab.stately.isolate.IsolateState
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
-import kotlin.reflect.KClass
+import kotlinx.atomicfu.atomic
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
+
+private data class MutableDatabaseHolder(
+    var currentHolder: DatabaseHolder
+)
 
 /**
  * Holds the main [DatabaseHolder], which provides lookup for database objects by class type.
  */
 object DatabaseObjectLookup {
 
-    private var internalDatabaseHolder: DatabaseHolder = DatabaseHolder()
+    private val internalDatabaseHolder = IsolateState { MutableDatabaseHolder(DatabaseHolder()) }
     private val databaseHolder: DatabaseHolder
         get() {
             if (!databaseHolderInitialized) {
@@ -25,15 +31,15 @@ object DatabaseObjectLookup {
                         "Ensure you call FlowManager.init() before accessing the databaseForTable."
                 )
             }
-            return internalDatabaseHolder
+            return internalDatabaseHolder.access { it.currentHolder }
         }
 
     /**
      * This is set at first "merge" of the holder.
      */
-    private var databaseHolderInitialized: Boolean = false
+    private var databaseHolderInitialized by atomic(false)
 
-    private val loadedModules = hashSetOf<DatabaseHolderFactory>()
+    private val loadedModules = IsolateState { hashSetOf<DatabaseHolderFactory>() }
 
     /**
      * Loading the module Database holder via reflection.
@@ -45,17 +51,17 @@ object DatabaseObjectLookup {
      */
     @JvmStatic
     fun loadHolder(holderFactory: DatabaseHolderFactory) {
-        if (loadedModules.contains(holderFactory)) {
+        if (loadedModules.access { it.contains(holderFactory) }) {
             return
         }
 
         try {
             // Load the database holder, and add it to the global collection.
-            internalDatabaseHolder += holderFactory.create()
+            internalDatabaseHolder.access { it.currentHolder += holderFactory.create() }
             databaseHolderInitialized = true
 
             // Cache the holder for future reference.
-            loadedModules.add(holderFactory)
+            loadedModules.access { it.add(holderFactory) }
         } catch (e: Throwable) {
             e.printStackTrace()
             throw ModuleNotFoundException("Cannot load $holderFactory", e)

@@ -27,7 +27,7 @@ class DatabaseTests : BaseCompileTest() {
         import com.dbflow5.config.DBFlowDatabase
         import com.dbflow5.database.DatabaseWrapper
         import com.dbflow5.database.scope.MigrationScope
-        import com.dbflow5.database.Migration
+        import com.dbflow5.database.migration.Migration
         import com.dbflow5.query.select
 
         @Table

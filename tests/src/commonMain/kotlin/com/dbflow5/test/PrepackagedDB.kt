@@ -41,7 +41,7 @@ abstract class MigratedPrepackagedDB : DBFlowDatabase<MigratedPrepackagedDB>() {
     abstract val dog2Adapter: ModelAdapter<Dog2>
 
     @Migration(version = 2, priority = 1)
-    class AddNewFieldMigration : com.dbflow5.database.Migration {
+    class AddNewFieldMigration : com.dbflow5.database.migration.Migration {
         override suspend fun MigrationScope.migrate(database: DatabaseWrapper) {
             (alterTable("Dog") addColumn ColumnAlter.Plain(
                 name = "newField",
@@ -51,7 +51,7 @@ abstract class MigratedPrepackagedDB : DBFlowDatabase<MigratedPrepackagedDB>() {
     }
 
     @Migration(version = 2, priority = 2)
-    class AddSomeDataMigration : com.dbflow5.database.Migration {
+    class AddSomeDataMigration : com.dbflow5.database.migration.Migration {
         override suspend fun MigrationScope.migrate(database: DatabaseWrapper) {
             migrationAdapter("Dog").insert(
                 literalOf("`breed`") eq "NewBreed",

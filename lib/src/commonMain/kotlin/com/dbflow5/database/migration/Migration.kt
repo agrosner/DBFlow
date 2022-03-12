@@ -1,5 +1,6 @@
-package com.dbflow5.database
+package com.dbflow5.database.migration
 
+import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.scope.MigrationScope
 
 /**

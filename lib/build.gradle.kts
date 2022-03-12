@@ -22,6 +22,7 @@ kotlin {
                 api(project(":core"))
                 api(Dependencies.Coroutines)
                 api(Dependencies.AtomicFU)
+                implementation(Dependencies.StatelyISO)
             }
         }
         val javaPlatformMain by creating

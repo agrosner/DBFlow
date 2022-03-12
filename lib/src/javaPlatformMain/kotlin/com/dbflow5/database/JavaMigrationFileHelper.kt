@@ -1,6 +1,7 @@
 package com.dbflow5.database
 
 import com.dbflow5.config.FlowLog
+import com.dbflow5.database.migration.MigrationFileHelper
 import java.io.IOException
 import java.io.InputStream
 

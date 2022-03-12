@@ -47,7 +47,7 @@ class DatabaseTestRule<DB : DBFlowDatabase<DB>>(
 
     inline fun acquireFreshDatabase(fn: () -> Unit) {
         DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)
-        Dispatchers.setMain(UnconfinedTestDispatcher())
+        //Dispatchers.setMain(UnconfinedTestDispatcher())
         FlowLog.setMinimumLoggingLevel(FlowLog.Level.V)
         creator.create(
             platformSettings(),

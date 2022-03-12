@@ -46,6 +46,7 @@ object Dependencies {
 
     const val SQLiter = "co.touchlab:sqliter-driver:1.0.10"
     const val OkIO = "com.squareup.okio:okio:3.0.0"
+    const val StatelyISO = "co.touchlab:stately-isolate:1.2.0"
 
     object AndroidX {
         const val Annotations = "androidx.annotation:annotation:1.3.0"

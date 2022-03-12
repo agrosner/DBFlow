@@ -11,7 +11,7 @@ import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
-import com.dbflow5.database.Migration
+import com.dbflow5.database.migration.Migration
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.ThreadLocalTransaction
 import com.dbflow5.database.config.DBPlatformSettings

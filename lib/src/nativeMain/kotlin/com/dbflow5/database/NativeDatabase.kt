@@ -22,13 +22,22 @@ class NativeDatabase(
     }
 
     override suspend fun <R> executeTransaction(dbFn: suspend DatabaseWrapper.() -> R): R {
+        // only allow a single transaction to occur.
+        val wasInTransaction = inTransaction
         try {
-            db.beginTransaction()
+            if (!wasInTransaction) {
+                db.beginTransaction()
+                inTransaction = true
+            }
             val result = dbFn()
-            db.setTransactionSuccessful()
+            if (!wasInTransaction) {
+                db.setTransactionSuccessful()
+            }
             return result
         } finally {
-            db.endTransaction()
+            if (!wasInTransaction) {
+                db.endTransaction()
+            }
         }
     }
 
