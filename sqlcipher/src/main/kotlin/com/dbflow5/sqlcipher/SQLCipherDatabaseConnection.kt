@@ -26,7 +26,7 @@ internal constructor(
     override val isOpen: Boolean
         get() = database.isOpen
 
-    override fun execSQL(query: String) = rethrowDBFlowException {
+    override fun execute(query: String) = rethrowDBFlowException {
         database.execSQL(query)
     }
 

@@ -17,7 +17,7 @@ class NativeDatabaseConnection(
     override val version: Int
         get() = db.getVersion()
 
-    override fun execSQL(query: String) {
+    override fun execute(query: String) {
         db.createStatement(query).execute()
     }
 

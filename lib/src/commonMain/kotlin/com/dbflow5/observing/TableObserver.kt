@@ -104,11 +104,11 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
                 FlowLog.log(FlowLog.Level.W, "TableObserver already initialized")
                 return@synchronized
             }
-            db.execSQL("PRAGMA temp_store = MEMORY;")
+            db.execute("PRAGMA temp_store = MEMORY;")
             runBlocking {
                 db.executeTransaction {
-                    db.execSQL("PRAGMA recursive_triggers='ON';")
-                    db.execSQL("CREATE TEMP TABLE $TABLE_OBSERVER_NAME($TABLE_ID_COLUMN_NAME INTEGER PRIMARY KEY, $INVALIDATED_COLUMN_NAME INTEGER NOT NULL DEFAULT 0);")
+                    db.execute("PRAGMA recursive_triggers='ON';")
+                    db.execute("CREATE TEMP TABLE $TABLE_OBSERVER_NAME($TABLE_ID_COLUMN_NAME INTEGER PRIMARY KEY, $INVALIDATED_COLUMN_NAME INTEGER NOT NULL DEFAULT 0);")
                 }
             }
             syncTriggers(db)
@@ -234,12 +234,12 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
     }
 
     private fun observeTable(db: DatabaseConnection, tableId: Int) {
-        db.execSQL("INSERT OR IGNORE INTO $TABLE_OBSERVER_NAME VALUES($tableId, 0)")
+        db.execute("INSERT OR IGNORE INTO $TABLE_OBSERVER_NAME VALUES($tableId, 0)")
         val adapter = adapters[tableId]
 
         TriggerMethod.All.forEach { method ->
             // utilize raw query, since we're using dynamic tables not supported by query language.
-            db.execSQL(
+            db.execute(
                 "CREATE TEMP TRIGGER IF NOT EXISTS ${getTriggerName(adapter, method.value)} " +
                     "AFTER ${method.value} ON ${adapter.name.quoteIfNeeded()} " +
                     "BEGIN UPDATE $TABLE_OBSERVER_NAME " +
@@ -253,7 +253,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
     private fun stopObservingTable(db: DatabaseConnection, tableId: Int) {
         val adapter = adapters[tableId]
         TriggerMethod.All.forEach { method ->
-            db.execSQL("DROP TRIGGER IF EXISTS ${getTriggerName(adapter, method.value)}")
+            db.execute("DROP TRIGGER IF EXISTS ${getTriggerName(adapter, method.value)}")
         }
     }
 

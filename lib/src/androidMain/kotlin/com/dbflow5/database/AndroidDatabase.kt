@@ -12,7 +12,7 @@ class AndroidDatabase internal constructor(
     override val generatedDatabase: GeneratedDatabase,
 ) : DatabaseConnection {
 
-    override fun execSQL(query: String) {
+    override fun execute(query: String) {
         rethrowDBFlowException { database.execSQL(query) }
     }
 

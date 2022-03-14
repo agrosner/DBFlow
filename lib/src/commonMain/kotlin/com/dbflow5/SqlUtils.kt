@@ -21,7 +21,7 @@ val TABLE_QUERY_PARAM = "tableName"
  * @param indexName The name of the index.
  */
 fun dropIndex(databaseConnection: DatabaseConnection, indexName: String) {
-    databaseConnection.execSQL("DROP INDEX IF EXISTS ${indexName.quoteIfNeeded()}")
+    databaseConnection.execute("DROP INDEX IF EXISTS ${indexName.quoteIfNeeded()}")
 }
 
 fun longForQuery(wrapper: DatabaseConnection, query: String): Long =

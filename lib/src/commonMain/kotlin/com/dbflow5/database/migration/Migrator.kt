@@ -119,7 +119,7 @@ class DefaultMigrator(
      */
     private fun executeSqlScript(db: DatabaseConnection, file: String) {
         migrationFileHelper.executeMigration("$dbMigrationPath/$file") { queryString ->
-            db.execSQL(
+            db.execute(
                 queryString
             )
         }

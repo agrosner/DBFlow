@@ -21,7 +21,7 @@ interface DatabaseConnection : CheckOpen {
     /**
      * Execute an arbitrary SQL query.
      */
-    fun execSQL(query: String)
+    fun execute(query: String)
 
     /**
      * Executes a transaction.

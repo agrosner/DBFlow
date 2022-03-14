@@ -16,7 +16,7 @@ class JDBCDatabaseConnection internal constructor(
     override val version: Int
         get() = db.version
 
-    override fun execSQL(query: String) {
+    override fun execute(query: String) {
         rethrowDBFlowException { db.prepareStatement(query).use { it.execute() } }
     }
 

@@ -111,6 +111,6 @@ internal data class AlterTableImpl(
     override val query: String = "ALTER TABLE ${oldTableName.quoteIfNeeded()} ${type.query}"
 
     override suspend fun execute(db: DatabaseConnection) {
-        db.execSQL(query)
+        db.execute(query)
     }
 }

@@ -50,7 +50,7 @@ class DatabaseHelper(
      */
     private fun checkForeignKeySupport(database: DatabaseConnection) {
         if (generatedDatabase.isForeignKeysSupported) {
-            database.execSQL("PRAGMA foreign_keys=ON;")
+            database.execute("PRAGMA foreign_keys=ON;")
             FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.")
         }
     }

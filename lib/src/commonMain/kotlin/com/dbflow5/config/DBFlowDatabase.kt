@@ -286,7 +286,7 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
     override val version: Int
         get() = writableDatabase.version
 
-    override fun execSQL(query: String) = writableDatabase.execSQL(query)
+    override fun execute(query: String) = writableDatabase.execute(query)
 
     override suspend fun <R> executeTransaction(dbFn: suspend DatabaseConnection.() -> R): R {
         tableObserver.syncTriggers(writableDatabase)

@@ -4,5 +4,5 @@ import com.dbflow5.database.DatabaseConnection
 
 interface QueryExecutableIgnoreResult : ExecutableQuery<Unit> {
     override suspend fun execute(db: DatabaseConnection) =
-        db.execSQL(this.query)
+        db.execute(this.query)
 }

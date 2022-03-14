@@ -204,6 +204,6 @@ internal data class TriggerImpl<Table : Any>(
         )
 
     override suspend fun execute(db: DatabaseConnection) {
-        db.execSQL(query)
+        db.execute(query)
     }
 }
