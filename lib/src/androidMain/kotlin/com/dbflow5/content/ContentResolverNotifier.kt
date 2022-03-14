@@ -4,9 +4,10 @@ import android.content.ContentResolver
 import android.content.ContentResolver.NOTIFY_SYNC_TO_NETWORK
 import android.content.Context
 import android.os.Build
-import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.runtime.ModelNotifier
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 /**
  * The default use case, it notifies via the [ContentResolver] system.
@@ -17,8 +18,8 @@ import com.dbflow5.runtime.ModelNotifier
 class ContentResolverNotifier(
     private val context: Context,
     private val authority: String,
-    override val db: DatabaseWrapper,
     private val uriEncoder: ContentNotificationEncoder = defaultContentEncoder(),
+    override val notificationScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
 ) : ModelNotifier {
 
     override suspend fun <Table : Any> onChange(notification: ModelNotification<Table>) {

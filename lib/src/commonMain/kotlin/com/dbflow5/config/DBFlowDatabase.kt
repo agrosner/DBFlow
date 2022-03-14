@@ -11,11 +11,11 @@ import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.database.FlowCursor
-import com.dbflow5.database.migration.Migration
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.ThreadLocalTransaction
 import com.dbflow5.database.config.DBPlatformSettings
 import com.dbflow5.database.config.DBSettings
+import com.dbflow5.database.migration.Migration
 import com.dbflow5.database.scope.ReadableDatabaseScope
 import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.mpp.Closeable
@@ -245,7 +245,7 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
     }
 
     override val modelNotifier: ModelNotifier by lazy {
-        settings.modelNotifierFactory.create(this)
+        settings.modelNotifierFactory.create()
     }
 
     /**

@@ -1,14 +1,21 @@
 package com.dbflow5.runtime
 
-import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.database.DatabaseWrapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * Interface for defining how we notify model changes.
  */
 interface ModelNotifier {
 
-    val db: DatabaseWrapper
+    val notificationScope: CoroutineScope
+
+    fun <Table : Any> enqueueChange(notification: ModelNotification<Table>) {
+        notificationScope.launch {
+            onChange(notification)
+        }
+    }
 
     suspend fun <Table : Any> onChange(notification: ModelNotification<Table>)
 }
@@ -17,8 +24,9 @@ interface ModelNotifier {
  * Creates a default ModelNotifier.
  */
 @Suppress("FunctionName")
-fun ModelNotifier(db: GeneratedDatabase) = DirectModelNotifier(db)
+fun ModelNotifier(notificationScope: CoroutineScope = CoroutineScope(Dispatchers.Main)) =
+    DirectModelNotifier(notificationScope = notificationScope)
 
 fun interface ModelNotifierFactory {
-    fun create(db: GeneratedDatabase): ModelNotifier
+    fun create(): ModelNotifier
 }

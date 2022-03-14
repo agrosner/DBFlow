@@ -5,10 +5,8 @@ import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.writableTransaction
 import com.dbflow5.database.DatabaseWrapper
-import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.mpp.use
 import com.dbflow5.runtime.ModelNotification
-import com.dbflow5.runtime.NotifyDistributor
 import com.dbflow5.structure.ChangeAction
 import kotlin.reflect.KClass
 
@@ -56,18 +54,18 @@ data class TableOpsImpl<Table : Any>(
         binder: SQLStatementBinder<Table>
     ) = compilableQuery.create(this).apply { binder.bind(this, model) }
 
-    private fun DatabaseWrapper.notifyModelChange(changeAction: ChangeAction) = { model: Table ->
-        if (notifyChanges) {
-            NotifyDistributor.onChange(
-                this,
-                ModelNotification.ModelChange(
-                    changedFields = primaryModelClauseGetter.get(model),
-                    action = changeAction,
-                    adapter = adapter,
+    private inline fun DatabaseWrapper.notifyModelChange(changeAction: ChangeAction) =
+        { model: Table ->
+            if (notifyChanges) {
+                generatedDatabase.modelNotifier.enqueueChange(
+                    ModelNotification.ModelChange(
+                        changedFields = primaryModelClauseGetter.get(model),
+                        action = changeAction,
+                        adapter = adapter,
+                    )
                 )
-            )
+            }
         }
-    }
 
     private fun GeneratedDatabase.runUpdateDeleteOperation(
         model: Table,

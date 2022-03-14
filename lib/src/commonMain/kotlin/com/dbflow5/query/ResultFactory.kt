@@ -7,7 +7,6 @@ import com.dbflow5.database.DatabaseWrapper
 import com.dbflow5.longForQuery
 import com.dbflow5.mpp.use
 import com.dbflow5.runtime.ModelNotification
-import com.dbflow5.runtime.NotifyDistributor
 import com.dbflow5.stringForQuery
 import com.dbflow5.structure.ChangeAction
 import kotlin.jvm.JvmInline
@@ -42,14 +41,12 @@ data class UpdateDeleteResultFactory(
         logQuery(query)
         val affected = compileStatement(query).use { it.executeUpdateDelete() }
         if (affected > 0) {
-            NotifyDistributor
-                .onChange(
-                    this,
-                    ModelNotification.TableChange(
-                        dbRepresentable,
-                        if (isDelete) ChangeAction.DELETE else ChangeAction.UPDATE,
-                    )
+            generatedDatabase.modelNotifier.enqueueChange(
+                ModelNotification.TableChange(
+                    dbRepresentable,
+                    if (isDelete) ChangeAction.DELETE else ChangeAction.UPDATE,
                 )
+            )
         }
         return affected
     }
@@ -62,14 +59,12 @@ data class InsertResultFactory(
         logQuery(query)
         val affected = compileStatement(query).use { it.executeInsert() }
         if (affected > 0) {
-            NotifyDistributor
-                .onChange(
-                    this,
-                    ModelNotification.TableChange(
-                        dbRepresentable,
-                        ChangeAction.INSERT
-                    )
+            generatedDatabase.modelNotifier.enqueueChange(
+                ModelNotification.TableChange(
+                    dbRepresentable,
+                    ChangeAction.INSERT
                 )
+            )
         }
         return affected
     }

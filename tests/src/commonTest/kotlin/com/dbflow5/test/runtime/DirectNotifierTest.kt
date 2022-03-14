@@ -6,26 +6,27 @@ import com.dbflow5.query.insert
 import com.dbflow5.query.update
 import com.dbflow5.runtime.DirectModelNotifier
 import com.dbflow5.runtime.ModelNotification
-import com.dbflow5.runtime.NotifyDistributor
-import com.dbflow5.runtime.NotifyDistributorImpl
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel
 import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.TestTransactionDispatcherFactory
+import kotlinx.coroutines.test.TestScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DirectNotifierTest {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database) {
-        copy(transactionDispatcherFactory = TestTransactionDispatcherFactory())
+        copy(transactionDispatcherFactory = TestTransactionDispatcherFactory(),
+            modelNotifierFactory = {
+                DirectModelNotifier(notificationScope = TestScope())
+            })
     }
 
     @Test
     fun validateCanNotifyDirect() = dbRule.runTest { testScope ->
-        NotifyDistributor.setNotifyDistributor(NotifyDistributorImpl(scope = testScope))
         val model = SimpleModel("Name")
         (modelNotifier as DirectModelNotifier).notificationFlow
             .test {
@@ -75,7 +76,6 @@ class DirectNotifierTest {
 
     @Test
     fun validateCanNotifyWrapperClasses() = dbRule.runTest { testScope ->
-        NotifyDistributor.setNotifyDistributor(NotifyDistributorImpl(scope = testScope))
         (modelNotifier as DirectModelNotifier).notificationFlow
             .test {
                 simpleModelAdapter.insert(SimpleModel_Table.name to "name")
