@@ -1,11 +1,12 @@
 package com.dbflow5.database
 
+import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.config.GeneratedDatabase
+import com.dbflow5.config.writableTransaction
 import com.dbflow5.delegates.CheckOpen
 
 /**
- * Description: Provides a base implementation that wraps a database, so other databaseForTable engines potentially can
- * be used.
+ * An abstraction layer on top of a specific database connection.
  */
 interface DatabaseConnection : CheckOpen {
 
@@ -24,8 +25,14 @@ interface DatabaseConnection : CheckOpen {
     fun execute(query: String)
 
     /**
-     * Executes a transaction.
+     * Executes a transaction. Its discouraged to call this method directly.
+     * use the [writableTransaction] method directly.
+     *
+     * This may run from:
+     * 1. on the [generatedDatabase.transactionDispatcher] for main DB operations
+     * 2. blocking thread during db creation + construction.
      */
+    @InternalDBFlowApi
     suspend fun <R> executeTransaction(dbFn: suspend DatabaseConnection.() -> R): R
 
     /**
