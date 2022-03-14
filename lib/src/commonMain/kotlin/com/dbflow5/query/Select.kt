@@ -2,7 +2,7 @@ package com.dbflow5.query
 
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.WritableDBRepresentable
-import com.dbflow5.config.DatabaseObjectLookup
+import com.dbflow5.database.DatabaseObjectLookup
 import com.dbflow5.query.methods.count
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Property

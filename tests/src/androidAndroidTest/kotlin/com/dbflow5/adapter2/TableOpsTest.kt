@@ -9,15 +9,15 @@ import com.dbflow5.adapter.TableBinder
 import com.dbflow5.adapter.TableOps
 import com.dbflow5.adapter.TableOpsImpl
 import com.dbflow5.adapter.TableSQL
-import com.dbflow5.config.DatabaseHolder
-import com.dbflow5.config.DatabaseObjectLookup
-import com.dbflow5.config.GeneratedDatabase
+import com.dbflow5.database.DatabaseHolder
+import com.dbflow5.database.DatabaseObjectLookup
 import com.dbflow5.database.DatabaseStatement
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
+import com.dbflow5.database.GeneratedDatabase
 import com.dbflow5.database.ThreadLocalTransaction
 import com.dbflow5.database.scope.WritableDatabaseScope
-import com.dbflow5.runtime.ModelNotification
-import com.dbflow5.runtime.ModelNotifier
+import com.dbflow5.observing.notifications.ModelNotification
+import com.dbflow5.observing.notifications.ModelNotifier
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.transaction.TransactionDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +58,7 @@ class TableOpsTest {
         on { modelNotifier } doReturn modelNotifier
         on { threadLocalTransaction } doReturn ThreadLocalTransaction()
     }
-    private val database = mock<DatabaseWrapper> {
+    private val database = mock<DatabaseConnection> {
         on { generatedDatabase } doReturn generatedDatabase
     }
 

@@ -1,7 +1,7 @@
 package com.dbflow5.adapter
 
 import com.dbflow5.annotation.opts.InternalDBFlowApi
-import com.dbflow5.config.DatabaseObjectLookup
+import com.dbflow5.database.DatabaseObjectLookup
 import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.query.operations.Property
 import com.dbflow5.sql.Query

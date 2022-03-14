@@ -5,7 +5,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.Observer
 import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.config.beginTransactionAsync
+import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.test.LiveDataModel
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule

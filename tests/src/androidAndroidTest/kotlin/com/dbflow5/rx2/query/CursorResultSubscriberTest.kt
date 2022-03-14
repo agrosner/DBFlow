@@ -1,7 +1,7 @@
 package com.dbflow5.rx2.query
 
 import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.config.writableTransaction
+import com.dbflow5.database.writableTransaction
 import com.dbflow5.test.SimpleModel
 import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.query.delete

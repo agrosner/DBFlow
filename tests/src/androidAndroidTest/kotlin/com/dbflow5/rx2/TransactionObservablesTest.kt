@@ -1,7 +1,7 @@
 package com.dbflow5.rx2
 
 import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.config.beginTransactionAsync
+import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.test.SimpleModel
 import com.dbflow5.query.select
 import com.dbflow5.reactivestreams.transaction.asSingle

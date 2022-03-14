@@ -2,7 +2,7 @@ package com.dbflow5.database.migration
 
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.create
-import com.dbflow5.config.DatabaseObjectLookup
+import com.dbflow5.database.DatabaseObjectLookup
 import com.dbflow5.config.FlowLog
 import com.dbflow5.database.GeneratedDatabase
 import com.dbflow5.database.DatabaseConnection

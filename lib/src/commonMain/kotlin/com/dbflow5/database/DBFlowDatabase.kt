@@ -7,7 +7,6 @@ import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.annotation.opts.InternalDBFlowApi
-import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.JournalMode
 import com.dbflow5.database.config.DBPlatformSettings
 import com.dbflow5.database.config.DBSettings

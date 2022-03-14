@@ -1,6 +1,6 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package com.dbflow5.config
+package com.dbflow5.database
 
 import co.touchlab.stately.isolate.IsolateState
 import com.dbflow5.adapter.DBRepresentable
@@ -9,8 +9,6 @@ import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
-import com.dbflow5.database.DatabaseHolder
-import com.dbflow5.database.DatabaseHolderFactory
 import kotlinx.atomicfu.atomic
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass

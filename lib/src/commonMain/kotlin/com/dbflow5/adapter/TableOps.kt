@@ -1,7 +1,7 @@
 package com.dbflow5.adapter
 
 import com.dbflow5.annotation.opts.InternalDBFlowApi
-import com.dbflow5.config.DatabaseObjectLookup
+import com.dbflow5.database.DatabaseObjectLookup
 import com.dbflow5.database.GeneratedDatabase
 import com.dbflow5.database.writableTransaction
 import com.dbflow5.database.DatabaseConnection

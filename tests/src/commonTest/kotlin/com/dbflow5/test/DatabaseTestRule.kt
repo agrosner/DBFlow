@@ -1,7 +1,7 @@
 package com.dbflow5.test
 
 import com.dbflow5.database.DBFlowDatabase
-import com.dbflow5.config.DatabaseObjectLookup
+import com.dbflow5.database.DatabaseObjectLookup
 import com.dbflow5.config.FlowLog
 import com.dbflow5.database.GeneratedDatabaseHolderFactory
 import com.dbflow5.database.config.DBCreator

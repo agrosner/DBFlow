@@ -1,7 +1,7 @@
 package com.dbflow5.rx2.query
 
 import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.config.beginTransactionAsync
+import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.test.SimpleModel
 import com.dbflow5.test.SimpleModel_Table
@@ -14,6 +14,7 @@ import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.test.DatabaseTestRule
 import org.junit.Assert.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class RXQueryTests {
 
@@ -32,7 +33,7 @@ class RXQueryTests {
                 cursor = it.getOrNull()
             }
 
-        assertEquals(1, cursor!!.size)
+        assertTrue(cursor!!.moveToNext())
         cursor!!.close()
     }
 
