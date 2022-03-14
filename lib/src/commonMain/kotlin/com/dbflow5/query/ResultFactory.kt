@@ -3,7 +3,7 @@ package com.dbflow5.query
 import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.Loggable
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.longForQuery
 import com.dbflow5.mpp.use
 import com.dbflow5.runtime.ModelNotification
@@ -19,14 +19,14 @@ internal fun <Result> ResultFactory<Result>.logQuery(query: String) =
  */
 interface ResultFactory<Result> : Loggable {
 
-    fun DatabaseWrapper.createResult(query: String): Result
+    fun DatabaseConnection.createResult(query: String): Result
 }
 
 /**
  * This runs execute without regard for return type.
  */
 object UnitResultFactory : ResultFactory<Unit> {
-    override fun DatabaseWrapper.createResult(query: String) =
+    override fun DatabaseConnection.createResult(query: String) =
         compileStatement(query).use {
             logQuery(query)
             it.execute()
@@ -37,7 +37,7 @@ data class UpdateDeleteResultFactory(
     private val dbRepresentable: WritableDBRepresentable<*>,
     private val isDelete: Boolean,
 ) : ResultFactory<Long> {
-    override fun DatabaseWrapper.createResult(query: String): Long {
+    override fun DatabaseConnection.createResult(query: String): Long {
         logQuery(query)
         val affected = compileStatement(query).use { it.executeUpdateDelete() }
         if (affected > 0) {
@@ -55,7 +55,7 @@ data class UpdateDeleteResultFactory(
 data class InsertResultFactory(
     private val dbRepresentable: WritableDBRepresentable<*>,
 ) : ResultFactory<Long> {
-    override fun DatabaseWrapper.createResult(query: String): Long {
+    override fun DatabaseConnection.createResult(query: String): Long {
         logQuery(query)
         val affected = compileStatement(query).use { it.executeInsert() }
         if (affected > 0) {
@@ -74,21 +74,21 @@ object CountResultFactory : ResultFactory<CountResultFactory.Count> {
     @JvmInline
     value class Count(val value: Long)
 
-    override fun DatabaseWrapper.createResult(query: String): Count {
+    override fun DatabaseConnection.createResult(query: String): Count {
         logQuery(query)
         return Count(longForQuery(this, query))
     }
 }
 
 suspend fun ExecutableQuery<CountResultFactory.Count>.hasData(
-    db: DatabaseWrapper
+    db: DatabaseConnection
 ): Boolean = execute(db).value > 0
 
 object StringResultFactory : ResultFactory<StringResultFactory.StringResult> {
     @JvmInline
     value class StringResult(val value: String?)
 
-    override fun DatabaseWrapper.createResult(query: String): StringResult {
+    override fun DatabaseConnection.createResult(query: String): StringResult {
         logQuery(query)
         return StringResult(stringForQuery(this, query))
     }

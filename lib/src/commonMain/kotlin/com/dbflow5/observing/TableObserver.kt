@@ -5,7 +5,7 @@ import com.dbflow5.config.DBFlowDatabase
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.database.DatabaseStatement
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.mpp.runBlocking
 import com.dbflow5.mpp.use
@@ -98,7 +98,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
         checkForTableUpdates(db)
     }
 
-    internal fun construct(db: DatabaseWrapper) {
+    internal fun construct(db: DatabaseConnection) {
         synchronized(this) {
             if (initialized) {
                 FlowLog.log(FlowLog.Level.W, "TableObserver already initialized")
@@ -122,7 +122,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
         }
     }
 
-    internal fun syncTriggers(db: DatabaseWrapper) {
+    internal fun syncTriggers(db: DatabaseConnection) {
         if (db.isInTransaction) {
             // don't run in another transaction.
             return
@@ -233,7 +233,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
         return hasUpdatedTable
     }
 
-    private fun observeTable(db: DatabaseWrapper, tableId: Int) {
+    private fun observeTable(db: DatabaseConnection, tableId: Int) {
         db.execSQL("INSERT OR IGNORE INTO $TABLE_OBSERVER_NAME VALUES($tableId, 0)")
         val adapter = adapters[tableId]
 
@@ -250,7 +250,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
         }
     }
 
-    private fun stopObservingTable(db: DatabaseWrapper, tableId: Int) {
+    private fun stopObservingTable(db: DatabaseConnection, tableId: Int) {
         val adapter = adapters[tableId]
         TriggerMethod.All.forEach { method ->
             db.execSQL("DROP TRIGGER IF EXISTS ${getTriggerName(adapter, method.value)}")

@@ -3,7 +3,7 @@ package com.dbflow5.database
 import com.dbflow5.config.GeneratedDatabase
 
 interface OpenHelperDelegate {
-    val database: DatabaseWrapper
+    val database: DatabaseConnection
     val delegate: DatabaseHelperDelegate?
 
     val isDatabaseIntegrityOk: Boolean

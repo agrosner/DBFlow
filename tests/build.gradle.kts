@@ -1,5 +1,3 @@
-import kotlinx.atomicfu.plugin.gradle.withKotlinTargets
-
 plugins {
     id("com.google.devtools.ksp") version Versions.KSP
     id("com.android.application")
@@ -10,8 +8,17 @@ kotlin {
     jvm()
     android()
     macosArm64()
+    ios()
 
     targets.getByName("macosArm64") {
+        compilations.getByName("test") {
+            kotlinOptions {
+                freeCompilerArgs += listOf("-linker-options", "-lsqlite3")
+            }
+        }
+    }
+
+    targets.getByName("iosX64") {
         compilations.getByName("test") {
             kotlinOptions {
                 freeCompilerArgs += listOf("-linker-options", "-lsqlite3")

@@ -5,7 +5,7 @@ import com.dbflow5.adapter.create
 import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.FlowLog
 import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.database.scope.MigrationScope
 
@@ -14,11 +14,11 @@ import com.dbflow5.database.scope.MigrationScope
  */
 interface Migrator {
 
-    suspend fun MigrationScope.create(db: DatabaseWrapper)
+    suspend fun MigrationScope.create(db: DatabaseConnection)
 
-    suspend fun MigrationScope.migrate(db: DatabaseWrapper, oldVersion: Int, newVersion: Int)
+    suspend fun MigrationScope.migrate(db: DatabaseConnection, oldVersion: Int, newVersion: Int)
 
-    suspend fun MigrationScope.migrateViews(db: DatabaseWrapper)
+    suspend fun MigrationScope.migrateViews(db: DatabaseConnection)
 }
 
 
@@ -37,7 +37,7 @@ class DefaultMigrator(
     private val dbMigrationPath
         get() = "${MIGRATION_PATH}/${generatedDatabase.databaseName}"
 
-    override suspend fun MigrationScope.create(db: DatabaseWrapper) {
+    override suspend fun MigrationScope.create(db: DatabaseConnection) {
         maybeTransact(db) {
             generatedDatabase.tables
                 .asSequence()
@@ -48,7 +48,7 @@ class DefaultMigrator(
     }
 
     override suspend fun MigrationScope.migrate(
-        db: DatabaseWrapper,
+        db: DatabaseConnection,
         oldVersion: Int,
         newVersion: Int
     ) {
@@ -91,7 +91,7 @@ class DefaultMigrator(
         }
     }
 
-    override suspend fun MigrationScope.migrateViews(db: DatabaseWrapper) {
+    override suspend fun MigrationScope.migrateViews(db: DatabaseConnection) {
         maybeTransact(db) {
             generatedDatabase.views
                 .asSequence()
@@ -102,8 +102,8 @@ class DefaultMigrator(
     }
 
     private suspend fun <R> maybeTransact(
-        db: DatabaseWrapper,
-        fn: suspend DatabaseWrapper.() -> R
+        db: DatabaseConnection,
+        fn: suspend DatabaseConnection.() -> R
     ) =
         if (useTransactions) {
             db.executeTransaction(fn)
@@ -117,7 +117,7 @@ class DefaultMigrator(
      * @param db   The database to run it on
      * @param file the file name in assets/migrations that we read from
      */
-    private fun executeSqlScript(db: DatabaseWrapper, file: String) {
+    private fun executeSqlScript(db: DatabaseConnection, file: String) {
         migrationFileHelper.executeMigration("$dbMigrationPath/$file") { queryString ->
             db.execSQL(
                 queryString
@@ -128,9 +128,9 @@ class DefaultMigrator(
     /**
      * Logs or throws an exception depending on db config.
      */
-    private fun DBRepresentable<*>.logOrThrow(databaseWrapper: DatabaseWrapper) {
+    private fun DBRepresentable<*>.logOrThrow(databaseConnection: DatabaseConnection) {
         try {
-            create(databaseWrapper)
+            create(databaseConnection)
         } catch (e: SQLiteException) {
             if (generatedDatabase.throwExceptionsOnCreate) {
                 throw e

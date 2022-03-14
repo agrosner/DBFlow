@@ -34,12 +34,12 @@ class NativeOpenHelper(
         ),
         create = { connection ->
             databaseHelperDelegate.onCreate(
-                NativeDatabase(generatedDatabase, connection)
+                NativeDatabaseConnection(generatedDatabase, connection)
             )
         },
         upgrade = { connection, upgrade, version ->
             databaseHelperDelegate.onUpgrade(
-                NativeDatabase(generatedDatabase, connection), version, upgrade
+                NativeDatabaseConnection(generatedDatabase, connection), version, upgrade
             )
         },
         inMemory = generatedDatabase.isInMemory,
@@ -49,7 +49,7 @@ class NativeOpenHelper(
     )
 
     override val database by databaseProperty {
-        NativeDatabase(generatedDatabase, manager.createSingleThreadedConnection())
+        NativeDatabaseConnection(generatedDatabase, manager.createSingleThreadedConnection())
     }
 
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {

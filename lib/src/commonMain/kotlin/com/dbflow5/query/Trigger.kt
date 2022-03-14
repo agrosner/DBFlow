@@ -2,7 +2,7 @@ package com.dbflow5.query
 
 import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.appendQuotedIfNeeded
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Property
 import com.dbflow5.sql.Query
@@ -203,7 +203,7 @@ internal data class TriggerImpl<Table : Any>(
             triggerLogicQuery = triggerLogicQuery.toMutableList().apply { add(query) }
         )
 
-    override suspend fun execute(db: DatabaseWrapper) {
+    override suspend fun execute(db: DatabaseConnection) {
         db.execSQL(query)
     }
 }

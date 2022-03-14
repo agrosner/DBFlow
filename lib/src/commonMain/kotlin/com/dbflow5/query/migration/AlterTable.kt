@@ -1,6 +1,6 @@
 package com.dbflow5.query.migration
 
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.migration.Migration
 import com.dbflow5.database.scope.MigrationScope
 import com.dbflow5.query.ExecutableQuery
@@ -110,7 +110,7 @@ internal data class AlterTableImpl(
     AlterTableEnd {
     override val query: String = "ALTER TABLE ${oldTableName.quoteIfNeeded()} ${type.query}"
 
-    override suspend fun execute(db: DatabaseWrapper) {
+    override suspend fun execute(db: DatabaseConnection) {
         db.execSQL(query)
     }
 }

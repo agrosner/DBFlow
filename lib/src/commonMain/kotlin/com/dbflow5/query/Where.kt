@@ -1,7 +1,7 @@
 package com.dbflow5.query
 
 import com.dbflow5.adapter.DBRepresentable
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.OperatorGroup
@@ -303,7 +303,7 @@ internal data class WhereImpl<Table : Any,
     ): WhereWithOffset<Table, Result, OperationBase, Representable> =
         limit(limit).offset(offset)
 
-    override suspend fun execute(db: DatabaseWrapper): Result =
+    override suspend fun execute(db: DatabaseConnection): Result =
         resultFactory.run { db.createResult(query) }
 
     companion object {

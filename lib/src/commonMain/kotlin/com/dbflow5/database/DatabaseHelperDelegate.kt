@@ -26,7 +26,7 @@ class DatabaseHelperDelegate(
     override val isDatabaseIntegrityOk: Boolean
         get() = isDatabaseIntegrityOk(database)
 
-    override val database: DatabaseWrapper
+    override val database: DatabaseConnection
         get() = generatedDatabase
 
     override suspend fun performRestoreFromBackup() {
@@ -45,27 +45,27 @@ class DatabaseHelperDelegate(
         this.databaseCallback = databaseCallback
     }
 
-    override fun onConfigure(db: DatabaseWrapper) {
+    override fun onConfigure(db: DatabaseConnection) {
         databaseCallback?.onConfigure(db)
         helper.onConfigure(db)
     }
 
-    override fun onCreate(db: DatabaseWrapper) {
+    override fun onCreate(db: DatabaseConnection) {
         databaseCallback?.onCreate(db)
         helper.onCreate(db)
     }
 
-    override fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
+    override fun onUpgrade(db: DatabaseConnection, oldVersion: Int, newVersion: Int) {
         databaseCallback?.onUpgrade(db, oldVersion, newVersion)
         helper.onUpgrade(db, oldVersion, newVersion)
     }
 
-    override fun onOpen(db: DatabaseWrapper) {
+    override fun onOpen(db: DatabaseConnection) {
         databaseCallback?.onOpen(db)
         helper.onOpen(db)
     }
 
-    override fun onDowngrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
+    override fun onDowngrade(db: DatabaseConnection, oldVersion: Int, newVersion: Int) {
         databaseCallback?.onDowngrade(db, oldVersion, newVersion)
         helper.onDowngrade(db, oldVersion, newVersion)
     }
@@ -98,8 +98,8 @@ class DatabaseHelperDelegate(
      *
      * @return true if the database is ok, false if the consistency has been compromised.
      */
-    fun isDatabaseIntegrityOk(databaseWrapper: DatabaseWrapper): Boolean {
-        return databaseWrapper.compileStatement("PRAGMA quick_check(1)").use { statement ->
+    fun isDatabaseIntegrityOk(databaseConnection: DatabaseConnection): Boolean {
+        return databaseConnection.compileStatement("PRAGMA quick_check(1)").use { statement ->
             val result = statement.simpleQueryForString()
             if (result == null || !result.equals("ok", ignoreCase = true)) {
                 // integrity_checker failed on main or attached databases

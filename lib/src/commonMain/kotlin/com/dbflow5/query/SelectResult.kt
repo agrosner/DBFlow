@@ -3,7 +3,7 @@ package com.dbflow5.query
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.QueryOps
 import com.dbflow5.config.readableTransaction
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.sql.Query
 
@@ -12,7 +12,7 @@ internal data class SelectResultFactory<Table : Any>(
 ) :
     ResultFactory<SelectResult<Table>>,
     HasAdapter<Table, DBRepresentable<Table>> {
-    override fun DatabaseWrapper.createResult(query: String): SelectResult<Table> {
+    override fun DatabaseConnection.createResult(query: String): SelectResult<Table> {
         logQuery(query)
         return SelectResultImpl(this, adapter, query)
     }
@@ -47,7 +47,7 @@ interface SelectResult<Table : Any> {
 }
 
 internal data class SelectResultImpl<Table : Any>(
-    private val db: DatabaseWrapper,
+    private val db: DatabaseConnection,
     override val adapter: DBRepresentable<Table>,
     override val query: String,
 ) : SelectResult<Table>,
@@ -80,7 +80,7 @@ internal data class SelectResultImpl<Table : Any>(
  */
 suspend fun <Table : Any>
     ExecutableQuery<SelectResult<Table>>.single(
-    db: DatabaseWrapper
+    db: DatabaseConnection
 ) =
     execute(db).single()
 
@@ -89,7 +89,7 @@ suspend fun <Table : Any>
  */
 suspend fun <Table : Any>
     ExecutableQuery<SelectResult<Table>>.singleOrNull(
-    db: DatabaseWrapper
+    db: DatabaseConnection
 ) =
     execute(db).singleOrNull()
 
@@ -98,7 +98,7 @@ suspend fun <Table : Any>
  */
 suspend fun <Table : Any>
     ExecutableQuery<SelectResult<Table>>.list(
-    db: DatabaseWrapper
+    db: DatabaseConnection
 ) =
     execute(db).list()
 
@@ -108,7 +108,7 @@ suspend fun <Table : Any>
  */
 suspend fun <Table : Any, OtherTable : Any>
     ExecutableQuery<SelectResult<Table>>.single(
-    db: DatabaseWrapper,
+    db: DatabaseConnection,
     adapter: QueryOps<OtherTable>,
 ) =
     execute(db).single(adapter)
@@ -119,7 +119,7 @@ suspend fun <Table : Any, OtherTable : Any>
  */
 suspend fun <Table : Any, OtherTable : Any>
     ExecutableQuery<SelectResult<Table>>.singleOrNull(
-    db: DatabaseWrapper,
+    db: DatabaseConnection,
     adapter: QueryOps<OtherTable>,
 ) =
     execute(db).singleOrNull(adapter)
@@ -130,14 +130,14 @@ suspend fun <Table : Any, OtherTable : Any>
  */
 suspend fun <Table : Any, OtherTable : Any>
     ExecutableQuery<SelectResult<Table>>.list(
-    db: DatabaseWrapper,
+    db: DatabaseConnection,
     adapter: QueryOps<OtherTable>,
 ) =
     execute(db).list(adapter)
 
 
 suspend fun <Table : Any> ExecutableQuery<SelectResult<Table>>.cursor(
-    db: DatabaseWrapper
+    db: DatabaseConnection
 ) = db.generatedDatabase.readableTransaction {
     db.rawQuery(query)
 }

@@ -1,6 +1,6 @@
 package com.dbflow5.query
 
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.sql.Query
 
 /**
@@ -9,6 +9,6 @@ import com.dbflow5.sql.Query
 interface ExecutableQuery<Result> : Query {
 
     suspend fun execute(
-        db: DatabaseWrapper,
+        db: DatabaseConnection,
     ): Result
 }

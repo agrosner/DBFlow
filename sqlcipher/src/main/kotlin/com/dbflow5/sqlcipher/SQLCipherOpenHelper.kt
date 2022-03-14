@@ -49,8 +49,8 @@ class SQLCipherOpenHelper(
     override val isDatabaseIntegrityOk: Boolean
         get() = delegate.isDatabaseIntegrityOk
 
-    override val database: SQLCipherDatabase by databaseProperty {
-        SQLCipherDatabase.from(getWritableDatabase(secret), generatedDatabase)
+    override val database: SQLCipherDatabaseConnection by databaseProperty {
+        SQLCipherDatabaseConnection.from(getWritableDatabase(secret), generatedDatabase)
     }
 
     override suspend fun performRestoreFromBackup() {
@@ -72,19 +72,19 @@ class SQLCipherOpenHelper(
     }
 
     override fun onConfigure(db: SQLiteDatabase) {
-        delegate.onConfigure(SQLCipherDatabase.from(db, generatedDatabase))
+        delegate.onConfigure(SQLCipherDatabaseConnection.from(db, generatedDatabase))
     }
 
     override fun onCreate(db: SQLiteDatabase) {
-        delegate.onCreate(SQLCipherDatabase.from(db, generatedDatabase))
+        delegate.onCreate(SQLCipherDatabaseConnection.from(db, generatedDatabase))
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        delegate.onUpgrade(SQLCipherDatabase.from(db, generatedDatabase), oldVersion, newVersion)
+        delegate.onUpgrade(SQLCipherDatabaseConnection.from(db, generatedDatabase), oldVersion, newVersion)
     }
 
     override fun onOpen(db: SQLiteDatabase) {
-        delegate.onOpen(SQLCipherDatabase.from(db, generatedDatabase))
+        delegate.onOpen(SQLCipherDatabaseConnection.from(db, generatedDatabase))
     }
 
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {

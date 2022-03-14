@@ -1,7 +1,7 @@
 package com.dbflow5.query
 
 import com.dbflow5.adapter.DBRepresentable
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.query.operations.AnyOperator
 import com.dbflow5.query.operations.Property
 
@@ -93,6 +93,6 @@ interface Whereable<Table : Any,
     ): WhereWithOffset<Table, Result, OperationBase, Representable> =
         adapter.where<Table, Result, OperationBase, Representable>(this, resultFactory).constrain(offset, limit)
 
-    override suspend fun execute(db: DatabaseWrapper): Result =
+    override suspend fun execute(db: DatabaseConnection): Result =
         adapter.where<Table, Result, OperationBase, Representable>(this, resultFactory).execute(db)
 }

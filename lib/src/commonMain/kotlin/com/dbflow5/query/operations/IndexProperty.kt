@@ -2,7 +2,7 @@ package com.dbflow5.query.operations
 
 import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.adapter.makeLazyDBRepresentable
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.query.ExecutableQuery
 import com.dbflow5.query.HasAdapter
 import com.dbflow5.query.Index
@@ -57,7 +57,7 @@ internal data class IndexPropertyImpl<Table : Any>(
     override val query: String
         get() = index.query
 
-    override suspend fun execute(db: DatabaseWrapper) {
+    override suspend fun execute(db: DatabaseConnection) {
         index.execute(db)
     }
 }

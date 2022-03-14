@@ -3,7 +3,7 @@ package com.dbflow5.sqlcipher
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.AndroidFlowCursor
 import com.dbflow5.database.DatabaseStatement
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.FlowCursor
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SQLiteException
@@ -11,11 +11,11 @@ import net.sqlcipher.database.SQLiteException
 /**
  * Description: Implements the code necessary to use a [SQLiteDatabase] in dbflow.
  */
-class SQLCipherDatabase
+class SQLCipherDatabaseConnection
 internal constructor(
     val database: SQLiteDatabase,
     override val generatedDatabase: GeneratedDatabase,
-) : DatabaseWrapper {
+) : DatabaseConnection {
 
     override val version: Int
         get() = database.version
@@ -30,7 +30,7 @@ internal constructor(
         database.execSQL(query)
     }
 
-    override suspend fun <R> executeTransaction(dbFn: suspend DatabaseWrapper.() -> R): R {
+    override suspend fun <R> executeTransaction(dbFn: suspend DatabaseConnection.() -> R): R {
         try {
             database.beginTransaction()
             val result = dbFn()
@@ -56,7 +56,7 @@ internal constructor(
         fun from(
             database: SQLiteDatabase,
             dbFlowDatabase: GeneratedDatabase,
-        ): SQLCipherDatabase = SQLCipherDatabase(database, dbFlowDatabase)
+        ): SQLCipherDatabaseConnection = SQLCipherDatabaseConnection(database, dbFlowDatabase)
     }
 }
 

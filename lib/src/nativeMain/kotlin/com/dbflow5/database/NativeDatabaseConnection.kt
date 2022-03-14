@@ -5,10 +5,10 @@ import co.touchlab.sqliter.getVersion
 import com.dbflow5.config.GeneratedDatabase
 import kotlinx.atomicfu.atomic
 
-class NativeDatabase(
+class NativeDatabaseConnection(
     override val generatedDatabase: GeneratedDatabase,
     internal val db: DatabaseConnection,
-) : DatabaseWrapper {
+) : com.dbflow5.database.DatabaseConnection {
 
     private var inTransaction by atomic(false)
 
@@ -21,7 +21,7 @@ class NativeDatabase(
         db.createStatement(query).execute()
     }
 
-    override suspend fun <R> executeTransaction(dbFn: suspend DatabaseWrapper.() -> R): R {
+    override suspend fun <R> executeTransaction(dbFn: suspend com.dbflow5.database.DatabaseConnection.() -> R): R {
         // only allow a single transaction to occur.
         val wasInTransaction = inTransaction
         try {

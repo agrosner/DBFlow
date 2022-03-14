@@ -4,7 +4,7 @@ import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.config.DatabaseObjectLookup
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.config.writableTransaction
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.mpp.use
 import com.dbflow5.runtime.ModelNotification
 import com.dbflow5.structure.ChangeAction
@@ -12,21 +12,21 @@ import kotlin.reflect.KClass
 
 interface TableOps<Table : Any> : QueryOps<Table> {
 
-    suspend fun DatabaseWrapper.save(model: Table): Table
+    suspend fun DatabaseConnection.save(model: Table): Table
 
-    suspend fun DatabaseWrapper.saveAll(models: Collection<Table>): Collection<Table>
+    suspend fun DatabaseConnection.saveAll(models: Collection<Table>): Collection<Table>
 
-    suspend fun DatabaseWrapper.update(model: Table): Table
+    suspend fun DatabaseConnection.update(model: Table): Table
 
-    suspend fun DatabaseWrapper.updateAll(models: Collection<Table>): Collection<Table>
+    suspend fun DatabaseConnection.updateAll(models: Collection<Table>): Collection<Table>
 
-    suspend fun DatabaseWrapper.insert(model: Table): Table
+    suspend fun DatabaseConnection.insert(model: Table): Table
 
-    suspend fun DatabaseWrapper.insertAll(models: Collection<Table>): Collection<Table>
+    suspend fun DatabaseConnection.insertAll(models: Collection<Table>): Collection<Table>
 
-    suspend fun DatabaseWrapper.delete(model: Table): Table
+    suspend fun DatabaseConnection.delete(model: Table): Table
 
-    suspend fun DatabaseWrapper.deleteAll(models: Collection<Table>): Collection<Table>
+    suspend fun DatabaseConnection.deleteAll(models: Collection<Table>): Collection<Table>
 }
 
 /**
@@ -48,13 +48,13 @@ data class TableOpsImpl<Table : Any>(
 
     private val adapter by lazy { DatabaseObjectLookup.getDBRepresentable(table) }
 
-    private fun DatabaseWrapper.bind(
+    private fun DatabaseConnection.bind(
         model: Table,
         compilableQuery: CompilableQuery,
         binder: SQLStatementBinder<Table>
     ) = compilableQuery.create(this).apply { binder.bind(this, model) }
 
-    private inline fun DatabaseWrapper.notifyModelChange(changeAction: ChangeAction) =
+    private inline fun DatabaseConnection.notifyModelChange(changeAction: ChangeAction) =
         { model: Table ->
             if (notifyChanges) {
                 generatedDatabase.modelNotifier.enqueueChange(
@@ -93,19 +93,19 @@ data class TableOpsImpl<Table : Any>(
         } else throw SaveOperationFailedException(action.name)
     }
 
-    override suspend fun DatabaseWrapper.save(model: Table): Table =
+    override suspend fun DatabaseConnection.save(model: Table): Table =
         generatedDatabase.writableTransaction {
             runInsertOperation(model, tableSQL.save, tableBinder.save, ChangeAction.CHANGE)
         }.also(notifyModelChange(ChangeAction.CHANGE))
 
-    override suspend fun DatabaseWrapper.saveAll(models: Collection<Table>): Collection<Table> =
+    override suspend fun DatabaseConnection.saveAll(models: Collection<Table>): Collection<Table> =
         generatedDatabase.writableTransaction {
             models.map { model ->
                 runInsertOperation(model, tableSQL.save, tableBinder.save, ChangeAction.CHANGE)
             }
         }.onEach(notifyModelChange(ChangeAction.CHANGE))
 
-    override suspend fun DatabaseWrapper.update(model: Table): Table =
+    override suspend fun DatabaseConnection.update(model: Table): Table =
         generatedDatabase.writableTransaction {
             runUpdateDeleteOperation(
                 model,
@@ -115,7 +115,7 @@ data class TableOpsImpl<Table : Any>(
             )
         }.also(notifyModelChange(ChangeAction.UPDATE))
 
-    override suspend fun DatabaseWrapper.updateAll(models: Collection<Table>): Collection<Table> =
+    override suspend fun DatabaseConnection.updateAll(models: Collection<Table>): Collection<Table> =
         generatedDatabase.writableTransaction {
             models.map { model ->
                 runUpdateDeleteOperation(
@@ -127,19 +127,19 @@ data class TableOpsImpl<Table : Any>(
             }
         }.onEach(notifyModelChange(ChangeAction.UPDATE))
 
-    override suspend fun DatabaseWrapper.insert(model: Table): Table =
+    override suspend fun DatabaseConnection.insert(model: Table): Table =
         generatedDatabase.writableTransaction {
             runInsertOperation(model, tableSQL.insert, tableBinder.insert, ChangeAction.INSERT)
         }.also(notifyModelChange(ChangeAction.INSERT))
 
-    override suspend fun DatabaseWrapper.insertAll(models: Collection<Table>): Collection<Table> =
+    override suspend fun DatabaseConnection.insertAll(models: Collection<Table>): Collection<Table> =
         generatedDatabase.writableTransaction {
             models.map { model ->
                 runInsertOperation(model, tableSQL.insert, tableBinder.insert, ChangeAction.INSERT)
             }
         }.onEach(notifyModelChange(ChangeAction.INSERT))
 
-    override suspend fun DatabaseWrapper.delete(model: Table): Table =
+    override suspend fun DatabaseConnection.delete(model: Table): Table =
         generatedDatabase.writableTransaction {
             runUpdateDeleteOperation(
                 model,
@@ -149,7 +149,7 @@ data class TableOpsImpl<Table : Any>(
             )
         }.also(notifyModelChange(ChangeAction.DELETE))
 
-    override suspend fun DatabaseWrapper.deleteAll(models: Collection<Table>): Collection<Table> =
+    override suspend fun DatabaseConnection.deleteAll(models: Collection<Table>): Collection<Table> =
         generatedDatabase.writableTransaction {
             models.map { model ->
                 runUpdateDeleteOperation(

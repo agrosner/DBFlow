@@ -1,6 +1,6 @@
 package com.dbflow5.adapter
 
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.scope.MigrationScope
 import com.dbflow5.query.nameAlias
@@ -33,12 +33,12 @@ data class MigrationAdapter internal constructor(
         get() = throw NotImplementedError("Method called in error. Use Raw query instead.")
     override val dropSQL: CompilableQuery = CompilableQuery("DROP TABLE IF EXISTS $name")
 
-    override suspend fun DatabaseWrapper.single(query: Query): FlowCursor = rawQuery(query.query)
+    override suspend fun DatabaseConnection.single(query: Query): FlowCursor = rawQuery(query.query)
 
     /**
      * Returns a single list of [FlowCursor] to iterate query.
      */
-    override suspend fun DatabaseWrapper.list(query: Query): List<FlowCursor> =
+    override suspend fun DatabaseConnection.list(query: Query): List<FlowCursor> =
         listOf(rawQuery(query.query))
 
     override val type: KClass<FlowCursor> = FlowCursor::class

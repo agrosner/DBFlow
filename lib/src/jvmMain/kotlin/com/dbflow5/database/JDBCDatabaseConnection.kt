@@ -3,11 +3,11 @@ package com.dbflow5.database
 import com.dbflow5.config.GeneratedDatabase
 import java.sql.SQLException
 
-class JDBCDatabase internal constructor(
+class JDBCDatabaseConnection internal constructor(
     override val generatedDatabase: GeneratedDatabase,
     private val db: JDBCConnectionWrapper,
 ) :
-    DatabaseWrapper {
+    DatabaseConnection {
 
     override val isInTransaction: Boolean
         get() = db.inTransaction
@@ -21,7 +21,7 @@ class JDBCDatabase internal constructor(
     }
 
     override suspend fun <R> executeTransaction(
-        dbFn: suspend DatabaseWrapper.() -> R
+        dbFn: suspend DatabaseConnection.() -> R
     ): R = try {
         db.beginTransaction()
         val result = dbFn()

@@ -15,11 +15,11 @@ class DatabaseHelper(
     val generatedDatabase: GeneratedDatabase
 ) : DatabaseCallback {
 
-    override fun onConfigure(db: DatabaseWrapper) {
+    override fun onConfigure(db: DatabaseConnection) {
         checkForeignKeySupport(db)
     }
 
-    override fun onCreate(db: DatabaseWrapper) {
+    override fun onCreate(db: DatabaseConnection) {
         // table creations done first to get tables in db.
         runBlocking {
             migrator.apply {
@@ -32,7 +32,7 @@ class DatabaseHelper(
         }
     }
 
-    override fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
+    override fun onUpgrade(db: DatabaseConnection, oldVersion: Int, newVersion: Int) {
         // create new tables if not previously created
         runBlocking {
             migrator.apply {
@@ -48,7 +48,7 @@ class DatabaseHelper(
     /**
      * If foreign keys are supported, we turn it on the DB specified.
      */
-    private fun checkForeignKeySupport(database: DatabaseWrapper) {
+    private fun checkForeignKeySupport(database: DatabaseConnection) {
         if (generatedDatabase.isForeignKeysSupported) {
             database.execSQL("PRAGMA foreign_keys=ON;")
             FlowLog.log(FlowLog.Level.I, "Foreign Keys supported. Enabling foreign key features.")

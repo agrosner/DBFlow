@@ -5,7 +5,7 @@ package com.dbflow5.query
 import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.annotation.ConflictAction
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.query.operations.BaseOperator
 import com.dbflow5.query.operations.InferredObjectConverter
 import com.dbflow5.query.operations.Property
@@ -247,6 +247,6 @@ internal data class InsertImpl<Table : Any>(
             subquery = subQuery as ExecutableQuery<SelectResult<Any>>,
         ) as InsertWithSelect<Table, OtherTable>
 
-    override suspend fun execute(db: DatabaseWrapper): Long =
+    override suspend fun execute(db: DatabaseConnection): Long =
         resultFactory.run { db.createResult(query) }
 }

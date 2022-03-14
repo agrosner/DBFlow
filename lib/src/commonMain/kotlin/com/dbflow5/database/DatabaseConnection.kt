@@ -7,7 +7,7 @@ import com.dbflow5.delegates.CheckOpen
  * Description: Provides a base implementation that wraps a database, so other databaseForTable engines potentially can
  * be used.
  */
-interface DatabaseWrapper : CheckOpen {
+interface DatabaseConnection : CheckOpen {
 
     val generatedDatabase: GeneratedDatabase
 
@@ -26,7 +26,7 @@ interface DatabaseWrapper : CheckOpen {
     /**
      * Executes a transaction.
      */
-    suspend fun <R> executeTransaction(dbFn: suspend DatabaseWrapper.() -> R): R
+    suspend fun <R> executeTransaction(dbFn: suspend DatabaseConnection.() -> R): R
 
     /**
      * For a given query, return a [DatabaseStatement].

@@ -10,7 +10,7 @@ import com.dbflow5.config.GeneratedDatabase
 class AndroidDatabase internal constructor(
     val database: SQLiteDatabase,
     override val generatedDatabase: GeneratedDatabase,
-) : DatabaseWrapper {
+) : DatabaseConnection {
 
     override fun execSQL(query: String) {
         rethrowDBFlowException { database.execSQL(query) }
@@ -22,7 +22,7 @@ class AndroidDatabase internal constructor(
     override val isOpen: Boolean
         get() = database.isOpen
 
-    override suspend fun <R> executeTransaction(dbFn: suspend DatabaseWrapper.() -> R): R {
+    override suspend fun <R> executeTransaction(dbFn: suspend DatabaseConnection.() -> R): R {
         try {
             database.beginTransaction()
             val result = dbFn()

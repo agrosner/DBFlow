@@ -5,7 +5,7 @@ import android.content.ContentValues
 /**
  * Description:
  */
-interface AndroidDatabaseWrapper : DatabaseWrapper {
+interface AndroidDatabaseConnection : DatabaseConnection {
 
 
     fun updateWithOnConflict(tableName: String,

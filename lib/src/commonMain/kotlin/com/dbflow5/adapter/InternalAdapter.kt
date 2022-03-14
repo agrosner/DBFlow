@@ -1,7 +1,7 @@
 package com.dbflow5.adapter
 
 import com.dbflow5.database.DatabaseStatement
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 
 /**
  * Description: Used for our internal Adapter classes such as generated [ModelAdapter].
@@ -17,13 +17,13 @@ interface InternalAdapter<TModel> {
      * Saves the specified model to the DB.
      *
      * @param model           The model to save/insert/update
-     * @param databaseWrapper The manually specified wrapper.
+     * @param databaseConnection The manually specified wrapper.
      * @return model if save was successful, else null.
      */
-    fun save(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
+    fun save(model: TModel, databaseConnection: DatabaseConnection): Result<TModel>
 
-    fun jvmSave(model: TModel, databaseWrapper: DatabaseWrapper): TModel? {
-        val result = save(model, databaseWrapper)
+    fun jvmSave(model: TModel, databaseConnection: DatabaseConnection): TModel? {
+        val result = save(model, databaseConnection)
         return result.getOrNull()
     }
 
@@ -31,73 +31,73 @@ interface InternalAdapter<TModel> {
      * Saves a [Collection] of models to the DB.
      *
      * @param models          The [Collection] of models to save.
-     * @param databaseWrapper The manually specified wrapper
+     * @param databaseConnection The manually specified wrapper
      * @return the models saved or updated, null if none successful.
      */
     fun saveAll(
         models: Collection<TModel>,
-        databaseWrapper: DatabaseWrapper
+        databaseConnection: DatabaseConnection
     ): Result<Collection<TModel>>
 
     /**
      * Inserts the specified model into the DB.
      *
      * @param model           The model to insert.
-     * @param databaseWrapper The manually specified wrapper.
+     * @param databaseConnection The manually specified wrapper.
      */
-    fun insert(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
+    fun insert(model: TModel, databaseConnection: DatabaseConnection): Result<TModel>
 
     /**
      * Inserts a [Collection] of models into the DB.
      *
      * @param models          The [Collection] of models to save.
-     * @param databaseWrapper The manually specified wrapper
+     * @param databaseConnection The manually specified wrapper
      * @return the inserted models.
      */
     fun insertAll(
         models: Collection<TModel>,
-        databaseWrapper: DatabaseWrapper
+        databaseConnection: DatabaseConnection
     ): Result<Collection<TModel>>
 
     /**
      * Updates the specified model into the DB.
      *
      * @param model           The model to update.
-     * @param databaseWrapper The manually specified wrapper.
+     * @param databaseConnection The manually specified wrapper.
      * @return the updated model, if successful, otherwise null.
      */
-    fun update(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
+    fun update(model: TModel, databaseConnection: DatabaseConnection): Result<TModel>
 
     /**
      * Updates a [Collection] of models in the DB.
      *
      * @param models          The [Collection] of models to save.
-     * @param databaseWrapper The manually specified wrapper
+     * @param databaseConnection The manually specified wrapper
      * @return successful updates, if null none were successful.
      */
     fun updateAll(
         models: Collection<TModel>,
-        databaseWrapper: DatabaseWrapper
+        databaseConnection: DatabaseConnection
     ): Result<Collection<TModel>>
 
     /**
      * Deletes the model from the DB
      *
      * @param model           The model to delete
-     * @param databaseWrapper The manually specified wrapper.
+     * @param databaseConnection The manually specified wrapper.
      */
-    fun delete(model: TModel, databaseWrapper: DatabaseWrapper): Result<TModel>
+    fun delete(model: TModel, databaseConnection: DatabaseConnection): Result<TModel>
 
     /**
      * Updates a [Collection] of models in the DB.
      *
      * @param models          The [Collection] of models to save.
-     * @param databaseWrapper The manually specified wrapper
+     * @param databaseConnection The manually specified wrapper
      * @return count of successful deletions.
      */
     fun deleteAll(
         models: Collection<TModel>,
-        databaseWrapper: DatabaseWrapper
+        databaseConnection: DatabaseConnection
     ): Result<Collection<TModel>>
 
     /**

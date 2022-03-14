@@ -1,7 +1,7 @@
 package com.dbflow5.adapter
 
 import com.dbflow5.annotation.opts.InternalDBFlowApi
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.query.hasData
 import com.dbflow5.query.operations.OperatorGroup
 import com.dbflow5.query.operations.OperatorGrouping
@@ -57,7 +57,7 @@ constructor(
 
     fun getPrimaryModelClause(model: Table) = primaryModelClauseGetter.get(model)
 
-    suspend fun DatabaseWrapper.exists(model: Table) =
+    suspend fun DatabaseConnection.exists(model: Table) =
         selectCountOf()
             .where(getPrimaryModelClause(model)
                 .fold(OperatorGroup.nonGroupingClause()) { acc: OperatorGrouping<Query>, operator ->

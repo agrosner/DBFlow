@@ -1,6 +1,6 @@
 package com.dbflow5.structure
 
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.mpp.runBlocking
 import com.dbflow5.query.ExecutableQuery
 import com.dbflow5.query.SelectResult
@@ -16,7 +16,7 @@ import kotlin.reflect.KProperty
         "annotation to generate better safety for you."
 )
 fun <T : Any> oneToMany(
-    getDb: () -> DatabaseWrapper,
+    getDb: () -> DatabaseConnection,
     query: () -> ExecutableQuery<SelectResult<T>>
 ) =
     OneToMany(getDb, query)
@@ -29,7 +29,7 @@ fun <T : Any> oneToMany(
         "annotation to generate better safety for you."
 )
 class OneToMany<T : Any>(
-    private val getDb: () -> DatabaseWrapper,
+    private val getDb: () -> DatabaseConnection,
     private val query: () -> ExecutableQuery<SelectResult<T>>
 ) :
     ReadOnlyProperty<Any, List<T>?> {

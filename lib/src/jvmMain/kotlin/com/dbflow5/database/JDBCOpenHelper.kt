@@ -24,13 +24,13 @@ class JDBCOpenHelper(
             callback = object : JDBCConnectionCallback {
                 override fun onOpen(db: JDBCConnectionWrapper) {
                     databaseHelperDelegate.onOpen(
-                        JDBCDatabase(generatedDatabase, db)
+                        JDBCDatabaseConnection(generatedDatabase, db)
                     )
                 }
 
                 override fun onCreate(db: JDBCConnectionWrapper) {
                     databaseHelperDelegate.onCreate(
-                        JDBCDatabase(generatedDatabase, db)
+                        JDBCDatabaseConnection(generatedDatabase, db)
                     )
                 }
 
@@ -40,7 +40,7 @@ class JDBCOpenHelper(
                     newVersion: Int
                 ) {
                     databaseHelperDelegate.onUpgrade(
-                        JDBCDatabase(generatedDatabase, db),
+                        JDBCDatabaseConnection(generatedDatabase, db),
                         oldVersion, newVersion
                     )
                 }
@@ -51,22 +51,22 @@ class JDBCOpenHelper(
                     newVersion: Int
                 ) {
                     databaseHelperDelegate.onDowngrade(
-                        JDBCDatabase(generatedDatabase, db),
+                        JDBCDatabaseConnection(generatedDatabase, db),
                         oldVersion, newVersion,
                     )
                 }
 
                 override fun onConfigure(db: JDBCConnectionWrapper) {
                     databaseHelperDelegate.onConfigure(
-                        JDBCDatabase(generatedDatabase, db)
+                        JDBCDatabaseConnection(generatedDatabase, db)
                     )
                 }
             }
         )
     }
 
-    override val database: JDBCDatabase by databaseProperty {
-        JDBCDatabase(generatedDatabase, connection.writableDatabase)
+    override val database: JDBCDatabaseConnection by databaseProperty {
+        JDBCDatabaseConnection(generatedDatabase, connection.writableDatabase)
     }
 
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {

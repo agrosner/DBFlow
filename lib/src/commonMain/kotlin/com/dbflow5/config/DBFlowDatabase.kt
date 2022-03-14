@@ -9,7 +9,7 @@ import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseStatement
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.ThreadLocalTransaction
@@ -36,7 +36,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
-interface GeneratedDatabase : DatabaseWrapper, Closeable {
+interface GeneratedDatabase : DatabaseConnection, Closeable {
     override val generatedDatabase: GeneratedDatabase
         get() = this
 
@@ -76,7 +76,7 @@ interface GeneratedDatabase : DatabaseWrapper, Closeable {
      */
     val databaseVersion: Int
 
-    val writableDatabase: DatabaseWrapper
+    val writableDatabase: DatabaseConnection
 
     @InternalDBFlowApi
     val tableObserver: TableObserver<*>
@@ -192,7 +192,7 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
         }
     }
 
-    override val writableDatabase: DatabaseWrapper
+    override val writableDatabase: DatabaseConnection
         get() = openHelper.database
 
     /**
@@ -288,7 +288,7 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
 
     override fun execSQL(query: String) = writableDatabase.execSQL(query)
 
-    override suspend fun <R> executeTransaction(dbFn: suspend DatabaseWrapper.() -> R): R {
+    override suspend fun <R> executeTransaction(dbFn: suspend DatabaseConnection.() -> R): R {
         tableObserver.syncTriggers(writableDatabase)
         return writableDatabase.executeTransaction {
             dbFn()
@@ -375,29 +375,29 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
         writableScope.run { deleteAll(models) }
 
     private val internalCallback: DatabaseCallback = object : DatabaseCallback {
-        override fun onOpen(db: DatabaseWrapper) {
+        override fun onOpen(db: DatabaseConnection) {
             tableObserver.construct(db)
             onOpenWithConfig(settings, openHelper)
             callback?.onOpen(db)
         }
 
-        override fun onCreate(db: DatabaseWrapper) {
+        override fun onCreate(db: DatabaseConnection) {
             callback?.onCreate(db)
         }
 
-        override fun onUpgrade(db: DatabaseWrapper, oldVersion: Int, newVersion: Int) {
+        override fun onUpgrade(db: DatabaseConnection, oldVersion: Int, newVersion: Int) {
             callback?.onUpgrade(db, oldVersion, newVersion)
         }
 
         override fun onDowngrade(
-            db: DatabaseWrapper,
+            db: DatabaseConnection,
             oldVersion: Int,
             newVersion: Int
         ) {
             callback?.onDowngrade(db, oldVersion, newVersion)
         }
 
-        override fun onConfigure(db: DatabaseWrapper) {
+        override fun onConfigure(db: DatabaseConnection) {
             callback?.onConfigure(db)
         }
     }

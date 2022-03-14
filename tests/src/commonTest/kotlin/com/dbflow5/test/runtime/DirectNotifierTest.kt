@@ -19,7 +19,7 @@ class DirectNotifierTest {
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
-    fun validateCanNotifyDirect() = dbRule.runTest { testScope ->
+    fun validateCanNotifyDirect() = dbRule.runTest {
         val model = SimpleModel("Name")
         (modelNotifier as DirectModelNotifier).notificationFlow
             .test {

@@ -2,7 +2,7 @@
 
 package com.dbflow5
 
-import com.dbflow5.database.DatabaseWrapper
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.mpp.use
 import com.dbflow5.structure.Model
 import kotlin.jvm.JvmName
@@ -20,17 +20,17 @@ val TABLE_QUERY_PARAM = "tableName"
  *
  * @param indexName The name of the index.
  */
-fun dropIndex(databaseWrapper: DatabaseWrapper, indexName: String) {
-    databaseWrapper.execSQL("DROP INDEX IF EXISTS ${indexName.quoteIfNeeded()}")
+fun dropIndex(databaseConnection: DatabaseConnection, indexName: String) {
+    databaseConnection.execSQL("DROP INDEX IF EXISTS ${indexName.quoteIfNeeded()}")
 }
 
-fun longForQuery(wrapper: DatabaseWrapper, query: String): Long =
+fun longForQuery(wrapper: DatabaseConnection, query: String): Long =
     wrapper.compileStatement(query).use { statement -> statement.simpleQueryForLong() }
 
-fun stringForQuery(wrapper: DatabaseWrapper, query: String): String? =
+fun stringForQuery(wrapper: DatabaseConnection, query: String): String? =
     wrapper.compileStatement(query).use { statement -> statement.simpleQueryForString() }
 
-fun doubleForQuery(wrapper: DatabaseWrapper, query: String): Double =
+fun doubleForQuery(wrapper: DatabaseConnection, query: String): Double =
     wrapper.compileStatement(query).use { statement -> statement.simpleQueryForLong().toDouble() }
 
 /**
