@@ -8,10 +8,7 @@ import com.dbflow5.database.config.DBCreator
 import com.dbflow5.database.config.DBSettings
 import com.dbflow5.mpp.use
 import com.dbflow5.test.helpers.platformSettings
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.setMain
 
 /**
  * Provides hook into specified DB.
@@ -53,7 +50,6 @@ class DatabaseTestRule<DB : DBFlowDatabase<DB>>(
             platformSettings(),
             defaultSettingsCopy
         ).use {
-            it.destroy()
             db = it
             // force creations first
             db.writableDatabase

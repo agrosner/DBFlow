@@ -9,6 +9,6 @@ actual fun FlowLog.Level.call(
     throwable: Throwable?
 ) {
     val msg = "[${this.name}] $tag: $message"
-    print(msg)
+    println(msg)
     throwable?.printStackTrace()
 }

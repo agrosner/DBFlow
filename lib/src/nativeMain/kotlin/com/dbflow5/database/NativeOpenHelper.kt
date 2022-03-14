@@ -1,15 +1,15 @@
 package com.dbflow5.database
 
 import co.touchlab.sqliter.DatabaseConfiguration
+import co.touchlab.sqliter.DatabaseFileContext
 import co.touchlab.sqliter.JournalMode
 import co.touchlab.sqliter.createDatabaseManager
+import co.touchlab.sqliter.deleteDatabase
 import co.touchlab.sqliter.updateJournalMode
 import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.migration.DefaultMigrator
 import com.dbflow5.database.migration.Migrator
 import com.dbflow5.delegates.databaseProperty
-import okio.FileSystem
-import okio.Path.Companion.toPath
 
 class NativeOpenHelper(
     private val generatedDatabase: GeneratedDatabase,
@@ -26,22 +26,26 @@ class NativeOpenHelper(
     ),
 ) : OpenHelper, OpenHelperDelegate by databaseHelperDelegate {
 
+    private val configuration = DatabaseConfiguration(
+        name = generatedDatabase.openHelperName,
+        version = generatedDatabase.databaseVersion,
+        extendedConfig = DatabaseConfiguration.Extended(
+            foreignKeyConstraints = generatedDatabase.isForeignKeysSupported,
+        ),
+        create = { connection ->
+            databaseHelperDelegate.onCreate(
+                NativeDatabase(generatedDatabase, connection)
+            )
+        },
+        upgrade = { connection, upgrade, version ->
+            databaseHelperDelegate.onUpgrade(
+                NativeDatabase(generatedDatabase, connection), version, upgrade
+            )
+        },
+        inMemory = generatedDatabase.isInMemory,
+    )
     private val manager = createDatabaseManager(
-        DatabaseConfiguration(
-            name = generatedDatabase.openHelperName,
-            version = generatedDatabase.databaseVersion,
-            create = { connection ->
-                val db = NativeDatabase(generatedDatabase, connection)
-                databaseHelperDelegate.onConfigure(db)
-                databaseHelperDelegate.onCreate(db)
-            },
-            upgrade = { connection, upgrade, version ->
-                databaseHelperDelegate.onUpgrade(
-                    NativeDatabase(generatedDatabase, connection), version, upgrade
-                )
-            },
-            inMemory = generatedDatabase.isInMemory,
-        )
+        configuration
     )
 
     override val database by databaseProperty {
@@ -61,9 +65,7 @@ class NativeOpenHelper(
     }
 
     override fun delete() {
-        generatedDatabase.openHelperName?.let { name ->
-            FileSystem.SYSTEM.delete(name.toPath())
-        }
+        DatabaseFileContext.deleteDatabase(configuration)
     }
 }
 

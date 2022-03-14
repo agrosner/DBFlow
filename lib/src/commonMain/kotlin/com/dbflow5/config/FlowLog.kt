@@ -14,7 +14,7 @@ private data class MutableLevel(
  */
 object FlowLog {
 
-    val TAG = "FlowLog"
+    const val TAG = "FlowLog"
     private val level = IsolateState { MutableLevel() }
 
     /**
@@ -98,3 +98,11 @@ object FlowLog {
 }
 
 expect fun Level.call(tag: String, message: String? = null, throwable: Throwable? = null)
+
+/**
+ * Enables classes to log to [FlowLog]
+ */
+interface Loggable {
+    fun log(level: Level, tag: String = FlowLog.TAG, message: Any? = "", throwable: Throwable? = null) =
+        FlowLog.log(level, tag, message, throwable)
+}

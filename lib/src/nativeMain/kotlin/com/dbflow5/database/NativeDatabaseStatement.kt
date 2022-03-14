@@ -15,10 +15,12 @@ class NativeDatabaseStatement internal constructor(
         statement.executeUpdateDelete().toLong()
     }
 
-    override fun execute() = rethrowDBFlowException { statement.execute() }
+    override fun execute() = rethrowDBFlowException {
+        statement.execute()
+    }
 
     override fun close() {
-        statement.clearBindings()
+        statement.finalizeStatement()
     }
 
     override fun simpleQueryForLong(): Long = rethrowDBFlowException {
