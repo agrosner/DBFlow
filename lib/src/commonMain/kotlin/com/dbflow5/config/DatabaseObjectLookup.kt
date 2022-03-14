@@ -9,6 +9,8 @@ import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.adapter.WritableDBRepresentable
 import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
+import com.dbflow5.database.DatabaseHolder
+import com.dbflow5.database.DatabaseHolderFactory
 import kotlinx.atomicfu.atomic
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass

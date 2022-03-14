@@ -1,7 +1,5 @@
 package com.dbflow5.database
 
-import com.dbflow5.config.GeneratedDatabase
-
 interface OpenHelperDelegate {
     val database: DatabaseConnection
     val delegate: DatabaseHelperDelegate?

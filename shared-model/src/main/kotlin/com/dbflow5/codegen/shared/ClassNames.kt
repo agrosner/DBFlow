@@ -48,8 +48,6 @@ object ClassNames {
 
     val DBPlatformSettings = ClassName(PackageNames.DatabaseConfig, "DBPlatformSettings")
     val QueryOpsImpl = ClassName(PackageNames.Adapter, "QueryOpsImpl")
-    val OperatorGroup = ClassName(PackageNames.QueryOperations, "OperatorGroup")
-    val Operation = ClassName(PackageNames.QueryOperations, "Operation")
 
     val ModelAdapter = ClassName(PackageNames.Adapter, "ModelAdapter")
     val ViewAdapter = ClassName(PackageNames.Adapter, "ViewAdapter")
@@ -72,10 +70,6 @@ object ClassNames {
         ClassName(PackageNames.Adapter, "AdapterCompanion")
             .parameterizedBy(typeName)
 
-    fun dbScope(dbTypeName: TypeName) =
-        ClassName("${PackageNames.Database}.scope", "DatabaseScope")
-            .parameterizedBy(dbTypeName)
-
     fun tableBinder(tableTypeName: TypeName) = ClassName(PackageNames.Adapter, "TableBinder")
         .parameterizedBy(tableTypeName)
 
@@ -87,16 +81,11 @@ object ClassNames {
         "QueryOps"
     ).parameterizedBy(classType)
 
-    val DBFlowDatabase = ClassName(PackageNames.Config, "DBFlowDatabase")
+    val DBFlowDatabase = ClassName(PackageNames.Database, "DBFlowDatabase")
     val GeneratedDatabaseHolderFactory =
-        ClassName(PackageNames.Config, "GeneratedDatabaseHolderFactory")
-    val DatabaseHolderFactory = ClassName(PackageNames.Config, "DatabaseHolderFactory")
-    val DatabaseHolder = ClassName(PackageNames.Config, "DatabaseHolder")
-
-    val FlowCursor = ClassName(PackageNames.Database, "FlowCursor")
-    val DatabaseWrapper = ClassName(PackageNames.Database, "DatabaseWrapper")
-
-    val DatabaseStatement = ClassName(PackageNames.Database, "DatabaseStatement")
+        ClassName(PackageNames.Database, "GeneratedDatabaseHolderFactory")
+    val DatabaseHolderFactory = ClassName(PackageNames.Database, "DatabaseHolderFactory")
+    val DatabaseHolder = ClassName(PackageNames.Database, "DatabaseHolder")
 
     val TypeConverter = ClassName(PackageNames.Converter, "TypeConverter")
     val LoadFromCursorListener = ClassName(PackageNames.Query, "LoadFromCursorListener")

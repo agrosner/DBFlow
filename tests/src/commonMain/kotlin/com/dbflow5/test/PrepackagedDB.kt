@@ -7,7 +7,7 @@ import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.database.DBFlowDatabase
 import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.scope.MigrationScope
 import com.dbflow5.query.insert

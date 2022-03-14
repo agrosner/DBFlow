@@ -1,9 +1,9 @@
 package com.dbflow5.transaction
 
-import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.config.TransactionElement
-import com.dbflow5.config.acquireTransaction
-import com.dbflow5.config.executeTransactionForResult
+import com.dbflow5.database.GeneratedDatabase
+import com.dbflow5.database.transaction.TransactionElement
+import com.dbflow5.database.transaction.acquireTransaction
+import com.dbflow5.database.executeTransactionForResult
 import com.dbflow5.database.ThreadLocalTransaction
 import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.CoroutineDispatcher

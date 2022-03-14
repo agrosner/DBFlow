@@ -2,7 +2,6 @@ package com.dbflow5.database
 
 import co.touchlab.sqliter.DatabaseConnection
 import co.touchlab.sqliter.getVersion
-import com.dbflow5.config.GeneratedDatabase
 import kotlinx.atomicfu.atomic
 
 class NativeDatabaseConnection(

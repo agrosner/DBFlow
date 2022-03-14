@@ -1,6 +1,6 @@
 package com.dbflow5.test.config
 
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.database.DBFlowDatabase
 import com.dbflow5.database.config.DBCreator
 import com.dbflow5.database.config.DBPlatformSettings
 import com.dbflow5.database.config.DBSettings

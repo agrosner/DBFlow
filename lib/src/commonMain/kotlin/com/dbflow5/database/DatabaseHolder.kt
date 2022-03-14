@@ -1,4 +1,4 @@
-package com.dbflow5.config
+package com.dbflow5.database
 
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.QueryAdapter

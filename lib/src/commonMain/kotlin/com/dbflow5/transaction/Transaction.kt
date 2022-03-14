@@ -1,9 +1,9 @@
 package com.dbflow5.transaction
 
 import com.dbflow5.config.FlowLog
-import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.config.enqueueTransaction
-import com.dbflow5.config.executeTransactionOnDispatcher
+import com.dbflow5.database.GeneratedDatabase
+import com.dbflow5.database.enqueueTransaction
+import com.dbflow5.database.executeTransactionOnDispatcher
 import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.Job
 import kotlin.jvm.JvmName

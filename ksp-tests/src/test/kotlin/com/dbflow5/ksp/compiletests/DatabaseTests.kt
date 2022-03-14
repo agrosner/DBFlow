@@ -24,7 +24,7 @@ class DatabaseTests : BaseCompileTest() {
         import com.dbflow5.annotation.PrimaryKey
         import com.dbflow5.annotation.Query
         import com.dbflow5.annotation.Table
-        import com.dbflow5.config.DBFlowDatabase
+        import com.dbflow5.database.DBFlowDatabase
         import com.dbflow5.database.DatabaseWrapper
         import com.dbflow5.database.scope.MigrationScope
         import com.dbflow5.database.migration.Migration

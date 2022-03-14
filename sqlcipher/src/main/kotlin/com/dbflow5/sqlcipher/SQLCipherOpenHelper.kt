@@ -1,7 +1,7 @@
 package com.dbflow5.sqlcipher
 
 import android.content.Context
-import com.dbflow5.config.GeneratedDatabase
+import com.dbflow5.database.GeneratedDatabase
 import com.dbflow5.database.AndroidMigrationFileHelper
 import com.dbflow5.database.DatabaseBackup
 import com.dbflow5.database.DatabaseCallback

@@ -1,7 +1,7 @@
 package com.dbflow5.adapter
 
 import com.dbflow5.annotation.opts.InternalDBFlowApi
-import com.dbflow5.config.readableTransaction
+import com.dbflow5.database.readableTransaction
 import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.mpp.use
 import com.dbflow5.sql.Query

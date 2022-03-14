@@ -2,7 +2,7 @@ package com.dbflow5.test
 
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.annotation.Database
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.database.DBFlowDatabase
 
 @Database(
     version = 1,

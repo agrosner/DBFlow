@@ -1,4 +1,4 @@
-package com.dbflow5.runtime
+package com.dbflow5.observing.notifications
 
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter

@@ -2,7 +2,7 @@
 
 package com.dbflow5.reactivestreams.transaction
 
-import com.dbflow5.config.GeneratedDatabase
+import com.dbflow5.database.GeneratedDatabase
 import com.dbflow5.query.ExecutableQuery
 import com.dbflow5.query.HasAssociatedAdapters
 import com.dbflow5.query.SelectResult

@@ -3,8 +3,8 @@ package com.dbflow5.paging
 import androidx.paging.DataSource
 import androidx.paging.PositionalDataSource
 import com.dbflow5.adapter.DBRepresentable
-import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.config.beginTransactionAsync
+import com.dbflow5.database.GeneratedDatabase
+import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.Constrainable
 import com.dbflow5.query.ExecutableQuery

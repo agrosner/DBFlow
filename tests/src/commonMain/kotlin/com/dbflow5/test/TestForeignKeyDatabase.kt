@@ -4,7 +4,7 @@ import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.ForeignKey
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.database.DBFlowDatabase
 
 @Database(
     version = 1, foreignKeyConstraintsEnforced = true,

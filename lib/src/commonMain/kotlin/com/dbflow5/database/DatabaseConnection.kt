@@ -1,8 +1,6 @@
 package com.dbflow5.database
 
 import com.dbflow5.annotation.opts.InternalDBFlowApi
-import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.config.writableTransaction
 import com.dbflow5.delegates.CheckOpen
 
 /**

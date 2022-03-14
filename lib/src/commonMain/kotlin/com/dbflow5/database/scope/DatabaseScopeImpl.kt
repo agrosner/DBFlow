@@ -4,7 +4,7 @@ package com.dbflow5.database.scope
 
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.QueryRepresentable
-import com.dbflow5.config.GeneratedDatabase
+import com.dbflow5.database.GeneratedDatabase
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.query.CountResultFactory
 import com.dbflow5.query.ExecutableQuery

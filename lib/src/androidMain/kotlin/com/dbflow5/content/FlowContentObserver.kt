@@ -7,7 +7,6 @@ import android.os.Handler
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.config.FlowLog
 import com.dbflow5.structure.ChangeAction
-import com.dbflow5.structure.Model
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -190,7 +189,7 @@ class FlowContentObserver(
         }
 
         /**
-         * Removes count of observers registered, so we do not send out calls when [Model] changes.
+         * Removes count of observers registered, so we do not send out calls when Model changes.
          */
         fun clearRegisteredObserverCount() {
             REGISTERED_COUNT.set(0)

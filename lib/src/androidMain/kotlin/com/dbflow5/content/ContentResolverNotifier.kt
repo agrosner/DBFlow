@@ -4,8 +4,8 @@ import android.content.ContentResolver
 import android.content.ContentResolver.NOTIFY_SYNC_TO_NETWORK
 import android.content.Context
 import android.os.Build
-import com.dbflow5.runtime.ModelNotification
-import com.dbflow5.runtime.ModelNotifier
+import com.dbflow5.observing.notifications.ModelNotification
+import com.dbflow5.observing.notifications.ModelNotifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 

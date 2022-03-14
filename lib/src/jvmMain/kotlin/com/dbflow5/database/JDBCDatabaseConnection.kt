@@ -1,6 +1,5 @@
 package com.dbflow5.database
 
-import com.dbflow5.config.GeneratedDatabase
 import java.sql.SQLException
 
 class JDBCDatabaseConnection internal constructor(

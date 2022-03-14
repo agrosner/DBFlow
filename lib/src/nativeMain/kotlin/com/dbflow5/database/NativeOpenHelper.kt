@@ -6,7 +6,6 @@ import co.touchlab.sqliter.JournalMode
 import co.touchlab.sqliter.createDatabaseManager
 import co.touchlab.sqliter.deleteDatabase
 import co.touchlab.sqliter.updateJournalMode
-import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.migration.DefaultMigrator
 import com.dbflow5.database.migration.Migrator
 import com.dbflow5.delegates.databaseProperty

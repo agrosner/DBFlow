@@ -6,7 +6,7 @@ import com.dbflow5.config.Loggable
 import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.longForQuery
 import com.dbflow5.mpp.use
-import com.dbflow5.runtime.ModelNotification
+import com.dbflow5.observing.notifications.ModelNotification
 import com.dbflow5.stringForQuery
 import com.dbflow5.structure.ChangeAction
 import kotlin.jvm.JvmInline

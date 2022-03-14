@@ -43,7 +43,7 @@ class TypeConverterTests : BaseCompileTest() {
             """
             package test
             import com.dbflow5.annotation.*
-            import com.dbflow5.config.DBFlowDatabase
+            import com.dbflow5.database.DBFlowDatabase
 
             data class SimpleType(val name: String)
             

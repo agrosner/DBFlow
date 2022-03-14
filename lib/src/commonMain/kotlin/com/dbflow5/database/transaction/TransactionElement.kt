@@ -1,4 +1,4 @@
-package com.dbflow5.config
+package com.dbflow5.database.transaction
 
 import com.dbflow5.mpp.Closeable
 import com.dbflow5.mpp.use

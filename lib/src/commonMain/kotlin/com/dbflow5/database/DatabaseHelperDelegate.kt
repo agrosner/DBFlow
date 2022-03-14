@@ -1,8 +1,6 @@
 package com.dbflow5.database
 
 import com.dbflow5.config.FlowLog
-import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.config.beginTransactionAsync
 import com.dbflow5.mpp.use
 
 /**

@@ -3,10 +3,10 @@ package com.dbflow5.database.scope
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.QueryRepresentable
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
-import com.dbflow5.config.DBFlowDatabase
-import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.config.readableTransaction
-import com.dbflow5.config.writableTransaction
+import com.dbflow5.database.DBFlowDatabase
+import com.dbflow5.database.GeneratedDatabase
+import com.dbflow5.database.readableTransaction
+import com.dbflow5.database.writableTransaction
 import com.dbflow5.database.FlowCursor
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.CountResultFactory

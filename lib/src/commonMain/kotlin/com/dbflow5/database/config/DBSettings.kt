@@ -5,8 +5,8 @@ import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.OpenHelperCreator
 import com.dbflow5.database.transaction.TransactionDispatcherFactory
-import com.dbflow5.runtime.DirectModelNotifier
-import com.dbflow5.runtime.ModelNotifierFactory
+import com.dbflow5.observing.notifications.DirectModelNotifier
+import com.dbflow5.observing.notifications.ModelNotifierFactory
 import com.dbflow5.transaction.TransactionDispatcher
 
 expect class DBPlatformSettings {

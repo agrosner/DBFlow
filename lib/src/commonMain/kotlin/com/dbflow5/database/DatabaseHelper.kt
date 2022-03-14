@@ -1,7 +1,6 @@
 package com.dbflow5.database
 
 import com.dbflow5.config.FlowLog
-import com.dbflow5.config.GeneratedDatabase
 import com.dbflow5.database.migration.Migrator
 import com.dbflow5.database.scope.MigrationScopeImpl
 import com.dbflow5.mpp.runBlocking

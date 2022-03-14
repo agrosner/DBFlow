@@ -1,7 +1,7 @@
 package com.dbflow5.reactivestreams.query
 
-import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.config.beginTransactionAsync
+import com.dbflow5.database.GeneratedDatabase
+import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.observing.OnTableChangedObserver
 import com.dbflow5.query.ExecutableQuery
 import com.dbflow5.query.HasAssociatedAdapters

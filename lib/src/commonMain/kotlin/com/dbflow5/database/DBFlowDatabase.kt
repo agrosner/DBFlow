@@ -1,4 +1,4 @@
-package com.dbflow5.config
+package com.dbflow5.database
 
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter
@@ -7,12 +7,8 @@ import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.annotation.opts.InternalDBFlowApi
-import com.dbflow5.database.DatabaseCallback
-import com.dbflow5.database.DatabaseStatement
-import com.dbflow5.database.DatabaseConnection
-import com.dbflow5.database.FlowCursor
-import com.dbflow5.database.OpenHelper
-import com.dbflow5.database.ThreadLocalTransaction
+import com.dbflow5.config.DatabaseObjectLookup
+import com.dbflow5.config.JournalMode
 import com.dbflow5.database.config.DBPlatformSettings
 import com.dbflow5.database.config.DBSettings
 import com.dbflow5.database.migration.Migration
@@ -24,7 +20,7 @@ import com.dbflow5.observing.TableObserver
 import com.dbflow5.query.CountResultFactory
 import com.dbflow5.query.ExecutableQuery
 import com.dbflow5.query.SelectResult
-import com.dbflow5.runtime.ModelNotifier
+import com.dbflow5.observing.notifications.ModelNotifier
 import com.dbflow5.transaction.SuspendableTransaction
 import com.dbflow5.transaction.Transaction
 import com.dbflow5.transaction.TransactionDispatcher

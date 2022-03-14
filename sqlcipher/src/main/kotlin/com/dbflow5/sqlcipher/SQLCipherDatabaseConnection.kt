@@ -1,6 +1,6 @@
 package com.dbflow5.sqlcipher
 
-import com.dbflow5.config.GeneratedDatabase
+import com.dbflow5.database.GeneratedDatabase
 import com.dbflow5.database.AndroidFlowCursor
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseConnection

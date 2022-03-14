@@ -2,7 +2,7 @@ package com.dbflow5.query
 
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.QueryOps
-import com.dbflow5.config.readableTransaction
+import com.dbflow5.database.readableTransaction
 import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.SQLiteException
 import com.dbflow5.sql.Query

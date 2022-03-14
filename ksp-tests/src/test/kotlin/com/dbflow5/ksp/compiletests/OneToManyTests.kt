@@ -53,7 +53,7 @@ class OneToManyTests : BaseCompileTest() {
                 import com.dbflow5.annotation.OneToManyRelation
                 import com.dbflow5.annotation.PrimaryKey
                 import com.dbflow5.annotation.Table
-                import com.dbflow5.config.DBFlowDatabase
+                import com.dbflow5.database.DBFlowDatabase
                 
                 @OneToManyRelation(childTable = Song::class)
                 @Table

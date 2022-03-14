@@ -2,11 +2,11 @@ package com.dbflow5.adapter
 
 import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.config.DatabaseObjectLookup
-import com.dbflow5.config.GeneratedDatabase
-import com.dbflow5.config.writableTransaction
+import com.dbflow5.database.GeneratedDatabase
+import com.dbflow5.database.writableTransaction
 import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.mpp.use
-import com.dbflow5.runtime.ModelNotification
+import com.dbflow5.observing.notifications.ModelNotification
 import com.dbflow5.structure.ChangeAction
 import kotlin.reflect.KClass
 

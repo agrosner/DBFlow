@@ -4,8 +4,8 @@ import app.cash.turbine.test
 import com.dbflow5.query.delete
 import com.dbflow5.query.insert
 import com.dbflow5.query.update
-import com.dbflow5.runtime.DirectModelNotifier
-import com.dbflow5.runtime.ModelNotification
+import com.dbflow5.observing.notifications.DirectModelNotifier
+import com.dbflow5.observing.notifications.ModelNotification
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel

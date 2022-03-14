@@ -2,7 +2,7 @@ package com.dbflow5.database.config
 
 import android.app.ActivityManager
 import android.content.Context
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.database.DBFlowDatabase
 
 actual data class DBPlatformSettings(
     val context: Context

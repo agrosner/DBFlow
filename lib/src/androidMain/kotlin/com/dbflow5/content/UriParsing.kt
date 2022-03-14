@@ -1,11 +1,12 @@
 package com.dbflow5.content
 
 import android.net.Uri
-import com.dbflow5.TABLE_QUERY_PARAM
 import com.dbflow5.query.NameAlias
 import com.dbflow5.query.operations.Operation
 import com.dbflow5.query.operations.operator
 import com.dbflow5.structure.ChangeAction
+
+private const val TABLE_QUERY_PARAM = "tableName"
 
 interface ContentNotificationDecoder {
 

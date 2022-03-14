@@ -1,9 +1,9 @@
 package com.dbflow5.observing
 
 import com.dbflow5.adapter.DBRepresentable
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.database.DBFlowDatabase
 import com.dbflow5.config.FlowLog
-import com.dbflow5.config.beginTransactionAsync
+import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.SQLiteException

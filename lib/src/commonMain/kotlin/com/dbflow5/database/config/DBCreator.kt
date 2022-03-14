@@ -1,6 +1,6 @@
 package com.dbflow5.database.config
 
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.database.DBFlowDatabase
 
 /**
  * Used by generated code for database creation.

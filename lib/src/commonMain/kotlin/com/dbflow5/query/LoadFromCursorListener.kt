@@ -4,7 +4,7 @@ import com.dbflow5.database.FlowCursor
 import com.dbflow5.structure.Model
 
 /**
- * Description: Marks a [Model] as listening to [FlowCursor]
+ * Description: Marks a Model as listening to [FlowCursor]
  * events for custom handling when loading from the DB.
  */
 interface LoadFromCursorListener {

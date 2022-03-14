@@ -1,7 +1,6 @@
 package com.dbflow5.database
 
 import com.dbflow5.config.FlowLog
-import com.dbflow5.config.GeneratedDatabase
 import java.io.FileInputStream
 import java.io.IOException
 

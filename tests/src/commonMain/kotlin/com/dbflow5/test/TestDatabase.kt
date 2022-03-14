@@ -4,7 +4,7 @@ import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.QueryAdapter
 import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Database
-import com.dbflow5.config.DBFlowDatabase
+import com.dbflow5.database.DBFlowDatabase
 import com.dbflow5.test.NonTypical.nonTypicalClassName
 
 @Database(

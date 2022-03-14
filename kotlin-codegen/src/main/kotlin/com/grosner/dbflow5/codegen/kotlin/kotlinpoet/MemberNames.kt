@@ -23,17 +23,9 @@ object MemberNames {
     val list = MemberName(PackageNames.Query, "list")
 
     const val from = "from"
-    const val where = "where"
-    const val requireSingle = "requireSingle"
-    const val querySingle = "querySingle"
-    const val queryList = "queryList"
     const val eq = "eq"
 
-    val save = MemberName(PackageNames.Structure, "save")
     val chain = MemberName(PackageNames.Converter, "chain")
-
-    val getOrThrow = MemberName("kotlin", "getOrThrow")
-
     val emptyAutoIncrementUpdater = MemberName(PackageNames.Adapter, "emptyAutoIncrementUpdater")
     val modelAdapter = MemberName(PackageNames.Adapter, "modelAdapter")
     val viewAdapter = MemberName(PackageNames.Adapter, "viewAdapter")

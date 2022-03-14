@@ -107,7 +107,7 @@ class TableTests : BaseCompileTest() {
             """
             package test;
             import com.dbflow5.annotation.Database;
-            import com.dbflow5.config.DBFlowDatabase;
+            import com.dbflow5.database.DBFlowDatabase;
 
 
             @Database(version = 1)

@@ -1,7 +1,5 @@
 package com.dbflow5.database
 
-import com.dbflow5.config.GeneratedDatabase
-
 actual class DatabaseBackup(
     private val generatedDatabase: GeneratedDatabase,
 ) {

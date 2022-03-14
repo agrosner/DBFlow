@@ -1,4 +1,4 @@
-package com.dbflow5.runtime
+package com.dbflow5.observing.notifications
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

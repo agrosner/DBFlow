@@ -4,16 +4,13 @@ package com.dbflow5
 
 import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.mpp.use
-import com.dbflow5.structure.Model
 import kotlin.jvm.JvmName
 
 /**
  * Description: Provides some handy methods for dealing with SQL statements. It's purpose is to move the
- * methods away from the [Model] class and let any class use these.
+ * methods away from the model class and let any class use these.
  */
 private val hexArray = "0123456789ABCDEF".toCharArray()
-
-val TABLE_QUERY_PARAM = "tableName"
 
 /**
  * Drops an active INDEX by specifying the onTable and indexName
@@ -61,8 +58,7 @@ fun appendEscapedSQLString(sb: StringBuilder, sqlString: String) {
                 }
                 append(c)
             }
-        } else
-            append(sqlString)
+        } else append(sqlString)
         append('\'')
     }
 }

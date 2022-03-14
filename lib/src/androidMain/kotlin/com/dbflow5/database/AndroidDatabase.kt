@@ -2,7 +2,6 @@ package com.dbflow5.database
 
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
-import com.dbflow5.config.GeneratedDatabase
 
 /**
  * Description: Specifies the android default implementation of a database.
