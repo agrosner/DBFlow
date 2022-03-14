@@ -7,6 +7,7 @@ import com.dbflow5.config.GeneratedDatabaseHolderFactory
 import com.dbflow5.database.config.DBCreator
 import com.dbflow5.database.config.DBSettings
 import com.dbflow5.mpp.use
+import com.dbflow5.runtime.DirectModelNotifier
 import com.dbflow5.test.helpers.platformSettings
 import kotlinx.coroutines.test.TestScope
 
@@ -20,7 +21,8 @@ class DatabaseTestRule<DB : DBFlowDatabase<DB>>(
      * unless you want to change this field.
      */
     val defaultSettingsCopy: DBSettings.() -> DBSettings = {
-        copy(transactionDispatcherFactory = TestTransactionDispatcherFactory())
+        copy(transactionDispatcherFactory = TestTransactionDispatcherFactory(),
+            modelNotifierFactory = { DirectModelNotifier(notificationScope = TestScope()) })
     },
 ) {
 

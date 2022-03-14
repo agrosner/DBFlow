@@ -11,19 +11,12 @@ import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel
 import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.test.TestTransactionDispatcherFactory
-import kotlinx.coroutines.test.TestScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DirectNotifierTest {
 
-    val dbRule = DatabaseTestRule(TestDatabase_Database) {
-        copy(transactionDispatcherFactory = TestTransactionDispatcherFactory(),
-            modelNotifierFactory = {
-                DirectModelNotifier(notificationScope = TestScope())
-            })
-    }
+    val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
     fun validateCanNotifyDirect() = dbRule.runTest { testScope ->
