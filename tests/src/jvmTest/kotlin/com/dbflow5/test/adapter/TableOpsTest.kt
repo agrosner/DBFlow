@@ -9,10 +9,10 @@ import com.dbflow5.adapter.TableBinder
 import com.dbflow5.adapter.TableOps
 import com.dbflow5.adapter.TableOpsImpl
 import com.dbflow5.adapter.TableSQL
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.DatabaseHolder
 import com.dbflow5.database.DatabaseObjectLookup
 import com.dbflow5.database.DatabaseStatement
-import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.GeneratedDatabase
 import com.dbflow5.database.ThreadLocalTransaction
 import com.dbflow5.database.scope.WritableDatabaseScope
@@ -24,7 +24,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doSuspendableAnswer
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -106,6 +108,9 @@ class TableOpsTest {
         }
         val model = mock<Any>()
 
+        whenever(generatedDatabase.executeTransaction<Any>(any())) doSuspendableAnswer {
+            (it.arguments[0] as suspend DatabaseConnection.() -> Any).invoke(generatedDatabase)
+        }
         whenever(generatedDatabase.compileStatement(tableSQL.save.query)) doReturn statement
         whenever(primaryModelClauseGetter.get(model)) doReturn listOf()
         whenever(autoIncrementUpdater.run { model.update(1L) }) doReturn
@@ -119,7 +124,7 @@ class TableOpsTest {
         verify(tableBinder.save).bind(statement, model)
         verify(statement).executeInsert()
         verify(autoIncrementUpdater).run { model.update(1L) }
-        verify(modelNotifier).onChange(
+        verify(modelNotifier).enqueueChange(
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.CHANGE,
@@ -135,6 +140,9 @@ class TableOpsTest {
         }
         val model = mock<Any>()
 
+        whenever(generatedDatabase.executeTransaction<Any>(any())) doSuspendableAnswer {
+            (it.arguments[0] as suspend DatabaseConnection.() -> Any).invoke(generatedDatabase)
+        }
         whenever(generatedDatabase.compileStatement(tableSQL.insert.query)) doReturn statement
         whenever(primaryModelClauseGetter.get(model)) doReturn listOf()
         whenever(autoIncrementUpdater.run { model.update(1L) }) doReturn
@@ -148,7 +156,7 @@ class TableOpsTest {
         verify(tableBinder.insert).bind(statement, model)
         verify(statement).executeInsert()
         verify(autoIncrementUpdater).run { model.update(1L) }
-        verify(modelNotifier).onChange(
+        verify(modelNotifier).enqueueChange(
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.INSERT,
@@ -164,6 +172,9 @@ class TableOpsTest {
         }
         val model = mock<Any>()
 
+        whenever(generatedDatabase.executeTransaction<Any>(any())) doSuspendableAnswer {
+            (it.arguments[0] as suspend DatabaseConnection.() -> Any).invoke(generatedDatabase)
+        }
         whenever(generatedDatabase.compileStatement(tableSQL.update.query)) doReturn statement
         whenever(primaryModelClauseGetter.get(model)) doReturn listOf()
 
@@ -174,7 +185,7 @@ class TableOpsTest {
 
         verify(tableBinder.update).bind(statement, model)
         verify(statement).executeUpdateDelete()
-        verify(modelNotifier).onChange(
+        verify(modelNotifier).enqueueChange(
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.UPDATE,
@@ -190,6 +201,9 @@ class TableOpsTest {
         }
         val model = mock<Any>()
 
+        whenever(generatedDatabase.executeTransaction<Any>(any())) doSuspendableAnswer {
+            (it.arguments[0] as suspend DatabaseConnection.() -> Any).invoke(generatedDatabase)
+        }
         whenever(generatedDatabase.compileStatement(tableSQL.delete.query)) doReturn statement
         whenever(primaryModelClauseGetter.get(model)) doReturn listOf()
 
@@ -200,7 +214,7 @@ class TableOpsTest {
 
         verify(tableBinder.delete).bind(statement, model)
         verify(statement).executeUpdateDelete()
-        verify(modelNotifier).onChange(
+        verify(modelNotifier).enqueueChange(
             ModelNotification.ModelChange(
                 changedFields = listOf(),
                 action = ChangeAction.DELETE,
