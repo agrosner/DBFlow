@@ -2,6 +2,7 @@ package com.dbflow5.database
 
 import com.dbflow5.annotation.opts.InternalDBFlowApi
 import com.dbflow5.delegates.CheckOpen
+import com.dbflow5.sql.Query
 
 /**
  * An abstraction layer on top of a specific database connection.
@@ -39,7 +40,12 @@ interface DatabaseConnection : CheckOpen {
     fun compileStatement(rawQuery: String): DatabaseStatement
 
     /**
-     * For given query and selection args, return a [FlowCursor] to retrieve data.
+     * For given query, return a [FlowCursor] to retrieve data.
      */
     fun rawQuery(query: String): FlowCursor
+
+    /**
+     * For given query, return a [FlowCursor] to retrieve data.
+     */
+    fun rawQuery(query: Query) = rawQuery(query.query)
 }

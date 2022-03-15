@@ -1,6 +1,5 @@
 package com.dbflow5.database.migration
 
-import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.scope.MigrationScope
 
 /**
@@ -14,6 +13,6 @@ fun interface Migration {
      *
      * @param database The database to operate on
      */
-    suspend fun MigrationScope.migrate(database: DatabaseConnection)
+    suspend fun MigrationScope.migrate()
 
 }

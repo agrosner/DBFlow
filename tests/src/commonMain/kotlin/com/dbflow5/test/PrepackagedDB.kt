@@ -8,7 +8,6 @@ import com.dbflow5.annotation.Migration
 import com.dbflow5.annotation.PrimaryKey
 import com.dbflow5.annotation.Table
 import com.dbflow5.database.DBFlowDatabase
-import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.scope.MigrationScope
 import com.dbflow5.query.insert
 import com.dbflow5.query.migration.ColumnAlter
@@ -42,21 +41,23 @@ abstract class MigratedPrepackagedDB : DBFlowDatabase<MigratedPrepackagedDB>() {
 
     @Migration(version = 2, priority = 1)
     class AddNewFieldMigration : com.dbflow5.database.migration.Migration {
-        override suspend fun MigrationScope.migrate(database: DatabaseConnection) {
-            (alterTable("Dog") addColumn ColumnAlter.Plain(
-                name = "newField",
-                type = SQLiteType.TEXT,
-            )).execute()
+        override suspend fun MigrationScope.migrate() {
+            if (!(migrationAdapter("Dog") hasColumn "newField")) {
+                (alterTable("Dog") addColumn ColumnAlter.Plain(
+                    name = "newField",
+                    type = SQLiteType.TEXT,
+                )).execute()
+            }
         }
     }
 
     @Migration(version = 2, priority = 2)
     class AddSomeDataMigration : com.dbflow5.database.migration.Migration {
-        override suspend fun MigrationScope.migrate(database: DatabaseConnection) {
+        override suspend fun MigrationScope.migrate() {
             migrationAdapter("Dog").insert(
                 literalOf("`breed`") eq "NewBreed",
                 literalOf("`newField`") eq "New Field Data",
-            ).execute(database)
+            ).execute()
         }
     }
 }
