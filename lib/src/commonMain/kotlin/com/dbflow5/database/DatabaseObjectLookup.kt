@@ -25,8 +25,9 @@ object DatabaseObjectLookup {
         get() {
             if (!databaseHolderInitialized) {
                 throw IllegalStateException(
-                    "The global databaseForTable holder is not initialized. " +
-                        "Ensure you call FlowManager.init() before accessing the databaseForTable."
+                    "The global DatabaseHolder is not initialized. " +
+                        "Ensure you call FlowManager.loadHolder() before dynamically accessing " +
+                        "DB representable types."
                 )
             }
             return internalDatabaseHolder.access { it.currentHolder }
