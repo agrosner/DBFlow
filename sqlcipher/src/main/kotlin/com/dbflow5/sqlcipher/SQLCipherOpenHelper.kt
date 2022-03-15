@@ -1,12 +1,12 @@
 package com.dbflow5.sqlcipher
 
 import android.content.Context
-import com.dbflow5.database.GeneratedDatabase
 import com.dbflow5.database.AndroidMigrationFileHelper
 import com.dbflow5.database.DatabaseBackup
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.DatabaseHelper
 import com.dbflow5.database.DatabaseHelperDelegate
+import com.dbflow5.database.GeneratedDatabase
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.OpenHelperCreator
 import com.dbflow5.database.OpenHelperDelegate
@@ -80,21 +80,15 @@ class SQLCipherOpenHelper(
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        delegate.onUpgrade(SQLCipherDatabaseConnection.from(db, generatedDatabase), oldVersion, newVersion)
+        delegate.onUpgrade(
+            SQLCipherDatabaseConnection.from(db, generatedDatabase),
+            oldVersion,
+            newVersion
+        )
     }
 
     override fun onOpen(db: SQLiteDatabase) {
         delegate.onOpen(SQLCipherDatabaseConnection.from(db, generatedDatabase))
-    }
-
-    override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
-        database.database.let { db ->
-            if (enabled) {
-                db.enableWriteAheadLogging()
-            } else {
-                db.disableWriteAheadLogging()
-            }
-        }
     }
 
     override fun close() {
