@@ -4,4 +4,4 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.newSingleThreadContext
 
 actual fun defaultTransactionCoroutineDispatcher(): CoroutineDispatcher =
-    newSingleThreadContext("Custom")
+    newSingleThreadContext("TransactionDispatcher")
