@@ -2,6 +2,7 @@ package com.dbflow5.database
 
 import co.touchlab.sqliter.DatabaseConnection
 import co.touchlab.sqliter.getVersion
+import co.touchlab.sqliter.interop.SQLiteExceptionErrorCode
 import kotlinx.atomicfu.atomic
 
 class NativeDatabaseConnection(
@@ -16,7 +17,7 @@ class NativeDatabaseConnection(
     override val version: Int
         get() = db.getVersion()
 
-    override fun execute(query: String) {
+    override fun execute(query: String) = rethrowDBFlowException {
         db.createStatement(query).execute()
     }
 
@@ -40,11 +41,15 @@ class NativeDatabaseConnection(
         }
     }
 
-    override fun compileStatement(rawQuery: String): DatabaseStatement =
+    override fun compileStatement(rawQuery: String): DatabaseStatement = rethrowDBFlowException {
+        // library throws exception if trying to create statement of table not created
         NativeDatabaseStatement(db.createStatement(rawQuery))
+    }
 
-    override fun rawQuery(query: String): FlowCursor =
+    override fun rawQuery(query: String): FlowCursor = rethrowDBFlowException {
+        // library throws exception if trying to create statement of table not created
         NativeFlowCursor(db.createStatement(query).query())
+    }
 
     override val isOpen: Boolean
         get() = !db.closed
@@ -56,5 +61,7 @@ fun co.touchlab.sqliter.interop.SQLiteException.toDBFlowSQLiteException() =
 inline fun <T> rethrowDBFlowException(fn: () -> T) = try {
     fn()
 } catch (e: co.touchlab.sqliter.interop.SQLiteException) {
+    throw e.toDBFlowSQLiteException()
+} catch (e: SQLiteExceptionErrorCode) {
     throw e.toDBFlowSQLiteException()
 }
