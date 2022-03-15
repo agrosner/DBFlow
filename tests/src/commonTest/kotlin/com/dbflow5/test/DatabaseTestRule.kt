@@ -1,8 +1,8 @@
 package com.dbflow5.test
 
+import com.dbflow5.config.FlowLog
 import com.dbflow5.database.DBFlowDatabase
 import com.dbflow5.database.DatabaseObjectLookup
-import com.dbflow5.config.FlowLog
 import com.dbflow5.database.GeneratedDatabaseHolderFactory
 import com.dbflow5.database.config.DBCreator
 import com.dbflow5.database.config.DBSettings
@@ -10,6 +10,7 @@ import com.dbflow5.mpp.use
 import com.dbflow5.observing.notifications.DirectModelNotifier
 import com.dbflow5.test.helpers.platformSettings
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 /**
  * Provides hook into specified DB.
@@ -22,7 +23,13 @@ class DatabaseTestRule<DB : DBFlowDatabase<DB>>(
      */
     val defaultSettingsCopy: DBSettings.() -> DBSettings = {
         copy(transactionDispatcherFactory = TestTransactionDispatcherFactory(),
-            modelNotifierFactory = { DirectModelNotifier(notificationScope = TestScope()) })
+            modelNotifierFactory = {
+                DirectModelNotifier(
+                    notificationScope = TestScope(
+                        UnconfinedTestDispatcher()
+                    )
+                )
+            })
     },
 ) {
 
