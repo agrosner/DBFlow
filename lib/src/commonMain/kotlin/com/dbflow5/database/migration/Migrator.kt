@@ -95,7 +95,7 @@ class DefaultMigrator(
         maybeTransact(db) {
             generatedDatabase.views
                 .asSequence()
-                .map { DatabaseObjectLookup.getModelViewAdapter(it) }
+                .map { DatabaseObjectLookup.getViewAdapter(it) }
                 .filter { it.createWithDatabase }
                 .forEach { it.logOrThrow(this) }
         }

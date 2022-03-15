@@ -122,7 +122,7 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
 
     @InternalDBFlowApi
     private val viewAdapters: List<ViewAdapter<*>> by lazy {
-        views.map { DatabaseObjectLookup.getModelViewAdapter(it) }
+        views.map { DatabaseObjectLookup.getViewAdapter(it) }
     }
 
     private val migrationMap = hashMapOf<Int, MutableList<Migration>>()

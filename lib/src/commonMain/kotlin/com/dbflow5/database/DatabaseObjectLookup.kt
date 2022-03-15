@@ -72,8 +72,8 @@ object DatabaseObjectLookup {
             ?: throwCannotFindAdapter("SQLObjectAdapter", modelClass)
 
     /**
-     * The [ModelAdapter] for specified class type. If cannot find [ModelAdapter], throws
-     * [IllegalArgumentException]
+     * Returns the [ModelAdapter] for specified class type. If cannot find [ModelAdapter], throws
+     * [IllegalArgumentException].
      */
     @DelicateDBFlowApi
     @JvmStatic
@@ -85,20 +85,15 @@ object DatabaseObjectLookup {
         )
 
     /**
-     * Returns the model view adapter for a SQLite VIEW. These are only created with the [com.dbflow5.annotation.ModelView] annotation.
-     *
-     * @throws IllegalArgumentException if the adapter does not exist.
-     *
-     * @param modelViewClass The class of the VIEW
-     * @param [T]  The class that has a [com.dbflow5.annotation.ModelView] annotation.
-     * @return The model view adapter for the specified class.
+     * Returns the [ViewAdapter] for the specified class type. If cannot find a [ViewAdapter],
+     * throws [IllegalArgumentException].
      */
     @DelicateDBFlowApi
     @JvmStatic
     @Throws(IllegalArgumentException::class)
-    fun <T : Any> getModelViewAdapter(modelViewClass: KClass<T>): ViewAdapter<T> =
+    fun <T : Any> getViewAdapter(modelViewClass: KClass<T>): ViewAdapter<T> =
         databaseHolder.getViewAdapterOrNull(modelViewClass)
-            ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
+            ?: throwCannotFindAdapter("ViewAdapter", modelViewClass)
 
     private fun throwCannotFindAdapter(type: String, clazz: KClass<*>): Nothing =
         throw IllegalArgumentException(
