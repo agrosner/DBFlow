@@ -1,4 +1,4 @@
-package com.dbflow5.adapter2
+package com.dbflow5.test.adapter2
 
 import com.dbflow5.adapter.AutoIncrementUpdater
 import com.dbflow5.adapter.CompilableQuery

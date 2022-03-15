@@ -59,11 +59,11 @@ kotlin {
         val androidAndroidTest by getting {
             dependencies {
                 implementation(Dependencies.JavaXAnnotation)
-                implementation("org.mockito.kotlin:mockito-kotlin:4.0.0") {
+                implementation(Dependencies.MockitoKotlin) {
                     exclude(group = "org.jetbrains.kotlin")
                 }
-                implementation("org.mockito:mockito-core:4.3.1")
-                implementation("org.mockito:mockito-android:4.3.1")
+                implementation(Dependencies.MockitoCore)
+                implementation(Dependencies.MockitoAndroid)
 
                 implementation(Dependencies.JUnit)
                 implementation("androidx.test:core:1.4.0")
@@ -78,6 +78,10 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(Dependencies.JUnit)
+                implementation(Dependencies.MockitoKotlin) {
+                    exclude(group = "org.jetbrains.kotlin")
+                }
+                implementation(Dependencies.MockitoCore)
             }
         }
 
