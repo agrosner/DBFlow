@@ -1,10 +1,12 @@
 package com.dbflow5.adapter
 
 import com.dbflow5.annotation.opts.InternalDBFlowApi
+import com.dbflow5.config.FlowLog
+import com.dbflow5.config.Loggable
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.DatabaseObjectLookup
 import com.dbflow5.database.GeneratedDatabase
 import com.dbflow5.database.writableTransaction
-import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.mpp.use
 import com.dbflow5.observing.notifications.ModelNotification
 import com.dbflow5.structure.ChangeAction
@@ -44,9 +46,16 @@ data class TableOpsImpl<Table : Any>(
      * If true, we send model notifications.
      */
     private val notifyChanges: Boolean,
-) : TableOps<Table>, QueryOps<Table> by queryOps {
+) : TableOps<Table>, QueryOps<Table> by queryOps, Loggable {
 
     private val adapter by lazy { DatabaseObjectLookup.getDBRepresentable(table) }
+
+    private fun logOperation(
+        action: ChangeAction,
+        query: CompilableQuery
+    ) {
+        log(FlowLog.Level.D, "Executing TableOperation($action)", query.query)
+    }
 
     private fun DatabaseConnection.bind(
         model: Table,
@@ -73,6 +82,7 @@ data class TableOpsImpl<Table : Any>(
         binder: SQLStatementBinder<Table>,
         action: ChangeAction,
     ): Table = bind(model, query, binder).use { statement ->
+        logOperation(action, query)
         val rows = statement.executeUpdateDelete()
         if (rows != 0L) {
             model
@@ -87,6 +97,7 @@ data class TableOpsImpl<Table : Any>(
         binder: SQLStatementBinder<Table>,
         action: ChangeAction,
     ): Table = bind(model, query, binder).use { statement ->
+        logOperation(action, query)
         val id = statement.executeInsert()
         if (id > INSERT_FAILED) {
             autoIncrementUpdater.run { model.update(id) }

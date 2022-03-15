@@ -9,6 +9,9 @@ import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.test.LiveDataModel
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.junit.Rule
 import kotlin.test.Test
 import org.junit.rules.TestRule
 import org.mockito.kotlin.mock
@@ -18,6 +21,7 @@ import org.mockito.kotlin.mock
  */
 class LiveDataTest {
 
+    @get:Rule
     val rule: TestRule = InstantTaskExecutorRule()
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
@@ -29,9 +33,10 @@ class LiveDataTest {
 
         val observer = mock<Observer<List<LiveDataModel>>>()
         val lifecycle = LifecycleRegistry(mock())
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-
-        data.observeForever(observer)
+        withContext(Dispatchers.Main) {
+            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            data.observeForever(observer)
+        }
 
         val value = data.value!!
         assert(value.isEmpty())
@@ -41,7 +46,7 @@ class LiveDataTest {
                 liveDataModelAdapter.save(LiveDataModel(id = "$it", name = it))
             }
         }
-            .enqueue()
+            .execute()
 
         db.tableObserver.checkForTableUpdates()
 

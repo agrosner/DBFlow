@@ -5,7 +5,10 @@ import com.dbflow5.database.GeneratedDatabase
 import com.dbflow5.database.enqueueTransaction
 import com.dbflow5.database.executeTransactionOnDispatcher
 import com.dbflow5.database.scope.WritableDatabaseScope
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import kotlin.jvm.JvmName
 import kotlin.jvm.JvmOverloads
 
@@ -38,7 +41,7 @@ data class Transaction<DB : GeneratedDatabase, R : Any?>(
     @get:JvmName("name")
     val name: String?,
     private val shouldRunInTransaction: Boolean = true,
-    private val runCallbacksOnSameThread: Boolean = true
+    private val callbackDispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) : SuspendableTransaction<DB, Result<R>> {
 
     /**
@@ -54,7 +57,7 @@ data class Transaction<DB : GeneratedDatabase, R : Any?>(
         transaction = builder.transaction,
         name = builder.name,
         shouldRunInTransaction = builder.shouldRunInTransaction,
-        runCallbacksOnSameThread = builder.runCallbacksOnSameThread
+        callbackDispatcher = builder.callbackDispatcher
     )
 
     /**
@@ -93,34 +96,29 @@ data class Transaction<DB : GeneratedDatabase, R : Any?>(
         } else {
             transaction.run { this@execute.execute() }
         }
-        success?.invoke(this@Transaction, result)
-        complete()
+        withContext(callbackDispatcher) {
+            success?.invoke(this@Transaction, result)
+            complete()
+        }
         Result.success(result)
     } catch (throwable: Throwable) {
         FlowLog.logError(throwable)
-        val result: Result<R> = if (error != null) {
-            error.invoke(this@Transaction, throwable)
-            Result.failure(throwable)
-        } else {
-            Result.failure(
-                RuntimeException(
-                    "An exception occurred while executing a transaction",
-                    throwable
-                )
-            )
+        withContext(callbackDispatcher) {
+            error?.invoke(this@Transaction, throwable)
+            complete()
         }
-        complete()
-        result
+        Result.failure(throwable)
     }
 
     private fun complete() = completion?.invoke(this)
 
     fun newBuilder(): Builder<DB, R> {
-        return Builder<DB, R>(transaction, databaseDefinition)
+        return Builder(transaction, databaseDefinition)
             .error(error)
             .success(success)
             .name(name)
             .shouldRunInTransaction(shouldRunInTransaction)
+            .callbackDispatcher(callbackDispatcher)
     }
 
     /**
@@ -142,7 +140,7 @@ data class Transaction<DB : GeneratedDatabase, R : Any?>(
         internal var completion: Completion<DB, R>? = null
         internal var name: String? = null
         internal var shouldRunInTransaction = true
-        internal var runCallbacksOnSameThread: Boolean = false
+        internal var callbackDispatcher: CoroutineDispatcher = Dispatchers.Main
 
         /**
          * Specify a callback when the transaction is ready to execute. Do an initialization here,
@@ -154,7 +152,8 @@ data class Transaction<DB : GeneratedDatabase, R : Any?>(
 
         /**
          * Specify an error callback to return all and any [Throwable] that occurred during a [Transaction].
-         * @param error Invoked on the UI thread, unless [runCallbacksOnSameThread] is true.
+         *
+         * Invoked on the [callbackDispatcher]
          */
         fun error(error: Error<DB, R>?) = apply {
             this.errorCallback = error
@@ -164,7 +163,7 @@ data class Transaction<DB : GeneratedDatabase, R : Any?>(
          * Specify a listener for successful transactions. This is called when the [SuspendableTransaction]
          * specified is finished and it is posted on the UI thread.
          *
-         * @param success The callback, invoked on the UI thread, unless [runCallbacksOnSameThread] is true.
+         * Invoked on the [callbackDispatcher]
          */
         fun success(success: Success<DB, R>?) = apply {
             this.successCallback = success
@@ -173,7 +172,8 @@ data class Transaction<DB : GeneratedDatabase, R : Any?>(
         /**
          * Runs exactly once, no matter if it was successful or failed, at the end of the execution
          * of this transaction.
-         * @param completion Invoked on the UI thread, unless [runCallbacksOnSameThread] is true.
+         *
+         * Invoked on the [callbackDispatcher]
          */
         fun completion(completion: Completion<DB, R>?) = apply {
             this.completion = completion
@@ -197,6 +197,13 @@ data class Transaction<DB : GeneratedDatabase, R : Any?>(
          */
         fun shouldRunInTransaction(shouldRunInTransaction: Boolean) = apply {
             this.shouldRunInTransaction = shouldRunInTransaction
+        }
+
+        /**
+         * Sets the dispatcher to callback to. Defaults to [Dispatchers.Main]
+         */
+        fun callbackDispatcher(callbackDispatcher: CoroutineDispatcher) = apply {
+            this.callbackDispatcher = callbackDispatcher
         }
 
         /**
