@@ -6,8 +6,6 @@ import co.touchlab.stately.isolate.IsolateState
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ViewAdapter
-import com.dbflow5.adapter.WritableDBRepresentable
-import com.dbflow5.annotation.Table
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import kotlinx.atomicfu.atomic
 import kotlin.jvm.JvmStatic
@@ -42,12 +40,9 @@ object DatabaseObjectLookup {
     private val loadedModules = IsolateState { hashSetOf<DatabaseHolderFactory>() }
 
     /**
-     * Loading the module Database holder via reflection.
-     *
-     *
-     * It is assumed FlowManager.init() is called by the application that uses the
-     * module database. This method should only be called if you need to load databases
-     * that are part of a module. Building once will give you the ability to add the class.
+     * Loads a generated [DatabaseHolderFactory] by creating the holder on the same thread this is
+     * called from. This is required to initialize the library, as we do not run any reflection
+     * any longer to check if the holder was generated.
      */
     @JvmStatic
     fun loadHolder(holderFactory: DatabaseHolderFactory) {
@@ -55,47 +50,33 @@ object DatabaseObjectLookup {
             return
         }
 
-        try {
-            // Load the database holder, and add it to the global collection.
-            internalDatabaseHolder.access { it.currentHolder += holderFactory.create() }
-            databaseHolderInitialized = true
+        // Load the database holder, and add it to the global collection.
+        internalDatabaseHolder.access { it.currentHolder += holderFactory.create() }
+        databaseHolderInitialized = true
 
-            // Cache the holder for future reference.
-            loadedModules.access { it.add(holderFactory) }
-        } catch (e: Throwable) {
-            e.printStackTrace()
-            throw ModuleNotFoundException("Cannot load $holderFactory", e)
-        }
-
+        // Cache the holder for future reference.
+        loadedModules.access { it.add(holderFactory) }
     }
 
     /**
-     * The [WritableDBRepresentable] for specific type. If cannot find a [ModelAdapter], then it looks
+     * The [DBRepresentable] for specific type. If cannot find a [ModelAdapter], then it looks
      * for [ViewAdapter]
      */
     @DelicateDBFlowApi
     @JvmStatic
-    fun <T : Any> getDBRepresentable(modelClass: KClass<T>): DBRepresentable<T> {
-        var retrievalAdapter: DBRepresentable<T>? =
-            databaseHolder.getModelAdapterOrNull(modelClass)
-        if (retrievalAdapter == null) {
-            retrievalAdapter = databaseHolder.getViewAdapterOrNull(modelClass)
-        }
-        return retrievalAdapter ?: throwCannotFindAdapter("SQLObjectAdapter", modelClass)
-    }
-
+    @Throws(IllegalArgumentException::class)
+    fun <T : Any> getDBRepresentable(modelClass: KClass<T>): DBRepresentable<T> =
+        databaseHolder.getModelAdapterOrNull(modelClass)
+            ?: databaseHolder.getViewAdapterOrNull(modelClass)
+            ?: throwCannotFindAdapter("SQLObjectAdapter", modelClass)
 
     /**
-     * @param modelClass The class of the table
-     * @param [T]   The class with the [Table] annotation.
-     *
-     * @throws IllegalArgumentException if the adapter does not exist.
-     *
-     * @return The associated model adapter (DAO) that is generated from a [Table] class. Handles
-     * interactions with the database.
+     * The [ModelAdapter] for specified class type. If cannot find [ModelAdapter], throws
+     * [IllegalArgumentException]
      */
     @DelicateDBFlowApi
     @JvmStatic
+    @Throws(IllegalArgumentException::class)
     fun <T : Any> getModelAdapter(modelClass: KClass<T>): ModelAdapter<T> =
         databaseHolder.getModelAdapterOrNull(modelClass) ?: throwCannotFindAdapter(
             "ModelAdapter",
@@ -113,6 +94,7 @@ object DatabaseObjectLookup {
      */
     @DelicateDBFlowApi
     @JvmStatic
+    @Throws(IllegalArgumentException::class)
     fun <T : Any> getModelViewAdapter(modelViewClass: KClass<T>): ViewAdapter<T> =
         databaseHolder.getViewAdapterOrNull(modelViewClass)
             ?: throwCannotFindAdapter("ModelViewAdapter", modelViewClass)
@@ -122,12 +104,4 @@ object DatabaseObjectLookup {
             "Cannot find $type for $clazz. " +
                 "Ensure the class is annotated with proper annotation."
         )
-
-    /**
-     * Exception thrown when a database holder cannot load the databaseForTable holder
-     * for a module.
-     */
-    class ModuleNotFoundException(detailMessage: String, throwable: Throwable) :
-        RuntimeException(detailMessage, throwable)
-
 }
