@@ -34,11 +34,8 @@ class CoroutinesTest {
     @Test
     fun testObservingTableChanges() = dbRule.runTest {
         twoColumnModelAdapter.select()
-            .toFlow(db) { list() }
+            .toFlow(db, runQueryOnCollect = false) { list() }
             .test {
-                // first item subscription
-                awaitItem()
-
                 val simpleModel = TwoColumnModel(name = "Name", id = 5)
                 val result = twoColumnModelAdapter.save(simpleModel)
                 assertEquals(result.id, 5)

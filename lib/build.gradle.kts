@@ -16,6 +16,7 @@ kotlin {
         all {
             languageSettings.optIn("com.dbflow5.annotation.opts.DelicateDBFlowApi")
             languageSettings.optIn("com.dbflow5.annotation.opts.InternalDBFlowApi")
+            languageSettings.optIn("kotlinx.coroutines.DelicateCoroutinesApi")
         }
         val commonMain by getting {
             dependencies {
