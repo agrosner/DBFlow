@@ -35,7 +35,7 @@ class QueryDataSourceTest {
 
         list.forEachIndexed { index, simpleModel ->
             list.loadAround(index)
-            assertEquals(index, simpleModel.name?.toInt())
+            assertEquals(index, simpleModel.name.toInt())
 
             // assert we don't run over somehow.
             assertTrue(index < 100)

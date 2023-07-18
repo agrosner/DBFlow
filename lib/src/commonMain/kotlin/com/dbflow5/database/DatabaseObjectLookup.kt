@@ -2,7 +2,6 @@
 
 package com.dbflow5.database
 
-import co.touchlab.stately.isolate.IsolateState
 import com.dbflow5.adapter.DBRepresentable
 import com.dbflow5.adapter.ModelAdapter
 import com.dbflow5.adapter.ViewAdapter
@@ -20,7 +19,7 @@ private data class MutableDatabaseHolder(
  */
 object DatabaseObjectLookup {
 
-    private val internalDatabaseHolder = IsolateState { MutableDatabaseHolder(DatabaseHolder()) }
+    private val internalDatabaseHolder = MutableDatabaseHolder(DatabaseHolder())
     private val databaseHolder: DatabaseHolder
         get() {
             if (!databaseHolderInitialized) {
@@ -30,7 +29,7 @@ object DatabaseObjectLookup {
                         "DB representable types."
                 )
             }
-            return internalDatabaseHolder.access { it.currentHolder }
+            return internalDatabaseHolder.currentHolder
         }
 
     /**
@@ -38,7 +37,7 @@ object DatabaseObjectLookup {
      */
     private var databaseHolderInitialized by atomic(false)
 
-    private val loadedModules = IsolateState { hashSetOf<DatabaseHolderFactory>() }
+    private val loadedModules = hashSetOf<DatabaseHolderFactory>()
 
     /**
      * Loads a generated [DatabaseHolderFactory] by creating the holder on the same thread this is
@@ -47,16 +46,16 @@ object DatabaseObjectLookup {
      */
     @JvmStatic
     fun loadHolder(holderFactory: DatabaseHolderFactory) {
-        if (loadedModules.access { it.contains(holderFactory) }) {
+        if (loadedModules.contains(holderFactory)) {
             return
         }
 
         // Load the database holder, and add it to the global collection.
-        internalDatabaseHolder.access { it.currentHolder += holderFactory.create() }
+        internalDatabaseHolder.currentHolder += holderFactory.create()
         databaseHolderInitialized = true
 
         // Cache the holder for future reference.
-        loadedModules.access { it.add(holderFactory) }
+        loadedModules.add(holderFactory)
     }
 
     /**

@@ -4,6 +4,8 @@ plugins {
     kotlin("jvm")
 }
 
+configureJdk()
+
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     freeCompilerArgs = listOf(
@@ -16,9 +18,9 @@ dependencies {
     api(project(":core"))
     api(project(":shared-model"))
     api(project(":kotlin-codegen"))
-    api(Dependencies.KotlinPoet)
-    api(Dependencies.Koin)
-    api(Dependencies.KSP)
+    api(libs.kotlinpoet)
+    api(libs.koin)
+    api(libs.ksp)
 }
 
 apply(from = "../kotlin-artifacts.gradle.kts")

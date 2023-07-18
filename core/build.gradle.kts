@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
+    id("androidConfig")
 }
 
 kotlin {
@@ -31,11 +32,11 @@ android {
         minSdk = Versions.MinSdk
         targetSdk = Versions.TargetSdk
     }
+    namespace = "com.dbflow5.core"
 }
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        jvmTarget = "1.8"
         freeCompilerArgs = listOf("-opt-in=kotlin.RequiresOptIn")
     }
 }

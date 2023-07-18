@@ -1,6 +1,5 @@
 package com.dbflow5.config
 
-import co.touchlab.stately.isolate.IsolateState
 import com.dbflow5.config.FlowLog.Level
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
@@ -15,7 +14,7 @@ private data class MutableLevel(
 object FlowLog {
 
     const val TAG = "FlowLog"
-    private val level = IsolateState { MutableLevel() }
+    private val level = MutableLevel()
 
     /**
      * Sets the minimum level that we wish to print out log statements with.
@@ -25,7 +24,7 @@ object FlowLog {
      */
     @JvmStatic
     fun setMinimumLoggingLevel(level: Level) {
-        FlowLog.level.access { it.level = level }
+        FlowLog.level.level = level
     }
 
     /**
@@ -62,7 +61,7 @@ object FlowLog {
      * @return
      */
     @JvmStatic
-    fun isEnabled(level: Level) = level.ordinal >= FlowLog.level.access { it.level.ordinal }
+    fun isEnabled(level: Level) = level.ordinal >= FlowLog.level.level.ordinal
 
     /**
      * Logs a [Throwable] as an error.
@@ -103,6 +102,11 @@ expect fun Level.call(tag: String, message: String? = null, throwable: Throwable
  * Enables classes to log to [FlowLog]
  */
 interface Loggable {
-    fun log(level: Level, tag: String = FlowLog.TAG, message: Any? = "", throwable: Throwable? = null) =
+    fun log(
+        level: Level,
+        tag: String = FlowLog.TAG,
+        message: Any? = "",
+        throwable: Throwable? = null
+    ) =
         FlowLog.log(level, tag, message, throwable)
 }

@@ -2,6 +2,7 @@ package com.dbflow5.test.usecases
 
 import com.dbflow5.adapter.create
 import com.dbflow5.adapter.drop
+import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TempModel
 import com.dbflow5.test.TestDatabase_Database
@@ -15,6 +16,7 @@ class TempModelTest {
     /**
      * Delays execution until test runs and simply creates the temp table and drops it.
      */
+    @OptIn(DelicateDBFlowApi::class)
     @Test
     fun createTempTable() = dbRule.runTest {
         tempModelAdapter.create(db)

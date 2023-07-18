@@ -2,6 +2,8 @@ plugins {
     kotlin("jvm")
 }
 
+configureJdk()
+
 val compileKotlin: org.jetbrains.kotlin.gradle.tasks.KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     freeCompilerArgs = listOf(
@@ -14,18 +16,18 @@ compileKotlin.kotlinOptions {
 
 dependencies {
     api(project(":core"))
-    api(Dependencies.JavaPoet)
+    api(libs.javapoet)
     api(project(":shared-model"))
-    api(Dependencies.Koin)
+    api(libs.koin)
     api(project(":kotlin-codegen"))
-    api(Dependencies.KotlinPoetMetadata)
+    api(libs.kotlinpoet.metadata)
 
     implementation(kotlin("reflect"))
 
-    compileOnly(Dependencies.JavaXAnnotation)
-    testImplementation(Dependencies.JUnit)
-    testImplementation(Dependencies.KoinTest)
-    testImplementation(Dependencies.MockitoKotlin)
+    compileOnly(libs.javax.annotation)
+    testImplementation(libs.junit)
+    testImplementation(libs.koin.test)
+    testImplementation(libs.mockito.kotlin)
     testImplementation(kotlin("test"))
 }
 

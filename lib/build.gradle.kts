@@ -1,8 +1,9 @@
 plugins {
     kotlin("multiplatform")
     id("com.android.library")
+    id("androidConfig")
+    alias(libs.plugins.kotlinx.atomicfu)
 }
-apply(plugin = "kotlinx-atomicfu")
 
 // project.ext.artifactId = bt_name
 kotlin {
@@ -21,9 +22,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":core"))
-                api(Dependencies.Coroutines)
-                api(Dependencies.AtomicFU)
-                implementation(Dependencies.StatelyISO)
+                api(libs.coroutines)
+                api(libs.atomicFu)
             }
         }
         val javaPlatformMain by creating
@@ -31,24 +31,24 @@ kotlin {
         val androidMain by getting {
             dependsOn(javaPlatformMain)
             dependencies {
-                api(Dependencies.CoroutinesAndroid)
+                api(libs.coroutines.android)
             }
         }
         val jvmMain by getting {
             dependsOn(javaPlatformMain)
             dependencies {
-                implementation(Dependencies.SQLiteJDBC)
-                implementation(Dependencies.HikariCP)
-                implementation(Dependencies.SLF4JApi)
-                implementation(Dependencies.SLF4JSimple)
+                implementation(libs.sqliteJdbc)
+                implementation(libs.hikariCp)
+                implementation(libs.slf4j.api)
+                implementation(libs.slf4j.simple)
             }
         }
 
         val nativeMain by creating {
             dependsOn(commonMain)
             dependencies {
-                implementation(Dependencies.SQLiter)
-                implementation(Dependencies.OkIO)
+                implementation(libs.sqliter)
+                implementation(libs.okio)
             }
         }
 
@@ -66,13 +66,7 @@ kotlin {
 }
 
 android {
-    compileSdk = Versions.TargetSdk
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-
-    defaultConfig {
-        minSdk = Versions.MinSdk
-        targetSdk = Versions.TargetSdk
-    }
+    namespace = "com.dbflow5.lib"
 }
 
 apply(from = "../kotlin-artifacts.gradle.kts")

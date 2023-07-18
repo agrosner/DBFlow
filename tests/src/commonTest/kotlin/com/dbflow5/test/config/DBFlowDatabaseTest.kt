@@ -28,13 +28,13 @@ class DBFlowDatabaseTest {
 
 
     @Test
-    fun `validate db opened`() = dbRule.runTest {
+    fun validate_db_opened() = dbRule.runTest {
         writableDatabase
         assertTrue(isOpen)
     }
 
     @Test
-    fun `validate can close db`() = dbRule.runTest {
+    fun validate_can_close_db() = dbRule.runTest {
         writableDatabase
         assertTrue(isOpen)
 

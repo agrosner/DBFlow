@@ -4,6 +4,8 @@ plugins {
     kotlin("jvm")
 }
 
+configureJdk()
+
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
     freeCompilerArgs = listOf(
@@ -15,10 +17,10 @@ compileKotlin.kotlinOptions {
 
 dependencies {
     api(project(":core"))
-    api(Dependencies.KotlinPoet)
-    api(Dependencies.JavaPoet)
-    api(Dependencies.KotlinPoetJavaPoetInterop)
-    api(Dependencies.Koin)
+    api(libs.kotlinpoet)
+    api(libs.javapoet)
+    api(libs.kotlinpoet.javapoetInterop)
+    api(libs.koin)
 }
 
 apply(from = "../kotlin-artifacts.gradle.kts")

@@ -11,7 +11,7 @@ class TestForeignKeyDatabaseTest {
     val dbRule = DatabaseTestRule(TestForeignKeyDatabase_Database)
 
     @Test
-    fun `verify that foreign keys pragma got enabled`() = dbRule.runTest {
+    fun verifyForeignKeysPragmaGotEnabled() = dbRule.runTest {
         val enabled = longForQuery(db, "PRAGMA foreign_keys;")
         assertEquals(1L, enabled)
     }

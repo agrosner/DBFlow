@@ -1,10 +1,7 @@
 package com.dbflow5.rx2.query
 
-import com.dbflow5.test.TestDatabase_Database
-import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.database.FlowCursor
-import com.dbflow5.test.SimpleModel
-import com.dbflow5.test.SimpleModel_Table
+import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.query.insert
 import com.dbflow5.query.operations.Literal
 import com.dbflow5.query.select
@@ -12,13 +9,16 @@ import com.dbflow5.query.selectCountOf
 import com.dbflow5.reactivestreams.transaction.asMaybe
 import com.dbflow5.reactivestreams.transaction.asSingle
 import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.test.SimpleModel
+import com.dbflow5.test.SimpleModel_Table
+import com.dbflow5.test.TestDatabase_Database
 import org.junit.Assert.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class RXQueryTests {
 
-    
+
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test
@@ -60,7 +60,7 @@ class RXQueryTests {
     @Test
     fun testInsertMethod() = dbRule {
         var count = 0L
-        db.beginTransactionAsync {
+        val subscription = db.beginTransactionAsync {
             (simpleModelAdapter.insert(
                 SimpleModel_Table.name.eq("name")
             )).execute()
@@ -70,6 +70,7 @@ class RXQueryTests {
             }
 
         assertEquals(1, count)
+        subscription.dispose()
     }
 
 }

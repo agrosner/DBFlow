@@ -3,6 +3,7 @@ plugins {
     id("com.android.application")
     kotlin("multiplatform")
 }
+configureJdk()
 
 kotlin {
     jvm()
@@ -42,13 +43,13 @@ kotlin {
             dependencies {
                 implementation(project(":lib"))
                 implementation(kotlin("test"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
-                implementation(Dependencies.Turbine)
+                implementation(libs.kotlinx.coroutines.test)
+                implementation(libs.turbine)
             }
         }
         val androidMain by getting {
             dependencies {
-                implementation("androidx.appcompat:appcompat:1.4.0")
+                implementation(libs.androidx.appcompat)
                 implementation(project(":sqlcipher"))
                 implementation(project(":reactive-streams"))
                 implementation(project(":paging"))
@@ -56,32 +57,28 @@ kotlin {
 
             }
         }
-        val androidAndroidTest by getting {
+        val androidInstrumentedTest by getting {
             dependencies {
-                implementation(Dependencies.JavaXAnnotation)
-                implementation(Dependencies.MockitoKotlin) {
-                    exclude(group = "org.jetbrains.kotlin")
-                }
-                implementation(Dependencies.MockitoCore)
-                implementation(Dependencies.MockitoAndroid)
+                implementation(libs.javax.annotation)
+                implementation(libs.mockito.kotlin)
+                implementation(libs.mockito.core)
+                implementation(libs.mockito.android)
 
-                implementation(Dependencies.JUnit)
-                implementation("androidx.test:core:1.4.0")
-                implementation("androidx.test:runner:1.4.0")
-                implementation("androidx.test:rules:1.4.0")
-                implementation("androidx.arch.core:core-testing:2.1.0")
-                implementation("androidx.test.ext:junit:1.1.3")
+                implementation(libs.junit)
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.runner)
+                implementation(libs.androidx.rules)
+                implementation(libs.androidx.core.testing)
+                implementation(libs.androidx.junit)
             }
         }
 
         val jvmMain by getting
         val jvmTest by getting {
             dependencies {
-                implementation(Dependencies.JUnit)
-                implementation(Dependencies.MockitoKotlin) {
-                    exclude(group = "org.jetbrains.kotlin")
-                }
-                implementation(Dependencies.MockitoCore)
+                implementation(libs.junit)
+                implementation(libs.mockito.kotlin)
+                implementation(libs.mockito.core)
             }
         }
 
@@ -91,29 +88,23 @@ kotlin {
         val macosArm64Test by getting {
             dependsOn(commonTest)
         }
+        val iosTest by getting
     }
 }
 
 android {
+    configureVersions()
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     useLibrary("org.apache.http.legacy")
 
-    compileSdk = Versions.TargetSdk
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-
     defaultConfig {
         minSdk = Versions.MinSdkRX
-        targetSdk = Versions.TargetSdk
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    packagingOptions {
+    packaging {
         resources.excludes.addAll(
             listOf(
                 "META-INF/services/javax.annotation.processing.Processor",
@@ -133,18 +124,18 @@ android {
             )
         )
     }
+    namespace = "com.dbflow5.test"
 }
 
 dependencies {
-    val ksp = project(":ksp")
-    val configs = listOf(
-        "kspMetadata",
-    )
-    configs.forEach { config -> add(config, ksp) }
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.dsl.KotlinCompile<*>>().all {
-    if (name != "kspKotlinMetadata") {
-        dependsOn("kspKotlinMetadata")
+    val processor = project(":ksp")
+    listOf(
+        "kspCommonMainMetadata",
+        "kspJvmTest",
+        "kspAndroidTest",
+        "kspMacosArm64Test",
+        "kspIosArm64Test"
+    ).forEach { config ->
+        add(config, processor)
     }
 }

@@ -1,11 +1,11 @@
 package com.dbflow5.test.runtime
 
 import app.cash.turbine.test
+import com.dbflow5.observing.notifications.DirectModelNotifier
+import com.dbflow5.observing.notifications.ModelNotification
 import com.dbflow5.query.delete
 import com.dbflow5.query.insert
 import com.dbflow5.query.update
-import com.dbflow5.observing.notifications.DirectModelNotifier
-import com.dbflow5.observing.notifications.ModelNotification
 import com.dbflow5.structure.ChangeAction
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel
@@ -68,7 +68,7 @@ class DirectNotifierTest {
     }
 
     @Test
-    fun validateCanNotifyWrapperClasses() = dbRule.runTest { testScope ->
+    fun validateCanNotifyWrapperClasses() = dbRule.runTest {
         (modelNotifier as DirectModelNotifier).notificationFlow
             .test {
                 simpleModelAdapter.insert(SimpleModel_Table.name to "name")

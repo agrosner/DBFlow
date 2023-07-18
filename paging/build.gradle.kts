@@ -1,28 +1,24 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id("com.android.library")
     kotlin("android")
+    id("androidConfig")
 }
 // project.ext.artifactId = bt_name
 
 android {
-    compileSdkVersion(Versions.TargetSdk)
-
     defaultConfig {
         minSdkVersion(Versions.ArchMin)
-        targetSdkVersion(Versions.TargetSdk)
-    }
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     sourceSets {
         getByName("main").java.srcDirs("src/main/kotlin")
     }
+    namespace = "com.dbflow5.paging"
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
+tasks.withType<KotlinCompile>().all {
     kotlinOptions.freeCompilerArgs += listOf(
         "-Xopt-in=com.dbflow5.annotation.opts.InternalDBFlowApi"
     )
@@ -30,7 +26,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().all {
 
 dependencies {
     implementation(project(":lib"))
-    api(Dependencies.AndroidX.Paging)
+    api(libs.androidx.paging)
 }
 
 apply(from = "../kotlin-artifacts.gradle.kts")

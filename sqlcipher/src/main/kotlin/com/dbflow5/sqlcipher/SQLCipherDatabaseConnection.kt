@@ -1,12 +1,12 @@
 package com.dbflow5.sqlcipher
 
-import com.dbflow5.database.GeneratedDatabase
+import android.database.sqlite.SQLiteException
 import com.dbflow5.database.AndroidFlowCursor
-import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.DatabaseConnection
+import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.FlowCursor
+import com.dbflow5.database.GeneratedDatabase
 import net.sqlcipher.database.SQLiteDatabase
-import net.sqlcipher.database.SQLiteException
 
 /**
  * Description: Implements the code necessary to use a [SQLiteDatabase] in dbflow.
