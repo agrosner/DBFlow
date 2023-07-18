@@ -68,8 +68,11 @@ class JDBCOpenHelper(
         JDBCDatabaseConnection(generatedDatabase, connection.writableDatabase)
     }
 
-    override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
-        connection.setWriteAheadLoggingEnabled(enabled)
+    override fun setWriteAheadLoggingEnabled(
+        enabled: Boolean,
+        connection: DatabaseConnection
+    ) {
+        this.connection.setWriteAheadLoggingEnabled(enabled)
     }
 
     override fun setDatabaseListener(callback: DatabaseCallback?) {

@@ -47,12 +47,16 @@ class NativeOpenHelper(
         configuration
     )
 
-    override val database by databaseProperty {
+    override val database by databaseProperty(
+        onOpen = { db ->
+            databaseHelperDelegate.onOpen(db)
+        }
+    ) {
         NativeDatabaseConnection(generatedDatabase, manager.createSingleThreadedConnection())
     }
 
-    override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
-        database.db.updateJournalMode(if (enabled) JournalMode.WAL else JournalMode.DELETE)
+    override fun setWriteAheadLoggingEnabled(enabled: Boolean, connection: DatabaseConnection) {
+        (connection as NativeDatabaseConnection).db.updateJournalMode(if (enabled) JournalMode.WAL else JournalMode.DELETE)
     }
 
     override fun setDatabaseListener(callback: DatabaseCallback?) {

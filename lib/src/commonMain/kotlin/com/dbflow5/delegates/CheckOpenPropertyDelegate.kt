@@ -10,6 +10,7 @@ interface CheckOpen {
 
 @InternalDBFlowApi
 internal class CheckOpenPropertyDelegate<T : CheckOpen>(
+    private val onOpen: (T) -> Unit,
     private val factory: () -> T
 ) : ReadOnlyProperty<Any?, T> {
 
@@ -20,10 +21,13 @@ internal class CheckOpenPropertyDelegate<T : CheckOpen>(
         if (localValue == null || !localValue.isOpen) {
             localValue = factory()
         }
-        return localValue.also { value = it }
+        return localValue.also {
+            value = it
+            onOpen(it)
+        }
     }
 }
 
 @InternalDBFlowApi
 internal fun <T : CheckOpen> checkOpen(factory: () -> T): ReadOnlyProperty<Any?, T> =
-    CheckOpenPropertyDelegate(factory)
+    CheckOpenPropertyDelegate(onOpen = {}, factory)

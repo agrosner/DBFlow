@@ -19,7 +19,7 @@ class FakeOpenHelper : OpenHelper {
     override suspend fun backupDB() {
     }
 
-    override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
+    override fun setWriteAheadLoggingEnabled(enabled: Boolean, connection: DatabaseConnection) {
     }
 
     override fun setDatabaseListener(callback: DatabaseCallback?) {

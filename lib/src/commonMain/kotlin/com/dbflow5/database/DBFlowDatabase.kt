@@ -186,13 +186,13 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
         settings.openHelperCreator.createHelper(this, internalCallback)
     }
 
-    private fun onOpenWithConfig(settings: DBSettings, helper: OpenHelper) {
+    private fun onOpenWithConfig(settings: DBSettings, helper: OpenHelper, db: DatabaseConnection) {
         runBlocking {
             helper.performRestoreFromBackup()
 
             val wal =
                 settings.journalMode.adjustIfAutomatic(settings.platformSettings) == JournalMode.WriteAheadLogging
-            helper.setWriteAheadLoggingEnabled(wal)
+            helper.setWriteAheadLoggingEnabled(wal, db)
         }
     }
 
@@ -381,7 +381,7 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
     private val internalCallback: DatabaseCallback = object : DatabaseCallback {
         override fun onOpen(db: DatabaseConnection) {
             tableObserver.construct(db)
-            onOpenWithConfig(settings, openHelper)
+            onOpenWithConfig(settings, openHelper, db)
             callback?.onOpen(db)
         }
 

@@ -17,7 +17,7 @@ interface OpenHelperDelegate {
  */
 interface OpenHelper : OpenHelperDelegate {
 
-    fun setWriteAheadLoggingEnabled(enabled: Boolean)
+    fun setWriteAheadLoggingEnabled(enabled: Boolean, connection: DatabaseConnection)
 
     fun setDatabaseListener(callback: DatabaseCallback?)
 

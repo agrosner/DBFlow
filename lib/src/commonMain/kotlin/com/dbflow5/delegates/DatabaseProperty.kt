@@ -6,5 +6,6 @@ import kotlin.properties.ReadOnlyProperty
 
 @InternalDBFlowApi
 fun <DB : DatabaseConnection> databaseProperty(
+    onOpen: (DB) -> Unit = {},
     factory: () -> DB
-): ReadOnlyProperty<Any?, DB> = CheckOpenPropertyDelegate(factory)
+): ReadOnlyProperty<Any?, DB> = CheckOpenPropertyDelegate(onOpen, factory)

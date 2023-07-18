@@ -55,7 +55,7 @@ hikariCp = "com.zaxxer:HikariCP:5.0.1"
 slf4j-api = "org.slf4j:slf4j-api:1.7.36"
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
 
-sqliter = "co.touchlab:sqliter-driver:1.0.10"
+sqliter = "co.touchlab:sqliter-driver:1.2.1"
 okio = "com.squareup.okio:okio:3.3.0"
 
 android-gradle = { module = "com.android.tools.build:gradle", version.ref = "android" }
