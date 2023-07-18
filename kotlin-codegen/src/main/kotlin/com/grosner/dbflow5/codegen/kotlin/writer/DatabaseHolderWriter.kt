@@ -87,7 +87,7 @@ class DatabaseHolderWriter(
                     .addParameter("settings", ClassNames.DBSettings)
                     .returns(db.classType)
                     .addStatement(
-                        "return %T(%L, ${db.adapterFields.joinToString { "%L = %N" }})",
+                        "return %T(%L, ${db.adapterFields.joinToString { "_%L = %N" }})",
                         db.generatedClassName.className,
                         "settings",
                         *db.adapterFields

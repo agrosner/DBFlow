@@ -41,34 +41,40 @@ class DatabaseWriter(
 
         val version = ParameterPropertySpec(
             name = "databaseVersion",
-            type = Int::class.asClassName()
+            type = Int::class.asClassName(),
+            propertyConfig = {
+                addModifiers(KModifier.OVERRIDE)
+            }
         ) {
-            addModifiers(KModifier.OVERRIDE)
             defaultValue("%L", model.properties.version)
         }
         val foreignKeys = ParameterPropertySpec(
             name = "isForeignKeysSupported",
             type = Boolean::class.asClassName(),
+            propertyConfig = {
+                addModifiers(KModifier.OVERRIDE)
+            }
         ) {
-            addModifiers(KModifier.OVERRIDE)
             defaultValue("%L", model.properties.foreignKeyConstraintsEnforced)
         }
 
         val settings = ParameterPropertySpec(
             name = "settings",
             type = ClassNames.DBSettings,
-        ) {
-            addModifiers(KModifier.OVERRIDE)
-        }
+            propertyConfig = {
+                addModifiers(KModifier.OVERRIDE)
+            }
+        )
 
         val adapterFields = model.adapterFields
             .map {
                 ParameterPropertySpec(
                     name = it.name.shortName,
                     type = it.adapterTypeName,
-                ) {
-                    addModifiers(KModifier.OVERRIDE)
-                }
+                    propertyConfig = {
+                        addModifiers(KModifier.OVERRIDE)
+                    },
+                )
             }
 
         return FileSpec.builder(model.name.packageName, model.generatedClassName.shortName)
@@ -96,6 +102,7 @@ class DatabaseWriter(
                                         FunSpec.builder(
                                             "create"
                                         )
+                                            .returns(model.classType)
                                             .addModifiers(KModifier.OVERRIDE)
                                             .addParameter(
                                                 ParameterSpec.builder(
@@ -107,9 +114,9 @@ class DatabaseWriter(
                                             .addParameter(
                                                 ParameterSpec.builder(
                                                     "settingsFn", LambdaTypeName.get(
-                                                    receiver = ClassNames.DBSettings,
-                                                    returnType = ClassNames.DBSettings
-                                                )
+                                                        receiver = ClassNames.DBSettings,
+                                                        returnType = ClassNames.DBSettings
+                                                    )
                                                 )
                                                     .build()
                                             )

@@ -28,6 +28,7 @@ class OneToManyClassWriter(
                         ParameterPropertySpec(
                             name = prop.propertyName,
                             type = prop.classType,
+                            useUnderscoreDifference = false
                         )
                     }
                 addType(TypeSpec.classBuilder(

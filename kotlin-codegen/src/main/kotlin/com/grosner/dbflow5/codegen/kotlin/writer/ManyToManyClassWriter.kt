@@ -33,24 +33,26 @@ class ManyToManyClassWriter(
                         ParameterPropertySpec(
                             name = prop.propertyName,
                             type = prop.classType,
-                        ) {
-                            val fieldType = prop.fieldType
-                            if (fieldType is FieldModel.FieldType.Primary) {
-                                addAnnotation(AnnotationSpec.builder(PrimaryKey::class)
-                                    .apply {
-                                        if (fieldType.isAutoIncrement) {
-                                            addMember("autoincrement = true")
+                            useUnderscoreDifference = false,
+                            propertyConfig = {
+                                val fieldType = prop.fieldType
+                                if (fieldType is FieldModel.FieldType.Primary) {
+                                    addAnnotation(AnnotationSpec.builder(PrimaryKey::class)
+                                        .apply {
+                                            if (fieldType.isAutoIncrement) {
+                                                addMember("autoincrement = true")
+                                            }
                                         }
-                                    }
-                                    .build())
-                            }
-                            if (prop is ReferenceHolderModel) {
-                                addAnnotation(
-                                    AnnotationSpec.builder(ForeignKey::class)
-                                        .build()
-                                )
-                            }
-                        }
+                                        .build())
+                                }
+                                if (prop is ReferenceHolderModel) {
+                                    addAnnotation(
+                                        AnnotationSpec.builder(ForeignKey::class)
+                                            .build()
+                                    )
+                                }
+                            },
+                        )
                     }
                 addType(TypeSpec.classBuilder(
                     classModel.name.shortName,

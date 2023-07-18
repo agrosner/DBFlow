@@ -10,11 +10,17 @@ import com.squareup.kotlinpoet.TypeName
 data class ParameterPropertySpec(
     val name: String,
     val type: TypeName,
+    /**
+     * If true, split parameter from property
+     */
+    val useUnderscoreDifference: Boolean = true,
     val propertyConfig: PropertySpec.Builder.() -> Unit = {},
     val parameterConfig: ParameterSpec.Builder.() -> Unit = {},
 ) {
+    private fun parameterName() = if (useUnderscoreDifference) "_$name" else name
+
     val parameterSpec: ParameterSpec = ParameterSpec.builder(
-        name = name,
+        name = parameterName(),
         type = type
     ).apply(parameterConfig)
         .build()
@@ -22,7 +28,8 @@ data class ParameterPropertySpec(
     val propertySpec: PropertySpec = PropertySpec.builder(
         name = name,
         type = type,
-    ).initializer(name)
+    ).initializer(parameterName())
         .apply(propertyConfig)
         .build()
+
 }

@@ -1,7 +1,7 @@
 plugins {
-    id("com.google.devtools.ksp") version Versions.KSP
     id("com.android.application")
     kotlin("multiplatform")
+    id("com.google.devtools.ksp") version Versions.KSP
 }
 configureJdk()
 
@@ -132,10 +132,6 @@ dependencies {
     val processor = project(":ksp")
     listOf(
         "kspCommonMainMetadata",
-        "kspJvmTest",
-        "kspAndroidTest",
-        "kspMacosArm64Test",
-        "kspIosArm64Test"
     ).forEach { config ->
         add(config, processor)
     }

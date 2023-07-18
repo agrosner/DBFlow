@@ -39,6 +39,7 @@ class DBFlowKspProcessor(
                         is KSClassDeclaration -> {
                             ksClassDeclarationParser.parse(annotated)
                         }
+
                         else -> null
                     }
                 }.flatten()
