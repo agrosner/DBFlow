@@ -26,7 +26,6 @@ interface OpenHelper : OpenHelperDelegate {
     fun delete()
 
     val isOpen: Boolean
-        get() = database.isOpen
 }
 
 /**

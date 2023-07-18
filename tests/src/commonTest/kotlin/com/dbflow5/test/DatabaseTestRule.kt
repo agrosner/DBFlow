@@ -10,6 +10,7 @@ import com.dbflow5.mpp.use
 import com.dbflow5.observing.notifications.ModelNotifier
 import com.dbflow5.test.helpers.platformSettings
 import kotlinx.coroutines.test.TestScope
+import kotlin.test.assertFalse
 
 /**
  * Provides hook into specified DB.
@@ -60,6 +61,7 @@ class DatabaseTestRule<DB : DBFlowDatabase<DB>>(
             } finally {
                 db.destroy()
             }
+            assertFalse(db.isOpen)
         }
     }
 }

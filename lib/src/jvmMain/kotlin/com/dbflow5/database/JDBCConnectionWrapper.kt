@@ -44,7 +44,9 @@ internal class JDBCConnectionWrapper(
     }
 
     fun delete() {
-        close()
+        if (!isClosed) {
+            close()
+        }
         if (name != null) {
             File(name).also { it.delete() }
         }

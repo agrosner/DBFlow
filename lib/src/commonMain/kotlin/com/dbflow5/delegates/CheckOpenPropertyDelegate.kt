@@ -18,13 +18,13 @@ internal class CheckOpenPropertyDelegate<T : CheckOpen>(
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
         var localValue = value
+        val wasOpen = localValue?.isOpen ?: false
         if (localValue == null || !localValue.isOpen) {
             localValue = factory()
         }
         return localValue.also {
             value = it
-            val isOpen = it.isOpen
-            if (isOpen) {
+            if (!wasOpen) { // only open once
                 onOpen(it)
             }
         }

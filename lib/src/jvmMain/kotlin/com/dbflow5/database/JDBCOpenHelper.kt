@@ -86,6 +86,9 @@ class JDBCOpenHelper(
     override fun delete() {
         connection.delete()
     }
+
+    override val isOpen: Boolean
+        get() = connection.isOpen
 }
 
 actual fun OpenHelper(db: GeneratedDatabase, callback: DatabaseCallback?): OpenHelper =

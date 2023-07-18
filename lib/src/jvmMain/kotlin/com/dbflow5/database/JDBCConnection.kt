@@ -39,8 +39,11 @@ class JDBCConnection internal constructor(
             }
         }
 
+    internal val isOpen
+        get() = !(database?.isClosed ?: true)
+
     fun delete() {
-        writableDatabase.delete()
+        database?.delete()
     }
 
     fun close() {

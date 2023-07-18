@@ -37,6 +37,9 @@ class AndroidSQLiteOpenHelper(
         )
     }
 
+    override val isOpen: Boolean
+        get() = writableDatabase.isOpen
+
     override fun setWriteAheadLoggingEnabled(enabled: Boolean, connection: DatabaseConnection) {
         setWriteAheadLoggingEnabled(enabled)
     }

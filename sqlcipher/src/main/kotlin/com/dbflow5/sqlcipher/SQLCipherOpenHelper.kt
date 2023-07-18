@@ -54,6 +54,9 @@ class SQLCipherOpenHelper(
         SQLCipherDatabaseConnection.from(getWritableDatabase(secret), generatedDatabase)
     }
 
+    override val isOpen: Boolean
+        get() = database.isOpen
+
     override fun setWriteAheadLoggingEnabled(enabled: Boolean, connection: DatabaseConnection) {
         setWriteAheadLoggingEnabled(enabled)
     }

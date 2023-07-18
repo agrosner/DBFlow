@@ -55,6 +55,9 @@ class NativeOpenHelper(
         NativeDatabaseConnection(generatedDatabase, manager.createSingleThreadedConnection())
     }
 
+    override val isOpen: Boolean
+        get() = database.isOpen
+
     override fun setWriteAheadLoggingEnabled(enabled: Boolean, connection: DatabaseConnection) {
         (connection as NativeDatabaseConnection).db.updateJournalMode(if (enabled) JournalMode.WAL else JournalMode.DELETE)
     }
