@@ -3,6 +3,7 @@ package com.dbflow5.database
 import co.touchlab.sqliter.DatabaseConnection
 import co.touchlab.sqliter.getVersion
 import co.touchlab.sqliter.interop.SQLiteExceptionErrorCode
+import com.dbflow5.config.FlowLog
 import kotlinx.atomicfu.atomic
 
 class NativeDatabaseConnection(
@@ -18,7 +19,8 @@ class NativeDatabaseConnection(
         get() = db.getVersion()
 
     override fun execute(query: String) = rethrowDBFlowException {
-        db.createStatement(query).execute()
+        FlowLog.log(FlowLog.Level.D, "Executing query", query)
+        db.rawExecSql(query)
     }
 
     override suspend fun <R> executeTransaction(dbFn: suspend com.dbflow5.database.DatabaseConnection.() -> R): R {
@@ -37,6 +39,7 @@ class NativeDatabaseConnection(
         } finally {
             if (!wasInTransaction) {
                 db.endTransaction()
+                inTransaction = false
             }
         }
     }

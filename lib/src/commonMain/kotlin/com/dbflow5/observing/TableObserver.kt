@@ -85,6 +85,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
      */
     fun enqueueTableUpdateCheck() {
         if (!pendingRefresh.compareAndSet(expect = false, update = true)) {
+            FlowLog.log(FlowLog.Level.D, "Enqueuing pending refresh for tables")
             db.beginTransactionAsync { checkForTableUpdates(db) }
                 .shouldRunInTransaction(false)
                 .enqueue(error = { _, e ->
@@ -104,6 +105,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
                 FlowLog.log(FlowLog.Level.W, "TableObserver already initialized")
                 return@synchronized
             }
+            FlowLog.log(FlowLog.Level.D, "TableObserver initializing")
             db.execute("PRAGMA temp_store = MEMORY;")
             runBlocking {
                 db.executeTransaction {
@@ -125,6 +127,10 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
     internal fun syncTriggers(db: DatabaseConnection) {
         if (db.isInTransaction) {
             // don't run in another transaction.
+            FlowLog.log(
+                FlowLog.Level.D,
+                "Not syncing triggers since already in transaction"
+            )
             return
         }
 
@@ -135,8 +141,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
                     db.executeTransaction {
                         tablesToSync.forEachIndexed { index, operation ->
                             // return value of Unit to make sure exhaustive "when".
-                            @Suppress("UNUSED_VARIABLE")
-                            val exhaustive = when (operation) {
+                            when (operation) {
                                 ObservingTableTracker.Operation.Add -> observeTable(db, index)
                                 ObservingTableTracker.Operation.Remove -> stopObservingTable(
                                     db,
@@ -171,6 +176,10 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
             runBlocking {
                 lock.withLock {
                     if (!db.isOpen) {
+                        FlowLog.log(
+                            FlowLog.Level.W, "DB was not open when checking " +
+                                "for table updates."
+                        )
                         return@withLock
                     }
 
@@ -194,6 +203,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
                     }
 
                     hasUpdatedTable = checkUpdatedTables()
+                    FlowLog.log(FlowLog.Level.D, "Updated tables complete: $hasUpdatedTable")
                 }
             }
         } catch (e: Exception) {

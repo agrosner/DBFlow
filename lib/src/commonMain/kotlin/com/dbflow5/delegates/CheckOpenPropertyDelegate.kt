@@ -23,7 +23,10 @@ internal class CheckOpenPropertyDelegate<T : CheckOpen>(
         }
         return localValue.also {
             value = it
-            onOpen(it)
+            val isOpen = it.isOpen
+            if (isOpen) {
+                onOpen(it)
+            }
         }
     }
 }

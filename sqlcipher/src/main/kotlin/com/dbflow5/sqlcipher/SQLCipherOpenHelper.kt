@@ -4,6 +4,7 @@ import android.content.Context
 import com.dbflow5.database.AndroidMigrationFileHelper
 import com.dbflow5.database.DatabaseBackup
 import com.dbflow5.database.DatabaseCallback
+import com.dbflow5.database.DatabaseConnection
 import com.dbflow5.database.DatabaseHelper
 import com.dbflow5.database.DatabaseHelperDelegate
 import com.dbflow5.database.GeneratedDatabase
@@ -51,6 +52,10 @@ class SQLCipherOpenHelper(
 
     override val database: SQLCipherDatabaseConnection by databaseProperty {
         SQLCipherDatabaseConnection.from(getWritableDatabase(secret), generatedDatabase)
+    }
+
+    override fun setWriteAheadLoggingEnabled(enabled: Boolean, connection: DatabaseConnection) {
+        setWriteAheadLoggingEnabled(enabled)
     }
 
     override suspend fun performRestoreFromBackup() {

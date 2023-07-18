@@ -7,6 +7,7 @@ import com.dbflow5.adapter.ViewAdapter
 import com.dbflow5.annotation.Database
 import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.annotation.opts.InternalDBFlowApi
+import com.dbflow5.config.FlowLog
 import com.dbflow5.config.JournalMode
 import com.dbflow5.database.config.DBPlatformSettings
 import com.dbflow5.database.config.DBSettings
@@ -298,7 +299,13 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
             dbFn()
         }.also {
             if (!isInTransaction) {
+                FlowLog.log(FlowLog.Level.D, "Enqueing update check")
                 tableObserver.enqueueTableUpdateCheck()
+            } else {
+                FlowLog.log(
+                    FlowLog.Level.D,
+                    "Not enqueing update check since already in transaction"
+                )
             }
         }
     }

@@ -37,6 +37,10 @@ class AndroidSQLiteOpenHelper(
         )
     }
 
+    override fun setWriteAheadLoggingEnabled(enabled: Boolean, connection: DatabaseConnection) {
+        setWriteAheadLoggingEnabled(enabled)
+    }
+
     /**
      * Set a listener to listen for specific DB events and perform an action before we execute this classes
      * specific methods.
