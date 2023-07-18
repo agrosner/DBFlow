@@ -1,13 +1,12 @@
 package com.dbflow5.observing
 
 import com.dbflow5.adapter.DBRepresentable
-import com.dbflow5.database.DBFlowDatabase
 import com.dbflow5.config.FlowLog
-import com.dbflow5.database.beginTransactionAsync
-import com.dbflow5.database.DatabaseStatement
+import com.dbflow5.database.DBFlowDatabase
 import com.dbflow5.database.DatabaseConnection
+import com.dbflow5.database.DatabaseStatement
 import com.dbflow5.database.SQLiteException
-import com.dbflow5.mpp.runBlocking
+import com.dbflow5.database.beginTransactionAsync
 import com.dbflow5.mpp.use
 import com.dbflow5.query.TriggerMethod
 import com.dbflow5.quoteIfNeeded
@@ -16,6 +15,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.SynchronizedObject
 import kotlinx.atomicfu.locks.synchronized
 import kotlinx.atomicfu.locks.withLock
+import kotlinx.coroutines.runBlocking
 
 /**
  * Description: Tracks table changes in the DB via Triggers. This more efficient than utilizing
@@ -142,6 +142,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
                                     db,
                                     index
                                 )
+
                                 ObservingTableTracker.Operation.None -> {
                                     // don't do anything
                                 }
@@ -156,6 +157,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
                 is IllegalStateException, is SQLiteException -> {
                     FlowLog.logError(e, "Cannot sync table TRIGGERs. Is the db closed?")
                 }
+
                 else -> throw e
             }
         }
@@ -202,6 +204,7 @@ class TableObserver<DB : DBFlowDatabase<DB>> internal constructor(
                         "Cannot check for table updates. is the db closed?",
                     )
                 }
+
                 else -> throw e
             }
         }

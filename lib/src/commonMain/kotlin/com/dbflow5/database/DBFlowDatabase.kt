@@ -14,7 +14,6 @@ import com.dbflow5.database.migration.Migration
 import com.dbflow5.database.scope.ReadableDatabaseScope
 import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.mpp.Closeable
-import com.dbflow5.mpp.runBlocking
 import com.dbflow5.observing.TableObserver
 import com.dbflow5.observing.notifications.ModelNotifier
 import com.dbflow5.query.CountResultFactory
@@ -30,6 +29,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
 
 interface GeneratedDatabase : DatabaseConnection, Closeable {
