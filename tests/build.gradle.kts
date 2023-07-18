@@ -57,20 +57,30 @@ kotlin {
 
             }
         }
-        val androidInstrumentedTest by getting {
-            dependencies {
-                implementation(libs.coroutines.android)
-                implementation(libs.javax.annotation)
-                implementation(libs.mockito.kotlin)
-                implementation(libs.mockito.core)
-                implementation(libs.mockito.android)
 
+        val androidSharedTest by creating {
+            dependencies {
                 implementation(libs.junit)
                 implementation(libs.androidx.test.core)
                 implementation(libs.androidx.runner)
                 implementation(libs.androidx.rules)
                 implementation(libs.androidx.core.testing)
                 implementation(libs.androidx.junit)
+                implementation(libs.javax.annotation)
+                implementation(libs.mockito.kotlin)
+                implementation(libs.mockito.core)
+                implementation(libs.mockito.android)
+            }
+        }
+
+        val androidInstrumentedTest by getting {
+            dependsOn(androidSharedTest)
+        }
+
+        val androidUnitTest by getting {
+            dependsOn(androidSharedTest)
+            dependencies {
+                implementation(libs.robolectric)
             }
         }
 
@@ -83,13 +93,20 @@ kotlin {
             }
         }
 
+        val nativeTest by creating {
+            dependsOn(commonTest)
+        }
+
         val macosArm64Main by getting {
             dependsOn(commonMain)
         }
         val macosArm64Test by getting {
             dependsOn(commonTest)
+            dependsOn(nativeTest)
         }
-        val iosTest by getting
+        val iosTest by getting {
+            dependsOn(nativeTest)
+        }
     }
 }
 

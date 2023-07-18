@@ -4,13 +4,14 @@ import com.dbflow5.database.SQLiteException
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import com.dbflow5.test.assertThrowsException
 import kotlin.test.Test
 
 /**
  * Description:
  */
-class DontCreateModelTest {
+class DontCreateModelTest : TestRule()  {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

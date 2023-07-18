@@ -5,12 +5,13 @@ import com.dbflow5.database.config.DBCreator
 import com.dbflow5.database.config.DBPlatformSettings
 import com.dbflow5.database.config.DBSettings
 import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.test.TestRule
 import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class DBFlowDatabaseTest {
+class DBFlowDatabaseTest : TestRule() {
 
     private val dbRule = DatabaseTestRule(object : DBCreator<TestDBFlowDatabase> {
         override fun create(

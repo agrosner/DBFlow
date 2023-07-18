@@ -3,10 +3,11 @@ package com.dbflow5.test.usecases
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.OrderCursorModel
 import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class OrderCursorTest {
+class OrderCursorTest : TestRule()  {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

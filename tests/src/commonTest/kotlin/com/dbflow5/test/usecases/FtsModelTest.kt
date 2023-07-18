@@ -15,6 +15,7 @@ import com.dbflow5.test.Fts4VirtualModel
 import com.dbflow5.test.Fts4VirtualModel_Table
 import com.dbflow5.test.TestDatabase
 import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -23,7 +24,7 @@ import kotlin.test.assertTrue
 /**
  * Description:
  */
-class FtsModelTest {
+class FtsModelTest : TestRule()  {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

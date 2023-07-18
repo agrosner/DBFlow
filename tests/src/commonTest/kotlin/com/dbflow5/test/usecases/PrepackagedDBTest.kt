@@ -5,6 +5,7 @@ import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.Dog2_Table
 import com.dbflow5.test.MigratedPrepackagedDB_Database
 import com.dbflow5.test.PrepackagedDB_Database
+import com.dbflow5.test.TestRule
 import com.dbflow5.test.TestTransactionDispatcherFactory
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -12,7 +13,7 @@ import kotlin.test.assertTrue
 /**
  * Description: Asserts our prepackaged DB loads.
  */
-class PrepackagedDBTest {
+class PrepackagedDBTest : TestRule()  {
 
     val prepackagedDBRule = DatabaseTestRule(PrepackagedDB_Database) {
         copy(

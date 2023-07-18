@@ -6,10 +6,11 @@ import com.dbflow5.annotation.opts.DelicateDBFlowApi
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TempModel
 import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class TempModelTest {
+class TempModelTest : TestRule() {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

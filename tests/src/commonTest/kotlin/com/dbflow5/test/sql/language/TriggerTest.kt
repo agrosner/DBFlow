@@ -8,13 +8,14 @@ import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel
 import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.test.assertEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertNotNull
 
-class TriggerTest {
+class TriggerTest : TestRule()  {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

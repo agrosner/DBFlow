@@ -2,7 +2,7 @@ package com.dbflow5.test
 
 import kotlin.test.Test
 
-class SimpleModelTest {
+class SimpleModelTest : TestRule() {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

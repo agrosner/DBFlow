@@ -11,10 +11,11 @@ import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel
 import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class DirectNotifierTest {
+class DirectNotifierTest : TestRule() {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

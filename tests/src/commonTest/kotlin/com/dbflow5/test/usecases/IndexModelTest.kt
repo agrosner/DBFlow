@@ -4,10 +4,11 @@ import com.dbflow5.dropIndex
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.IndexModel_Table
 import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class IndexModelTest {
+class IndexModelTest : TestRule()  {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

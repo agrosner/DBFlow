@@ -4,11 +4,12 @@ import com.dbflow5.query.select
 import com.dbflow5.test.Author
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import com.dbflow5.test.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ModelViewTest {
+class ModelViewTest : TestRule()  {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

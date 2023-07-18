@@ -4,10 +4,11 @@ import com.dbflow5.query.operations.UnSafeStringOperator
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import com.dbflow5.test.assertEquals
 import kotlin.test.Test
 
-class UnSafeStringOperatorTest {
+class UnSafeStringOperatorTest : TestRule() {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
