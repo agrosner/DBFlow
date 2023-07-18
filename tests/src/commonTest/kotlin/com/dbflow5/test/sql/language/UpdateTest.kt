@@ -14,9 +14,10 @@ import com.dbflow5.query.orRollback
 import com.dbflow5.query.update
 
 import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.test.TestRule
 import kotlin.test.Test
 
-class UpdateTest {
+class UpdateTest : TestRule()  {
 
     
     val dbRule = DatabaseTestRule(TestDatabase_Database)

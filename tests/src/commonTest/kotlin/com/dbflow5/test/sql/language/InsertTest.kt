@@ -13,12 +13,13 @@ import com.dbflow5.query.orRollback
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.test.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class InsertTest {
+class InsertTest : TestRule()  {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

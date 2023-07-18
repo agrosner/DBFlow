@@ -5,11 +5,12 @@ import com.dbflow5.test.SimpleModel_Table
 import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.query.createIndexOn
 import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.test.TestRule
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class IndexTest {
+class IndexTest : TestRule()  {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

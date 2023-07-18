@@ -1,17 +1,18 @@
 package com.dbflow5.test.sql.language.property
 
-import com.dbflow5.test.TestDatabase_Database
 import com.dbflow5.test.CustomType
+import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.Difficulty
 import com.dbflow5.test.EnumTypeConverterModel_Table
+import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import com.dbflow5.test.TypeConverterModel_Table
-import com.dbflow5.test.DatabaseTestRule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class TypeConvertedPropertyTest {
+class TypeConvertedPropertyTest : TestRule() {
 
-    
+
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
     @Test

@@ -6,10 +6,11 @@ import com.dbflow5.query.operations.sqlLiteralOf
 import com.dbflow5.query.select
 
 import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.test.TestRule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class LiteralTests {
+class LiteralTests : TestRule()  {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

@@ -13,11 +13,12 @@ import com.dbflow5.query.operations.property
 
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.SimpleModel
+import com.dbflow5.test.TestRule
 import com.dbflow5.test.assertEquals
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class PropertyTest {
+class PropertyTest : TestRule()  {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 

@@ -7,11 +7,12 @@ import com.dbflow5.query.operations.indexProperty
 import com.dbflow5.query.select
 import com.dbflow5.query.update
 import com.dbflow5.test.DatabaseTestRule
+import com.dbflow5.test.TestRule
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class IndexedByTest {
+class IndexedByTest : TestRule()  {
 
     
     val dbRule = DatabaseTestRule(TestDatabase_Database)

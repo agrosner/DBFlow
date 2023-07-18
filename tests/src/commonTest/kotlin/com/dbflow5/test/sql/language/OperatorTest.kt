@@ -8,12 +8,13 @@ import com.dbflow5.query.operations.operator
 import com.dbflow5.query.select
 import com.dbflow5.test.DatabaseTestRule
 import com.dbflow5.test.TestDatabase_Database
+import com.dbflow5.test.TestRule
 import com.dbflow5.test.TwoColumnModel_Table
 import com.dbflow5.test.assertEquals
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
-class OperatorTest {
+class OperatorTest : TestRule() {
 
     val dbRule = DatabaseTestRule(TestDatabase_Database)
 
