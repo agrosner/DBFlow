@@ -10,7 +10,6 @@ import com.dbflow5.test.fakes.FakeOpenHelper
 import com.dbflow5.test.helpers.platformSettings
 import com.dbflow5.transaction.TransactionDispatcher
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -31,7 +30,7 @@ class DatabaseSettingsTest {
             testTransactionManager
         }
 
-        val modelNotifier = ModelNotifier(notificationScope = TestScope())
+        val modelNotifier = ModelNotifier.Default
         val modelNotifierFactory = ModelNotifierFactory {
             modelNotifier
         }

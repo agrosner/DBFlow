@@ -128,7 +128,7 @@ class DefaultMigrator(
     /**
      * Logs or throws an exception depending on db config.
      */
-    private fun DBRepresentable<*>.logOrThrow(databaseConnection: DatabaseConnection) {
+    private suspend fun DBRepresentable<*>.logOrThrow(databaseConnection: DatabaseConnection) {
         try {
             create(databaseConnection)
         } catch (e: SQLiteException) {

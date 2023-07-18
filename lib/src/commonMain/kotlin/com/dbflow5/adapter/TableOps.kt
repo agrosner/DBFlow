@@ -63,10 +63,10 @@ data class TableOpsImpl<Table : Any>(
         binder: SQLStatementBinder<Table>
     ) = compilableQuery.create(this).apply { binder.bind(this, model) }
 
-    private inline fun DatabaseConnection.notifyModelChange(changeAction: ChangeAction) =
-        { model: Table ->
+    private suspend inline fun DatabaseConnection.notifyModelChange(changeAction: ChangeAction): suspend (Table) -> Unit {
+        return { model: Table ->
             if (notifyChanges) {
-                generatedDatabase.modelNotifier.enqueueChange(
+                generatedDatabase.modelNotifier.onChange(
                     ModelNotification.ModelChange(
                         changedFields = primaryModelClauseGetter.get(model),
                         action = changeAction,
@@ -75,6 +75,7 @@ data class TableOpsImpl<Table : Any>(
                 )
             }
         }
+    }
 
     private fun GeneratedDatabase.runUpdateDeleteOperation(
         model: Table,
@@ -107,14 +108,18 @@ data class TableOpsImpl<Table : Any>(
     override suspend fun DatabaseConnection.save(model: Table): Table =
         generatedDatabase.writableTransaction {
             runInsertOperation(model, tableSQL.save, tableBinder.save, ChangeAction.CHANGE)
-        }.also(notifyModelChange(ChangeAction.CHANGE))
+        }.also {
+            notifyModelChange(ChangeAction.CHANGE)(it)
+        }
 
     override suspend fun DatabaseConnection.saveAll(models: Collection<Table>): Collection<Table> =
         generatedDatabase.writableTransaction {
             models.map { model ->
                 runInsertOperation(model, tableSQL.save, tableBinder.save, ChangeAction.CHANGE)
             }
-        }.onEach(notifyModelChange(ChangeAction.CHANGE))
+        }.onEach {
+            notifyModelChange(ChangeAction.CHANGE)(it)
+        }
 
     override suspend fun DatabaseConnection.update(model: Table): Table =
         generatedDatabase.writableTransaction {
@@ -124,7 +129,9 @@ data class TableOpsImpl<Table : Any>(
                 tableBinder.update,
                 ChangeAction.UPDATE
             )
-        }.also(notifyModelChange(ChangeAction.UPDATE))
+        }.also {
+            notifyModelChange(ChangeAction.UPDATE)(it)
+        }
 
     override suspend fun DatabaseConnection.updateAll(models: Collection<Table>): Collection<Table> =
         generatedDatabase.writableTransaction {
@@ -136,19 +143,25 @@ data class TableOpsImpl<Table : Any>(
                     ChangeAction.UPDATE
                 )
             }
-        }.onEach(notifyModelChange(ChangeAction.UPDATE))
+        }.onEach {
+            notifyModelChange(ChangeAction.UPDATE)(it)
+        }
 
     override suspend fun DatabaseConnection.insert(model: Table): Table =
         generatedDatabase.writableTransaction {
             runInsertOperation(model, tableSQL.insert, tableBinder.insert, ChangeAction.INSERT)
-        }.also(notifyModelChange(ChangeAction.INSERT))
+        }.also {
+            notifyModelChange(ChangeAction.INSERT)(it)
+        }
 
     override suspend fun DatabaseConnection.insertAll(models: Collection<Table>): Collection<Table> =
         generatedDatabase.writableTransaction {
             models.map { model ->
                 runInsertOperation(model, tableSQL.insert, tableBinder.insert, ChangeAction.INSERT)
             }
-        }.onEach(notifyModelChange(ChangeAction.INSERT))
+        }.onEach {
+            notifyModelChange(ChangeAction.INSERT)(it)
+        }
 
     override suspend fun DatabaseConnection.delete(model: Table): Table =
         generatedDatabase.writableTransaction {
@@ -158,7 +171,9 @@ data class TableOpsImpl<Table : Any>(
                 tableBinder.delete,
                 ChangeAction.DELETE
             )
-        }.also(notifyModelChange(ChangeAction.DELETE))
+        }.also {
+            notifyModelChange(ChangeAction.DELETE)(it)
+        }
 
     override suspend fun DatabaseConnection.deleteAll(models: Collection<Table>): Collection<Table> =
         generatedDatabase.writableTransaction {
@@ -170,7 +185,9 @@ data class TableOpsImpl<Table : Any>(
                     ChangeAction.DELETE
                 )
             }
-        }.onEach(notifyModelChange(ChangeAction.DELETE))
+        }.onEach {
+            notifyModelChange(ChangeAction.DELETE)(it)
+        }
 
     private companion object {
         const val INSERT_FAILED = -1

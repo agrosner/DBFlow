@@ -19,14 +19,14 @@ internal fun <Result> ResultFactory<Result>.logQuery(query: String) =
  */
 interface ResultFactory<Result> : Loggable {
 
-    fun DatabaseConnection.createResult(query: String): Result
+    suspend fun DatabaseConnection.createResult(query: String): Result
 }
 
 /**
  * This runs execute without regard for return type.
  */
 object UnitResultFactory : ResultFactory<Unit> {
-    override fun DatabaseConnection.createResult(query: String) =
+    override suspend fun DatabaseConnection.createResult(query: String) =
         compileStatement(query).use {
             logQuery(query)
             it.execute()
@@ -37,11 +37,11 @@ data class UpdateDeleteResultFactory(
     private val dbRepresentable: WritableDBRepresentable<*>,
     private val isDelete: Boolean,
 ) : ResultFactory<Long> {
-    override fun DatabaseConnection.createResult(query: String): Long {
+    override suspend fun DatabaseConnection.createResult(query: String): Long {
         logQuery(query)
         val affected = compileStatement(query).use { it.executeUpdateDelete() }
         if (affected > 0) {
-            generatedDatabase.modelNotifier.enqueueChange(
+            generatedDatabase.modelNotifier.onChange(
                 ModelNotification.TableChange(
                     dbRepresentable,
                     if (isDelete) ChangeAction.DELETE else ChangeAction.UPDATE,
@@ -55,11 +55,11 @@ data class UpdateDeleteResultFactory(
 data class InsertResultFactory(
     private val dbRepresentable: WritableDBRepresentable<*>,
 ) : ResultFactory<Long> {
-    override fun DatabaseConnection.createResult(query: String): Long {
+    override suspend fun DatabaseConnection.createResult(query: String): Long {
         logQuery(query)
         val affected = compileStatement(query).use { it.executeInsert() }
         if (affected > 0) {
-            generatedDatabase.modelNotifier.enqueueChange(
+            generatedDatabase.modelNotifier.onChange(
                 ModelNotification.TableChange(
                     dbRepresentable,
                     ChangeAction.INSERT
@@ -74,7 +74,7 @@ object CountResultFactory : ResultFactory<CountResultFactory.Count> {
     @JvmInline
     value class Count(val value: Long)
 
-    override fun DatabaseConnection.createResult(query: String): Count {
+    override suspend fun DatabaseConnection.createResult(query: String): Count {
         logQuery(query)
         return Count(longForQuery(this, query))
     }
@@ -88,7 +88,7 @@ object StringResultFactory : ResultFactory<StringResultFactory.StringResult> {
     @JvmInline
     value class StringResult(val value: String?)
 
-    override fun DatabaseConnection.createResult(query: String): StringResult {
+    override suspend fun DatabaseConnection.createResult(query: String): StringResult {
         logQuery(query)
         return StringResult(stringForQuery(this, query))
     }

@@ -1,11 +1,11 @@
 package com.dbflow5.transaction
 
 import com.dbflow5.database.GeneratedDatabase
+import com.dbflow5.database.ThreadLocalTransaction
+import com.dbflow5.database.executeTransactionForResult
+import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.database.transaction.TransactionElement
 import com.dbflow5.database.transaction.acquireTransaction
-import com.dbflow5.database.executeTransactionForResult
-import com.dbflow5.database.ThreadLocalTransaction
-import com.dbflow5.database.scope.WritableDatabaseScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Job
@@ -106,12 +106,10 @@ private suspend fun TransactionDispatcher.createTransactionContext(
     return context
 }
 
-expect fun defaultTransactionCoroutineDispatcher(): CoroutineDispatcher
-
 /**
  * Creates [TransactionDispatcher] with the specified dispatcher.
  */
 fun TransactionDispatcher(
-    dispatcher: CoroutineDispatcher = defaultTransactionCoroutineDispatcher()
+    dispatcher: CoroutineDispatcher
 ): TransactionDispatcher =
     DefaultTransactionDispatcher(dispatcher)

@@ -1,6 +1,10 @@
 package com.dbflow5.database.config
 
 import com.dbflow5.database.DBFlowDatabase
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
+import java.util.concurrent.Executors
 
 actual data class DBPlatformSettings(
     /**
@@ -9,9 +13,10 @@ actual data class DBPlatformSettings(
      * What should we consider here?
      */
     actual val isLowRamDevice: Boolean = false,
-
-    ) {
-}
+    actual val transactionCoroutineDispatcher: CoroutineDispatcher =
+        Executors.newSingleThreadExecutor().asCoroutineDispatcher(),
+    actual val callbackDispatcher: CoroutineDispatcher = Dispatchers.Main
+)
 
 /**
  * Creates new [DBFlowDatabase] with settings.

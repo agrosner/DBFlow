@@ -4,16 +4,29 @@ import com.dbflow5.config.JournalMode
 import com.dbflow5.database.DatabaseCallback
 import com.dbflow5.database.OpenHelper
 import com.dbflow5.database.OpenHelperCreator
+import com.dbflow5.database.transaction.CallbackDispatcherFactory
 import com.dbflow5.database.transaction.TransactionDispatcherFactory
-import com.dbflow5.observing.notifications.DirectModelNotifier
+import com.dbflow5.observing.notifications.ModelNotifier
 import com.dbflow5.observing.notifications.ModelNotifierFactory
+import com.dbflow5.transaction.CallbackDispatcher
 import com.dbflow5.transaction.TransactionDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 
 expect class DBPlatformSettings {
     /**
      * Used for ability to use Write Ahead Logging
      */
     val isLowRamDevice: Boolean
+
+    /**
+     * Used to run on BG thread.
+     */
+    val transactionCoroutineDispatcher: CoroutineDispatcher
+
+    /**
+     * Used to run callbacks on a UI thread.
+     */
+    val callbackDispatcher: CoroutineDispatcher
 }
 
 /**
@@ -24,9 +37,17 @@ data class DBSettings(
     val platformSettings: DBPlatformSettings, // this may go into platform specific extension
     val openHelperCreator: OpenHelperCreator = OpenHelperCreator(::OpenHelper),
     val transactionDispatcherFactory: TransactionDispatcherFactory =
-        TransactionDispatcherFactory(::TransactionDispatcher),
+        TransactionDispatcherFactory {
+            TransactionDispatcher(platformSettings.transactionCoroutineDispatcher)
+        },
+    val callbackDispatcherFactory: CallbackDispatcherFactory =
+        CallbackDispatcherFactory {
+            CallbackDispatcher(platformSettings.callbackDispatcher)
+        },
     val databaseCallback: DatabaseCallback? = null,
-    val modelNotifierFactory: ModelNotifierFactory = ModelNotifierFactory(::DirectModelNotifier),
+    val modelNotifierFactory: ModelNotifierFactory = ModelNotifierFactory {
+        ModelNotifier.Default
+    },
     val inMemory: Boolean = false,
     val databaseExtensionName: String = DEFAULT_EXT,
     val journalMode: JournalMode = JournalMode.Automatic,

@@ -41,7 +41,7 @@ data class Transaction<DB : GeneratedDatabase, R : Any?>(
     @get:JvmName("name")
     val name: String?,
     private val shouldRunInTransaction: Boolean = true,
-    private val callbackDispatcher: CoroutineDispatcher = Dispatchers.Main,
+    private val callbackDispatcher: CoroutineDispatcher = databaseDefinition.callbackDispatcher.dispatcher,
 ) : SuspendableTransaction<DB, Result<R>> {
 
     /**
@@ -140,7 +140,7 @@ data class Transaction<DB : GeneratedDatabase, R : Any?>(
         internal var completion: Completion<DB, R>? = null
         internal var name: String? = null
         internal var shouldRunInTransaction = true
-        internal var callbackDispatcher: CoroutineDispatcher = Dispatchers.Main
+        internal var callbackDispatcher: CoroutineDispatcher = database.callbackDispatcher.dispatcher
 
         /**
          * Specify a callback when the transaction is ready to execute. Do an initialization here,

@@ -12,7 +12,7 @@ internal data class SelectResultFactory<Table : Any>(
 ) :
     ResultFactory<SelectResult<Table>>,
     HasAdapter<Table, DBRepresentable<Table>> {
-    override fun DatabaseConnection.createResult(query: String): SelectResult<Table> {
+    override suspend fun DatabaseConnection.createResult(query: String): SelectResult<Table> {
         logQuery(query)
         return SelectResultImpl(this, adapter, query)
     }

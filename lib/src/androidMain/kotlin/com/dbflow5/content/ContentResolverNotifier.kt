@@ -6,8 +6,6 @@ import android.content.Context
 import android.os.Build
 import com.dbflow5.observing.notifications.ModelNotification
 import com.dbflow5.observing.notifications.ModelNotifier
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 
 /**
  * The default use case, it notifies via the [ContentResolver] system.
@@ -19,7 +17,6 @@ class ContentResolverNotifier(
     private val context: Context,
     private val authority: String,
     private val uriEncoder: ContentNotificationEncoder = defaultContentEncoder(),
-    override val notificationScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
 ) : ModelNotifier {
 
     override suspend fun <Table : Any> onChange(notification: ModelNotification<Table>) {

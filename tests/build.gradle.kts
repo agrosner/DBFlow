@@ -7,7 +7,7 @@ configureJdk()
 
 kotlin {
     jvm()
-    android()
+    androidTarget()
     macosArm64()
     ios()
 
@@ -59,6 +59,7 @@ kotlin {
         }
         val androidInstrumentedTest by getting {
             dependencies {
+                implementation(libs.coroutines.android)
                 implementation(libs.javax.annotation)
                 implementation(libs.mockito.kotlin)
                 implementation(libs.mockito.core)

@@ -16,10 +16,11 @@ import com.dbflow5.database.scope.WritableDatabaseScope
 import com.dbflow5.mpp.Closeable
 import com.dbflow5.mpp.runBlocking
 import com.dbflow5.observing.TableObserver
+import com.dbflow5.observing.notifications.ModelNotifier
 import com.dbflow5.query.CountResultFactory
 import com.dbflow5.query.ExecutableQuery
 import com.dbflow5.query.SelectResult
-import com.dbflow5.observing.notifications.ModelNotifier
+import com.dbflow5.transaction.CallbackDispatcher
 import com.dbflow5.transaction.SuspendableTransaction
 import com.dbflow5.transaction.Transaction
 import com.dbflow5.transaction.TransactionDispatcher
@@ -39,6 +40,9 @@ interface GeneratedDatabase : DatabaseConnection, Closeable {
 
     @InternalDBFlowApi
     val transactionDispatcher: TransactionDispatcher
+
+    @InternalDBFlowApi
+    val callbackDispatcher: CallbackDispatcher
 
     @InternalDBFlowApi
     val threadLocalTransaction: ThreadLocalTransaction
@@ -149,6 +153,11 @@ abstract class DBFlowDatabase<DB : DBFlowDatabase<DB>> : GeneratedDatabase,
      */
     override val transactionDispatcher: TransactionDispatcher by lazy {
         settings.transactionDispatcherFactory.create()
+    }
+
+    @InternalDBFlowApi
+    override val callbackDispatcher: CallbackDispatcher by lazy {
+        settings.callbackDispatcherFactory.create()
     }
 
     @InternalDBFlowApi

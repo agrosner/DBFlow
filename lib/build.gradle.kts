@@ -7,7 +7,7 @@ plugins {
 
 // project.ext.artifactId = bt_name
 kotlin {
-    android()
+    androidTarget()
     jvm()
     ios()
     macosArm64()
