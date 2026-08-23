@@ -1,106 +1,100 @@
-# README
+# DBFlow
 
-![Image](https://github.com/agrosner/DBFlow/blob/develop/dbflow_banner.png?raw=true)
+[![JitPack.io](https://img.shields.io/badge/JitPack.io-5.0.0-alpha2-red.svg?style=flat)](https://jitpack.io/#agrosner/DBFlow)
 
-[![JitPack.io](https://img.shields.io/badge/JitPack.io-5.0.0-alpha2-red.svg?style=flat)](https://jitpack.io/#Raizlabs/DBFlow) [![Android Weekly](http://img.shields.io/badge/Android%20Weekly-%23129-2CB3E5.svg?style=flat)](http://androidweekly.net/issues/issue-129) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DBFlow-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1134)
+A Kotlin Multiplatform SQLite library. Annotate tables and databases; a compiler plugin generates adapters and a typed query DSL.
 
-DBFlow is fast, efficient, and feature-rich Kotlin database library built on SQLite for Android. DBFlow utilizes annotation processing to generate SQLite boilerplate for you and provides a powerful SQLite query language that makes using SQLite a joy.
+**Targets:** Android, JVM, iOS, macOS.
 
-DBFlow is built from a collection of some of the best features of many database libraries. Don't let an ORM or library get in your way, let the code you write in your applications be the best as possible.
+```kotlin
+@Database(version = 1, tables = [User::class])
+abstract class AppDatabase : DBFlowDatabase<AppDatabase>() {
+    abstract val userAdapter: ModelAdapter<User>
+}
 
-DBFlow Contains:
+@Table
+data class User(
+    @PrimaryKey(autoincrement = true) val id: Int = 0,
+    val name: String,
+)
+```
 
-**Kotlin:** Built using the language, the library is super-concise, null-safe and efficient.
+```kotlin
+val db = AppDatabase_Database.create(context) { copy(name = "App") }
+DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)
 
-**Annotation Processor**: Generates the necessary code that you don't need to write.
-
-**Core:** Contains the main annotations and misc classes that are shared across all of DBFlow.
-
-**DBFlow:** The main library artifact used in conjunction with the previous two artifacts.
-
-**Coroutines:** Adds coroutine support for queries.
-
-**RX Java:** Enable applications to be reactive by listening to DB changes and ensuring your subscribers are up-to-date.
-
-**Paging:** Android architecture component paging library support for queries via `QueryDataSource`.
-
-**LiveData:** Android architecture LiveData support for queries on table changes.
-
-**SQLCipher:** Easy database encryption support in this library.
-
-**SQLite Query Language:** Enabling autocompletion on sqlite queries combined with Kotlin language features means SQLite-like syntax.
-
-## Changelog
-
-Changes exist in the [releases tab](https://github.com/Raizlabs/DBFlow/releases).
-
-## Usage Docs
-
-For more detailed usage, check out it out [here](https://dbflow.gitbook.io/dbflow/)
-
-## Including in your project
-
-Add jitpack.io to your project's repositories:
-
-```groovy
-allProjects {
-  repositories {
-    google() 
-    // required to find the project's artifacts
-    // place last
-    maven { url "https://www.jitpack.io" }
-  }
+db.writableTransaction {
+    userAdapter.save(User(name = "Ada"))
+    val users = (userAdapter.select() where (User_Table.name eq "Ada")).list()
 }
 ```
 
-Add artifacts to your project:
+## What’s included
 
-```groovy
-  apply plugin: 'kotlin-kapt' // only required for kotlin consumers.
+| Module | Role |
+| --- | --- |
+| `lib` | Runtime, query DSL, transactions, `Flow` observers |
+| `core` | Annotations and converters (pulled in by `lib`) |
+| `compiler` + plugin `com.dbflow5` | Generates `*_Table`, `*_Database`, and `GeneratedDatabaseHolderFactory` |
+| `sqlcipher` | Encrypted Android databases |
+| `livedata` / `paging` / `reactive-streams` | Android extras |
 
-  def dbflow_version = "5.0.0-alpha2"
-  // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
+Coroutines are built into `lib`. There is no separate coroutines artifact.
 
-  dependencies {
+## Docs
 
-    // Use if Kotlin user.
-    kapt "com.github.agrosner.dbflow:processor:${dbflow_version}"
+Usage lives under [`usage2/`](usage2/README.md). The table of contents is in [`SUMMARY.md`](SUMMARY.md).
 
-    // Annotation Processor
-    // if only using Java, use this. If using Kotlin do NOT use this.
-    annotationProcessor "com.github.agrosner.dbflow:processor:${dbflow_version}"
+Published HTML: [dbflow.gitbook.io/dbflow](https://dbflow.gitbook.io/dbflow/)
 
+## Install
 
-    // core set of libraries
-    implementation "com.github.agrosner.dbflow:core:${dbflow_version}"
-    implementation "com.github.agrosner.dbflow:lib:${dbflow_version}"
+See [Including in a project](usage2/including-in-project.md) for version catalogs, the compiler plugin, and generated sources.
 
-    // sql-cipher database encryption (optional)
-    implementation "com.github.agrosner.dbflow:sqlcipher:${dbflow_version}"
-    implementation "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
+Quick start with a version catalog:
 
-    // RXJava 2 support
-    implementation "com.github.agrosner.dbflow:reactive-streams:${dbflow_version}"
+```toml
+[versions]
+dbflow = "5.0.0-alpha2"
 
-    // Kotlin Coroutines
-    implementation "com.github.agrosner.dbflow:coroutines:${dbflow_version}"
+[libraries]
+dbflow-lib = { module = "com.dbflow5:lib", version.ref = "dbflow" }
+dbflow-compiler = { module = "com.dbflow5:compiler", version.ref = "dbflow" }
 
-    // Android Architecture Components Paging Library Support
-    implementation "com.github.agrosner.dbflow:paging:${dbflow_version}"
-
-    // Android Architecture Components LiveData Library Support
-    implementation "com.github.agrosner.dbflow:livedata:${dbflow_version}"
-
-  }
+[plugins]
+dbflow = { id = "com.dbflow5", version.ref = "dbflow" }
 ```
 
-## Pull Requests
+```kotlin
+plugins {
+    kotlin("multiplatform")
+    alias(libs.plugins.dbflow)
+}
 
-I welcome and encourage all pull requests. Here are some basic rules to follow to ensure timely addition of your request: 1. Match coding style \(braces, spacing, etc.\) This is best achieved using **Reformat Code** shortcut, command+option+L on Mac and Ctrl+Alt+L on Windows, with Android Studio defaults. 2. If its a feature, bugfix, or anything please only change code to what you specify. 3. Please keep PR titles easy to read and descriptive of changes, this will make them easier to merge :\) 4. Pull requests _must_ be made against `develop` branch. Any other branch \(unless specified by the maintainers\) will get **rejected**. 5. Have fun!
+kotlin {
+    sourceSets.named("commonMain") {
+        kotlin.srcDir(layout.buildDirectory.dir("generated/dbflow/commonMain/kotlin"))
+        dependencies {
+            implementation(libs.dbflow.lib)
+        }
+    }
+}
 
-## Maintainer
+configurations.configureEach {
+    if (name.startsWith("kotlinCompilerPluginClasspath")) {
+        dependencies.add(libs.dbflow.compiler.get())
+    }
+}
+```
 
-Originally created by [Raizlabs](https://www.raizlabs.com), a [Rightpoint](https://www.rightpoint.com) company
+Until the plugin is on Maven Central, use a [composite build](usage2/including-in-project.md#from-this-repository) of this repo.
 
-Maintained by [agrosner](https://github.com/agrosner) \([@agrosner](https://www.twitter.com/agrosner)\)
+## Contribute
 
+1. Match existing Kotlin style.
+2. Keep the change scoped to the issue.
+3. Open PRs against `master`.
+
+## Maintainers
+
+Started at [Raizlabs](https://www.raizlabs.com) / [Rightpoint](https://www.rightpoint.com). Maintained by [agrosner](https://github.com/agrosner).

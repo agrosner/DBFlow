@@ -1,116 +1,101 @@
 # Models
 
-In DBFlow we dont have any restrictions on what your table class is. We do, however if you use Java, we recommend you subclass `BaseModel` on your highest-order base-class, which provides a default implementation for you. Otherwise utilize a kotlin extension method on `Any`.
+A table is a Kotlin class with `@Table` and at least one `@PrimaryKey`.
 
 ```kotlin
-myTableObject.save(db)
+@Table
+data class User(
+    @PrimaryKey(autoincrement = true) val id: Int = 0,
+    val name: String,
+    val email: String?,
+)
 ```
+
+Register it on `@Database(tables = [User::class])`.
+
+Generated: `User_Table` (properties) and a `ModelAdapter<User>` you expose as an abstract `val` on the database.
 
 ## Columns
 
-By default, DBFlow inclusdes all properties as columns. For other kinds of fields, they must contain either `@PrimaryKey` or `@ForeignKey` to be used in tables. However this still requires you to specify at least one `@PrimaryKey` field. You can then explicitly ignore fields via the `@ColumnIgnore` annotation if necessary. You can turn off all fields and make it explicit using `@Table(allFields = false)`
-
-In Kotlin, Column properties must be public and `var` for now. In future versions, we hope to support Kotlin constructors without default arguments. For now, all must be `var` and provide a default constructor. We respect nullability of the properties and won't assign `null` to them if they're not nullable, but they must provide a default value.
-
-In Java, Columns can be `public`, package-private, or `private`. `private` fields **must** come with `public` java-bean-style getters and setters. Package private used in other packages generate a `_Helper` class which exposes a method to call these fields in an accessible way. This has some overhead, so consider making them with `public` get/set or public.
-
-Here is an example of a "nice" `Table`:
+`@Table(allFields = true)` (default) maps every property. Use `@ColumnIgnore` to skip one. Set `allFields = false` and annotate each stored property with `@Column`, `@PrimaryKey`, or `@ForeignKey`.
 
 ```kotlin
-@Table(database = AppDatabase::class)
-class Dog(@PrimaryKey var id: Int = 0, var name: String? = null)
+@Table
+data class User(
+    @PrimaryKey val id: String,
+    val name: String,
+    @ColumnIgnore val transientFlag: Boolean = false,
+)
 ```
 
-Columns have a wide-range of supported types in the `Model` classes: **Supported Types**:
+Rename a column with `@Column(name = "first_name")`.
 
-1. all primitives including `Char`,`Byte`, `Short`, and `Boolean`.
-2. All Kotlin nullable primitives \(java boxed\).
-3. `String`, `Date`, `java.sql.Date`, `Calendar`, `com.dbflow5.data.Blob`, `Boolean`
-4. Custom data types via a [TypeConverter](typeconverters.md)
-5. `Model` as fields, but only as `@PrimaryKey` and/or `@ForeignKey`
-6. `@ColumnMap` objects that flatten an object into the current table. Just like a `@ForeignKey`, but without requiring a separate table. \(4.1.0+\). **Note:** Avoid nesting more than one object, as the column count could get out of control.
+Nullability is respected. Non-null properties are not assigned `null` from a cursor.
 
-**Unsupported Types**:
+### Supported types
 
-1. `List<T>` : List columns are not supported and not generally proper for a relational database. However, you can get away with a non-generic `List` column via a `TypeConverter`. But again, avoid this if you can.
-2. Anything that is generically typed \(even with an associated `TypeConverter`\). If you need to include the field, subclass the generic object and provide a `TypeConverter`.
+- Primitives and their nullable counterparts
+- `String`, `Boolean`
+- `com.dbflow5.data.Blob`
+- Types with a [TypeConverter](typeconverters.md)
+- Other tables only as `@ForeignKey` (or `@PrimaryKey` + `@ForeignKey`)
 
-## Inherited Columns
+Not supported as columns: `List`, `Map`, or other generic containers. Use a related table.
 
-Since we don't require extension on `BaseModel` directly, tables can extend non-model classes and inherit their fields directly \(given proper accessibility\) via the `@InheritedColumn` annotation \(or `@InheritedPrimaryKey` for primary keys\):
+## Primary keys
 
-```java
-@Table(database = AppDatabase.class,
-        inheritedColumns = {@InheritedColumn(column = @Column, fieldName = "name"),
-                @InheritedColumn(column = @Column, fieldName = "number")},
-        inheritedPrimaryKeys = {@InheritedPrimaryKey(column = @Column,
-                primaryKey = @PrimaryKey,
-                fieldName = "inherited_primary_key")})
-public class InheritorModel extends InheritedModel implements Model {
-```
-
-**Note:** This implementation is not recommended for most users. If you do not control the type directly, the inherited class may change in incompatible ways.
-
-## Primary Keys
-
-DBFlow supports multiple primary keys, right out of the box. Simply create a table with multiple `@PrimaryKey`:
+One or more `@PrimaryKey`. Autoincrement: `@PrimaryKey(autoincrement = true)` — only one, and do not mix with other primary keys.
 
 ```kotlin
-@Table(database = AppDatabase::class)
-class Dog(@PrimaryKey var name: String = "", @PrimaryKey var breed: String = "")
+@Table
+data class Membership(
+    @PrimaryKey val userId: String,
+    @PrimaryKey val groupId: String,
+)
 ```
 
-If we want an auto-incrementing key, you specify `@PrimaryKey(autoincrement = true)`, but only one of these kind can exist in a table and you cannot mix with regular primary keys.
-
-## Unique Columns
-
-DBFlow has support for SQLite `UNIQUE` constraint \(here for documentation\)\[[http://www.tutorialspoint.com/sqlite/sqlite\_constraints.htm](http://www.tutorialspoint.com/sqlite/sqlite_constraints.htm)\].
-
-Add `@Unique` annotation to your existing `@Column` and DBFlow adds it as a constraint when the database table is first created. This means that once it is created you should not change or modify this.
-
-We can _also_ support multiple unique clauses in order to ensure any combination of fields are unique. For example:
-
-To generate this in the creation query:
-
-```text
-UNIQUE('name', 'number') ON CONFLICT FAIL, UNIQUE('name', 'address') ON CONFLICT ROLLBACK
-```
-
-We declare the annotations as such:
+## Unique
 
 ```kotlin
-@Table(database = AppDatabase::class,
-  uniqueColumnGroups = [@UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.FAIL),
-                        @UniqueGroup(groupNumber = 2, uniqueConflict = ConflictAction.ROLLBACK)])
-class UniqueModel(
-  @PrimaryKey @Unique(unique = false, uniqueGroups = [1,2])
-  var name: String = "",
-  @Column @Unique(unique = false, uniqueGroups = [1])
-  var number: String = "",
-  @Column @Unique(unique = false, uniqueGroups = [2])
-  var address: String = "")
+@Table
+data class User(
+    @PrimaryKey val id: Int = 0,
+    @Unique val email: String,
+)
 ```
 
-The `groupNumber` within each defined `uniqueColumnGroups` with an associated `@Unique` column. We need to specify `unique=false` for any column used in a group so we expect the column to be part of a group. If true as well, the column will _also_ alone be unique.
-
-## Default Values
-
-**Not to be confused with Kotlin default values.** This only applies when fields are marked as `nullable`. When fields are non null in kotlin, we utilize the default constructor value when it is set, so when the column data is `null` from a `Cursor`, we do not override the initial assignment.
-
-DBFlow supports default values in a slightly different way than SQLite does. Since we do not know exactly the intention of missing data when saving a `Model`, since we group all fields, `defaultValue` specifies a value that we replace when saving to the database when the value of the field is `null`.
-
-This feature only works on Boxed primitive and the `DataClass` equivalent of objects \(such as from TypeConverter\), such as String, Integer, Long, Double, etc. **Note**: If the `DataClass` is a `Blob`, unfortunately this will not work. For `Boolean` classes, use "1" for true, "0" for false.
+Composite unique:
 
 ```kotlin
-@Column(defaultValue = "55")
-var count: Int,
-@Column(defaultValue = "\"this is\"")
-var test: String,
-@Column(defaultValue = "1000L")
-var date: Date,
-@Column(defaultValue = "1")
-var aBoolean: Boolean,
+@Table(
+    uniqueColumnGroups = [
+        UniqueGroup(groupNumber = 1, uniqueConflict = ConflictAction.FAIL),
+    ]
+)
+data class Enrollment(
+    @PrimaryKey val id: Int = 0,
+    @Unique(unique = false, uniqueGroups = [1]) val studentId: Int,
+    @Unique(unique = false, uniqueGroups = [1]) val courseId: Int,
+)
 ```
 
-**Note:** DBFlow inserts its literal value into the `ModelAdapter` for the table so any `String` must be escaped.
+## Defaults
 
+`@Column(defaultValue = "…")` is the SQL default used when the property is `null` on save — not a Kotlin constructor default.
+
+## FTS
+
+`@Fts3` / `@Fts4` mark virtual tables. See the [SQLite FTS docs](https://www.sqlite.org/fts3.html).
+
+## Temporary / deferred create
+
+```kotlin
+@Table(temporary = true, createWithDatabase = false)
+data class Scratch(@PrimaryKey val id: Int)
+```
+
+`createWithDatabase = false` keeps the generated adapter but does not `CREATE TABLE` at open (legacy tables for migrations).
+
+## Constructor
+
+A no-arg constructor is required for codegen. `data class` properties need defaults when they are not nullable, or supply a secondary constructor. `val` properties are fine.

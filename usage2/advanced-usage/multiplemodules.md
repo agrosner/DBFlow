@@ -1,43 +1,17 @@
-# Multiple Modules
+# Multi-module
 
-In apps that want to share DBFlow across multiple modules or when developing a library module that uses DBFlow, we have to provide a little extra configuration to properly ensure that all database classes are accounted for.
+Each compilation that applies the DBFlow plugin generates its own `GeneratedDatabaseHolderFactory` and adapters.
 
-It's directly related to the fact that annotation processors are isolated between projects and are not shared.
+Rules:
 
-In order to add support for multiple modules, in each and every library/subproject that uses a DBFlow instance, you must add an annotation processing argument to its `build.gradle`:
-
-Using KAPT:
-
-```java
-kapt {
-    arguments {
-        arg("targetModuleName", "SomeUniqueModuleName")
-    }
-}
-```
-
-or if you use Android/Java:
-
-```java
-// inside android -> defaultConfig
-javaCompileOptions {
-      annotationProcessorOptions {
-        arguments = ['library': 'true']
-      }
-    }
-```
-
-By passing the targetModuleName, we append that to the `GeneratedDatabaseHolder` class name to create the `{targetModuleName}GeneratedDatabaseHolder` module. 
-
-**Note**: Specifying this in code means you need to specify the module when initializing DBFlow:
-
-From previous sample code, we recommend initializing the specific module inside your library, to prevent developer error. **Note**: Multiple calls to `FlowManager` will not adversely affect DBFlow. If DBFlow is already initialized, we append the module to DBFlow if and only if it does not already exist.
+1. A `@Table` lives in one module and one `@Database`.
+2. Consume generated types (`*_Table`, `*_Database`) from a compilation that already ran codegen — typically a downstream module or `commonTest`.
+3. If you look up adapters by `KClass`, load that module’s holder:
 
 ```kotlin
-fun initialize(context: Context) {
-  FlowManager.init(FlowConfig.builder(context)
-    .addDatabaseHolder(SomeUniqueModuleNameGeneratedDatabaseHolder::class)
-    .build())
-}
+DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)
 ```
 
+`loadHolder` is additive. Call it once per generated factory. Creating a database with `{Name}_Database.create` uses that module’s factory and does not replace another module’s holder.
+
+Do not share the same `@Table` class across two databases or two generating modules.

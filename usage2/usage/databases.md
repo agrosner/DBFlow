@@ -1,153 +1,97 @@
 # Databases
 
-This section describes how databases are created in DBFlow and some more advanced features.
-
-## Creating a Database
-
-In DBFlow, creating a database is as simple as only a few lines of code. DBFlow supports any number of databases, however individual tables and other related files can only be associated with one database. **Note**: Starting with DBFlow 5.0, databases are required to extend `DBFlowDatabase`.
+## Declare
 
 ```kotlin
-@Database(version = 1)
-abstract class AppDatabase : DBFlowDatabase()
-```
-
-## Referencing the Database
-
-To grab a reference to the DB object:
-
-```kotlin
-val db = database<AppDatabase>()
-
-// can utilize in a closure
-database<AppDatabase> { db -> 
-  model.save(db)
-  
-  db.beginTransactionAsync { d -> }
-}
-
-// or old-school way
-val db = FlowManager.getDatabase(AppDatabase::class.java)
-```
-
-## Initialization
-
-To specify a custom **name** to the database, in previous versions of DBFlow \(&lt; 4.1.0\), you had to specify it in the `@Database` annotation. As of 5.0 now you pass it in the initialization of the `FlowManager`:
-
-```kotlin
-FlowManager.init(context) {
-    database<AppDatabase> {
-      databaseName("AppDatabase")
-    }
- }
-```
-
-To dynamically change the database name, call:
-
-```kotlin
-database<AppDatabase>()
-  .reopen(DatabaseConfig.builder(AppDatabase::class)
-    .databaseName("AppDatabase-2")
-    .build())
-```
-
-This will close the open DB, reopen the DB, and replace previous `DatabaseConfig` with this new one. Ensure that you persist the changes to the `DatabaseConfig` somewhere as next time app is launched and DBFlow is initialized, the new config would get overwritten.
-
-### In Memory Databases
-
-As with **name**, in previous versions of DBFlow \(&lt; 5.0\), you specified `inMemory` in the `@Database` annotation. Starting with 5.0 that is replaced with:
-
-```kotlin
-FlowManager.init(context) {
-  inMemoryDatabase<AppDatabase> {
-    databaseName("AppDatabase")
-  }
+@Database(
+    version = 1,
+    foreignKeyConstraintsEnforced = true,
+    tables = [User::class, Post::class],
+    views = [AuthorView::class],
+    queries = [UserNameQuery::class],
+    migrations = [AddEmailMigration::class],
+)
+abstract class AppDatabase : DBFlowDatabase<AppDatabase>() {
+    abstract val userAdapter: ModelAdapter<User>
+    abstract val postAdapter: ModelAdapter<Post>
+    abstract val authorViewAdapter: ViewAdapter<AuthorView>
+    abstract val userNameQueryAdapter: QueryAdapter<UserNameQuery>
 }
 ```
 
-This will allow you to use in-memory databases in your tests, while writing to disk in your apps. Also if your device the app is running on is low on memory, you could also swap the DB into memory by calling `reopen(DatabaseConfig)` as explained above.
+The generated type is `AppDatabase_Database`. Its companion implements `DBCreator<AppDatabase>`.
 
-## Database Migrations
+Default file name is the class name plus `.db` (`AppDatabase.db`). Override in settings.
 
-Database migrations are run when upon open of the database connection, the version number increases on an existing database.
+A table belongs to one database. List it on `@Database` (preferred) or set `@Table(database = AppDatabase::class)`.
 
-It is preferred that `Migration` files go in the same file as the database, for organizational purposes. An example migration:
+## Open
+
+Call `DatabaseObjectLookup.loadHolder(GeneratedDatabaseHolderFactory)` once per process before KClass lookups (`select from User::class`). Creating via `AppDatabase_Database.create` uses the generated factory directly.
 
 ```kotlin
-@Database(version = 2)
-abstract class AppDatabase : DBFlowDatabase() {
+// Android
+val db = AppDatabase_Database.create(context) {
+    copy(name = "App", inMemory = false)
+}
 
-  @Migration(version = 2, database = MigrationDatabase::class)
-  class AddEmailToUserMigration : AlterTableMigration<User>(User::class.java) {
+// JVM
+val db = AppDatabase_Database.create {
+    copy(name = "App")
+}
 
-    override fun onPreMigrate() {
-        addColumn(SQLiteType.TEXT, "email")
-    }
-  }
+// Explicit platform settings (all targets)
+val db = AppDatabase_Database.create(DBPlatformSettings()) {
+    copy(name = "App")
 }
 ```
 
-This simple example adds a column to the `User` table named "email". In code, just add the column to the `Model` class and this migration runs only on existing dbs. To read more on migrations and more examples of different kinds, visit the [page](migrations.md).
+`DBSettings` fields you typically copy:
 
-## Advanced Database features
+| Field | Default | Purpose |
+| --- | --- | --- |
+| `name` | database class name | File stem (must match `[A-Za-z_$][A-Za-z0-9_$]*`) |
+| `inMemory` | `false` | Tests / short-lived DBs |
+| `databaseExtensionName` | `".db"` | File suffix |
+| `journalMode` | `Automatic` | WAL on capable devices |
+| `openHelperCreator` | platform SQLite | SQLCipher or a fake in tests |
+| `databaseCallback` | `null` | Open / upgrade hooks |
+| `throwExceptionsOnCreate` | `true` | Fail fast on create errors |
 
-This section goes through features that are for more advanced use of a database, and may be very useful.
-
-### Prepackaged Databases
-
-To include a prepackaged database for your application, simply include the ".db" file in `src/main/assets/{databaseName}.db`. On creation of the database, we copy over the file into the application for usage. Since this is prepackaged within the APK, we cannot delete it once it's copied over, which can bulk up your raw APK size. _Note_ this is only copied over on initial creation of the database for the app.
-
-### Global Conflict Handling
-
-In DBFlow when an INSERT or UPDATE are performed, by default, we use `NONE`. If you wish to configure this globally, you can define it to apply for all tables from a given database:
-
-```kotlin
-@Database(version = 2, insertConflict = ConflictAction.IGNORE, updateConflict = ConflictAction.REPLACE)
-abstract class AppDatabase : DBFlowDatabase()
-```
-
-These follow the SQLite standard [here](https://www.sqlite.org/conflict.html).
-
-### Integrity Checking
-
-Databases can get corrupted or in an invalid state at some point. If you specify `consistencyChecksEnabled=true` It runs a `PRAGMA quick_check(1)` whenever the database is opened. If it fails, you should provide a backup database that it will copy over. If not, **we wipe the internal database**. Note that during this time in case of failure we create a **third copy of the database** in case transfer fails.
-
-### Custom FlowSQLiteOpenHelper
-
-For variety of reasons, you may want to provide your own `FlowSQLiteOpenHelper` to manage database interactions. To do so, you must implement `OpenHelper`, but for convenience you should extend `AndroidSQLiteOpenHelper` \(for Android databases\), or `SQLCipherOpenHelper` for SQLCipher. Read more [here](../advanced-usage/sqlciphersupport.md)
+The first access to `writableDatabase` opens the file and runs migrations.
 
 ```kotlin
-class CustomFlowSQliteOpenHelper(context: Contect, databaseDefinition: DatabaseDefinition, listener: DatabaseHelperListener) : FlowSQLiteOpenHelper(context, databaseDefinition, listener)
-```
-
-Then in your `DatabaseConfig`:
-
-```kotlin
-FlowManager.init(context) {
-  database<CipherDatabase> {
-    openHelper(::CustomFlowSQliteOpenHelper)
-  }
+db.use {
+    writableDatabase // force open
 }
 ```
 
-### Database Configuration DSL
+`close()` stops the dispatcher and closes the connection. `destroy()` also deletes the file.
 
-As of 5.0.0-alpha2, you can configure a database via a DSL rather than use the `FlowConfig.Builder` , `DatabaseConfig.Builder`, and `TableConfig.Builder`. This allows more readable, expressive syntax.
-
-**Initializing DBFlow:**
+## Transactions
 
 ```kotlin
-FlowManager.init(context) { 
-  // this is FlowConfig.Builder
-  database<AppDatabase> {
-    // this is DatabaseConfig.Builder
-    table<MyTable> {
-      // this is TableConfig.Builder
-    }
-  }
-  // other module dbs
-  databaseHolder<MyGeneratedDatabaseHolder>()
+db.writableTransaction {
+    userAdapter.save(user)
+}
+
+db.readableTransaction {
+    userAdapter.select().list()
 }
 ```
 
-By utilizing Kotlin DSL, this code is more straightforward, concise, and readable. 
+Both hop to `transactionCoroutineDispatcher` (single-thread executor by default). Nested work on the same database stays on that dispatcher.
 
+Callbacks (async `Transaction` success / error) use `callbackDispatcher` (`Dispatchers.Main` on Android and JVM).
+
+## Platforms
+
+| Target | Open helper | Notes |
+| --- | --- | --- |
+| Android | `AndroidSQLiteOpenHelper` | `create(context)` needs `Context` |
+| JVM | JDBC + sqlite-jdbc | `create { }` |
+| Native | sqliter | Link `-lsqlite3` |
+
+## Multiple databases
+
+Declare a second `@Database` and create it the same way. Do not share `@Table` types across databases.

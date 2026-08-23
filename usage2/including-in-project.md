@@ -1,77 +1,152 @@
-# Including In Project
+# Including in a project
 
-DBFlow has a number of artifacts that you can include in the project.
+DBFlow is Kotlin Multiplatform. Apply the Gradle plugin, put `lib` on `commonMain`, and compile generated sources.
 
-**Kotlin:** Built using the language, the library is super-concise, null-safe and efficient.
+Requires **Kotlin 2.4+** and **Gradle 9+**. Version: **5.0.0-alpha2**.
 
-**Annotation Processor**: Generates the necessary code that you don't need to write.
+## Version catalog
 
-**Core:** Contains the main annotations and misc classes that are shared across all of DBFlow.
+```toml
+[versions]
+dbflow = "5.0.0-alpha2"
 
-**DBFlow:** The main library artifact used in conjunction with the previous two artifacts.
+[libraries]
+dbflow-lib = { module = "com.dbflow5:lib", version.ref = "dbflow" }
+dbflow-compiler = { module = "com.dbflow5:compiler", version.ref = "dbflow" }
+dbflow-sqlcipher = { module = "com.dbflow5:sqlcipher", version.ref = "dbflow" }
+dbflow-livedata = { module = "com.dbflow5:livedata", version.ref = "dbflow" }
+dbflow-paging = { module = "com.dbflow5:paging", version.ref = "dbflow" }
+dbflow-reactive-streams = { module = "com.dbflow5:reactive-streams", version.ref = "dbflow" }
 
-**Coroutines:** Adds coroutine support for queries.
+[plugins]
+dbflow = { id = "com.dbflow5", version.ref = "dbflow" }
+```
 
-**RX Java:** Enable applications to be reactive by listening to DB changes and ensuring your subscribers are up-to-date.
+## Settings
 
-**Paging:** Android architecture component paging library support for queries via `QueryDataSource`.
+Use `pluginManagement` and `dependencyResolutionManagement`. Do not declare repositories in `allprojects`.
 
-**LiveData:** Android architecture LiveData support for queries on table changes.
+```kotlin
+// settings.gradle.kts
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+        maven("https://jitpack.io")
+    }
+}
 
-**SQLCipher:** Easy database encryption support in this library.
-
-## Add the jitpack.io repository
-
-This repo is used to publish the artifacts. It also enables [dynamic builds](https://jitpack.io/docs/), allowing you to specify specific branches or commit hashes of the project to include outside of normal releases.
-
-```groovy
-allProjects {
-  repositories {
-    google()
-    // required to find the project's artifacts
-    // place last
-    maven { url "https://www.jitpack.io" }
-  }
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven("https://jitpack.io")
+    }
 }
 ```
 
-Add artifacts to your project:
+JitPack module coordinates use `com.github.agrosner.DBFlow` if `com.dbflow5` is not resolved from your repository.
 
-```groovy
-  apply plugin: 'kotlin-kapt' // only required for kotlin consumers.
+## Module build
 
-  def dbflow_version = "5.0.0-alpha2"
-  // or 10-digit short-hash of a specific commit. (Useful for bugs fixed in develop, but not in a release yet)
+```kotlin
+plugins {
+    kotlin("multiplatform")
+    alias(libs.plugins.dbflow)
+}
 
-  dependencies {
+kotlin {
+    android { /* … */ }
+    jvm()
+    iosSimulatorArm64()
+    macosArm64()
 
-    // Use if Kotlin user.
-    kapt "com.github.agrosner.dbflow:processor:${dbflow_version}"
+    sourceSets {
+        commonMain {
+            kotlin.srcDir(layout.buildDirectory.dir("generated/dbflow/commonMain/kotlin"))
+            dependencies {
+                implementation(libs.dbflow.lib)
+            }
+        }
+    }
+}
 
-    // Annotation Processor
-    // if only using Java, use this. If using Kotlin do NOT use this.
-    annotationProcessor "com.github.agrosner.dbflow:processor:${dbflow_version}"
-
-    // core set of libraries
-    implementation "com.github.agrosner.dbflow:core:${dbflow_version}"
-    implementation "com.github.agrosner.dbflow:lib:${dbflow_version}"
-
-    // sql-cipher database encryption (optional)
-    implementation "com.github.agrosner.dbflow:sqlcipher:${dbflow_version}"
-    implementation "net.zetetic:android-database-sqlcipher:${sqlcipher_version}@aar"
-
-    // RXJava 2 support
-    implementation "com.github.agrosner.dbflow:reactive-streams:${dbflow_version}"
-
-    // Kotlin Coroutines
-    implementation "com.github.agrosner.dbflow:coroutines:${dbflow_version}"
-
-    // Android Architecture Components Paging Library Support
-    implementation "com.github.agrosner.dbflow:paging:${dbflow_version}"
-
-    // Android Architecture Components LiveData Library Support
-    implementation "com.github.agrosner.dbflow:livedata:${dbflow_version}"
-
-  }
+configurations.configureEach {
+    if (name.startsWith("kotlinCompilerPluginClasspath")) {
+        dependencies.add(libs.dbflow.compiler.get())
+    }
+}
 ```
 
+Native targets need SQLite at link time:
+
+```kotlin
+targets.withType<KotlinNativeTarget>().configureEach {
+    binaries.all { linkerOpts("-lsqlite3") }
+}
+```
+
+### Generated sources
+
+The plugin writes Kotlin to `build/generated/dbflow/commonMain/kotlin` at the **end** of a compilation. That compilation cannot see the new types.
+
+Practical setup:
+
+1. Put `@Table` / `@Database` in `commonMain`.
+2. Consume `*_Table` / `*_Database` in a **later** compilation — `commonTest`, another module, or a compile that `dependsOn` metadata generation.
+
+The test module in this repo generates during `compileKotlinMetadata`, then platform compiles depend on that task and add the generated directory to `commonTest`.
+
+Do not use KSP or KAPT for DBFlow. Those processors are leftover and not the consumer path.
+
+## Artifacts
+
+| Coordinate | Use |
+| --- | --- |
+| `com.dbflow5:lib` | Runtime (includes `core` and coroutines) |
+| `com.dbflow5:compiler` | Compiler plugin JAR |
+| plugin `com.dbflow5` | Wires the plugin and `generatedDir` |
+| `com.dbflow5:sqlcipher` | Encrypted Android helper |
+| `com.dbflow5:livedata` | `toLiveData()` |
+| `com.dbflow5:paging` | `toDataSourceFactory()` |
+| `com.dbflow5:reactive-streams` | RxJava 3 |
+
+`org.gradle.isolated-projects` is currently incompatible with the plugin.
+
+## From this repository
+
+Until the plugin is published, include the Gradle plugin and compiler as composites:
+
+```kotlin
+// settings.gradle.kts
+pluginManagement {
+    includeBuild("../DBFlow/compiler-gradle")
+}
+
+includeBuild("../DBFlow") {
+    dependencySubstitution {
+        substitute(module("com.dbflow5:lib")).using(project(":lib"))
+        substitute(module("com.dbflow5:compiler")).using(project(":compiler"))
+    }
+}
+```
+
+```kotlin
+plugins {
+    id("com.dbflow5")
+}
+
+configurations.configureEach {
+    if (name.startsWith("kotlinCompilerPluginClasspath")) {
+        dependencies.add(project.dependencies.create("com.dbflow5:compiler:5.0.0-alpha2"))
+    }
+}
+```
+
+Or add `project(":compiler")` when DBFlow is in the same build.
+
+## Next
+
+[Getting started](gettingstarted.md)

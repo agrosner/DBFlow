@@ -1,198 +1,77 @@
-# Storing Data
+# Writes
 
-DBFlow provide a few mechanisms by which we store data to the database. The difference of options should not provide confusion but rather allow flexibility in what you decide is the best way to store information.
-
-DB classifies two different kind of DB transactions:
-
-1. Synchronous
-2. Asynchronous
-
-## Synchronous Storage
-
-Saving data synchronous on the main thread should be avoided. We can save data synchronously using a synchronous transaction:
+Use the generated `ModelAdapter` inside `writableTransaction`. Operations are `suspend`.
 
 ```kotlin
-database<AppDatabase>().executeTransaction { db -> 
-  modelAdapter.save(model, db)
-  modelAdapter.insert(model, db)
-  modelAdapter.update(model, db)
+db.writableTransaction {
+    val saved = userAdapter.save(User(name = "Ada"))
+    userAdapter.insert(User(name = "Grace"))
+    userAdapter.update(saved.copy(name = "Ada Lovelace"))
+    userAdapter.delete(saved)
 }
 ```
 
-_Avoid_ saving large amounts of models outside of a transaction:
+| Method | SQL-ish behavior |
+| --- | --- |
+| `save` / `saveAll` | `INSERT OR REPLACE` |
+| `insert` / `insertAll` | `INSERT` |
+| `update` / `updateAll` | `UPDATE` by primary key |
+| `delete` / `deleteAll` | `DELETE` by primary key |
+
+Autoincrement ids are filled in on the returned model.
+
+Batch:
 
 ```kotlin
-// AVOID
-models.forEach { it.save(db) }
-
-// DO
-database<AppDatabase>().executeTransaction { db -> 
-  modelAdapter<MyModel>().saveAll(models, db)
+db.writableTransaction {
+    userAdapter.saveAll(listOf(User(name = "A"), User(name = "B")))
 }
 ```
 
-Doing operations on the main thread can block it if you read and write to the DB on a different thread while accessing DB on the main. Instead, use Async Transactions.
-
-## Async Transactions
-
-Transactions are ACID in SQLite, meaning they either occur completely or not at all. Using transactions significantly speed up the time it takes to store. So recommendation you should use transactions whenever you can.
-
-Async is the preferred method. Transactions, using the `DefaultTransactionManager`, occur on one thread per-database \(to prevent flooding from other DB in your app\) and receive callbacks on the UI. You can override this behavior and roll your own or hook into an existing system, read [here](storingdata.md#custom-transactionmanager).
-
-Also to use the legacy, priority-based system, read [here](storingdata.md#priority-queue).
-
-A basic transaction:
+## Query writes
 
 ```kotlin
- val transaction = database<AppDatabase>().beginTransactionAsync { db ->
-    // handle to DB
-    // return a result, or execute a method that returns a result
-  }.build()
-transaction.execute(
-   ready = { transaction -> } // perform any setup.
-   error = { transaction, error -> // handle any exceptions here },
-   completion = { transaction -> // called when transaction completes success or fail }
-  ) { transaction, result ->
-  // utilize the result returned
+db.writableTransaction {
+    (userAdapter.update()
+        set (User_Table.name eq "Grace")
+        where (User_Table.name eq "Ada")).execute()
 
-transaction.cancel();
- // attempt to cancel before its run. If it's already ran, this call has no effect.
-```
+    (userAdapter.delete() where (User_Table.name eq "Grace")).execute()
 
-The `Success` callback runs post-transaction on the UI thread. The `Error` callback is called on the UI thread if and only if it is specified and an exception occurs, otherwise it is thrown in the `Transaction` as a `RuntimeException`. 
-
-**Note**: all exceptions are caught when specifying the callback. Ensure you handle all errors, otherwise you might miss some problems.
-
-### ProcessModelTransaction
-
-`ProcessModelTransaction` allows for more flexibility and for you to easily operate on a set of `Model` in a `Transaction` easily. It holds a list of `Model` by which you provide the modification method in the `Builder`. You can listen for when each are processed inside a normal `Transaction`.
-
-It is a convenient way to operate on them:
-
-```kotlin
-database.beginTransactionAsync(items.processTransaction { model, db ->
-      // call some operation on model here
-      model.save(db)
-      model.insert(db) // or
-      model.delete(db) // or
-    }
-    .processListener { current, total, modifiedModel ->
-        // for every model looped through and completes
-        modelProcessedCount.incrementAndGet()
-     }
-    .build())
-    .execute()
-```
-
-You can listen to when operations complete for each model via the `OnModelProcessListener`. These callbacks occur on the UI thread. If you wish to run them on same thread \(great for tests\), set `runProcessListenerOnSameThread()` to `true`.
-
-### FastStoreModelTransaction
-
-The `FastStoreModelTransaction` is the quickest, lightest way to store a `List` of `Model` into the database through a `Transaction`. Under the hood it just calls `modelAdapter.saveAll()` or \(insertAll, updateAll, deleteAll\) It comes with some restrictions when compared to `ProcessModelTransaction`: 
-
-1. All `Model` must be from same Table/Model Class. 
-
-2. No progress listening 
-
-3. Can only `save`, `insert`, or `update` the whole list entirely.
-
-```kotlin
-database.beginTransactionAsync(list.fastSave().build())
-  .execute()
-database.beginTransactionAsync(list.fastInsert().build())
-  .execute()
-database.beginTransactionAsync(list.fastUpdate().build())
-  .execute()
-```
-
-What it provides: 
-
-1. Reuses `DatabaseStatement`, and other classes where possible. 
-
-2. Opens and closes own `DatabaseStatement` per total execution. 
-
-3. Significant speed bump over `ProcessModelTransaction` at the expense of flexibility.
-
-### Custom TransactionManager
-
-If you prefer to roll your own thread-management system or have an existing system you can override the default system included.
-
-To begin you must implement a `ITransactionQueue`:
-
-```kotlin
-class CustomQueue : ITransactionQueue {
-  override fun add(transaction: Transaction<out Any?>) {
-
-  }
-
-  override fun cancel(transaction: Transaction<out Any?>) {
-
-  }
-
-  override fun startIfNotAlive() {
-  }
-
-  override fun cancel(name: String) {
-
-  }
-
-  override fun quit() {
-
-  }
+    userAdapter.insert(
+        User_Table.name.eq("Lin"),
+    ).execute()
 }
 ```
 
-You must provide ways to `add()`, `cancel(Transaction)`, and `startIfNotAlive()`. The other two methods are optional, but recommended.
-
-`startIfNotAlive()` in the `DefaultTransactionQueue` will start itself \(since it's a thread\).
-
-Next you can override the `BaseTransactionManager` \(not required, see later\):
+## Scopes
 
 ```kotlin
-class CustomTransactionManager(databaseDefinition: DBFlowDatabase)
-    : BaseTransactionManager(CustomTransactionQueue(), databaseDefinition)
+db.writableTransaction { /* reads + writes */ }
+db.readableTransaction { /* reads only */ }
 ```
 
-To register it with DBFlow, in your `FlowConfig`, you must:
+Both run on the database transaction dispatcher. Prefer a transaction over many ad-hoc writes.
+
+## Async callbacks
+
+For Android callbacks instead of `suspend`:
 
 ```kotlin
-FlowManager.init(FlowConfig.Builder(DemoApp.context)
-  .database(DatabaseConfig(
-    databaseClass = AppDatabase::class.java,
-    transactionManagerCreator = { databaseDefinition ->
-        CustomTransactionManager(databaseDefinition)
-    })
-  .build())
-.build())
+db.beginTransactionAsync {
+    userAdapter.save(User(name = "Ada"))
+}.execute(
+    success = { _, user -> },
+    error = { _, throwable -> },
+)
 ```
 
-### Priority Queue
+`enqueue` queues without blocking. `cancel()` is a no-op after the work has started.
 
-In versions pre-3.0, DBFlow utilized a `PriorityBlockingQueue` to manage the asynchronous dispatch of `Transaction`. As of 3.0, it has switched to simply a FIFO queue. To keep the legacy way, a `PriorityTransactionQueue` was created.
-
-As seen in [Custom Transaction Managers](storingdata.md#custom-transactionmanager), we provide a custom instance of the `DefaultTransactionManager` with the `PriorityTransactionQueue` specified:
+## Exists
 
 ```kotlin
-FlowManager.init(FlowConfig.builder(context)
-  .database(DatabaseConfig.Builder(AppDatabase::class.java)
-          .transactionManagerCreator { db ->
-              // this will be called once database modules are loaded and created.
-              DefaultTransactionManager(
-                      PriorityTransactionQueue("DBFlow Priority Queue"),
-                      db)
-          }
-          .build())
-  .build())
+db.writableTransaction {
+    userAdapter.exists(user)
+}
 ```
-
-What this does is for the specified database \(in this case `AppDatabase`\), now require each `ITransaction` specified for the database should wrap itself around the `PriorityTransactionWrapper`. Otherwise an the `PriorityTransactionQueue` wraps the existing `Transaction` in a `PriorityTransactionWrapper` with normal priority.
-
-To specify a priority, wrap your original `ITransaction` with a `PriorityTransactionWrapper`:
-
-```kotlin
-database<AppDatabase>()
-    .beginTransactionAsync(myTransaction
-      .withPriority(PriorityTransactionWrapper.PRIORITY_HIGH))
-    .execute()
-```
-

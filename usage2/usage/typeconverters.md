@@ -1,67 +1,29 @@
-# TypeConverters
+# Type converters
 
-When building out `Model` classes, you may wish to provide a different type of `@Column` that from the standard supported column types. To recap the standard column types include: 
-
-1. `String`, `char`, `Character` 
-
-2. All numbers types \(primitive + boxed\) 
-
-3. `byte[]`/`Byte` 
-
-4. `Blob` \(DBFlow's version\) 
-
-5. `Date`/`java.sql.Date` 
-
-6. Booleans 
-
-7. `Model` as `@ForeignKey`  or `@ColumnMap`
-
-8. `Calendar` 
-
-9. `BigDecimal` 
-
-10. `UUID`
-
-`TypeConverter` do _not_ support: 
-
-1. Any Parameterized fields. 
-
-2. `List<T>`, `Map<T>`, etc. Best way to fix this is to create a separate table [relationship](relationships.md) 
-
-3. Conversion from one type-converter to another \(i.e `JSONObject` to `Date`\). The first parameter of `TypeConverter` is the value of the type as if it was a primitive/boxed type. 
-
-4. Conversion from custom type to `Model`, or `Model` to a supported type. 
-
-5. The custom class _must_ map to a non-complex field such as `String`, numbers, `char`/`Character` or `Blob`
-
-## Define a TypeConverter
-
-Defining a `TypeConverter` is quick and easy.
-
-This example creates a `TypeConverter` for a field that is `JSONObject` and converts it to a `String` representation:
+Map a field that is not a SQLite type to one that is (`String`, number, `Blob`, …).
 
 ```kotlin
-@com.dbflow5.annotation.TypeConverter
-class JSONConverter : TypeConverter<String, JSONObject>() {
+data class Money(val cents: Long)
 
-    override fun getDBValue(model: JSONObject?): String? = model?.toString()
-
-    override fun getModelValue(data: String?): JSONObject? = 
-        try {
-            JSONObject(data)
-        } catch (JSONException e) {
-          // you should consider logging or throwing exception.
-          null
-        }
-    }
+@TypeConverter
+class MoneyConverter : com.dbflow5.converter.TypeConverter<Long, Money> {
+    override fun getDBValue(model: Money): Long = model.cents
+    override fun getModelValue(data: Long): Money = Money(data)
 }
+
+@Table
+data class Account(
+    @PrimaryKey val id: Int = 0,
+    val balance: Money,
+)
 ```
 
-Once this is defined, by using the annotation `@TypeConverter`, it is registered automatically across all databases.
+The annotation registers the converter globally. Both methods are non-null; handle nullability in the model property instead.
 
-There are cases where you wish to provide multiple `TypeConverter` for same kind of field \(i.e. `Date` with different date formats stored in a DB\). You can override a field's `TypeConverter` locally at the `@Column` level.
+Do not convert:
 
-## TypeConverter for specific `@Column`
+- Parameterized types (`List<T>`)
+- One custom type into another custom type (chain two converters if you must)
+- A `@Table` type (use `@ForeignKey`)
 
-In DBFlow, specifying a `TypeConverter` for a `@Column` is as easy as `@Column(typeConverter = JSONConverter::class)`. What it will do is create the converter once for use only when that column is used.
-
+`allowedSubtypes` on `@TypeConverter` registers the same converter for subclasses.

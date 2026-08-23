@@ -1,86 +1,31 @@
-# Usage Docs
+# Usage
 
-DBFlow is a Kotlin SQLite library for Android that makes it ridiculously easy to interact and use databases. Built with Annotation Processing, code use within a DB is fast, efficient, and type-safe. It removes the tedious \(and tough-to-maintain\) database interaction code, while providing a very SQLite-like query syntax.
+DBFlow maps Kotlin types to SQLite. You declare a `@Database` and `@Table`s. The compiler plugin generates:
 
-Creating a database is as easy as a few lines of code:
+- `{Name}_Database` — concrete database + `DBCreator`
+- `{Name}_Table` — column properties for queries
+- `GeneratedDatabaseHolderFactory` — adapter registry
+
+Work through generated **adapters** on the database instance. Reads and writes are **suspend** and run on the database’s transaction dispatcher.
 
 ```kotlin
-@Database(version = 1)
-abstract class AppDatabase: DBFlowDatabase
-```
-
-The `@Database` annotation generates a `DatabaseDefinition` which now references your SQLite Database on disk in the file named "AppDatabase.db". You can reference it in code as:
-
-```java
-val db = database<AppDatabase>();
-
-// or
-database<AppDatabase> { db ->
-
+db.writableTransaction {
+    userAdapter.save(User(name = "Ada"))
+    val ada = (userAdapter.select() where (User_Table.name eq "Ada")).single()
 }
 ```
 
-To ensure generated code in DBFlow is found by the library, initialize the library in your `Application` class:
+## Concepts
 
-```kotlin
-class MyApp : Application {
+| Topic | Notes |
+| --- | --- |
+| [Install](including-in-project.md) | Gradle plugin, version catalog, generated sources |
+| [Databases](usage/databases.md) | Open, settings, platforms |
+| [Models](usage/models.md) | Tables, keys, columns |
+| [Writes](usage/storingdata.md) | `save` / `insert` / `update` / `delete` |
+| [Queries](usage/retrieval.md) | `select()`, `list()`, `single()` |
+| [Relationships](usage/relationships.md) | Foreign keys, one-to-many, many-to-many |
+| [Migrations](usage/migrations.md) | Versioned schema changes |
+| [Observability](usage/observability.md) | `Flow` on table changes |
 
-  override fun onCreate() {
-    super.onCreate()
-    FlowManager.init(this)
-  }
-}
-```
-
-By default, DBFlow generates the `GeneratedDatabaseHolder` class, which is instantiated once by reflection, only once in memory.
-
-Creating a table is also very simple:
-
-```kotlin
-@Table(database = AppDatabase::class, name = "User2")
-class User(@PrimaryKey var id: Int = 0,
-           var firstName: String? = null,
-           var lastName: String? = null,
-           var email: String? = null)
-```
-
-Then to create, read, update, and delete the model:
-
-```kotlin
-// always utilize DB transactions when possible.
-databaseForTable<User>().executeTransaction { db ->
-  val user = User(id = UUID.randomUUID(),
-                name = "Andrew Grosner",
-                age = 27)
-  user.insert(db)
-
-  user.name = "Not Andrew Grosner";
-  user.update(db)
-
-  user.delete(db)
-}
-
-// find adult users synchronously
-val users = (select from User::class
-               where (User_Table.age greaterThan 18))
-            .queryList(database<AppDatabase>())
-
-// or asynchronous retrieval (preferred)
-(select from User::class where User_Table.age.greaterThan(18))
- .async(database<AppDatabase>()) { queryList(it) }
- .execute(
-  success = { transaction, result ->
-   // use result here
-  },
-  error = { transaction, error ->
-  // handle any errors
-  }
- )
-
-// use coroutines! or RX3 or LiveData
-async {
-   val result = (delete<SimpleModel>() where SimpleModel_Table.name.eq("5"))
-    .awaitTransact(db) { executeUpdateDelete(database) }
-}
-```
-
+Android-only extras: [LiveData, Paging, RxJava](android.md), [SQLCipher](advanced-usage/sqlciphersupport.md).
